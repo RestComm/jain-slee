@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the provisional XML DTD for the JAIN SLEE 1.0 resource adaptor
+component jar file deployment descriptor.  All JAIN SLEE 1.0 resource adaptor
+component jar file deployment descriptors must include a DOCTYPE of the
+following form:
+
+  <!DOCTYPE resource-adaptor-jar PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.0//EN"
+        "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_0.dtd">
+-->
+
+
+<!--
+The resource-adaptor-jar element is the root element of the resource adaptor
+jar deployment descriptor.  It contains an optional description about the
+resource adaptor jar file and one or more resource adaptor definitions.
+-->
+<!ELEMENT resource-adaptor-jar (description?, resource-adaptor+)>
+
+<!--
+The resource-adaptor element defines a resource adaptor component.  It
+contains an optional description about the resource adaptor being defined, the
+name, vendor, and version of the resource adaptor, a mandatory reference to
+the resource adaptor type implemented by the resource adaptor, and optional
+information about the resource adaptor classes and interfaces. 
+
+Used in: in resource-adaptor-jar
+-->
+<!ELEMENT resource-adaptor (description?, resource-adaptor-name,
+          resource-adaptor-vendor, resource-adaptor-version,
+          resource-adaptor-type-ref, resource-adaptor-classes?)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: resource-adaptor-jar, resource-adaptor, resource-adaptor-type-ref
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!--
+The resource-adaptor-name element contains the name of the resource adaptor
+component.
+
+Used in: resource-adaptor
+
+Example:
+    <resource-adaptor-name>MyJccImplementation</resource-adaptor-name>
+-->
+<!ELEMENT resource-adaptor-name (#PCDATA)>
+
+<!--
+The resource-adaptor-vendor element contains the vendor of the resource
+adaptor component.
+
+Used in: resource-adaptor
+
+Example:
+    <resource-adaptor-vendor>MyCompany, Inc.</resource-adaptor-vendor>
+-->
+<!ELEMENT resource-adaptor-vendor (#PCDATA)>
+
+<!--
+The resource-adaptor-version element contains the version of the resource
+adaptor component.  The version number typically should have the general form
+"major-version.minor-version".
+
+Used in: resource-adaptor
+
+Example:
+    <resource-adaptor-version>1.1</resource-adaptor-version>
+-->
+<!ELEMENT resource-adaptor-version (#PCDATA)>
+
+<!--
+The resource-adaptor-type-ref element declares the resource adaptor type the
+resource adaptor implements.  It contains an optional description and the
+name, vendor, and version of the resource adaptor type.
+
+Used in: resource-adaptor
+-->
+<!ELEMENT resource-adaptor-type-ref (description?, resource-adaptor-type-name,
+          resource-adaptor-type-vendor, resource-adaptor-type-version)>
+
+<!--
+The resource-adaptor-type-name element contains the name of the resource
+adaptor type component implemented by the resource adaptor.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-name>JCC</resource-adaptor-type-name>
+-->
+<!ELEMENT resource-adaptor-type-name (#PCDATA)>
+
+<!--
+The resource-adaptor-type-vendor element contains the vendor of the resource
+adaptor type component implemented by the resource adaptor.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-vendor>
+        javax.csapi.cc.jcc
+    </resource-adaptor-type-vendor>
+-->
+<!ELEMENT resource-adaptor-type-vendor (#PCDATA)>
+
+<!--
+The resource-adaptor-type-version element contains the version of the resource
+adaptor type component implemented by the resource adaptor.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-version>1.1</resource-adaptor-type-version>
+-->
+<!ELEMENT resource-adaptor-type-version (#PCDATA)>
+
+<!--
+The resource-adaptor-classes element contents is undefined in the
+specification.  A SLEE implementation may specify the contents required or may
+use the ID mechanism to allow additional information to be specified in a
+seperate deployment descriptor.
+
+Used in: resource-adaptor
+-->
+<!ELEMENT resource-adaptor-classes (#PCDATA)>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors. 
+-->
+<!ATTLIST resource-adaptor-jar id ID #IMPLIED>
+<!ATTLIST resource-adaptor id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST resource-adaptor-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-vendor id ID #IMPLIED>
+<!ATTLIST resource-adaptor-version id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-ref id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-vendor id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-version id ID #IMPLIED>
+<!ATTLIST resource-adaptor-classes id ID #IMPLIED>
+
+
