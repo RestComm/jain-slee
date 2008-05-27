@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+  <ra-entity resource-adaptor-id="HttpClientResourceAdaptor#org.mobicents#1.0" entity-name="HttpClientResourceAdaptor">
+    <properties file="" />
+    <ra-link name="HttpClientResourceAdaptor" />
+  </ra-entity>
+</deploy-config>

@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<artifactId>call-controller2-example-parent</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>call-controller2-voicemail-sbb</artifactId>
+	
+	<dependencies>
+		<dependency>
+			<artifactId>sip-services-location-sbb</artifactId>
+			<groupId>org.mobicents.examples</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>call-controller2-profile</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.resources</groupId>
+			<artifactId>sip-ra</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.resources</groupId>
+			<artifactId>media-ra</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+	</dependencies>
+	
+</project>

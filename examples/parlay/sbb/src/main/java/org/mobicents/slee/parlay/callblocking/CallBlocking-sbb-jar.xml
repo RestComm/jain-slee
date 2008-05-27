@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+
+<sbb-jar>
+	<sbb>
+		<description>Parlay Call Blocking SBB for Mobicents Parlay RA</description>
+		<sbb-name>Parlay Call Blocking Sbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+
+		<profile-spec-ref>
+			<profile-spec-name>CallBlockingProfile</profile-spec-name>
+			<profile-spec-vendor>org.mobicents</profile-spec-vendor>
+			<profile-spec-version>1.0</profile-spec-version>
+			<profile-spec-alias>CBP</profile-spec-alias>
+		</profile-spec-ref>
+
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>org.mobicents.slee.parlay.callblocking.CallBlockingSbb</sbb-abstract-class-name>
+				<get-profile-cmp-method>
+					<profile-spec-alias-ref>CBP</profile-spec-alias-ref>
+					<get-profile-cmp-method-name>getProfile</get-profile-cmp-method-name>
+				</get-profile-cmp-method>
+			</sbb-abstract-class>
+		</sbb-classes>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ReportNotificationEvent</event-name>
+			<event-type-ref>
+				<event-type-name>org.mobicents.csapi.jr.slee.cc.mpccs.ReportNotificationEvent</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>4.2</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ServiceStartedEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.slee.serviceactivity.ServiceStartedEvent</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+        
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>parlay</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>4.2</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+
+			<activity-context-interface-factory-name>
+				slee/resources/ParlayRA/parlayacif
+			</activity-context-interface-factory-name>
+	
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/parlay/4.2/resourceAdapterSbbInterface
+				</resource-adaptor-object-name>            
+				<resource-adaptor-entity-link>
+					ParlayRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+	</sbb>
+</sbb-jar>
+

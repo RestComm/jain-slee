@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN" "http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
+<event-jar>	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.EndIncomingHttpServletRequest</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.HEAD</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>	
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.GET</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.POST</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.PUT</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>			
+
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.DELETE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.OPTIONS</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>	
+	
+	<event-definition>
+		<event-type-name>net.java.slee.resource.http.events.incoming.TRACE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.slee.resource.http.events.HttpServletRequestEvent</event-class-name>
+	</event-definition>
+</event-jar>

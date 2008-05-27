@@ -1,0 +1,296 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-jainslee-server</artifactId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+	
+	<artifactId>mobicents-core-sar</artifactId>
+	<groupId>org.mobicents.core</groupId>
+	<packaging>jboss-sar</packaging>
+	<name>Mobicents :: Core  :: mobicents-core-sar</name>
+	
+	<properties>
+		<mobicents.version>${pom.version}</mobicents.version>
+		<cachemode>local</cachemode>
+		<jnpPort>1099</jnpPort>
+		<debug>normal</debug>
+		<jboss.bin.dir>${jboss.home}/bin</jboss.bin.dir>
+		<jboss.server.dir>${jboss.home}/server/</jboss.server.dir>
+		<jboss.conf.dir>${jboss.server.dir}/${node}/conf</jboss.conf.dir>
+		<jboss.home.deploy>${jboss.server.dir}/${node}/deploy</jboss.home.deploy>
+		<jboss.mobicents.deploy.dir>${jboss.server.dir}/${node}/deploy-mobicents</jboss.mobicents.deploy.dir>
+		<jboss.tmp.deploy.dir>${jboss.home.deploy}/../tmp/deploy</jboss.tmp.deploy.dir>
+		<jboss.deploy>${jboss.server.dir}/${node}</jboss.deploy>
+		<jboss.licenses.dir>${jboss.home}/docs/licenses</jboss.licenses.dir>
+		<jboss.readme.dir>${jboss.server.dir}/${node}</jboss.readme.dir>
+		<mobicents.sar>${jboss.server.dir}/${node}/deploy/mobicents.sar</mobicents.sar>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.core</groupId>
+			<artifactId>mobicents-core-jar</artifactId>
+			<version>${pom.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.tools</groupId>
+			<artifactId>mobicents-tools-anttasks</artifactId>
+			<version>${pom.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>jgroups</groupId>
+			<artifactId>jgroups</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<!-- jslee -->
+		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-minimal</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-ra-common</artifactId>
+			<scope>compile</scope>
+		</dependency>
+					
+		<!-- commons -->
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-collections</groupId>
+					<artifactId>commons-collections</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xerces</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-jxpath</groupId>
+			<artifactId>commons-jxpath</artifactId>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>jdom</groupId>
+					<artifactId>jdom</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ant</groupId>
+					<artifactId>ant-optional</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xerces</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- >dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>provided</scope>
+		</dependency-->
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>xml</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>jboss-treecache*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>dtd</directory>
+				<targetPath>dtd</targetPath>
+				<includes>
+					<include>*.dtd</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>xml/slee</directory>
+				<targetPath>xml</targetPath>
+				<includes>
+					<include>*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>xml/META-INF</directory>
+				<targetPath>META-INF</targetPath>
+				<includes>
+					<include>log4j.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jboss-packaging-maven-plugin</artifactId>
+				<version>2.0-beta-1</version>
+				<extensions>true</extensions>
+				<configuration>
+					<deploymentDescriptorFile> xml/META-INF/jboss-service.xml 
+					</deploymentDescriptorFile>
+					<libDirectory> ${project.build.directory}/mobicents.sar/lib 
+					</libDirectory>
+					<packagingDirectory> ${project.build.directory}/mobicents.sar 
+					</packagingDirectory>
+					<excludes>
+						<exclude>concurrent:concurrent</exclude>
+						<exclude> commons-collections:commons-collections </exclude>
+						<exclude> commons-logging:commons-logging </exclude>
+						<exclude>jboss:jboss</exclude>
+						<exclude>jboss:jboss-common</exclude>
+						<exclude>jboss:jboss-j2se</exclude>
+						<exclude>jboss:jboss-minimal</exclude>
+						<exclude>jboss:jboss-system</exclude>
+						<exclude>jboss:jbossall-client</exclude>
+						<exclude>jboss:jbossall</exclude>
+						<exclude>jboss:jbossha</exclude>
+						<exclude>jboss:jmx-adaptor-plugin</exclude>
+						<exclude>javax.transaction:jta</exclude>
+						<exclude>junit:junit</exclude>
+						<exclude>log4j:log4j</exclude>
+						<exclude>javax.servlet:servlet-api</exclude>
+						<exclude>jdom:jdom</exclude>
+						<exclude>jgroups:jgroups-all</exclude>
+						<exclude>xerces:xerces</exclude>
+						<exclude>xerces:xercesImpl</exclude>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>slide:webdavlib</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-sar-resources</id>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<mkdir dir="${jboss.deploy}/deploy-mobicents/" />
+								<mkdir dir="${jboss.deploy}/deploy-mobicents/scripts" />
+								
+								<echo message="=============== Copy Mobicents.rar ==================" />
+								<copy file="../rar/target/mobicents-core-rar-${parent.version}.rar" tofile="${project.build.directory}/mobicents.sar/mobicents.rar" />
+									
+								<echo message="=============== Copy ejb3-proxy ==================" />
+								<copy file="../ejb3-proxy/target/mobicents-core-ejb3proxy-${parent.version}.jar" tofile="${project.build.directory}/mobicents.sar/SleeConnectionProxy.ejb3" />
+								<copy file="log4-rs/dist/log4j-rs.sar" todir="${jboss.deploy}/deploy" />
+								<copy file="README.txt" todir="${jboss.readme.dir}" />
+								<copy file="bin/SleeCommandInterface.sh" todir="${jboss.bin.dir}" />
+								<copy file="bin/SleeCommandInterface.bat" todir="${jboss.bin.dir}" />
+								<chmod file="${jboss.bin.dir}/SleeCommandInterface.sh" perm="755" />
+								<chmod file="${jboss.bin.dir}/run-tck.sh" perm="755" />
+								<copy file="bin/java.policy" todir="${jboss.bin.dir}" />
+								<copy overwrite="true" file="docs/pictures/mobicents-logo.gif" tofile="${jboss.deploy}/jmx-console.war/images/logo.gif" />
+								<copy todir="${jboss.licenses.dir}">
+									<fileset file="LICENSES/*" />
+								</copy>
+								<copy todir="${jboss.home.deploy}">
+									<fileset dir="target">
+										<include name="mobicents.sar/**" />
+										<exclude name="**/jboss-service.xml" />
+									</fileset>
+								</copy>
+								<copy todir="${jboss.home.deploy}/mobicents.sar/META-INF" flatten="yes">
+									<filterset>
+										<filtersfile file="build/etc/single.properties" />
+									</filterset>
+									<fileset dir="${project.build.directory}/mobicents.sar/META-INF/">
+										<include name="jboss-service.xml" />
+									</fileset>
+								</copy>
+								<copy todir="${jboss.home.deploy}/mobicents.sar/" flatten="yes">
+									<filterset>
+										<filtersfile file="build/etc/single.properties" />
+									</filterset>
+									<fileset dir="xml/rar">
+										<include name="slee-ds.xml" />
+									</fileset>
+								</copy>
+								<echo> Touching
+									${jboss.deploy}/deploy/mobicents.sar/META-INF/jboss-service.xml
+									to cause redeploy </echo>
+								<touch>
+									<fileset file="${jboss.home.deploy}/mobicents.sar/META-INF/jboss-service.xml" />
+								</touch>
+								<echo message="=============== TODO connector-test-ejb.jar ==================" />
+								<echo message="=============== TODO ejbref-test-ejb ==================" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>clean-sar-resources</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete file="mobicents.sar" />
+								<delete failonerror="false" includeemptydirs="true">
+									<fileset dir="${jboss.home.deploy}/mobicents.sar" />
+								</delete>
+								<delete failonerror="false" includeemptydirs="true">
+									<fileset file="${jboss.home}/server/${node}/deploy/connector-test-ejb.jar" />
+									<fileset file="${jboss.home}/server/${node}/deploy/ejbref-test-ejb.jar" />
+								</delete>
+								<delete failonerror="false" includeemptydirs="true">
+									<fileset dir="${jboss.tmp.deploy.dir}">
+										<include name="tmpDUJars**/*.*" />
+										<include name="tmpDUJars*" />
+									</fileset>
+								</delete>
+								<delete failonerror="false" includeemptydirs="true">
+									<fileset dir="${jboss.tmp.deploy.dir}">
+										<include name="slee-ds.xml" />
+										<include name="mobicents.rar" />
+									</fileset>
+									<fileset dir="${jboss.deploy}">
+										<include name="slee-ds.xml" />
+										<include name="mobicents.rar" />
+									</fileset>
+								</delete>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+
+<sbb-jar>
+  <sbb id="ra-bounce-sbb">
+    <description>Bounce SBB for training example6</description>
+
+    <sbb-name>TrainingExample6</sbb-name>
+    <sbb-vendor>org.mobicents</sbb-vendor>
+    <sbb-version>1.0</sbb-version>
+
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 23 -->
+    <sbb-classes>
+      <sbb-abstract-class>
+        <sbb-abstract-class-name>
+          org.mobicents.slee.training.example6.BounceSbb                
+        </sbb-abstract-class-name>
+	<cmp-field>
+		<cmp-field-name>lastTimeAnyMessageReceived</cmp-field-name>
+	</cmp-field>
+      </sbb-abstract-class>	
+	<sbb-usage-parameters-interface>
+		<sbb-usage-parameters-interface-name>org.mobicents.slee.training.example6.BounceSbbUsage</sbb-usage-parameters-interface-name>		
+	</sbb-usage-parameters-interface>
+      
+    </sbb-classes>
+
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 25 -->
+    <event event-direction="Receive" initial-event="True">
+      <event-name>InitEvent</event-name>
+        <event-type-ref>
+          <event-type-name>org.mobicents.slee.resource.lab.message.incoming.INIT</event-type-name>
+          <event-type-vendor>org.mobicents</event-type-vendor>
+          <event-type-version>1.0</event-type-version>
+        </event-type-ref>
+        <initial-event-select variable="ActivityContext" />
+    </event>
+
+    <event event-direction="Receive" initial-event="False">
+      <event-name>AnyEvent</event-name>
+      <event-type-ref>
+        <event-type-name>org.mobicents.slee.resource.lab.message.incoming.ANY</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+      </event-type-ref>
+      <initial-event-select variable="ActivityContext" />
+    </event>
+
+    <event event-direction="Receive" initial-event="False">
+      <event-name>EndEvent</event-name>
+      <event-type-ref>
+        <event-type-name>org.mobicents.slee.resource.lab.message.incoming.END</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+      </event-type-ref>
+      <initial-event-select variable="ActivityContext" />
+    </event>
+
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 26 -->                  
+    <resource-adaptor-type-binding>
+      <resource-adaptor-type-ref>
+        <resource-adaptor-type-name>LabResourceAdaptorType</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+      </resource-adaptor-type-ref>
+
+      <activity-context-interface-factory-name>
+        slee/resources/LabRA/raframeacif
+      </activity-context-interface-factory-name>
+
+      <resource-adaptor-entity-binding>
+        <resource-adaptor-object-name>
+          slee/resources/raframe/1.0/sbb2ra
+        </resource-adaptor-object-name>            
+        <resource-adaptor-entity-link>
+          LabRA
+        </resource-adaptor-entity-link>
+       </resource-adaptor-entity-binding>
+
+    </resource-adaptor-type-binding>
+
+  </sbb>
+
+</sbb-jar>

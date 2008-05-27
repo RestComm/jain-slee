@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.0 profile specification component jar
+file deployment descriptor.  All JAIN SLEE 1.0 profile specification component
+jar file deployment descriptors must include a DOCTYPE of the following form:
+
+  <!DOCTYPE profile-spec-jar PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.0//EN"
+        "http://java.sun.com/dtd/slee-profile-spec-jar_1_0.dtd">
+-->
+
+
+<!--
+The profile-spec-jar element is the root element of the profile specification
+jar deployment descriptor.  It contains an optional description about the
+profile specification jar file and one or more profile specification
+definitions.
+-->
+<!ELEMENT profile-spec-jar (description?, profile-spec+)>
+
+<!--
+The profile-spec element defines a profile specification.  It contains an
+optional description about the profile specification being defined, the name,
+vendor, and version of the profile specification, mandatory information about
+the profile specification's interfaces and classes, optional profile indexing
+information, and optional hints to the SLEE about the use of the profile
+specification.
+
+Used in: profile-spec-jar
+-->
+<!ELEMENT profile-spec (description?, profile-spec-name, profile-spec-vendor,
+          profile-spec-version, profile-classes, profile-index*,
+          profile-hints?)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: profile-spec-jar, profile-spec, profile-classes
+-->
+<!ELEMENT description (#PCDATA)>
+
+
+<!--
+The profile-spec-name element contains the name of the profile specification
+component.
+
+Used in: profile-spec
+
+Example:
+    <profile-spec-name>AddressProfileSpec</profile-spec-name>
+-->
+<!ELEMENT profile-spec-name (#PCDATA)>
+
+<!--
+The profile-spec-vendor element contains the vendor of the profile
+specification component.
+
+Used in: profile-spec
+
+Example:
+    <profile-spec-vendor>javax.slee</profile-spec-vendor>
+-->
+<!ELEMENT profile-spec-vendor (#PCDATA)>
+
+<!--
+The profile-spec-version element contains the version of the profile
+specification component.  The version number typically should have the general
+form "major-version.minor-version".
+
+Used in: profile-spec
+
+Example:
+    <profile-spec-version>1.0</profile-spec-version>
+-->
+<!ELEMENT profile-spec-version (#PCDATA)>
+
+<!-- 
+The profile-classes element contains an optional description about the classes
+and/or interfaces defined, the name of the profile cmp interface, the optional
+name of the profile management interface, and the optional name of the profile
+management abstract class.
+
+Used in: profile-spec
+-->
+<!ELEMENT profile-classes (description?, profile-cmp-interface-name, 
+          profile-management-interface-name?, 
+          profile-management-abstract-class-name?)>
+
+<!--
+The profile-cmp-interface-name element contains the fully-qualified name of
+the profile specification's profile cmp interface.
+
+Used in: profile-classes
+
+Example:
+    <profile-cmp-interface-name>
+        javax.slee.profile.AddressProfileCMP
+    </profile-cmp-interface-name>
+-->
+<!ELEMENT profile-cmp-interface-name (#PCDATA)>
+
+<!--
+The profile-management-interface-name element contains the fully-qualified
+name of the profile specification's profile management interface.
+
+Used in: profile-classes
+
+Example:
+    <profile-management-interface-name>
+        com.mycompany.profile.MyProfileManagement
+    </profile-management-interface-name>
+-->
+<!ELEMENT profile-management-interface-name (#PCDATA)>
+
+<!-- The profile-management-abstract-class-name element contains the
+fully-qualified name of the profile specification's profile management
+abstract class.
+
+Used in: profile-classes
+
+Example:
+    <profile-management-abstract-class-name>
+        com.mycompany.profile.MyProfileManagementImpl
+    </profile-management-abstract-class-name>
+-->
+<!ELEMENT profile-management-abstract-class-name (#PCDATA)>
+
+<!--
+The profile-index element contains the name of a profile cmp interface
+attribute that should be indexed by the SLEE.  Only the names of indexed
+attributes may be search keys when searching a profile table using the Profile
+Facility or Profile Provisioning MBean.
+
+The unique attribute of this element is an additional flag which, if set to
+"True", limits the values that may be stored in the specified profile
+attribute so that all profiles in a profile table created from this profile
+specification must each contain unique values for the attribute.  The default
+value of this attribute is "False".
+
+Used in: profile-spec
+
+Example:
+    <profile-index unique="True">addresses</profile-index>
+-->
+<!ELEMENT profile-index (#PCDATA)>
+
+<!--
+The profile-hints element contains no text but defines a single-profile
+attribute.  This attribute, if set to "True", implies that a profile table
+created from this profile specification will only ever contain at most one
+profile.  The SLEE may be able to use this information to provide a better
+implementation of the profile specification.  The default value of this
+attribute is "False".
+
+Used in: profile-spec
+
+Example:
+    <profile-hints single-profile="True" />
+-->
+<!ELEMENT profile-hints EMPTY>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors. 
+-->
+<!ATTLIST profile-spec-jar id ID #IMPLIED>
+<!ATTLIST profile-spec id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST profile-spec-name id ID #IMPLIED>
+<!ATTLIST profile-spec-vendor id ID #IMPLIED>
+<!ATTLIST profile-spec-version id ID #IMPLIED>
+<!ATTLIST profile-classes id ID #IMPLIED>
+<!ATTLIST profile-cmp-interface-name id ID #IMPLIED>
+<!ATTLIST profile-management-interface-name id ID #IMPLIED>
+<!ATTLIST profile-management-abstract-class-name id ID #IMPLIED>
+<!ATTLIST profile-index unique (True|False) "False"
+                        id ID #IMPLIED>
+<!ATTLIST profile-hints single-profile (True|False) "False"
+                        id ID #IMPLIED>
+
+

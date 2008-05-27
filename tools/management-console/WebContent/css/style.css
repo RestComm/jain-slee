@@ -1,0 +1,34 @@
+html {
+	margin: 0px;
+	padding: 0px;
+}
+
+body {
+	background-color: white;
+	color: black;
+	font-family: arial, verdana, sans, helvetica, sans-serif;
+	font-size: 12px;
+	margin: 0px;
+	padding: 0px;
+}
+
+table {
+	font-family: arial, verdana, sans, helvetica, sans-serif;
+	font-size: 12px;
+}
+
+a, a:visited, a:link, a:hover{
+	color: black;
+}
+
+button {
+	font-family: arial, verdana, sans, helvetica, sans-serif;
+}
+
+input {
+	font-family: arial, verdana, sans, helvetica, sans-serif;
+}
+
+image {
+	vertical-align: middle;
+}

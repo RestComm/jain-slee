@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+
+<sbb-jar>
+	<sbb id="sip-registrar-sbb">
+		<description>Location Service - XACache based</description>
+		<sbb-name>LocationCacheSbb</sbb-name>
+		<sbb-vendor>mobicents</sbb-vendor>
+		<sbb-version>1.1</sbb-version>
+
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>
+					org.mobicents.slee.services.sip.location.cache.LocationSbb
+				</sbb-abstract-class-name>
+
+			</sbb-abstract-class>
+			<sbb-local-interface>
+				<sbb-local-interface-name>
+					org.mobicents.slee.services.sip.common.LocationSbbLocalObject
+				</sbb-local-interface-name>
+			</sbb-local-interface>
+			<sbb-activity-context-interface>
+				<sbb-activity-context-interface-name>
+					org.mobicents.slee.services.sip.location.cache.CacheLocationActivityContextInterface
+				</sbb-activity-context-interface-name>
+			</sbb-activity-context-interface>
+		</sbb-classes>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>BindingTimeout</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.facilities.TimerEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+	</sbb>
+
+</sbb-jar>

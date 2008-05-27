@@ -1,0 +1,182 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-jainslee-server</artifactId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>mobicents-core-jar</artifactId>
+	<groupId>org.mobicents.core</groupId>
+	<name>Mobicents :: Core  :: mobicents-core-jar</name>
+			
+	<dependencies>
+		
+		<!-- jslee -->
+		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-minimal</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-ra-common</artifactId>
+		</dependency>
+		
+		<!-- jboss -->
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-j2ee</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-transaction</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-jmx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-system</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jmx-adaptor-plugin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jbossha</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jbosssx-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss</artifactId>
+		</dependency>
+
+		
+		<!-- apache commons -->		
+		<dependency>
+			<groupId>commons-pool</groupId>
+			<artifactId>commons-pool</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-collections</groupId>
+					<artifactId>commons-collections</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+      				<artifactId>xerces</artifactId>
+      			</exclusion>
+      			<exclusion>
+					<groupId>xml-apis</groupId>
+      				<artifactId>xml-apis</artifactId>
+      			</exclusion>
+			</exclusions>
+		</dependency>		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>		
+		<dependency>
+			<groupId>commons-jxpath</groupId>
+			<artifactId>commons-jxpath</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>jdom</groupId>
+					<artifactId>jdom</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ant</groupId>
+					<artifactId>ant-optional</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+      				<artifactId>xerces</artifactId>
+      			</exclusion>
+      			<exclusion>
+					<groupId>xml-apis</groupId>
+      				<artifactId>xml-apis</artifactId>
+      			</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- others -->
+		<dependency>
+			<groupId>javassist</groupId>
+			<artifactId>javassist</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		
+		<!-- we should get ridden of next ones -->
+		
+		<dependency>
+			<groupId>concurrent</groupId>
+			<artifactId>concurrent</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+      				<artifactId>xml-apis</artifactId>
+      			</exclusion>
+			</exclusions>
+		</dependency>	
+	</dependencies>
+	
+	<build>
+		<resources>
+			<resource>
+        		<directory>src/main/resources</directory>
+        		<filtering>true</filtering>
+      		</resource>
+      	</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.freehep</groupId>
+				<artifactId>freehep-rmic-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<classes>
+								<class>org.mobicents.slee.test.suite.RMINotificationListenerImpl</class>
+								<class>org.mobicents.slee.container.rmi.RMIServerImpl</class>
+							</classes>
+							<keep>true</keep>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

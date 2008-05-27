@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.0 deployable unit jar file deployment
+descriptor.  All JAIN SLEE 1.0 deployable unit jar file deployment descriptors
+must include a DOCTYPE of the following form:
+
+  <!DOCTYPE deployable-unit PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Deployable Unit 1.0//EN"
+        "http://java.sun.com/dtd/slee-deployable-unit_1_0.dtd">
+-->
+
+
+<!-- 
+The deployable-unit element is the root element of the deployable unit
+deployment descriptor.  It contains an optional description about the
+deployable unit jar file and the names of one or more component jars or
+service deployment descriptors to be installed.
+-->
+<!ELEMENT deployable-unit (description?, (jar|service-xml)+)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: deployable-unit
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!-- 
+The jar element contains the name of a component jar file packaged within the
+deployable unit jar file, to be installed with the deployable unit.  The name
+must be relative URL, relative to the base of the deployable unit jar file.
+
+Used in: deployable-unit
+
+Example:
+    <jar>components/sbbs.jar</jar>
+-->
+<!ELEMENT jar (#PCDATA)>
+
+<!--
+The service-xml element contains the name of a service deployment descriptor
+file packaged within the deployable unit jar file, and containing the
+definitions of one or more services to be installed with the deployable unit.
+The name must be a relative URL, relative to the base of the deployable unit
+jar file.
+
+Used in: deployable-unit
+
+Example:
+    <service-xml>services/myservice.xml</service-xml>  
+-->
+<!ELEMENT service-xml (#PCDATA)>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors. 
+-->
+<!ATTLIST deployable-unit id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST jar id ID #IMPLIED>
+<!ATTLIST service-xml id ID #IMPLIED>
+
+
+
