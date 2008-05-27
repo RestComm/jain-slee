@@ -1,1 +1,0 @@
-Mobicents Command Line Interface (CLI) tool.
