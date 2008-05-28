@@ -1,0 +1,865 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.0 sbb component jar file deployment
+descriptor.  All JAIN SLEE 1.0 sbb component jar file deployment descriptors
+must include a DOCTYPE of the following form:
+
+  <!DOCTYPE sbb-jar PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN"
+        "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+-->
+
+
+<!--
+The sbb-jar element is the root element of the sbb jar deployment descriptor.
+In contains an optional description about the sbb jar file and one or more sbb
+definitions.
+-->
+<!ELEMENT sbb-jar (description?, sbb+)>
+
+
+<!--
+The sbb element defines an sbb.  It contains an optional description about the
+sbb being defined, the name, vendor, and version of the sbb being defined, an
+optional alias for referencing the sbb elsewhere in the deployment descriptor,
+zero or more child sbb references, zero or more profile specification
+references, mandatory information about the sbb's interfaces and classes, an
+optional reference to a profile specification to be used for the sbb's address
+profile table, zero or more event entries, zero or more activity context
+attribute alias definitions, zero or more JNDI environment entry definitions,
+zero or more resource adaptor type bindings, and zero or more EJB references.
+
+Used in: sbb-jar
+-->
+<!ELEMENT sbb (description?, sbb-name, sbb-vendor, sbb-version, sbb-alias?,
+          sbb-ref*, profile-spec-ref*, sbb-classes,
+          address-profile-spec-alias-ref?, event*,
+          activity-context-attribute-alias*, env-entry*,
+          resource-adaptor-type-binding*, ejb-ref*)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: sbb-jar, sbb, activity-context-attribute-alias, cmp-field,
+         ejb-ref, env-entry, event, get-child-relation-method,
+         get-profile-cmp-method, profile-spec-ref, sbb-abstract-class,
+         sbb-activity-context-interface, sbb-classes, sbb-local-interface,
+         sbb-ref, sbb-usage-parameters-interface,
+         resource-adaptor-entity-binding, resource-adaptor-type-binding
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!--
+The sbb-name element contains the name of the sbb component.
+
+Used in: sbb
+
+Example: 
+    <sbb-name>MySbb</sbb-name>
+-->
+<!ELEMENT sbb-name (#PCDATA)>
+
+<!--
+The sbb-vendor element contains the vendor of the sbb component.
+
+Used in: sbb
+
+Example: 
+    <sbb-vendor>My Company, Inc.</sbb-vendor>
+-->
+<!ELEMENT sbb-vendor (#PCDATA)>
+
+<!--
+The sbb-version element contains the version of the sbb component.  The
+version number typically should have the general form
+"major-version.minor-version".
+
+Used in: sbb
+
+Example: 
+    <sbb-version>1.0</sbb-version>
+-->
+<!ELEMENT sbb-version (#PCDATA)>
+
+<!--
+The sbb-alias element contains an arbitrary name that can be used to
+reference, elsewhere in the deployment descriptor, the sbb component type
+being defined by the parent element.
+
+Used in: sbb, sbb-ref
+
+Example:
+    <sbb-alias>MySbb</sbb-alias>
+-->
+<!ELEMENT sbb-alias (#PCDATA)>
+
+<!--
+The sbb-alias-ref element contains the name of an sbb component that has been
+aliased elsewhere in the enclosing sbb element in the deployment descriptor.
+
+Used in: cmp-field, get-child-relation-method
+
+Example:
+    <sbb-alias-ref>MySbb</sbb-alias-ref>
+-->
+<!ELEMENT sbb-alias-ref (#PCDATA)>
+
+<!--
+The sbb-ref element declares a reference to an SBB component type and
+establishes an alias name to that type.  It contains an optional description
+about the reference, the name, vendor, and version of the referenced SBB, and
+the alias name for the reference.
+
+Used in: sbb
+-->
+<!ELEMENT sbb-ref (description?, sbb-name, sbb-vendor, sbb-version,
+          sbb-alias)>
+
+<!--
+The profile-spec-ref element declares a reference to a profile specification
+component type and establishes an alias name to that type.  It contains an
+optional description about the reference, the name, vendor, and version of the
+referenced profile specification, and the alias name for the reference.
+
+Used in: sbb
+-->
+<!ELEMENT profile-spec-ref (description?, profile-spec-name,
+          profile-spec-vendor, profile-spec-version, profile-spec-alias)>
+
+<!--
+The profile-spec-name element contains the name of a profile specification
+component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-name>AddressProfileSpec</profile-spec-name>
+-->
+<!ELEMENT profile-spec-name (#PCDATA)>
+
+<!--
+The profile-spec-vendor element contains the vendor of a profile specification
+component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-name>javax.slee</profile-spec-name>
+-->
+<!ELEMENT profile-spec-vendor (#PCDATA)>
+
+<!--
+The profile-spec-version element contains the version of a profile
+specification component.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-version>1.0</profile-spec-version>
+-->
+<!ELEMENT profile-spec-version (#PCDATA)>
+
+<!--
+The profile-spec-alias element contains an arbitrary name that can be used to
+reference, elsewhere in the deployment descriptor, the profile specification
+component type identified by the parent element.
+
+Used in: profile-spec-ref
+
+Example:
+    <profile-spec-alias>AddressProfile</profile-spec-alias>
+-->
+<!ELEMENT profile-spec-alias (#PCDATA)>
+
+<!--
+The sbb-classes element contains an optional description about the classes and
+interfaces defined, a mandatory sbb abstract class declaration, an optional
+sbb local interface declaration, an optional sbb activity context interface
+declaration, and an optional sbb usage parameters interface declaration.
+
+Used in: sbb
+-->
+<!ELEMENT sbb-classes (description?, sbb-abstract-class, sbb-local-interface?, 
+          sbb-activity-context-interface?, sbb-usage-parameters-interface?)>
+
+<!--
+The sbb-abstract-class element contains an optional description about the sbb
+abstract class, the name of the sbb abstract class, zero or more cmp field
+declarations, zero or more get-child-relation method declarations, and zero or
+more get-profile-cmp method declarations.
+
+The reentrant attribute of this element determines whether reentrant callbacks
+on the sbb abstract class are permitted.  A reentrant callback occurs when an
+sbb entity invokes a method on an sbb local interface object which causes,
+either directly or indirectly, a method on the original sbb entity to be
+invoked in the same transaction.  The default value of this attribute is
+False.
+
+Used in: sbb-classes
+-->
+<!ELEMENT sbb-abstract-class (description?, sbb-abstract-class-name,
+          cmp-field*, get-child-relation-method*, get-profile-cmp-method*)>
+
+<!--
+The sbb-abstract-class-name contains the fully-qualified name of the sbb
+abstract class that implements the sbb.
+
+Used in: sbb-classes
+
+Example:
+    <sbb-abstract-class-name>com.mycompany.sbb.MySbb</sbb-abstract-class-name>
+-->
+<!ELEMENT sbb-abstract-class-name (#PCDATA)>
+
+<!--
+The cmp-field element declares a cmp field defined in the sbb abstract class.
+It contains an optional description, the name of the cmp field, and an
+optional sbb alias reference.  The sbb alias reference is required if the cmp
+field stores sbb local object references.
+
+Used in: sbb-abstract-class
+-->
+<!ELEMENT cmp-field (description?, cmp-field-name, sbb-alias-ref?)>
+
+<!--
+The cmp-field-name element contains the name of a cmp field defined in the sbb
+abstract class.
+
+Used in: cmp-field
+
+Example:
+    <cmp-field-name>count</cmp-field-name>
+-->
+<!ELEMENT cmp-field-name (#PCDATA)>
+
+<!--
+The get-child-relation-method element declares a get-child-relation method
+defined in the sbb abstract class.  It contains an optional description, a
+reference to the sbb component type of the child sbb, the name of the
+get-child-relation method, and a default priority for the child sbb.
+
+Used in: sbb-abstract-class
+-->
+<!ELEMENT get-child-relation-method (description?, sbb-alias-ref, 
+          get-child-relation-method-name, default-priority)>
+
+<!--
+The get-child-relation-method-name element contains the name of a
+get-child-relation method defined in the sbb abstract class.
+
+Used in: get-child-relation-method
+
+Example:
+    <get-child-relation-method-name>
+        getChildRelation
+    </get-child-relation-method-name>
+-->
+<!ELEMENT get-child-relation-method-name (#PCDATA)>
+
+<!--
+The default-priority element contains the default priority of a child sbb.
+The default priority must lie in the range -128 thru 127.
+
+Used in: get-child-relation-method
+
+Example:
+    <default-priority>0</default-priority>
+-->
+<!ELEMENT default-priority (#PCDATA)>
+
+<!--
+The get-profile-cmp-method declares a get-profile-cmp method defined in the
+sbb abstract class.  It contains an optional description, a reference to the
+profile specification component type expected to be returned from the method,
+and the name of the get-profile-cmp method.
+
+Used in: sbb-abstract-class
+-->
+<!ELEMENT get-profile-cmp-method (description?, profile-spec-alias-ref,
+          get-profile-cmp-method-name)>
+
+<!--
+The profile-spec-alias-ref element contains the name of a profile
+specification component alias that has been defined in a profile-spec element
+elsewhere in the enclosing sbb element in the deployment descriptor.
+
+Used in: get-profile-cmp-method
+
+Example:
+    <profile-spec-alias-ref>AddressProfile</profile-spec-alias-ref>
+-->
+<!ELEMENT profile-spec-alias-ref (#PCDATA)>
+
+<!--
+The get-profile-cmp-method-name element contains the name of a get-profile-cmp
+method defined in the sbb-abstract class.
+
+Used in get-profile-cmp-method
+
+Example:
+    <get-profile-cmp-method-name>getAddressProfile</get-profile-cmp-method-name>
+-->
+<!ELEMENT get-profile-cmp-method-name (#PCDATA)>
+
+<!--
+The sbb-local-interface element contains an optional description about the sbb
+local interface and the name of the sbb local interface.
+
+Used in: sbb-classes
+-->
+<!ELEMENT sbb-local-interface (description?, sbb-local-interface-name)>
+
+<!--
+The sbb-local-interface-name element contains the fully-qualified name of the
+sbb local interface.
+
+Used in: sbb-local-interface
+
+Example:
+    <sbb-local-interface-name>
+        com.mycompany.sbb.MySbbLocal
+    <sbb-local-interface-name>
+-->
+<!ELEMENT sbb-local-interface-name (#PCDATA)>
+
+<!--
+The sbb-activity-context-interface element contains an optional description
+about the activity context interface and the name of the activity context
+interface.
+
+Used in: sbb-classes
+-->
+<!ELEMENT sbb-activity-context-interface (description?, 
+          sbb-activity-context-interface-name)>
+
+<!--
+The sbb-activity-context-interface-name element contains the fully-qualified
+name of the sbb activity context interface.
+
+Used in: sbb-activity-context-interface
+
+Example:
+    <sbb-activity-context-interface-name>
+        com.mycompany.sbb.MySbbActivityContextInterface
+    </sbb-activity-context-interface-name>
+-->
+<!ELEMENT sbb-activity-context-interface-name (#PCDATA)>
+
+<!--
+The sbb-usage-parameters-interface element declares a usage parameters
+interface for the sbb.  It contains an optional description and the name of
+the sbb usage parameters interface.
+
+Used in: sbb-classes
+-->
+<!ELEMENT sbb-usage-parameters-interface (description?, 
+          sbb-usage-parameters-interface-name)>
+
+<!--
+The sbb-usage-parameters-interface-name element contains the fully-qualified
+name of the sbb usage parameters interface.
+
+Used in: sbb-usage-parameters-interface
+
+Example:
+    <sbb-usage-parameters-interface-name>
+        com.mycompany.sbb.MySbbUsageParameters
+    </sbb-usage-parameters-interface-name>
+-->
+<!ELEMENT sbb-usage-parameters-interface-name (#PCDATA)>
+
+<!--
+The address-profile-spec-alias-ref element contains the name of a profile
+specification component alias that has been defined in a profile-spec-ref
+element elsewhere in the enclosing sbb element in the deployment descriptor.
+It is used to declare the profile specification of the address profile table
+used by the sbb.
+
+Used in: sbb
+
+Example:
+    <address-profile-spec-alias-ref>
+        AddressProfile
+    </address-profile-spec-alias-ref>
+-->
+<!ELEMENT address-profile-spec-alias-ref (#PCDATA)>
+
+<!--
+The event element declares an event received, fired, or both, by the sbb.  It
+contains an optional description, the name of the event as used by the sbb, a
+reference to the event type of the event, zero or more initial event selector
+options, an optional initial event selector method name, and an optional
+resource option for the event.
+
+The event-direction attribute of this element declares the direction of the
+event to and/or from the sbb.  If the event is received by the sbb, the sbb
+abstract class must have an event-handler method for it.  If the event is
+fired by the sbb, the sbb abstract class must declare an abstract fire-event
+method for it.  The initial-event-select, intitial-event-selector-method-name,
+and event-resource-option sub-elements may only be included in the event
+element if the event-direction attribute indicates that the event is recieved
+by the sbb.  A value for this attribute must be specified in the deployment
+descriptor.  There is no default value.
+
+The initial-event attribute of this element is only relevant if the
+event-direction attribute indicates that the event is recieved by the sbb.  It
+declares whether the event is an initial event for the sbb or not.  The
+initial-event-select and initial-event-selector-method-name sub-elements may
+only be included in the event element if the initial-event attribute is set to
+True.  The default value is False.
+
+The mask-on-attach attribute of this element is only relevant if the
+event-direction attribute indicates that the event is received by the sbb.  It
+declares whether the receipt of the event by the sbb is initially masked on an
+activity when the sbb attaches to it.  The default value is False.
+
+Used in: sbb
+-->
+<!ELEMENT event (description?, event-name, event-type-ref,
+          initial-event-select*, initial-event-selector-method-name?,
+          event-resource-option?)>
+
+<!--
+The event-name element contains an arbitrary Java identifier that the sbb uses
+to refer to the event.  The name of an sbb's event-handler or fire-event
+method includes the event name declared here in its construction.
+
+Used in: event
+
+Example:
+    <event-name>CallCreatedEvent</event-name>
+-->
+<!ELEMENT event-name (#PCDATA)>
+
+<!--
+The event-type-ref element identifies the event type received or fired by the
+sbb.  It contains the name, vendor, and version of the event type.
+
+Used in: event
+-->
+<!ELEMENT event-type-ref (event-type-name, event-type-vendor,
+          event-type-version)>
+
+<!--
+The event-type-name element contains the name of an event type.
+
+Used in: event-type-ref
+
+Example:
+    <event-type-name>
+        javax.csapi.cc.jcc.JccCallEvent.CALL_CREATED
+    </event-type-name>
+-->
+<!ELEMENT event-type-name (#PCDATA)>
+
+<!--
+The event-type-vendor element contains the vendor of an event type.
+
+Used in: event-type-ref
+
+Example:
+    <event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+-->
+<!ELEMENT event-type-vendor (#PCDATA)>
+
+<!--
+The event-type-version element contains the version of an event type.
+
+Used in: event-type-ref
+
+Example:
+    <event-type-version>1.1</event-type-version>
+-->
+<!ELEMENT event-type-version (#PCDATA)>
+
+<!--
+The initial-event-select element contains no text but defines a variable
+attribute.  The variable attribute declares an initial event selector variable
+that should be included in the convergence name calculation performed by the
+SLEE when considering an initial event for a service's root sbb.
+
+Used in: event
+
+Example:
+    <initial-event-select variable="ActivityContext" />
+-->
+<!ELEMENT initial-event-select EMPTY>
+
+<!--
+The initial-event-selector-method-name contains the name of an initial event
+selector method defined in the sbb abstract class.
+
+Used in: event
+
+Example:
+    <initial-event-selector-method-name>
+        initialEventSelect
+    </initial-event-selector-method-name>
+-->
+<!ELEMENT initial-event-selector-method-name (#PCDATA)>
+
+<!--
+The event-resource-option element contains arbitary event handling options
+that the SLEE can forward to resource adaptor entities that emit the enclosing
+event element's event type.  The format of the element contents is typically
+specified by a resource adaptor vendor.
+
+Used in: event
+
+Example:
+    <event-resource-option>block</event-resource-option>
+-->
+<!ELEMENT event-resource-option (#PCDATA)>
+
+<!--
+The activity-context-attribute-alias element allows an sbb to alias activity
+context attributes.  Aliasing an attribute causes it to become available in a
+global namespace public to all sbbs.  The element contains an optional
+description, the attribute alias name, and the names of zero or more
+attributes in the sbb's activity context interface that should be aliased to
+the given name.
+
+Used in: sbb
+-->
+<!ELEMENT activity-context-attribute-alias (description?, 
+          attribute-alias-name, sbb-activity-context-attribute-name*)>
+
+<!--
+The attribute-alias-name element contains the aliased name of an activity
+context attribute.
+
+Used in: activity-context-attribute-alias
+
+Example:
+    <attribute-alias-name>count</attribute-alias-name>
+-->
+<!ELEMENT attribute-alias-name (#PCDATA)>
+
+<!--
+The sbb-activity-context-attribute-name element contains the name of an
+attribute in the sbb's activity context interface.
+
+Used in: activity-context-attribute-alias
+
+Example:
+    <attribute-alias-name>forwardCount</attribute-alias-name>
+-->
+<!ELEMENT sbb-activity-context-attribute-name (#PCDATA)>
+
+<!--
+The env-entry element declares a constant that should be bound into the sbb's
+JNDI environment.  It contains an optional description, the name and type of
+the constant, and an optional value.  If a value is not specified, one must be
+supplied during deployment.
+
+Used in: sbb
+-->
+<!ELEMENT env-entry (description?, env-entry-name, env-entry-type,
+          env-entry-value?)>
+
+<!--
+The env-entry-name element contains the namespace path, relative to the
+java:comp/env context, where the environment entry constant should be bound in
+the sbb's JNDI environment.
+
+Used in: env-entry
+
+Example
+    <env-entry-name>maxConnections</env-entry-name>
+-->
+<!ELEMENT env-entry-name (#PCDATA)>
+
+<!--
+The env-entry-type element contains the fully-qualifed name of the class of an
+sbb's environment entry constant.
+
+The following are the legal values of the env-entry-type element:
+java.lang.Integer, java.lang.Double, java.lang.Boolean, java.lang.Character,
+java.lang.Byte, java.lang.Short, java.lang.Long, and java.lang.Float,
+java.lang.String.
+
+Used in: env-entry
+
+Example:
+    <env-entry-type>java.lang.Integer</env-entry-type>
+-->
+<!ELEMENT env-entry-type (#PCDATA)>
+
+<!--
+The env-entry-value element contains the value of an sbb's environment entry
+contant.  The value must be a string that is valid for the constructor of the
+environment entry's declared type that takes a single java.lang.String
+parameter, or for java.lang.Character environment entry types, a single
+character.
+
+Used in: env-entry
+
+Example:
+    <env-entry-value>5</env-entry>
+-->
+<!ELEMENT env-entry-value (#PCDATA)>
+
+<!--
+The resource-adaptor-type-binding element declares bindings between an sbb and
+external resources.  It contains an optional description, a mandatory
+reference to a resource adaptor type, an optional name where the resource
+adaptor type's activity context interface object will be bound in the sbb's
+JNDI environment, and zero or more resource adaptor entity bindings.
+
+Used in: sbb
+-->
+<!ELEMENT resource-adaptor-type-binding (description?,
+          resource-adaptor-type-ref,
+          activity-context-interface-factory-name?,
+          resource-adaptor-entity-binding*)>
+
+<!--
+The resource-adaptor-type-ref element declares the resource adaptor type the
+sbb is binding to.  It contains an optional description and the name, vendor,
+and version of the resource adaptor type.
+
+Used in: resource-adaptor-type-binding
+-->
+<!ELEMENT resource-adaptor-type-ref (resource-adaptor-type-name, 
+          resource-adaptor-type-vendor, resource-adaptor-type-version)>
+
+<!--
+The resource-adaptor-type-name element contains the name of a resource adaptor
+type component.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-name>JCC</resource-adaptor-type-name>
+-->
+<!ELEMENT resource-adaptor-type-name (#PCDATA)>
+
+<!--
+The resource-adaptor-type-vendor element contains the vendor of a resource
+adaptor type component.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-vendor>
+        javax.csapi.cc.jcc
+    </resource-adaptor-type-vendor>
+-->
+<!ELEMENT resource-adaptor-type-vendor (#PCDATA)>
+
+<!--
+The resource-adaptor-type-version element contains the version of a resource
+adaptor type component.
+
+Used in: resource-adaptor-type-ref
+
+Example:
+    <resource-adaptor-type-version>1.1</resource-adaptor-type-version>
+-->
+<!ELEMENT resource-adaptor-type-version (#PCDATA)>
+
+<!--
+The activity-context-interface-factory-name element contains the namespace
+path, relative to the java:comp/env context, where the activity context
+interface factory object of the corresponding resource adaptor type should be
+bound in the sbb's JNDI environment.
+
+Used in: resource-adaptor-type-binding
+
+Example:
+    <activity-context-interface-factory-name>
+        slee/resources/jcc/acifactory
+    </activity-context-interface-factory-name>
+-->
+<!ELEMENT activity-context-interface-factory-name (#PCDATA)>
+
+<!--
+The resource-adaptor-entity-binding element allows an sbb to bind to a
+resource adaptor entity.  It contains an optional description, the JNDI name
+where the resource adaptor entity's resource adaptor interface object should
+be bound in the sbb's environment, and an optional resource adaptor entity
+link name.  If the resource adaptor entity link name is not specified, one
+must be supplied during deployment.
+
+Used in: resource-adaptor-type-binding
+-->
+<!ELEMENT resource-adaptor-entity-binding (description?, 
+          resource-adaptor-object-name, resource-adaptor-entity-link?)>
+
+<!--
+The resource-adaptor-object-name element contains the namespace path, relative
+to the java:comp/env context, where the resource adaptor entity's resource
+adaptor interface object should be bound in the sbb's JNDI environment.
+
+Used in: resource-adaptor-entity-binding
+
+Example:
+    <resource-adaptor-object-name>
+        slee/resources/jcc/provider
+    </resource-adaptor-object-name>
+-->
+<!ELEMENT resource-adaptor-object-name (#PCDATA)>
+
+<!--
+The resource-adaptor-entity-link element contains an arbitrary string that the
+SLEE can use to locate the correct resource adaptor entity to bind into the
+sbb's JNDI environment.
+
+Used in: resource-adaptor-entity-binding
+
+Example:
+    <resource-adaptor-entity-link>jcc<resource-adaptor-entity-link>
+-->
+<!ELEMENT resource-adaptor-entity-link (#PCDATA)>
+
+<!--
+The ejb-ref element allows an sbb to reference an Enterprise Java Bean.  It
+contains an optional description, the JNDI name where the home interface of
+the EJB will be bound in the sbb's environment, the type of the EJB, the home
+and remote interface types, and an optional EJB link name.  If the EJB link
+name is not specified one must be supplied during deployment.
+
+Used in: sbb
+-->
+<!ELEMENT ejb-ref (description?, ejb-ref-name, ejb-ref-type, home, remote, 
+          ejb-link?)>
+
+<!--
+The ejb-ref-name element contains the namespace path, relative to the
+java:comp/env context, where the resource adaptor entity's resource adaptor
+interface object should be bound in the sbb's JNDI environment.
+
+Used in: ejb-ref
+
+Example:
+    <ejb-ref-name>ejb/externalbean</ejb-ref-name>
+-->
+<!ELEMENT ejb-ref-name (#PCDATA)>
+
+<!--
+The <ejb-ref-type> element contains the exptected type of the referenced
+Enterprise Java Bean.  Valid values are Entity or Session.
+
+Used in: ejb-ref
+
+Example:
+    <ejb-ref-type>Entity</ejb-ref-type>
+-->
+<!ELEMENT ejb-ref-type (#PCDATA)>
+
+<!--
+The home element contains the fully-qualified name of a referenced Enterprise
+Java Bean's remote home interface.
+
+Used in: ejb-ref
+
+Example:
+    <home>com.mycompany.ejb.MyEJBHome</home>
+-->
+<!ELEMENT home (#PCDATA)>
+
+<!--
+The remote element contains the fully-qualified name of a referenced
+Enterprise Java Bean's remote component interface.
+
+Used in: ejb-ref
+
+Example:
+    <home>com.mycompany.ejb.MyEJB</home>
+-->
+<!ELEMENT remote (#PCDATA)>
+
+<!--
+The ejb-link element contains an arbitrary string that the SLEE can use to
+locate the correct Enterprise Java Bean to bind into the sbb's JNDI
+environment.
+
+Used in: ejb-ref
+
+Example:
+    <ejb-link>myejb</ejb-link>
+-->
+<!ELEMENT ejb-link (#PCDATA)>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors. 
+-->
+<!ATTLIST sbb-jar id ID #IMPLIED>
+<!ATTLIST sbb id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST sbb-name id ID #IMPLIED>
+<!ATTLIST sbb-vendor id ID #IMPLIED>
+<!ATTLIST sbb-version id ID #IMPLIED>
+<!ATTLIST sbb-alias id ID #IMPLIED>
+<!ATTLIST sbb-alias-ref id ID #IMPLIED>
+<!ATTLIST sbb-ref id ID #IMPLIED>
+<!ATTLIST profile-spec-ref id ID #IMPLIED>
+<!ATTLIST profile-spec-name id ID #IMPLIED>
+<!ATTLIST profile-spec-vendor id ID #IMPLIED>
+<!ATTLIST profile-spec-version id ID #IMPLIED>
+<!ATTLIST profile-spec-alias id ID #IMPLIED>
+<!ATTLIST sbb-classes id ID #IMPLIED>
+<!ATTLIST sbb-abstract-class reentrant (True|False) "False"
+                             id ID #IMPLIED>
+<!ATTLIST sbb-abstract-class-name id ID #IMPLIED>
+<!ATTLIST cmp-field id ID #IMPLIED>
+<!ATTLIST cmp-field-name id ID #IMPLIED>
+<!ATTLIST get-child-relation-method id ID #IMPLIED>
+<!ATTLIST get-child-relation-method-name id ID #IMPLIED>
+<!ATTLIST default-priority id ID #IMPLIED>
+<!ATTLIST get-profile-cmp-method id ID #IMPLIED>
+<!ATTLIST profile-spec-alias-ref id ID #IMPLIED>
+<!ATTLIST get-profile-cmp-method-name id ID #IMPLIED>
+<!ATTLIST sbb-local-interface id ID #IMPLIED>
+<!ATTLIST sbb-local-interface-name id ID #IMPLIED>
+<!ATTLIST sbb-activity-context-interface id ID #IMPLIED>
+<!ATTLIST sbb-activity-context-interface-name id ID #IMPLIED>
+<!ATTLIST address-profile-spec-alias-ref id ID #IMPLIED>
+<!ATTLIST event event-direction (Fire|Receive|FireAndReceive) #REQUIRED
+                initial-event (True|False) "False"
+                mask-on-attach (True|False) "False"
+                id ID #IMPLIED>
+<!ATTLIST event-name id ID #IMPLIED>
+<!ATTLIST event-type-ref id ID #IMPLIED>
+<!ATTLIST event-type-name id ID #IMPLIED>
+<!ATTLIST event-type-vendor id ID #IMPLIED>
+<!ATTLIST event-type-version id ID #IMPLIED>
+<!ATTLIST initial-event-select variable (ActivityContext|AddressProfile|Address|EventType|Event) #REQUIRED
+                               id ID #IMPLIED>
+<!ATTLIST initial-event-selector-method-name id ID #IMPLIED>
+<!ATTLIST event-resource-option id ID #IMPLIED>
+<!ATTLIST activity-context-attribute-alias id ID #IMPLIED>
+<!ATTLIST attribute-alias-name id ID #IMPLIED>
+<!ATTLIST sbb-activity-context-attribute-name id ID #IMPLIED>
+<!ATTLIST sbb-usage-parameters-interface id ID #IMPLIED>
+<!ATTLIST sbb-usage-parameters-interface-name id ID #IMPLIED>
+<!ATTLIST env-entry id ID #IMPLIED>
+<!ATTLIST env-entry-name id ID #IMPLIED>
+<!ATTLIST env-entry-type id ID #IMPLIED>
+<!ATTLIST env-entry-value id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-binding id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-ref id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-vendor id ID #IMPLIED>
+<!ATTLIST resource-adaptor-type-version id ID #IMPLIED>
+<!ATTLIST activity-context-interface-factory-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-entity-binding id ID #IMPLIED>
+<!ATTLIST resource-adaptor-object-name id ID #IMPLIED>
+<!ATTLIST resource-adaptor-entity-link id ID #IMPLIED>
+<!ATTLIST ejb-ref id ID #IMPLIED>
+<!ATTLIST ejb-ref-name id ID #IMPLIED>
+<!ATTLIST ejb-ref-type id ID #IMPLIED>
+<!ATTLIST home id ID #IMPLIED>
+<!ATTLIST remote id ID #IMPLIED>
+<!ATTLIST ejb-link id ID #IMPLIED>
+
+

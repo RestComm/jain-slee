@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="LabResourceAdaptorTestGUI" default="test-gui">
+
+	<property environment="system"/>
+	
+	<path id="classpath">
+		<fileset dir="ra/target">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${system.JBOSS_HOME}/client">
+				<include name="*.jar" />
+			</fileset>
+	</path>
+
+	<target name="test-gui" description="Builds the web application archive">
+		<java classpathref="classpath" fork="true" classname="org.mobicents.slee.resource.lab.test.client.RAFSwingClient">
+		</java>
+	</target>
+</project>
+

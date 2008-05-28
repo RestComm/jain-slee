@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN"
+                         "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+<sbb-jar>
+	<sbb>
+		<description />
+		<sbb-name>DialogTerminatedTestSbb</sbb-name>
+		<sbb-vendor>mobicents</sbb-vendor>
+		<sbb-version>0.1</sbb-version>
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>org.mobicents.sleetests.siptests.DialogTerminated.DialogTerminatedTestSbb</sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>inviteProcessed</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>setupFailedReceived</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>dialogTerminatedReceived</cmp-field-name>
+				</cmp-field>
+			</sbb-abstract-class>
+		</sbb-classes>
+
+
+
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>Invite</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.INVITE</event-type-name>
+				<event-type-vendor>javax.sip</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>chooseThis</initial-event-selector-method-name>
+		</event>
+
+
+
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>DialogSetupFailed</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.dialog.SetupFailed</event-type-name>
+				<event-type-vendor>net.java</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>chooseThis</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>DialogTerminated</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.dialog.Terminated</event-type-name>
+				<event-type-vendor>net.java</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>chooseThis</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>DialogTimedOut</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.timeout.DIALOG</event-type-name>
+				<event-type-vendor>net.java</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>chooseThis</initial-event-selector-method-name>
+		</event>
+
+
+
+		<event event-direction="Receive" initial-event="False" mask-on-attach="False">
+			<event-name>TimeEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.slee.facilities.TimerEvent</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+
+		</event>
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>1.2</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>slee/resources/jainsip/1.1/acifactory</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>slee/resources/jainsip/1.1/provider</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>SipRA</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>TCK_Resource_Type</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>jain.slee.tck</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>slee/resources/tck/activitycontextinterfacefactory</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>slee/resources/tck/resource</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>slee/resources/tck</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+	</sbb>
+</sbb-jar>

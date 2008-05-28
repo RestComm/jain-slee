@@ -1,0 +1,55 @@
+package org.mobicents.slee.resource.parlay.csapi.jr.cc.gccs.eventHandlers;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.csapi.cc.gccs.TpCallReport;
+import org.mobicents.slee.resource.parlay.csapi.jr.cc.gccs.activity.call.Call;
+import org.mobicents.slee.resource.parlay.csapi.jr.cc.gccs.activity.callcontrolmanager.CallControlManager;
+
+/**
+ *
+ **/
+public class RouteResHandler implements Runnable {
+    /**
+     * Log4J Logger for this class.
+     */
+    private static final Log logger = LogFactory.getLog(RouteResHandler.class);
+
+    private final transient CallControlManager callControlManager; 
+    private final transient int callSessionID; 
+    private final transient TpCallReport eventReport; 
+    private final transient int callLegSessionID;
+    
+    /**
+     * @param callControlManager
+     * @param callSessionID
+     * @param eventReport
+     * @param callLegSessionID
+     */
+    public RouteResHandler(CallControlManager callControlManager, int callSessionID, TpCallReport eventReport, int callLegSessionID) {
+        super();
+        this.callControlManager = callControlManager;
+        this.callSessionID = callSessionID;
+        this.eventReport = eventReport;
+        this.callLegSessionID = callLegSessionID;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        
+        try {
+            if (callControlManager != null) {
+	            final Call call = callControlManager.getCall(callSessionID);
+	            if(call != null ) {
+	                call.routeRes(callSessionID, eventReport, callLegSessionID);
+	            }
+            }
+        } catch (RuntimeException e) {
+            // Catch all
+            logger.error("RouteResHandler failed", e);
+        }
+    }
+
+}
