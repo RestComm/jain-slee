@@ -1,0 +1,30 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>mobicents-jainslee-server</artifactId>
+		<groupId>org.mobicents</groupId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+	</parent>
+
+	<groupId>org.mobicents.resources.diameter</groupId>
+	<artifactId>mobicents-resources-diameter-parent</artifactId>
+
+	<packaging>pom</packaging>
+	<name>Mobicents Diameter Resoruce Adaptors :: ${pom.artifactId}</name>
+
+	<modules>
+	<!-- 
+		<module>base</module>
+		<module>cca</module>
+		<module>sh-client</module>
+		<module>sh-server</module>
+	-->
+	</modules>
+
+</project>
+

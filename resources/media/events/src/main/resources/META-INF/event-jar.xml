@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN"
+"http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
+<event-jar>
+    <event-definition>
+        <description>
+            This event is fired when the end of the media stream is reached.
+        </description>
+        <event-type-name>org.mobicents.slee.media.EndMediaStream</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.resource.media.events.EndMediaStreamEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            This event is fired when DTMF is received.
+        </description>
+        <event-type-name>org.mobicents.slee.media.DTMF</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.resource.media.events.DtmfEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            This event is fired to know whether the creation of a Transmitter,
+            Receiver or Transmitter-Receiver was a success or not.
+        </description>
+        <event-type-name>org.mobicents.slee.media.SessionResult</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.resource.media.events.SessionResultEvent</event-class-name>
+    </event-definition>
+
+    <!-- SESSION EVENTS -->
+    <event-definition>
+        <description>
+            This event is fired when Connection is created.
+        </description>
+        <event-type-name>org.mobicents.slee.media.SESSION_CREATED</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsSessionEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            This event is fired when Connection is created.
+        </description>
+        <event-type-name>org.mobicents.slee.media.SESSION_ACTIVE</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsSessionEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            This event is fired when Connection is created.
+        </description>
+        <event-type-name>org.mobicents.slee.media.SESSION_INVALID</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsSessionEvent</event-class-name>
+    </event-definition>
+    
+    <!-- CONNECTION EVENTS -->
+    <event-definition>
+        <description>
+            This event is fired when Connection is created.
+        </description>
+        <event-type-name>org.mobicents.slee.media.CONNECTION_CREATED</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsConnectionEvent</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <description>
+            This event is fired when Connection is modified.
+        </description>
+        <event-type-name>org.mobicents.slee.media.CONNECTION_MODIFIED</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsConnectionEvent</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <description>
+            This event is fired when Connection is deleted.
+        </description>
+        <event-type-name>org.mobicents.slee.media.CONNECTION_DELETED</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsConnectionEvent</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <description>
+            This event is fired when TX failed.
+        </description>
+        <event-type-name>org.mobicents.slee.media.CONNECTION_TX_FAILED</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsConnectionEvent</event-class-name>
+    </event-definition>
+    
+    
+    <!-- LINK EVENTS -->
+    <event-definition>
+        <description>
+            This event is fired when link tx is executed successfully.
+        </description>
+        <event-type-name>org.mobicents.slee.media.JOIN_COMPLETE</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsLinkEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            This event is fired when link tx is failed.
+        </description>
+        <event-type-name>org.mobicents.slee.media.JOIN_FAIL</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsLinkEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            This event is fired when link tx is failed.
+        </description>
+        <event-type-name>org.mobicents.slee.media.LINK_DROPPED</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsLinkEvent</event-class-name>
+    </event-definition>
+    
+    <!-- ANNOUNCEMENT EVENTS -->
+    <event-definition>
+        <description>
+            Play annoucement.
+        </description>
+        <event-type-name>org.mobicents.slee.media.announcement.PLAY</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Complete annoucement.
+        </description>
+        <event-type-name>org.mobicents.slee.media.announcement.COMPLETE</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Failed annoucement.
+        </description>
+        <event-type-name>org.mobicents.slee.media.announcement.FAIL</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+    
+    <!-- DTMF EVENTS -->
+    <event-definition>
+        <description>
+        </description>
+        <event-type-name>org.mobicents.slee.media.dtmf.DTMF</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+
+    <!-- IVR EVENTS -->
+    <event-definition>
+        <description>
+        </description>
+        <event-type-name>org.mobicents.slee.media.au.PLAY</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+        </description>
+        <event-type-name>org.mobicents.slee.media.au.PLAY_RECORD</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Complete.
+        </description>
+        <event-type-name>org.mobicents.slee.media.au.COMPLETE</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+    <event-definition>
+        <description>
+            Failed.
+        </description>
+        <event-type-name>org.mobicents.slee.media.au.FAILED</event-type-name>
+        <event-type-vendor>org.mobicents.media</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.mscontrol.MsNotifyEvent</event-class-name>
+    </event-definition>
+    
+</event-jar>

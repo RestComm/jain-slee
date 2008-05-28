@@ -1,0 +1,30 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.mobicents.resources.diameter</groupId>
+		<artifactId>mobicents-resources-diameter-parent</artifactId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>sh-server-parent</artifactId>
+	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
+
+	<modules>
+		<module>../base/events</module>
+		<module>events</module>
+		<module>../base/ratype</module>
+		<module>../sh-client/events</module>
+		<!-- client has base interface for both client and server message factories -->
+		<module>../sh-client/ratype</module>
+		<module>ratype</module>
+		<module>ra</module>
+		<module>du</module>
+	</modules>
+
+</project>
