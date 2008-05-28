@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.0//EN" "c">
+
+<resource-adaptor-type-jar>
+	<description />
+	<resource-adaptor-type>
+		<description>TTS Resource Adaptor Type</description>
+		<resource-adaptor-type-name>
+			TTSAdaptorType
+		</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>
+			org.mobicents
+		</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>
+			0.1
+		</resource-adaptor-type-version>
+		<resource-adaptor-type-classes>
+			<activity-type>
+				<activity-type-name>
+					org.mobicents.slee.resource.tts.ratype.TTSSession
+				</activity-type-name>
+			</activity-type>
+			<activity-context-interface-factory-interface>
+				<activity-context-interface-factory-interface-name>
+					org.mobicents.slee.resource.tts.ratype.TTSActivityContextInterfaceFactory
+				</activity-context-interface-factory-interface-name>
+			</activity-context-interface-factory-interface>
+			<resource-adaptor-interface>
+				<resource-adaptor-interface-name>
+					org.mobicents.slee.resource.tts.ratype.TTSProvider
+				</resource-adaptor-interface-name>
+			</resource-adaptor-interface>
+		</resource-adaptor-type-classes>
+	</resource-adaptor-type>
+</resource-adaptor-type-jar>
