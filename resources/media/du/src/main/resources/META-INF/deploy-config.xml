@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deploy-config>
-  <ra-entity resource-adaptor-id="MediaResourceAdaptor#org.mobicents#1.0" entity-name="LocalMs">
-    <properties file="" />
-    <ra-link name="LocalMs" />
-  </ra-entity>
-</deploy-config>

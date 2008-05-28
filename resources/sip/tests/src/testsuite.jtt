@@ -1,6 +1,0 @@
-# Test suite file for JAIN SLEE TCK 1.0
-name=JAIN SLEE TCK 1.0 build 46
-id=JAIN SLEE TCK 1.0 build 46
-testsuite=com.opencloud.sleetck.lib.infra.SleeTCKTestSuite
-tests=tests
-classpath=../jars/sleetck.jar

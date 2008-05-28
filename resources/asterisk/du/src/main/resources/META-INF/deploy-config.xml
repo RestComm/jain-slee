@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deploy-config>
-  <ra-entity resource-adaptor-id="AsteriskResourceAdaptor#org.asteriskjava#1.0" entity-name="AsteriskRA">
-    <properties file="" />
-    <ra-link name="AsteriskRA" />
-  </ra-entity>
-</deploy-config>
