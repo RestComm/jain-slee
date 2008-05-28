@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+
+<sbb-jar>
+  <sbb id="OrderDeliverDateSbb-sbb">
+    <description>OrderDeliverDateSbb is used to set the date and time for Order Delivery</description>
+
+    <sbb-name>OrderDeliverDateSbb</sbb-name>
+    <sbb-vendor>org.mobicents</sbb-vendor>
+    <sbb-version>1.0</sbb-version>
+
+
+	<!-- Delegate to this child SBB after the first INVITE has been sent -->
+	<sbb-ref>
+		<sbb-name>CallControlSbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+		<sbb-alias>CallControl</sbb-alias>
+	</sbb-ref>
+
+	<!-- JSLEE v1.1 Specification, Early Draft Review Page 23 -->
+	<sbb-classes>
+		<sbb-abstract-class>
+		  <sbb-abstract-class-name>org.mobicents.slee.service.user.delivery.OrderDeliverDateSbb</sbb-abstract-class-name>
+		  <cmp-field>
+		    <cmp-field-name>customEvent</cmp-field-name>
+		  </cmp-field>		 
+		  <cmp-field>
+		    <cmp-field-name>sendBye</cmp-field-name>
+		  </cmp-field>
+		  <cmp-field>
+		    <cmp-field-name>childSbbLocalObject</cmp-field-name>
+		  </cmp-field>	
+		  <cmp-field>
+		    <cmp-field-name>dateAndTime</cmp-field-name>
+		  </cmp-field>	
+		  <cmp-field>
+		    <cmp-field-name>endpointName</cmp-field-name>
+		  </cmp-field>	
+		  <cmp-field>
+		    <cmp-field-name>announcementEndpointName</cmp-field-name>
+		  </cmp-field>  
+		<cmp-field>
+		  <cmp-field-name>timerID</cmp-field-name>
+		</cmp-field>   
+
+			<get-child-relation-method>
+				<sbb-alias-ref>CallControl</sbb-alias-ref>
+				<get-child-relation-method-name>getCallControlSbbChild</get-child-relation-method-name>
+				<default-priority>3</default-priority>
+			</get-child-relation-method>
+		</sbb-abstract-class>
+	</sbb-classes>
+    
+    <event event-direction="Receive" initial-event="True">
+      <event-name>OrderProcessed</event-name>
+      <event-type-ref>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_PROCESSED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+      </event-type-ref>
+	<initial-event-selector-method-name>orderIdSelect</initial-event-selector-method-name>
+    </event>    
+    
+    <event event-direction="Receive" initial-event="True">
+      <event-name>OrderApproved</event-name>
+      <event-type-ref>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_APPROVED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+      </event-type-ref>
+      <initial-event-selector-method-name>orderIdSelect</initial-event-selector-method-name>
+    </event>
+
+    <event event-direction="Receive" initial-event="True">
+      <event-name>OrderCancelled</event-name>
+      <event-type-ref>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_CANCELLED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+      </event-type-ref>
+	<initial-event-selector-method-name>orderIdSelect</initial-event-selector-method-name>
+    </event>    
+        <event event-direction="Receive" initial-event="False">
+            <event-name>LinkCreated</event-name>
+            <event-type-ref>
+                <event-type-name>org.mobicents.slee.media.JOIN_COMPLETE</event-type-name>
+                <event-type-vendor>org.mobicents.media</event-type-vendor>
+                <event-type-version>1.0</event-type-version>
+            </event-type-ref>
+        </event>    
+        
+        <!-- event event-direction="Receive" initial-event="False">
+            <event-name>LinkFailed</event-name>
+            <event-type-ref>
+                <event-type-name>org.mobicents.slee.media.JOIN_FAIL</event-type-name>
+                <event-type-vendor>org.mobicents.media</event-type-vendor>
+                <event-type-version>1.0</event-type-version>
+            </event-type-ref>
+        </event --> 
+
+        <!-- event event-direction="Receive" initial-event="False">
+            <event-name>Dtmf</event-name>
+            <event-type-ref>
+                <event-type-name>org.mobicents.slee.media.dtmf.DTMF</event-type-name>
+                <event-type-vendor>org.mobicents.media</event-type-vendor>
+                <event-type-version>1.0</event-type-version>
+            </event-type-ref>
+        </event -->   
+        
+	<event event-direction="Receive" initial-event="False">
+           <event-name>InfoEvent</event-name>
+           <event-type-ref>
+			<event-type-name>javax.sip.dialog.Request.INFO</event-type-name>
+			<event-type-vendor>net.java</event-type-vendor>
+			<event-type-version>1.2</event-type-version>
+           </event-type-ref>
+       </event>
+
+        <event event-direction="Receive" initial-event="False">
+            <event-name>LinkReleased</event-name>
+            <event-type-ref>
+                <event-type-name>org.mobicents.slee.media.LINK_DROPPED</event-type-name>
+                <event-type-vendor>org.mobicents.media</event-type-vendor>
+                <event-type-version>1.0</event-type-version>
+            </event-type-ref>
+        </event>    
+        
+        <event event-direction="Receive" initial-event="False">
+            <event-name>AnnouncementComplete</event-name>
+            <event-type-ref>
+                <event-type-name>org.mobicents.slee.media.announcement.COMPLETE</event-type-name>
+                <event-type-vendor>org.mobicents.media</event-type-vendor>
+                <event-type-version>1.0</event-type-version>
+            </event-type-ref>
+        </event>
+
+    <event event-direction="Receive" initial-event="False">
+      <event-name>TimerEvent</event-name>
+      <event-type-ref>
+        <event-type-name>javax.slee.facilities.TimerEvent</event-type-name>
+        <event-type-vendor>javax.slee</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+      </event-type-ref>
+    </event>
+    <env-entry>
+      <description>SIP URI of Admin. User will see this address as Caller Address</description>
+      <env-entry-name>callerSip</env-entry-name>
+      <env-entry-type>java.lang.String</env-entry-type>
+      <env-entry-value>${caller.sip}</env-entry-value>
+    </env-entry>
+    
+    <resource-adaptor-type-binding>
+      <resource-adaptor-type-ref>
+        <resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>1.2</resource-adaptor-type-version>
+      </resource-adaptor-type-ref>
+      <activity-context-interface-factory-name>slee/resources/jainsip/1.2/acifactory</activity-context-interface-factory-name>
+      <resource-adaptor-entity-binding>
+        <resource-adaptor-object-name>slee/resources/jainsip/1.2/provider</resource-adaptor-object-name>
+        <resource-adaptor-entity-link>SipRA</resource-adaptor-entity-link>
+      </resource-adaptor-entity-binding>
+    </resource-adaptor-type-binding>
+    
+    <resource-adaptor-type-binding>
+      <resource-adaptor-type-ref>
+        <resource-adaptor-type-name>media_ratype</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>org.mobicents.media</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+      </resource-adaptor-type-ref>
+      <activity-context-interface-factory-name>slee/resources/media/1.0/acifactory</activity-context-interface-factory-name>
+      <resource-adaptor-entity-binding>
+        <resource-adaptor-object-name>slee/resources/media/1.0/provider</resource-adaptor-object-name>
+        <resource-adaptor-entity-link>LocalMs</resource-adaptor-entity-link>
+      </resource-adaptor-entity-binding>
+    </resource-adaptor-type-binding>	
+    
+    <resource-adaptor-type-binding>
+      <resource-adaptor-type-ref>
+        <resource-adaptor-type-name>PersistenceAdaptorType</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>0.1</resource-adaptor-type-version>
+      </resource-adaptor-type-ref>
+      <activity-context-interface-factory-name>slee/resources/pra/0.1/acifactory</activity-context-interface-factory-name>
+      <resource-adaptor-entity-binding>
+        <resource-adaptor-object-name>slee/resources/pra/0.1/provider</resource-adaptor-object-name>
+        <resource-adaptor-entity-link>PersistenceRA</resource-adaptor-entity-link>
+      </resource-adaptor-entity-binding>
+    </resource-adaptor-type-binding>		    
+    
+    <resource-adaptor-type-binding>
+      <resource-adaptor-type-ref>
+        <resource-adaptor-type-name>TTSAdaptorType</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>0.1</resource-adaptor-type-version>
+      </resource-adaptor-type-ref>
+      <activity-context-interface-factory-name>slee/resources/ttsRA/0.1/acifactory</activity-context-interface-factory-name>
+      <resource-adaptor-entity-binding>
+        <resource-adaptor-object-name>slee/resources/ttsRA/0.1/provider</resource-adaptor-object-name>
+        <resource-adaptor-entity-link>ttsRA</resource-adaptor-entity-link>
+      </resource-adaptor-entity-binding>
+    </resource-adaptor-type-binding>
+
+  </sbb>
+</sbb-jar>

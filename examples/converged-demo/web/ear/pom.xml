@@ -1,0 +1,165 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<artifactId>converged-demo-parent</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+	</parent>
+	
+	<properties>
+		<projectName>ShoppingDemo</projectName>
+	</properties>
+	
+	<artifactId>converged-demo-web-ear</artifactId>
+	
+	<packaging>ear</packaging>
+	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
+	
+	<dependencies>
+    	<dependency>
+      		<groupId>org.mobicents.examples</groupId>
+      		<artifactId>converged-demo-web-war</artifactId>
+      		<version>${pom.version}</version>
+      		<scope>provided</scope>
+      		<type>war</type>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.mobicents.examples</groupId>
+      		<artifactId>converged-demo-web-jar</artifactId>
+      		<version>${pom.version}</version>
+      		<scope>provided</scope>
+      		<type>ejb</type>
+    	</dependency>
+    	<dependency>
+      		<groupId>org.jboss.seam</groupId>
+      		<artifactId>jboss-seam</artifactId>
+      		<scope>provided</scope>
+      		<type>ejb</type>
+    	</dependency>
+    	<!-- libs -->
+    	<dependency>
+         	<groupId>org.hibernate</groupId>
+    		<artifactId>hibernate-search</artifactId>
+         	<exclusions>
+         		<exclusion>         		
+         		    <groupId>org.hibernate</groupId>
+		            <artifactId>hibernate</artifactId>
+		            </exclusion>
+		            <exclusion>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            </exclusion>
+           <exclusion> 
+                        <groupId>javax.jms</groupId>
+            <artifactId>jms</artifactId>
+            		
+         		</exclusion>
+         	</exclusions>
+         	<type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-commons-annotations</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+            	</exclusion>
+            </exclusions>
+            <type>jar</type>
+        </dependency>    
+        <dependency>
+    		<groupId>org.jbpm</groupId>
+			<artifactId>jbpm-jpdl</artifactId>
+    		<exclusions>
+            	<exclusion>
+            		<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+            	</exclusion>
+            </exclusions>
+    		<type>jar</type>
+    	</dependency>
+    	<dependency>
+    		<groupId>org.jboss.seam</groupId>
+  			<artifactId>jboss-el</artifactId>
+    		<exclusions>
+         		<exclusion>
+         	  		<groupId>javax.el</groupId>
+					<artifactId>el-api</artifactId>
+				</exclusion>
+         	</exclusions>		
+    		<type>jar</type>
+    	</dependency>
+	</dependencies>
+	
+  <build>
+  	<finalName>ShoppingDemo</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-ear-plugin</artifactId>
+        <configuration>
+        	<displayName>${projectName}</displayName>
+        	<modules>        		        		
+        		<webModule>
+        			<groupId>org.mobicents.examples</groupId>
+        			<artifactId>converged-demo-web-war</artifactId>
+        			<bundleFileName>${projectName}.war</bundleFileName>
+        			<contextRoot>/${projectName}</contextRoot>
+        		</webModule>
+        		<ejbModule>
+        			<groupId>org.mobicents.examples</groupId>
+        			<artifactId>converged-demo-web-jar</artifactId>
+        			<bundleFileName>${projectName}.jar</bundleFileName>
+        		</ejbModule>        
+        		<ejbModule>
+        			<groupId>org.jboss.seam</groupId>
+      				<artifactId>jboss-seam</artifactId>
+        			<bundleFileName>jboss-seam.jar</bundleFileName>
+        		</ejbModule>		
+        	</modules>
+        	<jboss>
+        		<version>4.2</version>
+        		<loader-repository>
+        			seam.jboss.org:loader=${projectName}
+        		</loader-repository>
+        	</jboss>
+        	<defaultLibBundleDir>lib</defaultLibBundleDir>
+        </configuration>
+      </plugin>
+      <plugin>
+      	<artifactId>maven-antrun-plugin</artifactId>
+      	<executions>
+      		<execution>
+      			<id>deploy-datasource</id>
+      			<phase>install</phase>
+      			<goals>
+      				<goal>run</goal>
+      			</goals>
+      			<configuration>
+      				<tasks>
+      					<copy overwrite="true" verbose="true" file="datasource/ShoppingDemo-dev-ds.xml" toDir="${env.JBOSS_HOME}/server/${node}/deploy" />
+      					<copy overwrite="true" file="target/${project.build.finalName}.ear" todir="${env.JBOSS_HOME}/server/${node}/deploy" />	
+      				</tasks>
+      			</configuration>
+      		</execution>
+      		<execution>
+      			<id>undeploy-datasource</id>
+      			<phase>clean</phase>
+      			<goals>
+      				<goal>run</goal>
+      			</goals>
+      			<configuration>
+      				<tasks>
+      					<delete file="${env.JBOSS_HOME}/server/${node}/deploy/${project.build.finalName}.ear" />
+      					<delete file="${env.JBOSS_HOME}/server/${node}/deploy/ShoppingDemo-dev-ds.xml" />
+      				</tasks>
+      			</configuration>
+      		</execution>
+      	</executions>
+      </plugin>
+    </plugins>
+  </build>
+  				
+</project>
