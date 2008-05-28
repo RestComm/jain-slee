@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE resource-adaptor-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.0//EN" "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_0.dtd">
+
+<resource-adaptor-jar>
+  <resource-adaptor id="rules_1.0_RA">
+    <description>Mobicents Rules resource adaptor - version 1.0</description>
+
+    <resource-adaptor-name>RulesResourceAdaptor</resource-adaptor-name>
+    <resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
+    <resource-adaptor-version>1.0</resource-adaptor-version>
+
+    <resource-adaptor-type-ref>
+      <resource-adaptor-type-name>RulesResourceAdaptorType</resource-adaptor-type-name>
+      <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+      <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+    </resource-adaptor-type-ref>
+              
+    <resource-adaptor-classes>
+      <resource-adaptor-class>
+        <resource-adaptor-class-name>
+          org.mobicents.slee.resource.rules.ra.RulesResourceAdaptor
+        </resource-adaptor-class-name>
+      </resource-adaptor-class>
+    </resource-adaptor-classes>
+  </resource-adaptor>
+</resource-adaptor-jar>
