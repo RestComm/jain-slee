@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deploy-config>
-  <ra-entity resource-adaptor-id="DiameterResourceAdaptor#org.mobicents#1.0" entity-name="DiameterRA">
-    <properties file="" />
-    <ra-link name="DiameterRA" />
-  </ra-entity>
-</deploy-config>

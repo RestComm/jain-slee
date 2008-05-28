@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deploy-config>
-  <ra-entity resource-adaptor-id="RulesResourceAdaptor#org.mobicents#1.0" entity-name="RulesRA">
-    <properties file="" />
-    <ra-link name="RulesRA" />
-  </ra-entity>
-</deploy-config>
