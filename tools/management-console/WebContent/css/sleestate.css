@@ -1,0 +1,32 @@
+.sleestate-SleeStatePanel {
+	margin: 5px;
+	border-spacing: 5px;
+	border: 1px solid #ffe57f;
+	background-color: #ffffbb;
+}
+
+.sleestate-SleeStatePanel-state {
+	padding-top: 5px;
+	padding-bottom: 5px;
+
+	font-weight: bold;
+}
+
+.sleestate-SleeStatePanel-state-stopped {
+	background-color: #FF6666;
+	border: 1px solid red;
+	color: white;
+}
+
+.sleestate-SleeStatePanel-state-starting,
+.sleestate-SleeStatePanel-state-stopping  {
+	background-color: #FFAA00;
+	border: 1px solid #FF6600;
+	color: white;
+}
+
+.sleestate-SleeStatePanel-state-running {
+	background-color: #B4E9C5;
+	border: 1px solid #006600;
+	color: #006600;
+}
