@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.0//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_0.dtd">
+
+<resource-adaptor-type-jar>
+    <description />
+    <resource-adaptor-type>
+        <description>Media Resource Adaptor Type</description>
+        <resource-adaptor-type-name>media_ratype</resource-adaptor-type-name>
+        <resource-adaptor-type-vendor>org.mobicents.media</resource-adaptor-type-vendor>
+        <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+        <resource-adaptor-type-classes>
+            <activity-type>
+                <activity-type-name>org.mobicents.slee.resource.media.ratype.MediaSession</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>org.mobicents.mscontrol.MsSession</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>org.mobicents.mscontrol.MsLink</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>org.mobicents.mscontrol.MsConnection</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>org.mobicents.mscontrol.MsTermination</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>org.mobicents.mscontrol.MsSignalGenerator</activity-type-name>
+            </activity-type>
+            <activity-type>
+                <activity-type-name>org.mobicents.mscontrol.MsSignalDetector</activity-type-name>
+            </activity-type>
+            <activity-context-interface-factory-interface>
+                <activity-context-interface-factory-interface-name>
+                    org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceFactory
+                </activity-context-interface-factory-interface-name>
+            </activity-context-interface-factory-interface>
+            <resource-adaptor-interface>
+                <resource-adaptor-interface-name>
+                    org.mobicents.mscontrol.MsProvider
+                </resource-adaptor-interface-name>
+            </resource-adaptor-interface>
+        </resource-adaptor-type-classes>
+    </resource-adaptor-type>
+</resource-adaptor-type-jar>
+
