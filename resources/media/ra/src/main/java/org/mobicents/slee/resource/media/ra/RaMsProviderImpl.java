@@ -99,11 +99,6 @@ public class RaMsProviderImpl implements MsProvider {
 		return this.linkListeners;
 	}
 
-	public MsConnection getMsConnection(String msConnectionId) {
-		// TODO Add logic here
-		return null;
-	}
-
 	public List<MsResourceListener> getResourceListeners() {
 		return this.resourceListeners;
 	}
@@ -172,5 +167,29 @@ public class RaMsProviderImpl implements MsProvider {
 	public void removeSessionListener(MsSessionListener listener) {
 		sessionListeners.remove(listener);
 	}
+	
+	public MsConnection getMsConnection(String msConnectionId) {
+
+		for (MsSession e : calls) {
+			for (MsConnection c : e.getConnections()) {
+				if (c.getId().equals(msConnectionId)) {
+					return c;
+				}
+			}
+		}
+		return null;
+	}
+
+	public List<MsConnection> getMsConnections(String endpointName) {
+		List<MsConnection> msConnectionList = new ArrayList<MsConnection>();
+		for (MsSession e : calls) {
+			for (MsConnection c : e.getConnections()) {
+				if (c.getEndpoint().equals(endpointName)) {
+					msConnectionList.add(c);
+				}
+			}
+		}
+		return msConnectionList;
+	}	
 
 }

@@ -175,5 +175,9 @@ public class RaMsSessionImpl implements MsSession {
 	public List<MsSessionListener> getSessionListeners() {
 		return this.sessionListeners;
 	}
+	
+	public List<MsConnection> getConnections() {
+		return this.connections;
+	}	
 
 }
