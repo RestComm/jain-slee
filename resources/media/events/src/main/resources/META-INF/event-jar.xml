@@ -61,6 +61,17 @@
     </event-definition>
     
     <!-- CONNECTION EVENTS -->
+    
+    <event-definition>
+	    <description>
+		    This event is fired when MsSession.createNetwrokConnection is called.
+	    </description>
+	    <event-type-name>org.mobicents.slee.media.CONNECTION_INITIALIZED</event-type-name>
+	    <event-type-vendor>org.mobicents.media</event-type-vendor>
+	    <event-type-version>1.0</event-type-version>
+	    <event-class-name>org.mobicents.mscontrol.MsConnectionEvent</event-class-name>
+    </event-definition>
+    
     <event-definition>
         <description>
             This event is fired when Connection is created.
@@ -121,6 +132,15 @@
         <event-type-version>1.0</event-type-version>
         <event-class-name>org.mobicents.mscontrol.MsLinkEvent</event-class-name>
     </event-definition>
+    <event-definition>
+	    <description>
+		    This event is fired when link is created.
+	    </description>
+	    <event-type-name>org.mobicents.slee.media.LINK_CREATED</event-type-name>
+	    <event-type-vendor>org.mobicents.media</event-type-vendor>
+	    <event-type-version>1.0</event-type-version>
+	    <event-class-name>org.mobicents.mscontrol.MsLinkEvent</event-class-name>
+    </event-definition>    
     <event-definition>
         <description>
             This event is fired when link tx is failed.

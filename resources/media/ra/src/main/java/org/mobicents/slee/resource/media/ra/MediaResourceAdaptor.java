@@ -8,7 +8,6 @@
  ***************************************************/
 package org.mobicents.slee.resource.media.ra;
 
-import java.util.HashMap;
 import java.util.Properties;
 
 import javax.naming.NamingException;
@@ -37,8 +36,6 @@ import org.mobicents.mscontrol.MsLink;
 import org.mobicents.mscontrol.MsLinkEvent;
 import org.mobicents.mscontrol.MsLinkListener;
 import org.mobicents.mscontrol.MsNotifyEvent;
-import org.mobicents.mscontrol.MsPeer;
-import org.mobicents.mscontrol.MsPeerFactory;
 import org.mobicents.mscontrol.MsProvider;
 import org.mobicents.mscontrol.MsResource;
 import org.mobicents.mscontrol.MsResourceListener;
@@ -58,15 +55,14 @@ import org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceF
  * 
  * @author torosvi
  * @author Ivelin Ivanov
+ * @author Oleg Kulikov
+ * @author amit.bhayani
  * 
  */
-public class MediaResourceAdaptor implements ResourceAdaptor,
-		MsConnectionListener, MsResourceListener, MsLinkListener,
+public class MediaResourceAdaptor implements ResourceAdaptor, MsConnectionListener, MsResourceListener, MsLinkListener,
 		MsSessionListener {
 	public Properties properties;
-	private static final String LOCAL_HOST = "org.mobicents.LOCAL_HOST";
 
-	private MsPeerFactory peerFactory;
 	private MsProvider msProvider;
 
 	static private transient Logger logger;
@@ -97,11 +93,10 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	// The EventLookupFacility is used to look up the event id of incoming
 	// events
 	private transient EventLookupFacility eventLookup = null;
-	// The list of activites stored in this resource adaptor. If this resource
-	// adaptor were a distributed and highly available solution, this storage
-	// were one of the candidates for distribution.
-	private HashMap activities = null;
-	private HashMap handlers = new HashMap();
+
+	// The list of activites stored in this resource adaptor is managed by
+	// MediaActivityManager.
+	MediaActivityManager mediaActivityManager = new MediaActivityManager();
 
 	// The activity context interface factory defined in
 	// MediaRaActivityContextInterfaceFactoryImpl
@@ -116,8 +111,7 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 * adaptor object and then invoke the entityCreated method before any other
 	 * operations can be invoked on the resource adaptor object.
 	 */
-	public void entityCreated(BootstrapContext bootstrapContext)
-			throws ResourceException {
+	public void entityCreated(BootstrapContext bootstrapContext) throws ResourceException {
 		this.bootstrapContext = bootstrapContext;
 		this.sleeEndpoint = bootstrapContext.getSleeEndpoint();
 		this.eventLookup = bootstrapContext.getEventLookupFacility();
@@ -147,24 +141,19 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 */
 	public void entityActivated() throws ResourceException {
 		try {
-			try {
-				MsPeer peer = MsPeerFactory.getPeer();
-				msProvider = peer.getProvider();
-				msProvider.addConnectionListener(this);
-				msProvider.addSessionListener(this);
-				msProvider.addResourceListener(this);
-				msProvider.addLinkListener(this);
-			} catch (ClassNotFoundException e) {
-				throw new ResourceException(e.getMessage());
-			}
+
+			msProvider = new RaMsProviderImpl(this);
+			msProvider.addConnectionListener(this);
+			msProvider.addSessionListener(this);
+			msProvider.addResourceListener(this);
+			msProvider.addLinkListener(this);
 
 			this.initializeNamingContext();
-			activities = new HashMap();
+			// activities = new HashMap();
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new javax.slee.resource.ResourceException(
-					"MediaResourceAdaptor.entityActivated(): "
-							+ "Failed to activate RAFrame Resource Adaptor!", e);
+			throw new javax.slee.resource.ResourceException("MediaResourceAdaptor.entityActivated(): "
+					+ "Failed to activate RAFrame Resource Adaptor!", e);
 		}
 	}
 
@@ -211,8 +200,7 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 * considered to be processed successfully if the SLEE has attempted to
 	 * deliver the event to all interested SBBs.
 	 */
-	public void eventProcessingSuccessful(ActivityHandle handle, Object event,
-			int eventID, Address address, int flags) {
+	public void eventProcessingSuccessful(ActivityHandle handle, Object event, int eventID, Address address, int flags) {
 	}
 
 	/**
@@ -224,8 +212,8 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 * resource to process the event, a SLEE node fails during event processing
 	 * or a system level failure prevents the SLEE from committing transactions.
 	 */
-	public void eventProcessingFailed(ActivityHandle handle, Object event,
-			int eventID, Address address, int flags, FailureReason reason) {
+	public void eventProcessingFailed(ActivityHandle handle, Object event, int eventID, Address address, int flags,
+			FailureReason reason) {
 	}
 
 	/**
@@ -238,8 +226,10 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 */
 	public void activityEnded(ActivityHandle activityHandle) {
 		// remove the handle from the list of activities
-		Object activity = activities.remove(activityHandle);
-		handlers.remove(activity.toString());
+		// Object activity = activities.remove(activityHandle);
+		// handlers.remove(activity.toString());
+
+		mediaActivityManager.removeMediaActivity(activityHandle);
 	}
 
 	/**
@@ -260,6 +250,13 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 * this resource adaptor object is alive.
 	 */
 	public void queryLiveness(ActivityHandle activityHandle) {
+		if (!mediaActivityManager.containsActivityHandle(activityHandle)) {
+			try {
+				sleeEndpoint.activityEnding(activityHandle);
+			} catch (Exception e) {
+				logger.error("Unexpected error while ending activity", e);
+			}
+		}
 	}
 
 	/**
@@ -270,7 +267,9 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 * non-null object.
 	 */
 	public Object getActivity(ActivityHandle activityHandle) {
-		return activities.get(activityHandle);
+		return mediaActivityManager.getActivity(activityHandle);
+
+		// return activities.get(activityHandle);
 	}
 
 	/**
@@ -282,7 +281,8 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 * activity context interface factory method invoked by an SBB.
 	 */
 	public ActivityHandle getActivityHandle(Object activity) {
-		return (ActivityHandle) handlers.get(activity.toString());
+		return mediaActivityManager.getActivityHandle(activity);
+		// return (ActivityHandle) handlers.get(activity.toString());
 	}
 
 	/**
@@ -317,8 +317,7 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	 * that services in the SLEE are interested in. The SLEE calls this method
 	 * once a service is installed.
 	 */
-	public void serviceInstalled(String serviceKey, int[] eventIDs,
-			String[] resourceOptions) {
+	public void serviceInstalled(String serviceKey, int[] eventIDs, String[] resourceOptions) {
 	}
 
 	/**
@@ -361,27 +360,23 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 
 		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
 				.getResourceAdaptorEnitity(entityName));
-		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
-				.getInstalledResourceAdaptor().getRaType()
+		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity.getInstalledResourceAdaptor().getRaType()
 				.getResourceAdaptorTypeID();
 		// Create the ActivityContextInterfaceFactory
-		acif = new MediaRaActivityContextInterfaceFactoryImpl(
-				resourceAdaptorEntity.getServiceContainer(), entityName);
+		acif = new MediaRaActivityContextInterfaceFactoryImpl(resourceAdaptorEntity.getServiceContainer(), entityName,
+				this);
 		// Set the ActivityContextInterfaceFactory
-		resourceAdaptorEntity.getServiceContainer()
-				.getActivityContextInterfaceFactories().put(raTypeId, acif);
+		resourceAdaptorEntity.getServiceContainer().getActivityContextInterfaceFactories().put(raTypeId, acif);
 
 		try {
 			if (this.acif != null) {
 				// Parse the string = java:slee/resources/MediaRA/mediaraacif
-				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) acif)
-						.getJndiName();
+				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) acif).getJndiName();
 				int begind = jndiName.indexOf(':');
 				int toind = jndiName.lastIndexOf('/');
 				String prefix = jndiName.substring(begind + 1, toind);
 				String name = jndiName.substring(toind + 1);
-				logger.debug("jndiName prefix =" + prefix + "; jndiName = "
-						+ name);
+				logger.debug("jndiName prefix =" + prefix + "; jndiName = " + name);
 				SleeContainer.registerWithJndi(prefix, name, this.acif);
 			}
 		} catch (IndexOutOfBoundsException e) {
@@ -395,8 +390,7 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 		try {
 			if (this.acif != null) {
 				// Parse the string = java:slee/resources/MediaRA/mediaraacif
-				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif)
-						.getJndiName();
+				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif).getJndiName();
 				// Remove "java:" prefix
 				int begind = jndiName.indexOf(':');
 				String javaJNDIName = jndiName.substring(begind + 1);
@@ -409,24 +403,18 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 		}
 	}
 
-	private synchronized void fireEvent(String eventName,
-			ActivityHandle activityHandle, Object event) {
+	private synchronized void fireEvent(String eventName, ActivityHandle activityHandle, Object event) {
 		int eventID = -1;
 		try {
-			eventID = eventLookup.getEventID(eventName, "org.mobicents.media",
-					"1.0");
+			eventID = eventLookup.getEventID(eventName, "org.mobicents.media", "1.0");
 		} catch (FacilityException fe) {
 			logger.error("Caught a FacilityException: ");
 			fe.printStackTrace();
-			throw new RuntimeException(
-					"MediaResourceAdaptor.firEvent(): FacilityException caught. ",
-					fe);
+			throw new RuntimeException("MediaResourceAdaptor.firEvent(): FacilityException caught. ", fe);
 		} catch (UnrecognizedEventException ue) {
 			logger.error("Caught an UnrecognizedEventException: ");
 			ue.printStackTrace();
-			throw new RuntimeException(
-					"MediaResourceAdaptor.firEvent(): UnrecognizedEventException caught.",
-					ue);
+			throw new RuntimeException("MediaResourceAdaptor.firEvent(): UnrecognizedEventException caught.", ue);
 		}
 
 		if (eventID == -1) {
@@ -455,70 +443,71 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 		return sleeEndpoint;
 	}
 
-	public void onConnecting(MsConnectionEvent evt) {
-		MsConnection connection = evt.getConnection();
-		// MediaActivityHandle handle = new
-		// MediaActivityHandle(connection.toString());
-		ActivityHandle handle = getActivityHandle(connection);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_CONNECTING",
-				handle, evt);
-	}
+	// public void onConnecting(MsConnectionEvent evt) {
+	// MsConnection connection = evt.getConnection();
+	// // MediaActivityHandle handle = new
+	// // MediaActivityHandle(connection.toString());
+	// ActivityHandle handle = getActivityHandle(connection);
+	// this.fireEvent("org.mobicents.slee.media.CONNECTION_CONNECTING", handle,
+	// evt);
+	// }
 
-	public void onConnected(MsConnectionEvent evt) {
-		MsConnection connection = evt.getConnection();
-		// MediaActivityHandle handle = new
-		// MediaActivityHandle(connection.toString());
-		ActivityHandle handle = getActivityHandle(connection);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_CONNECTED", handle,
-				evt);
-	}
+	// public void onConnected(MsConnectionEvent evt) {
+	// MsConnection connection = evt.getConnection();
+	// // MediaActivityHandle handle = new
+	// // MediaActivityHandle(connection.toString());
+	// ActivityHandle handle = getActivityHandle(connection);
+	// this.fireEvent("org.mobicents.slee.media.CONNECTION_CONNECTED", handle,
+	// evt);
+	// }
 
-	public void onFailed(MsConnectionEvent evt) {
-		MsConnection connection = evt.getConnection();
-		// MediaActivityHandle handle = new
-		// MediaActivityHandle(connection.toString());
-		ActivityHandle handle = getActivityHandle(connection);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_FAILED", handle,
-				evt);
-	}
+	// public void onFailed(MsConnectionEvent evt) {
+	// MsConnection connection = evt.getConnection();
+	// // MediaActivityHandle handle = new
+	// // MediaActivityHandle(connection.toString());
+	// ActivityHandle handle = getActivityHandle(connection);
+	// this.fireEvent("org.mobicents.slee.media.CONNECTION_FAILED", handle,
+	// evt);
+	// }
 
-	public void onDisconnected(MsConnectionEvent evt) {
-		MsConnection connection = evt.getConnection();
-		// MediaActivityHandle handle = new
-		// MediaActivityHandle(connection.toString());
-		ActivityHandle handle = getActivityHandle(connection);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_DISCONNECTED",
-				handle, evt);
-		try {
-			sleeEndpoint.activityEnding(handle);
-		} catch (Exception e) {
-			logger.error("Could not end activity: " + connection);
-		}
-	}
+	// public void onDisconnected(MsConnectionEvent evt) {
+	// MsConnection connection = evt.getConnection();
+	// // MediaActivityHandle handle = new
+	// // MediaActivityHandle(connection.toString());
+	// ActivityHandle handle = getActivityHandle(connection);
+	// this.fireEvent("org.mobicents.slee.media.CONNECTION_DISCONNECTED",
+	// handle, evt);
+	// try {
+	// sleeEndpoint.activityEnding(handle);
+	// } catch (Exception e) {
+	// logger.error("Could not end activity: " + connection);
+	// }
+	// }
 
 	public void update(MsNotifyEvent event) {
 		MsResource resource = event.getSource();
-		MediaActivityHandle handle = new MediaActivityHandle(resource
-				.toString());
-		activities.put(handle, handle);
+
+		MsResourceActivityHandle msResourceActivityHandle = mediaActivityManager.getMsResourceActivityHandle(resource
+				.getID());
+
+		if (msResourceActivityHandle == null) {
+			msResourceActivityHandle = mediaActivityManager.putMsResourceActivity(resource);
+		}
 
 		EventID eventid = event.getEventID();
 
 		if (eventid.equals(EventID.PLAY)) {
-			this.fireEvent("org.mobicents.slee.media.announcement.PLAY",
-					handle, event);
+			this.fireEvent("org.mobicents.slee.media.announcement.PLAY", msResourceActivityHandle, event);
 		} else if (eventid.equals(EventID.COMPLETE)) {
-			this.fireEvent("org.mobicents.slee.media.announcement.COMPLETE",
-					handle, event);
+			this.fireEvent("org.mobicents.slee.media.announcement.COMPLETE", msResourceActivityHandle, event);
 		} else if (eventid.equals(EventID.FAIL)) {
-			this.fireEvent("org.mobicents.slee.media.announcement.FAIL",
-					handle, event);
+			this.fireEvent("org.mobicents.slee.media.announcement.FAIL", msResourceActivityHandle, event);
 		} else if (eventid.equals(EventID.DTMF)) {
-			this.fireEvent("org.mobicents.slee.media.dtmf.DTMF", handle, event);
+			this.fireEvent("org.mobicents.slee.media.dtmf.DTMF", msResourceActivityHandle, event);
 		}
 
 		try {
-			sleeEndpoint.activityEnding(handle);
+			sleeEndpoint.activityEnding(msResourceActivityHandle);
 		} catch (Exception e) {
 			logger.error("Could not end activity: " + resource);
 		}
@@ -527,19 +516,27 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	// -----------------------------------------------------------------------------
 	// Link events
 	// -----------------------------------------------------------------------------
+
+	public void linkCreated(MsLinkEvent evt) {
+		MsLink link = evt.getSource();
+		MsLinkActivityHandle msLinkActivityHandle = mediaActivityManager.getMsLinkActivityHandle(link.getId());
+		this.fireEvent("org.mobicents.slee.media.LINK_CREATED", msLinkActivityHandle, evt);
+	}
+
 	public void linkJoined(MsLinkEvent evt) {
 		MsLink link = evt.getSource();
-		MediaActivityHandle handle = new MediaActivityHandle(link.toString());
-		activities.put(handle, link);
-		this.fireEvent("org.mobicents.slee.media.JOIN_COMPLETE", handle, evt);
+
+		MsLinkActivityHandle msLinkActivityHandle = mediaActivityManager.getMsLinkActivityHandle(link.getId());
+		this.fireEvent("org.mobicents.slee.media.JOIN_COMPLETE", msLinkActivityHandle, evt);
 	}
 
 	public void linkDropped(MsLinkEvent evt) {
 		MsLink link = evt.getSource();
-		MediaActivityHandle handle = new MediaActivityHandle(link.toString());
-		this.fireEvent("org.mobicents.slee.media.LINK_DROPPED", handle, evt);
+
+		MsLinkActivityHandle msLinkActivityHandle = mediaActivityManager.getMsLinkActivityHandle(link.getId());
+		this.fireEvent("org.mobicents.slee.media.LINK_DROPPED", msLinkActivityHandle, evt);
 		try {
-			sleeEndpoint.activityEnding(handle);
+			sleeEndpoint.activityEnding(msLinkActivityHandle);
 		} catch (Exception e) {
 			logger.error("Could not end activity: " + link);
 		}
@@ -547,10 +544,10 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 
 	public void linkFailed(MsLinkEvent evt) {
 		MsLink link = evt.getSource();
-		MediaActivityHandle handle = new MediaActivityHandle(link.toString());
-		this.fireEvent("org.mobicents.slee.media.JOIN_FAIL", handle, evt);
+		MsLinkActivityHandle msLinkActivityHandle = mediaActivityManager.getMsLinkActivityHandle(link.getId());
+		this.fireEvent("org.mobicents.slee.media.JOIN_FAIL", msLinkActivityHandle, evt);
 		try {
-			sleeEndpoint.activityEnding(handle);
+			sleeEndpoint.activityEnding(msLinkActivityHandle);
 		} catch (Exception e) {
 			logger.error("Could not end activity: " + link);
 		}
@@ -559,28 +556,34 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	// -----------------------------------------------------------------------------
 	// Connection events
 	// -----------------------------------------------------------------------------
+
+	public void connectionInitialized(MsConnectionEvent evt) {
+		MsConnection connection = evt.getConnection();
+		MsConnectionActivityHandle msConnectionActivityHandle = mediaActivityManager
+				.getMsConnectionActivityHandle(connection.getId());
+		this.fireEvent("org.mobicents.slee.media.CONNECTION_INITIALIZED", msConnectionActivityHandle, evt);
+
+	}
+
 	public void connectionCreated(MsConnectionEvent evt) {
 		MsConnection connection = evt.getConnection();
-		MediaActivityHandle handle = new MediaActivityHandle(connection
-				.toString());
-		activities.put(handle, connection);
-		handlers.put(connection.toString(), handle);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_CREATED", handle,
-				evt);
+
+		MsConnectionActivityHandle msConnectionActivityHandle = mediaActivityManager
+				.getMsConnectionActivityHandle(connection.getId());
+		this.fireEvent("org.mobicents.slee.media.CONNECTION_CREATED", msConnectionActivityHandle, evt);
 	}
 
 	public void connectionModifed(MsConnectionEvent event) {
 		MsConnection connection = event.getConnection();
-		ActivityHandle handle = getActivityHandle(connection);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_MODIFIED", handle,
-				event);
+		MsConnectionActivityHandle handle = mediaActivityManager.getMsConnectionActivityHandle(connection.getId());
+		this.fireEvent("org.mobicents.slee.media.CONNECTION_MODIFIED", handle, event);
 	}
 
 	public void connectionDeleted(MsConnectionEvent event) {
 		MsConnection connection = event.getConnection();
-		ActivityHandle handle = getActivityHandle(connection);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_DELETED", handle,
-				event);
+		MsConnectionActivityHandle handle = mediaActivityManager.getMsConnectionActivityHandle(connection.getId());
+		// ActivityHandle handle = getActivityHandle(connection);
+		this.fireEvent("org.mobicents.slee.media.CONNECTION_DELETED", handle, event);
 		try {
 			sleeEndpoint.activityEnding(handle);
 		} catch (Exception e) {
@@ -590,9 +593,9 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 
 	public void txFailed(MsConnectionEvent event) {
 		MsConnection connection = event.getConnection();
-		ActivityHandle handle = getActivityHandle(connection);
-		this.fireEvent("org.mobicents.slee.media.CONNECTION_TX_FAILED", handle,
-				event);
+		MsConnectionActivityHandle handle = mediaActivityManager.getMsConnectionActivityHandle(connection.getId());
+		// ActivityHandle handle = getActivityHandle(connection);
+		this.fireEvent("org.mobicents.slee.media.CONNECTION_TX_FAILED", handle, event);
 	}
 
 	// -----------------------------------------------------------------------------
@@ -600,26 +603,29 @@ public class MediaResourceAdaptor implements ResourceAdaptor,
 	// -----------------------------------------------------------------------------
 	public void sessionCreated(MsSessionEvent evt) {
 		MsSession session = evt.getSource();
-		MediaActivityHandle handle = new MediaActivityHandle(session.toString());
-		activities.put(handle, session);
+		MsSessionActivityHandle handle = mediaActivityManager.getMsSessionActivityHandle(session.getId());
 		this.fireEvent("org.mobicents.slee.media.SESSION_CREATED", handle, evt);
 	}
 
 	public void sessionActive(MsSessionEvent evt) {
 		MsSession session = evt.getSource();
-		MediaActivityHandle handle = new MediaActivityHandle(session.toString());
+		MsSessionActivityHandle handle = mediaActivityManager.getMsSessionActivityHandle(session.getId());
 		this.fireEvent("org.mobicents.slee.media.SESSION_ACTIVE", handle, evt);
 	}
 
 	public void sessionInvalid(MsSessionEvent evt) {
 		MsSession session = evt.getSource();
-		MediaActivityHandle handle = new MediaActivityHandle(session.toString());
+		MsSessionActivityHandle handle = mediaActivityManager.getMsSessionActivityHandle(session.getId());
 		this.fireEvent("org.mobicents.slee.media.SESSION_INVALID", handle, evt);
 		try {
 			sleeEndpoint.activityEnding(handle);
 		} catch (Exception e) {
 			logger.error("Could not end activity: " + session);
 		}
+	}
+
+	public MediaActivityManager getMediaActivityManager() {
+		return this.mediaActivityManager;
 	}
 
 }
