@@ -4,11 +4,12 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents</artifactId>
-		<version>1.2.0.GA-SNAPSHOT</version>
+		<version>1-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	
 	<artifactId>mobicents-jainslee-server</artifactId>
+	<version>1.2.0.GA-SNAPSHOT</version>
 	
 	<packaging>pom</packaging>
 	
@@ -36,7 +37,7 @@
 			<modules>
 			
 				<module>resources/asterisk</module>
-				<!--module>resources/diameter</module-->
+				<module>resources/diameter</module>
 				<module>resources/http-client</module>
 				<module>resources/http-servlet</module>
 				<module>resources/lab</module>
@@ -48,7 +49,7 @@
 				<module>resources/sip</module>
 				<module>resources/smpp</module>
 				<module>resources/tts</module>
-				<!-- module>resources/xcap-client</module-->
+				<module>resources/xcap-client</module>
 				<module>resources/xmpp</module>
 
 				<module>examples/asterisk</module>
@@ -72,7 +73,7 @@
 				<module>examples/training/example6</module>
 				<module>examples/training/example7</module>
 				<module>examples/xmpp-component</module>
-				<!-- module>examples/xcap-client</module-->
+				<module>examples/xcap-client</module>
 				
 			</modules>
 			<build>
@@ -88,7 +89,30 @@
 			</build>		
 		</profile>
 	</profiles>
-
+	
+	<properties>		
+		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
+		<mobicents.servers.media.version>1.0.0.BETA1-CP1</mobicents.servers.media.version>
+		<mobicents.servers.sippresence.version>1.0.0.BETA2-SNAPSHOT</mobicents.servers.sippresence.version>
+		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2-SNAPSHOT</mobicents.tools.mavenplugin.du.version>
+		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA1-SNAPSHOT</mobicents.tools.mavenplugin.eclipse.version>
+	</properties>	
+	
+	<dependencyManagement>
+		<dependencies>	
+			<dependency>
+				<groupId>org.mobicents.servers.media</groupId>
+				<artifactId>mobicents-media-server</artifactId>
+				<version>${mobicents.server.media.version}</version>
+			</dependency>
+			<dependency>
+				<artifactId>sip-presence-parent</artifactId>
+				<groupId>org.mobicents.servers.sippresence</groupId>
+				<version>${mobicents.server.sippresence.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
 	<build>
 		<plugins>
 			<plugin>

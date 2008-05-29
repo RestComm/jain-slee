@@ -15,16 +15,25 @@
 	<artifactId>mobicents-resources-diameter-parent</artifactId>
 
 	<packaging>pom</packaging>
-	<name>Mobicents Diameter Resoruce Adaptors :: ${pom.artifactId}</name>
+	<name>
+		Mobicents Diameter Resoruce Adaptors :: ${pom.artifactId}
+	</name>
 
-	<modules>
 	<!-- 
-		<module>base</module>
-		<module>cca</module>
-		<module>sh-client</module>
-		<module>sh-server</module>
+	don't remove comments while dependencies are not on remote servers
+	<profiles>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+				<module>base</module>
+				<module>cca</module>
+				<module>rf</module>
+				<module>ro</module>
+				<module>sh-client</module>
+				<module>sh-server</module>
+			</modules>
+		</profile>
+	</profiles>
 	-->
-	</modules>
-
 </project>
 
