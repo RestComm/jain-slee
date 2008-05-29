@@ -1,0 +1,11 @@
+package org.csapi.fw.fw_access.trust_and_security;
+
+/**
+ *	Generated from IDL interface "IpAPILevelAuthentication"
+ *	@author JacORB IDL compiler V 2.1, 16-Feb-2004
+ */
+
+public interface IpAPILevelAuthentication
+	extends IpAPILevelAuthenticationOperations, org.omg.CORBA.Object, org.omg.CORBA.portable.IDLEntity, org.csapi.fw.fw_access.trust_and_security.IpAuthentication
+{
+}
