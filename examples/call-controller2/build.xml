@@ -12,77 +12,53 @@
 	</target>
 
 	<target name="deploy-all" depends="init">
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../resources/sip/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../resources/sip/">
 			<arg value="install"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../sip-services/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../sip-services/">
 			<arg value="install"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../sip-services/proxy-without-initial-invite-services-DU/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../sip-services/proxy-without-initial-invite-services-DU/">
 			<arg value="install"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../servers/media/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../servers/media/">
 			<arg value="install"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../resources/media/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../resources/media/">
 			<arg value="install"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/pom.xml"/>
+		<exec executable="${executable}" dir="${home}">
 			<arg value="install"/>
 		</exec>
 	</target>
 
 	<target name="undeploy-all" depends="init">
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/pom.xml"/>
+		<exec executable="${executable}" dir="${home}">
 			<arg value="clean"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../resources/media/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../resources/media/">
 			<arg value="clean"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../servers/media/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../servers/media/">
 			<arg value="clean"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../sip-services/proxy-without-initial-invite-services-DU/pom.xml" />
+		<exec executable="${executable}" dir="${home}/../sip-services/proxy-without-initial-invite-services-DU/">
 			<arg value="clean" />
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f" />
-			<arg value="${home}/../sip-services/pom.xml" />
+		<exec executable="${executable}" dir="${home}/../sip-services/">
 			<arg value="clean" />
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../resources/sip/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../resources/sip/">
 			<arg value="clean"/>
 		</exec>
 	</target>

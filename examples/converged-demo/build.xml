@@ -12,77 +12,53 @@
   </target>
 
   <target name="deploy-all" depends="init">
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/sip/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/sip/">
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../servers/media/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../servers/media/">
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/media/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/media/">
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/persistence/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/persistence/">
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/tts/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/tts/">
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/pom.xml"/>
+    <exec executable="${executable}" dir="${home}">
       <arg value="install"/>
     </exec>
   </target>
 
   <target name="undeploy-all" depends="init">
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/pom.xml"/>
+    <exec executable="${executable}" dir="${home}">
       <arg value="clean"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/media/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/media/">
       <arg value="clean"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../servers/media/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../servers/media/">
       <arg value="clean"/>
     </exec>
     
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/persistence/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/persistence/">
       <arg value="clean"/>
     </exec>
     
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/tts/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/tts/">
       <arg value="clean"/>
     </exec>
     
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/sip/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/sip/">
       <arg value="clean"/>
     </exec>
   </target>

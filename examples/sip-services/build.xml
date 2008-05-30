@@ -12,21 +12,15 @@
   </target>
 
   <target name="deploy-all" depends="init">
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/sip/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/sip/">
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/pom.xml"/>
+    <exec executable="${executable}" dir="${home}">
       <arg value="install"/>
     </exec>
     
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/proxy-with-initial-invite-services-DU/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/proxy-with-initial-invite-services-DU/">
       <arg value="install"/>
     </exec>
 
@@ -34,41 +28,29 @@
 
   <target name="undeploy-all" depends="init">
   
-  <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/proxy-with-initial-invite-services-DU/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/proxy-with-initial-invite-services-DU/">
       <arg value="clean"/>
     </exec>
     
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/pom.xml"/>
+    <exec executable="${executable}" dir="${home}">
       <arg value="clean"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/sip/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/sip/">
       <arg value="clean"/>
     </exec>
   </target>
 
   <target name="deploy-all-without-initial-invite" depends="init">
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/sip/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/sip/">
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/pom.xml"/>
+    <exec executable="${executable}" dir="${home}">
       <arg value="install"/>
     </exec>
     
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/proxy-without-initial-invite-services-DU/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/proxy-without-initial-invite-services-DU/">
       <arg value="install"/>
     </exec>
 
@@ -76,21 +58,15 @@
 
   <target name="undeploy-all-without-initial-invite" depends="init">
   
-  <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/proxy-without-initial-invite-services-DU/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/proxy-without-initial-invite-services-DU/">
       <arg value="clean"/>
     </exec>
     
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/pom.xml"/>
+    <exec executable="${executable}" dir="${home}">
       <arg value="clean"/>
     </exec>
 
-    <exec executable="${executable}">
-      <arg value="-f"/>
-      <arg value="${home}/../../resources/sip/pom.xml"/>
+    <exec executable="${executable}" dir="${home}/../../resources/sip/">
       <arg value="clean"/>
     </exec>
   </target>

@@ -13,53 +13,37 @@
 
 	<target name="deploy-all" depends="init">
 
-		<exec executable="${executable}">
-			<arg value="-f" />
-			<arg value="${home}/../../resources/http-servlet/pom.xml" />
+		<exec executable="${executable}" dir="${home}/../../resources/http-servlet/">
 			<arg value="install" />
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f" />
-			<arg value="${home}/../../servers/sip-presence/xdms/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../../sip-presence/xdms/">
 			<arg value="install"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../resources/xcap-client/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../resources/xcap-client/">
 			<arg value="install"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/pom.xml"/>
+		<exec executable="${executable}" dir="${home}">
 			<arg value="install"/>
 		</exec>
 	</target>
 
 	<target name="undeploy-all" depends="init">
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/pom.xml"/>
+		<exec executable="${executable}" dir="${home}">
 			<arg value="clean"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../resources/xcap-client/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../resources/xcap-client/">
 			<arg value="clean"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f"/>
-			<arg value="${home}/../../servers/sip-presence/xdms/pom.xml"/>
+		<exec executable="${executable}" dir="${home}/../../../sip-presence/xdms/">
 			<arg value="clean"/>
 		</exec>
 
-		<exec executable="${executable}">
-			<arg value="-f" />
-			<arg value="${home}/../../resources/http-servlet/pom.xml" />
+		<exec executable="${executable}" dir="${home}/../../resources/http-servlet/">
 			<arg value="clean" />
 		</exec>
 
