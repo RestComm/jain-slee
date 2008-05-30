@@ -92,7 +92,7 @@
 	
 	<properties>		
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.servers.media.version>1.0.0.BETA1-CP1</mobicents.servers.media.version>
+		<mobicents.servers.media.version>1.0.0.BETA2-SNAPSHOT</mobicents.servers.media.version>
 		<mobicents.servers.sippresence.version>1.0.0.BETA2-SNAPSHOT</mobicents.servers.sippresence.version>
 		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2-SNAPSHOT</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA1-SNAPSHOT</mobicents.tools.mavenplugin.eclipse.version>

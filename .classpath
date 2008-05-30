@@ -224,9 +224,9 @@
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/cmutimelex/1.0/cmutimelex-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/en_us/1.0/en_us-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/freetts/1.0/freetts-1.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/media/mobicents-server-media-constants/1.0.0.BETA1-CP1/mobicents-server-media-constants-1.0.0.BETA1-CP1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/media/mobicents-server-media-jar/1.0.0.BETA1-CP1/mobicents-server-media-jar-1.0.0.BETA1-CP1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/media/mobicents-server-media-mscontrol/1.0.0.BETA1-CP1/mobicents-server-media-mscontrol-1.0.0.BETA1-CP1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/media/mobicents-server-media-constants/1.0.0.BETA2-SNAPSHOT/mobicents-server-media-constants-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/media/mobicents-server-media-jar/1.0.0.BETA2-SNAPSHOT/mobicents-server-media-jar-1.0.0.BETA2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/media/mobicents-server-media-mscontrol/1.0.0.BETA2-SNAPSHOT/mobicents-server-media-mscontrol-1.0.0.BETA2-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/xdm/core/appusage-resource-lists-client/1.0.0.BETA2-SNAPSHOT/appusage-resource-lists-client-1.0.0.BETA2-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/xdm/core/client/1.0.0.BETA2-SNAPSHOT/client-1.0.0.BETA2-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/xdm/core/commons/1.0.0.BETA2-SNAPSHOT/commons-1.0.0.BETA2-SNAPSHOT.jar"/>
