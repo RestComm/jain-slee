@@ -1,26 +1,5 @@
 package org.mobicents.slee.resource.diameter.base;
 
-import org.jdiameter.api.ApplicationId;
-import org.jdiameter.api.Message;
-import org.jdiameter.api.RawSession;
-import org.jdiameter.api.Session;
-import org.jdiameter.api.Stack;
-import org.mobicents.slee.resource.diameter.base.events.AbortSessionAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.AbortSessionRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.AccountingRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.CapabilitiesExchangeAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.CapabilitiesExchangeRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.DeviceWatchdogAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.DeviceWatchdogRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.DisconnectPeerAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.DisconnectPeerRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.ExtensionDiameterMessageImpl;
-import org.mobicents.slee.resource.diameter.base.events.ReAuthAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.ReAuthRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.SessionTerminationRequestImpl;
-
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.AbortSessionAnswer;
 import net.java.slee.resource.diameter.base.events.AbortSessionRequest;
@@ -44,6 +23,30 @@ import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 
+import org.apache.log4j.Logger;
+import org.jdiameter.api.ApplicationId;
+import org.jdiameter.api.Avp;
+import org.jdiameter.api.Message;
+import org.jdiameter.api.RawSession;
+import org.jdiameter.api.Session;
+import org.jdiameter.api.Stack;
+import org.jdiameter.client.impl.helpers.UIDGenerator;
+import org.mobicents.slee.resource.diameter.base.events.AbortSessionAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.AbortSessionRequestImpl;
+import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.AccountingRequestImpl;
+import org.mobicents.slee.resource.diameter.base.events.CapabilitiesExchangeAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.CapabilitiesExchangeRequestImpl;
+import org.mobicents.slee.resource.diameter.base.events.DeviceWatchdogAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.DeviceWatchdogRequestImpl;
+import org.mobicents.slee.resource.diameter.base.events.DisconnectPeerAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.DisconnectPeerRequestImpl;
+import org.mobicents.slee.resource.diameter.base.events.ExtensionDiameterMessageImpl;
+import org.mobicents.slee.resource.diameter.base.events.ReAuthAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.ReAuthRequestImpl;
+import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.SessionTerminationRequestImpl;
+
 /**
  * Diameter Base Message Factory
  * 
@@ -57,6 +60,11 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 {
 
+  private static Logger logger = Logger.getLogger( DiameterMessageFactoryImpl.class );
+
+  // Used for generating session id's
+  protected static UIDGenerator uid = new UIDGenerator();
+  
   RawSession session;
   
   public DiameterMessageFactoryImpl(Session session, DiameterIdentityAvp ... avps ) {
@@ -70,8 +78,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     }
     catch ( Exception e )
     {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.error( "", e );
     }
   }
 
@@ -80,13 +87,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.ABORT_SESSION_ANSWER, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.ABORT_SESSION_ANSWER, aid, avps );
     
     AbortSessionAnswer asa = new AbortSessionAnswerImpl( msg );
     
@@ -95,13 +96,15 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 
   public AbortSessionAnswer createAbortSessionAnswer()
   {
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.ABORT_SESSION_ANSWER, aid );
-    
-    AbortSessionAnswer asa = new AbortSessionAnswerImpl( msg );
-    
-    return asa;
+    try
+    {
+      return createAbortSessionAnswer( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( e );
+      return null;
+    }
   }
 
   public AbortSessionRequest createAbortSessionRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
@@ -109,13 +112,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.ABORT_SESSION_REQUEST, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.ABORT_SESSION_REQUEST, aid, avps );
     
     AbortSessionRequest asr = new AbortSessionRequestImpl( msg );
     
@@ -124,14 +121,15 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 
   public AbortSessionRequest createAbortSessionRequest()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.ABORT_SESSION_REQUEST, aid );
-    
-    AbortSessionRequest asr = new AbortSessionRequestImpl( msg );
-    
-    return asr;
+    try
+    {
+      return createAbortSessionRequest( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( e );
+      return null;
+    }
   }
 
   public AccountingAnswer createAccountingAnswer( DiameterAvp[] avps ) throws AvpNotAllowedException
@@ -139,14 +137,8 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.ACCOUNTING_ANSWER, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
-    
+    Message msg = this.createMessage( Message.ACCOUNTING_ANSWER, aid, avps );
+
     AccountingAnswer aca = new AccountingAnswerImpl( msg );
     
     return aca;
@@ -154,14 +146,15 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 
   public AccountingAnswer createAccountingAnswer()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.ACCOUNTING_ANSWER, aid );
-    
-    AccountingAnswer aca = new AccountingAnswerImpl( msg );
-    
-    return aca;
+    try
+    {
+      return createAccountingAnswer( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
 
   public AccountingRequest createAccountingRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
@@ -169,13 +162,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.ACCOUNTING_REQUEST, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.ACCOUNTING_REQUEST, aid, avps );
     
     AccountingRequest acr = new AccountingRequestImpl( msg );
     
@@ -184,14 +171,15 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 
   public AccountingRequest createAccountingRequest()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.ACCOUNTING_REQUEST, aid );
-    
-    AccountingRequest acr = new AccountingRequestImpl( msg );
-    
-    return acr;
+    try
+    {
+      return createAccountingRequest( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
 
   public CapabilitiesExchangeAnswer createCapabilitiesExchangeAnswer( DiameterAvp[] avps ) throws AvpNotAllowedException
@@ -199,14 +187,8 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.CAPABILITIES_EXCHANGE_ANSWER, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
-    
+    Message msg = this.createMessage( Message.CAPABILITIES_EXCHANGE_ANSWER, aid, avps );
+
     CapabilitiesExchangeAnswer cea = new CapabilitiesExchangeAnswerImpl( msg );
     
     return cea;
@@ -214,44 +196,42 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 
   public CapabilitiesExchangeAnswer createCapabilitiesExchangeAnswer()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.CAPABILITIES_EXCHANGE_ANSWER, aid );
-        
-    CapabilitiesExchangeAnswer cea = new CapabilitiesExchangeAnswerImpl( msg );
-    
-    return cea;
+    try
+    {
+      return createCapabilitiesExchangeAnswer( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public CapabilitiesExchangeRequest createCapabilitiesExchangeRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.CAPABILITIES_EXCHANGE_REQUEST, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.CAPABILITIES_EXCHANGE_REQUEST, aid, avps );
     
     CapabilitiesExchangeRequest cer = new CapabilitiesExchangeRequestImpl( msg );
     
     return cer;
   }
+  
 
   public CapabilitiesExchangeRequest createCapabilitiesExchangeRequest()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.CAPABILITIES_EXCHANGE_REQUEST, aid );
-    
-    CapabilitiesExchangeRequest cer = new CapabilitiesExchangeRequestImpl( msg );
-    
-    return cer;
+    try
+    {
+      return createCapabilitiesExchangeRequest( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
 
   public DeviceWatchdogAnswer createDeviceWatchdogAnswer( DiameterAvp[] avps ) throws AvpNotAllowedException
@@ -259,128 +239,117 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.DEVICE_WATCHDOG_ANSWER, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.DEVICE_WATCHDOG_ANSWER, aid, avps );
     
     DeviceWatchdogAnswer dwa = new DeviceWatchdogAnswerImpl( msg );
     
     return dwa;
   }
+  
 
   public DeviceWatchdogAnswer createDeviceWatchdogAnswer()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.DEVICE_WATCHDOG_ANSWER, aid );
-    
-    DeviceWatchdogAnswer dwa = new DeviceWatchdogAnswerImpl( msg );
-    
-    return dwa;
+    try
+    {
+      return createDeviceWatchdogAnswer( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public DeviceWatchdogRequest createDeviceWatchdogRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.DEVICE_WATCHDOG_REQUEST, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.DEVICE_WATCHDOG_REQUEST, aid, avps );
     
     DeviceWatchdogRequest dwr = new DeviceWatchdogRequestImpl( msg );
     
     return dwr;
   }
+  
 
   public DeviceWatchdogRequest createDeviceWatchdogRequest()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.DEVICE_WATCHDOG_REQUEST, aid );
-    
-    DeviceWatchdogRequest dwr = new DeviceWatchdogRequestImpl( msg );
-    
-    return dwr;
+    try
+    {
+      return createDeviceWatchdogRequest( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public DisconnectPeerAnswer createDisconnectPeerAnswer( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.DISCONNECT_PEER_ANSWER, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
-    
+    Message msg = this.createMessage( Message.DISCONNECT_PEER_ANSWER, aid, avps );
+
     DisconnectPeerAnswer dpa = new DisconnectPeerAnswerImpl( msg );
     
     return dpa;
   }
+  
 
   public DisconnectPeerAnswer createDisconnectPeerAnswer()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.DISCONNECT_PEER_ANSWER, aid );
-    
-    DisconnectPeerAnswer dpa = new DisconnectPeerAnswerImpl( msg );
-    
-    return dpa;
+    try
+    {
+      return createDisconnectPeerAnswer( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public DisconnectPeerRequest createDisconnectPeerRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.DISCONNECT_PEER_REQUEST, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.DISCONNECT_PEER_REQUEST, aid, avps );
     
     DisconnectPeerRequest dpr = new DisconnectPeerRequestImpl( msg );
     
     return dpr;
   }
+  
 
   public DisconnectPeerRequest createDisconnectPeerRequest()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.DISCONNECT_PEER_REQUEST, aid );
-    
-    DisconnectPeerRequest dpr = new DisconnectPeerRequestImpl( msg );
-    
-    return dpr;
+    try
+    {
+      return createDisconnectPeerRequest( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public ExtensionDiameterMessage createMessage( DiameterCommand command, DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    return new ExtensionDiameterMessageImpl( session.createMessage(command.getCode(), aid) );
+    return new ExtensionDiameterMessageImpl( this.createMessage(command.getCode(), aid, null) );
   }
+  
 
   public DiameterMessage createMessage( DiameterHeader header, DiameterAvp[] avps ) throws AvpNotAllowedException
   {
@@ -394,109 +363,95 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     //FIXME: alexandre: Can't instantiate Diameter message... should we check msg type?!
     return new ExtensionDiameterMessageImpl( msg );
   }
+  
 
   public ReAuthAnswer createReAuthAnswer( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.RE_AUTH_ANSWER, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.RE_AUTH_ANSWER, aid, avps );
     
     ReAuthAnswer raa = new ReAuthAnswerImpl( msg );
     
     return raa;
   }
+  
 
   public ReAuthAnswer createReAuthAnswer()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.RE_AUTH_ANSWER, aid );
-    
-    ReAuthAnswer raa = new ReAuthAnswerImpl( msg );
-    
-    return raa;
+    try
+    {
+      return createReAuthAnswer( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public ReAuthRequest createReAuthRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.RE_AUTH_REQUEST, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.RE_AUTH_REQUEST, aid, avps );
     
     ReAuthRequest rar = new ReAuthRequestImpl( msg );
     
     return rar;
   }
+  
 
   public ReAuthRequest createReAuthRequest()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.RE_AUTH_REQUEST, aid );
-    
-    ReAuthRequest rar = new ReAuthRequestImpl( msg );
-    
-    return rar;
+    try
+    {
+      return createReAuthRequest( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public SessionTerminationAnswer createSessionTerminationAnswer( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.SESSION_TERMINATION_ANSWER, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.SESSION_TERMINATION_ANSWER, aid, avps );
     
     SessionTerminationAnswer sta = new SessionTerminationAnswerImpl( msg );
     
     return sta;
   }
+  
 
   public SessionTerminationAnswer createSessionTerminationAnswer()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.SESSION_TERMINATION_ANSWER, aid );
-    
-    SessionTerminationAnswer sta = new SessionTerminationAnswerImpl( msg );
-    
-    return sta;
+    try
+    {
+      return createSessionTerminationAnswer( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+  
 
   public SessionTerminationRequest createSessionTerminationRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
     ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
     
-    Message msg = session.createMessage( Message.SESSION_TERMINATION_REQUEST, aid );
-    
-    for(DiameterAvp avp : avps)
-    {
-      // FIXME: alexandre: Should we look at the types and add them with proper function?
-      msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
-    }
+    Message msg = this.createMessage( Message.SESSION_TERMINATION_REQUEST, aid, avps );
     
     SessionTerminationRequest str = new SessionTerminationRequestImpl( msg );
     
@@ -505,13 +460,49 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 
   public SessionTerminationRequest createSessionTerminationRequest()
   {
-    // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
-    
-    Message msg = session.createMessage( Message.SESSION_TERMINATION_REQUEST, aid );
-    
-    SessionTerminationRequest str = new SessionTerminationRequestImpl( msg );
-    
-    return str;
+    try
+    {
+      return createSessionTerminationRequest( null );
+    }
+    catch ( AvpNotAllowedException e )
+    {
+      logger.error( "", e );
+      return null;
+    }
   }
+
+  // ========== AUX STUFF ==========
+  
+  private String generateSessionId()
+  {
+    //FIXME: alexandre: use getMetaData().getLocalPeer().getUri().getFQDN() instead
+    String host = "localhost"; 
+    
+    long id = uid.nextLong();
+    long high32 = (id & 0xffffffff00000000L) >> 32;
+    long low32 = (id & 0xffffffffL);
+    
+    return host + ";" + high32 + ";" + low32;
+  }
+  
+  private Message createMessage(int commandCode, ApplicationId applicationId, DiameterAvp[] avps)
+  {
+    Message msg = session.createMessage( commandCode, applicationId );
+    
+    if( avps != null)
+    {
+      for(DiameterAvp avp : avps)
+      {
+        // FIXME: alexandre: Should we look at the types and add them with proper function?
+        msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
+      }
+    }
+
+    // Do we have a session-id already or shall we make one?
+    if(msg.getAvps().getAvp( Avp.SESSION_ID ) == null )
+      msg.getAvps().addAvp( Avp.SESSION_ID, generateSessionId(), true, false, false);
+
+    return msg;
+  }
+  
 }

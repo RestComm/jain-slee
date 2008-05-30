@@ -137,4 +137,8 @@ public class DiameterActivityImpl implements DiameterActivity {
     return null;
 	}
 
+	public boolean isValid()
+	{
+	  return this.session.isValid();
+	}
 }
