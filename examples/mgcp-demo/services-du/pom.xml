@@ -19,6 +19,16 @@
             <groupId>org.mobicents.examples</groupId>
             <version>${pom.version}</version>
         </dependency>
+	<dependency>
+		<artifactId>crcx-sbb</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>${pom.version}</version>
+        </dependency>
+	<dependency>
+		<artifactId>crcx-endpoint-sbb</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>${pom.version}</version>
+        </dependency>	
     </dependencies>
     
     <build>
