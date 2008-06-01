@@ -61,7 +61,7 @@
 
    
 
-        <!-- REQEUSTS -->
+        <!-- REQUESTS -->
     <event-type-ref>
         <event-type-name>net.java.slee.resource.diameter.base.events.AbortSessionRequest</event-type-name>
         <event-type-vendor>java.net</event-type-vendor>
@@ -84,7 +84,7 @@
     </event-type-ref>
     
      <event-type-ref>
-        <event-type-name>net.java.slee.resource.diameter.base.events.DeviceWatchdogReqeust</event-type-name>
+        <event-type-name>net.java.slee.resource.diameter.base.events.DeviceWatchdogRequest</event-type-name>
         <event-type-vendor>java.net</event-type-vendor>
         <event-type-version>0.8</event-type-version>
         

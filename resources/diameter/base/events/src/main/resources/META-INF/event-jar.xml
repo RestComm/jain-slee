@@ -8,7 +8,7 @@
 	<description>Diameter Base Events</description>
 
 
-	<!-- REQEUSTS -->
+	<!-- REQUESTS -->
     <event-definition>
         <event-type-name>net.java.slee.resource.diameter.base.events.AbortSessionRequest</event-type-name>
         <event-type-vendor>java.net</event-type-vendor>
@@ -31,10 +31,10 @@
     </event-definition>
     
      <event-definition>
-        <event-type-name>net.java.slee.resource.diameter.base.events.DeviceWatchdogReqeust</event-type-name>
+        <event-type-name>net.java.slee.resource.diameter.base.events.DeviceWatchdogRequest</event-type-name>
         <event-type-vendor>java.net</event-type-vendor>
         <event-type-version>0.8</event-type-version>
-        <event-class-name>net.java.slee.resource.diameter.base.events.DeviceWatchdogReqeust</event-class-name>
+        <event-class-name>net.java.slee.resource.diameter.base.events.DeviceWatchdogRequest</event-class-name>
     </event-definition>
     
     <event-definition>
