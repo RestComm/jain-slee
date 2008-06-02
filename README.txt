@@ -17,6 +17,8 @@ JAIN SLEE Server Build Instructions
 Adding project to Eclipse
 ---------------------------
 
+Note: ALL commands are done in the directory of this README file.
+
 1. Fetch all the project dependencies to your local Maven2 repository:
 
 mvn mobicents:eclipse
