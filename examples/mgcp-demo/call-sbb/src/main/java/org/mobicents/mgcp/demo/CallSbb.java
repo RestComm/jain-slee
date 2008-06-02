@@ -73,10 +73,11 @@ public abstract class CallSbb implements Sbb {
 			ChildRelation relation = getCRCXSbbChild();
 			forwardEvent(relation, aci);
 		} else if (destination.indexOf(CRCX_ENDPOINTID_DEMO) > 0) {
-			ChildRelation relation = getCRCXEndpointSbb();
+			ChildRelation relation = getCRCXEndpointSbbChild();
 			forwardEvent(relation, aci);
 		} else if (destination.indexOf(MDCX_DEMO) > 0) {
-
+			ChildRelation relation = getMDCXSbbChild();
+			forwardEvent(relation, aci);
 		}
 
 	}
@@ -119,7 +120,9 @@ public abstract class CallSbb implements Sbb {
 
 	public abstract ChildRelation getCRCXSbbChild();
 
-	public abstract ChildRelation getCRCXEndpointSbb();
+	public abstract ChildRelation getCRCXEndpointSbbChild();
+
+	public abstract ChildRelation getMDCXSbbChild();
 
 	public void unsetSbbContext() {
 	}

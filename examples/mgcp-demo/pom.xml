@@ -20,6 +20,7 @@
         <module>call-sbb</module>
 	<module>crcx-sbb</module>
 	<module>crcx-endpoint-sbb</module>
+	<module>mdcx-sbb</module>
         <module>services-du</module>		
     </modules>
     
