@@ -39,7 +39,7 @@ import org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceF
  */
 public abstract class ForestSbb implements Sbb {
 
-    public final static String CNF_ENDPOINT = "media/trunk/Cnf/$";
+    public final static String CNF_ENDPOINT = "media/trunk/Conference/$";
     public final static String CRICKETS = "http://localhost:8080/msdemo/audio/crickets.wav";
     public final static String MOCKING = "http://localhost:8080/msdemo/audio/mocking.wav";
     public final static String CUCKOO = "http://localhost:8080/msdemo/audio/cuckoo.wav";
