@@ -20,7 +20,6 @@ import jain.protocol.ip.mgcp.CreateProviderException;
 import jain.protocol.ip.mgcp.DeleteProviderException;
 import jain.protocol.ip.mgcp.JainMgcpProvider;
 import jain.protocol.ip.mgcp.JainMgcpStack;
-import jain.protocol.ip.mgcp.OAM_IF;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -37,7 +36,7 @@ import org.apache.log4j.Logger;
  * @author Oleg Kulikov
  * @author Pavel Mitrenko
  */
-public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
+public class JainMgcpStackImpl extends Thread implements JainMgcpStack {
     
     private String protocolVersion = "1.0";
     protected int port = 2727;
@@ -53,9 +52,12 @@ public class JainMgcpStackImpl extends Thread implements JainMgcpStack, OAM_IF {
     protected JainMgcpProviderImpl provider;
     
     /**
-     * holds current active transactions
+     * holds current active transactions (RFC 3435 [$3.2.1.2]: for tx sent &
+     * received).
+     * 
      */
-    protected ConcurrentHashMap<Integer, TransactionHandler> transactions = new ConcurrentHashMap<Integer, TransactionHandler>();
+    protected ConcurrentHashMap<Integer, TransactionHandler> sTransactions = new ConcurrentHashMap<Integer, TransactionHandler>();
+    protected ConcurrentHashMap<ReceivedTransactionID, TransactionHandler> rTransactions = new ConcurrentHashMap<ReceivedTransactionID, TransactionHandler>();
     
     /** Creates a new instance of JainMgcpStackImpl */
     public JainMgcpStackImpl(JainMgcpProviderImpl provider, int port) {

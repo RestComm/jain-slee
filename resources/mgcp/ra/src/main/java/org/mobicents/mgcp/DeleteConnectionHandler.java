@@ -167,7 +167,7 @@ public class DeleteConnectionHandler extends TransactionHandler {
             int tid = Integer.parseInt(transactionID);
             EndpointIdentifier endpoint = Utils.decodeEndpointIdentifier(tokens[2].trim());
             
-            command = new DeleteConnection(stack, endpoint);
+            command = new DeleteConnection(getObjectSource(tid), endpoint);
             command.setTransactionHandle(tid);
         }
         

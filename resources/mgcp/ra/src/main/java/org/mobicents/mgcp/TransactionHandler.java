@@ -19,6 +19,7 @@ package org.mobicents.mgcp;
 
 import jain.protocol.ip.mgcp.JainMgcpCommandEvent;
 import jain.protocol.ip.mgcp.JainMgcpResponseEvent;
+import jain.protocol.ip.mgcp.message.parms.ReturnCode;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -79,7 +80,10 @@ public abstract class TransactionHandler {
     
 	public final static int TIMEOUT = 5000; // 5secs
     
-    /** Transaction handle sent from application to the MGCP provider. */
+    /** Is this a transaction on a command sent or received? */
+    private boolean sent;
+
+    /** Transaction handle in use. */
     private int tid;
     
     protected JainMgcpStackImpl stack;
@@ -99,25 +103,39 @@ public abstract class TransactionHandler {
     private static Timer timer = new Timer();
     
     private TransactionTimerTask timerTask;
-    
+     
     private class TransactionTimerTask extends TimerTask {
         public void run() {
             if (logger.isDebugEnabled()) {
                 logger.debug("Transaction "+tid+" timeout");
             }
             try {            	
-            	// the try ensures the static timer will not get an runtime exception
+            	// the try ensures the static timer will not get a runtime exception
+            	// process tx timeout
+            	if (sent)
+            		stack.provider.processTxTimeout(commandEvent);
+            	else
+            		stack.provider.processRxTimeout(commandEvent);
             	// releases the tx
             	release();
-            	// process tx timeout
-            	stack.provider.processTransactionTimeout(commandEvent);
             }
             catch (Exception e) {
             	logger.error("Failed to release mgcp transaction "+tid, e);
             }
         }
     }
-    
+
+    /**
+     * Check whether the given return code is a provisional response.
+     * @param rc	the return code
+     * @return		true when the code is provisional
+     */
+    private static boolean isProvisional(ReturnCode rc) {
+    	final int rval = rc.getValue();
+
+    	return ((99 < rval) && (rval < 200));
+    }
+
     /**
      * Creates a new instance of TransactionHandle
      *
@@ -151,12 +169,16 @@ public abstract class TransactionHandler {
     }
     
     /** Release this transaction and frees all allocated resources.  */
-    public void release() {
+    protected void release() {
         if (logger.isDebugEnabled()) {
             logger.debug("Released transaction (local id=" + 
                     tid + "), stop timer");
         }
-        stack.transactions.remove(Integer.valueOf(tid));
+        if (sent)
+        	stack.sTransactions.remove(Integer.valueOf(tid));
+        else
+        	stack.rTransactions.remove(new ReceivedTransactionID(tid,remoteAddress.toString(),remotePort));
+
         if (timerTask != null ) {
         	timerTask.cancel();
         	timerTask = null;
@@ -226,6 +248,7 @@ public abstract class TransactionHandler {
      */
     public void send(JainMgcpCommandEvent event) {
         
+    	sent = true;
     	// save command to later link it with response
         this.commandEvent = event;
         
@@ -263,9 +286,8 @@ public abstract class TransactionHandler {
         
         // save this tx in stack and start timer
         this.tid = event.getTransactionHandle();
-        stack.transactions.put(Integer.valueOf(tid), this);
-        this.timerTask = new TransactionTimerTask(); 
-        timer.schedule(this.timerTask,TIMEOUT);
+        stack.sTransactions.put(Integer.valueOf(tid), this);
+        resetTimer();
         
         if (logger.isDebugEnabled()) {
             logger.debug("Send command event to " + address + ", message\n" + msg);
@@ -280,8 +302,12 @@ public abstract class TransactionHandler {
      * @param event the jain mgcp response event object.
      */
     public void send(JainMgcpResponseEvent event) {
-        // to send response we already should now the address and port
-        // number from wich the original request was received
+
+    	if (timerTask != null)
+        	timerTask.cancel();
+
+    	// to send response we already should know the address and port
+        // number from which the original request was received
         if (remoteAddress == null) {
             throw new IllegalArgumentException("Unknown orinator address");
         }
@@ -299,7 +325,13 @@ public abstract class TransactionHandler {
                     ":" + remotePort + ", message\n" + msg);
         }
         stack.send(packet);
-        release();
+
+        /* Just reset timer in case of provisional response. Otherwise, release tx. */
+        if (isProvisional(event.getReturnCode())) {
+     	   //reset timer.
+     	  resetTimer();
+        } else
+     	   release();
     }
     
     /**
@@ -309,7 +341,8 @@ public abstract class TransactionHandler {
      * @param message receive MGCP command message.
      */
     public void receiveCommand(String message) {
-        JainMgcpCommandEvent event = null;
+        
+    	JainMgcpCommandEvent event = null;
         try {
             event = decodeCommand(message);
             if(logger.isDebugEnabled()) {
@@ -320,13 +353,14 @@ public abstract class TransactionHandler {
             return;
         }
         
-        // get tid
-        this.tid = event.getTransactionHandle();
+        sent = false;
+        commandEvent = event;
+        
+        tid = event.getTransactionHandle();
         
         // save this tx in stack and start timer
-        stack.transactions.put(Integer.valueOf(tid), this);
-        this.timerTask = new TransactionTimerTask(); 
-        timer.schedule(this.timerTask,TIMEOUT);
+        stack.rTransactions.put((ReceivedTransactionID)event.getSource(), this);
+        resetTimer();
         
         //fire event
         stack.provider.processMgcpCommandEvent(event);
@@ -334,7 +368,7 @@ public abstract class TransactionHandler {
     }
     
     /**
-     * Used by stack for transmitting received MGCP response message to 
+     * Used by stack for relaying received MGCP response messages to 
      * the application.
      *
      * @param message receive MGCP response message.
@@ -343,34 +377,61 @@ public abstract class TransactionHandler {
         
     	JainMgcpResponseEvent event = null;
         
-    	try {
+        if (timerTask != null)
+        	timerTask.cancel();
+
+        try {
             event = decodeResponse(message);
         } catch (Exception e) {
             logger.error("Could not decode message: ", e);
         }
-      
-        // get tid
-        this.tid = event.getTransactionHandle();
-        
-        release();
-        
         //fire event
        stack.provider.processMgcpResponseEvent(event, commandEvent);
-      
+
+       /* Just reset timer in case of provisional response. Otherwise, release tx. */
+       if (isProvisional(event.getReturnCode())) {
+    	   //reset timer. TODO: increment delays according RFC
+    	   resetTimer();
+       } else
+    	   release();
     }
     
     @Override
     public int hashCode() {
     	return tid;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
     	if (obj != null && obj.getClass() == this.getClass()) {
-    		return ((TransactionHandler)obj).tid == this.tid;
+    		TransactionHandler th = (TransactionHandler)obj;
+    		return 	th.sent == this.sent && th.tid == this.tid;
     	}
     	else {
     		return false;
+    	}
+    }
+    
+    private void resetTimer() {
+    	if (timerTask != null) {
+ 		   timerTask.cancel();     	   
+ 		   timerTask = null;
+ 	   }
+ 	   timerTask = new TransactionTimerTask();
+ 	   timer.schedule(timerTask, TIMEOUT);
+    }
+    
+    /**
+     * constructs the object source for a command
+     * @param tid
+     * @return
+     */
+    protected Object getObjectSource(int tid) {
+    	if (sent) {
+    		return stack;
+    	}
+    	else {
+    		return new ReceivedTransactionID(tid,remoteAddress.toString(),remotePort);
     	}
     }
 }

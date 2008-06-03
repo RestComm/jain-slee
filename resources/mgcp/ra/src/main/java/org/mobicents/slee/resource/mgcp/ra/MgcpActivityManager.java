@@ -1,6 +1,7 @@
 package org.mobicents.slee.resource.mgcp.ra;
 
 import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
+import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,7 +55,7 @@ public class MgcpActivityManager {
     	return connectionActivities.get(handle);
     }
     
-    public MgcpConnectionActivityHandle updateMgcpConnectionActivity(int transactionHandle,ConnectionIdentifier connectionIdentifier) {
+    public MgcpConnectionActivityHandle updateMgcpConnectionActivity(int transactionHandle,ConnectionIdentifier connectionIdentifier,EndpointIdentifier endpointIdentifier) {
     	
     	if (logger.isDebugEnabled()) {
     		logger.debug("updateMgcpConnectionActivity(transactionHandle="+transactionHandle+",connectionIdentifier="+connectionIdentifier+")");
@@ -74,6 +75,7 @@ public class MgcpActivityManager {
             		connectionIdentifier2ActivityHandleMap.put(connectionIdentifier.toString(), connectionHandle);
             		// update activity
             		activity.setConnectionIdentifier(connectionIdentifier);
+            		activity.setEndpointIdentifier(endpointIdentifier);
             		if (logger.isDebugEnabled()) {
             			logger.debug("activity for connectionIdentifier "+connectionIdentifier+" updated");
             		}
@@ -92,7 +94,7 @@ public class MgcpActivityManager {
     	return null;
     }
     
-    public MgcpConnectionActivityHandle getMgcpConnectionActivityHandle(ConnectionIdentifier connectionIdentifier,int transactionHandle) {
+    public MgcpConnectionActivityHandle getMgcpConnectionActivityHandle(ConnectionIdentifier connectionIdentifier,EndpointIdentifier endpointIdentifier,int transactionHandle) {
     	
     	if (logger.isDebugEnabled()) {
     		logger.debug("getMgcpConnectionActivityHandle(transactionHandle="+transactionHandle+",connectionIdentifier="+connectionIdentifier+")");
@@ -102,7 +104,7 @@ public class MgcpActivityManager {
     		// get handle from connection id map
     		MgcpConnectionActivityHandle handle = connectionIdentifier2ActivityHandleMap.get(connectionIdentifier.toString());
     		// if handle does not exist try update first the activity
-        	return (handle != null ? handle : updateMgcpConnectionActivity(transactionHandle, connectionIdentifier));
+        	return (handle != null ? handle : updateMgcpConnectionActivity(transactionHandle, connectionIdentifier,endpointIdentifier));
     	}
     	else {
     		return transactionHandle2ActivityHandleMap.get(Integer.valueOf(transactionHandle));

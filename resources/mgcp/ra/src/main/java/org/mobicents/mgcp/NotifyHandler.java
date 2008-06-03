@@ -93,7 +93,7 @@ public class NotifyHandler extends TransactionHandler {
             EndpointIdentifier endpoint = Utils.decodeEndpointIdentifier(tokens[2].trim());
 
             command = new Notify(
-                    stack,
+            		getObjectSource(tid),
                     endpoint,
                     new RequestIdentifier("0"),
                     new EventName[]{});

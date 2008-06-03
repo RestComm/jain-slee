@@ -20,7 +20,7 @@ public interface JainMgcpProvider extends jain.protocol.ip.mgcp.JainMgcpProvider
 	 * @param connectionIdentifier
 	 * @return
 	 */
-	public MgcpConnectionActivity getConnectionActivity(ConnectionIdentifier connectionIdentifier);
+	public MgcpConnectionActivity getConnectionActivity(ConnectionIdentifier connectionIdentifier, EndpointIdentifier endpointIdentifier);
 	
 	/**
 	 * Retrieves a connection activity for an unknown {@link ConnectionIdentifier}, to be used when sending {@link CreateConnection} events and receive further related messages from a Mgcp Server. The activity is created if does not exists.
@@ -28,7 +28,7 @@ public interface JainMgcpProvider extends jain.protocol.ip.mgcp.JainMgcpProvider
 	 * @param transactionHandle the event to be send by server, which the Resource Adaptor will use to learn the returned {@link ConnectionIdentifier}
 	 * @return
 	 */
-	public MgcpConnectionActivity getConnectionActivity(int transactionHandle);
+	public MgcpConnectionActivity getConnectionActivity(int transactionHandle, EndpointIdentifier endpointIdentifier);
 	
 	/**
 	 * Retrieves an endpoint activity for the specified {@link EndpointIdentifier}. The activity is created if does not exists.

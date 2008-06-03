@@ -53,14 +53,14 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 		this.ra = ra;
 	}
 	
-	public MgcpConnectionActivity getConnectionActivity(ConnectionIdentifier connectionIdentifier) {
-		MgcpConnectionActivityHandle handle = ra.getMgcpActivityManager().getMgcpConnectionActivityHandle(connectionIdentifier,-1);
+	public MgcpConnectionActivity getConnectionActivity(ConnectionIdentifier connectionIdentifier, EndpointIdentifier endpointIdentifier) {
+		MgcpConnectionActivityHandle handle = ra.getMgcpActivityManager().getMgcpConnectionActivityHandle(connectionIdentifier,endpointIdentifier,-1);
 		if (handle != null) {
 			return ra.getMgcpActivityManager().getMgcpConnectionActivity(handle);
 		}
 		else {
 			try {
-				MgcpConnectionActivityImpl activity = new MgcpConnectionActivityImpl(connectionIdentifier,ra);
+				MgcpConnectionActivityImpl activity = new MgcpConnectionActivityImpl(connectionIdentifier,endpointIdentifier,ra);
 				handle = ra.getMgcpActivityManager().putMgcpConnectionActivity(activity);
 				ra.getSleeEndpoint().activityStarted(handle);
 				return activity;
@@ -74,14 +74,14 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 		}
 	}
 	
-	public MgcpConnectionActivity getConnectionActivity(int transactionHandle) {
-		MgcpConnectionActivityHandle handle = ra.getMgcpActivityManager().getMgcpConnectionActivityHandle(null,transactionHandle);
+	public MgcpConnectionActivity getConnectionActivity(int transactionHandle,EndpointIdentifier endpointIdentifier) {
+		MgcpConnectionActivityHandle handle = ra.getMgcpActivityManager().getMgcpConnectionActivityHandle(null,endpointIdentifier,transactionHandle);
 		if (handle != null) {
 			return ra.getMgcpActivityManager().getMgcpConnectionActivity(handle);
 		}
 		else {
 			try {
-				MgcpConnectionActivityImpl activity = new MgcpConnectionActivityImpl(transactionHandle,ra);
+				MgcpConnectionActivityImpl activity = new MgcpConnectionActivityImpl(transactionHandle,endpointIdentifier,ra);
 				handle = ra.getMgcpActivityManager().putMgcpConnectionActivity(activity);
 				ra.getSleeEndpoint().activityStarted(handle);				
 				return activity;
@@ -142,6 +142,7 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
             	
             	// SENDING REQUEST
                 JainMgcpCommandEvent commandEvent = (JainMgcpCommandEvent) event;
+         
                 TransactionHandler handle = null;
                 switch (commandEvent.getObjectIdentifier()) {
                 
@@ -233,8 +234,18 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
                 
             } else  {
             	
-               // SENDING RESPONSE                
-                TransactionHandler handler = ra.getStack().transactions.get(Integer.valueOf(event.getTransactionHandle()));
+                // SENDING RESPONSE   
+            	ReceivedTransactionID receivedTransactionID = null;
+            	try {
+            		receivedTransactionID = (ReceivedTransactionID)event.getSource();
+            	}
+            	catch (ClassCastException e) {
+            		throw new IllegalArgumentException("Illegal event source. Msg when retrieving: "+e.getMessage());
+            	}
+            	if (receivedTransactionID == null) {
+            		throw new IllegalArgumentException("Event source is null");
+            	}
+            	TransactionHandler handler = ra.getStack().rTransactions.get(receivedTransactionID);
                 if (handler == null) {
                     throw new IllegalArgumentException("Unknown transaction handle: " + event.getTransactionHandle());
                 }
@@ -243,10 +254,11 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
                 	ra.sendingCreateConnectionResponse((CreateConnectionResponse)event);
                 }
                 // send event
-                handler.send((JainMgcpResponseEvent)event);   
-                
+                handler.send((JainMgcpResponseEvent) event);   
+
             }
         }
+       
 		
 	}
 
@@ -271,9 +283,14 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 		ra.processMgcpCommandEvent(command);
 	}
 	
-	protected void processTransactionTimeout(JainMgcpCommandEvent command) {
+	protected void processTxTimeout(JainMgcpCommandEvent command) {
 		// notify RA
-		ra.processTimeout(command);
+		ra.processTxTimeout(command);
+	}
+	
+	protected void processRxTimeout(JainMgcpCommandEvent command) {
+		// notify RA
+		ra.processRxTimeout(command);
 		// reply to server
 		JainMgcpResponseEvent response = null;
 		// FIXME - how to change o return code of transaction timeout?!?
@@ -312,11 +329,9 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
         default :
         	throw new IllegalArgumentException("Could not send type of the message yet");
         }
-		
 		response.setTransactionHandle(command.getTransactionHandle());
         JainMgcpEvent[] events = {response};
         sendMgcpEvents(events);
-                
 	}
 
 	public CallIdentifier getUniqueCallIdentifier() {
@@ -348,5 +363,4 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 		}
 		return new RequestIdentifier(Long.toHexString(current));
 	}
-	
 }

@@ -1,6 +1,7 @@
 package net.java.slee.resource.mgcp;
 
 import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
+import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 
 /**
  * This activity for Mgcp Resource Adaptor type can be used as the context of
@@ -19,6 +20,12 @@ public interface MgcpConnectionActivity {
 	 */
 	public String getConnectionIdentifier();
 
+	/**
+	 * Retrieves the mgcp {@link EndpointIdentifier} associated with this activity.
+	 * @return
+	 */
+	public EndpointIdentifier getEndpointIdentifier();
+	
 	/**
 	 * Forces the end of this activity.
 	 */

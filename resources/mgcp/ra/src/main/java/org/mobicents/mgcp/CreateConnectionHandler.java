@@ -185,7 +185,7 @@ public class CreateConnectionHandler extends TransactionHandler {
             EndpointIdentifier endpoint = Utils.decodeEndpointIdentifier(tokens[2].trim());
             
             command = new CreateConnection(
-                    stack, 
+                    getObjectSource(tid), 
                     new CallIdentifier("0"), 
                     endpoint, 
                     ConnectionMode.Inactive);

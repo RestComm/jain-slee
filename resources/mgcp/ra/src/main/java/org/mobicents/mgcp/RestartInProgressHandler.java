@@ -79,7 +79,7 @@ public class RestartInProgressHandler extends TransactionHandler {
     @Override
     protected String encode(JainMgcpResponseEvent event) {
         return event.getReturnCode().getValue() + " " + event.getTransactionHandle() +
-                event.getReturnCode().getComment() + "\n";
+                " " + event.getReturnCode().getComment() + "\n";
     }
 
     private class CommandContentHandle implements MgcpContentHandler {
@@ -94,7 +94,7 @@ public class RestartInProgressHandler extends TransactionHandler {
             int tid = Integer.parseInt(transactionID);
             EndpointIdentifier endpoint = Utils.decodeEndpointIdentifier(tokens[2].trim());
 
-            command = new RestartInProgress(stack, endpoint, RestartMethod.Restart);
+            command = new RestartInProgress(getObjectSource(tid), endpoint, RestartMethod.Restart);
             command.setTransactionHandle(tid);
         }
 

@@ -108,7 +108,7 @@ public class NotificationRequestHandler extends TransactionHandler {
             EndpointIdentifier endpoint = Utils.decodeEndpointIdentifier(tokens[2].trim());
 
             command = new NotificationRequest(
-                    stack,
+            		getObjectSource(tid),
                     endpoint,
                     new RequestIdentifier("0"));
             command.setTransactionHandle(tid);

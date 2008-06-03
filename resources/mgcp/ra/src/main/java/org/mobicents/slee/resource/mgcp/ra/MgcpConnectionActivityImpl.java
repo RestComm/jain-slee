@@ -1,6 +1,7 @@
 package org.mobicents.slee.resource.mgcp.ra;
 
 import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
+import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 
 import java.util.UUID;
 
@@ -11,26 +12,28 @@ public class MgcpConnectionActivityImpl implements MgcpConnectionActivity {
 	private final String id;
 	
 	private String connectionIdentifier;
+	private EndpointIdentifier endpointIdentifier;
 	private final Integer transactionHandle;
 	private MgcpResourceAdaptor ra;
 	/**
 	 * TODO
 	 */
-	public MgcpConnectionActivityImpl(ConnectionIdentifier connectionIdentifier, MgcpResourceAdaptor ra) {
-		this(connectionIdentifier.toString(),null,ra);
+	public MgcpConnectionActivityImpl(ConnectionIdentifier connectionIdentifier, EndpointIdentifier endpointIdentifier, MgcpResourceAdaptor ra) {
+		this(connectionIdentifier.toString(),null,endpointIdentifier,ra);
 	}
 	
 	/**
 	 * TODO
 	 */
-	public MgcpConnectionActivityImpl(int transactionHandle, MgcpResourceAdaptor ra) {
-		this(null,Integer.valueOf(transactionHandle),ra);
+	public MgcpConnectionActivityImpl(int transactionHandle, EndpointIdentifier endpointIdentifier, MgcpResourceAdaptor ra) {
+		this(null,Integer.valueOf(transactionHandle),endpointIdentifier,ra);
 	}
 	
-	private MgcpConnectionActivityImpl(String connectionIdentifier,Integer transactionHandle, MgcpResourceAdaptor ra) {
+	private MgcpConnectionActivityImpl(String connectionIdentifier,Integer transactionHandle, EndpointIdentifier endpointIdentifier, MgcpResourceAdaptor ra) {
 		this.id = UUID.randomUUID().toString();
 		this.transactionHandle = transactionHandle;
 		this.connectionIdentifier = connectionIdentifier;
+		this.endpointIdentifier = endpointIdentifier;
 		this.ra = ra;
 	}
 	
@@ -60,6 +63,14 @@ public class MgcpConnectionActivityImpl implements MgcpConnectionActivity {
 	 */
 	public void setConnectionIdentifier(ConnectionIdentifier connectionIdentifier) {
 		this.connectionIdentifier = connectionIdentifier.toString();
+	}
+	
+	public EndpointIdentifier getEndpointIdentifier() {
+		return this.endpointIdentifier;
+	}
+	
+	public void setEndpointIdentifier(EndpointIdentifier endpointIdentifier) {
+		this.endpointIdentifier = endpointIdentifier;
 	}
 	
 	@Override

@@ -173,7 +173,7 @@ public class ModifyConnectionHandler extends TransactionHandler {
             EndpointIdentifier endpoint = Utils.decodeEndpointIdentifier(tokens[2].trim());
             
             command = new ModifyConnection(
-                    stack,
+            		getObjectSource(tid),
                     new CallIdentifier("00"),
                     endpoint,
                     new ConnectionIdentifier("00"));
