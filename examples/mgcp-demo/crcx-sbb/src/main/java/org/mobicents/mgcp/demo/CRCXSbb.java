@@ -70,7 +70,7 @@ public abstract class CRCXSbb implements Sbb {
 	private static int CALL_ID_GEN = 1;
 	private static int GEN = 1;
 
-	public final static String ENDPOINT_NAME = "media/test/Loopback/1";
+	public final static String ENDPOINT_NAME = "media/test/trunk/Loopback/1";
 	public final static String HELLO_WORLD = "http://localhost/mgcpdemo/audio/helloworld.wav";
 
 	private SbbContext sbbContext;
