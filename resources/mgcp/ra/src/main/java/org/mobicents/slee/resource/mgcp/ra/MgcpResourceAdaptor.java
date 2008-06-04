@@ -490,7 +490,13 @@ public class MgcpResourceAdaptor implements ResourceAdaptor, Serializable {
             
             case Constants.CMD_DELETE_CONNECTION :            	
             	DeleteConnection deleteConnection = (DeleteConnection) event;
-            	processNonCreateConnectionMgcpEvent(deleteConnection.getConnectionIdentifier(),event.getEndpointIdentifier(),event.getTransactionHandle(),"net.java.slee.resource.mgcp.DELETE_CONNECTION",event);            	
+    			if (deleteConnection.getConnectionIdentifier() != null) {
+                	processNonCreateConnectionMgcpEvent(deleteConnection.getConnectionIdentifier(),event.getEndpointIdentifier(),event.getTransactionHandle(),"net.java.slee.resource.mgcp.DELETE_CONNECTION",event);
+    			} else {
+    				processEndpointMgcpEvent(deleteConnection.getEndpointIdentifier(),
+    						"net.java.slee.resource.mgcp.DELETE_CONNECTION", event);
+    			}
+            	
                 break;
                 
             case Constants.CMD_ENDPOINT_CONFIGURATION :            	
@@ -561,7 +567,13 @@ public class MgcpResourceAdaptor implements ResourceAdaptor, Serializable {
                 break;
             case Constants.RESP_DELETE_CONNECTION :
             	DeleteConnection deleteConnection = (DeleteConnection) command;
-            	processNonCreateConnectionMgcpEvent(deleteConnection.getConnectionIdentifier(),deleteConnection.getEndpointIdentifier(),response.getTransactionHandle(),"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE",response);
+    			if (deleteConnection.getConnectionIdentifier() != null) {
+    				processNonCreateConnectionMgcpEvent(deleteConnection.getConnectionIdentifier(),deleteConnection.getEndpointIdentifier(),response.getTransactionHandle(),"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE",response);
+    				} else {
+    				processEndpointMgcpEvent(deleteConnection.getEndpointIdentifier(),
+    						"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response);
+    			}            	
+            	
                 break;
             case Constants.RESP_ENDPOINT_CONFIGURATION :
             	processEndpointMgcpEvent(((EndpointConfiguration)command).getEndpointIdentifier(),"net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION_RESPONSE",response);
@@ -663,6 +675,16 @@ public class MgcpResourceAdaptor implements ResourceAdaptor, Serializable {
     		mgcpActivityManager.putMgcpEndpointActivity(handle,new MgcpEndpointActivityImpl(this,endpointIdentifier));  
     	}
     	fireEvent(eventName, handle, eventObject);
+    	
+		// end activity if delete connection request or response
+		if (eventObject instanceof DeleteConnection || eventObject instanceof DeleteConnectionResponse) {
+			try {
+				// send activity end event to the container
+				getSleeEndpoint().activityEnding(handle);
+			} catch (Exception e) {
+				logger.error("Failed to end activity with handle " + handle, e);
+			}
+		}    	
     }
 
     private ActivityHandle getActivityHandle(JainMgcpCommandEvent event) {
