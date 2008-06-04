@@ -556,9 +556,10 @@ public class MgcpResourceAdaptor implements ResourceAdaptor, Serializable {
             		cId = createConnectionResponse.getConnectionIdentifier();
             		endpointIdentifier = createConnectionResponse.getSpecificEndpointIdentifier();
             	}
-            	else {
+            	
+            	if( endpointIdentifier == null ){
             		endpointIdentifier = ((CreateConnection)command).getEndpointIdentifier();
-            	}
+            	}            	
             	processNonCreateConnectionMgcpEvent(cId,endpointIdentifier,response.getTransactionHandle(),"net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE",response);
         		if (isFailure(response.getReturnCode())) {
         			// create connection didn't succeed, end the activity

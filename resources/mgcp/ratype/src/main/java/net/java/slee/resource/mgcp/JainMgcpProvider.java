@@ -7,6 +7,8 @@ import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
 import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 import jain.protocol.ip.mgcp.message.parms.RequestIdentifier;
 
+import java.util.List;
+
 /**
  * Sbb interface to interact with the Mgcp RA.
  * 
@@ -29,6 +31,8 @@ public interface JainMgcpProvider extends jain.protocol.ip.mgcp.JainMgcpProvider
 	 * @return
 	 */
 	public MgcpConnectionActivity getConnectionActivity(int transactionHandle, EndpointIdentifier endpointIdentifier);
+	
+	public List<MgcpConnectionActivity> getConnectionActivities(EndpointIdentifier endpointIdentifier);
 	
 	/**
 	 * Retrieves an endpoint activity for the specified {@link EndpointIdentifier}. The activity is created if does not exists.
