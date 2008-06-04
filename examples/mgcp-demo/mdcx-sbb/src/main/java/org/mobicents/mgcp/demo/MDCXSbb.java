@@ -130,7 +130,7 @@ public abstract class MDCXSbb implements Sbb {
 
 		MgcpConnectionActivity connectionActivity = null;
 		try {
-			connectionActivity = mgcpProvider.getConnectionActivity(txID);
+			connectionActivity = mgcpProvider.getConnectionActivity(txID, endpointID);
 			ActivityContextInterface epnAci = mgcpAcif.getActivityContextInterface(connectionActivity);
 			epnAci.attach(sbbContext.getSbbLocalObject());
 		} catch (FactoryException ex) {

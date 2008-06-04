@@ -61,8 +61,10 @@ import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
 
 /**
- * On INVITE this example creates the Connection on endpoint media/test/Loopback/1.
- * On BYE it calls DeleteConnection on endpoint media/test/Loopback/1 without passing the ConnectionIdentifier
+ * On INVITE this example creates the Connection on endpoint
+ * media/test/Loopback/1. On BYE it calls DeleteConnection on endpoint
+ * media/test/Loopback/1 without passing the ConnectionIdentifier
+ * 
  * @author amit.bhayani
  */
 public abstract class CRCXEndpointSbb implements Sbb {
@@ -71,7 +73,6 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	private static int GEN = 1;
 
 	public final static String ENDPOINT_NAME = "media/test/trunk/Loopback/1";
-	
 
 	private SbbContext sbbContext;
 
@@ -94,7 +95,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	}
 
 	public void onCallCreated(RequestEvent evt, ActivityContextInterface aci) {
-		Request request = evt.getRequest();		
+		Request request = evt.getRequest();
 
 		FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
 		ToHeader to = (ToHeader) request.getHeader(ToHeader.NAME);
@@ -104,8 +105,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 		// create Dialog and attach SBB to the Dialog Activity
 		ActivityContextInterface daci = null;
 		try {
-			Dialog dialog = sipProvider
-					.getNewDialog(evt.getServerTransaction());
+			Dialog dialog = sipProvider.getNewDialog(evt.getServerTransaction());
 			dialog.terminateOnBye(true);
 			daci = acif.getActivityContextInterface(dialog);
 			daci.attach(sbbContext.getSbbLocalObject());
@@ -117,18 +117,14 @@ public abstract class CRCXEndpointSbb implements Sbb {
 
 		// respond(evt, Response.RINGING);
 
-		CallIdentifier callID = new CallIdentifier(Integer
-				.toHexString(CALL_ID_GEN++));
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME,
-				"localhost:2727");
+		CallIdentifier callID = new CallIdentifier(Integer.toHexString(CALL_ID_GEN++));
+		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
 
-		CreateConnection createConnection = new CreateConnection(this, callID,
-				endpointID, ConnectionMode.SendRecv);
+		CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
 
 		try {
 			String sdp = new String(evt.getRequest().getRawContent());
-			createConnection
-					.setRemoteConnectionDescriptor(new ConnectionDescriptor(sdp));
+			createConnection.setRemoteConnectionDescriptor(new ConnectionDescriptor(sdp));
 		} catch (ConflictingParameterException e) {
 			// should never happen
 		}
@@ -138,9 +134,8 @@ public abstract class CRCXEndpointSbb implements Sbb {
 
 		MgcpConnectionActivity connectionActivity = null;
 		try {
-			connectionActivity = mgcpProvider.getConnectionActivity(txID);
-			ActivityContextInterface epnAci = mgcpAcif
-					.getActivityContextInterface(connectionActivity);
+			connectionActivity = mgcpProvider.getConnectionActivity(txID, endpointID);
+			ActivityContextInterface epnAci = mgcpAcif.getActivityContextInterface(connectionActivity);
 			epnAci.attach(sbbContext.getSbbLocalObject());
 		} catch (FactoryException ex) {
 			ex.printStackTrace();
@@ -153,8 +148,8 @@ public abstract class CRCXEndpointSbb implements Sbb {
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
 	}
 
-	public void onCreateConnectionResponse(CreateConnectionResponse event,
-			ActivityContextInterface aci) throws ParseException {
+	public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci)
+			throws ParseException {
 		logger.info("Receive CRCX response: " + event.getTransactionHandle());
 
 		ServerTransaction txn = getServerTransaction();
@@ -165,34 +160,28 @@ public abstract class CRCXEndpointSbb implements Sbb {
 		switch (status.getValue()) {
 		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
 
-			this.setConnectionIdentifier(event.getConnectionIdentifier()
-					.toString());
+			this.setConnectionIdentifier(event.getConnectionIdentifier().toString());
 			String sdp = event.getLocalConnectionDescriptor().toString();
 
 			ContentTypeHeader contentType = null;
 			try {
-				contentType = headerFactory.createContentTypeHeader(
-						"application", "sdp");
+				contentType = headerFactory.createContentTypeHeader("application", "sdp");
 			} catch (ParseException ex) {
 			}
 
-			String localAddress = sipProvider.getListeningPoints()[0]
-					.getIPAddress();
+			String localAddress = sipProvider.getListeningPoints()[0].getIPAddress();
 			int localPort = sipProvider.getListeningPoints()[0].getPort();
 
 			Address contactAddress = null;
 			try {
-				contactAddress = addressFactory.createAddress("sip:"
-						+ localAddress + ":" + localPort);
+				contactAddress = addressFactory.createAddress("sip:" + localAddress + ":" + localPort);
 			} catch (ParseException ex) {
 			}
-			ContactHeader contact = headerFactory
-					.createContactHeader(contactAddress);
+			ContactHeader contact = headerFactory.createContactHeader(contactAddress);
 
 			Response response = null;
 			try {
-				response = messageFactory.createResponse(Response.RINGING,
-						request, contentType, sdp.getBytes());
+				response = messageFactory.createResponse(Response.RINGING, request, contentType, sdp.getBytes());
 			} catch (ParseException ex) {
 			}
 
@@ -205,8 +194,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 			break;
 		default:
 			try {
-				response = messageFactory.createResponse(
-						Response.SERVER_INTERNAL_ERROR, request);
+				response = messageFactory.createResponse(Response.SERVER_INTERNAL_ERROR, request);
 				txn.sendResponse(response);
 			} catch (Exception ex) {
 			}
@@ -214,15 +202,12 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	}
 
 	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME,
-				"localhost:2727");
-		DeleteConnection deleteConnection = new DeleteConnection(this,
-				endpointID);
-		
-		
-		
-//		deleteConnection.setConnectionIdentifier(new ConnectionIdentifier(this
-//				.getConnectionIdentifier()));
+		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
+		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
+
+		// deleteConnection.setConnectionIdentifier(new
+		// ConnectionIdentifier(this
+		// .getConnectionIdentifier()));
 
 		int txID = GEN++;
 
@@ -264,25 +249,20 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	public void setSbbContext(SbbContext sbbContext) {
 		this.sbbContext = sbbContext;
 		try {
-			Context ctx = (Context) new InitialContext()
-					.lookup("java:comp/env");
+			Context ctx = (Context) new InitialContext().lookup("java:comp/env");
 
 			// initialize SIP API
-			fp = (SipResourceAdaptorSbbInterface) ctx
-					.lookup("slee/resources/jainsip/1.2/provider");
+			fp = (SipResourceAdaptorSbbInterface) ctx.lookup("slee/resources/jainsip/1.2/provider");
 			sipProvider = fp.getSipProvider();
 			addressFactory = fp.getAddressFactory();
 			headerFactory = fp.getHeaderFactory();
 			messageFactory = fp.getMessageFactory();
-			acif = (SipActivityContextInterfaceFactory) ctx
-					.lookup("slee/resources/jainsip/1.2/acifactory");
+			acif = (SipActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainsip/1.2/acifactory");
 
 			// initialize media api
 
-			mgcpProvider = (JainMgcpProvider) ctx
-					.lookup("slee/resources/jainmgcp/2.0/provider/demo");
-			mgcpAcif = (MgcpActivityContextInterfaceFactory) ctx
-					.lookup("slee/resources/jainmgcp/2.0/acifactory/demo");
+			mgcpProvider = (JainMgcpProvider) ctx.lookup("slee/resources/jainmgcp/2.0/provider/demo");
+			mgcpAcif = (MgcpActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainmgcp/2.0/acifactory/demo");
 
 		} catch (Exception ne) {
 			logger.error("Could not set SBB context:", ne);
@@ -317,8 +297,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	public void sbbRemove() {
 	}
 
-	public void sbbExceptionThrown(Exception exception, Object object,
-			ActivityContextInterface activityContextInterface) {
+	public void sbbExceptionThrown(Exception exception, Object object, ActivityContextInterface activityContextInterface) {
 	}
 
 	public void sbbRolledBack(RolledBackContext rolledBackContext) {
