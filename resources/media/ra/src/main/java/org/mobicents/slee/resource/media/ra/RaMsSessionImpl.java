@@ -50,9 +50,9 @@ public class RaMsSessionImpl implements MsSession {
 
 	public RaMsSessionImpl(MsProvider msProvider, MediaResourceAdaptor ra) {
 		this.msProvider = msProvider;
+		this.sessionListeners.addAll(msProvider.getSessionListeners());
 		this.ra = ra;
 	}
-
 
 	public MsLink createLink(MsLinkMode mode) {
 		MsLink msLink = new MsLinkImpl(this, mode);
@@ -125,7 +125,7 @@ public class RaMsSessionImpl implements MsSession {
 	public void addSessionListener(MsSessionListener listener) {
 		sessionListeners.add(listener);
 	}
-	
+
 	public void removeSessionListener(MsSessionListener listener) {
 		sessionListeners.remove(listener);
 	}
@@ -167,17 +167,43 @@ public class RaMsSessionImpl implements MsSession {
 			}
 		}
 	}
-	
+
 	public String toString() {
 		return "RaMsSessionImpl[" + id + "]";
-	}	
+	}
 
 	public List<MsSessionListener> getSessionListeners() {
 		return this.sessionListeners;
 	}
-	
+
 	public List<MsConnection> getConnections() {
 		return this.connections;
-	}	
+	}
+
+	/**
+	 * Releases reference on the specified link.
+	 * 
+	 * @param the
+	 *            link for release reference.
+	 */
+	public synchronized void disassociateLink(MsLink link) {
+		links.remove(link);
+		if (links.size() == 0 && connections.size() == 0) {
+			setState(MsSessionState.INVALID, MsSessionEventCause.LINK_DROPPED, link);
+		}
+	}
+
+	/**
+	 * Releases reference on the specified connection.
+	 * 
+	 * @param the
+	 *            connection for release reference.
+	 */
+	public synchronized void disassociateNetworkConnection(MsConnection connection) {
+		connections.remove(connection);
+		if (links.size() == 0 && connections.size() == 0) {
+			setState(MsSessionState.INVALID, MsSessionEventCause.CONNECTION_DROPPED, connection);
+		}
+	}
 
 }
