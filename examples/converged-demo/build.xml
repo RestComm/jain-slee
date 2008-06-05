@@ -16,7 +16,7 @@
       <arg value="install"/>
     </exec>
 
-    <exec executable="${executable}" dir="${home}/../../servers/media/">
+    <exec executable="${executable}" dir="${home}/../../../media/">
       <arg value="install"/>
     </exec>
 
@@ -46,7 +46,7 @@
       <arg value="clean"/>
     </exec>
 
-    <exec executable="${executable}" dir="${home}/../../servers/media/">
+    <exec executable="${executable}" dir="${home}/../../../media/">
       <arg value="clean"/>
     </exec>
     
