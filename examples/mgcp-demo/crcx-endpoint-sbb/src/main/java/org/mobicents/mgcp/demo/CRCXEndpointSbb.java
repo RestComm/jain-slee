@@ -20,6 +20,7 @@ import jain.protocol.ip.mgcp.message.DeleteConnection;
 import jain.protocol.ip.mgcp.message.parms.CallIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConflictingParameterException;
 import jain.protocol.ip.mgcp.message.parms.ConnectionDescriptor;
+import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConnectionMode;
 import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ReturnCode;
@@ -205,14 +206,18 @@ public abstract class CRCXEndpointSbb implements Sbb {
 		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
 		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
 
-		// deleteConnection.setConnectionIdentifier(new
-		// ConnectionIdentifier(this
-		// .getConnectionIdentifier()));
-
 		int txID = GEN++;
 
 		deleteConnection.setTransactionHandle(txID);
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
+
+		// Since DLCX is for Endpoint, we need to explicitly clean the
+		// MgcpConnectionActivity for each of the CRCX
+		MgcpConnectionActivity mgcpConnectionActivity = mgcpProvider.getConnectionActivity(new ConnectionIdentifier(
+				this.getConnectionIdentifier()), endpointID);
+		
+		mgcpConnectionActivity.release();
+
 	}
 
 	private void respond(RequestEvent evt, int cause) {
