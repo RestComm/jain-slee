@@ -68,10 +68,11 @@ public class MgcpActivityManager {
 				.synchronizedList(new ArrayList<MgcpConnectionActivity>());
 
 		Collection<MgcpConnectionActivityImpl> connectionActivitiesColl = connectionActivities.values();
-	
+
 		for (MgcpConnectionActivityImpl mgcpConnectionActivityImpl : connectionActivitiesColl) {
 			EndpointIdentifier endpointIdentifierLocal = mgcpConnectionActivityImpl.getEndpointIdentifier();
-			if ( endpointIdentifierLocal!= null && endpointIdentifierLocal.equals(endpointIdentifier)) {
+			
+			if (endpointIdentifierLocal != null && endpointIdentifierLocal.toString().equals(endpointIdentifier.toString())) {
 				listOfmgcpConnectionActivities.add(mgcpConnectionActivityImpl);
 			}
 		}
@@ -101,7 +102,9 @@ public class MgcpActivityManager {
 					connectionIdentifier2ActivityHandleMap.put(connectionIdentifier.toString(), connectionHandle);
 					// update activity
 					activity.setConnectionIdentifier(connectionIdentifier);
-					activity.setEndpointIdentifier(endpointIdentifier);
+					if (endpointIdentifier != null) {
+						activity.setEndpointIdentifier(endpointIdentifier);
+					}
 					if (logger.isDebugEnabled()) {
 						logger.debug("activity for connectionIdentifier " + connectionIdentifier + " updated");
 					}
