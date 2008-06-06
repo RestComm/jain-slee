@@ -69,7 +69,7 @@ import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
 public abstract class MDCXSbb implements Sbb {
 
 	private static int CALL_ID_GEN = 1;
-	private static int GEN = 1;
+	private static int GEN = 2000;
 
 	public final static String ENDPOINT_NAME = "media/test/trunk/Loopback/1";
 	public final static String HELLO_WORLD = "http://localhost/mgcpdemo/audio/helloworld.wav";

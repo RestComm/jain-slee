@@ -71,7 +71,7 @@ import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
 public abstract class CRCXEndpointSbb implements Sbb {
 
 	private static int CALL_ID_GEN = 1;
-	private static int GEN = 1;
+	private static int GEN = 1000;
 
 	public final static String ENDPOINT_NAME = "media/test/trunk/Loopback/1";
 
