@@ -24,6 +24,9 @@
   <classpathentry kind="src" path="examples/http-servlet/sbb/src/test/java"/>
   <classpathentry kind="src" path="examples/ldap/sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/mgcp-demo/call-sbb/src/main/java"/>
+  <classpathentry kind="src" path="examples/mgcp-demo/crcx-endpoint-sbb/src/main/java"/>
+  <classpathentry kind="src" path="examples/mgcp-demo/crcx-sbb/src/main/java"/>
+  <classpathentry kind="src" path="examples/mgcp-demo/mdcx-sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/mms-demo/slee/announcement-sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/mms-demo/slee/call-sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/mms-demo/slee/cnf-sbb/src/main/java"/>
