@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<parent>
+		<groupId>org.mobicents.tools</groupId>
+		<artifactId>mobicents-tools-mmc</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>gwt-management-console-war</artifactId>
+	<packaging>war</packaging>
+	<name>Mobicents :: Tools  :: gwt-management-console-war</name>
+
+	<build>
+		<plugins>
+			<!--  currently gwt supports java 1.4 (client) source -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.4</source>
+					<target>1.4</target>
+				</configuration>
+			</plugin>
+			<!-- All the fantastical settings that GWT needs -->
+			<plugin>
+				<groupId>com.totsp.gwt</groupId>
+				<artifactId>maven-googlewebtoolkit2-plugin</artifactId>
+				<version>2.0-beta15</version>
+				<configuration>
+					<!--  gwtVersion can be specified, currently defaults to 1.4.61 if NOT specified -->
+					<gwtVersion>${gwt.version}</gwtVersion>
+					<logLevel>INFO</logLevel>
+					<compileTargets>
+						<value>org.mobicents.slee.container.management.console.ManagementConsole</value>
+					</compileTargets>
+					<runTarget>org.mobicents.slee.container.management.console.ManagementConsole/ManagementConsole.html</runTarget>
+					<generatorRootClasses>
+						<value>org.mobicents.slee.container.management.console.ManagementConsole</value>
+					</generatorRootClasses>
+					<overwriteGeneratedClasses>true</overwriteGeneratedClasses>
+
+					<!-- use style OBF for prod -->
+					<!-- <style>DETAILED</style> -->
+					<!-- 
+						<generateGettersAndSetters>
+						true
+					</generateGettersAndSetters>
+					-->
+					<noServer>false</noServer>
+					<extraJvmArgs>-Xmx1024m</extraJvmArgs>
+					<!-- <extraJvmArgs>-Dgwt.coverage.enable=true</extraJvmArgs>  -->
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<!-- autoconfig gwt (download and unzip GWT itself) -->
+							<!-- *note* you can also use manual config, if you already have GWT installed -->
+							<!-- see site docs for details - http://gwt-maven.googlecode.com/svn/docs/maven-googlewebtoolkit2-plugin/setup.html -->
+							<goal>setup</goal>
+							<goal>extractGwt</goal>
+
+							<!-- actual work goals -->
+							<goal>mergewebxml</goal>
+							<goal>compile</goal>
+							<goal>gwt</goal>
+							<!--  uncomment testGwt to see the testing and code coverage magic -->
+							<!-- <goal>testGwt</goal> -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<warName>management-console</warName>
+					<webXml>target/web.xml</webXml>
+				</configuration>
+				
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>deploy-DU</id>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<condition
+									property="jboss.dir"
+									value="${jboss.home}"
+									else="${env.JBOSS_HOME}"
+								>
+									<isset property="jboss.home" />
+								</condition>
+								<copy
+									overwrite="true"
+									file="target/management-console.war"
+									todir="${jboss.dir}/server/${node}/deploy"
+								/>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>undeploy-DU</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete file="${env.JBOSS_HOME}/server/${node}/deploy/management-console.war" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					
+					<execution>
+						<id>clean-resources</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete dir=".gwt-cache" failonerror="false"/>
+								<delete dir="bin" failonerror="false"/>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+		</plugins>
+	</build>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.tools</groupId>
+			<artifactId>gwt-management-console-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-servlet</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwt-user</artifactId>
+			<scope>provided</scope>
+
+		</dependency>
+		<!--  coverage patch (used to generate code coverage data for GwtTestCase based tests, when -Dgwt.coverage.enable=true -->
+		<dependency>
+			<groupId>com.google.gwt</groupId>
+			<artifactId>gwtcoverage</artifactId>
+			<version>${gwt.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-common</artifactId>
+			<version>${jboss.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>emma</groupId>
+			<artifactId>emma</artifactId>
+			<version>2.0.5312</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>
+
