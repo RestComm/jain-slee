@@ -12,8 +12,9 @@
 	<name>Mobicents :: Tools  :: gwt-management-console</name>
 	<parent>
 		<groupId>org.mobicents</groupId>
-		<artifactId>mobicents</artifactId>
-		<version>1.2.0.BETA3-SNAPSHOT</version>
+		<artifactId>mobicents-jainslee-server</artifactId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<pluginRepositories>
 		<pluginRepository>
@@ -43,7 +44,12 @@
 			<node>default</node>	
 			<log4j.version>1.2.12</log4j.version>
 			<gwt.version>1.4.61</gwt.version>
+			
 		-->
+		<!--  This is not visible ;[ -->
+		<gwt.version>${gwt-user.version}</gwt.version>
+		
+		
 	</properties>
 	<dependencyManagement>
 		<dependencies>
