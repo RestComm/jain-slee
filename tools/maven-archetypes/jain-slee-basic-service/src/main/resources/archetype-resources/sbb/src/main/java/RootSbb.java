@@ -16,9 +16,6 @@ public abstract class RootSbb implements javax.slee.Sbb {
 	
 	// -- EVENT HANDLERS
 	
-	/*
-	 * Init the connection and retreive data when the service is activated by SLEE
-	 */
 	public void onServiceStartedEvent(
 			javax.slee.serviceactivity.ServiceStartedEvent event,
 			ActivityContextInterface aci) {
