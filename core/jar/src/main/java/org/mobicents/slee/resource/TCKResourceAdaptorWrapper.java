@@ -75,7 +75,7 @@ TCKResourceAdaptorSbbInterface, Serializable {
             tckResourceSetup = TCKResourceFactory.createResource();
             tckResourceAdaptor = tckResourceSetup.getResourceAdaptorInterface();
             try {
-                tckResourceSetup.setLog(new PrintWriterLog(new PrintWriter(new FileWriter("TCKRA.log")),LogLevel.FINEST,true,true));
+                tckResourceSetup.setLog(new PrintWriterLog(new PrintWriter(new FileWriter(SleeContainer.getDeployPath() + "/TCKRA.log")),LogLevel.FINEST,true,true));
             } catch (IOException e2) {
                 // TODO Auto-generated catch block
                 e2.printStackTrace();
