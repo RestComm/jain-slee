@@ -1,4 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -16,6 +20,7 @@
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
 	<modules>
+		<module>stack</module>
 		<module>events</module>
 		<module>ratype</module>
 		<module>ra</module>
@@ -38,19 +43,36 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/mgcp">
+										<copy
+											overwrite="true"
+											todir="${basedir}/../../release/${release.name}/resources/mgcp"
+										>
 											<fileset dir="${basedir}/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
 												<include name="*.properties" />
 											</fileset>
 										</copy>
-										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/resources/mgcp/du-management.xml" />
-										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/resources/mgcp">
-                      <filterset>
-                        <filter token="JBOSS_VERSION" value="jboss-${jboss.version}" />
-                        <filter token="JBOSS_NODE" value="${node}" />
-                      </filterset>
+										<copy
+											overwrite="true"
+											file="${basedir}/du/target/build.xml"
+											tofile="${basedir}/../../release/${release.name}/resources/mgcp/du-management.xml"
+										/>
+										<copy
+											overwrite="true"
+											file="${basedir}/release/build.xml"
+											todir="${basedir}/../../release/${release.name}/resources/mgcp"
+										>
+											<filterset>
+												<filter
+													token="JBOSS_VERSION"
+													value="jboss-${jboss.version}"
+												/>
+												<filter
+													token="JBOSS_NODE"
+													value="${node}"
+												/>
+											</filterset>
 										</copy>
 									</tasks>
 								</configuration>

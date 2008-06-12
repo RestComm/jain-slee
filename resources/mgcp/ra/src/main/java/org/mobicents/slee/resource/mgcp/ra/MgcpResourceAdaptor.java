@@ -55,8 +55,7 @@ import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.mgcp.event.TransactionTimeout;
 
 import org.apache.log4j.Logger;
-import org.mobicents.mgcp.JainMgcpProviderImpl;
-import org.mobicents.mgcp.JainMgcpStackImpl;
+import org.mobicents.mgcp.stack.JainMgcpStackImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
@@ -194,8 +193,9 @@ public class MgcpResourceAdaptor implements ResourceAdaptor, Serializable {
         }
         
         try {
-        	mgcpProvider = new JainMgcpProviderImpl(this);
-        	stack = new JainMgcpStackImpl(mgcpProvider,port.intValue());
+        	
+        	stack = new JainMgcpStackImpl(port.intValue());
+        	mgcpProvider = new JainMgcpProviderImpl(this,stack.createProvider());
         } catch (Exception e) {
             throw new ResourceException(e.getMessage());
         }
