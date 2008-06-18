@@ -16,6 +16,7 @@
 				
 	<modules>
 		<module>jain-slee-basic-service</module>			
+		<module>jain-slee-basic-ra</module>			
 	</modules>
 	
 	<scm>
