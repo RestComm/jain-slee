@@ -1135,11 +1135,21 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
                 if (!this.activityContextInterface.isInterface())
                     throw new ClassCastException("Must be an interface "
                             + activityContextInterfaceClassName);
+                
+                if(!findInterface(this.activityContextInterface, 
+                    "javax.slee.ActivityContextInterface"))
+                  throw new Exception(this.activityContextInterfaceClassName
+                      + " must extend javax.slee.ActivityContextInterface");
             }
 
             if (this.sbbLocalInterfaceClassName != null) {
                 this.sbbLocalInterfaceClass = this.getClassLoader().loadClass(
                         sbbLocalInterfaceClassName);
+                
+                if(!findInterface(this.sbbLocalInterfaceClass, 
+                    "javax.slee.SbbLocalObject"))
+                  throw new Exception(this.sbbLocalInterfaceClassName
+                      + " must extend javax.slee.SbbLocalObject");
             }
 
         } catch (Exception ex) {
@@ -1688,4 +1698,23 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
 
 	}
 
+  private boolean findInterface(Class clazz, String toFind)
+  {
+    if(clazz.isInterface() && clazz.getName().equals(toFind))
+      return true;
+    
+    if(clazz.getInterfaces().length > 0)
+    {
+      for(Class interfaze : clazz.getInterfaces())
+      {
+        if(interfaze.getName().equals(toFind))
+          return true;
+        
+        if(findInterface(interfaze, toFind))
+          return true;
+      }
+    }
+    
+    return false;
+  }
 }
