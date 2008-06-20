@@ -11,6 +11,7 @@ import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.DeployableUnitID;
+import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
@@ -151,9 +152,17 @@ public class DeploymentManager
       {
         ResourceAdaptorEntity rae = sleeContainer.getResourceAdaptorEntity( entityNames[i] );
         
-        String raTypeId = rae == null ? "NULL" : rae.getInstalledResourceAdaptor().getRaType().getResourceAdaptorTypeID().toString();
-        
-        newDeployedComponents.add( entityNames[i] + "_@_" + raTypeId );
+        if(rae != null && rae.getState() == ResourceAdaptorEntityState.ACTIVE)
+        {
+          String raTypeId =  rae.getInstalledResourceAdaptor().getRaType().getResourceAdaptorTypeID().toString();
+          
+          String[] entityLinks = sleeContainer.getResourceAdaptorEntityLinks( rae.getName() );
+          
+          for(String entityLink : entityLinks)
+          {
+            newDeployedComponents.add( entityLink + "_@_" + raTypeId );
+          }
+        }
       }
 
       // All good.. Make the temp the good one.
@@ -172,6 +181,9 @@ public class DeploymentManager
    */
   public void installDeployableUnit( DeployableUnit du ) throws Exception
   {
+    // Update the deployed components from SLEE
+    updateDeployedComponents();
+
     // Check if the DU is ready to be installed
     if( du.isReadyToInstall( true ) )
     {
@@ -227,6 +239,9 @@ public class DeploymentManager
    */
   public void uninstallDeployableUnit( DeployableUnit du ) throws Exception
   {
+    // Update the deployed components from SLEE
+    updateDeployedComponents();
+
     // It isn't installed?
     if( !du.isInstalled() )
     {
