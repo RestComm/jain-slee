@@ -1,12 +1,15 @@
 package org.mobicents.slee.resource.diameter.base.events.avp;
 
+import net.java.slee.resource.diameter.base.events.avp.ExperimentalResultAvp;
+
+import org.apache.log4j.Logger;
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpDataException;
 
-import net.java.slee.resource.diameter.base.events.avp.ExperimentalResultAvp;
-
 public class ExperimentalResultAvpImpl extends GroupedAvpImpl implements
 		ExperimentalResultAvp {
+
+  private static transient Logger logger = Logger.getLogger(ExperimentalResultAvpImpl.class);
 
 	public ExperimentalResultAvpImpl(int code, long vendorId, int mnd, int prt,
 			byte[] value) {
@@ -24,8 +27,7 @@ public class ExperimentalResultAvpImpl extends GroupedAvpImpl implements
 				Avp rawAvp = super.avpSet.getAvp(Avp.EXPERIMENTAL_RESULT_CODE);
 				return rawAvp.getUnsigned32();
 			} catch (AvpDataException e) {
-	
-				e.printStackTrace();
+			  logger.error( "", e );			
 				return -1;
 			}
 	}

@@ -2,42 +2,37 @@ package org.mobicents.slee.resource.diameter.base.events;
 
 import org.jdiameter.api.Message;
 
-import net.java.slee.resource.diameter.base.events.DiameterCommand;
-import net.java.slee.resource.diameter.base.events.DiameterHeader;
 import net.java.slee.resource.diameter.base.events.ExtensionDiameterMessage;
 
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
-import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 
 public class ExtensionDiameterMessageImpl extends DiameterMessageImpl implements ExtensionDiameterMessage
 {
 
-	@Override
-	public String getLongName() {
-		//FIXME: baranowb; not documented
-		return "Extension-Message";
-	}
+  @Override
+  public String getLongName() {
+    //FIXME: baranowb; not documented
+    return "Extension-Message";
+  }
 
-	@Override
-	public String getShortName() {
-		//FIXME: baranowb; not documented
-		return "EM";
-	}
+  @Override
+  public String getShortName() {
+    //FIXME: baranowb; not documented
+    return "EM";
+  }
 
-	public ExtensionDiameterMessageImpl(Message message) {
-        super(message);
-    }
+  public ExtensionDiameterMessageImpl(Message message) {
+    super(message);
+  }
 
-    public DiameterAvp[] getExtensionAvps() {
-        return getAvps();
-    }
+  public DiameterAvp[] getExtensionAvps() {
+    return getAvps();
+  }
 
-    public void setExtensionAvps(DiameterAvp[] avps) throws AvpNotAllowedException {
-        for (DiameterAvp a : avps)
-            addAvpAsByteArray(a.getCode(), a.byteArrayValue(), a.getMandatoryRule() == 1);
-    }
-
-	
+  public void setExtensionAvps(DiameterAvp[] avps) throws AvpNotAllowedException {
+    for (DiameterAvp a : avps)
+      addAvpAsByteArray(a.getCode(), a.byteArrayValue(), a.getMandatoryRule() == 1);
+  }
 
 }

@@ -68,8 +68,7 @@ public class DiameterActivityImpl implements DiameterActivity {
 		try {
 			endpoint.activityEnding(this.getActivityHandle());
 		} catch (Exception e) {
-			logger.error("Failed to end activity["+this+"]!!!");
-			e.printStackTrace();
+			logger.error("Failed to end activity["+this+"]!!!", e);
 		}
 
 	}

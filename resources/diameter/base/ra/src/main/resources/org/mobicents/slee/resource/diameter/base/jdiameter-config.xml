@@ -2,12 +2,11 @@
 <Configuration xmlns="http://www.jdiameter.org/jdiameter-server">
 
   <LocalPeer>
-    <URI value="aaa://localhost:1812"/>
+    <URI value="aaa://127.0.0.1:1812"/>
     <IPAddresses>
       <IPAddress value="127.0.0.1"/>
-      <IPAddress value="127.0.0.2"/>
     </IPAddresses>
-    <Realm value="mobicents"/>
+    <Realm value="mobicents.org"/>
     <VendorID value="193"/>
     <ProductName value="jDiameter"/>
     <FirmwareRevision value="1"/>
@@ -38,9 +37,13 @@
   
   <Network>
     <Peers>
-      <Peer name="aaa://localhost:1813" attempt_connect="true" rating="1"/></Peers>
+      <!-- Ericsson SDK Client -->
+      <Peer name="aaa://127.0.0.1:11812" attempt_connect="false" rating="1"/>
+      <!-- Ericsson SDK Emulator -->
+      <!--Peer name="aaa://127.0.0.1:21812" attempt_connect="true" rating="1"/-->
+    </Peers>
     <Realms>
-      <Realm name ="abc" peers="localhost" local_action="LOCAL" dynamic="false" exp_time="1">
+      <Realm name ="mobicents.org" peers="127.0.0.1" local_action="LOCAL" dynamic="false" exp_time="1">
         <ApplicationID>
           <VendorId value="193"/>
           <AuthApplId value="0"/>

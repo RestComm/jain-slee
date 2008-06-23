@@ -12,7 +12,8 @@ import org.jdiameter.client.impl.parser.MessageParser;
  * Super project:  mobicents
  * 12:51:53 2008-05-08	
  * @author <a href="mailto:bbaranow@redhat.com">baranowb - Bartosz Baranowski </a>
- * @author Eric Svenson
+ * @author <a href="mailto:brainslog@gmail.com">Alexandre Mendonca</a>
+ * @author Erick Svenson
  */
 public class DiameterAvpImpl implements DiameterAvp {
 
@@ -111,7 +112,13 @@ public class DiameterAvpImpl implements DiameterAvp {
     public Object clone() {
         return new DiameterAvpImpl(code, vendorId, mnd, prt, value,type);
     }
-        
-    
+
+  @Override
+  public String toString()
+  {
+    return "DiameterAVP[Vendor[" + this.vendorId + "], Code[" + this.code +"], " +
+      "Name[" + this.name + "], Type[" + this.type + "], Mandatory[" + this.mnd + "], " +
+      "Protected[" + this.prt + "], Value[" + this.value + "]]";
+  }
 }
 

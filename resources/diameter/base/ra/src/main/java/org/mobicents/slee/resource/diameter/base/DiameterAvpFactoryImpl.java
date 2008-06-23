@@ -19,6 +19,7 @@ import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
 import net.java.slee.resource.diameter.base.events.avp.ProxyInfoAvp;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
 
+import org.apache.log4j.Logger;
 import org.jdiameter.api.Avp;
 import org.jdiameter.client.impl.parser.MessageParser;
 import org.mobicents.slee.resource.diameter.base.events.DiameterCommandImpl;
@@ -39,8 +40,15 @@ import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplic
  */
 public class DiameterAvpFactoryImpl implements DiameterAvpFactory
 {
+  // RFC3588 - Page 40
+  // Unless otherwise noted, AVPs will have the following default AVP
+  // Flags field settings:
+  //   The ’M’ bit MUST be set.  The ’V’ bit MUST NOT be set.
+  
+  private static transient Logger logger = Logger.getLogger(DiameterAvpFactoryImpl.class);
+
   private final long DEFAULT_VENDOR_ID = 0L;
-  private final int DEFAULT_MANDATORY = 0;
+  private final int DEFAULT_MANDATORY = 1;
   private final int DEFAULT_PROTECTED = 0;
   
   protected MessageParser parser = new MessageParser(null);
@@ -85,6 +93,8 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     }
   }
   
+  private static Map<AvpCodeAndVendor, DiameterAvpType> diameterTypes = new HashMap();
+  
   private DiameterAvpType getAvpType(int code, long vendorID) throws NoSuchAvpException
   {
     // Should use Ethereal like dictionary:
@@ -102,8 +112,6 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     // </avp>
     
     // FIXME: We should figure a way to get the AVP type from code/vendor pair 
-    Map<AvpCodeAndVendor, DiameterAvpType> diameterTypes = new HashMap();
-    
     diameterTypes.put( new AvpCodeAndVendor(Avp.ACCT_INTERIM_INTERVAL, 0L), DiameterAvpType.UNSIGNED_32);
     diameterTypes.put( new AvpCodeAndVendor(Avp.ACCOUNTING_REALTIME_REQUIRED, 0L), DiameterAvpType.ENUMERATED);
     diameterTypes.put( new AvpCodeAndVendor(Avp.ACC_MULTI_SESSION_ID, 0L), DiameterAvpType.UTF8_STRING );
@@ -154,7 +162,19 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     diameterTypes.put( new AvpCodeAndVendor(Avp.USER_NAME, 0L), DiameterAvpType.UTF8_STRING );
     diameterTypes.put( new AvpCodeAndVendor(Avp.VENDOR_ID, 0L), DiameterAvpType.UNSIGNED_32 );
     diameterTypes.put( new AvpCodeAndVendor(Avp.VENDOR_SPECIFIC_APPLICATION_ID, 0L), DiameterAvpType.GROUPED );
-    
+
+    // Ericsson Client
+    diameterTypes.put( new AvpCodeAndVendor(615, 193L), DiameterAvpType.ENUMERATED );
+    diameterTypes.put( new AvpCodeAndVendor(553, 193L), DiameterAvpType.GROUPED );
+    diameterTypes.put( new AvpCodeAndVendor(555, 193L), DiameterAvpType.ENUMERATED );
+    diameterTypes.put( new AvpCodeAndVendor(554, 193L), DiameterAvpType.UTF8_STRING );
+    diameterTypes.put( new AvpCodeAndVendor(606, 193L), DiameterAvpType.GROUPED );
+    diameterTypes.put( new AvpCodeAndVendor(611, 193L), DiameterAvpType.ENUMERATED );
+    diameterTypes.put( new AvpCodeAndVendor(612, 193L), DiameterAvpType.GROUPED );
+    diameterTypes.put( new AvpCodeAndVendor(617, 193L), DiameterAvpType.INTEGER_64 );
+    diameterTypes.put( new AvpCodeAndVendor(607, 193L), DiameterAvpType.GROUPED );
+    diameterTypes.put( new AvpCodeAndVendor(608, 193L), DiameterAvpType.UNSIGNED_32 );
+    diameterTypes.put( new AvpCodeAndVendor(609, 193L), DiameterAvpType.UTF8_STRING );
     
     DiameterAvpType avpType = diameterTypes.get( new AvpCodeAndVendor(code, vendorID) );
     
@@ -207,7 +227,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
 
   public DiameterAvp createAvp( int vendorID, int avpCode, int value ) throws NoSuchAvpException
   {
-    DiameterAvpType avpType = getAvpType( avpCode, 0L );
+    DiameterAvpType avpType = getAvpType( avpCode, vendorID );
 
     return new DiameterAvpImpl( avpCode, vendorID, DEFAULT_MANDATORY, DEFAULT_PROTECTED, parser.int32ToBytes(value), avpType );
   }
@@ -317,7 +337,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     }
     catch (Exception e) {
       // TODO: handle exception
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
     
@@ -341,7 +361,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     }
     catch (Exception e) {
       // TODO: handle exception
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
     
@@ -359,7 +379,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     }
     catch (Exception e) {
       // TODO: handle exception
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
   }
@@ -375,7 +395,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     }
     catch (Exception e) {
       // TODO: handle exception
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
   }
@@ -426,7 +446,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     catch ( AvpNotAllowedException e )
     {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
     
@@ -445,7 +465,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     catch ( AvpNotAllowedException e )
     {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
     
@@ -479,7 +499,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     catch ( AvpNotAllowedException e )
     {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
     
@@ -498,7 +518,7 @@ public class DiameterAvpFactoryImpl implements DiameterAvpFactory
     catch ( AvpNotAllowedException e )
     {
       // TODO handle exception
-      e.printStackTrace();
+      logger.error( "", e );
       return null;
     }
     

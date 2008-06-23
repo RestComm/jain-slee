@@ -4,23 +4,29 @@ import java.io.IOException;
 
 import javax.slee.resource.SleeEndpoint;
 
-import org.jdiameter.api.Answer;
-import org.jdiameter.api.EventListener;
-import org.jdiameter.api.Request;
-import org.jdiameter.api.Session;
-import org.jdiameter.api.acc.ServerAccSession;
-import org.jdiameter.api.app.StateChangeListener;
-
 import net.java.slee.resource.diameter.base.AccountingServerSessionActivity;
-import net.java.slee.resource.diameter.base.AccountingSessionState;
 import net.java.slee.resource.diameter.base.events.AccountingAnswer;
+import net.java.slee.resource.diameter.base.events.AccountingRequest;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
+
+import org.jdiameter.api.Answer;
+import org.jdiameter.api.Avp;
+import org.jdiameter.api.EventListener;
+import org.jdiameter.api.IllegalDiameterStateException;
+import org.jdiameter.api.InternalException;
+import org.jdiameter.api.Message;
+import org.jdiameter.api.OverloadException;
+import org.jdiameter.api.Request;
+import org.jdiameter.api.RouteException;
+import org.jdiameter.api.acc.ServerAccSession;
+import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
+import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
 public class AccountingServerSessionActivityImpl extends AccountingSessionActivityImpl
 		implements AccountingServerSessionActivity {
 
-	
-	protected ServerAccSession serverSession=null;
+	protected ServerAccSession serverSession = null;
 	
 	public AccountingServerSessionActivityImpl(
 			DiameterMessageFactoryImpl messageFactory,
@@ -38,9 +44,102 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 		
 	}
 
+	public AccountingAnswer createAccountAnswer(AccountingRequest request, int resultCode)
+	{
+    try
+    {
+      // Get the impl
+      DiameterMessageImpl implRequest = (DiameterMessageImpl)request;
+      
+      // Get raw message from impl
+      Message rawMessage = implRequest.getGenericData();
+      
+      // Extract interesting AVPs
+      DiameterAvp accRecordNumber = avpFactory.createAvp(Avp.ACC_RECORD_NUMBER, rawMessage.getAvps().getAvp(Avp.ACC_RECORD_NUMBER).getRaw());
+      DiameterAvp accRecordType = avpFactory.createAvp(Avp.ACC_RECORD_TYPE, rawMessage.getAvps().getAvp(Avp.ACC_RECORD_TYPE).getRaw());
+      
+      //FIXME: alexandre: this should come from the stack! 
+      DiameterAvp originHost = avpFactory.createAvp(Avp.ORIGIN_HOST, "aaa://127.0.0.1:1812".getBytes());
+      DiameterAvp originRealm = avpFactory.createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes());
+      
+      DiameterAvp sessionId = avpFactory.createAvp(Avp.SESSION_ID, rawMessage.getAvps().getAvp(Avp.SESSION_ID).getRaw());
+      
+      // Add the Result-code
+      DiameterAvp resultCodeAvp = avpFactory.createAvp(Avp.RESULT_CODE, resultCode );
+
+      DiameterMessageImpl answer = (DiameterMessageImpl) messageFactory.createMessage( implRequest.getHeader(), new DiameterAvp[]{accRecordNumber, accRecordType, originHost, originRealm, sessionId, resultCodeAvp} );
+      
+      // RFC3588, Page 119-120
+      // One of Acct-Application-Id and Vendor-Specific-Application-Id AVPs
+      // MUST be present.  If the Vendor-Specific-Application-Id grouped AVP
+      // is present, it must have an Acct-Application-Id inside.
+
+      if(request.hasAcctApplicationId())
+      {
+        answer.addAvp( avpFactory.createAvp(Avp.ACCT_APPLICATION_ID, request.getAcctApplicationId()) );
+      }
+      else
+      {
+        // We should have an Vendor-Specific-Application-Id grouped AVP
+        answer.addAvp( request.getVendorSpecificApplicationId() );
+      }
+      
+      // Get the raw Answer
+      Message rawAnswer = answer.getGenericData();
+
+      // This is an answer.
+      rawAnswer.setRequest(false);
+      
+      
+      return new AccountingAnswerImpl( rawAnswer );
+    }
+    catch ( Exception e )
+    {
+      logger.error( "", e );
+    }
+
+	  return null;
+	}
+	
 	public void sendAccountAnswer(AccountingAnswer answer) throws IOException {
 		// FIXME: baranowb - add setting of proper session
-		super.sendMessage(answer);
+		//super.sendMessage(answer);
+	  
+		if (answer instanceof DiameterMessageImpl) {
+	    try
+      {
+	      AccountingAnswerImpl aca = (AccountingAnswerImpl)answer;
+        try
+        {
+          this.serverSession.getSessions().get(0).send( aca.getGenericData() );
+        }
+        catch ( IllegalDiameterStateException e )
+        {
+          // TODO Auto-generated catch block
+          logger.error( "", e );
+        }
+      }
+      catch ( IllegalStateException e )
+      {
+        // TODO Auto-generated catch block
+        logger.error( "", e );
+      }
+      catch ( InternalException e )
+      {
+        // TODO Auto-generated catch block
+        logger.error( "", e );
+      }
+      catch ( RouteException e )
+      {
+        // TODO Auto-generated catch block
+        logger.error( "", e );
+      }
+      catch ( OverloadException e )
+      {
+        // TODO Auto-generated catch block
+        logger.error( "", e );
+      }
+		}
 	}
 
 	

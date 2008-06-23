@@ -80,8 +80,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 			try {
 				r[i] = AddressAvpImpl.decode(avps.getAvpByIndex(i).getRaw());
 			} catch (AvpDataException e) {
-
-				e.printStackTrace();
+			  log.error( "", e );
 				return null;
 			}
 		}
@@ -128,7 +127,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 			Avp rawAvp = message.getAvps().getAvp(code);
 			// FIXME: baranowb; fix this somehow?
 			int proxiable = 1;
-			return rawAvp == null ? new DiameterIdentityAvpImpl(rawAvp
+			return rawAvp != null ? new DiameterIdentityAvpImpl(rawAvp
 					.getCode(), rawAvp.getVendorId(), rawAvp.isMandatory() ? 1
 					: 0, proxiable, rawAvp.getRaw()) : null;
 		} catch (Exception e) {
@@ -193,7 +192,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 					r[i] = avps.getAvpByIndex(i).getInteger32();
 				} catch (AvpDataException e) {
 
-					e.printStackTrace();
+	        log.error( "", e );
 					return null;
 				}
 
@@ -214,7 +213,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 				// FIXME: baranowb; how can we determine type? Again dicotionary
 				// is needed
 			} catch (AvpDataException e) {
-				log.warn(e);
+				log.warn("", e);
 			}
 		return avps.toArray(new DiameterAvp[avps.size()]);
 	}
@@ -264,15 +263,15 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 		return message;
 	}
 
-	public DiameterHeader getHeader() {
-
+	public DiameterHeader getHeader()
+	{
 		// FIXME: baranowb; how do we set properly length?
-		DiameterHeaderImpl dh = new DiameterHeaderImpl(this.message
-				.getApplicationId(), this.message.getHopByHopIdentifier(),
-				this.message.getEndToEndIdentifier(), 0, message
-						.getCommandCode(), message.isRequest(), message
-						.isProxiable(), message.isError(), message
-						.isReTransmitted());
+		DiameterHeaderImpl dh = new DiameterHeaderImpl(
+		    this.message.getApplicationId(), this.message.getHopByHopIdentifier(),
+				this.message.getEndToEndIdentifier(), 0, this.message.getCommandCode(),
+				this.message.isRequest(), this.message.isProxiable(), 
+				this.message.isError(), this.message.isReTransmitted()
+		);
 
 		return dh;
 	}
@@ -317,7 +316,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 			try {
 				acc.add(new DiameterURIAvpImpl(i.toString()));
 			} catch (URISyntaxException e) {
-				log.warn(e);
+				log.warn("", e);
 			}
 		return acc.toArray(new DiameterURIAvpImpl[0]);
 	}
@@ -364,7 +363,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 					.getVendorId(), i.isMandatory() ? 1 : 0,
 					i.isEncrypted() ? 1 : 0, i.getRaw());
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn("", e);
 			return null;
 		}
 	}
@@ -667,8 +666,9 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 					true, false, true);
 
 		} else {
-
-			throw new IllegalStateException("Cant set Session-Id AVP again!!!");
+		  this.message.getAvps().removeAvp( Avp.SESSION_ID );
+		  this.message.getAvps().addAvp(Avp.SESSION_ID, sessionId, true, false, true);
+			//throw new IllegalStateException("Cant set Session-Id AVP again!!!");
 		}
 
 	}
@@ -689,4 +689,45 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 					true, false);
 	}
 
+	@Override
+	public String toString()
+	{
+//	  DiameterHeader header = this.getHeader();
+//	  
+//	  String toString = "\r\n" +
+//	      "+----------------------------------- HEADER ----------------------------------+\r\n" +
+//        "| Version................." + header.getVersion() + "\r\n" +
+//        "| Message-Length.........." + header.getMessageLength() + "\r\n" +
+//        "| Command-Flags..........." + "R[" + header.isRequest() + "] P[" + header.isProxiable() + "] " +
+//           "E[" + header.isError() + "] T[" + header.isPotentiallyRetransmitted() + "]" + "\r\n" +
+//        "| Command-Code............" + this.getHeader().getCommandCode() + "\r\n" +
+//        "| Application-Id.........." + this.getHeader().getApplicationId() + "\r\n" +
+//        "| Hop-By-Hop Identifier..." + this.getHeader().getHopByHopId() + "\r\n" +
+//        "| End-To-End Identifier..." + this.getHeader().getEndToEndId() + "\r\n" +
+//        "+------------------------------------ AVPs -----------------------------------+\r\n";
+//
+//    for( Avp avp : this.getGenericData().getAvps() )
+//    {
+//      try
+//      {
+//        toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[" + 
+//          avp.getUTF8String().replace( '\n', ' ' ).replace( '\r', ' ' ) + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
+//          avp.isVendorId() + "]\r\n";
+//      }
+//      catch (AvpDataException ignore) {}
+//    }
+//    
+//    toString += "+-----------------------------------------------------------------------------+\r\n";
+//    
+//    return toString;
+	  return "";
+	}
+
+	// ===== AVP Management =====
+	
+	public void addAvp(DiameterAvp avp)
+	{
+	  this.addAvpAsByteArray(avp.getCode(), avp.byteArrayValue(), avp.getMandatoryRule() == 0);
+	}
+	
 }

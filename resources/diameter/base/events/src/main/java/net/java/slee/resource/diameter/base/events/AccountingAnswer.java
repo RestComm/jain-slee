@@ -1,14 +1,9 @@
 package net.java.slee.resource.diameter.base.events;
 
-
-
 import java.util.Date;
-import java.util.Iterator;
-
 
 import net.java.slee.resource.diameter.base.events.avp.AccountingRealtimeRequiredType;
 import net.java.slee.resource.diameter.base.events.avp.AccountingRecordType;
-
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
