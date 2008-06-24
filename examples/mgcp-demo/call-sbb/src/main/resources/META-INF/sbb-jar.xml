@@ -5,10 +5,10 @@
 <sbb-jar>
 	<sbb id="callsbb">
 		<description>Represents the entire call</description>
-		<sbb-name>CallSbb</sbb-name>
+		<sbb-name>MGCPDemoCallSbb</sbb-name>
 		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>1.0</sbb-version>
-		<sbb-alias>CallSbb</sbb-alias>
+		<sbb-alias>MGCPDemoCallSbb</sbb-alias>
 
 		<sbb-ref>
 			<sbb-name>CRCXSbb</sbb-name>
