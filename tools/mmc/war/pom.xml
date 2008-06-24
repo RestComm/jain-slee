@@ -89,17 +89,10 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<condition
-									property="jboss.dir"
-									value="${jboss.home}"
-									else="${env.JBOSS_HOME}"
-								>
-									<isset property="jboss.home" />
-								</condition>
 								<copy
 									overwrite="true"
 									file="target/management-console.war"
-									todir="${jboss.dir}/server/${node}/deploy"
+									todir="${jboss.home}/server/${node}/deploy"
 								/>
 							</tasks>
 						</configuration>
@@ -112,7 +105,7 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<delete file="${env.JBOSS_HOME}/server/${node}/deploy/management-console.war" />
+								<delete file="${jboss.home}/server/${node}/deploy/management-console.war" />
 							</tasks>
 						</configuration>
 					</execution>

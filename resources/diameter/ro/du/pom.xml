@@ -93,7 +93,7 @@
 								<copy
 									overwrite="true"
 									file="target/${project.build.finalName}.jar"
-									todir="${env.JBOSS_HOME}/server/${node}/deploy"
+									todir="${jboss.home}/server/${node}/deploy"
 								/>
 							</tasks>
 						</configuration>
@@ -106,7 +106,7 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<delete file="${env.JBOSS_HOME}/server/${node}/deploy/${project.build.finalName}.jar" />
+								<delete file="${jboss.home}/server/${node}/deploy/${project.build.finalName}.jar" />
 							</tasks>
 						</configuration>
 					</execution>

@@ -192,7 +192,7 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<copy file="${project.build.directory}/${project.build.finalName}.sar" toDir="${env.JBOSS_HOME}/server/${node}/deploy" />
+								<copy file="${project.build.directory}/${project.build.finalName}.sar" toDir="${jboss.home}/server/${node}/deploy" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -204,7 +204,7 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<delete file="${env.JBOSS_HOME}/server/${node}/deploy/${project.build.finalName}.sar" />
+								<delete file="${jboss.home}/server/${node}/deploy/${project.build.finalName}.sar" />
 							</tasks>
 						</configuration>
 					</execution>
