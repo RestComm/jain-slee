@@ -42,9 +42,9 @@ import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
  */
 public abstract class CallSbb implements Sbb {
 
-	public final static String CRCX_CONNECTIONID_DEMO = "1010";
-	public final static String CRCX_ENDPOINTID_DEMO = "1011";
-	public final static String MDCX_DEMO = "1012";
+	public final static String CRCX_CONNECTIONID_DEMO = "2010";
+	public final static String CRCX_ENDPOINTID_DEMO = "2011";
+	public final static String MDCX_DEMO = "2012";
 
 	private SbbContext sbbContext;
 
@@ -60,8 +60,7 @@ public abstract class CallSbb implements Sbb {
 	}
 
 	public void onInvite(RequestEvent evt, ActivityContextInterface aci) {
-		Request request = evt.getRequest();
-		respond(evt, Response.TRYING);
+		Request request = evt.getRequest();	
 
 		FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
 		ToHeader to = (ToHeader) request.getHeader(ToHeader.NAME);
@@ -71,19 +70,22 @@ public abstract class CallSbb implements Sbb {
 		String destination = to.toString();
 		if (destination.indexOf(CRCX_CONNECTIONID_DEMO) > 0) {
 			ChildRelation relation = getCRCXSbbChild();
-			forwardEvent(relation, aci);
+			forwardEvent(relation, aci, evt);
 		} else if (destination.indexOf(CRCX_ENDPOINTID_DEMO) > 0) {
 			ChildRelation relation = getCRCXEndpointSbbChild();
-			forwardEvent(relation, aci);
+			forwardEvent(relation, aci, evt);
 		} else if (destination.indexOf(MDCX_DEMO) > 0) {
 			ChildRelation relation = getMDCXSbbChild();
-			forwardEvent(relation, aci);
+			forwardEvent(relation, aci, evt);
 		}
+		logger.info("MGCP Demo can understand only "+CRCX_CONNECTIONID_DEMO+", "+CRCX_ENDPOINTID_DEMO+" and "+MDCX_DEMO+" dialed numbers");
+		return;
 //		respond(evt, Response.RINGING);
 	}
 
-	private void forwardEvent(ChildRelation relation, ActivityContextInterface aci) {
+	private void forwardEvent(ChildRelation relation, ActivityContextInterface aci, RequestEvent evt) {
 		try {
+			respond(evt, Response.TRYING);
 			SbbLocalObject child = relation.create();
 			aci.attach(child);
 			aci.detach(sbbContext.getSbbLocalObject());
