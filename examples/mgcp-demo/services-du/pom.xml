@@ -11,7 +11,7 @@
     
     <artifactId>mgcp-services-DU</artifactId>
    
-    <name>Fanton :: ${pom.artifactId}</name>
+    <name>MGCP :: ${pom.artifactId}</name>
     
     <dependencies>
         <dependency>

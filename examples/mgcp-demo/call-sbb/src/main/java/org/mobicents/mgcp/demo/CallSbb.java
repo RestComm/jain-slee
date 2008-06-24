@@ -79,7 +79,7 @@ public abstract class CallSbb implements Sbb {
 			ChildRelation relation = getMDCXSbbChild();
 			forwardEvent(relation, aci);
 		}
-
+//		respond(evt, Response.RINGING);
 	}
 
 	private void forwardEvent(ChildRelation relation, ActivityContextInterface aci) {

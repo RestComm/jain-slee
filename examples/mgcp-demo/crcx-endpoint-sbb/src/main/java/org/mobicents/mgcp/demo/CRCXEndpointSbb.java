@@ -119,7 +119,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 		// respond(evt, Response.RINGING);
 
 		CallIdentifier callID = new CallIdentifier(Integer.toHexString(CALL_ID_GEN++));
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
+		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2729");
 
 		CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
 
@@ -182,7 +182,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 
 			Response response = null;
 			try {
-				response = messageFactory.createResponse(Response.RINGING, request, contentType, sdp.getBytes());
+				response = messageFactory.createResponse(Response.OK, request, contentType, sdp.getBytes());
 			} catch (ParseException ex) {
 			}
 
@@ -203,7 +203,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	}
 
 	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
+		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2729");
 		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
 
 		int txID = GEN++;

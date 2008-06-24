@@ -121,7 +121,7 @@ public abstract class MDCXSbb implements Sbb {
 		CallIdentifier callID = new CallIdentifier(Integer.toHexString(CALL_ID_GEN++));
 		this.setCallIdentifier(callID.toString());
 
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
+		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2729");
 
 		CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
 
@@ -160,7 +160,7 @@ public abstract class MDCXSbb implements Sbb {
 
 			CallIdentifier callIdentifier = new CallIdentifier(this.getCallIdentifier());
 
-			EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
+			EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2729");
 
 			ModifyConnection modifyConnection = new ModifyConnection(this, callIdentifier, endpointID, event
 					.getConnectionIdentifier());
@@ -208,24 +208,24 @@ public abstract class MDCXSbb implements Sbb {
 		ContactHeader contact = headerFactory.createContactHeader(contactAddress);
 
 		try {
-			response = messageFactory.createResponse(Response.RINGING, request, contentType, sdp.getBytes());
+			response = messageFactory.createResponse(Response.OK, request, contentType, sdp.getBytes());
 		} catch (ParseException ex) {
-			logger.error("ParseException while trying to create the RINIGING Response for MDCX", ex);
+			logger.error("ParseException while trying to create the OK Response for MDCX", ex);
 		}
 
 		response.setHeader(contact);
 		try {
 			txn.sendResponse(response);
 		} catch (InvalidArgumentException ex) {
-			logger.error("InvalidArgumentException while trying to send the RINIGING Response for MDCX", ex);
+			logger.error("InvalidArgumentException while trying to send the OK Response for MDCX", ex);
 		} catch (SipException ex) {
-			logger.error("SipException while trying to send the RINIGING Response for MDCX", ex);
+			logger.error("SipException while trying to send the OK Response for MDCX", ex);
 		}
 
 	}
 
 	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2727");
+		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, "localhost:2729");
 		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
 
 		deleteConnection.setConnectionIdentifier(new ConnectionIdentifier(this.getConnectionIdentifier()));
