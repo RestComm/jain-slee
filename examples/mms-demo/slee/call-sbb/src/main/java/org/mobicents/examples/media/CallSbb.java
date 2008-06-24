@@ -76,14 +76,23 @@ public abstract class CallSbb implements Sbb {
 
     public void onCallCreated(RequestEvent evt, ActivityContextInterface aci) {
         Request request = evt.getRequest();
-        respond(evt, Response.TRYING);
+        
 
         CallIdHeader callID = (CallIdHeader) request.getHeader(CallIdHeader.NAME);
         FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
         ToHeader to = (ToHeader) request.getHeader(ToHeader.NAME);
 
         logger.info("Incoming call " + from + " " + to.getName());
-        this.setDestination(to.toString());
+        
+        String destination =  to.toString();
+		if ((destination.indexOf(LOOP_DEMO) > 0) || (destination.indexOf(DTMF_DEMO) > 0) || (destination.indexOf(CONF_DEMO) >0 )){
+			respond(evt, Response.TRYING);
+		}
+		else{
+			logger.info("MMS Demo can understand only "+LOOP_DEMO+", "+DTMF_DEMO+" and "+CONF_DEMO+" dialed numbers");
+			return;
+		}
+        this.setDestination(destination);
 
         //create Dialog and attach SBB to the Dialog Activity
         ActivityContextInterface daci = null;
