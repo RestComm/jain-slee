@@ -122,7 +122,7 @@
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
-					<excludePoms>resources/diameter/**/pom.xml</excludePoms>
+					<excludePoms>resources/diameter/**/pom.xml,examples/diameter/**/pom.xml</excludePoms>
 					<classpathExcludes>
 						<exclude>xml-apis:xml-apis</exclude>
 						<exclude>jtidy:jtidy</exclude>
