@@ -6,20 +6,20 @@
     <sbb id="ConfDemoSbb">
         <description>Represents the conference example</description>
         <sbb-name>ConfDemoSbb</sbb-name>
-        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
         <sbb-version>1.0</sbb-version>
         <sbb-alias>ConfDemoSbb</sbb-alias>
         
         <sbb-ref>
             <sbb-name>ForestSbb</sbb-name>
-            <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
             <sbb-version>1.0</sbb-version>
             <sbb-alias>ForestSbb</sbb-alias>
         </sbb-ref>
         
         <sbb-ref>
             <sbb-name>AnnouncementSbb</sbb-name>
-            <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
             <sbb-version>1.0</sbb-version>
             <sbb-alias>AnnouncementSbb</sbb-alias>
         </sbb-ref>
@@ -64,13 +64,13 @@
     <sbb id="ForestSbb">
         <description>Represents the conference bridge</description>
         <sbb-name>ForestSbb</sbb-name>
-        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
         <sbb-version>1.0</sbb-version>
         <sbb-alias>ForestSbb</sbb-alias>
         
         <sbb-ref>
             <sbb-name>AnnouncementSbb</sbb-name>
-            <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
             <sbb-version>1.0</sbb-version>
             <sbb-alias>AnnouncementSbb</sbb-alias>
         </sbb-ref>

@@ -10,10 +10,10 @@
         
         <root-sbb>
             <sbb-name>CallSbb</sbb-name>
-            <sbb-vendor>org.mobicents</sbb-vendor>
+            <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
             <sbb-version>1.0</sbb-version>
         </root-sbb>        
-
+        
         <default-priority>0</default-priority>
     </service>
 </service-xml>

@@ -7,7 +7,7 @@
     <sbb id="AnnouncementSbb">
         <description>Represents the Announcement</description>
         <sbb-name>AnnouncementSbb</sbb-name>
-        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
         <sbb-version>1.0</sbb-version>
         <sbb-alias>AnnouncementSbb</sbb-alias>
         

@@ -6,13 +6,13 @@
     <sbb id="DtmfDemoSbb">
         <description>Represents the dtmf example</description>
         <sbb-name>DtmfDemoSbb</sbb-name>
-        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
         <sbb-version>1.0</sbb-version>
         <sbb-alias>DtmfDemoSbb</sbb-alias>
         
         <sbb-ref>
             <sbb-name>AnnouncementSbb</sbb-name>
-            <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-vendor>org.mobicents.mms-demo</sbb-vendor>
             <sbb-version>1.0</sbb-version>
             <sbb-alias>AnnouncementSbb</sbb-alias>
         </sbb-ref>
