@@ -51,7 +51,6 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.slee.resource.ResourceException;
 import javax.slee.resource.SleeEndpoint;
 
-import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.mgcp.event.TransactionTimeout;
 
 import org.apache.log4j.Logger;
@@ -802,6 +801,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor, Serializable {
      * Registers MgcpActivityContextInterfaceFactory with JNDI name.
      *
      */
+    @SuppressWarnings("static-access")
     private void initializeNamingContext() {
         logger.info("Initialize naming context");
         

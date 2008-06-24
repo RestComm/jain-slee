@@ -11,6 +11,7 @@ import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
 import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
 import jain.protocol.ip.mgcp.message.parms.RequestIdentifier;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.TooManyListenersException;
 import java.util.WeakHashMap;
@@ -30,7 +31,8 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 	private final MgcpResourceAdaptor ra;
 	private final JainMgcpStackProviderImpl provider;
 	private MgcpStackListener listener=new MgcpStackListener();
-	private WeakHashMap<Integer, JainMgcpCommandEvent> commandsEventMap=new WeakHashMap<Integer, JainMgcpCommandEvent>();
+	//private WeakHashMap<Integer, JainMgcpCommandEvent> commandsEventMap=new WeakHashMap<Integer, JainMgcpCommandEvent>();
+	private HashMap<Integer, JainMgcpCommandEvent> commandsEventMap=new HashMap<Integer, JainMgcpCommandEvent>();
 	
 	
 	public JainMgcpProviderImpl(MgcpResourceAdaptor ra,
@@ -141,7 +143,7 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 	}
 
 	public JainMgcpStack getJainMgcpStack() {
-		return null;
+		return this.provider.getJainMgcpStack();
 	}
 
 	public void removeJainMgcpListener(JainMgcpListener arg0) {
@@ -151,7 +153,7 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 	public void sendMgcpEvents(JainMgcpEvent[] events)
 			throws IllegalArgumentException {
 
-		provider.sendMgcpEvents(events);
+		//provider.sendMgcpEvents(events);
 		for(JainMgcpEvent event: events)
 		{
 			if (event instanceof CreateConnectionResponse) {
@@ -159,9 +161,10 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 			}
 			if(event instanceof JainMgcpCommandEvent)
 			{
-				this.commandsEventMap.put(event.getTransactionHandle(), (JainMgcpCommandEvent) event);
+				commandsEventMap.put(event.getTransactionHandle(), (JainMgcpCommandEvent) event);
 			}
 		}
+		provider.sendMgcpEvents(events);
 
 	}
 
@@ -189,7 +192,7 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 		}
 
 		public void processMgcpResponseEvent(JainMgcpResponseEvent response) {
-			ra.processMgcpResponseEvent(response, commandsEventMap.get(response.getTransactionHandle()));
+			ra.processMgcpResponseEvent(response, commandsEventMap.remove(response.getTransactionHandle()));
 			
 		}
 
