@@ -4,4 +4,12 @@
     <properties file="" />
     <ra-link name="MGCPRA" />
   </ra-entity>
+  <ra-entity resource-adaptor-id="MGCPResourceAdaptor#org.mobicents#2.0" entity-name="MGCP-MRF">
+    <properties file="mgcp-mrf.properties" />
+    <ra-link name="MGCP-MRF" />
+  </ra-entity>
+  <ra-entity resource-adaptor-id="MGCPResourceAdaptor#org.mobicents#2.0" entity-name="MGCP-CSCF">
+    <properties file="mgcp-cscf.properties" />
+    <ra-link name="MGCP-CSCF" />
+  </ra-entity>
 </deploy-config>
