@@ -231,8 +231,9 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 	public void activityEnded(ActivityHandle handle) {
 		logger.info("Diameter Base RA :: activityEnded :: handle[" + handle
 				+ ".");
-
-		this.activities.remove(handle);
+		synchronized (this.activities) {
+			this.activities.remove(handle);
+		}
 	}
 
 	/**
@@ -342,7 +343,9 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 
 		logger.info("Diameter Base RA :: Cleaning RA Activities.");
 
-		activities.clear();
+		synchronized (this.activities) {
+			activities.clear();
+		}
 		activities = null;
 
 		logger.info("Diameter Base RA :: Cleaning naming context.");
@@ -385,18 +388,20 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 			logger.error(e);
 		}
 
-		for (ActivityHandle activityHandle : activities.keySet().toArray(
-				new DiameterActivityHandle[1])) {
-			try {
-				logger.info("Ending activity [" + activityHandle + "]");
+		synchronized (this.activities) {
+			for (ActivityHandle activityHandle : activities.keySet().toArray(
+					new DiameterActivityHandle[1])) {
+				try {
+					logger.info("Ending activity [" + activityHandle + "]");
 
-				activities.get(activityHandle).endActivity();
+					activities.get(activityHandle).endActivity();
 
-			} catch (Exception e) {
-				logger.error("Error Deactivating Activity", e);
+				} catch (Exception e) {
+					logger.error("Error Deactivating Activity", e);
+				}
 			}
-		}
 
+		}
 		logger.info("Diameter Base RA :: entityDeactivating completed.");
 	}
 
