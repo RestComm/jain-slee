@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<project name="mobicents.release" default="release" basedir=".">
+
+	<property name="ra.dirs" value="xmpp,media,smpp,http-servlet,asterisk,sip,diameter,persistence,http-client,xcap-client,rules,tts,mgcp"/>
+	<property name="example.dirs" value="sip-services,call-controller2,converged-demo,mms-demo,google-talk-bot"/>
+
+	<property name="release.dir" value="${ant.file.mobicents.release}/../target"/>
+	<property name="jboss.version" value="4.2.2.GA"/>
+	<property name="release.version" value="1.0.0.GA-SNAPSHOT"/>
+	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
+	<property name="jboss.home" value="${release.dir}/jboss-${jboss.version}/"/>
+	<property name="jboss.config" value="default" />
+
+	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	<condition property="mvn.executable" value="${sys.M2_HOME}\bin\mvn.bat" else="mvn">
+		<os family="windows"/>
+	</condition>
+	<condition property="default.jboss.config">
+		<equals arg1="${jboss.config}" arg2="default"/>
+	</condition>
+	<condition property="all.jboss.config">
+		<equals arg1="${jboss.config}" arg2="all"/>
+	</condition>
+
+	<target name="build-core" description="">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../..">
+			<arg line="clean install -Djboss.home=${jboss.home}" />
+		</exec>
+	</target>
+
+	<target name="build-ras" description="Resource adapters.">
+		<for delimiter="," param="dir.name" list="${ra.dirs}">
+			<sequential>
+				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
+					<arg line="clean install -Djboss.home=${realese.dir}/tmp" />
+				</exec>
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
+					<arg line="-o install -Prelease -Drelease.name=target -Djboss.home=${realese.dir}/tmp" />
+				</exec>
+			</sequential>
+		</for>
+		<delete dir="${release.dir}/tmp"/>
+	</target>
+
+	<target name="build-examples" description="Examples.">
+		<for delimiter="," param="dir.name" list="${example.dirs}">
+			<sequential>
+				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
+					<arg line="clean install -Djboss.home=${realese.dir}/tmp" />
+				</exec>
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
+					<arg line="-o install -Prelease -Drelease.name=target -Djboss.home=${realese.dir}/tmp" />
+				</exec>
+			</sequential>
+		</for>
+		<delete dir="${release.dir}/tmp"/>
+	</target>
+
+	<target name="release" depends="get-jboss,unzip-jboss,build-core,build-ras,build-examples">
+		<copy failonerror="true" file="jbossjta-properties.xml" tofile="${jboss.home}/server/default/conf/jbossjta-properties.xml" overwrite="true"/>
+		<copy failonerror="true" file="readme.txt" tofile="${release.dir}/readme.txt" overwrite="true"/>
+		<delete file="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}.zip"/>
+		<antcall target="zip-jboss">
+			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}.zip" />
+			<param name="jboss.home" value="${jboss.home}" />
+		</antcall>
+		<delete dir="${jboss.home}" failonerror="true" />
+		<antcall target="clean"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="${release.dir}" />
+	</target>
+
+	<target name="unzip-jboss">
+		<delete dir="${jboss.home}" failonerror="true" />
+		<unzip src="${jboss.distro.zip.path}" dest="${release.dir}" />
+		<antcall target="cleanup-jboss"/>
+	</target>
+
+	<target name="cleanup-jboss">
+		<antcall target="delete-all-jboss-config"/>
+		<antcall target="delete-default-jboss-config"/>
+		<delete dir="${jboss.home}/server/minimal" />
+	</target>
+	<target name="delete-all-jboss-config" unless="all.jboss.config">
+		<delete dir="${jboss.home}/server/all" />
+	</target>
+	<target name="delete-default-jboss-config" unless="default.jboss.config">
+		<delete dir="${jboss.home}/server/default" />
+	</target>
+
+	<target name="zip-jboss" description="">
+		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh"
+			         eol="lf" eof="remove" />
+		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" filesonly="false">
+			<zipfileset dir="${jboss.home}/bin"
+			            filemode="755" prefix="jboss-${jboss.version}/bin">
+				<include name="*.sh" />
+			</zipfileset>
+			<zipfileset dir="${jboss.home}/bin"
+	         		prefix="jboss-${jboss.version}/bin">
+				<exclude name="*.sh" />
+			</zipfileset>
+			<zipfileset dir="${release.dir}"
+	            	prefix="">
+				<exclude name="bin/**"/>
+				<exclude name="server/*/data/**"/>
+				<exclude name="server/*/log/**"/>
+				<exclude name="server/*/tmp/**"/>
+				<exclude name="server/*/work/**"/>
+				<exclude name="server/tmp/**"/>
+			</zipfileset>
+		</zip>
+	</target>
+
+	<available file="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" property="got.jboss" />
+	<target name="get-jboss" unless="got.jboss">
+		<echo>Downloading JBoss AS</echo>
+		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-4.2.2.GA.zip"/>
+	</target>
+
+</project>
