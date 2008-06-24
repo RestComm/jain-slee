@@ -389,8 +389,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 		}
 
 		synchronized (this.activities) {
-			for (ActivityHandle activityHandle : activities.keySet().toArray(
-					new DiameterActivityHandle[1])) {
+			for (ActivityHandle activityHandle : activities.keySet()) {
 				try {
 					logger.info("Ending activity [" + activityHandle + "]");
 
