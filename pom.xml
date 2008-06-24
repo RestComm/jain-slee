@@ -28,7 +28,7 @@
 		<module>tools/ant-tasks</module>
 		<module>tools/cli</module>
 		<module>core/sar</module>
-		<module>tools/mmc</module>
+		<module>tools/management-console</module>
 	</modules>
 
 	<profiles>
