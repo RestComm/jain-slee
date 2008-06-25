@@ -12,6 +12,7 @@
 package org.mobicents.slee.container.deployment;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -315,26 +316,41 @@ public class ClassUtils {
     	return abstractMethods;
     }
 
+    /**
+     * Collects all methods of the interfaces implemented/extended by the specified {@link CtClass}
+     * @param sbbAbstractClass
+     * @return
+     */
     public static Map getSuperClassesAbstractMethodsFromInterface(CtClass sbbAbstractClass) {
-         HashMap abstractMethods = new HashMap();
-         CtMethod[] methods = null;
-         CtClass[] superClass;
-         try {
-         	superClass = sbbAbstractClass.getInterfaces();
-    
-         	for (int j=0; (superClass!=null && j<superClass.length); j++)
-         	{
-         		methods = superClass[j].getDeclaredMethods();
-         		for (int i = 0; i < methods.length; i++)
-         		{
-         			abstractMethods.put(getMethodKey(methods[i]), methods[i]);
-         		}
-         	}
-         } catch (NotFoundException e) {
-             logger.error(e);
-         }
-         return abstractMethods;
-     }
+    	HashMap abstractMethods = new HashMap();
+    	CtMethod[] methods = null;
+
+    	ArrayList<CtClass> superClasses = new ArrayList<CtClass>();
+    	superClasses.add(sbbAbstractClass);
+    	ArrayList<CtClass> superClassesProcessed = new ArrayList<CtClass>();
+    	
+    	try {
+    		while(!superClasses.isEmpty()) {
+    			// remove head
+    			CtClass ctClass = superClasses.remove(0);
+    			superClassesProcessed.add(ctClass);
+    			// get its methods
+    			methods = ctClass.getDeclaredMethods();
+    			for (CtMethod ctMethod:methods)	{
+    				abstractMethods.put(getMethodKey(ctMethod), ctMethod);
+    			}
+    			// get super interfaces
+    			for(CtClass anotherCtClass : ctClass.getInterfaces()) {
+    				if (!superClassesProcessed.contains(anotherCtClass)) {
+    					superClasses.add(anotherCtClass);
+    				}
+    			}
+    		}
+    	} catch (NotFoundException e) {
+    		logger.error(e);
+    	}
+    	return abstractMethods;
+    }
 
     /**
      * Retrieve all interface methods from an interface
