@@ -71,6 +71,9 @@
 			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}.zip" />
 			<param name="jboss.home" value="${jboss.home}" />
 		</antcall>
+		<antcall target="zip-src">
+			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}-src.zip" />
+		</antcall>
 		<delete dir="${jboss.home}" failonerror="true" />
 		<antcall target="clean"/>
 	</target>
@@ -120,7 +123,30 @@
 			</zipfileset>
 		</zip>
 	</target>
-
+	
+    <target name="zip-src" description="">
+        <zip destfile="${ant.file.mobicents.release}/../${zip.filename}" filesonly="false">
+            <zipfileset dir="${ant.file.mobicents.release}/../../../../.." prefix="">
+                <include name="mobicents/servers/jain-slee/**"/>
+                
+                <exclude name="**/servers/jain-slee/examples/training/**"/>
+                <exclude name="**/target/**"/>
+                <exclude name="**/docs/**"/>
+                <exclude name="**/legacy/**"/>
+                <exclude name="**/release/**"/>
+                <exclude name="**/logs/**"/>
+                <exclude name="**/.svn/**"/>
+                <exclude name="**/*JBOSS_HOME*/**"/>
+                <exclude name="**/*CATALINA_HOME*/**"/>
+                <exclude name="**/.gwt-cache/**"/>
+                <exclude name="**/.settings/**"/>
+                <exclude name="**/.project"/>
+                <exclude name="**/.classpath"/>
+                <exclude name="**/*.class"/>
+            </zipfileset>
+        </zip>
+    </target>
+	
 	<available file="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" property="got.jboss" />
 	<target name="get-jboss" unless="got.jboss">
 		<echo>Downloading JBoss AS</echo>
