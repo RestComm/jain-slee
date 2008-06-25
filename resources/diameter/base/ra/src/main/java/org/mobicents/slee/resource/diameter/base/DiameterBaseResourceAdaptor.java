@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -376,16 +377,26 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 	 */
 	public void entityDeactivating() {
 		logger.info("Diameter Base RA :: entityDeactivating.");
+		
 		this.state = ResourceAdaptorState.STOPPING;
-		try {
+		
+		try 
+		{
 			Network network = stack.unwrap(Network.class);
 
-			for (ApplicationId appId : stack.getMetaData().getLocalPeer()
-					.getCommonApplications()) {
-				network.removeNetworkReqListener(appId);
+			Iterator<ApplicationId> appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
+			
+			while(appIdsIt.hasNext())
+			{
+				network.removeNetworkReqListener(appIdsIt.next());
+				
+				// Update the iterator (avoid ConcurrentModificationException)
+				appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
 			}
-		} catch (InternalException e) {
-			logger.error(e);
+		}
+		catch (InternalException e) 
+		{
+			logger.error("", e);
 		}
 
 		synchronized (this.activities) {
