@@ -67,11 +67,9 @@ import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
  * @author iivanov
  * 
  */
-public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
-		javax.slee.Sbb {
+public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements javax.slee.Sbb {
 
-	public void onInvite(javax.sip.RequestEvent event,
-			VoiceMailSbbActivityContextInterface localAci) {
+	public void onInvite(javax.sip.RequestEvent event, VoiceMailSbbActivityContextInterface localAci) {
 		Response response;
 		log.info("########## VOICE MAIL SBB: INVITE ##########");
 		// Request
@@ -88,8 +86,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			localAci.detach(this.getSbbLocalObject());
 
 			if (localAci.getFilteredByAncestor()) {
-				log
-						.info("########## VOICE MAIL SBB: FILTERED BY ANCESTOR ##########");
+				log.info("########## VOICE MAIL SBB: FILTERED BY ANCESTOR ##########");
 				return;
 			}
 
@@ -101,8 +98,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 			if (sameUser) {
 				// The user is the caller
-				FromHeader fromHeader = (FromHeader) request
-						.getHeader(FromHeader.NAME);
+				FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME);
 				uri = fromHeader.getAddress().getURI();
 			} else {
 				// The user is the callee - we are calling someone else
@@ -117,31 +113,6 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			boolean isSubscriber = isSubscriber(uri.toString());
 
 			if (isSubscriber) {
-				// Voice Mail service enabled
-				String fileRoute = null;
-
-				// Looking for the audio file to transmit
-				Context initCtx = new InitialContext();
-				Context myEnv = (Context) initCtx.lookup("java:comp/env");
-
-				// check if the user is calling their own number to check voice
-				// mail
-				if (sameUser) {
-
-				}
-				// or someone else is calling the user to leave a voice message
-				else {
-
-					ToHeader toHeader = (ToHeader) request
-							.getHeader(ToHeader.NAME);
-					String fileName = ((SipURI) toHeader.getAddress().getURI())
-							.getUser()
-							+ WAV_EXT;
-
-					// Setting File Route where recording the voice message
-					String route = (String) myEnv.lookup("filesRoute");
-					fileRoute = /*route + */fileName;
-				}
 
 				// SDP Description from the request
 				String sdp = new String(request.getRawContent());
@@ -150,27 +121,22 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				MsSession mediaSession = msProvider.createSession();
 				// Setting Media Session
 				this.setMediaSession(mediaSession);
-				MsConnection msConnection = mediaSession
-						.createNetworkConnection(ENDPOINT_NAME);
+				MsConnection msConnection = mediaSession.createNetworkConnection(ENDPOINT_NAME);
 
 				// Attaching session AC
 				ActivityContextInterface msAci = null;
 				try {
-					msAci = msActivityFactory
-							.getActivityContextInterface(msConnection);
+					msAci = msActivityFactory.getActivityContextInterface(msConnection);
 					msAci.attach(this.getSbbLocalObject());
 				} catch (Exception ex) {
 					log.error("Internal server error", ex);
-					getMessageFactory().createResponse(
-							Response.SERVER_INTERNAL_ERROR, request);
+					getMessageFactory().createResponse(Response.SERVER_INTERNAL_ERROR, request);
 					return;
 				}
 
 				// Attaching to SIP Dialog activity
-				Dialog dial = getSipFactoryProvider().getSipProvider()
-						.getNewDialog((Transaction) st);
-				ActivityContextInterface dialogAci = sipACIF
-						.getActivityContextInterface(dial);
+				Dialog dial = getSipFactoryProvider().getSipProvider().getNewDialog((Transaction) st);
+				ActivityContextInterface dialogAci = sipACIF.getActivityContextInterface(dial);
 
 				// attach this SBB object to the Dialog activity to receive
 				// subsequent events on this Dialog
@@ -179,13 +145,11 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				// Notify caller that we're TRYING to reach voice mail. Just a
 				// formality, we know we can go further than TRYING at this
 				// point
-				response = getMessageFactory().createResponse(Response.TRYING,
-						request);
+				response = getMessageFactory().createResponse(Response.TRYING, request);
 				st.sendResponse(response);
 
 				// RINGING. Another formality of the SIP protocol.
-				response = getMessageFactory().createResponse(Response.RINGING,
-						request);
+				response = getMessageFactory().createResponse(Response.RINGING, request);
 				st.sendResponse(response);
 
 				log.info("Creating RTP connection [" + ENDPOINT_NAME + "]");
@@ -194,10 +158,8 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			}
 			// Voice Mail service disabled
 			else {
-				response = getMessageFactory().createResponse(
-						Response.TEMPORARILY_UNAVAILABLE, request);
-				log.info("########## NO VOICE MAIL AVAILABLE FOR USER: "
-						+ uri.toString());
+				response = getMessageFactory().createResponse(Response.TEMPORARILY_UNAVAILABLE, request);
+				log.info("########## NO VOICE MAIL AVAILABLE FOR USER: " + uri.toString());
 				st.sendResponse(response);
 			}
 
@@ -212,8 +174,6 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		} catch (InvalidArgumentException e) {
 			log.error(e.getMessage(), e);
 		} catch (NullPointerException e) {
-			log.error(e.getMessage(), e);
-		} catch (NamingException e) {
 			log.error(e.getMessage(), e);
 		} catch (UnrecognizedActivityException e) {
 			log.error(e.getMessage(), e);
@@ -273,8 +233,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		// }
 	}
 
-	public void onConnectionCreated(MsConnectionEvent evt,
-			ActivityContextInterface aci) {
+	public void onConnectionCreated(MsConnectionEvent evt, ActivityContextInterface aci) {
 		MsConnection connection = evt.getConnection();
 		log.info("Created RTP connection [" + connection.getEndpoint() + "]");
 
@@ -292,30 +251,24 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 		ContentTypeHeader contentType = null;
 		try {
-			contentType = getHeaderFactory().createContentTypeHeader(
-					"application", "sdp");
+			contentType = getHeaderFactory().createContentTypeHeader("application", "sdp");
 		} catch (ParseException ex) {
 		}
 
-		String localAddress = getSipFactoryProvider().getSipProvider()
-				.getListeningPoints()[0].getIPAddress();
-		int localPort = getSipFactoryProvider().getSipProvider()
-				.getListeningPoints()[0].getPort();
+		String localAddress = getSipFactoryProvider().getSipProvider().getListeningPoints()[0].getIPAddress();
+		int localPort = getSipFactoryProvider().getSipProvider().getListeningPoints()[0].getPort();
 
 		javax.sip.address.Address contactAddress = null;
 		try {
-			contactAddress = getAddressFactory().createAddress(
-					"sip:" + localAddress + ":" + localPort);
+			contactAddress = getAddressFactory().createAddress("sip:" + localAddress + ":" + localPort);
 		} catch (ParseException ex) {
 			log.error(ex.getMessage(), ex);
 		}
-		ContactHeader contact = getHeaderFactory().createContactHeader(
-				contactAddress);
+		ContactHeader contact = getHeaderFactory().createContactHeader(contactAddress);
 
 		Response response = null;
 		try {
-			response = getMessageFactory().createResponse(Response.OK, request,
-					contentType, sdp.getBytes());
+			response = getMessageFactory().createResponse(Response.OK, request, contentType, sdp.getBytes());
 		} catch (ParseException ex) {
 		}
 
@@ -336,18 +289,15 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			log.debug("same user, lets play the voice mail");
 			System.out.println("same user, lets play the voice mail");
 
-			MsSignalGenerator generator = msProvider
-					.getSignalGenerator(endpointName);
+			MsSignalGenerator generator = msProvider.getSignalGenerator(endpointName);
 
 			try {
-				ActivityContextInterface generatorActivity = msActivityFactory
-						.getActivityContextInterface(generator);
+				ActivityContextInterface generatorActivity = msActivityFactory.getActivityContextInterface(generator);
 				generatorActivity.attach(this.getSbbLocalObject());
 
 				URL audioFileURL = getClass().getResource(waitingDTMF);
 
-				generator.apply(EventID.PLAY, new String[] { audioFileURL
-						.toString() });
+				generator.apply(EventID.PLAY, new String[] { audioFileURL.toString() });
 
 				this.initDtmfDetector(evt.getConnection(), endpointName);
 
@@ -357,15 +307,12 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 		} else {
 			log.debug("not the same user, start recording after announcement");
-			System.out
-					.println("not the same user, start recording after announcement");
+			System.out.println("not the same user, start recording after announcement");
 
 			URL audioFileURL = getClass().getResource(recordAfterTone);
 
 			ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
-			String fileName = ((SipURI) toHeader.getAddress().getURI())
-					.getUser()
-					+ WAV_EXT;
+			String fileName = ((SipURI) toHeader.getAddress().getURI()).getUser() + WAV_EXT;
 			String route = null;
 			String recordFilePath = null;
 
@@ -378,22 +325,20 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				log.warn("Lookup of filesRoute env Variable failed", nEx);
 			}
 
-//			if (route != null) {
-//				recordFilePath = route + fileName;
-//			} else {
+			if (route != null) {
+				recordFilePath = route + fileName;
+			} else {
 				recordFilePath = fileName;
-//			}
+			}
 
 			String[] params = new String[2];
 			params[0] = audioFileURL.toString();
 			params[1] = recordFilePath;
 
-			MsSignalGenerator signalGenerator = msProvider
-					.getSignalGenerator(endpointName);
+			MsSignalGenerator signalGenerator = msProvider.getSignalGenerator(endpointName);
 
 			try {
-				ActivityContextInterface dtmfAci = msActivityFactory
-						.getActivityContextInterface(signalGenerator);
+				ActivityContextInterface dtmfAci = msActivityFactory.getActivityContextInterface(signalGenerator);
 				dtmfAci.attach(this.getSbbLocalObject());
 				signalGenerator.apply(EventID.PLAY_RECORD, params);
 			} catch (UnrecognizedActivityException e) {
@@ -404,11 +349,9 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	}
 
 	private void initDtmfDetector(MsConnection connection, String userEndPoint) {
-		MsSignalDetector dtmfDetector = msProvider
-				.getSignalDetector(userEndPoint);
+		MsSignalDetector dtmfDetector = msProvider.getSignalDetector(userEndPoint);
 		try {
-			ActivityContextInterface dtmfAci = msActivityFactory
-					.getActivityContextInterface(dtmfDetector);
+			ActivityContextInterface dtmfAci = msActivityFactory.getActivityContextInterface(dtmfDetector);
 			dtmfAci.attach(this.getSbbLocalObject());
 			dtmfDetector.receive(EventID.DTMF, connection, new String[] {});
 		} catch (UnrecognizedActivityException e) {
@@ -436,8 +379,8 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 	private void sendServerInternalError() {
 		try {
-			Response response = getMessageFactory().createResponse(
-					Response.SERVER_INTERNAL_ERROR, this.getInviteRequest());
+			Response response = getMessageFactory().createResponse(Response.SERVER_INTERNAL_ERROR,
+					this.getInviteRequest());
 			this.getServerTransaction().sendResponse(response);
 
 		} catch (ParseException e) {
@@ -458,8 +401,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	}
 
 	private MsConnection getConnection() {
-		ActivityContextInterface[] activities = this.getSbbContext()
-				.getActivities();
+		ActivityContextInterface[] activities = this.getSbbContext().getActivities();
 		for (int i = 0; i < activities.length; i++) {
 			if (activities[i].getActivity() instanceof MsConnection) {
 				return (MsConnection) activities[i].getActivity();
@@ -499,8 +441,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		Request request = byeEvent.getRequest();
 		ServerTransaction tx = byeEvent.getServerTransaction();
 		try {
-			Response response = getMessageFactory().createResponse(Response.OK,
-					request);
+			Response response = getMessageFactory().createResponse(Response.OK, request);
 			tx.sendResponse(response);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -517,31 +458,28 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		 */
 
 		// Press 1 if you want to listen the next message
-		if (dtmf.equals(EventCause.DTMF_DIGIT_1) ) {
+		if (dtmf.equals(EventCause.DTMF_DIGIT_1)) {
 			audioFileURL = getClass().getResource(dtmf1);
 		}
 		// Press 7 if you want to delete the last message
-		else if (dtmf.equals(EventCause.DTMF_DIGIT_7) ) {
+		else if (dtmf.equals(EventCause.DTMF_DIGIT_7)) {
 			audioFileURL = getClass().getResource(dtmf7);
 		}
 		// Press 9 if you want to hang up
-		else if (dtmf.equals(EventCause.DTMF_DIGIT_9) ) {
+		else if (dtmf.equals(EventCause.DTMF_DIGIT_9)) {
 			audioFileURL = getClass().getResource(dtmf9);
 
 		} else {
 			audioFileURL = getClass().getResource(tryAgain);
 		}
 
-		MsSignalGenerator generator = msProvider.getSignalGenerator(this
-				.getUserEndpoint());
+		MsSignalGenerator generator = msProvider.getSignalGenerator(this.getUserEndpoint());
 
 		try {
-			ActivityContextInterface generatorActivity = msActivityFactory
-					.getActivityContextInterface(generator);
+			ActivityContextInterface generatorActivity = msActivityFactory.getActivityContextInterface(generator);
 			generatorActivity.attach(getSbbContext().getSbbLocalObject());
 
-			generator.apply(EventID.PLAY, new String[] { audioFileURL
-					.toString() });
+			generator.apply(EventID.PLAY, new String[] { audioFileURL.toString() });
 
 			// this.initDtmfDetector(getConnection(), this.getEndpointName());
 		} catch (UnrecognizedActivityException e) {
@@ -561,8 +499,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	 */
 	private boolean isSubscriber(String sipAddress) {
 		boolean state = false;
-		CallControlProfileCMP profile = lookup(new Address(AddressPlan.SIP,
-				sipAddress));
+		CallControlProfileCMP profile = lookup(new Address(AddressPlan.SIP, sipAddress));
 
 		if (profile != null) {
 			state = profile.getVoicemailState();
@@ -604,19 +541,15 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		headerFactory = getSipFactoryProvider().getHeaderFactory();
 
 		try {
-			Context myEnv = (Context) new InitialContext()
-					.lookup("java:comp/env");
+			Context myEnv = (Context) new InitialContext().lookup("java:comp/env");
 			// Getting Media Resource Adaptor interfaces
-			msProvider = (MsProvider) myEnv
-					.lookup("slee/resources/media/1.0/provider");
+			msProvider = (MsProvider) myEnv.lookup("slee/resources/media/1.0/provider");
 			msActivityFactory = (MediaRaActivityContextInterfaceFactory) myEnv
 					.lookup("slee/resources/media/1.0/acifactory");
 			// Getting Sip Resource Adaptor interface
-			sipACIF = (SipActivityContextInterfaceFactory) myEnv
-					.lookup("slee/resources/jainsip/1.2/acifactory");
+			sipACIF = (SipActivityContextInterfaceFactory) myEnv.lookup("slee/resources/jainsip/1.2/acifactory");
 			// Getting Timer Facility interface
-			timerFacility = (TimerFacility) myEnv
-					.lookup("slee/facilities/timer");
+			timerFacility = (TimerFacility) myEnv.lookup("slee/facilities/timer");
 
 		} catch (NamingException e) {
 			log.error(e.getMessage(), e);
@@ -629,8 +562,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	}
 
 	public abstract org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP getCallControlProfileCMP(
-			javax.slee.profile.ProfileID profileID)
-			throws javax.slee.profile.UnrecognizedProfileNameException,
+			javax.slee.profile.ProfileID profileID) throws javax.slee.profile.UnrecognizedProfileNameException,
 			javax.slee.profile.UnrecognizedProfileTableNameException;
 
 	public abstract org.mobicents.slee.examples.callcontrol.voicemail.VoiceMailSbbActivityContextInterface asSbbActivityContextInterface(
