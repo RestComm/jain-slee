@@ -217,6 +217,15 @@ public abstract class CRCXEndpointSbb implements Sbb {
 				this.getConnectionIdentifier()), endpointID);
 		
 		mgcpConnectionActivity.release();
+		
+		ServerTransaction tx = evt.getServerTransaction();
+		Request request = evt.getRequest();
+
+		try {
+			Response response = messageFactory.createResponse(Response.OK, request);
+			tx.sendResponse(response);
+		} catch (Exception e) {
+		}		
 
 	}
 

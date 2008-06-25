@@ -234,6 +234,15 @@ public abstract class MDCXSbb implements Sbb {
 
 		deleteConnection.setTransactionHandle(txID);
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
+
+		ServerTransaction tx = evt.getServerTransaction();
+		Request request = evt.getRequest();
+
+		try {
+			Response response = messageFactory.createResponse(Response.OK, request);
+			tx.sendResponse(response);
+		} catch (Exception e) {
+		}
 	}
 
 	private void respond(RequestEvent evt, int cause) {
