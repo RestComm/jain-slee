@@ -69,13 +69,13 @@
         </tstamp>
 		<copy failonerror="true" file="jbossjta-properties.xml" tofile="${jboss.home}/server/default/conf/jbossjta-properties.xml" overwrite="true"/>
 		<copy failonerror="true" file="readme.txt" tofile="${release.dir}/readme.txt" overwrite="true"/>
-		<delete file="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}.zip"/>
+		<delete dir="." includes="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}-*.zip"/>
 		<antcall target="zip-jboss">
 			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}-${time.stamp}.zip" />
 			<param name="jboss.home" value="${jboss.home}" />
 		</antcall>
-		<antcall target="zip-src">
-			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}-${time.stamp}-src.zip" />
+		<antcall target="build-src-zip">
+			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-${time.stamp}-src.zip" />
 		</antcall>
 		<delete dir="${jboss.home}" failonerror="true" />
 		<antcall target="clean"/>
@@ -115,40 +115,66 @@
 	         		prefix="jboss-${jboss.version}/bin">
 				<exclude name="*.sh" />
 			</zipfileset>
-			<zipfileset dir="${release.dir}"
-	            	prefix="">
-				<exclude name="bin/**"/>
-				<exclude name="server/*/data/**"/>
-				<exclude name="server/*/log/**"/>
-				<exclude name="server/*/tmp/**"/>
-				<exclude name="server/*/work/**"/>
-				<exclude name="server/tmp/**"/>
+			<zipfileset dir="${release.dir}" prefix="">
+				<exclude name="bin/** server/*/data/** server/*/log/**"/>
+				<exclude name="server/*/tmp/** server/*/work/** server/tmp/**"/>
 			</zipfileset>
 		</zip>
 	</target>
 	
-    <target name="zip-src" description="">
-        <zip destfile="${ant.file.mobicents.release}/../${zip.filename}" filesonly="false">
-            <zipfileset dir="${ant.file.mobicents.release}/../../../../.." prefix="">
-                <include name="mobicents/servers/jain-slee/**"/>
-                
-                <exclude name="**/servers/jain-slee/examples/training/**"/>
-                <exclude name="**/target/**"/>
-                <exclude name="**/docs/**"/>
-                <exclude name="**/legacy/**"/>
-                <exclude name="**/release/**"/>
-                <exclude name="**/logs/**"/>
-                <exclude name="**/.svn/**"/>
-                <exclude name="**/*JBOSS_HOME*/**"/>
-                <exclude name="**/*CATALINA_HOME*/**"/>
-                <exclude name="**/.gwt-cache/**"/>
-                <exclude name="**/.settings/**"/>
-                <exclude name="**/.project"/>
-                <exclude name="**/.classpath"/>
-                <exclude name="**/*.class"/>
-            </zipfileset>
-        </zip>
+	<target name="set-src-excludes">
+		<defaultexcludes add="**/target/**"/>
+		<defaultexcludes add="**/docs/**"/>
+		<defaultexcludes add="**/legacy/**"/>
+		<defaultexcludes add="**/release/**"/>
+		<defaultexcludes add="**/logs/**"/>
+        <defaultexcludes add="**/tests/**"/>
+        <defaultexcludes add="**/${*}/**"/>
+		<defaultexcludes add="**/*JBOSS_HOME*/**"/>
+		<defaultexcludes add="**/*CATALINA_HOME*/**"/>
+		<defaultexcludes add="**/.gwt-cache/**"/>
+		<defaultexcludes add="**/.settings/**"/>
+		<defaultexcludes add="**/.project"/>
+		<defaultexcludes add="**/.classpath"/>
+		<defaultexcludes add="**/*.class" echo="true"/>
+	</target>
+
+    <target name="build-ras-src">
+        <for delimiter="," param="dir.name" list="${ra.dirs}">
+            <sequential>
+                <echo>Packaging RA sources for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
+                <copy todir="${release.dir}/src/mobicents/servers/jain-slee/resources/@{dir.name}" includeEmptyDirs="false">
+                    <fileset dir="${ant.file.mobicents.release}/../../resources/@{dir.name}" />
+                </copy>
+            </sequential>
+        </for>
     </target>
+
+    <target name="build-examples-src">
+        <for delimiter="," param="dir.name" list="${example.dirs}">
+            <sequential>
+                <echo>Packaging Example sources for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
+                <copy todir="${release.dir}/src/mobicents/servers/jain-slee/examples/@{dir.name}" includeEmptyDirs="false">
+                    <fileset dir="${ant.file.mobicents.release}/../../examples/@{dir.name}"/>
+                </copy>
+            </sequential>
+        </for>
+    </target>
+
+	<target name="build-src-zip" depends="set-src-excludes, build-ras-src, build-examples-src">
+    	<copy todir="${release.dir}/src/mobicents/servers/jain-slee/core" includeEmptyDirs="false">
+    		<fileset dir="${ant.file.mobicents.release}/../../core"/>
+    	</copy>
+    	<copy todir="${release.dir}/src/mobicents/servers/jain-slee/tools" includeEmptyDirs="false">
+        	<fileset dir="${ant.file.mobicents.release}/../../tools"
+        		     excludes="**/maven-archetypes/** **/management-console/**"/>
+    	</copy>
+		
+    	<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src"/>
+    	<delete dir="${release.dir}/src"/>
+
+        <defaultexcludes default="true"/>
+	</target>
 	
 	<available file="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" property="got.jboss" />
 	<target name="get-jboss" unless="got.jboss">
