@@ -37,6 +37,11 @@
 			<groupId>org.mobicents.examples</groupId>
 			<version>${pom.version}</version>
 		</dependency>
+		<dependency>
+			<artifactId>mms-demo-recorder-sbb</artifactId>
+			<groupId>org.mobicents.examples</groupId>
+			<version>${pom.version}</version>
+		</dependency>
 		<!-- libs -->
 		<dependency>
 			<groupId>org.mobicents.examples</groupId>

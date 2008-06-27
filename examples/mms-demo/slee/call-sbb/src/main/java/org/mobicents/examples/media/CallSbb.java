@@ -58,6 +58,7 @@ public abstract class CallSbb implements Sbb {
     public final static String LOOP_DEMO = "1010";
     public final static String DTMF_DEMO = "1011";
     public final static String CONF_DEMO = "1012";
+    public final static String RECORDER_DEMO = "1013";
     private SbbContext sbbContext;
     private SipResourceAdaptorSbbInterface fp;
     private SipProvider sipProvider;
@@ -85,7 +86,8 @@ public abstract class CallSbb implements Sbb {
         logger.info("Incoming call " + from + " " + to.getName());
         
         String destination =  to.toString();
-		if ((destination.indexOf(LOOP_DEMO) > 0) || (destination.indexOf(DTMF_DEMO) > 0) || (destination.indexOf(CONF_DEMO) >0 )){
+		if ((destination.indexOf(LOOP_DEMO) > 0) || (destination.indexOf(DTMF_DEMO) > 0) || 
+                (destination.indexOf(CONF_DEMO) >0) || (destination.indexOf(RECORDER_DEMO) >0)){
 			respond(evt, Response.TRYING);
 		}
 		else{
@@ -234,8 +236,10 @@ public abstract class CallSbb implements Sbb {
             return (Demo) this.getLoopDemoSbb().create();
         } else if (destination.indexOf(CONF_DEMO) > 0) {
             return (Demo) this.getConfDemoSbb().create();
-        }else if (destination.indexOf(DTMF_DEMO) > 0) {
+        } else if (destination.indexOf(DTMF_DEMO) > 0) {
             return (Demo) this.getDtmfDemoSbb().create();
+        } else if (destination.indexOf(RECORDER_DEMO) > 0) {
+            return (Demo) this.getRecorderDemoSbb().create();
         }
         return null;
     }
@@ -247,6 +251,7 @@ public abstract class CallSbb implements Sbb {
     public abstract ChildRelation getLoopDemoSbb();
     public abstract ChildRelation getConfDemoSbb();
     public abstract ChildRelation getDtmfDemoSbb();
+    public abstract ChildRelation getRecorderDemoSbb();
 
     private ServerTransaction getServerTransaction() {
         ActivityContextInterface[] activities = sbbContext.getActivities();

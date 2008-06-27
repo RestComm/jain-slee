@@ -20,6 +20,7 @@
 		<module>cnf-sbb</module>
 		<module>dtmf-sbb</module>
 		<module>echo-sbb</module>
+		<module>recorder-sbb</module>
 		<module>services-du</module>		
 	</modules>
 </project>
