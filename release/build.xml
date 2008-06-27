@@ -169,6 +169,7 @@
         	<fileset dir="${ant.file.mobicents.release}/../../tools"
         		     excludes="**/maven-archetypes/** **/management-console/**"/>
     	</copy>
+		<copy todir="${release.dir}/src/mobicents/servers/jain-slee" file="${ant.file.mobicents.release}/../../pom.xml"/>
 		
     	<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src"/>
     	<delete dir="${release.dir}/src"/>
