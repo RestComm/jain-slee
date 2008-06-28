@@ -31,6 +31,11 @@
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../..">
 			<arg line="clean install -Djboss.home=${jboss.home}" />
 		</exec>
+		
+		<!-- Hack because mmc fails to build with 'clean install' -->
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../tools/mmc">
+            <arg line="install -Djboss.home=${jboss.home}" />
+        </exec>
 	</target>
 
 	<target name="build-ras" description="Resource adapters.">
@@ -69,7 +74,7 @@
         </tstamp>
 		<copy failonerror="true" file="jbossjta-properties.xml" tofile="${jboss.home}/server/default/conf/jbossjta-properties.xml" overwrite="true"/>
 		<copy failonerror="true" file="readme.txt" tofile="${release.dir}/readme.txt" overwrite="true"/>
-		<delete dir="." includes="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}-*.zip"/>
+		<delete dir="." includes="mobicents-jainslee-server-${release.version}-*.zip"/>
 		<antcall target="zip-jboss">
 			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}-${time.stamp}.zip" />
 			<param name="jboss.home" value="${jboss.home}" />
@@ -104,21 +109,16 @@
 	</target>
 
 	<target name="zip-jboss" description="">
-		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh"
-			         eol="lf" eof="remove" />
+		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh" eol="lf" eof="remove" />
 		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" filesonly="false">
-			<zipfileset dir="${jboss.home}/bin"
-			            filemode="755" prefix="jboss-${jboss.version}/bin">
+			<zipfileset dir="${jboss.home}/bin" filemode="755" prefix="jboss-${jboss.version}/bin">
 				<include name="*.sh" />
 			</zipfileset>
-			<zipfileset dir="${jboss.home}/bin"
-	         		prefix="jboss-${jboss.version}/bin">
+			<zipfileset dir="${jboss.home}/bin" prefix="jboss-${jboss.version}/bin">
 				<exclude name="*.sh" />
 			</zipfileset>
-			<zipfileset dir="${release.dir}" prefix="">
-				<exclude name="bin/** server/*/data/** server/*/log/**"/>
-				<exclude name="server/*/tmp/** server/*/work/** server/tmp/**"/>
-			</zipfileset>
+			<zipfileset dir="${release.dir}" prefix=""
+                excludes="**/bin/** **/server/*/data/** **/server/*/log/** **/server/*/tmp/** **/server/*/work/** **/server/tmp/**"/>
 		</zip>
 	</target>
 	
