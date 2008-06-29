@@ -96,7 +96,7 @@ public abstract class RecorderDemoSbb implements Sbb {
         }
 
         try {
-            startTimer(sbbContext.getActivities()[0], 35);
+            startTimer(sbbContext.getActivities()[0], 10);
             logger.info("Timer started");
         } catch (NamingException e) {
             logger.error("Unexpected error",e);
