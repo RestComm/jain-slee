@@ -24,6 +24,7 @@ import javax.slee.SbbContext;
 import javax.slee.UnrecognizedActivityException;
 import org.apache.log4j.Logger;
 import org.mobicents.examples.media.Announcement;
+import org.mobicents.examples.media.Util;
 import org.mobicents.media.msc.common.MsLinkMode;
 import org.mobicents.mscontrol.MsConnection;
 import org.mobicents.mscontrol.MsConnectionEvent;
@@ -40,9 +41,9 @@ import org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceF
 public abstract class ForestSbb implements Sbb {
 
     public final static String CNF_ENDPOINT = "media/trunk/Conference/$";
-    public final static String CRICKETS = "http://localhost:8080/msdemo/audio/crickets.wav";
-    public final static String MOCKING = "http://localhost:8080/msdemo/audio/mocking.wav";
-    public final static String CUCKOO = "http://localhost:8080/msdemo/audio/cuckoo.wav";
+    public final static String CRICKETS = "crickets.wav";
+    public final static String MOCKING = "mocking.wav";
+    public final static String CUCKOO = "cuckoo.wav";
     private SbbContext sbbContext;
     private MsProvider msProvider;
     private MediaRaActivityContextInterfaceFactory mediaAcif;
@@ -84,12 +85,12 @@ public abstract class ForestSbb implements Sbb {
             connectionActivity.attach(crickets);
 
             List cricketVoice = new ArrayList();
-            cricketVoice.add(CRICKETS);
+            cricketVoice.add(Util.getURL(CRICKETS));
             crickets.play(endpointName, cricketVoice, true);
 
             logger.info("Joining mocking: " + MOCKING);
             List mockingVoice = new ArrayList();
-            mockingVoice.add(MOCKING);
+            mockingVoice.add(Util.getURL(MOCKING));
             Announcement mocking = (Announcement) childRelation.create();
             connectionActivity.attach(mocking);
 
@@ -100,7 +101,7 @@ public abstract class ForestSbb implements Sbb {
             connectionActivity.attach(cuckoo);
 
             List cuckooVoice = new ArrayList();
-            cuckooVoice.add(CUCKOO);
+            cuckooVoice.add(Util.getURL(CUCKOO));
             cuckoo.play(endpointName, cuckooVoice, true);
         } catch (CreateException e) {
             logger.error("Unexpected error", e);

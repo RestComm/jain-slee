@@ -10,6 +10,7 @@
     </parent>
 	
 	<artifactId>mms-demo-services-DU</artifactId>
+    <name>Mobicents :: Examples :: ${pom.artifactId}</name>
 	
 	<dependencies>
 		<dependency>

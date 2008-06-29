@@ -25,6 +25,7 @@ import javax.slee.SbbContext;
 import javax.slee.UnrecognizedActivityException;
 import org.apache.log4j.Logger;
 import org.mobicents.examples.media.Announcement;
+import org.mobicents.examples.media.Util;
 import org.mobicents.media.server.impl.common.events.EventCause;
 import org.mobicents.media.server.impl.common.events.EventID;
 import org.mobicents.mscontrol.MsConnection;
@@ -40,27 +41,27 @@ import org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceF
 public abstract class DtmfDemoSbb implements Sbb {
 
     private final static String WELCOME_MSG =
-            "http://localhost:8080/msdemo/audio/welcome.wav";
+            "welcome.wav";
     private final static String DTMF_0 =
-            "http://localhost:8080/msdemo/audio/dtmf0.wav";
+            "dtmf0.wav";
     private final static String DTMF_1 =
-            "http://localhost:8080/msdemo/audio/dtmf1.wav";
+            "dtmf1.wav";
     private final static String DTMF_2 =
-            "http://localhost:8080/msdemo/audio/dtmf2.wav";
+            "dtmf2.wav";
     private final static String DTMF_3 =
-            "http://localhost:8080/msdemo/audio/dtmf3.wav";
+            "dtmf3.wav";
     private final static String DTMF_4 =
-            "http://localhost:8080/msdemo/audio/dtmf4.wav";
+            "dtmf4.wav";
     private final static String DTMF_5 =
-            "http://localhost:8080/msdemo/audio/dtmf5.wav";
+            "dtmf5.wav";
     private final static String DTMF_6 =
-            "http://localhost:8080/msdemo/audio/dtmf6.wav";
+            "dtmf6.wav";
     private final static String DTMF_7 =
-            "http://localhost:8080/msdemo/audio/dtmf7.wav";
+            "dtmf7.wav";
     private final static String DTMF_8 =
-            "http://localhost:8080/msdemo/audio/dtmf8.wav";
+            "dtmf8.wav";
     private final static String DTMF_9 =
-            "http://localhost:8080/msdemo/audio/dtmf9.wav";
+            "dtmf9.wav";
     
     private MsProvider msProvider;
     private MediaRaActivityContextInterfaceFactory mediaAcif;
@@ -76,7 +77,7 @@ public abstract class DtmfDemoSbb implements Sbb {
     public void startDemo(String endpointName) {
         this.setUserEndpoint(endpointName);
         logger.info("Playing welcome message: " + WELCOME_MSG);
-        this.play(WELCOME_MSG); 
+        this.play(Util.getURL(WELCOME_MSG)); 
         
         logger.info("Initializing DTMF detector");
         this.initDtmfDetector(getConnection());
@@ -86,25 +87,25 @@ public abstract class DtmfDemoSbb implements Sbb {
         this.initDtmfDetector(getConnection());
         EventCause cause = evt.getCause();
         if (cause == EventCause.DTMF_DIGIT_0) {
-                play(DTMF_0);            
+                play(Util.getURL(DTMF_0));            
         } else if (cause == EventCause.DTMF_DIGIT_1) {
-                play(DTMF_1);            
+                play(Util.getURL(DTMF_1));            
         } else if (cause == EventCause.DTMF_DIGIT_2) {
-                play(DTMF_2);            
+                play(Util.getURL(DTMF_2));            
         } else if (cause == EventCause.DTMF_DIGIT_3) {
-                play(DTMF_3);            
+                play(Util.getURL(DTMF_3));            
         } else if (cause == EventCause.DTMF_DIGIT_4) {
-                play(DTMF_4);            
+                play(Util.getURL(DTMF_4));            
         } else if (cause == EventCause.DTMF_DIGIT_5) {
-                play(DTMF_5);            
+                play(Util.getURL(DTMF_5));            
         } else if (cause == EventCause.DTMF_DIGIT_6) {
-                play(DTMF_6);            
+                play(Util.getURL(DTMF_6));            
         } else if (cause == EventCause.DTMF_DIGIT_7) {
-                play(DTMF_7);            
+                play(Util.getURL(DTMF_7));            
         } else if (cause == EventCause.DTMF_DIGIT_8) {
-                play(DTMF_8);            
+                play(Util.getURL(DTMF_8));            
         } else if (cause == EventCause.DTMF_DIGIT_9) {
-                play(DTMF_9);            
+                play(Util.getURL(DTMF_9));            
         }
     }
     

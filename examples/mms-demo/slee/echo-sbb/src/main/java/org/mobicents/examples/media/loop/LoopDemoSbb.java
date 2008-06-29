@@ -23,6 +23,7 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import org.apache.log4j.Logger;
 import org.mobicents.examples.media.Announcement;
+import org.mobicents.examples.media.Util;
 import org.mobicents.mscontrol.MsConnection;
 import org.mobicents.mscontrol.MsLinkEvent;
 
@@ -33,7 +34,7 @@ import org.mobicents.mscontrol.MsLinkEvent;
 public abstract class LoopDemoSbb implements Sbb {
 
     private final static String WELCOME_MSG =
-            "http://localhost:8080/msdemo/audio/loopinfo.wav";
+            "loopinfo.wav";
     
     private SbbContext sbbContext;
     private Logger logger = Logger.getLogger(LoopDemoSbb.class);
@@ -51,7 +52,7 @@ public abstract class LoopDemoSbb implements Sbb {
             sbbContext.getActivities()[0].attach(announcement);
             
             List sequence = new ArrayList();
-            sequence.add(WELCOME_MSG);
+            sequence.add(Util.getURL(WELCOME_MSG));
             
             announcement.play(endpointName, sequence, false);
         } catch (CreateException e) {

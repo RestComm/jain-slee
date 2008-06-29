@@ -29,6 +29,7 @@ import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
 import org.apache.log4j.Logger;
+import org.mobicents.examples.media.Util;
 import org.mobicents.media.msc.common.MsLinkMode;
 import org.mobicents.media.server.impl.common.events.EventID;
 import org.mobicents.mscontrol.MsConnection;
@@ -47,7 +48,7 @@ import org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceF
 public abstract class RecorderDemoSbb implements Sbb {
 
     private final static String INFO_MSG =
-            "http://localhost:8080/msdemo/audio/recorder.wav";
+            "recorder.wav";
     private final static String RECORDER =
             "test.wav";
     private final static String IVR_ENDPOINT = "media/endpoint/IVR";
@@ -90,10 +91,7 @@ public abstract class RecorderDemoSbb implements Sbb {
         try {
             ActivityContextInterface generatorActivity = mediaAcif.getActivityContextInterface(generator);
             generatorActivity.attach(sbbContext.getSbbLocalObject());
-            System.out.println("*** PLAY/RECORD");
-            generator.apply(EventID.PLAY_RECORD, new String[]{INFO_MSG, RECORDER});
-//            generator.apply(EventID.PLAY, new String[]{INFO_MSG});
-            System.out.println("*** STARTED/RECORD");
+            generator.apply(EventID.PLAY_RECORD, new String[]{Util.getURL(INFO_MSG), RECORDER});
         } catch (UnrecognizedActivityException e) {
         }
 
