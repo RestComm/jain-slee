@@ -154,6 +154,7 @@ public class ParameterSetPanel extends Composite {
 		ServerCallback callback = new ServerCallback(this) {
 			public void onSuccess(Object result) {
 				counterTypeUsageParametersPanel.emptyTable();
+				sampleTypeUsageParametersPanel.emptyTable();
 				SBBUsageParameterInfo[] usageParameterInfos = (SBBUsageParameterInfo[]) result;
 				for (int i = 0; i < usageParameterInfos.length; i++) {
 					final SBBUsageParameterInfo usageParameterInfo = usageParameterInfos[i];
