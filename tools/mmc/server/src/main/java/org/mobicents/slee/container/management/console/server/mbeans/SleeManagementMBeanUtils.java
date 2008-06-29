@@ -178,6 +178,16 @@ public class SleeManagementMBeanUtils {
 			throw new ManagementConsoleException(e);
 		}
 	}
+	
+	public String getVersion() throws ManagementConsoleException {
+		try {
+			return (String) mbeanServer.getAttribute(sleeManagementMBean,
+				"Version");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(e);
+		}
+	}
 
 	public ProfileProvisioningMBeanUtils getProfileProvisioningMBeanUtils() {
 		return profileProvisioningMBeanUtils;

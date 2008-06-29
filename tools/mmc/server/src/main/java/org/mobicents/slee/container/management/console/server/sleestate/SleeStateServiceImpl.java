@@ -75,6 +75,10 @@ public class SleeStateServiceImpl extends RemoteServiceServlet implements
 	public SleeStateInfo getState() throws ManagementConsoleException {
 		return SleeStateInfoUtils.toSleeStateInfo(sleeState);
 	}
+	
+	public String getVersion() throws ManagementConsoleException {
+		return sleeConnection.getSleeManagementMBeanUtils().getVersion();
+	}
 
 	public void shutdown() throws ManagementConsoleException {
 		sleeConnection.getSleeManagementMBeanUtils().shutdown();

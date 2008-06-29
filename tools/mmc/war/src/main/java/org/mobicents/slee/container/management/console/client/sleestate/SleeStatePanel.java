@@ -61,6 +61,8 @@ public class SleeStatePanel extends VerticalPanel {
 	protected Timer timer;
 
 	private boolean isTimerRunning = false;
+	
+	private String version = null;
 
 	private SleeStateServiceAsync service = ServerConnection.sleeStateServiceAsync;
 
@@ -73,9 +75,13 @@ public class SleeStatePanel extends VerticalPanel {
 		startButton.setTitle("Start");
 		stopButton.setTitle("Stop");
 		shutdownButton.setTitle("Shutdown");
-
-		Label header = new Label("Mobicents is");
-
+		final Label header = new Label("Mobicents is");
+		ServerCallback callback = new ServerCallback(this) {
+			public void onSuccess(Object result) {
+				header.setText((String)result + " is");
+			}
+		};
+		service.getVersion(callback);
 		HorizontalPanel buttonsPanel = new HorizontalPanel();
 		buttonsPanel.setSpacing(5);
 		buttonsPanel.add(startButton);

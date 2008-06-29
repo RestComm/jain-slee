@@ -45,4 +45,5 @@ public interface SleeStateService extends RemoteService {
 	public void start() throws ManagementConsoleException;
 	public void stop() throws ManagementConsoleException;
 	public void shutdown() throws ManagementConsoleException;
+	public String getVersion() throws ManagementConsoleException;
 }

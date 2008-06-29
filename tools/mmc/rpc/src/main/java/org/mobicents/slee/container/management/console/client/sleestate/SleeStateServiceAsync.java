@@ -43,4 +43,5 @@ public interface SleeStateServiceAsync {
 	public void start(AsyncCallback callback);
 	public void stop(AsyncCallback callback);
 	public void shutdown(AsyncCallback callback);
+	public void getVersion(AsyncCallback callback);
 }
