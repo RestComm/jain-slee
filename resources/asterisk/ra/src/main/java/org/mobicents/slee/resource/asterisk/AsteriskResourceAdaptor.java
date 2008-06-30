@@ -79,7 +79,7 @@ public class AsteriskResourceAdaptor implements /*ManagerEventHandler*/ManagerEv
     private String MAGILogin = "admin";
     private String MAGIPassword = "amp111";
     private int responseTimeOut = 300000;
-    
+    private int MAGIPORT=5038; 
     private transient SleeEndpoint sleeEndpoint;
     private transient Object eventObj;
     private transient Object activityObj;
@@ -282,12 +282,16 @@ public class AsteriskResourceAdaptor implements /*ManagerEventHandler*/ManagerEv
 		this.MAGIIP = this.properties.getProperty("MAGIIP","0.0.0.0");
 		this.MAGILogin = this.properties.getProperty("MAGILogin","manager");
 		this.MAGIPassword = this.properties.getProperty("MAGIPassword", "secret");
+		try{
+			this.MAGIPORT=Integer.valueOf(this.properties.getProperty("MAGIPORT", "5038"));
+		}catch(Exception e)
+		{}
 		this.responseTimeOut = Integer.parseInt(this.properties.getProperty(
                 "responseTimeout","300000"));
 		
 		log.debug("Configure routine - Loaded properties => " + this.properties);
 		// Creates and configures a new connection
-		this.factory = new ManagerConnectionFactory(MAGIIP,MAGILogin,MAGIPassword);
+		this.factory = new ManagerConnectionFactory(MAGIIP,MAGIPORT,MAGILogin,MAGIPassword);
 	        
 		try {
 //			this.managerConnection = this.factory.getManagerConnection( this.MAGIIP,
