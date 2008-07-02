@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<artifactId>sip-parent_1_1</artifactId>
+		<groupId>org.mobicents.resources</groupId>
+		<version>1.2.1.GA-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>sip-ratype</artifactId>
+	<name>Mobicents :: Resources :: ${pom.artifactId}</name>	
+	
+	<dependencies>
+		<dependency>
+      		<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+    	</dependency>
+		<dependency>
+			<groupId>javax.sip</groupId>
+			<artifactId>jain-sip-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>sip-events</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+	</dependencies>
+	
+</project>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN" "http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
+
+<event-jar>
+
+	<!-- 1.1 Events/Responses Fired on ClientTransaction -->
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.TRYING</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.INFORMATIONAL</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.SUCCESS</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.REDIRECT</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.CLIENT_ERROR</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.SERVER_ERROR</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.GLOBAL_FAILURE</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	
+
+	
+	
+	
+	<!-- 1.1 Events received on ServerTransaction -->
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.INVITE</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.ACK</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.CANCEL</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.BYE</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.OPTIONS</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.REGISTER</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.INFO</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.PRACK</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.UPDATE</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.MESSAGE</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.SUBSCRIBE</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.NOTIFY</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.REFER</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.PUBLISH</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Request.SIP_EXTENSION</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	
+	
+	<!-- 1.1  Client transactions -->
+	<event-definition>
+		<event-type-name>javax.sip.timeout.TRANSACTION</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.TimeoutEvent</event-class-name>
+	</event-definition>
+	
+	<!-- 
+	<event-definition>
+		<event-type-name>javax.sip.timeout.TRANSACTION_TERMINATED</event-type-name>
+		<event-type-vendor>javax.sip</event-type-vendor>
+		<event-type-version>1.1</event-type-version>
+		<event-class-name>javax.sip.TransactionTerminatedEvent</event-class-name>
+	</event-definition>
+	
+	 -->
+	
+	<!-- 1.2 Events?reqeusts received on Dialog -->
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.INVITE</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.ACK</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.CANCEL</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.BYE</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.OPTIONS</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.REGISTER</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.INFO</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.PRACK</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.UPDATE</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.MESSAGE</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.SUBSCRIBE</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.NOTIFY</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.REFER</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.PUBLISH</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.dialog.Request.SIP_EXTENSION</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.RequestEvent</event-class-name>
+	</event-definition>
+	
+	
+	<!-- 1.2 Events/Responses Fired on Dialog -->
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.TRYING</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.INFORMATIONAL</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.SUCCESS</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.REDIRECT</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.CLIENT_ERROR</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.SERVER_ERROR</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	<event-definition>
+		<event-type-name>javax.sip.message.Response.GLOBAL_FAILURE</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.ResponseEvent</event-class-name>
+	</event-definition>
+	
+	
+	<!-- 1.2 Events fired on CT/ST timeout/termination -->
+	<event-definition>
+		<event-type-name>javax.sip.timeout.TRANSACTION</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.TimeoutEvent</event-class-name>
+	</event-definition>
+	
+	<!-- 
+	<event-definition>
+		<event-type-name>javax.sip.timeout.TRANSACTION_TERMINATED</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>javax.sip.TransactionTerminatedEvent</event-class-name>
+	</event-definition>
+	 -->
+	
+	<!-- WEIRD..... -->
+	<event-definition>
+		<event-type-name>net.java.sip.message.Response.DIALOG_FORKED_EVENT</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+		<event-class-name>net.java.sip.message.Response.DialogForkedEvent</event-class-name>
+	</event-definition>
+</event-jar>
+
+
+
