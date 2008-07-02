@@ -3,6 +3,7 @@ package org.mobicents.slee.container.deployment.jboss;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.management.MBeanServer;
@@ -16,7 +17,9 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
+import org.jboss.deployment.DeploymentException;
 import org.jboss.logging.Logger;
+import org.jboss.mx.loading.RepositoryClassLoader;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 
@@ -37,6 +40,8 @@ public class DeploymentManager
   
   // The DUs waiting for being uninstalled.
   private Collection<DeployableUnit> waitingForUninstallDUs = new ArrayList<DeployableUnit>();
+  
+  private HashMap<DeployableUnit, RepositoryClassLoader> replacedUCLs = new HashMap<DeployableUnit, RepositoryClassLoader>();
   
   // The components already deployed to SLEE
   private Collection<String> deployedComponents = new ArrayList<String>();
@@ -225,7 +230,7 @@ public class DeploymentManager
     }
     else
     {
-      logger.info( "Unable to INSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependencies to be resolved." );
+      logger.warn( "Unable to INSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependencies to be resolved." );
       
       // The DU can't be installed now, let's wait...
       waitingForInstallDUs.add( du );
@@ -284,6 +289,10 @@ public class DeploymentManager
           // Remove the DU from the waiting list.
           waitingForUninstallDUs.remove( waitingDU );
           
+          // Unregister the replaced UCL, if any
+          if( replacedUCLs.containsKey(waitingDU) )
+            replacedUCLs.remove(waitingDU).unregister();
+            
           // Let's start all over.. :)
           duIt = waitingForUninstallDUs.iterator();
         }
@@ -291,11 +300,16 @@ public class DeploymentManager
     }
     else
     {
-      logger.info( "Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed." );
-      
       // Add it to the waiting list.
       waitingForUninstallDUs.add( du );
+      
+      throw new DeploymentException("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
     }
+  }
+  
+  public void addReplacedUCL( DeployableUnit du, RepositoryClassLoader ucl )
+  {
+    this.replacedUCLs.put( du, ucl );
   }
   
   /**
@@ -366,8 +380,15 @@ public class DeploymentManager
       if( logger.isDebugEnabled() )
         logger.debug( "Invoking " + action + "(" + Arrays.toString( signature ) + ") on " + objectName );
       
-      // Invoke it.
-      ms.invoke( objectName, action, arguments, signature );
+      // We are isolating each action, so it won't affect the whole proccess
+      try
+      {
+        // Invoke it.
+        ms.invoke( objectName, action, arguments, signature );
+      }
+      catch (Exception e) {
+        logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e );
+      }
       
       // Wait a little while just to make sure it finishes
       Thread.sleep( waitTimeBetweenOperations );

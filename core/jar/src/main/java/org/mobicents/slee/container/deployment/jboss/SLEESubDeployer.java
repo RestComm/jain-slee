@@ -399,10 +399,10 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     if( logger.isDebugEnabled() )
       logger.debug( "Method stop called for " + di.url );
 
+    DeployableUnit du = null;
+    
     try
     {
-      DeployableUnit du = null;
-     
       // Get and remove deployable unit object
       if( (du = deployableUnits.remove( di.shortName )) != null )
       {
@@ -415,7 +415,31 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     }
     catch (Exception e)
     {
-      logger.error( "", e );
+      if(e instanceof DeploymentException)
+      {
+        // We get here when we have components depending on this...
+        try
+        {
+          // Let's store the 'old' UCL.
+          dm.addReplacedUCL( du, di.ucl );
+          
+          // Just to make sure we won't lose our classes, we 'hide' the UCL
+          di.ucl = null;
+          
+          // If the above fails, might think about using this :)
+          // di.createClassLoaders();
+          
+          logger.warn( e.getMessage() );
+        }
+        catch ( Exception e1 )
+        {
+          logger.error( "", e1 );
+        }
+      }
+      else
+      {
+        logger.error( "", e );
+      }
     }
     
     super.stop( di );
