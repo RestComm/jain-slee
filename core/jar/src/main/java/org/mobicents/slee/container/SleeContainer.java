@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -308,6 +310,8 @@ public class SleeContainer implements ComponentContainer {
 	{
 		// establish the location of mobicents.sar
 		initDeployPath();
+		// Config JUL logger to use Log4J filter
+		configLogger();
 	}
 
 	/*
@@ -358,6 +362,16 @@ public class SleeContainer implements ComponentContainer {
 			deployPath = null;
 		}
 	}
+	
+  private static void configLogger()
+  {
+    Handler[] handlers = 
+      java.util.logging.Logger.getLogger("").getHandlers();
+    
+    for(Handler handler : handlers)
+      if (handler instanceof ConsoleHandler)
+        handler.setFilter(new MobicentsLogFilter());
+  }
 
 	/**
 	 * 
