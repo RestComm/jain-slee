@@ -6,22 +6,13 @@
         <groupId>org.mobicents.resources</groupId>
         <version>1.2.0.GA-SNAPSHOT</version>
     </parent>
-    <parent> 
     
     <artifactId>jcc-native-win</artifactId> 
     <groupId>org.mobicents.resources</groupId> 
     
     <name>Mobicents :: Resources :: ${pom.artifactId}:: DLL</name> 
     <packaging>dll</packaging> 
-    <dependencies> 
-        <dependency> 
-            <groupId>org.codehaus.mojo.natives.it.jni</groupId> 
-            <artifactId>hello</artifactId> 
-            <version>1.2.0.GA-SNAPSHOT</version> 
-        </dependency> 
-    </dependencies> 
     <build> 
-        <testSourceDirectory>../src/test/java</testSourceDirectory> 
         <plugins> 
             <plugin> 
                 <groupId>org.codehaus.mojo</groupId> 
@@ -58,6 +49,7 @@
                             <goal>javah</goal> 
                         </goals> 
                         <configuration> 
+                            <implementation>default</implementation>
                             <outputDirectory>${project.build.directory}/custom-javah</outputDirectory> 
                             <outputFileName>InterProcessCommunicator.h</outputFileName> 
                             <classNames> 
