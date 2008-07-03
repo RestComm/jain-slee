@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <artifactId>jcc-camel-provider</artifactId>
+        <groupId>org.mobicents.resources</groupId>
+        <version>1.2.0.GA-SNAPSHOT</version>
+    </parent>
+    
+    <artifactId>jcc-native</artifactId>
+    <groupId>org.mobicents.resources</groupId>
+    <version>1.2.0.GA-SNAPSHOT</version>
+    
+    <packaging>pom</packaging>    
+    <name>Mobicents :: Resources :: ${pom.artifactId}</name>
+    
+    <profiles> 
+        <profile> 
+            <id>win</id> 
+            <activation> 
+                <property> 
+                    <name>platform</name> 
+                    <value>win32</value> 
+                </property> 
+            </activation> 
+            <modules> 
+                <module>win</module> 
+            </modules> 
+        </profile> 
+        <profile> 
+            <id>linux</id> 
+            <activation> 
+                <property> 
+                    <name>platform</name> 
+                    <value>linux</value> 
+                </property> 
+            </activation> 
+            <modules> 
+                <module>linux</module> 
+            </modules> 
+        </profile> 
+        <profile> 
+            <id>solaris</id> 
+            <activation> 
+                <property> 
+                    <name>platform</name> 
+                    <value>solaris</value> 
+                </property> 
+            </activation> 
+            <modules> 
+                <module>solaris</module> 
+            </modules> 
+        </profile> 
+    </profiles>
+    
+</project>

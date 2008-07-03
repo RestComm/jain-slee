@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+  <ra-entity resource-adaptor-id="JCC-1.1-RA#itech#1.0" entity-name="JCC">
+    <properties file="" />
+    <ra-link name="JCC" />
+  </ra-entity>
+</deploy-config>
