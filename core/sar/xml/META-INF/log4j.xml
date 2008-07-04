@@ -69,7 +69,7 @@
 
       <layout class="org.apache.log4j.PatternLayout">
          <!-- The default pattern: Date Priority [Category] Message\n -->
-         <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+         <param name="ConversionPattern" value="[%c{1}] %m%n"/>
       </layout>
    </appender>
   
@@ -164,12 +164,12 @@
 
    <category name="org.mobicents">
      <priority value="INFO" />
-     <appender-ref ref="MOBICENTS-FILE"/>
+     <!--appender-ref ref="MOBICENTS-FILE"/-->
    </category>
 
    <category name="org.mobicents.slee.runtime.transaction.TransactionManagerImpl">
      <priority value="INFO" />
-     <appender-ref ref="MOBICENTS-FILE"/>
+     <!--appender-ref ref="MOBICENTS-FILE"/-->
    </category>
 
 
