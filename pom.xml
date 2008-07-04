@@ -41,8 +41,6 @@
 				<module>resources/http-client</module>
 				<module>resources/http-servlet</module>
 				<module>resources/lab</module>
-				<module>resources/media</module>
-				<module>resources/mgcp</module>
 				<module>resources/parlay</module>
 				<module>resources/persistence</module>
 				<module>resources/rules</module>
@@ -53,14 +51,10 @@
 				<module>resources/xmpp</module>
 
 				<module>examples/asterisk</module>
-				<module>examples/call-controller2</module>
-				<module>examples/converged-demo</module>
 				<module>examples/google-talk-bot</module>
 				<module>examples/http-client</module>
 				<module>examples/http-servlet</module>
 				<module>examples/ldap</module>
-				<module>examples/mgcp-demo</module>
-				<module>examples/mms-demo</module>
 				<module>examples/parlay</module>
 				<module>examples/sip-loadtest-with-dialogs</module>
 				<module>examples/sip-loadtest-without-dialogs</module>
