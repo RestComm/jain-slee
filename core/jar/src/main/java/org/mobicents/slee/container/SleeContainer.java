@@ -3088,28 +3088,17 @@ public class SleeContainer implements ComponentContainer {
 			this.removeEventType(deployableUnitID);
 			this.uninstallService(deployableUnitID);
 
-			// Clean up all the class files.
-			this.deploymentManager.undeployUnit(deployableUnitID);
-
+			removeDeployedProfileComps(deployableUnitID);
+			removeDeployedSbbComps(deployableUnitID);
+			
 			// Clean up the various tables that refer to this Deployable Unit
 			// ID.
 			String url = deployableUnitID.getSourceURL().toString();
 			this.getDeploymentCacheManager().getUrlToDeployableUnitIDMap()
 					.remove(url);
-
-			removeDeployedProfileComps(deployableUnitID);
-
-			removeDeployedSbbComps(deployableUnitID);
-
-			// Remove the tmp jars directories.
-			// this will remove an entry in the jboss cache when we
-			// put it there
-			try {
-				deployableUnitDescriptor.getTmpDeploymentDirectory().delete();
-				deployableUnitDescriptor.getTmpDUJarsDirectory().delete();
-			} catch (Exception ex) {
-				logger.error("Error removing tmp directories ", ex);
-			}
+			
+			// Clean up all the class files.
+			this.deploymentManager.undeployUnit(deployableUnitID);			
 
 		} finally {
 			if (b)
@@ -3151,14 +3140,7 @@ public class SleeContainer implements ComponentContainer {
 				}
 				if (logger.isDebugEnabled())
 					logger.debug("Uninstalling SBB " + sbbDescriptor.getID()
-							+ " on DU " + deployableUnitID);
-				// remove class loader
-				((UnifiedClassLoader3) sbbDescriptor.getClassLoader())
-						.unregister();
-				if (logger.isDebugEnabled()) {
-					logger.debug("Removed class loader for SBB "
-							+ sbbDescriptor.getID());
-				}
+							+ " on DU " + deployableUnitID);				
 
 				// remove and close object pool
 				((ObjectPool) sbbPooling.remove(sbbDescriptor.getID())).close();
@@ -3201,6 +3183,14 @@ public class SleeContainer implements ComponentContainer {
 				logger.info("Uninstalled SBB " + sbbDescriptor.getID()
 						+ " on DU " + sbbDescriptor.getDeployableUnit());
 
+				// remove class loader
+				((UnifiedClassLoader3) sbbDescriptor.getClassLoader())
+						.unregister();
+				if (logger.isDebugEnabled()) {
+					logger.debug("Removed class loader for SBB "
+							+ sbbDescriptor.getID());
+				}
+				
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("SBB " + sbbDescriptor.getID()

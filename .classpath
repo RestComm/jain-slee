@@ -223,7 +223,7 @@
   <classpathentry kind="var" path="M2_REPO/emma/emma/2.0.5312/emma-2.0.5312.jar"/>
   <classpathentry kind="var" path="M2_REPO/freemarker/freemarker/2.3.8/freemarker-2.3.8.jar"/>
   <classpathentry kind="var" path="M2_REPO/ie/omk/smppapi/0.3.7/smppapi-0.3.7.jar"/>
-  <classpathentry kind="var" path="M2_REPO/javassist/javassist/3.4.GA/javassist-3.4.GA.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javassist/javassist/3.6.0.GA/javassist-3.6.0.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1/activation-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/csapi/cc/jcc/1.1/jcc-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/persistence/persistence-api/1.0/persistence-api-1.0.jar"/>

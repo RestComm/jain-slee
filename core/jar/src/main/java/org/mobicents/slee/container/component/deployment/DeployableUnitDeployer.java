@@ -27,7 +27,6 @@ import java.util.jar.JarFile;
 import javassist.ClassPath;
 import javassist.ClassPool;
 
-import javax.slee.SLEEException;
 import javax.slee.management.AlreadyDeployedException;
 import javax.slee.management.DeploymentException;
 
@@ -35,8 +34,6 @@ import org.jboss.logging.Logger;
 import org.jboss.mx.loading.RepositoryClassLoader;
 import org.jboss.mx.loading.UnifiedClassLoader;
 import org.jboss.mx.loading.UnifiedLoaderRepository3;
-import org.jboss.system.server.ServerConfig;
-import org.jboss.system.server.ServerConfigLocator;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentContainer;
 import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
@@ -87,9 +84,7 @@ public class DeployableUnitDeployer {
     /**
      * shared Javassist pool for all DUs
      */
-    private static ClassPool classPool = ConcreteClassGeneratorUtils.createClassPool();
-
-    private File tempDeploymentFile;
+    private ClassPool classPool = ConcreteClassGeneratorUtils.createClassPool();
 
 	private Collection simpleComponentsJarFiles;
 
@@ -101,11 +96,17 @@ public class DeployableUnitDeployer {
         logger = Logger.getLogger(DeployableUnitDeployer.class);
     }
 
-    DeployableUnitDeployer() {
-
-        logger.debug("Creating DeployableUnitDeployer()" + this);
-        
-
+    DeployableUnitDeployer(JarFile unitJarFile, File tempDUJarsDeploymentDirectory, URL sourceUrl) {
+        this.unitJarFile = unitJarFile;
+    	this.componentContainer = SleeContainer.lookupFromJndi();
+        this.tempDUJarsDeploymentDirectory = tempDUJarsDeploymentDirectory;
+        // create dir to unpack du jars
+        this.tempClassDeploymentDir = new File(tempDUJarsDeploymentDirectory.getAbsolutePath()+"-unpackaged");
+        if (!tempClassDeploymentDir.exists())
+        	tempClassDeploymentDir.mkdirs();
+        else
+        	logger.warn("deploying du in a dir that already exists");      
+        this.sourceUrl = sourceUrl;
     }
 
     /**
@@ -118,7 +119,7 @@ public class DeployableUnitDeployer {
         this.deployableUnitID.setDescriptor(descriptor);
         descriptor.setDeployableUnit(deployableUnitID);
         descriptor.setTmpDUJarsDirectory(this.tempDUJarsDeploymentDirectory);
-        descriptor.setTmpDeploymentDirectory(this.tempDeploymentFile);
+        descriptor.setTmpDeploymentDirectory(this.tempClassDeploymentDir);
 
     }
 
@@ -149,18 +150,14 @@ public class DeployableUnitDeployer {
                     "Failed to open DU file as JAR file: "
                             + deployableUnitJarFile, e);
         }
-
-        DeployableUnitDeployer deployer = new DeployableUnitDeployer();
+        
         if (sourceUrl == null || deployableUnitJar == null
                 || deploymentDirectory == null || container == null)
             throw new NullPointerException("null arg!");
 
         //init the deployer.
-        deployer.setUnitJarFile(deployableUnitJar);
-        deployer.setTempDUJarsDeploymentDirectory(deploymentDirectory);
-        deployer.setComponentContainer(container);
-        deployer.setSourceURL(sourceUrl);
-        deployer.init();
+        DeployableUnitDeployer deployer = new DeployableUnitDeployer(deployableUnitJar,deploymentDirectory,sourceUrl);
+       
         //      Get te DU deployment Descriptor;
         deployer.setDescriptor(new DeployableUnitDescriptorImpl(sourceUrl
                 .toString(), new Date()));
@@ -178,51 +175,10 @@ public class DeployableUnitDeployer {
     }
 
     /**
-     * set the source Url where the DU was read originally
-     * 
-     * @param sourceUrl
-     */
-    private void setSourceURL(URL sourceUrl) {
-        this.sourceUrl = sourceUrl;
-    }
-
-    /**
      * @return the source Url where the DU was read originally
      */
     public URL getSourceURL() {
         return sourceUrl;
-    }
-
-    /**
-     * Sets the jar file that this unit deployer has been created for.
-     * 
-     * @param duJar
-     *            the jar that contains the deployable unit that this instance
-     *            is to take care of.
-     */
-    void setUnitJarFile(JarFile duJar) {
-        this.unitJarFile = duJar;
-    }
-
-    /**
-     * Sets the SLEE directory where deployable units are stored. The directory
-     * where DU jar files are stored.
-     * 
-     * @param tempDUJarsDeploymentDirectory
-     *            the directory where the Slee stores DUs
-     */
-    private void setTempDUJarsDeploymentDirectory(File deploymentDirectory) {
-        this.tempDUJarsDeploymentDirectory = deploymentDirectory;
-    }
-
-    /**
-     * The Container where components should be installed.
-     * 
-     * @param componentContainer
-     *            ComponentContainer
-     */
-    public void setComponentContainer(ComponentContainer componentContainer) {
-        this.componentContainer = componentContainer;
     }
 
     /**
@@ -834,63 +790,6 @@ public class DeployableUnitDeployer {
 
     /**
      * 
-     * Sets the directory that will be used for deployment of the DU. Logic
-     * borrowed from JBoss deployment mechanism. Note: at some point we need to
-     * explore in-memory deployment to avoid IO overhead
-     * 
-     * @TODO: make sure to remove the temp directory on undeploy
-     * 
-     * @param jarName
-     *            The name of the jarFile which will be used as component in the
-     *            temp deployment dir name
-     * @throws IOException
-     *             if the temp dir cannot be created
-     */
-    private void createTempDeploymentDir() {
-        String jarName = new File(getUnitJarFile().getName()).getName();
-        ServerConfig config = ServerConfigLocator.locate();
-        File basedir = config.getServerTempDir();
-        
-        logger.debug("createTempDeploymentDir(): basedir = " + basedir);
-
-        // ${jboss.server.home.dir}/tmp/deploy
-        File tempDeploymentRootDir = new File(basedir, "deploy");
-
-        if (!tempDeploymentRootDir.exists()) {
-            boolean dirCreated = tempDeploymentRootDir.mkdirs();
-            if (!dirCreated)
-                throw new SLEEException(
-                        "failed to create temp deployment dir: "
-                                + tempDeploymentRootDir);
-        }
-
-        try {
-            // first create a dummy file to gurantee uniqueness. I would have
-            // been nice if the File class had a createTempDir() method
-            // Caution - dont use jarName here -- the tck uses huge jar names.
-            this.tempDeploymentFile = File.createTempFile("tmpDUJarsUnpackaged", "",
-                    tempDeploymentRootDir);
-            //tempDeploymentFile.deleteOnExit();
-           
-
-            tempClassDeploymentDir = new File(tempDeploymentFile
-                    .getAbsolutePath()
-                    + "-contents");
-            if (!tempClassDeploymentDir.exists())
-                tempClassDeploymentDir.mkdirs();
-            
-            //tempClassDeploymentDir.deleteOnExit();
-
-        } catch (IOException e) {
-            logger
-                    .error("Temp Deployment Directory could not be created for SLEE DU: "
-                            + jarName,e);
-            throw new SLEEException("Failed to create temp deployment dir", e);
-        }
-    }
-
-    /**
-     * 
      * @return Returns the tempClassDeploymentDir.
      */
     public File getTempClassDeploymentDir() {
@@ -903,14 +802,6 @@ public class DeployableUnitDeployer {
 
     public ClassPool getClassPool() {
         return classPool;
-    }
-
-    /**
-     * Prepare for deployment sequence
-     *  
-     */
-    private void init() {
-        createTempDeploymentDir();
     }
 
     /**
@@ -932,7 +823,8 @@ public class DeployableUnitDeployer {
         if ( classPool != null && classPath != null )
               classPool.removeClassPath(classPath);
 
-        // TODO -- clean up the du file
+        tempClassDeploymentDir.delete();
+        tempDUJarsDeploymentDirectory.delete();
     }
 
 }

@@ -539,11 +539,11 @@ public class DeploymentManager {
             // first create a dummy file to gurantee uniqueness. I would have been nice if the File class had a createTempDir() method
             // IVELIN -- do not use jarName here because windows cannot see the path (exceeds system limit)
             File tempDeploymentFile = File.createTempFile("tmpDUJars", "", rootDir);
-            tempDeploymentFile.deleteOnExit();
-            
+                       
             File tempDUJarsDeploymentDir = new File(tempDeploymentFile.getAbsolutePath() + "-contents");
-            if (!tempDUJarsDeploymentDir.exists()) tempDUJarsDeploymentDir.mkdirs();
-            tempDUJarsDeploymentDir.deleteOnExit();
+            if (!tempDUJarsDeploymentDir.exists())
+            	tempDUJarsDeploymentDir.mkdirs();
+            tempDeploymentFile.delete();
             return tempDUJarsDeploymentDir;
             
         } catch (IOException e) {

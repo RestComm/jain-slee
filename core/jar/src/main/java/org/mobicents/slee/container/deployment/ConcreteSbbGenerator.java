@@ -301,49 +301,47 @@ public class ConcreteSbbGenerator {
                 //avoid also problems of class already loaded from the class
                 // loader
                 //  
-                if (true /*!SbbDeployer.concreteClassesGenerated
-                        .contains(sbbAbstractClassName)*/ ) {
-                    try {
-                        CtClass activityContextInterface = pool
-                                .get(activityContextInterfaceClass.getName());
 
-                        createField(activityContextInterface,
-                                "sbbActivityContextInterface");
+                CtClass activityContextInterface = null;
+                try {
+                	activityContextInterface = pool.get(activityContextInterfaceClass.getName());
 
-                        this
-                                .createSetActivityContextInterfaceMethod(activityContextInterface);
+                	createField(activityContextInterface,"sbbActivityContextInterface");
 
-                        ConcreteActivityContextInterfaceGenerator concreteActivityContextInterfaceGenerator = new ConcreteActivityContextInterfaceGenerator(
-                                sbbDeploymentDescriptor);
-                        Class concreteActivityContextInterfaceClass = concreteActivityContextInterfaceGenerator
-                                .generateActivityContextInterfaceConcreteClass(activityContextInterfaceClass
-                                        .getName());
-                        createGetSbbActivityContextInterfaceMethod(
-                                activityContextInterface,
-                                concreteActivityContextInterfaceClass);
-                        //set the concrete activity context interface class in
-                        // the
-                        // descriptor
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("SETTING ACI concrete class  "
-                                + concreteActivityContextInterfaceClass
-                                + " in " + sbbDeploymentDescriptor);
-                        }
-                        sbbDeploymentDescriptor
-                                .setActivityContextInterfaceConcreteClass(concreteActivityContextInterfaceClass);
-                    } catch (NotFoundException nfe) {
-                        logger
-                                .error("Narrow Activity context interface method and "
-                                        + "activity context interface concrete class not created");
-                        nfe.printStackTrace();
-                    }
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(activityContextInterfaceClass.getName()
-                                + " concrete class already "
-                                + "generated. No generated a second time.");
-                    }
+                	this.createSetActivityContextInterfaceMethod(activityContextInterface);
+
+                	ConcreteActivityContextInterfaceGenerator concreteActivityContextInterfaceGenerator = new ConcreteActivityContextInterfaceGenerator(
+                			sbbDeploymentDescriptor);
+                	
+                	Class concreteActivityContextInterfaceClass = concreteActivityContextInterfaceGenerator
+                	.generateActivityContextInterfaceConcreteClass(activityContextInterfaceClass
+                			.getName());
+                	
+                	createGetSbbActivityContextInterfaceMethod(
+                			activityContextInterface,
+                			concreteActivityContextInterfaceClass);
+                	//set the concrete activity context interface class in
+                	// the
+                	// descriptor
+                	if (logger.isDebugEnabled()) {
+                		logger.debug("SETTING ACI concrete class  "
+                				+ concreteActivityContextInterfaceClass
+                				+ " in " + sbbDeploymentDescriptor);
+                	}
+                	sbbDeploymentDescriptor
+                	.setActivityContextInterfaceConcreteClass(concreteActivityContextInterfaceClass);
+
+                } catch (NotFoundException nfe) {
+                	logger
+                	.error("Narrow Activity context interface method and "
+                			+ "activity context interface concrete class not created");
+                	nfe.printStackTrace();
+                } finally {
+                	if (activityContextInterface != null) {
+                		activityContextInterface.detach();
+                	}
                 }
+                
             }
             //if the sbb local object has been defined in the descriptor file
             //then generates the concrete class of the sbb local object
@@ -446,7 +444,12 @@ public class ConcreteSbbGenerator {
         } finally {
             // Done with it so defrost it ( allows for regeneration on
             // re-install).
-            sbbConcreteClass.defrost();
+            if(sbbConcreteClass != null) {
+            	sbbConcreteClass.defrost();
+            }
+            if(sbbAbstractClass != null) {
+            	sbbAbstractClass.detach();
+            }
         }
     }
 

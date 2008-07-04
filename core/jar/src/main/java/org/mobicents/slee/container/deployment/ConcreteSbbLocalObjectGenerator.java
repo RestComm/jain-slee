@@ -14,19 +14,9 @@
  */
 package org.mobicents.slee.container.deployment;
 
-import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
-import org.mobicents.slee.runtime.SbbLocalObjectConcrete;
-import org.mobicents.slee.runtime.SbbLocalObjectImpl;
-import org.mobicents.slee.runtime.sbbentity.SbbEntity;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-
-import javax.slee.SbbLocalObject;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -39,6 +29,13 @@ import javassist.Modifier;
 import javassist.NotFoundException;
 
 import org.jboss.logging.Logger;
+import org.mobicents.slee.container.SleeContainerUtils;
+import org.mobicents.slee.container.component.DeployableUnitIDImpl;
+import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
+import org.mobicents.slee.runtime.SbbLocalObjectConcrete;
+import org.mobicents.slee.runtime.SbbLocalObjectImpl;
+import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 /**
  * Class generating the concrete Sbb local object class
@@ -103,19 +100,6 @@ public class ConcreteSbbLocalObjectGenerator {
                             + deployPath);
         }
 
-        /*if (SbbDeployer.concreteClassesGenerated.contains(sbbLocalObjectName)) {
-            try {
-                return Thread
-                        .currentThread()
-                        .getContextClassLoader()
-                        .loadClass(
-                                ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_PREFIX
-                                        + sbbLocalObjectName
-                                        + ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_SUFFIX);
-            } catch (ClassNotFoundException e2) {
-                SbbDeployer.concreteClassesGenerated.remove(sbbLocalObjectName);
-            }
-        }*/
         try {
         	
         	String tmpClassName=ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_PREFIX + sbbLocalObjectName + ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_SUFFIX;
@@ -206,26 +190,13 @@ public class ConcreteSbbLocalObjectGenerator {
 
             }
             //load the class
-            Class clazz = null;
             try {
-
-                ClassLoader currentClassloader = Thread.currentThread()
-                        .getContextClassLoader();
-                clazz = currentClassloader
-                        .loadClass(ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_PREFIX
-                                + sbbLocalObjectName
-                                + ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_SUFFIX);
-            } catch (ClassNotFoundException e1) {
-                // Auto-generated catch block
-                e1.printStackTrace();
-            }
+				return Thread.currentThread().getContextClassLoader().loadClass(tmpClassName);
+			} catch (ClassNotFoundException e) {
+				logger.error("unable to load sbb local object impl class", e);
+				return null;
+			}
             
-            //put in the table the clazz generated under the
-            // abbAbstractClassName
-            //as a key
-           // SbbDeployer.concreteClassesGenerated.add(sbbLocalObjectName);
-
-            return clazz;
         } finally {
             if (this.concreteSbbLocalObject != null)
                 this.concreteSbbLocalObject.defrost();

@@ -334,10 +334,12 @@ public class ClassUtils {
     			// remove head
     			CtClass ctClass = superClasses.remove(0);
     			superClassesProcessed.add(ctClass);
+    			logger.info("processing super class "+ctClass.getName());
     			// get its methods
     			methods = ctClass.getDeclaredMethods();
     			for (CtMethod ctMethod:methods)	{
     				abstractMethods.put(getMethodKey(ctMethod), ctMethod);
+    				logger.info("adding super class method "+ctMethod.getName());
     			}
     			// get super interfaces
     			for(CtClass anotherCtClass : ctClass.getInterfaces()) {
@@ -345,6 +347,7 @@ public class ClassUtils {
     					superClasses.add(anotherCtClass);
     				}
     			}
+    			ctClass.detach();
     		}
     	} catch (NotFoundException e) {
     		logger.error(e);
