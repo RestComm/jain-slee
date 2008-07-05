@@ -114,9 +114,9 @@ public class DeployableUnit
     installActions.addAll( dc.getInstallActions() );
     
     // .. post-install actions (if any) ..
-    Collection<Object[]> postInstallActionsStrings = postInstallActions.get( dc.getComponentKey() );
+    Collection<Object[]> postInstallActionsStrings = postInstallActions.remove( dc.getComponentKey() );
     
-    if( postInstallActionsStrings != null && postInstallActions.size() > 0 )
+    if( postInstallActionsStrings != null && postInstallActionsStrings.size() > 0 )
     {
       installActions.addAll( postInstallActionsStrings );
     }
@@ -148,7 +148,7 @@ public class DeployableUnit
     }
     
     // .. pre-uninstall actions (if any) ..
-    Collection<Object[]> preUninstallActionsStrings = preUninstallActions.get( dc.getComponentKey() );
+    Collection<Object[]> preUninstallActionsStrings = preUninstallActions.remove( dc.getComponentKey() );
     
     if( preUninstallActionsStrings != null )
       uninstallActions.addAll( preUninstallActionsStrings );
@@ -228,14 +228,28 @@ public class DeployableUnit
    */
   public boolean hasDuplicates()
   {
+    ArrayList<String> duplicates = new ArrayList<String>();
+    
     // For each component in the DU ..
     for( String componentId : componentIDs )
     {
       // Check if it is already deployed
       if( deploymentManager.getDeployedComponents().contains( componentId ) )
-        return true;
+      {
+        duplicates.add( componentId );
+      }
     }
-    
+
+    if(duplicates.size() > 0)
+    {
+      logger.warn("The deployable unit '" + this.diShortName + "' contains components that are already deployed. The following are already installed:");
+      
+      for(String dupComponent : duplicates)
+        logger.warn( " - " + dupComponent );
+      
+      return true;
+    }
+
     // If we got here, there's no dups.
     return false;
   }
@@ -257,7 +271,20 @@ public class DeployableUnit
    */
   public Collection<Object[]> getInstallActions()
   {
-    return installActions;
+    ArrayList<Object[]> iActions = new ArrayList<Object[]>();
+    
+    // Let's check if we have some remaining install actions
+    if(postInstallActions.values().size() > 0)
+    {
+      for(String componentId : postInstallActions.keySet())
+      {
+        iActions.addAll( postInstallActions.get( componentId ) );          
+      }
+    }
+    
+    iActions.addAll( installActions );
+    
+    return iActions;
   }
 
   /**
@@ -266,10 +293,18 @@ public class DeployableUnit
    */
   public Collection<Object[]> getUninstallActions()
   {
-    // To make sure uninstall is the last action...
-    Collection<Object[]> uActions = uninstallActions;
+    Collection<Object[]> uActions = new ArrayList(uninstallActions);
     
-    // We add it just when we return them.
+    // Let's check if we have some remaining install actions
+    if(preUninstallActions.values().size() > 0)
+    {
+      for(String componentId : preUninstallActions.keySet())
+      {
+        uActions.addAll( preUninstallActions.get( componentId ) );          
+      }
+    }
+    
+    // To make sure uninstall is the last action, we add it just when we return them.
     uActions.add( new Object[] {"uninstall", diURL.toString()} );
     
     return uActions;
@@ -521,13 +556,28 @@ public class DeployableUnit
           cPreUninstallActions.add( new Object[] { "deactivateResourceAdaptorEntity", entityName } );
           cPreUninstallActions.add( new Object[] { "removeResourceAdaptorEntity", entityName } );
           
-        }
-        
-        // Finally add the actions to the respective hashmap.
-        if( raId != null )
-        {
-          postInstallActions.put( raId, cPostInstallActions );
-          preUninstallActions.put( raId, cPreUninstallActions );
+          // Finally add the actions to the respective hashmap.
+          if( raId != null )
+          {
+            // We need to check if we are updating or adding new ones.
+            if(postInstallActions.containsKey( raId ))
+              postInstallActions.get( raId ).addAll( cPostInstallActions );
+            else
+              postInstallActions.put( raId, cPostInstallActions );  
+            
+            // Same here...
+            if(preUninstallActions.containsKey( raId ))
+              preUninstallActions.get( raId ).addAll( cPreUninstallActions );
+            else
+              preUninstallActions.put( raId, cPreUninstallActions );
+          }
+          
+          // Now we clean the lists for the next round (might come a new RA ID)...
+          cPostInstallActions = new ArrayList<Object[]>();
+          cPreUninstallActions = new ArrayList<Object[]>();
+          
+          raId = null;
+          
         }
       }
     }

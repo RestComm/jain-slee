@@ -9,9 +9,11 @@ import java.util.Iterator;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.slee.EventTypeID;
+import javax.slee.InvalidStateException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.DeployableUnitID;
+import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
@@ -57,6 +59,8 @@ public class DeploymentManager
   
   // Actions using ServiceManagementMBean
   private Collection<String> serviceActions = Arrays.asList( new String[] { "activate", "deactivate" } );
+  
+  private HashMap<DeployableUnit, Collection<String>> actionsToAvoidByDU = new HashMap<DeployableUnit, Collection<String>>();
   
   public long waitTimeBetweenOperations = 250;
   
@@ -193,7 +197,7 @@ public class DeploymentManager
     if( du.isReadyToInstall( true ) )
     {
       // Get and Run the actions needed for installing this DU
-      sciAction( du.getInstallActions() );
+      sciAction( du.getInstallActions(), du );
       
       // Set the DU as installed
       du.setInstalled( true );
@@ -212,7 +216,7 @@ public class DeploymentManager
         if( waitingDU.isReadyToInstall( false ) )
         {
           // Get and Run the actions needed for installing this DU
-          sciAction( waitingDU.getInstallActions() );
+          sciAction( waitingDU.getInstallActions(), du );
           
           // Set the DU as installed
           waitingDU.setInstalled( true );
@@ -259,7 +263,7 @@ public class DeploymentManager
     else if( du.isReadyToUninstall() )
     { 
       // Get and Run the actions needed for uninstalling this DU
-      sciAction( du.getUninstallActions() );
+      sciAction( du.getUninstallActions(), du );
       
       // Set the DU as not installed
       du.setInstalled( false );
@@ -278,7 +282,7 @@ public class DeploymentManager
         if( waitingDU.isReadyToUninstall() )
         {
           // Get and Run the actions needed for uninstalling this DU
-          sciAction( waitingDU.getUninstallActions() );
+          sciAction( waitingDU.getUninstallActions(), du );
           
           // Set the DU as not installed
           waitingDU.setInstalled( false );
@@ -315,9 +319,10 @@ public class DeploymentManager
   /**
    * Method for performing the actions needed for (un)deployment.
    * @param actions the array of strings containing the actions to perform.
+   * @param du the DeployableUnit from where the actions are being performed.
    * @throws Exception
    */
-  private void sciAction( Collection<Object[]> actions ) throws Exception
+  private void sciAction( Collection<Object[]> actions, DeployableUnit du ) throws Exception
   {
     // Get the MBeanServer
     MBeanServer ms = SleeContainer.lookupFromJndi().getMBeanServer();
@@ -335,6 +340,16 @@ public class DeploymentManager
       // Get the action to perform
       String action = (String)params[0];
 
+      // Shall we skip this action?
+      if(actionsToAvoidByDU.get(du) != null && actionsToAvoidByDU.get(du).remove(action))
+      {
+        // Clean if it was the last one.
+        if(actionsToAvoidByDU.get(du).size() == 0)
+          actionsToAvoidByDU.remove(du);
+        
+        continue;
+      }
+      
       // Get the parameters and the signature
       for( int i = 1; i < params.length; i++ )
       {
@@ -386,8 +401,41 @@ public class DeploymentManager
         // Invoke it.
         ms.invoke( objectName, action, arguments, signature );
       }
-      catch (Exception e) {
-        logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e );
+      catch (Exception e)
+      {
+        // We might expect some exceptions...
+        if(e.getCause() instanceof ResourceAdaptorEntityAlreadyExistsException || 
+            (e.getCause() instanceof InvalidStateException && action.equals( "activateResourceAdaptorEntity") ))
+        {
+          String actionToAvoid = "";
+          
+          // If the activate/create failed then we don't want to deactivate/remove
+          if(action.equals( "activateResourceAdaptorEntity" ))
+            actionToAvoid = "deactivateResourceAdaptorEntity";
+          else if(action.equals( "createResourceAdaptorEntity" ))
+            actionToAvoid = "removeResourceAdaptorEntity";
+
+          Collection actionsToAvoid;
+          if((actionsToAvoid = actionsToAvoidByDU.get(du)) == null)
+          {
+            actionsToAvoid = new ArrayList();
+              
+            // Add it to the list of actions to skip on undeploy
+            actionsToAvoid.add(actionToAvoid);
+            
+            // And put it to the map
+            actionsToAvoidByDU.put( du, actionsToAvoid );
+          }
+          else
+          {
+            // Add it to the list of actions to skip on undeploy
+            actionsToAvoid.add(actionToAvoid);
+          }
+          
+          logger.warn(e.getCause().getMessage());
+        }
+        else
+          logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e );
       }
       
       // Wait a little while just to make sure it finishes
