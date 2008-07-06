@@ -15,9 +15,9 @@ public class PersistenceResourceAdaptorSbbInterfaceImpl implements
 
 	private ActivityManipulation am = null;
 
-	private HashMap<String,EntityManagerFactory> emfsHeldHere=new HashMap<String,EntityManagerFactory>();
+	private HashMap<String, EntityManagerFactory> emfsHeldHere = new HashMap<String, EntityManagerFactory>();
 
-	private  boolean hasBeenClosed=false;
+	private boolean hasBeenClosed = false;
 
 	public PersistenceResourceAdaptorSbbInterfaceImpl(ActivityManipulation am) {
 
@@ -26,89 +26,90 @@ public class PersistenceResourceAdaptorSbbInterfaceImpl implements
 	}
 
 	public void close() {
-		
-		if(this.hasBeenClosed)
+
+		if (this.hasBeenClosed)
 			return;
-		for(String s : this.emfsHeldHere.keySet())
-		{
-			//we have to inform
-			this.am.unsubscribeForEntityManagerFactoryForPU(s);
+		for (String s : this.emfsHeldHere.keySet()) {
+			// we have to inform
+			synchronized (s) {
+				this.am.unsubscribeForEntityManagerFactoryForPU(s);
+			}
 		}
-		
-		
-		this.hasBeenClosed=true;
-		
+
+		this.hasBeenClosed = true;
+
 	}
 
-	public boolean hasBeenClosed()
-	{
+	public boolean hasBeenClosed() {
 		return this.hasBeenClosed;
 	}
-	public EntityManager createEntityManager(Map emfProperties, String puName){
-		if(this.hasBeenClosed)
-			throw new RuntimeException("Wrong state RASbbInterface has been closed.");
-		return prepareManager(emfProperties,null, puName);
+
+	public EntityManager createEntityManager(Map emfProperties, String puName) {
+		if (this.hasBeenClosed)
+			throw new RuntimeException(
+					"Wrong state RASbbInterface has been closed.");
+		synchronized (puName.intern()) {
+			return prepareManager(emfProperties, null, puName);
+		}
 	}
 
-	public EntityManager createEntityManager(Map emfProperties,Map emProps, String puName) {
-		if(this.hasBeenClosed)
-			throw new RuntimeException("Wrong state RASbbInterface has been closed.");
-		return prepareManager(emfProperties ,emProps, puName);
+	public EntityManager createEntityManager(Map emfProperties, Map emProps,
+			String puName) {
+		if (this.hasBeenClosed)
+			throw new RuntimeException(
+					"Wrong state RASbbInterface has been closed.");
+		synchronized (puName.intern()) {
+			return prepareManager(emfProperties, emProps, puName);
+		}
 	}
 
 	public boolean isOpen(String puName) {
 		// we should always return true;
-		//only false in error condition and when emf doesnt exist
-		EntityManagerFactory t_emf=null;
-		if(emfsHeldHere.containsKey(puName))
-		{
-			
-			t_emf=(EntityManagerFactory) emfsHeldHere.get(puName);
-			//this shold always be true;
-			return t_emf.isOpen();
+		// only false in error condition and when emf doesnt exist
+		synchronized (puName.intern()) {
+			EntityManagerFactory t_emf = null;
+			if (emfsHeldHere.containsKey(puName)) {
+
+				t_emf = (EntityManagerFactory) emfsHeldHere.get(puName);
+				// this shold always be true;
+				return t_emf.isOpen();
+			} else {
+
+				return this.am.isEMFOpen(puName);
+
+			}
 		}
-		else
-		{
-			
-			return this.am.isEMFOpen(puName);
-			
-			
-		}
-		
 	}
 
 	// HELPER METHODS
 
-	private SbbEntityManager prepareManager(Map emfProperties,Map emProperties, String puName) {
+	private SbbEntityManager prepareManager(Map emfProperties,
+			Map emProperties, String puName) {
 
-		EntityManagerFactory t_emf=null;
+		EntityManagerFactory t_emf = null;
 		EntityManager em = null;
-		
-		t_emf=this.am.subscribeForEntityManagerFactoryForPU(puName,emfProperties);
-		if(t_emf==null)
+
+		t_emf = this.am.subscribeForEntityManagerFactoryForPU(puName,
+				emfProperties);
+		if (t_emf == null)
 			return null;
-		
+
 		this.emfsHeldHere.put(puName, t_emf);
-		
-		if (emProperties != null)
-		{
-	
+
+		if (emProperties != null) {
+
 			em = t_emf.createEntityManager(emProperties);
-		}
-		else
-		{
+		} else {
 			em = t_emf.createEntityManager();
 		}
-		SbbEntityManagerImpl sbe = new SbbEntityManagerImpl(em, am);
+		SbbEntityManagerImpl sbe = new SbbEntityManagerImpl(em, am, puName);
 		am.addActivity(sbe);
 		return sbe;
 	}
-	
-	
-	public void finalize()
-	{
-		
+
+	public void finalize() {
+
 		this.close();
-		
+
 	}
 }

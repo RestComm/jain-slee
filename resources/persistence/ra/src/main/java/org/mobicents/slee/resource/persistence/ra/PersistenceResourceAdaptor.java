@@ -50,8 +50,6 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 
 	private transient Map activities = new ConcurrentReaderHashMap();
 
-	private transient Map terminatedActivities = new ConcurrentReaderHashMap();
-
 	private transient SleeEndpoint sleeEndpoint = null;
 
 	private transient EventLookupFacility eventLookup = null;
@@ -335,6 +333,7 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 		PersistenceActivityHandle pah = new PersistenceActivityHandle(em);
 		// activities.remove(pah);
 
+		
 		try {
 			this.sleeEndpoint.activityEnding(pah);
 		} catch (NullPointerException e) {
@@ -355,14 +354,14 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 		EntityManagerFactory emf=null;
 		
 		
-		boolean createdTx=false;
-		try {
-			if(!tm.isInTx())
-			{
-				tm.begin();
-				createdTx=true;
-				
-			}
+		//boolean createdTx=false;
+		//try {
+		//	if(!tm.isInTx())
+		//	{
+		//		tm.begin();
+		//		createdTx=true;
+		//		
+		//	}
 			
 			
 			
@@ -384,22 +383,22 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 			
 			
 			
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally
-		{
-			if(createdTx)
-			{
-				try {
-					tm.commit();
-				} catch (SystemException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+		//} catch (SystemException e) {
+		//	// TODO Auto-generated catch block
+		//	e.printStackTrace();
+		//}finally
+		//{
+		//	if(createdTx)
+		//	{
+		//		try {
+		//			tm.commit();
+		//		} catch (SystemException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//	}
 				
-		}
+		//}
 		
 		
 		return emf;
@@ -409,14 +408,14 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 		
 		
 		
-		boolean createdTx=false;
-		try {
-			if(!tm.isInTx())
-			{
-				tm.begin();
-				createdTx=true;
+		//boolean createdTx=false;
+		//try {
+		//	if(!tm.isInTx())
+		//	{
+		//		tm.begin();
+		//		createdTx=true;
 				
-			}
+		//	}
 			
 			
 			if(!emfsMap.containsKey(puName))
@@ -437,22 +436,22 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 				
 			}
 			
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally
-		{
-			if(createdTx)
-			{
-				try {
-					tm.commit();
-				} catch (SystemException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+		//} catch (SystemException e) {
+		//	// TODO Auto-generated catch block
+		//	e.printStackTrace();
+		//}finally
+		//{
+		//	if(createdTx)
+		//	{
+		//		try {
+		//			tm.commit();
+		//		} catch (SystemException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//	}
 				
-		}
+		//}
 		
 		
 	}
@@ -460,14 +459,14 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 	
 	public boolean isEMFOpen(String puName)
 	{
-		boolean createdTx=false;
-		try {
-			if(!tm.isInTx())
-			{
-				tm.begin();
-				createdTx=true;
-				
-			}
+		//boolean createdTx=false;
+		//try {
+		//	if(!tm.isInTx())
+		//	{
+		//		tm.begin();
+		//		createdTx=true;
+		//		
+		//	}
 			
 			
 			
@@ -483,24 +482,24 @@ public class PersistenceResourceAdaptor implements ResourceAdaptor,
 			
 			
 			
-		} catch (SystemException e) {
+		//} catch (SystemException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally
-		{
-			if(createdTx)
-			{
-				try {
-					tm.commit();
-				} catch (SystemException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+		//	e.printStackTrace();
+		//}finally
+		//{
+		//	if(createdTx)
+		//	{
+		//		try {
+		//			tm.commit();
+		//		} catch (SystemException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
+		//	}
 				
-		}
+		//}
 		
-		return false;
+		//return false;
 		
 	}
 	
