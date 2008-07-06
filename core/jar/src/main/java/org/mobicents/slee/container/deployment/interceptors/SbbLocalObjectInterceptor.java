@@ -79,7 +79,13 @@ public class SbbLocalObjectInterceptor {
                 throw new TransactionRolledbackLocalException(
                         "Invocation resulted in exception ! ", ex.getCause());
             } else {
-            	throw (Exception) ex.getCause();
+            	if(ex.getCause() instanceof Exception)
+            	{
+            		throw (Exception) ex.getCause();
+            	}else
+            	{
+            		throw new Exception(ex.getCause());
+            	}
             }
         } catch (Exception ex) {
             if (logger.isDebugEnabled())
