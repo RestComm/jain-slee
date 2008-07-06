@@ -54,6 +54,13 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 	public void sendResponse(Response arg0) throws SipException,
 			InvalidArgumentException {
 		wrappedTransaction.sendResponse(arg0);
+		String method=this.getRequest().getMethod();
+		int statusCode=arg0.getStatusCode();
+		if(method.equals(Request.CANCEL) && (statusCode<300 && statusCode>199))
+		{
+			if(super.dialogWrapper!=null && super.dialogWrapper.getState()==null)
+				super.dialogWrapper.delete();
+		}
 	}
 
 	
@@ -136,6 +143,17 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 		
 		return "ServerTransaction BR["+this.getBranchId()+"] METHOD["+this.getRequest().getMethod()+"] STATE["+this.wrappedTransaction.getState()+"]";
 		
+	}
+	
+	/**
+	 * Returns SipActviitytHandle for invite request. Should be called only by cancel
+	 * @return
+	 */
+	public SipActivityHandle getInviteHandle()
+	{
+		String id=this.sipActivityHandle.getID();
+		id=id.replace("_"+this.wrappedTransaction.getRequest().getMethod(), "_"+Request.INVITE).intern();
+		return new SipActivityHandle(id);
 	}
 	
 }

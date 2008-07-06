@@ -14,6 +14,7 @@ import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogDoesNotExistException;
 import javax.sip.DialogState;
+import javax.sip.DialogTerminatedEvent;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
@@ -39,6 +40,7 @@ import javax.sip.message.Response;
 import net.java.slee.resource.sip.DialogActivity;
 
 import org.mobicents.slee.resource.sip.SipActivityHandle;
+import org.mobicents.slee.resource.sip.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip.SipToSLEEUtility;
 import org.mobicents.slee.resource.sip.SleeSipProviderImpl;
 
@@ -48,7 +50,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	protected javax.sip.Dialog wrappedDialog = null;
 	protected SipActivityHandle sipActivityHandle;
 	protected String initiatingTransctionId = null;
-
+	protected SipResourceAdaptor ra;
 	// TODO: Add sync maps?
 	// SPECS 1.1 stuff, wonder who came up with that idea.
 	protected Map<String, ClientTransactionWrapper> ongoingClientTransactions = new HashMap<String, ClientTransactionWrapper>();
@@ -212,6 +214,11 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	}
 
 	public void delete() {
+		//This ensures that dialog will be removed
+		if(wrappedDialog.getState()==null)
+		{
+			ra.processDialogTerminated(new DialogTerminatedEvent(this.provider,wrappedDialog));
+		}
 		wrappedDialog.delete();
 
 	}

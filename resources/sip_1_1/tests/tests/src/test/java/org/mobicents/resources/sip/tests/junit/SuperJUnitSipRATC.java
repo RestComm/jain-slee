@@ -138,10 +138,19 @@ public class SuperJUnitSipRATC extends TestCase {
 	// This is the first class/tests set that has to be executed, as on
 	// ClientSide of tests we depend on this one to work well!!!
 	public SuperJUnitSipRATC() {
+		this(null);
+	}
+
+	public SuperJUnitSipRATC(Properties props) {
 		super();
 		properties.putAll(System.getProperties());
 
+		
 		properties.putAll(defaultProperties);
+		if(props!=null)
+		{
+			properties.putAll(props);
+		}
 		try {
 			myPort = Integer.parseInt(properties
 					.getProperty("sipunit.test.port"));
@@ -153,7 +162,7 @@ public class SuperJUnitSipRATC extends TestCase {
 				+ (String) properties.get("javax.sip.IP_ADDRESS") + "]");
 		testProtocol = properties.getProperty("sipunit.test.protocol");
 	}
-
+	
 	protected void setUp() throws Exception {
 
 		super.setUp();
@@ -243,57 +252,12 @@ public class SuperJUnitSipRATC extends TestCase {
 		final ClientTransaction triggerTransaction = this.provider
 				.getNewClientTransaction(messageRequest);
 
-		//SipListener triggerListener = new SipListener() {
-		//	public void processDialogTerminated(DialogTerminatedEvent arg0) {
-		//		doFail("Received bad message:\n" + arg0);
-
-		//	}
-
-		//	public void processIOException(IOExceptionEvent arg0) {
-		//		doFail("Received bad message:\n" + arg0);
-
-		//	}
-
-		//	public void processRequest(RequestEvent arg0) {
-		//		doFail("Received bad message:\n" + arg0);
-
-		//	}
-
-		//	public void processResponse(ResponseEvent arg0) {
-
-		//		Response response = arg0.getResponse();
-		//		if (response.getStatusCode() != 200
-		//				&& arg0.getClientTransaction() != triggerTransaction) {
-		//			doFail("Recieved bad response code or on bad transaction:\n"
-		//					+ response);
-		//		} else {
-
-		//		}
-
-		//	}
-
-		//	public void processTimeout(TimeoutEvent arg0) {
-		//		doFail("Received bad message:\n" + arg0);
-
-		//	}
-
-		//	public void processTransactionTerminated(
-		//			TransactionTerminatedEvent arg0) {
-		//		doFail("Received bad message:\n" + arg0);
-
-		//	}
-		//};
+		
 
 		this.provider.addSipListener(listener);
 		triggerTransaction.sendRequest();
 
-		//waitForTest(500);
-		//if (isFailed()) {
-		//	fail(errorBuffer.toString());
-		//	return;
-		//}
-		//this.provider.removeSipListener(triggerListener);
-
+		
 	}
 
 	protected ViaHeader getLocalVia(SipProvider _provider)

@@ -81,7 +81,7 @@ public class FullDialogSetupTest extends SuperJUnitSipRATC {
 		triggerClientTest(null, outGoingListener);
 		waitForTest(3000);
 		outGoingListener.sendBye();
-		waitForTest(35000);
+		waitForTest(60000);
 
 		if (!receivedInvite || !sentI180 || !sentI200 || !receivedAck
 				|| !sentBye || !receiveBye200) {
@@ -114,8 +114,8 @@ public class FullDialogSetupTest extends SuperJUnitSipRATC {
 		public void processRequest(RequestEvent arg0) {
 
 			try {
-				System.out
-						.println("Reived on incomming:\n" + arg0.getRequest());
+				//System.out
+				//		.println("Reived on incomming:\n" + arg0.getRequest());
 				Request request = arg0.getRequest();
 				
 				if (request.getMethod().equals(Request.INVITE)) {
@@ -169,7 +169,7 @@ public class FullDialogSetupTest extends SuperJUnitSipRATC {
 		}
 
 		public void processResponse(ResponseEvent arg0) {
-			System.out.println("Reived on outgoing:\n" + arg0.getResponse());
+			//System.out.println("Reived on outgoing:\n" + arg0.getResponse());
 			Response response = arg0.getResponse();
 			if (response.getStatusCode() == 200
 					&& ((CSeqHeader) response.getHeader(CSeqHeader.NAME))

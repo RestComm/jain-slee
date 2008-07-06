@@ -17,6 +17,8 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.ActivityContextInterface;
 
+import net.java.slee.resource.sip.DialogActivity;
+
 public abstract class DialogCreationNullCancelClientTestSbb extends
 		SuperSipRaTestSbb {
 
@@ -106,6 +108,7 @@ public abstract class DialogCreationNullCancelClientTestSbb extends
 			ActivityContextInterface l_aci = acif
 					.getActivityContextInterface(ctx);
 			l_aci.attach(super.getSbbContext().getSbbLocalObject());
+			acif.getActivityContextInterface((DialogActivity)super.fp.getNewDialog(ctx)).attach(this.getSbbContext().getSbbLocalObject());
 			ctx.sendRequest();
 
 			Thread.currentThread().sleep(1000);

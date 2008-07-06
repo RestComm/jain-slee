@@ -127,8 +127,8 @@ public class TwoLegTest extends SuperJUnitSipRATC {
 			if(arg0.getSource()==secondLegProvider)
 			{
 				try {
-					System.out.println("Reived on incomming:\n"
-							+ arg0.getRequest());
+					//System.out.println("Reived on incomming:\n"
+					//		+ arg0.getRequest());
 					Request request = arg0.getRequest();
 					ServerTransaction stx=null;
 					if(!arg0.getRequest().getMethod().equals(Request.ACK) && !arg0.getRequest().getMethod().equals(Request.BYE))
@@ -167,7 +167,7 @@ public class TwoLegTest extends SuperJUnitSipRATC {
 						Response response=messageFactory.createResponse(200, request);
 						//response.addHeader(headerFactory.createContactHeader(addressFactory.createAddress("sip:"+secondLegProvider.getListeningPoint(testProtocol).getIPAddress()+":"+secondLegProvider.getListeningPoint(testProtocol).getPort())));
 						//((ToHeader)response.getHeader(ToHeader.NAME)).setTag("TO_BE_PASSED");
-						System.out.println("Sending response to BYE:\n"+response);
+						//System.out.println("Sending response to BYE:\n"+response);
 						stx.sendResponse(response);
 						i_sent200Bye=true;
 					}else if(request.getMethod().equals(Request.ACK))
@@ -193,8 +193,8 @@ public class TwoLegTest extends SuperJUnitSipRATC {
 		}
 
 		public void processResponse(ResponseEvent arg0) {
-			System.out
-					.println("Reived on outgoing:\n" + arg0.getResponse());
+			//System.out
+			//		.println("Reived on outgoing:\n" + arg0.getResponse());
 			Response response = arg0.getResponse();
 			if(arg0.getSource()==provider)
 			try {
@@ -206,7 +206,7 @@ public class TwoLegTest extends SuperJUnitSipRATC {
 					d_o=arg0.getDialog();
 					o_received180=true;
 				} else if (response.getStatusCode() == 200) {
-					System.out.println("GOT 200");
+					//System.out.println("GOT 200");
 					if( ((CSeqHeader)response.getHeader(CSeqHeader.NAME)).getMethod().equals(Request.BYE))
 					{
 						o_received200Bye=true;
@@ -215,7 +215,7 @@ public class TwoLegTest extends SuperJUnitSipRATC {
 						
 					o_received200=true;
 					Request ack=d_o.createAck(d_o.getLocalSeqNumber());
-					System.out.println("Sending ACK on OUT\n"+ack);
+					//System.out.println("Sending ACK on OUT\n"+ack);
 					d_o.sendAck(ack);
 					o_sentAck=true;
 				} else

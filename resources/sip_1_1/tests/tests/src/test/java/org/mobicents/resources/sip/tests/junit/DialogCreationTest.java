@@ -1,7 +1,5 @@
 package org.mobicents.resources.sip.tests.junit;
 
-import java.util.EventObject;
-
 import gov.nist.javax.sip.address.SipUri;
 
 import javax.sip.ClientTransaction;
@@ -15,22 +13,16 @@ import javax.sip.SipListener;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.header.CSeqHeader;
-import javax.sip.header.CallIdHeader;
-import javax.sip.header.ContactHeader;
 import javax.sip.header.FromHeader;
-import javax.sip.header.Header;
 import javax.sip.header.ToHeader;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
-
-import org.cafesip.sipunit.SipTransaction;
 
 public class DialogCreationTest extends SuperJUnitSipRATC {
 
 	Request inviteRequest = null;
 	ClientTransaction inviteTransaction = null;
-
+	ServerTransaction inviteServerTransaction=null;
 	boolean receivedOkToCancel = false;
 	boolean receivedRingingWithTag = false;
 
@@ -42,12 +34,12 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 
 	boolean sentOkToCancel = false;
 
+	boolean received487=false;
 	
-	
-	
+	boolean sent487=false;
 	
 	protected void tearDown() throws Exception {
-		sentOkToCancel=sentTryingRingingPair=receiveidInvite=receivedResponseOnTrigger=receivedRingingWithTag=receivedOkToCancel=false;
+		sentOkToCancel=sentTryingRingingPair=receiveidInvite=receivedResponseOnTrigger=receivedRingingWithTag=receivedOkToCancel=received487=sent487=false;
 		super.tearDown();
 	}
 
@@ -92,7 +84,6 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 	}
 
 	public void testEarlyCancel() throws Exception {
-
 		SipListener listener = new SipListener() {
 
 			public void processDialogTerminated(DialogTerminatedEvent arg0) {
@@ -155,7 +146,16 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 					if(receivedOkToCancel)
 						doFail("Received message second time!!\n"+response);
 					receivedOkToCancel = true;
-				} else {
+				} else if(response.getStatusCode() == 487
+						&& ((CSeqHeader) response.getHeader(CSeqHeader.NAME))
+						.getMethod().equals(Request.INVITE)
+				&& generateFromTag("EarlyCancel").equals(
+						((FromHeader) response
+								.getHeader(FromHeader.NAME)).getTag()))
+				{
+					received487=true;
+				}
+				else{
 					doFail("Got bad message:\n" + response);
 				}
 			}
@@ -187,6 +187,11 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 		if(!receivedOkToCancel)
 		{
 			doFail("Didnt recieve 200 to CANCEL!!");
+		}
+		
+		if(!received487)
+		{
+			doFail("Didnt receive 487");
 		}
 		if (isFailed()) {
 			fail(super.errorBuffer.toString());
@@ -235,7 +240,16 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 								((FromHeader) response
 										.getHeader(FromHeader.NAME)).getTag())) {
 					receivedOkToCancel = true;
-				} else {
+				} else if(response.getStatusCode() == 487
+						&& ((CSeqHeader) response.getHeader(CSeqHeader.NAME))
+						.getMethod().equals(Request.INVITE)
+				&& generateFromTag("NullCancel").equals(
+						((FromHeader) response
+								.getHeader(FromHeader.NAME)).getTag()))
+				{
+					received487=true;
+				}
+				else {
 					doFail("Got bad message:\n" + response);
 				}
 			}
@@ -254,31 +268,18 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 		};
 
 		sendInvite("NullCancel", listener);
-		//waitForTest(500);
-		//Request cancelRequest = messageFactory.createRequest(null);
-		//cancelRequest.addHeader(inviteRequest.getHeader(FromHeader.NAME));
-		//cancelRequest.addHeader(inviteRequest.getHeader(ToHeader.NAME));
-		//cancelRequest.addHeader(inviteRequest.getHeader(ContactHeader.NAME));
-		//cancelRequest.addHeader(inviteRequest.getHeader(CallIdHeader.NAME));
-		//cancelRequest.addHeader((Header) inviteRequest.getHeaders(
-		//		ViaHeader.NAME).next());
-		//cancelRequest.addHeader(headerFactory.createCSeqHeader(
-		//		((CSeqHeader) inviteRequest.getHeader(CSeqHeader.NAME))
-		//				.getSeqNumber(), Request.CANCEL));
-		//cancelRequest.setMethod(Request.CANCEL);
 
-		//SipUri inviteURI = (SipUri) inviteRequest.getRequestURI();
-
-		//cancelRequest.setRequestURI(inviteURI);
-		//cancelRequest.addHeader(headerFactory.createMaxForwardsHeader(5));
-
-		//ClientTransaction cancelCTX = provider
-		//		.getNewClientTransaction(cancelRequest);
-		//cancelCTX.sendRequest();
 		waitForTest(5000);
 		if (!receivedOkToCancel) {
 			doFail("Didnt receive CANCELs OK");
+			
 		}
+		
+		if(!received487)
+		{
+			doFail("Didnt receive 487");
+		}
+		
 		if (isFailed()) {
 			fail(super.errorBuffer.toString());
 		}
@@ -299,6 +300,8 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 
 			}
 
+			
+			
 			public void processRequest(RequestEvent arg0) {
 
 				Request request = arg0.getRequest();
@@ -316,6 +319,7 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 						stx.sendResponse(messageFactory.createResponse(100,
 								request));
 
+						inviteServerTransaction=stx;
 						Response ringing = messageFactory.createResponse(180,
 								request);
 						((ToHeader) ringing.getHeader(ToHeader.NAME))
@@ -334,7 +338,11 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 								request));
 
 						sentOkToCancel = true;
-
+						
+						inviteServerTransaction.sendResponse(messageFactory.createResponse(487,inviteServerTransaction.getRequest()));
+						
+						sent487=true;
+						
 					} else {
 						doFail("Received bad message:\n" + request);
 					}
@@ -392,6 +400,11 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 		if (!sentOkToCancel)
 			doFail("Didnt send Ok To cancel ");
 
+		if(!sent487)
+		{
+			doFail("Didnt send 487");
+		}
+		
 		if (isFailed()) {
 			fail(errorBuffer.toString());
 		}
@@ -432,7 +445,7 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 								.getNewServerTransaction(request);
 						stx.sendResponse(messageFactory.createResponse(100,
 								request));
-
+						inviteServerTransaction=stx;
 						
 						sentTryingRingingPair = true;
 					} else if (request.getMethod().equals(Request.CANCEL)
@@ -446,7 +459,9 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 								request));
 
 						sentOkToCancel = true;
-
+						
+						inviteServerTransaction.sendResponse(messageFactory.createResponse(487, inviteServerTransaction.getRequest()));
+						sent487=true;
 					} else {
 						doFail("Received bad message:\n" + request);
 					}
@@ -504,6 +519,11 @@ public class DialogCreationTest extends SuperJUnitSipRATC {
 		if (!sentOkToCancel)
 			doFail("Didnt send Ok To cancel ");
 
+		if(!sent487)
+		{
+			doFail("Didnt send 487");
+		}
+		
 		if (isFailed()) {
 			fail(errorBuffer.toString());
 		}

@@ -2,18 +2,13 @@ package org.mobicents.resoruces.sip.test;
 
 import gov.nist.javax.sip.address.SipUri;
 
-import java.text.ParseException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javax.sip.ClientTransaction;
-import javax.sip.InvalidArgumentException;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
-import javax.sip.SipException;
-import javax.sip.Transaction;
 import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.ContactHeader;
@@ -21,11 +16,6 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.ActivityContextInterface;
 import javax.slee.ActivityEndEvent;
-import javax.slee.FactoryException;
-import javax.slee.SLEEException;
-import javax.slee.TransactionRequiredLocalException;
-import javax.slee.TransactionRolledbackLocalException;
-import javax.slee.UnrecognizedActivityException;
 import javax.slee.facilities.TimerEvent;
 
 import net.java.slee.resource.sip.DialogActivity;
@@ -170,7 +160,7 @@ public abstract class FullDialogSetupTestSbb extends SuperSipRaTestSbb {
 			ActivityContextInterface timerACI = retrieveNullActivityContext();
 			timerACI.attach(this.getSbbContext().getSbbLocalObject());
 			retrieveTimerFacility().setTimer(timerACI, null,
-					System.currentTimeMillis() + 15000, super.tOptions);
+					System.currentTimeMillis() + 45000, super.tOptions);
 			acif.getActivityContextInterface(event.getServerTransaction())
 					.attach(this.getSbbContext().getSbbLocalObject());
 			event.getServerTransaction().sendResponse(

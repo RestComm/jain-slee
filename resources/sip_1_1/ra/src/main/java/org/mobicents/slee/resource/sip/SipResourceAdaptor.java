@@ -7,6 +7,7 @@ import gov.nist.javax.sip.header.Via;
 import java.io.Serializable;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,14 +48,19 @@ import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.TransactionUnavailableException;
 import javax.sip.address.AddressFactory;
+import javax.sip.header.CSeqHeader;
+import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.message.Message;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
+import javax.sip.message.Response;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.FactoryException;
 import javax.slee.InvalidStateException;
+import javax.slee.ServiceID;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.EventLookupFacility;
@@ -126,7 +132,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 	// METHODS - here we store methods which are rfc 3261 compilant
 	private static Set rfc3261Methods = new HashSet();
-	private static Set<String> stxedRequests=new HashSet<String>();
+	private static Set<String> stxedRequests = new HashSet<String>();
 	// SOME INITIALIZATION
 	static {
 		String[] tmp = { Request.ACK, Request.BYE, Request.CANCEL,
@@ -139,7 +145,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		log.info("\n================SIP METHODS====================\n"
 				+ rfc3261Methods
 				+ "\n===============================================");
-		
+
 		stxedRequests.add(Request.ACK);
 		stxedRequests.add(Request.CANCEL);
 		stxedRequests.add(Request.BYE);
@@ -628,10 +634,29 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 	}
 
-	public void eventProcessingFailed(ActivityHandle arg0, Object arg1,
+	public void eventProcessingFailed(ActivityHandle ah, Object event,
 			int arg2, Address arg3, int arg4, FailureReason arg5) {
-		// TODO Auto-generated method stub
 
+		String id = ((SipActivityHandle) ah).transactionId;
+
+		if (!id.endsWith(Request.CANCEL)
+				|| !(event instanceof RequestEventWrapper))
+			return;
+
+		// PROCESSING FAILED, WE HAVE TO SEND 481 response to CANCEL
+		try {
+			Response txDoesNotExistsResponse = this.providerProxy
+					.getMessageFactory().createResponse(
+							Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
+							((RequestEventWrapper) event).getRequest());
+			provider.sendResponse(txDoesNotExistsResponse);
+		} catch (ParseException e) {
+
+			e.printStackTrace();
+		} catch (SipException e) {
+
+			e.printStackTrace();
+		}
 	}
 
 	public void eventProcessingSuccessful(ActivityHandle arg0, Object arg1,
@@ -671,36 +696,105 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	// XXX -- SERVICE PART + FITLERING
 
 	// Holds mappings String..ServiceID --> int[]..EventIDs
-	private transient Map eventIDsOfServicesInstalled = new ConcurrentHashMap(
+	private transient Map<String, int[]> eventIDsOfServicesInstalled = new ConcurrentHashMap<String, int[]>(
 			31);
 
 	// Holds mappings String..ServiceID --> String[]..eventOptions
 	// eventOptions[i] are options for eventIDs[i] --> see
 	// SleeContainer.installService ?
-	private transient Map eventResourceOptionsOfServicesInstalled = new ConcurrentHashMap(
+	private transient Map<String, String[]> eventResourceOptionsOfServicesInstalled = new ConcurrentHashMap<String, String[]>(
 			31);
 
 	// Holds mappings event ComponentKey --> Set(ServiceID) which are interested
 	// in receiving event
-	private transient Map myComponentKeys = new ConcurrentHashMap(31);
+	private transient Map<ComponentKey, Set<ServiceID>> myComponentKeys = new ConcurrentHashMap<ComponentKey, Set<ServiceID>>(
+			31);
 
-	public void serviceActivated(String arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void serviceDeactivated(String arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void serviceInstalled(String arg0, int[] arg1, String[] arg2) {
-		// TODO Auto-generated method stub
+	public boolean isEventGoingToBereceived(ComponentKey eventKey) {
+		Set<ServiceID> serviceIDSet = myComponentKeys.get(eventKey);
+		if ((serviceIDSet != null) && (serviceIDSet.size() > 0))
+			return true;
+		else
+			return false;
 
 	}
 
-	public void serviceUninstalled(String arg0) {
-		// TODO Auto-generated method stub
+	public void serviceInstalled(String serviceID, int[] eventIDs,
+			String[] resourceOptions) {
+
+		SipToSLEEUtility.displayMessage(log,
+				"Service installation - RA has been notified",
+				"SipResourceAdaptor.serviceInstalled",
+				"service installed: service = " + serviceID + ", eventIDs = "
+						+ Arrays.toString(eventIDs) + ", resourceOptions  = "
+						+ Arrays.toString(resourceOptions), Level.FINEST);
+
+		// STORE SOME INFORMATION FOR LATER
+		eventIDsOfServicesInstalled.put(serviceID, eventIDs);
+		eventResourceOptionsOfServicesInstalled.put(serviceID, resourceOptions);
+
+	}
+
+	public void serviceUninstalled(String serviceID) {
+
+		// LETS REMOVE INFORMATION OF EVENT IDS OF INTERES OF SERVICE FROM THE
+		// RECORD
+		eventIDsOfServicesInstalled.remove(serviceID);
+		eventResourceOptionsOfServicesInstalled.remove(serviceID);
+	}
+
+	public void serviceActivated(String serviceID) {
+
+		int[] eventIDs = (int[]) eventIDsOfServicesInstalled.get(serviceID);
+		if (eventIDs != null) {
+			for (int i = 0; i < eventIDs.length; i++) {
+				EventTypeID eventTypeID = serviceContainer
+						.getEventTypeID(eventIDs[i]);
+				ComponentKey eventKey = serviceContainer
+						.getEventKey(eventTypeID);
+				Set servicesActivatedList = (Set) myComponentKeys.get(eventKey);
+				if (servicesActivatedList != null) {
+					servicesActivatedList.add(serviceID);
+					SipToSLEEUtility
+							.displayMessage(
+									log,
+									"Service registration for event type",
+									"SipResourceAdaptor.serviceActivated",
+									"Service "
+											+ serviceID
+											+ " is activated and registred to event with key "
+											+ eventKey, Level.FINEST);
+
+				}
+			}
+		}
+
+	}
+
+	public void serviceDeactivated(String serviceID) {
+
+		int[] eventIDs = (int[]) eventIDsOfServicesInstalled.get(serviceID);
+		if (eventIDs != null) {
+			for (int i = 0; i < eventIDs.length; i++) {
+				EventTypeID eventTypeID = serviceContainer
+						.getEventTypeID(eventIDs[i]);
+				ComponentKey eventKey = serviceContainer
+						.getEventKey(eventTypeID);
+				Set servicesActivatedList = (Set) myComponentKeys.get(eventKey);
+				if (servicesActivatedList != null) {
+					servicesActivatedList.remove(serviceID);
+					SipToSLEEUtility
+							.displayMessage(
+									log,
+									"Service registration for event type",
+									"SipResourceAdaptor.serviceDeactivated",
+									"Service "
+											+ serviceID
+											+ " is deactivated and unregistred to event with key "
+											+ eventKey, Level.FINEST);
+				}
+			}
+		}
 
 	}
 
@@ -717,28 +811,16 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				"SipResourceAdaptor.processRequest", req.getRequest(),
 				Level.FINEST);
 
-		if (req.getRequest().getHeader(MaxForwardsHeader.NAME) == null) {
-			try {
-				MaxForwardsHeader mfh = this.providerProxy.getHeaderFactory()
-						.createMaxForwardsHeader(69);
-				req.getRequest().addHeader(mfh);
-			} catch (InvalidArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
 		ServerTransaction st = null;
 
 		st = req.getServerTransaction();
 		ServerTransactionWrapper STW = null;
-		//CANCEL, ACK and BYE have Transaction created for them
-		
-		log.info("GOT R[" + req.getRequest().getMethod() + "] ST[" + st + "]");
-		//if (st == null || ((stxedRequests.contains(st.getRequest().getMethod()))
-		//		&& st.getApplicationData() == null)) {
-		if (st == null || 
-				 st.getApplicationData() == null) {
+		// CANCEL, ACK and BYE have Transaction created for them
+
+		// if (st == null ||
+		// ((stxedRequests.contains(st.getRequest().getMethod()))
+		// && st.getApplicationData() == null)) {
+		if (st == null || st.getApplicationData() == null) {
 			try {
 				STW = (ServerTransactionWrapper) this.providerProxy
 						.getNewServerTransaction(req.getRequest(), st, true);
@@ -757,6 +839,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 								+ req.getRequest()
 								+ "\n-------------------------");
 				e.printStackTrace();
+				sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
 				return;
 			}
 		} else {
@@ -764,6 +847,185 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 			STW = (ServerTransactionWrapper) st.getApplicationData();
 		}
+
+		if (req.getRequest().getMethod().equals(Request.CANCEL)) {
+			processCancelRequest(st, STW, req);
+		} else {
+			processNotCancelRequest(st, STW, req);
+		}
+
+	}
+
+	private void processCancelRequest(ServerTransaction st,
+			ServerTransactionWrapper STW, RequestEvent req) {
+		SipActivityHandle inviteHandle = STW.getInviteHandle();
+		ServerTransactionWrapper inviteSTW = (ServerTransactionWrapper) getActivity(inviteHandle);
+
+		boolean inDialog = false;
+		SipActivityHandle SAH = null;
+		// FIXME: There is no mentioen about state in specs...
+		if (inviteSTW != null) {
+			SipToSLEEUtility.displayMessage(log, "WARN: processing cancel",
+					"SipResourceAdaptor.processCancelRequest",
+					"Found INVITE transaction CANCEL[" + STW + "] \nINVITE["
+							+ inviteSTW + "]", Level.FINE);
+			if ((inviteSTW.getState() == TransactionState.TERMINATED)
+					|| (inviteSTW.getState() == TransactionState.COMPLETED)
+					|| (inviteSTW.getState() == TransactionState.CONFIRMED)) {
+
+				SipToSLEEUtility
+						.displayMessage(
+								log,
+								"WARN: processing cancel",
+								"SipResourceAdaptor.processCancelRequest",
+								"Invite transaction has been found in state other than proceeding, final response sent, sending BAD_REQEUST",
+								Level.SEVERE);
+				// FINAL
+				// FINAL RESPONSE
+				// HAS
+				// BEEN
+				// SENT?
+				Response response;
+				try {
+					response = this.providerProxy.getMessageFactory()
+							.createResponse(Response.BAD_REQUEST,
+									req.getRequest());
+					STW.sendResponse(response);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SipException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvalidArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				return;
+			}
+
+			if (inviteSTW.getDialog() != null) {
+				SipToSLEEUtility
+						.displayMessage(
+								log,
+								"WARN: processing cancel",
+								"SipResourceAdaptor.processCancelRequest",
+								"Found DIALOG transaction CANCEL["
+										+ STW
+										+ "]\nINVITE["
+										+ inviteSTW
+										+ "]\nDialog["
+										+ inviteSTW.getDialog()
+										+ "]\nSEQUENCE:Send200ToCANCEL,FireEventOnDialog,Send487ToInvite",
+								Level.FINE);
+				SAH = ((DialogWrapper) inviteSTW.getDialog())
+						.getActivityHandle();
+				inDialog = true;
+				try {
+
+					Response response = this.providerProxy.getMessageFactory()
+							.createResponse(Response.OK, req.getRequest());
+					STW.sendResponse(response);
+
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SipException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvalidArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				RequestEventWrapper REW = new RequestEventWrapper(
+						this.providerProxy, STW, inviteSTW != null ? inviteSTW
+								.getDialog() : null, req.getRequest());
+				ComponentKey key = SipToSLEEUtility.generateEventKey(REW,
+						inDialog);
+
+				String result = fireEvent(REW, SAH, key, false);
+				if (result != null) {
+					if (result != null) {
+						SipToSLEEUtility.displayMessage(log,
+								"Error on sending message",
+								"SipResourceAdaptor.processCancelRequestt",
+								result, Level.SEVERE);
+					}
+				}
+
+				try {
+					Response response = this.providerProxy.getMessageFactory()
+							.createResponse(Response.REQUEST_TERMINATED,
+									inviteSTW.getRequest());
+					inviteSTW.sendResponse(response);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SipException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvalidArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			} else {
+
+				SipToSLEEUtility.displayMessage(log, "WARN: processing cancel",
+						"SipResourceAdaptor.processCancelRequest",
+						"DIALOG not found transaction CANCEL[" + STW
+								+ "]\nINVITE[" + inviteSTW + "]\nDialog["
+								+ inviteSTW.getDialog()
+								+ "]\nSEQUENCE:FireEventOnInvite", Level.FINE);
+				SAH = inviteSTW.getActivityHandle();
+				inDialog = false;
+				RequestEventWrapper REW = new RequestEventWrapper(
+						this.providerProxy, STW, inviteSTW != null ? inviteSTW
+								.getDialog() : null, req.getRequest());
+				ComponentKey key = SipToSLEEUtility.generateEventKey(REW,
+						inDialog);
+
+				String result = fireEvent(REW, SAH, key, false);
+				if (result != null) {
+					if (result != null) {
+						SipToSLEEUtility.displayMessage(log,
+								"Error on sending message",
+								"SipResourceAdaptor.processCancelRequestt",
+								result, Level.SEVERE);
+					}
+				}
+			}
+
+		} else {
+			SipToSLEEUtility.displayMessage(log, "WARN: processing cancel",
+					"SipResourceAdaptor.processCancelRequest",
+					"INVITE not found transaction CANCEL[" + STW
+							+ "]\nSEQUENCE:FireEventOnCancel", Level.FINE);
+			SAH = STW.getActivityHandle();
+			inDialog = false;
+
+			RequestEventWrapper REW = new RequestEventWrapper(
+					this.providerProxy, STW, inviteSTW != null ? inviteSTW
+							.getDialog() : null, req.getRequest());
+			ComponentKey key = SipToSLEEUtility.generateEventKey(REW, inDialog);
+
+			String result = fireEvent(REW, SAH, key, false);
+			if (result != null) {
+				if (result != null) {
+					SipToSLEEUtility.displayMessage(log,
+							"Error on sending message",
+							"SipResourceAdaptor.processCancelRequestt", result,
+							Level.SEVERE);
+				}
+			}
+		}
+
+	}
+
+	private void processNotCancelRequest(ServerTransaction st,
+			ServerTransactionWrapper STW, RequestEvent req) {
 		// WE HAVE SET UP ALL WHAT WE NEED, NOW DO SOMETHING
 		ComponentKey eventKey = null;
 		SipActivityHandle SAH = null;
@@ -804,61 +1066,25 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				STW, DW, req.getRequest());
 
 		eventKey = SipToSLEEUtility.generateEventKey(REW, inDialog);
-		int eventID = this.generateEventID(eventKey);
 
-		if (eventID < 0) {
-
-			SipToSLEEUtility.displayMessage(log,
-					this.getClass().getName() + "",
-					"Couldnt deliver event as id is less than zero", eventKey,
-					Level.SEVERE);
-
-		} else {
-
-			SipToSLEEUtility.displayDeliveryMessage(log, this.getClass()
-					.getName()
-					+ "", eventID, eventKey, SAH, Level.INFO);
-
-			
-			try{
-				this.tm.begin();
-				log.info("--- ATTACHED"+((SipActivityContextInterfaceFactoryImpl)acif).getActivityContextForActivity(this.activities.get(SAH)).getSbbAttachmentSetForDebug());
-				this.tm.commit();
-			}catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-			
-			try {
-				
-				this.sleeEndpoint.fireEvent(SAH, REW, eventID, null);
-				// TODO: Add INTERNAL_ERROR response to error
-			} catch (ActivityIsEndingException e) {
-
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-
-				e.printStackTrace();
-			} catch (IllegalStateException e) {
-
-				e.printStackTrace();
-			} catch (UnrecognizedActivityException e) {
-
-				e.printStackTrace();
+		String result = fireEvent(REW, SAH, eventKey);
+		if (result != null) {
+			if (result != null) {
+				SipToSLEEUtility.displayMessage(log,
+						"Error on sending message",
+						"SipResourceAdaptor.processNotCancelRequestt", result,
+						Level.SEVERE);
+				sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, result);
 			}
 		}
-
 	}
 
 	public void processResponse(ResponseEvent resp) {
 		ClientTransaction ct = resp.getClientTransaction();
 		if (ct == null) {
-			if (log.isLoggable(Level.FINE)) {
+			if (log.isLoggable(Level.INFO)) {
 				log
-						.fine("===> CT is NULL - RTR ? CALLID["
+						.info("===> CT is NULL - RTR ? CALLID["
 								+ ((CallID) resp.getResponse().getHeader(
 										CallID.NAME)).getCallId()
 								+ "] BRANCH["
@@ -873,6 +1099,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			return;
 		}
 
+		final int statusCode = resp.getResponse().getStatusCode();
+		final String method = ((CSeqHeader) resp.getResponse().getHeader(
+				CSeqHeader.NAME)).getMethod();
 		if (ct.getApplicationData() == null
 				|| !(ct.getApplicationData() instanceof ClientTransactionWrapper)) {
 			// ERROR?
@@ -925,49 +1154,37 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		ResponseEventWrapper REW = new ResponseEventWrapper(this.providerProxy,
 				CTW, DW, resp.getResponse());
 		eventKey = SipToSLEEUtility.generateEventKey(REW, inDialog);
-		int eventID = this.generateEventID(eventKey);
-		try {
-			this.tm.begin();
-			ActivityContext ac = ((SipActivityContextInterfaceFactoryImpl) acif)
-					.getActivityContextForActivity(this.getActivity(SAH));
-			log.info("=-=-=-=-=KEY[" + eventKey + "] SAH[" + SAH + "]  AC["
-					+ ac.getSortedCopyOfSbbAttachmentSet() + "] A["
-					+ this.getActivity(SAH) + "] ");
-			this.tm.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
+
+		String result = fireEvent(REW, SAH, eventKey);
+		if (result != null) {
+			if (result != null) {
+				SipToSLEEUtility.displayMessage(log,
+						"Error on sending message",
+						"SipResourceAdaptor.processNotCancelRequestt", result,
+						Level.SEVERE);
+			}
 		}
 
-		if (eventID < 0) {
-
-			SipToSLEEUtility.displayMessage(log,
-					this.getClass().getName() + "",
-					"Couldnt deliver event as id is less than zero", eventKey,
-					Level.SEVERE);
-
-		} else {
-
-			SipToSLEEUtility.displayDeliveryMessage(log, this.getClass()
-					.getName()
-					+ "", eventID, eventKey, SAH, Level.FINER);
+		if ((statusCode == 481 || statusCode == 408)
+				&& inDialog
+				&& (!method.equals(Request.INVITE) || !method
+						.equals(Request.SUBSCRIBE))) {
 
 			try {
-				this.sleeEndpoint.fireEvent(SAH, REW, eventID, null);
-				// TODO: Add INTERNAL_ERROR response to error
-			} catch (ActivityIsEndingException e) {
-				// TODO Auto-generated catch block
+				Request bye = DW.createRequest(Request.BYE);
+				this.provider.sendRequest(bye);
+			} catch (SipException e) {
+
 				e.printStackTrace();
-			} catch (NullPointerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnrecognizedActivityException e) {
-				// TODO Auto-generated catch block
+			}
+		}
+
+		if (statusCode > 299 && DW.getState() != DialogState.CONFIRMED) {
+			try {
+
+				DW.delete();
+
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -975,65 +1192,134 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	}
 
 	public void processTimeout(TimeoutEvent arg0) {
-
 		Transaction t = null;
-		boolean inDialog = false;
-		SipActivityHandle handle = null;
-		ComponentKey eventKey = null;
-		SipToSLEEUtility.displayMessage(log, "processTimeout", this.getClass()
-				.getName()
-				+ "", "Processing Timeout for C[" + arg0.getClientTransaction()
-				+ "] S[" + arg0.getServerTransaction() + "]", Level.FINE);
+		try {
 
-		TimeoutEventWrapper tew = null;
-		if (arg0.getClientTransaction() != null) {
-			t = arg0.getClientTransaction();
+			boolean inDialog = false;
+			SipActivityHandle handle = null;
+			ComponentKey eventKey = null;
+			SipToSLEEUtility.displayMessage(log, "processTimeout", this
+					.getClass().getName()
+					+ "", "Processing Timeout for C["
+					+ arg0.getClientTransaction() + "] S["
+					+ arg0.getServerTransaction() + "]", Level.FINE);
 
-			if (t.getApplicationData() == null
-					|| !(t.getApplicationData() instanceof ClientTransactionWrapper)) {
-				SipToSLEEUtility.displayMessage(log,
-						"FAILURE on processTimeout - CTX",
-						"SipResourceAdaptor.processTimeout", "Wrong app data["
-								+ t.getApplicationData() + "]", Level.SEVERE);
-				return;
-			} else {
-				tew = new TimeoutEventWrapper(this.providerProxy,
-						(ClientTransaction) t.getApplicationData(), arg0
-								.getTimeout());
-				ClientTransactionWrapper ctw = (ClientTransactionWrapper) t
-						.getApplicationData();
-				if (ctw.getDialog() != null
-						&& ctw.getDialog() instanceof DialogWrapper) {
-					inDialog = true;
-					handle = ((DialogWrapper) ctw.getDialog())
-							.getActivityHandle();
+			TimeoutEventWrapper tew = null;
+			if (arg0.getClientTransaction() != null) {
+				t = arg0.getClientTransaction();
 
-				} else {
-					handle = ctw.getActivityHandle();
-				}
-
-				eventKey = SipToSLEEUtility.generateEventKey(tew, inDialog);
-				String result = fireEvent(tew, handle, eventKey);
-				if (result != null) {
+				if (t.getApplicationData() == null
+						|| !(t.getApplicationData() instanceof ClientTransactionWrapper)) {
 					SipToSLEEUtility.displayMessage(log,
-							"Error on sending message",
-							"SipResourceAdaptor.processTimeout", result,
+							"FAILURE on processTimeout - CTX",
+							"SipResourceAdaptor.processTimeout",
+							"Wrong app data[" + t.getApplicationData() + "]",
 							Level.SEVERE);
+					return;
+				} else {
+					tew = new TimeoutEventWrapper(this.providerProxy,
+							(ClientTransaction) t.getApplicationData(), arg0
+									.getTimeout());
+					ClientTransactionWrapper ctw = (ClientTransactionWrapper) t
+							.getApplicationData();
+					if (ctw.getDialog() != null
+							&& ctw.getDialog() instanceof DialogWrapper) {
+						inDialog = true;
+						handle = ((DialogWrapper) ctw.getDialog())
+								.getActivityHandle();
+
+					} else {
+						handle = ctw.getActivityHandle();
+					}
+
+					eventKey = SipToSLEEUtility.generateEventKey(tew, inDialog);
+					String result = fireEvent(tew, handle, eventKey);
+					if (result != null) {
+						SipToSLEEUtility.displayMessage(log,
+								"Error on sending message",
+								"SipResourceAdaptor.processTimeout", result,
+								Level.SEVERE);
+					}
 				}
+
+			} else {
+				t = arg0.getServerTransaction();
 			}
 
-		} else {
-			t = arg0.getServerTransaction();
+			// we have nessesary stuff past us/ now lets see if we need to
+			// terinated
+			// dialog/send BYE
+			// Here we now we have WRAPPERS
+			boolean sendBYE = true;
+			boolean sendClientResponse = true;
+			String method = t.getRequest().getMethod();
+
+			if (t.getDialog() != null
+					&& t.getDialog().getApplicationData() != null
+					&& t.getDialog().getApplicationData() instanceof DialogActivity) {
+				DialogWrapper da = (DialogWrapper) t.getDialog()
+						.getApplicationData();
+				if (isDialogTermMethod(da, method)) {
+					sendBYE = false;
+
+				}
+
+				if (t instanceof ServerTransaction) {
+					sendClientResponse = false;
+
+				}
+
+				if (sendClientResponse) {
+					try {
+						Response response = providerProxy.getMessageFactory()
+								.createResponse(Response.REQUEST_TIMEOUT,
+										t.getRequest());
+						ComponentKey key = SipToSLEEUtility.generateEventKey(
+								response, true);
+						ResponseEventWrapper REW = new ResponseEventWrapper(
+								this.providerProxy, (ClientTransaction) t
+										.getApplicationData(), da, response);
+						
+						String result = fireEvent(REW, da.getActivityHandle(), key);
+						if (result != null) {
+							SipToSLEEUtility.displayMessage(log,
+									"Error on sending message",
+									"SipResourceAdaptor.processTimeout", result,
+									Level.SEVERE);
+						}
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+				if (sendBYE) {
+					try {
+						Request bye = da.createRequest(Request.BYE);
+						this.provider.sendRequest(bye);
+					} catch (SipException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+				da.delete();
+
+			}
+
+		} finally {
+			if (t != null)
+				sendActivityEndEvent((Transaction) t.getApplicationData());
 		}
+	}
 
-		sendActivityEndEvent((Transaction) t.getApplicationData());
-
+	private boolean isDialogTermMethod(DialogActivity da, String method) {
+		return false;
 	}
 
 	public void processTransactionTerminated(
 			TransactionTerminatedEvent txTerminatedEvent) {
 
-		
 		try {
 			Thread.currentThread().sleep(2500);
 		} catch (InterruptedException e) {
@@ -1057,32 +1343,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 					+ txTerminatedEvent.getServerTransaction() + "]["
 					+ txTerminatedEvent.getSource() + "]");
 		}
-
-		// if (txTerminatedEvent.isServerTransaction()) {
-
-		// SipToSLEEUtility.displayMessage(log,
-		// "processTransactionTerminated", "SipResourceAdaptor",
-		// "Skipping processing, received STX, this doesnt have TTE ["
-		// + t + "][" + t.getApplicationData() + "]",
-		// Level.FINE);
-		// t = txTerminatedEvent.getServerTransaction();
-		// Object activity=this.activities.remove(ah);
-		// terminatedActivities.put(ah,activity);
-		// TTEW = new TransactionTerminatedEventWrapper(this.providerProxy,
-		// (ServerTransaction) t);
-
-		// } else {
-		// SipToSLEEUtility.displayMessage(log,
-		// "processTransactionTerminated", "SipResourceAdaptor",
-		// "Creating TTE for CTX. [" + t + "]["
-		// + t.getApplicationData() + "]", Level.FINE);
-		// t = txTerminatedEvent.getClientTransaction();
-
-		// Object activity=this.activities.remove(ah);
-		// terminatedActivities.put(ah,activity);
-		// TTEW = new TransactionTerminatedEventWrapper(this.providerProxy,
-		// (ClientTransaction) t);
-		// }
 
 		if (t.getApplicationData() == null
 				|| !(t.getApplicationData() instanceof WrapperSuperInterface)) {
@@ -1351,11 +1611,18 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	}
 
 	private String fireEvent(Object event, ActivityHandle handle,
-			ComponentKey eventKey) {
+			ComponentKey eventKey, boolean useFiltering) {
+		if (useFiltering && !isEventGoingToBereceived(eventKey)) {
+			SipToSLEEUtility.displayMessage(log, "Event subscription is empty",
+					"SipResourceAdaptor.xxx.fireEvent",
+					"Event subscription for " + eventKey
+							+ " is empty, it wont be received, droping",
+					Level.FINER);
+			
+		}
 
 		int eventID = this.generateEventID(eventKey);
 
-		log.info("=-=-=-=-=KEY[" + eventKey + "] SAH[" + handle + "] EVENT");
 		if (eventID < 0) {
 
 			return "Event id for " + eventID
@@ -1378,6 +1645,31 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 		}
 		return null;
+	}
+
+	private String fireEvent(Object event, ActivityHandle handle,
+			ComponentKey eventKey) {
+
+		return this.fireEvent(event, handle, eventKey, true);
 
 	}
+
+	// --- XXX - error responses to be a good citizen
+	private void sendErrorResponse(Request request, int code, String msg) {
+		try {
+			ContentTypeHeader contentType = this.providerProxy
+					.getHeaderFactory()
+					.createContentTypeHeader("text", "plain");
+			Response response = providerProxy.getMessageFactory()
+					.createResponse(code, request, contentType, msg.getBytes());
+			this.providerProxy.sendResponse(response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendErrorResponse(Request request, int code, Throwable msg) {
+		this.sendErrorResponse(request, code, SipToSLEEUtility.doMessage(msg));
+	}
+
 }

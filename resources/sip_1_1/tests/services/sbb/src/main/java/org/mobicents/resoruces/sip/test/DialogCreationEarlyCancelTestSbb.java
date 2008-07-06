@@ -60,20 +60,20 @@ public abstract class  DialogCreationEarlyCancelTestSbb extends SuperSipRaTestSb
 		logger.info("---------------->Received CANCEL, Sending OK");
 		
 	
-		try {
+		//try {
 			Dialog d=(Dialog) aci.getActivity();
-			Response okResponse=super.messageFactory.createResponse(Response.OK,event.getRequest());
-			event.getServerTransaction().sendResponse(okResponse);
-		} catch (ParseException e) {
+			//Response okResponse=super.messageFactory.createResponse(Response.OK,event.getRequest());
+			//event.getServerTransaction().sendResponse(okResponse);
+		//} catch (ParseException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SipException e) {
+		//	e.printStackTrace();
+		//} catch (SipException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidArgumentException e) {
+		//	e.printStackTrace();
+		//} catch (InvalidArgumentException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//	e.printStackTrace();
+		//}
 		
 	}
 	
