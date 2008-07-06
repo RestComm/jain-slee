@@ -76,9 +76,12 @@ import javax.sip.SipProvider;
 import javax.sip.SipStack;
 import javax.sip.TimeoutEvent;
 import javax.sip.Transaction;
+import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.TransactionUnavailableException;
 import javax.sip.address.AddressFactory;
+import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
@@ -152,6 +155,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 	private static final String DIALOG_TIMEOUT_BIND = "net.java.DIALOG_TIMEOUT";
 
+	private static final String DIALOG_AUTOMATIC_CREATION_BIND="net.java.AUTOMATIC_DIALOG_SUPPORT";
+	
 	private static final String TRANSPORTS_BIND = "javax.sip.TRANSPORT";
 
 	private static final String STACK_NAME_BIND = "javax.sip.STACK_NAME";
@@ -179,6 +184,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 	private boolean automaticDialogSupport;
 
+	private boolean createDialogAutomaticly;
+	
 	/**
 	 * Timeout value for dialog in seconds INDICATES HOW LONG DIALOG CAN BE IN
 	 * IDLE STATE (no transmisions) AFTER THAT TIME IT IS CONSIDERED TO BE DEAD -
@@ -590,13 +597,16 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		// Dialog idle timeout - timer after dialog is considered to be invalid
 		// when no trafic is generated in it.
 		this.dialogTimeout = Long.parseLong(this.properties.getProperty(
-				"net.java.DIALOG_TIMEOUT", dialogTimeout + ""));
+				this.DIALOG_TIMEOUT_BIND, dialogTimeout + ""));
 		// Time between cancel receive and processing - basicaly time
 		// for sbbs to process invite.
 		this.cancelWait = Long.parseLong(this.properties.getProperty(
 				"net.java.CANCEL_WAIT", this.cancelWait + ""));
 		// flag indicating if we want to expose internal state of ra
 
+		this.createDialogAutomaticly=Boolean.valueOf(this.properties.getProperty(
+				this.DIALOG_AUTOMATIC_CREATION_BIND, false + ""));
+		
 		this.configurationMBeanName = this.properties.getProperty(
 				"net.java.sipra.configurationBeanName",
 				this.configurationMBeanName);
@@ -1360,7 +1370,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			dialogAH = dw.getActivityHandle();
 			dialogEventKey = getKeyFor1_2(req.getRequest().getMethod(), dw);
 
-		} else {
+		} else if(this.createDialogAutomaticly){
 
 			// Dialog may not exist till now, we will create one if 1.2 INVITE
 			// will be received
@@ -1404,6 +1414,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				eventID = eventLookup.getEventID(txEventKey.getName(),
 						txEventKey.getVendor(), txEventKey.getVersion());
 			} catch (Exception e) {
+				sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -1421,7 +1432,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 			try {
 				sleeEndpoint.fireEvent(txAH, req, eventID, address);
+				
 			} catch (Exception e) {
+				sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
 				e.printStackTrace();
 			}
 
@@ -1468,6 +1481,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				sleeEndpoint.fireEvent(dialogAH, req, eventID, address);
 			} catch (Exception e) {
 				e.printStackTrace();
+				sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
 			}
 
 		} else {
@@ -1558,13 +1572,25 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			// LETS COMPLETE CancelTX
 			// SENDING "OK" TO "CANCEL" - WE DONT NEED ANY RETRANSMISSIONS
 
-			try {
-				cancelOkResponse = sipFactoryProvider.getMessageFactory()
-						.createResponse(Response.OK, req.getRequest());
-				cancel_stw.sendResponse(cancelOkResponse);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+				try {
+					cancelOkResponse = sipFactoryProvider.getMessageFactory()
+							.createResponse(Response.OK, req.getRequest());
+					cancel_stw.sendResponse(cancelOkResponse);
+				} catch (ParseException e1) {
+					
+					e1.printStackTrace();
+					sendErrorResponse(req.getRequest(), Response.NOT_ACCEPTABLE, e1.getMessage());
+				} catch (SipException e) {
+
+					e.printStackTrace();
+					sendErrorResponse(req.getRequest(), Response.NOT_ACCEPTABLE, e.getMessage());
+				} catch (InvalidArgumentException e) {
+					
+					e.printStackTrace();
+					sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
+				}
+				
+			
 
 			// NOW WE HAVE TO CHECK IF WE HEAVE DIALOG ASSOCIATED WITH INVITE TX
 			// IF SO LETS SEND 487, DIALOG SHOULD BE TERMINATED FOR US BY STACK
@@ -1587,14 +1613,26 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 					}
 					//invite_dw.delete();
 				}
-				try {
-					invite_stw.sendResponse(sipFactoryProvider
-							.getMessageFactory().createResponse(
-									Response.REQUEST_TERMINATED,
-									invite_stw.getRequest()));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+		
+					try {
+						invite_stw.sendResponse(sipFactoryProvider
+								.getMessageFactory().createResponse(
+										Response.REQUEST_TERMINATED,
+										invite_stw.getRequest()));
+					} catch (ParseException e1) {
+						
+						e1.printStackTrace();
+						sendErrorResponse(req.getRequest(), Response.NOT_ACCEPTABLE, e1.getMessage());
+					} catch (SipException e) {
+
+						e.printStackTrace();
+						sendErrorResponse(req.getRequest(), Response.NOT_ACCEPTABLE, e.getMessage());
+					} catch (InvalidArgumentException e) {
+						
+						e.printStackTrace();
+						sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
+					}
+			
 
 			} else {
 
@@ -1646,7 +1684,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			eventID = eventLookup.getEventID(key.getName(), key.getVendor(),
 					key.getVersion());
 		} catch (Exception e) {
+			
 			e.printStackTrace();
+			sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
 		}
 
 		if (eventID == -1) {
@@ -1664,7 +1704,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 					AddressPlan.SIP, ((ToHeader) req.getRequest().getHeader(
 							ToHeader.NAME)).getAddress().toString()));
 		} catch (Exception e) {
+			
 			e.printStackTrace();
+			sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
 		}
 	}
 
@@ -1690,6 +1732,18 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				(DialogWrapper) d, this);
 	}
 
+	private void sendErrorResponse(Request request,int code, String msg)
+	{
+		try{
+			ContentTypeHeader contentType=this.sipFactoryProvider.getHeaderFactory().createContentTypeHeader("text", "plain");
+			Response response=this.sipFactoryProvider.getMessageFactory().createResponse( code,request, contentType, msg.getBytes());
+			this.sipFactoryProvider.getSipProvider().sendResponse(response);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -1699,6 +1753,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	public void processRequest(RequestEvent req) {
 		// TODO PROPER HANDLING OF EXCEPTIONS
 
+		try{
 		if (log.isDebugEnabled()) {
 			log
 					.debug("------------------ NEW SIP REQUEST -----------------------");
@@ -1712,19 +1767,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 							+ req.getRequest() + "\n-------------------------");
 		}
 
-		// issue 263 related - sipp doesnt include this in all requests
-		// THIS IS HACK AND SHOULD BE REMOVED ASAP!!!
-		if (req.getRequest().getHeader(MaxForwardsHeader.NAME) == null) {
-			try {
-				MaxForwardsHeader mfh = this.sipFactoryProvider
-						.getHeaderFactory().createMaxForwardsHeader(69);
-				req.getRequest().addHeader(mfh);
-			} catch (InvalidArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
+		
 		ServerTransaction st = null;
 		Dialog dialog = null;
 		if (req.getRequest().getMethod().equals(Request.ACK)) {
@@ -1737,8 +1780,22 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			st = req.getServerTransaction();
 
 			if (st == null) {
-				try {
-					st = provider.getNewServerTransaction(req.getRequest());
+				 {
+					try {
+						st = provider.getNewServerTransaction(req.getRequest());
+					} catch (TransactionAlreadyExistsException e) {
+						
+						e.printStackTrace();
+					
+						
+						sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
+						
+					
+					} catch (TransactionUnavailableException e) {
+						
+						e.printStackTrace();
+						sendErrorResponse(req.getRequest(), Response.NOT_ACCEPTABLE, e.getMessage());
+					}
 					if (log.isDebugEnabled()) {
 						log
 								.debug("\n----------------- CREATED NEW STx ---------------------\nBRANCH: "
@@ -1746,14 +1803,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 										+ "\n-------------------------------------------------------");
 					}
 
-				} catch (Exception e) {
-					// e.printStackTrace();
-					log
-							.error("\n-------------------------\nREQUEST:\n-------------------------\n"
-									+ req.getRequest()
-									+ "\n-------------------------");
-					e.printStackTrace();
-					return;
 				}
 			}
 
@@ -1807,6 +1856,11 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			// QUITE CONTRARY, CANCEL IS PROCESSED DIFFERENTLY BECAUSE ITS
 			// PROCESSING PATH IS QUITE DIFFERENT THAN OTHER REQUESTS
 			processCancelRequest(REW);
+		}
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+			sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
 		}
 	}
 
