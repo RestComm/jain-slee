@@ -345,7 +345,12 @@ public class ClassUtils {
     					superClasses.add(anotherCtClass);
     				}
     			}
-    			ctClass.detach();
+    			try {
+    				ctClass.detach();
+    			}
+    			catch (Exception e) {
+    				// ignore
+    			}
     		}
     	} catch (NotFoundException e) {
     		logger.error(e);
