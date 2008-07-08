@@ -9,12 +9,20 @@ import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpSet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Eric Svenson
+ * 
+ * GroupedAvpImpl.java
  *
+ * <br>Super project:  mobicents
+ * <br>12:05:02 PM Jul 8, 2008 
+ * <br>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a> 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
+ * @author Erick Svenson
  */
 public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 
@@ -24,22 +32,36 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 			byte[] value) {
 		super(code, vendorId, mnd, prt, null, DiameterAvpType.GROUPED);
 		//FIXME: baranowb; in my version - 1.5.1 this is protected!s
-		//avpSet = parser.decodeAvpSet(value);
+		try
+    {
+      avpSet = parser.decodeAvpSet(value);
+    }
+    catch ( IOException e )
+    {
+      log.error("", e);
+    }
 
 	}
 
-	public void setExtensionAvps(DiameterAvp[] extensions) throws AvpNotAllowedException {
-		try {
-			for (DiameterAvp i : extensions)
-				avpSet.addAvp(i.getCode(), i.byteArrayValue(), i.getVendorID(),
-						i.getMandatoryRule() == 1, i.getProtectedRule() == 1);
-		} catch (Exception e) {
-			log.debug(e);
+	public void setExtensionAvps(DiameterAvp[] extensions) throws AvpNotAllowedException
+	{
+		try
+		{
+			for (DiameterAvp avp : extensions)
+			{
+			  addAvp( avp, avpSet );
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("", e);
 		}
 	}
 
-	public DiameterAvp[] getExtensionAvps() {
+	public DiameterAvp[] getExtensionAvps()
+	{
 		List<DiameterAvp> acc = new ArrayList<DiameterAvp>();
+		
 		try {
 			for (Avp a : avpSet) {
 				acc.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a
@@ -48,8 +70,9 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 				//FIXME: baranowb; how can we determine type? dictionary?
 			}
 		} catch (Exception e) {
-			log.debug(e);
+		  log.error("", e);
 		}
+		
 		return acc.toArray(new DiameterAvp[0]);
 	}
 
@@ -142,5 +165,22 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 			}
 		return acc;
 	}
+
+  private void addAvp(DiameterAvp avp, AvpSet set)
+  {
+    // FIXME: alexandre: Should we look at the types and add them with proper function?
+    if(avp instanceof GroupedAvp)
+    {
+      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+      
+      DiameterAvp[] groupedAVPs = ((GroupedAvp)avp).getExtensionAvps();
+      for(DiameterAvp avpFromGroup : groupedAVPs)
+      {
+        addAvp(avpFromGroup, avpSet);
+      }
+    }
+    else if(avp != null)
+      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+  }
 
 }

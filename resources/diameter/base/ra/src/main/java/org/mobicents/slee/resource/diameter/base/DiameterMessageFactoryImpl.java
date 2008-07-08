@@ -22,10 +22,12 @@ import net.java.slee.resource.diameter.base.events.SessionTerminationRequest;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
+import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.ApplicationId;
 import org.jdiameter.api.Avp;
+import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.IllegalDiameterStateException;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Message;
@@ -165,7 +167,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
   public AccountingRequest createAccountingRequest( DiameterAvp[] avps ) throws AvpNotAllowedException
   {
     // FIXME: alexandre: What should be used here?
-    ApplicationId aid = ApplicationId.createByAccAppId( ApplicationId.Standard.DIAMETER_COMMON_MESSAGE );
+    ApplicationId aid = ApplicationId.createByAccAppId( 193, 19302 );
     
     Message msg = this.createMessage( Message.ACCOUNTING_REQUEST, aid, avps );
     msg.setRequest( true );
@@ -563,9 +565,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     {
       for(DiameterAvp avp : avps)
       {
-        // FIXME: alexandre: Should we look at the types and add them with proper function?
-        if(avp != null)
-          msg.getAvps().addAvp( avp.getCode(), avp.byteArrayValue() );
+        addAvp( avp, msg.getAvps() );
       }
     }
 
@@ -574,6 +574,23 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
       msg.getAvps().addAvp( Avp.SESSION_ID, generateSessionId(), true, false, false);
 
     return msg;
+  }
+  
+  private void addAvp(DiameterAvp avp, AvpSet set)
+  {
+    // FIXME: alexandre: Should we look at the types and add them with proper function?
+    if(avp instanceof GroupedAvp)
+    {
+      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+      
+      DiameterAvp[] groupedAVPs = ((GroupedAvp)avp).getExtensionAvps();
+      for(DiameterAvp avpFromGroup : groupedAVPs)
+      {
+        addAvp(avpFromGroup, avpSet);
+      }
+    }
+    else if(avp != null)
+      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
   }
   
 }

@@ -692,35 +692,53 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 	@Override
 	public String toString()
 	{
-//	  DiameterHeader header = this.getHeader();
-//	  
-//	  String toString = "\r\n" +
-//	      "+----------------------------------- HEADER ----------------------------------+\r\n" +
-//        "| Version................." + header.getVersion() + "\r\n" +
-//        "| Message-Length.........." + header.getMessageLength() + "\r\n" +
-//        "| Command-Flags..........." + "R[" + header.isRequest() + "] P[" + header.isProxiable() + "] " +
-//           "E[" + header.isError() + "] T[" + header.isPotentiallyRetransmitted() + "]" + "\r\n" +
-//        "| Command-Code............" + this.getHeader().getCommandCode() + "\r\n" +
-//        "| Application-Id.........." + this.getHeader().getApplicationId() + "\r\n" +
-//        "| Hop-By-Hop Identifier..." + this.getHeader().getHopByHopId() + "\r\n" +
-//        "| End-To-End Identifier..." + this.getHeader().getEndToEndId() + "\r\n" +
-//        "+------------------------------------ AVPs -----------------------------------+\r\n";
-//
-//    for( Avp avp : this.getGenericData().getAvps() )
-//    {
-//      try
-//      {
-//        toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[" + 
-//          avp.getUTF8String().replace( '\n', ' ' ).replace( '\r', ' ' ) + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
+	  DiameterHeader header = this.getHeader();
+	  
+	  String toString = "\r\n" +
+	      "+----------------------------------- HEADER ----------------------------------+\r\n" +
+        "| Version................." + header.getVersion() + "\r\n" +
+        "| Message-Length.........." + header.getMessageLength() + "\r\n" +
+        "| Command-Flags..........." + "R[" + header.isRequest() + "] P[" + header.isProxiable() + "] " +
+           "E[" + header.isError() + "] T[" + header.isPotentiallyRetransmitted() + "]" + "\r\n" +
+        "| Command-Code............" + this.getHeader().getCommandCode() + "\r\n" +
+        "| Application-Id.........." + this.getHeader().getApplicationId() + "\r\n" +
+        "| Hop-By-Hop Identifier..." + this.getHeader().getHopByHopId() + "\r\n" +
+        "| End-To-End Identifier..." + this.getHeader().getEndToEndId() + "\r\n" +
+        "+------------------------------------ AVPs -----------------------------------+\r\n";
+
+    for( Avp avp : this.getGenericData().getAvps() )
+    {
+      try
+      {
+//        if(avp.getGrouped() != null)
+//        {
+//          toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[N/A]" + 
+//          " Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
 //          avp.isVendorId() + "]\r\n";
-//      }
-//      catch (AvpDataException ignore) {}
-//    }
-//    
-//    toString += "+-----------------------------------------------------------------------------+\r\n";
-//    
-//    return toString;
-	  return "";
+////          for(Avp gAvp : avp.getGrouped())
+////          {
+////            toString += "| +-- AVP: Code[" + gAvp.getCode() + "] VendorID[" + gAvp.getVendorId() + "] Value[" + 
+////            avp.getUTF8String().replace( '\n', ' ' ).replace( '\r', ' ' ) + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
+////            avp.isVendorId() + "]\r\n";
+////          }
+//        }
+//        else
+//        {
+          toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[" + 
+            avp.getUTF8String().replace( '\n', ' ' ).replace( '\r', ' ' ) + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
+            avp.isVendorId() + "]\r\n";
+//        }
+      }
+      catch (AvpDataException ignore) {
+        toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[N/A] Flags[M=" + 
+        avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + avp.isVendorId() + "]\r\n";        
+      }
+    }
+    
+    toString += "+-----------------------------------------------------------------------------+\r\n";
+    
+    return toString;
+//	  return "";
 	}
 
 	// ===== AVP Management =====

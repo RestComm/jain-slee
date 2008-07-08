@@ -230,10 +230,13 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 	 * to this activity as the SLEE will not ask for it again.
 	 */
 	public void activityEnded(ActivityHandle handle) {
-		logger.info("Diameter Base RA :: activityEnded :: handle[" + handle
-				+ ".");
-		synchronized (this.activities) {
-			this.activities.remove(handle);
+		logger.info("Diameter Base RA :: activityEnded :: handle[" + handle + ".");
+		
+		if(this.activities != null)
+		{
+  		synchronized (this.activities) {
+  			this.activities.remove(handle);
+  		}
 		}
 	}
 
@@ -969,6 +972,14 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 		logger.info("Diameter Base RA :: receivedSuccessMessage :: "
 				+ "Request[" + req + "], Answer[" + ans + "].");
 
+		try
+    {
+      logger.info( "RESULT CODE: " + ans.getResultCode().getUnsigned32() );
+    }
+    catch ( AvpDataException e )
+    {
+      e.printStackTrace();
+    }
 		// FIXME: alexandre: what should we do here? end activity?
 	}
 
@@ -1096,30 +1107,36 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 		private long authAppId = 19301L;
 		private DiameterBaseResourceAdaptor ra;
 
-		public AuthorizationSessionFactory(DiameterBaseResourceAdaptor ra) {
+		private boolean stateless = true;
+		
+		public AuthorizationSessionFactory(DiameterBaseResourceAdaptor ra)
+		{
 			this.ra = ra;
 		}
 
-		public AppSession getNewSession(String sessionId,
-				Class<? extends AppSession> aClass,
-				ApplicationId applicationId, Object... args) {
-			try {
-				if (aClass == ServerAuthSession.class) {
-					Request request = (Request) args[0];
-					return new ServerAuthSessionImpl(true, this, this, stack
-							.getSessionFactory().getNewSession(
-									request.getSessionId()));
-				} else {
-					return sessionId == null ? new ClientAuthSessionImpl(false,
-							this, stack.getSessionFactory(), this)
-							: new ClientAuthSessionImpl(false, sessionId, this,
-									stack.getSessionFactory(), this);
-				}
-			} catch (Exception e) {
-				logger.error("Failure getting new Authorization Session.", e);
-			}
-
-			return null;
+		public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object... args)
+		{
+		  try 
+		  {
+		    if (aClass == ServerAuthSession.class) 
+		    {
+		      Request request =(Request) args[0];
+		      return new ServerAuthSessionImpl(stack.getSessionFactory().getNewSession(request.getSessionId()), request, this,  this, 50000, stateless, this);
+		    }
+		    else
+		    {
+		      if (aClass == ClientAuthSession.class)
+		        return sessionId == null ?
+		            new ClientAuthSessionImpl(stateless, this, stack.getSessionFactory(), this) :
+		            new ClientAuthSessionImpl(stateless, sessionId, this, stack.getSessionFactory(), this) ;
+		    }
+		  }
+		  catch (Exception e)
+		  {
+		    logger.error( "", e );
+		  }
+		  
+		  return null;
 		}
 
 		public void stateChanged(Enum oldState, Enum newState) {
@@ -1289,6 +1306,15 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor,
 			return 0;
 		}
 
+		public void setStateless(boolean stateless)
+		{
+		  this.stateless = stateless;
+		}
+		
+		public boolean getStateless()
+		{
+		  return this.stateless;
+		}
 	}
 
 	// ##########################################################################
