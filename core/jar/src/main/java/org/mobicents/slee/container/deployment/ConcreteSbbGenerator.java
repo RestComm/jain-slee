@@ -11,6 +11,7 @@ package org.mobicents.slee.container.deployment;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -249,39 +250,71 @@ public class ConcreteSbbGenerator {
                     logger.error(s, e2);
                     throw new DeploymentException(s, e2);
                 }
-                // Check the activity context interface for illegal method
-                // names.
+                // Check the activity context interface for illegal method names.
                 Method[] methods = activityContextInterfaceClass.getMethods();
+                ArrayList<String> allSetters = new ArrayList<String>();
+                ArrayList<String>  missingSetters = new ArrayList<String>();
                 if (methods != null) {
                     for (int i = 0; i < methods.length; i++) {
-                        String methodName = methods[i].getName();
-                        // Should start with set or get.
-                        if (methodName.startsWith("Get"))
-                            return null;
-                        else if (methodName.startsWith("Set"))
-                            return null;
-                        // setters should have a single parameter and should
-                        // return void type.
-                        if (methodName.startsWith("set")) {
-                            Class[] args = methods[i].getParameterTypes();
-                            if (args.length != 1)
-                                return null;
-                            Class returnClass = methods[i].getReturnType();
-                            if (!returnClass.equals(Void.TYPE))
-                                return null;
-                        } else if (methodName.startsWith("get")) {
-                            // getter should have no parameters.
+                      if(!methods[i].getDeclaringClass().getName()
+                          .equals("javax.slee.ActivityContextInterface"))
+                      {
+                          String methodName = methods[i].getName();
+                          // setters should have a single parameter and should
+                          // return void type.
+                          if (methodName.startsWith("set")) {
+                              Class[] args = methods[i].getParameterTypes();
+                              
+                              // setter should only have one argument
+                              if (args.length != 1)
+                                throw new DeploymentException("Setter method '" + 
+                                    methodName + "' should only have one argument.");
+                              
+                              // setter return type should be void
+                              Class returnClass = methods[i].getReturnType();
+                              if (!returnClass.equals(Void.TYPE))
+                                throw new DeploymentException("Setter method '" + 
+                                    methodName + "' return type should be void.");
+                              
+                              allSetters.add(methodName);
+                          } else if (methodName.startsWith("get")) {
+                              Class[] args = methods[i].getParameterTypes();
 
-                            Class[] args = methods[i].getParameterTypes();
-                            if (args != null && args.length != 0)
-                                return null;
+                              // getter should have no parameters.
+                              if (args != null && args.length != 0)
+                                throw new DeploymentException("Getter method '" + 
+                                    methodName + "' should have no parameters.");
+                              
+                              // getter return type should not be void
+                              if (methods[i].getReturnType().equals(Void.TYPE))
+                                throw new DeploymentException("Getter method '" + 
+                                    methodName + "' return type cannot be void.");
 
-                            // TODO -- getter should return the same type as the
-                            // corresponding
-                            // setter ( if one exists ).
-                        }
+                              String setterName = methodName
+                                  .replaceFirst("get", "set");
+                              
+                              try {
+                                activityContextInterfaceClass.getMethod(
+                                    setterName, methods[i].getReturnType());
+                              }
+                              catch (NoSuchMethodException nsme) {
+                                missingSetters.add(setterName);
+                              }
+                          } else {
+                            throw new DeploymentException("Invalid method '" + 
+                                methodName + "' in SBB Activity Context Interface.");
+                          }
+                      }
 
                     }
+                    
+                    // Check if the missing setters aren't defined with different arg
+                    for(String setter : missingSetters)
+                      if(allSetters.contains(setter))
+                        throw new DeploymentException("Getter argument type and" +
+                        		" setter return type for attribute '" + setter
+                        		.replaceFirst( "set", "").toLowerCase() + 
+                        		"' must be the same.");
                 }
                 /*
                  * CtMethod[] abstractClassMethods =
