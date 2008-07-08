@@ -257,7 +257,7 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
             avps.add(avpFactory.createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes() ));
             break;
           case Avp.DESTINATION_HOST:
-            avps.add(avpFactory.createAvp(Avp.DESTINATION_HOST, "aaa://127.0.0.1:1815".getBytes() ));
+            avps.add(avpFactory.createAvp(Avp.DESTINATION_HOST, "aaa://127.0.0.1:21812".getBytes() ));
             hasDestinationHost = true;
             break;
           case Avp.DESTINATION_REALM:
@@ -396,40 +396,37 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
       avps.add(avpFactory.createAvp(Avp.ORIGIN_HOST, "aaa://127.0.0.1:1812".getBytes() ));
       avps.add(avpFactory.createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes() ));
       
-      avps.add(avpFactory.createAvp(Avp.DESTINATION_HOST, "aaa://127.0.0.1:3815".getBytes() ));
+      avps.add(avpFactory.createAvp(Avp.DESTINATION_HOST, "aaa://127.0.0.1:21812".getBytes() ));
       avps.add(avpFactory.createAvp(Avp.DESTINATION_REALM, "mobicents.org".getBytes() ));
   
-      avps.add(avpFactory.createAvp(Avp.ACC_RECORD_TYPE, 1 ));
-      avps.add(avpFactory.createAvp(Avp.ACC_RECORD_NUMBER, 0 ));
-      
-      // Requested action
-      avps.add( avpFactory.createAvp( 193, 615, 0 ) );
-      
-      Thread.sleep( 10000 );
-      
       // Subscription ID
       DiameterAvp subscriptionIdType = avpFactory.createAvp( 193, 555, 0 );
-      DiameterAvp subscriptionIdData = avpFactory.createAvp( 193, 554, "00001000".getBytes() );
+      DiameterAvp subscriptionIdData = avpFactory.createAvp( 193, 554, "00001000" );
       avps.add( avpFactory.createAvp( 193, 553, new DiameterAvp[]{subscriptionIdType, subscriptionIdData} ) );
       
       // Requested Service Unit 
       DiameterAvp unitType = avpFactory.createAvp( 193, 611, 2 );
-      DiameterAvp valueDigits = avpFactory.createAvp( 193, 617, 10 );
+      DiameterAvp valueDigits = avpFactory.createAvp( 193, 617, 10L );
       DiameterAvp unitValue = avpFactory.createAvp( 193, 612, new DiameterAvp[]{valueDigits} );
-      avps.add( avpFactory.createAvp( 193, 553, new DiameterAvp[]{unitType, unitValue} ) );
+      avps.add( avpFactory.createAvp( 193, 606, new DiameterAvp[]{unitType, unitValue} ) );
+
+      // Record Number and Type 
+      avps.add(avpFactory.createAvp(Avp.ACC_RECORD_NUMBER, 0 ));
+      avps.add(avpFactory.createAvp(Avp.ACC_RECORD_TYPE, 1 ));
+
+      // Requested action
+      avps.add( avpFactory.createAvp( 193, 615, 0 ) );
       
-      // Service Parameter Info
+      // Service Parameter Type
       DiameterAvp serviceParameterType = avpFactory.createAvp( 193, 608, 0 );
-      DiameterAvp serviceParameterValue = avpFactory.createAvp( 193, 609, "510".getBytes() );
-      avps.add( avpFactory.createAvp( 193, 553, new DiameterAvp[]{serviceParameterType, serviceParameterValue} ) );
+      DiameterAvp serviceParameterValue = avpFactory.createAvp( 193, 609, "510" );
+      avps.add( avpFactory.createAvp( 193, 607, new DiameterAvp[]{serviceParameterType, serviceParameterValue} ) );
       
-      // Service Parameter Info
+      // Service Parameter Type
       DiameterAvp serviceParameterType2 = avpFactory.createAvp( 193, 608, 14 );
-      DiameterAvp serviceParameterValue2 = avpFactory.createAvp( 193, 609, "20".getBytes() );
-      avps.add( avpFactory.createAvp( 193, 553, new DiameterAvp[]{serviceParameterType2, serviceParameterValue2} ) );
+      DiameterAvp serviceParameterValue2 = avpFactory.createAvp( 193, 609, "20" );
+      avps.add( avpFactory.createAvp( 193, 607, new DiameterAvp[]{serviceParameterType2, serviceParameterValue2} ) );
   
-      logger.info( "AVPs ==> " + avps );
-     
       DiameterAvp[] avpArray = new DiameterAvp[avps.size()];
       avpArray = avps.toArray(avpArray);
       
@@ -446,5 +443,5 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
       logger.error( "", e );
     }
   }
-  
+
 }
