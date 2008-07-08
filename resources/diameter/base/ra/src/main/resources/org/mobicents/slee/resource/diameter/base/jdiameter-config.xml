@@ -25,6 +25,7 @@
     <AcceptUndefinedPeer value="true"/>
     <DuplicateProtection value="true"/>
     <DuplicateTimer value="240000"/>
+    <UseUriAsFqdn value="true"/> <!-- Needed for Ericsson Emulator -->
     <QueueSize value="10000"/>
     <MessageTimeOut value="60000"/>
     <StopTimeOut value="10000"/>
@@ -38,9 +39,9 @@
   <Network>
     <Peers>
       <!-- Ericsson SDK Client -->
-      <Peer name="aaa://127.0.0.1:11812" attempt_connect="false" rating="1"/>
+      <!-- Peer name="aaa://127.0.0.1:11812" attempt_connect="false" rating="1"/-->
       <!-- Ericsson SDK Emulator -->
-      <!--Peer name="aaa://127.0.0.1:21812" attempt_connect="true" rating="1"/-->
+      <Peer name="aaa://127.0.0.1:21812" attempt_connect="true" rating="1"/>
     </Peers>
     <Realms>
       <Realm name ="mobicents.org" peers="127.0.0.1" local_action="LOCAL" dynamic="false" exp_time="1">
