@@ -87,7 +87,8 @@ public class DialogWrapper implements javax.sip.Dialog {
 
 	private SipResourceAdaptor sipResourceAdaptor;
 
-	private static long dialogTimeout = 360000;
+	// default of 2h
+	private static long dialogTimeout = 7200000;
 
 	private boolean hasTimedOut = false;
 
