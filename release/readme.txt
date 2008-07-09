@@ -28,7 +28,7 @@ How to use?
  jboss-4.2.2.GA\bin\run.bat (Windows)
  
  To verify that the SLEE server started successfully, open your favorite web browser and point it to
-  http://localhost:8080/management-console
+  http://localhost:8080/mobicents-admin
  You should see a nice web application indicating that Mobicents is Running. 
  There is a lot more to the Management Console; look around and see what's in store for you.
 
