@@ -43,30 +43,23 @@ import javax.sip.SipProvider;
 import javax.sip.SipStack;
 import javax.sip.TimeoutEvent;
 import javax.sip.Transaction;
-import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
-import javax.sip.TransactionUnavailableException;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.HeaderFactory;
-import javax.sip.header.MaxForwardsHeader;
-import javax.sip.message.Message;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
-import javax.slee.FactoryException;
 import javax.slee.InvalidStateException;
 import javax.slee.ServiceID;
-import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.FacilityException;
 import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.ActivityIsEndingException;
 import javax.slee.resource.BootstrapContext;
 import javax.slee.resource.FailureReason;
 import javax.slee.resource.Marshaler;
@@ -89,10 +82,7 @@ import org.mobicents.slee.resource.sip.wrappers.RequestEventWrapper;
 import org.mobicents.slee.resource.sip.wrappers.ResponseEventWrapper;
 import org.mobicents.slee.resource.sip.wrappers.ServerTransactionWrapper;
 import org.mobicents.slee.resource.sip.wrappers.TimeoutEventWrapper;
-import org.mobicents.slee.resource.sip.wrappers.TransactionTerminatedEventWrapper;
 import org.mobicents.slee.resource.sip.wrappers.WrapperSuperInterface;
-
-import org.mobicents.slee.runtime.ActivityContext;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
@@ -839,7 +829,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 								+ req.getRequest()
 								+ "\n-------------------------");
 				e.printStackTrace();
-				sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
+				sendErrorResponse(req.getRequest(),
+						Response.SERVER_INTERNAL_ERROR, e.getMessage());
 				return;
 			}
 		} else {
@@ -906,6 +897,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			}
 
 			if (inviteSTW.getDialog() != null) {
+
 				SipToSLEEUtility
 						.displayMessage(
 								log,
@@ -922,22 +914,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				SAH = ((DialogWrapper) inviteSTW.getDialog())
 						.getActivityHandle();
 				inDialog = true;
-				try {
-
-					Response response = this.providerProxy.getMessageFactory()
-							.createResponse(Response.OK, req.getRequest());
-					STW.sendResponse(response);
-
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SipException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvalidArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
 				RequestEventWrapper REW = new RequestEventWrapper(
 						this.providerProxy, STW, inviteSTW != null ? inviteSTW
@@ -953,6 +929,23 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 								"SipResourceAdaptor.processCancelRequestt",
 								result, Level.SEVERE);
 					}
+				}
+
+				try {
+
+					Response response = this.providerProxy.getMessageFactory()
+							.createResponse(Response.OK, req.getRequest());
+					STW.sendResponse(response);
+
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SipException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvalidArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
 				try {
@@ -1074,7 +1067,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 						"Error on sending message",
 						"SipResourceAdaptor.processNotCancelRequestt", result,
 						Level.SEVERE);
-				sendErrorResponse(req.getRequest(), Response.SERVER_INTERNAL_ERROR, result);
+				sendErrorResponse(req.getRequest(),
+						Response.SERVER_INTERNAL_ERROR, result);
 			}
 		}
 	}
@@ -1279,13 +1273,14 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 						ResponseEventWrapper REW = new ResponseEventWrapper(
 								this.providerProxy, (ClientTransaction) t
 										.getApplicationData(), da, response);
-						
-						String result = fireEvent(REW, da.getActivityHandle(), key);
+
+						String result = fireEvent(REW, da.getActivityHandle(),
+								key);
 						if (result != null) {
 							SipToSLEEUtility.displayMessage(log,
 									"Error on sending message",
-									"SipResourceAdaptor.processTimeout", result,
-									Level.SEVERE);
+									"SipResourceAdaptor.processTimeout",
+									result, Level.SEVERE);
 						}
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
@@ -1446,7 +1441,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		((javax.sip.Transaction) wsi.getWrappedObject())
 				.setApplicationData(null);
 		try {
-			this.sleeEndpoint.activityEnding(ah);
+			if (this.activities.containsKey(ah))
+				this.sleeEndpoint.activityEnding(ah);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1469,7 +1465,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		wsi.clearAssociations();
 		((javax.sip.Dialog) wsi.getWrappedObject()).setApplicationData(null);
 		try {
-			this.sleeEndpoint.activityEnding(ah);
+			if (this.activities.containsKey(ah))
+				this.sleeEndpoint.activityEnding(ah);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1618,7 +1615,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 					"Event subscription for " + eventKey
 							+ " is empty, it wont be received, droping",
 					Level.FINER);
-			
+
 		}
 
 		int eventID = this.generateEventID(eventKey);
@@ -1667,7 +1664,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void sendErrorResponse(Request request, int code, Throwable msg) {
 		this.sendErrorResponse(request, code, SipToSLEEUtility.doMessage(msg));
 	}

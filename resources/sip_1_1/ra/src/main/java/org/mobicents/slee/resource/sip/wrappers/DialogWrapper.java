@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,8 +54,9 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	protected SipResourceAdaptor ra;
 	// TODO: Add sync maps?
 	// SPECS 1.1 stuff, wonder who came up with that idea.
-	protected Map<String, ClientTransactionWrapper> ongoingClientTransactions = new HashMap<String, ClientTransactionWrapper>();
-	protected Map<String, ServerTransactionWrapper> ongoingServerTransactions = new HashMap<String, ServerTransactionWrapper>();
+	protected Map<String, ClientTransaction> ongoingClientTransactions = new ConcurrentHashMap<String, ClientTransaction>();
+	protected Map<String, ServerTransaction> ongoingServerTransactions = new ConcurrentHashMap<String, ServerTransaction>();
+
 
 	// Forging kit?
 	protected SleeSipProviderImpl provider = null;
@@ -63,7 +65,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			.getCanonicalName());
 
 	public DialogWrapper(Dialog wrappedDialog, String initTxID,
-			SleeSipProviderImpl provider) {
+			SleeSipProviderImpl provider, SipResourceAdaptor ra) {
 		if (wrappedDialog.getApplicationData() != null) {
 			if (wrappedDialog.getApplicationData() instanceof DialogWrapper) {
 				throw new IllegalArgumentException(
@@ -81,7 +83,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		this.wrappedDialog.setApplicationData(this);
 		this.initiatingTransctionId = initTxID;
 		this.provider = provider;
-
+		this.ra = ra;
 		// TODO: Come up with something way better, we cant hash on
 		// dialogId, since it changes
 		// We cant make ID inside change, since this would make Container to
@@ -103,16 +105,25 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 					"Client transaction is not in ongoing transaction list!!!");
 		}
 
-		if (!((DialogWrapper) st.getDialog()).hasOngoingServerTransaction(st
-				.getBranchId())) {
-			throw new IllegalArgumentException(
-					"Server transaction is not in ongoing transaction list!!!");
-		}
-		// XXX: ctx can be associated to only one stx, however stx can have
-		// multiple ctx
+		if (st != null) {
+			if (!((DialogWrapper) st.getDialog())
+					.hasOngoingServerTransaction(st.getBranchId())) {
+				throw new IllegalArgumentException(
+						"Server transaction is not in ongoing transaction list!!!");
+			}
+			// XXX: ctx can be associated to only one stx, however stx can have
+			// multiple ctx
 
-		((ClientTransactionWrapper) ct)
-				.setAssociatedServerTransaction((ServerTransactionWrapper) st);
+			// ((ClientTransactionWrapper) ct)
+			// .setAssociatedServerTransaction((ServerTransactionWrapper) st);
+			// this.associationMap.put(ct, st);
+			((ClientTransactionWrapper) ct).associateServerTransaction(st
+					.getBranchId(), ((DialogWrapper) st.getDialog())
+					.getActivityHandle());
+		} else {
+			((ClientTransactionWrapper) ct).associateServerTransaction(null,
+					null);
+		}
 
 	}
 
@@ -156,19 +167,47 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		headersToOmmit.add(CSeqHeader.NAME);
 		headersToOmmit.add(ContactHeader.NAME);
 		forgeMessage(receivedResponse, forgedResponse, headersToOmmit);
-		forgedResponse.addHeader(this.provider.getHeaderFactory().createContactHeader(this.getLocalParty()));
+		forgedResponse.addHeader(this.provider.getHeaderFactory()
+				.createContactHeader(this.getLocalParty()));
 		return forgedResponse;
 	}
 
 	public ServerTransaction getAssociatedServerTransaction(ClientTransaction ct) {
+
 		synchronized (this.wrappedDialog) {
 			if (!this.hasOngoingClientTransaction(ct.getBranchId())) {
 				throw new IllegalArgumentException(
 						"Passed client transaction is not running for this dialog");
 			}
 
-			return ((ClientTransactionWrapper) ct)
-					.getAssociatedServerTransaction();
+			// return ((ClientTransactionWrapper) ct)
+			// .getAssociatedServerTransaction();
+
+			try {
+				ClientTransactionWrapper ctw = (ClientTransactionWrapper) ct;
+
+				if (ctw.getAssociatedTransactionBranchId() == null) {
+
+					return null;
+				} else if (ra.getActivity(ctw.getAssociationHandle()) == null) {
+					SipToSLEEUtility.displayMessage(logger,
+							"Failed to lookup associated dialog",
+							"Association",
+							"Didnt find dialog for associated STX, dialog handle - "
+									+ ctw.getAssociationHandle(), Level.SEVERE);
+					return null;
+
+				} else {
+					DialogActivity da = (DialogActivity) ra.getActivity(ctw
+							.getAssociationHandle());
+					return da.getServerTransaction(ctw
+							.getAssociatedTransactionBranchId());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+
 		}
 	}
 
@@ -214,10 +253,10 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	}
 
 	public void delete() {
-		//This ensures that dialog will be removed
-		if(wrappedDialog.getState()==null)
-		{
-			ra.processDialogTerminated(new DialogTerminatedEvent(this.provider,wrappedDialog));
+		// This ensures that dialog will be removed
+		if (wrappedDialog.getState() == null) {
+			ra.processDialogTerminated(new DialogTerminatedEvent(this.provider,
+					wrappedDialog));
 		}
 		wrappedDialog.delete();
 
@@ -368,53 +407,41 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	}
 
 	public void addOngoingTransaction(SuperTransactionWrapper _stw) {
-		//STUPID - THIS IS CALLED, CALL IS DETERMINED BY REFERENCE TYPE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		if(_stw instanceof ClientTransactionWrapper)
-		{
-			this.addOngoingTransaction((ClientTransactionWrapper)_stw);
-		}else if(_stw instanceof ServerTransactionWrapper)
-		{
-			this.addOngoingTransaction((ServerTransactionWrapper)_stw);
-		}else
-		{
-			throw new IllegalArgumentException("Wrong object type["+_stw+"]");
+		// STUPID - THIS IS CALLED, CALL IS DETERMINED BY REFERENCE
+		// TYPE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if (_stw instanceof ClientTransactionWrapper) {
+			this.addOngoingTransaction((ClientTransactionWrapper) _stw);
+		} else if (_stw instanceof ServerTransactionWrapper) {
+			this.addOngoingTransaction((ServerTransactionWrapper) _stw);
+		} else {
+			throw new IllegalArgumentException("Wrong object type[" + _stw
+					+ "]");
 		}
-			
+
 	}
 
 	public void removeOngoingTransaction(ClientTransactionWrapper ctw) {
-		synchronized (this.wrappedDialog) {
-			if (this.getState() != DialogState.TERMINATED)
-				this.ongoingClientTransactions.remove(ctw.getBranchId());
-		}
+		// synchronized (this.wrappedDialog) {
+		// if (this.getState() != DialogState.TERMINATED)
+		this.ongoingClientTransactions.remove(ctw.getBranchId());
+
+		// }
+
 	}
 
 	public void removeOngoingTransaction(ServerTransactionWrapper stw) {
-		synchronized (this.ongoingServerTransactions) {
-			if (this.getState() != DialogState.TERMINATED)
-				this.ongoingServerTransactions.remove(stw.getBranchId());
-		}
+		// synchronized (this.ongoingServerTransactions) {
+		// if (this.getState() != DialogState.TERMINATED)
+		this.ongoingServerTransactions.remove(stw.getBranchId());
+		// }
 	}
 
 	public void clearOngoingTransaction() {
-		clearAssociations();
+		this.ongoingClientTransactions.clear();
+		this.ongoingServerTransactions.clear();
 	}
 
 	public void clearAssociations() {
-
-		synchronized (this.wrappedDialog) {
-			for (ClientTransactionWrapper ctw : this.ongoingClientTransactions
-					.values()) {
-				ctw.clearAssociations();
-			}
-			this.ongoingClientTransactions.clear();
-
-			for (ServerTransactionWrapper stw : this.ongoingServerTransactions
-					.values()) {
-				stw.clearAssociations();
-			}
-			this.ongoingServerTransactions.clear();
-		}
 
 	}
 
@@ -426,7 +453,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		// Route headers are from this dialog
 		ListIterator lit = originalMessage.getHeaderNames();
 		while (lit.hasNext()) {
-			
+
 			String headerName = (String) lit.next();
 
 			// FIXME: Could be wrong - but, if there is value in forgedRequest,
@@ -448,26 +475,28 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				// FIXME: For now we simply copy everything, overwrte existing
 				// headers
 
-
 				if (forgedMessage.getHeaders(headerName).hasNext())
 					forgedMessage.removeHeader(headerName);
-	
+
 				ListIterator headersIterator = originalMessage
 						.getHeaders(headerName);
-				
+
 				while (headersIterator.hasNext()) {
 					Header origHeader, forgedHeader;
 
-					
-					//origHeader = (Header) originalMessage.getHeader(headerName);
+					// origHeader = (Header)
+					// originalMessage.getHeader(headerName);
 					origHeader = (Header) headersIterator.next();
-					
+
 					forgedHeader = null;
 
 					try {
 						forgedHeader = (Header) this.provider
-								.getHeaderFactory().createHeader(headerName,
-										origHeader.toString().substring(origHeader.toString().indexOf(":")+1));
+								.getHeaderFactory().createHeader(
+										headerName,
+										origHeader.toString().substring(
+												origHeader.toString().indexOf(
+														":") + 1));
 
 						forgedMessage
 								.addLast((javax.sip.header.Header) forgedHeader);
@@ -479,7 +508,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 								Level.SEVERE);
 						throw new SipException("Major failure", e);
 					}
-					
+
 				}
 			}
 		}

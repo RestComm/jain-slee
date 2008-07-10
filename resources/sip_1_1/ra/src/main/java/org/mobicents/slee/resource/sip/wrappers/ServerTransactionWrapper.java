@@ -22,10 +22,7 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 
 
 	// SLEE 1.1. specs stuff
-	protected Set<ClientTransactionWrapper> associatedClientTransactions = new HashSet<ClientTransactionWrapper>();
-
-	//protected static final Logger logger = Logger
-	//		.getLogger(ServerTransactionWrapper.class.getCanonicalName());
+	
 
 	public ServerTransactionWrapper(ServerTransaction wrappedTransaction) {
 		if (wrappedTransaction.getApplicationData() != null) {
@@ -97,46 +94,6 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 		return this.wrappedTransaction;
 	}
 
-	public void addAssociatedTransaction(ClientTransactionWrapper ctw) {
-		// FIXME: WOuldnt it be better to check also for state?
-		if(this.dialogWrapper.getState()==DialogState.TERMINATED || ctw.getDialog().getState()==DialogState.TERMINATED)
-		{
-			throw new IllegalStateException("!!");
-		}
-		
-		if (!((DialogWrapper) ctw.getDialog()).hasOngoingClientTransaction(ctw
-				.getBranchId())) {
-			throw new IllegalArgumentException(
-					"transaction that is going to be associated is not running in any thread");
-		}
-
-		if (!this.dialogWrapper.hasOngoingServerTransaction(this.getBranchId())) {
-			throw new IllegalStateException(
-					"Cant associate current transaction, its not running in dialog!!!");
-		}
-		synchronized (this.associatedClientTransactions) {
-			this.associatedClientTransactions.add(ctw);
-		}
-	}
-
-	public void removeAssociatedTransaction(ClientTransactionWrapper ctw) {
-		synchronized (this.associatedClientTransactions) {
-			this.associatedClientTransactions.remove(ctw);
-		}
-	}
-
-	public void clearAssociations() {
-
-		synchronized (this.associatedClientTransactions) {
-			for (ClientTransactionWrapper ctw : this.associatedClientTransactions) {
-				ctw.removeAssociatedServerTransaction();
-			}
-
-			this.associatedClientTransactions.clear();
-		}
-		if(dialogWrapper!=null)
-			super.dialogWrapper.removeOngoingTransaction(this);
-	}
 
 	public String toString()
 	{
@@ -154,6 +111,11 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 		String id=this.sipActivityHandle.getID();
 		id=id.replace("_"+this.wrappedTransaction.getRequest().getMethod(), "_"+Request.INVITE).intern();
 		return new SipActivityHandle(id);
+	}
+
+	public void clearAssociations() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

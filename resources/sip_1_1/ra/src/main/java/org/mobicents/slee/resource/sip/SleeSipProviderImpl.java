@@ -440,7 +440,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		d = provider.getNewDialog((Transaction) stw.getWrappedObject());
 
 		DialogWrapper da = new DialogWrapper(d, ((Transaction) stw
-				.getWrappedObject()).getBranchId(), this);
+				.getWrappedObject()).getBranchId(), this,ra);
 
 		stw.updateDialog(da);
 		//logger.info("TEST SET DIALOG["+stw.getDialog()+"]");

@@ -16,12 +16,12 @@ public class ClientTransactionWrapper extends SuperTransactionWrapper implements
 		ClientTransaction, WrapperSuperInterface {
 
 	protected ClientTransaction wrappedTransaction = null;
-	// protected Object applicationData = null;
-	// protected Logger logger = Logger.getLogger(ClientTransactionWrapper.class
-	// .getCanonicalName());
-	// protected SipActivityHandle sipActivityHandle = null;
 
-	protected ServerTransactionWrapper associatedServerTransaction = null;
+
+	// keeps handle for dialog from which we associated stx - branch above
+	protected SipActivityHandle associationHandle = null;
+	// keeps branch id of associated stx
+	protected String associatedTransactionBranchId = null;
 
 	public ClientTransactionWrapper(ClientTransaction wrappedTransaction) {
 		if (wrappedTransaction.getApplicationData() != null) {
@@ -84,60 +84,42 @@ public class ClientTransactionWrapper extends SuperTransactionWrapper implements
 		return this.wrappedTransaction;
 	}
 
-	public void clearAssociations() {
-
-		if (this.associatedServerTransaction != null)
-			this.associatedServerTransaction.removeAssociatedTransaction(this);
-		if (dialogWrapper != null)
-			super.dialogWrapper.removeOngoingTransaction(this);
-
-	}
-
-	void removeAssociatedServerTransaction() {
-
-		this.associatedServerTransaction = null;
-
-	}
-
-	public void setAssociatedServerTransaction(ServerTransactionWrapper stw) {
-		if (this.associatedServerTransaction != null && stw != null) {
-			throw new IllegalStateException(
-					"Cant associate with another server transaction");
-		}
-
-		if (stw.getState() == TransactionState.TERMINATED) {
-			throw new IllegalStateException(
-					"Cant associate with another server transaction, state["
-							+ stw.getState() + "]");
-		}
-
-		try {
-			if (this.associatedServerTransaction != null)// just a precaution
-				this.associatedServerTransaction
-						.removeAssociatedTransaction(this);
-
-			this.associatedServerTransaction = stw;
-			if(associatedServerTransaction!=null)
-				this.associatedServerTransaction.addAssociatedTransaction(this);
-
-		} catch (Exception e) {
-			this.associatedServerTransaction = null;
-			throw new RuntimeException(
-					"Failed to associate with server transaction due:", e);
-		}
-
-	}
-
-	public ServerTransactionWrapper getAssociatedServerTransaction() {
-		return this.associatedServerTransaction;
-	}
-
 	public String toString() {
 
-		return "ClientTransaction BR[" + this.getBranchId() + "] METHOD["
+		return "ClientTransaction BId[" + this.getBranchId() + "] METHOD["
 				+ this.getRequest().getMethod() + "] STATE["
 				+ this.wrappedTransaction.getState() + "]";
 
+	}
+
+	public void clearAssociations() {
+
+		this.associatedTransactionBranchId = null;
+		this.associationHandle = null;
+
+	}
+
+	public synchronized void associateServerTransaction(String branch,
+			SipActivityHandle dialogHandle) {
+
+		if (this.associatedTransactionBranchId != null && branch!=null) {
+			throw new IllegalStateException(
+					"Transaction already associated to ["
+							+ this.associatedTransactionBranchId + "] ["
+							+ this.associationHandle + "]");
+
+		}
+		this.associatedTransactionBranchId = branch;
+		this.associationHandle = dialogHandle;
+		
+	}
+
+	public SipActivityHandle getAssociationHandle() {
+		return this.associationHandle;
+	}
+
+	public String getAssociatedTransactionBranchId() {
+		return this.associatedTransactionBranchId;
 	}
 
 }
