@@ -47,7 +47,6 @@
 				<module>resources/sip</module>
 				<module>resources/smpp</module>
 				<module>resources/tts</module>
-				<module>resources/xcap-client</module>
 				<module>resources/xmpp</module>
 
 				<module>examples/asterisk</module>
@@ -67,7 +66,6 @@
 				<module>examples/training/example6</module>
 				<module>examples/training/example7</module>
 				<module>examples/xmpp-component</module>
-				<module>examples/xcap-client</module>
 				
 			</modules>
 			<build>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="mobicents.release" default="release" basedir=".">
 
-	<property name="ra.dirs" value="xmpp,smpp,http-servlet,asterisk,sip,diameter,persistence,http-client,xcap-client,rules,tts"/>
+	<property name="ra.dirs" value="xmpp,smpp,http-servlet,asterisk,sip,diameter,persistence,http-client,rules,tts"/>
 	<property name="example.dirs" value="sip-services,google-talk-bot"/>
 
 	<property name="release.dir" value="${ant.file.mobicents.release}/../target"/>
