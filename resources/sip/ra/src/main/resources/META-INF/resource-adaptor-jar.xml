@@ -28,7 +28,7 @@
         	<description>uS after which dialog if it has not received/send any message is considered to be dead and is expunged</description>
             <config-property-name>dialogIdleTimeTimeout</config-property-name>
             <config-property-type>java.lang.Long</config-property-type>
-            <config-property-value>360000</config-property-value>
+            <config-property-value>7200000</config-property-value>
         </config-property>
         
         <config-property>
