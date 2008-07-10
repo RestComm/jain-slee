@@ -351,6 +351,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 	// **************** PROVISIONING
 
+	public String getIp() {
+	  return this.stackAddress; 
+	}
+	
 	public void setIp(String ip) {
 
 		if (ip.equals("null"))
@@ -362,6 +366,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 	}
 
+	public Integer getPort() {
+	  return Integer.valueOf(this.port);
+	}
+	
 	public void setPort(Integer port) {
 		if (port.intValue() < 1024)
 			this.port = 5060;
@@ -370,6 +378,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		provisionedProperties.put(this.SIP_PORT_BIND, "" + this.port);
 	}
 
+	public Long getCancelWait() {
+	  return Long.valueOf(this.cancelWait);
+	}
+	
 	public void setCancelWait(Long cancelWait) {
 		if (cancelWait.longValue() > 0)
 			this.cancelWait = 1000;
@@ -378,6 +390,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		provisionedProperties.put(this.CANCEL_WAIT_BIND, "" + this.cancelWait);
 	}
 
+	public Long getDialogIdleTimeTimeout() {
+	  return Long.valueOf(this.dialogTimeout);
+	}
+	
 	public void setDialogIdleTimeTimeout(Long idleTimeOut) {
 		
 		
@@ -390,6 +406,11 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				+ this.dialogTimeout);
 	}
 
+	public String getTransports() {
+	  return Arrays.toString(transports.toArray()).
+	    replaceFirst( "\\[", "" ).replaceFirst( "\\]", "" );
+	}
+	
 	public void setTransports(String transportsToSet) {
 		String[] tmp = transportsToSet.split(",");
 		if (tmp.length > 0) {
