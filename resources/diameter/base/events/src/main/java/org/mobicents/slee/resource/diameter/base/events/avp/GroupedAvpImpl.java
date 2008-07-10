@@ -1,17 +1,17 @@
 package org.mobicents.slee.resource.diameter.base.events.avp;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
+
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpSet;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 
@@ -31,7 +31,6 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 	public GroupedAvpImpl(int code, long vendorId, int mnd, int prt,
 			byte[] value) {
 		super(code, vendorId, mnd, prt, null, DiameterAvpType.GROUPED);
-		//FIXME: baranowb; in my version - 1.5.1 this is protected!s
 		try
     {
       avpSet = parser.decodeAvpSet(value);
@@ -60,20 +59,18 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 
 	public DiameterAvp[] getExtensionAvps()
 	{
-		List<DiameterAvp> acc = new ArrayList<DiameterAvp>();
-		
-		try {
-			for (Avp a : avpSet) {
-				acc.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), a
-						.isMandatory() ? 1 : 0, a.isEncrypted() ? 1 : 0, a
-						.getRaw(), null));
-				//FIXME: baranowb; how can we determine type? dictionary?
-			}
-		} catch (Exception e) {
-		  log.error("", e);
-		}
-		
-		return acc.toArray(new DiameterAvp[0]);
+	  DiameterAvp[] acc = new DiameterAvp[0];
+	  
+		try
+    {
+		  acc = getExtensionAvpsInternal(avpSet);
+    }
+    catch ( Exception e )
+    {
+      log.error("", e);
+    }
+    
+    return acc;
 	}
 
 	public double doubleValue() {
@@ -101,8 +98,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 	}
 
 	public byte[] byteArrayValue() {
-		//FIXME: baranowb; in my version - 1.5.1 this is protected!s
-		return null; //parser.encodeAvpSet(avpSet);
+		return parser.encodeAvpSet(avpSet);
 	}
 
 	public Object clone() {
@@ -183,4 +179,31 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
       set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
   }
 
+  private DiameterAvp[] getExtensionAvpsInternal(AvpSet set) throws Exception
+  {
+    List<DiameterAvp> acc = new ArrayList<DiameterAvp>();
+
+    for (Avp a : set) 
+    {
+      // FIXME: alexandre: This is how I can check if it's a Grouped AVP... 
+      // should use dictionary (again). a.getGrouped() get's into deadlock.
+      if(a.getRaw().length == 0)
+      {
+        GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(), 
+            a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1: 0, a.getRaw());
+        
+        gAVP.setExtensionAvps( getExtensionAvpsInternal(a.getGrouped()) );
+        
+        // This is a grouped AVP... let's make it like that.
+        acc.add( gAVP );
+      }
+      else
+      {
+        acc.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(),
+            a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1 : 0, a.getRaw(), null));
+      }
+    }
+    
+    return acc.toArray(new DiameterAvp[0]);
+  }  
 }
