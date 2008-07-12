@@ -144,7 +144,7 @@ public class ServerTransactionWrapper implements ServerTransaction,
 			this.dialogWrapper.fireDialogStateEvent(arg0);
 			
 		} finally {
-			if (!gotToFire)
+			if (!gotToFire&& this.dialogWrapper!=null)
 				this.dialogWrapper.endStateEventFireSequence();
 		}
 
