@@ -87,6 +87,7 @@ import javax.slee.management.UnrecognizedResourceAdaptorException;
 import javax.slee.profile.ProfileFacility;
 import javax.slee.profile.ProfileSpecificationDescriptor;
 import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.resource.BootstrapContext;
 import javax.slee.resource.ResourceAdaptorDescriptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeDescriptor;
@@ -2765,11 +2766,17 @@ public class SleeContainer implements ComponentContainer {
 		InstalledResourceAdaptor installedRA = (InstalledResourceAdaptor) this.installedResourceAdaptors
 				.get(id);
 
+		BootstrapContext bootStrap=null;
+		try {
+			bootStrap = new ResourceAdaptorBoostrapContext(name,new SleeEndpointImpl(this.activityContextFactory,
+					this.router, this, name),new EventLookupFacilityImpl(this),this.getAlarmFacility(),this.getTransactionManager(),this.getProfileFacility());
+		} catch (NamingException e1) {
+			
+			e1.printStackTrace();
+			throw new ResourceException("Failed to lookup facilities due to:\n",e1);
+		}
 		ResourceAdaptorEntity raEntity = new ResourceAdaptorEntity(name,
-				installedRA, new ResourceAdaptorBoostrapContext(
-						new SleeEndpointImpl(this.activityContextFactory,
-								this.router, this, name),
-						new EventLookupFacilityImpl(this), name), this);
+				installedRA,bootStrap , this);
 
 		this.resourceAdaptorEntities.put(name, raEntity);
 

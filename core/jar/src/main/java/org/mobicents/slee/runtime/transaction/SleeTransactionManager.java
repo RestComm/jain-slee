@@ -52,7 +52,7 @@ import org.mobicents.slee.runtime.cache.OldCacheManager;
  * @author Ivelin Ivanov
  * 
  */
-public interface SleeTransactionManager extends OldCacheManager, TransactionManager {
+public interface SleeTransactionManager extends OldCacheManager, javax.slee.transaction.SleeTransactionManager {
 	
     public static final String JNDI_NAME = "SleeTransactionManager";
     

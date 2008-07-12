@@ -21,6 +21,9 @@ import java.util.Set;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.slee.TransactionRequiredLocalException;
+import javax.slee.transaction.SleeTransaction;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
@@ -54,8 +57,8 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
  * @author Ivelin Ivanov
  * 
  */
-public class TransactionManagerImpl extends ServiceMBeanSupport 
-	implements TransactionManagerImplMBean {
+public class TransactionManagerImpl extends ServiceMBeanSupport implements
+		TransactionManagerImplMBean {
 
 	private static Logger logger = Logger
 			.getLogger(TransactionManagerImpl.class);
@@ -195,7 +198,8 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 		try {
 			return txMgr.getTransaction();
 		} catch (SystemException e) {
-			throw new RuntimeException("Failed to obtain active JTA transaction");
+			throw new RuntimeException(
+					"Failed to obtain active JTA transaction");
 		}
 	}
 
@@ -332,13 +336,12 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 		logTxID();
 
 		if (tx.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
-			
+
 			if (logger.isDebugEnabled())
 				logger
-				.debug("Transaction marked for roll back, cannot commit, ending with rollback: "
-						+ makeKey(tx));
+						.debug("Transaction marked for roll back, cannot commit, ending with rollback: "
+								+ makeKey(tx));
 			rollback();
-			
 
 		} else if (tx.getStatus() == Status.STATUS_ACTIVE) {
 			try {
@@ -346,7 +349,8 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 				if (logger.isDebugEnabled())
 					logger.debug("Committed tx");
 			} catch (Exception e) {
-				throw new SystemException("Failed to commit tx. "+e.getMessage());
+				throw new SystemException("Failed to commit tx. "
+						+ e.getMessage());
 			}
 
 		} else {
@@ -577,7 +581,8 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 	 *             if failure occurs for any other reason.
 	 */
 
-	public void putObject(String cacheName, String fqn, Object key, Object object) {
+	public void putObject(String cacheName, String fqn, Object key,
+			Object object) {
 		assertIsInTx();
 		if (logger.isDebugEnabled()) {
 			((List) sleeTransactions.get(this.getTransaction()))
@@ -625,14 +630,14 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 	 *             if failure occurs for any other reason.
 	 */
 
-	public void createNode(String cacheName, String fqn, Map data)
-			{
+	public void createNode(String cacheName, String fqn, Map data) {
 		mandateTransaction();
-		
-		if (data == null) { 
-			logger.warn("createNode(String cacheName, String fqn, Map data): Storing null in distributed cache. Potentially wasteful operation.");
+
+		if (data == null) {
+			logger
+					.warn("createNode(String cacheName, String fqn, Map data): Storing null in distributed cache. Potentially wasteful operation.");
 		}
-		
+
 		try {
 			getTreeCache(cacheName)
 					.put(getRootFqn(cacheName) + "/" + fqn, data);
@@ -734,7 +739,6 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 		}
 	}
 
-
 	/**
 	 * Get the keys of the attributes assigned to a given cache node
 	 * 
@@ -760,22 +764,20 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 			logger.error(this.displayOngoingSleeTransactions());
 			throw new RuntimeException("Timeout occured", ex);
 		} catch (Exception ex) {
-			logger.error("Failed getKeys(" + localFqn
-					+ ")", ex);
+			logger.error("Failed getKeys(" + localFqn + ")", ex);
 			logger.error(displayOngoingSleeTransactions());
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
 	}
 
-	
-	
 	/**
 	 * Get a node from the persistent store.
 	 * 
 	 * @param fqn --
 	 *            the fully qualified name of the node to retrieve
 	 * @return the jboss cache node for the fqn
-	 * @deprecated exposes underlying cache implementation API. Use putObject(),getObject() and getNodeKeys() 
+	 * @deprecated exposes underlying cache implementation API. Use
+	 *             putObject(),getObject() and getNodeKeys()
 	 */
 	public Node getNode(String tcache, String fqn) {
 		assertIsInTx();
@@ -792,8 +794,7 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 			if (getTreeCache(tcache).exists(localFqn)) {
 				if (logger.isDebugEnabled())
 					logger.debug("getNode " + tcache + " fqn = " + fqn);
-				Node retval = getTreeCache(tcache).get(
-						localFqn);
+				Node retval = getTreeCache(tcache).get(localFqn);
 				// this.owns(localFqn);
 				if (logger.isDebugEnabled())
 					logger.debug(">>> getNode " + tcache + " fqn = " + fqn);
@@ -808,8 +809,7 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 			throw new RuntimeException("Timeout occured", ex);
 		} catch (Exception ex) {
 
-			logger.error("Failed getNode(" + localFqn
-					+ ")", ex);
+			logger.error("Failed getNode(" + localFqn + ")", ex);
 			logger.error(displayOngoingSleeTransactions());
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
@@ -824,8 +824,7 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 			// cann't iterate the Set while it can be modified
 			synchronized (sleeTransactions) {
 				Iterator iter = sleeTransactions.keySet().iterator();
-				logger.error("current tx is "
-						+ this.getTransaction());
+				logger.error("current tx is " + this.getTransaction());
 				String msg = "---------+ Begin dump of SLEE TX map: +-------------------------- \n";
 
 				while (iter.hasNext()) {
@@ -864,8 +863,7 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 			throws SystemException {
 		if (logger.isDebugEnabled()) {
 			if (sleeTransactions.get(this.getTransaction()) != null)
-				((List) sleeTransactions.get(this
-						.getTransaction()))
+				((List) sleeTransactions.get(this.getTransaction()))
 						.add("getChildrenNames (" + tcache + " , " + fqn + ")"
 								+ getFileAndLine());
 
@@ -895,20 +893,24 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 		if (logger.isDebugEnabled()) {
 			if (sleeTransactions.get(this.getTransaction()) != null)
 				((List) sleeTransactions.get(this.getTransaction()))
-						.add("removeObject (" + tcache + " , " + nodeName + "," + attributeKey + ") "
-								+ getFileAndLine());
+						.add("removeObject (" + tcache + " , " + nodeName + ","
+								+ attributeKey + ") " + getFileAndLine());
 
 		}
 		try {
-			getTreeCache(tcache).remove(getRootFqn(tcache) + "/" + nodeName, attributeKey);
+			getTreeCache(tcache).remove(getRootFqn(tcache) + "/" + nodeName,
+					attributeKey);
 		} catch (UpgradeException ex) {
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
-				logger.warn("Failed to remove object with key '" + nodeName + "/" + attributeKey + "' from cache '" + tcache + "'. Will retry.", e);
+				logger.warn("Failed to remove object with key '" + nodeName
+						+ "/" + attributeKey + "' from cache '" + tcache
+						+ "'. Will retry.", e);
 			}
 			try {
-				getTreeCache(tcache).remove(getRootFqn(tcache) + "/" + nodeName, attributeKey);
+				getTreeCache(tcache).remove(
+						getRootFqn(tcache) + "/" + nodeName, attributeKey);
 			} catch (CacheException e1) {
 				// TODO Auto-generated catch block
 				log.error(this.displayOngoingSleeTransactions(), e1);
@@ -993,10 +995,10 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 	public Map getChildren(String tcache, String fqn) throws SystemException {
 		assertIsInTx();
 		if (logger.isDebugEnabled()) {
-			if (sleeTransactions.get(this.getTransaction()) != null)	
-			((List) sleeTransactions.get(this.getTransaction()))
-					.add("getChildren (" + tcache + " , " + fqn + ")"
-							+ getFileAndLine());
+			if (sleeTransactions.get(this.getTransaction()) != null)
+				((List) sleeTransactions.get(this.getTransaction()))
+						.add("getChildren (" + tcache + " , " + fqn + ")"
+								+ getFileAndLine());
 
 		}
 		try {
@@ -1069,9 +1071,9 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 		assertIsInTx();
 		if (logger.isDebugEnabled()) {
 			if (sleeTransactions.get(this.getTransaction()) != null)
-			((List) sleeTransactions.get(this.getTransaction()))
-					.add("removeChildren (" + tcache + " , " + fqn + ")"
-							+ getFileAndLine());
+				((List) sleeTransactions.get(this.getTransaction()))
+						.add("removeChildren (" + tcache + " , " + fqn + ")"
+								+ getFileAndLine());
 
 		}
 		try {
@@ -1111,17 +1113,14 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 		try {
 			if (logger.isDebugEnabled()) {
 				if (sleeTransactions.get(this.getTransaction()) != null)
-				((List) sleeTransactions.get(this.getTransaction()))
-						.add("removeChild (" + tcache + " , " + fqnRoot + " , "
-								+ key + ")" + getFileAndLine());
+					((List) sleeTransactions.get(this.getTransaction()))
+							.add("removeChild (" + tcache + " , " + fqnRoot
+									+ " , " + key + ")" + getFileAndLine());
 
 			}
-			
 
 			getTreeCache(tcache)
 					.remove(getRootFqn(tcache) + "/" + fqnRoot, key);
-
-			
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -1137,11 +1136,11 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 	 * 
 	 */
 	public void startService() throws Exception {
-		
+
 		// Force this property to allow invocation of getters.
 		// http://code.google.com/p/mobicents/issues/detail?id=63
-		System.setProperty( "jmx.invoke.getters", "true" );
-		
+		System.setProperty("jmx.invoke.getters", "true");
+
 		initTreeCache();
 
 		// We are going to use the JBoss transaction manager
@@ -1173,8 +1172,8 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 		Transaction t;
 		t = getTransaction();
 		if ((t) != null) {
-			throw new IllegalStateException(
-					"Should NOT be in an tx!! TxID: " + t);
+			throw new IllegalStateException("Should NOT be in an tx!! TxID: "
+					+ t);
 		}
 	}
 
@@ -1236,7 +1235,8 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 					TreeCacheMBean.class, tcacheName, server);
 			TreeCache tcache = tcm.getInstance();
 			// tcache.setLockAcquisitionTimeout(3);
-			// DEBUG tcache.addTreeCacheListener(new TreeCacheListenerImpl(this));
+			// DEBUG tcache.addTreeCacheListener(new
+			// TreeCacheListenerImpl(this));
 			this.treeCaches.put(TCACHE, tcache);
 			if (logger.isDebugEnabled())
 				logger.debug("treeCache = " + this.getTreeCache(TCACHE));
@@ -1285,51 +1285,74 @@ public class TransactionManagerImpl extends ServiceMBeanSupport
 	/**
 	 * @deprecated use {@link #getObject(String, String, Object)}
 	 */
-	public Object getObject(String cacheName, String fqn, String key) throws SystemException {
-		return getObject(cacheName, fqn, (Object)key);
+	public Object getObject(String cacheName, String fqn, String key)
+			throws SystemException {
+		return getObject(cacheName, fqn, (Object) key);
 	}
 
 	/**
 	 * @deprecated use {@link #putObject(String, String, Object, Object)}
 	 */
-	public void putObject(String cacheName, String fqn, String key, Object object) {
-		putObject(cacheName, fqn, (Object)key, object);
+	public void putObject(String cacheName, String fqn, String key,
+			Object object) {
+		putObject(cacheName, fqn, (Object) key, object);
 	}
 
-	
-//	FIXME - methods from javax.transaction.TransactionManager
-	//NO DESC ON DOCJAR.COM OR SUN javadocs for those methods ...
+	// FIXME - methods from javax.transaction.TransactionManager
+	// NO DESC ON DOCJAR.COM OR SUN javadocs for those methods ...
 	public int getStatus() throws SystemException {
-		int status=0;
-		
-		Transaction tx=null;
-		
-			tx = getTransaction();
+		int status = 0;
 
-			if (tx == null)
-				throw new SystemException(
-						"No Tx associated with current thread!!!");
+		Transaction tx = null;
 
-			status=tx.getStatus();
-		
-		
+		tx = getTransaction();
+
+		if (tx == null)
+			throw new SystemException("No Tx associated with current thread!!!");
+
+		status = tx.getStatus();
+
 		return status;
 	}
 
 	public void setTransactionTimeout(int timeout) throws SystemException {
 
 		txMgr.setTransactionTimeout(timeout);
-		
+
 	}
 
 	public Transaction suspend() throws SystemException {
-		
+
 		return txMgr.suspend();
 	}
 
-	public void resume(Transaction txToResume) throws InvalidTransactionException, IllegalStateException, SystemException {
+	public void resume(Transaction txToResume)
+			throws InvalidTransactionException, IllegalStateException,
+			SystemException {
 		txMgr.resume(txToResume);
-		
+
+	}
+
+	public void asyncCommit() throws IllegalStateException, SecurityException,
+			RollbackException, HeuristicMixedException,
+			HeuristicRollbackException, SystemException {
+
+		throw new UnsupportedOperationException(
+				"Not yet implemented due interface change in final version under vote.");
+
+	}
+
+	public void asyncRollback() throws IllegalStateException,
+			SecurityException, SystemException {
+		throw new UnsupportedOperationException(
+				"Not yet implemented due interface change in final version under vote.");
+
+	}
+
+	public SleeTransaction beginSleeTransaction() throws NotSupportedException,
+			SystemException {
+		throw new UnsupportedOperationException(
+				"Not yet implemented due interface change in final version under vote.");
 	}
 
 }

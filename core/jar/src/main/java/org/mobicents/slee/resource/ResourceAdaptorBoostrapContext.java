@@ -28,21 +28,37 @@ import org.mobicents.slee.runtime.SleeInternalEndpoint;
 /**
  * 
  * TODO Class Description
- * 
+ * Depracated, in SLEE 1.1 Specs by ConfigurationProperties set
  * @author F.Moggia
+ * @deprecated
  */
 public class ResourceAdaptorBoostrapContext implements BootstrapContext {
-    String raEntityName;
-    SleeEndpoint endpoint;
-    EventLookupFacility eventLookup;
     
-    public ResourceAdaptorBoostrapContext(SleeEndpoint endpoint, EventLookupFacilityImpl eventLookup, String raEntityName) {
-        this.endpoint = endpoint;
-        this.eventLookup = eventLookup;
-        this.raEntityName = raEntityName;
-    }
+	protected String raEntityName;
+    protected SleeEndpoint endpoint;
+    protected EventLookupFacility eventLookup;
+    protected AlarmFacility alarmFacility;
     
-    public String getEntityName() {
+    protected SleeTransactionManager sleeTransactionManager;
+    protected ProfileFacility profileFacility;
+    
+   
+    
+    public ResourceAdaptorBoostrapContext(String raEntityName,
+			SleeEndpoint endpoint, EventLookupFacility eventLookup,
+			AlarmFacility alarmFacility,
+			SleeTransactionManager sleeTransactionManager,
+			ProfileFacility profileFacility) {
+		super();
+		this.raEntityName = raEntityName;
+		this.endpoint = endpoint;
+		this.eventLookup = eventLookup;
+		this.alarmFacility = alarmFacility;
+		this.sleeTransactionManager = sleeTransactionManager;
+		this.profileFacility = profileFacility;
+	}
+
+	public String getEntityName() {
         return raEntityName;
     }
 
@@ -59,34 +75,38 @@ public class ResourceAdaptorBoostrapContext implements BootstrapContext {
         // TODO Auto-generated method stub
         return null;
     }
+
+	public String getRaEntityName() {
+		return raEntityName;
+	}
+
+	public SleeEndpoint getEndpoint() {
+		return endpoint;
+	}
+
+	public AlarmFacility getAlarmFacility() {
+		return alarmFacility;
+	}
+
+	public SleeTransactionManager getSleeTransactionManager() {
+		return sleeTransactionManager;
+	}
+
+	public ProfileFacility getProfileFacility() {
+		return profileFacility;
+	}
+
+	public EventLookupFacility getEventLookupFacility() {
+		
+		return eventLookup;
+	}
+
+	public Timer getTimer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
     
-    /*
-     * NOT YET IMPLEMENTED
-     *  
-     */
-    public AlarmFacility getAlarmFacility() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    public EventLookupFacility getEventLookupFacility() {
-        // TODO Auto-generated method stub
-        return this.eventLookup;
-    }
-
-    public Timer getTimer() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public SleeTransactionManager getSleeTransactionManager() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public ProfileFacility getProfileFacility() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+ 
+ 
     
 }
