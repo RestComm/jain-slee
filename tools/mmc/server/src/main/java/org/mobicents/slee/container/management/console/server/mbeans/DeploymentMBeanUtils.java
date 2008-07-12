@@ -69,7 +69,7 @@ public class DeploymentMBeanUtils {
 					sleeManagementMBean, "DeploymentMBean");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -137,7 +137,7 @@ public class DeploymentMBeanUtils {
 			return IDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -150,7 +150,7 @@ public class DeploymentMBeanUtils {
 			return IDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -163,7 +163,7 @@ public class DeploymentMBeanUtils {
 			return IDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -176,7 +176,7 @@ public class DeploymentMBeanUtils {
 			return IDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -188,7 +188,7 @@ public class DeploymentMBeanUtils {
 			return IDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -200,7 +200,7 @@ public class DeploymentMBeanUtils {
 			return IDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -212,7 +212,7 @@ public class DeploymentMBeanUtils {
 					new String[] { ComponentID.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -262,7 +262,7 @@ public class DeploymentMBeanUtils {
 			return IDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -277,7 +277,7 @@ public class DeploymentMBeanUtils {
 			return deployableUnitDescriptorEx;
 		} catch (Exception e) {
 			// e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -319,7 +319,7 @@ public class DeploymentMBeanUtils {
 					new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -331,7 +331,7 @@ public class DeploymentMBeanUtils {
 							.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 	
@@ -345,7 +345,7 @@ public class DeploymentMBeanUtils {
 			return componentIDs;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 
 		

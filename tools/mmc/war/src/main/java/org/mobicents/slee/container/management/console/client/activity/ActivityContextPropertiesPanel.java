@@ -55,7 +55,7 @@ import com.google.gwt.user.client.ui.*;
  */
 public class ActivityContextPropertiesPanel extends PropertiesPanel {
    
-    private ActivityServiceAsync activityService = ServerConnection.activityServiceAsync;
+    //private ActivityServiceAsync activityService = ServerConnection.activityServiceAsync;
     private ResourceServiceAsync resourceService = ServerConnection.resourceServiceAsync;
     
     private BrowseContainer browseContainer;

@@ -62,7 +62,7 @@ public class LogManagementMBeanUtils {
 			logMgmtMBeanName = new ObjectName("slee:name=LogManagementMBean");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 

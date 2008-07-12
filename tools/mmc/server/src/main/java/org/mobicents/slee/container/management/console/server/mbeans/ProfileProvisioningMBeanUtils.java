@@ -59,7 +59,7 @@ public class ProfileProvisioningMBeanUtils {
 					sleeManagementMBean, "ProfileProvisioningMBean");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -112,7 +112,7 @@ public class ProfileProvisioningMBeanUtils {
 					new Object[] { }, new String[] { });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 

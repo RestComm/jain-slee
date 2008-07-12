@@ -63,7 +63,7 @@ public class ServiceUsageMBeanUtils {
 							.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -73,7 +73,7 @@ public class ServiceUsageMBeanUtils {
 					new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -85,7 +85,7 @@ public class ServiceUsageMBeanUtils {
 							SbbID.class.getName(), String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -99,7 +99,7 @@ public class ServiceUsageMBeanUtils {
 			return new SbbUsageMBeanUtils(mbeanServer, sbbUsageMBean);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -113,7 +113,7 @@ public class ServiceUsageMBeanUtils {
 			return new SbbUsageMBeanUtils(mbeanServer, sbbUsageMBean);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -129,7 +129,7 @@ public class ServiceUsageMBeanUtils {
 					new String[] { SbbID.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -141,7 +141,7 @@ public class ServiceUsageMBeanUtils {
 							SbbID.class.getName(), String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -151,7 +151,7 @@ public class ServiceUsageMBeanUtils {
 					new Object[] {}, new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -162,7 +162,7 @@ public class ServiceUsageMBeanUtils {
 					new Object[] { sbbID }, new String[] { SbbID.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 }

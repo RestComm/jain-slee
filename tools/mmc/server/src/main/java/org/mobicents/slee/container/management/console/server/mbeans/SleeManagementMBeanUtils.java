@@ -80,7 +80,7 @@ public class SleeManagementMBeanUtils {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 
 		deploymentMBeanUtils = new DeploymentMBeanUtils(mbeanServer,
@@ -123,7 +123,7 @@ public class SleeManagementMBeanUtils {
 					"State");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -133,7 +133,7 @@ public class SleeManagementMBeanUtils {
 					new Object[] {}, new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -143,7 +143,7 @@ public class SleeManagementMBeanUtils {
 					new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -153,7 +153,7 @@ public class SleeManagementMBeanUtils {
 					new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -164,7 +164,7 @@ public class SleeManagementMBeanUtils {
 					null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -175,9 +175,10 @@ public class SleeManagementMBeanUtils {
 					listener);
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
+	
 	
 	public String getVersion() throws ManagementConsoleException {
 		try {
@@ -224,6 +225,7 @@ public class SleeManagementMBeanUtils {
 
 			e = e.getCause();
 		} while (e != null);
+		
 		
 		return sb.toString();
 		

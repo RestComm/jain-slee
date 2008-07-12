@@ -69,7 +69,7 @@ public class SbbUsageMBeanUtils {
 					new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -79,7 +79,7 @@ public class SbbUsageMBeanUtils {
 					new Object[] {}, new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 	
@@ -89,7 +89,7 @@ public class SbbUsageMBeanUtils {
 					new Object[] {}, new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 	
@@ -100,7 +100,7 @@ public class SbbUsageMBeanUtils {
 					"getUsageParameterSet", new Object[] {}, new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -110,7 +110,7 @@ public class SbbUsageMBeanUtils {
 					new Object[] {}, new String[] {});
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 	
@@ -120,7 +120,7 @@ public class SbbUsageMBeanUtils {
 					"get" + name, new Object[] { new Boolean(reset) }, new String[] { "boolean" });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 	
@@ -130,7 +130,7 @@ public class SbbUsageMBeanUtils {
 					"get" + name, new Object[] { new Boolean(reset) }, new String[] { "boolean" });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 	
@@ -199,7 +199,7 @@ public class SbbUsageMBeanUtils {
 			return SBBUsageParameterInfos;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 }

@@ -59,7 +59,7 @@ public class ResourceManagementMBeanUtils {
 					sleeManagementMBean, "ResourceManagementMBean");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -69,7 +69,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -79,7 +79,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0, arg1 }, new String[] { String.class.getName(), String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -89,7 +89,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0, arg1, arg2 }, new String[] { ResourceAdaptorID.class.getName(), String.class.getName(), Properties.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -99,7 +99,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -109,7 +109,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { ResourceAdaptorID.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -120,7 +120,7 @@ public class ResourceManagementMBeanUtils {
 			return properties;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -130,7 +130,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { }, new String[] { });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -140,7 +140,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -150,7 +150,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -160,7 +160,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { }, new String[] { });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -170,7 +170,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { ResourceAdaptorID.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -180,7 +180,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { ResourceAdaptorEntityState.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -190,7 +190,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String[].class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -200,7 +200,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -210,7 +210,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -220,7 +220,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -230,7 +230,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0 }, new String[] { String.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 
@@ -240,7 +240,7 @@ public class ResourceManagementMBeanUtils {
 					new Object[] { arg0, arg1 }, new String[] { String.class.getName(), Properties.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}		
 	}
 }

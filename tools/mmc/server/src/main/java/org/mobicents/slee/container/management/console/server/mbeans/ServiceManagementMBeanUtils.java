@@ -58,7 +58,7 @@ public class ServiceManagementMBeanUtils {
 					sleeManagementMBean, "ServiceManagementMBean");
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -69,7 +69,7 @@ public class ServiceManagementMBeanUtils {
 							.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -81,7 +81,7 @@ public class ServiceManagementMBeanUtils {
 							.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -99,7 +99,7 @@ public class ServiceManagementMBeanUtils {
 					new String[] { ServiceState.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 
@@ -111,7 +111,7 @@ public class ServiceManagementMBeanUtils {
 					new String[] { ServiceID.class.getName() });
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ManagementConsoleException(e);
+			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));
 		}
 	}
 }

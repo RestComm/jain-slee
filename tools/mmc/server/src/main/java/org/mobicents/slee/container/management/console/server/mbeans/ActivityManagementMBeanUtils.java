@@ -32,6 +32,7 @@
  */
 package org.mobicents.slee.container.management.console.server.mbeans;
 
+import java.util.logging.Logger;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -43,135 +44,139 @@ import org.mobicents.slee.container.management.console.client.ManagementConsoleE
  * 
  */
 public class ActivityManagementMBeanUtils {
-    
-    private MBeanServerConnection mbeanServer;
 
-    private ObjectName activityMBean;
+	private MBeanServerConnection mbeanServer;
 
-    public ActivityManagementMBeanUtils(MBeanServerConnection mbeanServer,
-            ObjectName sleeManagementMBean) throws ManagementConsoleException {
-        this.mbeanServer = mbeanServer;
-        try {
-           activityMBean = (ObjectName) mbeanServer.getAttribute(
-                    sleeManagementMBean, "ActivityManagementMBean");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ManagementConsoleException(e);
-        }
-    }
+	private ObjectName activityMBean;
 
-    public Object[] listActivityContexts(boolean detail)
-            throws ManagementConsoleException {
-        try {
-            return (Object[]) mbeanServer.invoke(activityMBean,
-                    "listActivityContexts", new Object[] { detail },
-                    new String[] {"boolean"});
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ManagementConsoleException(e);
-        }
-    }
-    
-    public void endActivity(String id)
-          throws ManagementConsoleException 
-    {
-       try {
-          mbeanServer.invoke(activityMBean,
-                "endActivity", new Object[] { id },
-                new String[] {String.class.getName()});
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
-    
-    public Object[] retrieveActivityContextDetails(String id)
-          throws ManagementConsoleException
-    {
-       try {
-          return (Object[]) mbeanServer.invoke(activityMBean,
-                "retrieveActivityContextDetails", new Object[] { id },
-                new String[] {String.class.getName()});
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
-    
-    public Object[] retrieveActivityContextIDByResourceAdaptorEntityName(String id)
-    throws ManagementConsoleException
-    {
-       try {
-          return (Object[]) mbeanServer.invoke(activityMBean,
-                "retrieveActivityContextIDByResourceAdaptorEntityName", new Object[] { id },
-                new String[] {String.class.getName()});
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
+	public ActivityManagementMBeanUtils(MBeanServerConnection mbeanServer,
+			ObjectName sleeManagementMBean) throws ManagementConsoleException {
+		this.mbeanServer = mbeanServer;
+		try {
+			activityMBean = (ObjectName) mbeanServer.getAttribute(
+					sleeManagementMBean, "ActivityManagementMBean");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
 
-    public Object[] retrieveActivityContextIDByActivityType(String id)
-    throws ManagementConsoleException
-    {
-       try {
-          return (Object[]) mbeanServer.invoke(activityMBean,
-                "retrieveActivityContextIDByActivityType", new Object[] { id },
-                new String[] {String.class.getName()});
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
+	public Object[] listActivityContexts(boolean detail)
+			throws ManagementConsoleException {
+		try {
+			return (Object[]) mbeanServer.invoke(activityMBean,
+					"listActivityContexts", new Object[] { detail },
+					new String[] { "boolean" });
+		} catch (Exception e) {
+			e.printStackTrace();
 
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
 
-    public Object[] retrieveActivityContextIDBySbbEntityID(String id)
-    throws ManagementConsoleException
-    {
-       try {
-          return (Object[]) mbeanServer.invoke(activityMBean,
-                "retrieveActivityContextIDBySbbEntityID", new Object[] { id },
-                new String[] {String.class.getName()});
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
+	public void endActivity(String id) throws ManagementConsoleException {
+		try {
+			mbeanServer.invoke(activityMBean, "endActivity",
+					new Object[] { id },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
 
-    public Object[] retrieveActivityContextIDBySbbID(String id)
-    throws ManagementConsoleException
-    {
-       try {
-          return (Object[]) mbeanServer.invoke(activityMBean,
-                "retrieveActivityContextIDBySbbID", new Object[] { id },
-                new String[] {String.class.getName()});
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
-    
-    public void queryActivityContextLiveness()
-    throws ManagementConsoleException
-    {
-       try {
-          mbeanServer.invoke(activityMBean,
-                "queryActivityContextLiveness", new Object[] {},
-                new String[] {});
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
-    
-    public Long getActivityContextTimeout()
-    throws ManagementConsoleException
-    {
-       try {
-          return (Long) mbeanServer.getAttribute(activityMBean, "ActivityContextMaxIdleTime");
-       } catch (Exception e) {
-          e.printStackTrace();
-          throw new ManagementConsoleException(e);
-       }
-    }
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
+
+	public Object[] retrieveActivityContextDetails(String id)
+			throws ManagementConsoleException {
+		try {
+			return (Object[]) mbeanServer.invoke(activityMBean,
+					"retrieveActivityContextDetails", new Object[] { id },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
+
+	public Object[] retrieveActivityContextIDByResourceAdaptorEntityName(
+			String id) throws ManagementConsoleException {
+		try {
+			return (Object[]) mbeanServer.invoke(activityMBean,
+					"retrieveActivityContextIDByResourceAdaptorEntityName",
+					new Object[] { id },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
+
+	public Object[] retrieveActivityContextIDByActivityType(String id)
+			throws ManagementConsoleException {
+		try {
+			return (Object[]) mbeanServer.invoke(activityMBean,
+					"retrieveActivityContextIDByActivityType",
+					new Object[] { id },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
+
+	public Object[] retrieveActivityContextIDBySbbEntityID(String id)
+			throws ManagementConsoleException {
+		try {
+			return (Object[]) mbeanServer.invoke(activityMBean,
+					"retrieveActivityContextIDBySbbEntityID",
+					new Object[] { id },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
+
+	public Object[] retrieveActivityContextIDBySbbID(String id)
+			throws ManagementConsoleException {
+		try {
+			return (Object[]) mbeanServer.invoke(activityMBean,
+					"retrieveActivityContextIDBySbbID", new Object[] { id },
+					new String[] { String.class.getName() });
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
+
+	public void queryActivityContextLiveness()
+			throws ManagementConsoleException {
+		try {
+			mbeanServer.invoke(activityMBean, "queryActivityContextLiveness",
+					new Object[] {}, new String[] {});
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
+
+	public Long getActivityContextTimeout() throws ManagementConsoleException {
+		try {
+			return (Long) mbeanServer.getAttribute(activityMBean,
+					"ActivityContextMaxIdleTime");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ManagementConsoleException(SleeManagementMBeanUtils
+					.doMessage(e));
+		}
+	}
 }
