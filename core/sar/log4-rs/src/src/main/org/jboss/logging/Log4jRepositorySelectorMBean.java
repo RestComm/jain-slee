@@ -28,8 +28,11 @@ import org.jboss.system.ServiceMBean;
  *
  * @version <tt>$Revision:  $</tt>
  * @author <a href="mailto:smil@dev.hu">Tamas Cserveny</a>
+ * @author <a href="mailto:abhayani@redhat.com">Amit Bhayani</a>
  */
 public interface Log4jRepositorySelectorMBean extends ServiceMBean
 {
-   
+	   void setRefreshPeriod(int refreshPeriod); 
+	   
+	   public int getRefreshPeriod();
 }
