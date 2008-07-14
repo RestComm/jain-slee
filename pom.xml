@@ -114,7 +114,7 @@
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
-					<excludePoms>tools/maven-archetypes/**/pom.xml,resources/diameter/**/pom.xml,examples/diameter/**/pom.xml,tools/management-console/**/pom.xml,resources/sip_1_1/**/pom.xml</excludePoms>
+					<excludePoms>tools/maven-archetypes/**/pom.xml,resources/diameter/**/pom.xml,examples/diameter/**/pom.xml,tools/management-console/**/pom.xml,resources/sip11/tests/**/pom.xml</excludePoms>
 					<classpathExcludes>
 						<exclude>xml-apis:xml-apis</exclude>
 						<exclude>jtidy:jtidy</exclude>

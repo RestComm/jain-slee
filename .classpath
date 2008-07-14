@@ -50,6 +50,9 @@
   <classpathentry kind="src" path="examples/sip-services/proxy-without-initial-invite-services-DU/src/main/resources"/>
   <classpathentry kind="src" path="examples/sip-services/registrar-sbb/src/main/resources"/>
   <classpathentry kind="src" path="examples/sip-services/registrar-sbb/src/main/java"/>
+  <classpathentry kind="src" path="examples/sip11-loadtest-with-dialogs/du/src/main/resources"/>
+  <classpathentry kind="src" path="examples/sip11-loadtest-with-dialogs/sbb/src/main/resources"/>
+  <classpathentry kind="src" path="examples/sip11-loadtest-with-dialogs/sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/training/example1/du/src/main/resources"/>
   <classpathentry kind="src" path="examples/training/example1/sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/training/example1/sbb/src/main/resources"/>
@@ -155,6 +158,12 @@
   <classpathentry kind="src" path="resources/sip/ra/src/main/java"/>
   <classpathentry kind="src" path="resources/sip/ratype/src/main/resources"/>
   <classpathentry kind="src" path="resources/sip/ratype/src/main/java"/>
+  <classpathentry kind="src" path="resources/sip11/du/src/main/resources"/>
+  <classpathentry kind="src" path="resources/sip11/events/src/main/resources"/>
+  <classpathentry kind="src" path="resources/sip11/ra/src/main/java"/>
+  <classpathentry kind="src" path="resources/sip11/ra/src/main/resources"/>
+  <classpathentry kind="src" path="resources/sip11/ratype/src/main/java"/>
+  <classpathentry kind="src" path="resources/sip11/ratype/src/main/resources"/>
   <classpathentry kind="src" path="resources/smpp/du/src/main/resources"/>
   <classpathentry kind="src" path="resources/smpp/events/src/main/resources"/>
   <classpathentry kind="src" path="resources/smpp/events/src/main/java"/>
