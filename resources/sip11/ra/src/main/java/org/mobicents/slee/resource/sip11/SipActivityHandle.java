@@ -24,16 +24,14 @@ import javax.slee.resource.ActivityHandle;
  */
 public class SipActivityHandle implements ActivityHandle,
 		Comparable<SipActivityHandle> {
-	private boolean isDialog = false;
-	String transactionId;
-
-	public SipActivityHandle(String transactionId) {
-		this.transactionId = transactionId;
-	}
-
-	public SipActivityHandle(String transactionId, boolean isDialog) {
-		this(transactionId);
-		this.isDialog = true;
+	
+	private String id;
+	
+	public SipActivityHandle(String id) {
+		if (id == null) {
+			throw new NullPointerException("null sip activity handle id");
+		}
+		this.id = id;
 	}
 
 	public boolean equals(Object obj) {
@@ -44,37 +42,22 @@ public class SipActivityHandle implements ActivityHandle,
 	}
 
 	public int hashCode() {
-		if (!this.isDialog)
-			return transactionId.hashCode();
-		else
-			return super.hashCode();
+		return id.hashCode();
 	}
 
 	public String toString() {
-		return this.transactionId;
+		return this.id;
 	}
 
 	public int compareTo(SipActivityHandle o) {
-
 		if (o == null)
 			return 1;
 		else
-			return this.transactionId.compareTo(o.transactionId);
-
-	}
-
-	public void update(String updateID) {
-
-		this.transactionId = updateID;
-
+			return this.id.compareTo(o.id);
 	}
 
 	public String getID() {
-		return transactionId;
-	}
-
-	public boolean isDialogHandle() {
-		return this.isDialog;
+		return id;
 	}
 
 }

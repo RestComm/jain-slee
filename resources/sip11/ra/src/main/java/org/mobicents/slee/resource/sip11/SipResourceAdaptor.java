@@ -594,7 +594,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	public void eventProcessingFailed(ActivityHandle ah, Object event,
 			int arg2, Address arg3, int arg4, FailureReason arg5) {
 
-		String id = ((SipActivityHandle) ah).transactionId;
+		String id = ((SipActivityHandle) ah).getID();
 
 		if (!id.endsWith(Request.CANCEL)
 				|| !(event instanceof RequestEventWrapper))
