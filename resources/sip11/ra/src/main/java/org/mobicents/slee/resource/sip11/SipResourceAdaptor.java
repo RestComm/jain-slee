@@ -8,16 +8,12 @@ import java.io.Serializable;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +36,7 @@ import javax.sip.SipProvider;
 import javax.sip.SipStack;
 import javax.sip.TimeoutEvent;
 import javax.sip.Transaction;
+import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.AddressFactory;
@@ -51,7 +48,6 @@ import javax.sip.header.ToHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
-import javax.slee.ActivityEndEvent;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.InvalidStateException;
@@ -85,9 +81,11 @@ import org.mobicents.slee.resource.sip11.wrappers.TransactionTerminatedEventWrap
 import org.mobicents.slee.resource.sip11.wrappers.WrapperSuperInterface;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
-public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Serializable {
+public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
+		Serializable {
 
-	static private transient Logger log = Logger.getLogger(SipResourceAdaptor.class);
+	static private transient Logger log = Logger
+			.getLogger(SipResourceAdaptor.class);
 
 	// SIP Props -------------------------------------------
 
@@ -115,17 +113,18 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	// METHODS - here we store methods which are rfc 3261 compilant
 	private static Set rfc3261Methods = new HashSet();
-	// Keeps methods for which jsip stack creates transactions by itself
 	private static Set<String> stxedRequests = new HashSet<String>();
 	// SOME INITIALIZATION
 	static {
-		String[] tmp = { Request.ACK, Request.BYE, Request.CANCEL, Request.INFO, Request.INVITE, Request.MESSAGE,
-				Request.NOTIFY, Request.OPTIONS, Request.PRACK, Request.PUBLISH, Request.REFER, Request.REGISTER,
-				Request.SUBSCRIBE, Request.UPDATE };
+		String[] tmp = { Request.ACK, Request.BYE, Request.CANCEL,
+				Request.INFO, Request.INVITE, Request.MESSAGE, Request.NOTIFY,
+				Request.OPTIONS, Request.PRACK, Request.PUBLISH, Request.REFER,
+				Request.REGISTER, Request.SUBSCRIBE, Request.UPDATE };
 		for (int i = 0; i < tmp.length; i++)
 			rfc3261Methods.add(tmp[i]);
 
-		log.info("\n================SIP METHODS====================\n" + rfc3261Methods
+		log.info("\n================SIP METHODS====================\n"
+				+ rfc3261Methods
 				+ "\n===============================================");
 
 		stxedRequests.add(Request.ACK);
@@ -217,7 +216,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	public void configure(Properties properties) throws InvalidStateException {
 		if (this.state != ResourceAdaptorState.UNCONFIGURED) {
-			throw new InvalidStateException("Cannot configure RA wrong state: " + this.state);
+			throw new InvalidStateException("Cannot configure RA wrong state: "
+					+ this.state);
 		}
 
 		if (log.isDebugEnabled()) {
@@ -237,7 +237,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 				Iterator it = properties.entrySet().iterator();
 				while (it.hasNext()) {
 					Entry en = (Entry) it.next();
-					log.debug("---[SetHotProps][" + this.entityName + "] " + en.getKey() + " [*] " + en.getValue());
+					log.debug("---[SetHotProps][" + this.entityName + "] "
+							+ en.getKey() + " [*] " + en.getValue());
 				}
 			}
 			this.properties.putAll(properties);
@@ -272,7 +273,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 						if (allowedTransports.contains(tmp[i])) {
 							transports.add(tmp[i]);
 						} else {
-							log.error(" TRANSPORT[" + tmp[i] + "] IS NOT A VALID TRANSPORT!!!");
+							log.error(" TRANSPORT[" + tmp[i]
+									+ "] IS NOT A VALID TRANSPORT!!!");
 						}
 					}
 				}
@@ -297,7 +299,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		// we need to alter stack name slightly
 		confValue = this.properties.getProperty(STACK_NAME_BIND);
 		if (confValue == null) {
-			confValue = "SipResourceAdaptorStack_" + this.stackAddress + "_" + this.port;
+			confValue = "SipResourceAdaptorStack_" + this.stackAddress + "_"
+					+ this.port;
 		} else {
 			confValue += "_" + this.stackAddress + "_" + this.port;
 		}
@@ -310,12 +313,14 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		int i = 0;
 		for (i = 0; i < 10; i++) {
 
-			InetSocketAddress sockAddress = new InetSocketAddress(stackAddress, this.port);
+			InetSocketAddress sockAddress = new InetSocketAddress(stackAddress,
+					this.port);
 			try {
 				log.info("Trying to bind to " + sockAddress);
 				DatagramSocket socket = new DatagramSocket(sockAddress);
 
-				this.properties.setProperty("javax.sip.PORT", Integer.valueOf(this.port).toString());
+				this.properties.setProperty("javax.sip.PORT", Integer.valueOf(
+						this.port).toString());
 				socket.close();
 				break;
 			} catch (Exception ex) {
@@ -324,7 +329,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 			}
 		}
 		if (i == 10)
-			throw new RuntimeException("Cannot create SIP Resource adaptor - no port available to bind to ");
+			throw new RuntimeException(
+					"Cannot create SIP Resource adaptor - no port available to bind to ");
 
 		log.info("RA bound to " + this.port);
 
@@ -349,12 +355,15 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 			boolean created = false;
 
 			if (log.isDebugEnabled()) {
-				log.debug("---> START " + Arrays.toString(transports.toArray()));
+				log
+						.debug("---> START "
+								+ Arrays.toString(transports.toArray()));
 			}
 
 			for (Iterator it = transports.iterator(); it.hasNext();) {
 				String trans = (String) it.next();
-				ListeningPoint lp = this.sipStack.createListeningPoint(this.stackAddress, this.port, trans);
+				ListeningPoint lp = this.sipStack.createListeningPoint(
+						this.stackAddress, this.port, trans);
 
 				if (!created) {
 					this.provider = this.sipStack.createSipProvider(lp);
@@ -379,8 +388,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 			HeaderFactory headerFactory = sipFactory.createHeaderFactory();
 			MessageFactory messageFactory = sipFactory.createMessageFactory();
 
-			this.providerProxy = new SleeSipProviderImpl(addressFactory, headerFactory, messageFactory, sipStack, this,
-					provider, this.tm);
+			this.providerProxy = new SleeSipProviderImpl(addressFactory,
+					headerFactory, messageFactory, sipStack, this, provider,
+					this.tm);
 
 			// initfiner();
 		} catch (Exception ex) {
@@ -404,7 +414,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		if (state == ResourceAdaptorState.UNCONFIGURED) {
 			this.properties = properties;
 		} else {
-			throw new ResourceException("Cannot modify configuration properties wrong state: " + state);
+			throw new ResourceException(
+					"Cannot modify configuration properties wrong state: "
+							+ state);
 		}
 	}
 
@@ -426,27 +438,35 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		// serviceContainer.getActivityContextFactory();
 		tm = serviceContainer.getTransactionManager();
 		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(this.bootstrapContext.getEntityName()));
-		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity.getInstalledResourceAdaptor().getRaType()
+				.getResourceAdaptorEnitity(this.bootstrapContext
+						.getEntityName()));
+		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
+				.getInstalledResourceAdaptor().getRaType()
 				.getResourceAdaptorTypeID();
 
-		this.acif = new SipActivityContextInterfaceFactoryImpl(resourceAdaptorEntity.getServiceContainer(),
-				this.bootstrapContext.getEntityName(), this, resourceAdaptorEntity.getServiceContainer()
+		this.acif = new SipActivityContextInterfaceFactoryImpl(
+				resourceAdaptorEntity.getServiceContainer(),
+				this.bootstrapContext.getEntityName(), this,
+				resourceAdaptorEntity.getServiceContainer()
 						.getTransactionManager());
 
-		resourceAdaptorEntity.getServiceContainer().getActivityContextInterfaceFactories().put(raTypeId, this.acif);
+		resourceAdaptorEntity.getServiceContainer()
+				.getActivityContextInterfaceFactories()
+				.put(raTypeId, this.acif);
 		entityName = this.bootstrapContext.getEntityName();
 
 		try {
 			if (this.acif != null) {
 				// parse the string = java:slee/resource/SipRA/sipacif
-				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif).getJndiName();
+				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif)
+						.getJndiName();
 				int begind = jndiName.indexOf(':');
 				int toind = jndiName.lastIndexOf('/');
 				String prefix = jndiName.substring(begind + 1, toind);
 				String name = jndiName.substring(toind + 1);
 				if (log.isDebugEnabled()) {
-					log.debug("jndiName prefix =" + prefix + "; jndiName = " + name);
+					log.debug("jndiName prefix =" + prefix + "; jndiName = "
+							+ name);
 				}
 				SleeContainer.registerWithJndi(prefix, name, this.acif);
 			}
@@ -460,7 +480,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 	private void cleanNamingContext() throws NamingException {
 		try {
 			if (this.acif != null) {
-				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif).getJndiName();
+				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif)
+						.getJndiName();
 				// remove "java:" prefix
 				int begind = jndiName.indexOf(':');
 				String javaJNDIName = jndiName.substring(begind + 1);
@@ -487,7 +508,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 					this.sipStack.deleteSipProvider(this.provider);
 					break;
 				} catch (ObjectInUseException ex) {
-					log.error("Object in use -- retrying to delete listening point", ex);
+					log
+							.error(
+									"Object in use -- retrying to delete listening point",
+									ex);
 					try {
 						Thread.sleep(100);
 					} catch (Exception e) {
@@ -512,7 +536,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	// XXX -- Lifecycle/creatation methods in order of first call
 
-	public void entityCreated(BootstrapContext bootstrapContext) throws ResourceException {
+	public void entityCreated(BootstrapContext bootstrapContext)
+			throws ResourceException {
 		if (log.isDebugEnabled()) {
 			log.debug("SipResourceAdaptor: init()");
 		}
@@ -529,13 +554,15 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		try {
 			this.configure(this.provisionedProperties);
 			this.start();
-			//initDebug();
+			// initDebug();
 		} catch (ResourceException e) {
 			e.printStackTrace();
-			throw new javax.slee.resource.ResourceException("Failed to Activate Resource Adaptor!", e);
+			throw new javax.slee.resource.ResourceException(
+					"Failed to Activate Resource Adaptor!", e);
 		} catch (InvalidStateException e) {
 			e.printStackTrace();
-			throw new javax.slee.resource.ResourceException("Failed to Activate Resource Adaptor!", e);
+			throw new javax.slee.resource.ResourceException(
+					"Failed to Activate Resource Adaptor!", e);
 		}
 	}
 
@@ -547,7 +574,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 	public void entityDeactivated() {
 
 		this.stop();
-		//tearDownDebug();
+		// tearDownDebug();
 	}
 
 	public void entityRemoved() {
@@ -557,10 +584,12 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 	public void activityEnded(ActivityHandle handle) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("Removing activity for handle[" + handle + "] activity[" + this.activities.get(handle) + "].");
+			log.debug("Removing activity for handle[" + handle + "] activity["
+					+ this.activities.get(handle) + "].");
 		}
 
-		WrapperSuperInterface activity = (WrapperSuperInterface) this.removeActivity((SipActivityHandle)handle);
+		WrapperSuperInterface activity = (WrapperSuperInterface) this.activities
+				.remove(handle);
 		if (activity != null) {
 			activity.cleanup();
 		}
@@ -571,32 +600,21 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	}
 
-	public void eventProcessingFailed(ActivityHandle ah, Object event, int arg2, Address arg3, int arg4,
-			FailureReason arg5) {
+	public void eventProcessingFailed(ActivityHandle ah, Object event,
+			int arg2, Address arg3, int arg4, FailureReason arg5) {
 
 		String id = ((SipActivityHandle) ah).getID();
 
-		if (id.endsWith(Request.ACK) && !(event instanceof ActivityEndEvent)&& !(event instanceof TransactionTerminatedEvent)) {
-			try {
-				ServerTransactionWrapper stw = (ServerTransactionWrapper) activities.get(ah);
-				if (stw.getWrappedTransaction() instanceof ACKDummyTransaction) {
-					// its our fake
-					TransactionTerminatedEventWrapper ttew = new TransactionTerminatedEventWrapper(this.providerProxy,
-							(ServerTransaction) stw.getWrappedTransaction());
-					this.processTransactionTerminated(ttew);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		if (!id.endsWith(Request.CANCEL) || !(event instanceof RequestEventWrapper))
+		if (!id.endsWith(Request.CANCEL)
+				|| !(event instanceof RequestEventWrapper))
 			return;
 
 		// PROCESSING FAILED, WE HAVE TO SEND 481 response to CANCEL
 		try {
-			Response txDoesNotExistsResponse = this.providerProxy.getMessageFactory().createResponse(
-					Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST, ((RequestEventWrapper) event).getRequest());
+			Response txDoesNotExistsResponse = this.providerProxy
+					.getMessageFactory().createResponse(
+							Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
+							((RequestEventWrapper) event).getRequest());
 			provider.sendResponse(txDoesNotExistsResponse);
 		} catch (ParseException e) {
 
@@ -607,22 +625,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		}
 	}
 
-	public void eventProcessingSuccessful(ActivityHandle ah, Object arg1, int arg2, Address arg3, int arg4) {
+	public void eventProcessingSuccessful(ActivityHandle arg0, Object arg1,
+			int arg2, Address arg3, int arg4) {
+		// TODO Auto-generated method stub
 
-		String id = ((SipActivityHandle) ah).getID();
-		if (id.endsWith(Request.ACK) && !(arg1 instanceof ActivityEndEvent) && !(arg1 instanceof TransactionTerminatedEvent)) {
-			try {
-				ServerTransactionWrapper stw = (ServerTransactionWrapper) activities.get(ah);
-				if (stw.getWrappedTransaction() instanceof ACKDummyTransaction) {
-					// its our fake
-					TransactionTerminatedEventWrapper ttew = new TransactionTerminatedEventWrapper(this.providerProxy,
-							(ServerTransaction) stw.getWrappedTransaction());
-					this.processTransactionTerminated(ttew);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public Object getActivity(ActivityHandle arg0) {
@@ -655,7 +661,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	// XXX -- SERVICE PART + FITLERING
 
-	public void serviceInstalled(String serviceID, int[] eventIDs, String[] resourceOptions) {
+	public void serviceInstalled(String serviceID, int[] eventIDs,
+			String[] resourceOptions) {
 
 		eventIDFilter.serviceInstalled(serviceID, eventIDs);
 	}
@@ -685,29 +692,48 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 	public void processRequest(RequestEvent req) {
 
 		if (log.isInfoEnabled()) {
-			log.info("Received Request:\n" + req.getRequest());
+		 log.info("Received Request:\n"+req.getRequest());
 		}
 
 		ServerTransaction st = req.getServerTransaction();
 		ServerTransactionWrapper stw = null;
 		// CANCEL, ACK and BYE have Transaction created for them
 
-		
 		if (st == null || st.getApplicationData() == null) {
 			try {
+				if (req.getDialog() == null && req.getRequest().getMethod().equals(Request.ACK)) {
+					// create fake ack server transaction
+					st = new ACKDummyTransaction(req.getRequest());
+				}
 				stw = (ServerTransactionWrapper) this.providerProxy
 						.getNewServerTransaction(req.getRequest(), st, false);
 				st = (ServerTransaction) stw.getWrappedTransaction();
 
 				if (log.isDebugEnabled()) {
-					log.debug("\n----------------- CREATED NEW STx ---------------------\nBRANCH: " + st.getBranchId()
-							+ "\n-------------------------------------------------------");
+					log
+							.debug("\n----------------- CREATED NEW STx ---------------------\nBRANCH: "
+									+ st.getBranchId()
+									+ "\n-------------------------------------------------------");
 				}
 
-			} catch (Exception e) {
-				log.error("\n-------------------------\nREQUEST:\n-------------------------\n" + req.getRequest()
-						+ "\n-------------------------", e);
-				sendErrorResponse(st, req.getRequest(), Response.SERVER_INTERNAL_ERROR, e.getMessage());
+			} 
+			catch (TransactionAlreadyExistsException e) {
+				if (log.isDebugEnabled()) {
+					log.debug(
+				
+						"Request where the server tx already exists, should be a retransmission and will be dropped. Request: \n"
+								+ req.getRequest()
+								+ "\n-------------------------", e);
+				}
+				return;
+			}
+			catch (Exception e) {
+				log.error(
+						"\n-------------------------\nREQUEST:\n-------------------------\n"
+								+ req.getRequest()
+								+ "\n-------------------------", e);
+				sendErrorResponse(st, req.getRequest(),
+						Response.SERVER_INTERNAL_ERROR, e.getMessage());
 				return;
 			}
 		} else {
@@ -724,7 +750,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	}
 
-	private void processCancelRequest(ServerTransaction st, ServerTransactionWrapper STW, RequestEvent req) {
+	private void processCancelRequest(ServerTransaction st,
+			ServerTransactionWrapper STW, RequestEvent req) {
 		SipActivityHandle inviteHandle = STW.getInviteHandle();
 		ServerTransactionWrapper inviteSTW = (ServerTransactionWrapper) getActivity(inviteHandle);
 
@@ -733,7 +760,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		// FIXME: There is no mentioen about state in specs...
 		if (inviteSTW != null) {
 			if (log.isDebugEnabled()) {
-				log.debug("Found INVITE transaction CANCEL[" + STW + "] \nINVITE[" + inviteSTW + "]");
+				log.debug("Found INVITE transaction CANCEL[" + STW
+						+ "] \nINVITE[" + inviteSTW + "]");
 			}
 
 			if ((inviteSTW.getState() == TransactionState.TERMINATED)
@@ -750,8 +778,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 				// SENT?
 				Response response;
 				try {
-					response = this.providerProxy.getMessageFactory().createResponse(Response.BAD_REQUEST,
-							req.getRequest());
+					response = this.providerProxy.getMessageFactory()
+							.createResponse(Response.BAD_REQUEST,
+									req.getRequest());
 					STW.sendResponse(response);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
@@ -769,24 +798,34 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 			if (inviteSTW.getDialog() != null) {
 				if (log.isDebugEnabled()) {
-					log.debug("Found DIALOG transaction CANCEL[" + STW + "]\nINVITE[" + inviteSTW + "]\nDialog["
-							+ inviteSTW.getDialog() + "]\nSEQUENCE:Send200ToCANCEL,FireEventOnDialog,Send487ToInvite");
+					log
+							.debug("Found DIALOG transaction CANCEL["
+									+ STW
+									+ "]\nINVITE["
+									+ inviteSTW
+									+ "]\nDialog["
+									+ inviteSTW.getDialog()
+									+ "]\nSEQUENCE:Send200ToCANCEL,FireEventOnDialog,Send487ToInvite");
 				}
-				SAH = ((DialogWrapper) inviteSTW.getDialog()).getActivityHandle();
+				SAH = ((DialogWrapper) inviteSTW.getDialog())
+						.getActivityHandle();
 				inDialog = true;
 
-				RequestEventWrapper REW = new RequestEventWrapper(this.providerProxy, STW,
-						inviteSTW != null ? inviteSTW.getDialog() : null, req.getRequest());
+				RequestEventWrapper REW = new RequestEventWrapper(
+						this.providerProxy, STW, inviteSTW != null ? inviteSTW
+								.getDialog() : null, req.getRequest());
 
-				int eventID = eventIdCache.getEventId(eventLookup, REW.getRequest(), inDialog);
+				int eventID = eventIdCache.getEventId(eventLookup, REW
+						.getRequest(), inDialog);
 
-				fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP, ((ToHeader) req.getRequest().getHeader(
-						ToHeader.NAME)).getAddress().toString()));
+				fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP,
+						((ToHeader) req.getRequest().getHeader(ToHeader.NAME))
+								.getAddress().toString()));
 
 				try {
 
-					Response response = this.providerProxy.getMessageFactory().createResponse(Response.OK,
-							req.getRequest());
+					Response response = this.providerProxy.getMessageFactory()
+							.createResponse(Response.OK, req.getRequest());
 					STW.sendResponse(response);
 
 				} catch (ParseException e) {
@@ -801,8 +840,9 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 				}
 
 				try {
-					Response response = this.providerProxy.getMessageFactory().createResponse(
-							Response.REQUEST_TERMINATED, inviteSTW.getRequest());
+					Response response = this.providerProxy.getMessageFactory()
+							.createResponse(Response.REQUEST_TERMINATED,
+									inviteSTW.getRequest());
 					inviteSTW.sendResponse(response);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
@@ -817,36 +857,46 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 			} else {
 				if (log.isDebugEnabled()) {
-					log.debug("DIALOG not found transaction CANCEL[" + STW + "]\nINVITE[" + inviteSTW + "]\nDialog["
-							+ inviteSTW.getDialog() + "]\nSEQUENCE:FireEventOnInvite");
+					log.debug("DIALOG not found transaction CANCEL[" + STW
+							+ "]\nINVITE[" + inviteSTW + "]\nDialog["
+							+ inviteSTW.getDialog()
+							+ "]\nSEQUENCE:FireEventOnInvite");
 				}
 				SAH = inviteSTW.getActivityHandle();
 				inDialog = false;
-				RequestEventWrapper REW = new RequestEventWrapper(this.providerProxy, STW,
-						inviteSTW != null ? inviteSTW.getDialog() : null, req.getRequest());
-				int eventID = eventIdCache.getEventId(eventLookup, REW.getRequest(), inDialog);
+				RequestEventWrapper REW = new RequestEventWrapper(
+						this.providerProxy, STW, inviteSTW != null ? inviteSTW
+								.getDialog() : null, req.getRequest());
+				int eventID = eventIdCache.getEventId(eventLookup, REW
+						.getRequest(), inDialog);
 
-				fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP, ((ToHeader) req.getRequest().getHeader(
-						ToHeader.NAME)).getAddress().toString()));
+				fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP,
+						((ToHeader) req.getRequest().getHeader(ToHeader.NAME))
+								.getAddress().toString()));
 			}
 
 		} else {
 			if (log.isDebugEnabled()) {
-				log.debug("INVITE not found transaction CANCEL[" + STW + "]\nSEQUENCE:FireEventOnCancel");
+				log.debug("INVITE not found transaction CANCEL[" + STW
+						+ "]\nSEQUENCE:FireEventOnCancel");
 			}
 			SAH = STW.getActivityHandle();
 			inDialog = false;
 
-			RequestEventWrapper REW = new RequestEventWrapper(this.providerProxy, STW, inviteSTW != null ? inviteSTW
-					.getDialog() : null, req.getRequest());
-			int eventID = eventIdCache.getEventId(eventLookup, REW.getRequest(), inDialog);
+			RequestEventWrapper REW = new RequestEventWrapper(
+					this.providerProxy, STW, inviteSTW != null ? inviteSTW
+							.getDialog() : null, req.getRequest());
+			int eventID = eventIdCache.getEventId(eventLookup,
+					REW.getRequest(), inDialog);
 
-			fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP, ((ToHeader) req.getRequest().getHeader(
-					ToHeader.NAME)).getAddress().toString()));
+			fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP,
+					((ToHeader) req.getRequest().getHeader(ToHeader.NAME))
+							.getAddress().toString()));
 		}
 	}
 
-	private void processNotCancelRequest(ServerTransaction st, ServerTransactionWrapper STW, RequestEvent req) {
+	private void processNotCancelRequest(ServerTransaction st,
+			ServerTransactionWrapper STW, RequestEvent req) {
 		// WE HAVE SET UP ALL WHAT WE NEED, NOW DO SOMETHING
 
 		SipActivityHandle SAH = null;
@@ -854,20 +904,24 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		DialogWrapper DW = null;
 		boolean inDialog = false;
 
-		if (st != null && st.getDialog() != null) {
+		if (st.getDialog() != null) {
 
 			// TODO: add check for fork?
 
 			Dialog d = st.getDialog();
 
-			if (d.getApplicationData() != null && d.getApplicationData() instanceof DialogActivity) {
+			if (d.getApplicationData() != null
+					&& d.getApplicationData() instanceof DialogActivity) {
 				DW = (DialogWrapper) d.getApplicationData();
 				inDialog = true;
 				SAH = DW.getActivityHandle();
 				DW.addOngoingTransaction(STW);
 			} else {
 				if (log.isDebugEnabled()) {
-					log.debug("Dialog [" + d + "] exists, but no wrapper is present. Delivering event on TX");
+					log
+							.debug("Dialog ["
+									+ d
+									+ "] exists, but no wrapper is present. Delivering event on TX");
 				}
 				inDialog = false;
 				SAH = STW.getActivityHandle();
@@ -875,42 +929,66 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 		} else {
 			// This means that ST is activity
-
 			SAH = STW.getActivityHandle();
 		}
 
-		RequestEventWrapper REW = new RequestEventWrapper(this.providerProxy, STW, DW, req.getRequest());
+		RequestEventWrapper REW = new RequestEventWrapper(this.providerProxy,
+				STW, DW, req.getRequest());
 
-		if (!fireEvent(REW, SAH, eventIdCache.getEventId(eventLookup, REW.getRequest(), inDialog), new Address(
-				AddressPlan.SIP, ((ToHeader) req.getRequest().getHeader(ToHeader.NAME)).getAddress().toString()))) {
-			sendErrorResponse(req.getServerTransaction(), req.getRequest(), Response.SERVER_INTERNAL_ERROR,
+		if (!fireEvent(REW, SAH, eventIdCache.getEventId(eventLookup, REW
+				.getRequest(), inDialog), new Address(AddressPlan.SIP,
+				((ToHeader) req.getRequest().getHeader(ToHeader.NAME))
+						.getAddress().toString()))) {
+			if (!inDialog) {
+				// since the activity would be created only in slee with a sucessfull
+				// event firing then remove it from the map (was added by provider) here
+				activities.remove(STW.getActivityHandle());
+				STW.cleanup();
+			}
+			sendErrorResponse(req.getServerTransaction(), req.getRequest(),
+					Response.SERVER_INTERNAL_ERROR,
 					"Failed to deliver request event to JAIN SLEE container");
 		}
+		else if (!inDialog && STW.getWrappedTransaction() instanceof ACKDummyTransaction) {
+			processTransactionTerminated(new TransactionTerminatedEventWrapper(this.providerProxy,
+					(ServerTransaction) STW.getWrappedTransaction()));
+		}
+		
 	}
 
 	public void processResponse(ResponseEvent resp) {
-
+		
 		if (log.isInfoEnabled()) {
-			log.info("Received Response:\n" + resp.getResponse());
+			log.info("Received Response:\n"+resp.getResponse());
 		}
 
 		ClientTransaction ct = resp.getClientTransaction();
 		if (ct == null) {
 			if (log.isDebugEnabled()) {
-				log.debug("===> CT is NULL - RTR ? CALLID["
-						+ ((CallID) resp.getResponse().getHeader(CallID.NAME)).getCallId() + "] BRANCH["
-						+ ((Via) resp.getResponse().getHeaders(Via.NAME).next()).getBranch() + "] METHOD["
-						+ ((CSeq) resp.getResponse().getHeader(CSeq.NAME)).getMethod() + "] CODE["
-						+ resp.getResponse().getStatusCode() + "]");
+				log
+						.debug("===> CT is NULL - RTR ? CALLID["
+								+ ((CallID) resp.getResponse().getHeader(
+										CallID.NAME)).getCallId()
+								+ "] BRANCH["
+								+ ((Via) resp.getResponse()
+										.getHeaders(Via.NAME).next())
+										.getBranch()
+								+ "] METHOD["
+								+ ((CSeq) resp.getResponse().getHeader(
+										CSeq.NAME)).getMethod() + "] CODE["
+								+ resp.getResponse().getStatusCode() + "]");
 			}
 			return;
 		}
 
 		final int statusCode = resp.getResponse().getStatusCode();
-		final String method = ((CSeqHeader) resp.getResponse().getHeader(CSeqHeader.NAME)).getMethod();
-		if (ct.getApplicationData() == null || !(ct.getApplicationData() instanceof ClientTransactionWrapper)) {
+		final String method = ((CSeqHeader) resp.getResponse().getHeader(
+				CSeqHeader.NAME)).getMethod();
+		if (ct.getApplicationData() == null
+				|| !(ct.getApplicationData() instanceof ClientTransactionWrapper)) {
 			// ERROR?
-			log.error("Received app data[" + ct.getApplicationData() + "] - should be instance of wrapper class!!");
+			log.error("Received app data[" + ct.getApplicationData()
+					+ "] - should be instance of wrapper class!!");
 			// TODO: Send SERVER_ERROR ?
 			return;
 		}
@@ -918,7 +996,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		// WE HAVE SET UP ALL WHAT WE NEED, NOW DO SOMETHING
 		ComponentKey eventKey = null;
 		SipActivityHandle SAH = null;
-		ClientTransactionWrapper CTW = (ClientTransactionWrapper) ct.getApplicationData();
+		ClientTransactionWrapper CTW = (ClientTransactionWrapper) ct
+				.getApplicationData();
 		DialogWrapper DW = null;
 		boolean inDialog = false;
 
@@ -927,13 +1006,17 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 			Dialog d = ct.getDialog();
 
-			if (d.getApplicationData() != null && d.getApplicationData() instanceof DialogActivity) {
+			if (d.getApplicationData() != null
+					&& d.getApplicationData() instanceof DialogActivity) {
 				DW = (DialogWrapper) d.getApplicationData();
 				SAH = DW.getActivityHandle();
 				inDialog = true;
 			} else {
 				if (log.isDebugEnabled()) {
-					log.debug("Dialog [" + d + "] exists, but no wrapper is present. Delivering event on TX");
+					log
+							.debug("Dialog ["
+									+ d
+									+ "] exists, but no wrapper is present. Delivering event on TX");
 				}
 				inDialog = false;
 				SAH = CTW.getActivityHandle();
@@ -946,14 +1029,19 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 		}
 
-		ResponseEventWrapper REW = new ResponseEventWrapper(this.providerProxy, CTW, DW, resp.getResponse());
-		int eventID = eventIdCache.getEventId(eventLookup, REW.getResponse(), inDialog);
+		ResponseEventWrapper REW = new ResponseEventWrapper(this.providerProxy,
+				CTW, DW, resp.getResponse());
+		int eventID = eventIdCache.getEventId(eventLookup, REW.getResponse(),
+				inDialog);
 
-		fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP, ((FromHeader) resp.getResponse().getHeader(
-				FromHeader.NAME)).getAddress().toString()));
+		fireEvent(REW, SAH, eventID, new Address(AddressPlan.SIP,
+				((FromHeader) resp.getResponse().getHeader(FromHeader.NAME))
+						.getAddress().toString()));
 
-		if ((statusCode == 481 || statusCode == 408) && inDialog
-				&& (!method.equals(Request.INVITE) || !method.equals(Request.SUBSCRIBE))) {
+		if ((statusCode == 481 || statusCode == 408)
+				&& inDialog
+				&& (!method.equals(Request.INVITE) || !method
+						.equals(Request.SUBSCRIBE))) {
 
 			try {
 				Request bye = DW.createRequest(Request.BYE);
@@ -988,34 +1076,47 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 			if (log.isInfoEnabled()) {
 				if (!arg0.isServerTransaction()) {
-					log.info("Server transaction " + arg0.getServerTransaction().getBranchId() + " timer expired");
+					log.info("Server transaction "
+							+ arg0.getServerTransaction().getBranchId()
+							+ " timer expired");
 				} else {
-					log.info("Client transaction " + arg0.getClientTransaction().getBranchId() + " timer expired");
+					log.info("Client transaction "
+							+ arg0.getClientTransaction().getBranchId()
+							+ " timer expired");
 				}
-			}
+			} 
 
 			TimeoutEventWrapper tew = null;
 			if (!arg0.isServerTransaction()) {
 
 				t = arg0.getClientTransaction();
 
-				if (t.getApplicationData() == null || !(t.getApplicationData() instanceof ClientTransactionWrapper)) {
-					log.error("FAILURE on processTimeout - CTX. Wrong app data[" + t.getApplicationData() + "]");
+				if (t.getApplicationData() == null
+						|| !(t.getApplicationData() instanceof ClientTransactionWrapper)) {
+					log
+							.error("FAILURE on processTimeout - CTX. Wrong app data["
+									+ t.getApplicationData() + "]");
 					return;
 				} else {
-					tew = new TimeoutEventWrapper(this.providerProxy, (ClientTransaction) t.getApplicationData(), arg0
-							.getTimeout());
-					ClientTransactionWrapper ctw = (ClientTransactionWrapper) t.getApplicationData();
+					tew = new TimeoutEventWrapper(this.providerProxy,
+							(ClientTransaction) t.getApplicationData(), arg0
+									.getTimeout());
+					ClientTransactionWrapper ctw = (ClientTransactionWrapper) t
+							.getApplicationData();
 					wsi = ctw;
-					if (ctw.getDialog() != null && ctw.getDialog() instanceof DialogWrapper) {
+					if (ctw.getDialog() != null
+							&& ctw.getDialog() instanceof DialogWrapper) {
 						inDialog = true;
-						handle = ((DialogWrapper) ctw.getDialog()).getActivityHandle();
+						handle = ((DialogWrapper) ctw.getDialog())
+								.getActivityHandle();
 					} else {
 						handle = ctw.getActivityHandle();
 					}
 
-					fireEvent(tew, handle, eventIdCache.getTimeoutEventId(eventLookup, inDialog), new Address(
-							AddressPlan.SIP, ((FromHeader) ctw.getRequest().getHeader(FromHeader.NAME)).getAddress()
+					fireEvent(tew, handle, eventIdCache.getTimeoutEventId(
+							eventLookup, inDialog), new Address(
+							AddressPlan.SIP, ((FromHeader) ctw.getRequest()
+									.getHeader(FromHeader.NAME)).getAddress()
 									.toString()));
 				}
 
@@ -1032,8 +1133,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 			boolean sendClientResponse = true;
 			String method = t.getRequest().getMethod();
 
-			if (t.getDialog() != null && t.getDialog().getApplicationData() instanceof DialogWrapper) {
-				DialogWrapper da = (DialogWrapper) t.getDialog().getApplicationData();
+			if (t.getDialog() != null
+					&& t.getDialog().getApplicationData() instanceof DialogWrapper) {
+				DialogWrapper da = (DialogWrapper) t.getDialog()
+						.getApplicationData();
 				if (isDialogTermMethod(da, method)) {
 					sendBYE = false;
 
@@ -1045,15 +1148,20 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 				if (sendClientResponse) {
 					try {
-						Response response = providerProxy.getMessageFactory().createResponse(Response.REQUEST_TIMEOUT,
-								t.getRequest());
+						Response response = providerProxy.getMessageFactory()
+								.createResponse(Response.REQUEST_TIMEOUT,
+										t.getRequest());
 
-						ResponseEventWrapper REW = new ResponseEventWrapper(this.providerProxy, (ClientTransaction) t
-								.getApplicationData(), da, response);
+						ResponseEventWrapper REW = new ResponseEventWrapper(
+								this.providerProxy, (ClientTransaction) t
+										.getApplicationData(), da, response);
 
-						fireEvent(REW, da.getActivityHandle(),
-								eventIdCache.getEventId(eventLookup, response, inDialog), new Address(AddressPlan.SIP,
-										((FromHeader) response.getHeader(FromHeader.NAME)).getAddress().toString()));
+						fireEvent(REW, da.getActivityHandle(), eventIdCache
+								.getEventId(eventLookup, response, inDialog),
+								new Address(AddressPlan.SIP,
+										((FromHeader) response
+												.getHeader(FromHeader.NAME))
+												.getAddress().toString()));
 
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
@@ -1074,7 +1182,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 		} finally {
 			if (wsi != null)
-				sendActivityEndEvent(wsi);
+				sendActivityEndEvent(wsi.getActivityHandle());
 		}
 	}
 
@@ -1082,7 +1190,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		return false;
 	}
 
-	public void processTransactionTerminated(TransactionTerminatedEvent txTerminatedEvent) {
+	public void processTransactionTerminated(
+			TransactionTerminatedEvent txTerminatedEvent) {
 
 		Transaction t = null;
 		if (!txTerminatedEvent.isServerTransaction()) {
@@ -1090,11 +1199,10 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		} else {
 			t = txTerminatedEvent.getServerTransaction();
 		}
-
 		if (log.isInfoEnabled()) {
-			log.info("Transaction " + t.getBranchId() + " terminated");
+			log.info("Transaction "+t.getBranchId()+"terminated");
 		}
-
+		
 		//HACK FOR ACK.......
 		if(t.getApplicationData()==null && t.getRequest().getMethod().equals(Request.ACK))
 		{
@@ -1103,42 +1211,47 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		}
 		if (t.getApplicationData() != null) {
 
-			WrapperSuperInterface wsi = (WrapperSuperInterface) t.getApplicationData();
+			WrapperSuperInterface wsi = (WrapperSuperInterface) t
+					.getApplicationData();
 			DialogWrapper dw = null;
-			if (t.getDialog() != null && t.getDialog().getApplicationData() instanceof DialogWrapper) {
+			if (t.getDialog() != null
+					&& t.getDialog().getApplicationData() instanceof DialogWrapper) {
 				dw = (DialogWrapper) t.getDialog().getApplicationData();
 				if (wsi instanceof ServerTransactionWrapper) {
 					dw.removeOngoingTransaction((ServerTransactionWrapper) wsi);
 				} else if (wsi instanceof ClientTransactionWrapper) {
 					dw.removeOngoingTransaction((ClientTransactionWrapper) wsi);
 				} else {
-					log.error("Unknown type " + wsi.getClass()
-							+ " of SIP Transaction, can't remove from dialog wrapper");
+					log
+							.error("Unknown type "
+									+ wsi.getClass()
+									+ " of SIP Transaction, can't remove from dialog wrapper");
 				}
 			}
 
-			if (!this.sendActivityEndEvent(wsi) && !t.getRequest().getMethod().equals(Request.ACK)) {
-				//FIXME: what does that mean????????????
+			if (!this.sendActivityEndEvent(wsi.getActivityHandle())) {
 				// not a tx activity, cleanup references now
 				wsi.cleanup();
 			}
 		} else {
-			log.error("TransactionTerminatedEvent dropped due to null app data for ["+t.getBranchId()+"] ["+t.getRequest().getMethod()+"]");
-
+			log
+					.error("TransactionTerminatedEvent dropped due to null app data");
 		}
 	}
 
 	public void processDialogTerminated(DialogTerminatedEvent dte) {
-
+		
 		if (log.isInfoEnabled()) {
 			log.info("Dialog " + dte.getDialog().getDialogId() + " terminated");
 		}
-
+		 
 		if (dte.getDialog().getApplicationData() != null) {
-			this.sendActivityEndEvent(((DialogWrapper) dte.getDialog().getApplicationData()));
+			this.sendActivityEndEvent(((DialogWrapper) dte.getDialog()
+					.getApplicationData()).getActivityHandle());
 		} else {
 			if (log.isDebugEnabled()) {
-				log.debug("DialogTerminatedEvent droping due to null app data.");
+				log
+						.debug("DialogTerminatedEvent droping due to null app data.");
 			}
 		}
 
@@ -1149,15 +1262,11 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 	/**
 	 * 
 	 */
-	public boolean sendActivityEndEvent(WrapperSuperInterface wsi) {
+	public boolean sendActivityEndEvent(SipActivityHandle ah) {
 		try {
-			if(wsi.isActivity() && this.activities.containsKey(wsi.getActivityHandle()))
-			{
-				this.sleeEndpoint.activityEnding(wsi.getActivityHandle());
+			if (this.activities.containsKey(ah)) {
+				this.sleeEndpoint.activityEnding(ah);
 				return true;
-			}else
-			{
-				this.activityEnded(wsi.getActivityHandle());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1202,7 +1311,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 					if (allowedTransports.contains(tmp[i].toLowerCase())) {
 						transports.add(tmp[i].toLowerCase());
 					} else {
-						log.error(" TRANSPORT[" + tmp[i] + "] IS NOT A VALID TRANSPORT!!!");
+						log.error(" TRANSPORT[" + tmp[i]
+								+ "] IS NOT A VALID TRANSPORT!!!");
 					}
 				}
 			}
@@ -1210,7 +1320,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		provisionedProperties.put(this.TRANSPORTS_BIND, transportsToSet);
 	}
 
-	public void addActivity(SipActivityHandle sah, WrapperSuperInterface wrapperActivity) {
+	public void addActivity(SipActivityHandle sah,
+			WrapperSuperInterface wrapperActivity) {
 
 		if (log.isDebugEnabled()) {
 			log.debug("Adding sip activity handle " + sah);
@@ -1220,12 +1331,12 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	}
 
-	public Object removeActivity(SipActivityHandle sah) {
+	public void removeActivity(SipActivityHandle sah) {
 
 		if (log.isDebugEnabled()) {
 			log.debug("Removing sip activity handle " + sah);
 		}
-		return this.activities.remove(sah);
+		this.activities.remove(sah);
 	}
 
 	public SleeEndpoint getSleeEndpoint() {
@@ -1234,14 +1345,55 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 
 	// ------- END OF PROVISIONING
 
-	private boolean fireEvent(Object event, ActivityHandle handle, int eventID, Address address, boolean useFiltering) {
+	// *********************** DEBUG PART]
+	/*
+	 * private Timer debugTimer = new Timer();
+	 * 
+	 * //private org.apache.log4j.Logger debugLogger = org.apache.log4j.Logger
+	 * .getLogger("org.mobicents.slee.resource.sip.DEBUG");
+	 * 
+	 * private HashMap receivedEvents = new HashMap(); // private ArrayList
+	 * orderOfEvent = new ArrayList(); private HashMap timeStamps = new
+	 * HashMap();
+	 * 
+	 * private class EventTimerTask extends TimerTask {
+	 * 
+	 * int runCount = 0;
+	 * 
+	 * @Override public void run() {
+	 * 
+	 * debugLogger.info("-------------------- DEUMP RUN[" + runCount +
+	 * "]-----------------"); debugLogger.info("[" + runCount + "] ACTIVITIES
+	 * DUMP"); TreeMap ac = new TreeMap(activities); int count = 0; for (Object
+	 * key : ac.keySet()) { debugLogger.info("[" + runCount + "] AC[" + count++ + "]
+	 * KEY[" + key + "] A[" + ac.get(key) + "]"); } // debugLogger.info("[" +
+	 * runCount + "] --- EVENTS RECEVIED"); // ArrayList orderCopy = new
+	 * ArrayList(orderOfEvent); // count = 0; // for (Object event : orderCopy) { //
+	 * debugLogger.info("[" + runCount + "] EVENT[" + count++ + "] E[" // +
+	 * event + "] STAMP[" + timeStamps.get(event) + "] A[" // +
+	 * receivedEvents.get(event) + "]"); // }
+	 * 
+	 * debugLogger.info("[" + runCount + "]
+	 * ================================================");
+	 * 
+	 * runCount++; }
+	 *  }
+	 * 
+	 * private void initDebug() { debugTimer.scheduleAtFixedRate(new
+	 * EventTimerTask(), 5000, 5000); }
+	 * 
+	 * private void tearDownDebug() { debugTimer.cancel(); }
+	 */
+	private boolean fireEvent(Object event, ActivityHandle handle, int eventID,
+			Address address, boolean useFiltering) {
 
 		if (useFiltering && eventIDFilter.filterEvent(eventID)) {
 			if (log.isDebugEnabled()) {
 				log.debug("Event " + eventID + " filtered");
 			}
 		} else if (eventID < 0) {
-			log.error("Event id for " + eventID + " is less than zero, cant fire!!!");
+			log.error("Event id for " + eventID
+					+ " is less than zero, cant fire!!!");
 		} else {
 			if (log.isDebugEnabled()) {
 				log.debug("Firing event " + event + " on handle " + handle);
@@ -1256,18 +1408,22 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		return false;
 	}
 
-	private boolean fireEvent(Object event, ActivityHandle handle, int eventId, Address address) {
+	private boolean fireEvent(Object event, ActivityHandle handle, int eventId,
+			Address address) {
 		return this.fireEvent(event, handle, eventId, address, true);
 	}
 
 	// --- XXX - error responses to be a good citizen
-	private void sendErrorResponse(ServerTransaction serverTransaction, Request request, int code, String msg) {
+	private void sendErrorResponse(ServerTransaction serverTransaction,
+			Request request, int code, String msg) {
 		if (!request.getMethod().equals(Request.ACK)) {
 			try {
-				ContentTypeHeader contentType = this.providerProxy.getHeaderFactory().createContentTypeHeader("text",
-						"plain");
-				Response response = providerProxy.getMessageFactory().createResponse(code, request, contentType,
-						msg.getBytes());
+				ContentTypeHeader contentType = this.providerProxy
+						.getHeaderFactory().createContentTypeHeader("text",
+								"plain");
+				Response response = providerProxy.getMessageFactory()
+						.createResponse(code, request, contentType,
+								msg.getBytes());
 				if (serverTransaction != null) {
 					serverTransaction.sendResponse(response);
 				}
@@ -1277,40 +1433,4 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor, Seriali
 		}
 	}
 
-	// *********************** DEBUG PART]
-
-	//private Timer debugTimer = new Timer();
-
-	//private org.apache.log4j.Logger debugLogger = org.apache.log4j.Logger
-	//		.getLogger("org.mobicents.slee.resource.sip.DEBUG");
-
-	//private HashMap receivedEvents = new HashMap();
-	//private ArrayList orderOfEvent = new ArrayList();
-	//private HashMap timeStamps = new HashMap();
-
-	//private class EventTimerTask extends TimerTask {
-
-	//	int runCount = 0;
-
-	//	@Override
-	//	public void run() {
-
-	//		debugLogger.info("-------------------- DEUMP RUN[" + runCount + "]-----------------");
-	//		debugLogger.info("[" + runCount + "] ACTIVITIES  DUMP");
-	//		Map ac = new HashMap(activities);
-	//		int count = 0;
-	//		for (Object key : ac.keySet()) {
-	//			debugLogger.info("[" + runCount + "] AC[" + count++ + "]	  KEY[" + key + "] A[" + ac.get(key) + "]");
-	//		} // 
-
-	//	}
-	//}
-
-	//private void initDebug() {
-	//	debugTimer.scheduleAtFixedRate(new EventTimerTask(), 5000, 5000);
-	//}
-
-	//private void tearDownDebug() {
-	//	debugTimer.cancel();
-	//}
 }

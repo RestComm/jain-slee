@@ -1,27 +1,28 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
+import gov.nist.javax.sip.message.SIPRequest;
+
 import javax.sip.Dialog;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ObjectInUseException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.TransactionState;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
-import org.mobicents.slee.resource.sip11.SipActivityHandle;
-
 public class ACKDummyTransaction implements ServerTransaction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Request ackRequest = null;
 	private Object appData=null;
+	private String branchId = null;
+	
 	public ACKDummyTransaction(Request ackRequest) {
 		this.ackRequest = ackRequest;
-		if (this.getBranchId() == null) {
-			throw new IllegalArgumentException("NO BRANCH ID!!!!!");
-		}
-		
 	}
 
 	public void cleanup() {
@@ -35,14 +36,10 @@ public class ACKDummyTransaction implements ServerTransaction {
 	}
 
 	public String getBranchId() {
-		if (this.ackRequest != null && this.ackRequest.getHeader(ViaHeader.NAME) != null) {
-			ViaHeader vh = (ViaHeader) this.ackRequest.getHeader(ViaHeader.NAME);
-			return vh.getBranch();
-		} else {
-			return null;
+		if (branchId == null) {
+			branchId = ((SIPRequest)ackRequest).getTopmostVia().getBranch();
 		}
-		
-
+		return branchId;
 	}
 
 	public void sendResponse(Response arg0) throws SipException, InvalidArgumentException {

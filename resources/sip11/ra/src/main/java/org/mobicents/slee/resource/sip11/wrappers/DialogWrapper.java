@@ -1,5 +1,6 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
+import java.rmi.server.UID;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,9 +48,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	protected SipActivityHandle sipActivityHandle;
 	protected String initiatingTransctionId = null;
 	protected SipResourceAdaptor ra;
-	protected boolean isActivity = false;
-	// TODO: Add sync maps?
-	// SPECS 1.1 stuff, wonder who came up with that idea.
+	
 	protected ConcurrentHashMap<String, ClientTransaction> ongoingClientTransactions = new ConcurrentHashMap<String, ClientTransaction>();
 	protected ConcurrentHashMap<String, ServerTransaction> ongoingServerTransactions = new ConcurrentHashMap<String, ServerTransaction>();
 
@@ -82,7 +81,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		// leak attached SBBE - we would loose them, as in container view,
 		// hash contract on handle would be broken
 		// and on each change dialog would be considered as different activity.
-		sipActivityHandle = new SipActivityHandle("dialog:"+this.initiatingTransctionId);
+		sipActivityHandle = new SipActivityHandle(new UID().toString());
 	}
 
 	public void cleanup() {
@@ -469,16 +468,6 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	public String toString() {
 		return "Dialog Id[" + this.getDialogId() + "] State[" + this.getState() + "] OngoingCTX["
 				+ this.ongoingClientTransactions.size() + "] OngoingSTX[" + this.ongoingServerTransactions.size() + "]";
-	}
-
-	public boolean isActivity() {
-
-		return this.isActivity;
-	}
-
-	public void setActivityFlag() {
-		this.isActivity = true;
-
 	}
 
 }

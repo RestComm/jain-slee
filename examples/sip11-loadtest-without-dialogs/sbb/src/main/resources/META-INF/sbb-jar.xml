@@ -32,17 +32,7 @@
                 <event-type-vendor>javax.sip</event-type-vendor>
                 <event-type-version>1.1</event-type-version>
             </event-type-ref>
-            <initial-event-selector-method-name>ies</initial-event-selector-method-name>
-        </event>
-        
-        <event event-direction="Receive" initial-event="True">
-            <event-name>AckEvent</event-name>
-            <event-type-ref>
-                <event-type-name>javax.sip.message.Request.ACK</event-type-name>
-                <event-type-vendor>javax.sip</event-type-vendor>
-                <event-type-version>1.1</event-type-version>
-            </event-type-ref>
-            <initial-event-selector-method-name>ies</initial-event-selector-method-name>
+                 <initial-event-select variable="ActivityContext"/>
         </event>
         
         <event event-direction="Receive" initial-event="False">
@@ -52,7 +42,6 @@
                 <event-type-vendor>javax.sip</event-type-vendor>
                 <event-type-version>1.1</event-type-version>
             </event-type-ref>
-            <initial-event-select variable="ActivityContext"/>
         </event>
         
         <event event-direction="Receive" initial-event="False">

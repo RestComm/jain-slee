@@ -7,7 +7,5 @@ public interface WrapperSuperInterface {
 	public SipActivityHandle getActivityHandle();
 	
 	public void cleanup();
-	public void setActivityFlag();
-	public boolean isActivity();
 
 }

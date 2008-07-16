@@ -272,7 +272,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 				"This operation is not supported yet");
 	}
 	public ClientTransaction getNewClientTransaction(Request request,
-			boolean createActivityInSlee) throws 
+			boolean createActivity) throws 
 			TransactionUnavailableException {
 		ClientTransaction ct = provider.getNewClientTransaction(request);
 		ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct);
@@ -286,17 +286,18 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		// add transaction to activities if it's dialog not exists and is an activity
 		// considering that if dw exists then it's an activity 
 		if (dw == null) {
-			ra.addActivity(ctw.getActivityHandle(), ctw);
-			if(createActivityInSlee)
-			try {
-				ctw.setActivityFlag();
-				ra.getSleeEndpoint().activityStarted(ctw.getActivityHandle());
-			} catch (Exception e) {
-				logger.error("Failed to start sip activity ("
-						+ ctw.getActivityHandle() + ")",e);
-				
-				ra.removeActivity(ctw.getActivityHandle());
-			} 
+			
+			if(createActivity) {
+				ra.addActivity(ctw.getActivityHandle(), ctw);
+				try {
+					ra.getSleeEndpoint().activityStarted(ctw.getActivityHandle());
+				} catch (Exception e) {
+					logger.error("Failed to start sip activity ("
+							+ ctw.getActivityHandle() + ")",e);
+
+					ra.removeActivity(ctw.getActivityHandle());
+				} 
+			}
 		}
 				
 		return ctw;
@@ -322,12 +323,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			TransactionUnavailableException {
 		// TODO: add checks for wrapper
 
-		
-		if(serverTransaction == null && !request.getMethod().equals(Request.ACK)) {
+		if(serverTransaction == null) {
 			serverTransaction = provider.getNewServerTransaction(request);
-		}else
-		{
-			serverTransaction=new ACKDummyTransaction(request);
 		}
 		ServerTransactionWrapper stw = new ServerTransactionWrapper(serverTransaction);
 		
@@ -347,8 +344,6 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 
 			if (createActivityInSlee) {
 				try {
-
-					stw.setActivityFlag();
 					ra.getSleeEndpoint().activityStarted(stw.getActivityHandle());
 				} catch (Exception e) {
 					logger.error("Failed to start sip activity ("
@@ -392,7 +387,6 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		ra.addActivity(dw.getActivityHandle(), dw);
 		
 		try {
-			dw.setActivityFlag();
 			ra.getSleeEndpoint().activityStarted(dw.getActivityHandle());
 		} catch (Exception e) {
 			logger.error("Failed to start sip activity ("
