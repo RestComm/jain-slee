@@ -8,10 +8,13 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sip.ClientTransaction;
+import javax.sip.ListeningPoint;
 import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
+import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
+import javax.sip.header.ContactHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.ToHeader;
 import javax.sip.message.MessageFactory;
@@ -38,6 +41,20 @@ public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb implem
 	private MessageFactory messageFactory;
     private TimerFacility timerFacility;
     
+    private static ContactHeader contactHeader;
+    
+    private ContactHeader getContactHeader() throws ParseException {
+    	if (contactHeader == null) {
+    		ListeningPoint listeningPoint = sipFactoryProvider
+			.getListeningPoint("udp");
+			Address address = addressFactory.createAddress(
+					"Mobicents SIP AS <sip:"+listeningPoint.getIPAddress()+">");
+			((SipURI) address.getURI()).setPort(listeningPoint.getPort());
+			contactHeader = headerFactory.createContactHeader(address);
+    	}
+    	return contactHeader;
+    }
+    
 	public void onInviteEvent(javax.sip.RequestEvent requestEvent, ActivityContextInterface aci) {
 		try {
 			ServerTransaction serverTransaction = requestEvent.getServerTransaction();
@@ -47,14 +64,9 @@ public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb implem
 			DialogActivity dialog = (DialogActivity) sipFactoryProvider.getNewDialog(serverTransaction);
 			sipActivityContextInterfaceFactory.getActivityContextInterface(dialog).attach(this.sbbContext.getSbbLocalObject());
 			// send 200 ok
-			final SipURI sipUri = (SipURI) requestEvent.getRequest().getRequestURI();
-			final SipURI sipAddress = addressFactory.createSipURI(sipUri.getUser(),
-					sipUri.getHost());
 			Response response = messageFactory
 					.createResponse(Response.OK,requestEvent.getRequest());
-			response.addHeader(headerFactory
-					.createContactHeader(addressFactory
-					.createAddress(sipAddress)));
+			response.addHeader(getContactHeader());
 			((ToHeader)response.getHeader(ToHeader.NAME)).setTag(Utils.generateTag());
 			serverTransaction.sendResponse(response);
 		} catch (Exception ex) {
@@ -76,7 +88,9 @@ public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb implem
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 		try {
 			DialogActivity dialog = (DialogActivity)aci.getActivity(); 
-			ClientTransaction clientTransaction = sipFactoryProvider.getNewClientTransaction(dialog.createRequest(Request.BYE));
+			Request request = dialog.createRequest(Request.BYE);
+			request.addHeader(getContactHeader());
+			ClientTransaction clientTransaction = sipFactoryProvider.getNewClientTransaction(request);
 			clientTransaction.sendRequest();
 		} catch (Exception ex) {
 			ex.printStackTrace();
