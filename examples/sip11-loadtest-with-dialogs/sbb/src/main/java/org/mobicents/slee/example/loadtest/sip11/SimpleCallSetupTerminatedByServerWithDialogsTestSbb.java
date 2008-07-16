@@ -42,7 +42,7 @@ public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb implem
 		try {
 			ServerTransaction serverTransaction = requestEvent.getServerTransaction();
 			// send 100
-			serverTransaction.sendResponse(messageFactory.createResponse(100,requestEvent.getRequest()));
+			// serverTransaction.sendResponse(messageFactory.createResponse(100,requestEvent.getRequest()));
 			// create dialog and attach this entity to it's aci
 			DialogActivity dialog = (DialogActivity) sipFactoryProvider.getNewDialog(serverTransaction);
 			sipActivityContextInterfaceFactory.getActivityContextInterface(dialog).attach(this.sbbContext.getSbbLocalObject());
