@@ -84,7 +84,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		// leak attached SBBE - we would loose them, as in container view,
 		// hash contract on handle would be broken
 		// and on each change dialog would be considered as different activity.
-		sipActivityHandle = new SipActivityHandle(String.valueOf(this.wrappedDialog.hashCode()));
+		sipActivityHandle = new SipActivityHandle("dialog:"+this.initiatingTransctionId);
 	}
 
 	public void cleanup() {
