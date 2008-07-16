@@ -53,6 +53,9 @@
   <classpathentry kind="src" path="examples/sip11-loadtest-with-dialogs/du/src/main/resources"/>
   <classpathentry kind="src" path="examples/sip11-loadtest-with-dialogs/sbb/src/main/resources"/>
   <classpathentry kind="src" path="examples/sip11-loadtest-with-dialogs/sbb/src/main/java"/>
+  <classpathentry kind="src" path="examples/sip11-loadtest-without-dialogs/du/src/main/resources"/>
+  <classpathentry kind="src" path="examples/sip11-loadtest-without-dialogs/sbb/src/main/java"/>
+  <classpathentry kind="src" path="examples/sip11-loadtest-without-dialogs/sbb/src/main/resources"/>
   <classpathentry kind="src" path="examples/training/example1/du/src/main/resources"/>
   <classpathentry kind="src" path="examples/training/example1/sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/training/example1/sbb/src/main/resources"/>
@@ -252,7 +255,7 @@
   <classpathentry kind="var" path="M2_REPO/jexcelapi/jxl/2.4.2/jxl-2.4.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/jgroups/jgroups/2.4.1/jgroups-2.4.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.1/junit-4.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.12/log4j-1.2.12.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
   <classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2.3/ehcache-1.2.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/antlr/antlr/3.0ea8/antlr-3.0ea8.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/ant/ant-antlr/1.7.0/ant-antlr-1.7.0.jar"/>
