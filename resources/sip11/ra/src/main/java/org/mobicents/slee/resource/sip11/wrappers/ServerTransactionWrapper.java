@@ -11,43 +11,43 @@ import javax.sip.message.Response;
 
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 
-public class ServerTransactionWrapper extends SuperTransactionWrapper implements
-		ServerTransaction, WrapperSuperInterface {	
+public class ServerTransactionWrapper extends SuperTransactionWrapper implements ServerTransaction,
+		WrapperSuperInterface {
 
 	public ServerTransactionWrapper(ServerTransaction wrappedTransaction) {
 		if (wrappedTransaction.getApplicationData() != null) {
 			if (wrappedTransaction.getApplicationData() instanceof ServerTransactionWrapper) {
-				throw new IllegalArgumentException(
-						"ServerTransaction to wrap has alredy a wrapper!!!");
+				throw new IllegalArgumentException("ServerTransaction to wrap has alredy a wrapper!!!");
 			}
 		}
 		this.wrappedTransaction = wrappedTransaction;
 		this.wrappedTransaction.setApplicationData(this);
-		super.sipActivityHandle = new SipActivityHandle(wrappedTransaction
-				.getBranchId()
-				+ "_" + wrappedTransaction.getRequest().getMethod());
+		super.sipActivityHandle = new SipActivityHandle(wrappedTransaction.getBranchId() + "_"
+				+ wrappedTransaction.getRequest().getMethod());
 
+	}
+
+	public ServerTransactionWrapper() {
 	}
 
 	public void enableRetransmissionAlerts() throws SipException {
 		((ServerTransaction) wrappedTransaction).enableRetransmissionAlerts();
 	}
 
-	public void sendResponse(Response arg0) throws SipException,
-			InvalidArgumentException {
+	public void sendResponse(Response arg0) throws SipException, InvalidArgumentException {
 		((ServerTransaction) wrappedTransaction).sendResponse(arg0);
-		String method=this.getRequest().getMethod();
-		int statusCode=arg0.getStatusCode();
-		if(method.equals(Request.CANCEL) && (statusCode<300 && statusCode>199))
-		{
+		String method = this.getRequest().getMethod();
+		int statusCode = arg0.getStatusCode();
+		if (method.equals(Request.CANCEL) && (statusCode < 300 && statusCode > 199)) {
 			Dialog dialog = getDialog();
-			if(dialog.getState()==null)
+			if (dialog.getState() == null)
 				dialog.delete();
 		}
 	}
 
 	public Dialog getDialog() {
-		if (this.wrappedTransaction.getDialog() != null && this.wrappedTransaction.getDialog().getApplicationData() != null) {
+		if (this.wrappedTransaction.getDialog() != null
+				&& this.wrappedTransaction.getDialog().getApplicationData() != null) {
 			return (DialogWrapper) this.wrappedTransaction.getDialog().getApplicationData();
 		}
 		return null;
@@ -56,8 +56,6 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 	public String getBranchId() {
 		return wrappedTransaction.getBranchId();
 	}
-
-	
 
 	public Request getRequest() {
 		return wrappedTransaction.getRequest();
@@ -71,8 +69,7 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 		return wrappedTransaction.getState();
 	}
 
-	public void setRetransmitTimer(int arg0)
-			throws UnsupportedOperationException {
+	public void setRetransmitTimer(int arg0) throws UnsupportedOperationException {
 		wrappedTransaction.setRetransmitTimer(arg0);
 	}
 
@@ -80,27 +77,28 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 		wrappedTransaction.terminate();
 	}
 
-	public String toString()
-	{
-		
-		return "ServerTransaction BR["+this.getBranchId()+"] METHOD["+this.getRequest().getMethod()+"] STATE["+this.wrappedTransaction.getState()+"]";
-		
+	public String toString() {
+
+		return "ServerTransaction BR[" + this.getBranchId() + "] METHOD[" + this.getRequest().getMethod() + "] STATE["
+				+ this.wrappedTransaction.getState() + "]";
+
 	}
-	
+
 	/**
-	 * Returns SipActviitytHandle for invite request. Should be called only by cancel
+	 * Returns SipActviitytHandle for invite request. Should be called only by
+	 * cancel
+	 * 
 	 * @return
 	 */
-	public SipActivityHandle getInviteHandle()
-	{
-		String id=this.sipActivityHandle.getID();
-		id=id.replace("_"+this.wrappedTransaction.getRequest().getMethod(), "_"+Request.INVITE).intern();
+	public SipActivityHandle getInviteHandle() {
+		String id = this.sipActivityHandle.getID();
+		id = id.replace("_" + this.wrappedTransaction.getRequest().getMethod(), "_" + Request.INVITE).intern();
 		return new SipActivityHandle(id);
 	}
-	
+
 	public void cleanup() {
 		this.wrappedTransaction.setApplicationData(null);
 		this.wrappedTransaction = null;
 	}
-	
+
 }

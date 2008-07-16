@@ -8,7 +8,7 @@ public abstract class SuperTransactionWrapper implements WrapperSuperInterface{
 
 	protected SipActivityHandle sipActivityHandle;
 	protected Transaction wrappedTransaction;
-	
+	protected boolean isActivity=false;
 	public Object getApplicationData() {
 		throw new SecurityException();
 	}
@@ -24,4 +24,16 @@ public abstract class SuperTransactionWrapper implements WrapperSuperInterface{
 	public Transaction getWrappedTransaction() {
 		return wrappedTransaction;
 	}
+
+	public boolean isActivity() {
+		
+		return this.isActivity;
+	}
+
+	public void setActivityFlag() {
+		this.isActivity=true;
+		
+	}
+	
+	
 }

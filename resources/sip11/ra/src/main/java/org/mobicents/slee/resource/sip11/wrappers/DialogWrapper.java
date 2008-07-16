@@ -47,6 +47,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	protected SipActivityHandle sipActivityHandle;
 	protected String initiatingTransctionId = null;
 	protected SipResourceAdaptor ra;
+	protected boolean isActivity = false;
 	// TODO: Add sync maps?
 	// SPECS 1.1 stuff, wonder who came up with that idea.
 	protected ConcurrentHashMap<String, ClientTransaction> ongoingClientTransactions = new ConcurrentHashMap<String, ClientTransaction>();
@@ -58,16 +59,13 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 
 	protected static final Logger logger = Logger.getLogger(DialogWrapper.class);
 
-	public DialogWrapper(Dialog wrappedDialog, String initTxID,
-			SleeSipProviderImpl provider, SipResourceAdaptor ra) {
+	public DialogWrapper(Dialog wrappedDialog, String initTxID, SleeSipProviderImpl provider, SipResourceAdaptor ra) {
 		if (wrappedDialog.getApplicationData() != null) {
 			if (wrappedDialog.getApplicationData() instanceof DialogWrapper) {
-				throw new IllegalArgumentException(
-						"Dialog to wrap has alredy a wrapper!!!");
+				throw new IllegalArgumentException("Dialog to wrap has alredy a wrapper!!!");
 			} else {
 				if (logger.isDebugEnabled()) {
-					logger.debug("Overwriting application data present - "
-							+ wrappedDialog.getApplicationData());
+					logger.debug("Overwriting application data present - " + wrappedDialog.getApplicationData());
 				}
 			}
 
@@ -96,39 +94,32 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		this.ongoingClientTransactions = null;
 		this.ongoingServerTransactions = null;
 	}
-	
-	public void associateServerTransaction(ClientTransaction ct,
-			ServerTransaction st) {
+
+	public void associateServerTransaction(ClientTransaction ct, ServerTransaction st) {
 		// ct MUST be in ongoing transaction, its local, st - comes from another
 		// dialog
 
 		if (!this.hasOngoingClientTransaction(ct.getBranchId())) {
-			throw new IllegalArgumentException(
-					"Client transaction is not in ongoing transaction list!!!");
+			throw new IllegalArgumentException("Client transaction is not in ongoing transaction list!!!");
 		}
 
 		if (st != null) {
-			if (!((DialogWrapper) st.getDialog())
-					.hasOngoingServerTransaction(st.getBranchId())) {
-				throw new IllegalArgumentException(
-						"Server transaction is not in ongoing transaction list!!!");
+			if (!((DialogWrapper) st.getDialog()).hasOngoingServerTransaction(st.getBranchId())) {
+				throw new IllegalArgumentException("Server transaction is not in ongoing transaction list!!!");
 			}
 			// XXX: ctx can be associated to only one stx, however stx can have
 			// multiple ctx
 
-			((ClientTransactionWrapper) ct).associateServerTransaction(st
-					.getBranchId(), ((DialogWrapper) st.getDialog())
-					.getActivityHandle());
+			((ClientTransactionWrapper) ct).associateServerTransaction(st.getBranchId(), ((DialogWrapper) st
+					.getDialog()).getActivityHandle());
 		} else {
-			((ClientTransactionWrapper) ct).associateServerTransaction(null,
-					null);
+			((ClientTransactionWrapper) ct).associateServerTransaction(null, null);
 		}
 
 	}
 
 	public Request createRequest(Request origRequest) throws SipException {
-		Request forgedRequest = this.wrappedDialog.createRequest(origRequest
-				.getMethod());
+		Request forgedRequest = this.wrappedDialog.createRequest(origRequest.getMethod());
 
 		Set<String> headersToOmmit = new HashSet<String>();
 		headersToOmmit.add(RouteHeader.NAME);
@@ -140,18 +131,16 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		return forgedRequest;
 	}
 
-	public Response createResponse(ServerTransaction origServerTransaction,
-			Response receivedResponse) throws SipException {
-		if (!this.hasOngoingServerTransaction(origServerTransaction
-				.getBranchId()))
+	public Response createResponse(ServerTransaction origServerTransaction, Response receivedResponse)
+			throws SipException {
+		if (!this.hasOngoingServerTransaction(origServerTransaction.getBranchId()))
 			throw new IllegalArgumentException(
 					"Passed server transaction is not in ongoing STX list for this dialog!!!!");
 
 		Response forgedResponse;
 		try {
 			// I thinks this will fail?
-			forgedResponse = this.provider.getMessageFactory().createResponse(
-					receivedResponse.getStatusCode(),
+			forgedResponse = this.provider.getMessageFactory().createResponse(receivedResponse.getStatusCode(),
 					origServerTransaction.getRequest());
 		} catch (ParseException e) {
 
@@ -166,26 +155,22 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		headersToOmmit.add(CSeqHeader.NAME);
 		headersToOmmit.add(ContactHeader.NAME);
 		forgeMessage(receivedResponse, forgedResponse, headersToOmmit);
-		forgedResponse.addHeader(this.provider.getHeaderFactory()
-				.createContactHeader(this.getLocalParty()));
+		forgedResponse.addHeader(this.provider.getHeaderFactory().createContactHeader(this.getLocalParty()));
 		return forgedResponse;
 	}
 
 	public ServerTransaction getAssociatedServerTransaction(ClientTransaction ct) {
 
 		if (!this.hasOngoingClientTransaction(ct.getBranchId())) {
-			throw new IllegalArgumentException(
-					"Passed client transaction is not running for this dialog");
+			throw new IllegalArgumentException("Passed client transaction is not running for this dialog");
 		}
-			
+
 		ClientTransactionWrapper ctw = (ClientTransactionWrapper) ct;
 		if (ctw.getAssociatedTransactionBranchId() == null || ra.getActivity(ctw.getAssociationHandle()) == null) {
 			return null;
 		} else {
-			DialogActivity da = (DialogActivity) ra.getActivity(ctw
-					.getAssociationHandle());
-			return da.getServerTransaction(ctw
-					.getAssociatedTransactionBranchId());
+			DialogActivity da = (DialogActivity) ra.getActivity(ctw.getAssociationHandle());
+			return da.getServerTransaction(ctw.getAssociatedTransactionBranchId());
 		}
 	}
 
@@ -201,28 +186,22 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		return this.ongoingServerTransactions.get(id);
 	}
 
-	public ClientTransaction sendRequest(Request request) throws SipException,
-			TransactionUnavailableException {
-		
-		ClientTransactionWrapper CTW = (ClientTransactionWrapper) this.provider
-				.getNewClientTransaction(request);
-		this.wrappedDialog.sendRequest((ClientTransaction) CTW
-				.getWrappedTransaction());
+	public ClientTransaction sendRequest(Request request) throws SipException, TransactionUnavailableException {
+
+		ClientTransactionWrapper CTW = (ClientTransactionWrapper) this.provider.getNewClientTransaction(request,false);
+		this.wrappedDialog.sendRequest((ClientTransaction) CTW.getWrappedTransaction());
 		return CTW;
 	}
 
-	public Request createAck(long arg0) throws InvalidArgumentException,
-			SipException {
+	public Request createAck(long arg0) throws InvalidArgumentException, SipException {
 		return wrappedDialog.createAck(arg0);
 	}
 
-	public Request createPrack(Response arg0)
-			throws DialogDoesNotExistException, SipException {
+	public Request createPrack(Response arg0) throws DialogDoesNotExistException, SipException {
 		return this.wrappedDialog.createPrack(arg0);
 	}
 
-	public Response createReliableProvisionalResponse(int arg0)
-			throws InvalidArgumentException, SipException {
+	public Response createReliableProvisionalResponse(int arg0) throws InvalidArgumentException, SipException {
 		return this.wrappedDialog.createReliableProvisionalResponse(arg0);
 	}
 
@@ -233,8 +212,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	public void delete() {
 		// This ensures that dialog will be removed
 		if (wrappedDialog.getState() == null) {
-			ra.processDialogTerminated(new DialogTerminatedEvent(this.provider,
-					wrappedDialog));
+			ra.processDialogTerminated(new DialogTerminatedEvent(this.provider, wrappedDialog));
 		}
 		wrappedDialog.delete();
 
@@ -318,17 +296,13 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		wrappedDialog.sendAck(arg0);
 	}
 
-	public void sendReliableProvisionalResponse(Response arg0)
-			throws SipException {
+	public void sendReliableProvisionalResponse(Response arg0) throws SipException {
 		wrappedDialog.sendReliableProvisionalResponse(arg0);
 	}
 
-	public void sendRequest(ClientTransaction arg0)
-			throws TransactionDoesNotExistException, SipException {
+	public void sendRequest(ClientTransaction arg0) throws TransactionDoesNotExistException, SipException {
 		// TODO: add check for wrapper
-		wrappedDialog
-				.sendRequest((ClientTransaction) ((ClientTransactionWrapper) arg0)
-						.getWrappedTransaction());
+		wrappedDialog.sendRequest((ClientTransaction) ((ClientTransactionWrapper) arg0).getWrappedTransaction());
 	}
 
 	public void setApplicationData(Object arg0) {
@@ -380,9 +354,9 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	}
 
 	public void removeOngoingTransaction(SuperTransactionWrapper stw) {
-		
+
 	}
-	
+
 	public void clearOngoingTransaction() {
 		this.ongoingClientTransactions.clear();
 		this.ongoingServerTransactions.clear();
@@ -393,8 +367,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	}
 
 	// =========================== XXX: Helper methods =====================
-	private void forgeMessage(Message originalMessage, Message forgedMessage,
-			Set<String> headerstoOmmit) throws SipException {
+	private void forgeMessage(Message originalMessage, Message forgedMessage, Set<String> headerstoOmmit)
+			throws SipException {
 		// We leave to and from with tags from this dialog, but copy all other
 		// parameters
 		// Route headers are from this dialog
@@ -407,8 +381,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			// we leave original value
 			// FIXME: What about address URI parameters?
 			// FIXME: What about MaxForwards?
-			if (headerName.equals(ToHeader.NAME)
-					|| headerName.equals(FromHeader.NAME)) {
+			if (headerName.equals(ToHeader.NAME) || headerName.equals(FromHeader.NAME)) {
 				Parameters origHeader, forgedHeader;
 				origHeader = (Parameters) originalMessage.getHeader(headerName);
 				forgedHeader = (Parameters) forgedMessage.getHeader(headerName);
@@ -425,8 +398,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				if (forgedMessage.getHeaders(headerName).hasNext())
 					forgedMessage.removeHeader(headerName);
 
-				ListIterator headersIterator = originalMessage
-						.getHeaders(headerName);
+				ListIterator headersIterator = originalMessage.getHeaders(headerName);
 
 				while (headersIterator.hasNext()) {
 					Header origHeader, forgedHeader;
@@ -438,18 +410,13 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 					forgedHeader = null;
 
 					try {
-						forgedHeader = (Header) this.provider
-								.getHeaderFactory().createHeader(
-										headerName,
-										origHeader.toString().substring(
-												origHeader.toString().indexOf(
-														":") + 1));
+						forgedHeader = (Header) this.provider.getHeaderFactory().createHeader(headerName,
+								origHeader.toString().substring(origHeader.toString().indexOf(":") + 1));
 
-						forgedMessage
-								.addLast((javax.sip.header.Header) forgedHeader);
+						forgedMessage.addLast((javax.sip.header.Header) forgedHeader);
 					} catch (ParseException e) {
-						logger.error("Failed to generate header on [" + headerName
-										+ "]. To copy value [" + origHeader + "]\n",e);
+						logger.error("Failed to generate header on [" + headerName + "]. To copy value [" + origHeader
+								+ "]\n", e);
 						throw new SipException("Major failure", e);
 					}
 
@@ -463,47 +430,36 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			byte[] copy = new byte[rawOriginal.length];
 			System.arraycopy(rawOriginal, 0, copy, 0, copy.length);
 			try {
-				forgedMessage.setContent(new String(copy),
-						(ContentTypeHeader) forgedMessage
-								.getHeader(ContentTypeHeader.NAME));
+				forgedMessage.setContent(new String(copy), (ContentTypeHeader) forgedMessage
+						.getHeader(ContentTypeHeader.NAME));
 			} catch (ParseException e) {
-				logger.error("Failed to set content on forged message. To copy value ["
-								+ new String(copy)
-								+ "] Type ["
-								+ forgedMessage
-										.getHeader(ContentTypeHeader.NAME)
-								+ "]\n",e);
+				logger.error("Failed to set content on forged message. To copy value [" + new String(copy) + "] Type ["
+						+ forgedMessage.getHeader(ContentTypeHeader.NAME) + "]\n", e);
 			}
 		}
 
 	}
 
-	private void copyParameters(String name, Parameters origHeader,
-			Parameters forgedHeader, Set<String> toOmmit) {
+	private void copyParameters(String name, Parameters origHeader, Parameters forgedHeader, Set<String> toOmmit) {
 
 		// FIXME: This will fail for parameters such as lr ??
 		Iterator it = origHeader.getParameterNames();
 
 		while (it.hasNext()) {
 			String p_name = (String) it.next();
-			if (toOmmit.contains(p_name)
-					|| forgedHeader.getParameter(p_name) != null) {
+			if (toOmmit.contains(p_name) || forgedHeader.getParameter(p_name) != null) {
 				if (logger.isDebugEnabled()) {
-					logger.debug("Ommiting parameter on [" + name
-							+ "]. To copy value ["
-							+ origHeader.getParameter(p_name)
-							+ "]\nValue in forged ["
+					logger.debug("Ommiting parameter on [" + name + "]. To copy value ["
+							+ origHeader.getParameter(p_name) + "]\nValue in forged ["
 							+ forgedHeader.getParameter(p_name) + "]");
 				}
 			} else {
 				try {
-					forgedHeader.setParameter(p_name, origHeader
-							.getParameter(p_name));
+					forgedHeader.setParameter(p_name, origHeader.getParameter(p_name));
 				} catch (ParseException e) {
 					logger.error("Failed to pass parameter on [" + name + "]. To copy value ["
-									+ origHeader.getParameter(p_name)
-									+ "]\nValue in forged ["
-									+ forgedHeader.getParameter(p_name) + "]",e);
+							+ origHeader.getParameter(p_name) + "]\nValue in forged ["
+							+ forgedHeader.getParameter(p_name) + "]", e);
 				}
 			}
 		}
@@ -511,9 +467,18 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	}
 
 	public String toString() {
-		return "Dialog Id[" + this.getDialogId() + "] State[" + this.getState()
-				+ "] OngoingCTX[" + this.ongoingClientTransactions.size()
-				+ "] OngoingSTX[" + this.ongoingServerTransactions.size() + "]";
+		return "Dialog Id[" + this.getDialogId() + "] State[" + this.getState() + "] OngoingCTX["
+				+ this.ongoingClientTransactions.size() + "] OngoingSTX[" + this.ongoingServerTransactions.size() + "]";
+	}
+
+	public boolean isActivity() {
+
+		return this.isActivity;
+	}
+
+	public void setActivityFlag() {
+		this.isActivity = true;
+
 	}
 
 }

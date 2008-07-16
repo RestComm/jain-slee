@@ -38,6 +38,7 @@ import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SleeSipProvider;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.resource.sip11.wrappers.ACKDummyTransaction;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ServerTransactionWrapper;
@@ -270,11 +271,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		throw new UnsupportedOperationException(
 				"This operation is not supported yet");
 	}
-
-	public ClientTransaction getNewClientTransaction(Request request)
-			throws TransactionUnavailableException {
-		// TODO: add checks for wrapper
-		
+	public ClientTransaction getNewClientTransaction(Request request,
+			boolean createActivityInSlee) throws 
+			TransactionUnavailableException {
 		ClientTransaction ct = provider.getNewClientTransaction(request);
 		ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct);
 		DialogWrapper dw = null;
@@ -288,7 +287,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		// considering that if dw exists then it's an activity 
 		if (dw == null) {
 			ra.addActivity(ctw.getActivityHandle(), ctw);
+			if(createActivityInSlee)
 			try {
+				ctw.setActivityFlag();
 				ra.getSleeEndpoint().activityStarted(ctw.getActivityHandle());
 			} catch (Exception e) {
 				logger.error("Failed to start sip activity ("
@@ -299,6 +300,12 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		}
 				
 		return ctw;
+	}
+	public ClientTransaction getNewClientTransaction(Request request)
+			throws TransactionUnavailableException {
+
+		return this.getNewClientTransaction(request,true);
+		
 	}
 
 	/**
@@ -315,8 +322,12 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			TransactionUnavailableException {
 		// TODO: add checks for wrapper
 
-		if(serverTransaction == null) {
+		
+		if(serverTransaction == null && !request.getMethod().equals(Request.ACK)) {
 			serverTransaction = provider.getNewServerTransaction(request);
+		}else
+		{
+			serverTransaction=new ACKDummyTransaction(request);
 		}
 		ServerTransactionWrapper stw = new ServerTransactionWrapper(serverTransaction);
 		
@@ -329,10 +340,15 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		
 		// add transaction to activities if its dialog does not exists or is not an activity
 		// considering that if dw exists then it's an activity 
+		
 		if (dw == null) {
+
 			ra.addActivity(stw.getActivityHandle(), stw);
+
 			if (createActivityInSlee) {
 				try {
+
+					stw.setActivityFlag();
 					ra.getSleeEndpoint().activityStarted(stw.getActivityHandle());
 				} catch (Exception e) {
 					logger.error("Failed to start sip activity ("
@@ -376,6 +392,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		ra.addActivity(dw.getActivityHandle(), dw);
 		
 		try {
+			dw.setActivityFlag();
 			ra.getSleeEndpoint().activityStarted(dw.getActivityHandle());
 		} catch (Exception e) {
 			logger.error("Failed to start sip activity ("
