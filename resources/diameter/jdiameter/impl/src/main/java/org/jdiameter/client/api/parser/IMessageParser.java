@@ -38,11 +38,11 @@ public interface IMessageParser {
 
     /**
      * Created empty message
-     * @param ñommandCode message command code
+     * @param commandCode message command code
      * @param headerAppId header applicatio id
      * @return instance of message
      */
-    IMessage createEmptyMessage(int ñommandCode, long headerAppId);
+    IMessage createEmptyMessage(int commandCode, long headerAppId);
 
     /**
      * Created specified type of message

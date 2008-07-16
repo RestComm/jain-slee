@@ -264,8 +264,8 @@ public class MessageParser extends ElementParser implements IMessageParser {
         return out.toByteArray();
     }
 
-    public IMessage createEmptyMessage(int ñommandCode, long headerAppId) {
-         return new MessageImpl(this, ñommandCode, headerAppId);
+    public IMessage createEmptyMessage(int commandCode, long headerAppId) {
+         return new MessageImpl(this, commandCode, headerAppId);
     }
 
     public <T> T createEmptyMessage(Class<?> iface, int commandCode, long headerAppId) {
