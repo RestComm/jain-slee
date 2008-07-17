@@ -13,7 +13,8 @@ import javax.slee.management.*;
 import java.util.jar.*;
 import java.util.*;
 import java.io.*;
-import org.jboss.logging.*;
+
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentContainer;
 import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
@@ -28,7 +29,7 @@ import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
  * @author Ivelin Ivanov
  */
 abstract class AbstractComponentDeployer {
-    private Logger logger;
+    private static Logger logger;
     private JarFile componentJar = null;
     protected List componentDescriptors = null;
     protected ComponentContainer componentContainer = null;

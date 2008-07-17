@@ -104,8 +104,6 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
 
     private static Logger logger = Logger
             .getLogger(SleeProfileManager.class);
-    
-    private static boolean isDebugEnabled = logger.isDebugEnabled();
 
     private HashMap profileTableActivities;
 
@@ -401,7 +399,7 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
                     }
                     Object isUnique = indexes.get(attributeName);
                     data.put("isUnique", isUnique);
-                    if (isDebugEnabled) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("createProfile: indexKey = " + indexKey);
                     }
                     logger.debug("createProfile: indexKey data = " + data);
@@ -457,7 +455,7 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
 
             this.getProfileCacheManager().getProfileTableNames().remove(profileTableName);
             // commented out, because it is called in removeProfileAfterTableActivityEnded() -> this.profileCacheManager.addTransactionalAction();
-            if (isDebugEnabled) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("removeProfileTable: removing profileTable=" + profileTableName);
             }
             String key = this.generateProfileTableKey(profileTableName);
@@ -972,7 +970,7 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
         try {
             b = transactionManager.requireTransaction();
             String key = this.generateProfileTableKey(profileTableName);
-            if (isDebugEnabled)
+            if (logger.isDebugEnabled())
                 logger.debug("key = " + key);
 
             String profileSpecificationIDAsString = (String) transactionManager
@@ -1078,7 +1076,7 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
      */
     public synchronized ObjectName findProfileMBean(String profileTableName, String profileName)
             {
-        if (isDebugEnabled) {
+        if (logger.isDebugEnabled()) {
             logger.debug("findProfile: profileTableName = " + profileTableName
                     + " profileName = " + profileName);
         }
@@ -1114,7 +1112,7 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
      */
     public Object findCommittedProfile(String profileTableName, String profileName)
             throws SystemException {
-        if (isDebugEnabled) {
+        if (logger.isDebugEnabled()) {
             logger.debug("findProfile: profileTableName = " + profileTableName
                     + " profileName = " + profileName);
         }
@@ -1139,7 +1137,7 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
         SleeTransactionManager transactionManager = getTransactionManager();
         transactionManager.assertIsInTx();
 
-        if (isDebugEnabled)
+        if (logger.isDebugEnabled())
             logger.debug("key = " + key);
 
         Object profile = transactionManager.getNode(tcache, key);
@@ -1165,7 +1163,7 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
         try {
             b = transactionManager.requireTransaction();
             String key = this.generateProfileKey(profileTableName, profileName);
-            if (isDebugEnabled) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("key = " + key);
             }
             Node node = transactionManager.getNode(tcache, key);

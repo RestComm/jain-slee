@@ -78,6 +78,7 @@ import org.mobicents.slee.runtime.SleeEvent;
 import org.mobicents.slee.runtime.cache.CacheableMap;
 import org.mobicents.slee.runtime.cache.CacheableSet;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 /**
@@ -128,6 +129,14 @@ public class SbbEntity {
     private static final String CMP_FIELDS_CACHE = TransactionManagerImpl.TCACHE;
     private static final String CMP_FIELDS = "cmpFields";
 	private static final String CACHED_SBBE_ATTRS = "cached-sbb-entitiy-attributes";
+
+	// local cache of fields
+	private ServiceID serviceID = null;
+	private SbbID sbbID = null;
+	private String convergenceName = null;
+	private String rootSbbEID = null;
+	private String parentSbbEID = null;
+	private String parentChildRelation = null;
 
     /**
      * Call this constructor when there's no cached image and the Sbb entity is
@@ -223,19 +232,27 @@ public class SbbEntity {
 	}
     
     public ServiceID getServiceId() {
-    	return (ServiceID)getObjectFromCache(SERVICE_ID);
+    	if (serviceID == null) {
+    		serviceID = (ServiceID)getObjectFromCache(SERVICE_ID);
+    	}
+    	return serviceID;
     }
 
     private void setServiceId(ServiceID svcId) {
         putObjectInCache(SERVICE_ID, svcId);
+        serviceID = svcId;
     }
     
     private void setServiceConvergenceName(String convergenceName) {
     	putObjectInCache(SERVICE_CONVERGENCE_NAME, convergenceName);
+    	this.convergenceName = convergenceName;
 	}
 
     public String getServiceConvergenceName() {
-    	return (String)getObjectFromCache(SERVICE_CONVERGENCE_NAME);
+    	if (convergenceName == null) {
+    		convergenceName = (String)getObjectFromCache(SERVICE_CONVERGENCE_NAME);
+    	}
+    	return convergenceName;
 	}
 
     /**
@@ -502,7 +519,10 @@ public class SbbEntity {
     }
 
     public String getRootSbbId() {
-        return (String) this.getObjectFromCache(ROOT_SBB_ID);
+        if(rootSbbEID == null)  {
+        	rootSbbEID = (String) this.getObjectFromCache(ROOT_SBB_ID);
+        }
+        return rootSbbEID;
     }
     
     public boolean isRootSbbEntity() {
@@ -511,6 +531,7 @@ public class SbbEntity {
 
     private void setRootSbbId(String rsbbId) {
     	putObjectInCache(ROOT_SBB_ID, rsbbId);
+    	this.rootSbbEID =  rsbbId;
     }
     
     public int getAttachmentCount() {
@@ -635,7 +656,7 @@ public class SbbEntity {
     public void trashObject() {    	
     	try {
     		// FIXME shouldn't just return the object to the pool?
-        	this.pool.invalidateObject(sbbObject);
+        	this.pool.returnObject(sbbObject);
             this.sbbObject = null;
         } catch (Exception e) {
             throw new RuntimeException("Unexpected exception ", e);
@@ -658,11 +679,15 @@ public class SbbEntity {
     }
 
     public SbbID getSbbId() {
-    	return (SbbID) getObjectFromCache(SBB_ID);
+    	if (this.sbbID == null) {
+    		this.sbbID = (SbbID) getObjectFromCache(SBB_ID);
+    	}
+    	return sbbID;
     }
 
     private void setSbbId(SbbID sbbId) {
     	putObjectInCache(SBB_ID, sbbId);
+    	this.sbbID = sbbId;
     }
 
     public String getUsageParameterPathName(String name) {
@@ -823,38 +848,11 @@ public class SbbEntity {
     }
 
     private void setServiceActivityFactory() throws Exception {
-        Context ctx = (Context) new InitialContext().lookup("java:comp");
-
-        Context envCtx = null;
-        try {
-            envCtx = ctx.createSubcontext("env");
-        } catch (NameAlreadyBoundException ex) {
-            envCtx = (Context) ctx.lookup("env");
-        }
-
-        Context sleeCtx = null;
-
-        try {
-            sleeCtx = envCtx.createSubcontext("slee");
-        } catch (NameAlreadyBoundException ex) {
-            sleeCtx = (Context) envCtx.lookup("slee");
-        }
-
-        Context newCtx = null;
-        try {
-            newCtx = sleeCtx.createSubcontext("serviceactivity");
-        } catch (NameAlreadyBoundException ex) {
-        } finally {
-            newCtx = (Context) sleeCtx.lookup("serviceactivity");
-        }
-
-        try {
-            newCtx.bind("factory", new ServiceActivityFactoryImpl(
-                    (ServiceIDImpl) getServiceId()));
-        } catch (NameAlreadyBoundException ex) {
-
-        }
-
+    	// store the serviceID in tx local data so shared service
+    	// activity factory can use it
+    	SleeContainer.getTransactionManager()
+    	.putTxLocalData(ServiceActivityFactoryImpl.TXLOCALDATA_SERVICEID_KEY,
+    	 getServiceId());
     }
 
     /**
@@ -951,6 +949,13 @@ public class SbbEntity {
     	this.sbbObject.setServiceID(null);
     	this.pool.returnObject(this.sbbObject);
     	this.sbbObject = null;
+    	for (Iterator<SbbEntity>i=childsWithSbbObjects.iterator();i.hasNext();) {
+    		SbbEntity childSbbEntity = i.next();
+    		if (childSbbEntity.getSbbObject() != null) {
+    			childSbbEntity.passivateAndReleaseSbbObject();
+    		}
+    		i.remove();
+    	}
     	if (log.isDebugEnabled()) {
     		log.debug("releaseObject: Returned SbbObject to the Pool!");
     	}
@@ -967,6 +972,13 @@ public class SbbEntity {
     	this.sbbObject.setServiceID(null);
     	this.pool.returnObject(this.sbbObject);
     	this.sbbObject = null;
+    	for (Iterator<SbbEntity>i=childsWithSbbObjects.iterator();i.hasNext();) {
+    		SbbEntity childSbbEntity = i.next();
+    		if (childSbbEntity.getSbbObject() != null) {
+    			childSbbEntity.removeAndReleaseSbbObject();
+    		}
+    		i.remove();
+    	}
     	if (log.isDebugEnabled()) {
     		log
     		.debug("releaseObject: Removing Entity Returned SbbObject to the Pool!");
@@ -1066,7 +1078,7 @@ public class SbbEntity {
         }
     }
 
-    public SbbLocalObject createSbbLocalObject() {
+    public SbbLocalObjectImpl createSbbLocalObject() {
         Class sbbLocalClass;
         MobicentsSbbDescriptor sbbDescriptor = this.getSbbDescriptor();
         if (log.isDebugEnabled())
@@ -1082,14 +1094,14 @@ public class SbbEntity {
             Object[] objs = { this };
             Class[] types = { SbbEntity.class };
             try {
-                return (SbbLocalObject) sbbLocalClass.getConstructor(types)
+                return (SbbLocalObjectImpl) sbbLocalClass.getConstructor(types)
                         .newInstance(objs);
             } catch (Exception e) {
                 throw new RuntimeException(
                         "Failed to create Sbb Local Interface.", e);
             }
         } else {
-            return new SbbLocalObjectImpl(SleeContainer.lookupFromJndi(), this.sbbeId);
+            return new SbbLocalObjectImpl(this);
         }
     }
 
@@ -1129,7 +1141,10 @@ public class SbbEntity {
 	 * @return
 	 */
 	public String getParentChildRelation() {
-		return (String) getObjectFromCache(PARENT_CHILD_RELATION);
+		if (parentChildRelation == null) {
+			parentChildRelation = (String) getObjectFromCache(PARENT_CHILD_RELATION); 
+		}
+		return parentChildRelation;
 	}
 
 	/**
@@ -1138,6 +1153,7 @@ public class SbbEntity {
 	 */
 	private void setParentChildRelation(String parentChildRelation) {
 		putObjectInCache(PARENT_CHILD_RELATION, parentChildRelation);
+		this.parentChildRelation = parentChildRelation;
 	}
 	
 	/**
@@ -1146,7 +1162,10 @@ public class SbbEntity {
 	 * @return
 	 */
 	public String getParentSbbEntityId() {
-		return (String) getObjectFromCache(PARENT_SBB_ENTITY_ID);
+		if (parentSbbEID == null) {
+			parentSbbEID = (String) getObjectFromCache(PARENT_SBB_ENTITY_ID);
+		}
+		return parentSbbEID;
 	}
 
 	/**
@@ -1155,6 +1174,7 @@ public class SbbEntity {
 	 */
 	private void setParentSbbEntityId(String parentSbbEntityId) {
 		putObjectInCache(PARENT_SBB_ENTITY_ID, parentSbbEntityId);
+		this.parentSbbEID = parentSbbEntityId;
 	}
 	
     // It removes the SBB entity from the ChildRelation object that the SBB
@@ -1180,6 +1200,12 @@ public class SbbEntity {
 			}
     	}
     }
-       
+    
+    private HashSet<SbbEntity> childsWithSbbObjects = new HashSet<SbbEntity>();
+    
+    protected void addChildWithSbbObject(SbbEntity childSbbEntity) {
+    	childsWithSbbObjects.add(childSbbEntity);
+    }
+    
 }
 

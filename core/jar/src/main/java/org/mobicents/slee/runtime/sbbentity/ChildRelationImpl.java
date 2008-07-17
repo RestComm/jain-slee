@@ -127,7 +127,9 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
          */
         public Object next() {
             nextEntity = (String) myIterator.next();
-            this.nextSbbLocalObject = SbbEntityFactory.getSbbEntity(nextEntity).createSbbLocalObject();
+            SbbEntity childSbbEntity = SbbEntityFactory.getSbbEntity(nextEntity);
+            this.nextSbbLocalObject = childSbbEntity.createSbbLocalObject();
+            sbbEntity.addChildWithSbbObject(childSbbEntity);
             return nextSbbLocalObject;
         }
 
@@ -243,7 +245,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         } 
         
         children.add(childSbbEntity.getSbbEntityId()); // Ralf Siedow: added this
-        
+        sbbEntity.addChildWithSbbObject(childSbbEntity);
         return childSbbEntity.createSbbLocalObject();
     }
 

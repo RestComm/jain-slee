@@ -102,7 +102,7 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericObjectPool.Config;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.jboss.mx.loading.UnifiedClassLoader3;
 import org.jboss.mx.util.MBeanProxy;
 import org.jboss.util.naming.NonSerializableFactory;
@@ -175,6 +175,7 @@ import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionIDAccessImpl;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
@@ -327,6 +328,8 @@ public class SleeContainer implements ComponentContainer {
 	 * return cm; }
 	 */
 	private DeploymentCacheManager deploymentCacheManager;
+
+	private ServiceActivityFactoryImpl serviceActivityFactory;
 
 	private static SleeContainer sleeContainer;
 
@@ -491,6 +494,11 @@ public class SleeContainer implements ComponentContainer {
 		// this.alarmFacility = (AlarmFacilityImpl)
 		// lookupFacilityInJndi(AlarmMBeanImpl.JNDI_NAME);
 
+		this.serviceActivityFactory = new ServiceActivityFactoryImpl();
+		registerWithJndi("slee/serviceactivity/",
+				ServiceActivityFactoryImpl.JNDI_NAME,
+				serviceActivityFactory);
+		
 		// This is not registered with jndi.
 		this.serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl(
 				this);
@@ -522,15 +530,15 @@ public class SleeContainer implements ComponentContainer {
 	private Config configurePooling() {
 		GenericObjectPool.Config conf = new GenericObjectPool.Config();
 		conf.maxActive = -1;
-		conf.maxIdle = -1;
+		conf.maxIdle = 50;
 		conf.maxWait = -1;
-		conf.minEvictableIdleTimeMillis = -1;
-		conf.minIdle = 5;
+		conf.minEvictableIdleTimeMillis = 60000;
+		conf.minIdle = 0;
 		conf.numTestsPerEvictionRun = -1;
 		conf.testOnBorrow = false;
 		conf.testOnReturn = false;
 		conf.testWhileIdle = false;
-		conf.timeBetweenEvictionRunsMillis = -1;
+		conf.timeBetweenEvictionRunsMillis = 300000;
 		conf.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
 
 		return conf;

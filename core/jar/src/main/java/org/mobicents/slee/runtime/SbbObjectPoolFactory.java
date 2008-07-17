@@ -62,12 +62,17 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
     }
 
     public void destroyObject(Object sbb) throws java.lang.Exception {
+    	
+    	if (logger.isDebugEnabled()) {
+        	logger.debug("destroyObject() for "+sbbId);
+        }
+        
         SbbObject sbbObject = (SbbObject) sbb;
         final ClassLoader oldClassLoader = SleeContainerUtils
                 .getCurrentThreadClassLoader();
 
         try {
-            //Thread.currentThread().setContextClassLoader(sbbDescriptor.getClassLoader());
+            Thread.currentThread().setContextClassLoader(((MobicentsSbbDescriptor)serviceContainer.getSbbComponent(sbbId)).getClassLoader());
 
             //FIXME - unsetSbbContext must be called with the context
             // classloader
@@ -109,14 +114,12 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
         MobicentsSbbDescriptor sbbDescriptor = (MobicentsSbbDescriptor) serviceContainer
                 .getSbbComponent(sbbId);
         if (sbbDescriptor == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("null descriptor retrieved for " + sbbId);
-            }
             throw new NullPointerException("null descriptor!");
         }
+        
         SbbObject retval;
         if (logger.isDebugEnabled()) {
-            logger.debug(sbbDescriptor.getConcreteSbbClass());
+            logger.debug("makeObject() for "+sbbId);
         }
 
         final ClassLoader oldClassLoader = SleeContainerUtils
@@ -157,24 +160,26 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
         }
 
         retval.setState(SbbObjectState.POOLED);
-        if (logger.isDebugEnabled()) {
-            logger.debug("making object: " + retval);
-        }
+        
         return retval;
     }
 
     public void passivateObject(Object sbb) throws java.lang.Exception {
+    	
+    	if (logger.isDebugEnabled()) {
+    		logger.debug("passivateObject() for "+sbbId);
+    	}
+    	
         SbbObject sbbObj = (SbbObject) sbb;
-        sbbObj.setState(SbbObjectState.POOLED);
-        if (logger.isDebugEnabled())
-        sbbObj.printInvocationSeq();
-        
+        sbbObj.setState(SbbObjectState.POOLED);       
         
     }
 
     public boolean validateObject(Object sbbo) {
         boolean retval = ((SbbObject) sbbo).getState() == SbbObjectState.POOLED;
-        logger.debug("vaidateObject returning " + retval);
+        if (logger.isDebugEnabled()) {
+        	logger.debug("validateObject() for "+sbbId+" returning " + retval);
+        }
         return retval;
     }
 

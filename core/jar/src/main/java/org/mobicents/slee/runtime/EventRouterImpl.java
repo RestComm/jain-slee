@@ -263,6 +263,13 @@ public class EventRouterImpl implements EventRouter {
 								sbbObject = sbbEntity.getSbbObject();
 							} catch (Exception ex) {
 								sbbObject = sbbEntity.getSbbObject();
+								if (sbbObject != null) {
+									try {
+										sbbEntity.removeAndReleaseSbbObject();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
 								throw ex;
 							}
 							// attach sbb entity on AC

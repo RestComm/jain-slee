@@ -132,21 +132,6 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
     	return SbbEntityFactory.getSbbEntity(this.sbbEntityId);     	
     }
 
-    public SbbLocalObjectImpl(SleeContainer container, String sbbeId) {
-        this();
-        this.sleeContainer = container;
-        this.sbbEntityId = sbbeId;
-
-    }
-
-    public SbbLocalObjectImpl(SleeContainer container, SbbEntity sbbEntity) {
-        this();
-        this.sleeContainer = container;
-        this.sbbEntityId = sbbEntity.getSbbEntityId();
-        this.contextClassLoader = sbbEntity.getSbbDescriptor().getClassLoader();
-
-    }
-
     /**
      * We need this in case we want to invoke some methods on the sbb using the
      * local object.

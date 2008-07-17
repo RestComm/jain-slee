@@ -12,28 +12,18 @@
 package org.mobicents.slee.runtime.transaction;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.transaction.SystemException;
-
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 
-import EDU.oswego.cs.dl.util.concurrent.FIFOReadWriteLock;
-import EDU.oswego.cs.dl.util.concurrent.SyncList;
-import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
-
 class TxLocalEntry {
-	
-	private SyncList afterCommitActions = new SyncList(new ArrayList(), new WriterPreferenceReadWriteLock());        
-    
-	private SyncList afterRollbackActions = new SyncList(new ArrayList(), new WriterPreferenceReadWriteLock()); 
-    
-    private SyncList prepareActions =  new SyncList(new ArrayList(), new WriterPreferenceReadWriteLock());
+		
+	private List<TransactionalAction> afterCommitActions = new ArrayList<TransactionalAction>();        
+	private List<TransactionalAction> afterRollbackActions = new ArrayList<TransactionalAction>(); 
+    private List<TransactionalAction> prepareActions = new ArrayList<TransactionalAction>(); 
 	
     private Map data;
     
@@ -45,8 +35,6 @@ class TxLocalEntry {
         if(logger.isDebugEnabled())
         logger.debug("addAfterCommitAction " + action + " list " + afterCommitActions);
             afterCommitActions.add(action);    
-        if(logger.isDebugEnabled())
-        logger.debug("after adding listLength is " + afterCommitActions.size());
     }
             
     
@@ -74,15 +62,15 @@ class TxLocalEntry {
             afterRollbackActions.add(action);    
     }
            
-    public List getAfterCommitActions() {
+    public List<TransactionalAction> getAfterCommitActions() {
         return afterCommitActions;
     }
     
-    public List getAfterRollbackActions() {
+    public List<TransactionalAction> getAfterRollbackActions() {
         return afterRollbackActions;
     }
     
-    public List getPrepareActions() {
+    public List<TransactionalAction> getPrepareActions() {
         if (logger.isDebugEnabled()) {
             Integer exetran=null;
             try {
@@ -152,45 +140,21 @@ class TxLocalEntry {
         }
     }
      
-    private void executeActions(List actions) { 
-        try {
-            
+    private void executeActions(List<TransactionalAction> actions) { 
         	
-        		while ( !actions.isEmpty()) {
-        		
-                if(logger.isDebugEnabled())
-                    logger.debug("*** ITERATION");
-                
-                TransactionalAction action = (TransactionalAction)actions.remove(0);
-        		
-                if(logger.isDebugEnabled())
-                    logger.debug("Executing action:" + action);
-                try {
-                    action.execute(); 	                  
-                } catch(Throwable t){
-                    if(logger.isDebugEnabled())
-                        logger.error("FAILED DURING PREPARE ACTION:" + t.getMessage());
-                    t.printStackTrace();
-                    throw new RuntimeException("FAILED DURING ACTION:", t);
-                    
-                }
-            }
-        } catch (ConcurrentModificationException e) {
-            Integer exetran=null;
-            try {
-                exetran = TransactionManagerImpl.makeKey(SleeContainer
-                        .getTransactionManager().getTransaction());
-            } catch (Exception ex) {
-                exetran=null;
-            }
-            
-            
-            String s = "unexpecting concurrent accesses of transaction data. " +
-            " [ transaction owner = " + transaction  + ", [current executing transaction = " +
-             exetran + "]";
-            logger.error(s);
-            throw e;
-           
-        }
+        while (!actions.isEmpty()) {
+			TransactionalAction action = (TransactionalAction) actions
+					.remove(0);
+			if (logger.isDebugEnabled())
+				logger.debug("Executing action:" + action);
+			try {
+				action.execute();
+			} catch (Throwable t) {
+				if (logger.isDebugEnabled())
+					logger.error("FAILED DURING PREPARE ACTION:"
+							+ t.getMessage());
+				throw new RuntimeException("FAILED DURING ACTION:", t);
+			}
+		}
     }
 }

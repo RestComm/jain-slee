@@ -38,7 +38,7 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  */
 public class DefaultFireEventInterceptor implements FireEventInterceptor {
     SbbEntity sbbEntity=null;
-    Logger logger=Logger.getLogger(DefaultFireEventInterceptor.class);
+    static final Logger logger=Logger.getLogger(DefaultFireEventInterceptor.class);
     
     /**
      * 

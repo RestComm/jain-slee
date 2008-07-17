@@ -40,6 +40,7 @@ class TxLocalMap extends ConcurrentHashMap {
 	private boolean isAllowPhantomReads = true;
 	
 	TxLocalMap(boolean inCache) {
+		super();
 		this.inCache = inCache;
 	}
 	

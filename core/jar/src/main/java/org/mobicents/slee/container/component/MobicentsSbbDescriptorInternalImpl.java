@@ -27,7 +27,7 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.commons.pool.ObjectPool;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.InitialEventSelectorImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.profile.SleeProfileManager;
@@ -40,6 +40,7 @@ import org.mobicents.slee.runtime.SbbObject;
 import org.mobicents.slee.runtime.SleeEvent;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
 
 public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescriptorInternal, MobicentsSbbDescriptor {
 
@@ -1343,7 +1344,8 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
 
 		}
 
-		String serviceActivityContextInterfaceFactory = "java:slee/serviceactivity/activitycontextinterfacefactory";
+		String serviceActivityContextInterfaceFactory = "java:slee/serviceactivity/" + ServiceActivityContextInterfaceFactoryImpl.JNDI_NAME;
+		String serviceActivityFactory = "java:slee/serviceactivity/" + ServiceActivityFactoryImpl.JNDI_NAME;
 		try {
 			newCtx = sleeCtx.createSubcontext("serviceactivity");
 		} catch (NameAlreadyBoundException ex) {
@@ -1355,6 +1357,12 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
 		try {
 			newCtx.bind(ServiceActivityContextInterfaceFactoryImpl.JNDI_NAME,
 					new LinkRef(serviceActivityContextInterfaceFactory));
+		} catch (NameAlreadyBoundException ex) {
+
+		}
+		try {
+			newCtx.bind(ServiceActivityFactoryImpl.JNDI_NAME,
+					new LinkRef(serviceActivityFactory));
 		} catch (NameAlreadyBoundException ex) {
 
 		}
