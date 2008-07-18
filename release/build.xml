@@ -3,8 +3,8 @@
 
 	<property name="ra.dirs" value="xmpp,smpp,http-servlet,asterisk,sip,diameter,persistence,http-client,rules,tts"/>
 	<property name="example.dirs" value="sip-services,google-talk-bot"/>
-
-	<property name="release.dir" value="${ant.file.mobicents.release}/../target"/>
+	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
+	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="4.2.2.GA"/>
 	<property name="release.version" value="1.2.0.GA-SNAPSHOT"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
@@ -27,15 +27,24 @@
 		<equals arg1="${jboss.config}" arg2="all"/>
 	</condition>
 
+	<target name="release-mobicents-all" depends="build-core,build-ras,build-examples">
+		<copy failonerror="true" file="${ant.file.mobicents.release}/../jbossjta-properties.xml" tofile="${jboss.home}/server/default/conf/jbossjta-properties.xml" overwrite="true" />
+		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
+		<copydir dest="${release.dir}/resources" src="${my.release.dir}/resources" />
+		<copydir dest="${release.dir}/examples" src="${my.release.dir}/examples" />
+		<delete dir="${my.release.dir}/resources" />
+		<delete dir="${my.release.dir}/examples" />
+	</target>
+
 	<target name="build-core" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../..">
 			<arg line="clean install -Djboss.home=${jboss.home}" />
 		</exec>
-		
+
 		<!-- Hack because mmc fails to build with 'clean install' -->
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../tools/mmc">
-            <arg line="install -Djboss.home=${jboss.home}" />
-        </exec>
+			<arg line="install -Djboss.home=${jboss.home}" />
+		</exec>
 	</target>
 
 	<target name="build-ras" description="Resource adapters.">
@@ -69,9 +78,9 @@
 	</target>
 
 	<target name="release" depends="get-jboss,unzip-jboss,build-core,build-ras,build-examples">
-        <tstamp>
-            <format property="time.stamp" pattern="yyMMddHHmm" />
-        </tstamp>
+		<tstamp>
+			<format property="time.stamp" pattern="yyMMddHHmm" />
+		</tstamp>
 		<copy failonerror="true" file="jbossjta-properties.xml" tofile="${jboss.home}/server/default/conf/jbossjta-properties.xml" overwrite="true"/>
 		<copy failonerror="true" file="readme.txt" tofile="${release.dir}/readme.txt" overwrite="true"/>
 		<delete dir="." includes="mobicents-jainslee-server-${release.version}-*.zip"/>
@@ -121,15 +130,15 @@
                 excludes="**/bin/** **/server/*/data/** **/server/*/log/** **/server/*/tmp/** **/server/*/work/** **/server/tmp/**"/>
 		</zip>
 	</target>
-	
+
 	<target name="set-src-excludes">
 		<defaultexcludes add="**/target/**"/>
 		<defaultexcludes add="**/docs/**"/>
 		<defaultexcludes add="**/legacy/**"/>
 		<defaultexcludes add="**/release/**"/>
 		<defaultexcludes add="**/logs/**"/>
-        <defaultexcludes add="**/tests/**"/>
-        <defaultexcludes add="**/${*}/**"/>
+		<defaultexcludes add="**/tests/**"/>
+		<defaultexcludes add="**/${*}/**"/>
 		<defaultexcludes add="**/*JBOSS_HOME*/**"/>
 		<defaultexcludes add="**/*CATALINA_HOME*/**"/>
 		<defaultexcludes add="**/.gwt-cache/**"/>
@@ -139,44 +148,44 @@
 		<defaultexcludes add="**/*.class" echo="true"/>
 	</target>
 
-    <target name="build-ras-src">
-        <for delimiter="," param="dir.name" list="${ra.dirs}">
-            <sequential>
-                <echo>Packaging RA sources for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
-                <copy todir="${release.dir}/src/mobicents/servers/jain-slee/resources/@{dir.name}" includeEmptyDirs="false">
-                    <fileset dir="${ant.file.mobicents.release}/../../resources/@{dir.name}" />
-                </copy>
-            </sequential>
-        </for>
-    </target>
+	<target name="build-ras-src">
+		<for delimiter="," param="dir.name" list="${ra.dirs}">
+			<sequential>
+				<echo>Packaging RA sources for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
+				<copy todir="${release.dir}/src/mobicents/servers/jain-slee/resources/@{dir.name}" includeEmptyDirs="false">
+					<fileset dir="${ant.file.mobicents.release}/../../resources/@{dir.name}" />
+				</copy>
+			</sequential>
+		</for>
+	</target>
 
-    <target name="build-examples-src">
-        <for delimiter="," param="dir.name" list="${example.dirs}">
-            <sequential>
-                <echo>Packaging Example sources for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
-                <copy todir="${release.dir}/src/mobicents/servers/jain-slee/examples/@{dir.name}" includeEmptyDirs="false">
-                    <fileset dir="${ant.file.mobicents.release}/../../examples/@{dir.name}"/>
-                </copy>
-            </sequential>
-        </for>
-    </target>
+	<target name="build-examples-src">
+		<for delimiter="," param="dir.name" list="${example.dirs}">
+			<sequential>
+				<echo>Packaging Example sources for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
+				<copy todir="${release.dir}/src/mobicents/servers/jain-slee/examples/@{dir.name}" includeEmptyDirs="false">
+					<fileset dir="${ant.file.mobicents.release}/../../examples/@{dir.name}"/>
+				</copy>
+			</sequential>
+		</for>
+	</target>
 
 	<target name="build-src-zip" depends="set-src-excludes, build-ras-src, build-examples-src">
-    	<copy todir="${release.dir}/src/mobicents/servers/jain-slee/core" includeEmptyDirs="false">
-    		<fileset dir="${ant.file.mobicents.release}/../../core"/>
-    	</copy>
-    	<copy todir="${release.dir}/src/mobicents/servers/jain-slee/tools" includeEmptyDirs="false">
-        	<fileset dir="${ant.file.mobicents.release}/../../tools"
+		<copy todir="${release.dir}/src/mobicents/servers/jain-slee/core" includeEmptyDirs="false">
+			<fileset dir="${ant.file.mobicents.release}/../../core"/>
+		</copy>
+		<copy todir="${release.dir}/src/mobicents/servers/jain-slee/tools" includeEmptyDirs="false">
+			<fileset dir="${ant.file.mobicents.release}/../../tools"
         		     excludes="**/maven-archetypes/** **/management-console/**"/>
-    	</copy>
+		</copy>
 		<copy todir="${release.dir}/src/mobicents/servers/jain-slee" file="${ant.file.mobicents.release}/../../pom.xml"/>
-		
-    	<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src"/>
-    	<delete dir="${release.dir}/src"/>
 
-        <defaultexcludes default="true"/>
+		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src"/>
+		<delete dir="${release.dir}/src"/>
+
+		<defaultexcludes default="true"/>
 	</target>
-	
+
 	<available file="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" property="got.jboss" />
 	<target name="get-jboss" unless="got.jboss">
 		<echo>Downloading JBoss AS</echo>
