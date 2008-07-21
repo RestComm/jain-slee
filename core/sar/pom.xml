@@ -144,13 +144,13 @@
 					<include>*.xml</include>
 				</includes>
 			</resource>
-			<resource>
+			<!-- resource>
 				<directory>xml/META-INF</directory>
 				<targetPath>META-INF</targetPath>
 				<includes>
 					<include>log4j.xml</include>
 				</includes>
-			</resource>
+			</resource-->
 		</resources>
 		<plugins>
 			<plugin>
@@ -210,7 +210,7 @@
 									
 								<echo message="=============== Copy ejb3-proxy ==================" />
 								<copy file="../ejb3-proxy/target/mobicents-core-ejb3proxy-${parent.version}.jar" tofile="${project.build.directory}/mobicents.sar/SleeConnectionProxy.ejb3" />
-								<copy file="log4-rs/dist/log4j-rs.sar" todir="${jboss.deploy}/deploy" />
+								<!-- copy file="log4-rs/dist/log4j-rs.sar" todir="${jboss.deploy}/deploy" / -->
 								<copy file="README.txt" todir="${jboss.readme.dir}" />
 								<copy file="bin/SleeCommandInterface.sh" todir="${jboss.bin.dir}" />
 								<copy file="bin/SleeCommandInterface.bat" todir="${jboss.bin.dir}" />
@@ -243,9 +243,7 @@
 										<include name="slee-ds.xml" />
 									</fileset>
 								</copy>
-								<echo> Touching
-									${jboss.deploy}/deploy/mobicents.sar/META-INF/jboss-service.xml
-									to cause redeploy </echo>
+								<echo> Touching ${jboss.deploy}/deploy/mobicents.sar/META-INF/jboss-service.xml to cause redeploy </echo>
 								<touch>
 									<fileset file="${jboss.home.deploy}/mobicents.sar/META-INF/jboss-service.xml" />
 								</touch>
@@ -266,10 +264,10 @@
 								<delete failonerror="false" includeemptydirs="true">
 									<fileset dir="${jboss.home.deploy}/mobicents.sar" />
 								</delete>
-								<delete failonerror="false" includeemptydirs="true">
+								<!-- delete failonerror="false" includeemptydirs="true">
 									<fileset file="${jboss.home}/server/${node}/deploy/connector-test-ejb.jar" />
 									<fileset file="${jboss.home}/server/${node}/deploy/ejbref-test-ejb.jar" />
-								</delete>
+								</delete -->
 								<delete failonerror="false" includeemptydirs="true">
 									<fileset dir="${jboss.tmp.deploy.dir}">
 										<include name="tmpDUJars**/*.*" />
@@ -281,10 +279,9 @@
 										<include name="slee-ds.xml" />
 										<include name="mobicents.rar" />
 									</fileset>
-									<fileset dir="${jboss.deploy}">
-										<include name="slee-ds.xml" />
-										<include name="mobicents.rar" />
-									</fileset>
+									<!-- fileset dir="${jboss.home.deploy}">
+										<include name="log4j-rs.sar" />
+									</fileset -->
 								</delete>
 							</tasks>
 						</configuration>
