@@ -12,7 +12,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.slee.ComponentID;
-import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
@@ -26,6 +25,7 @@ import org.mobicents.slee.container.component.MobicentsSbbDescriptorInternalImpl
 import org.mobicents.slee.container.component.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
+import org.mobicents.slee.container.component.SbbEventEntry;
 import org.mobicents.slee.container.component.SbbIDImpl;
 import org.mobicents.slee.container.component.SbbRef;
 import org.mobicents.slee.container.component.ServiceIDImpl;
@@ -179,9 +179,9 @@ public class DeployableComponent
         {
           Element curElement = (Element) nodeList.item(i);
 
-          String serviceName = curElement.getElementsByTagName( "service-name" ).item(0).getTextContent(); 
-          String serviceVendor = curElement.getElementsByTagName( "service-vendor" ).item(0).getTextContent(); 
-          String serviceVersion = curElement.getElementsByTagName( "service-version" ).item(0).getTextContent();
+          String serviceName = curElement.getElementsByTagName( "service-name" ).item(0).getTextContent().trim(); 
+          String serviceVendor = curElement.getElementsByTagName( "service-vendor" ).item(0).getTextContent().trim(); 
+          String serviceVersion = curElement.getElementsByTagName( "service-version" ).item(0).getTextContent().trim();
 
           DeployableComponent dc = new DeployableComponent( this );
           
@@ -196,9 +196,9 @@ public class DeployableComponent
 
           Element rootSbbElem = (Element) curElement.getElementsByTagName( XMLConstants.ROOT_SBB_ND ).item( 0 );
 
-          String rootSbbName = rootSbbElem.getElementsByTagName( XMLConstants.SBB_NAME_ND ).item(0).getTextContent();
-          String rootSbbVendor = rootSbbElem.getElementsByTagName( XMLConstants.SBB_VENDOR_ND ).item(0).getTextContent();
-          String rootSbbVersion = rootSbbElem.getElementsByTagName( XMLConstants.SBB_VERSION_ND ).item(0).getTextContent();
+          String rootSbbName = rootSbbElem.getElementsByTagName( XMLConstants.SBB_NAME_ND ).item(0).getTextContent().trim();
+          String rootSbbVendor = rootSbbElem.getElementsByTagName( XMLConstants.SBB_VENDOR_ND ).item(0).getTextContent().trim();
+          String rootSbbVersion = rootSbbElem.getElementsByTagName( XMLConstants.SBB_VERSION_ND ).item(0).getTextContent().trim();
           
           String rootSbb = new SbbIDImpl( new ComponentKey(rootSbbName, rootSbbVendor, rootSbbVersion) ).toString();
 
@@ -342,13 +342,15 @@ public class DeployableComponent
             }
             
             // Get the event types from descriptor...
-            EventTypeID[] eventsList = descriptor.getEventTypes();
-            for( int n = 0; n < eventsList.length; n++ )
+            HashSet<SbbEventEntry> eventsList = descriptor.getSbbEventEntries();
+            for( SbbEventEntry event : eventsList )
             {
-              dc.dependencies.add( eventsList[n].toString() );
+              String eventTypeID = "EventTypeID[" + event.getEventTypeRefKey() + "]";
+              
+              dc.dependencies.add( eventTypeID );
               
               if( logger.isDebugEnabled() )
-                logger.debug( eventsList[n] );
+                logger.debug( eventTypeID );
             }
   
             // Get the profile specifications from descriptor...

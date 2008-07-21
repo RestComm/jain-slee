@@ -278,7 +278,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
             for( Element elem : (Collection<Element>)duDesc.getJarNodes() )
             {
               // Get the name of the jar
-              String componentJarName = elem.getTextContent();
+              String componentJarName = elem.getTextContent().trim();
   
               // Might have path... strip it!
               int beginIndex;
@@ -299,7 +299,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
             for( Element elem : (Collection<Element>)duDesc.getServiceNodes() )
             {
               // Get the name of the service XML
-              String serviceXMLName = elem.getTextContent();
+              String serviceXMLName = elem.getTextContent().trim();
               
               // Might have path... strip it!
               int beginIndex;
