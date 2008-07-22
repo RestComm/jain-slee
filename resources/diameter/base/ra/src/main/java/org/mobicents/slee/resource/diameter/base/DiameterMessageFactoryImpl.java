@@ -71,8 +71,9 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
   Session session;
   Stack stack;
   
-  public DiameterMessageFactoryImpl(Session session, DiameterIdentityAvp ... avps ) {
+  public DiameterMessageFactoryImpl(Session session,Stack stack, DiameterIdentityAvp ... avps ) {
     this.session = session;
+    this.stack=stack;
   }
 
   public DiameterMessageFactoryImpl(Stack stack) {
@@ -513,7 +514,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
   private String generateSessionId()
   {
     //FIXME: alexandre: use getMetaData().getLocalPeer().getUri().getFQDN() instead
-    String host = "127.0.0.1"; 
+    String host = stack.getMetaData().getLocalPeer().getUri().getFQDN(); 
     
     long id = uid.nextLong();
     long high32 = (id & 0xffffffff00000000L) >> 32;

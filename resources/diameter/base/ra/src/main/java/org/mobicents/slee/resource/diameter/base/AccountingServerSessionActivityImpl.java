@@ -2,6 +2,7 @@ package org.mobicents.slee.resource.diameter.base;
 
 import java.io.IOException;
 
+
 import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.AccountingServerSessionActivity;
@@ -19,6 +20,7 @@ import org.jdiameter.api.Message;
 import org.jdiameter.api.OverloadException;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.RouteException;
+import org.jdiameter.api.Stack;
 import org.jdiameter.api.acc.ServerAccSession;
 import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
@@ -27,13 +29,13 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 		implements AccountingServerSessionActivity {
 
 	protected ServerAccSession serverSession = null;
-	
+	protected String originHost="aaa://127.0.0.1:1812";
 	public AccountingServerSessionActivityImpl(
 			DiameterMessageFactoryImpl messageFactory,
 			DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession,
 			EventListener<Request, Answer> raEventListener, long timeout,
 			DiameterIdentityAvp destinationHost,
-			DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint) {
+			DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint, Stack stack) {
 		super(messageFactory, avpFactory, null, raEventListener, timeout,
 				destinationHost, destinationRealm,endpoint);
 
@@ -41,6 +43,9 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 		this.serverSession=serverSession;
 		this.serverSession.addStateChangeNotification(this);
 		super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
+		org.jdiameter.api.URI uri=stack.getMetaData().getLocalPeer().getUri();
+		//this.originHost=uri.getProtocolParam()+"://"+uri.getFQDN()+":"+uri.getPort();
+		this.originHost=uri.toString();
 		
 	}
 
@@ -59,7 +64,8 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
       DiameterAvp accRecordType = avpFactory.createAvp(Avp.ACC_RECORD_TYPE, rawMessage.getAvps().getAvp(Avp.ACC_RECORD_TYPE).getRaw());
       
       //FIXME: alexandre: this should come from the stack! 
-      DiameterAvp originHost = avpFactory.createAvp(Avp.ORIGIN_HOST, "aaa://127.0.0.1:1812".getBytes());
+      
+      DiameterAvp originHost = avpFactory.createAvp(Avp.ORIGIN_HOST, this.originHost.getBytes());
       DiameterAvp originRealm = avpFactory.createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes());
       
       DiameterAvp sessionId = avpFactory.createAvp(Avp.SESSION_ID, rawMessage.getAvps().getAvp(Avp.SESSION_ID).getRaw());
