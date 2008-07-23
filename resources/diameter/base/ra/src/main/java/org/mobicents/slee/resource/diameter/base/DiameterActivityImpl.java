@@ -34,12 +34,12 @@ public class DiameterActivityImpl implements DiameterActivity {
 	protected DiameterIdentityAvp destinationHost, destinationRealm;
 	protected SleeEndpoint endpoint=null;
 	
-	public DiameterActivityImpl(DiameterMessageFactoryImpl messageFactory,
-			DiameterAvpFactoryImpl avpFactory, Session session,
-			EventListener<Request, Answer> raEventListener, long timeout,
-			DiameterIdentityAvp destinationHost,
-			DiameterIdentityAvp destinationRealm, SleeEndpoint endpoint) {
+	public DiameterActivityImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, Session session,
+			EventListener<Request, Answer> raEventListener, long timeout, DiameterIdentityAvp destinationHost, 
+			DiameterIdentityAvp destinationRealm, SleeEndpoint endpoint)
+	{
 		super();
+		
 		this.messageFactory = messageFactory;
 		this.avpFactory = avpFactory;
 		this.session = session;
@@ -48,43 +48,49 @@ public class DiameterActivityImpl implements DiameterActivity {
 		this.timeout = timeout;
 		this.destinationHost = destinationHost;
 		this.destinationRealm = destinationRealm;
-		if(session!=null)
+		
+		if(session != null)
 			this.setCurrentWorkingSession(session);
-		this.endpoint=endpoint;
+		
+		this.endpoint = endpoint;
 	}
 
-	protected void setCurrentWorkingSession(Session session) {
+	protected void setCurrentWorkingSession(Session session)
+	{
 		this.sessionId = session.getSessionId();
-		this.session=session;
+		this.session = session;
+		
 		if (this.handle == null)
 			this.handle = new DiameterActivityHandle(this.sessionId);
 	}
 
-	public void endActivity() {
-
+	public void endActivity()
+	{
 		if(session!=null)
 			session.release();
 		
-		try {
+		try
+		{
 			endpoint.activityEnding(this.getActivityHandle());
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			logger.error("Failed to end activity["+this+"]!!!", e);
 		}
-
 	}
 
-	public DiameterAvpFactory getDiameterAvpFactory() {
-
+	public DiameterAvpFactory getDiameterAvpFactory()
+	{
 		return this.avpFactory;
 	}
 
-	public DiameterMessageFactory getDiameterMessageFactory() {
-
+	public DiameterMessageFactory getDiameterMessageFactory()
+	{
 		return this.messageFactory;
 	}
 
-	public String getSessionId() {
-
+	public String getSessionId()
+	{
 		return this.sessionId;
 	}
 

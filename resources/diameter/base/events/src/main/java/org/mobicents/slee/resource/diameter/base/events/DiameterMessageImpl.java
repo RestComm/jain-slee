@@ -29,8 +29,10 @@ import org.mobicents.slee.resource.diameter.base.events.avp.DiameterAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.DiameterIdentityAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.DiameterURIAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.FailedAvpImpl;
+import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.ProxyInfoAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvpImpl;
+import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
 
 /**
  * Super class for all diameter messages <br>
@@ -204,18 +206,18 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 	}
 
 	public DiameterAvp[] getAvps() {
-		List<DiameterAvp> avps = new ArrayList<DiameterAvp>();
-		for (Avp a : message.getAvps())
-			try {
-				avps.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(), (a
-						.isMandatory() ? 1 : 0), (a.isEncrypted() ? 1 : 0), a
-						.getRaw(), null));
-				// FIXME: baranowb; how can we determine type? Again dicotionary
-				// is needed
-			} catch (AvpDataException e) {
-				log.warn("", e);
-			}
-		return avps.toArray(new DiameterAvp[avps.size()]);
+    DiameterAvp[] acc = new DiameterAvp[0];
+    
+    try
+    {
+      acc = getAvpsInternal(message.getAvps());
+    }
+    catch ( Exception e )
+    {
+      log.error("", e);
+    }
+    
+    return acc;
 	}
 
 	public DiameterCommand getCommand() {
@@ -747,5 +749,33 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 	{
 	  this.addAvpAsByteArray(avp.getCode(), avp.byteArrayValue(), avp.getMandatoryRule() == 0);
 	}
+	
+  private DiameterAvp[] getAvpsInternal(AvpSet set) throws Exception
+  {
+    List<DiameterAvp> acc = new ArrayList<DiameterAvp>();
+
+    for (Avp a : set) 
+    {
+      // FIXME: alexandre: This is how I can check if it's a Grouped AVP... 
+      // should use dictionary (again). a.getGrouped() get's into deadlock.
+      if(AvpDictionary.INSTANCE.getAvp( a.getCode(), a.getVendorId() ).getType().equals("Grouped"))
+      {
+        GroupedAvpImpl gAVP = new GroupedAvpImpl(a.getCode(), a.getVendorId(), 
+            a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1: 0, a.getRaw());
+        
+        gAVP.setExtensionAvps( getAvpsInternal(a.getGrouped()) );
+        
+        // This is a grouped AVP... let's make it like that.
+        acc.add( gAVP );
+      }
+      else
+      {
+        acc.add(new DiameterAvpImpl(a.getCode(), a.getVendorId(),
+            a.isMandatory() ? 1 : 0, a.isEncrypted() ? 1 : 0, a.getRaw(), null));
+      }
+    }
+    
+    return acc.toArray(new DiameterAvp[0]);
+  }
 	
 }

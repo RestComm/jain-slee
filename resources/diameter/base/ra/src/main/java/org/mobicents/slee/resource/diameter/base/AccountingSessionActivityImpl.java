@@ -12,26 +12,19 @@ import net.java.slee.resource.diameter.base.AccountingSessionActivity;
 import net.java.slee.resource.diameter.base.AccountingSessionState;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 
-public abstract class AccountingSessionActivityImpl extends
-		DiameterActivityImpl implements AccountingSessionActivity , StateChangeListener{
+public abstract class AccountingSessionActivityImpl extends DiameterActivityImpl implements AccountingSessionActivity , StateChangeListener {
 
-	
-
-	public AccountingSessionActivityImpl(
-			DiameterMessageFactoryImpl messageFactory,
-			DiameterAvpFactoryImpl avpFactory, Session session,
-			EventListener<Request, Answer> raEventListener, long timeout,
-			DiameterIdentityAvp destinationHost,
-			DiameterIdentityAvp destinationRealm, SleeEndpoint endpoint) {
-		super(messageFactory, avpFactory, session, raEventListener, timeout,
-				destinationHost, destinationRealm, endpoint);
-		// TODO Auto-generated constructor stub
+	public AccountingSessionActivityImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, Session session,
+			EventListener<Request, Answer> raEventListener, long timeout, DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm, 
+			SleeEndpoint endpoint)
+	{
+		super(messageFactory, avpFactory, session, raEventListener, timeout, destinationHost, destinationRealm, endpoint);
 	}
 
 	protected AccountingSessionState state = null;
 
-	public AccountingSessionState getAccountingSessionState() {
-
+	public AccountingSessionState getAccountingSessionState()
+	{
 		return this.state;
 	}
 

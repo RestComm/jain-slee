@@ -1,5 +1,7 @@
 package org.mobicents.slee.resource.diameter.base;
 
+import static org.jdiameter.client.impl.helpers.Parameters.MessageTimeOut;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -121,6 +123,7 @@ import org.mobicents.slee.resource.diameter.base.events.ReAuthRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.DiameterIdentityAvpImpl;
+import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
 
 /**
  * Diameter Resource Adaptor
@@ -133,15 +136,14 @@ import org.mobicents.slee.resource.diameter.base.events.avp.DiameterIdentityAvpI
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author Erick Svenson
  */
-public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqListener, Serializable,
-		EventListener<Request, Answer> {
+public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqListener, Serializable, EventListener<Request, Answer> {
+  
 	private static final long serialVersionUID = 1L;
 
 	private static transient Logger logger = Logger.getLogger(DiameterBaseResourceAdaptor.class);
 
 	private ResourceAdaptorState state;
 
-	// ----- DIAMETER
 	private Stack stack;
 	private SessionFactory sessionFactory = null;
 	private long messageTimeout = 5000;
@@ -194,28 +196,46 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	private static final Map<Integer, String> events;
 	private static HashSet<Integer> accEventCodes = new HashSet<Integer>();
 	private static HashSet<Integer> authEventCodes = new HashSet<Integer>();
-	// FIXME alexandre: Use dictionary
-	static {
-		Map<Integer, String> temp = new HashMap<Integer, String>();
-		temp.put(AbortSessionAnswer.commandCode, "AbortSession");
-		temp.put(AccountingAnswer.commandCode, "Accounting");
-		temp.put(CapabilitiesExchangeAnswer.commandCode, "CapabilitiesExchange");
-		temp.put(DeviceWatchdogAnswer.commandCode, "DeviceWatchdog");
-		temp.put(DisconnectPeerAnswer.commandCode, "DisconnectPeer");
-		temp.put(ReAuthAnswer.commandCode, "ReAuth");
-		temp.put(SessionTerminationAnswer.commandCode, "SessionTermination");
-		temp.put(ErrorAnswer.commandCode, "Error");
+	
+	static
+	{
+		Map<Integer, String> eventsTemp = new HashMap<Integer, String>();
+
+		eventsTemp.put(AbortSessionAnswer.commandCode, "AbortSession");
+		eventsTemp.put(AccountingAnswer.commandCode, "Accounting");
+		eventsTemp.put(CapabilitiesExchangeAnswer.commandCode, "CapabilitiesExchange");
+		eventsTemp.put(DeviceWatchdogAnswer.commandCode, "DeviceWatchdog");
+		eventsTemp.put(DisconnectPeerAnswer.commandCode, "DisconnectPeer");
+		eventsTemp.put(ReAuthAnswer.commandCode, "ReAuth");
+		eventsTemp.put(SessionTerminationAnswer.commandCode, "SessionTermination");
+		eventsTemp.put(ErrorAnswer.commandCode, "Error");
+		
 		// FIXME: baranowb - make sure its compilant with xml
-		temp.put(ExtensionDiameterMessage.commandCode, "ExtensionDiameter");
-		events = Collections.unmodifiableMap(temp);
+		eventsTemp.put(ExtensionDiameterMessage.commandCode, "ExtensionDiameter");
+		
+		events = Collections.unmodifiableMap(eventsTemp);
+		
 		authEventCodes.add(AbortSessionAnswer.commandCode);
 		authEventCodes.add(ReAuthAnswer.commandCode);
 		authEventCodes.add(SessionTerminationAnswer.commandCode);
+		
 		accEventCodes.add(AccountingAnswer.commandCode);
 	}
 
-	public DiameterBaseResourceAdaptor() {
+	public DiameterBaseResourceAdaptor()
+	{
 		logger.info("Diameter Base RA :: DiameterBaseResourceAdaptor.");
+		
+    try
+    {
+      logger.info( "Parsing AVP Dictionary file..." );
+      AvpDictionary.INSTANCE.parseDictionary( this.getClass().getResourceAsStream("dictionary.xml") );
+      logger.info( "AVP Dictionary file successfuly parsed!" );
+    }
+    catch ( Exception e )
+    {
+      logger.error( "Error while parsing dictionary file.", e );
+    }
 	}
 
 	/**
@@ -226,13 +246,16 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * activity handle. The resource adaptor should release any resource related
 	 * to this activity as the SLEE will not ask for it again.
 	 */
-	public void activityEnded(ActivityHandle handle) {
+	public void activityEnded(ActivityHandle handle)
+	{
 		logger.info("Diameter Base RA :: activityEnded :: handle[" + handle + ".");
-
-		if (this.activities != null) {
-			synchronized (this.activities) {
-				this.activities.remove(handle);
-			}
+		
+		if(this.activities != null)
+		{
+  		synchronized (this.activities)
+  		{
+  			this.activities.remove(handle);
+  		}
 		}
 	}
 
@@ -244,7 +267,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * entities and is no longer referenced by any SLEE Facilities. This enables
 	 * the resource adaptor to implicitly end the Activity object.
 	 */
-	public void activityUnreferenced(ActivityHandle handle) {
+	public void activityUnreferenced(ActivityHandle handle)
+	{
 		logger.info("Diameter Base RA :: activityUnreferenced :: handle[" + handle + "].");
 
 		this.activityEnded(handle);
@@ -261,10 +285,12 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * method entityActivated(). This method signals the resource adaptor the
 	 * transition from state "INACTIVE" to state "ACTIVE".
 	 */
-	public void entityActivated() throws ResourceException {
+	public void entityActivated() throws ResourceException
+	{
 		logger.info("Diameter Base RA :: entityActivated.");
 
-		try {
+		try
+		{
 			logger.info("Activating Diameter Base RA Entity");
 
 			this.raProvider = new DiameterProviderImpl(this);
@@ -274,11 +300,14 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 			this.activities = new ConcurrentHashMap();
 
 			this.state = ResourceAdaptorState.CONFIGURED;
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			logger.error("Error Configuring Diameter Base RA Entity", e);
 		}
 
-		try {
+		try
+		{
 			// Initialize the protocol stack
 			initStack();
 
@@ -287,17 +316,21 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 			this.sessionFactory = this.stack.getSessionFactory();
 
 			// Register Accounting App Session Factories
-			((ISessionFactory) sessionFactory).registerAppFacory(ServerAccSession.class, new AccountingSessionFactory(
-					this));
-			((ISessionFactory) sessionFactory).registerAppFacory(ClientAccSession.class, new AccountingSessionFactory(
-					this));
+			((ISessionFactory) sessionFactory).registerAppFacory(
+					ServerAccSession.class, new AccountingSessionFactory(this));
+			((ISessionFactory) sessionFactory).registerAppFacory(
+					ClientAccSession.class, new AccountingSessionFactory(this));
 
 			// Register Authorization App Session Factories
-			((ISessionFactory) sessionFactory).registerAppFacory(ServerAuthSession.class,
-					new AuthorizationSessionFactory(this));
-			((ISessionFactory) sessionFactory).registerAppFacory(ClientAuthSession.class,
-					new AuthorizationSessionFactory(this));
-		} catch (Exception e) {
+			((ISessionFactory) sessionFactory).registerAppFacory(
+					ServerAuthSession.class, new AuthorizationSessionFactory(
+							this));
+			((ISessionFactory) sessionFactory).registerAppFacory(
+					ClientAuthSession.class, new AuthorizationSessionFactory(
+							this));
+		}
+		catch (Exception e)
+		{
 			logger.error("Error Activating Diameter Base RA Entity", e);
 		}
 	}
@@ -311,7 +344,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * adaptor object and then invoke the entityCreated method before any other
 	 * operations can be invoked on the resource adaptor object.
 	 */
-	public void entityCreated(BootstrapContext bootstrapContext) throws ResourceException {
+	public void entityCreated(BootstrapContext bootstrapContext) throws ResourceException
+	{
 		logger.info("Diameter Base RA :: entityCreated :: bootstrapContext[" + bootstrapContext + "].");
 
 		this.bootstrapContext = bootstrapContext;
@@ -333,28 +367,36 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * entityDeactivating(). This method signals the resource adaptor the
 	 * transition from state "STOPPING" to state "INACTIVE".
 	 */
-	public void entityDeactivated() {
+	public void entityDeactivated()
+	{
 		logger.info("Diameter Base RA :: entityDeactivated.");
 
 		logger.info("Diameter Base RA :: Cleaning RA Activities.");
 
-		synchronized (this.activities) {
+		synchronized (this.activities)
+		{
 			activities.clear();
 		}
 		activities = null;
 
 		logger.info("Diameter Base RA :: Cleaning naming context.");
 
-		try {
+		try
+		{
 			cleanNamingContext();
-		} catch (NamingException e) {
+		}
+		catch (NamingException e)
+		{
 			logger.error("Diameter Base RA :: Cannot unbind naming context.");
 		}
 
 		// Stop the stack
-		try {
+		try
+		{
 			stack.stop(5, TimeUnit.SECONDS);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			logger.error("Diameter Base RA :: Failure while stopping ");
 		}
 
@@ -369,39 +411,50 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * method signals the resource adaptor the transition from state "ACTIVE" to
 	 * state "STOPPING".
 	 */
-	public void entityDeactivating() {
+	public void entityDeactivating()
+	{
 		logger.info("Diameter Base RA :: entityDeactivating.");
-
+		
 		this.state = ResourceAdaptorState.STOPPING;
-
-		try {
+		
+		try 
+		{
 			Network network = stack.unwrap(Network.class);
 
 			Iterator<ApplicationId> appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
-
-			while (appIdsIt.hasNext()) {
+			
+			while(appIdsIt.hasNext())
+			{
 				network.removeNetworkReqListener(appIdsIt.next());
-
+				
 				// Update the iterator (avoid ConcurrentModificationException)
 				appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
 			}
-		} catch (InternalException e) {
+		}
+		catch (InternalException e) 
+		{
 			logger.error("", e);
 		}
 
-		synchronized (this.activities) {
-			for (ActivityHandle activityHandle : activities.keySet()) {
-				try {
+		synchronized (this.activities)
+		{
+			for (ActivityHandle activityHandle : activities.keySet())
+			{
+				try
+				{
 					logger.info("Ending activity [" + activityHandle + "]");
 
 					activities.get(activityHandle).endActivity();
 
-				} catch (Exception e) {
+				}
+				catch (Exception e)
+				{
 					logger.error("Error Deactivating Activity", e);
 				}
 			}
 
 		}
+		
 		logger.info("Diameter Base RA :: entityDeactivating completed.");
 	}
 
@@ -413,7 +466,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * during SLEE shutdown. When receiving this invocation the resource adaptor
 	 * object is expected to close any system resources it has allocated.
 	 */
-	public void entityRemoved() {
+	public void entityRemoved()
+	{
 		// Stop the stack
 		this.stack.destroy();
 
@@ -438,11 +492,11 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * resource to process the event, a SLEE node fails during event processing
 	 * or a system level failure prevents the SLEE from committing transactions.
 	 */
-	public void eventProcessingFailed(ActivityHandle handle, Object event, int eventID, Address address, int flags,
-			FailureReason reason) {
-		logger.info("Diameter Base RA :: eventProcessingFailed :: handle[" + handle + "], event[" + event
-				+ "], eventID[" + eventID + "], address[" + address + "], flags[" + flags + "], reason[" + reason
-				+ "].");
+	public void eventProcessingFailed(ActivityHandle handle, Object event, int eventID, Address address, int flags, FailureReason reason)
+	{
+		logger.info("Diameter Base RA :: eventProcessingFailed :: handle[" + handle + "], event[" + event + "], eventID[" + eventID + "], address[" + address + "], flags[" + flags + 
+		    "], reason[" + reason + "].");
+		
 		// FIXME: baranowb - for base end here
 	}
 
@@ -454,9 +508,10 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * considered to be processed successfully if the SLEE has attempted to
 	 * deliver the event to all interested SBBs.
 	 */
-	public void eventProcessingSuccessful(ActivityHandle handle, Object event, int eventID, Address address, int flags) {
-		logger.info("Diameter Base RA :: eventProcessingSuccessful :: handle[" + handle + "], event[" + event
-				+ "], eventID[" + eventID + "], address[" + address + "], flags[" + flags + "].");
+	public void eventProcessingSuccessful(ActivityHandle handle, Object event, int eventID, Address address, int flags)
+	{
+		logger.info("Diameter Base RA :: eventProcessingSuccessful :: handle[" + handle + "], event[" + event + "], eventID[" + eventID + "], address[" + address + "], flags[" + 
+		    flags + "].");
 
 		// FIXME: baranowb - for base end here
 	}
@@ -468,7 +523,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * an activity handle. The resource adaptor is expected to pass back a
 	 * non-null object.
 	 */
-	public Object getActivity(ActivityHandle handle) {
+	public Object getActivity(ActivityHandle handle)
+	{
 		logger.info("Diameter Base RA :: getActivity :: handle[" + handle + "].");
 
 		return this.activities.get(handle);
@@ -482,15 +538,19 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * when it needs to construct an activity context for an activity via an
 	 * activity context interface factory method invoked by an SBB.
 	 */
-	public ActivityHandle getActivityHandle(Object activity) {
+	public ActivityHandle getActivityHandle(Object activity)
+	{
 		logger.info("Diameter Base RA :: getActivityHandle :: activity[" + activity + "].");
 
 		if (!(activity instanceof DiameterActivity))
 			return null;
 
 		DiameterActivity inActivity = (DiameterActivity) activity;
-		for (Map.Entry<ActivityHandle, DiameterActivity> activityInfo : this.activities.entrySet()) {
+		
+		for (Map.Entry<ActivityHandle, DiameterActivity> activityInfo : this.activities.entrySet())
+		{
 			Object curActivity = activityInfo.getValue();
+			
 			if (curActivity.equals(inActivity))
 				return activityInfo.getKey();
 		}
@@ -506,7 +566,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * used by the SLEE to convert between object and distributable forms of
 	 * events and event handles.
 	 */
-	public Marshaler getMarshaler() {
+	public Marshaler getMarshaler()
+	{
 		logger.info("Diameter Base RA :: getMarshaler");
 
 		return null;
@@ -519,7 +580,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * adaptor interface that enables the SBB to invoke the resource adaptor, to
 	 * send messages for example.
 	 */
-	public Object getSBBResourceAdaptorInterface(String className) {
+	public Object getSBBResourceAdaptorInterface(String className)
+	{
 		logger.info("Diameter Base RA :: getSBBResourceAdaptorInterface :: className[" + className + "].");
 
 		return this.raProvider;
@@ -531,15 +593,20 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * The SLEE calls this method to query if a specific activity belonging to
 	 * this resource adaptor object is alive.
 	 */
-	public void queryLiveness(ActivityHandle handle) {
+	public void queryLiveness(ActivityHandle handle)
+	{
 		logger.info("Diameter Base RA :: queryLiveness :: handle[" + handle + "].");
 
 		DiameterActivityImpl activity = (DiameterActivityImpl) activities.get(handle);
 
-		if (activity != null && !activity.isValid()) {
-			try {
+		if (activity != null && !activity.isValid())
+		{
+			try
+			{
 				sleeEndpoint.activityEnding(handle);
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				logger.error("", e);
 			}
 		}
@@ -553,8 +620,9 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * service key. The service must be installed with the resource adaptor via
 	 * the serviceInstalled method before it can be activated.
 	 */
-	public void serviceActivated(String serviceKey) {
-		logger.info("Diameter Base RA :: serviceActivated :: serviceKey[" + serviceKey + "].");
+	public void serviceActivated(String serviceKey)
+	{
+	  logger.info("Diameter Base RA :: serviceActivated :: serviceKey[" + serviceKey + "].");
 	}
 
 	/**
@@ -564,7 +632,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * deactivated and is no longer interested in the event types associated to
 	 * the service key.
 	 */
-	public void serviceDeactivated(String serviceKey) {
+	public void serviceDeactivated(String serviceKey)
+	{
 		logger.info("Diameter Base RA :: serviceDeactivated :: serviceKey[" + serviceKey + "].");
 	}
 
@@ -577,9 +646,9 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * that services in the SLEE are interested in. The SLEE calls this method
 	 * once a service is installed.
 	 */
-	public void serviceInstalled(String serviceKey, int[] eventIDs, String[] resourceOptions) {
-		logger.info("Diameter Base RA :: serviceInstalled :: serviceKey[" + serviceKey + "], eventIDs[" + eventIDs
-				+ "], resourceOptions[" + resourceOptions + "].");
+	public void serviceInstalled(String serviceKey, int[] eventIDs, String[] resourceOptions)
+	{
+		logger.info("Diameter Base RA :: serviceInstalled :: serviceKey[" + serviceKey + "], eventIDs[" + eventIDs + "], resourceOptions[" + resourceOptions + "].");
 	}
 
 	/**
@@ -589,14 +658,16 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * un-installed in the SLEE. The event types associated to the service key
 	 * are no longer of interest to a particular application.
 	 */
-	public void serviceUninstalled(String serviceKey) {
+	public void serviceUninstalled(String serviceKey)
+	{
 		logger.info("Diameter Base RA :: serviceUninstalled :: serviceKey[" + serviceKey + "].");
 	}
 
 	/**
 	 * Set up the JNDI naming context
 	 */
-	private void initializeNamingContext() throws NamingException {
+	private void initializeNamingContext() throws NamingException
+	{
 		// get the reference to the SLEE container from JNDI
 		SleeContainer container = SleeContainer.lookupFromJndi();
 
@@ -605,14 +676,16 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 
 		ResourceAdaptorEntity resourceAdaptorEntity;
 
-		try {
+		try
+		{
 			resourceAdaptorEntity = ((ResourceAdaptorEntity) container.getResourceAdaptorEntity(entityName));
-		} catch (UnrecognizedResourceAdaptorEntityException uraee) {
+		}
+		catch (UnrecognizedResourceAdaptorEntityException uraee)
+		{
 			throw new NamingException("Failure setting up Naming Context. RA Entity not found.");
 		}
 
-		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity.getInstalledResourceAdaptor().getRaType()
-				.getResourceAdaptorTypeID();
+		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity.getInstalledResourceAdaptor().getRaType().getResourceAdaptorTypeID();
 
 		// create the ActivityContextInterfaceFactory
 		acif = new DiameterActivityContextInterfaceFactoryImpl(resourceAdaptorEntity.getServiceContainer(), entityName);
@@ -620,32 +693,41 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		// set the ActivityContextInterfaceFactory
 		resourceAdaptorEntity.getServiceContainer().getActivityContextInterfaceFactories().put(raTypeId, acif);
 
-		try {
-			if (this.acif != null) {
+		try
+		{
+			if (this.acif != null)
+			{
 				// parse the string = java:slee/resources/RAFrameRA/raframeacif
 				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) acif).getJndiName();
+				
 				int begind = jndiName.indexOf(':');
 				int toind = jndiName.lastIndexOf('/');
+				
 				String prefix = jndiName.substring(begind + 1, toind);
 				String name = jndiName.substring(toind + 1);
 
 				logger.info("Diameter Base RA :: Registering in JNDI :: Prefix[" + prefix + "], Name[" + name + "].");
 
 				SleeContainer.registerWithJndi(prefix, name, this.acif);
-				logger.debug("Diameter Base RA :: Registered in JNDI successfully.");
+				
+				logger.info("Diameter Base RA :: Registered in JNDI successfully.");
 			}
-		} catch (IndexOutOfBoundsException e) {
-			// not register with JNDI
-			logger.debug(e);
+		}
+		catch (IndexOutOfBoundsException iobe)
+		{
+			logger.info("Failure initializing name context.", iobe);
 		}
 	}
 
 	/**
 	 * Clean the JNDI naming context
 	 */
-	private void cleanNamingContext() throws NamingException {
-		try {
-			if (this.acif != null) {
+	private void cleanNamingContext() throws NamingException
+	{
+		try
+		{
+			if (this.acif != null)
+			{
 				// parse the string = java:slee/resources/RAFrameRA/raframeacif
 				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif).getJndiName();
 
@@ -656,10 +738,13 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 				logger.info("Diameter Base RA :: Unregistering from JNDI :: Name[" + javaJNDIName + "].");
 
 				SleeContainer.unregisterWithJndi(javaJNDIName);
-				logger.debug("Diameter Base RA :: Unregistered from JNDI successfully.");
+				
+				logger.info("Diameter Base RA :: Unregistered from JNDI successfully.");
 			}
-		} catch (IndexOutOfBoundsException e) {
-			logger.debug(e);
+		}
+		catch (IndexOutOfBoundsException iobe)
+		{
+			logger.error("Failure cleaning name context.", iobe);
 		}
 	}
 
@@ -668,10 +753,12 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * 
 	 * @throws Exception
 	 */
-	private synchronized void initStack() throws Exception {
+	private synchronized void initStack() throws Exception
+	{
 		InputStream is = null;
 
-		try {
+		try
+		{
 			// Create and configure stack
 			this.stack = new StackImpl();
 
@@ -705,13 +792,19 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 
 			logger.info("Diameter Base RA :: Supporting " + appIds.size() + " applications.");
 
-			for (ApplicationId appId : appIds) {
+			for (ApplicationId appId : appIds)
+			{
 				logger.info("Diameter Base RA :: Adding Listener for [" + appId + "].");
 				network.addNetworkReqListener(this, appId);
 			}
 
+			// Set message timeout accordingly to stack definition
+			this.messageTimeout = stack.getMetaData().getConfiguration().getLongValue(MessageTimeOut.ordinal(), (Long) MessageTimeOut.defValue());
+			
 			this.stack.start();
-		} finally {
+		}
+		finally
+		{
 			if (is != null)
 				is.close();
 
@@ -724,20 +817,25 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	/**
 	 * RA Entry Point
 	 */
-	public Answer processRequest(Request request) {
+	public Answer processRequest(Request request)
+	{
 		DiameterActivity activity;
 
-		try {
+		try
+		{
 			activity = raProvider.createActivity(request);
 
 			// Will it be handled by specific app handler?
-			if (!authEventCodes.contains(request.getCommandCode()) && !accEventCodes.contains(request.getCommandCode())) {
+			if( !authEventCodes.contains(request.getCommandCode()) && !accEventCodes.contains(request.getCommandCode()) )
+			{
 				activityCreated(activity);
 				DiameterActivityHandle handle = createActivityHandle(activity);
 
 				fireEvent(handle, events.get(request.getCommandCode()) + "Request", request, null);
 			}
-		} catch (CreateActivityException e) {
+		}
+		catch (CreateActivityException e)
+		{
 			logger.error("", e);
 		}
 
@@ -752,7 +850,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 *            the Request object to create the activity handle from
 	 * @return a DiameterActivityHandle for the provided request
 	 */
-	private DiameterActivityHandle createActivityHandle(DiameterActivity di) {
+	private DiameterActivityHandle createActivityHandle(DiameterActivity di)
+	{
 		return ((DiameterActivityImpl) di).getActivityHandle();
 	}
 
@@ -763,8 +862,10 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * @param ac
 	 *            the activity that has been created
 	 */
-	private void activityCreated(DiameterActivity ac) {
-		try {
+	private void activityCreated(DiameterActivity ac)
+	{
+		try
+		{
 			// Inform SLEE that Activity Started
 			DiameterActivityImpl activity = (DiameterActivityImpl) ac;
 			sleeEndpoint.activityStarted(activity.getActivityHandle());
@@ -773,8 +874,11 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 			activities.put(activity.getActivityHandle(), activity);
 
 			logger.info("Activity started [" + activity.getActivityHandle() + "]");
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			logger.error("Error creating activity", e);
+			
 			throw new RuntimeException("Error creating activity", e);
 		}
 	}
@@ -789,20 +893,21 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * @return a DiameterMessage object wrapping the request/answer
 	 * @throws OperationNotSupportedException
 	 */
-	public DiameterMessage createEvent(Request request, Answer answer) throws OperationNotSupportedException {
+	public DiameterMessage createEvent(Request request, Answer answer) throws OperationNotSupportedException
+	{
 		if (request == null && answer == null)
 			return null;
 
 		int commandCode = (request != null ? request.getCommandCode() : answer.getCommandCode());
 
-		switch (commandCode) {
+		switch (commandCode)
+		{
 		case AbortSessionAnswer.commandCode: // ASR/ASA
 			return request != null ? new AbortSessionRequestImpl(request) : new AbortSessionAnswerImpl(answer);
 		case AccountingAnswer.commandCode: // ACR/ACA
 			return request != null ? new AccountingRequestImpl(request) : new AccountingAnswerImpl(answer);
 		case CapabilitiesExchangeAnswer.commandCode: // CER/CEA
-			return request != null ? new CapabilitiesExchangeRequestImpl(request) : new CapabilitiesExchangeAnswerImpl(
-					answer);
+			return request != null ? new CapabilitiesExchangeRequestImpl(request) : new CapabilitiesExchangeAnswerImpl(answer);
 		case DeviceWatchdogAnswer.commandCode: // DWR/DWA
 			return request != null ? new DeviceWatchdogRequestImpl(request) : new DeviceWatchdogAnswerImpl(answer);
 		case DisconnectPeerAnswer.commandCode: // DPR/DPA
@@ -810,28 +915,29 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		case ReAuthAnswer.commandCode: // RAR/RAA
 			return request != null ? new ReAuthRequestImpl(request) : new ReAuthAnswerImpl(answer);
 		case SessionTerminationAnswer.commandCode: // STR/STA
-			return request != null ? new SessionTerminationRequestImpl(request) : new SessionTerminationAnswerImpl(
-					answer);
+			return request != null ? new SessionTerminationRequestImpl(request) : new SessionTerminationAnswerImpl(answer);
 		case ErrorAnswer.commandCode:
-			if (answer != null) {
+			if (answer != null)
+			{
 				return new ErrorAnswerImpl(answer);
-			} else {
-				throw new IllegalArgumentException("ErrorAnswer code set on request!!!\n" + request);
+			}
+			else
+			{
+				throw new IllegalArgumentException("ErrorAnswer code set on request: " + request);
 			}
 		case ExtensionDiameterMessage.commandCode:
 			// FIXME: baranowb - is this correct ?
 			return new ExtensionDiameterMessageImpl(request != null ? request : answer);
 
 		default:
-			throw new OperationNotSupportedException("Not supported message code:" + commandCode + "\n"
-					+ (request != null ? request : answer));
-
+			throw new OperationNotSupportedException("Not supported message code:" + commandCode + "\n" + (request != null ? request : answer));
 		}
-
 	}
 
-	private void fireEvent(Request request, Answer answer) {
+	private void fireEvent(Request request, Answer answer)
+	{
 		String sessionId = (request != null ? request.getSessionId() : answer.getSessionId());
+		
 		int commandCode = (request != null ? request.getCommandCode() : answer.getCommandCode());
 		String postfix = (request != null ? "Request" : "Answer");
 
@@ -850,15 +956,18 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * @param answer
 	 *            the answer that will be wrapped in the event, if any
 	 */
-	private void fireEvent(ActivityHandle handle, String name, Request request, Answer answer) {
-		try {
-			int eventID = eventLookup.getEventID("net.java.slee.resource.diameter.base.events." + name, "java.net",
-					"0.8");
+	private void fireEvent(ActivityHandle handle, String name, Request request, Answer answer)
+	{
+		try
+		{
+			int eventID = eventLookup.getEventID("net.java.slee.resource.diameter.base.events." + name, "java.net", "0.8");
 
 			DiameterMessage event = (DiameterMessage) createEvent(request, answer);
 
 			sleeEndpoint.fireEvent(handle, event, eventID, null);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			logger.warn("Can not send event", e);
 		}
 	}
@@ -868,27 +977,31 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * 
 	 * @return an array of DiameterIdentity AVPs representing the peers.
 	 */
-	public DiameterIdentityAvp[] getConnectedPeers() {
-		if (this.stack != null) {
-			try {
+	public DiameterIdentityAvp[] getConnectedPeers()
+	{
+		if (this.stack != null)
+		{
+			try
+			{
 				// Get the list of peers from the stack
 				List<Peer> peers = stack.unwrap(PeerTable.class).getPeerTable();
+				
 				DiameterIdentityAvp[] result = new DiameterIdentityAvp[peers.size()];
 
 				int i = 0;
 
 				// Get each peer from the list and make a DiameterIdentityAvp
-				for (Peer peer : peers) {
-					// FIXME: alexandre: new DiameterIdentityAvpImpl(
-					// peer.toString() );
-					DiameterIdentityAvp identity = new DiameterIdentityAvpImpl(0, 0, 0, 0, peer.getUri().toString()
-							.getBytes());
+				for (Peer peer : peers)
+				{
+					DiameterIdentityAvp identity = new DiameterIdentityAvpImpl(0, 0, 0, 0, peer.getUri().toString().getBytes());
 
 					result[i++] = identity;
 				}
 
 				return result;
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				logger.error("Failure getting peer list.", e);
 			}
 		}
@@ -902,15 +1015,18 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * @see org.jdiameter.api.EventListener#receivedSuccessMessage(org.jdiameter.api.Message,
 	 *      org.jdiameter.api.Message)
 	 */
-	// === RESPONSE RECEIVE
-	public void receivedSuccessMessage(Request req, Answer ans) {
-		logger.info("Diameter Base RA :: receivedSuccessMessage :: " + "Request[" + req + "], Answer[" + ans + "].");
+	public void receivedSuccessMessage(Request req, Answer ans)
+	{
+	  logger.info("Diameter Base RA :: receivedSuccessMessage :: " + "Request[" + req + "], Answer[" + ans + "].");
 
-		try {
-			logger.info("RESULT CODE: " + ans.getResultCode().getUnsigned32());
-		} catch (AvpDataException e) {
-			e.printStackTrace();
-		}
+		try
+    {
+      logger.info( "Received Message Result-Code: " + ans.getResultCode().getUnsigned32() );
+    }
+    catch ( AvpDataException ignore )
+    {
+      // ignore, this was just for informational purposes...
+    }
 		// FIXME: alexandre: what should we do here? end activity?
 	}
 
@@ -919,201 +1035,214 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 * 
 	 * @see org.jdiameter.api.EventListener#timeoutExpired(org.jdiameter.api.Message)
 	 */
-	public void timeoutExpired(Request req) {
+	public void timeoutExpired(Request req)
+	{
+	  logger.info("Diameter Base RA :: timeoutExpired :: " + "Request[" + req + "].");
+	  
 		// Message delivery timed out - we have to remove activity
 		DiameterActivityHandle ah = new DiameterActivityHandle(req.getSessionId());
 
-		try {
+		try
+		{
 			activities.get(ah).endActivity();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			logger.error("Failure processing timeout message.", e);
 		}
 	}
 
-	// ##########################################################################
+	// ################################
 	// ## ACCOUNTING SESSION FACTORY ##
-	// ##########################################################################
+	// ################################
 
-	private class AccountingSessionFactory implements IAppSessionFactory, ServerAccSessionListener,
-			StateChangeListener, ClientAccSessionListener {
+	private class AccountingSessionFactory implements IAppSessionFactory, ServerAccSessionListener, StateChangeListener, ClientAccSessionListener {
 
 		DiameterBaseResourceAdaptor ra;
 
-		public AccountingSessionFactory(DiameterBaseResourceAdaptor ra) {
+		public AccountingSessionFactory(DiameterBaseResourceAdaptor ra)
+		{
 			this.ra = ra;
 		}
 
-		public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass,
-				ApplicationId applicationId, Object... args) {
-			try {
-				if (aClass == ServerAccSession.class) {
+		public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args)
+		{
+			try
+			{
+				if (aClass == ServerAccSession.class)
+				{
 					Request request = (Request) args[0];
-					return new ServerAccSessionImpl(stack.getSessionFactory().getNewSession(request.getSessionId()),
-							request, this, 50000, true, new StateChangeListener[] { this });
-				} else {
-					if (aClass == ClientAccSession.class) {
-						return sessionId == null ? new ClientAccSessionImpl(stack.getSessionFactory(), this,
-								applicationId) : new ClientAccSessionImpl(stack.getSessionFactory(), sessionId, this,
-								applicationId);
+					
+					return new ServerAccSessionImpl(stack.getSessionFactory().getNewSession(request.getSessionId()), request, this, messageTimeout, true, new StateChangeListener[] {this});
+				}
+				else
+				{
+					if (aClass == ClientAccSession.class)
+					{
+						return sessionId == null ? new ClientAccSessionImpl(stack.getSessionFactory(), this, applicationId) : new ClientAccSessionImpl(stack.getSessionFactory(), sessionId, 
+						    this, applicationId);
 					}
 				}
 
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				logger.error("Failure to obtain new Accounting Session.", e);
 			}
 
 			return null;
 		}
 
-		public void doAccRequestEvent(ServerAccSession appSession, AccountRequest request) throws InternalException,
-				IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doAccRequestEvent :: appSession[" + appSession + "], Request[" + request
-					+ "]");
+		public void doAccRequestEvent(ServerAccSession appSession, AccountRequest request) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException
+		{
+			logger.info("Diameter Base RA :: doAccRequestEvent :: appSession[" + appSession + "], Request[" + request + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
-			this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request.getMessage(),
-					null);
+			this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request.getMessage(), null);
 		}
 
-		public void doAccAnswerEvent(ClientAccSession appSession, AccountRequest request, AccountAnswer answer)
-				throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("doAccAnswerEvent :: appSession[" + appSession + "], request[" + request + "], answer["
-					+ answer + "]");
+		public void doAccAnswerEvent(ClientAccSession appSession, AccountRequest request, AccountAnswer answer) throws InternalException, IllegalDiameterStateException, 
+		    RouteException, OverloadException
+		{
+			logger.info("doAccAnswerEvent :: appSession[" + appSession + "], request[" + request + "], answer[" + answer + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
-			this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer
-					.getMessage());
+			this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer.getMessage());
 		}
 
-		public void doOtherEvent(AppSession appSession, AppRequestEvent request, AppAnswerEvent answer)
-				throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doOtherEvent :: appSession[" + appSession + "], Request[" + request
-					+ "], Answer[" + answer + "]");
+		public void doOtherEvent(AppSession appSession, AppRequestEvent request, AppAnswerEvent answer) throws InternalException, IllegalDiameterStateException, RouteException,
+		    OverloadException
+		{
+			logger.info("Diameter Base RA :: doOtherEvent :: appSession[" + appSession + "], Request[" + request + "], Answer[" + answer + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
-			if (answer != null) {
-				this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer
-						.getMessage());
-			} else {
-				this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request
-						.getMessage(), null);
+			if (answer != null)
+			{
+				this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer.getMessage());
+			}
+			else
+			{
+				this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request.getMessage(), null);
 			}
 		}
 
-		public void stateChanged(Enum oldState, Enum newState) {
+		public void stateChanged(Enum oldState, Enum newState)
+		{
 			logger.info("Diameter Base RA :: stateChanged :: oldState[" + oldState + "], newState[" + newState + "]");
 		}
 
 	}
 
-	// ##########################################################################
+	// ###################################
 	// ## AUTHORIZATION SESSION FACTORY ##
-	// ##########################################################################
+	// ###################################
 
-	private class AuthorizationSessionFactory implements IAppSessionFactory, IAuthMessageFactory,
-			ServerAuthSessionListener, StateChangeListener, ClientAuthSessionListener {
+	private class AuthorizationSessionFactory implements IAppSessionFactory, IAuthMessageFactory, ServerAuthSessionListener, StateChangeListener, ClientAuthSessionListener {
 
-		private long authAppId = 19301L;
+	  private long authAppId = 19301L;
 		private DiameterBaseResourceAdaptor ra;
 
 		private boolean stateless = true;
-
-		public AuthorizationSessionFactory(DiameterBaseResourceAdaptor ra) {
+		
+		public AuthorizationSessionFactory(DiameterBaseResourceAdaptor ra)
+		{
 			this.ra = ra;
 		}
 
-		public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass,
-				ApplicationId applicationId, Object... args) {
-			try {
-				if (aClass == ServerAuthSession.class) {
-					Request request = (Request) args[0];
-					return new ServerAuthSessionImpl(stack.getSessionFactory().getNewSession(request.getSessionId()),
-							request, this, this, 50000, stateless, this);
-				} else {
-					if (aClass == ClientAuthSession.class)
-						return sessionId == null ? new ClientAuthSessionImpl(stateless, this,
-								stack.getSessionFactory(), this) : new ClientAuthSessionImpl(stateless, sessionId,
-								this, stack.getSessionFactory(), this);
-				}
-			} catch (Exception e) {
-				logger.error("", e);
-			}
-
-			return null;
+		public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args)
+		{
+		  try 
+		  {
+		    if (aClass == ServerAuthSession.class) 
+		    {
+		      Request request =(Request) args[0];
+		      return new ServerAuthSessionImpl(stack.getSessionFactory().getNewSession(request.getSessionId()), request, this,  this, messageTimeout, stateless, this);
+		    }
+		    else
+		    {
+		      if (aClass == ClientAuthSession.class)
+		        return sessionId == null ?
+		            new ClientAuthSessionImpl(stateless, this, stack.getSessionFactory(), this) :
+		            new ClientAuthSessionImpl(stateless, sessionId, this, stack.getSessionFactory(), this) ;
+		    }
+		  }
+		  catch (Exception e)
+		  {
+		    logger.error( "", e );
+		  }
+		  
+		  return null;
 		}
 
-		public void stateChanged(Enum oldState, Enum newState) {
+		public void stateChanged(Enum oldState, Enum newState)
+		{
 			logger.info("Diameter Base RA :: stateChanged :: oldState[" + oldState + "], newState[" + newState + "]");
 		}
 
-		public void doAbortSessionRequestEvent(ClientAuthSession appSession, AbortSessionRequest asr)
-				throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doAbortSessionRequestEvent :: appSession[" + appSession + "], ASR[" + asr
-					+ "]");
+		public void doAbortSessionRequestEvent(ClientAuthSession appSession, AbortSessionRequest asr) throws InternalException, IllegalDiameterStateException, RouteException,
+		    OverloadException
+		{
+			logger.info("Diameter Base RA :: doAbortSessionRequestEvent :: appSession[" + appSession + "], ASR[" + asr + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
 			this.ra.fireEvent(handle, events.get(asr.getCommandCode()) + "Request", (Request) asr.getMessage(), null);
 		}
 
-		public void doAbortSessionAnswerEvent(ServerAuthSession appSession,
-				org.jdiameter.api.auth.events.AbortSessionAnswer asa) throws InternalException,
-				IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doAbortSessionAnswerEvent :: appSession[" + appSession + "], ASA[" + asa
-					+ "]");
+		public void doAbortSessionAnswerEvent(ServerAuthSession appSession, org.jdiameter.api.auth.events.AbortSessionAnswer asa) throws InternalException,
+		    IllegalDiameterStateException, RouteException, OverloadException
+		{
+			logger.info("Diameter Base RA :: doAbortSessionAnswerEvent :: appSession[" + appSession + "], ASA[" + asa + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
 			this.ra.fireEvent(handle, events.get(asa.getCommandCode()) + "Answer", null, (Answer) asa.getMessage());
 		}
 
-		public void doSessionTerminationRequestEvent(ServerAuthSession appSession, SessionTermRequest str)
-				throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doSessionTerminationRequestEvent :: appSession[" + appSession + "], STA["
-					+ str + "]");
+		public void doSessionTerminationRequestEvent(ServerAuthSession appSession, SessionTermRequest str) throws InternalException, IllegalDiameterStateException, RouteException, 
+		    OverloadException 
+		{
+			logger.info("Diameter Base RA :: doSessionTerminationRequestEvent :: appSession[" + appSession + "], STA[" + str + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
 			this.ra.fireEvent(handle, events.get(str.getCommandCode()) + "Request", (Request) str.getMessage(), null);
 		}
 
-		public void doSessionTerminationAnswerEvent(ClientAuthSession appSession, SessionTermAnswer sta)
-				throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doSessionTerminationAnswerEvent :: appSession[" + appSession + "], STA["
-					+ sta + "]");
+		public void doSessionTerminationAnswerEvent(ClientAuthSession appSession, SessionTermAnswer sta) throws InternalException, IllegalDiameterStateException, RouteException,
+		    OverloadException
+		{
+			logger.info("Diameter Base RA :: doSessionTerminationAnswerEvent :: appSession[" + appSession + "], STA[" + sta + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
 			this.ra.fireEvent(handle, events.get(sta.getCommandCode()) + "Answer", null, (Answer) sta.getMessage());
 		}
 
-		public void doAuthRequestEvent(ServerAuthSession appSession, AppRequestEvent request) throws InternalException,
-				IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doAuthRequestEvent :: appSession[" + appSession + "], Request[" + request
-					+ "]");
+		public void doAuthRequestEvent(ServerAuthSession appSession, AppRequestEvent request) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException
+		{
+			logger.info("Diameter Base RA :: doAuthRequestEvent :: appSession[" + appSession + "], Request[" + request + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
-			this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request.getMessage(),
-					null);
+			this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request.getMessage(), null);
 		}
 
-		public void doAuthAnswerEvent(ClientAuthSession appSession, AppRequestEvent request, AppAnswerEvent answer)
-				throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doAuthAnswerEvent :: appSession[" + appSession + "], Request[" + request
-					+ "], Answer[" + answer + "]");
+		public void doAuthAnswerEvent(ClientAuthSession appSession, AppRequestEvent request, AppAnswerEvent answer) throws InternalException, IllegalDiameterStateException, 
+		    RouteException, OverloadException
+		{
+		  logger.info("Diameter Base RA :: doAuthAnswerEvent :: appSession[" + appSession + "], Request[" + request + "], Answer[" + answer + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
-			this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer
-					.getMessage());
+			this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer.getMessage());
 		}
 
-		public void doReAuthRequestEvent(ClientAuthSession appSession, ReAuthRequest rar) throws InternalException,
-				IllegalDiameterStateException, RouteException, OverloadException {
+		public void doReAuthRequestEvent(ClientAuthSession appSession, ReAuthRequest rar) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException
+		{
 			logger.info("Diameter Base RA :: doReAuthRequestEvent :: appSession[" + appSession + "], RAR[" + rar + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
@@ -1121,30 +1250,30 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 			this.ra.fireEvent(handle, events.get(rar.getCommandCode()) + "Request", (Request) rar.getMessage(), null);
 		}
 
-		public void doReAuthAnswerEvent(ServerAuthSession appSession, ReAuthRequest rar,
-				org.jdiameter.api.auth.events.ReAuthAnswer raa) throws InternalException,
-				IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doReAuthAnswerEvent :: appSession[" + appSession + "], RAR[" + rar
-					+ "], RAA[" + raa + "]");
+		public void doReAuthAnswerEvent(ServerAuthSession appSession, ReAuthRequest rar, org.jdiameter.api.auth.events.ReAuthAnswer raa) throws InternalException,
+		    IllegalDiameterStateException, RouteException, OverloadException 
+		{
+			logger.info("Diameter Base RA :: doReAuthAnswerEvent :: appSession[" + appSession + "], RAR[" + rar + "], RAA[" + raa + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
 			this.ra.fireEvent(handle, events.get(raa.getCommandCode()) + "Answer", null, (Answer) raa.getMessage());
 		}
 
-		public void doOtherEvent(AppSession appSession, AppRequestEvent request, AppAnswerEvent answer)
-				throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-			logger.info("Diameter Base RA :: doOtherEvent :: appSession[" + appSession + "], Request[" + request
-					+ "], Answer[" + answer + "]");
+		public void doOtherEvent(AppSession appSession, AppRequestEvent request, AppAnswerEvent answer) throws InternalException, IllegalDiameterStateException, 
+		    RouteException, OverloadException 
+		{
+			logger.info("Diameter Base RA :: doOtherEvent :: appSession[" + appSession + "], Request[" + request + "], Answer[" + answer + "]");
 
 			DiameterActivityHandle handle = new DiameterActivityHandle(appSession.getSessions().get(0).getSessionId());
 
-			if (answer != null) {
-				this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer
-						.getMessage());
-			} else {
-				this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request
-						.getMessage(), null);
+			if (answer != null)
+			{
+				this.ra.fireEvent(handle, events.get(answer.getCommandCode()) + "Answer", null, (Answer) answer.getMessage());
+			}
+			else
+			{
+				this.ra.fireEvent(handle, events.get(request.getCommandCode()) + "Request", (Request) request.getMessage(), null);
 			}
 		}
 
@@ -1165,18 +1294,20 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 			return 0;
 		}
 
-		public void setStateless(boolean stateless) {
-			this.stateless = stateless;
+		public void setStateless(boolean stateless)
+		{
+		  this.stateless = stateless;
 		}
-
-		public boolean getStateless() {
-			return this.stateless;
+		
+		public boolean getStateless()
+		{
+		  return this.stateless;
 		}
 	}
 
-	// ##########################################################################
+	// ##############
 	// ## PROVIDER ##
-	// ##########################################################################
+	// ##############
 
 	private class DiameterProviderImpl implements DiameterProvider {
 
@@ -1186,103 +1317,120 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		protected DiameterAvpFactory avpFactory = null;
 		protected DiameterMessageFactory messageFactory = null;
 
-		public DiameterProviderImpl(DiameterBaseResourceAdaptor ra) {
+		public DiameterProviderImpl(DiameterBaseResourceAdaptor ra) 
+		{
 			this.ra = ra;
 		}
 
-		public DiameterActivity createActivity() throws CreateActivityException {
+		public DiameterActivity createActivity() throws CreateActivityException
+		{
 			logger.info("Diameter Base RA :: createActivity");
 
 			return this.createActivity(null, null);
 		}
 
-		public DiameterActivity createActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm)
-				throws CreateActivityException {
-			logger.info("Diameter Base RA :: createActivity :: destinationHost[" + destinationHost
-					+ "], destinationRealm[" + destinationRealm + "]");
+		public DiameterActivity createActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm) throws CreateActivityException
+		{
+			logger.info("Diameter Base RA :: createActivity :: destinationHost[" + destinationHost + "], destinationRealm[" + destinationRealm + "]");
 
 			return createActivity(destinationHost, destinationRealm, null);
 		}
 
-		public DiameterActivity createActivity(DiameterIdentityAvp destinationHost,
-				DiameterIdentityAvp destinationRealm, String sessionId) throws CreateActivityException {
+		public DiameterActivity createActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm, String sessionId) throws CreateActivityException
+		{
+			Session session = null;
 
-			Session session;
-
-			try {
+			try
+			{
 				if (sessionId != null)
+				{
 					session = sessionFactory.getNewSession(sessionId);
+				}
 				else
+				{
 					session = sessionFactory.getNewSession();
-			} catch (InternalException e) {
+				}
+			}
+			catch (InternalException e)
+			{
 				logger.error("", e);
 				return null;
 			}
 
-			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session, stack, destinationHost,
-					destinationRealm);
+			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session, stack, destinationHost, destinationRealm);
 
-			DiameterActivityImpl activity = new DiameterActivityImpl(msgFactory, diameterAvpFactory, session, ra,
-					messageTimeout, destinationHost, destinationRealm, sleeEndpoint);
+			DiameterActivityImpl activity = new DiameterActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout, destinationHost, destinationRealm, sleeEndpoint);
 
 			activityCreated(activity);
 
 			return activity;
 		}
 
-		public AccountingClientSessionActivity createAccountingActivity(DiameterIdentityAvp destinationHost,
-				DiameterIdentityAvp destinationRealm) throws CreateActivityException {
-
+		public AccountingClientSessionActivity createAccountingActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm) throws CreateActivityException
+		{
 			ClientAccSession session = null;
-	
 
-			// FIXME: alexandre: replaced by stack constructor.
+			// FIXME: alexandre: replaced by stack constructor. needs review.
+      // DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), destinationHost, destinationRealm);
+			
 			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(stack);
-			// DiameterMessageFactoryImpl msgFactory = new
-			// DiameterMessageFactoryImpl(
-			// session.getSessions().get(0), destinationHost, destinationRealm);
-			AccountingClientSessionActivityImpl activity = new AccountingClientSessionActivityImpl(msgFactory,
-					diameterAvpFactory, session, ra, messageTimeout, destinationHost, destinationRealm, sleeEndpoint);
+			
+			AccountingClientSessionActivityImpl activity = new AccountingClientSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout, 
+			    destinationHost, destinationRealm, sleeEndpoint);
+			
 			activityCreated(activity);
+			
 			return activity;
 		}
 
-		public AccountingClientSessionActivity createAccountingActivity() throws CreateActivityException {
+		public AccountingClientSessionActivity createAccountingActivity() throws CreateActivityException
+		{
 			return this.createAccountingActivity(null, null);
 		}
 
-		public AuthClientSessionActivity createAuthenticationActivity(DiameterIdentityAvp destinationHost,
-				DiameterIdentityAvp destinationRealm) throws CreateActivityException {
+		public AuthClientSessionActivity createAuthenticationActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm) throws CreateActivityException
+		{
 			ClientAuthSession session = null;
-
-			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack,
-					destinationHost, destinationRealm);
-			AuthClientSessionActivityImpl activity = new AuthClientSessionActivityImpl(msgFactory, diameterAvpFactory,
-					session, ra, messageTimeout, destinationHost, destinationRealm, sleeEndpoint);
+			
+      // FIXME: alexandre: need to create session here.
+      // session = sessionFactory.getNewAppSession(3, ClientAccSession.class);
+			
+			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, destinationHost, destinationRealm);
+			
+			AuthClientSessionActivityImpl activity = new AuthClientSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout, 
+			    destinationHost, destinationRealm, sleeEndpoint);
+			
 			activityCreated(activity);
+			
 			return activity;
 		}
 
-		public AuthClientSessionActivity createAuthenticationActivity() throws CreateActivityException {
+		public AuthClientSessionActivity createAuthenticationActivity()
+				throws CreateActivityException {
 			return this.createAuthenticationActivity(null, null);
 		}
 
-		AccountingServerSessionActivity createAccountingServerActivity(Request req) throws CreateActivityException {
-
+		AccountingServerSessionActivity createAccountingServerActivity(Request req) throws CreateActivityException
+		{
 			ServerAccSession session = null;
 
-			try {
-			
-				session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, null,
-						ServerAccSession.class, req);
-				if (session == null) {
+			try
+			{
+				session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, null, ServerAccSession.class, req);
+				
+				if (session == null)
+				{
 					logger.error("Failure creating Accounting Server Session (null).");
 					return null;
 				}
-			} catch (InternalException e) {
+			}
+			catch (InternalException e)
+			{
 				logger.error("", e);
 				return null;
-			} catch (IllegalDiameterStateException e) {
+			}
+			catch (IllegalDiameterStateException e)
+			{
 				logger.error("", e);
 				return null;
 			}
@@ -1292,77 +1440,98 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 
 			AvpSet avps = req.getAvps();
 
-			Avp raw = avps.getAvp(Avp.DESTINATION_HOST);
+			Avp raw = null;
 
-			if (raw != null) {
-				try {
+			if ((raw = avps.getAvp(Avp.DESTINATION_HOST)) != null)
+			{
+				try
+				{
 					destinationHost = new DiameterIdentityAvpImpl(Avp.DESTINATION_HOST, 0, 0, 0, raw.getRaw());
-				} catch (AvpDataException e) {
+				}
+				catch (AvpDataException e)
+				{
 					logger.error("", e);
 				}
 			}
 
-			raw = avps.getAvp(Avp.DESTINATION_REALM);
-			if (raw != null) {
-				try {
+			if ((raw = avps.getAvp(Avp.DESTINATION_REALM)) != null)
+			{
+				try
+				{
 					destinationRealm = new DiameterIdentityAvpImpl(Avp.DESTINATION_REALM, 0, 0, 0, raw.getRaw());
-				} catch (AvpDataException e) {
+				}
+				catch (AvpDataException e)
+				{
 					logger.error("", e);
 				}
 			}
 
+			// FIXME: alexandre: replaced with stack constructor. review!
 			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(stack);
-			AccountingServerSessionActivityImpl activity = new AccountingServerSessionActivityImpl(msgFactory,
-					diameterAvpFactory, session, ra, messageTimeout, destinationHost, destinationRealm, sleeEndpoint,stack);
+			
+			AccountingServerSessionActivityImpl activity = new AccountingServerSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout,
+			    destinationHost, destinationRealm, sleeEndpoint, stack);
+			
 			activityCreated(activity);
 
 			return activity;
 		}
 
-		AccountingServerSessionActivity createAccountingServerActivity(DiameterIdentityAvp destinationHost,
-				DiameterIdentityAvp destinationRealm) throws CreateActivityException {
-
+		AccountingServerSessionActivity createAccountingServerActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm) throws CreateActivityException
+		{
 			ServerAccSession session = null;
 
-			try {
-
-				session = sessionFactory
-						.getNewAppSession(ApplicationId.createByAccAppId(19302), ServerAccSession.class);
-				if (session == null) {
+			try 
+			{
+				session = sessionFactory.getNewAppSession(ApplicationId.createByAccAppId(19302), ServerAccSession.class);
+				
+				if (session == null)
+				{
 					logger.error("Failure creating Accounting Server Session (null).");
+					
 					return null;
 				}
-			} catch (InternalException e) {
+			}
+			catch (InternalException e)
+			{
 				logger.error("", e);
 				return null;
 			}
 
-			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack,
-					destinationHost, destinationRealm);
-			AccountingServerSessionActivityImpl activity = new AccountingServerSessionActivityImpl(msgFactory,
-					diameterAvpFactory, session, ra, messageTimeout, destinationHost, destinationRealm, sleeEndpoint,stack);
+			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, destinationHost, destinationRealm);
+			
+			AccountingServerSessionActivityImpl activity = new AccountingServerSessionActivityImpl( msgFactory, diameterAvpFactory, session, ra, messageTimeout,
+			    destinationHost, destinationRealm, sleeEndpoint, stack);
+			
 			activityCreated(activity);
 
 			return activity;
 		}
 
-		AccountingServerSessionActivity createAccountingServerActivity() throws CreateActivityException {
+		AccountingServerSessionActivity createAccountingServerActivity() throws CreateActivityException 
+		{
 			return this.createAccountingServerActivity(null, null);
 		}
 
-		AuthServerSessionActivity createAuthenticationServerActivity(DiameterIdentityAvp destinationHost,
-				DiameterIdentityAvp destinationRealm) throws CreateActivityException {
+		AuthServerSessionActivity createAuthenticationServerActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm) throws CreateActivityException
+		{
 			ServerAuthSession session = null;
-
-			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack,
-					destinationHost, destinationRealm);
-			AuthServerSessionActivityImpl activity = new AuthServerSessionActivityImpl(msgFactory, diameterAvpFactory,
-					session, ra, messageTimeout, destinationHost, destinationRealm, sleeEndpoint);
+			
+			// FIXME: alexandre: need to create session here.
+			// session = sessionFactory.getNewAppSession(3, ClientAccSession.class);
+			
+			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, destinationHost, destinationRealm);
+			
+			AuthServerSessionActivityImpl activity = new AuthServerSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout,
+			    destinationHost, destinationRealm, sleeEndpoint);
+			
 			activityCreated(activity);
+			
 			return activity;
 		}
 
-		AuthServerSessionActivity createAuthenticationServerActivity() throws CreateActivityException {
+		AuthServerSessionActivity createAuthenticationServerActivity() throws CreateActivityException
+		{
 			return this.createAuthenticationServerActivity(null, null);
 		}
 
@@ -1377,42 +1546,57 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		 * @param message
 		 * @return
 		 */
-		DiameterActivity createActivity(Message message) throws CreateActivityException {
+		DiameterActivity createActivity(Message message) throws CreateActivityException 
+		{
 			String sessionId = message.getSessionId();
 			DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
-			if (activities.keySet().contains(handle)) {
+			
+			if (activities.keySet().contains(handle))
+			{
 				return activities.get(handle);
-			} else {
-
+			}
+			else 
+			{
 				DiameterIdentityAvp destinationHost = null;
 				DiameterIdentityAvp destinationRealm = null;
 
 				AvpSet avps = message.getAvps();
 
-				Avp raw = avps.getAvp(Avp.DESTINATION_HOST);
+				Avp raw = null;
 
-				if (raw != null) {
-					try {
+				if((raw = avps.getAvp(Avp.DESTINATION_HOST)) != null) 
+				{
+					try 
+					{
 						destinationHost = new DiameterIdentityAvpImpl(Avp.DESTINATION_HOST, 0, 0, 0, raw.getRaw());
-					} catch (AvpDataException e) {
+					}
+					catch (AvpDataException e) 
+					{
 						logger.error("", e);
 					}
 				}
 
-				raw = avps.getAvp(Avp.DESTINATION_REALM);
-				if (raw != null) {
-					try {
+				if((raw = avps.getAvp(Avp.DESTINATION_REALM)) != null)
+				{
+					try 
+					{
 						destinationRealm = new DiameterIdentityAvpImpl(Avp.DESTINATION_REALM, 0, 0, 0, raw.getRaw());
-					} catch (AvpDataException e) {
+					}
+					catch (AvpDataException e)
+					{
 						logger.error("", e);
 					}
 				}
 
-				if (authEventCodes.contains(message.getCommandCode())) {
+				if (authEventCodes.contains(message.getCommandCode()))
+				{
 					return createAuthenticationServerActivity(destinationHost, destinationRealm);
-				} else if (accEventCodes.contains(message.getCommandCode())) {
+				}
+				else if (accEventCodes.contains(message.getCommandCode()))
+				{
 					return createAccountingServerActivity((Request) message);
-				} else // Base Activity
+				}
+				else // Base Activity
 				{
 					return this.createActivity(destinationHost, destinationRealm, message.getSessionId());
 				}
@@ -1420,40 +1604,52 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 
 		}
 
-		public DiameterMessageFactory getDiameterMessageFactory() {
+		public DiameterMessageFactory getDiameterMessageFactory()
+		{
 			if (this.messageFactory == null)
+			{
 				this.messageFactory = new DiameterMessageFactoryImpl(this.ra.stack);
+			}
 
 			return this.messageFactory;
 		}
 
-		public DiameterAvpFactory getDiameterAvpFactory() {
+		public DiameterAvpFactory getDiameterAvpFactory()
+		{
 			if (this.avpFactory == null)
+			{
 				this.avpFactory = new DiameterAvpFactoryImpl();
-
+			}
+			
 			return this.avpFactory;
 		}
 
-		public DiameterMessage sendSyncRequest(DiameterMessage message) throws IOException {
-			try {
-				if (message instanceof DiameterMessageImpl) {
+		public DiameterMessage sendSyncRequest(DiameterMessage message) throws IOException
+		{
+			try
+			{
+				if (message instanceof DiameterMessageImpl) 
+				{
 					DiameterMessageImpl msg = (DiameterMessageImpl) message;
-					// FIXME: baranowb - get session from RA !!! THIS WILL BE
-					// COMPLICATED IN CASE WE HAVE RELLY AGENT!!!
+					
+					// FIXME: baranowb - get session from RA! THIS WILL BE COMPLICATED IN CASE WE HAVE RELLY AGENT!
 					// here we can have leaks ;[
+					
 					String sessionId = message.getSessionId();
 					DiameterActivityHandle handle = new DiameterActivityHandle(sessionId);
 
-					if (!activities.keySet().contains(handle)) {
-	
-						createActivity(((DiameterMessageImpl) message).getGenericData());
+					if (!activities.keySet().contains(handle))
+					{
+						createActivity(msg.getGenericData());
 					}
 
 					DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
+					
 					return activity.sendSyncMessage(message);
-
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				logger.error("Failure sending sync request.", e);
 			}
 

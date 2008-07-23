@@ -2,7 +2,6 @@ package org.mobicents.slee.resource.diameter.base;
 
 import java.io.IOException;
 
-
 import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.AccountingServerSessionActivity;
@@ -14,12 +13,8 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.EventListener;
-import org.jdiameter.api.IllegalDiameterStateException;
-import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Message;
-import org.jdiameter.api.OverloadException;
 import org.jdiameter.api.Request;
-import org.jdiameter.api.RouteException;
 import org.jdiameter.api.Stack;
 import org.jdiameter.api.acc.ServerAccSession;
 import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
@@ -29,24 +24,24 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 		implements AccountingServerSessionActivity {
 
 	protected ServerAccSession serverSession = null;
-	protected String originHost="aaa://127.0.0.1:1812";
-	public AccountingServerSessionActivityImpl(
-			DiameterMessageFactoryImpl messageFactory,
-			DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession,
-			EventListener<Request, Answer> raEventListener, long timeout,
-			DiameterIdentityAvp destinationHost,
-			DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint, Stack stack) {
-		super(messageFactory, avpFactory, null, raEventListener, timeout,
-				destinationHost, destinationRealm,endpoint);
+	
+	// These are default values, should be overriden by stack.
+	protected String originHost = "aaa://127.0.0.1:3868";
+	protected String originRealm = "mobicents.org";
+	
+	public AccountingServerSessionActivityImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession,
+			EventListener<Request, Answer> raEventListener, long timeout, DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint,
+			Stack stack) 
+	{
+		super(messageFactory, avpFactory, null, raEventListener, timeout, destinationHost, destinationRealm,endpoint);
 
-
-		this.serverSession=serverSession;
+		this.serverSession = serverSession;
 		this.serverSession.addStateChangeNotification(this);
-		super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
-		org.jdiameter.api.URI uri=stack.getMetaData().getLocalPeer().getUri();
-		//this.originHost=uri.getProtocolParam()+"://"+uri.getFQDN()+":"+uri.getPort();
-		this.originHost=uri.toString();
 		
+		super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
+		
+    this.originHost = stack.getMetaData().getLocalPeer().getUri().toString();
+    this.originRealm = stack.getMetaData().getLocalPeer().getRealmName();
 	}
 
 	public AccountingAnswer createAccountAnswer(AccountingRequest request, int resultCode)
@@ -63,10 +58,8 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
       DiameterAvp accRecordNumber = avpFactory.createAvp(Avp.ACC_RECORD_NUMBER, rawMessage.getAvps().getAvp(Avp.ACC_RECORD_NUMBER).getRaw());
       DiameterAvp accRecordType = avpFactory.createAvp(Avp.ACC_RECORD_TYPE, rawMessage.getAvps().getAvp(Avp.ACC_RECORD_TYPE).getRaw());
       
-      //FIXME: alexandre: this should come from the stack! 
-      
       DiameterAvp originHost = avpFactory.createAvp(Avp.ORIGIN_HOST, this.originHost.getBytes());
-      DiameterAvp originRealm = avpFactory.createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes());
+      DiameterAvp originRealm = avpFactory.createAvp(Avp.ORIGIN_REALM, this.originRealm.getBytes());
       
       DiameterAvp sessionId = avpFactory.createAvp(Avp.SESSION_ID, rawMessage.getAvps().getAvp(Avp.SESSION_ID).getRaw());
       
@@ -95,8 +88,7 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 
       // This is an answer.
       rawAnswer.setRequest(false);
-      
-      
+
       return new AccountingAnswerImpl( rawAnswer );
     }
     catch ( Exception e )
@@ -107,52 +99,28 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 	  return null;
 	}
 	
-	public void sendAccountAnswer(AccountingAnswer answer) throws IOException {
+	public void sendAccountAnswer(AccountingAnswer answer) throws IOException
+	{
 		// FIXME: baranowb - add setting of proper session
 		//super.sendMessage(answer);
 	  
-		if (answer instanceof DiameterMessageImpl) {
-	    try
-      {
-	      AccountingAnswerImpl aca = (AccountingAnswerImpl)answer;
-        try
-        {
-          this.serverSession.getSessions().get(0).send( aca.getGenericData() );
-        }
-        catch ( IllegalDiameterStateException e )
-        {
-          // TODO Auto-generated catch block
-          logger.error( "", e );
-        }
-      }
-      catch ( IllegalStateException e )
-      {
-        // TODO Auto-generated catch block
-        logger.error( "", e );
-      }
-      catch ( InternalException e )
-      {
-        // TODO Auto-generated catch block
-        logger.error( "", e );
-      }
-      catch ( RouteException e )
-      {
-        // TODO Auto-generated catch block
-        logger.error( "", e );
-      }
-      catch ( OverloadException e )
-      {
-        // TODO Auto-generated catch block
-        logger.error( "", e );
-      }
-		}
+    try
+    {
+      AccountingAnswerImpl aca = (AccountingAnswerImpl)answer;
+
+      this.serverSession.getSessions().get(0).send( aca.getGenericData() );
+    }
+    catch ( Exception e )
+    {
+      logger.error( "Failure sending Account-Answer.", e );
+    }
 	}
 
-	
+	public void stateChanged(Enum oldState, Enum newState)
+	{
+		logger.info( "Diameter Base RA :: AccountingServerSession ::stateChanged :: oldState[" + oldState + "] newState [" + newState + "]." );
 
-	public void stateChanged(Enum arg0, Enum arg1) {
-		// TODO Auto-generated method stub
-		
+		//FIXME: alexandre: Complete this method.
 	}
 
 }
