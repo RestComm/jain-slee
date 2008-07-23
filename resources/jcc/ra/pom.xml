@@ -27,11 +27,6 @@
             <artifactId>jcc-events</artifactId>
             <version>${pom.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.mobicents.core</groupId>
-            <artifactId>mobicents-core-jar</artifactId>
-            <version>${pom.version}</version>
-        </dependency>
     </dependencies>
     
 </project>

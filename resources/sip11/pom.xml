@@ -42,7 +42,7 @@
 									<tasks>
 										<copy
 											overwrite="true"
-											todir="${basedir}/../../release/${release.name}/resources/sip"
+											todir="${basedir}/../../release/${release.name}/resources/sip11"
 										>
 											<fileset dir="${basedir}/du/target">
 												<include name="**.jar" />
@@ -53,12 +53,12 @@
 										<copy
 											overwrite="true"
 											file="${basedir}/du/target/build.xml"
-											tofile="${basedir}/../../release/${release.name}/resources/sip/du-management.xml"
+											tofile="${basedir}/../../release/${release.name}/resources/sip11/du-management.xml"
 										/>
 										<copy
 											overwrite="true"
 											file="${basedir}/release/build.xml"
-											todir="${basedir}/../../release/${release.name}/resources/sip"
+											todir="${basedir}/../../release/${release.name}/resources/sip11"
 										>
 											<filterset>
 												<filter
