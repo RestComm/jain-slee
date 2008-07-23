@@ -14,6 +14,7 @@ import javax.slee.facilities.TimerOptions;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityFactory;
 
+import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.DiameterProvider;
@@ -384,9 +385,11 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
   {
     try
     {
+      DiameterActivity activity = provider.createActivity();
+      
       List<DiameterAvp> avps = new ArrayList<DiameterAvp>();
       
-      avps.add(avpFactory.createAvp(Avp.SESSION_ID, "12345".getBytes() ));
+      avps.add(avpFactory.createAvp(Avp.SESSION_ID, activity.getSessionId().getBytes() ));
   
       DiameterAvp avpVendorId = avpFactory.createAvp( Avp.VENDOR_ID, 193 );
       DiameterAvp avpAcctApplicationId = avpFactory.createAvp( Avp.ACCT_APPLICATION_ID, 193 );
@@ -435,7 +438,7 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
       logger.info( "Created Custom Message[" + ms + "]" );
       
       logger.info( "Sending Custom Message..." );
-      provider.createActivity().sendMessage( ms );
+      activity.sendMessage( ms );
       logger.info( "Sent Custom Message[" + ms + "]" );
     }
     catch (Exception e)
