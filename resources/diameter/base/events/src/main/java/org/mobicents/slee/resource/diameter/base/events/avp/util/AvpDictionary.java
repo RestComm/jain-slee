@@ -7,6 +7,7 @@ import java.util.HashMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.jboss.logging.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -14,6 +15,7 @@ import org.w3c.dom.NodeList;
 
 public class AvpDictionary
 {
+  private static Logger logger = Logger.getLogger( AvpDictionary.class );
   
   public final static AvpDictionary INSTANCE = new AvpDictionary();
   
@@ -36,6 +38,8 @@ public class AvpDictionary
   
   public void parseDictionary(InputStream is) throws Exception
   {
+    long startTime = System.currentTimeMillis();
+    
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setValidating( false );
     DocumentBuilder db = dbf.newDocumentBuilder();
@@ -43,8 +47,6 @@ public class AvpDictionary
     
     doc.getDocumentElement().normalize();
     
-    System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
-
     /**************************************************************************
      *  VENDORS 
      */
@@ -180,31 +182,22 @@ public class AvpDictionary
         Element avpElement = (Element) avpNode;
         
         String avpName = avpElement.getAttribute("name");
-        System.out.println("AVP Name........."  + avpName);
         
         String avpDescription = avpElement.getAttribute("description");
-        System.out.println("AVP Description.."  + avpDescription);
         
         String avpCode = avpElement.getAttribute("code");
-        System.out.println("AVP Code........."  + avpCode);
         
         String avpMayEncrypt = avpElement.getAttribute("may-encrypt");
-        System.out.println("AVP May-Encrypt.."  + avpMayEncrypt);
         
         String avpMandatory = avpElement.getAttribute("mandatory");
-        System.out.println("AVP Mandatory...."  + avpMandatory);
         
         String avpProtected = avpElement.getAttribute("protected").equals("") ? "may" : avpElement.getAttribute("protected");
-        System.out.println("AVP Protected...."  + avpProtected);
         
         String avpVendorBit = avpElement.getAttribute("vendor-bit");
-        System.out.println("AVP Vendor-Bit..."  + avpVendorBit);
         
         String avpVendorId = avpElement.getAttribute("vendor-id");
-        System.out.println("AVP Vendor-Id...."  + avpVendorId);
         
         String avpConstrained = avpElement.getAttribute("constrained");
-        System.out.println("AVP Constrained.."  + avpConstrained);
         
         String avpType = "";
         
@@ -223,19 +216,20 @@ public class AvpDictionary
             {
               // All we need to know is that's a grouped AVP.
               avpType = "Grouped";
-              System.out.println("AVP Type........."  + avpType);
             }
             else if(avpChildElement.getNodeName().equals("type"))
             {
               avpType = avpChildElement.getAttribute("type-name");
               avpType = typedefMap.get( avpType );
-              System.out.println("AVP Type........."  + avpType);
             }
-            
           }
         }
         
-        System.out.println("---------------------------------");
+        if(logger.isDebugEnabled())
+        {
+          logger.debug("Parsed AVP: Name[" + avpName + "] Description[" + avpDescription + "] Code[" + avpCode + "] May-Encrypt[" + avpMayEncrypt + "] Mandatory[" + avpMandatory +
+              "] Protected [" + avpProtected + "] Vendor-Bit [" + avpVendorBit + "] Vendor-Id [" + avpVendorId + "] Constrained[" + avpConstrained + "] Type [" + avpType + "]");
+        }
         
         AvpRepresentation avp = new AvpRepresentation(avpName, avpDescription, Integer.valueOf(avpCode), 
             avpMayEncrypt.equals("yes"), avpMandatory, avpProtected, avpVendorBit, getVendorCode(avpVendorId), 
@@ -244,6 +238,11 @@ public class AvpDictionary
         avpMap.put( avp.getVendorId() + "-" + avp.getCode(), avp );
       }
     }
+    
+    long endTime = System.currentTimeMillis();
+    
+    logger.info( "AVP Dictionary :: Loaded in " + (endTime-startTime) + "ms == Vendors[" + vendorMap.size() + "] Commands[" + commandMap.size() + "] Types[" + typedefMap.size() + 
+        "] AVPs[" + avpMap.size() + "]" );
   }
   
   public AvpRepresentation getAvp(int code)
