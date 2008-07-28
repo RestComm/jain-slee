@@ -400,7 +400,7 @@ public class AsteriskResourceAdaptor implements /*ManagerEventHandler*/ManagerEv
         // Load default values
         try {
             properties.load(getClass().getResourceAsStream("asteriskra.properties"));
-            log.error("loadProperties asteriskra.properties");
+            log.info("loadProperties asteriskra.properties");
             
         } catch (java.io.IOException ex) {
             // Silently set default values
