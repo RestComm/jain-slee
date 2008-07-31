@@ -12,9 +12,11 @@ import net.java.slee.resource.diameter.base.events.DiameterHeader;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AddressAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterURIAvp;
 import net.java.slee.resource.diameter.base.events.avp.FailedAvp;
+import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
 import net.java.slee.resource.diameter.base.events.avp.ProxyInfoAvp;
 import net.java.slee.resource.diameter.base.events.avp.RedirectHostUsageType;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
@@ -747,7 +749,22 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 	
 	public void addAvp(DiameterAvp avp)
 	{
-	  this.addAvpAsByteArray(avp.getCode(), avp.byteArrayValue(), avp.getMandatoryRule() == 0);
+	  addAvpInternal( avp, message.getAvps() );
+	}
+	
+	private void addAvpInternal(DiameterAvp avp, AvpSet set)
+	{
+	  if(avp.getType() == DiameterAvpType.GROUPED)
+    {
+      GroupedAvp gAvp = (GroupedAvp)avp;
+      
+      AvpSet groupedAvp = set.addGroupedAvp( gAvp.getCode(), gAvp.getVendorID(), gAvp.getMandatoryRule() != 2, gAvp.getProtectedRule() == 0 );
+      
+      for(DiameterAvp subAvp : gAvp.getExtensionAvps())
+        addAvpInternal( subAvp, groupedAvp );
+    }
+    else
+      set.addAvp( avp.getCode(), avp.byteArrayValue(), avp.getVendorID(), avp.getMandatoryRule() != 2, avp.getProtectedRule() == 0 );
 	}
 	
   private DiameterAvp[] getAvpsInternal(AvpSet set) throws Exception

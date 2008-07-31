@@ -32,7 +32,7 @@ public class ExtensionDiameterMessageImpl extends DiameterMessageImpl implements
 
   public void setExtensionAvps(DiameterAvp[] avps) throws AvpNotAllowedException {
     for (DiameterAvp a : avps)
-      addAvpAsByteArray(a.getCode(), a.byteArrayValue(), a.getMandatoryRule() == 1);
+      addAvp(a);
   }
 
 }

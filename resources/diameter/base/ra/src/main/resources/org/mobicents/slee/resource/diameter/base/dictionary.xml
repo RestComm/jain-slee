@@ -460,6 +460,9 @@
 	-->
 		<typedefn type-name="VendorId" type-parent="Unsigned32"/>
 		<typedefn type-name="AppId" type-parent="Integer32"/>
+		
+		<typedefn type-name="Float64"/>
+		
 		<typedefn type-name="Integer64"/>
 		<!--
          64 bit signed value, in network byte order. The AVP Length

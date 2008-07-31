@@ -2,10 +2,13 @@ package org.mobicents.slee.resource.diameter.base.events.avp.util;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
 
 import org.jboss.logging.Logger;
 import org.w3c.dom.Document;
@@ -26,6 +29,8 @@ public class AvpDictionary
   private static HashMap<String, String> commandMap = new HashMap<String, String>();
 
   private static HashMap<String, String> typedefMap = new HashMap<String, String>();
+  
+  private static HashMap<String, String> nameToCodeMap = new HashMap<String, String>();
 
   private AvpDictionary() {
     // Exists only to defeat instantiation.
@@ -236,6 +241,8 @@ public class AvpDictionary
             avpConstrained.equals("true"), avpType);
         
         avpMap.put( avp.getVendorId() + "-" + avp.getCode(), avp );
+        
+        nameToCodeMap.put( avp.getName(), avp.getVendorId() + "-" + avp.getCode() );
       }
     }
     
@@ -256,10 +263,28 @@ public class AvpDictionary
     return avp;
   }
 
+  public AvpRepresentation getAvp(String avpName)
+  {
+    String codeAndVendor = nameToCodeMap.get(avpName);
+    
+    if(codeAndVendor != null)
+    {
+      String[] splitCodeAndVendor = codeAndVendor.split("-");
+      
+      int vendor = Integer.valueOf(splitCodeAndVendor[0]);
+      int code = Integer.valueOf(splitCodeAndVendor[1]);
+      
+      return getAvp( code, vendor );
+    }
+    
+    return null;
+  }
+  
   private String getVendorCode(String vendorId)
   {
     String vendorCode = vendorMap.get(vendorId);
     
     return vendorCode != null ? vendorCode : "0";
   }
+
 }
