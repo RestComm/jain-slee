@@ -1775,19 +1775,15 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		// TODO PROPER HANDLING OF EXCEPTIONS
 
 		try{
-		if (log.isDebugEnabled()) {
-			log
-					.debug("------------------ NEW SIP REQUEST -----------------------");
-			log.debug("Processing request: " + req.getRequest().getMethod());
-			log.debug("Server Transaction: " + req.getServerTransaction());
-		}
-
-		if (log.isInfoEnabled() && !log.isDebugEnabled()) {
-			log
-					.info("\n-------------------------\nREQUEST:\n-------------------------\n"
-							+ req.getRequest() + "\n-------------------------");
-		}
-
+			if (log.isInfoEnabled()) {
+				log
+						.info("\n-------------------------\nREQUEST:\n-------------------------\n"
+								+ req.getRequest()
+								+ "\n-------------------------");
+			}
+			if (log.isDebugEnabled()) {
+				log.debug("Server Transaction: " + req.getServerTransaction());
+			}
 		
 		ServerTransaction st = null;
 		Dialog dialog = null;
