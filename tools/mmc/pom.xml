@@ -114,14 +114,13 @@
 
 	<profiles>
 		<profile>
-			<id>build-mmc</id>
+			<id>maven-release</id>
 			<modules>
 				<module>rpc</module>
 				<module>server</module>
 				<module>war</module>
 			</modules>
 		</profile>
-		
 	</profiles>
 	
 	<modules>
