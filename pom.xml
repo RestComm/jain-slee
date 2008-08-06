@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents</artifactId>
-		<version>3-SNAPSHOT</version>
+		<version>3</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 	
@@ -84,26 +84,9 @@
 	
 	<properties>		
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
-		<mobicents.servers.media.version>1.0.0.BETA2</mobicents.servers.media.version>
-		<mobicents.servers.sippresence.version>1.0.0.BETA2-SNAPSHOT</mobicents.servers.sippresence.version>
-		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2-SNAPSHOT</mobicents.tools.mavenplugin.du.version>
-		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2-SNAPSHOT</mobicents.tools.mavenplugin.eclipse.version>
+		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
+		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>	
-	
-	<dependencyManagement>
-		<dependencies>	
-			<dependency>
-				<groupId>org.mobicents.servers.media</groupId>
-				<artifactId>mobicents-media-server</artifactId>
-				<version>${mobicents.server.media.version}</version>
-			</dependency>
-			<dependency>
-				<artifactId>sip-presence-parent</artifactId>
-				<groupId>org.mobicents.servers.sippresence</groupId>
-				<version>${mobicents.server.sippresence.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	
 	<build>
 		<plugins>
