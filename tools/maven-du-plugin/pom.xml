@@ -11,7 +11,7 @@
 	
 	<groupId>org.mobicents.tools</groupId>
 	<artifactId>maven-du-plugin</artifactId>
-	<version>1.0.0.BETA2-SNAPSHOT</version>
+	<version>1.0.0.BETA2</version>
 	
 	<packaging>maven-plugin</packaging>
 	<name>Mobicents :: Tools :: mobicents-du-plugin</name>
@@ -188,9 +188,9 @@
 	</reporting>
 	
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/${pom.artifactId}</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/${pom.artifactId}</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/${pom.artifactId}</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/maven-du-plugin-1.0.0.BETA2</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/maven-du-plugin-1.0.0.BETA2</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/maven-du-plugin-1.0.0.BETA2</url>
 	</scm>
 	
 	<!-- dupe info from parent, but it's only way to retrieve the parent without checkout -->
