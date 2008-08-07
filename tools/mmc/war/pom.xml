@@ -73,31 +73,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<warName>mobicents-console</warName>
 					<webXml>target/web.xml</webXml>
 				</configuration>
-				
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					
-					<execution>
-						<id>clean-resources</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<delete dir=".gwt-cache" failonerror="false"/>
-								<delete dir="bin" failonerror="false"/>
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			
+			</plugin>	
 		</plugins>
 	</build>
 
@@ -143,4 +121,3 @@
 		</dependency>
 	</dependencies>
 </project>
-
