@@ -119,18 +119,11 @@
 				<module>rpc</module>
 				<module>server</module>
 				<module>war</module>
-				<module>setup</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>not-maven-release</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<modules>
-				<module>setup</module>
 			</modules>
 		</profile>
 	</profiles>
 	
+	<modules>
+		<module>setup</module>
+	</modules>
 </project>
