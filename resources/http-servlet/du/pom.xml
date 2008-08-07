@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>http-servlet-parent</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>1.2.0.GA-SNAPSHOT</version>
+		<version>1.2.0.CR1</version>
 	</parent>
 	
 	<artifactId>http-servlet-ra-DU</artifactId>
