@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>refer-example-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.2.0.GA-SNAPSHOT</version>
+		<version>1.2.0.CR1</version>
 	</parent>
 	
 	<artifactId>refer-example-sbb</artifactId>
@@ -14,12 +14,12 @@
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>sip-ratype</artifactId>
-			<version>1.2.0.GA-SNAPSHOT</version>
+			<version>1.2.0.CR1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>sip-ra</artifactId>
-			<version>1.2.0.GA-SNAPSHOT</version>
+			<version>1.2.0.CR1</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>

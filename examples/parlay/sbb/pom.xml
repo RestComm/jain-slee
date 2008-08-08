@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>parlay-callblocking-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.2.0.GA-SNAPSHOT</version>
+		<version>1.2.0.CR1</version>
 	</parent>
 	
 	<artifactId>parlay-example-callblocking-sbb</artifactId>
