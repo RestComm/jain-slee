@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jcc-parent</artifactId>
         <groupId>org.mobicents.resources</groupId>
-        <version>1.2.0.CR1</version>
+        <version>1.2.0.GA-SNAPSHOT</version>
     </parent>
     
     <artifactId>jcc-ra</artifactId>

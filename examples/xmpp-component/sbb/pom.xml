@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>xmpp-component-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.2.0.CR1</version>
+		<version>1.2.0.GA-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>xmpp-component-sbb</artifactId>

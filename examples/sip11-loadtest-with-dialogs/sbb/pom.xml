@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>sip11-loadtest-with-dialogs-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.2.0.CR1</version>
+		<version>1.2.0.GA-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>sip11-loadtest-with-dialogs-sbb</artifactId>
