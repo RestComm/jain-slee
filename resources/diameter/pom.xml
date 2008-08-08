@@ -15,20 +15,18 @@
 		Mobicents Diameter Resoruce Adaptors :: ${pom.artifactId}
 	</name>
 
-	<!-- 
-	don't remove comments while dependencies are not on remote servers
 	<profiles>
 		<profile>
 			<id>maven-release</id>
 			<modules>
 				<module>base</module>
-				<module>cca</module>
+				<!-- module>cca</module>
 				<module>rf</module>
 				<module>ro</module>
 				<module>sh-client</module>
-				<module>sh-server</module>
+				<module>sh-server</module-->
 			</modules>
 		</profile>
 	</profiles>
-	-->
+
 </project>

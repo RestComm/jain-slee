@@ -48,16 +48,3 @@ ant -f examples/<exampledir>/build.xml deploy-all
 
 Take a look at this page for additional information:
 http://groups.google.com/group/mobicents-public/web
-
----------------------------------------------------------------
-  IMPORTANT NOTE ABOUT CALL-CONTROLLER2 AND MMS-DEMO EXAMPLES
----------------------------------------------------------------
-
-For call-controller2 and mms-demo examples, if you experience any issues with media (like not hearing anything), try running 
-Mobicents with the -b <external_interface_ip_address> (eg, jboss-4.X.Y.GA\bin\run.bat -b 192.168.2.100), so that the SLEE 
-server is bound to the external interface.
-
-Please remember to also use that IP address wherever you used to have 127.0.0.1/localhost (such as registrar, proxy address,
-management console, etc). Please note that in case you choose to use JMX deployment, you'll also have to change jnpHost to the
-external interface IP address in every dependency (in du-management.xml, property "jnpHost"). You can see which are the 
-dependencies by looking at the build.xml at the example folder.

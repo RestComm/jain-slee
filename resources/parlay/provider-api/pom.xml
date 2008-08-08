@@ -22,5 +22,19 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-	
+
+	<!-- REQUIRED TO AVOID OUT OF MEMORY EXCEPTION IN JAVADOC GENERATION OF RELEASES -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<minmemory>128m</minmemory>
+					<maxmemory>1g</maxmemory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
