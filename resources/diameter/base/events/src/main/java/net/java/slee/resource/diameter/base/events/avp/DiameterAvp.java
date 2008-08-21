@@ -46,7 +46,7 @@ public interface DiameterAvp extends Cloneable {
      * by IETF will have a Vendor-ID of zero.
      * @return the Vendor-ID, or zero if it is not specified.
      */
-    long getVendorID();
+    long getVendorId();
 
     /**
      * Return the AVP name, e.g., "Session-Id"

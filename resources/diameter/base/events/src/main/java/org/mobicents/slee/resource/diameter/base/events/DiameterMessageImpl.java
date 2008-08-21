@@ -11,6 +11,7 @@ import net.java.slee.resource.diameter.base.events.DiameterCommand;
 import net.java.slee.resource.diameter.base.events.DiameterHeader;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.avp.AddressAvp;
+import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
@@ -248,6 +249,10 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 	public Date getEventTimestamp() {
 		return getAvpAsDate(55);
 	}
+
+	public DiameterAvp[] getExtensionAvps() {
+	    return getAvps();
+	  }
 
 	public FailedAvp[] getFailedAvps() {
 		List<FailedAvp> acc = new ArrayList<FailedAvp>();
@@ -568,6 +573,11 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 		setAvpAsDate(55, eventTimestamp, true);
 	}
 
+	 public void setExtensionAvps(DiameterAvp[] avps) throws AvpNotAllowedException {
+		    for (DiameterAvp a : avps)
+		      addAvp(a);
+		  }
+	
 	public void setFailedAvp(FailedAvp failedAvp) {
 		setAvpAsGroup(Avp.FAILED_AVP, failedAvp.getExtensionAvps(), true, false);
 	}
@@ -684,7 +694,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 	public void setVendorSpecificApplicationId(VendorSpecificApplicationIdAvp id) {
 		AvpSet g = setAvpAsGroup(Avp.VENDOR_SPECIFIC_APPLICATION_ID, id
 				.getExtensionAvps(), true, false);
-		g.addAvp(Avp.VENDOR_ID, (int) id.getVendorID(), true, false);
+		g.addAvp(Avp.VENDOR_ID, (int) id.getVendorId(), true, false);
 		if (id.hasAcctApplicationId())
 			g.addAvp(Avp.ACCT_APPLICATION_ID, (int) id.getAcctApplicationId(),
 					true, false);
@@ -758,13 +768,13 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
     {
       GroupedAvp gAvp = (GroupedAvp)avp;
       
-      AvpSet groupedAvp = set.addGroupedAvp( gAvp.getCode(), gAvp.getVendorID(), gAvp.getMandatoryRule() != 2, gAvp.getProtectedRule() == 0 );
+      AvpSet groupedAvp = set.addGroupedAvp( gAvp.getCode(), gAvp.getVendorId(), gAvp.getMandatoryRule() != 2, gAvp.getProtectedRule() == 0 );
       
       for(DiameterAvp subAvp : gAvp.getExtensionAvps())
         addAvpInternal( subAvp, groupedAvp );
     }
     else
-      set.addAvp( avp.getCode(), avp.byteArrayValue(), avp.getVendorID(), avp.getMandatoryRule() != 2, avp.getProtectedRule() == 0 );
+      set.addAvp( avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() != 2, avp.getProtectedRule() == 0 );
 	}
 	
   private DiameterAvp[] getAvpsInternal(AvpSet set) throws Exception

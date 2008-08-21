@@ -26,13 +26,6 @@ public class ExtensionDiameterMessageImpl extends DiameterMessageImpl implements
     super(message);
   }
 
-  public DiameterAvp[] getExtensionAvps() {
-    return getAvps();
-  }
-
-  public void setExtensionAvps(DiameterAvp[] avps) throws AvpNotAllowedException {
-    for (DiameterAvp a : avps)
-      addAvp(a);
-  }
+  
 
 }

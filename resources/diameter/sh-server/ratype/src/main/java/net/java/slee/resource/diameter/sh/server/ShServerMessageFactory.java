@@ -24,7 +24,6 @@ import net.java.slee.resource.diameter.sh.client.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.client.events.PushNotificationRequest;
 import net.java.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswer;
 import net.java.slee.resource.diameter.sh.client.events.UserDataAnswer;
-import net.java.slee.resource.diameter.sh.client.events.avp.UserData;
 import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 
 /**
@@ -37,7 +36,7 @@ public interface ShServerMessageFactory extends MessageFactory {
      * automatically set to {@link org.mobicents.slee.resource.diameter.base.DiameterResultCode#DIAMETER_SUCCESS}. 
      * @return a UserDataAnswer object that can be sent using {@link ShServerActivity#sendUserDataAnswer(net.java.slee.resource.diameter.sh.types.UserDataAnswer)} 
      */
-    UserDataAnswer createUserDataAnswer(UserData userData);
+    UserDataAnswer createUserDataAnswer(byte[] userData);
 
     /**
      * Create a UserDataAnswer containing a Result-Code or Experimental-Result AVP populated with the given value.
@@ -88,7 +87,7 @@ public interface ShServerMessageFactory extends MessageFactory {
      * Create a UserDataAnswer using the given parameters to populate the User-Identity and User-Data AVPs.
      * @return a PushNotificationRequest object that can be sent using {@link ShServerNotificationActivity#sendPushNotificationRequest(net.java.slee.resource.diameter.sh.types.PushNotificationRequest)}
      */
-    PushNotificationRequest createPushNotificationRequest(UserIdentityAvp userIdentity, UserData userData);
+    PushNotificationRequest createPushNotificationRequest(UserIdentityAvp userIdentity, byte[] userData);
 
     /**
      * Create an empty PushNotificationRequest.

@@ -20,6 +20,8 @@
 package net.java.slee.resource.diameter.sh.client.events;
 
 
+import java.nio.charset.Charset;
+
 import net.java.slee.resource.diameter.base.events.avp.AuthSessionStateType;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
@@ -27,7 +29,6 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 import net.java.slee.resource.diameter.base.events.avp.ProxyInfoAvp;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
 import net.java.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvp;
-import net.java.slee.resource.diameter.sh.client.events.avp.UserData;
 import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 
 
@@ -238,13 +239,13 @@ public interface PushNotificationRequest extends DiameterShMessage {
      * Returns the value of the User-Data AVP, of type UserData.
      * @return the value of the User-Data AVP or null if it has not been set on this message
      */
-    UserData getUserData();
+    String getUserData();
 
     /**
      * Sets the value of the User-Data AVP, of type UserData.
      * @throws IllegalStateException if setUserData has already been called
      */
-    void setUserData(UserData userData);
+    void setUserData(byte[] userData);
 
     /**
      * Returns the set of Proxy-Info AVPs. The returned array contains

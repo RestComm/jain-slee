@@ -1,12 +1,10 @@
 package org.mobicents.slee.resource.diameter.base.events.avp;
 
-import java.net.URISyntaxException;
-
-import net.java.slee.resource.diameter.base.events.avp.DiameterURIAvp;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.StringTokenizer;
+
+import net.java.slee.resource.diameter.base.events.avp.DiameterURIAvp;
 public class DiameterURIAvpImpl implements DiameterURIAvp{
 
 	public DiameterURIAvpImpl(String fqdn, int port, int protocol, int transport, boolean secure) {

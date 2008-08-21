@@ -167,7 +167,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
     // FIXME: alexandre: Should we look at the types and add them with proper function?
     if(avp instanceof GroupedAvp)
     {
-      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
       
       DiameterAvp[] groupedAVPs = ((GroupedAvp)avp).getExtensionAvps();
       for(DiameterAvp avpFromGroup : groupedAVPs)
@@ -176,7 +176,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
       }
     }
     else if(avp != null)
-      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
   }
 
   private DiameterAvp[] getExtensionAvpsInternal(AvpSet set) throws Exception

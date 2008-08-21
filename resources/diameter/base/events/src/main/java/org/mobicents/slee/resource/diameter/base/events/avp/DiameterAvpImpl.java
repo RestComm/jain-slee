@@ -41,7 +41,7 @@ public class DiameterAvpImpl implements DiameterAvp {
         return code;
     }
 
-    public long getVendorID() {
+    public long getVendorId() {
         return vendorId;
     }
 

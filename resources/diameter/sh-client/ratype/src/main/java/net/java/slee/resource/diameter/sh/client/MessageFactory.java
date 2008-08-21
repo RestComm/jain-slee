@@ -32,44 +32,14 @@ import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
  * @author Open Cloud
  */
 public interface MessageFactory {
-
+	public static final int _SH_APP_ID = 16777217;
+	public static final int _SH_VENDOR_ID = 10415;
     /**
      * Get a factory to create AVPs and messages defined by Diameter Base.
      * @return base Diameter message factory
      */
     DiameterMessageFactory getBaseMessageFactory();
         
-    /**
-     * Create a SupportedFeatures (Grouped AVP) instance using required AVP values.
-     */
-    SupportedFeaturesAvp createSupportedFeatures(
-        long vendorId
-        , long featureListId
-        , long featureList
-    );
-
-    /**
-     * Create an empty SupportedFeatures (Grouped AVP) instance.
-     */
-    SupportedFeaturesAvp createSupportedFeatures();
-
-    /**
-     * Create a SupportedApplications (Grouped AVP) instance using required AVP values.
-     */
-    SupportedApplicationsAvp createSupportedApplications(
-        long authApplicationId
-        , long acctApplicationId
-        , VendorSpecificApplicationIdAvp vendorSpecificApplicationId
-    );
-
-    /**
-     * Create an empty SupportedApplications (Grouped AVP) instance.
-     */
-    SupportedApplicationsAvp createSupportedApplications();
-
-    /**
-     * Create an empty UserIdentity (Grouped AVP) instance.
-     */
-    UserIdentityAvp createUserIdentity();
+    
 
 }

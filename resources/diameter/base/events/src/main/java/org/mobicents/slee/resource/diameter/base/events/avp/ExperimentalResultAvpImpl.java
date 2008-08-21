@@ -52,7 +52,7 @@ public class ExperimentalResultAvpImpl extends GroupedAvpImpl implements
 	}
 
 	public void setVendorId(long vendorId) {
-		if(hasExperimentalResultCode())
+		if(hasVendorId())
 			throw new IllegalStateException("Cant set vendor Id again!!!!");
 		super.setAvpAsUInt32(Avp.VENDOR_ID, vendorId, true, true);
 

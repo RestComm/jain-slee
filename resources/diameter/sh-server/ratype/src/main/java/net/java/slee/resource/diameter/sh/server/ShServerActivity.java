@@ -24,7 +24,6 @@ import java.io.IOException;
 import net.java.slee.resource.diameter.sh.client.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswer;
 import net.java.slee.resource.diameter.sh.client.events.UserDataAnswer;
-import net.java.slee.resource.diameter.sh.client.events.avp.UserData;
 
 /**
  * Activity used by a Diameter Sh Server.  The following request messages can be fired as events:
@@ -57,7 +56,7 @@ public interface ShServerActivity {
      * automatically set to {@link org.mobicents.slee.resource.diameter.base.DiameterResultCode#DIAMETER_SUCCESS}. 
      * @return a UserDataAnswer object that can be sent using {@link ShServerActivity#sendUserDataAnswer(net.java.slee.resource.diameter.sh.types.UserDataAnswer)} 
      */
-    UserDataAnswer createUserDataAnswer(UserData userData);
+    UserDataAnswer createUserDataAnswer(byte[] userData);
 
     /**
      * Create a UserDataAnswer containing a Result-Code or Experimental-Result AVP populated with the given value.

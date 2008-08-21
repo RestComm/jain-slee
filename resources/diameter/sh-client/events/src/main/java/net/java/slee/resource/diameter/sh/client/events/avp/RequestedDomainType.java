@@ -35,7 +35,7 @@ import net.java.slee.resource.diameter.base.events.avp.Enumerated;
  * @author Open Cloud
  */
 
-public class RequestedDomainAvp implements Serializable, Enumerated {
+public class RequestedDomainType implements Serializable, Enumerated {
 
     public static final int _CS_DOMAIN = 0;
     public static final int _PS_DOMAIN = 1;
@@ -43,18 +43,18 @@ public class RequestedDomainAvp implements Serializable, Enumerated {
     /**
      * The requested data apply to the CS domain. 
      */
-    public static final RequestedDomainAvp CS_DOMAIN = new RequestedDomainAvp(_CS_DOMAIN);
+    public static final RequestedDomainType CS_DOMAIN = new RequestedDomainType(_CS_DOMAIN);
 
     /**
      * The requested data apply to the PS domain. 
      */
-    public static final RequestedDomainAvp PS_DOMAIN = new RequestedDomainAvp(_PS_DOMAIN);
+    public static final RequestedDomainType PS_DOMAIN = new RequestedDomainType(_PS_DOMAIN);
 
-    private RequestedDomainAvp(int value) {
+    private RequestedDomainType(int value) {
         this.value = value;
     }
 
-    public static RequestedDomainAvp fromInt(int type) {
+    public static RequestedDomainType fromInt(int type) {
         switch(type) {
             case _CS_DOMAIN: return CS_DOMAIN;
             case _PS_DOMAIN: return PS_DOMAIN;

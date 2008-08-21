@@ -29,7 +29,6 @@ import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplication
 import net.java.slee.resource.diameter.sh.client.events.DiameterShMessage;
 import net.java.slee.resource.diameter.sh.client.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvp;
-import net.java.slee.resource.diameter.sh.client.events.avp.UserData;
 import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 
 /**
@@ -256,13 +255,13 @@ public interface ProfileUpdateRequest extends DiameterShMessage {
      * Returns the value of the User-Data AVP, of type UserData.
      * @return the value of the User-Data AVP or null if it has not been set on this message
      */
-    UserData getUserData();
+    String getUserData();
 
     /**
      * Sets the value of the User-Data AVP, of type UserData.
      * @throws IllegalStateException if setUserData has already been called
      */
-    void setUserData(UserData userData);
+    void setUserData(byte[] userData);
 
     /**
      * Returns the set of Proxy-Info AVPs. The returned array contains

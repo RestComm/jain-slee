@@ -30,7 +30,7 @@ import net.java.slee.resource.diameter.sh.client.events.DiameterShMessage;
 import net.java.slee.resource.diameter.sh.client.events.avp.CurrentLocationType;
 import net.java.slee.resource.diameter.sh.client.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.client.events.avp.IdentitySetType;
-import net.java.slee.resource.diameter.sh.client.events.avp.RequestedDomainAvp;
+import net.java.slee.resource.diameter.sh.client.events.avp.RequestedDomainType;
 import net.java.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvp;
 import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 
@@ -334,13 +334,13 @@ public interface UserDataRequest extends DiameterShMessage {
      * Returns the value of the Requested-Domain AVP, of type Enumerated.
      * @return the value of the Requested-Domain AVP or null if it has not been set on this message
      */
-    RequestedDomainAvp getRequestedDomain();
+    RequestedDomainType getRequestedDomain();
 
     /**
      * Sets the value of the Requested-Domain AVP, of type Enumerated.
      * @throws IllegalStateException if setRequestedDomain has already been called
      */
-    void setRequestedDomain(RequestedDomainAvp requestedDomain);
+    void setRequestedDomain(RequestedDomainType requestedDomain);
 
     /**
      * Returns true if the Current-Location AVP is present in the message.

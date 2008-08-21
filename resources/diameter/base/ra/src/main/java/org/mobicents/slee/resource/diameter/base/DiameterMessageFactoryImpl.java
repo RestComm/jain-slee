@@ -66,10 +66,10 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
   private static Logger logger = Logger.getLogger( DiameterMessageFactoryImpl.class );
 
   // Used for generating session id's
-  protected static UIDGenerator uid = new UIDGenerator();
+  public static final UIDGenerator uid = new UIDGenerator();
   
-  Session session;
-  Stack stack;
+  protected Session session;
+  protected Stack stack;
   
   public DiameterMessageFactoryImpl(Session session, Stack stack, DiameterIdentityAvp ... avps ) {
     this.session = session;
@@ -511,7 +511,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
 
   // ========== AUX STUFF ==========
   
-  private String generateSessionId()
+  public String generateSessionId()
   {
     String host = stack.getMetaData().getLocalPeer().getUri().getFQDN(); 
     
@@ -522,7 +522,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     return host + ";" + high32 + ";" + low32;
   }
   
-  private Message createMessage(int commandCode, ApplicationId applicationId, DiameterAvp[] avps)
+  protected Message createMessage(int commandCode, ApplicationId applicationId, DiameterAvp[] avps)
   {
     Message msg = null;
     
@@ -576,12 +576,12 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
     return msg;
   }
   
-  private void addAvp(DiameterAvp avp, AvpSet set)
+  protected void addAvp(DiameterAvp avp, AvpSet set)
   {
     // FIXME: alexandre: Should we look at the types and add them with proper function?
     if(avp instanceof GroupedAvp)
     {
-      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+      AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
       
       DiameterAvp[] groupedAVPs = ((GroupedAvp)avp).getExtensionAvps();
       for(DiameterAvp avpFromGroup : groupedAVPs)
@@ -590,7 +590,7 @@ public class DiameterMessageFactoryImpl implements DiameterMessageFactory
       }
     }
     else if(avp != null)
-      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorID(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
+      set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
   }
   
 }
