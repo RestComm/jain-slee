@@ -150,6 +150,10 @@
 			<zipfileset dir="${release.dir}" prefix=""
                 excludes="**/bin/** **/server/*/data/** **/server/*/log/** **/server/*/tmp/** **/server/*/work/** **/server/tmp/**"/>
 		</zip>
+		<antcall target="checksum">
+			<param name="source.file" value="${ant.file.mobicents.release}/../${zip.filename}" />
+			<param name="algorithm" value="sha1" />
+		</antcall>
 	</target>
 
 	<target name="set-src-excludes">
@@ -215,4 +219,8 @@
 		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-4.2.2.GA.zip"/>
 	</target>
 
+	<target name="checksum">
+		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}.asc" forceOverwrite="yes"/>
+	</target>
+	
 </project>
