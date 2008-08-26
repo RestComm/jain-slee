@@ -53,8 +53,18 @@ import org.mobicents.slee.services.sip.common.SipSendErrorResponseException;
 
 public abstract class WakeUpSbb implements javax.slee.Sbb {
 	
-	
+	/**
+	 * Child relation to the location service
+	 * @return
+	 */
 	public abstract ChildRelation getLocationChildRelation();
+	
+	/**
+	 * creates (if not created yet) and retrieves the child sbb instance for the
+	 * location service
+	 * 
+	 * @return
+	 */
 	public LocationSbbLocalObject getLocationChildSbb() {
 		ChildRelation childRelation = getLocationChildRelation();
 		Iterator childRelationIterator =  childRelation.iterator();
@@ -71,6 +81,11 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 		}		
 	}
 	
+	/**
+	 * Event handler for the SIP MESSAGE from the UA
+	 * @param event
+	 * @param aci
+	 */
 	public void onMessageEvent(javax.sip.RequestEvent event, ActivityContextInterface aci) {
 		Request request = event.getRequest();
 
@@ -89,7 +104,8 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
         		this.nullACIFactory.getActivityContextInterface(timerBus);
 			timerBusACI.attach(sbbContext.getSbbLocalObject());
 			
-			// PARSING THE MESSAGE BODY
+			// PARSING THE MESSAGE BODY should be *WAKE UP IN <timer value in
+			// seconds>s! MSG: <msg to send back to UA>!*
 			String body = new String(request.getRawContent());
 			int i = body.indexOf("WAKE UP IN ");
 			int j = body.indexOf("s! MSG: ",i+11);
@@ -128,20 +144,30 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 		}
 	}
 		
-	
+	/**
+	 * Event handler from the timer event, which signals that a message must be
+	 * sent back to the UA
+	 * 
+	 * @param event
+	 * @param aci
+	 */
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
+		// DETACHING SO NULL ACI IS CLAIMED WHEN THE TRANSACTION ENDS
+		aci.detach(sbbContext.getSbbLocalObject());
 		// RETRIEVING STORED VALUE FROM THE ACTIVITY CONTEXT INTERFACE
 		WakeUpSbbActivityContextInterface myViewOfACI = 
 			this.asSbbActivityContextInterface(aci);
+		// GET DATA FROM ACI
 		Header contact = myViewOfACI.getContact();
 		String body = myViewOfACI.getBody();
-		
 		// SENDING BACK THE WAKE UP CALL
 		sendWakeUpCall(contact, body);
 	}
 	
 	
-	
+	/*
+	 * constructs and sends a SIP MESSAGE back to the UA
+	 */
 	private void sendWakeUpCall(Header toContact, String body) {
 		String strContact = toContact.toString();
 		int beginIndex = strContact.indexOf('<');
@@ -207,9 +233,6 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 		
 		
 	}
-
-	public MessageFactory getMessageFactory() { return messageFactory; }
-
 	
 	/**
 	 *  Initialize the component
@@ -310,22 +333,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
         }
         return target;
     }
-    
-	
-	/**
-	 * Convenience method to retrieve the SbbContext object stored in setSbbContext.
-	 * 
-	 * TODO: If your SBB doesn't require the SbbContext object you may remove this 
-	 * method, the sbbContext variable and the variable assignment in setSbbContext().
-	 *
-	 * @return this SBB's SbbContext object
-	 */
-	 
-	protected SbbContext getSbbContext() {
-		
-		return sbbContext;
-	}
-
+ 
 	private SbbContext sbbContext; // This SBB's SbbContext
 	
 	protected final void trace(Level level, String message) {
