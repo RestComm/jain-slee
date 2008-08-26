@@ -65,6 +65,7 @@
 				<module>examples/sip11-loadtest-with-dialogs</module>
 				<module>examples/sip11-loadtest-without-dialogs</module>
 				<module>examples/sip-services</module>
+				<module>examples/sip-wake-up</module>
 				<module>examples/training/example1</module>
 				<module>examples/training/example2</module>
 				<module>examples/training/example3</module>
