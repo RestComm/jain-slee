@@ -1,31 +1,21 @@
 package org.mobicents.slee.runtime.sbbentity;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.slee.ServiceID;
-import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ServiceState;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.service.Service;
-import org.mobicents.slee.runtime.cache.XACacheTestViewer;
-import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 public class RootSbbEntitiesRemovalTask extends TimerTask {
 
@@ -35,22 +25,9 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 	private static ConcurrentHashMap<ServiceID, RootSbbEntitiesRemovalTask> tasksScheduled = new ConcurrentHashMap<ServiceID, RootSbbEntitiesRemovalTask>();
 	
 	// number of minutes before complete removal of lingering service sbbentities
-    private  static double sbbEntityRemovalDelay=60;
-	private final static String propertyName="entities.removal.delay";
-	private final static String propertyFileName="removal.properties";
-    static {
-    	InputStream IS=RootSbbEntitiesRemovalTask.class.getResourceAsStream(propertyFileName);
-    	Properties props=new Properties();
-    	try {
-			props.load(IS);
-			sbbEntityRemovalDelay=Double.parseDouble(props.getProperty(propertyName,"60"));
-		} catch (IOException e) {
-			logger.error("FAILED TO LOAD PROPERTIES["+propertyFileName+"], SETTING REMOVAL DELAY TO["+sbbEntityRemovalDelay+"] minutes.",e);
-		}
-    }
 	
-    // running static timer 
-    private static Timer runningTimer = new Timer();
+  // running static timer 
+  private static Timer runningTimer = new Timer();
 	
 	// the service id of the task
 	private ServiceID serviceID;
@@ -73,7 +50,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 		
 		if (tasksScheduled.putIfAbsent(this.serviceID,this) == null) {
 			// secondsInMinute*1000*sbbEntityRemovalDelay)
-			long executionTime=(long)(60*1000*sbbEntityRemovalDelay);
+			long executionTime=(long)(60*1000*MobicentsManagement.entitiesRemovalDelay);
 			runningTimer.schedule(this, executionTime );
 			if(logger.isDebugEnabled()) {
 				logger.debug(" == Service SBB Entities REMOVAL SCHEDULED FOR:"+this.serviceID+" in ["+(double)executionTime/(1000)+"] seconds ==");
@@ -100,7 +77,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 	private void removeAllSbbEntities() {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("SBB Entities REMOVAL STARTING for service"+serviceID);
+			logger.debug("SBB Entities REMOVAL STARTING for service "+serviceID);
 		}
 	
 		this.cancel();
@@ -181,7 +158,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 		}
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("SBB Entities REMOVAL ENDED for service"+serviceID);
+			logger.debug("SBB Entities REMOVAL ENDED for service "+serviceID);
 		}
 
 	}
