@@ -106,14 +106,14 @@ public class RegistrarConfigurator implements RegistrarConfiguratorMBean {
 		}
 		
 		try {
-			if(mbs.getObjectInstance(on)!=null)
-			{
-				//LOG
-				return false;
+			if (mbs.getObjectInstance(on) != null) {
+				mbs.unregisterMBean(on);
 			}
 		} catch (InstanceNotFoundException e) {
+			// ignore
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		
 		try {

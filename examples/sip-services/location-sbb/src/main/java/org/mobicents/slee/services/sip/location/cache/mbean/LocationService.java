@@ -77,12 +77,13 @@ public class LocationService extends Object implements LocationServiceMBean {
 
 		try {
 			if (mbs.getObjectInstance(on) != null) {
-				// LOG
-				return false;
+				mbs.unregisterMBean(on);
 			}
 		} catch (InstanceNotFoundException e) {
+			// ignore
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 
 		try {

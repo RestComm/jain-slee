@@ -43,6 +43,8 @@ import javax.slee.facilities.AlarmFacility;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 import javax.slee.nullactivity.NullActivityFactory;
+import javax.slee.serviceactivity.ServiceActivity;
+import javax.slee.serviceactivity.ServiceActivityFactory;
 
 import org.mobicents.slee.resource.sip.SipFactoryProvider;
 import org.mobicents.slee.services.sip.common.ConfigurationProvider;
@@ -74,17 +76,18 @@ public abstract class RegistrarSbb implements Sbb {
 	public void onServiceStarted(
 			javax.slee.serviceactivity.ServiceStartedEvent serviceEvent,
 			ActivityContextInterface aci) {
-		// This is called when ANY service is started.
-		logger.fine("Got a Service Started Event!");
-		logger.fine("CREATING CONFIGURRATION");
-
-		startMBeanConfigurator();
-
+		aci.detach(this.context.getSbbLocalObject());
+		try {
+			// check if it's my service that is starting
+			ServiceActivity sa = ((ServiceActivityFactory) sbbEnv
+					.lookup("slee/serviceactivity/factory")).getActivity();
+			if (sa.equals(aci.getActivity())) {
+				startMBeanConfigurator();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
 	}
-
-
-	
-	
 	
 	public void onRegisterEvent(RequestEvent event, ActivityContextInterface ac) {
 		logger.log(Level.FINER, "SipRegistrarSBB: " + this
@@ -754,6 +757,5 @@ public abstract class RegistrarSbb implements Sbb {
 	private NullActivityContextInterfaceFactory nullACIFactory;
 	private Context sbbEnv;
 
-	private Context ctx;
 
 }

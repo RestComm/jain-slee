@@ -393,11 +393,18 @@ public abstract class ProxySbb implements Sbb {
 	public void onServiceStarted(
 			javax.slee.serviceactivity.ServiceStartedEvent serviceEvent,
 			ActivityContextInterface aci) {
-		// This is called when ANY service is started.
-		logger.fine("Got a Service Started Event!");
-		logger.fine("CREATING CONFIGURRATION");
-
-		startMBeanConfigurator();
+		
+		aci.detach(this.context.getSbbLocalObject());
+		try {
+			// check if it's my service that is starting
+			ServiceActivity sa = ((ServiceActivityFactory) myEnv
+					.lookup("java:comp/env/slee/serviceactivity/factory")).getActivity();
+			if (sa.equals(aci.getActivity())) {
+				startMBeanConfigurator();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 
 	}
 

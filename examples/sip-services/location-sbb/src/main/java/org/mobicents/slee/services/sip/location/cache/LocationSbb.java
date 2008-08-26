@@ -420,11 +420,19 @@ public abstract class LocationSbb implements Sbb, LocationInterface {
 	public void onServiceStarted(
 			javax.slee.serviceactivity.ServiceStartedEvent serviceEvent,
 			ActivityContextInterface aci) {
-		// This is called when ANY service is started.
-		logger.fine("Got a Service Started Event!");
-		logger.fine("CREATING CONFIGURRATION");
+		
+		aci.detach(this.ctx.getSbbLocalObject());
+		try {
+			// check if it's my service that is starting
+			ServiceActivity sa = ((ServiceActivityFactory) myEnv
+					.lookup("java:comp/env/slee/serviceactivity/factory")).getActivity();
+			if (sa.equals(aci.getActivity())) {
+				startMBeanConfigurator();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 
-		startMBeanConfigurator();
 	}
 	
 	public void onActivityEndEvent(ActivityEndEvent event,
