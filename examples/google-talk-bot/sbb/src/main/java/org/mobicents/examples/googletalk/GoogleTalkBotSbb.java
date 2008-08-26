@@ -115,8 +115,7 @@ public abstract class GoogleTalkBotSbb implements javax.slee.Sbb {
 						Arrays.asList(packetsToListen));
 		} catch (XMPPException e) {
 			e.printStackTrace();
-			System.out.println("Connection to server failed! Error:"
-					+ e.getMessage());
+			logger.info("Connection to server failed! Error:" + e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -130,10 +129,9 @@ public abstract class GoogleTalkBotSbb implements javax.slee.Sbb {
 		// check if this event is "to" me
 		if (StringUtils.parseBareAddress(packet.getTo()).equals(
 				username + "@" + serviceName)) {
-			logger.info("!!!! XMPP Presence event type " + packet.getType()
-					+ ". Sent by " + packet.getFrom() + " !!!!");
-			// reply hello msg if receives notification of available presence
-			// state
+			logger.info("XMPP Presence event type! Status: '" + packet.getType() + "'. "
+					+ "Sent by '" + packet.getFrom() + "'.");
+			// reply hello msg if receives notification of available presence state
 			if (packet.getType() == Presence.Type.AVAILABLE) {
 				Message msg = new Message(packet.getFrom(), Message.Type.CHAT);
 				msg.setBody("Hi. I'am online too.");
@@ -152,8 +150,10 @@ public abstract class GoogleTalkBotSbb implements javax.slee.Sbb {
 		if (StringUtils.parseBareAddress(message.getTo()).equals(
 				username + "@" + serviceName)
 				&& !message.getType().equals(Message.Type.ERROR)) {
-			logger.info("!!!! XMPP Message event type !!!!");
-			logger.info("XMPP Message body: " + message.getBody());
+		  
+			logger.info("XMPP Message event type! Message Body: '" + message.getBody() + "'. "
+			    + "Sent by '" + message.getFrom() + "'.");
+			
 			String body = null;
 			if (message.getBody() != null) {
 				if (message.getBody().toLowerCase().startsWith("time")) {
@@ -164,6 +164,12 @@ public abstract class GoogleTalkBotSbb implements javax.slee.Sbb {
 							+ message.getBody() + ">.";
 				}
 			}
+      // Filter messages from other running bots! 
+      if(message.getFrom().startsWith( "mobicents.org@gmail.com" )) {
+        logger.info( "XMPP Message is from Bot '" + message.getFrom() + "'. Not replying!" );
+        return;
+      }
+			
 			Message msg = new Message(message.getFrom(), message.getType());
 			msg.setBody(body);
 			xmppSbbInterface.sendPacket(connectionID, msg);
@@ -198,11 +204,12 @@ public abstract class GoogleTalkBotSbb implements javax.slee.Sbb {
 	 */
 	public void setSbbContext(SbbContext context) {
 		this.sbbContext = context;
-		// initRoom();
+
 		try {
-			logger.info("Called setSbbContext PtinAudioConf!!!");
-			Context myEnv = (Context) new InitialContext()
-					.lookup("java:comp/env");
+			logger.info("Called setSbbContext!");
+			
+			Context myEnv = (Context) new InitialContext().lookup("java:comp/env");
+			
 			xmppSbbInterface = (XmppResourceAdaptorSbbInterface) myEnv
 					.lookup("slee/resources/xmpp/2.0/xmppinterface");
 
@@ -210,9 +217,8 @@ public abstract class GoogleTalkBotSbb implements javax.slee.Sbb {
 			username = (String) myEnv.lookup("username");
 			password = (String) myEnv.lookup("password");
 
-			logger.info(" === ON setSbbContext() Retirieved uid[" + username
-					+ "], passwd[" + password + "]");
-
+			logger.info("setSbbContext() Retrieved uid[" + username + "]," +
+					" passwd[" + password + "]");
 		} catch (NamingException ne) {
 			logger.warning("Could not set SBB context:" + ne.getMessage());
 		}
