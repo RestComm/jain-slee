@@ -226,7 +226,7 @@
      code="org.mobicents.slee.container.deployment.jboss.SLEESubDeployer"
      name="slee:service=JSLEEDeployer">
 
-     <attribute name="WaitTimeBetweenOperations">1000</attribute>
+     <attribute name="WaitTimeBetweenOperations">250</attribute>
    </mbean>
 
 </server>

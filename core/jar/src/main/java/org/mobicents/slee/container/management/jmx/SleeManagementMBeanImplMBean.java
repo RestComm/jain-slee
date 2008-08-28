@@ -177,12 +177,6 @@ public interface SleeManagementMBeanImplMBean extends SleeManagementMBean,
 
 	public void setActivityManagementMBean(ObjectName activityManagementMBean);
 
-	/**
-	 * 
-	 * @return string representation of container's version.
-	 */
-	public String getVersion();
-
 	public ObjectName getRmiServerInterfaceMBean();
 
 	public void setRmiServerInterfaceMBean(ObjectName rmiServerInterfaceMBean);

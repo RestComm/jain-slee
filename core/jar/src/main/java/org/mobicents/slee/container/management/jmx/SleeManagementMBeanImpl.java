@@ -10,12 +10,8 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
@@ -44,7 +40,6 @@ import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.SleeEndpointImpl;
-import org.mobicents.slee.runtime.cache.XACacheTestViewer;
 import org.mobicents.slee.runtime.facilities.ProfileTableActivityImpl;
 
 import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
@@ -105,6 +100,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	private boolean isFullSleeStop = true;
 
+	private final String mobicentsVersion = Version.instance.toString();
 	/**
 	 * List of services, which were active immediately before stop. They need to
 	 * be remembered (TODO: persisted!) and resumed on start.
@@ -138,7 +134,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	public SleeManagementMBeanImpl() throws Exception {
 		super(SleeManagementMBeanImplMBean.class);
 		startupTime = System.currentTimeMillis();
-		logger.info("[[[[[[[[[ " + getVersion() + " starting... ]]]]]]]]]");
+		logger.info("[[[[[[[[[ " + mobicentsVersion + " starting... ]]]]]]]]]");
 	}
 
 	/**
@@ -534,7 +530,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 			// Still, we want an indication that the container service concluded
 			// stopping cycle
-			logger.info("[[[[[[[[[[ MOBICENTS " + getVersion()
+			logger.info("[[[[[[[[[[ MOBICENTS " + mobicentsVersion
 					+ " Stopped (HA). ]]]]]]]]]");
 		} else {
 			scheduleStopped();
@@ -790,11 +786,11 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 				long startupMillis = startupTime % 1000;
 				timerSt = "in " + startupSec + "s:" + startupMillis + "ms ";
 			}
-			logger.info("[[[[[[[[[ MOBICENTS " + getVersion() + " Started "
+			logger.info("[[[[[[[[[ " + mobicentsVersion + " Started "
 					+ timerSt + "]]]]]]]]]");
 
 		} else if (newState.equals(SleeState.STOPPED)) {
-			logger.info("[[[[[[[[[[ MOBICENTS " + getVersion()
+			logger.info("[[[[[[[[[[ " + mobicentsVersion
 					+ " Stopped ]]]]]]]]]");
 		}
 	}
@@ -827,10 +823,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	public void setSbbEntitiesMBean(ObjectName sbbEntitiesMBean) {
 		this.sbbEntitiesMBean = sbbEntitiesMBean;
-	}
-
-	public String getVersion() {
-		return Version.instance.toString();
 	}
 
 	public ObjectName getRmiServerInterfaceMBean() {

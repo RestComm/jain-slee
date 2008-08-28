@@ -49,7 +49,7 @@ public final class Version {
 	 * @return Basic information as a string.
 	 */
 	public String toString() {		
-		StringBuilder sb = new StringBuilder("Mobicents: ");
+		StringBuilder sb = new StringBuilder("MOBICENTS JAIN-SLEE SERVER: ");
 		boolean first = true;
 		for (Object key : props.keySet()) {
 			if (first) {
