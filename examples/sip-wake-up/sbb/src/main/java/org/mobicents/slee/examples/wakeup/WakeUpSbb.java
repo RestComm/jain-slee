@@ -1,19 +1,14 @@
 package org.mobicents.slee.examples.wakeup;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sip.ClientTransaction;
-import javax.sip.InvalidArgumentException;
 import javax.sip.ServerTransaction;
-import javax.sip.SipException;
 import javax.sip.SipProvider;
-import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
@@ -35,15 +30,14 @@ import javax.slee.ComponentID;
 import javax.slee.RolledBackContext;
 import javax.slee.SbbContext;
 import javax.slee.facilities.AlarmFacility;
-import javax.slee.facilities.Level;
 import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerOptions;
-import javax.slee.facilities.TraceFacility;
 import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 import javax.slee.nullactivity.NullActivityFactory;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.sip.SipFactoryProvider;
 import org.mobicents.slee.services.sip.common.LocationSbbLocalObject;
@@ -75,7 +69,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			try {
 				return (LocationSbbLocalObject) childRelation.create();
 			} catch (Exception e) {
-				this.trace(Level.SEVERE, "failed to create child sbb", e);
+				logger.error( "failed to create child sbb", e);
 				return null;
 			}
 		}		
@@ -123,6 +117,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			// which can be mapped to a current physical contact address. The mapping is provided by the LocationService,
 			// which works together with the SIP Registrar service.
 			FromHeader fromHeader = (FromHeader)request.getHeader(FromHeader.NAME);
+			logger.info("Received a valid message from " + fromHeader.getAddress()+" requesting a reply containing '"+bodyMessage+"' after "+timerValue+"s");
 			URI contactURI = findLocalTarget(fromHeader.getAddress().getURI(),getLocationChildSbb());
 			Address contactAddress = addressFactory.createAddress(contactURI);
 			ContactHeader contactHeader = headerFactory.createContactHeader(contactAddress);
@@ -139,7 +134,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 					options);
 			
 		} catch (Exception e) {
-			this.trace(Level.WARNING, 
+			logger.error( 
 					"Exception while processing MESSAGE: ", e);
 		}
 	}
@@ -217,18 +212,8 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			ClientTransaction ct = provider.getNewClientTransaction(req);
 			ct.sendRequest();
 			
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TransactionUnavailableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SipException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error(e);
 		}
 		
 		
@@ -241,11 +226,8 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 		this.sbbContext = context;
 		try {
             Context myEnv = (Context) new InitialContext().lookup("java:comp/env");
-            // Storing Sbb Component ID
-            id = sbbContext.getSbb();
-            
+                        
             // Getting SLEE Factility
-            traceFacility = (TraceFacility) myEnv.lookup("slee/facilities/trace");
             timerFacility = (TimerFacility) myEnv.lookup("slee/facilities/timer");
             alarmFacility = (AlarmFacility) myEnv.lookup("slee/facilities/alarm");
             nullACIFactory = (NullActivityContextInterfaceFactory)myEnv.
@@ -264,9 +246,8 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
             acif = (SipActivityContextInterfaceFactory) myEnv.
             		lookup("slee/resources/jainsip/1.2/acifactory");
             
-        } catch (NamingException ne) {
-            this.trace(Level.WARNING, "Exception During setSbbContext", ne);
-            
+        } catch (Exception ne) {
+           logger.error("Failed to set sbb context",ne);
         }
 		
 	}
@@ -313,19 +294,17 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
         URI target = null;
         while (it.hasNext()) {
             RegistrationBinding binding = (RegistrationBinding) it.next();
-            System.out.println("BINDINGS: " + binding);
             ContactHeader header = binding.getContactHeader(addressFactory, headerFactory);
-            System.out.println("CONTACT HEADER: " + header);
+            logger.info("Message Sender Contact Header: " + header);
             if (header == null) { // entry expired
                 continue; // see if there are any more contacts...
             }
             Address na = header.getAddress();
-            System.out.println("Address: " + na);
             target = na.getURI();
             break;
         }
         if (target == null) {
-            System.err.println("findLocalTarget: No contacts for "
+            logger.error("findLocalTarget: No contacts for "
                     + addressOfRecord + " found.");
             throw new SipSendErrorResponseException(
                     "User temporarily unavailable",
@@ -336,23 +315,10 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
  
 	private SbbContext sbbContext; // This SBB's SbbContext
 	
-	protected final void trace(Level level, String message) {
-        try {
-            traceFacility.createTrace(id, level, "WakeUpSbb", message, System.currentTimeMillis());
-       } catch (Exception e) { }
-    }
-	
-	protected final void trace(Level level, String message, Throwable t) {
-        try {
-            traceFacility.createTrace(id, level, "WakeUpSbb", message, t, System.currentTimeMillis());
-        } catch (Exception e) { }
-    }
-	
 	private MessageFactory messageFactory;
 	private SipProvider provider;
 	private SipFactoryProvider fp;
 	private SipActivityContextInterfaceFactory acif;
-	private TraceFacility traceFacility;
 	private TimerFacility timerFacility;
 	private AlarmFacility alarmFacility;
 	private NullActivityContextInterfaceFactory nullACIFactory;
@@ -360,5 +326,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 	private ComponentID id;
 	private AddressFactory addressFactory;
 	private HeaderFactory headerFactory;
+	
+	private static final Logger logger = Logger.getLogger(WakeUpSbb.class); 
 	
 }
