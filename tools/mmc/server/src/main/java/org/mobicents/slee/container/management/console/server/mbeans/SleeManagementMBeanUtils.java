@@ -50,6 +50,7 @@ public class SleeManagementMBeanUtils {
 	private MBeanServerConnection mbeanServer;
 
 	private ObjectName sleeManagementMBean;
+	private ObjectName mobicentsManagementMBean;
 
 	private DeploymentMBeanUtils deploymentMBeanUtils;
 
@@ -76,6 +77,7 @@ public class SleeManagementMBeanUtils {
 			SleeProvider sleeProvider = SleeProviderFactory
 					.getSleeProvider("org.mobicents.slee.container.management.jmx.SleeProviderImpl");
 			sleeManagementMBean = sleeProvider.getSleeManagementMBean();
+			mobicentsManagementMBean = new ObjectName("slee:service=MobicentsManagement");
 			//sleeManagementMBean = new ObjectName("slee:service=SleeManagement");
 
 		} catch (Exception e) {
@@ -182,7 +184,7 @@ public class SleeManagementMBeanUtils {
 	
 	public String getVersion() throws ManagementConsoleException {
 		try {
-			return (String) mbeanServer.getAttribute(sleeManagementMBean,
+			return (String) mbeanServer.getAttribute(mobicentsManagementMBean,
 				"Version");
 		} catch (Exception e) {
 			e.printStackTrace();
