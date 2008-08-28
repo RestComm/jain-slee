@@ -76,7 +76,7 @@
 		<copy failonerror="true" file="jboss-log4j.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" />
 		<copy failonerror="true" file="readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 	</target>
-	
+
 	<target name="release" depends="get-jboss,unzip-jboss,build-core,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
@@ -207,8 +207,14 @@
 		</copy>
 		<copy todir="${release.dir}/src/mobicents/servers/jain-slee" file="${ant.file.mobicents.release}/../../pom.xml"/>
 
-		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src"/>
-		<delete dir="${release.dir}/src"/>
+		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src" />
+		
+		<antcall target="checksum">
+			<param name="source.file" value="${ant.file.mobicents.release}/../${zip.filename}" />
+			<param name="algorithm" value="sha1" />
+		</antcall>
+		
+		<delete dir="${release.dir}/src" />
 
 		<defaultexcludes default="true"/>
 	</target>
@@ -222,5 +228,5 @@
 	<target name="checksum">
 		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}.asc" forceOverwrite="yes"/>
 	</target>
-	
+
 </project>
