@@ -432,8 +432,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 				// We get here when we have components depending on this...
 				try {
 					// Let's store the 'old' UCL.
-					dm.addReplacedUCL(du, di.ucl);
-					logger.info("Added du UCL ########################: "+di.shortName);
+					dm.addReplacedUCL(du, di.ucl);					
 					// Just to make sure we won't lose our classes, we 'hide'
 					// the
 					// UCL
