@@ -1,37 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="Release_build" default="deploy">
 
-  <property name="home" value="${ant.file.Release_build}/../" />
-  
-  <property name="jboss.home" value="${home}../../@JBOSS_VERSION@/" />
-  <property name="deploy.dir" value="${jboss.home}/server/@JBOSS_NODE@/deploy/" />
+	<property name="home" value="${ant.file.Release_build}/../" />
 
-  <target name="deploy-jmx">
+	<property name="jboss.home" value="${home}../../@JBOSS_VERSION@/" />
+	<property name="jboss.config" value="@JBOSS.CONFIG@" />
+	<property name="jnpHost" value="127.0.0.1" />
+	<property name="jnpPort" value="1099" />
+	<property name="deploy.dir" value="${jboss.home}/server/${jboss.config}/deploy/" />
+
+	<target name="deploy-jmx">
+		<ant antfile="${home}/du-management.xml" target="deploy-jmx" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+			<property name="jnpHost" value="${jnpHost}" />
+			<property name="jnpPort" value="${jnpPort}" />
+		</ant>
 		<copy overwrite="true" todir="${deploy.dir}" file="${home}/rules-management.sar" />
-    <ant antfile="${home}/du-management.xml" target="deploy-jmx" inheritAll="false">
-      <property name="jboss.home" value="${jboss.home}" />
-    </ant>    
-  </target>
+	</target>
 
-  <target name="undeploy-jmx">
-    <ant antfile="${home}/du-management.xml" target="undeploy-jmx" inheritAll="false">
-      <property name="jboss.home" value="${jboss.home}" />
-    </ant>    
+	<target name="undeploy-jmx">
 		<delete file="${deploy.dir}/rules-management.sar" />
-  </target>
+		<ant antfile="${home}/du-management.xml" target="undeploy-jmx" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+			<property name="jnpHost" value="${jnpHost}" />
+			<property name="jnpPort" value="${jnpPort}" />
+		</ant>
+	</target>
 
-  <target name="deploy">
+	<target name="deploy">
+		<ant antfile="${home}/du-management.xml" target="deploy" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+		</ant>
 		<copy overwrite="true" todir="${deploy.dir}" file="${home}/rules-management.sar" />
-    <ant antfile="${home}/du-management.xml" target="deploy" inheritAll="false">
-      <property name="jboss.home" value="${jboss.home}" />
-    </ant>    
-   </target>
+	</target>
 
-  <target name="undeploy">
-    <ant antfile="${home}/du-management.xml" target="undeploy" inheritAll="false">
-      <property name="jboss.home" value="${jboss.home}" />
-    </ant>    
+	<target name="undeploy">
 		<delete file="${deploy.dir}/rules-management.sar" />
-  </target>
+		<ant antfile="${home}/du-management.xml" target="undeploy" inheritAll="false">
+			<property name="jboss.home" value="${jboss.home}" />
+			<property name="node" value="${jboss.config}" />
+		</ant>
+	</target>
 
 </project>

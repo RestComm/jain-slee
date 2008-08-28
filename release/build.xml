@@ -37,7 +37,7 @@
 
 	<target name="build-core" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../..">
-			<arg line="clean install -Djboss.home=${jboss.home}" />
+			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config}" />
 		</exec>
 	</target>
 
@@ -46,10 +46,10 @@
 			<sequential>
 				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
-					<arg line="clean install -Djboss.home=${release.dir}/tmp" />
+					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
 				</exec>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
-					<arg line="-o install -P release -Drelease.name=target -Djboss.home=${release.dir}/tmp" />
+					<arg line="-o install -P release -Drelease.name=target -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
@@ -61,10 +61,10 @@
 			<sequential>
 				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
-					<arg line="clean install -Djboss.home=${release.dir}/tmp" />
+					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
 				</exec>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
-					<arg line="-o install -P release -Drelease.name=target -Djboss.home=${release.dir}/tmp" />
+					<arg line="-o install -P release -Drelease.name=target -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
