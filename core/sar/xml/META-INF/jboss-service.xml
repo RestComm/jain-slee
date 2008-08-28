@@ -208,4 +208,25 @@
 		</mbean>
 	-->
 
+  <!-- 
+    | Mobicents Management MBean
+   -->
+  <mbean
+    code="org.mobicents.slee.container.management.jmx.MobicentsManagement"
+    name="slee:service=MobicentsManagement"
+  >
+    <depends>slee:service=SleeManagement</depends>
+    <attribute name="EntitiesRemovalDelay">1</attribute>
+  </mbean>
+
+  <!-- 
+    | JSLEE Deployer MBean
+   -->
+  <mbean 
+     code="org.mobicents.slee.container.deployment.jboss.SLEESubDeployer"
+     name="slee:service=JSLEEDeployer">
+
+     <attribute name="WaitTimeBetweenOperations">1000</attribute>
+   </mbean>
+
 </server>
