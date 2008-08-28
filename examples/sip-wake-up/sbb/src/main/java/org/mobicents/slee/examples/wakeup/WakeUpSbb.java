@@ -104,6 +104,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			int i = body.indexOf("WAKE UP IN ");
 			int j = body.indexOf("s! MSG: ",i+11);
 			int k = body.indexOf("!",j+8);
+			if (i >-1 && j>-1 && k >-1) {
 			String timerValue = body.substring(i+11,j);
 			int timer = Integer.parseInt(timerValue);
 			String bodyMessage = body.substring(j+8,k);
@@ -132,6 +133,10 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 					null, 
 					System.currentTimeMillis()+timer*1000, 
 					options);
+			}
+			else {
+				logger.warn("Ignoring invalid msg "+body);
+			}
 			
 		} catch (Exception e) {
 			logger.error( 
