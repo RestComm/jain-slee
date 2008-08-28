@@ -5,16 +5,23 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import javax.management.Notification;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
 
 import org.jboss.deployment.DeploymentException;
 import org.jboss.deployment.DeploymentInfo;
 import org.jboss.deployment.SubDeployerSupport;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
+import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.xml.XMLConstants;
 import org.mobicents.slee.container.management.xml.XMLUtils;
 import org.w3c.dom.Document;
@@ -27,7 +34,7 @@ import org.w3c.dom.Element;
  * @author Alexandre Mendonça
  * @version 1.0
  */
-public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeployerMBean
+public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeployerMBean, NotificationListener
 {
   // Constants -----------------------------------------------------
 
@@ -39,16 +46,22 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
   // The Logger.
   private static Logger logger = Logger.getLogger( SLEESubDeployer.class );
 
+  private static Timer timer = new Timer();
+  
   // Attributes ----------------------------------------------------
   
   // The manager instance.
   private DeploymentManager dm = new DeploymentManager();
 
   // The DIs to be accepted by this deployer.
-  private HashMap<String, DeploymentInfo> toAccept = new HashMap<String, DeploymentInfo>();
+  private ConcurrentHashMap<String, DeploymentInfo> toAccept = new ConcurrentHashMap<String, DeploymentInfo>();
 
   // Deployable Units present.
-  private HashMap<String, DeployableUnit> deployableUnits = new HashMap<String, DeployableUnit>();
+  private ConcurrentHashMap<String, DeployableUnit> deployableUnits = new ConcurrentHashMap<String, DeployableUnit>();
+  
+  private boolean isNotificationEnabled = false;
+  
+  private boolean isServerShuttingDown = false;
   
   // Constructors -------------------------------------------------------------
 
@@ -227,6 +240,19 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     if( logger.isDebugEnabled() )
       logger.debug( "Method init called for " + di.url );
 
+    if(server != null && !isNotificationEnabled)
+    {
+      try
+      {
+        server.addNotificationListener( new ObjectName("jboss.system:type=Server"), this, null, "" );
+        isNotificationEnabled = true;
+      }
+      catch ( Exception e )
+      {
+        logger.error( "Failed to register notification listener.", e );
+      }
+    }
+    
     try
     {
       // Get the filename for this di
@@ -396,6 +422,35 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
   @Override
   public void stop( DeploymentInfo di ) throws DeploymentException
   {
+    if( isServerShuttingDown )
+      doStop( di );
+    else {
+			DeployableUnit du = null;
+			if ((du = deployableUnits.get(di.shortName)) != null) {
+				timer.scheduleAtFixedRate(new UndeploymentTask(di), 0,
+						getWaitTimeBetweenOperations());
+				// We get here when we have components depending on this...
+				try {
+					// Let's store the 'old' UCL.
+					dm.addReplacedUCL(du, di.ucl);
+					logger.info("Added du UCL ########################: "+di.shortName);
+					// Just to make sure we won't lose our classes, we 'hide'
+					// the
+					// UCL
+					di.ucl = null;
+
+					// If the above fails, might think about using this :)
+					// di.createClassLoaders();
+
+				} catch (Exception e1) {
+					logger.debug("Failed to add old UCL to list.", e1);
+				}
+			}
+		}
+	}
+
+  private boolean doStop( DeploymentInfo di )
+  {
     if( logger.isDebugEnabled() )
       logger.debug( "Method stop called for " + di.url );
 
@@ -404,10 +459,13 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     try
     {
       // Get and remove deployable unit object
-      if( (du = deployableUnits.remove( di.shortName )) != null )
+      if( (du = deployableUnits.get( di.shortName )) != null )
       {
         // Uninstall it
         dm.uninstallDeployableUnit( du );
+        
+        // Remove it from list if successful
+        deployableUnits.remove( di.shortName );
         
         // Make it null. clean.
         du = null;
@@ -415,36 +473,15 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     }
     catch (Exception e)
     {
-      if(e instanceof DeploymentException)
-      {
-        // We get here when we have components depending on this...
-        try
-        {
-          // Let's store the 'old' UCL.
-          dm.addReplacedUCL( du, di.ucl );
-          
-          // Just to make sure we won't lose our classes, we 'hide' the UCL
-          di.ucl = null;
-          
-          // If the above fails, might think about using this :)
-          // di.createClassLoaders();
-          
-          logger.warn( e.getMessage() );
-        }
-        catch ( Exception e1 )
-        {
-          logger.error( "", e1 );
-        }
-      }
-      else
-      {
-        logger.error( "", e );
-      }
+      return false;
     }
     
-    super.stop( di );
+    return true;
+    
+    //FIXME: alexandre: Hope this is not needed... worked previously on the stop method.
+    //super.stop( di );
   }
-
+  
   /**
    * Nothing left to do here.
    */
@@ -455,7 +492,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
       logger.debug( "Method destroy called for " + di.url );
 
     // Should we clean temporary files here?
-    super.destroy( di );
+    //FIXME: alexandre: Hope this is not needed... remove due to the new stop method.
+    //super.destroy( di );
   }
 
   // MBean Operations ---------------------------------------------------------
@@ -593,5 +631,39 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     return deployableUnitDescriptor;
   }
 
+  private class UndeploymentTask extends TimerTask
+  {
+    DeploymentInfo di;
+    long startTime;
+    
+    public UndeploymentTask(DeploymentInfo di)
+    {
+      this.di = di;
+      this.startTime = System.currentTimeMillis();
+    }
+    
+    public void run()
+    {
+      try
+      {
+        long elapsedTime = System.currentTimeMillis() - this.startTime;
+        
+        if( doStop(di) || elapsedTime > 60 * 60 * 1000 + MobicentsManagement.entitiesRemovalDelay )
+          this.cancel();
+        
+      }
+      catch (Exception ignore) 
+      {
+        // do nothing...
+      }
+    }
+    
+  }
+
+  public void handleNotification( Notification notification, Object o )
+  {
+    if( notification.getType().equals( "org.jboss.system.server.stopped" ) )
+      isServerShuttingDown = true;
+  }
   
 }

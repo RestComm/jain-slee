@@ -3,8 +3,9 @@ package org.mobicents.slee.container.deployment.jboss;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -15,6 +16,7 @@ import javax.slee.ServiceID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityState;
+import javax.slee.management.UnrecognizedLinkNameException;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
@@ -38,15 +40,15 @@ public class DeploymentManager
   private static Logger logger = Logger.getLogger( DeploymentManager.class );
   
   // The DUs waiting to be installed.
-  private Collection<DeployableUnit> waitingForInstallDUs = new ArrayList<DeployableUnit>();
+  private Collection<DeployableUnit> waitingForInstallDUs = new ConcurrentLinkedQueue<DeployableUnit>();
   
   // The DUs waiting for being uninstalled.
-  private Collection<DeployableUnit> waitingForUninstallDUs = new ArrayList<DeployableUnit>();
+  private Collection<DeployableUnit> waitingForUninstallDUs = new ConcurrentLinkedQueue<DeployableUnit>();
   
-  private HashMap<DeployableUnit, RepositoryClassLoader> replacedUCLs = new HashMap<DeployableUnit, RepositoryClassLoader>();
+  private ConcurrentHashMap<DeployableUnit, RepositoryClassLoader> replacedUCLs = new ConcurrentHashMap<DeployableUnit, RepositoryClassLoader>();
   
   // The components already deployed to SLEE
-  private Collection<String> deployedComponents = new ArrayList<String>();
+  private Collection<String> deployedComponents = new ConcurrentLinkedQueue<String>();
   
   // Actions using DeploymentMBean
   private Collection<String> deploymentActions = Arrays.asList( new String[] { "install", "uninstall" } );
@@ -60,7 +62,7 @@ public class DeploymentManager
   // Actions using ServiceManagementMBean
   private Collection<String> serviceActions = Arrays.asList( new String[] { "activate", "deactivate" } );
   
-  private HashMap<DeployableUnit, Collection<String>> actionsToAvoidByDU = new HashMap<DeployableUnit, Collection<String>>();
+  private ConcurrentHashMap<DeployableUnit, Collection<String>> actionsToAvoidByDU = new ConcurrentHashMap<DeployableUnit, Collection<String>>();
   
   public long waitTimeBetweenOperations = 250;
   
@@ -102,7 +104,7 @@ public class DeploymentManager
       SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
       
       // First we'll put the components in a temp Collection
-      ArrayList<String> newDeployedComponents = new ArrayList<String>();
+      ConcurrentLinkedQueue<String> newDeployedComponents = new ConcurrentLinkedQueue<String>();
       
       // Get the deployed Profile Specifications
       ProfileSpecificationID[] sleeProfileSpecifications = sleeContainer.getProfileSpecificationIDs();
@@ -254,10 +256,10 @@ public class DeploymentManager
     // It isn't installed?
     if( !du.isInstalled() )
     {
-      // Then it should be in the waiting list... remove and we're done.
-      waitingForInstallDUs.remove( du );
-      
-      logger.info( du.getDeploymentInfoShortName() + " wasn't deployed. Removing from waiting list." );
+    	// Then it should be in the waiting list... remove and we're done.
+    	if (waitingForInstallDUs.remove( du )) {
+    		logger.info( du.getDeploymentInfoShortName() + " wasn't deployed. Removing from waiting list." );
+    	}
     }
     // Check if the DU is ready to be uninstalled
     else if( du.isReadyToUninstall() )
@@ -270,6 +272,15 @@ public class DeploymentManager
       
       // Update the deployed components from SLEE
       updateDeployedComponents();
+      
+      // Unregister the replaced UCL, if any
+      RepositoryClassLoader repositoryClassLoader = replacedUCLs.remove(du);
+      if(repositoryClassLoader != null) {
+    	  repositoryClassLoader.unregister();
+    	  if (logger.isDebugEnabled()) {
+    		  logger.debug("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
+    	  }
+      }
       
       // Go through the remaining DUs waiting for uninstallation
       Iterator<DeployableUnit> duIt = waitingForUninstallDUs.iterator();
@@ -294,8 +305,13 @@ public class DeploymentManager
           waitingForUninstallDUs.remove( waitingDU );
           
           // Unregister the replaced UCL, if any
-          if( replacedUCLs.containsKey(waitingDU) )
-            replacedUCLs.remove(waitingDU).unregister();
+          repositoryClassLoader = replacedUCLs.remove(waitingDU);
+          if(repositoryClassLoader != null) {
+        	  repositoryClassLoader.unregister();
+        	  if (logger.isDebugEnabled()) {
+        		  logger.debug("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
+        	  }
+          }
             
           // Let's start all over.. :)
           duIt = waitingForUninstallDUs.iterator();
@@ -304,16 +320,20 @@ public class DeploymentManager
     }
     else
     {
-      // Add it to the waiting list.
-      waitingForUninstallDUs.add( du );
+      if(!waitingForUninstallDUs.contains( du ))
+      {
+        // Add it to the waiting list.
+        waitingForUninstallDUs.add( du );
       
-      throw new DeploymentException("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
+        throw new DeploymentException("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
+      }
     }
   }
   
   public void addReplacedUCL( DeployableUnit du, RepositoryClassLoader ucl )
   {
-    this.replacedUCLs.put( du, ucl );
+    if(ucl != null)
+      this.replacedUCLs.put( du, ucl );
   }
   
   /**
@@ -400,6 +420,40 @@ public class DeploymentManager
       {
         // Invoke it.
         ms.invoke( objectName, action, arguments, signature );
+        
+        // We need to wait for service to deactivate...
+//        if(action.equals( "deactivate" ))
+//        {
+//          long waited = 0;
+//          
+//          ServiceState ss = null;
+//          
+//          double maxWaitTime = 60 * 1000 * MobicentsManagement.entitiesRemovalDelay;
+//          
+//          while(true)
+//          {
+//            ss = (ServiceState) ms.invoke( objectName, "getState", arguments, signature );
+//            
+//            if(logger.isDebugEnabled())
+//              logger.debug( arguments[0] + " State [" + ss.toString() + "]." );
+//
+//            if(!ss.isInactive() && waited <= maxWaitTime)
+//            {
+//              if(logger.isDebugEnabled())
+//                logger.debug( "Waiting more " + waitTimeBetweenOperations + "ms. Waited a total of " + waited + "ms."  );
+//              
+//              Thread.sleep( waitTimeBetweenOperations );
+//              waited += waitTimeBetweenOperations;
+//            }
+//            else
+//            {
+//              if(logger.isDebugEnabled())
+//                logger.debug( "Service already deactivated or maximum wait time reached. Moving on!" );
+//              
+//              break;
+//            }
+//          }
+//        }
       }
       catch (Exception e)
       {
@@ -434,8 +488,23 @@ public class DeploymentManager
           
           logger.warn(e.getCause().getMessage());
         }
+        else if(e.getCause() instanceof InvalidStateException && action.equals( "deactivate" ))
+        {
+          logger.info( "Delaying uninstall due to service deactivation not complete." );
+        }
+        else if(e.getCause() instanceof InvalidStateException && action.equals( "deactivateResourceAdaptorEntity" ))
+        {
+          // ignore this... someone has already deactivated the link.
+        }
+        else if(e.getCause() instanceof UnrecognizedLinkNameException && action.equals( "unbindLinkName" ))
+        {
+          // ignore this... someone has already removed the link.
+        }
         else
-          logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e );
+        {
+          //logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e );
+          throw(e);
+        }
       }
       
       // Wait a little while just to make sure it finishes

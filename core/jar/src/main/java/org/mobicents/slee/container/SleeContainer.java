@@ -352,12 +352,10 @@ public class SleeContainer implements ComponentContainer {
 	}
 
 	private static void initDeployPath() {
-		java.net.URL url = SleeContainer.class.getResource("/");
-		java.net.URI uri;
 		try {
-			uri = new java.net.URI(url.toExternalForm());
-			File file = new File(uri);
-			deployPath = file.getAbsolutePath();
+			java.net.URL url = SleeContainer.class.getClassLoader().getResource("META-INF/..");
+			java.net.URI uri = new java.net.URI(url.toExternalForm());
+			deployPath = new File(uri).getAbsolutePath();
 		} catch (URISyntaxException e) {
 			logger
 					.error(
@@ -3065,7 +3063,7 @@ public class SleeContainer implements ComponentContainer {
 			removeDU(deployableUnitDescriptor);
 
 		} catch (Exception ex) {
-			logger.error("Exception while removing deployable unit", ex);
+			//logger.error("Exception while removing deployable unit", ex);
 			getTransactionManager().setRollbackOnly();
 			throw ex;
 		} finally {

@@ -199,7 +199,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
                 	logger.error(ex);
                     throw ex;
                 } catch (Exception ex) {
-                	logger.error(ex);
+                  if(logger.isDebugEnabled())
+                    logger.debug(ex);
                     throw new ManagementException(
                             "Exception removing deployable Unit ", ex);
                 }
