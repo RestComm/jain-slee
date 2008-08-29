@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>mobicents-jainslee-server</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>1.2.0.GA-SNAPSHOT</version>
+		<version>1.2.0.CR2</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	
@@ -36,27 +36,18 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy overwrite="true"
-											todir="${basedir}/../../release/${release.name}/examples/google-talk-bot">
-											<fileset
-												dir="${basedir}/du/target">
+										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/google-talk-bot">
+											<fileset dir="${basedir}/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
-												<include
-													name="*.properties" />
+												<include name="*.properties" />
 											</fileset>
 										</copy>
-										<copy overwrite="true"
-											file="${basedir}/du/target/build.xml"
-											tofile="${basedir}/../../release/${release.name}/examples/google-talk-bot/du-management.xml" />
-										<copy overwrite="true"
-											file="${basedir}/release/build.xml"
-											todir="${basedir}/../../release/${release.name}/examples/google-talk-bot">
+										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/google-talk-bot/du-management.xml" />
+										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/google-talk-bot">
 											<filterset>
-												<filter
-													token="JBOSS_VERSION" value="jboss-${jboss.version}" />
-												<filter
-													token="JBOSS.CONFIG" value="${node}" />
+												<filter token="JBOSS_VERSION" value="jboss-${jboss.version}" />
+												<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>
 									</tasks>

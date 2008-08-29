@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>training-example1-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.2.0.GA-SNAPSHOT</version>
+		<version>1.2.0.CR2</version>
 	</parent>
 	
 	<artifactId>training-example1-DU</artifactId>
