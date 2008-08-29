@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>rules-parent</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>1.2.0.CR2</version>
+		<version>1.2.0.GA-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>rules-management</artifactId>

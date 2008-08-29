@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>sip-wake-up-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.2.0.CR2</version>
+		<version>1.2.0.GA-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>sip-wake-up-sbb</artifactId>

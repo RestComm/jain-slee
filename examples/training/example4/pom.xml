@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>mobicents-jainslee-server</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>1.2.0.CR2</version>
+		<version>1.2.0.GA-SNAPSHOT</version>
 		<relativePath>../../../pom.xml</relativePath>
 	</parent>
 	
