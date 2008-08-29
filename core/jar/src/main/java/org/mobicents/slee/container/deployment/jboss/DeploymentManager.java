@@ -62,6 +62,8 @@ public class DeploymentManager
   // Actions using ServiceManagementMBean
   private Collection<String> serviceActions = Arrays.asList( new String[] { "activate", "deactivate" } );
   
+  private Collection<String> deployActions = Arrays.asList( new String[] { "install", "activate", "bindLinkName", "createResourceAdaptorEntity", "activateResourceAdaptorEntity" } );
+   
   private ConcurrentHashMap<DeployableUnit, Collection<String>> actionsToAvoidByDU = new ConcurrentHashMap<DeployableUnit, Collection<String>>();
   
   public long waitTimeBetweenOperations = 250;
@@ -277,9 +279,9 @@ public class DeploymentManager
       RepositoryClassLoader repositoryClassLoader = replacedUCLs.remove(du);
       if(repositoryClassLoader != null) {
     	  repositoryClassLoader.unregister();
-    	  if (logger.isDebugEnabled()) {
-    		  logger.debug("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
-    	  }
+    	  //if (logger.isDebugEnabled()) {
+    		  logger.info("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
+    	  //}
       }
       
       // Go through the remaining DUs waiting for uninstallation
@@ -308,9 +310,9 @@ public class DeploymentManager
           repositoryClassLoader = replacedUCLs.remove(waitingDU);
           if(repositoryClassLoader != null) {
         	  repositoryClassLoader.unregister();
-        	  if (logger.isDebugEnabled()) {
-        		  logger.debug("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
-        	  }
+        	  //if (logger.isDebugEnabled()) {
+        		  logger.info("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
+        	  //}
           }
             
           // Let's start all over.. :)
@@ -320,13 +322,17 @@ public class DeploymentManager
     }
     else
     {
+      // Have we been her already? If so, don't flood user with log messages...
       if(!waitingForUninstallDUs.contains( du ))
       {
         // Add it to the waiting list.
         waitingForUninstallDUs.add( du );
       
-        throw new DeploymentException("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
+        logger.warn("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
       }
+      
+      // But we have to throw this so task knows that it needs to retry
+      throw new DeploymentException("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
     }
   }
   
@@ -500,10 +506,13 @@ public class DeploymentManager
         {
           // ignore this... someone has already removed the link.
         }
+        else if( deployActions.contains( action ) )
+        {
+          logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e );
+        }
         else
         {
-          //logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e );
-          throw(e);
+          throw( e );          
         }
       }
       

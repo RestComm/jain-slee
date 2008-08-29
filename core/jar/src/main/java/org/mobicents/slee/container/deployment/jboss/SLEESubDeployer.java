@@ -422,28 +422,32 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
   @Override
   public void stop( DeploymentInfo di ) throws DeploymentException
   {
+	  
+	  DeployableUnit du = null;
+		if ((du = deployableUnits.get(di.shortName)) != null) {
+			// We get here when we have components depending on this...
+			try {
+				// Let's store the 'old' UCL.
+				dm.addReplacedUCL(du, di.ucl);
+				// Just to make sure we won't lose our classes, we 'hide' the
+				// UCL
+				di.ucl = null;
+
+				// If the above fails, might think about using this :)
+				// di.createClassLoaders();
+
+			} catch (Exception e1) {
+				logger.debug("Failed to add old UCL to list.", e1);
+			}
+  
     if( isServerShuttingDown )
       doStop( di );
     else {
-			DeployableUnit du = null;
-			if ((du = deployableUnits.get(di.shortName)) != null) {
+			
+        
+        // Schedule removal in a recurring task
 				timer.scheduleAtFixedRate(new UndeploymentTask(di), 0,
 						getWaitTimeBetweenOperations());
-				// We get here when we have components depending on this...
-				try {
-					// Let's store the 'old' UCL.
-					dm.addReplacedUCL(du, di.ucl);					
-					// Just to make sure we won't lose our classes, we 'hide'
-					// the
-					// UCL
-					di.ucl = null;
-
-					// If the above fails, might think about using this :)
-					// di.createClassLoaders();
-
-				} catch (Exception e1) {
-					logger.debug("Failed to add old UCL to list.", e1);
-				}
 			}
 		}
 	}
