@@ -15,6 +15,10 @@
 
 	<profiles>
 		<profile>
+			<id>maven-release</id>
+			<!-- do nothing, this is to avoid the copy of a dependency that doesn't exist yet -->
+		</profile>	
+		<profile>
 			<id>not-maven-release</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
