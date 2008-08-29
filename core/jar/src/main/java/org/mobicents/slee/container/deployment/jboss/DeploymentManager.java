@@ -279,9 +279,9 @@ public class DeploymentManager
       RepositoryClassLoader repositoryClassLoader = replacedUCLs.remove(du);
       if(repositoryClassLoader != null) {
     	  repositoryClassLoader.unregister();
-    	  //if (logger.isDebugEnabled()) {
-    		  logger.info("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
-    	  //}
+    	  if (logger.isDebugEnabled()) {
+    		  logger.debug("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
+    	  }
       }
       
       // Go through the remaining DUs waiting for uninstallation
@@ -310,9 +310,9 @@ public class DeploymentManager
           repositoryClassLoader = replacedUCLs.remove(waitingDU);
           if(repositoryClassLoader != null) {
         	  repositoryClassLoader.unregister();
-        	  //if (logger.isDebugEnabled()) {
-        		  logger.info("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
-        	  //}
+        	  if (logger.isDebugEnabled()) {
+        		  logger.debug("replacedUCLs size is "+replacedUCLs.size()+" after removing DU "+du.getDeploymentInfoShortName());
+        	  }
           }
             
           // Let's start all over.. :)
