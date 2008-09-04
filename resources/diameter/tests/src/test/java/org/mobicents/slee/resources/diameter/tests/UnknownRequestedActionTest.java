@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import org.junit.Test;
 import org.mobicents.slee.resources.diameter.tests.framework.TestingFramework;
 
-public class KeepSessionIdTest
+public class UnknownRequestedActionTest
 {
 
   @Test
@@ -13,7 +13,7 @@ public class KeepSessionIdTest
   {
     TestingFramework tF = new TestingFramework();
     
-    tF.runTest( this.getClass().getResourceAsStream( "xml/keep-sessionid-test.xml" ) );
+    tF.executeTest( this.getClass().getClassLoader().getResourceAsStream( "scenarios/unknown-requested-action-test.xml" ) );
   }
   
 }

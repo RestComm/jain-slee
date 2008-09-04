@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import org.junit.Test;
 import org.mobicents.slee.resources.diameter.tests.framework.TestingFramework;
 
-public class EventChargingTest
+public class RefundAccountTest
 {
 
   @Test
@@ -13,7 +13,7 @@ public class EventChargingTest
   {
     TestingFramework tF = new TestingFramework();
     
-    tF.runTest( this.getClass().getResourceAsStream( "xml/event-charging-test.xml" ) );
+    tF.executeTest( this.getClass().getClassLoader().getResourceAsStream( "scenarios/refund-account-test.xml" ) );
   }
   
 }

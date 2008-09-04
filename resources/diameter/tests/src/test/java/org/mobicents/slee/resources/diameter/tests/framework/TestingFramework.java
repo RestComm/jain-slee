@@ -105,7 +105,7 @@ public class TestingFramework
     log("Initializing Stack...");
     try
     {
-      avpDictionary.parseDictionary(this.getClass().getResourceAsStream("dictionary.xml"));
+      avpDictionary.parseDictionary(this.getClass().getClassLoader().getResourceAsStream("dictionary.xml"));
       log("AVP Dictionary successfully parsed.");
     }
     catch ( Exception e )
@@ -168,7 +168,7 @@ public class TestingFramework
     log("Stack initialization successfully completed.");
   }
 
-  public void runTest(InputStream is)
+  public void executeTest(InputStream is)
   {
     try
     {
@@ -208,7 +208,8 @@ public class TestingFramework
     }
     finally
     {
-      stopStack();
+      if(stack != null)
+        stopStack();
     }
   }
   
@@ -226,6 +227,16 @@ public class TestingFramework
     }
 
     stack.destroy();
+    
+    try
+    {
+      // Let it stop... useful for JUnit tests
+      Thread.sleep( 1000 );
+    }
+    catch ( InterruptedException e )
+    {
+      e.printStackTrace();
+    }
   }
 
   /**

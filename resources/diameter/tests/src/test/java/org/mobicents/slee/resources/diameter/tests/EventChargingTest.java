@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import org.junit.Test;
 import org.mobicents.slee.resources.diameter.tests.framework.TestingFramework;
 
-public class UserNotFoundTest
+public class EventChargingTest
 {
 
   @Test
@@ -13,7 +13,7 @@ public class UserNotFoundTest
   {
     TestingFramework tF = new TestingFramework();
     
-    tF.runTest( this.getClass().getResourceAsStream( "xml/user-not-found-test.xml" ) );
+    tF.executeTest( this.getClass().getClassLoader().getResourceAsStream( "scenarios/event-charging-test.xml" ) );
   }
   
 }

@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import org.junit.Test;
 import org.mobicents.slee.resources.diameter.tests.framework.TestingFramework;
 
-public class InsufficientBalanceTest
+public class KeepSessionIdTest
 {
 
   @Test
@@ -13,7 +13,7 @@ public class InsufficientBalanceTest
   {
     TestingFramework tF = new TestingFramework();
     
-    tF.runTest( this.getClass().getResourceAsStream( "xml/insufficient-balance-test.xml" ) );
+    tF.executeTest( this.getClass().getClassLoader().getResourceAsStream( "scenarios/keep-sessionid-test.xml" ) );
   }
   
 }

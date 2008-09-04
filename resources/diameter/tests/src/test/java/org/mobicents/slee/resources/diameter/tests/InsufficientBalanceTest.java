@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import org.junit.Test;
 import org.mobicents.slee.resources.diameter.tests.framework.TestingFramework;
 
-public class RefundAccountTest
+public class InsufficientBalanceTest
 {
 
   @Test
@@ -13,7 +13,7 @@ public class RefundAccountTest
   {
     TestingFramework tF = new TestingFramework();
     
-    tF.runTest( this.getClass().getResourceAsStream( "xml/refund-account-test.xml" ) );
+    tF.executeTest( this.getClass().getClassLoader().getResourceAsStream( "scenarios/insufficient-balance-test.xml" ) );
   }
   
 }
