@@ -497,7 +497,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		logger.info("Diameter Base RA :: eventProcessingFailed :: handle[" + handle + "], event[" + event + "], eventID[" + eventID + "], address[" + address + "], flags[" + flags + 
 		    "], reason[" + reason + "].");
 		
-		// FIXME: baranowb - for base end here
+
 	}
 
 	/**
@@ -513,7 +513,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		logger.info("Diameter Base RA :: eventProcessingSuccessful :: handle[" + handle + "], event[" + event + "], eventID[" + eventID + "], address[" + address + "], flags[" + 
 		    flags + "].");
 
-		// FIXME: baranowb - for base end here
+
 	}
 
 	/**
@@ -826,6 +826,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 			activity = raProvider.createActivity(request);
 
 			// Will it be handled by specific app handler?
+			//FIXME: baranowb: add acc/auth app id check - for instance STR will be handled here wrong?
 			if( !authEventCodes.contains(request.getCommandCode()) && !accEventCodes.contains(request.getCommandCode()) )
 			{
 				activityCreated(activity);
@@ -1390,19 +1391,30 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 
 		public AuthClientSessionActivity createAuthenticationActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm) throws CreateActivityException
 		{
-			ClientAuthSession session = null;
+
+			ClientAuthSession session;
+			try {
+				//FIXME: baranowb: AppId should be taken from stack conf?
+				 session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, ApplicationId.createByAuthAppId(193L, 19301L), ClientAuthSession.class, null);
+				DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, destinationHost, destinationRealm);
+				
+				AuthClientSessionActivityImpl activity = new AuthClientSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout, 
+				    destinationHost, destinationRealm, sleeEndpoint);
+				
+				activityCreated(activity);
+				
+				return activity;
+			} catch (InternalException e) {
+				
+				e.printStackTrace();
+				throw new CreateActivityException(e);
+			} catch (IllegalDiameterStateException e) {
+				
+				e.printStackTrace();
+				throw new CreateActivityException(e);
+			}
 			
-      // FIXME: alexandre: need to create session here.
-      // session = sessionFactory.getNewAppSession(3, ClientAccSession.class);
-			
-			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, destinationHost, destinationRealm);
-			
-			AuthClientSessionActivityImpl activity = new AuthClientSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout, 
-			    destinationHost, destinationRealm, sleeEndpoint);
-			
-			activityCreated(activity);
-			
-			return activity;
+
 		}
 
 		public AuthClientSessionActivity createAuthenticationActivity()
@@ -1483,6 +1495,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 
 			try 
 			{
+				//FIXME: baranowb: 19302 - shouldnt it be taken from stack conf?
 				session = sessionFactory.getNewAppSession(ApplicationId.createByAccAppId(19302), ServerAccSession.class);
 				
 				if (session == null)
@@ -1516,18 +1529,28 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		AuthServerSessionActivity createAuthenticationServerActivity(DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm) throws CreateActivityException
 		{
 			ServerAuthSession session = null;
+
+			try {
+				//FIXME: baranowb: AppId should be taken from stack conf?
+				 session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, ApplicationId.createByAuthAppId(193L, 19301L), ServerAuthSession.class, null);
+				DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, destinationHost, destinationRealm);
+				
+				AuthServerSessionActivityImpl activity = new AuthServerSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout,
+				    destinationHost, destinationRealm, sleeEndpoint);
+				
+				activityCreated(activity);
+				
+				return activity;
+			} catch (InternalException e) {
+				
+				e.printStackTrace();
+				throw new CreateActivityException(e);
+			} catch (IllegalDiameterStateException e) {
+				
+				e.printStackTrace();
+				throw new CreateActivityException(e);
+			}
 			
-			// FIXME: alexandre: need to create session here.
-			// session = sessionFactory.getNewAppSession(3, ClientAccSession.class);
-			
-			DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, destinationHost, destinationRealm);
-			
-			AuthServerSessionActivityImpl activity = new AuthServerSessionActivityImpl(msgFactory, diameterAvpFactory, session, ra, messageTimeout,
-			    destinationHost, destinationRealm, sleeEndpoint);
-			
-			activityCreated(activity);
-			
-			return activity;
 		}
 
 		AuthServerSessionActivity createAuthenticationServerActivity() throws CreateActivityException
