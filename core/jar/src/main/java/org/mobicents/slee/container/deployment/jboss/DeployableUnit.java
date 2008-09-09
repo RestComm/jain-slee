@@ -21,6 +21,7 @@ import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
 import org.mobicents.slee.container.management.xml.XMLUtils;
+import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -550,6 +551,21 @@ public class DeployableUnit
             cPostInstallActions.add( new Object[] { "bindLinkName", entityName, linkName } );
             
             cPreUninstallActions.add( new Object[] { "unbindLinkName", linkName } );
+            
+            HashMap existingRATypes = SleeContainer.lookupFromJndi().getResourceAdaptorTypes();
+            
+            String raTypeFromRa = null;
+            
+            for(Object raTypeObject : existingRATypes.values())
+            {
+              ResourceAdaptorType raType = (ResourceAdaptorType)raTypeObject;
+
+              if( raType.getResourceAdaptorIDs().contains( componentID ) )
+                raTypeFromRa = raType.getResourceAdaptorTypeID().toString();
+            }
+            
+            if(raTypeFromRa != null)
+              this.componentIDs.add( linkName + "_@_" + raTypeFromRa );
           }
           
           // Add the Deactivate and Remove RA Entity actions to the Pre-Uninstall Actions
