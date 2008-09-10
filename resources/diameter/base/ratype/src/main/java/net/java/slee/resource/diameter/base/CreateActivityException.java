@@ -19,6 +19,8 @@
  */
 package net.java.slee.resource.diameter.base;
 
+import org.jdiameter.api.InternalException;
+
 /**
  * Thrown when an activity cannot be created for any reason.
  * 
@@ -32,4 +34,16 @@ public class CreateActivityException extends Exception {
     public CreateActivityException(String message, Throwable cause) {
         super(message, cause);
     }
+
+	public CreateActivityException() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public CreateActivityException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
+
+	
 }
