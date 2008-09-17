@@ -13,13 +13,12 @@ import org.jdiameter.api.IllegalDiameterStateException;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.OverloadException;
 import org.jdiameter.api.RouteException;
-import org.jdiameter.api.app.AppEvent;
+import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateMachine;
-import org.jdiameter.api.app.AppRequestEvent;
-import org.jdiameter.api.auth.events.SessionTermRequest;
 import org.jdiameter.api.auth.events.AbortSessionAnswer;
 import org.jdiameter.api.auth.events.ReAuthAnswer;
+import org.jdiameter.api.auth.events.SessionTermRequest;
 
 /**
  * Basic class for authentication application specific session

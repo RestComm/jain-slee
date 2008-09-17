@@ -29,7 +29,7 @@ import org.jdiameter.client.impl.helpers.UIDGenerator;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.events.ProfileUpdateRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.PushNotificationAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.SubscribeNotificationRequestImpl;
+import org.mobicents.slee.resource.diameter.base.events.SubscribeNotificationsRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.UserDataRequestImpl;
 
 public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
@@ -106,7 +106,7 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 	public SubscribeNotificationsRequest createSubscribeNotificationsRequest() {
 		ApplicationId applicationId = ApplicationId.createByAccAppId(_SH_VENDOR_ID, _SH_APP_ID);
 		Message msg = createMessage(SubscribeNotificationsRequest.commandCode, applicationId, null);
-		SubscribeNotificationRequestImpl snr = new SubscribeNotificationRequestImpl(msg);
+		SubscribeNotificationsRequestImpl snr = new SubscribeNotificationsRequestImpl(msg);
 		return snr;
 	}
 

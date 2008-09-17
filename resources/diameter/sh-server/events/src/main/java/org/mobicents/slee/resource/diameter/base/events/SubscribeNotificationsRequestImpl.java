@@ -16,9 +16,9 @@ import org.jdiameter.api.Message;
 import org.mobicents.slee.resource.diameter.sh.client.events.DiameterShMessageImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.UserIdentityAvpImpl;
 
-public class SubscribeNotificationRequestImpl extends DiameterShMessageImpl implements SubscribeNotificationsRequest {
+public class SubscribeNotificationsRequestImpl extends DiameterShMessageImpl implements SubscribeNotificationsRequest {
 
-	public SubscribeNotificationRequestImpl(Message msg) {
+	public SubscribeNotificationsRequestImpl(Message msg) {
 		super(msg);
 		super.longMessageName="Subscribe-Notification-Request";
 		super.shortMessageName="SNR";

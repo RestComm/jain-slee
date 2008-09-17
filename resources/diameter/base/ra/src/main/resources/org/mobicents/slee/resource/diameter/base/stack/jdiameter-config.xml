@@ -47,7 +47,7 @@
       <Realm name ="mobicents.org" peers="127.0.0.1" local_action="LOCAL" dynamic="false" exp_time="1">
         <ApplicationID>
           <VendorId value="193"/>
-          <AuthApplId value="0"/>
+          <AuthApplId value="19302"/>
           <AcctApplId value="19302"/>
         </ApplicationID>
       </Realm>

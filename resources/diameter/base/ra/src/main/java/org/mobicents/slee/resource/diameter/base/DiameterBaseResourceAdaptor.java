@@ -3,8 +3,6 @@ package org.mobicents.slee.resource.diameter.base;
 import static org.jdiameter.client.impl.helpers.Parameters.MessageTimeOut;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
@@ -57,13 +54,9 @@ import org.jdiameter.api.ApplicationId;
 import org.jdiameter.api.Avp;
 import org.jdiameter.api.AvpDataException;
 import org.jdiameter.api.AvpSet;
-import org.jdiameter.api.Configuration;
-import org.jdiameter.api.EventListener;
 import org.jdiameter.api.IllegalDiameterStateException;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Message;
-import org.jdiameter.api.Network;
-import org.jdiameter.api.NetworkReqListener;
 import org.jdiameter.api.OverloadException;
 import org.jdiameter.api.Peer;
 import org.jdiameter.api.PeerTable;
@@ -97,10 +90,8 @@ import org.jdiameter.common.api.app.IAppSessionFactory;
 import org.jdiameter.common.api.app.auth.IAuthMessageFactory;
 import org.jdiameter.common.impl.app.AppAnswerEventImpl;
 import org.jdiameter.common.impl.app.AppRequestEventImpl;
-import org.jdiameter.server.impl.StackImpl;
 import org.jdiameter.server.impl.app.acc.ServerAccSessionImpl;
 import org.jdiameter.server.impl.app.auth.ServerAuthSessionImpl;
-import org.jdiameter.server.impl.helpers.XMLConfiguration;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
@@ -124,6 +115,7 @@ import org.mobicents.slee.resource.diameter.base.events.SessionTerminationAnswer
 import org.mobicents.slee.resource.diameter.base.events.SessionTerminationRequestImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.DiameterIdentityAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
+import org.mobicents.slee.resource.diameter.base.stack.DiameterStackMultiplexerProxyMBeanImpl;
 
 /**
  * Diameter Resource Adaptor
@@ -136,7 +128,7 @@ import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author Erick Svenson
  */
-public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqListener, Serializable, EventListener<Request, Answer> {
+public class DiameterBaseResourceAdaptor implements ResourceAdaptor, RADiameterListener {
   
 	private static final long serialVersionUID = 1L;
 
@@ -147,6 +139,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	private Stack stack;
 	private SessionFactory sessionFactory = null;
 	private long messageTimeout = 5000;
+	private DiameterStackMultiplexerProxyMBeanImpl proxy=new DiameterStackMultiplexerProxyMBeanImpl();
 	private DiameterAvpFactoryImpl diameterAvpFactory = new DiameterAvpFactoryImpl();
 	/**
 	 * The BootstrapContext provides the resource adaptor with the required
@@ -391,15 +384,17 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		}
 
 		// Stop the stack
-		try
-		{
-			stack.stop(5, TimeUnit.SECONDS);
-		}
-		catch (Exception e)
-		{
-			logger.error("Diameter Base RA :: Failure while stopping ");
-		}
+		//try
+		//{
+		//	stack.stop(5, TimeUnit.SECONDS);
+		//}
+		//catch (Exception e)
+		//{
+		//	logger.error("Diameter Base RA :: Failure while stopping ");
+		//}
 
+		proxy.stopService(this.bootstrapContext.getEntityName());
+		
 		logger.info("Diameter Base RA :: RA Stopped.");
 	}
 
@@ -417,25 +412,32 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 		
 		this.state = ResourceAdaptorState.STOPPING;
 		
-		try 
-		{
-			Network network = stack.unwrap(Network.class);
+		//try 
+		//{
+		//	Network network = stack.unwrap(Network.class);
 
-			Iterator<ApplicationId> appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
-			
-			while(appIdsIt.hasNext())
-			{
-				network.removeNetworkReqListener(appIdsIt.next());
+		//	Iterator<ApplicationId> appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
+		//	
+		//	while(appIdsIt.hasNext())
+		//	{
+		//		network.removeNetworkReqListener(appIdsIt.next());
 				
 				// Update the iterator (avoid ConcurrentModificationException)
-				appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
-			}
-		}
-		catch (InternalException e) 
+		//		appIdsIt = stack.getMetaData().getLocalPeer().getCommonApplications().iterator();
+		//	}
+		//}
+		//catch (InternalException e) 
+		//{
+		//	logger.error("", e);
+		//}
+
+		try{
+			proxy.deregisterRa(this);
+		}catch (Exception e) 
 		{
 			logger.error("", e);
 		}
-
+		
 		synchronized (this.activities)
 		{
 			for (ActivityHandle activityHandle : activities.keySet())
@@ -469,7 +471,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	public void entityRemoved()
 	{
 		// Stop the stack
-		this.stack.destroy();
+		//this.stack.destroy();
 
 		// Clean up!
 		this.acif = null;
@@ -755,62 +757,36 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, NetworkReqL
 	 */
 	private synchronized void initStack() throws Exception
 	{
-		InputStream is = null;
+		//FIXME: Fetch stack
+		// Set message timeout accordingly to stack definition
+		
+		// FIXME: This should come from config.. adding manually
+		// <ApplicationID>
+		// <VendorId value="193"/>
+		// <AuthApplId value="0"/>
+		// <AcctApplId value="19302"/>
+		// </ApplicationID>
+		//appIds.add(ApplicationId.createByAccAppId(193L, 19302L));
 
-		try
+		// <ApplicationID>
+		// <VendorId value="193"/>
+		// <AuthApplId value="19301"/>
+		// <AcctApplId value="0"/>
+		// </ApplicationID>
+		//appIds.add(ApplicationId.createByAuthAppId(193L, 19301L));
+		//DiameterStackMultiplexerProxyMBeanImpl proxy=new DiameterStackMultiplexerProxyMBeanImpl();
+		proxy.startService(this.bootstrapContext.getEntityName());
+		Set<Integer> codes=events.keySet();
+		long[] command=new long[codes.size()];
+		Iterator<Integer> it=codes.iterator();
+		for(int i=0;i<codes.size();i++)
 		{
-			// Create and configure stack
-			this.stack = new StackImpl();
-
-			// Get configuration
-			String configFile = "jdiameter-config.xml";
-			is = this.getClass().getResourceAsStream(configFile);
-
-			// Load the configuration
-			Configuration config = new XMLConfiguration(is);
-
-			this.stack.init(config);
-
-			Network network = stack.unwrap(Network.class);
-
-			Set<ApplicationId> appIds = stack.getMetaData().getLocalPeer().getCommonApplications();
-
-			// FIXME: This should come from config.. adding manually
-			// <ApplicationID>
-			// <VendorId value="193"/>
-			// <AuthApplId value="0"/>
-			// <AcctApplId value="19302"/>
-			// </ApplicationID>
-			appIds.add(ApplicationId.createByAccAppId(193L, 19302L));
-
-			// <ApplicationID>
-			// <VendorId value="193"/>
-			// <AuthApplId value="19301"/>
-			// <AcctApplId value="0"/>
-			// </ApplicationID>
-			appIds.add(ApplicationId.createByAuthAppId(193L, 19301L));
-
-			logger.info("Diameter Base RA :: Supporting " + appIds.size() + " applications.");
-
-			for (ApplicationId appId : appIds)
-			{
-				logger.info("Diameter Base RA :: Adding Listener for [" + appId + "].");
-				network.addNetworkReqListener(this, appId);
-			}
-
-			// Set message timeout accordingly to stack definition
-			this.messageTimeout = stack.getMetaData().getConfiguration().getLongValue(MessageTimeOut.ordinal(), (Long) MessageTimeOut.defValue());
-			
-			this.stack.start();
+			Integer ii=it.next();
+			command[i]=ii.longValue();
 		}
-		finally
-		{
-			if (is != null)
-				is.close();
-
-			is = null;
-		}
-
+		proxy.registerRa(this, new ApplicationId[]{ApplicationId.createByAccAppId(193L, 19302L),ApplicationId.createByAuthAppId(193L, 19301L)}, command);
+		this.stack=proxy.getStack();
+		this.messageTimeout = stack.getMetaData().getConfiguration().getLongValue(MessageTimeOut.ordinal(), (Long) MessageTimeOut.defValue());
 		logger.info("Diameter Base RA :: Successfully initialized stack.");
 	}
 

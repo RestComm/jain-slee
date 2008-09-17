@@ -15,7 +15,7 @@ import org.mobicents.slee.resource.diameter.base.events.ProfileUpdateRequestImpl
 import org.mobicents.slee.resource.diameter.base.events.UserDataRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.ProfileUpdateAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.PushNotificationRequestImpl;
-import org.mobicents.slee.resource.diameter.sh.client.events.SubscribeNotificationAnswerImpl;
+import org.mobicents.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.UserDataAnswerImpl;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
@@ -101,7 +101,7 @@ public class ShServerMessageFactoryImpl implements ShServerMessageFactory {
 	public SubscribeNotificationsAnswer createSubscribeNotificationsAnswer() {
 		ApplicationId applicationId = ApplicationId.createByAccAppId(_SH_VENDOR_ID, _SH_APP_ID);
 		Message msg = createMessage(SubscribeNotificationsAnswer.commandCode, applicationId, null);
-		SubscribeNotificationAnswerImpl sna = new SubscribeNotificationAnswerImpl(msg);
+		SubscribeNotificationsAnswerImpl sna = new SubscribeNotificationsAnswerImpl(msg);
 		return sna;
 	}
 

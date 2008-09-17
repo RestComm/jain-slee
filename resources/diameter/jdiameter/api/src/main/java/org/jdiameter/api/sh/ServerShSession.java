@@ -4,12 +4,14 @@ import org.jdiameter.api.IllegalDiameterStateException;
 import org.jdiameter.api.InternalException;
 import org.jdiameter.api.OverloadException;
 import org.jdiameter.api.RouteException;
+import org.jdiameter.api.app.AppSession;
+import org.jdiameter.api.app.StateMachine;
 import org.jdiameter.api.sh.events.ProfileUpdateAnswer;
 import org.jdiameter.api.sh.events.PushNotificationRequest;
 import org.jdiameter.api.sh.events.SubscribeNotificationsAnswer;
 import org.jdiameter.api.sh.events.UserDataAnswer;
 
-public interface ServerShSession {
+public interface ServerShSession extends AppSession, StateMachine{
 	
 	
 	/**

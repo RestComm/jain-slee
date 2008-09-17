@@ -21,6 +21,7 @@ package net.java.slee.resource.diameter.sh.server;
 
 import java.io.IOException;
 
+import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.sh.client.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswer;
 import net.java.slee.resource.diameter.sh.client.events.UserDataAnswer;
@@ -44,7 +45,7 @@ import net.java.slee.resource.diameter.sh.client.events.UserDataAnswer;
  *
  * @author Open Cloud
  */
-public interface ShServerActivity {
+public interface ShServerActivity  extends DiameterActivity{
 
     /**
      * Get a message factory to create answer messages and AVPs (if necessary).

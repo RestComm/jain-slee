@@ -22,6 +22,7 @@ package net.java.slee.resource.diameter.sh.client;
 
 import java.io.IOException;
 
+import net.java.slee.resource.diameter.base.DiameterActivity;
 import net.java.slee.resource.diameter.sh.server.events.ProfileUpdateRequest;
 import net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequest;
 import net.java.slee.resource.diameter.sh.server.events.UserDataRequest;
@@ -41,7 +42,7 @@ import net.java.slee.resource.diameter.sh.server.events.UserDataRequest;
  * 
  * @author Open Cloud
  */
-public interface ShClientActivity {
+public interface ShClientActivity extends DiameterActivity{
 
     /**
      * Send a User-Data-Request message asynchronously.

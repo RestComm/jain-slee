@@ -8,11 +8,11 @@ import net.java.slee.resource.diameter.base.events.avp.ExperimentalResultAvp;
 import net.java.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswer;
 import net.java.slee.resource.diameter.sh.client.events.avp.DiameterShAvpCodes;
 
-public class SubscribeNotificationAnswerImpl extends ProfileUpdateAnswerImpl implements SubscribeNotificationsAnswer {
+public class SubscribeNotificationsAnswerImpl extends ProfileUpdateAnswerImpl implements SubscribeNotificationsAnswer {
 
 
 
-	public SubscribeNotificationAnswerImpl(Message msg) {
+	public SubscribeNotificationsAnswerImpl(Message msg) {
 		super(msg);
 		super.longMessageName="Subscribe-Notification-Answer";
 		super.shortMessageName="SNA";

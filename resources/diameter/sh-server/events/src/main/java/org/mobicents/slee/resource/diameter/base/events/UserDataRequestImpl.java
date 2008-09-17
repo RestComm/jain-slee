@@ -14,7 +14,7 @@ import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
 import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpRepresentation;
 import org.mobicents.slee.resource.diameter.sh.client.events.DiameterShMessageImpl;
 
-public class UserDataRequestImpl extends SubscribeNotificationRequestImpl implements UserDataRequest {
+public class UserDataRequestImpl extends SubscribeNotificationsRequestImpl implements UserDataRequest {
 
 	public UserDataRequestImpl(Message msg) {
 		super(msg);
