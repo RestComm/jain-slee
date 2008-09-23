@@ -93,6 +93,7 @@ import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
+import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.FacilityException;
@@ -1059,6 +1060,16 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 						.processCancelOnEventProcessingSucess();
 			} else if ((((SipActivityHandle) ah).transactionId.endsWith("ACK"))) {
 				activities.remove(ah);
+
+				try {
+				  this.sleeEndpoint.activityEnding(ah);
+		    } catch (NullPointerException e) {
+		      log.error(e.getMessage(),e);
+		    } catch (IllegalStateException e) {
+		      log.error(e.getMessage(),e);
+		    } catch (UnrecognizedActivityException e) {
+		      log.error(e.getMessage(),e);
+		    }
 			}
 		}
 
@@ -1085,6 +1096,16 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 						.processCancelOnEventProcessingSucess();
 			} else if (id.endsWith("ACK")) {
 				activities.remove(ah);
+				
+        try {
+          this.sleeEndpoint.activityEnding(ah);
+        } catch (NullPointerException e) {
+          log.error(e.getMessage(),e);
+        } catch (IllegalStateException e) {
+          log.error(e.getMessage(),e);
+        } catch (UnrecognizedActivityException e) {
+          log.error(e.getMessage(),e);
+        }				
 			}
 		}
 
@@ -1521,8 +1542,18 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		}
 
 		if (removeACK) {
-			activities.remove(((SecretWrapperInterface) req
-					.getServerTransaction()).getActivityHandle());
+		  ActivityHandle ah = ((SecretWrapperInterface)req.getServerTransaction()).getActivityHandle();
+			activities.remove(ah);
+			
+     try {
+       this.sleeEndpoint.activityEnding(ah);
+     } catch (NullPointerException e) {
+       log.error(e.getMessage(),e);
+     } catch (IllegalStateException e) {
+       log.error(e.getMessage(),e);
+     } catch (UnrecognizedActivityException e) {
+       log.error(e.getMessage(),e);
+     }
 		}
 
 	}
