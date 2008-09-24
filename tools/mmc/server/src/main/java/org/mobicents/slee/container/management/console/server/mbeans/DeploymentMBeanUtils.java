@@ -258,8 +258,20 @@ public class DeploymentMBeanUtils {
 		try {
 			DeployableUnitID[] IDs = (DeployableUnitID[]) mbeanServer
 					.getAttribute(deploymentMBean, "DeployableUnits");
+
+		        ArrayList<DeployableUnitID> list=new ArrayList<DeployableUnitID>();
+		        //DeployableUnitID fake=new DeployableUnitIDImpl(-1);
+		        for(DeployableUnitID id:IDs)
+		        {
+		        	//if(id.equals(fake))
+		        	if(id.toString().contains("-1"))
+		        		continue;
+		        	else
+		        		list.add(id);
+		        }
+		        
 			//ManagementConsole.getInstance().getDeployableUnitIDMap().put(IDs);
-			return IDs;
+			return list.toArray(new DeployableUnitID[list.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ManagementConsoleException(SleeManagementMBeanUtils.doMessage(e));

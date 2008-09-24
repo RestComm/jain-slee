@@ -1,11 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mobicents.tools</groupId>
 	<artifactId>mobicents-tools-mmc</artifactId>
-	
 	<packaging>pom</packaging>
-
-	<name>Mobicents :: Tools  :: gwt-management-console</name>
+	<name>Mobicents :: Tools :: gwt-management-console</name>
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-jainslee-server</artifactId>
@@ -18,7 +20,6 @@
 			<url>http://gwt-maven.googlecode.com/svn/trunk/mavenrepo/</url>
 		</pluginRepository>
 	</pluginRepositories>
-
 	<repositories>
 		<repository>
 			<id>java.net</id>
@@ -44,12 +45,9 @@
 		-->
 		<!--  This is not visible ;[ -->
 		<gwt.version>${gwt-user.version}</gwt.version>
-		
-		
 	</properties>
 	<dependencyManagement>
 		<dependencies>
-
 			<dependency>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>gwt-management-console-war</artifactId>
@@ -65,7 +63,6 @@
 				<artifactId>gwt-management-console-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>javax.slee</groupId>
 				<artifactId>jain-slee</artifactId>
@@ -76,7 +73,7 @@
 				<groupId>commons-fileupload</groupId>
 				<artifactId>commons-fileupload</artifactId>
 				<version>${commons-fileupload.version}</version>
-				<scope>provided</scope>
+				
 			</dependency>
 			<dependency>
 				<groupId>jboss</groupId>
@@ -84,8 +81,6 @@
 				<version>${jboss.version}</version>
 				<scope>provided</scope>
 			</dependency>
-
-
 			<dependency>
 				<groupId>com.google.gwt</groupId>
 				<artifactId>gwt-servlet</artifactId>
@@ -98,7 +93,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -107,7 +101,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 	<profiles>
 		<profile>
 			<id>maven-release</id>
@@ -128,5 +121,4 @@
 			</modules>
 		</profile>
 	</profiles>
-	
 </project>

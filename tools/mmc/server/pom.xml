@@ -1,4 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
 	<parent>
 		<groupId>org.mobicents.tools</groupId>
 		<artifactId>mobicents-tools-mmc</artifactId>
@@ -6,8 +10,7 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>gwt-management-console-server</artifactId>
-	<name>Mobicents :: Tools  :: gwt-management-console-server</name>
-
+	<name>Mobicents :: Tools :: gwt-management-console-server</name>
 	<build>
 
 		<!--  Include SOURCE in output artifact for GWT (GWT libraries must include source) -->
@@ -19,7 +22,6 @@
 				<directory>src/main/resources</directory>
 			</resource>
 		</resources>
-
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -32,7 +34,6 @@
 		</plugins>
 		<finalName>maven-googlewebtoolkit2-sample-server</finalName>
 	</build>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.mobicents.tools</groupId>
@@ -45,15 +46,13 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-				<groupId>commons-fileupload</groupId>
-				<artifactId>commons-fileupload</artifactId>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>jboss</groupId>
-				<artifactId>jboss-common</artifactId>
-		
-			</dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-common</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-servlet</artifactId>
