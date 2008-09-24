@@ -58,9 +58,11 @@ public class ListPanel extends Composite {
 		
 		initWidget(panel);
 		panel.setVerticalAlignment(DockPanel.ALIGN_TOP);
-		panel.add(flexTable, DockPanel.CENTER);
+		panel.add(flexTable, DockPanel.NORTH);
 		panel.setCellHeight(flexTable, "100%");
 		panel.setCellWidth(flexTable, "100%");
+		flexTable.setWidth("100%");
+		flexTable.setHeight("100%");
 		setStyleName("common-ListPanel");
 		flexTable.getRowFormatter().setStyleName(0,	"common-ListPanel-header");		
 		flexTable.getRowFormatter().setVerticalAlign(0,	HasVerticalAlignment.ALIGN_MIDDLE);

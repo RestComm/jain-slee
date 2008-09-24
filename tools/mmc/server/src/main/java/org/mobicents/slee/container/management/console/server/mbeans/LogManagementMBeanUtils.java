@@ -374,8 +374,7 @@ public class LogManagementMBeanUtils {
 	 *             when arg is null{}
 	 */
 	public boolean addLogger(String name, String level)
-			throws IllegalArgumentException, NullPointerException,
-			ManagementConsoleException {
+			throws 	ManagementConsoleException {
 		try {
 			return ((Boolean) this.mbeanServer.invoke(logMgmtMBeanName,
 					"addLogger", new Object[] { name, level }, new String[] {
@@ -972,8 +971,7 @@ public class LogManagementMBeanUtils {
 	 *             </ul>
 	 */
 	public void setHandlerNotificationInterval(String loggerName,
-			int numberOfEntries) throws IllegalArgumentException,
-			NullPointerException, IllegalStateException,
+			int numberOfEntries) throws
 			ManagementConsoleException {
 
 		try {
@@ -1007,8 +1005,7 @@ public class LogManagementMBeanUtils {
 	 *             <li>logger does not have notification handler</li>
 	 *             </ul>
 	 */
-	public String fetchLog(String loggerName) throws IllegalArgumentException,
-			IllegalStateException, NullPointerException,
+	public String fetchLog(String loggerName) throws 
 			ManagementConsoleException {
 		try {
 			return (String) this.mbeanServer.invoke(logMgmtMBeanName,
@@ -1028,7 +1025,8 @@ public class LogManagementMBeanUtils {
 	 *            target configuration file in Properties format, if null, local
 	 *            file is read(jre local)
 	 */
-	public void reReadConf(URI uri) throws IOException {
+	public void reReadConf(String uri) throws ManagementConsoleException {
+		
 	}
 
 	public void addHandler(String loggerName, String handlerName,

@@ -41,7 +41,6 @@ import org.mobicents.slee.container.management.console.client.log.HandlerInfo;
 import org.mobicents.slee.container.management.console.client.log.LogService;
 import org.mobicents.slee.container.management.console.client.log.LoggerInfo;
 import org.mobicents.slee.container.management.console.server.ManagementConsole;
-import org.mobicents.slee.container.management.console.server.activity.ActivityServiceImpl;
 import org.mobicents.slee.container.management.console.server.mbeans.SleeMBeanConnection;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -170,5 +169,78 @@ public class LogServiceImpl extends RemoteServiceServlet implements LogService {
 		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().setUseParentHandlersFlag(loggerName, value);
 		
 	}
+
+	public void addSocketHandler(String loggerName, String handlerLevel, String handlerName, String formaterClassName, String filterClassName, String host, int port)
+			throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().addSocketHandler(loggerName, handlerLevel, handlerName, formaterClassName, filterClassName, host, port);
+		
+	}
+
+	public void addNotificationHandler(String loggerName, int numberOfEntries, String level, String formaterClassName, String filterClassName) throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().addNotificationHandler(loggerName, numberOfEntries, level, formaterClassName, filterClassName);
+		
+	}
+
+	public int getDefaultNotificationInterval() throws ManagementConsoleException {
+
+		return sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().getDefaultNotificationInterval();
+	}
+
+	public void addHandler(String loggerName, String handlerName, String handlerClassName, String formaterClass, String filterClass, String[] constructorParameters,
+			String[] paramValues) throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().addHandler(loggerName, handlerName, handlerClassName, formaterClass, filterClass, constructorParameters, paramValues);
+		
+	}
+	
+	public void setLoggerFilterClassName(String loggerName, String className,String[] constructorParameters, String[] paramValues) throws ManagementConsoleException
+	{
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().setLoggerFilterClassName(loggerName, className, constructorParameters, paramValues);
+	}
+
+	public void setDefaultLoggerLevel(String l) throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().setDefaultLoggerLevel(l);
+		
+	}
+
+	public void setDefaultHandlerLevel(String l) throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().setDefaultHandlerLevel(l);
+		
+	}
+
+	public void addLogger(String name, String level) throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().addLogger(name, level);
+		
+	}
+
+	public void clearLoggers(String name) throws ManagementConsoleException {
+		
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().clearLoggers(name);
+		
+	}
+
+	public void reReadConf(String uri) throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().reReadConf(uri);
+		
+	}
+
+	public void setDefaultNotificationInterval(int numberOfEntries) throws ManagementConsoleException {
+		sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().setDefaultNotificationInterval(numberOfEntries);
+		
+	}
+
+	public String getDefaultHandlerLevel() throws ManagementConsoleException {
+		return sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().getDefaultHandlerLevel();
+	}
+
+	public String getDefaultLoggerLevel() throws ManagementConsoleException {
+		return sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().getDefaultLoggerLevel();
+	}
+
+	public String getLoggerLevel(String fullName) throws ManagementConsoleException {
+		return sleeConnection.getSleeManagementMBeanUtils().getLogManagementMBeanUtils().getLoggerLevel(fullName);
+	}
+	
+	
+	
 	
 }

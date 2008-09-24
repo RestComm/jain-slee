@@ -31,6 +31,7 @@
  * http://www.fsf.org.
  */
 package org.mobicents.slee.container.management.console.client.log;
+
 import java.util.HashMap;
 
 import org.mobicents.slee.container.management.console.client.ManagementConsoleException;
@@ -39,19 +40,53 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author baranowb
- *
+ * 
  */
 public interface LogServiceAsync {
-   
-	public void getLoggerNames(AsyncCallback callBack) ;
-	public void setLoggerLevel(String loggerName,String level, AsyncCallback callBack);
-	public void resetLoggerLevel(String loggerName, AsyncCallback callBack);
-	public void fetchLoggerInfo(String loggerName, AsyncCallback callBack);
-	
-	public void removeHandlerAtIndex(String loggerName, int index, AsyncCallback callBack);
 
-	
-	public void getUseParentHandlers(String loggerName, AsyncCallback callBack) ;
-	public void setUseParentHandlers(String loggerName, boolean value, AsyncCallback callBack) ;
-	
- }
+	void addHandler(java.lang.String loggerName, java.lang.String handlerName, java.lang.String handlerClassName, java.lang.String formaterClass, java.lang.String filterClass,
+			java.lang.String[] constructorParameters, java.lang.String[] paramValues, com.google.gwt.user.client.rpc.AsyncCallback arg8);
+
+	void addLogger(java.lang.String name, java.lang.String level, com.google.gwt.user.client.rpc.AsyncCallback arg3);
+
+	void addNotificationHandler(java.lang.String loggerName, int numberOfEntries, java.lang.String level, java.lang.String formaterClassName, java.lang.String filterClassName,
+			com.google.gwt.user.client.rpc.AsyncCallback arg6);
+
+	void addSocketHandler(java.lang.String loggerName, java.lang.String handlerLevel, java.lang.String handlerName, java.lang.String formaterClassName,
+			java.lang.String filterClassName, java.lang.String host, int port, com.google.gwt.user.client.rpc.AsyncCallback arg8);
+
+	void clearLoggers(java.lang.String name, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void fetchLoggerInfo(java.lang.String loggerName, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void getDefaultHandlerLevel(com.google.gwt.user.client.rpc.AsyncCallback arg1);
+
+	void getDefaultLoggerLevel(com.google.gwt.user.client.rpc.AsyncCallback arg1);
+
+	void getDefaultNotificationInterval(com.google.gwt.user.client.rpc.AsyncCallback arg1);
+
+	void getLoggerNames(com.google.gwt.user.client.rpc.AsyncCallback arg1);
+
+	void getUseParentHandlers(java.lang.String loggerName, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void reReadConf(java.lang.String uri, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void removeHandlerAtIndex(java.lang.String loggerName, int index, com.google.gwt.user.client.rpc.AsyncCallback arg3);
+
+	void resetLoggerLevel(java.lang.String loggerName, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void setDefaultHandlerLevel(java.lang.String l, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void setDefaultLoggerLevel(java.lang.String l, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void setDefaultNotificationInterval(int numberOfEntries, com.google.gwt.user.client.rpc.AsyncCallback arg2);
+
+	void setLoggerFilterClassName(java.lang.String loggerName, java.lang.String className, java.lang.String[] constructorParameters, java.lang.String[] paramValues,
+			com.google.gwt.user.client.rpc.AsyncCallback arg5);
+
+	void setLoggerLevel(java.lang.String loggerName, java.lang.String level, com.google.gwt.user.client.rpc.AsyncCallback arg3);
+
+	void setUseParentHandlers(java.lang.String loggerName, boolean value, com.google.gwt.user.client.rpc.AsyncCallback arg3);
+
+	void getLoggerLevel(String fullName, AsyncCallback asyncCallback);
+}

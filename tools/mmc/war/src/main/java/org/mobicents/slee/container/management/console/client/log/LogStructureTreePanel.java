@@ -41,6 +41,7 @@ import org.mobicents.slee.container.management.console.client.Logger;
 import org.mobicents.slee.container.management.console.client.ServerConnection;
 import org.mobicents.slee.container.management.console.client.common.BrowseContainer;
 import org.mobicents.slee.container.management.console.client.common.CommonControl;
+import org.mobicents.slee.container.management.console.client.common.UserInterface;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
@@ -68,9 +69,11 @@ public class LogStructureTreePanel extends Composite implements CommonControl{
 		this.browseContainer = browseContainer;
 		browseContainer.add("Logger Configuration", this.logTree);
 		ScrollPanel scroll=new ScrollPanel();
-		scroll.setHeight("500px");
-		scroll.setWidth("630px");
+		//scroll.setHeight("500px");
+		//scroll.setWidth("630px");
 		scroll.add(browseContainer);
+		scroll.setHeight("100%");
+		scroll.setWidth("100%");
 		initWidget(scroll);
 		
 	}
@@ -93,7 +96,7 @@ public class LogStructureTreePanel extends Composite implements CommonControl{
 		
 	}
 
-	private void refreshData()
+	public void refreshData()
 	{
 		//final Tree t1 = logTree;
 		//ArrayList names = new ArrayList();
@@ -142,6 +145,7 @@ public class LogStructureTreePanel extends Composite implements CommonControl{
 					root.addNode(s.split("\\."), s, 0);
 				}
 		
+	
 				logTree.clear();
 	
 			
@@ -163,7 +167,7 @@ public class LogStructureTreePanel extends Composite implements CommonControl{
 		
 		TreeItem localLeaf=new TreeItem();
 
-		LogTreeNode logTreeNode=new LogTreeNode(browseContainer,localRoot.getShortName(),localRoot.getFqdName(),localRoot.isWasLeaf());
+		LogTreeNode logTreeNode=new LogTreeNode(browseContainer,localRoot.getShortName(),localRoot.getFqdName(),localRoot.isWasLeaf(),this);
 	
 		localLeaf.setWidget(logTreeNode);
 

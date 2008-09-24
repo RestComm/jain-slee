@@ -84,6 +84,26 @@ public class LoggerInfo implements IsSerializable{
 	public HandlerInfo[] getHandlerInfos() {
 		return handlerInfos;
 	}
+
+	public void setUseParentHandlers(boolean useParentHandlers) {
+		this.useParentHandlers = useParentHandlers;
+	}
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+	public void setFilterClass(String filterClass) {
+		this.filterClass = filterClass;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
+	public void setHandlerInfos(HandlerInfo[] handlerInfos) {
+		this.handlerInfos = handlerInfos;
+	}
 	
 	
 	

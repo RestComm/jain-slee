@@ -78,6 +78,8 @@ public class LogManagementPage extends SmartTabPage {
 		this.switcher.setHeight("100%");
 		this.switcher.setWidth("100%");
 		this.switcher.add(logTree, createHeaderHTML("images/log.mgmt.log_configuration.jpg", "Logger Tree"), true);
+		this.logTree.setHeight("100%");
+		this.logTree.setWidth("100%");
 		logTree.onInit();
 		
 		this.switcher.add(new Hyperlink("CONSOLE",true,null), createHeaderHTML("images/log.mgmt.log_console.jpg", "Console"), true);

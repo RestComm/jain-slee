@@ -33,9 +33,13 @@
 package org.mobicents.slee.container.management.console.client.log;
 
 import org.mobicents.slee.container.management.console.client.Logger;
+import org.mobicents.slee.container.management.console.client.ServerConnection;
 import org.mobicents.slee.container.management.console.client.common.CommonControl;
 import org.mobicents.slee.container.management.console.client.common.ListPanel;
+import org.mobicents.slee.container.management.console.client.common.UserInterface;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -44,6 +48,7 @@ import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author baranowb
@@ -55,10 +60,10 @@ public class AddSocketHandlerPanel extends Composite implements CommonControl {
 
 	private ListPanel options = new ListPanel();
 
-	//private TextBox _levelBox = new TextBox();
+	// private TextBox _levelBox = new TextBox();
 
-	private ListBox _levelList=new ListBox();
-	
+	private ListBox _levelList = new ListBox();
+
 	private TextBox _nameBox = new TextBox();
 
 	private TextBox _formaterClassNameBox = new TextBox();
@@ -69,10 +74,12 @@ public class AddSocketHandlerPanel extends Composite implements CommonControl {
 
 	private TextBox _portBox = new TextBox();
 
-	public AddSocketHandlerPanel(String loggerName) {
+	 LoggerDetailsPanel shower=null;
+	
+	public AddSocketHandlerPanel(String loggerName, LoggerDetailsPanel shower) {
 		super();
 		this.loggerName = loggerName;
-
+		this.shower=shower;
 		// TODO DO THIS IN CSS
 		// this._levelBox.setSize("40px", "10px");
 		// this._nameBox.setSize("40px", "10px");
@@ -103,25 +110,24 @@ public class AddSocketHandlerPanel extends Composite implements CommonControl {
 		inner.setCell(2, 2, new Label("Port:"));
 		inner.setCell(2, 3, _portBox);
 
-		for(int i=0;i<LogTreeNode._LEVELS.length;i++)
-		{
+		for (int i = 0; i < LogTreeNode._LEVELS.length; i++) {
 			_levelList.addItem(LogTreeNode._LEVELS[i], LogTreeNode._LEVELS[i]);
-			
+
 		}
 		_levelList.setSelectedIndex(0);
-		
-		
-		
-		//This leaves a lot of place in the right - to be filled with params for filter and formatter!!!!
+
+		// This leaves a lot of place in the right - to be filled with params
+		// for filter and formatter!!!!
 		// options.setHorizontalAlignment(DockPanel.ALIGN_CENTER);
-		
-		
-		
+
 		options.setCell(0, 0, inner);
 		options.setCell(1, 0, createLink);
 
-		options.setCellAlignment(1,0,HasVerticalAlignment.ALIGN_MIDDLE,HasHorizontalAlignment.ALIGN_CENTER);
-		
+		options.setCellAlignment(1, 0, HasVerticalAlignment.ALIGN_MIDDLE, HasHorizontalAlignment.ALIGN_CENTER);
+
+		AddSocketHandlerClickListener addSocketHandlerClickListener = new AddSocketHandlerClickListener();
+		createLink.addClickListener(addSocketHandlerClickListener);
+
 		initWidget(options);
 	}
 
@@ -145,7 +151,9 @@ public class AddSocketHandlerPanel extends Composite implements CommonControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.slee.container.management.console.client.common.CommonControl#onHide()
+	 * @see
+	 * org.mobicents.slee.container.management.console.client.common.CommonControl
+	 * #onHide()
 	 */
 	public void onHide() {
 		// TODO Auto-generated method stub
@@ -155,7 +163,9 @@ public class AddSocketHandlerPanel extends Composite implements CommonControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.slee.container.management.console.client.common.CommonControl#onInit()
+	 * @see
+	 * org.mobicents.slee.container.management.console.client.common.CommonControl
+	 * #onInit()
 	 */
 	public void onInit() {
 		// TODO Auto-generated method stub
@@ -165,11 +175,39 @@ public class AddSocketHandlerPanel extends Composite implements CommonControl {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.slee.container.management.console.client.common.CommonControl#onShow()
+	 * @see
+	 * org.mobicents.slee.container.management.console.client.common.CommonControl
+	 * #onShow()
 	 */
 	public void onShow() {
 		// TODO Auto-generated method stub
 
+	}
+
+	private class AddSocketHandlerClickListener implements ClickListener {
+		public void onClick(Widget arg0) {
+			int port = -1;
+			try {
+				port = Integer.valueOf(_portBox.getText()).intValue();
+			} catch (Exception e) {
+				UserInterface.getLogPanel().error("Cant parse port due:" + e.getMessage());
+				return;
+			}
+			ServerConnection.logServiceAsync.addSocketHandler(loggerName, _levelList.getItemText(_levelList.getSelectedIndex()), _nameBox.getText(), _formaterClassNameBox
+					.getText(), _filterClassNameBox.getText(), _hostBox.getText(), port, new AsyncCallback() {
+
+				public void onFailure(Throwable t) {
+					UserInterface.getLogPanel().error("Failed to add socket handler due to:\n"+t.getMessage());
+				}
+
+				public void onSuccess(Object arg0) {
+					shower.onHide();
+					shower.onShow();
+
+				}
+			});
+
+		}
 	}
 
 }

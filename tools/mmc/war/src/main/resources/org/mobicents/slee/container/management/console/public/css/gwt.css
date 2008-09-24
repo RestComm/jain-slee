@@ -62,8 +62,27 @@
 	height: 22px;
 }
 
-gwt-Hyperlink {	
+.gwt-Hyperlink a{	
+	color: #1739A7;
+	text-decoration: underline;
+	cursor: default;
 }
+
+.gwt-Hyperlink a:link{	
+}
+
+.gwt-Hyperlink a:hover{	
+	font-weight: bold;
+	cursor: auto;
+	
+}
+.common-BrowseContainer-BrowseLink a,
+.common-BrowseContainer-BrowseLink a:link,
+.common-BrowseContainer-BrowseLink a:visited,
+.common-BrowseContainer-BrowseLink a:hover {
+	
+}
+
 
 .gwt-MenuBar { 
 	color: #000044;
