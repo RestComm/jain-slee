@@ -831,8 +831,11 @@ public class SbbVerifier {
      */
     private boolean checkCMPFieldAgainstDeploymentDescripor(Map abstractMethods,CMPField cmpField,CtClass sbbAbstractClass) {               
         
-
-
+    	// first char must be lower case
+    	if (!Character.isLowerCase(cmpField.getFieldName().charAt(0))) {
+    		return false;
+    	}
+    	
     	//Set the first char of the accessor to UpperCase to follow the javabean requirements
     	String fieldName=cmpField.getFieldName().substring(0,1).toUpperCase() + cmpField.getFieldName().substring(1);
 
