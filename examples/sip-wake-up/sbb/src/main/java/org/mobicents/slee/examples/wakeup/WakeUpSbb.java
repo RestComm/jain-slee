@@ -39,7 +39,7 @@ import javax.slee.nullactivity.NullActivityFactory;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
-import org.mobicents.slee.resource.sip.SipFactoryProvider;
+import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
 import org.mobicents.slee.services.sip.common.LocationSbbLocalObject;
 import org.mobicents.slee.services.sip.common.LocationServiceException;
 import org.mobicents.slee.services.sip.common.RegistrationBinding;
@@ -240,7 +240,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
             nullActivityFactory = (NullActivityFactory)myEnv.lookup("slee/nullactivity/factory");
             
             // Getting JAIN SIP Resource Adaptor interfaces            
-            fp = (SipFactoryProvider) myEnv.lookup("slee/resources/jainsip/1.2/provider");
+            fp = (SipResourceAdaptorSbbInterface) myEnv.lookup("slee/resources/jainsip/1.2/provider");
             
             provider = fp.getSipProvider();
             
@@ -322,7 +322,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 	
 	private MessageFactory messageFactory;
 	private SipProvider provider;
-	private SipFactoryProvider fp;
+	private SipResourceAdaptorSbbInterface fp;
 	private SipActivityContextInterfaceFactory acif;
 	private TimerFacility timerFacility;
 	private AlarmFacility alarmFacility;
