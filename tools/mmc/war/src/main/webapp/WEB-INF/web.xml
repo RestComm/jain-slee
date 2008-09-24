@@ -37,9 +37,13 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>DeployableUnitsInstallService</servlet-name>
-		<url-pattern>/DeployableUnitsInstallService</url-pattern>
+		<url-pattern>/org.mobicents.slee.container.management.console.ManagementConsole/DeployableUnitsInstallService</url-pattern>
 	</servlet-mapping>
 	
+	<servlet-mapping>
+		<servlet-name>DeployableUnitsInstallService</servlet-name>
+		<url-pattern>/DeployableUnitsInstallService</url-pattern>
+	</servlet-mapping>
 	<servlet>
 		<servlet-name>SleeStateService</servlet-name>
 		<servlet-class>
