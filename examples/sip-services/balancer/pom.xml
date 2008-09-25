@@ -7,11 +7,16 @@
 		<version>1.2.0.GA-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>balancer</artifactId>
+	<artifactId>balancer-jslee-node</artifactId>
 	
 	<packaging>jboss-sar</packaging>
 			
 	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.tools</groupId>
+			<artifactId>sip-balancer</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>javax.sip</groupId>
 			<artifactId>jain-sip-api</artifactId>
@@ -73,6 +78,42 @@
           <!-- Enable 'jboss-sar', etc., as a recoginized maven packaging type -->
           <extensions>true</extensions>
         </plugin>
+        <plugin>
+			<artifactId>maven-antrun-plugin</artifactId>
+			<executions>
+				<execution>
+					<id>deploy</id>
+					<phase>install</phase>
+					<goals>
+						<goal>run</goal>
+					</goals>
+					<configuration>
+						<tasks>
+							<condition property="jboss.dir" value="${jboss.home}" else="${env.JBOSS_HOME}">
+								<isset property="jboss.home" />
+							</condition>
+							<copy todir="${jboss.dir}/server/${node}/deploy/${project.build.finalName}.sar">
+								<fileset dir="target/${project.build.finalName}">
+									<include name="**" />
+								</fileset>
+							</copy>
+						</tasks>
+					</configuration>
+				</execution>
+				<execution>
+					<id>undeploy</id>
+					<phase>clean</phase>
+					<goals>
+						<goal>run</goal>
+					</goals>
+					<configuration>
+						<tasks>
+							<delete dir="${env.JBOSS_HOME}/server/${node}/deploy/${project.build.finalName}.sar" />
+						</tasks>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
       </plugins>
     </build>
     
