@@ -35,12 +35,12 @@
             </resource-adaptor-interface>
         </resource-adaptor-type-classes>        
         
-        <event-definition>
+        <event-type-ref>
             <event-type-name>
                 org.mobicents.slee.rules.FactAsserted
             </event-type-name>
             <event-type-vendor>org.mobicents</event-type-vendor>
             <event-type-version>1.0</event-type-version>
-        </event-definition>
+        </event-type-ref>
     </resource-adaptor-type>
 </resource-adaptor-type-jar>

@@ -28,72 +28,72 @@
         </resource-adaptor-type-classes>
 
 
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.SUBMIT_SM</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
 
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.SUBMIT_SM_RESP</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
     
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.DATA_SM</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
 
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.DATA_SM_RESP</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
     
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.QUERY_SM</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
     
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.QUERY_SM_RESP</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
     
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.CANCEL_SM</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
 
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.CANCEL_SM_RESP</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
     
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.REPLACE_SM</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
 
-    <event-definition>
+    <event-type-ref>
         <event-type-name>net.java.slee.resource.smpp.REPLACE_SM_RESP</event-type-name>
         <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
     
     <!-- dialog events --> 
-    <event-definition>
+    <event-type-ref>
         <event-type-name>org.mobicents.slee.smpp.DeliveryReport</event-type-name>
         <event-type-vendor>org.mobicents.smpp</event-type-vendor>
         <event-type-version>3.4</event-type-version>
-    </event-definition>
+    </event-type-ref>
         
     </resource-adaptor-type>
 </resource-adaptor-type-jar>
