@@ -1,6 +1,5 @@
 package org.mobicents.slee.resource.http;
 
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
@@ -626,15 +625,14 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor {
 					// means it's not a session activity, and we must end it right away
 					sleeEndpoint.activityEnding(ah);
 				}
+				// block thread until event has been processed
+				// otherwise jboss web replies to the request
 				lock.wait(20000);
 			}
 			
 		} catch (Exception e) {
 			logger.error("Failed to fire event into SLEE", e);
 		}
-
-		// block thread until event has been processed
-		//blockHttpRequest(hreqEvent);
 	}
 
 	/**
