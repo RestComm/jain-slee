@@ -40,15 +40,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameAlreadyBoundException;
 import javax.slee.ActivityContextInterface;
 import javax.slee.EventTypeID;
 import javax.slee.RolledBackContext;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
-import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
@@ -65,7 +61,6 @@ import org.mobicents.slee.container.component.GetChildRelationMethod;
 import org.mobicents.slee.container.component.MobicentsEventTypeDescriptor;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.SbbEventEntry;
-import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.ActivityContext;
 import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
@@ -78,7 +73,6 @@ import org.mobicents.slee.runtime.SleeEvent;
 import org.mobicents.slee.runtime.cache.CacheableMap;
 import org.mobicents.slee.runtime.cache.CacheableSet;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 /**
@@ -534,22 +528,22 @@ public class SbbEntity {
     	this.rootSbbEID =  rsbbId;
     }
     
-    public int getAttachmentCount() {
-    	
+    public int getAttachmentCount() {	    	
     	int attachmentCount = getActivityContexts().size();
-    	// if it's root then it needs to add all children attachement counts too
-    	if (isRootSbbEntity()) {
-    		for (GetChildRelationMethod getChildRelationMethod : this.sbbComponent.getChildRelationMethods()) {
-            	// (re)create child relation obj
-            	ChildRelationImpl childRelationImpl = new ChildRelationImpl(getChildRelationMethod,this);
-            	// iterate all sbb entities in this child relation
-            	for (Iterator i = childRelationImpl.getSbbEntitySet().iterator(); i.hasNext();) {
-            		String childSbbEntityID = (String) i.next();
-            		// recreated the sbb entity
-            		SbbEntity childSbbEntity = SbbEntityFactory.getSbbEntity(childSbbEntityID);
-            		attachmentCount += childSbbEntity.getAttachmentCount();
-            	}
-            }
+       	// needs to add all children attachement counts too
+    	for (GetChildRelationMethod getChildRelationMethod : this.sbbComponent.getChildRelationMethods()) {
+    		// (re)create child relation obj
+    		ChildRelationImpl childRelationImpl = new ChildRelationImpl(getChildRelationMethod,this);
+    		// iterate all sbb entities in this child relation
+    		for (Iterator i = childRelationImpl.getSbbEntitySet().iterator(); i.hasNext();) {
+    			String childSbbEntityID = (String) i.next();
+    			// recreated the sbb entity
+    			SbbEntity childSbbEntity = SbbEntityFactory.getSbbEntity(childSbbEntityID);
+    			attachmentCount += childSbbEntity.getAttachmentCount();
+    		}
+    	}
+    	if (log.isDebugEnabled()) {
+            log.debug(sbbeId+" getAttachmentCount()="+attachmentCount);
     	}
     	return attachmentCount;
     }
