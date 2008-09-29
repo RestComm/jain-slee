@@ -16,93 +16,90 @@
         <event initial-event="True" event-direction="Receive">
             <event-name>Post</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.http.events.incoming.POST</event-type-name>
+                <event-type-name>net.java.slee.resource.http.events.incoming.request.POST</event-type-name>
                 <event-type-vendor>net.java.slee</event-type-vendor>
                 <event-type-version>1.0</event-type-version>
             </event-type-ref>
-            <initial-event-select variable="Address" />
+            <initial-event-select variable="ActivityContext" />
         </event>
         
         
         <event initial-event="True" event-direction="Receive">
             <event-name>Get</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.http.events.incoming.GET</event-type-name>
+                <event-type-name>net.java.slee.resource.http.events.incoming.request.GET</event-type-name>
                 <event-type-vendor>net.java.slee</event-type-vendor>
                 <event-type-version>1.0</event-type-version>
             </event-type-ref>
-            <initial-event-select variable="Address" />
+            <initial-event-select variable="ActivityContext" />
         </event>
-
-
-        <event initial-event="True" event-direction="Receive">
-            <event-name>Head</event-name>
-            <event-type-ref>
-                <event-type-name>net.java.slee.resource.http.events.incoming.HEAD</event-type-name>
-                <event-type-vendor>net.java.slee</event-type-vendor>
-                <event-type-version>1.0</event-type-version>
-            </event-type-ref>
-            <initial-event-select variable="Address" />
-        </event>
-
 
         <event initial-event="True" event-direction="Receive">
             <event-name>Put</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.http.events.incoming.PUT</event-type-name>
+                <event-type-name>net.java.slee.resource.http.events.incoming.request.PUT</event-type-name>
                 <event-type-vendor>net.java.slee</event-type-vendor>
                 <event-type-version>1.0</event-type-version>
             </event-type-ref>
-            <initial-event-select variable="Address" />
+            <initial-event-select variable="ActivityContext" />
         </event>
 
 
         <event initial-event="True" event-direction="Receive">
             <event-name>Delete</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.http.events.incoming.DELETE</event-type-name>
+                <event-type-name>net.java.slee.resource.http.events.incoming.request.DELETE</event-type-name>
                 <event-type-vendor>net.java.slee</event-type-vendor>
                 <event-type-version>1.0</event-type-version>
             </event-type-ref>
-            <initial-event-select variable="Address" />
+            <initial-event-select variable="ActivityContext" />
         </event>
 
         <event initial-event="True" event-direction="Receive">
             <event-name>Options</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.http.events.incoming.OPTIONS</event-type-name>
+                <event-type-name>net.java.slee.resource.http.events.incoming.request.OPTIONS</event-type-name>
                 <event-type-vendor>net.java.slee</event-type-vendor>
                 <event-type-version>1.0</event-type-version>
             </event-type-ref>
-            <initial-event-select variable="Address" />
+            <initial-event-select variable="ActivityContext" />
         </event>
 
         <event initial-event="True" event-direction="Receive">
             <event-name>Trace</event-name>
             <event-type-ref>
-                <event-type-name>net.java.slee.resource.http.events.incoming.TRACE</event-type-name>
+                <event-type-name>net.java.slee.resource.http.events.incoming.request.TRACE</event-type-name>
                 <event-type-vendor>net.java.slee</event-type-vendor>
                 <event-type-version>1.0</event-type-version>
             </event-type-ref>
-            <initial-event-select variable="Address" />
+            <initial-event-select variable="ActivityContext" />
         </event>
 
- 
+ 		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.ActivityEndEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
       
-        <resource-adaptor-type-binding>
+      <resource-adaptor-type-binding>
             <resource-adaptor-type-ref>
                 <resource-adaptor-type-name>HttpServletResourceAdaptorType</resource-adaptor-type-name>
-                <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
-                <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
-            </resource-adaptor-type-ref>
+				<resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+            </resource-adaptor-type-ref> 
             <activity-context-interface-factory-name>
-                slee/resources/http-servlet-ra/http-servlet-ra-acif
-            </activity-context-interface-factory-name>
+                slee/resources/mobicents/httpservlet/acifactory
+            </activity-context-interface-factory-name>           
             <resource-adaptor-entity-binding>
-                <resource-adaptor-object-name>slee/resources/http-servlet-ra/org.mobicents/1.0.00/http-servlet-ra/factoryprovider</resource-adaptor-object-name>
+                <resource-adaptor-object-name>slee/resources/mobicents/httpservlet/sbbrainterface</resource-adaptor-object-name>
                 <resource-adaptor-entity-link>HttpServletRA</resource-adaptor-entity-link>
             </resource-adaptor-entity-binding>
         </resource-adaptor-type-binding>
-              
+                  
     </sbb>
 </sbb-jar>

@@ -3,13 +3,21 @@ package org.mobicents.slee.service.httpservletra.example;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.slee.ActivityContextInterface;
+import javax.slee.ActivityEndEvent;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.SbbContext;
 import javax.slee.SbbID;
+import javax.slee.SbbLocalObject;
 
+import net.java.slee.resource.http.HttpServletRaActivityContextInterfaceFactory;
+import net.java.slee.resource.http.HttpServletRaSbbInterface;
+import net.java.slee.resource.http.HttpSessionActivity;
 import net.java.slee.resource.http.events.HttpServletRequestEvent;
 
 import org.apache.log4j.Logger;
@@ -20,6 +28,9 @@ public abstract class HttpServletRAExampleSbb implements javax.slee.Sbb {
 
 	private SbbContext sbbContext; // This SBB's SbbContext
 
+	private HttpServletRaSbbInterface httpServletRaSbbInterface;
+	
+	private HttpServletRaActivityContextInterfaceFactory httpServletRaActivityContextInterfaceFactory;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -118,8 +129,7 @@ public abstract class HttpServletRAExampleSbb implements javax.slee.Sbb {
 	 * @see javax.slee.Sbb#setSbbContext(javax.slee.SbbContext)
 	 */
 	public void setSbbContext(SbbContext context) {
-		this.sbbContext = context;
-
+		this.sbbContext = context;		
 	}
 
 	/*
@@ -134,149 +144,134 @@ public abstract class HttpServletRAExampleSbb implements javax.slee.Sbb {
 
 	public void onPost(HttpServletRequestEvent event,
 			ActivityContextInterface aci) {
+		
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		aci.detach(sbbLocalObject);
 		try {
-
 			HttpServletResponse response = event.getResponse();
-
 			PrintWriter w = response.getWriter();
-
 			w.print("onPost OK! Served by SBB = " + getSbbId());
-
 			w.flush();
-
 			response.flushBuffer();
-
 			log
 					.info("HttpServletRAExampleSbb: POST Request received and OK! response sent.");
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e);
 		}
 
 	}
 
 	public void onGet(HttpServletRequestEvent event,
 			ActivityContextInterface aci) {
+		
+		aci.detach(sbbContext.getSbbLocalObject());
+		HttpServletResponse response = event.getResponse();
+		PrintWriter w = null;
 		try {
-
-			HttpServletResponse response = event.getResponse();
-
-			PrintWriter w = response.getWriter();
-
+			w = response.getWriter();
 			w.print("onGet OK! Served by SBB = " + getSbbId());
-
 			w.flush();
-
 			response.flushBuffer();
-
 			log
 					.info("HttpServletRAExampleSbb: GET Request received and OK! response sent.");
-
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.error(e);
 		}
-
-	}
-
-	public void onHead(HttpServletRequestEvent event,
-			ActivityContextInterface aci) {
-		// The HEAD method is identical to GET except that the server MUST NOT
-		// return a message-body in the response.
-		log.info("HttpServletRAExampleSbb: HEAD Request received.");
 
 	}
 
 	public void onPut(HttpServletRequestEvent event,
 			ActivityContextInterface aci) {
+		
+		SbbLocalObject sbbLocalObject = sbbContext.getSbbLocalObject();
+		aci.detach(sbbLocalObject);
 		try {
-
+			// here we will setup a session activity before sending the response back
+			if (httpServletRaSbbInterface == null) {
+				Context myEnv = (Context) new InitialContext().lookup("java:comp/env"); 
+	        	httpServletRaSbbInterface = (HttpServletRaSbbInterface) myEnv.lookup("slee/resources/mobicents/httpservlet/sbbrainterface");
+	        	httpServletRaActivityContextInterfaceFactory = (HttpServletRaActivityContextInterfaceFactory) myEnv.lookup("slee/resources/mobicents/httpservlet/acifactory");
+			}
+			HttpSession httpSession = event.getRequest().getSession();
+			HttpSessionActivity httpSessionActivity = httpServletRaSbbInterface
+					.getHttpSessionActivity(httpSession);
+			ActivityContextInterface httpSessionActivityContextInterface = 
+				httpServletRaActivityContextInterfaceFactory
+					.getActivityContextInterface(httpSessionActivity);
+			httpSessionActivityContextInterface.attach(sbbLocalObject);
 			HttpServletResponse response = event.getResponse();
-
 			PrintWriter w = response.getWriter();
-
 			w.print("onPut OK! Served by SBB = " + getSbbId());
-
 			w.flush();
-
 			response.flushBuffer();
-
 			log
 					.info("HttpServletRAExampleSbb: PUT Request received and OK! response sent.");
-
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			log.error(e);
 		}
 
 	}
 
 	public void onDelete(HttpServletRequestEvent event,
 			ActivityContextInterface aci) {
+		
+		aci.detach(sbbContext.getSbbLocalObject());
+		HttpServletResponse response = event.getResponse();
+		PrintWriter w = null;
 		try {
-
-			HttpServletResponse response = event.getResponse();
-
-			PrintWriter w = response.getWriter();
-
+			w = response.getWriter();
 			w.print("onDelete OK! Served by SBB = " + getSbbId());
-
 			w.flush();
-
 			response.flushBuffer();
-
 			log
 					.info("HttpServletRAExampleSbb: DELETE Request received and OK! response sent.");
-
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e);
 		}
 
 	}
 
 	public void onOptions(HttpServletRequestEvent event,
 			ActivityContextInterface aci) {
+		
+		aci.detach(sbbContext.getSbbLocalObject());
+		HttpServletResponse response = event.getResponse();
+		PrintWriter w = null;
 		try {
-
-			HttpServletResponse response = event.getResponse();
-
-			PrintWriter w = response.getWriter();
-
+			w = response.getWriter();
 			w.print("onOptions OK! Served by SBB = " + getSbbId());
-
 			w.flush();
-
 			response.flushBuffer();
-
 			log
 					.info("HttpServletRAExampleSbb: OPTIONS Request received and OK! response sent.");
-
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e);
 		}
 
 	}
 
 	public void onTrace(HttpServletRequestEvent event,
 			ActivityContextInterface aci) {
+		
+		aci.detach(sbbContext.getSbbLocalObject());
+		HttpServletResponse response = event.getResponse();
+		PrintWriter w = null;
 		try {
-
-			HttpServletResponse response = event.getResponse();
-
-			PrintWriter w = response.getWriter();
-
+			w = response.getWriter();
 			w.print("onTrace OK! Served by SBB = " + getSbbId());
-
 			w.flush();
-
 			response.flushBuffer();
-
 			log
 					.info("HttpServletRAExampleSbb: TRACE Request received and OK! response sent.");
-
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e);
 		}
-
 	}
 
+	public void onActivityEndEvent(ActivityEndEvent event, ActivityContextInterface aci) {
+		log.info("Got an activity end for activity "+aci.getActivity());
+	}
+	
 	private final String getSbbId() {
 		SbbID sbbId = this.sbbContext.getSbb();
 		return sbbId.toString();
