@@ -6,28 +6,29 @@ import net.java.slee.resource.http.events.HttpServletRequestEvent;
 
 public class RequestLock {
 
-	private ConcurrentHashMap<HttpServletRequestEvent, Object> map = new ConcurrentHashMap();
+	private ConcurrentHashMap<HttpServletRequestEvent, Object> map = new ConcurrentHashMap<HttpServletRequestEvent, Object>();
 
 	public Object getLock(HttpServletRequestEvent event) {
-		Object obj = null;
-		obj = map.get(event);
+		Object obj = map.get(event);
 		if (obj == null) {
 			obj = createLock(event);
 		}
 		return obj;
 	}
 
-	private synchronized Object createLock(HttpServletRequestEvent event) {
-		Object tempObj = map.get(event);
-		if (tempObj == null) {
-			tempObj = new Object();
-			map.put(event, tempObj);
+	private Object createLock(HttpServletRequestEvent event) {
+		Object object = new Object();
+		Object anotherObject = map.putIfAbsent(event, object);
+		if (anotherObject == null) {
+			return object;
 		}
-		return tempObj;
+		else {
+			return anotherObject;
+		}
 	}
 
-	public void removeLock(HttpServletRequestEvent event) {
-		map.remove(event);
+	public Object removeLock(HttpServletRequestEvent event) {
+		return map.remove(event);
 	}
 
 }

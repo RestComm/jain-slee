@@ -1,5 +1,9 @@
 package net.java.slee.resource.http;
 
+import javax.servlet.http.HttpSession;
+import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.slee.resource.CouldNotStartActivityException;
+
 
 /**
  * 
@@ -11,4 +15,18 @@ package net.java.slee.resource.http;
  */
 public interface HttpServletRaSbbInterface {
 
+	/**
+	 * Retrieves an {@link HttpSessionActivity} for the specified
+	 * {@link HttpSession}. If the activity does not exist a new one is
+	 * created.
+	 * 
+	 * @param httpSession
+	 * @return
+	 * @throws CouldNotStartActivityException 
+	 * @throws ActivityAlreadyExistsException 
+	 * @throws IllegalStateException 
+	 * @throws NullPointerException 
+	 */
+	public HttpSessionActivity getHttpSessionActivity(HttpSession httpSession) throws NullPointerException, IllegalStateException, ActivityAlreadyExistsException, CouldNotStartActivityException;
+	
 }

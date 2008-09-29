@@ -32,7 +32,9 @@
 			<activity-type>
 				<activity-type-name>net.java.slee.resource.http.HttpSessionActivity</activity-type-name>
 			</activity-type>
-			
+			<activity-type>
+				<activity-type-name>net.java.slee.resource.http.HttpServletRequestActivity</activity-type-name>
+			</activity-type>
 			<!--
 				JSLEE v1.1 Specification, Early Draft Review Page 289:
 				"An activity-context-interface-factory-interface element.
@@ -94,53 +96,89 @@
 			Command-Name                         Abbrev.   Code       	Reference
 			Abort-Session-Request                ASR       274           8.5.1
 		-->
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.HEAD</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.HEAD</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>	
+	</event-type-ref>	
 
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.GET</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.GET</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>
+	</event-type-ref>
 	
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.POST</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.POST</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>
+	</event-type-ref>
 	
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.PUT</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.PUT</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>			
+	</event-type-ref>			
 
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.DELETE</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.DELETE</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>
+	</event-type-ref>
 	
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.OPTIONS</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.OPTIONS</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>	
+	</event-type-ref>	
 	
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.TRACE</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.TRACE</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>
+	</event-type-ref>
 
-	<event-definition>
-		<event-type-name>net.java.slee.resource.http.events.incoming.EndIncomingHttpServletRequest</event-type-name>
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.HEAD</event-type-name>
 		<event-type-vendor>net.java.slee</event-type-vendor>
 		<event-type-version>1.0</event-type-version>
-	</event-definition>
+	</event-type-ref>	
+
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.GET</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.POST</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.PUT</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>			
+
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.DELETE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.OPTIONS</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>	
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.TRACE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
 
 	</resource-adaptor-type>
 </resource-adaptor-type-jar>

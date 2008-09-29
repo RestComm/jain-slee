@@ -12,15 +12,16 @@ import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactor
  * 
  * @author Ivelin Ivanov
  * @author amit.bhayani
+ * @author martins
  * 
  */
 public interface HttpServletRaActivityContextInterfaceFactory extends
 		ResourceAdaptorActivityContextInterfaceFactory {
 
 	/**
-	 * Gets the ActivityContextInterface for HttpSessionActivity
+	 * Gets the ActivityContextInterface for {@link HttpSessionActivity}
 	 * 
-	 * @param acivity
+	 * @param activity
 	 *            HttpSessionActivity
 	 * @return ActivityContextInterface
 	 * @throws NullPointerException
@@ -28,7 +29,21 @@ public interface HttpServletRaActivityContextInterfaceFactory extends
 	 * @throws FactoryException
 	 */
 	public ActivityContextInterface getActivityContextInterface(
-			HttpSessionActivity acivity) throws NullPointerException,
+			HttpSessionActivity activity) throws NullPointerException,
+			UnrecognizedActivityException, FactoryException;
+	
+	/**
+	 * Gets the ActivityContextInterface for {@link HttpServletRequestActivity}
+	 * 
+	 * @param activity
+	 *            HttpServletRequestActivity
+	 * @return ActivityContextInterface
+	 * @throws NullPointerException
+	 * @throws UnrecognizedActivityException
+	 * @throws FactoryException
+	 */
+	public ActivityContextInterface getActivityContextInterface(
+			HttpServletRequestActivity activity) throws NullPointerException,
 			UnrecognizedActivityException, FactoryException;
 
 }

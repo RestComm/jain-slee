@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class HttpServletResourceEntryPoint implements Servlet {
+	
 	private static Logger logger = Logger
 			.getLogger(HttpServletResourceEntryPoint.class.getName());
 
@@ -35,7 +36,7 @@ public class HttpServletResourceEntryPoint implements Servlet {
 
 	private HttpServletResourceAdaptor httpra;
 
-	private static final String RA_ENTRY_POINT_PARAM = "ra-entry-point-jndi-name";
+	protected static final String RA_ENTRY_POINT_PARAM = "ra-entry-point-jndi-name";
 
 	public HttpServletResourceEntryPoint(String name,
 			HttpServletResourceAdaptor newRA) {		
@@ -70,15 +71,6 @@ public class HttpServletResourceEntryPoint implements Servlet {
 
 	public void service(ServletRequest request, ServletResponse response)
 			throws ServletException, IOException {
-
-		// Explicitly create the session if it doenot exist
-		HttpSession session = ((HttpServletRequest) request).getSession();
-
-		/**
-		 * Set the HttpServletResourceEntryPoint in Session so that HttpServletRaSessionListener can
-		 * retrieve it latter to end the HttpSessionActivity
-		 */
-		session.setAttribute(RA_ENTRY_POINT_PARAM, this);
 
 		// assert request instanceof HttpServletRequest: "invalid argument type.
 		// request should be instanceof HttpServletRequest";
