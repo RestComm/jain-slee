@@ -6,7 +6,7 @@
 	<sbb id="sip-registrar-sbb">
 		<description>JAIN SIP Registrar SBB</description>
 		<sbb-name>SipRegistrarSbb</sbb-name>
-		<sbb-vendor>mobicents</sbb-vendor>
+		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>1.2</sbb-version>
 
 		<sbb-ref>

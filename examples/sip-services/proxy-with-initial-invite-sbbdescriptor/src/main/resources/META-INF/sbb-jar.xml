@@ -13,7 +13,7 @@
 		<!-- Delegate to this child SBB if we need to do registrations -->
 		<sbb-ref>
 			<sbb-name>SipRegistrarSbb</sbb-name>
-			<sbb-vendor>mobicents</sbb-vendor>
+			<sbb-vendor>org.mobicents</sbb-vendor>
 			<sbb-version>1.2</sbb-version>
 			<sbb-alias>RegistrarSbb</sbb-alias>
 		</sbb-ref>

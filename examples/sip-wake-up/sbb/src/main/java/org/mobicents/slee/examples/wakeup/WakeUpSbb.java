@@ -27,10 +27,8 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.ActivityContextInterface;
 import javax.slee.ChildRelation;
-import javax.slee.ComponentID;
 import javax.slee.RolledBackContext;
 import javax.slee.SbbContext;
-import javax.slee.facilities.AlarmFacility;
 import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerOptions;
@@ -39,7 +37,6 @@ import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 import javax.slee.nullactivity.NullActivityFactory;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
 import org.mobicents.slee.services.sip.common.SipSendErrorResponseException;
 import org.mobicents.slee.services.sip.location.LocationSbbLocalObject;
@@ -176,7 +173,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 		String toAddressStr = strContact.substring(beginIndex+1, endIndex);
 		try {
 		SipURI fromAddress =
-			addressFactory.createSipURI("wakeup", "nist.gov");
+			addressFactory.createSipURI("wakeup", System.getProperty("bind.address","127.0.0.1"));
 
 		javax.sip.address.Address fromNameAddress = addressFactory.createAddress(fromAddress);
 		fromNameAddress.setDisplayName("WakeUp");
@@ -235,7 +232,6 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
                         
             // Getting SLEE Factility
             timerFacility = (TimerFacility) myEnv.lookup("slee/facilities/timer");
-            alarmFacility = (AlarmFacility) myEnv.lookup("slee/facilities/alarm");
             nullACIFactory = (NullActivityContextInterfaceFactory)myEnv.
             				lookup("slee/nullactivity/activitycontextinterfacefactory");
             nullActivityFactory = (NullActivityFactory)myEnv.lookup("slee/nullactivity/factory");
@@ -248,9 +244,6 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
             addressFactory = fp.getAddressFactory();
             headerFactory = fp.getHeaderFactory();
             messageFactory = fp.getMessageFactory();
-            
-            acif = (SipActivityContextInterfaceFactory) myEnv.
-            		lookup("slee/resources/jainsip/1.2/acifactory");
             
         } catch (Exception ne) {
            logger.error("Failed to set sbb context",ne);
@@ -326,12 +319,9 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 	private MessageFactory messageFactory;
 	private SipProvider provider;
 	private SipResourceAdaptorSbbInterface fp;
-	private SipActivityContextInterfaceFactory acif;
 	private TimerFacility timerFacility;
-	private AlarmFacility alarmFacility;
 	private NullActivityContextInterfaceFactory nullACIFactory;
 	private NullActivityFactory nullActivityFactory;
-	private ComponentID id;
 	private AddressFactory addressFactory;
 	private HeaderFactory headerFactory;
 	
