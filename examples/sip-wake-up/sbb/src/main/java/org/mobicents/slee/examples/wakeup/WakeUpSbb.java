@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sip.ClientTransaction;
+import javax.sip.InvalidArgumentException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
@@ -40,10 +41,10 @@ import javax.slee.nullactivity.NullActivityFactory;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
-import org.mobicents.slee.services.sip.common.LocationSbbLocalObject;
-import org.mobicents.slee.services.sip.common.LocationServiceException;
-import org.mobicents.slee.services.sip.common.RegistrationBinding;
 import org.mobicents.slee.services.sip.common.SipSendErrorResponseException;
+import org.mobicents.slee.services.sip.location.LocationSbbLocalObject;
+import org.mobicents.slee.services.sip.location.LocationServiceException;
+import org.mobicents.slee.services.sip.location.RegistrationBinding;
 
 public abstract class WakeUpSbb implements javax.slee.Sbb {
 	
@@ -280,7 +281,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 
         Map bindings = null;
         try {
-            bindings = locationSbbLocalObject.getUserBindings(addressOfRecord);
+            bindings = locationSbbLocalObject.getBindings(addressOfRecord);
         } catch (LocationServiceException lse) {
             lse.printStackTrace();
         }
@@ -299,14 +300,16 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
         URI target = null;
         while (it.hasNext()) {
             RegistrationBinding binding = (RegistrationBinding) it.next();
-            ContactHeader header = binding.getContactHeader(addressFactory, headerFactory);
-            logger.info("Message Sender Contact Header: " + header);
-            if (header == null) { // entry expired
-                continue; // see if there are any more contacts...
-            }
-            Address na = header.getAddress();
-            target = na.getURI();
-            break;
+            
+			try {
+				 ContactHeader header = binding.getContactHeader(addressFactory, headerFactory);
+				 logger.info("Message Sender Contact Header: " + header);
+				 Address na = header.getAddress();
+		         target = na.getURI();
+		         break;
+			} catch (InvalidArgumentException e) {
+				logger.warn(e);
+			}
         }
         if (target == null) {
             logger.error("findLocalTarget: No contacts for "

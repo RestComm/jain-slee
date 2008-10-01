@@ -59,15 +59,15 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.sip.SipFactoryProvider;
 import org.mobicents.slee.services.sip.common.ConfigurationProvider;
-import org.mobicents.slee.services.sip.common.LocationInterface;
-import org.mobicents.slee.services.sip.common.LocationSbbLocalObject;
-import org.mobicents.slee.services.sip.common.LocationServiceException;
 import org.mobicents.slee.services.sip.common.MessageHandlerInterface;
 import org.mobicents.slee.services.sip.common.MessageUtils;
 import org.mobicents.slee.services.sip.common.ProxyConfiguration;
-import org.mobicents.slee.services.sip.common.RegistrationBinding;
 import org.mobicents.slee.services.sip.common.SipLoopDetectedException;
 import org.mobicents.slee.services.sip.common.SipSendErrorResponseException;
+import org.mobicents.slee.services.sip.location.LocationSbbLocalObject;
+import org.mobicents.slee.services.sip.location.LocationService;
+import org.mobicents.slee.services.sip.location.LocationServiceException;
+import org.mobicents.slee.services.sip.location.RegistrationBinding;
 import org.mobicents.slee.services.sip.proxy.mbean.ProxyConfigurator;
 import org.mobicents.slee.services.sip.proxy.mbean.ProxyConfiguratorMBean;
 
@@ -1032,7 +1032,7 @@ public abstract class ProxySbb implements Sbb {
 		// We can use those variables from top level class, but let us have our
 		// own.
 
-		protected LocationInterface reg = null;
+		protected LocationService reg = null;
 
 		protected AddressFactory af = null;
 
@@ -1049,7 +1049,7 @@ public abstract class ProxySbb implements Sbb {
 		protected ProxyConfiguration config = null;
 
 		public ProxyMachine(ProxyConfiguration config,
-				LocationInterface registrarAccess, AddressFactory af,
+				LocationService registrarAccess, AddressFactory af,
 				HeaderFactory hf, MessageFactory mf, SipProvider prov)
 				throws ParseException {
 			super(config);
@@ -1430,10 +1430,10 @@ public abstract class ProxySbb implements Sbb {
 				throws SipSendErrorResponseException {
 			String addressOfRecord = uri.toString();
 
-			Map<String, RegistrationBinding> bindings = null;
+			Map<Address, RegistrationBinding> bindings = null;
 			LinkedList listOfTargets = new LinkedList();
 			try {
-				bindings = reg.getUserBindings(addressOfRecord);
+				bindings = reg.getBindings(addressOfRecord);
 			} catch (LocationServiceException e) {
 
 				e.printStackTrace();
@@ -1453,19 +1453,7 @@ public abstract class ProxySbb implements Sbb {
 			Iterator it = bindings.values().iterator();
 			URI target = null;
 			while (it.hasNext()) {
-				RegistrationBinding binding = (RegistrationBinding) it.next();
-				// logger.fine("BINDINGS: " + binding);
-				ContactHeader header = binding.getContactHeader(af, hf);
-				// logger.fine("CONTACT HEADER: " + header);
-				if (header == null) { // entry expired
-					continue; // see if there are any more contacts...
-				}
-				Address na = header.getAddress();
-				// logger.fine("Address: " + na);
-				// target = na.getURI();
-				// break;
-				listOfTargets.add(na.getURI());
-
+				listOfTargets.add(((RegistrationBinding)it.next()).getContactAddress());
 			}
 			if (listOfTargets.size() == 0) {
 				// logger.fine("findLocalTarget: No contacts for "

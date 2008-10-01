@@ -7,12 +7,12 @@
 		<description>JAIN SIP Registrar SBB</description>
 		<sbb-name>SipRegistrarSbb</sbb-name>
 		<sbb-vendor>mobicents</sbb-vendor>
-		<sbb-version>1.1</sbb-version>
+		<sbb-version>1.2</sbb-version>
 
 		<sbb-ref>
-			<sbb-name>LocationCacheSbb</sbb-name>
-			<sbb-vendor>mobicents</sbb-vendor>
-			<sbb-version>1.1</sbb-version>
+			<sbb-name>LocationSbb</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.2</sbb-version>
 			<sbb-alias>LocationSbb</sbb-alias>
 		</sbb-ref>
 
@@ -22,6 +22,9 @@
 				<sbb-abstract-class-name>
 					org.mobicents.slee.services.sip.registrar.RegistrarSbb
 				</sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>locationSbbLocalObject</cmp-field-name>
+				</cmp-field>
 				<get-child-relation-method>
 					<sbb-alias-ref>LocationSbb</sbb-alias-ref>
 					<get-child-relation-method-name>
@@ -30,8 +33,6 @@
 					<default-priority>0</default-priority>
 				</get-child-relation-method>
 			</sbb-abstract-class>
-
-
 		</sbb-classes>
 
 		<event event-direction="Receive" initial-event="False">
@@ -49,15 +50,22 @@
 		<event event-direction="Receive" initial-event="True">
 			<event-name>ServiceStarted</event-name>
 			<event-type-ref>
-				<event-type-name>
-					javax.slee.serviceactivity.ServiceStartedEvent
-				</event-type-name>
+				<event-type-name>javax.slee.serviceactivity.ServiceStartedEvent</event-type-name>
 				<event-type-vendor>javax.slee</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
-			<initial-event-select variable="EventType" />
+			<initial-event-select variable="ActivityContext" />
 		</event>
 
+		<event event-direction="Receive" initial-event="False">
+            <event-name>ActivityEndEvent</event-name>
+            <event-type-ref>
+        		<event-type-name>javax.slee.ActivityEndEvent</event-type-name>
+				<event-type-vendor> javax.slee </event-type-vendor>
+				<event-type-version> 1.0 </event-type-version>
+			</event-type-ref>
+		</event>
+		
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>

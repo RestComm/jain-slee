@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+<scenario name="Register UAC">
+
+  <!-- register -->
+   
+  <send retrans="5000">
+    <![CDATA[
+    
+      REGISTER sip:mobicents.org SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]1
+      From: "ua[call_number]" <sip:ua[call_number]@mobicents.org>;tag=[call_number]
+      To: "ua[call_number]" <sip:ua[call_number]@mobicents.org>
+      Call-ID: [call_id]
+      CSeq: 1 REGISTER
+      Contact: sip:ua[call_number]@[local_ip]:[local_port]
+      Max-Forwards: 70
+      Expires: 120
+      Content-Length: 0
+
+    ]]>
+  </send>
+  
+  <recv response="200" optional="false" />
+    
+  <pause milliseconds="10000" />
+   
+  <!-- unregister -->    
+  
+  <send retrans="5000">
+    <![CDATA[
+    
+      REGISTER sip:mobicents.org SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]2
+      From: "ua[call_number]" <sip:ua[call_number]@mobicents.org>;tag=[call_number]
+      To: "ua[call_number]" <sip:ua[call_number]@mobicents.org>
+      Call-ID: [call_id]
+      CSeq: 3 REGISTER
+      Contact: sip:ua[call_number]@[local_ip]:[local_port]
+      Max-Forwards: 70
+      Expires: 0
+      Content-Length: 0
+
+    ]]>
+  </send>
+  
+  <recv response="200" optional="false" />
+      
+</scenario>

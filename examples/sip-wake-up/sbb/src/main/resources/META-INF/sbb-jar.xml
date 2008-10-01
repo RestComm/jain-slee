@@ -9,9 +9,9 @@
         <sbb-version>1.0</sbb-version>
         
         <sbb-ref>
-			<sbb-name>LocationCacheSbb</sbb-name>
-			<sbb-vendor>mobicents</sbb-vendor>
-			<sbb-version>1.1</sbb-version>
+			<sbb-name>LocationSbb</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.2</sbb-version>
 			<sbb-alias>LocationSbb</sbb-alias>
 		</sbb-ref>
 		

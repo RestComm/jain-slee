@@ -15,8 +15,15 @@
 
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>
 
+	<properties>
+		<!-- define which location service to use -->
+		<!-- location.service.className>org.mobicents.slee.services.sip.location.jpa.JPALocationService</location.service.className-->
+		<location.service.className>org.mobicents.slee.services.sip.location.nonha.NonHALocationService</location.service.className>
+	</properties>
+	
 	<modules>
-		<module>location-sbb</module>
+  	    <module>common</module>
+		<module>location</module>
 		<module>proxy-sbb</module>
 		<module>registrar-sbb</module>
 		<module>proxy-with-initial-invite-sbbdescriptor</module>

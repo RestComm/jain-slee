@@ -12,22 +12,40 @@
 	<dependencies>
 		<dependency>
 			<artifactId>sip-services-location-sbb</artifactId>
-			<groupId>org.mobicents.examples</groupId>
+			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<artifactId>sip-services-registrar-sbb</artifactId>
-			<groupId>org.mobicents.examples</groupId>
+			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<artifactId>sip-services-proxy-without-initial-invite-sbbdescriptor</artifactId>
-			<groupId>org.mobicents.examples</groupId>
+			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
+			<artifactId>sip-services-common</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<artifactId>sip-services-proxy-sbb</artifactId>
-			<groupId>org.mobicents.examples</groupId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<artifactId>sip-services-location-service-jpa</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<artifactId>sip-services-location-service-nonha</artifactId>
+			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 			<scope>runtime</scope>
 		</dependency>
