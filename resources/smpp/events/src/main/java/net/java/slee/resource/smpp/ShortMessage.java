@@ -91,4 +91,12 @@ public interface ShortMessage extends Serializable {
      * @param data the payload of this message.
      */
     public void setData(byte[] data);
+
+	//soowk
+	/**
+	 * Gets status/result for this message. Currently only used to get Result from SUBMIT_SM_RESP 
+	 *
+	 * @return error code, 0 = no error.
+	 */
+	public int getStatus();
 }

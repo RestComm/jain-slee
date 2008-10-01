@@ -220,11 +220,10 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
     
     public void entityActivated() throws ResourceException {
         try {
-            logger.debug("Binding to SMSC");
+            logger.info("Binding to SMSC");
             
             bindSMSC();
-            logger.debug("Bound sucssefully");
-            
+            logger.info("Bound successfully");
             initializeNamingContext();
             
             linkMonitorThread = new Thread(new LinkMonitor());
@@ -375,6 +374,8 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
                     statusMessage(bindStatus));
         }
         logger.info("Successfully bound to SMSC. ");
+		//soowk: bug fix
+		isBound = true;
     }
     
     /**
@@ -384,6 +385,8 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
         try {
             UnbindResp ubr = smscConnection.unbind();
             logger.info(bootstrapContext.getEntityName() + ": unbinding from SMSC");
+			//soowk: bug fix
+			isBound = false;
         } catch (Exception e) {
             logger.error("There was an error unbinding. ", e);
         }
@@ -437,7 +440,7 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
                 // An ESME has unbound from the SMSC and has closed the network
                 // connection. The SMSC may also unbind from the ESME.
             case SMPPPacket.UNBIND_RESP: {
-                logger.info(bootstrapContext.getEntityName() + " unbound succsefuly");
+                logger.info(bootstrapContext.getEntityName() + " unbound successfuly");
                 break;
             }
             
@@ -519,8 +522,11 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
             case SMPPPacket.SUBMIT_SM_RESP : {
                 SmppMessageImpl msg = encodeRespMessage(packet);
                 ClientTransaction tx = getTransaction(packet);
-                msg.setOriginator(((AbstractTransaction)tx).dialog.getRemoteAddress());
-                msg.setRecipient(((AbstractTransaction)tx).dialog.getLocalAddress());
+                //soowk: bug fix
+				//msg.setOriginator(((AbstractTransaction)tx).dialog.getRemoteAddress());
+                //msg.setRecipient(((AbstractTransaction)tx).dialog.getLocalAddress());
+				msg.setOriginator(((AbstractTransaction)tx).dialog.getLocalAddress());
+				msg.setRecipient(((AbstractTransaction)tx).dialog.getRemoteAddress());
                 ResponseEvent responseEvent = new ResponseEventImpl(tx, msg);
                 
                 fireEvent("net.java.slee.resource.smpp.SUBMIT_SM_RESP", tx, responseEvent);
@@ -584,10 +590,17 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
         logger.info("Destination: " + packet.getDestination());
         logger.info("ESM class : " + packet.getEsmClass());
         
-        String remoteAddress = packet.getSource().getAddress();
-        String localAddress = packet.getDestination().getAddress();
+		//soowk: bug fix
+        //String remoteAddress = packet.getSource().getAddress();
+        //String localAddress = packet.getDestination().getAddress();
+		String localAddress = packet.getSource().getAddress();
+		String remoteAddress = packet.getDestination().getAddress();
         
-        SmppDialogImpl dialog = (SmppDialogImpl)smppProvider.getDialog(remoteAddress, localAddress);
+		//soowk: bug fix
+		//SmppDialogImpl dialog = (SmppDialogImpl)smppProvider.getDialog(remoteAddress, localAddress);
+		SmppDialogImpl dialog = (SmppDialogImpl)smppProvider.getDialog(localAddress, remoteAddress);
+		//
+
         return dialog;
     }
     
@@ -597,8 +610,11 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
     }
     
     private SmppMessageImpl encodeMessage(SMPPPacket packet) {
-        String remoteAddress = packet.getSource().getAddress();
-        String localAddress = packet.getDestination().getAddress();
+		//soowk: bug fix
+		//String remoteAddress = packet.getSource().getAddress();
+		//String localAddress = packet.getDestination().getAddress();
+		String localAddress = packet.getSource().getAddress();
+		String remoteAddress = packet.getDestination().getAddress();
         
         SmppMessageImpl msg = new SmppMessageImpl(localAddress, remoteAddress);
         msg.setEncoding(packet.getDataCoding());
@@ -683,6 +699,8 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
 
     private class LinkMonitor implements Runnable {
         public void run() {
+			//soowk
+        	logger.info("In LinkMonitor, isBound = " + isBound);
             while (isBound) {
                 long currentTime = System.currentTimeMillis();
                 try {

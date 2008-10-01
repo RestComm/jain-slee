@@ -26,6 +26,8 @@ public class SmppMessageImpl implements ShortMessage {
     private String recipient;
     private int encoding;
     private byte[] data;
+	//soowk: add status to keep Result for SUBMIT_SM_RESP
+	private int status;
     
     /** Creates a new instance of SmppMessageImpl */
     public SmppMessageImpl(String originator, String recipient) {
@@ -34,10 +36,14 @@ public class SmppMessageImpl implements ShortMessage {
     }
 
     public SmppMessageImpl(int status) {
+		//soowk: save status information
+		this.status = status;
     }
     
     public String getOriginator() {
-        return recipient;
+		//soowk: bug fix
+		//return recipient;
+		return originator;
     }
 
     public void setOriginator(String originator) {
@@ -75,5 +81,12 @@ public class SmppMessageImpl implements ShortMessage {
     public void setData(byte[] data) {
         this.data = data;
     }
-    
+
+	//soowk: retrieve status information
+	//0 = no error
+	public int getStatus()
+	{
+		return status;
+	}
+
 }
