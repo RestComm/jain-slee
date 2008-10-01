@@ -34,19 +34,19 @@ import javax.slee.ActivityEndEvent;
 import javax.slee.ChildRelation;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
+import javax.slee.SLEEException;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
+import javax.slee.TransactionRequiredLocalException;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityFactory;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
-import org.mobicents.slee.services.sip.common.ConfigurationProvider;
 import org.mobicents.slee.services.sip.location.LocationSbbLocalObject;
 import org.mobicents.slee.services.sip.location.LocationServiceException;
 import org.mobicents.slee.services.sip.location.RegistrationBinding;
 import org.mobicents.slee.services.sip.registrar.mbean.RegistrarConfigurator;
-import org.mobicents.slee.services.sip.registrar.mbean.RegistrarConfiguratorMBean;
 
 /**
  * 
@@ -97,10 +97,9 @@ public abstract class RegistrarSbb implements Sbb {
 			ServiceActivity sa = ((ServiceActivityFactory) sbbEnv
 					.lookup("slee/serviceactivity/factory")).getActivity();
 			if (sa.equals(aci.getActivity())) {
-				startMBeanConfigurator();
-				LocationSbbLocalObject locationSbbLocalObject = (LocationSbbLocalObject)getLocationSbbChild().create();
-				setLocationSbbLocalObject(locationSbbLocalObject);
-				locationSbbLocalObject.init();
+				config.startService();	
+				logger.info("Registrar Configuration MBean started");
+				getLocationSbb().init();
 			}
 			else {
 				aci.detach(this.sbbContext.getSbbLocalObject());
@@ -117,70 +116,14 @@ public abstract class RegistrarSbb implements Sbb {
 					.lookup("slee/serviceactivity/factory")).getActivity();
 			if (sa.equals(aci.getActivity())) {
 				config.stopService();
-				getLocationSbbLocalObject().shutdown();
+				getLocationSbb().shutdown();
 			}
 		} catch (Exception e) {
 			logger.error(e);
 		}		
 	}
 	
-	private void startMBeanConfigurator() {
-		
-		String confValue = null;
-				
-		try {
-			confValue = (String) sbbEnv.lookup("configuration-MAX-EXPIRES");
-		} catch (NamingException e) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(e);
-			}
-		}
-
-		if (confValue == null) {
-			// WE DONT KNOW WHAT TO DO.... kernel panic
-			// LETS ALLOW DEFUALT VALUE
-			config.setSipRegistrationMaxExpires(3600);
-		} else {
-			long i = Long.parseLong(confValue);
-			config.setSipRegistrationMaxExpires(i);
-		}
-
-		confValue = null;
-
-		try {
-
-			confValue = (String) sbbEnv.lookup("configuration-MIN-EXPIRES");
-		} catch (NamingException e) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(e);
-			}
-		}
-
-		if (confValue == null) {
-			// WE DONT KNOW WHAT TO DO.... kernel panic
-			// LETS ALLOW DEFUALT VALUE
-			config.setSipRegistrationMinExpires(100);
-		} else {
-			long i = Long.parseLong(confValue);
-			config.setSipRegistrationMinExpires(i);
-		}
-		
-		try {
-			
-			String configurationName = (String) sbbEnv.lookup("configuration-MBEAN");
-			if(configurationName!=null)
-				config.setName(configurationName);
-		} catch (NamingException ne) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(ne);
-			}
-		}
-		
-		config.startService();	
-		
-		logger.info("Registrar Configuration MBean started");
-		
-	}
+	
 	
 	// **** REGISTER REQUEST PROCESSING
 	
@@ -196,13 +139,9 @@ public abstract class RegistrarSbb implements Sbb {
 		try {
 
 			// see if child sbb local object is already in CMP
-			LocationSbbLocalObject locationService = getLocationSbbLocalObject();
-			if (locationService == null) {
-				locationService = (LocationSbbLocalObject) getLocationSbbChild().create();
-			}
+			LocationSbbLocalObject locationService = getLocationSbb();
 			
 			// get configuration from MBean
-			final RegistrarConfigurator config=(RegistrarConfigurator) ConfigurationProvider.getCopy(RegistrarConfiguratorMBean.MBEAN_NAME_PREFIX, "v1RegistrarConf");
 			final long maxExpires=config.getSipRegistrationMaxExpires();
 			final long minExpires=config.getSipRegistrationMinExpires();
 			
@@ -523,10 +462,18 @@ public abstract class RegistrarSbb implements Sbb {
 	}
 
 	// location service child relation
-	public abstract ChildRelation getLocationSbbChild();
-	// location service child sbb local object CMP
-	public abstract LocationSbbLocalObject getLocationSbbLocalObject();
-	public abstract void setLocationSbbLocalObject(LocationSbbLocalObject value);
+	public abstract ChildRelation getLocationSbbChildRelation();
+	public abstract LocationSbbLocalObject getLocationSbbCMP();
+	public abstract void setLocationSbbCMP(LocationSbbLocalObject value);
+	public LocationSbbLocalObject getLocationSbb() throws TransactionRequiredLocalException, SLEEException, CreateException {
+		LocationSbbLocalObject sbbLocalObject = getLocationSbbCMP(); 
+		if (sbbLocalObject == null) {
+			sbbLocalObject = (LocationSbbLocalObject) getLocationSbbChildRelation().create();
+			setLocationSbbCMP(sbbLocalObject);
+		}
+		return sbbLocalObject;
+	}
+
 
 	// usuall stuff
 	

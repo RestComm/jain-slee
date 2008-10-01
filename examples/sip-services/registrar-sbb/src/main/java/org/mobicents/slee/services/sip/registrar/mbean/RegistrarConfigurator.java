@@ -14,7 +14,7 @@ public class RegistrarConfigurator implements RegistrarConfiguratorMBean {
 
 	private String name="v1RegistrarConf";
 	
-	private long minExpires=150;
+	private long minExpires=120;
 	
 	private long maxExpires=3600;
 	
