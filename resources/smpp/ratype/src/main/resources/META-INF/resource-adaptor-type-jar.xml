@@ -90,8 +90,8 @@
     
     <!-- dialog events --> 
     <event-type-ref>
-        <event-type-name>org.mobicents.slee.smpp.DeliveryReport</event-type-name>
-        <event-type-vendor>org.mobicents.smpp</event-type-vendor>
+        <event-type-name>net.java.slee.resource.smpp.MESSAGE</event-type-name>
+        <event-type-vendor>net.java</event-type-vendor>
         <event-type-version>3.4</event-type-version>
     </event-type-ref>
         
