@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,14 +52,12 @@ import org.apache.maven.artifact.installer.ArtifactInstallationException;
 import org.apache.maven.artifact.installer.ArtifactInstaller;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.apache.maven.model.Build;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.project.artifact.ActiveProjectArtifact;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
@@ -489,7 +486,7 @@ public abstract class AbstractDuMojo extends AbstractMojo {
 			Artifact duArtifact = new DefaultArtifact(project.getGroupId(),
 					project.getArtifactId(), VersionRange
 							.createFromVersion(project.getVersion()),
-					Artifact.SCOPE_RUNTIME, "jar", "", artifactHandler);
+					Artifact.SCOPE_RUNTIME, "jar", getClassifier(), artifactHandler);
 
 			duArtifact.setFile(duFile);
 
