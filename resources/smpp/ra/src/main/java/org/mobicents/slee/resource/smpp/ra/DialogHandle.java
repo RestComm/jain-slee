@@ -25,6 +25,7 @@ public class DialogHandle  implements ActivityHandle {
     }
 
     
+    @Override
     public boolean equals(Object o) {
     	if (o != null && o.getClass() == this.getClass()) {
 			return ((DialogHandle)o).dialog.getId().equals(this.dialog.getId());
@@ -34,6 +35,7 @@ public class DialogHandle  implements ActivityHandle {
 		}
     }
        
+    @Override
     public int hashCode() {
         return dialog.getId().hashCode();
     }       

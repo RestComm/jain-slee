@@ -13,7 +13,6 @@
  */
 package net.java.slee.resource.smpp;
 
-import java.io.IOException;
 import java.util.Date;
 
 /**
