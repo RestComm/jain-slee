@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>asterisk-parent</artifactId>
 		<groupId>org.mobicents.examples</groupId>
-		<version>1.2.0.GA-SNAPSHOT</version>
+		<version>1.2.0.GA</version>
 	</parent>
 	
 	<artifactId>asterisk-example-sbb</artifactId>
