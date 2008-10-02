@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>sip11-parent</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>1.2.0.GA</version>
+		<version>1.3.0-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>sip11-ra</artifactId>
