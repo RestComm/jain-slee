@@ -7,7 +7,7 @@
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="4.2.2.GA"/>
-	<property name="release.version" value="1.2.0.GA-SNAPSHOT"/>
+	<property name="release.version" value="1.2.0.GA"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
 	<property name="jboss.home" value="${release.dir}/jboss-${jboss.version}/"/>
 	<property name="jboss.config" value="default" />
@@ -37,7 +37,7 @@
 
 	<target name="build-core" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../..">
-			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config}" />
+			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
 	</target>
 
@@ -46,10 +46,10 @@
 			<sequential>
 				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
-					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
+					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P set-svn-revision" />
 				</exec>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
-					<arg line="-o install -P release -Drelease.name=target -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
+					<arg line="-o install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
@@ -61,10 +61,10 @@
 			<sequential>
 				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
-					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
+					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P set-svn-revision" />
 				</exec>
 				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
-					<arg line="-o install -P release -Drelease.name=target -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
+					<arg line="-o install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
