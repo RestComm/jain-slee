@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents</artifactId>
-		<version>3</version>
+		<version>4</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 	
