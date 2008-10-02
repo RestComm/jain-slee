@@ -87,15 +87,6 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			Response response = messageFactory.createResponse(Response.OK, request);
     		st.sendResponse(response);
     		
-    		//   CREATE A NEW NULL ACTIVITIY
-    		NullActivity timerBus = this.nullActivityFactory.createNullActivity();
-    		
-        	// ATTACH ITSELF TO THE NULL ACTIVITY 
-        	// BY USING THE ACTIVITY CONTEXT INTERFACE
-        	ActivityContextInterface timerBusACI = 
-        		this.nullACIFactory.getActivityContextInterface(timerBus);
-			timerBusACI.attach(sbbContext.getSbbLocalObject());
-			
 			// PARSING THE MESSAGE BODY should be *WAKE UP IN <timer value in
 			// seconds>s! MSG: <msg to send back to UA>!*
 			String body = new String(request.getRawContent());
@@ -103,34 +94,43 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			int j = body.indexOf("s! MSG: ",i+11);
 			int k = body.indexOf("!",j+8);
 			if (i >-1 && j>-1 && k >-1) {
-			String timerValue = body.substring(i+11,j);
-			int timer = Integer.parseInt(timerValue);
-			String bodyMessage = body.substring(j+8,k);
-			
-			// SETTING VALUES ON THE ACTIVITY CONTEXT
-			// USING THE SBB CUSTOM ACI
-			WakeUpSbbActivityContextInterface myViewOfTimerBusACI = 
-				this.asSbbActivityContextInterface(timerBusACI);
-			myViewOfTimerBusACI.setBody(bodyMessage);
-			// The From field of each SIP MESSAGE has the UA Address of Record (logical address), 
-			// which can be mapped to a current physical contact address. The mapping is provided by the LocationService,
-			// which works together with the SIP Registrar service.
-			FromHeader fromHeader = (FromHeader)request.getHeader(FromHeader.NAME);
-			logger.info("Received a valid message from " + fromHeader.getAddress()+" requesting a reply containing '"+bodyMessage+"' after "+timerValue+"s");
-			URI contactURI = findLocalTarget(fromHeader.getAddress().getURI(),getLocationChildSbb());
-			Address contactAddress = addressFactory.createAddress(contactURI);
-			ContactHeader contactHeader = headerFactory.createContactHeader(contactAddress);
+				String timerValue = body.substring(i+11,j);
+				int timer = Integer.parseInt(timerValue);
+				String bodyMessage = body.substring(j+8,k);
 
-			myViewOfTimerBusACI.setContact(contactHeader);
-			
-			// SETTING THE TIMER BY USING THE VALUE 
-			// IN THE SIP MESSAGE BODY
-			TimerOptions options = new TimerOptions();
-			options.setPersistent(true);
-			this.timerFacility.setTimer(timerBusACI, 
-					null, 
-					System.currentTimeMillis()+timer*1000, 
-					options);
+				//   CREATE A NEW NULL ACTIVITIY
+				NullActivity timerBus = this.nullActivityFactory.createNullActivity();
+
+				// ATTACH ITSELF TO THE NULL ACTIVITY 
+				// BY USING THE ACTIVITY CONTEXT INTERFACE
+				ActivityContextInterface timerBusACI = 
+					this.nullACIFactory.getActivityContextInterface(timerBus);
+				timerBusACI.attach(sbbContext.getSbbLocalObject());
+
+				// SETTING VALUES ON THE ACTIVITY CONTEXT
+				// USING THE SBB CUSTOM ACI
+				WakeUpSbbActivityContextInterface myViewOfTimerBusACI = 
+					this.asSbbActivityContextInterface(timerBusACI);
+				myViewOfTimerBusACI.setBody(bodyMessage);
+				// The From field of each SIP MESSAGE has the UA Address of Record (logical address), 
+				// which can be mapped to a current physical contact address. The mapping is provided by the LocationService,
+				// which works together with the SIP Registrar service.
+				FromHeader fromHeader = (FromHeader)request.getHeader(FromHeader.NAME);
+				logger.info("Received a valid message from " + fromHeader.getAddress()+" requesting a reply containing '"+bodyMessage+"' after "+timerValue+"s");
+				URI contactURI = findLocalTarget(fromHeader.getAddress().getURI(),getLocationChildSbb());
+				Address contactAddress = addressFactory.createAddress(contactURI);
+				ContactHeader contactHeader = headerFactory.createContactHeader(contactAddress);
+
+				myViewOfTimerBusACI.setContact(contactHeader);
+
+				// SETTING THE TIMER BY USING THE VALUE 
+				// IN THE SIP MESSAGE BODY
+				TimerOptions options = new TimerOptions();
+				options.setPersistent(true);
+				this.timerFacility.setTimer(timerBusACI, 
+						null, 
+						System.currentTimeMillis()+timer*1000, 
+						options);
 			}
 			else {
 				logger.warn("Ignoring invalid msg "+body);
