@@ -54,6 +54,11 @@ public class ProxyConfigurator implements ProxyConfiguratorMBean,Cloneable {
     	for(int i=0;i<splited.length;i++)
     		localDomains.add(splited[i]);
     	
+    	// add jboss binding address too
+    	String jbossBindingAddress = System.getProperty("bind.address","127.0.0.1");
+    	if (!localDomains.contains(jbossBindingAddress)) {
+    		localDomains.add(jbossBindingAddress);
+    	}
     	
     	String val=props.getProperty("min.expires", "60");
     	int value=Integer.parseInt(val);

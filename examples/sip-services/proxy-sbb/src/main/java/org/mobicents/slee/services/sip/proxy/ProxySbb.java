@@ -9,16 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sip.ClientTransaction;
-import javax.sip.InvalidArgumentException;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
@@ -30,8 +26,6 @@ import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
 import javax.sip.address.URI;
-import javax.sip.header.CallIdHeader;
-import javax.sip.header.ContactHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.RecordRouteHeader;
@@ -44,21 +38,22 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.ActivityEndEvent;
 import javax.slee.ChildRelation;
 import javax.slee.CreateException;
-import javax.slee.FactoryException;
 import javax.slee.InitialEventSelector;
 import javax.slee.RolledBackContext;
+import javax.slee.SLEEException;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
-import javax.slee.SbbID;
 import javax.slee.SbbLocalObject;
+import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityFactory;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.sip.SipFactoryProvider;
-import org.mobicents.slee.services.sip.common.ConfigurationProvider;
+import org.mobicents.slee.resource.sip.SipResourceAdaptorSbbInterface;
 import org.mobicents.slee.services.sip.common.MessageHandlerInterface;
 import org.mobicents.slee.services.sip.common.MessageUtils;
 import org.mobicents.slee.services.sip.common.ProxyConfiguration;
@@ -69,73 +64,26 @@ import org.mobicents.slee.services.sip.location.LocationService;
 import org.mobicents.slee.services.sip.location.LocationServiceException;
 import org.mobicents.slee.services.sip.location.RegistrationBinding;
 import org.mobicents.slee.services.sip.proxy.mbean.ProxyConfigurator;
-import org.mobicents.slee.services.sip.proxy.mbean.ProxyConfiguratorMBean;
 
 public abstract class ProxySbb implements Sbb {
 
-	// We will use java loggin?
-	private static Logger logger = Logger.getLogger(ProxySbb.class
-			.getCanonicalName());
-
-	// private static org.apache.log4j.Logger
-	// log=org.apache.log4j.Logger.getLogger(ProxySbb.class);
-	// protected static org.apache.log4j.Logger
-	// dumpLogger=org.apache.log4j.Logger.getLogger("TMP_STACK_LOGGER");
-	// ************************************************* SLEE STUFF
-	private SbbContext context;
-
-	// private TimerFacility timerFacility;
-
-	// private AlarmFacility alarmFacility;
-
-	// private ActivityContextNamingFacility namingFacility;
-
-	private SbbID id;
-
-	// private NullActivityFactory nullActivityFactory;
-
-	// private NullActivityContextInterfaceFactory nullACIFactory;
-
+	private static Logger logger = Logger.getLogger(ProxySbb.class);
+	
+	/**
+	 * Proxy Configuration MBean
+	 */
+	private final static ProxyConfigurator proxyConfigurator = new ProxyConfigurator();
+	
+	private SbbContext sbbContext;
 	private Context myEnv;
 
-	// **************************************************** STATICS - JNDI NAMES
-	private static final String JNDI_SERVICEACTIVITY_FACTORY = "java:comp/env/slee/serviceactivity/factory";
-
-	private static final String JNDI_SERVICEACTIVITYACI_FACTORY = "java:comp/env/slee/serviceactivity/activitycontextinterfacefactory";
-
-	private static final String JNDI_NULL_ACTIVITY_FACTORY = "java:comp/env/slee/nullactivity/factory";
-
-	private static final String JNDI_NULL_ACI_FACTORY = "java:comp/env/slee/nullactivity/activitycontextinterfacefactory";
-
-	private static final String JNDI_ACTIVITY_CONTEXT_NAMING_FACILITY = "java:comp/env/slee/facilities/activitycontextnaming";
-
-	private static final String JNDI_TRACE_FACILITY = "java:comp/env/slee/facilities/trace";
-
-	private static final String JNDI_TIMER_FACILITY_NAME = "java:comp/env/slee/facilities/timer";
-
-	private static final String JNDI_ALARM_FACILITY_NAME = "java:comp/env/slee/facilities/alarm";
-
-	private static final String JNDI_PROFILE_FACILITY_NAME = "java:comp/env/slee/facilities/profile";
-
-	private static final String JNDI_SIP_PROVIDER_NAME = "java:comp/env/slee/resources/jainsip/1.2/provider";
-
-	private static final String JNDI_SIP_ACIF_NAME = "java:comp/env/slee/resources/jainsip/1.2/acifactory";
-
-	// *************************************************** SIP RELATED
-	private SipFactoryProvider fp;
-
+	private SipResourceAdaptorSbbInterface sipRA;
 	private SipProvider provider;
-
 	private AddressFactory addressFactory;
-
 	private HeaderFactory headerFactory;
-
 	private MessageFactory messageFactory;
-
-	private SipActivityContextInterfaceFactory acif;
-
-	private String configurationName = null;
-
+	private SipActivityContextInterfaceFactory acif;	
+	
 	/**
 	 * Generate a custom convergence name so that events with the same call
 	 * identifier will go to the same root SBB entity.
@@ -144,16 +92,11 @@ public abstract class ProxySbb implements Sbb {
 		Object event = ies.getEvent();
 		String callId = null;
 		if (event instanceof ResponseEvent) {
-
-
 			ies.setInitialEvent(false);
 			return ies;
-
 		} else if (event instanceof RequestEvent) {
 			// If request event, the convergence name to callId
 			Request request = ((RequestEvent) event).getRequest();
-
-
 			if (!request.getMethod().equals(Request.ACK)) {
 				callId = ((ViaHeader) request.getHeaders(ViaHeader.NAME).next())
 						.getBranch();
@@ -162,34 +105,52 @@ public abstract class ProxySbb implements Sbb {
 						.getBranch()
 						+ "_ACK";
 			}
-
 		}
 		// Set the convergence name
-
-		logger.log(Level.FINE, "Setting convergence name to: " + callId);
-
+		if (logger.isDebugEnabled()) {
+			logger.debug( "Setting convergence name to: " + callId);
+		}
 		ies.setCustomName(callId);
+		
 		return ies;
-	}
-
-	protected String getTraceMessageType() {
-		return "ProxySbb";
 	}
 
 	// ****************************** ABSTRACT PARTS ********************
 	// **** SLEE Children
-	public abstract ChildRelation getRegistrarSbbChild();
-
-	public abstract ChildRelation getLocationSbbChild();
-
+	
+	public abstract ChildRelation getRegistrarSbbChildRelation();
+	public abstract SbbLocalObject getRegistrarSbbCMP();
+	public abstract void setRegistrarSbbCMP(SbbLocalObject value);
+	public SbbLocalObject getRegistrarSbb() throws TransactionRequiredLocalException, SLEEException, CreateException {
+		SbbLocalObject sbbLocalObject = getRegistrarSbbCMP(); 
+		if (sbbLocalObject == null) {
+			sbbLocalObject = getRegistrarSbbChildRelation().create();
+			setRegistrarSbbCMP(sbbLocalObject);
+		}
+		return sbbLocalObject;
+	}
+	
+	public abstract ChildRelation getLocationSbbChildRelation();
+	public abstract LocationSbbLocalObject getLocationSbbCMP();
+	public abstract void setLocationSbbCMP(LocationSbbLocalObject value);
+	public LocationSbbLocalObject getLocationSbb() throws TransactionRequiredLocalException, SLEEException, CreateException {
+		LocationSbbLocalObject sbbLocalObject = getLocationSbbCMP(); 
+		if (sbbLocalObject == null) {
+			sbbLocalObject = (LocationSbbLocalObject) getLocationSbbChildRelation().create();
+			setLocationSbbCMP(sbbLocalObject);
+		}
+		return sbbLocalObject;
+	}
+	
+	// ***** Custom ACI
+	
 	public abstract ProxySbbActivityContextInterface asSbbActivityContextInterface(
 			ActivityContextInterface ac);
 
 	// ***** CMPs
 
-	public abstract void setConfiguration(Object pc);
-
-	public abstract Object getConfiguration();
+	public abstract void setConfiguration(ProxyConfigurator pc);
+	public abstract ProxyConfigurator getConfiguration();
 
 	/**
 	 * This flag tells the SBB that the transaction has been terminated, and
@@ -197,130 +158,41 @@ public abstract class ProxySbb implements Sbb {
 	 * returns 404 NOT_FOUND) should be ignored and not forwarded.
 	 */
 	public abstract boolean getServerTransactionTerminated();
-
 	public abstract void setServerTransactionTerminated(
 			boolean transactionTerminated);
 
 	// This is required for cancels and acks, those need the same via as
 	// invites?
 	public abstract void setForwardedInviteViaHeader(ViaHeader via);
-
 	public abstract ViaHeader getForwardedInviteViaHeader();
 
-	// ****************************** Helper methods
+	// ***************************** SERVICE (DE)ACTIVATION
 
-	public ServerTransaction getServerTX(String method) {
-
-		ActivityContextInterface myacis[] = getSbbContext().getActivities();
-
-		for (int i = 0; i < myacis.length; i++) {
-
-			Object activity = myacis[i].getActivity();
-			if (activity instanceof ServerTransaction) {
-				ServerTransaction stx = (ServerTransaction) activity;
-				Request req = stx.getRequest();
-
-				if (!req.getMethod().equals(Request.CANCEL)
-						&& req.getMethod().equals(method))
-					return stx;
+	public void onServiceStarted(
+			javax.slee.serviceactivity.ServiceStartedEvent serviceEvent,
+			ActivityContextInterface aci) {
+		
+		try {
+			// check if it's my service that is starting
+			ServiceActivity sa = ((ServiceActivityFactory) myEnv
+					.lookup("java:comp/env/slee/serviceactivity/factory")).getActivity();
+			if (sa.equals(aci.getActivity())) {
+				startMBeanConfigurator();		
 			}
-
-		}
-
-		return null;
-	}
-
-	protected void prepareENV() {
-		try {
-			if (getConfiguration() == null)
-				try {
-					logger
-							.finer("[SipProxy][^^^][No conf present, obtainign one]");
-					Context myEnv = (Context) new InitialContext()
-							.lookup("java:comp/env");
-
-					// env-entries
-					configurationName = (String) myEnv
-							.lookup("configuration-MBEAN");
-					ProxyConfiguration conf = (ProxyConfiguration) ConfigurationProvider
-							.getCopy(ProxyConfiguratorMBean.MBEAN_NAME_PREFIX,
-									configurationName);
-
-					setConfiguration(conf);
-
-				} catch (NamingException ne) {
-					logger.warning("Could not set SBB context:"
-							+ ne.getMessage());
-				}
+			else {
+				aci.detach(this.sbbContext.getSbbLocalObject());
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
-
-		}
-
-	}
-
-	protected void clearENV() {
-
-		try {
-			// if (getConfiguration() != null)
-			// try {
-			logger.info("Clearing environment, removing mbean");
-			Context myEnv = (Context) new InitialContext()
-					.lookup("java:comp/env");
-
-			// env-entries
-			configurationName = (String) myEnv.lookup("configuration-MBEAN");
-
-			MBeanServer mbs = SleeContainer.lookupFromJndi().getMBeanServer();
-			ObjectName on = new ObjectName(ProxyConfiguration.MBEAN_NAME_PREFIX
-					+ configurationName);
-			mbs.unregisterMBean(on);
-			// } catch (NamingException ne) {
-			// logger.warning("Could not set SBB context:"
-			// + ne.getMessage());
-			// }
-		} catch (Exception e) {
-			e.printStackTrace();
-			// This will happen if event is ServiceStart ????
-		}
-	}
-
-	/**
-	 * Checks if proxys ancestor has processed call, if so it sets attribute
-	 * aliased with <b>"handledByProxy"</b> to true and returns <b>false</b>.
-	 * <br>
-	 * If proxys ancestor hasnt processed this call it sets attribute aliased
-	 * with <b>"handledByProxy"</b> to true and retuns <b>true</b> <br>
-	 * <b> Variable alliased by "handledByProxy" is always set to true!!!
-	 * 
-	 * @param aci -
-	 *            proxys aci.
-	 * @return
-	 *            <li><b>true</b> - if proxy should process this message.
-	 *            <li><b>false</b> - otherwise.
-	 */
-	protected boolean proxyProcess(ProxySbbActivityContextInterface proxyACI) {
-
-		// LETS CHECK IF OUR ANCESTOR HAS PROCESSED THIS CALL.
-		proxyACI.setHandledByMe(true);
-		if (proxyACI.getHandledByAncestor()) {
-			// OUR ANCESTOR HAS PROCESSED THIS CALL, WE SHOULD INFORM OUR
-			// DESCENDANTS IN CHAIN
-			return false;
-		} else {
-
-			return true;
-		}
+			logger.error(e);
+		}	
 
 	}
 
-	protected void startMBeanConfigurator() {
+	private void startMBeanConfigurator() {
 
-		ProxyConfigurator proxyConfigurator = new ProxyConfigurator();
-
-		proxyConfigurator.setSipHostName(fp.getHostAddress());
-		proxyConfigurator.setSipPort(fp.getHostPort());
-		proxyConfigurator.setSipTransports(fp.getTransports());
+		proxyConfigurator.setSipHostName(sipRA.getHostAddress());
+		proxyConfigurator.setSipPort(sipRA.getHostPort());
+		proxyConfigurator.setSipTransports(sipRA.getTransports());
 
 		String confValue = null;
 		Context myEnv = null;
@@ -330,7 +202,7 @@ public abstract class ProxySbb implements Sbb {
 
 		} catch (NamingException ne) {
 
-			logger.warning("Could not set SBB context:" + ne.getMessage());
+			logger.warn("Could not set SBB context:" + ne.getMessage());
 			return;
 		}
 
@@ -338,8 +210,7 @@ public abstract class ProxySbb implements Sbb {
 		try {
 			confValue = (String) myEnv.lookup("configuration-URI-SCHEMES");
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e);
 		}
 		if (confValue == null) {
 			proxyConfigurator.addSupportedURIScheme("sip");
@@ -356,8 +227,7 @@ public abstract class ProxySbb implements Sbb {
 
 			confValue = (String) myEnv.lookup("configuration-LOCAL-DOMAINS");
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e);
 		}
 
 		if (confValue == null) {
@@ -377,8 +247,7 @@ public abstract class ProxySbb implements Sbb {
 			.lookup("configuration-MBEAN");
 			
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e);
 		}
 		
 		if(configurationName!=null)
@@ -387,207 +256,110 @@ public abstract class ProxySbb implements Sbb {
 		proxyConfigurator.startService();
 
 	}
-
-	// ***************************** EVENT HANLDERS
-
-	public void onServiceStarted(
-			javax.slee.serviceactivity.ServiceStartedEvent serviceEvent,
-			ActivityContextInterface aci) {
-		
-		aci.detach(this.context.getSbbLocalObject());
-		try {
-			// check if it's my service that is starting
-			ServiceActivity sa = ((ServiceActivityFactory) myEnv
-					.lookup("java:comp/env/slee/serviceactivity/factory")).getActivity();
-			if (sa.equals(aci.getActivity())) {
-				startMBeanConfigurator();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}	
-
-	}
-
+	
 	public void onActivityEndEvent(ActivityEndEvent event,
 			ActivityContextInterface aci) {
 		try {
-			Object activity = aci.getActivity();
-			if (activity instanceof ServiceActivity) {
-				Context myEnv = (Context) new InitialContext()
-						.lookup("java:comp/env");
-				// check if it's my service aci that is ending
-				ServiceActivity sa = ((ServiceActivityFactory) myEnv
-						.lookup("slee/serviceactivity/factory")).getActivity();
-				if (sa.equals(activity)) {
-					logger.finest("Service aci ending, removing mbean");
-					// lets remove our mbean
-					clearENV();
-				}
+			if (aci.getActivity() instanceof ServiceActivity) {
+				logger.debug("Service aci ending, removing mbean");
+				// lets remove our mbean
+				SleeContainer.lookupFromJndi().getMBeanServer()
+						.unregisterMBean(
+								new ObjectName(
+										ProxyConfiguration.MBEAN_NAME_PREFIX
+												+ proxyConfigurator.getName()));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e);
 		}
 	}
 
 	// ****************** EVENT HANLDERS
 
 	public void onRegisterEvent(RequestEvent event, ActivityContextInterface ac) {
-		// getDefaultSbbUsageParameterSet().incrementNumberOfRegister(1);
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received REGISTER request, class="
-					+ event.getClass());
+
+		if (logger.isDebugEnabled())
+			logger.debug("Received REGISTER request, class="+ event.getClass());
+
+		// TODO: IF NOT LOCAL DOMAIN THEN PROXY REQUEST
+
+		// ELSE this is local domain
+		// attach child to this activity
 		try {
-
-			// is local domain?
-
-			// LETS CHECK IF THIS CALL SHOULD BE PROCESSED BY PROXY
-			ProxySbbActivityContextInterface sipaci = asSbbActivityContextInterface(ac);
-
-			if (getServerTransactionTerminated()) {
-				return;
-			}
-
-			if (!proxyProcess(sipaci)) {
-
-				if (logger.isLoggable(Level.FINE))
-					logger.log(Level.FINE,
-							"\n===============\nLEAVEING CALL:|\n===============\n"
-									+ ((CallIdHeader) event.getRequest()
-											.getHeader(CallIdHeader.NAME))
-											.getCallId()
-									+ "\n==============================");
-				// WE SHOULD NOT PROCESS THIS RESPONSE
-				return;
-			}
-			if (logger.isLoggable(Level.FINER))
-				logger.log(Level.FINER,
-						"\n================+\nPROCESSING CALL:|\n================\n"
-								+ ((CallIdHeader) event.getRequest().getHeader(
-										CallIdHeader.NAME)).getCallId()
-								+ "\n================================");
-
-			// TODO: CHECK FOR DOMAIN
-
-			// create registrar child SBB
-			ChildRelation relation = getRegistrarSbbChild();
-			SbbLocalObject child = null;
-			if (relation.size() == 0)
-				child = relation.create();
-			else
-				child = (SbbLocalObject) relation.iterator().next();
-
-			// attach child to this activity
-			ac.attach(child);
-
-			// detach myself
-			ac.detach(getSbbContext().getSbbLocalObject());
-
-			// Event router will pass this event to child SBB
-
+			ac.attach(getRegistrarSbb());
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onRegisterEvent", e);
+			// failed to attach the register, send error back
+			logger.error(e);
+			// TODO send 500 back
 		}
+		// detach myself
+		ac.detach(sbbContext.getSbbLocalObject());
+
 	}
 
 	public void onInviteEvent(RequestEvent event, ActivityContextInterface ac) {
-		// getDefaultSbbUsageParameterSet().incrementNumberOfInvite(1);
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received INVITE request");
-		try {
-			Request request = event.getRequest();
-
-			ServerTransaction serverTransaction = (ServerTransaction) ac
-					.getActivity();
-			if (logger.isLoggable(Level.FINE))
-				logger.log(Level.FINE, "Server transacton is "
-						+ serverTransaction);
-			processRequest(serverTransaction, request, ac);
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onInviteEvent", e);
-		}
+		
+		if (logger.isDebugEnabled())
+			logger.debug("Received INVITE request");
+		
+		processRequest(event.getServerTransaction(), event.getRequest(), ac);
 	}
 
 	public void onByeEvent(RequestEvent event, ActivityContextInterface ac) {
 
 		// getDefaultSbbUsageParameterSet().incrementNumberOfBye(1);
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received BYE request");
-		try {
-
-			Request request = event.getRequest();
-			ServerTransaction serverTransaction = (ServerTransaction) ac
-					.getActivity();
-
-			processRequest(serverTransaction, request, ac);
-
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onByeEvent", e);
-		}
-
+		if (logger.isDebugEnabled())
+			logger.debug("Received BYE request");
+		
+		processRequest(event.getServerTransaction(), event.getRequest(), ac);
 	}
 
 	public void onCancelEvent(RequestEvent event, ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received CANCEL request");
+		
+		if (logger.isDebugEnabled())
+			logger.debug("Received CANCEL request");
+		
+		final ServerTransaction serverTransaction = event.getServerTransaction();
+		
 		try {
-
-			Request request = event.getRequest();
-			ServerTransaction serverTransaction = event.getServerTransaction();
-
 			// CANCELs are hop-by-hop, so here we respond immediately on the
 			// server txn, if the RA didn't do it
 			if ((serverTransaction.getState() != TransactionState.TERMINATED)
 					&& (serverTransaction.getState() != TransactionState.COMPLETED)
 					&& (serverTransaction.getState() != TransactionState.CONFIRMED)) {
 				serverTransaction.sendResponse(messageFactory.createResponse(
-						Response.OK, request));
+						Response.OK, event.getRequest()));
 			}
-
+		} catch (Exception e) {
+			logger.warn( "Failed to reply to CANCEL", e);
+		}
 			// This will generate a new CANCEL request that originates from the
 			// proxy
-			processRequest(serverTransaction, request, ac);
+			processRequest(serverTransaction, event.getRequest(), ac);
 
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onCancelEvent", e);
-		}
+		
 
 	}
 
 	public void onAckEvent(RequestEvent event, ActivityContextInterface ac) {
-		// getDefaultSbbUsageParameterSet().incrementNumberOfAck(1);
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received ACK request");
-		// logger.info("[PROXY onAckEvent] \n"+event.getRequest());
-
-		try {
-
-			Request request = event.getRequest();
-			ServerTransaction serverTransaction = event.getServerTransaction();
-			processRequest(serverTransaction, request, ac);
-			// this.setTimeStarted(System.currentTimeMillis());
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onAckEvent", e);
-		}
-
+		
+		if (logger.isDebugEnabled())
+			logger.debug("Received ACK request");
+		
+		processRequest(event.getServerTransaction(), event.getRequest(), ac);
 	}
 
 	public void onMessageEvent(RequestEvent event, ActivityContextInterface ac) {
-		// getDefaultSbbUsageParameterSet().incrementNumberOfMessage(1);
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received MESSAGE request");
-		try {
-			Request request = event.getRequest();
-			ServerTransaction serverTransaction = event.getServerTransaction();
-			processRequest(serverTransaction, request, ac);
-			// this.setTimeStarted(System.currentTimeMillis());
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onMessageEvent", e);
-		}
+		
+		if (logger.isDebugEnabled())
+			logger.debug("Received MESSAGE request");
+		
+		processRequest(event.getServerTransaction(), event.getRequest(), ac);		
 	}
 
 	public void onOptionsEvent(RequestEvent event, ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received OPTIONS request");
+		if (logger.isDebugEnabled())
+			logger.debug("Received OPTIONS request");
 		try {
 
 			Request request = event.getRequest();
@@ -609,101 +381,56 @@ public abstract class ProxySbb implements Sbb {
 				processRequest(serverTransaction, request, ac);
 			}
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onOptionsEvent", e);
+			logger.warn( "Exception during onOptionsEvent", e);
 		}
 	}
 
 	public void onInfoRespEvent(ResponseEvent event, ActivityContextInterface ac) {
 
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received 1xx (FINER) response");
-		try {
-
-			Response response = event.getResponse();
-			ClientTransaction clientTransaction = event.getClientTransaction();
-			processResponse(clientTransaction, response, ac);
-
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onInfoRespEvent", e);
-		}
+		if (logger.isDebugEnabled())
+			logger.debug("Received 1xx (FINER) response");
+		
+		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onSuccessRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received 2xx (SUCCESS) response");
-		try {
+		if (logger.isDebugEnabled())
+			logger.debug("Received 2xx (SUCCESS) response");
 
-			Response response = event.getResponse();
-			ClientTransaction clientTransaction = event.getClientTransaction();
-			processResponse(clientTransaction, response, ac);
-
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onSuccessRespEvent", e);
-		}
+		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
-
+	
 	public void onRedirRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received 3xx (REDIRECT) response");
-		try {
+		if (logger.isDebugEnabled())
+			logger.debug("Received 3xx (REDIRECT) response");
 
-			Response response = event.getResponse();
-			ClientTransaction clientTransaction = event.getClientTransaction();
-			processResponse(clientTransaction, response, ac);
-
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "Exception during onRedirRespEvent", e);
-		}
+		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onClientErrorRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received 4xx (CLIENT ERROR) response");
-		try {
+		if (logger.isDebugEnabled())
+			logger.debug("Received 4xx (CLIENT ERROR) response");
 
-			Response response = event.getResponse();
-			ClientTransaction clientTransaction = event.getClientTransaction();
-			processResponse(clientTransaction, response, ac);
-
-		} catch (Exception e) {
-			logger.log(Level.WARNING,
-					"Exception during onClientErrorRespEvent", e);
-		}
+		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onServerErrorRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received 5xx (SERVER ERROR) response");
-		try {
+		if (logger.isDebugEnabled())
+			logger.debug("Received 5xx (SERVER ERROR) response");
 
-			Response response = event.getResponse();
-			ClientTransaction clientTransaction = event.getClientTransaction();
-			processResponse(clientTransaction, response, ac);
-
-		} catch (Exception e) {
-			logger.log(Level.WARNING,
-					"Exception during onServerErrorRespEvent", e);
-		}
+		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onGlobalFailureRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received 6xx (GLOBAL FAILURE) response");
-		try {
+		if (logger.isDebugEnabled())
+			logger.debug("Received 6xx (GLOBAL FAILURE) response");
 
-			Response response = event.getResponse();
-			ClientTransaction clientTransaction = event.getClientTransaction();
-			processResponse(clientTransaction, response, ac);
-
-		} catch (Exception e) {
-			logger.log(Level.WARNING,
-					"Exception during onGlobalFailureRespEvent", e);
-		}
+		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	/*
@@ -712,48 +439,39 @@ public abstract class ProxySbb implements Sbb {
 
 	public void onTransactionTimeoutEvent(TimeoutEvent event,
 			ActivityContextInterface ac) {
-		ClientTransaction clientTransaction = event.getClientTransaction();
+		
+		if (logger.isDebugEnabled())
+			logger.debug("Received transaction timeout event, tid="
+					+ event.getClientTransaction());
+		
 		ServerTransaction serverTransaction = event.getServerTransaction();
-
-		if (logger.isLoggable(Level.FINER))
-			logger.log(Level.FINER, "Received transaction timeout event, tid="
-					+ clientTransaction);
 		if (serverTransaction != null) {
-
 			try {
 				serverTransaction.sendResponse(messageFactory.createResponse(
 						Response.REQUEST_TIMEOUT, serverTransaction
 								.getRequest()));
 				setServerTransactionTerminated(true);
-			} catch (FactoryException e) {
-
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-
-				e.printStackTrace();
-
-			} catch (SipException e) {
-
-				e.printStackTrace();
-			} catch (InvalidArgumentException e) {
-
-				e.printStackTrace();
-			} catch (ParseException e) {
-
-				e.printStackTrace();
+			} catch (Exception e) {
+				logger.error(e);
 			}
-
 		}
 	}
 
 	public ServerTransaction getServerTransaction(
 			ClientTransaction clientTransaction) {
-
-		return getServerTX(clientTransaction.getRequest().getMethod());
-
+		ActivityContextInterface myacis[] = sbbContext.getActivities();
+		for (int i = 0; i < myacis.length; i++) {
+			Object activity = myacis[i].getActivity();
+			if (activity instanceof ServerTransaction) {
+				ServerTransaction stx = (ServerTransaction) activity;
+				Request req = stx.getRequest();
+				if (!req.getMethod().equals(Request.CANCEL)
+						&& req.getMethod().equals(clientTransaction.getRequest().getMethod()))
+					return stx;
+			}
+		}
+		return null;
 	}
-
-	// ***** SENDER METHODS
 
 	// ***** SENDER METHODS
 
@@ -763,18 +481,16 @@ public abstract class ProxySbb implements Sbb {
 			try {
 				request.addHeader(headerFactory.createMaxForwardsHeader(69));
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 		ClientTransaction ct = provider.getNewClientTransaction(request);
 		if (attach) {
 			try {
-				ActivityContextInterface aci = acif
-						.getActivityContextInterface(ct);
-				aci.attach(getSbbContext().getSbbLocalObject());
+				ActivityContextInterface aci = acif.getActivityContextInterface(ct);
+				aci.attach(sbbContext.getSbbLocalObject());
 			} catch (UnrecognizedActivityException e) {
-				logger.log(Level.WARNING,
-						"unable to attach to client transaction", e);
+				logger.warn("unable to attach to client transaction", e);
 			}
 		}
 
@@ -790,13 +506,15 @@ public abstract class ProxySbb implements Sbb {
 		provider.sendResponse(response);
 	}
 
-	// ** PROXY PART
+	// ** PROXY MESSAGE
 
 	private void processRequest(ServerTransaction serverTransaction,
 			Request request, ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.INFO))
-			logger.log(Level.INFO, "processRequest: request = \n"
-					+ request.toString());
+		
+		if (logger.isInfoEnabled())
+			logger.info("processing request: method = \n"
+					+ request.getMethod().toString());
+		
 		// log.error("===> REQUEST METHOD["+request.getMethod()+"]
 		// CALLID["+((CallID)request.getHeader(CallID.NAME)).getCallId()+"]
 		// TO["+((ToHeader)request.getHeader(ToHeader.NAME)).getAddress()+"]
@@ -804,63 +522,28 @@ public abstract class ProxySbb implements Sbb {
 		try {
 
 			if (getServerTransactionTerminated()) {
-				if (logger.isLoggable(Level.INFO))
-					logger.info("[PROXY MACHINE] txTERM \n" + request);
+				if (logger.isDebugEnabled())
+					logger.debug("[PROXY MACHINE] txTERM \n" + request);
 				return;
 			}
-
-			ProxySbbActivityContextInterface sipaci = asSbbActivityContextInterface(ac);
-
-			// LETS CHECK IF THIS CALL SHOULD BE PROCESSED BY PROXY
-			if (!proxyProcess(sipaci)) {
-				if (logger.isLoggable(Level.FINE))
-					logger.log(Level.FINE,
-							"\n===============\nLEAVEING CALL:|\n===============\n"
-									+ ((CallIdHeader) request
-											.getHeader(CallIdHeader.NAME))
-											.getCallId()
-									+ "\n==============================");
-				// WE SHOULD NOT PROCESS THIS REQUEST
-				return;
-			}
-			if (logger.isLoggable(Level.FINE))
-				logger.log(Level.FINE,
-						"\n================+\nPROCESSING CALL:|\n================\n"
-								+ ((CallIdHeader) request
-										.getHeader(CallIdHeader.NAME))
-										.getCallId()
-								+ "\n================================");
-			// Create a worker to process this event
-			// MySipProxy proxy = new MySipProxy(this, sipaci);
-
-			LocationSbbLocalObject locationInterface = null;
-			if (getLocationSbbChild().size() == 0)
-				locationInterface = (LocationSbbLocalObject) getLocationSbbChild()
-						.create();
-			else
-				locationInterface = (LocationSbbLocalObject) getLocationSbbChild()
-						.iterator().next();
-
-			prepareENV();
 
 			// if (getServerTX() == null)
 			// setServerTX(serverTransaction);
 			// Go - if it is invite here, serverTransaction can be CANCEL
 			// transaction!!!! so we dont want to overwrite it above
-			ProxyMachine proxyMachine = new ProxyMachine(
-					(ProxyConfiguration) getConfiguration(), locationInterface,
+			new ProxyMachine(getProxyConfigurator(), getLocationSbb(),
 					this.addressFactory, this.headerFactory,
-					this.messageFactory, this.provider);
-			proxyMachine.processRequest(serverTransaction, request);
+					this.messageFactory, this.provider)
+				.processRequest(serverTransaction, request);
 
 		} catch (Exception e) {
 			// Send error response so client can deal with it
-			logger.log(Level.WARNING, "Exception during processRequest", e);
+			logger.warn( "Exception during processRequest", e);
 			try {
 				serverTransaction.sendResponse(messageFactory.createResponse(
 						Response.SERVER_INTERNAL_ERROR, request));
 			} catch (Exception ex) {
-				logger.log(Level.WARNING, "Exception during processRequest", e);
+				logger.warn( "Exception during processRequest", e);
 			}
 		}
 
@@ -868,9 +551,9 @@ public abstract class ProxySbb implements Sbb {
 
 	private void processResponse(ClientTransaction clientTransaction,
 			Response response, ActivityContextInterface ac) {
-		if (logger.isLoggable(Level.INFO))
-			logger.log(Level.INFO, "processResponse: response = \n"
-					+ response.toString());
+		if (logger.isInfoEnabled())
+			logger.info("processing response: status = \n"
+					+ response.getStatusCode());
 		// log.error("===> RESPONSE CODE["+response.getStatusCode()+"]
 		// METHOD["+((CSeq)response.getHeader(CSeq.NAME)).getMethod()+"]
 		// CALLID["+((CallID)response.getHeader(CallID.NAME)).getCallId()+"]
@@ -882,150 +565,69 @@ public abstract class ProxySbb implements Sbb {
 				return;
 			}
 
-			ProxySbbActivityContextInterface sipaci = asSbbActivityContextInterface(ac);
-
-			// LETS CHECK IF THIS CALL SHOULD BE PROCESSED BY PROXY
-			if (!proxyProcess(sipaci)) {
-				if (logger.isLoggable(Level.FINE))
-					logger.log(Level.FINE,
-							"\n===============\nLEAVEING CALL:|\n===============\n"
-									+ ((CallIdHeader) response
-											.getHeader(CallIdHeader.NAME))
-											.getCallId()
-									+ "\n==============================");
-				// WE SHOULD NOT PROCESS THIS RESPONSE
-				return;
-			}
-			if (logger.isLoggable(Level.FINE))
-				logger.log(Level.FINE,
-						"\n================+\nPROCESSING CALL:|\n================\n"
-								+ ((CallIdHeader) response
-										.getHeader(CallIdHeader.NAME))
-										.getCallId()
-								+ "\n================================");
-			// Create a worker to process this event
-			// MySipProxy proxy = new MySipProxy(this, sipaci);
-			// clientTransaction.setApplicationData(response);
-			LocationSbbLocalObject locationInterface = null;
-			if (getLocationSbbChild().size() == 0)
-				locationInterface = (LocationSbbLocalObject) getLocationSbbChild()
-						.create();
-			else
-				locationInterface = (LocationSbbLocalObject) getLocationSbbChild()
-						.iterator().next();
-
-			prepareENV();
-
 			// Go
 			ServerTransaction serverTransaction = getServerTransaction(clientTransaction);
 			if (serverTransaction != null) {
-				ProxyMachine proxyMachine = new ProxyMachine(
-						(ProxyConfiguration) getConfiguration(),
-						locationInterface, this.addressFactory,
-						this.headerFactory, this.messageFactory, this.provider);
-				proxyMachine.processResponse(serverTransaction,
+				new ProxyMachine(getProxyConfigurator(), getLocationSbb(), this.addressFactory,
+						this.headerFactory, this.messageFactory, this.provider)
+				.processResponse(serverTransaction,
 						clientTransaction, response);
 			} else {
-				logger.warning("Weird got null tx for[" + response + "]");
+				logger.warn("Weird got null tx for[" + response + "]");
 			}
 
 		} catch (Exception e) {
 			// Send error response so client can deal with it
-			logger.log(Level.WARNING, "Exception during processResponse", e);
+			logger.warn( "Exception during processResponse", e);
 		}
 
+	}
+
+	private ProxyConfigurator getProxyConfigurator() {
+		ProxyConfigurator configurator = getConfiguration();
+		if (configurator == null) {
+			configurator = (ProxyConfigurator)proxyConfigurator.clone();
+			setConfiguration(configurator);
+		}
+		return configurator;
 	}
 
 	// ** STRICT RFC 3261 Proxy part
 
 	// *********** SBB SLEE METHODS
 
-	public void sbbActivate() {
-
-	}
-
-	public void sbbCreate() throws CreateException {
-
-	}
-
+	public void sbbActivate() {}
+	public void sbbCreate() throws CreateException {}
 	public void sbbExceptionThrown(Exception arg0, Object arg1,
-			ActivityContextInterface arg2) {
-
-	}
-
-	public void sbbLoad() {
-
-	}
-
-	public void sbbPassivate() {
-
-	}
-
-	public void sbbPostCreate() throws CreateException {
-
-	}
-
-	public void sbbRemove() {
-
-	}
-
-	public void sbbRolledBack(RolledBackContext arg0) {
-
-	}
-
-	public void sbbStore() {
-
-	}
-
-	protected SbbContext getSbbContext() {
-		// TODO Auto-generated method stub
-		return this.context;
-	}
+			ActivityContextInterface arg2) {}
+	public void sbbLoad() {}
+	public void sbbPassivate() {}
+	public void sbbPostCreate() throws CreateException {}
+	public void sbbRemove() {}
+	public void sbbRolledBack(RolledBackContext arg0) {}
+	public void sbbStore() {}
 
 	public void setSbbContext(SbbContext context) {
-
-		this.context = context;
+		this.sbbContext = context;
 		try {
-			id = context.getSbb();
-
 			myEnv = new InitialContext();
-
-			// timerFacility = (TimerFacility) myEnv
-			// .lookup(JNDI_TIMER_FACILITY_NAME);
-			// alarmFacility = (AlarmFacility) myEnv
-			// .lookup(JNDI_ALARM_FACILITY_NAME);
-
-			// namingFacility = (ActivityContextNamingFacility) myEnv
-			// .lookup(JNDI_ACTIVITY_CONTEXT_NAMING_FACILITY);
-			// nullACIFactory = (NullActivityContextInterfaceFactory) myEnv
-			// .lookup(JNDI_NULL_ACI_FACTORY);
-			// nullActivityFactory = (NullActivityFactory) myEnv
-			// .lookup(JNDI_NULL_ACTIVITY_FACTORY);
-
-			fp = (SipFactoryProvider) myEnv.lookup(JNDI_SIP_PROVIDER_NAME);
-
-			provider = fp.getSipProvider();
-			messageFactory = fp.getMessageFactory();
-			headerFactory = fp.getHeaderFactory();
-			addressFactory = fp.getAddressFactory();
-
-			acif = (SipActivityContextInterfaceFactory) myEnv
-					.lookup(JNDI_SIP_ACIF_NAME);
+			sipRA = (SipFactoryProvider) myEnv.lookup("java:comp/env/slee/resources/jainsip/1.2/provider");
+			provider = sipRA.getSipProvider();
+			messageFactory = sipRA.getMessageFactory();
+			headerFactory = sipRA.getHeaderFactory();
+			addressFactory = sipRA.getAddressFactory();
+			acif = (SipActivityContextInterfaceFactory) myEnv.lookup("java:comp/env/slee/resources/jainsip/1.2/acifactory");
 		} catch (NamingException ne) {
-			logger.log(java.util.logging.Level.WARNING,
-					"Could not set SBB context: ", ne);
+			logger.error("Could not set SBB context: ", ne);
 		}
-
 	}
 
-	public void unsetSbbContext() {
-
-		this.context = null;
-	}
+	public void unsetSbbContext() {	this.sbbContext = null; }
 
 	// Inner class - this is pojo, but it needs access to some SLEE stuff, its
 	// more conveniant to do this like this, since otherwise we would have
 	// to either pass whole sbb or interface
+	
 	class ProxyMachine extends MessageUtils implements MessageHandlerInterface {
 		protected final Logger log = Logger.getLogger("ProxyMachine.class");
 
@@ -1066,7 +668,9 @@ public abstract class ProxySbb implements Sbb {
 		}
 
 		public void processRequest(ServerTransaction stx, Request req) {
-			log.entering(this.getClass().getName(), "processRequest");
+			if (log.isDebugEnabled()) {
+				log.debug("processRequest");
+			}
 			try {
 				Request tmpNewRequest = (Request) req.clone();
 
@@ -1076,7 +680,7 @@ public abstract class ProxySbb implements Sbb {
 				// 16.4 Route Information Preprocessing
 				routePreProcess(tmpNewRequest);
 
-				// logger.fine("Server transaction " + stx);
+				// logger.debug("Server transaction " + stx);
 				// 16.5 Determining Request Targets
 				List targets = determineRequestTargets(tmpNewRequest);
 
@@ -1143,7 +747,7 @@ public abstract class ProxySbb implements Sbb {
 				int statusCode = se.getStatusCode();
 				sendErrorResponse(stx, req, statusCode);
 			} catch (SipLoopDetectedException slde) {
-				log.warning("Loop detected, droping message.");
+				log.warn("Loop detected, droping message.");
 				slde.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1156,7 +760,7 @@ public abstract class ProxySbb implements Sbb {
 
 			// Now check if we really want to send it right away
 
-			// log.entering(this.getClass().getName(), "processResponse");
+			// log.info(this.getClass().getName(), "processResponse");
 
 			try {
 
@@ -1202,8 +806,8 @@ public abstract class ProxySbb implements Sbb {
 		public ClientTransaction forwardRequest(
 				ServerTransaction serverTransaction, Request request) {
 			ClientTransaction toReturn = null;
-			if (log.isLoggable(Level.FINER))
-				log.finer("Forwarding request " + request.getMethod()
+			if (log.isDebugEnabled())
+				log.debug("Forwarding request " + request.getMethod()
 						+ " of server tx " + serverTransaction.getBranchId());
 
 			// ProxySbb.log.error("===> REQUEST FWD
@@ -1261,8 +865,8 @@ public abstract class ProxySbb implements Sbb {
 		}
 
 		public void forwardResponse(ServerTransaction txn, Response response) {
-			if (log.isLoggable(Level.FINER))
-				log.finer("Forwarding response " + response.getStatusCode()
+			if (log.isDebugEnabled())
+				log.debug("Forwarding response " + response.getStatusCode()
 						+ " of server tx " + txn.getBranchId());
 
 			// log.info("PRXY forwardResponse\n"+response);
@@ -1285,7 +889,7 @@ public abstract class ProxySbb implements Sbb {
 					sendStatelessResponse(response);
 				}
 			} catch (Exception e) {
-				log.severe("Exception during forwardResponse[\n" + response
+				log.error("Exception during forwardResponse[\n" + response
 						+ "\n] TXBRANCH[" + txn.getBranchId() + "] TXR[\n"
 						+ txn.getRequest() + "\n]:" + e);
 			}
@@ -1359,8 +963,8 @@ public abstract class ProxySbb implements Sbb {
 				// this point
 				// if You know more, please patch :]
 
-				if (log.isLoggable(Level.FINE)) {
-					log.fine("Possible loop detected on LOCAL[" + localNodeURI
+				if (log.isDebugEnabled()) {
+					log.debug("Possible loop detected on LOCAL[" + localNodeURI
 							+ "] MSG[" + requestURI + "] message:n" + request
 							+ "\n====================================");
 				}
@@ -1453,7 +1057,7 @@ public abstract class ProxySbb implements Sbb {
 			Iterator it = bindings.values().iterator();
 			URI target = null;
 			while (it.hasNext()) {
-				listOfTargets.add(((RegistrationBinding)it.next()).getContactAddress());
+				listOfTargets.add(((RegistrationBinding)it.next()).getContactAddress().getURI());
 			}
 			if (listOfTargets.size() == 0) {
 				// logger.fine("findLocalTarget: No contacts for "
@@ -1500,7 +1104,7 @@ public abstract class ProxySbb implements Sbb {
 				}
 
 				// THIS: config.getSipTransports()[0] // has to be changed!!!
-				log.finer("[&&&] addViaHeader\n" + via + "");
+				log.debug("[&&&] addViaHeader\n" + via + "");
 				// via.setParameter("ID",
 				// ""+System.currentTimeMillis()+"_"+Math.random()+"_"+config.getSipHostname()+":"+config.getSipPort());
 				request.addHeader(via);
