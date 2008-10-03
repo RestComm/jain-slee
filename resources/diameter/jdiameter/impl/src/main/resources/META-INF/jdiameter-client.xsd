@@ -287,12 +287,13 @@
         <xsi:annotation>
             <xsi:documentation>SSL description</xsi:documentation>
         </xsi:annotation>
-        <xsi:complexType>
+        <!-- alexandre : cant have both type attr and complextype child 
+        xsi:complexType>
             <xsi:attribute name="name" type="xsi:string" use="required"/>
             <xsi:attribute name="protocol" type="xsi:string" use="required"/>
             <xsi:attribute name="enable_session_creation" type="xsi:boolean" use="required"/>
             <xsi:attribute name="use_client_mode" type="xsi:boolean" use="required"/>
-       </xsi:complexType>
+       </xsi:complexType-->
     </xsi:element>
 
     <xsi:complexType name="SecurityDataType">
