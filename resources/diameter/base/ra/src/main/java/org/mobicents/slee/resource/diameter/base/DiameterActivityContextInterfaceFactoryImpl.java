@@ -53,8 +53,7 @@ public class DiameterActivityContextInterfaceFactoryImpl implements DiameterActi
     return new ActivityContextInterfaceImpl(this.serviceContainer,
         this.factory.getActivityContext(
             new SleeActivityHandle(raEntityName,
-                new DiameterActivityHandle(activity
-                    .getSessionId()), serviceContainer))
+                ((DiameterActivityImpl)activity ).getActivityHandle(), serviceContainer))
             .getActivityContextId());
   }
 

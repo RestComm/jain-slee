@@ -1,15 +1,11 @@
 package org.mobicents.slee.resource.diameter.sh.client;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
-import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
 import net.java.slee.resource.diameter.sh.client.ShClientMessageFactory;
 import net.java.slee.resource.diameter.sh.client.events.avp.DataReferenceType;
 import net.java.slee.resource.diameter.sh.client.events.avp.SubsReqType;
-import net.java.slee.resource.diameter.sh.client.events.avp.SupportedApplicationsAvp;
-import net.java.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvp;
 import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 import net.java.slee.resource.diameter.sh.server.events.ProfileUpdateRequest;
 import net.java.slee.resource.diameter.sh.server.events.PushNotificationAnswer;
@@ -27,10 +23,10 @@ import org.jdiameter.api.Session;
 import org.jdiameter.api.Stack;
 import org.jdiameter.client.impl.helpers.UIDGenerator;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
-import org.mobicents.slee.resource.diameter.base.events.ProfileUpdateRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.PushNotificationAnswerImpl;
-import org.mobicents.slee.resource.diameter.base.events.SubscribeNotificationsRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.UserDataRequestImpl;
+import org.mobicents.slee.resource.diameter.sh.server.events.ProfileUpdateRequestImpl;
+import org.mobicents.slee.resource.diameter.sh.server.events.PushNotificationAnswerImpl;
+import org.mobicents.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequestImpl;
+import org.mobicents.slee.resource.diameter.sh.server.events.UserDataRequestImpl;
 
 public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 
@@ -143,12 +139,12 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 		} else {
 			String destRealm = null;
 			String destHost = null;
-
-			for (DiameterAvp avp : avps) {
-				if (avp.getCode() == Avp.DESTINATION_REALM)
-					destRealm = avp.stringValue();
-				else if (avp.getCode() == Avp.DESTINATION_HOST)
-					destHost = avp.stringValue();
+			if(avps!=null)
+				for (DiameterAvp avp : avps) {
+					if (avp.getCode() == Avp.DESTINATION_REALM)
+						destRealm = avp.stringValue();
+					else if (avp.getCode() == Avp.DESTINATION_HOST)
+						destHost = avp.stringValue();
 			}
 
 			msg = destHost == null ? session.createRequest(commandCode, applicationId, destRealm) : session.createRequest(commandCode, applicationId, destRealm, destHost);
@@ -181,7 +177,7 @@ public class ShClientMessageFactoryImpl implements ShClientMessageFactory {
 			set.addAvp(avp.getCode(), avp.byteArrayValue(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
 	}
 
-	public DiameterMessageFactory getBaseMessageFactory() {
-		return this.baseFactory;
-	}
+	//public DiameterMessageFactory getBaseMessageFactory() {
+	//	return this.baseFactory;
+	//}
 }

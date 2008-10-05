@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.AccountingServerSessionActivity;
+import net.java.slee.resource.diameter.base.AccountingSessionState;
 import net.java.slee.resource.diameter.base.events.AccountingAnswer;
 import net.java.slee.resource.diameter.base.events.AccountingRequest;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
@@ -17,6 +18,9 @@ import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Stack;
 import org.jdiameter.api.acc.ServerAccSession;
+import org.jdiameter.api.auth.ServerAuthSession;
+import org.jdiameter.common.api.app.acc.ServerAccSessionState;
+import org.jdiameter.server.impl.app.auth.ServerAuthSessionImpl;
 import org.mobicents.slee.resource.diameter.base.events.AccountingAnswerImpl;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
 
@@ -29,17 +33,16 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 	protected String originHost = "aaa://127.0.0.1:3868";
 	protected String originRealm = "mobicents.org";
 	
-	public AccountingServerSessionActivityImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession,
-			EventListener<Request, Answer> raEventListener, long timeout, DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint,
+	public AccountingServerSessionActivityImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession, long timeout, DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint,
 			Stack stack) 
 	{
-		super(messageFactory, avpFactory, null, raEventListener, timeout, destinationHost, destinationRealm,endpoint);
+		super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) serverSession, timeout, destinationHost, destinationRealm,endpoint);
 
 		this.serverSession = serverSession;
-		this.serverSession.addStateChangeNotification(this);
+		//this.serverSession.addStateChangeNotification(this);
 		
 		super.setCurrentWorkingSession(this.serverSession.getSessions().get(0));
-		
+		this.state=AccountingSessionState.Idle;
     this.originHost = stack.getMetaData().getLocalPeer().getUri().toString();
     this.originRealm = stack.getMetaData().getLocalPeer().getRealmName();
 	}
@@ -116,11 +119,26 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
     }
 	}
 
-	public void stateChanged(Enum oldState, Enum newState)
-	{
-		logger.info( "Diameter Base RA :: AccountingServerSession ::stateChanged :: oldState[" + oldState + "] newState [" + newState + "]." );
 
-		//FIXME: alexandre: Complete this method.
+
+	public ServerAccSession getSession() {
+		return this.serverSession;
+	}
+
+	public void stateChanged(Enum oldState, Enum newState) {
+		
+		if(newState==ServerAccSessionState.IDLE)
+		{
+			String sessionId=this.serverSession.getSessions().get(0).getSessionId();
+			super.state=AccountingSessionState.Idle;
+			this.serverSession.release();
+			this.baseListener.sessionDestroyed(sessionId, this.serverSession);
+			
+		}else
+		{
+			super.state=AccountingSessionState.Open;
+		}
+		
 	}
 
 }

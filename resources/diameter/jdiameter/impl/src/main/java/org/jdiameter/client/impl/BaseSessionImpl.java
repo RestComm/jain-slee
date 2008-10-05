@@ -218,12 +218,12 @@ public abstract class BaseSessionImpl implements BaseSession {
 
     protected long getAppId(ApplicationId appId) {
         if (appId == null) return 0;
-        if (appId.getVendorId() == 0) {
-            if (appId.getAcctAppId() != 0)
-                return appId.getAcctAppId();
-            if (appId.getAuthAppId() != 0)
-                return appId.getAuthAppId();
-        }
+       // if (appId.getVendorId() == 0) {
+        if (appId.getAcctAppId() != 0)
+             return appId.getAcctAppId();
+        if (appId.getAuthAppId() != 0)
+             return appId.getAuthAppId();
+       // }
         return appId.getVendorId();
     }    
 }

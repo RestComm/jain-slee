@@ -22,6 +22,7 @@ package net.java.slee.resource.diameter.sh.client;
 import java.io.IOException;
 
 import net.java.slee.resource.diameter.base.CreateActivityException;
+import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
 import net.java.slee.resource.diameter.sh.client.events.ProfileUpdateAnswer;
 import net.java.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswer;
 import net.java.slee.resource.diameter.sh.client.events.UserDataAnswer;
@@ -42,6 +43,8 @@ public interface ShClientProvider {
      * @return client message factory for Sh Diameter
      */
     ShClientMessageFactory getClientMessageFactory();
+    
+    DiameterShAvpFactory getClientAvpFactory();
 
     /**
      * Create a new Sh client activity to send and receive Diameter Sh messages.
@@ -49,6 +52,14 @@ public interface ShClientProvider {
      * @return an ShClientActivity 
      */
     ShClientActivity createShClientActivity() throws CreateActivityException;
+    
+    
+    /**
+     * Create a new Sh client activity to send and receive Diameter Sh messages.
+     * @throws CreateActivityException if the RA could not create the activity for any reason
+     * @return an ShClientActivity 
+     */
+    ShClientSubscriptionActivity createShClientSubscriptionActivity() throws CreateActivityException;
     
     /**
      * Sends a synchronous UserDataRequest which will block until an answer is received from the peer.
@@ -76,4 +87,21 @@ public interface ShClientProvider {
      * @throws IOException if there was a problem sending the request
      */
     SubscribeNotificationsAnswer subscribeNotificationsRequest(SubscribeNotificationsRequest message) throws IOException;
+    
+    /**
+	 * Return the number of peers this Diameter resource adaptor is connected
+	 * to.
+	 * 
+	 * @return connected peer count
+	 */
+	int getPeerCount();
+
+	/**
+	 * Returns array containing identities of connected peers FIXME: baranowb; -
+	 * should it be InetAddres, Port pair?
+	 * 
+	 * @return
+	 */
+	DiameterIdentityAvp[] getConnectedPeers();
+    
 }

@@ -5,8 +5,9 @@ import net.java.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvp
 
 import org.jdiameter.api.Avp;
 import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpRepresentation;
+import org.mobicents.slee.resource.diameter.stack.dictionary.AvpDictionary;
+import org.mobicents.slee.resource.diameter.stack.dictionary.AvpRepresentation;
+
 
 public class SupportedFeaturesAvpImpl extends GroupedAvpImpl implements SupportedFeaturesAvp {
 
@@ -35,7 +36,7 @@ public class SupportedFeaturesAvpImpl extends GroupedAvpImpl implements Supporte
 	}
 
 	public void setFeatureList(long featureList) {
-		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.FEATURE_LIST);
+		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.FEATURE_LIST,10415);
 
 		int mandatoryAvp = avpRep.getRuleMandatory().equals("mustnot") || avpRep.getRuleMandatory().equals("shouldnot") ? 0 : 1;
 		
@@ -43,7 +44,7 @@ public class SupportedFeaturesAvpImpl extends GroupedAvpImpl implements Supporte
 	}
 
 	public void setFeatureListId(long featureListId) {
-		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.FEATURE_LIST_ID);
+		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.FEATURE_LIST_ID,10415);
 
 		int mandatoryAvp = avpRep.getRuleMandatory().equals("mustnot") || avpRep.getRuleMandatory().equals("shouldnot") ? 0 : 1;
 		super.setAvpAsUInt32(DiameterShAvpCodes.FEATURE_LIST_ID, featureListId, mandatoryAvp==1, true);

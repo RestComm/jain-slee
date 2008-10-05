@@ -26,6 +26,7 @@ import org.jdiameter.common.impl.app.acc.AppAccSessionImpl;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 
 public class ServerAccSessionImpl extends AppAccSessionImpl implements ServerAccSession, NetworkReqListener {
@@ -37,6 +38,8 @@ public class ServerAccSessionImpl extends AppAccSessionImpl implements ServerAcc
     protected ServerAccSessionListener listener;
     protected boolean stateless = false;
 
+    //protected Logger logger =Logger.getLogger(ServerAccSessionImpl.class.getCanonicalName());
+    
     public ServerAccSessionImpl(Session session, Request initialRequest, ServerAccSessionListener listener, long tsTimeout, boolean stateless, StateChangeListener... scListeners) {
         if (session == null)
             throw new IllegalArgumentException("Session can not be null");
@@ -52,7 +55,7 @@ public class ServerAccSessionImpl extends AppAccSessionImpl implements ServerAcc
         this.session.setRequestListener(this);
         for (StateChangeListener l : scListeners)
             addStateChangeNotification(l);
-        processRequest(initialRequest);
+        //processRequest(initialRequest);
     }
 
     public void sendAccountAnswer(AccountAnswer accountAnswer) throws InternalException, IllegalStateException, RouteException, OverloadException {

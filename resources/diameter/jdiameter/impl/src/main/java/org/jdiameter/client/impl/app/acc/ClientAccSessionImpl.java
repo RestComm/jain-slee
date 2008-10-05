@@ -418,6 +418,7 @@ public class ClientAccSessionImpl extends AppAccSessionImpl implements EventList
     }
 
     public void receivedSuccessMessage(Request request, Answer answer) {
+
         if (request.getCommandCode() == AccountRequestImpl.code) {
             try {
                 sendAndStateLock.lock();
@@ -452,6 +453,7 @@ public class ClientAccSessionImpl extends AppAccSessionImpl implements EventList
     public Answer processRequest(Request request) {
         if (request.getCommandCode() == AccountRequestImpl.code)
             try {
+
                 listener.doAccAnswerEvent(this, createAccountRequest(request), null);
             } catch (Exception e) {
                 logger.debug(e);

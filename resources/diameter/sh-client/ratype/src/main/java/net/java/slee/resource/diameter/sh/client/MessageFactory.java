@@ -19,11 +19,6 @@
  */
 package net.java.slee.resource.diameter.sh.client;
 
-import net.java.slee.resource.diameter.base.DiameterMessageFactory;
-import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
-import net.java.slee.resource.diameter.sh.client.events.avp.SupportedApplicationsAvp;
-import net.java.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvp;
-import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 
 
 /**
@@ -38,7 +33,7 @@ public interface MessageFactory {
      * Get a factory to create AVPs and messages defined by Diameter Base.
      * @return base Diameter message factory
      */
-    DiameterMessageFactory getBaseMessageFactory();
+    //DiameterMessageFactory getBaseMessageFactory();
         
     
 

@@ -13,7 +13,7 @@ import org.jdiameter.api.Session;
 import org.jdiameter.api.app.StateChangeListener;
 
 public abstract class AuthSessionActivityImpl extends DiameterActivityImpl
-		implements AuthSessionActivity, StateChangeListener {
+		implements AuthSessionActivity , StateChangeListener{
 
 	
 

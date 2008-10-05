@@ -344,6 +344,7 @@ public class ClientAuthSessionImpl extends AppAuthSessionImpl implements ClientA
 	public void receivedSuccessMessage(Request request, Answer answer) {
 		try {
 			sendAndStateLock.lock();
+			//FIXME: baranowb: this shouldnt be like that
 			if (request.getCommandCode() == factory.getAuthMessageCommandCode()) {
 				handleEvent(new Event(Event.Type.RECEIVE_AUTH_ANSWER, factory.createAuthAnswer(answer)));
 			} else if (request.getCommandCode() == AbortSessionRequestImpl.code) {

@@ -11,8 +11,7 @@ import org.jdiameter.api.AvpDataException;
 import org.jdiameter.api.AvpSet;
 import org.jdiameter.api.Message;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpRepresentation;
+
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvpImpl;
 public class DiameterShMessageImpl extends DiameterMessageImpl implements DiameterShMessage {
 

@@ -5,8 +5,9 @@ import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 
 import org.jdiameter.api.AvpDataException;
 import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpRepresentation;
+import org.mobicents.slee.resource.diameter.stack.dictionary.AvpDictionary;
+import org.mobicents.slee.resource.diameter.stack.dictionary.AvpRepresentation;
+
 
 public class UserIdentityAvpImpl extends GroupedAvpImpl implements UserIdentityAvp {
 
@@ -19,7 +20,7 @@ public class UserIdentityAvpImpl extends GroupedAvpImpl implements UserIdentityA
 		if(hasMsisdn())
 		{
 			try {
-				return super.avpSet.getAvp(DiameterShAvpCodes.MSISDN).getRaw();
+				return super.avpSet.getAvp(DiameterShAvpCodes.MSISDN,10415).getRaw();
 			} catch (AvpDataException e) {
 				
 				e.printStackTrace();
@@ -32,7 +33,7 @@ public class UserIdentityAvpImpl extends GroupedAvpImpl implements UserIdentityA
 		if(hasPublicIdentity())
 		{
 			try {
-				return super.avpSet.getAvp(DiameterShAvpCodes.PUBLIC_IDENTITY).getUTF8String();
+				return super.avpSet.getAvp(DiameterShAvpCodes.PUBLIC_IDENTITY,10415).getUTF8String();
 			} catch (AvpDataException e) {
 				e.printStackTrace();
 			}
@@ -51,7 +52,7 @@ public class UserIdentityAvpImpl extends GroupedAvpImpl implements UserIdentityA
 
 	public void setMsisdn(byte[] msisdn) {
 		super.avpSet.removeAvp(DiameterShAvpCodes.MSISDN);
-		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.MSISDN);
+		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.MSISDN,10415);
 		int mandatoryAvp = avpRep.getRuleMandatory().equals("mustnot") || avpRep.getRuleMandatory().equals("shouldnot") ? 0 : 1;
 		int protectedAvp = avpRep.getRuleProtected().equals("must") ? 1 : 0;
 		super.avpSet.addAvp(DiameterShAvpCodes.MSISDN, msisdn, mandatoryAvp==1, protectedAvp==1);
@@ -60,7 +61,7 @@ public class UserIdentityAvpImpl extends GroupedAvpImpl implements UserIdentityA
 
 	public void setPublicIdentity(String publicIdentity) {
 		super.avpSet.removeAvp(DiameterShAvpCodes.PUBLIC_IDENTITY);
-		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.PUBLIC_IDENTITY);
+		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.PUBLIC_IDENTITY,10415);
 		int mandatoryAvp = avpRep.getRuleMandatory().equals("mustnot") || avpRep.getRuleMandatory().equals("shouldnot") ? 0 : 1;
 		//int protectedAvp = avpRep.getRuleProtected().equals("must") ? 1 : 0;
 		super.avpSet.addAvp(DiameterShAvpCodes.PUBLIC_IDENTITY, publicIdentity, mandatoryAvp==1);

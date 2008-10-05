@@ -19,11 +19,12 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
+				<module>diameterSAR</module>
 				<module>base</module>
+				<module>sh-client</module>
 				<!-- module>cca</module>
 				<module>rf</module>
 				<module>ro</module>
-				<module>sh-client</module>
 				<module>sh-server</module-->
 			</modules>
 		</profile>

@@ -19,7 +19,7 @@
  */
 package net.java.slee.resource.diameter.sh.client.events.avp;
 
-import java.util.Iterator;
+
 
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;

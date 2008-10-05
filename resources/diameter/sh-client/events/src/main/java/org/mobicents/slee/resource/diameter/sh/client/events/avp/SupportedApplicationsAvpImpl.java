@@ -1,6 +1,5 @@
 package org.mobicents.slee.resource.diameter.sh.client.events.avp;
 
-import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvp;
 import net.java.slee.resource.diameter.sh.client.events.avp.SupportedApplicationsAvp;

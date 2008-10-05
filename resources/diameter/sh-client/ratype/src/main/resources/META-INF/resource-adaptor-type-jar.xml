@@ -42,7 +42,7 @@
 
             <activity-type>
                 <activity-type-name>
-                    net.java.slee.resource.diameter.sh.ShClientNotificationActivity
+                    net.java.slee.resource.diameter.sh.ShClientSubscriptionActivity
                 </activity-type-name>
             </activity-type>
 

@@ -11,12 +11,12 @@ import org.jdiameter.api.Session;
 import org.jdiameter.api.Stack;
 import org.jdiameter.client.impl.helpers.UIDGenerator;
 import org.mobicents.slee.resource.diameter.base.DiameterMessageFactoryImpl;
-import org.mobicents.slee.resource.diameter.base.events.ProfileUpdateRequestImpl;
-import org.mobicents.slee.resource.diameter.base.events.UserDataRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.ProfileUpdateAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.PushNotificationRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.UserDataAnswerImpl;
+import org.mobicents.slee.resource.diameter.sh.server.events.ProfileUpdateRequestImpl;
+import org.mobicents.slee.resource.diameter.sh.server.events.UserDataRequestImpl;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.DiameterMessageFactory;

@@ -9,8 +9,12 @@ import org.jdiameter.api.EventListener;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.jdiameter.api.auth.ClientAuthSession;
+import org.jdiameter.client.impl.app.auth.ClientAuthSessionImpl;
+import org.jdiameter.common.api.app.auth.ClientAuthSessionState;
 
+import net.java.slee.resource.diameter.base.AccountingSessionState;
 import net.java.slee.resource.diameter.base.AuthClientSessionActivity;
+import net.java.slee.resource.diameter.base.AuthSessionState;
 import net.java.slee.resource.diameter.base.events.AbortSessionAnswer;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.ReAuthAnswer;
@@ -26,14 +30,14 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl
 	public AuthClientSessionActivityImpl(
 			DiameterMessageFactoryImpl messageFactory,
 			DiameterAvpFactoryImpl avpFactory, ClientAuthSession clientSession,
-			EventListener<Request, Answer> raEventListener, long timeout,
+			 long timeout,
 			DiameterIdentityAvp destinationHost,
 			DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint) {
-		super(messageFactory, avpFactory, null, raEventListener, timeout,
+		super(messageFactory, avpFactory, null, (EventListener<Request, Answer>) clientSession, timeout,
 				destinationHost, destinationRealm,endpoint);
 		
 		this.clientSession=clientSession;
-		this.clientSession.addStateChangeNotification(this);
+		//this.clientSession.addStateChangeNotification(this);
 		super.setCurrentWorkingSession(clientSession.getSessions().get(0));
 		
 	}
@@ -58,9 +62,34 @@ public class AuthClientSessionActivityImpl extends AuthSessionActivityImpl
 
 	}
 
-	public void stateChanged(Enum arg0, Enum arg1) {
-		// TODO Auto-generated method stub
+	public void stateChanged(Enum oldState, Enum newState) {
+		
+		ClientAuthSessionState state=(ClientAuthSessionState) newState;
+		switch(state)
+		{
+		case IDLE:
+			super.state=AuthSessionState.Idle;
+			break;
+		case OPEN:
+			super.state=AuthSessionState.Open;
+			break;
+		case  PENDING:
+			super.state=AuthSessionState.Pending;
+			break;
+		case DISCONNECTED:
+			super.state=AuthSessionState.Disconnected;
+			String sessionId = this.clientSession.getSessions().get(0)
+			.getSessionId();
 
+			this.clientSession.release();
+			this.baseListener.sessionDestroyed(sessionId, this.clientSession);
+			break;
+		}
+
+	}
+
+	public ClientAuthSession getSession() {
+		return this.clientSession;
 	}
 
 }

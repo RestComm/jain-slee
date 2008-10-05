@@ -24,20 +24,27 @@ import java.io.IOException;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 
 /**
+ * /**
  * Represents a session with a Diameter peer.  
  * DiameterMessages (both requests and responses) are received as events fired on DiameterActivity objects.
- * @author Open Cloud
+ * 
+ * @author baranowb
  */
 public interface DiameterActivity {
 
     /**
      * Return a DiameterMessageFactory implementation to be used to create
      * instances to of {@link DiameterMessage} object to be fired on this Activity.
+     * <br> returned type depends on implementation
      * @return a DiameterMessageFactory implementation
      */
-    DiameterMessageFactory getDiameterMessageFactory();
-
-    DiameterAvpFactory getDiameterAvpFactory();
+    Object getDiameterMessageFactory();
+    /**
+     * Returns a DiameterAvp factory which can be used to create instances of avps.
+     * <br> Return type depends on implementing object.
+     * @return
+     */
+    Object getDiameterAvpFactory();
     
     /**
      * Sends the given DiameterMessage on the DiameterActivity.
@@ -51,7 +58,9 @@ public interface DiameterActivity {
      * @return the Session ID for this activity
      */
     String getSessionId();
-    
+    /**
+     * Terminates underlying session
+     */
     void endActivity();
     
     

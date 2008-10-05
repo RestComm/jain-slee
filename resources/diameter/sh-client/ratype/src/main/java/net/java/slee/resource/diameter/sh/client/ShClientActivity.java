@@ -28,19 +28,10 @@ import net.java.slee.resource.diameter.sh.server.events.SubscribeNotificationsRe
 import net.java.slee.resource.diameter.sh.server.events.UserDataRequest;
 
 /**
- * Activity for a Diameter Sh client to send request messages and receive answer messages.  
- * <p/>
- * The following messages can be fired as events:
- * <UL> 
- *   <LI>UserDataAnswer
- *   <LI>ProfileUpdateAnswer
- *   <LI>SubscribeNotificationsAnswer
- * </UL> 
- * <p/>
+ 
  * These are stateless requests (the Diameter server does not maintain any state associated with these requests) 
  * so the activity ends when the answer event is fired.
  * 
- * @author Open Cloud
  */
 public interface ShClientActivity extends DiameterActivity{
 
@@ -60,12 +51,5 @@ public interface ShClientActivity extends DiameterActivity{
      */
     void sendProfileUpdateRequest(ProfileUpdateRequest message) throws IOException;
 
-    /**
-     * Send a Subscribe-Notifications-Request message asynchronously.
-     *
-     * @param message request message to send
-     * @throws IOException if the request message could not be sent
-     */
-    void sendSubscribeNotificationsRequest(SubscribeNotificationsRequest message) throws IOException;
 
 }

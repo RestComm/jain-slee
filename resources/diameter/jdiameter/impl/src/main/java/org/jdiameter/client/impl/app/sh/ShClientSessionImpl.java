@@ -36,9 +36,13 @@ import org.jdiameter.common.api.app.sh.IShMessageFactory;
 import org.jdiameter.common.api.app.sh.ShSessionState;
 import org.jdiameter.common.impl.app.AppAnswerEventImpl;
 import org.jdiameter.common.impl.app.AppRequestEventImpl;
+import org.jdiameter.common.impl.app.sh.ProfileUpdateAnswerImpl;
 import org.jdiameter.common.impl.app.sh.ProfileUpdateRequestImpl;
+import org.jdiameter.common.impl.app.sh.PushNotificationRequestImpl;
 import org.jdiameter.common.impl.app.sh.ShSession;
+import org.jdiameter.common.impl.app.sh.SubscribeNotificationsAnswerImpl;
 import org.jdiameter.common.impl.app.sh.SubscribeNotificationsRequestImpl;
+import org.jdiameter.common.impl.app.sh.UserDataAnswerImpl;
 import org.jdiameter.common.impl.app.sh.UserDataRequestImpl;
 
 /**
@@ -59,7 +63,7 @@ import org.jdiameter.common.impl.app.sh.UserDataRequestImpl;
  */
 public class ShClientSessionImpl extends ShSession implements ClientShSession, EventListener<Request, Answer>, NetworkReqListener {
 
-	protected ShSessionState state = null;
+	protected ShSessionState state = ShSessionState.NOTSUBSCRIBED;
 	protected boolean stateless = false;
 	protected IShMessageFactory factory = null;
 	protected String destHost, destRealm;
@@ -135,10 +139,11 @@ public class ShClientSessionImpl extends ShSession implements ClientShSession, E
 						newState = doSNX(answer);
 
 					} else if (event.getType() == Event.Type.RECEIVE_PUSH_NOTIFICATION_REQUEST) {
-						throw new InternalException("ShClientSession is not connected yet, but it received PNR from HSS!!!");
+						//throw new InternalException("ShClientSession is not connected yet, but it received PNR from HSS!!!");
+						newState = ShSessionState.SUBSCRIBED;
 					} else if (event.getType() == Event.Type.TIMEOUT_EXPIRES) {
 						newState = ShSessionState.TERMINATED;
-					} else {
+					} else if(event.getType() != Event.Type.SEND_USER_DATA_REQUEST && event.getType() != Event.Type.SEND_PROFILE_UPDATE_REQUEST && event.getType() != Event.Type.SEND_SUBSCRIBE_NOTIFICATIONS_REQUEST ){
 						// Other messages just make it go into terminated state
 						// and release
 						newState = ShSessionState.TERMINATED;
@@ -156,7 +161,7 @@ public class ShClientSessionImpl extends ShSession implements ClientShSession, E
 						if (localEvent.getReqeust().getCommandCode() == SubscribeNotificationsRequestImpl.code)
 							newState = ShSessionState.TERMINATED;
 					} else {
-						// FIXME: Do we handle HERE STR??????
+					
 						// FIXME: What about timeout here?
 					}
 					break;
@@ -170,23 +175,29 @@ public class ShClientSessionImpl extends ShSession implements ClientShSession, E
 				try {
 					switch ((Event.Type) localEvent.getType()) {
 					case RECEIVE_PUSH_NOTIFICATION_REQUEST:
-						listener.doPushNotificationRequestEvent(this, (PushNotificationRequest) localEvent.getReqeust());
+						
+					
+						
+						listener.doPushNotificationRequestEvent(this, new PushNotificationRequestImpl( (Request) localEvent.getReqeust().getMessage() ));
 						break;
 					case RECEIVE_PROFILE_UPDATE_ANSWER:
-						listener.doProfileUpdateAnswerEvent(this, (ProfileUpdateRequest) localEvent.getReqeust(), (ProfileUpdateAnswer) localEvent.getAnswer());
+			
+						listener.doProfileUpdateAnswerEvent(this, null, new ProfileUpdateAnswerImpl( (Answer) localEvent.getAnswer().getMessage()));
 						break;
 					case RECEIVE_USER_DATA_ANSWER:
-						listener.doUserDataAnswerEvent(this, (UserDataRequest) localEvent.getReqeust(), (UserDataAnswer) localEvent.getAnswer());
+						
+						
+						listener.doUserDataAnswerEvent(this, null, new UserDataAnswerImpl((Answer) localEvent.getAnswer().getMessage()));
 						break;
 					case RECEIVE_SUBSCRIBE_NOTIFICATIONS_ANSWER:
-						listener.doSubscribeNotificationsAnswerEvent(this, (SubscribeNotificationsRequest) localEvent.getReqeust(), (SubscribeNotificationsAnswer) localEvent
-								.getAnswer());
+						listener.doSubscribeNotificationsAnswerEvent(this, null, new SubscribeNotificationsAnswerImpl( (Answer) localEvent.getAnswer().getMessage()));
 						break;
 					case SEND_PROFILE_UPDATE_REQUEST:
 					case SEND_PUSH_NOTIFICATION_ANSWER:
 					case SEND_SUBSCRIBE_NOTIFICATIONS_REQUEST:
 					case SEND_USER_DATA_REQUEST:
 					case TIMEOUT_EXPIRES:
+						//FIXME: baranowb
 						break;
 
 					default:
@@ -281,7 +292,7 @@ public class ShClientSessionImpl extends ShSession implements ClientShSession, E
 	}
 
 	public void sendUserDataRequest(UserDataRequest request) throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
-		send(Event.Type.SEND_SUBSCRIBE_NOTIFICATIONS_REQUEST, request, null);
+		send(Event.Type.SEND_USER_DATA_REQUEST, request, null);
 
 	}
 
@@ -391,7 +402,7 @@ public class ShClientSessionImpl extends ShSession implements ClientShSession, E
 			sendAndStateLock.lock();
 			if (state != ShSessionState.TERMINATED) {
 				setState(ShSessionState.TERMINATED, false);
-				session.release();
+				//session.release();
 				super.release();
 			}
 			

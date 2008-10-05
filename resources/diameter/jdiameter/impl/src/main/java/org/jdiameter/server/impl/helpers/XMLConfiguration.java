@@ -86,10 +86,10 @@ public class XMLConfiguration extends EmptyConfiguration {
 
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document;
+       
         if (in instanceof InputStream)
             document = builder.parse((InputStream)in);
-        else
-        if (in instanceof String)
+        else if (in instanceof String)
             document = builder.parse(new File((String)in));
         else
             throw  new Exception("Unknown type of input data");

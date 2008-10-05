@@ -56,7 +56,7 @@ import org.jdiameter.common.impl.app.sh.ShSession;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ShServerSessionImpl extends ShSession implements ServerShSession, EventListener<Request, Answer>, NetworkReqListener {
-	protected ShSessionState state = null;
+	protected ShSessionState state = ShSessionState.NOTSUBSCRIBED;
 	protected boolean stateless = false;
 	protected IShMessageFactory factory = null;
 	protected String destHost, destRealm;

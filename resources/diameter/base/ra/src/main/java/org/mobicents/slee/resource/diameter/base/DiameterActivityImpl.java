@@ -19,6 +19,7 @@ import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.Session;
 import org.mobicents.slee.resource.diameter.base.events.DiameterMessageImpl;
+import org.mobicents.slee.resource.diameter.base.handlers.BaseSessionCreationListener;
 
 public class DiameterActivityImpl implements DiameterActivity {
 
@@ -33,6 +34,10 @@ public class DiameterActivityImpl implements DiameterActivity {
 			.getLogger(DiameterActivityImpl.class);
 	protected DiameterIdentityAvp destinationHost, destinationRealm;
 	protected SleeEndpoint endpoint=null;
+	
+
+	
+	protected BaseSessionCreationListener baseListener=null;
 	
 	public DiameterActivityImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, Session session,
 			EventListener<Request, Answer> raEventListener, long timeout, DiameterIdentityAvp destinationHost, 
@@ -79,12 +84,12 @@ public class DiameterActivityImpl implements DiameterActivity {
 		}
 	}
 
-	public DiameterAvpFactory getDiameterAvpFactory()
+	public Object getDiameterAvpFactory()
 	{
 		return this.avpFactory;
 	}
 
-	public DiameterMessageFactory getDiameterMessageFactory()
+	public Object getDiameterMessageFactory()
 	{
 		return this.messageFactory;
 	}
@@ -146,4 +151,14 @@ public class DiameterActivityImpl implements DiameterActivity {
 	{
 	  return this.session.isValid();
 	}
+	
+	
+	public Object getSessionListener() {
+		return baseListener;
+	}
+
+	public void setSessionListener(Object ra) {
+		this.baseListener = (BaseSessionCreationListener) ra;
+	}
+	
 }

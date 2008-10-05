@@ -1,14 +1,16 @@
 package org.mobicents.slee.resource.diameter.sh.client;
 
 import org.apache.log4j.Logger;
+import org.jdiameter.api.Stack;
 import org.jdiameter.client.impl.parser.MessageParser;
 import org.mobicents.slee.resource.diameter.base.DiameterAvpFactoryImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvpImpl;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpDictionary;
-import org.mobicents.slee.resource.diameter.base.events.avp.util.AvpRepresentation;
+
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.SupportedApplicationsAvpImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvpImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.UserIdentityAvpImpl;
+import org.mobicents.slee.resource.diameter.stack.dictionary.AvpDictionary;
+import org.mobicents.slee.resource.diameter.stack.dictionary.AvpRepresentation;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
@@ -26,6 +28,23 @@ public class DiameterShAvpFactoryImpl implements DiameterShAvpFactory {
 
 	protected MessageParser parser = new MessageParser(null);
 
+	protected Stack stack=null;
+	
+	
+	
+	public DiameterShAvpFactoryImpl(DiameterAvpFactory baseAvpFactory,
+			Stack stack) {
+		super();
+		this.baseAvpFactory = baseAvpFactory;
+		this.stack = stack;
+	}
+
+	public DiameterShAvpFactoryImpl(Stack stack) {
+		super();
+		this.stack = stack;
+		this.baseAvpFactory=new DiameterAvpFactoryImpl();
+	}
+
 	public SupportedApplicationsAvp createSupportedApplications(long authApplicationId, long acctApplicationId, VendorSpecificApplicationIdAvp vendorSpecificApplicationId) {
 		SupportedApplicationsAvp n=this.createSupportedApplications();
 		n.setAcctApplicationId(acctApplicationId);
@@ -34,7 +53,7 @@ public class DiameterShAvpFactoryImpl implements DiameterShAvpFactory {
 	}
 
 	public SupportedApplicationsAvp createSupportedApplications() {
-		 AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.SUPPORTED_APPLICATIONS);
+		 AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.SUPPORTED_APPLICATIONS,ShClientMessageFactoryImpl._SH_VENDOR_ID);
 
 		 int mandatoryAvp = avpRep.getRuleMandatory().equals("mustnot") || avpRep.getRuleMandatory().equals("shouldnot") ? 0 : 1;
 		 int protectedAvp = avpRep.getRuleProtected().equals("must") ? 1 : 0;
@@ -52,7 +71,7 @@ public class DiameterShAvpFactoryImpl implements DiameterShAvpFactory {
 	}
 
 	public SupportedFeaturesAvp createSupportedFeatures() {
-		 AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.SUPPORTED_FEATURES);
+		 AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.SUPPORTED_FEATURES,ShClientMessageFactoryImpl._SH_VENDOR_ID);
 
 		 int mandatoryAvp = avpRep.getRuleMandatory().equals("mustnot") || avpRep.getRuleMandatory().equals("shouldnot") ? 0 : 1;
 		 int protectedAvp = avpRep.getRuleProtected().equals("must") ? 1 : 0;
@@ -61,7 +80,8 @@ public class DiameterShAvpFactoryImpl implements DiameterShAvpFactory {
 	}
 
 	public UserIdentityAvp createUserIdentity() {
-		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.USER_IDENTITY);
+		AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(DiameterShAvpCodes.USER_IDENTITY,ShClientMessageFactoryImpl._SH_VENDOR_ID);
+
 
 		 int mandatoryAvp = avpRep.getRuleMandatory().equals("mustnot") || avpRep.getRuleMandatory().equals("shouldnot") ? 0 : 1;
 		 int protectedAvp = avpRep.getRuleProtected().equals("must") ? 1 : 0;
