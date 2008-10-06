@@ -1200,7 +1200,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			t = txTerminatedEvent.getServerTransaction();
 		}
 		if (log.isInfoEnabled()) {
-			log.info("Transaction "+t.getBranchId()+"terminated");
+			log.info("SIP Transaction "+t.getBranchId()+" terminated");
 		}
 		
 		//HACK FOR ACK.......
@@ -1242,7 +1242,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	public void processDialogTerminated(DialogTerminatedEvent dte) {
 		
 		if (log.isInfoEnabled()) {
-			log.info("Dialog " + dte.getDialog().getDialogId() + " terminated");
+			log.info("SIP Dialog " + dte.getDialog().getDialogId() + " terminated");
 		}
 		 
 		if (dte.getDialog().getApplicationData() != null) {
