@@ -4,11 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sip.message.Request;
 import javax.sip.message.Response;
-import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.EventLookupFacility;
-import javax.slee.facilities.FacilityException;
-
-import org.mobicents.slee.container.component.ComponentKey;
 
 public class EventIDCache {
 
@@ -55,7 +51,8 @@ public class EventIDCache {
 		}
 		
 		if (inDialog) {
-			return getEventId(eventLookupFacility, EVENT_PREFIX_1_2 + RESPONSE_MIDIX + statusCodeName, VENDOR_1_2, VERSION_1_2);
+			// in dialog responses use the 1.1 event id prefix
+			return getEventId(eventLookupFacility, EVENT_PREFIX_1_1 + RESPONSE_MIDIX + statusCodeName, VENDOR_1_2, VERSION_1_2);
 		} else {
 			return getEventId(eventLookupFacility, EVENT_PREFIX_1_1 + RESPONSE_MIDIX + statusCodeName, VENDOR_1_1, VERSION_1_1);
 		}
