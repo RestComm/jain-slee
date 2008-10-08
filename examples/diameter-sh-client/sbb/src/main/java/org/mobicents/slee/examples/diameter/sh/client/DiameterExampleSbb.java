@@ -69,6 +69,9 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
   private ShClientActivityContextInterfaceFactory acif=null;
   private TimerFacility timerFacility = null;
   
+  private String originIP = "127.0.0.1";
+  private String destinationIP = "127.0.0.1";
+  
   public void setSbbContext( SbbContext context )
   {
     logger.info( "sbbRolledBack invoked." );
@@ -231,9 +234,9 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
   
   public void onTimerEvent(TimerEvent event, ActivityContextInterface aci)
   {
-	  doSimpleTestsSendUDR();
+	  //doSimpleTestsSendUDR();
 	
-	  //doSimpleTestSendSNR();
+	  doSimpleTestSendSNR();
   }
   
   private void doSimpleTestsSendUDR()
@@ -277,10 +280,10 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
 		      
 		      avps.add( avpFactory.getBaseFactory().createAvp( Avp.VENDOR_SPECIFIC_APPLICATION_ID, new DiameterAvp[]{avpVendorId, avpAcctApplicationId} ) );
 		      
-		      avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, "aaa://127.0.0.1:1812".getBytes() ));
+		      avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, "aaa://" + originIP + ":1812".getBytes() ));
 		      avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes() ));
 		      
-		      avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, "aaa://127.0.0.1:3868".getBytes() ));
+		      avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, "aaa://" + destinationIP + ":3868".getBytes() ));
 		      avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_REALM, "mobicents.org".getBytes() ));
 		      UserIdentityAvp ui=avpFactory.createUserIdentity();
 		      ui.setPublicIdentity("sip:subscriber@mobicents.org");
@@ -334,11 +337,11 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
 	     
 		//				{ Auth-Session-State }
 		//				{ Origin-Host }
-	      avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, "aaa://127.0.0.1:1812".getBytes() ));
+	      avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, "aaa://" + originIP + ":1812".getBytes() ));
 		//				{ Origin-Realm }
 	      avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes() ));
 		//				[ Destination-Host ]
-	      avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, "aaa://127.0.0.1:3868".getBytes() ));
+	      avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, "aaa://" + destinationIP + ":3868".getBytes() ));
 		//				{ Destination-Realm }
 	      avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_REALM, "mobicents.org".getBytes() ));
 		//				*[ Supported-Features ]
@@ -393,6 +396,7 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
   public void onSubscriptionNotificationsAnswer(net.java.slee.resource.diameter.sh.client.events.SubscribeNotificationsAnswer sna, ActivityContextInterface aci)
   {
 	  logger.info( "Subscription-Notifications-Answer activity["+aci.getActivity()+"] received.\n"+sna );
+	  logger.info( "Subscription-Notifications-Answer Result-Code["+sna.getResultCode()+"].");
   }
   
   public void onUserDataRequestAnswer(net.java.slee.resource.diameter.sh.client.events.UserDataAnswer uda, ActivityContextInterface aci)
@@ -427,13 +431,13 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
           switch(avp.getCode())
           {
           case Avp.ORIGIN_HOST:
-            avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, "aaa://127.0.0.1:1812".getBytes() ));
+            avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, "aaa://" + originIP + ":1812".getBytes() ));
             break;
           case Avp.ORIGIN_REALM:
             avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_REALM, "mobicents.org".getBytes() ));
             break;
           case Avp.DESTINATION_HOST:
-            avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, "aaa://127.0.0.1:21812".getBytes() ));
+            avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, "aaa://" + destinationIP + ":21812".getBytes() ));
             hasDestinationHost = true;
             break;
           case Avp.DESTINATION_REALM:
@@ -446,7 +450,7 @@ public abstract class DiameterExampleSbb implements javax.slee.Sbb {
         }
 
         if(!hasDestinationHost)
-          avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, "127.0.0.1".getBytes() ));
+          avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, destinationIP.getBytes() ));
         
         if(!hasDestinationRealm)
           avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_REALM, "mobicents.org".getBytes() ));
