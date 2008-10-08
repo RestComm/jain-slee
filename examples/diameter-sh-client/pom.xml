@@ -10,7 +10,7 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	
-	<artifactId>diameter-example-parent</artifactId>
+	<artifactId>diameter-sh-client-example-parent</artifactId>
 	<groupId>org.mobicents.examples</groupId>
 	
 	<name>Mobicents :: Examples :: ${pom.artifactId}</name>

@@ -19,16 +19,6 @@
 		<module>du</module>
 	</modules>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.mobicents.diameter</groupId>
-			<artifactId>mobicents-diameter-mux-jar</artifactId>
-			<version>1.0.0.BETA1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		
-	</dependencies>
-
 	<profiles>
 		<profile>
 			<id>release</id>

@@ -11,19 +11,10 @@
 
 	<artifactId>sh-client-parent</artifactId>
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
-	<dependencies>
-		<dependency>
-			<groupId>org.mobicents.diameter</groupId>
-			<artifactId>mobicents-diameter-mux-jar</artifactId>
-			<version>1.0.0.BETA1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+
 	<modules>
-		<module>../base/events</module>
-		<module>events</module>
-		<module>../base/ratype</module>
-		<module>../sh-server/events</module>
+    <module>../sh-server/events</module>
+    <module>events</module>
 		<module>ratype</module>
 		<module>ra</module>
 		<module>du</module>

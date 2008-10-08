@@ -9,6 +9,8 @@
 	</parent>
 	
 	<artifactId>diameter-example-sbb</artifactId>
+
+  <name>Mobicents :: Examples :: ${pom.artifactId}</name>
 		
 	<dependencies>
 		<dependency>

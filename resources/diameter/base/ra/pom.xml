@@ -11,6 +11,11 @@
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
 	<dependencies>
+    <dependency>
+      <groupId>org.mobicents.diameter</groupId>
+      <artifactId>mobicents-diameter-mux-jar</artifactId>
+      <version>1.0.0.BETA1-SNAPSHOT</version>
+    </dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>base-ratype</artifactId>

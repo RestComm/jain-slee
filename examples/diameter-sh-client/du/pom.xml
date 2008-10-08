@@ -9,25 +9,15 @@
 		<version>1.3.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>diameter-DU</artifactId>
+	<artifactId>diameter-sh-client-example-DU</artifactId>
+
+  <name>Mobicents :: Examples :: ${pom.artifactId}</name>
 	
 	<dependencies>
 		<dependency>
-			<artifactId>diameter-example-sbb</artifactId>
+			<artifactId>diameter-sh-client-example-sbb</artifactId>
 			<groupId>org.mobicents.examples</groupId>
 			<version>${pom.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mobicents.resources.diameter</groupId>
-			<artifactId>jdiameter-impl</artifactId>
-			<version>1.5.0.1-build183</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<artifactId>picocontainer</artifactId>
-			<groupId>picocontainer</groupId>
-			<version>${picocontainer.version}</version>
-			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	

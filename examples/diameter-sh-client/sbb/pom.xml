@@ -8,8 +8,10 @@
 		<version>1.3.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>diameter-example-sbb</artifactId>
+	<artifactId>diameter-sh-client-example-sbb</artifactId>
 		
+  <name>Mobicents :: Examples :: ${pom.artifactId}</name>
+
 	<dependencies>
 		<dependency>
 			<groupId>javax.slee</groupId>
