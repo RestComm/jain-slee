@@ -104,9 +104,9 @@ import org.mobicents.slee.resource.diameter.base.events.avp.DiameterIdentityAvpI
 import org.mobicents.slee.resource.diameter.base.handlers.AccountingSessionFactory;
 import org.mobicents.slee.resource.diameter.base.handlers.AuthorizationSessionFactory;
 import org.mobicents.slee.resource.diameter.base.handlers.BaseSessionCreationListener;
-import org.mobicents.slee.resource.diameter.stack.DiameterStackMultiplexerProxyMBeanImpl;
-import org.mobicents.slee.resource.diameter.stack.DiameterStackMultiplexerProxyMBeanImplMBean;
-import org.mobicents.slee.resource.diameter.stack.RADiameterListener;
+import org.mobicents.diameter.stack.DiameterStackMultiplexer;
+import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
+import org.mobicents.diameter.stack.DiameterListener;
 
 /**
  * Diameter Resource Adaptor
@@ -119,7 +119,7 @@ import org.mobicents.slee.resource.diameter.stack.RADiameterListener;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author Erick Svenson
  */
-public class DiameterBaseResourceAdaptor implements ResourceAdaptor, RADiameterListener, BaseSessionCreationListener {
+public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterListener, BaseSessionCreationListener {
   
 	private static final long serialVersionUID = 1L;
 
@@ -132,7 +132,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, RADiameterL
 	private long messageTimeout = 5000;
 	//private DiameterStackMultiplexerProxyMBeanImpl proxy=new DiameterStackMultiplexerProxyMBeanImpl();
 	private ObjectName diameterMultiplexerObjectName = null;
-	private DiameterStackMultiplexerProxyMBeanImplMBean diameterMux=null;
+	private DiameterStackMultiplexerMBean diameterMux=null;
 	private DiameterAvpFactoryImpl diameterAvpFactory = new DiameterAvpFactoryImpl();
 	/**
 	 * The BootstrapContext provides the resource adaptor with the required
@@ -285,8 +285,8 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, RADiameterL
 			    
 			    Object object = SleeContainer.lookupFromJndi().getMBeanServer().invoke( this.diameterMultiplexerObjectName, operation, params, signature );
 			    
-			    if(object instanceof DiameterStackMultiplexerProxyMBeanImplMBean)
-			      this.diameterMux = (DiameterStackMultiplexerProxyMBeanImplMBean) object;
+			    if(object instanceof DiameterStackMultiplexerMBean)
+			      this.diameterMux = (DiameterStackMultiplexerMBean) object;
 			
 			
 			
@@ -466,7 +466,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, RADiameterL
 		//}
 
 		try{
-			diameterMux.deregisterRa(this);
+			diameterMux.unregisterListener(this);
 		}catch (Exception e) 
 		{
 			logger.error("", e);
@@ -818,7 +818,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, RADiameterL
 			Integer ii=it.next();
 			command[i]=ii.longValue();
 		}
-		this.diameterMux.registerRa(this, new ApplicationId[]{ApplicationId.createByAccAppId(193L, 19302L),ApplicationId.createByAuthAppId(193L, 19301L)}, command);
+		this.diameterMux.registerListener( this, new ApplicationId[]{ApplicationId.createByAccAppId(193L, 19302L),ApplicationId.createByAuthAppId(193L, 19301L)});
 		this.stack=this.diameterMux.getStack();
 		this.messageTimeout = stack.getMetaData().getConfiguration().getLongValue(MessageTimeOut.ordinal(), (Long) MessageTimeOut.defValue());
 		logger.info("Diameter Base RA :: Successfully initialized stack.");

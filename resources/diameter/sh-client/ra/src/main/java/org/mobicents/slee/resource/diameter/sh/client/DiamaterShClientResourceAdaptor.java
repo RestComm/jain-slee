@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
@@ -31,11 +30,9 @@ import javax.slee.resource.SleeEndpoint;
 
 import net.java.slee.resource.diameter.base.CreateActivityException;
 import net.java.slee.resource.diameter.base.DiameterActivity;
-import net.java.slee.resource.diameter.base.DiameterProvider;
 import net.java.slee.resource.diameter.base.events.DiameterMessage;
 import net.java.slee.resource.diameter.base.events.ErrorAnswer;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentityAvp;
-
 import net.java.slee.resource.diameter.sh.client.DiameterShAvpFactory;
 import net.java.slee.resource.diameter.sh.client.ShClientActivity;
 import net.java.slee.resource.diameter.sh.client.ShClientActivityContextInterfaceFactory;
@@ -75,9 +72,10 @@ import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.client.impl.app.sh.ShClientSessionImpl;
 import org.jdiameter.common.api.app.IAppSessionFactory;
 import org.jdiameter.common.api.app.sh.IShMessageFactory;
-import org.jdiameter.common.api.app.sh.ShSessionState;
 import org.jdiameter.common.impl.app.AppAnswerEventImpl;
 import org.jdiameter.common.impl.app.AppRequestEventImpl;
+import org.mobicents.diameter.stack.DiameterListener;
+import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
@@ -98,19 +96,18 @@ import org.mobicents.slee.resource.diameter.sh.server.events.ProfileUpdateReques
 import org.mobicents.slee.resource.diameter.sh.server.events.PushNotificationAnswerImpl;
 import org.mobicents.slee.resource.diameter.sh.server.events.SubscribeNotificationsRequestImpl;
 import org.mobicents.slee.resource.diameter.sh.server.events.UserDataRequestImpl;
-import org.mobicents.slee.resource.diameter.stack.DiameterStackMultiplexerProxyMBeanImpl;
-import org.mobicents.slee.resource.diameter.stack.DiameterStackMultiplexerProxyMBeanImplMBean;
-import org.mobicents.slee.resource.diameter.stack.RADiameterListener;
 
-public class DiamaterShClientResourceAdaptor implements ResourceAdaptor, RADiameterListener , ShClientSessionListener{
+public class DiamaterShClientResourceAdaptor implements ResourceAdaptor, DiameterListener , ShClientSessionListener{
 
-	private static transient Logger logger = Logger.getLogger(DiamaterShClientResourceAdaptor.class);
+  private static final long serialVersionUID = 1L;
+  
+  private static transient Logger logger = Logger.getLogger(DiamaterShClientResourceAdaptor.class);
 	private Stack stack;
 	private SessionFactory sessionFactory = null;
 	private long messageTimeout = 5000;
 	//private DiameterStackMultiplexerProxyMBeanImpl proxy = null;
 	private ObjectName diameterMultiplexerObjectName = null;
-	private DiameterStackMultiplexerProxyMBeanImplMBean diameterMux=null;
+	private DiameterStackMultiplexerMBean diameterMux=null;
 	private ResourceAdaptorState state;
 
 	/**
@@ -244,8 +241,8 @@ public class DiamaterShClientResourceAdaptor implements ResourceAdaptor, RADiame
 		    
 		    Object object = SleeContainer.lookupFromJndi().getMBeanServer().invoke( this.diameterMultiplexerObjectName, operation, params, signature );
 		    
-		    if(object instanceof DiameterStackMultiplexerProxyMBeanImplMBean)
-		      this.diameterMux = (DiameterStackMultiplexerProxyMBeanImplMBean) object;
+		    if(object instanceof DiameterStackMultiplexerMBean)
+		      this.diameterMux = (DiameterStackMultiplexerMBean) object;
 		
 			initStack();
 
@@ -325,7 +322,7 @@ public class DiamaterShClientResourceAdaptor implements ResourceAdaptor, RADiame
 		this.state = ResourceAdaptorState.STOPPING;
 
 		try{
-			diameterMux.deregisterRa(this);
+			diameterMux.unregisterListener(this);
 		}catch (Exception e) 
 		{
 			logger.error("", e);
@@ -457,7 +454,7 @@ public class DiamaterShClientResourceAdaptor implements ResourceAdaptor, RADiame
 			command[i] = ii.longValue();
 		}
 
-		this.diameterMux.registerRa(this, new ApplicationId[]{ApplicationId.createByAccAppId(193L, 19302L),ApplicationId.createByAuthAppId(193L, 19301L)}, command);
+		this.diameterMux.registerListener(this, new ApplicationId[]{ApplicationId.createByAuthAppId(10415L, 16777217L)});
 		this.stack=this.diameterMux.getStack();
 		this.messageTimeout = stack.getMetaData().getConfiguration().getLongValue(MessageTimeOut.ordinal(), (Long) MessageTimeOut.defValue());
 		this.clientProvider=new ShClientProviderImpl(this);

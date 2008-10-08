@@ -5,8 +5,8 @@ import net.java.slee.resource.diameter.sh.client.events.avp.UserIdentityAvp;
 
 import org.jdiameter.api.AvpDataException;
 import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
-import org.mobicents.slee.resource.diameter.stack.dictionary.AvpDictionary;
-import org.mobicents.slee.resource.diameter.stack.dictionary.AvpRepresentation;
+import org.mobicents.diameter.dictionary.AvpDictionary;
+import org.mobicents.diameter.dictionary.AvpRepresentation;
 
 
 public class UserIdentityAvpImpl extends GroupedAvpImpl implements UserIdentityAvp {

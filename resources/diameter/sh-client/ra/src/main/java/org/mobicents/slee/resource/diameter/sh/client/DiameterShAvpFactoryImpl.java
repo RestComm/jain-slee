@@ -9,8 +9,8 @@ import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplic
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.SupportedApplicationsAvpImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.SupportedFeaturesAvpImpl;
 import org.mobicents.slee.resource.diameter.sh.client.events.avp.UserIdentityAvpImpl;
-import org.mobicents.slee.resource.diameter.stack.dictionary.AvpDictionary;
-import org.mobicents.slee.resource.diameter.stack.dictionary.AvpRepresentation;
+import org.mobicents.diameter.dictionary.AvpDictionary;
+import org.mobicents.diameter.dictionary.AvpRepresentation;
 
 import net.java.slee.resource.diameter.base.DiameterAvpFactory;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;

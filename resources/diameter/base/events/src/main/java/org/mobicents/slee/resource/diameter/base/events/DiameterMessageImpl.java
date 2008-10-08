@@ -35,7 +35,7 @@ import org.mobicents.slee.resource.diameter.base.events.avp.FailedAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.GroupedAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.ProxyInfoAvpImpl;
 import org.mobicents.slee.resource.diameter.base.events.avp.VendorSpecificApplicationIdAvpImpl;
-import org.mobicents.slee.resource.diameter.stack.dictionary.AvpDictionary;
+import org.mobicents.diameter.dictionary.AvpDictionary;
 
 /**
  * Super class for all diameter messages <br>

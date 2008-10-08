@@ -12,8 +12,8 @@ import org.jdiameter.api.AvpDataException;
 import org.jdiameter.api.Message;
 
 import org.mobicents.slee.resource.diameter.sh.client.events.DiameterShMessageImpl;
-import org.mobicents.slee.resource.diameter.stack.dictionary.AvpDictionary;
-import org.mobicents.slee.resource.diameter.stack.dictionary.AvpRepresentation;
+import org.mobicents.diameter.dictionary.AvpDictionary;
+import org.mobicents.diameter.dictionary.AvpRepresentation;
 
 public class UserDataRequestImpl extends SubscribeNotificationsRequestImpl implements UserDataRequest {
 
