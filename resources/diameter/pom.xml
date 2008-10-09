@@ -19,7 +19,8 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
-				<module>diameterSAR</module>
+        <module>jdiameter</module>
+        <module>mux</module>
 				<module>base</module>
 				<module>sh-client</module>
 				<!-- module>cca</module>

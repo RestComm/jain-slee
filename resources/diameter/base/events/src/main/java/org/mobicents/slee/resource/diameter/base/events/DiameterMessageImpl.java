@@ -738,8 +738,41 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 //        }
 //        else
 //        {
+        
+          String avpType = AvpDictionary.INSTANCE.getAvp( avp.getCode(), avp.getVendorId() ).getType();
+          Object avpValue = null;
+          
+          if("Integer32".equals(avpType) || "AppId".equals(avpType))
+          {
+            avpValue = avp.getInteger32();
+          }
+          else if("Unsigned32".equals(avpType) || "VendorId".equals(avpType))
+          {
+            avpValue = avp.getUnsigned32();
+          }
+          else if("Float64".equals(avpType))
+          {
+            avpValue = avp.getFloat64();
+          }
+          else if("Integer64".equals(avpType))
+          {
+            avpValue = avp.getInteger64();
+          }
+          else if("Time".equals(avpType))
+          {
+            avpValue = avp.getTime();
+          }
+          else if("Unsigned64".equals(avpType))
+          {
+            avpValue = avp.getUnsigned64();
+          }
+          else
+          {
+            avpValue = avp.getOctetString();
+          }
+          
           toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[" + 
-            avp.getUTF8String().replace( '\n', ' ' ).replace( '\r', ' ' ) + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
+            avpValue + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
             avp.isVendorId() + "]\r\n";
 //        }
       }
