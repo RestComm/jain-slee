@@ -16,6 +16,14 @@
       <arg value="install"/>
     </exec>
 
+    <exec executable="${executable}" dir="${home}/../../jdiameter/">
+      <arg value="install"/>
+    </exec>
+
+    <exec executable="${executable}" dir="${home}/../../mux/">
+      <arg value="install"/>
+    </exec>
+
     <exec executable="${executable}" dir="${home}/../../base/">
       <arg value="install"/>
     </exec>
@@ -31,6 +39,14 @@
     </exec>
 
     <exec executable="${executable}" dir="${home}/../../base/">
+      <arg value="clean"/>
+    </exec>
+
+    <exec executable="${executable}" dir="${home}/../../mux/">
+      <arg value="clean"/>
+    </exec>
+
+    <exec executable="${executable}" dir="${home}/../../jdiameter/">
       <arg value="clean"/>
     </exec>
 
