@@ -3,7 +3,7 @@
 
 	<property name="home" value="${ant.file.Release_build}/../" />
 
-	<property name="jboss.home" value="${home}../../@JBOSS_VERSION@/" />
+	<property name="jboss.home" value="${home}/@JBOSS.PATH@/" />
 	<property name="jboss.config" value="@JBOSS.CONFIG@" />
 	<property name="jnpHost" value="127.0.0.1" />
 	<property name="jnpPort" value="1099" />

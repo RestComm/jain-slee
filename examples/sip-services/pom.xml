@@ -88,7 +88,7 @@
 										<copy overwrite="true" file="${basedir}/proxy-with-initial-invite-services-DU/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/sip-services/proxy-with-initial-invite-du-management.xml" />
 										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/sip-services">
 											<filterset>
-												<filter token="JBOSS_VERSION" value="jboss-${jboss.version}" />
+												<filter token="JBOSS.PATH" value="${jboss.path}" />
                       							<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>

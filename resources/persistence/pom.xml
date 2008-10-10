@@ -48,7 +48,7 @@
 										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/resources/persistence/du-management.xml" />
 										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/resources/persistence">
                       <filterset>
-                        <filter token="JBOSS_VERSION" value="jboss-${jboss.version}" />
+                        <filter token="JBOSS.PATH" value="${jboss.path}" />
                         <filter token="JBOSS.CONFIG" value="${node}" />
                       </filterset>
 										</copy>
