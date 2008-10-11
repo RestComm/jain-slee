@@ -722,64 +722,7 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
 
     for( Avp avp : this.getGenericData().getAvps() )
     {
-      try
-      {
-//        if(avp.getGrouped() != null)
-//        {
-//          toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[N/A]" + 
-//          " Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
-//          avp.isVendorId() + "]\r\n";
-////          for(Avp gAvp : avp.getGrouped())
-////          {
-////            toString += "| +-- AVP: Code[" + gAvp.getCode() + "] VendorID[" + gAvp.getVendorId() + "] Value[" + 
-////            avp.getUTF8String().replace( '\n', ' ' ).replace( '\r', ' ' ) + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
-////            avp.isVendorId() + "]\r\n";
-////          }
-//        }
-//        else
-//        {
-        
-          String avpType = AvpDictionary.INSTANCE.getAvp( avp.getCode(), avp.getVendorId() ).getType();
-          Object avpValue = null;
-          
-          if("Integer32".equals(avpType) || "AppId".equals(avpType))
-          {
-            avpValue = avp.getInteger32();
-          }
-          else if("Unsigned32".equals(avpType) || "VendorId".equals(avpType))
-          {
-            avpValue = avp.getUnsigned32();
-          }
-          else if("Float64".equals(avpType))
-          {
-            avpValue = avp.getFloat64();
-          }
-          else if("Integer64".equals(avpType))
-          {
-            avpValue = avp.getInteger64();
-          }
-          else if("Time".equals(avpType))
-          {
-            avpValue = avp.getTime();
-          }
-          else if("Unsigned64".equals(avpType))
-          {
-            avpValue = avp.getUnsigned64();
-          }
-          else
-          {
-            avpValue = avp.getOctetString();
-          }
-          
-          toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[" + 
-            avpValue + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + 
-            avp.isVendorId() + "]\r\n";
-//        }
-      }
-      catch (AvpDataException ignore) {
-        toString += "| AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[N/A] Flags[M=" + 
-        avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + avp.isVendorId() + "]\r\n";        
-      }
+      toString += printAvp( avp, "" );
     }
     
     toString += "+-----------------------------------------------------------------------------+\r\n";
@@ -838,4 +781,78 @@ public abstract class DiameterMessageImpl implements DiameterMessage {
     return acc.toArray(new DiameterAvp[0]);
   }
 	
+  private String printAvp(Avp avp, String indent)
+  {
+    Object avpValue = null;
+    String avpString = "";
+    boolean isGrouped = false;
+    
+    try
+    {
+      String avpType = AvpDictionary.INSTANCE.getAvp( avp.getCode(), avp.getVendorId() ).getType();
+      
+      if("Integer32".equals(avpType) || "AppId".equals(avpType))
+      {
+        avpValue = avp.getInteger32();
+      }
+      else if("Unsigned32".equals(avpType) || "VendorId".equals(avpType))
+      {
+        avpValue = avp.getUnsigned32();
+      }
+      else if("Float64".equals(avpType))
+      {
+        avpValue = avp.getFloat64();
+      }
+      else if("Integer64".equals(avpType))
+      {
+        avpValue = avp.getInteger64();
+      }
+      else if("Time".equals(avpType))
+      {
+        avpValue = avp.getTime();
+      }
+      else if("Unsigned64".equals(avpType))
+      {
+        avpValue = avp.getUnsigned64();
+      }
+      else if("Grouped".equals(avpType))
+      {
+        avpValue = "<Grouped>";
+        isGrouped = true;
+      }
+      else
+      {
+        avpValue = avp.getOctetString().replaceAll( "\r", "" ).replaceAll( "\n", "" );
+      }
+    }
+    catch (Exception ignore) {
+      try
+      {
+        avpValue = avp.getOctetString().replaceAll( "\r", "" ).replaceAll( "\n", "" );
+      }
+      catch ( AvpDataException e ) {
+        avpValue = avp.toString();
+      }
+    }
+    
+    avpString += "| " + indent + "AVP: Code[" + avp.getCode() + "] VendorID[" + avp.getVendorId() + "] Value[" + 
+    avpValue + "] Flags[M=" + avp.isMandatory() + ";E=" + avp.isEncrypted() + ";V=" + avp.isVendorId() + "]\r\n";
+    
+    if(isGrouped)
+    {
+      try
+      {
+        for(Avp subAvp : avp.getGrouped())
+        {
+          avpString += printAvp( subAvp, indent + "  " );          
+        }
+      }
+      catch ( AvpDataException e )
+      {
+        // Failed to ungroup... ignore then...
+      }
+    }
+
+    return avpString;
+  }
 }

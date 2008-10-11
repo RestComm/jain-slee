@@ -16,6 +16,7 @@ import org.jdiameter.api.acc.events.AccountAnswer;
 import org.jdiameter.api.acc.events.AccountRequest;
 import org.jdiameter.api.app.StateChangeListener;
 import org.jdiameter.api.app.StateEvent;
+import org.jdiameter.server.impl.app.acc.Event;
 import org.jdiameter.common.api.app.IAppSessionState;
 import org.jdiameter.common.api.app.acc.IServerAccActionContext;
 import org.jdiameter.common.api.app.acc.ServerAccSessionState;
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 
-public class ServerAccSessionImpl extends AppAccSessionImpl implements ServerAccSession, NetworkReqListener {
+public class ServerAccSessionImpl extends AppAccSessionImpl implements EventListener<Request, Answer>, ServerAccSession, NetworkReqListener {
 
     protected ServerAccSessionState state = ServerAccSessionState.IDLE;
     protected IServerAccActionContext context;
@@ -268,6 +269,49 @@ public class ServerAccSessionImpl extends AppAccSessionImpl implements ServerAcc
             }
         }
         return null;
+    }
+
+
+    public void receivedSuccessMessage( Request request, Answer answer )
+    {
+      if( request.getCommandCode() == AccountRequestImpl.code )
+      {
+        try
+        {
+          sendAndStateLock.lock();
+          handleEvent( new Event(createAccountRequest(request)) );
+        }
+        catch ( Exception e ) {
+          logger.debug( e );
+        }
+        finally
+        {
+          sendAndStateLock.unlock();
+        }
+        
+        try
+        {
+          listener.doAccRequestEvent( this, createAccountRequest(request) );
+        }
+        catch ( Exception e ) {
+          logger.debug( e );
+        }
+      }
+      else
+      {
+        try
+        {
+          listener.doOtherEvent( this, createAccountRequest( request ), createAccountAnswer( answer ) );
+        }
+        catch ( Exception e ) {
+          logger.debug( e );
+        }
+      }      
+    }
+
+    public void timeoutExpired( Request request )
+    {
+      // FIXME: alexandre: We don't do anything here... are we even getting this on server?      
     }
 
 }

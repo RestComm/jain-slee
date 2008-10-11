@@ -96,6 +96,7 @@ public class TestingFramework
     {
       // ignore this... use localhost
     }
+    
     serverHost = name;
     serverURI = "aaa://" + serverHost + ":" + serverPort;
   } 

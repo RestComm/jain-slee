@@ -33,6 +33,8 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 	protected String originHost = "aaa://127.0.0.1:3868";
 	protected String originRealm = "mobicents.org";
 	
+	boolean destroyAfterSending = false;
+	
 	public AccountingServerSessionActivityImpl(DiameterMessageFactoryImpl messageFactory, DiameterAvpFactoryImpl avpFactory, ServerAccSession serverSession, long timeout, DiameterIdentityAvp destinationHost, DiameterIdentityAvp destinationRealm,SleeEndpoint endpoint,
 			Stack stack) 
 	{
@@ -112,14 +114,19 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
       AccountingAnswerImpl aca = (AccountingAnswerImpl)answer;
 
       this.serverSession.getSessions().get(0).send( aca.getGenericData() );
+      
+      if( destroyAfterSending )
+      {
+        String sessionId = this.serverSession.getSessions().get(0).getSessionId();
+        this.serverSession.release();
+        this.baseListener.sessionDestroyed(sessionId, this.serverSession);        
+      }
     }
     catch ( Exception e )
     {
       logger.error( "Failure sending Account-Answer.", e );
     }
 	}
-
-
 
 	public ServerAccSession getSession() {
 		return this.serverSession;
@@ -129,12 +136,10 @@ public class AccountingServerSessionActivityImpl extends AccountingSessionActivi
 		
 		if(newState==ServerAccSessionState.IDLE)
 		{
-			String sessionId=this.serverSession.getSessions().get(0).getSessionId();
 			super.state=AccountingSessionState.Idle;
-			this.serverSession.release();
-			this.baseListener.sessionDestroyed(sessionId, this.serverSession);
-			
-		}else
+			destroyAfterSending = true;
+		}
+		else
 		{
 			super.state=AccountingSessionState.Open;
 		}

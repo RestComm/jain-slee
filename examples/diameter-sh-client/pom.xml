@@ -36,15 +36,15 @@
 								</goals>
 								<configuration>
 									<tasks>
-    								<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/diameter">
+    								<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/diameter-sh-client">
     									<fileset dir="${basedir}/du/target">
     										<include name="**.jar" />
     										<include name="*.xml" />
     										<include name="*.properties" />										
     									</fileset>
     								</copy>
-    								<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/diameter/du-management.xml" />
-                    <copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/diameter">
+    								<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/diameter-sh-client/du-management.xml" />
+                    <copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/diameter-sh-client">
     									<filterset>
     										<filter token="JBOSS_VERSION" value="jboss-${jboss.version}" />
                       	<filter token="JBOSS_NODE" value="${node}" />

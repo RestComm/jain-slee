@@ -15,7 +15,7 @@
 		<exec executable="${executable}" dir="${home}/../../resources/diameter/">
 			<arg value="install" />
 		</exec>
-		<exec executable="${executable}" dir="${home}/../../resources/diameter/diameterSAR">
+		<exec executable="${executable}" dir="${home}/../../resources/diameter/mux/">
 			<arg value="install" />
 		</exec>
 		<exec executable="${executable}" dir="${home}/../../resources/diameter/base/">
@@ -35,8 +35,8 @@
 		<exec executable="${executable}" dir="${home}/../../resources/diameter/base/">
 			<arg value="clean" />
 		</exec>
-		<exec executable="${executable}" dir="${home}/../../resources/diameter/diameterSAR">
-					<arg value="clean" />
+		<exec executable="${executable}" dir="${home}/../../resources/diameter/mux/">
+			<arg value="clean" />
 		</exec>
 		<exec executable="${executable}" dir="${home}/../../resources/diameter/">
 			<arg value="clean" />

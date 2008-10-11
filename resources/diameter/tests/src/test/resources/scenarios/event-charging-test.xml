@@ -23,7 +23,7 @@
 
 	<send>
 	  <command name="ACR">
-			<avp name="Origin-Host" code="264" vendor="0" value="MUSTANG" />
+			<avp name="Origin-Host" code="264" vendor="0" value="localhost" />
 			<avp name="Origin-Realm" code="296" vendor="0" value="mobicents.org" />
 			<avp name="Session-Id" code="263" vendor="0" value="12345" />
 			<avp name="Vendor-Specific-Application-Id" code="260" vendor="0">
