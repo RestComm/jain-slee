@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<artifactId>mobicents-resources-diameter-parent</artifactId>
+		<groupId>org.mobicents.resources.diameter</groupId>
+		<version>1.2.0.GA-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>mobicents-resources-diameter-tests</artifactId>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.resources.diameter</groupId>
+			<artifactId>base-ra</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+    <dependency>
+      <groupId>org.mobicents.resources.diameter</groupId>
+      <artifactId>jdiameter-api</artifactId>
+      <version>1.5.0.1-build183</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mobicents.resources.diameter</groupId>
+      <artifactId>jdiameter-impl</artifactId>
+      <version>1.5.0.1-build183</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <artifactId>picocontainer</artifactId>
+      <groupId>picocontainer</groupId>
+      <version>${picocontainer.version}</version>
+    </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>mobicents-diameter-${pom.artifactId}-${pom.version}</finalName>
+		
+		<plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*$*</exclude>
+            <exclude>**/TestingFramework.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+		
+		<resources>
+			<resource>
+        <directory>src/test/resources</directory>
+      </resource>
+    </resources>
+  </build>
+	
+</project>
