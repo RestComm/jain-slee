@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>base-parent</artifactId>
 		<groupId>org.mobicents.resources.diameter</groupId>
-		<version>1.3.0-SNAPSHOT</version>
+		<version>1.2.1.GA</version>
 	</parent>
 
 	<artifactId>base-events</artifactId>
@@ -14,12 +14,12 @@
     <dependency>
       <groupId>org.mobicents.resources.diameter</groupId>
       <artifactId>jdiameter-api</artifactId>
-      <version>1.5.0.1-build183</version>
+      <version>1.2.1.GA</version>
     </dependency>
     <dependency>
       <groupId>org.mobicents.resources.diameter</groupId>
       <artifactId>jdiameter-impl</artifactId>
-      <version>1.5.0.1-build183</version>
+      <version>1.2.1.GA</version>
     </dependency>
     <dependency>
       <groupId>org.mobicents.core</groupId>
