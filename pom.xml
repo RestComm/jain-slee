@@ -37,8 +37,6 @@
 			<modules>
 			
 				<module>resources/asterisk</module>
-				<module>resources/diameter</module>
-				<module>resources/diameter_legacy</module>
 				<module>resources/http-client</module>
 				<module>resources/http-servlet</module>
 				<module>resources/jcc</module>
@@ -53,7 +51,6 @@
 				<module>resources/xmpp</module>
 
 				<module>examples/asterisk</module>
-				<module>examples/diameter</module>
 				<module>examples/google-talk-bot</module>
 				<module>examples/http-client</module>
 				<module>examples/http-servlet</module>
@@ -105,7 +102,7 @@
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
-					<excludePoms>tools/maven-archetypes/**/pom.xml,resources/diameter/**/pom.xml,examples/diameter/**/pom.xml,tools/management-console/**/pom.xml,resources/sip11/tests/**/pom.xml</excludePoms>
+					<excludePoms>tools/maven-archetypes/**/pom.xml,tools/management-console/**/pom.xml,resources/sip11/tests/**/pom.xml</excludePoms>
 					<classpathExcludes>
 						<exclude>xml-apis:xml-apis</exclude>
 						<exclude>jtidy:jtidy</exclude>
