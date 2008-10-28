@@ -12,12 +12,12 @@
 
 <server>
 
-	<mbean
+	<!-- mbean
 		code="org.mobicents.slee.container.management.jmx.SleeLifecycleMonitor"
 		name="slee:service=SleeLifecycleMonitor"
 	>
 		<depends optional-attribute-name="SleeManagementMBean">slee:service=SleeManagement</depends>
-	</mbean>
+	</mbean-->
 
 	<mbean
 		code="org.mobicents.slee.container.management.jmx.SleeManagementMBeanImpl"
@@ -162,12 +162,12 @@
 		| Note that the TargetName attribute points to an mbean that is defined
 		| in server/*/conf/jboss-service.xml under the jboss deployment directory.
 		|
-	-->
+	
 	<mbean
 		code="org.mobicents.slee.container.management.jmx.SleeAutoDeployer"
 		name="slee:service=SleeAutoDeployer"
 	>
-		<!-- <depends>jboss:service=DefaultPartition</depends> -->
+		
 		<depends>slee:service=SleeManagement</depends>
 		<depends
 			optional-attribute-name="BaseDeployer"
@@ -177,6 +177,7 @@
 		</depends>
 		<attribute name="DeploymentDirectory">${jboss.server.home.url}/deploy-mobicents/scripts/</attribute>
 	</mbean>
+	-->
 
 
 

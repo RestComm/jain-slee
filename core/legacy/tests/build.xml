@@ -44,7 +44,6 @@
 
 	<property name="jboss.licenses.dir" value="${deploy.home}/docs/licenses" />
 
-
 	<!-- ANT HOME FOR LIBS -->
 	<property name="ant.home" value="${system.ANT_HOME}" />
 	<!-- by default the test pattern covers all tests -->
@@ -60,9 +59,6 @@
 			<include name="*.jar" />
 		</fileset>
 		<fileset dir="../../rar/target">
-			<include name="*.jar" />
-		</fileset>
-		<fileset dir="../../ejb3-proxy/target">
 			<include name="*.jar" />
 		</fileset>
 		<pathelement location="${libs.home}/ant-junit.jar" />
@@ -162,66 +158,6 @@
             <fileset dir="${build}"/>
         </delete -->
 	</target>
-
-	<target name="build-test-connector-du">
-		<!-- Build the test event jar -->
-		<jar destfile="${build}/connector-test-event.jar">
-			<metainf file="${src}/${dirpath.prefix}/slee/test/connector/META-INF/event-jar.xml" />
-			<fileset dir="${dest}">
-				<include name="${dirpath.prefix}/slee/test/connector/TestEvent.class" />
-			</fileset>
-
-		</jar>
-		<jar destfile="${build}/connector-test-event-du.jar">
-			<metainf file="${src}/${dirpath.prefix}/slee/test/connector/META-INF/deployable-unit.xml" />
-			<fileset dir="${build}">
-				<include name="connector-test-event.jar" />
-			</fileset>
-		</jar>
-	</target>
-
-
-	<target name="build-test-sleebeanshellutil-du">
-
-		<!-- Build the test event jar -->
-		<jar destfile="${build}/slee-bean-shell-util-test-sbb.jar">
-			<metainf file="${src}/${dirpath.prefix}/slee/container/management/jmx/test/META-INF/sbb-jar.xml" />
-			<fileset dir="${dest}">
-				<include name="${dirpath.prefix}/slee/container/management/jmx/test/SleeBeanShellUtilSbb.class" />
-			</fileset>
-		</jar>
-		<jar destfile="${build}/slee-bean-shell-util-test-du.jar">
-			<metainf file="${src}/${dirpath.prefix}/slee/container/management/jmx/test/META-INF/deployable-unit.xml" />
-			<fileset dir="${build}">
-				<include name="slee-bean-shell-util-test-sbb.jar" />
-			</fileset>
-			<fileset dir="${src}/${dirpath.prefix}/slee/container/management/jmx/test/META-INF">
-				<include name="SleeBeanShellUtilTest-service.xml" />
-			</fileset>
-		</jar>
-	</target>
-
-
-	<!-- Build the test event jar -->
-	<!-- Run one junit test without starting the container -->
-	<!--target name="test-connector" depends="junit-init,init-common" description="Runs ejb-connector test">
-
-		<slee-management>
-			<install url="${file_url}${mobicents.home.standard}/build/connector-test-event-du.jar" />
-		</slee-management>
-
-		<junit fork="yes" showoutput="true">
-			<formatter type="xml" />
-			<classpath refid="project.class.path" />
-			<test name="org.mobicents.slee.test.connector.ConnectorTest" todir="${junit.reports}" />
-		</junit>
-	</target-->
-
-	<!-- running jmx remote client standalone	-->
-	<!--target name="jmx" depends="compile">
-		<java fork="true" classpathref="project.class.path" classname="${classpath.prefix}.slee.test.ConnectorClient" />
-	</target-->
-
 
 	<target name="init" description="Creates target directories (e.g. ${dest}, ${junit.reports} ...)">
 		<fail>

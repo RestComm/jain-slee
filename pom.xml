@@ -23,7 +23,6 @@
 
 	<modules>
 		<module>core/jar</module>
-		<module>core/ejb3-proxy</module>
 		<module>core/rar</module>
 		<module>tools/ant-tasks</module>
 		<module>tools/cli</module>

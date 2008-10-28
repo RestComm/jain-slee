@@ -71,9 +71,6 @@
 		<fileset dir="../../rar/target">
 							<include name="*.jar" />
 						</fileset>
-		<fileset dir="../../ejb3-proxy/target">
-							<include name="*.jar" />
-						</fileset>
 	</path>
 	
 	<!-- CLEANERS -->

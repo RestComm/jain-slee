@@ -202,14 +202,9 @@
 						</goals>
 						<configuration>
 							<tasks>
-								<mkdir dir="${jboss.deploy}/deploy-mobicents/" />
-								<mkdir dir="${jboss.deploy}/deploy-mobicents/scripts" />
-								
 								<echo message="=============== Copy Mobicents.rar ==================" />
 								<copy file="../rar/target/mobicents-core-rar-${parent.version}.rar" tofile="${project.build.directory}/mobicents.sar/mobicents.rar" />
 									
-								<echo message="=============== Copy ejb3-proxy ==================" />
-								<copy file="../ejb3-proxy/target/mobicents-core-ejb3proxy-${parent.version}.jar" tofile="${project.build.directory}/mobicents.sar/SleeConnectionProxy.ejb3" />
 								<!-- copy file="log4-rs/dist/log4j-rs.sar" todir="${jboss.deploy}/deploy" / -->
 								<copy file="README.txt" todir="${jboss.readme.dir}" />
 								<copy file="bin/SleeCommandInterface.sh" todir="${jboss.bin.dir}" />
