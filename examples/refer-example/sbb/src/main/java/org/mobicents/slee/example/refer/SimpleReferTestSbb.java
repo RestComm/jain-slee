@@ -40,11 +40,8 @@ import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.facilities.TimerFacility;
 
-import org.apache.log4j.Logger;
 import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.sip.SipFactoryProvider;
-import org.mobicents.slee.resource.sip.SipResourceAdaptor;
-import org.mobicents.slee.runtime.SbbLocalObjectImpl;
 
 public abstract class SimpleReferTestSbb implements Sbb {
 
