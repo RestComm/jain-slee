@@ -55,16 +55,6 @@
 			<artifactId>jain-slee</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.opencloud</groupId>
-			<artifactId>sleetck-minimal</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.opencloud</groupId>
-			<artifactId>sleetck-ra-common</artifactId>
-			<scope>compile</scope>
-		</dependency>
 					
 		<!-- commons -->
 		<dependency>
@@ -210,7 +200,6 @@
 								<copy file="bin/SleeCommandInterface.sh" todir="${jboss.bin.dir}" />
 								<copy file="bin/SleeCommandInterface.bat" todir="${jboss.bin.dir}" />
 								<chmod file="${jboss.bin.dir}/SleeCommandInterface.sh" perm="755" />
-								<chmod file="${jboss.bin.dir}/run-tck.sh" perm="755" />
 								<copy file="bin/java.policy" todir="${jboss.bin.dir}" />
 								<copy overwrite="true" file="resources/pictures/mobicents-logo.gif" tofile="${jboss.deploy}/jmx-console.war/images/logo.gif" />
 								<copy todir="${jboss.licenses.dir}">

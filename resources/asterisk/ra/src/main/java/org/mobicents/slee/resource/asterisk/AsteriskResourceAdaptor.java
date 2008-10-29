@@ -88,7 +88,7 @@ public class AsteriskResourceAdaptor implements /*ManagerEventHandler*/ManagerEv
     private transient BootstrapContext bootstrapContext;
     private transient ManagerConnectionFactory factory;
     private transient AsteriskRASbbInterfaceImpl sbbInterface;
-    private transient AsteriskActivityContextInterfaceFactory acif;
+    private transient AsteriskActivityContextInterfaceFactoryImpl acif;
     private transient HashMap AsteriskToSleeEvent;
     
     public AsteriskResourceAdaptor() {
@@ -516,9 +516,9 @@ public class AsteriskResourceAdaptor implements /*ManagerEventHandler*/ManagerEv
         return this.activities;
     }
 	
-    private void initializeNamingContext() throws NamingException {
+    private void initializeNamingContext() throws Exception {
         SleeContainer container = SleeContainer.lookupFromJndi();
-        ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container.getResourceAdaptorEnitity(this.bootstrapContext.getEntityName()));
+        ResourceAdaptorEntity resourceAdaptorEntity = container.getResourceManagement().getResourceAdaptorEntity(bootstrapContext.getEntityName());
         ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity.getInstalledResourceAdaptor()
                                                               .getRaType()
                                                               .getResourceAdaptorTypeID();
@@ -528,7 +528,7 @@ public class AsteriskResourceAdaptor implements /*ManagerEventHandler*/ManagerEv
         
         this.acif = new AsteriskActivityContextInterfaceFactoryImpl(resourceAdaptorEntity.getServiceContainer(), this.bootstrapContext.getEntityName());
         
-        resourceAdaptorEntity.getServiceContainer()
+        resourceAdaptorEntity.getServiceContainer().getResourceManagement()
                              .getActivityContextInterfaceFactories().put(raTypeId,
             this.acif);
         resourceAdaptorEntity.getServiceContainer().registerWithJndi("slee/resources",

@@ -46,7 +46,7 @@ public class HttpClientActivityContextInterfaceFactoryImpl implements
 
 		if (acivity == null)
 			throw new NullPointerException("=====RECEIVED NULL IN ACIF=====");
-		return new ActivityContextInterfaceImpl(this.serviceContainer,
+		return new ActivityContextInterfaceImpl(
 				this.factory.getActivityContext(
 						new SleeActivityHandle(raEntityName,
 								new HttpClientActivityHandle(acivity

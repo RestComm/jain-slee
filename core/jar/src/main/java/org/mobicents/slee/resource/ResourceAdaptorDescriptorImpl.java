@@ -14,23 +14,18 @@ package org.mobicents.slee.resource;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.HashMap;
 
-import org.mobicents.slee.container.component.ComponentIDImpl;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.DeployedComponent;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
-import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
-
 import javax.slee.ComponentID;
-import javax.slee.EventTypeID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 import javax.slee.resource.ResourceAdaptorDescriptor;
 import javax.slee.resource.ResourceAdaptorTypeID;
+
+import org.mobicents.slee.container.component.DeployableUnitIDImpl;
+import org.mobicents.slee.container.component.DeployedComponent;
+import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
 
 /**
  * Descriptor for a ResourceAdaptor.
@@ -44,7 +39,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
 	private static final long serialVersionUID = -6932034951470181468L;
 	private String description;
     private ResourceAdaptorIDImpl componentId;
-    
     
     //Reference to the resource adaptor type variable.
     private ResourceAdaptorTypeIDImpl resourceAdaptorTypeID;
@@ -61,8 +55,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
         
     }
     
-
-
     /**
      * @return Returns the description.
      */
@@ -75,7 +67,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
     public void setDescription(String description) {
         this.description = description;
     }
-    
     
     /**
      * @return Returns the raClasses.
@@ -97,8 +88,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
         this.resourceAdaptorTypeID = raType;
     }
 
-
-
     /* (non-Javadoc)
      * @see javax.slee.resource.ResourceAdaptorDescriptor#getResourceAdaptorType()
      */
@@ -106,9 +95,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
         return this.resourceAdaptorTypeID;
     }
     
-
-
-
     /* (non-Javadoc)
      * @see javax.slee.management.ComponentDescriptor#getDeployableUnit()
      */
@@ -136,8 +122,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
         return null;
     }
 
-
-
     /* (non-Javadoc)
      * @see javax.slee.management.ComponentDescriptor#getID()
      */
@@ -150,7 +134,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
         this.componentId = id;
     }
 
-
     /* (non-Javadoc)
      * @see javax.slee.management.ComponentDescriptor#getName()
      */
@@ -158,8 +141,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
        
         return this.componentId.getComponentKey().getName();
     }
-
-
 
     /* (non-Javadoc)
      * @see javax.slee.management.ComponentDescriptor#getVendor()
@@ -169,8 +150,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
         return this.componentId.getComponentKey().getVendor();
     }
 
-
-
     /* (non-Javadoc)
      * @see javax.slee.management.ComponentDescriptor#getVersion()
      */
@@ -178,7 +157,6 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
        
         return this.componentId.getComponentKey().getVersion();
     }
-    
     
     /**
      * Adds configuration property to a collection.
@@ -209,32 +187,11 @@ public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor 
     public Collection getConfigPropertyDescriptors() {
         return configProperties.values();
     }
-    
-    public void parseTckRA() {
-        String name = "nistTckRA";
-        String version = "1.0";
-        String vendor = "NIST";
-        
-        this.componentId = new ResourceAdaptorIDImpl ( name, vendor, version);
-        
-        this.resourceAdaptorTypeID = new  ResourceAdaptorTypeIDImpl(
-        		        new ComponentKey("TCK_Resource_Type","jain.slee.tck","1.0"));
-        
-        
-        RAClassesEntry racEntry = new RAClassesEntry();
-        racEntry.setResourceAdaptorClass("org.mobicents.slee.resource.TCKResourceAdaptorWrapper");
-        this.setResourceAdaptorClasses(racEntry);
-        
-    }
-
-
 
 	public ResourceAdaptorTypeID[] getResourceAdaptorTypes() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
 
 	public LibraryID[] getLibraries() {
 		// TODO Auto-generated method stub

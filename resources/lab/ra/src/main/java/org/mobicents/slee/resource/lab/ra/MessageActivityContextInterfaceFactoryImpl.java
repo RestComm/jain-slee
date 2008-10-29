@@ -66,7 +66,7 @@ public class MessageActivityContextInterfaceFactoryImpl implements
 		if (activity == null)
 			throw new NullPointerException(
 					"RaFrameActivityContextInterfaceFactoryImpl.getActivityContextInterface(): id is null.");
-		return new ActivityContextInterfaceImpl(this.serviceContainer,
+		return new ActivityContextInterfaceImpl(
 				this.factory.getActivityContext(
 						new MessageActivityHandle(activity.getSessionId()))
 						.getActivityContextId());

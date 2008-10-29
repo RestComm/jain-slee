@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import javax.slee.ChildRelation;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.runtime.SbbObjectState;
+import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 /**

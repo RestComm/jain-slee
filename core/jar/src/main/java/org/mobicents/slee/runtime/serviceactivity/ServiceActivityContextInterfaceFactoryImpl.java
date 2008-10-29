@@ -57,7 +57,7 @@ public class ServiceActivityContextInterfaceFactoryImpl implements
             TransactionRequiredLocalException, UnrecognizedActivityException,
             FactoryException {
         
-        return new ActivityContextInterfaceImpl(this.sleeContainer, ((ServiceActivityImpl) serviceActivityImpl).getActivityContextId());
+        return new ActivityContextInterfaceImpl(((ServiceActivityImpl) serviceActivityImpl).getActivityContextId());
 
     }
 

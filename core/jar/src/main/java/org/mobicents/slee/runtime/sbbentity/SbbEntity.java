@@ -65,13 +65,13 @@ import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.ActivityContext;
 import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.ActivityContextState;
-import org.mobicents.slee.runtime.SbbConcrete;
-import org.mobicents.slee.runtime.SbbLocalObjectImpl;
-import org.mobicents.slee.runtime.SbbObject;
-import org.mobicents.slee.runtime.SbbObjectState;
 import org.mobicents.slee.runtime.SleeEvent;
 import org.mobicents.slee.runtime.cache.CacheableMap;
 import org.mobicents.slee.runtime.cache.CacheableSet;
+import org.mobicents.slee.runtime.sbb.SbbConcrete;
+import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
+import org.mobicents.slee.runtime.sbb.SbbObject;
+import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
@@ -164,7 +164,7 @@ public class SbbEntity {
         setServiceId(svcId);
         setServiceConvergenceName( convergenceName );
     
-        this.pool = (ObjectPool) SleeContainer.lookupFromJndi().getObjectPool(getSbbId());        
+        this.pool = (ObjectPool) SleeContainer.lookupFromJndi().getSbbPoolManagement().getObjectPool(getSbbId());        
         this.sbbComponent = (MobicentsSbbDescriptor) SleeContainer.lookupFromJndi()
     	.getSbbComponent(getSbbId());
 	    if (this.sbbComponent == null) {
@@ -201,7 +201,7 @@ public class SbbEntity {
         	this.cmpFields = new CacheableMap(CMP_FIELDS_CACHE+ "-" + CMP_FIELDS + ":" + this.cacheNodeName);        	        	
         	this.attachedActivityContexts = new CacheableSet(ACTIVITY_CONTEXTS_CACHE + "-" + ACTIVITY_CONTEXTS+"_"+sbbeId);
     
-        	this.pool = (ObjectPool) SleeContainer.lookupFromJndi().getObjectPool(sbbId);    	
+        	this.pool = (ObjectPool) SleeContainer.lookupFromJndi().getSbbPoolManagement().getObjectPool(sbbId);    	
         	this.sbbComponent = (MobicentsSbbDescriptor) SleeContainer.lookupFromJndi()
         	.getSbbComponent(sbbId);
         	if (this.sbbComponent == null) {
@@ -810,8 +810,7 @@ public class SbbEntity {
         ActivityContextInterface activityContextInterface = null;
 
         if (this.getSbbDescriptor().getActivityContextInterface() != null) {
-            ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(
-                    SleeContainer.lookupFromJndi(), sleeEvent.getActivityContextID());
+            ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(sleeEvent.getActivityContextID());
             Class aciClass = this.getSbbDescriptor()
                     .getActivityContextInterfaceConcreteClass();
             try {
@@ -824,8 +823,7 @@ public class SbbEntity {
             }
 
         } else {
-            activityContextInterface = new ActivityContextInterfaceImpl(
-                    SleeContainer.lookupFromJndi(), sleeEvent.getActivityContextID());
+            activityContextInterface = new ActivityContextInterfaceImpl(sleeEvent.getActivityContextID());
         }
 
         // Stow this information away in case we have to call sbbExceptionThrown

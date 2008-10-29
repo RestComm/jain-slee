@@ -597,25 +597,26 @@ public class MessageResourceAdaptor implements RAFStackListener,
 		logger.debug("RAFrameResourceAdaptor.entityDeactivating() called.");
 		logger.debug("Shuting down the stack.");
 
-		try {
-			// set the flag in the stack to terminate
-			stack.shutdown();
-			// the stack will stop every 1000ms to accept incoming connections
-			// and check the shutdown flag
-			wait(1000);
-		} catch (InterruptedException ie) {
+		synchronized (this) {
+			try {
+				// set the flag in the stack to terminate
+				stack.shutdown();
+				// the stack will stop every 1000ms to accept incoming connections
+				// and check the shutdown flag
+				wait(1000);
+			} catch (InterruptedException ie) {
+			}
 		}
 	}
 
 	// set up the JNDI naming context
-	private void initializeNamingContext() throws NamingException {
+	private void initializeNamingContext() throws Exception {
 		// get the reference to the SLEE container from JNDI
 		SleeContainer container = SleeContainer.lookupFromJndi();
 		// get the entities name
 		String entityName = bootstrapContext.getEntityName();
 
-		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(entityName));
+		ResourceAdaptorEntity resourceAdaptorEntity = container.getResourceManagement().getResourceAdaptorEntity(entityName);
 		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getRaType()
 				.getResourceAdaptorTypeID();
@@ -623,7 +624,7 @@ public class MessageResourceAdaptor implements RAFStackListener,
 		acif = new MessageActivityContextInterfaceFactoryImpl(
 				resourceAdaptorEntity.getServiceContainer(), entityName);
 		// set the ActivityContextInterfaceFactory
-		resourceAdaptorEntity.getServiceContainer()
+		resourceAdaptorEntity.getServiceContainer().getResourceManagement()
 				.getActivityContextInterfaceFactories().put(raTypeId, acif);
 
 		try {

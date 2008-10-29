@@ -161,14 +161,14 @@ public class TTSResourceAdaptor implements ResourceAdaptor, Serializable {
 	}
 
 	// set up the JNDI naming context
-	private void initializeNamingContext() throws NamingException {
+	private void initializeNamingContext() throws Exception {
 		// get the reference to the SLEE container from JNDI
 		SleeContainer container = SleeContainer.lookupFromJndi();
 		// get the entities name
 		String entityName = bootstrapContext.getEntityName();
 
-		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(entityName));
+		final ResourceAdaptorEntity resourceAdaptorEntity = container
+				.getResourceManagement().getResourceAdaptorEntity(entityName);
 
 		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getRaType()
@@ -179,8 +179,8 @@ public class TTSResourceAdaptor implements ResourceAdaptor, Serializable {
 				.getServiceContainer(), entityName);
 
 		// set the ActivityContextInterfaceFactory
-		resourceAdaptorEntity.getServiceContainer()
-				.getActivityContextInterfaceFactories().put(raTypeId, acif);
+		resourceAdaptorEntity.getServiceContainer().getResourceManagement()
+				.getActivityContextInterfaceFactories().put(raTypeId, (ResourceAdaptorActivityContextInterfaceFactory)acif);
 
 		try {
 			if (this.acif != null) {

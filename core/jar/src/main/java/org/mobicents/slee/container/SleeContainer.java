@@ -56,52 +56,36 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import javax.slee.ComponentID;
-import javax.slee.CreateException;
 import javax.slee.EventTypeID;
-import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.facilities.Level;
-import javax.slee.facilities.TimerFacility;
 import javax.slee.management.AlreadyDeployedException;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeployableUnitDescriptor;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.ManagementException;
-import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
-import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.SbbDescriptor;
 import javax.slee.management.ServiceManagementMBean;
 import javax.slee.management.ServiceState;
 import javax.slee.management.SleeManagementMBean;
 import javax.slee.management.SleeState;
 import javax.slee.management.UnrecognizedDeployableUnitException;
-import javax.slee.management.UnrecognizedLinkNameException;
-import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
-import javax.slee.management.UnrecognizedResourceAdaptorException;
 import javax.slee.profile.ProfileFacility;
 import javax.slee.profile.ProfileSpecificationDescriptor;
 import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.resource.BootstrapContext;
-import javax.slee.resource.ResourceAdaptorDescriptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeDescriptor;
 import javax.slee.resource.ResourceAdaptorTypeID;
-import javax.slee.resource.ResourceException;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.commons.pool.impl.GenericObjectPoolFactory;
-import org.apache.commons.pool.impl.GenericObjectPool.Config;
 import org.apache.log4j.Logger;
 import org.jboss.mx.loading.UnifiedClassLoader3;
 import org.jboss.mx.util.MBeanProxy;
@@ -126,7 +110,6 @@ import org.mobicents.slee.container.component.deployment.DeploymentManager;
 import org.mobicents.slee.container.component.deployment.EventTypeDeploymentDescriptorParser;
 import org.mobicents.slee.container.component.deployment.ProfileSpecificationDescriptorParser;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.deployment.RaTypeDeployer;
 import org.mobicents.slee.container.deployment.SbbDeployer;
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
 import org.mobicents.slee.container.management.jmx.ComponentIDArrayPropertyEditor;
@@ -135,6 +118,7 @@ import org.mobicents.slee.container.management.jmx.DeployableUnitIDPropertyEdito
 import org.mobicents.slee.container.management.jmx.LevelPropertyEditor;
 import org.mobicents.slee.container.management.jmx.ObjectPropertyEditor;
 import org.mobicents.slee.container.management.jmx.PropertiesPropertyEditor;
+import org.mobicents.slee.container.management.jmx.ResourceManagement;
 import org.mobicents.slee.container.management.jmx.ServiceStatePropertyEditor;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
@@ -144,24 +128,15 @@ import org.mobicents.slee.container.profile.ProfileSpecificationIDPropertyEditor
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceComponent;
-import org.mobicents.slee.resource.ConfigPropertyDescriptor;
 import org.mobicents.slee.resource.EventLookup;
-import org.mobicents.slee.resource.EventLookupFacilityImpl;
-import org.mobicents.slee.resource.InstalledResourceAdaptor;
-import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
-import org.mobicents.slee.resource.ResourceAdaptorBoostrapContext;
 import org.mobicents.slee.resource.ResourceAdaptorContext;
 import org.mobicents.slee.resource.ResourceAdaptorDescriptorImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.resource.ResourceAdaptorTypeDescriptorImpl;
-import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
-import org.mobicents.slee.resource.SleeEndpointImpl;
-import org.mobicents.slee.resource.TCKActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.EventRouter;
 import org.mobicents.slee.runtime.EventRouterImpl;
-import org.mobicents.slee.runtime.SbbObjectPoolFactory;
 import org.mobicents.slee.runtime.SleeInternalEndpoint;
 import org.mobicents.slee.runtime.SleeInternalEndpointImpl;
 import org.mobicents.slee.runtime.cache.CacheableSet;
@@ -173,15 +148,12 @@ import org.mobicents.slee.runtime.facilities.ProfileFacilityImpl;
 import org.mobicents.slee.runtime.facilities.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
+import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionIDAccessImpl;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
-
-import com.opencloud.sleetck.lib.resource.sbbapi.TransactionIDAccess;
 
 /**
  * 
@@ -199,6 +171,139 @@ import com.opencloud.sleetck.lib.resource.sbbapi.TransactionIDAccess;
  */
 public class SleeContainer implements ComponentContainer {
 
+	private final static Logger logger = Logger.getLogger(SleeContainer.class);
+	
+	/** The lifecycle state of the SLEE */
+	private SleeState sleeState;
+	
+	// An interface for the resource adaptor to retrieve the event type id.
+	private EventLookup eventLookup;
+	
+
+	// An abstraction used by resource adaptors to post events to the
+	// slee event queue.
+	private SleeInternalEndpoint sleeEndpoint;
+
+	
+	// the class that actually posts events to the SBBs.
+	// This should be made into a facility and registered with jmx and jndi
+	// so it can be independently controlled.
+	private EventRouter router;
+	public EventRouter getEventRouter() {
+		return this.router;
+	}
+	
+	// monitor object for sync on management operations
+	private final Object managementMonitor = new Object();
+	public Object getManagementMonitor() {
+		return managementMonitor;
+	}
+
+	// ------------ slee mbeans
+	
+	private ServiceManagementMBean serviceManagementMBean;
+	
+	/**
+	 * Get the service management MBean
+	 * 
+	 * @throws Exception
+	 */
+	public ServiceManagementMBean getServiceManagementMBean() {
+		return this.serviceManagementMBean;
+	}
+	
+	// ------------ other mbeans
+	
+	private RmiServerInterfaceMBean rmiServerInterfaceMBeanImpl;
+	private ResourceManagement resourceManagement;
+	private SbbObjectPoolManagement sbbPoolManagement;
+		
+	public ResourceManagement getResourceManagement() {
+		return resourceManagement;
+	}
+	
+	public SbbObjectPoolManagement getSbbPoolManagement() {
+		return sbbPoolManagement;
+	}
+	
+	// ------------ slee factories
+	
+	private ActivityContextFactoryImpl activityContextFactory;
+	private NullActivityContextInterfaceFactoryImpl nullActivityContextInterfaceFactory;
+	private NullActivityFactoryImpl nullActivityFactory;
+	private ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
+	private ServiceActivityContextInterfaceFactoryImpl serviceActivityContextInterfaceFactory;	
+	private ServiceActivityFactoryImpl serviceActivityFactory;
+	
+	public ActivityContextFactoryImpl getActivityContextFactory() {
+		return this.activityContextFactory;
+	}
+	public NullActivityContextInterfaceFactoryImpl getNullActivityContextInterfaceFactory() {
+		return this.nullActivityContextInterfaceFactory;
+	}
+	public NullActivityFactoryImpl getNullActivityFactory() {
+		return this.nullActivityFactory;
+	}
+	public ProfileTableActivityContextInterfaceFactoryImpl getProfileTableActivityContextInterfaceFactory() {
+		if (profileTableActivityContextInterfaceFactory == null) {
+			try {
+				profileTableActivityContextInterfaceFactory = (ProfileTableActivityContextInterfaceFactoryImpl) lookupFacilityInJndi(ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME);
+			} catch (NamingException e) {
+				logger.error("failed to lookup factory",e);
+			}
+		}
+		return profileTableActivityContextInterfaceFactory;
+	}
+	public ServiceActivityContextInterfaceFactoryImpl getServiceActivityContextFactory() {
+		return this.serviceActivityContextInterfaceFactory;
+	}
+	
+	// ------------ slee facilities
+	
+	private ActivityContextNamingFacilityImpl activityContextNamingFacility;
+	private AlarmFacilityImpl alarmFacility;
+	private ProfileFacilityImpl profileFacility;
+	private TimerFacilityImpl timerFacility;
+	private TraceFacilityImpl traceFacility;
+	
+	public javax.slee.facilities.ActivityContextNamingFacility getActivityContextNamingFacility() {
+		return activityContextNamingFacility;
+	}
+
+	public AlarmFacilityImpl getAlarmFacility() {
+		if (alarmFacility == null) {
+			// lookup from jndi
+			try {
+				alarmFacility = (AlarmFacilityImpl) lookupFacilityInJndi(AlarmMBeanImpl.JNDI_NAME);
+			} catch (NamingException e) {
+				logger.error("failed to lookup alarm facility",e);
+			}
+		}
+		return alarmFacility;
+	}
+
+	public ProfileFacility getProfileFacility() {
+		return profileFacility;
+	}
+
+	public TimerFacilityImpl getTimerFacility() {
+		return timerFacility;
+	}
+
+	public TraceFacilityImpl getTraceFacility() {
+		if (traceFacility == null) {
+			// lookup from jndi
+			try {
+				traceFacility = (TraceFacilityImpl) lookupFacilityInJndi(TraceMBeanImpl.JNDI_NAME);
+			} catch (NamingException e) {
+				logger.error("failed to lookup trace facility",e);
+			}
+		}
+		return traceFacility;
+	}
+
+	// --- UNCHECKED
+	
 	public static boolean isSecurityEnabled = false;
 
 	// For unit testing only -- to be removed later.
@@ -212,28 +317,7 @@ public class SleeContainer implements ComponentContainer {
 	/** the root context for SLEE */
 	private static final String CTX_SLEE = "slee";
 
-	/** The lifecycle state of the SLEE */
-	private SleeState sleeState;
-
-	// The usage parameter set
-	// (Ivelin) obsolete, the usage params are now stored in sbbdescriptorimpl
-	// Usage parameters - indexed by ServiceID/SbbID
-	// These are now stored in the Service
-
-	// private HashMap usageParameters;
-
-	// the usage mbean -- one per usage parameter set.
-	// Indexed using the same key as the usageParameters set.
-	// private HashMap usageMBeans;
-
-	// The key is the SbbID the value is the ObjectPooling
-	private HashMap sbbPooling;
-
-	private GenericObjectPool.Config poolConfig;
-
-	// An interface for the resource adaptor to retrieve the event type id.
-	private EventLookup eventLookup;
-
+	
 	private HashMap eventTypeIDToDescriptor;
 
 	private HashMap eventKeyToEventTypeIDMap;
@@ -241,71 +325,15 @@ public class SleeContainer implements ComponentContainer {
 	// A vector containing all the event types that are known to the slee.
 	private HashMap eventTypeIDs;
 
-	private ActivityContextFactoryImpl activityContextFactory;
-
-	// An abstraction used by resource adaptors to post events to the
-	// slee event queue.
-	private SleeInternalEndpoint sleeEndpoint;
-
-	private RmiServerInterfaceMBean rmiServerInterfaceMBeanImpl;
-
-	// the class that actually posts events to the SBBs.
-	// This should be made into a facility and registered with jmx and jndi
-	// so it can be independently controlled.
-	private EventRouter router;
-
 	private DeploymentManager deploymentManager;
-
-	private ServiceActivityContextInterfaceFactoryImpl serviceActivityContextInterfaceFactory;
-
-	private NullActivityContextInterfaceFactoryImpl nullActivityContextInterfaceFactory;
-
-	private static TimerFacilityImpl timerFacility;
-
-	private ProfileFacilityImpl profileFacility;
 
 	// A set of event type ids mapped to event descriptors.
 
 	private HashMap eventTypeIDToEventKeyMap;
 
-	private final static Logger logger = Logger.getLogger(SleeContainer.class);
-
-	private ActivityContextNamingFacilityImpl activityContextNamingFacility;
-
-	/**
-	 * Resource Container
-	 */
-	// maps Resource adaptor Type Ids to the installed ResourceAdaptorTypes
-	private HashMap resourceAdaptorTypes;
-
-	// maps ResourceAdaptorID to the installed ResourceAdaptor
-	private HashMap installedResourceAdaptors;
-
-	// maps a link to a resource adaptor entity name
-	private HashMap resourceAdaptorEntityLinks;
-
-	/*
-	 * maps name to Resource Adaptor Entity This has to be persistent inside the
-	 * slee. If the slee is shutdown and restarted the RaEntities are restored
-	 * to their previous operational state
-	 * 
-	 */
-	private HashMap resourceAdaptorEntities;
-
 	private ResourceAdaptorContext bootstrapContext;
 
-	// maps ResourceAdaptorTypeID to the proper ActivityContextInterfaceFactory
-	private HashMap activityContextInterfaceFactories;
-
-	private NullActivityFactoryImpl nullActivityFactory;
-
-	private ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
-
-	private TransactionIDAccess transactionIDAccess;
-
 	private MBeanServer mbeanServer;
-
-	private ServiceManagementMBean serviceManagementMBean;
 
 	private ClassLoader loader;
 
@@ -328,8 +356,6 @@ public class SleeContainer implements ComponentContainer {
 	 * return cm; }
 	 */
 	private DeploymentCacheManager deploymentCacheManager;
-
-	private ServiceActivityFactoryImpl serviceActivityFactory;
 
 	private static SleeContainer sleeContainer;
 
@@ -387,32 +413,15 @@ public class SleeContainer implements ComponentContainer {
 		return deploymentCacheManager;
 	}
 
-	public static TraceFacilityImpl getTraceFacility() throws NamingException {
-		return (TraceFacilityImpl) lookupFacilityInJndi(TraceMBeanImpl.JNDI_NAME);
-	}
+	
 
-	public static AlarmFacilityImpl getAlarmFacility() throws NamingException {
-		return (AlarmFacilityImpl) lookupFacilityInJndi(AlarmMBeanImpl.JNDI_NAME);
-	}
-
-	public static ProfileTableActivityContextInterfaceFactoryImpl getProfileTableActivityContextInterfaceFactory()
-			throws NamingException {
-		return (ProfileTableActivityContextInterfaceFactoryImpl) SleeContainer
-				.lookupFacilityInJndi(ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME);
-	}
+	
 
 	public ClassLoader getClassLoader() {
 		return this.loader;
 	}
 
-	/**
-	 * Get the service management MBean
-	 * 
-	 * @throws Exception
-	 */
-	public ServiceManagementMBean getServiceManagementMBean() {
-		return this.serviceManagementMBean;
-	}
+	
 
 	/**
 	 * Initialization code.
@@ -436,17 +445,12 @@ public class SleeContainer implements ComponentContainer {
 
 		DefaultSleeEntityResolver.init(this.getClass().getClassLoader());
 
-		this.poolConfig = this.configurePooling();
-
-		this.sbbPooling = new HashMap();
 		this.deploymentManager = new DeploymentManager();
 
 		// this.usageParameters = new HashMap();
 		this.eventTypeIDs = new HashMap();
 		this.eventTypeIDToDescriptor = new HashMap();
 		this.eventKeyToEventTypeIDMap = new HashMap();
-		this.transactionIDAccess = new TransactionIDAccessImpl(
-				(TransactionManagerImpl) SleeContainer.getTransactionManager());
 		this.eventLookup = new EventLookup(this);
 
 		this.eventTypeIDToEventKeyMap = new HashMap();
@@ -479,67 +483,40 @@ public class SleeContainer implements ComponentContainer {
 				ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME,
 				profileTableActivityContextInterfaceFactory);
 
-		SleeContainer.timerFacility = new TimerFacilityImpl(this);
-
-		registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,
-				SleeContainer.timerFacility);
+		timerFacility = new TimerFacilityImpl(this);
+		registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,timerFacility);
 
 		this.profileFacility = new ProfileFacilityImpl();
-
 		registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
 				profileFacility);
-
-		// this.alarmFacility = (AlarmFacilityImpl)
-		// lookupFacilityInJndi(AlarmMBeanImpl.JNDI_NAME);
 
 		this.serviceActivityFactory = new ServiceActivityFactoryImpl();
 		registerWithJndi("slee/serviceactivity/",
 				ServiceActivityFactoryImpl.JNDI_NAME,
 				serviceActivityFactory);
 		
-		// This is not registered with jndi.
 		this.serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl(
 				this);
-
 		registerWithJndi("slee/serviceactivity/",
 				ServiceActivityContextInterfaceFactoryImpl.JNDI_NAME,
 				serviceActivityContextInterfaceFactory);
 
 		this.bootstrapContext = new ResourceAdaptorContext(this
 				.getSleeEndpoint(), this.getEventLookupFacility());
-		/*
-		 * Resource Container initialization
-		 */
-		resourceAdaptorTypes = new HashMap();
-		resourceAdaptorEntities = new HashMap();
-		installedResourceAdaptors = new HashMap();
-		this.resourceAdaptorEntityLinks = new HashMap();
-		this.activityContextInterfaceFactories = new HashMap();
-
+		
 		registerWithJndi();
 
 		startRMIServer(this.nullActivityFactory, this.sleeEndpoint,
 				this.eventLookup, rmiServerInterfaceMBean);
 
 		registerPropertyEditors();
+		
+		// init the sbb pool manager
+		this.sbbPoolManagement = new SbbObjectPoolManagement(this);
+		this.sbbPoolManagement.register();
 
-	}
-
-	private Config configurePooling() {
-		GenericObjectPool.Config conf = new GenericObjectPool.Config();
-		conf.maxActive = -1;
-		conf.maxIdle = 50;
-		conf.maxWait = -1;
-		conf.minEvictableIdleTimeMillis = 60000;
-		conf.minIdle = 0;
-		conf.numTestsPerEvictionRun = -1;
-		conf.testOnBorrow = false;
-		conf.testOnReturn = false;
-		conf.testWhileIdle = false;
-		conf.timeBetweenEvictionRunsMillis = 300000;
-		conf.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
-
-		return conf;
+		// init the resource management
+		resourceManagement = new ResourceManagement(this);
 	}
 
 	private void registerWithJndi() {
@@ -684,7 +661,7 @@ public class SleeContainer implements ComponentContainer {
 				if (sbbdesc != null) {
 					String[] raLinks = sbbdesc.getResourceAdaptorEntityLinks();
 					for (int c = 0; raLinks != null && c < raLinks.length; c++) {
-						ResourceAdaptorEntity raEntity = getRAEntity(raLinks[c]);
+						ResourceAdaptorEntity raEntity = resourceManagement.getResourceAdaptorEntity(resourceManagement.getResourceAdaptorEntityName(raLinks[c]));
 						if (raEntity != null && !raEntities.contains(raEntity)) {
 							raEntity.serviceActivated(serviceID.toString());
 							raEntities.add(raEntity);
@@ -747,106 +724,7 @@ public class SleeContainer implements ComponentContainer {
 		}
 	}
 
-	/**
-	 * get a resource adaptor entity given its name. To retrieve an RA Entity
-	 * from. A single resource adaptor type may have multiple resource adaptors
-	 * associated with it. This conveniance method just returns the first one.
-	 * 
-	 * @param raTypeID --
-	 *            Resource adaptor type id.
-	 * 
-	 */
-	public ResourceAdaptorEntity getResourceAdaptorEntity(
-			ResourceAdaptorTypeID raTypeID) throws Exception {
-		ResourceAdaptorType raType = (ResourceAdaptorType) resourceAdaptorTypes
-				.get(raTypeID);
-		if (raType == null)
-			throw new Exception("Ra Type not found! ");
-		HashSet resourceAdaptors = raType.getResourceAdaptorIDs();
-		if (resourceAdaptors == null || resourceAdaptors.isEmpty())
-			throw new Exception(
-					"Could not find a resource adaptor for this type: "
-							+ raTypeID);
-		ResourceAdaptorIDImpl raId = (ResourceAdaptorIDImpl) resourceAdaptors
-				.iterator().next();
-		InstalledResourceAdaptor installedRa = (InstalledResourceAdaptor) installedResourceAdaptors
-				.get(raId);
-		if (installedRa.getResourceAdaptorEntities().size() == 0)
-			throw new Exception("cannot find RA Entity! ");
-		return (ResourceAdaptorEntity) installedRa.getResourceAdaptorEntities()
-				.iterator().next();
-	}
-
-	/**
-	 * @return The installed resource adaptor matching the given component(RA)
-	 *         ID. null if there is none.
-	 * 
-	 * @param raId --
-	 *            Resource adaptor id.
-	 * 
-	 */
-	public InstalledResourceAdaptor getInstalledResourceAdaptor(
-			ResourceAdaptorID raId) throws Exception {
-		InstalledResourceAdaptor installedRa = (InstalledResourceAdaptor) installedResourceAdaptors
-				.get(raId);
-		return installedRa;
-	}
-
-	/**
-	 * Reverses the result of
-	 * 
-	 * @see #initializeTckResourceAdaptor()
-	 * 
-	 */
-	public void closeTckResourceAdaptor() {
-		unregisterWithJndi("slee/resources", "tckacif");
-
-		try {
-			deactivateResourceAdaptorEntity("tck");
-			// FRANCESCO -- Why do you need a name for the entity and another
-			// entity links?
-			resourceAdaptorEntityLinks.remove("slee/resources/tck");
-		} catch (Exception e) {
-			logger.error("Error Closing RA", e);
-
-		}
-	}
-
-	/**
-	 * Activate a resource adaptor entity given its name.
-	 * 
-	 * @param name --
-	 *            name of the RA entity
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorException
-	 * @throws InvalidStateException
-	 * @throws ResourceException
-	 * @throws ManagementException
-	 * 
-	 * 
-	 */
-	public void activateResourceAdaptorEntity(String name)
-			throws UnrecognizedResourceAdaptorEntityException,
-			InvalidStateException, javax.slee.resource.ResourceException,
-			ManagementException {
-		if (this.resourceAdaptorEntities.get(name) == null) {
-			throw new UnrecognizedResourceAdaptorEntityException(
-					"Resource Adaptor Entity " + name + " not found.");
-		}
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
-				.get(name);
-		raEntity.activate();
-	}
-
-	public void addResourceAdaptorType(ResourceAdaptorTypeID key,
-			ResourceAdaptorType rat) {
-		this.resourceAdaptorTypes.put(key, rat);
-	}
-
-	public HashMap getResourceAdaptorTypes() {
-		return resourceAdaptorTypes;
-	}
-
+	
 	/**
 	 * 
 	 * Cleanup in the reverse order of init()
@@ -866,13 +744,10 @@ public class SleeContainer implements ComponentContainer {
 		Context ctx = new InitialContext();
 		Util.unbind(ctx, JVM_ENV + CTX_SLEE);
 
-		// closeSipResourceAdaptor();
-		closeTckResourceAdaptor();
-
 		stopRMIServer();
 
 	}
-
+	 
 	/**
 	 * These are slee defined events. These are stored in the location
 	 * slee-event-jar.xml Parse these and make them known to the slee.
@@ -891,15 +766,6 @@ public class SleeContainer implements ComponentContainer {
 					.next();
 			this.installEventType(etype);
 		}
-		stdEvents = EventTypeDeploymentDescriptorParser
-				.parseStandardEvents(getDeployPath() + "/xml/event-jar.xml");
-		it = stdEvents.iterator();
-		while (it.hasNext()) {
-			MobicentsEventTypeDescriptor etype = (MobicentsEventTypeDescriptor) it
-					.next();
-			this.installEventType(etype);
-		}
-
 	}
 
 	/**
@@ -1281,7 +1147,7 @@ public class SleeContainer implements ComponentContainer {
 
 			for (int i = 0; i < raLinks.length; i++) {
 				// RAEntity FOR THIS LINK
-				ResourceAdaptorEntity raEntity = getRAEntity(raLinks[i]);
+				ResourceAdaptorEntity raEntity = resourceManagement.getResourceAdaptorEntity(resourceManagement.getResourceAdaptorEntityName(raLinks[i]));
 				ResourceAdaptorType raType = raEntity
 						.getInstalledResourceAdaptor().getRaType();
 
@@ -1551,7 +1417,7 @@ public class SleeContainer implements ComponentContainer {
 						String[] raLinks = sbbdesc
 								.getResourceAdaptorEntityLinks();
 						for (int c = 0; raLinks != null && c < raLinks.length; c++) {
-							ResourceAdaptorEntity raEntity = getRAEntity(raLinks[c]);
+							ResourceAdaptorEntity raEntity = resourceManagement.getResourceAdaptorEntity(resourceManagement.getResourceAdaptorEntityName(raLinks[c]));
 							if (raEntity != null
 									&& !raEntities.contains(raEntity)) {
 								raEntity.serviceUninstalled(serviceComponent
@@ -1579,110 +1445,6 @@ public class SleeContainer implements ComponentContainer {
 
 			}
 
-		}
-
-	}
-
-	/**
-	 * unistall a Resource Adaptor.
-	 * 
-	 * @param deployableUnitID --
-	 *            deployable unit to unistall
-	 */
-	private synchronized void uninstallRA(DeployableUnitIDImpl deployableUnitID)
-			throws Exception {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing RAs from DU " + deployableUnitID);
-		}
-
-		sleeTransactionManager.mandateTransaction();
-
-		ResourceAdaptorIDImpl[] raIDs = this.getResourceAdaptorIDs();
-		for (ResourceAdaptorID raID : raIDs) {
-			ComponentID[] components = deployableUnitID.getDescriptor()
-					.getComponents();
-			for (ComponentID cID : components) {
-				if (raID.equals(cID)) {
-					if (!deployableUnitID.getDescriptor()
-							.hasInstalledComponent(cID)) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Not removing RA " + raID
-									+ ", it was not installed by DU "
-									+ deployableUnitID.getSourceURL());
-						}
-						continue;
-					}
-					InstalledResourceAdaptor ra = (InstalledResourceAdaptor) this.installedResourceAdaptors
-							.remove(raID);
-					ra.uninstall();
-					logger.info("Uninstalled RA " + raID);
-				}
-			}
-		}
-
-	}
-
-	/**
-	 * unistall a RA Type.
-	 * 
-	 * @param deployableUnitID --
-	 *            deployable unit to unistall
-	 */
-	private synchronized void uninstallRAType(
-			DeployableUnitIDImpl deployableUnitID) throws Exception {
-
-		sleeTransactionManager.mandateTransaction();
-
-		ComponentID[] cIDs = deployableUnitID.getDescriptor().getComponents();
-		for (ComponentID cID : cIDs) {
-			if (cID instanceof ResourceAdaptorTypeID) {
-				ResourceAdaptorTypeID raTypeID = (ResourceAdaptorTypeID) cID;
-				ResourceAdaptorType raType = this
-						.getResourceAdaptorType(raTypeID);
-				if (raType.getResourceAdaptorIDs().size() != 0) {
-					// ERROR, WE CANT ALLOW TO DO ANY UnInstall operation
-					HashSet ras = raType.getResourceAdaptorIDs();
-					StringBuilder sb = new StringBuilder(ras.size() * 50);
-					for (Iterator it = ras.iterator(); it.hasNext();) {
-						ResourceAdaptorIDImpl raid = (ResourceAdaptorIDImpl) it
-								.next();
-						sb.append("" + raid.getComponentKey() + "; ");
-					}
-					throw new RuntimeException(" RAType ["
-							+ raType.getResourceAdaptorTypeID()
-									.getComponentKey()
-							+ "] is still referenced by some RA/s --> " + sb);
-				}
-			}
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Uninstalling RA Types for DU " + deployableUnitID);
-		}
-		for (Iterator it = this.getResourceAdaptorTypes().keySet().iterator(); it
-				.hasNext();) {
-			ResourceAdaptorTypeID raTypeID = (ResourceAdaptorTypeIDImpl) it
-					.next();
-			// ComponentID components[] =
-			// deployableUnitID.getDescriptor().getComponents();
-			for (ComponentID cID : cIDs) {
-				if (raTypeID.equals(cID)) {
-					if (!deployableUnitID.getDescriptor()
-							.hasInstalledComponent(cID)) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Not removing RA Type " + raTypeID
-									+ ", it was not installed by DU "
-									+ deployableUnitID.getSourceURL());
-						}
-						continue;
-					}
-
-					it.remove();
-					this.resourceAdaptorTypes.remove(raTypeID);
-					logger.info("Uninstalled RA Type " + raTypeID);
-				}
-			}
 		}
 	}
 
@@ -1748,32 +1510,7 @@ public class SleeContainer implements ComponentContainer {
 		sleeTransactionManager.addAfterRollbackAction(action);
 
 		// create the pool for the given SbbID
-		sbbPooling.put(mobicentsSbbDescriptor.getID(),
-				(new GenericObjectPoolFactory(new SbbObjectPoolFactory(
-						((SbbID) mobicentsSbbDescriptor.getID()), SleeContainer
-								.lookupFromJndi()), poolConfig)).createPool());
-		if (logger.isDebugEnabled()) {
-			logger.debug("Created Pool for SBB "
-					+ mobicentsSbbDescriptor.getID());
-		}
-		// add a rollback action to remove sbb object pool
-		action = new TransactionalAction() {
-			public void execute() {
-				try {
-					((ObjectPool) sbbPooling.remove(mobicentsSbbDescriptor
-							.getID())).close();
-				} catch (Exception e) {
-					logger.error("Failed to remove SBB "
-							+ mobicentsSbbDescriptor.getID() + " object pool",
-							e);
-				}
-				if (logger.isDebugEnabled()) {
-					logger.debug("Removed Pool for SBB "
-							+ mobicentsSbbDescriptor.getID());
-				}
-			}
-		};
-		sleeTransactionManager.addAfterRollbackAction(action);
+		sbbPoolManagement.createObjectPool(mobicentsSbbDescriptor, sleeTransactionManager);
 
 		// Set Trace to off
 		getTraceFacility().setTraceLevelOnTransaction(
@@ -1787,9 +1524,7 @@ public class SleeContainer implements ComponentContainer {
 
 	}
 
-	public ActivityContextFactoryImpl getActivityContextFactory() {
-		return this.activityContextFactory;
-	}
+	
 
 	public MobicentsEventTypeDescriptor getEventDescriptor(EventTypeID id) {
 		return (MobicentsEventTypeDescriptor) this.eventTypeIDToDescriptor
@@ -1840,21 +1575,7 @@ public class SleeContainer implements ComponentContainer {
 		}
 	}
 
-	public javax.slee.facilities.ActivityContextNamingFacility getActivityContextNamingFacility() {
-		return this.activityContextNamingFacility;
-	}
-
-	public static ProfileFacility getProfileFacility() throws NamingException {
-		return (ProfileFacility) lookupFacilityInJndi(ProfileFacilityImpl.JNDI_NAME);
-	}
-
-	public static javax.slee.facilities.TimerFacility getTimerFacility()
-			throws NamingException {
-		if (timerFacility == null)
-			return (TimerFacility) lookupFacilityInJndi(TimerFacilityImpl.JNDI_NAME);
-		else
-			return timerFacility;
-	}
+	
 
 	public SbbDescriptor getSbbComponent(SbbID sbbComponentId) {
 
@@ -1915,9 +1636,10 @@ public class SleeContainer implements ComponentContainer {
     String[] entityLinks = sbbComponent.getResourceAdaptorEntityLinks();
     for(int i = 0; i < entityLinks.length; i++)
     {
-      ResourceAdaptorID raID = this.getResourceAdaptorID(this.
-          getResourceAdaptorEntityName( entityLinks[i]));
-      this.addReferringComponent( raID, sbbComponent.getID() );
+      ResourceAdaptorID raID = resourceManagement
+					.getResourceAdaptor(resourceManagement
+							.getResourceAdaptorEntityName(entityLinks[i]));
+		this.addReferringComponent( raID, sbbComponent.getID() );
     }
 
 		// I refer to the following AddressProfile.
@@ -2009,15 +1731,6 @@ public class SleeContainer implements ComponentContainer {
 	}
 
 	/**
-	 * This is for the TCK only ( will be stripped in the actual release)
-	 * 
-	 * @return
-	 */
-	public TransactionIDAccess getTransactionIDAccess() {
-		return this.transactionIDAccess;
-	}
-
-	/**
 	 * Get a list of services known to me
 	 * 
 	 * @return A list of services that are registered with me.
@@ -2041,19 +1754,6 @@ public class SleeContainer implements ComponentContainer {
 				throw new RuntimeException("Tx manager failed");
 			}
 		}
-	}
-
-	/**
-	 * get the ObjectPool for this Sbb. Each Sbb component has its own object
-	 * pool. Each sbb component is identified by an SbbId.
-	 * 
-	 * @param sbbId -
-	 *            sbb id for which object pool is required.
-	 * @return the object pool for the sbb id.
-	 * 
-	 */
-	public ObjectPool getObjectPool(SbbID sbbid) {
-		return (ObjectPool) this.sbbPooling.get(sbbid);
 	}
 
 	/**
@@ -2363,11 +2063,11 @@ public class SleeContainer implements ComponentContainer {
 			} else if (descriptor instanceof MobicentsEventTypeDescriptor) {
 				installEventType((MobicentsEventTypeDescriptor) descriptor);
 			} else if (descriptor instanceof ResourceAdaptorTypeDescriptor) {
-				installResourceAdaptorType((ResourceAdaptorTypeDescriptorImpl) descriptor);
+				resourceManagement.installResourceAdaptorType((ResourceAdaptorTypeDescriptorImpl) descriptor);
 			} else if (descriptor instanceof ProfileSpecificationDescriptorImpl) {
 				installProfile((ProfileSpecificationDescriptorImpl) descriptor);
 			} else if (descriptor instanceof ResourceAdaptorDescriptorImpl) {
-				installResourceAdaptor((ResourceAdaptorDescriptorImpl) descriptor);
+				resourceManagement.installResourceAdaptor((ResourceAdaptorDescriptorImpl) descriptor);
 			} else {
 				logger.fatal("unknown component type!");
 			}
@@ -2424,86 +2124,9 @@ public class SleeContainer implements ComponentContainer {
 
 	}
 
-	/**
-	 * Installing the resource adaptor type descriptror component
-	 * 
-	 * @param raTypeDescriptor --
-	 *            type descriptor for the Resource Adaptor type.
-	 * 
-	 */
-	private void installResourceAdaptorType(
-			ResourceAdaptorTypeDescriptorImpl raTypeDescriptor)
-			throws DeploymentException {
+	
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Installing RA Type " + raTypeDescriptor.getID());
-		}
-
-		RaTypeDeployer deployer = new RaTypeDeployer(raTypeDescriptor, this);
-		deployer.deployRaType();
-		/*
-		 * RaTypeVerifier ver=new RaTypeVerifier(raTypeDescriptor);
-		 * 
-		 * logger.info("Verified["+ver.verifyRaType()+"]"); ComponentKey[]
-		 * eventTypeRefEntries = raTypeDescriptor .getEventTypeRefEntries();
-		 * EventTypeID[] eventTypeIDs = new
-		 * EventTypeIDImpl[eventTypeRefEntries.length]; for (int i = 0; i <
-		 * eventTypeRefEntries.length; i++) { EventTypeID eventTypeId =
-		 * (EventTypeID) this.eventKeyToEventTypeIDMap
-		 * .get(eventTypeRefEntries[i]); if (eventTypeId == null) throw new
-		 * DeploymentException( "Could not resolve event type ref" +
-		 * eventTypeRefEntries[i]); else eventTypeIDs[i] = eventTypeId; } if
-		 * (logger.isDebugEnabled()) { logger.debug("The event type array has " +
-		 * eventTypeIDs.length); } raTypeDescriptor.setEventTypes(eventTypeIDs);
-		 * ResourceAdaptorType raType = new
-		 * ResourceAdaptorType(raTypeDescriptor); ResourceAdaptorTypeID key =
-		 * raType.getResourceAdaptorTypeID(); if (logger.isDebugEnabled()) {
-		 * logger.info("Inserting RAT key: " + key + " RAType: " + raType); }
-		 * addResourceAdaptorType(key, raType);
-		 */
-	}
-
-	/**
-	 * Install the resource adaptor component
-	 * 
-	 * @param raDescr
-	 * @throws DeploymentException
-	 */
-	private void installResourceAdaptor(ResourceAdaptorDescriptorImpl raDescr)
-			throws DeploymentException {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Installing RA " + raDescr.getID());
-		}
-
-		ResourceAdaptorType raType = (ResourceAdaptorType) this.resourceAdaptorTypes
-				.get(raDescr.getResourceAdaptorType());
-		if (raType == null) {
-			throw new DeploymentException(
-					"missing resource adaptor type where id = "
-							+ raDescr.getResourceAdaptorType());
-		}
-
-		ResourceAdaptorIDImpl raID = (ResourceAdaptorIDImpl) raDescr.getID();
-
-		/***********************************************************************
-		 * new ResourceAdaptorIDImpl( new ComponentKey(raDescr.getName(),
-		 * raDescr.getVendor(), raDescr.getVersion()));
-		 **********************************************************************/
-
-		raType.addResourceAdaptor(raID);
-		InstalledResourceAdaptor ira;
-		try {
-			ira = new InstalledResourceAdaptor(this, raDescr, raID);
-			this.installedResourceAdaptors.put(raID, ira);
-			logger.info("Installed RA " + raID);
-		} catch (Exception e) {
-			String s = "Error Installing Resource Adaptor";
-			logger.error(s, e);
-			throw new DeploymentException(s, e);
-		}
-
-	}
+	
 
 	/**
 	 * Register a deployable unit given its descriptor.
@@ -2690,11 +2313,9 @@ public class SleeContainer implements ComponentContainer {
 				return (ComponentDescriptor) (this.eventTypeIDToDescriptor
 						.get(componentId));
 			} else if (cidImpl.isResourceAdaptorTypeID()) {
-				return (ComponentDescriptor) ((ResourceAdaptorType) this.resourceAdaptorTypes
-						.get(componentId)).getRaTypeDescr();
+				return  resourceManagement.getResourceAdaptorType((ResourceAdaptorTypeID)componentId).getRaTypeDescr();
 			} else if (cidImpl instanceof ResourceAdaptorIDImpl) {
-				return (ResourceAdaptorDescriptor) ((InstalledResourceAdaptor) this.installedResourceAdaptors
-						.get(componentId)).getDescriptor();
+				return resourceManagement.getInstalledResourceAdaptor((ResourceAdaptorID)componentId).getDescriptor();
 			} else
 				throw new IllegalArgumentException(" bad component id");
 		} catch (Exception ex) {
@@ -2724,239 +2345,7 @@ public class SleeContainer implements ComponentContainer {
 		return this.bootstrapContext;
 	}
 
-	/**
-	 * Get an array of the resource adaptor IDs.
-	 * 
-	 * @return
-	 */
-	public synchronized ResourceAdaptorIDImpl[] getResourceAdaptorIDs() {
-		ResourceAdaptorIDImpl[] retval = new ResourceAdaptorIDImpl[installedResourceAdaptors
-				.size()];
-		installedResourceAdaptors.keySet().toArray(retval);
-		return retval;
-	}
-
-	/**
-	 * Get an array containing the RA types.
-	 * 
-	 * @return an array of the resource adaptor type IDs.
-	 */
-	public synchronized ResourceAdaptorTypeID[] getResourceAdaptorTypeIDs() {
-		ResourceAdaptorTypeID[] raTypeIds = new ResourceAdaptorTypeID[resourceAdaptorTypes
-				.size()];
-		this.resourceAdaptorTypes.keySet().toArray(raTypeIds);
-		return raTypeIds;
-	}
-
-	public ResourceAdaptorEntity createResourceAdaptorEntity(
-			ResourceAdaptorIDImpl id, String name, Properties properties)
-			throws NullPointerException, UnrecognizedResourceAdaptorException,
-			InvalidArgumentException,
-			ResourceAdaptorEntityAlreadyExistsException, ResourceException,
-			ManagementException, CreateException {
-
-		if (this.installedResourceAdaptors.get(id) == null) {
-			String msg = "Failed to create RA Entity. RA ID: " + id
-					+ " not found.";
-			logger.error(msg);
-			throw new UnrecognizedResourceAdaptorException(msg);
-		}
-
-		if (this.resourceAdaptorEntities.get(name) != null) {
-			String msg = "Failed to create RA Entity. Resource Adpator Entity Name: "
-					+ name + " already exists! RA ID: " + id;
-			logger.error(msg);
-			throw new ResourceAdaptorEntityAlreadyExistsException(msg);
-		}
-
-		InstalledResourceAdaptor installedRA = (InstalledResourceAdaptor) this.installedResourceAdaptors
-				.get(id);
-
-		BootstrapContext bootStrap=null;
-		try {
-			bootStrap = new ResourceAdaptorBoostrapContext(name,new SleeEndpointImpl(this.activityContextFactory,
-					this.router, this, name),new EventLookupFacilityImpl(this),this.getAlarmFacility(),this.getTransactionManager(),this.getProfileFacility());
-		} catch (NamingException e1) {
-			
-			e1.printStackTrace();
-			throw new ResourceException("Failed to lookup facilities due to:\n",e1);
-		}
-		ResourceAdaptorEntity raEntity = new ResourceAdaptorEntity(name,
-				installedRA,bootStrap , this);
-
-		this.resourceAdaptorEntities.put(name, raEntity);
-
-		try {
-			if (logger.isDebugEnabled()) {
-				logger.debug(id + "RA PROPERTIES: " + properties);
-			}
-			// This actually creates the resource adaptor instance.
-			raEntity.configure(properties);
-			// You can access the instance that has been created.
-		} catch (InvalidStateException e) {
-			logger.warn("Failed to create RA Entity. ", e);
-			new ResourceException("Resource exception ");
-		}
-		installedRA.addResourceAdaptorEntity(raEntity);
-		return raEntity;
-	}
-
-	public String getRAEntityInterfaceJNDIName(String link) {
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-		return raEntity.getFactoryInterfaceJNDIName();
-	}
-
-	public String getRAEntityFactoryInterfaceJNDIName(String link) {
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-		return raEntity.getFactoryInterfaceJNDIName();
-	}
-
-	public ResourceAdaptorEntity getRAEntity(String link,
-			ResourceAdaptorType raType) {
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-		return (raEntity != null && raEntity.getInstalledResourceAdaptor()
-				.getRaType() == raType) ? raEntity : null;
-	}
-
-	public ResourceAdaptorEntity getRAEntity(String link) {
-		return (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-
-	}
-
-	public void removeResourceAdaptorEntity(String name)
-			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException,
-			/* InvalidArgumentException, */DependencyException,
-			ManagementException {
-
-		if (this.resourceAdaptorEntities.get(name) == null) {
-			throw new UnrecognizedResourceAdaptorEntityException(
-					"Resource Adaptor Entity " + name + " not found.");
-		}
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
-				.get(name);
-		try {
-			raEntity.remove();
-		} catch (InvalidStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new DependencyException("Resource Adaptor Entity " + name
-					+ " is in the wrong state");
-		}
-
-		raEntity.getInstalledResourceAdaptor().removeResourceAdaptorEntity(
-				raEntity);
-		this.resourceAdaptorEntities.remove(name);
-
-	}
-
-	public void updateConfigurationProperties(String name, Properties properties)
-			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
-			ResourceException, ManagementException {
-		if (this.resourceAdaptorEntities.get(name) == null) {
-			throw new UnrecognizedResourceAdaptorEntityException(
-					"Resource Adaptor Entity " + name + " not found.");
-		}
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
-				.get(name);
-		raEntity.configure(properties);
-	}
-
-	/**
-	 * Deactivate a resource adaptor.
-	 * 
-	 * @param name
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorException
-	 * @throws InvalidStateException
-	 * @throws ManagementException
-	 */
-	public void deactivateResourceAdaptorEntity(String name)
-			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
-			ManagementException {
-		if (this.resourceAdaptorEntities.get(name) == null) {
-			throw new UnrecognizedResourceAdaptorEntityException(
-					"Resource Adaptor Entity " + name + " not found.");
-		}
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
-				.get(name);
-		raEntity.deactivate();
-
-	}
-
-	/**
-	 * @param entityName
-	 * @return
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws ManagementException
-	 * @throws ResourceException
-	 */
-	public Properties getRAEntityProperties(String entityName)
-			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException, ManagementException {
-		if (entityName == null)
-			throw new NullPointerException("null entity name");
-		ResourceAdaptorEntity resourceAdaptorEntity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
-				.get(entityName);
-		if (resourceAdaptorEntity == null)
-			throw new UnrecognizedResourceAdaptorEntityException(
-					"Resource Adaptor Entity " + entityName + " not found.");
-
-		try {
-			Properties properties = new Properties();
-			Iterator configPropertyDescriptors = resourceAdaptorEntity
-					.getInstalledResourceAdaptor().getDescriptor()
-					.getConfigPropertyDescriptors().iterator();
-			while (configPropertyDescriptors.hasNext()) {
-				ConfigPropertyDescriptor configPropertyDescriptor = (ConfigPropertyDescriptor) configPropertyDescriptors
-						.next();
-				String value = resourceAdaptorEntity.getConfigProperty(
-						configPropertyDescriptor).toString();
-				properties.setProperty(configPropertyDescriptor.getName(),
-						value);
-			}
-			return properties;
-		} catch (ResourceException e) {
-			e.printStackTrace();
-			throw new ManagementException(e.getMessage());
-		}
-	}
-
-	public Properties getRAProperties(ResourceAdaptorID id)
-			throws NullPointerException, UnrecognizedResourceAdaptorException {
-		if (id == null)
-			throw new NullPointerException("null resource adaptor id");
-
-		InstalledResourceAdaptor installedResourceAdaptor = (InstalledResourceAdaptor) installedResourceAdaptors
-				.get(id);
-		if (installedResourceAdaptor == null)
-			throw new UnrecognizedResourceAdaptorException(
-					"unrecognized resource adaptor " + id.toString());
-
-		Properties properties = new Properties();
-		Iterator configPropertyDescriptors = installedResourceAdaptor
-				.getDescriptor().getConfigPropertyDescriptors().iterator();
-		while (configPropertyDescriptors.hasNext()) {
-			ConfigPropertyDescriptor configPropertyDescriptor = (ConfigPropertyDescriptor) configPropertyDescriptors
-					.next();
-			String value = configPropertyDescriptor.getValue().toString();
-			properties.setProperty(configPropertyDescriptor.getName(), value);
-		}
-		return properties;
-	}
-
-	public synchronized ResourceAdaptorType getResourceAdaptorType(
-			ResourceAdaptorTypeID key) {
-		return (ResourceAdaptorType) this.resourceAdaptorTypes.get(key);
-	}
-
+	
 	/**
 	 * Check if a deployable Unit is deployed.
 	 * 
@@ -3096,8 +2485,8 @@ public class SleeContainer implements ComponentContainer {
 					.getDeployableUnitIDtoDescriptorMap().remove(
 							deployableUnitID);
 
-			this.uninstallRA(deployableUnitID);
-			this.uninstallRAType(deployableUnitID);
+			resourceManagement.uninstallRA(deployableUnitID);
+			resourceManagement.uninstallRAType(deployableUnitID);
 			this.removeEventType(deployableUnitID);
 			this.uninstallService(deployableUnitID);
 
@@ -3155,32 +2544,8 @@ public class SleeContainer implements ComponentContainer {
 					logger.debug("Uninstalling SBB " + sbbDescriptor.getID()
 							+ " on DU " + deployableUnitID);				
 
-				// remove and close object pool
-				((ObjectPool) sbbPooling.remove(sbbDescriptor.getID())).close();
-				if (logger.isDebugEnabled()) {
-					logger.debug("Removed Pool for SBB "
-							+ sbbDescriptor.getID());
-				}
-				// restore object pool if tx rollbacks
-				TransactionalAction action = new TransactionalAction() {
-					public void execute() {
-						sbbPooling
-								.put(
-										sbbDescriptor.getID(),
-										(new GenericObjectPoolFactory(
-												new SbbObjectPoolFactory(
-														((SbbID) sbbDescriptor
-																.getID()),
-														SleeContainer
-																.lookupFromJndi()),
-												poolConfig)).createPool());
-						if (logger.isDebugEnabled()) {
-							logger.debug("Created Pool for SBB "
-									+ sbbDescriptor.getID());
-						}
-					}
-				};
-				sleeTransactionManager.addAfterRollbackAction(action);
+				// removes the sbb object pool
+				sbbPoolManagement.removeObjectPool(sbbDescriptor, sleeTransactionManager);
 
 				// remove sbb from trace and alarm facilities
 				getTraceFacility().unSetTraceLevel(sbbDescriptor.getID());
@@ -3394,7 +2759,7 @@ public class SleeContainer implements ComponentContainer {
 				if (sbbdesc != null) {
 					String[] raLinks = sbbdesc.getResourceAdaptorEntityLinks();
 					for (int c = 0; raLinks != null && c < raLinks.length; c++) {
-						ResourceAdaptorEntity raEntity = getRAEntity(raLinks[c]);
+						ResourceAdaptorEntity raEntity = resourceManagement.getResourceAdaptorEntity(resourceManagement.getResourceAdaptorEntityName(raLinks[c]));
 						if (raEntity != null && !raEntities.contains(raEntity)) {
 							raEntity.serviceDeactivated(serviceID.toString());
 							raEntities.add(raEntity);
@@ -3439,16 +2804,8 @@ public class SleeContainer implements ComponentContainer {
 
 	}
 
-	public String getRAActivityContextInterfaceFactoryJNDIName(
-			ResourceAdaptorTypeID resourceAdapterTypeId) {
-		ResourceAdaptorActivityContextInterfaceFactory acif = (ResourceAdaptorActivityContextInterfaceFactory) this.activityContextInterfaceFactories
-				.get(resourceAdapterTypeId);
-		return acif.getJndiName();
-	}
-
-	public EventRouter getEventRouter() {
-		return this.router;
-	}
+	
+	
 
 	/**
 	 * Get a list of profiles known to me
@@ -3475,26 +2832,7 @@ public class SleeContainer implements ComponentContainer {
 		}
 	}
 
-	/**
-	 * @return the usage parameter table / public HashMap
-	 *         getUsageParameterTable() {
-	 * 
-	 * return this.usageParameters; } / /** return the null activity factory.
-	 * 
-	 * @return
-	 */
-	public NullActivityFactoryImpl getNullActivityFactory() {
-		return this.nullActivityFactory;
-	}
-
-	/**
-	 * get the null activity context interface factory.
-	 * 
-	 * @return the null activity context interface factory.
-	 */
-	public NullActivityContextInterfaceFactoryImpl getNullActivityContextInterfaceFactory() {
-		return this.nullActivityContextInterfaceFactory;
-	}
+	
 
 	/**
 	 * Register standard SLEE contexts in JNDI
@@ -3576,9 +2914,7 @@ public class SleeContainer implements ComponentContainer {
 		return mbeanServer;
 	}
 
-	public ServiceActivityContextInterfaceFactoryImpl getServiceActivityContextFactory() {
-		return this.serviceActivityContextInterfaceFactory;
-	}
+	
 
 	/**
 	 * These are hacky -- will be removed after TCK
@@ -3604,228 +2940,8 @@ public class SleeContainer implements ComponentContainer {
 		logger.info("Uninstalled event type " + eventTypeID);
 	}
 
-	public HashMap getActivityContextInterfaceFactories() {
-		return activityContextInterfaceFactories;
-	}
-
-	public void addActivityContextInterfaceFactory(ComponentID key,
-			TCKActivityContextInterfaceFactoryImpl acif) {
-		activityContextInterfaceFactories.put(key, acif);
-	}
-
-	public void createResourceAdaptorEntityLink(String link, String entityName)
-			throws ManagementException {
-		if (this.resourceAdaptorEntityLinks.containsKey(link))
-			throw new ManagementException("Entity Link already exist!");
-		this.resourceAdaptorEntityLinks.put(link, entityName);
-	}
-
-	public void removeResourceAdaptorEntityLink(String link)
-			throws ManagementException, UnrecognizedLinkNameException,
-			DependencyException {
-		if (!this.resourceAdaptorEntityLinks.containsKey(link))
-			throw new UnrecognizedLinkNameException("Entity Link not found!");
-		
-		ResourceAdaptorID raID;
-    try {
-      raID = this.getResourceAdaptorID(this.getRAEntity(link).getName());
-    }
-    catch (UnrecognizedResourceAdaptorEntityException e) {
-      throw new ManagementException(e.getMessage());
-    }
-		
-		ComponentID[] refComps = this.getReferringComponents( raID );
-		for(int i = 0; i < refComps.length; i++)
-		{
-		  if(this.getComponentDescriptor(refComps[i]) instanceof SbbDescriptor)
-		  {
-		    SbbDescriptor sbbDesc = (SbbDescriptor) this.getComponentDescriptor(refComps[i]);
-		    String[] sbbRALinks = sbbDesc.getResourceAdaptorEntityLinks();
-		    
-		    for(int j=0; j<sbbRALinks.length; j++)
-		    {
-		      if(link.equals(sbbRALinks[j]))
-		        throw new DependencyException(
-		            sbbDesc.getID() + " is referencing this RA link"
-		                + " -- cannot remove it!");
-		    }
-		  }
-		}
-		
-		this.resourceAdaptorEntityLinks.remove(link);
-	}
-
-	public Set listResourceAdaptorEntityLinks() {
-		return this.resourceAdaptorEntityLinks.keySet();
-	}
-
-	public String[] getResourceAdaptorEntityLinks() throws ManagementException {
-		Set entityLinksSet = resourceAdaptorEntityLinks.keySet();
-		String[] entityLinksArray = new String[entityLinksSet.size()];
-		entityLinksArray = (String[]) entityLinksSet.toArray(entityLinksArray);
-		return entityLinksArray;
-	}
-
-	public String getResourceAdaptorEntityName(String linkName)
-			throws NullPointerException, UnrecognizedLinkNameException {
-		if (linkName == null)
-			throw new NullPointerException("null link name");
-
-		String entityName = (String) resourceAdaptorEntityLinks.get(linkName);
-		if (entityName == null)
-			throw new UnrecognizedLinkNameException("Entity link " + linkName
-					+ " not found");
-
-		return entityName;
-	}
-
-	public String[] getResourceAdaptorEntityNames(String[] linkNames)
-			throws NullPointerException {
-		if (linkNames == null)
-			throw new NullPointerException("null link names");
-
-		String[] resultEntityNames = new String[linkNames.length];
-		for (int i = 0; i < linkNames.length; i++) {
-			String entityName = (String) resourceAdaptorEntityLinks
-					.get(linkNames[i]);
-			resultEntityNames[i] = entityName;
-		}
-
-		return resultEntityNames;
-	}
-
-	public String[] getResourceAdaptorEntityNames() {
-		String[] entityNames = new String[resourceAdaptorEntities.keySet()
-				.size()];
-		entityNames = (String[]) resourceAdaptorEntities.keySet().toArray(
-				entityNames);
-		return entityNames;
-	}
-
-	public String[] getResourceAdaptorEntityNames(
-			ResourceAdaptorID resourceAdaptorID) throws NullPointerException,
-			UnrecognizedResourceAdaptorException {
-		if (resourceAdaptorID == null)
-			throw new NullPointerException("null resource adaptor");
-
-		InstalledResourceAdaptor installedRA = (InstalledResourceAdaptor) this.installedResourceAdaptors
-				.get(resourceAdaptorID);
-		if (installedRA == null)
-			throw new UnrecognizedResourceAdaptorException("Resource adaptor "
-					+ resourceAdaptorID.toString() + " not found");
-
-		HashSet resourceAdaptorEntitiesSet = installedRA
-				.getResourceAdaptorEntities();
-		ResourceAdaptorEntity[] resourceAdaptorEntitiesArray = new ResourceAdaptorEntity[resourceAdaptorEntitiesSet
-				.size()];
-		resourceAdaptorEntitiesArray = (ResourceAdaptorEntity[]) resourceAdaptorEntitiesSet
-				.toArray(resourceAdaptorEntitiesArray);
-
-		String[] entityNames = new String[resourceAdaptorEntitiesArray.length];
-		for (int i = 0; i < entityNames.length; i++) {
-			entityNames[i] = resourceAdaptorEntitiesArray[i].getName();
-		}
-		return entityNames;
-	}
-
-	public String[] getResourceAdaptorEntityLinks(String entityName)
-			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException, ManagementException {
-		if (entityName == null)
-			throw new NullPointerException("null entity name");
-
-		if (!resourceAdaptorEntities.containsKey(entityName))
-			throw new UnrecognizedResourceAdaptorEntityException("Entity "
-					+ entityName + " not found");
-
-		String[] entityLinksArray = getResourceAdaptorEntityLinks();
-		ArrayList resultEntityLinksArrayList = new ArrayList();
-		for (int i = 0; i < entityLinksArray.length; i++) {
-			String entityLink = entityLinksArray[i];
-			String entity = (String) resourceAdaptorEntityLinks.get(entityLink);
-			if (entity.equals(entityName))
-				resultEntityLinksArrayList.add(entityLink);
-		}
-		String[] resultEntityLinks = new String[resultEntityLinksArrayList
-				.size()];
-		resultEntityLinks = (String[]) resultEntityLinksArrayList
-				.toArray(resultEntityLinks);
-		return resultEntityLinks;
-	}
-
-	public ResourceAdaptorEntity getResourceAdaptorEntity(String entityName)
-			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException {
-		if (entityName == null)
-			throw new NullPointerException("null entity name");
-
-		ResourceAdaptorEntity entity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
-				.get(entityName);
-		if (entity == null)
-			throw new UnrecognizedResourceAdaptorEntityException("Entity "
-					+ entityName + " not found");
-
-		return entity;
-	}
-
-	/**
-	 * @deprecated Use getResourceAdaptorEntity
-	 */
-	public ResourceAdaptorEntity getResourceAdaptorEnitity(String enitityName) {
-		return (ResourceAdaptorEntity) this.resourceAdaptorEntities
-				.get(enitityName);
-	}
-
-	public HashMap getResourceAdaptorEntities() {
-		return resourceAdaptorEntities;
-	}
-
-	/**
-	 * @deprecated Use getResourceAdaptorEntities
-	 */
-	public HashMap getResourceAdaptorEnitities() {
-		return resourceAdaptorEntities;
-	}
-
-	public ResourceAdaptorID getResourceAdaptorID(String entityName)
-			throws java.lang.NullPointerException,
-			UnrecognizedResourceAdaptorEntityException, ManagementException {
-
-		if (entityName == null)
-			throw new NullPointerException("null entity name");
-
-		ResourceAdaptorEntity resourceAdaptorEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(entityName);
-		if (resourceAdaptorEntity == null)
-			throw new UnrecognizedResourceAdaptorEntityException("Entity "
-					+ entityName + " not found");
-
-		return resourceAdaptorEntity.getInstalledResourceAdaptor().getKey();
-	}
-
-	public String[] getResourceAdaptorEntities(ResourceAdaptorEntityState state)
-			throws NullPointerException, ManagementException {
-		if (state == null)
-			throw new NullPointerException("null entity state");
-
-		Iterator resourceAdaptorEntityIterator = resourceAdaptorEntities
-				.values().iterator();
-		ArrayList resultEntityNamesArrayList = new ArrayList();
-
-		while (resourceAdaptorEntityIterator.hasNext()) {
-			ResourceAdaptorEntity resourceAdaptorEntity = (ResourceAdaptorEntity) resourceAdaptorEntityIterator
-					.next();
-			if (resourceAdaptorEntity.getState().equals(state))
-				resultEntityNamesArrayList.add(resourceAdaptorEntity.getName());
-		}
-
-		String[] resultEntityNames = new String[resultEntityNamesArrayList
-				.size()];
-		resultEntityNames = (String[]) resultEntityNamesArrayList
-				.toArray(resultEntityNames);
-
-		return resultEntityNames;
-	}
+	
+	
 
 	/**
 	 * @param svc
@@ -3957,24 +3073,5 @@ public class SleeContainer implements ComponentContainer {
 	public static boolean isSecurityEnabled() {
 
 		return isSecurityEnabled;
-	}
-
-	public String dumpState() {
-		return "SleeContainer map activityContextInterfaceFactories: "
-				+ activityContextInterfaceFactories.keySet()
-				+ "\nSleeContainer map eventKeyToEventTypeIDMap: "
-				+ eventKeyToEventTypeIDMap.keySet()
-				+ "\nSleeContainer map eventTypeIDs: " + eventTypeIDs.keySet()
-				+ "\nSleeContainer map eventTypeIDToDescriptor: "
-				+ eventTypeIDToDescriptor.keySet()
-				+ "\nSleeContainer map eventTypeIDToEventKeyMap: "
-				+ eventTypeIDToEventKeyMap.keySet()
-				+ "\nSleeContainer map resourceAdaptorEntities: "
-				+ resourceAdaptorEntities.keySet()
-				+ "\nSleeContainer map resourceAdaptorEntityLinks: "
-				+ resourceAdaptorEntityLinks.keySet()
-				+ "\nSleeContainer map resourceAdaptorTypes: "
-				+ resourceAdaptorTypes.keySet()
-				+ "\nSleeContainer map sbbPooling: " + sbbPooling.keySet();
 	}
 }

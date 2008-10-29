@@ -47,7 +47,7 @@ public class TTSActivityContextInterfaceFactoryImpl implements
 				.debug("TTSActivityContextInterfaceFactoryImpl.getActivityContextInterface("
 						+ activity.getSessionId() + ") called.");
 
-		return new ActivityContextInterfaceImpl(this.sleeContainer,
+		return new ActivityContextInterfaceImpl(
 				this.factory
 						.getActivityContext(
 								new SleeActivityHandle(raEntityName,

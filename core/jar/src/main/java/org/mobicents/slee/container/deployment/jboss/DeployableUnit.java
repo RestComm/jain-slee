@@ -12,6 +12,7 @@ import java.util.jar.JarFile;
 
 import javax.slee.ComponentID;
 import javax.slee.resource.ResourceAdaptorID;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.deployment.DeploymentInfo;
 import org.jboss.logging.Logger;
@@ -20,6 +21,7 @@ import org.mobicents.slee.container.component.ComponentIDImpl;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
+import org.mobicents.slee.container.management.jmx.ResourceManagement;
 import org.mobicents.slee.container.management.xml.XMLUtils;
 import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -552,15 +554,16 @@ public class DeployableUnit
             
             cPreUninstallActions.add( new Object[] { "unbindLinkName", linkName } );
             
-            HashMap existingRATypes = SleeContainer.lookupFromJndi().getResourceAdaptorTypes();
+            final ResourceManagement resourceManagement = SleeContainer.lookupFromJndi().getResourceManagement();
+            ResourceAdaptorTypeID[] existingRATypeIDs = resourceManagement.getResourceAdaptorTypeIDs();
             
             String raTypeFromRa = null;
             
-            for(Object raTypeObject : existingRATypes.values())
+            for(ResourceAdaptorTypeID resourceAdaptorTypeID : existingRATypeIDs)
             {
-              ResourceAdaptorType raType = (ResourceAdaptorType)raTypeObject;
+              ResourceAdaptorType raType = resourceManagement.getResourceAdaptorType(resourceAdaptorTypeID);
 
-              if( raType.getResourceAdaptorIDs().contains( componentID ) )
+              if( raType != null && raType.getResourceAdaptorIDs().contains( componentID ) )
                 raTypeFromRa = raType.getResourceAdaptorTypeID().toString();
             }
             

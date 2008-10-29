@@ -297,7 +297,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
     public ResourceAdaptorTypeID[] getResourceAdaptorTypes()
             throws ManagementException {
         SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
-        return serviceContainer.getResourceAdaptorTypeIDs();
+        return serviceContainer.getResourceManagement().getResourceAdaptorTypeIDs();
     }
 
     /*
@@ -307,7 +307,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
      */
     public  ResourceAdaptorID[] getResourceAdaptors() throws ManagementException {
         SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
-        return serviceContainer.getResourceAdaptorIDs();
+        return serviceContainer.getResourceManagement().getResourceAdaptorIDs();
     }
 
     /*

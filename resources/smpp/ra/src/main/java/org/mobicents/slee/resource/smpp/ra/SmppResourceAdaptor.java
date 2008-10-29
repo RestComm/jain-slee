@@ -20,36 +20,29 @@ import ie.omk.smpp.message.SMPPPacket;
 import ie.omk.smpp.message.UnbindResp;
 import ie.omk.smpp.version.SMPPVersion;
 import ie.omk.smpp.version.VersionException;
-import java.io.Serializable;
 
-import java.io.Serializable;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Serializable;
 import java.net.UnknownHostException;
-
 import java.util.HashMap;
-import java.util.Properties;
-
-import javax.naming.NamingException;
 
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
-import javax.slee.ActivityContextInterface;
-
-import javax.slee.resource.ActivityIsEndingException;
-import javax.slee.resource.ResourceAdaptorTypeID;
-import javax.slee.resource.ResourceException;
-import javax.slee.resource.ResourceAdaptor;
-import javax.slee.resource.BootstrapContext;
-import javax.slee.resource.SleeEndpoint;
-import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.FailureReason;
-import javax.slee.resource.Marshaler;
-
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.FacilityException;
+import javax.slee.resource.ActivityHandle;
+import javax.slee.resource.ActivityIsEndingException;
+import javax.slee.resource.BootstrapContext;
+import javax.slee.resource.FailureReason;
+import javax.slee.resource.Marshaler;
+import javax.slee.resource.ResourceAdaptor;
+import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.slee.resource.ResourceException;
+import javax.slee.resource.SleeEndpoint;
+
+import net.java.slee.resource.smpp.ActivityContextInterfaceFactory;
 import net.java.slee.resource.smpp.ClientTransaction;
 import net.java.slee.resource.smpp.Dialog;
 import net.java.slee.resource.smpp.RequestEvent;
@@ -58,13 +51,11 @@ import net.java.slee.resource.smpp.ServerTransaction;
 import net.java.slee.resource.smpp.SmppEvent;
 import net.java.slee.resource.smpp.Transaction;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 
-import net.java.slee.resource.smpp.ActivityContextInterfaceFactory;
-
-import org.apache.log4j.Logger;
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 
 /**
@@ -228,7 +219,7 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
             
             linkMonitorThread = new Thread(new LinkMonitor());
             linkMonitorThread.start();
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Could not load ra properties. Caused by", e);
             throw new ResourceException(e.getMessage());
         }
@@ -634,7 +625,7 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
         logger.debug("Update called " + event);
     }
     
-    private void initializeNamingContext() {
+    private void initializeNamingContext() throws Exception {
         logger.info("Initialize naming context");
         
         SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
@@ -643,8 +634,8 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
         String entityName = bootstrapContext.getEntityName();
         logger.debug("Entity name: " + entityName);
         
-        ResourceAdaptorEntity resourceAdaptorEntity =
-                (ResourceAdaptorEntity) sleeContainer.getResourceAdaptorEnitity(entityName);
+        final ResourceAdaptorEntity resourceAdaptorEntity = sleeContainer.getResourceManagement().getResourceAdaptorEntity(entityName);
+
         logger.debug("Resource Adaptor Entity: " + resourceAdaptorEntity);
         
         ResourceAdaptorTypeID resourceAdaptorTypeId =
@@ -653,7 +644,7 @@ public class SmppResourceAdaptor implements ResourceAdaptor, Serializable, Conne
         
         acif = new SmppActivityContextInterfaceFactoryImpl(
                 resourceAdaptorEntity.getServiceContainer(), this, entityName);
-        sleeContainer.getActivityContextInterfaceFactories().put(resourceAdaptorTypeId, acif);
+        sleeContainer.getResourceManagement().getActivityContextInterfaceFactories().put(resourceAdaptorTypeId, (ResourceAdaptorActivityContextInterfaceFactory)acif);
         
         String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory)acif).getJndiName();
         

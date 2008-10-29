@@ -136,7 +136,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 	// Activity related ====================
 	private transient Map activities = null;
-	private transient SipActivityContextInterfaceFactory acif;
+	private transient SipActivityContextInterfaceFactoryImpl acif;
 
 	private String entityName = "SipRA";
 
@@ -431,15 +431,13 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	 * 
 	 * @throws NamingException
 	 */
-	private void initializeNamingContext() throws NamingException {
+	private void initializeNamingContext() throws Exception {
 		SleeContainer container = SleeContainer.lookupFromJndi();
 		serviceContainer = container;
 		// activityContextFactory =
 		// serviceContainer.getActivityContextFactory();
 		tm = serviceContainer.getTransactionManager();
-		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(this.bootstrapContext
-						.getEntityName()));
+		ResourceAdaptorEntity resourceAdaptorEntity = container.getResourceManagement().getResourceAdaptorEntity(entityName);
 		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getRaType()
 				.getResourceAdaptorTypeID();
@@ -450,7 +448,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				resourceAdaptorEntity.getServiceContainer()
 						.getTransactionManager());
 
-		resourceAdaptorEntity.getServiceContainer()
+		resourceAdaptorEntity.getServiceContainer().getResourceManagement()
 				.getActivityContextInterfaceFactories()
 				.put(raTypeId, this.acif);
 		entityName = this.bootstrapContext.getEntityName();

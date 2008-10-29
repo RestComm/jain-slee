@@ -23,9 +23,9 @@ import javax.transaction.SystemException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.GetChildRelationMethod;
-import org.mobicents.slee.runtime.SbbLocalObjectConcrete;
-import org.mobicents.slee.runtime.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.cache.CacheableSet;
+import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
+import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 
 /**
  * 

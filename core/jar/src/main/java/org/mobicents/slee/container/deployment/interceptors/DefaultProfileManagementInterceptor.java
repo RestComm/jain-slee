@@ -798,13 +798,14 @@ public class DefaultProfileManagementInterceptor implements
                     profileTableName + "/" + profileName);
             ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
 
-            try {
-                profileTableActivityContextInterfaceFactory = (ProfileTableActivityContextInterfaceFactoryImpl) SleeContainer
-                        .getProfileTableActivityContextInterfaceFactory();
-            } catch (NamingException ex) {
-                logger.error("Error retrieving facility", ex);
-                throw new ManagementException("Unexpected Naming Exception", ex);
-            }
+            profileTableActivityContextInterfaceFactory = serviceContainer
+                	.getProfileTableActivityContextInterfaceFactory();
+            if (profileTableActivityContextInterfaceFactory == null) {
+            	final String s = "got NULL ProfileTable ACI Factory";
+            	logger.error(s);
+                throw new ManagementException(s);
+            } 
+            
             ProfileTableActivityImpl profileTableActivity = new ProfileTableActivityImpl(
                     profileTableName);
             ActivityContextInterfaceImpl activityContextInterface;

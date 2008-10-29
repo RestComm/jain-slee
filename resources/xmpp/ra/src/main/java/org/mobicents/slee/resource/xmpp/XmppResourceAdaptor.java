@@ -34,15 +34,13 @@
 package org.mobicents.slee.resource.xmpp;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
@@ -95,18 +93,18 @@ public class XmppResourceAdaptor implements ResourceAdaptor,
     
     private transient SleeContainer container;
     private ResourceAdaptorState state;    
-    private transient Map activities = Collections.synchronizedMap(new HashMap(100));
+    private transient Map activities = new ConcurrentHashMap();
     private int maxEventsPoolSize;
     private transient SleeEndpoint sleeEndpoint;
     private transient EventLookupFacility eventLookup;
     private transient BootstrapContext bootstrapContext;
     private transient XmppRASbbInterfaceImpl sbbInterface;
     private transient XmppActivityContextInterfaceFactory acif;
-    private transient Map XmppToSleeEvent = Collections.synchronizedMap(new HashMap(100));
+    private transient Map XmppToSleeEvent = new ConcurrentHashMap();
    
     //event filtering
-    private Map eventIDsOfServicesInstalled = Collections.synchronizedMap(new HashMap(31));
-    private Map myComponentKeys = Collections.synchronizedMap(new HashMap(31));
+    private Map eventIDsOfServicesInstalled = new ConcurrentHashMap();
+    private Map myComponentKeys = new ConcurrentHashMap();
     
     public XmppResourceAdaptor() { }
     
@@ -343,8 +341,9 @@ public class XmppResourceAdaptor implements ResourceAdaptor,
 		try {            
             
 			container = SleeContainer.lookupFromJndi();
-			ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-                .getResourceAdaptorEnitity(this.bootstrapContext.getEntityName()));
+			final ResourceAdaptorEntity resourceAdaptorEntity = container
+					.getResourceManagement().getResourceAdaptorEntity(
+							this.bootstrapContext.getEntityName());
 			
 			ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
                 .getInstalledResourceAdaptor().getRaType().getResourceAdaptorTypeID();
@@ -362,11 +361,17 @@ public class XmppResourceAdaptor implements ResourceAdaptor,
 			
 			this.acif = new XmppActivityContextInterfaceFactoryImpl(
                 resourceAdaptorEntity.getServiceContainer(),
-                this.bootstrapContext.getEntityName());
-			resourceAdaptorEntity.getServiceContainer().getActivityContextInterfaceFactories().put(raTypeId, this.acif);			
+                this.bootstrapContext.getEntityName(),this);
+			resourceAdaptorEntity
+					.getServiceContainer()
+					.getResourceManagement()
+					.getActivityContextInterfaceFactories()
+					.put(
+							raTypeId,
+							(ResourceAdaptorActivityContextInterfaceFactory) this.acif);
 			if (this.acif != null) {
 				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif)
-				.getJndiName();
+						.getJndiName();
 				int begind = jndiName.indexOf(':');
 				int toind = jndiName.lastIndexOf('/');
 				String prefix = jndiName.substring(begind + 1, toind);

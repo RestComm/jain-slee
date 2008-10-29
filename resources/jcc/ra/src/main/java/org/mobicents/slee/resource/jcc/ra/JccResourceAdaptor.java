@@ -79,7 +79,7 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
     private ConcurrentReaderHashMap handlers = new ConcurrentReaderHashMap();
     private String peerName = null;
     private String configName;
-    private JccActivityContextInterfaceFactory activityContextInterfaceFactory;
+    private JccActivityContextInterfaceFactoryImpl activityContextInterfaceFactory;
     private boolean stopped = false;
     private Thread monitor;
 
@@ -437,18 +437,17 @@ public class JccResourceAdaptor implements ResourceAdaptor, Serializable, JccCon
         }
     }
 
-    private void initializeNamingContext() {
+    private void initializeNamingContext() throws Exception {
         logger.info("Initialize naming context");
         SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
         String entityName = bootstrapContext.getEntityName();
 
-        ResourceAdaptorEntity resourceAdaptorEntity =
-                (ResourceAdaptorEntity) sleeContainer.getResourceAdaptorEnitity(entityName);
+        ResourceAdaptorEntity resourceAdaptorEntity = sleeContainer.getResourceManagement().getResourceAdaptorEntity(entityName);
         ResourceAdaptorTypeID resourceAdaptorTypeId =
                 resourceAdaptorEntity.getInstalledResourceAdaptor().getRaType().getResourceAdaptorTypeID();
         activityContextInterfaceFactory =
                 new JccActivityContextInterfaceFactoryImpl(sleeContainer, entityName);
-        sleeContainer.getActivityContextInterfaceFactories().put(resourceAdaptorTypeId,
+        sleeContainer.getResourceManagement().getActivityContextInterfaceFactories().put(resourceAdaptorTypeId,
                 activityContextInterfaceFactory);
         String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) activityContextInterfaceFactory).getJndiName();
         int i = jndiName.indexOf(':');

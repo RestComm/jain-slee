@@ -151,7 +151,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor {
 			activities = new ConcurrentHashMap();
 			requestLock = new RequestLock();
 
-		} catch (NamingException e) {
+		} catch (Exception e) {
 			throw new javax.slee.resource.ResourceException(
 					"entityActivated(): Failed to activate HttpServlet RA",
 					e);
@@ -440,14 +440,13 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor {
 	}
 
 	// set up the JNDI naming context
-	private void initializeNamingContextBindings() throws NamingException {
+	private void initializeNamingContextBindings() throws Exception {
 		// get the reference to the SLEE container from JNDI
 		SleeContainer container = SleeContainer.lookupFromJndi();
 		// get the entities name
 		String entityName = bootstrapContext.getEntityName();
 
-		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(entityName));
+		ResourceAdaptorEntity resourceAdaptorEntity = container.getResourceManagement().getResourceAdaptorEntity(entityName);
 		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getRaType()
 				.getResourceAdaptorTypeID();
@@ -456,7 +455,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor {
 		acif = new HttpServletRaActivityContextInterfaceFactoryImpl(
 				resourceAdaptorEntity.getServiceContainer(), entityName, this);
 		// set the ActivityContextInterfaceFactory
-		resourceAdaptorEntity.getServiceContainer()
+		resourceAdaptorEntity.getServiceContainer().getResourceManagement()
 				.getActivityContextInterfaceFactories().put(raTypeId, acif);
 
 		try {

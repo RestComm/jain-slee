@@ -22,6 +22,7 @@ import javax.transaction.SystemException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.SleeActivityHandle;
+import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -41,34 +42,23 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  */
 public class ActivityContextInterfaceImpl implements
         ActivityContextIDInterface, ActivityContextInterface {
-    // anchor
-    private SleeContainer serviceContainer;
 
-    private ActivityContextFactory acif;
+    private static final ActivityContextFactory acif = SleeContainer.lookupFromJndi().getActivityContextFactory();
+    private static final SleeTransactionManager txMgr = SleeContainer.lookupFromJndi().getTransactionManager();
 
     private String acId;
 
-    private static Logger logger;
-
-    static {
-        logger = Logger.getLogger(ActivityContextInterfaceImpl.class);
-    }
-
+    private static Logger logger = Logger.getLogger(ActivityContextInterfaceImpl.class);
+    
     /**
      * This is allocated by the Slee to wrap an incoming event (activity).
      * 
-     * @param serviceContainer
-     * @param activity
-     * @param activity
+     * @param activityContextId
      */
-    public ActivityContextInterfaceImpl(SleeContainer serviceContainer,
-            String activityContextId) {
+    public ActivityContextInterfaceImpl(String activityContextId) {
         if (activityContextId == null)
             throw new NullPointerException("Null activityContextId Crap!");
-        this.serviceContainer = serviceContainer;
-        this.acif = serviceContainer.getActivityContextFactory();
         this.acId = activityContextId;
-
     }
 
     public ActivityContext getActivityContext() {
@@ -85,8 +75,10 @@ public class ActivityContextInterfaceImpl implements
      */
     public Object getActivity() throws TransactionRequiredLocalException,
             SLEEException {
-        SleeContainer.getTransactionManager().mandateTransaction();
-        Object activity = this.acif.getActivityFromKey(acId);
+        
+    	txMgr.mandateTransaction();
+        
+    	Object activity = this.acif.getActivityFromKey(acId);
         if (logger.isDebugEnabled()) {
             logger.debug("getActivity() : activity = " + activity);
         }
@@ -120,7 +112,7 @@ public class ActivityContextInterfaceImpl implements
 
         if (sbbLocalObject == null)
             throw new NullPointerException("null SbbLocalObject !");
-        SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+       
         txMgr.mandateTransaction();
         SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
 
@@ -194,8 +186,6 @@ public class ActivityContextInterfaceImpl implements
         if (sbbLocalObject == null)
             throw new NullPointerException("null SbbLocalObject !");
         
-        SleeTransactionManager txMgr = serviceContainer.getTransactionManager();
-        
         txMgr.mandateTransaction();
         
         SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
@@ -237,7 +227,7 @@ public class ActivityContextInterfaceImpl implements
      */
     public boolean isEnding() throws TransactionRequiredLocalException,
             SLEEException {
-        SleeContainer.getTransactionManager().mandateTransaction();
+    	txMgr.mandateTransaction();
         ActivityContext localAc = acif.getActivityContextById(acId);
         return localAc.isEnding();
     }

@@ -43,6 +43,8 @@ import org.mobicents.slee.runtime.facilities.NullActivityContext;
 import org.mobicents.slee.runtime.facilities.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.facilities.NullActivityImpl;
 import org.mobicents.slee.runtime.facilities.TimerEventImpl;
+import org.mobicents.slee.runtime.sbb.SbbObject;
+import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
@@ -80,7 +82,7 @@ public class EventRouterImpl implements EventRouter {
 	 * activities after their creation,then turn this off to get more
 	 * performance turn it off.
 	 */
-	public final static boolean MONITOR_UNCOMMITTED_AC_ATTACHS = true;
+	public final static boolean MONITOR_UNCOMMITTED_AC_ATTACHS = false;
 	
 	//  Executor Pool related fields
 	// TODO: the executor pool size should be configurable
@@ -535,7 +537,7 @@ public class EventRouterImpl implements EventRouter {
 			RolledBackContext rollbackContext = new RolledBackContextImpl(
 					sleeEvent == null ? null : sleeEvent.getEventObject(),
 							sleeEvent == null ? null
-									: new ActivityContextInterfaceImpl(container,
+									: new ActivityContextInterfaceImpl(
 											sleeEvent.getActivityContextID()),
 											removeRolledBack);
 
@@ -1159,11 +1161,7 @@ public class EventRouterImpl implements EventRouter {
 				// get timer task from event, and check if timer should be cancelled
 				TimerEventImpl timerEventImpl = (TimerEventImpl)de.getEvent();
 				if(timerEventImpl.isLastTimerEvent()) {
-					try {
-						SleeContainer.getTimerFacility().cancelTimer(timerEventImpl.getTimerID());            			
-					} catch (NamingException ex) {
-						logger.error("Error getting timer facility, cannot check for timer end", ex);            		
-					}
+					container.getTimerFacility().cancelTimer(timerEventImpl.getTimerID());            			
 				}            	            	
 			}
 

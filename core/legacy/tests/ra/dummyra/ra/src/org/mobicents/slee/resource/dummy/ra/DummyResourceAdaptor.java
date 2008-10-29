@@ -238,10 +238,9 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
     	try {
 
 			
-
-			ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) serviceContainer
-					.getResourceAdaptorEnitity(this.bootstrapContext
-							.getEntityName()));
+    		ResourceAdaptorEntity resourceAdaptorEntity = serviceContainer.getResourceManagement().getResourceAdaptorEntity(this.bootstrapContext
+					.getEntityName());
+			
 			log.info("___ = 1 = ___");
 			
 			// TCK LIKE TEST
@@ -263,7 +262,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 			log.info("___ = 3 = ___");
 			DummyActivityContextInterfaceFactoryImpl acif=new DummyActivityContextInterfaceFactoryImpl(container,this.bootstrapContext.getEntityName());
 
-			resourceAdaptorEntity.getServiceContainer()
+			resourceAdaptorEntity.getServiceContainer().getResourceManagement()
 					.getActivityContextInterfaceFactories()
 					.put(raTypeId, acif);
 			String entityName = this.bootstrapContext.getEntityName();

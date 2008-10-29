@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+	/***************************************************
+	*                                                 *
+	*  Mobicents: The Open Source VoIP Platform       *
+	*                                                 *
+	*  Distributable under LGPL license.              *
+	*  See terms of license at gnu.org.               *
+	*                                                 *
+	***************************************************/
+-->
+
+<server>
+
+	<mbean
+		code="org.mobicents.slee.test.suite.tckwrapper.SleeTCKPluginWrapper"
+		name="slee:service=SleeTCKWrapper"
+	>
+		<depends>slee:service=SleeManagement</depends>
+		<depends>jboss:service=invoker,type=jrmp</depends>
+		<depends>jboss:service=Naming</depends>
+		<attribute name="TCKPluginClassName">com.opencloud.sleetck.lib.infra.sleeplugin.SleeTCKPlugin</attribute>
+		<attribute name="TCKPluginMBeanObjectName">:name=SleeTCKPlugin</attribute>
+		<attribute name="RMIRegistryPort">4099</attribute>
+		<attribute name="SleeProviderImpl">org.mobicents.slee.container.management.jmx.SleeProviderImpl</attribute>
+	</mbean>
+
+</server>

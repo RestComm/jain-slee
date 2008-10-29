@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deploy-config>
-  <ra-entity resource-adaptor-id="PersistenceResourceAdaptor#org.mobicents#0.1" entity-name="PersistenceRA">
-    <properties file="" />
-    <ra-link name="PersistenceRA" />
-  </ra-entity>
-</deploy-config>

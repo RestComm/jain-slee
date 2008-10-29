@@ -148,6 +148,116 @@ public class ServiceManagementMBeanImpl extends StandardMBean implements
     }
 
     /*
+    
+    public void activate(ServiceID serviceID) throws NullPointerException,
+           UnrecognizedServiceException, InvalidStateException,
+           ManagementException {
+       
+   	if (logger.isDebugEnabled()) {
+			logger.debug("Activating " + serviceID);
+		}
+       
+		if (serviceID == null)
+			throw new NullPointerException("null service id");
+
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
+		
+		synchronized (sleeContainer) {
+			
+			
+			boolean b = transactionManager.requireTransaction();
+			boolean rb = true;
+			
+			try {
+				
+				Service service = sleeContainer.getService(serviceID);
+				
+				if (service == null) {
+					throw new UnrecognizedServiceException("Unrecognized service "
+							+ serviceID);
+				}
+
+				if (service.getState().equals(ServiceState.ACTIVE)) {
+					throw new InvalidStateException("Service "+serviceID+" already active");
+				}
+
+				// If there was a deactivate before we have sbb entities pending,
+				// remove those first
+				RootSbbEntitiesRemovalTask task = RootSbbEntitiesRemovalTask.getTask(serviceID);
+				if (task != null) {
+					task.run();
+					if (logger.isDebugEnabled()) {
+						logger
+								.debug("Found timer task running to remove remaining sbb entities. Executing now...");
+					}
+				}
+
+				// notifying the resource adaptors about service activation
+				for (sleeContainer.getResourceManagement().getResourceAdaptorEntities())
+				ServiceComponent svcComponent = sleeContainer.getServiceComponent(serviceID);
+				HashSet sbbIDs = svcComponent.getSbbComponents();
+				HashSet raEntities = new HashSet();
+				Iterator i = sbbIDs.iterator();
+				while (i.hasNext()) {
+					SbbDescriptor sbbdesc = sleeContainer.getSbbComponent((SbbID) i.next());
+					if (sbbdesc != null) {
+						String[] raLinks = sbbdesc.getResourceAdaptorEntityLinks();
+						for (int c = 0; raLinks != null && c < raLinks.length; c++) {
+							ResourceAdaptorEntity raEntity = getRAEntity(raLinks[c]);
+							if (raEntity != null && !raEntities.contains(raEntity)) {
+								raEntity.serviceActivated(serviceID.toString());
+								raEntities.add(raEntity);
+							}
+						}
+					}
+				}
+
+				// Already active just return.
+				service.activate();
+				getDeploymentCacheManager().getActiveServiceIDs().add(serviceID);
+				svcComponent.lock();
+				rb = false;
+				logger.info("Activated " + serviceID);
+			} catch (InvalidStateException ise) {
+				throw ise;
+			} catch (UnrecognizedServiceException use) {
+				throw use;
+			} catch (Exception ex) {
+				throw new ManagementException("system exception starting service",
+	                    ex);
+			} finally {
+
+				try {
+					if (rb)
+						transactionManager.setRollbackOnly();
+					if (b)
+						transactionManager.commit();
+
+				} catch (Exception e) {
+					logger.error("Failed: transaction commit", e);
+				}
+			}
+		}
+		
+		
+   	
+   	
+   	
+       try {
+           SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
+           serviceContainer.startService(serviceID);
+       } catch (InvalidStateException ise) {
+       	throw ise;
+		} catch (Exception ex) {
+           throw new ManagementException("system exception starting service",
+                   ex);
+       }
+   }
+   
+    */
+    
+    /*
      * (non-Javadoc)
      * 
      * @see javax.slee.management.ServiceManagementMBean#activate(javax.slee.ServiceID[])

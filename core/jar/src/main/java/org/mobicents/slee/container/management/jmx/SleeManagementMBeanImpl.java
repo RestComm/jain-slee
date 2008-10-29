@@ -444,11 +444,16 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	private void reactivateResourceAdaptors() {
 
-		HashMap<String, ResourceAdaptorEntity> map = sleeContainer
-				.getResourceAdaptorEntities();
+		final ResourceManagement resourceManagement = sleeContainer.getResourceManagement();
 		ArrayList<String> activated = new ArrayList<String>();
 		for (String entityName : this.activeRAEntities) {
-			ResourceAdaptorEntity entity = map.get(entityName);
+			ResourceAdaptorEntity entity = null;
+			try {
+				entity = resourceManagement.getResourceAdaptorEntity(entityName);
+			}
+			catch (Exception e) {
+				logger.error("failed to get ra entity "+entityName,e);
+			}
 			if (entity != null) {
 				try {
 					entity.activate();
@@ -459,8 +464,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			} else {
-				// errror... ;/
 			}
 
 			// this.activeRAEntities.remove(entityName);
@@ -681,14 +684,17 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 */
 	private void stopAllResourceAdaptors() {
 
-		HashMap<String, ResourceAdaptorEntity> entities = this.sleeContainer
-				.getResourceAdaptorEntities();
-		Iterator<ResourceAdaptorEntity> it = entities.values().iterator();
-
-		while (it.hasNext()) {
-			ResourceAdaptorEntity entity = it.next();
-
-			if (!entity.getName().equals("tck")
+		final ResourceManagement resourceManagement = sleeContainer.getResourceManagement();
+		for (String entityName : resourceManagement.getResourceAdaptorEntities()) {
+			ResourceAdaptorEntity entity = null;
+			
+			try {
+				entity = resourceManagement.getResourceAdaptorEntity(entityName);
+			} catch (Exception e) {
+				logger.error("failed to get RA entity "+entityName,e);
+			}
+			
+			if (entity != null && !entity.getName().equals("tck")
 					&& entity.getState().equals(
 							ResourceAdaptorEntityState.ACTIVE))
 				try {
@@ -699,7 +705,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 					e.printStackTrace();
 				}
 		}
-
 	}
 
 	/**
@@ -751,13 +756,17 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * to SLEE spec #14.6.1, #2.2.17)
 	 * 
 	 */
-	private void rememberActiveResourceAdaptorsBeforeStop() throws Exception {
-		HashMap<String, ResourceAdaptorEntity> map = sleeContainer
-				.getResourceAdaptorEntities();
-
-		for (String entityName : map.keySet()) {
-			ResourceAdaptorEntity entity = map.get(entityName);
-			if (!entityName.equals("tck")
+	private void rememberActiveResourceAdaptorsBeforeStop() {
+		final ResourceManagement resourceManagement = sleeContainer.getResourceManagement();
+		for (String entityName : resourceManagement.getResourceAdaptorEntities()) {
+			ResourceAdaptorEntity entity = null;
+			try {
+				entity = resourceManagement
+						.getResourceAdaptorEntity(entityName);
+			} catch (Exception e) {
+				logger.error("failed to get Ra entity " + entityName, e);
+			}
+			if (entity != null && !entityName.equals("tck")
 					&& entity.getState().equals(
 							ResourceAdaptorEntityState.ACTIVE))
 				this.activeRAEntities.add(entityName);

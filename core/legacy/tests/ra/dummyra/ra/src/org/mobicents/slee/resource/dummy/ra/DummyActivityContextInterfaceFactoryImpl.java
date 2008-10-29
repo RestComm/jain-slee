@@ -42,7 +42,7 @@ public class DummyActivityContextInterfaceFactoryImpl
     }
 
     public ActivityContextInterface getActivityContextInterface(DummyActivity activity) throws NullPointerException, UnrecognizedActivityException, FactoryException {
-        return new ActivityContextInterfaceImpl(this.sleeContainer, activity.getId());
+        return new ActivityContextInterfaceImpl(activity.getId());
     }
     
 }

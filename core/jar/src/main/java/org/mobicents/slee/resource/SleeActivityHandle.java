@@ -77,17 +77,30 @@ public class SleeActivityHandle {
         return raEntityName;
     }
 
+    private ResourceAdaptorEntity getResourceAdaptorEntity() {
+    	 try {
+ 			return container.getResourceManagement().getResourceAdaptorEntity(this.raEntityName);
+ 		} catch (Exception e) {
+ 			logger.error("failed to get RA entity "+raEntityName);
+ 			return null;
+ 		}
+    }
+    
     public javax.slee.resource.ResourceAdaptor getResourceAdaptor() {
         if ( raEntityName == null ) return null;
-        ResourceAdaptorEntity raEntity =
-            container.getResourceAdaptorEnitity(this.raEntityName);
-        ResourceAdaptor ra  = raEntity.getResourceAdaptor();
-        return ra;
+        final ResourceAdaptorEntity resourceAdaptorEntity = getResourceAdaptorEntity();
+        if (resourceAdaptorEntity == null) {
+        	return null;
+        }
+        return resourceAdaptorEntity.getResourceAdaptor();
     }
    
    
     public ByteBuffer marshalledVersion(){
-        ResourceAdaptorEntity raEntity = container.getResourceAdaptorEnitity(this.raEntityName);
+    	final ResourceAdaptorEntity raEntity = getResourceAdaptorEntity();
+        if (raEntity == null) {
+        	return null;
+        }
         ResourceAdaptor ra  = raEntity.getResourceAdaptor();
         Marshaler marshaller =  ra.getMarshaler();
         try {
@@ -105,7 +118,10 @@ public class SleeActivityHandle {
         if ( logger.isDebugEnabled()) {
             logger.debug ("getActivity():  handle = " + handle );
         }
-        ResourceAdaptorEntity raEntity =  container.getResourceAdaptorEnitity(this.raEntityName);
+        final ResourceAdaptorEntity raEntity = getResourceAdaptorEntity();
+        if (raEntity == null) {
+        	return null;
+        }
         ResourceAdaptor ra  = raEntity.getResourceAdaptor();
         return ra.getActivity(this.handle);
     }

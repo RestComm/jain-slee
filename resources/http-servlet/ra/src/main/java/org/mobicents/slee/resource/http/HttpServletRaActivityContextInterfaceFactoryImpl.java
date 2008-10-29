@@ -68,7 +68,7 @@ public class HttpServletRaActivityContextInterfaceFactoryImpl implements
 			throw new UnrecognizedActivityException(activity);
 		}
 		
-		return new ActivityContextInterfaceImpl(this.serviceContainer,
+		return new ActivityContextInterfaceImpl(
 					this.factory.getActivityContext(
 							new SleeActivityHandle(raEntityName,
 									ah, serviceContainer))

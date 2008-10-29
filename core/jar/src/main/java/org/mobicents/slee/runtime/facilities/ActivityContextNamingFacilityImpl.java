@@ -214,7 +214,7 @@ public class ActivityContextNamingFacilityImpl implements
  
         	if (acId == null ) return null;
         	SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-        	return new ActivityContextInterfaceImpl(sleeContainer, acId);        
+        	return new ActivityContextInterfaceImpl(acId);        
         } catch (Exception e) {
         	throw new FacilityException("Failed to look-up ac name binding", e);
         }

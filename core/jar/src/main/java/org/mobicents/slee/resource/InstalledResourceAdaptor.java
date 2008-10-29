@@ -42,9 +42,7 @@ public class InstalledResourceAdaptor  implements java.io.Serializable {
     private String[] activityInterfaceNames;
     private String raInterfaceFactory;
     
-    private HashSet resourceAdaptorEntities;
-    
-    private transient  SleeContainer container;
+    private HashSet<ResourceAdaptorEntity> resourceAdaptorEntities;
     
     private ResourceAdaptorDescriptorImpl descriptor;
     
@@ -57,19 +55,11 @@ public class InstalledResourceAdaptor  implements java.io.Serializable {
     }
     
     public InstalledResourceAdaptor(){
-        this.resourceAdaptorEntities = new HashSet();
+        this.resourceAdaptorEntities = new HashSet<ResourceAdaptorEntity>();
         
     }
     
-    public void addResourceAdaptorEntity( ResourceAdaptorEntity raEntity ) {
-        this.resourceAdaptorEntities.add(raEntity);
-    }
-    
-    public void removeResourceAdaptorEntity( ResourceAdaptorEntity raEntity ) {
-        this.resourceAdaptorEntities.remove(raEntity);
-    }
-  
-    public HashSet getResourceAdaptorEntities() {
+    public HashSet<ResourceAdaptorEntity> getResourceAdaptorEntities() {
         return this.resourceAdaptorEntities;
     }
     /**
@@ -124,7 +114,6 @@ public class InstalledResourceAdaptor  implements java.io.Serializable {
     public InstalledResourceAdaptor(SleeContainer container, ResourceAdaptorDescriptorImpl raDescr,
             ResourceAdaptorIDImpl resourceAdaptorId ) throws ClassNotFoundException {
         this.resourceAdaptorEntities = new HashSet();
-        this.container = container;
         this.resourceAdaptorId = resourceAdaptorId;
         this.resourceAdaptorClass = Thread.currentThread().getContextClassLoader().loadClass(raDescr.getResourceAdaptorClasses().getResourceAdaptorClass());
         this.descriptor = raDescr;
@@ -132,7 +121,7 @@ public class InstalledResourceAdaptor  implements java.io.Serializable {
             (ResourceAdaptorTypeIDImpl) raDescr.getResourceAdaptorType();
         //ComponentKey k = new ComponentKey(ratRef.getName(), ratRef.getVendor(), ratRef.getVersion());
         //logger.debug("InstalledResourceAdaptor looking for RaType: " + k);
-        this.raType = container.getResourceAdaptorType(ratRef);
+        this.raType = container.getResourceManagement().getResourceAdaptorType(ratRef);
         ResourceAdaptorTypeClassEntry classEntry = raType.getRaTypeDescr().getRaTypeClassEntry();  
         raAciName = classEntry.getAcifInterfaceEntry().getInterfaceName();
         this.raInterfaceFactory = classEntry.getRaInterfaceFactoryEntry().getName();

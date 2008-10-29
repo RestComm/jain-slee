@@ -27,7 +27,7 @@ import org.mobicents.slee.runtime.ActivityContext;
 import org.mobicents.slee.runtime.ActivityContextIDInterface;
 import org.mobicents.slee.runtime.ActivityContextState;
 import org.mobicents.slee.runtime.DeferredEvent;
-import org.mobicents.slee.runtime.SbbObjectState;
+import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 

@@ -49,12 +49,12 @@ public class JccActivityContextInterfaceFactoryImpl
 
     public ActivityContextInterface getActivityContextInterface(JccCall call) 
     throws NullPointerException, UnrecognizedActivityException, FactoryException {
-        return new ActivityContextInterfaceImpl(sleeContainer, call.toString());
+        return new ActivityContextInterfaceImpl(call.toString());
     }
 
     public ActivityContextInterface getActivityContextInterface(JccConnection connection) 
     throws NullPointerException, UnrecognizedActivityException, FactoryException {
-        return new ActivityContextInterfaceImpl(sleeContainer, connection.toString());
+        return new ActivityContextInterfaceImpl(connection.toString());
     }
 
     public String getJndiName() {

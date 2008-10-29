@@ -16,6 +16,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
@@ -50,7 +51,7 @@ public class RAFStack extends Thread {
     // the registered listeners
     private ArrayList listener;
     // flag to indicate shutdown
-    private boolean shutdown = false;
+    private AtomicBoolean shutdown = new AtomicBoolean(false);
     
     /**
      * Create an instance of RAFStack.
@@ -76,7 +77,7 @@ public class RAFStack extends Thread {
     public void run() {
         Socket socket = null;
         
-        while (!shutdown) {
+        while (!shutdown.get()) {
             try {
                 socket = server.accept();
                 // create a new working thread to work with the incoming information
@@ -95,7 +96,12 @@ public class RAFStack extends Thread {
      * less than 1000ms. 
      */
     public void shutdown() {
-        shutdown = true; 
+        shutdown.set(true); 
+        try {
+			server.close();
+		} catch (IOException e) {
+			
+		}
     }    
     
     /**

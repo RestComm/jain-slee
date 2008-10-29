@@ -12,21 +12,11 @@
  */
 package org.mobicents.slee.resource;
 
-import org.jboss.util.naming.NonSerializableFactory;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
-
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.StringRefAddr;
+import org.mobicents.slee.container.component.ComponentKey;
+import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
 
 /**
  * 
@@ -41,14 +31,20 @@ import javax.naming.StringRefAddr;
  * @author M. Ranganathan ( hacks )
  */
 public class ResourceAdaptorType implements Serializable{
-    private ResourceAdaptorTypeIDImpl resourceAdaptorTypeID;
+    
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private ResourceAdaptorTypeIDImpl resourceAdaptorTypeID;
     // Every resource adaptor type can have multiple Resource Adaptor Implementation
-    private HashSet resourceAdaptorIDs;
+    private HashSet<ResourceAdaptorIDImpl> resourceAdaptorIDs;
     private ResourceAdaptorTypeDescriptorImpl raTypeDescr;
     private String activityContextInterfaceJNDIName;
     
     public ResourceAdaptorType(ResourceAdaptorTypeDescriptorImpl ratDescr) {
-        this.resourceAdaptorIDs = new HashSet();
+        this.resourceAdaptorIDs = new HashSet<ResourceAdaptorIDImpl>();
         this.raTypeDescr = ratDescr;
         this.resourceAdaptorTypeID =  new ResourceAdaptorTypeIDImpl
             	(new ComponentKey(ratDescr.getName(), ratDescr.getVendor(), ratDescr.getVersion()));
@@ -72,21 +68,12 @@ public class ResourceAdaptorType implements Serializable{
     /**
      * @return Returns the resourceAdaptors.
      */
-    public HashSet getResourceAdaptorIDs() {
+    public HashSet<ResourceAdaptorIDImpl> getResourceAdaptorIDs() {
         return this.resourceAdaptorIDs;
     }
    
-    
-    
-    public void addResourceAdaptor ( ResourceAdaptorIDImpl resourceAdaptorID) {
-        this.resourceAdaptorIDs.add(resourceAdaptorID); 
-    }
-    
-   
-
     public String getActivityContextInterfaceFactoryJNDIName() {
         return this.activityContextInterfaceJNDIName;
-        
     }
     
     public void setActivityContextInterfaceJNDIName(String name) {

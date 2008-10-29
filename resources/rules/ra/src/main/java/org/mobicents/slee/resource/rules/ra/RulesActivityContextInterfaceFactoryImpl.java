@@ -44,7 +44,7 @@ public class RulesActivityContextInterfaceFactoryImpl implements
 			UnrecognizedActivityException, FactoryException {
         logger.debug("RulesActivityContextInterfaceFactoryImpl.getActivityContextInterface(" + activity.getId() + ") called.");	
         
-        return  new ActivityContextInterfaceImpl(this.sleeContainer,  
+        return  new ActivityContextInterfaceImpl( 
         		this.factory.getActivityContext(new SleeActivityHandle(raEntityName, new RulesActivityHandle(activity), sleeContainer)).getActivityContextId());        
 		//return new ActivityContextInterfaceImpl(this.sleeContainer, activity.getId());
 	}

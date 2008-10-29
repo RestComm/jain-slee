@@ -27,8 +27,8 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.component.ProfileCMPMethod;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.profile.SleeProfileManager;
-import org.mobicents.slee.runtime.SbbObject;
-import org.mobicents.slee.runtime.SbbObjectState;
+import org.mobicents.slee.runtime.sbb.SbbObject;
+import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;

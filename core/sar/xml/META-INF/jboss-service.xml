@@ -134,19 +134,6 @@
 		<depends optional-attribute-name="RuntimeTreeCacheName">jboss.cache:service=RuntimeTreeCache</depends>
 	</mbean>
 
-	<mbean
-		code="org.mobicents.slee.test.suite.tckwrapper.SleeTCKPluginWrapper"
-		name="slee:service=SleeTCKWrapper"
-	>
-		<depends>slee:service=SleeManagement</depends>
-		<depends>jboss:service=invoker,type=jrmp</depends>
-		<depends>jboss:service=Naming</depends>
-		<attribute name="TCKPluginClassName">com.opencloud.sleetck.lib.infra.sleeplugin.SleeTCKPlugin</attribute>
-		<attribute name="TCKPluginMBeanObjectName">:name=SleeTCKPlugin</attribute>
-		<attribute name="RMIRegistryPort">4099</attribute>
-		<attribute name="SleeProviderImpl">org.mobicents.slee.container.management.jmx.SleeProviderImpl</attribute>
-	</mbean>
-
 	<mbean code="org.mobicents.slee.container.management.jmx.log.MobicentsLogManagerMBeanImpl"	name="slee:name=LogManagementMBean">
 		<depends>slee:service=SleeManagement</depends>
 	</mbean>

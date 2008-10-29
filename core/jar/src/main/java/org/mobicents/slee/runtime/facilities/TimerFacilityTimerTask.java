@@ -152,15 +152,8 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
             logger.debug("In TimerFacilityTimerTask.run()");
         }
 
-        TimerFacilityImpl timerFacility = null;
-
-        try {
-            timerFacility = (TimerFacilityImpl)SleeContainer.getTimerFacility();           
-        } catch (NamingException ex) {
-            logger.error("Error getting timer facility cannot run timer", ex);
-            return;
-        }
-
+        TimerFacilityImpl timerFacility = SleeContainer.lookupFromJndi().getTimerFacility();           
+        
         long tRes = timerFacility.getResolution();
         long tSys = System.currentTimeMillis();
         long tDto = timerFacility.getDefaultTimeout();

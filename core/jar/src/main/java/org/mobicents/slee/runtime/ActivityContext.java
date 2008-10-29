@@ -451,14 +451,7 @@ public class ActivityContext implements Serializable {
 	// have references to the Activity Context that the Activ-ity
 	// End Event has been delivered on the Activity Context.
 	public void removeFromTimers() {
-		TimerFacilityImpl timerFacility = null;
-		try {
-			timerFacility = (TimerFacilityImpl) SleeContainer
-					.getTimerFacility();
-		} catch (NamingException ex) {
-			logger.error("cannot retieve timer facility", ex);
-			return;
-		}
+		TimerFacilityImpl timerFacility = sleeContainer.getTimerFacility();
 		// Iterate through the attached timers, telling the timer facility to
 		// remove them
 		Iterator iter = new HashSet(getAttachedTimers()).iterator();

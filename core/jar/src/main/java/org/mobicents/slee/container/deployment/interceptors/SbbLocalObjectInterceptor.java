@@ -19,8 +19,8 @@ import javax.slee.TransactionRolledbackLocalException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.runtime.SbbConcrete;
-import org.mobicents.slee.runtime.SbbLocalObjectConcrete;
+import org.mobicents.slee.runtime.sbb.SbbConcrete;
+import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
 
 /**
  * An invoker for the sbb local object.

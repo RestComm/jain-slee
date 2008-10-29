@@ -73,7 +73,7 @@ public class NullActivityContextInterfaceFactoryImpl implements
             
         }
         NullActivityImpl nullActivityImpl = (NullActivityImpl) nullActivity;
-        return new ActivityContextInterfaceImpl(this.sleeContainer, this.acf.getActivityContextId(nullActivity));
+        return new ActivityContextInterfaceImpl(this.acf.getActivityContextId(nullActivity));
         
     }
 

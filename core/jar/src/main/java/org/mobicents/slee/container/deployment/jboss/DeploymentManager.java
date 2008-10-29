@@ -127,7 +127,7 @@ public class DeploymentManager
       }
       
       // Get the deployed Resource Adaptor Types
-      ResourceAdaptorTypeID[] sleeRATypes = sleeContainer.getResourceAdaptorTypeIDs();
+      ResourceAdaptorTypeID[] sleeRATypes = sleeContainer.getResourceManagement().getResourceAdaptorTypeIDs();
       
       for( int i = 0; i < sleeRATypes.length; i++ )
       {
@@ -135,7 +135,7 @@ public class DeploymentManager
       }
       
       // Get the deployed Resource Adaptors
-      ResourceAdaptorID[] sleeResourceAdaptors = sleeContainer.getResourceAdaptorIDs();
+      ResourceAdaptorID[] sleeResourceAdaptors = sleeContainer.getResourceManagement().getResourceAdaptorIDs();
 
       for( int i = 0; i < sleeResourceAdaptors.length; i++ )
       {
@@ -159,17 +159,17 @@ public class DeploymentManager
       }
       
       // Get the existing Resource Adaptor Entity links
-      String[] entityNames = sleeContainer.getResourceAdaptorEntityNames();
+      String[] entityNames = sleeContainer.getResourceManagement().getResourceAdaptorEntities();
       
       for( int i = 0; i < entityNames.length; i++ )
       {
-        ResourceAdaptorEntity rae = sleeContainer.getResourceAdaptorEntity( entityNames[i] );
+        ResourceAdaptorEntity rae = sleeContainer.getResourceManagement().getResourceAdaptorEntity( entityNames[i] );
         
         if(rae != null && rae.getState() == ResourceAdaptorEntityState.ACTIVE)
         {
           String raTypeId =  rae.getInstalledResourceAdaptor().getRaType().getResourceAdaptorTypeID().toString();
           
-          String[] entityLinks = sleeContainer.getResourceAdaptorEntityLinks( rae.getName() );
+          String[] entityLinks = sleeContainer.getResourceManagement().getLinkNames(rae.getName());
           
           for(String entityLink : entityLinks)
           {

@@ -57,7 +57,7 @@ public class SipActivityContextInterfaceFactoryImpl implements
 		if (clientTransaction == null)
 			throw new NullPointerException("sip activity ! huh!!");
 
-		return new ActivityContextInterfaceImpl(this.serviceContainer, this
+		return new ActivityContextInterfaceImpl(this
 				.getActivityContextForActivity(clientTransaction, ((ClientTransactionWrapper)clientTransaction).getActivityHandle())
 				.getActivityContextId());
 	}
@@ -67,7 +67,7 @@ public class SipActivityContextInterfaceFactoryImpl implements
 			UnrecognizedActivityException, FactoryException {
 		if (serverTransaction == null)
 			throw new NullPointerException("sip activity ! huh!!");
-		return new ActivityContextInterfaceImpl(this.serviceContainer, this
+		return new ActivityContextInterfaceImpl(this
 				.getActivityContextForActivity(serverTransaction, ((ServerTransactionWrapper)serverTransaction).getActivityHandle())
 				.getActivityContextId());
 	}
@@ -80,7 +80,7 @@ public class SipActivityContextInterfaceFactoryImpl implements
 			throw new NullPointerException("sip activity ! huh!!");
 		}
 		
-		return new ActivityContextInterfaceImpl(this.serviceContainer, this
+		return new ActivityContextInterfaceImpl(this
 				.getActivityContextForActivity(dialog, ((DialogWrapper)dialog).getActivityHandle())
 				.getActivityContextId());
 

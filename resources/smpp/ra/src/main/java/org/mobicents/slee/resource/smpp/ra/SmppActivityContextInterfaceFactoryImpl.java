@@ -56,7 +56,7 @@ public class SmppActivityContextInterfaceFactoryImpl
     public ActivityContextInterface getActivityContextInterface(Dialog dialog) 
         throws NullPointerException, UnrecognizedActivityException, FactoryException {
         
-        return new ActivityContextInterfaceImpl(this.serviceContainer,
+        return new ActivityContextInterfaceImpl(
                 this.activityContextFactory.getActivityContext(
                 new SleeActivityHandle(entityName, ra.getActivityHandle(dialog), 
                 serviceContainer)).getActivityContextId());
@@ -64,7 +64,7 @@ public class SmppActivityContextInterfaceFactoryImpl
 
     public ActivityContextInterface getActivityContextInterface(Transaction tx) 
         throws NullPointerException, UnrecognizedActivityException, FactoryException {
-        return new ActivityContextInterfaceImpl(this.serviceContainer,
+        return new ActivityContextInterfaceImpl(
                 this.activityContextFactory.getActivityContext(
                 new SleeActivityHandle(entityName, ra.getActivityHandle(tx), 
                 serviceContainer)).getActivityContextId());

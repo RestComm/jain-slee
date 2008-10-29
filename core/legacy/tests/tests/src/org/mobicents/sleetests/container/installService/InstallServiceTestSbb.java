@@ -347,7 +347,7 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 			raport.append("\n|----------------------------------------------------------------------------------------|");
 			raport.append("\n| EVENTS DECALRED BY RA TYPE:                                                            |");
 			ResourceAdaptorTypeIDImpl raTypeID=new ResourceAdaptorTypeIDImpl(getRaTypeKey());
-			ResourceAdaptorType raType=container.getResourceAdaptorType(raTypeID);
+			ResourceAdaptorType raType=container.getResourceManagement().getResourceAdaptorType(raTypeID);
 			ComponentKey[] raTypEventRefs=raType.getRaTypeDescr().getEventTypeRefEntries();
 			text="\n| ";
 			try{
@@ -564,7 +564,7 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 
 		ResourceAdaptorTypeIDImpl raTypeID=new ResourceAdaptorTypeIDImpl(getRaTypeKey());
 
-		ResourceAdaptorType raType=container.getResourceAdaptorType(raTypeID);
+		ResourceAdaptorType raType=container.getResourceManagement().getResourceAdaptorType(raTypeID);
 		//HERE WE HAVE raType DECALRED EVENTs
 
 		EventTypeID[] eventTypeIDs=raType.getRaTypeDescr().getEventTypes();

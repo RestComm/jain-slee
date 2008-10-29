@@ -185,8 +185,7 @@ public class ParlayActivityContextInterfaceFactoryImpl implements
         String activityContextID = activityContextFactory.getActivityContext(
                 sleeActivityHandle).getActivityContextId();
         
-        return new ActivityContextInterfaceImpl(
-                this.serviceContainer, activityContextID);
+        return new ActivityContextInterfaceImpl(activityContextID);
     }
 
     /* (non-Javadoc)

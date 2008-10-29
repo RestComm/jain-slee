@@ -776,7 +776,7 @@ public class DeployableComponent
       Collection<String> duComponents = du.getComponents();
       
       // Obtaining the RAs using this RA Type 
-      HashSet<ResourceAdaptorIDImpl> raIDs = sC.getResourceAdaptorType( (ResourceAdaptorTypeID) componentID ).getResourceAdaptorIDs();
+      HashSet<ResourceAdaptorIDImpl> raIDs = sC.getResourceManagement().getResourceAdaptorType( (ResourceAdaptorTypeID) componentID ).getResourceAdaptorIDs();
 
       // Check if the referring RAs are in the same DU
       for( ResourceAdaptorIDImpl raID : raIDs )

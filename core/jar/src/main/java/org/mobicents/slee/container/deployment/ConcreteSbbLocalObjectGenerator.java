@@ -33,8 +33,8 @@ import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
-import org.mobicents.slee.runtime.SbbLocalObjectConcrete;
-import org.mobicents.slee.runtime.SbbLocalObjectImpl;
+import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
+import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 /**

@@ -120,7 +120,7 @@ public class ParlayResourceAdaptor implements ResourceAdaptor, Serializable {
 
     private transient SleeEndpoint sleeEndpoint = null;
 
-    private transient ParlayActivityContextInterfaceFactory activityConextInterfaceFactory = null;
+    private transient ParlayActivityContextInterfaceFactoryImpl activityConextInterfaceFactory = null;
 
     private transient ParlayProvider parlayProvider = null;
 
@@ -178,7 +178,7 @@ public class ParlayResourceAdaptor implements ResourceAdaptor, Serializable {
         try {
             initializeRAActivityContextInterfaceFactory();
         }
-        catch (NamingException e) {
+        catch (Exception e) {
             logger
                     .error("Failed to init ResourceAdapterActivityContextInterfaceFactory");
             throw new ResourceException(
@@ -429,7 +429,7 @@ public class ParlayResourceAdaptor implements ResourceAdaptor, Serializable {
 
     // set up the JNDI naming context
     private void initializeRAActivityContextInterfaceFactory()
-            throws NamingException {
+            throws Exception {
 
         if (logger.isDebugEnabled()) {
             logger.debug("Initializing RA ActivityContextInterfaceFactory");
@@ -441,8 +441,7 @@ public class ParlayResourceAdaptor implements ResourceAdaptor, Serializable {
         final String entityName = bootstrapContext.getEntityName();
 
         // Get RA Entity
-        final ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-                .getResourceAdaptorEnitity(entityName));
+        final ResourceAdaptorEntity resourceAdaptorEntity = container.getResourceManagement().getResourceAdaptorEntity(entityName);
         // Get RA Type ID
         final ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
                 .getInstalledResourceAdaptor().getRaType()
@@ -453,7 +452,7 @@ public class ParlayResourceAdaptor implements ResourceAdaptor, Serializable {
                 resourceAdaptorEntity.getServiceContainer(), entityName);
 
         // store the mapping in the service container
-        resourceAdaptorEntity.getServiceContainer()
+        resourceAdaptorEntity.getServiceContainer().getResourceManagement()
                 .getActivityContextInterfaceFactories().put(raTypeId,
                         activityConextInterfaceFactory);
     }

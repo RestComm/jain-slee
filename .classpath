@@ -30,12 +30,6 @@
   <classpathentry kind="src" path="examples/refer-example/du/src/main/resources"/>
   <classpathentry kind="src" path="examples/refer-example/sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/refer-example/sbb/src/main/resources"/>
-  <classpathentry kind="src" path="examples/sip-loadtest-with-dialogs/du/src/main/resources"/>
-  <classpathentry kind="src" path="examples/sip-loadtest-with-dialogs/sbb/src/main/resources"/>
-  <classpathentry kind="src" path="examples/sip-loadtest-with-dialogs/sbb/src/main/java"/>
-  <classpathentry kind="src" path="examples/sip-loadtest-without-dialogs/du/src/main/resources"/>
-  <classpathentry kind="src" path="examples/sip-loadtest-without-dialogs/sbb/src/main/resources"/>
-  <classpathentry kind="src" path="examples/sip-loadtest-without-dialogs/sbb/src/main/java"/>
   <classpathentry kind="src" path="examples/sip-services/balancer/src/main/java"/>
   <classpathentry kind="src" path="examples/sip-services/balancer/src/main/resources"/>
   <classpathentry kind="src" path="examples/sip-services/common/src/main/resources"/>
@@ -137,14 +131,6 @@
   <classpathentry kind="src" path="resources/parlay/ra/src/main/resources"/>
   <classpathentry kind="src" path="resources/parlay/ratype/src/main/resources"/>
   <classpathentry kind="src" path="resources/parlay/ratype/src/main/java"/>
-  <classpathentry kind="src" path="resources/persistence/du/src/main/resources"/>
-  <classpathentry kind="src" path="resources/persistence/events/src/main/resources"/>
-  <classpathentry kind="src" path="resources/persistence/pojos/src/main/resources"/>
-  <classpathentry kind="src" path="resources/persistence/pojos/src/main/java"/>
-  <classpathentry kind="src" path="resources/persistence/ra/src/main/java"/>
-  <classpathentry kind="src" path="resources/persistence/ra/src/main/resources"/>
-  <classpathentry kind="src" path="resources/persistence/ratype/src/main/resources"/>
-  <classpathentry kind="src" path="resources/persistence/ratype/src/main/java"/>
   <classpathentry kind="src" path="resources/rules/du/src/main/resources"/>
   <classpathentry kind="src" path="resources/rules/events/src/main/java"/>
   <classpathentry kind="src" path="resources/rules/events/src/main/resources"/>
@@ -154,12 +140,6 @@
   <classpathentry kind="src" path="resources/rules/ratype/src/main/resources"/>
   <classpathentry kind="src" path="resources/rules/sar/src/main/java"/>
   <classpathentry kind="src" path="resources/rules/sar/src/main/resources"/>
-  <classpathentry kind="src" path="resources/sip/du/src/main/resources"/>
-  <classpathentry kind="src" path="resources/sip/events/src/main/resources"/>
-  <classpathentry kind="src" path="resources/sip/ra/src/main/resources"/>
-  <classpathentry kind="src" path="resources/sip/ra/src/main/java"/>
-  <classpathentry kind="src" path="resources/sip/ratype/src/main/resources"/>
-  <classpathentry kind="src" path="resources/sip/ratype/src/main/java"/>
   <classpathentry kind="src" path="resources/sip11/du/src/main/resources"/>
   <classpathentry kind="src" path="resources/sip11/events/src/main/resources"/>
   <classpathentry kind="src" path="resources/sip11/ra/src/main/java"/>
@@ -173,6 +153,13 @@
   <classpathentry kind="src" path="resources/smpp/ra/src/main/java"/>
   <classpathentry kind="src" path="resources/smpp/ratype/src/main/resources"/>
   <classpathentry kind="src" path="resources/smpp/ratype/src/main/java"/>
+  <classpathentry kind="src" path="resources/tck/du/src/main/resources"/>
+  <classpathentry kind="src" path="resources/tck/events/src/main/resources"/>
+  <classpathentry kind="src" path="resources/tck/mbean/src/main/java"/>
+  <classpathentry kind="src" path="resources/tck/ra/src/main/java"/>
+  <classpathentry kind="src" path="resources/tck/ra/src/main/resources"/>
+  <classpathentry kind="src" path="resources/tck/ratype/src/main/resources"/>
+  <classpathentry kind="src" path="resources/tck/sar/src/main/resources"/>
   <classpathentry kind="src" path="resources/tts/du/src/main/resources"/>
   <classpathentry kind="src" path="resources/tts/events/src/main/resources"/>
   <classpathentry kind="src" path="resources/tts/ra/src/main/resources"/>
@@ -217,13 +204,12 @@
   <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/1.1/commons-io-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-jxpath/commons-jxpath/1.2/commons-jxpath-1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0/commons-logging-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.4/commons-pool-1.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/concurrent/concurrent/1.3.4/concurrent-1.3.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/doxia/doxia-sink-api/1.0-alpha-4/doxia-sink-api-1.0-alpha-4.jar"/>
   <classpathentry kind="var" path="M2_REPO/emma/emma/2.0.5312/emma-2.0.5312.jar"/>
-  <classpathentry kind="var" path="M2_REPO/freemarker/freemarker/2.3.8/freemarker-2.3.8.jar"/>
   <classpathentry kind="var" path="M2_REPO/ie/omk/smppapi/0.3.7/smppapi-0.3.7.jar"/>
   <classpathentry kind="var" path="M2_REPO/javassist/javassist/3.6.0.GA/javassist-3.6.0.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/csapi/cc/jcc/1.1/jcc-1.1.jar"/>
@@ -233,7 +219,7 @@
   <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-api/1.2/jain-sip-api-1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-ri/1.2.85/jain-sip-ri-1.2.85.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1.draft/jain-slee-1.1.draft.jar"/>
-  <classpathentry kind="var" path="M2_REPO/jboss/jboss-archive-browsing/5.0.0alpha-200607201-119/jboss-archive-browsing-5.0.0alpha-200607201-119.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/jboss-cache/1.4.1.SP3/jboss-cache-1.4.1.SP3.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/jboss-common-core/2.0.4.GA/jboss-common-core-2.0.4.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/jboss-common/4.2.2.GA/jboss-common-4.2.2.GA.jar"/>
@@ -253,10 +239,8 @@
   <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
   <classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2.3/ehcache-1.2.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/antlr/antlr/3.0ea8/antlr-3.0ea8.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/ant/ant-antlr/1.7.0/ant-antlr-1.7.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/commons/commons-jci-core/1.0/commons-jci-core-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/commons/commons-jci-eclipse/1.0/commons-jci-eclipse-1.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/lucene/lucene-core/2.2.0/lucene-core-2.2.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-archiver/2.3/maven-archiver-2.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-artifact-manager/2.0.7/maven-artifact-manager-2.0.7.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/maven/maven-artifact/2.0.7/maven-artifact-2.0.7.jar"/>
@@ -279,7 +263,6 @@
   <classpathentry kind="var" path="M2_REPO/org/apache/maven/wagon/wagon-provider-api/1.0-beta-2/wagon-provider-api-1.0-beta-2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/maven/wagon/wagon-ssh/1.0-alpha-5/wagon-ssh-1.0-alpha-5.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/asteriskjava/asterisk-java/0.3.1/asterisk-java-0.3.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/beanshell/bsh/2.0b4/bsh-2.0b4.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-archiver/1.0-alpha-9/plexus-archiver-1.0-alpha-9.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/codehaus/plexus/plexus-interactivity-api/1.0-alpha-4/plexus-interactivity-api-1.0-alpha-4.jar"/>
@@ -292,10 +275,9 @@
   <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-annotations/3.3.0.ga/hibernate-annotations-3.3.0.ga.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-commons-annotations/3.0.0.ga/hibernate-commons-annotations-3.0.0.ga.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-entitymanager/3.3.1.ga/hibernate-entitymanager-3.3.1.ga.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-tools/3.2.0.ga/hibernate-tools-3.2.0.ga.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-validator/3.0.0.ga/hibernate-validator-3.0.0.ga.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.6.ga/hibernate-3.2.6.ga.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hibernate/jtidy/r8-20060801/jtidy-r8-20060801.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.4.ga/hibernate-3.2.4.ga.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/core/mobicents-core-jar/2.0.00-SNAPSHOT/mobicents-core-jar-2.0.00-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/cmu_time_awb/1.0/cmu_time_awb-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/cmu_us_kal/1.0/cmu_us_kal-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/cmudict04/1.0/cmudict04-1.0.jar"/>
@@ -303,6 +285,9 @@
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/cmutimelex/1.0/cmutimelex-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/en_us/1.0/en_us-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/external/freetts/freetts/1.0/freetts-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip-events/2.0.00-SNAPSHOT/sip-events-2.0.00-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip-ra/2.0.00-SNAPSHOT/sip-ra-2.0.00-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip-ratype/2.0.00-SNAPSHOT/sip-ratype-2.0.00-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/tools/sip-balancer/1.0.BETA1/sip-balancer-1.0.BETA1.jar"/>
   <classpathentry kind="var" path="M2_REPO/rome/rome/0.9/rome-0.9.jar"/>
   <classpathentry kind="var" path="M2_REPO/xmlpull/xmlpull/1.1.3.4d_b4_min/xmlpull-1.1.3.4d_b4_min.jar"/>

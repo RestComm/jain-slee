@@ -764,8 +764,13 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
             }
                        
             //Fire the removed event only when the transaction commits
-            ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory =
-                SleeContainer.getProfileTableActivityContextInterfaceFactory();
+            final ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory = SleeContainer.lookupFromJndi().getProfileTableActivityContextInterfaceFactory();
+            if (profileTableActivityContextInterfaceFactory == null) {
+            	final String s = "got NULL ProfileTable ACI Factory";
+            	logger.error(s);
+            	throw new SystemException(s);
+            } 
+            
             Address profileAddress = new Address(AddressPlan.SLEE_PROFILE,
                     profileTableName + "/" + profileName);
             ProfileTableActivityImpl profileTableActivity = this

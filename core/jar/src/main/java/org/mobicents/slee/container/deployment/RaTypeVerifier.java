@@ -3,25 +3,18 @@ package org.mobicents.slee.container.deployment;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.slee.FactoryException;
-import javax.slee.Sbb;
-import javax.slee.UnrecognizedActivityException;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.resource.ActivityTypeEntry;
 import org.mobicents.slee.resource.ResourceAdaptorTypeClassEntry;
 import org.mobicents.slee.resource.ResourceAdaptorTypeDescriptorImpl;
 
 public class RaTypeVerifier {
-
-	private static String DEPLOYMENT_PATH = SleeContainer.getDeployPath();
 
 	private ResourceAdaptorTypeDescriptorImpl raTypeDescriptor = null;
 

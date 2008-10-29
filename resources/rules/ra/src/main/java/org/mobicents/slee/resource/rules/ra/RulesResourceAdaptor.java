@@ -2,6 +2,7 @@ package org.mobicents.slee.resource.rules.ra;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 import javax.slee.Address;
@@ -34,7 +35,7 @@ public class RulesResourceAdaptor implements ResourceAdaptor, Serializable {
 
 	private transient EventLookupFacility eventLookup = null;
 
-	private transient HashMap activities = null;
+	private transient ConcurrentHashMap activities = null;
 
 	private transient RulesActivityContextInterfaceFactory acif = null;
 
@@ -70,7 +71,7 @@ public class RulesResourceAdaptor implements ResourceAdaptor, Serializable {
 				ex.printStackTrace();
 				throw new ResourceException(ex.getMessage());
 			}
-			activities = new HashMap();
+			activities = new ConcurrentHashMap();
 		} catch (ResourceException e) {
 			e.printStackTrace();
 			throw new javax.slee.resource.ResourceException(
@@ -178,14 +179,14 @@ public class RulesResourceAdaptor implements ResourceAdaptor, Serializable {
 
 
 	// set up the JNDI naming context
-	private void initializeNamingContext() throws NamingException {
+	private void initializeNamingContext() throws Exception {
 		// get the reference to the SLEE container from JNDI
 		SleeContainer container = SleeContainer.lookupFromJndi();
 		// get the entities name
 		String entityName = bootstrapContext.getEntityName();
 
-		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(entityName));
+		final ResourceAdaptorEntity resourceAdaptorEntity = container
+				.getResourceManagement().getResourceAdaptorEntity(entityName);
 
 		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getRaType()
@@ -196,8 +197,8 @@ public class RulesResourceAdaptor implements ResourceAdaptor, Serializable {
 				resourceAdaptorEntity.getServiceContainer(), entityName);
 
 		// set the ActivityContextInterfaceFactory
-		resourceAdaptorEntity.getServiceContainer()
-				.getActivityContextInterfaceFactories().put(raTypeId, acif);
+		resourceAdaptorEntity.getServiceContainer().getResourceManagement()
+				.getActivityContextInterfaceFactories().put(raTypeId, (ResourceAdaptorActivityContextInterfaceFactory)acif);
 
 		try {
 			if (this.acif != null) {

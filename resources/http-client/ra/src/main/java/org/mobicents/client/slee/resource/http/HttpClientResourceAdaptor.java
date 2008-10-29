@@ -254,14 +254,13 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 	}
 
 	// set up the JNDI naming context
-	private void initializeNamingContext() throws NamingException {
+	private void initializeNamingContext() throws Exception {
 		// get the reference to the SLEE container from JNDI
 		SleeContainer container = SleeContainer.lookupFromJndi();
 		// get the entities name
 		String entityName = bootstrapContext.getEntityName();
 
-		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(entityName));
+		ResourceAdaptorEntity resourceAdaptorEntity = container.getResourceManagement().getResourceAdaptorEntity(entityName);
 
 		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getRaType()
@@ -272,7 +271,7 @@ public class HttpClientResourceAdaptor implements ResourceAdaptor {
 				resourceAdaptorEntity.getServiceContainer(), entityName);
 
 		// set the ActivityContextInterfaceFactory
-		resourceAdaptorEntity.getServiceContainer()
+		resourceAdaptorEntity.getServiceContainer().getResourceManagement()
 				.getActivityContextInterfaceFactories().put(raTypeId, acif);
 
 		try {

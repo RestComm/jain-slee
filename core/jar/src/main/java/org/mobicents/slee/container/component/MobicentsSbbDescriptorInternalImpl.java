@@ -30,15 +30,16 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.InitialEventSelectorImpl;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.jmx.ResourceManagement;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
-import org.mobicents.slee.runtime.SbbConcrete;
-import org.mobicents.slee.runtime.SbbObject;
 import org.mobicents.slee.runtime.SleeEvent;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
+import org.mobicents.slee.runtime.sbb.SbbConcrete;
+import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
 
@@ -373,10 +374,8 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
             selector.setCustomName(null);
             selector.setInitialEvent(true);
 
-            ObjectPool pool = (ObjectPool) SleeContainer.lookupFromJndi()
-                    .getObjectPool(
-                            (SbbID) ((MobicentsSbbDescriptor) svc
-                                    .getRootSbbComponent()).getID());
+            ObjectPool pool = SleeContainer.lookupFromJndi().getSbbPoolManagement()
+                    .getObjectPool(svc.getRootSbbComponent().getID());
             SbbObject sbbObject = (SbbObject) pool.borrowObject();
             sbbObject.setServiceID(svc.getServiceID());
             SbbConcrete concreteSbb = (SbbConcrete) sbbObject.getSbbConcrete();
@@ -1428,7 +1427,7 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
 			ResourceAdaptorTypeIDImpl resourceAdaptorTypeID = (ResourceAdaptorTypeIDImpl) binding
 					.getResourceAdapterTypeId();
 			ResourceAdaptorType raType;
-			if ((raType = SleeContainer.lookupFromJndi().getResourceAdaptorType(resourceAdaptorTypeID)) == null) {
+			if ((raType = SleeContainer.lookupFromJndi().getResourceManagement().getResourceAdaptorType(resourceAdaptorTypeID)) == null) {
 				throw new Exception(
 						"Resource Adaptor type is not implemented: "
 								+ resourceAdaptorTypeID);
@@ -1462,7 +1461,8 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
 				 * resourceadaptor- type-ref sub-element of the enclosing
 				 * resource-adaptortype- binding element.
 				 */
-				ResourceAdaptorEntity raEntity = SleeContainer.lookupFromJndi().getRAEntity(linkName, raType);
+				ResourceManagement resourceManagement = SleeContainer.lookupFromJndi().getResourceManagement();
+				ResourceAdaptorEntity raEntity = resourceManagement.getResourceAdaptorEntity(resourceManagement.getResourceAdaptorEntityName(linkName));
 				if (raEntity == null)
 					throw new Exception(
 							"Could not find Resource adaptor Entity for Link Name: ["
@@ -1512,8 +1512,8 @@ public class MobicentsSbbDescriptorInternalImpl implements MobicentsSbbDescripto
 			String localFactoryName = binding
 					.getActivityContextInterfaceFactoryName();
 			if (localFactoryName != null) {
-				String globalFactoryName = SleeContainer.lookupFromJndi().getRAActivityContextInterfaceFactoryJNDIName(binding
-								.getResourceAdapterTypeId());
+				String globalFactoryName = SleeContainer.lookupFromJndi().getResourceManagement().getActivityContextInterfaceFactories().get(binding
+								.getResourceAdapterTypeId()).getJndiName();
 				NameParser parser = ctx.getNameParser("");
 				Name local = parser.parse(localFactoryName);
 				int nameSize = local.size();

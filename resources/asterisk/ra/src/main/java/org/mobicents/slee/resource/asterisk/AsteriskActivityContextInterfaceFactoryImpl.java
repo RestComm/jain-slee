@@ -20,8 +20,7 @@ import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
  *
  */
 public class AsteriskActivityContextInterfaceFactoryImpl implements
-		ResourceAdaptorActivityContextInterfaceFactory,
-		AsteriskActivityContextInterfaceFactory {
+		AsteriskActivityContextInterfaceFactory,ResourceAdaptorActivityContextInterfaceFactory {
 	
     private final String jndiName = "java:slee/resources/asteriskacif";
     private String raEntityName;
@@ -51,7 +50,7 @@ public class AsteriskActivityContextInterfaceFactoryImpl implements
 			UnrecognizedActivityException, FactoryException {
         if (asteriskManagerMessage == null)
             throw new NullPointerException("asterisk connection ! huh!!");
-        return new ActivityContextInterfaceImpl(this.serviceContainer,
+        return new ActivityContextInterfaceImpl(
                 this.activityContextFactory.getActivityContext(new SleeActivityHandle(raEntityName, new AsteriskActivityHandle(asteriskManagerMessage.MessageID()), serviceContainer)).getActivityContextId());
     }
 

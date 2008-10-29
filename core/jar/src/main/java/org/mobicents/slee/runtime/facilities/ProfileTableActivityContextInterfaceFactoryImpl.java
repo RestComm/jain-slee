@@ -66,7 +66,7 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
         
         String acid = serviceContainer.getActivityContextFactory().getActivityContextId(profileTableActivity);
         ActivityContextInterfaceImpl acii = 
-            new ActivityContextInterfaceImpl(serviceContainer, acid );
+            new ActivityContextInterfaceImpl(acid );
         
             
         return acii;

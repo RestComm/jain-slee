@@ -41,13 +41,12 @@
 				<module>resources/jcc</module>
 				<module>resources/lab</module>
 				<module>resources/parlay</module>
-				<module>resources/persistence</module>
 				<module>resources/rules</module>
-				<module>resources/sip</module>
 				<module>resources/sip11</module>
 				<module>resources/smpp</module>
 				<module>resources/tts</module>
 				<module>resources/xmpp</module>
+				<module>resources/tck</module>
 
 				<module>examples/asterisk</module>
 				<module>examples/google-talk-bot</module>
@@ -56,8 +55,6 @@
 				<module>examples/ldap</module>
 				<module>examples/parlay</module>
 				<module>examples/refer-example</module>
-				<module>examples/sip-loadtest-with-dialogs</module>
-				<module>examples/sip-loadtest-without-dialogs</module>
 				<module>examples/sip11-loadtest-with-dialogs</module>
 				<module>examples/sip11-loadtest-without-dialogs</module>
 				<module>examples/sip-services</module>
