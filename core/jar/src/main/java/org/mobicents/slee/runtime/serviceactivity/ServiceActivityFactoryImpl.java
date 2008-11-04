@@ -38,31 +38,34 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * 
  *@author M. Ranganathan
  */
-public class ServiceActivityFactoryImpl implements ServiceActivityFactory, Serializable {
+public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
+		Serializable {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	public static String JNDI_NAME = "factory";
 	public static String TXLOCALDATA_SERVICEID_KEY = "serviceactivityfactory.serviceid";
 
-    /* (non-Javadoc)
-     * @see javax.slee.serviceactivity.ServiceActivityFactory#getActivity()
-     */
-    public ServiceActivity getActivity()
-            throws TransactionRequiredLocalException, FactoryException {
+	/* (non-Javadoc)
+	 * @see javax.slee.serviceactivity.ServiceActivityFactory#getActivity()
+	 */
+	public ServiceActivity getActivity()
+			throws TransactionRequiredLocalException, FactoryException {
 
-    	SleeTransactionManager stm = SleeContainer.getTransactionManager();
-    	stm.mandateTransaction();
-    	ServiceID serviceID = (ServiceID) stm.getTxLocalData(TXLOCALDATA_SERVICEID_KEY);
-    	try {  
-    		return SleeContainer.lookupFromJndi().getService(serviceID).getServiceActivity();
-    	} catch ( Exception ex ) {
-    		throw new FactoryException ("cannot get service activity for " + serviceID);
-    	}
-    }
+		SleeTransactionManager stm = SleeContainer.getTransactionManager();
+		stm.mandateTransaction();
+		ServiceID serviceID = (ServiceID) stm
+				.getTxLocalData(TXLOCALDATA_SERVICEID_KEY);
+		try {
+			return SleeContainer.lookupFromJndi().getServiceManagement()
+					.getService(serviceID).getServiceActivity();
+		} catch (Exception ex) {
+			throw new FactoryException("cannot get service activity for "
+					+ serviceID);
+		}
+	}
 
 }
-

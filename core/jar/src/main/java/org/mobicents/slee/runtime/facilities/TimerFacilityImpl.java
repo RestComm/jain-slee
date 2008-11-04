@@ -638,7 +638,9 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 		cmap.put(task.getTimerID().toString(), task);
 	}
 
+	@Override
 	public String toString() {
-		return "TimerFacility:size()="+timerCacheMap.size();
+		return 	"Timer Facility: " +
+				"\n+-- Timers: " + timerCacheMap.size();
 	}
 }

@@ -259,7 +259,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
      */
     public  EventTypeID[] getEventTypes() throws ManagementException {
         SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
-        return serviceContainer.getEventTypes();
+        return serviceContainer.getEventManagement().getEventTypes();
     }
 
     /*
@@ -285,8 +285,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
     	if(logger.isDebugEnabled()) {
     		logger.debug("getServices()");
     	}
-        SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
-        return serviceContainer.getServiceIDs();
+        return SleeContainer.lookupFromJndi().getServiceManagement().getServiceIDs();
     }
 
     /*

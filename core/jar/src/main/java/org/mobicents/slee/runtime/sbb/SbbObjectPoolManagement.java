@@ -302,4 +302,11 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 			createObjectPool(sbbDescriptor);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return 	"SbbObject Pool Management: " +
+				"\n+-- Pools: " + pools.keySet();
+	}
+	
 }

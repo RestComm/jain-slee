@@ -130,7 +130,7 @@ public class ResourceManagement {
 				.getEventTypeRefEntries();
 		EventTypeID[] eventTypeIDs = new EventTypeIDImpl[eventTypeRefEntries.length];
 		for (int i = 0; i < eventTypeRefEntries.length; i++) {
-			EventTypeID eventTypeId = (EventTypeID) sleeContainer
+			EventTypeID eventTypeId = (EventTypeID) sleeContainer.getEventManagement()
 					.getEventType(eventTypeRefEntries[i]);
 			if (eventTypeId == null)
 				throw new DeploymentException(
@@ -960,39 +960,14 @@ public class ResourceManagement {
 		return entity;
 	}
 
-	// --- A LIMPAR
-
-	/*
-	public String getRAEntityInterfaceJNDIName(String link) {
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-		return raEntity.getFactoryInterfaceJNDIName();
+	@Override
+	public String toString() {
+		return 	"Resource Management: " +
+				"\n+-- Resource Adaptor Types: " + resourceAdaptorTypes.keySet() +
+				"\n+-- Resource Adaptor: " + resourceAdaptors.keySet() +
+				"\n+-- Resource Adaptor Entities: " + resourceAdaptorEntities.keySet() +
+				"\n+-- Resource Adaptor Entitiy Links: " + resourceAdaptorEntities.keySet() +
+				"\n+-- Resource Adaptor ACI Factories: " + activityContextInterfaceFactories.keySet();
 	}
-
-	public String getRAEntityFactoryInterfaceJNDIName(String link) {
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-		return raEntity.getFactoryInterfaceJNDIName();
-	}
-
-	public ResourceAdaptorEntity getRAEntity(String link,
-			ResourceAdaptorType raType) {
-		ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-		return (raEntity != null && raEntity.getInstalledResourceAdaptor()
-				.getRaType() == raType) ? raEntity : null;
-	}
-
-	public ResourceAdaptorEntity getRAEntity(String link) {
-		return (ResourceAdaptorEntity) resourceAdaptorEntities
-				.get(this.resourceAdaptorEntityLinks.get(link));
-
-	}
-
-	public synchronized ResourceAdaptorType getResourceAdaptorType(
-			ResourceAdaptorTypeID key) {
-		return (ResourceAdaptorType) this.resourceAdaptorTypes.get(key);
-	}
-	 */
 
 }

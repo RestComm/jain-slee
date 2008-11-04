@@ -400,8 +400,6 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
     	
 		Object[] message = makeMessage(serviceID, eventIDs, resourceOptions);
 
-		EventTypeID eventTypeID = SleeContainer.lookupFromJndi().getEventType(
-				TckX1Key);
 		TCKResourceEventX event1 = new TCKResourceEventImpl(12,
 				TCKResourceEventX.X1, message, null);
 		
@@ -412,7 +410,8 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 				}
 				nullAci = retrieveNullActivityContext();
 			}
-				new DeferredEvent(eventTypeID, event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null);
+				new DeferredEvent(eventLookup.getEventID(
+						TckX1Key.getName(),TckX1Key.getVendor(),TckX1Key.getVersion()), event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null);
 			log.info("==== FIRED ====");
 			
 			rb = false;
@@ -456,8 +455,6 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
     	
 		Object[] message = makeMessage(serviceID, eventIDs, resourceOptions);
 
-		EventTypeID eventTypeID = SleeContainer.lookupFromJndi().getEventType(
-				TckX2Key);
 		TCKResourceEventX event1 = new TCKResourceEventImpl(12,
 				TCKResourceEventX.X2, message, null);
 		
@@ -469,7 +466,8 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 				nullAci = retrieveNullActivityContext();
 			}
 			
-			sleeInternalEndpoint.enqueueEvent(new DeferredEvent(eventTypeID, event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null));
+			sleeInternalEndpoint.enqueueEvent(new DeferredEvent(eventLookup.getEventID(
+					TckX2Key.getName(),TckX2Key.getVendor(),TckX2Key.getVersion()), event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null));
 		
 			rb = false;
 		} catch (Exception e) {
@@ -511,8 +509,6 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
     	
 		Object[] message = makeMessage(serviceID, eventIDs, resourceOptions);
 
-		EventTypeID eventTypeID = SleeContainer.lookupFromJndi().getEventType(
-				TckX3Key);
 		TCKResourceEventX event1 = new TCKResourceEventImpl(12,
 				TCKResourceEventX.X3, message, null);
 		
@@ -524,7 +520,8 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 				nullAci = retrieveNullActivityContext();
 			}
 			
-			sleeInternalEndpoint.enqueueEvent(new DeferredEvent(eventTypeID, event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null));
+			sleeInternalEndpoint.enqueueEvent(new DeferredEvent(eventLookup.getEventID(
+					TckX3Key.getName(),TckX3Key.getVendor(),TckX3Key.getVersion()), event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null));
 			
 					rb = false;
 		} catch (Exception e) {

@@ -41,7 +41,7 @@ public class DeferredEvent {
     
     public DeferredEvent (int eventId, Object event, ActivityContext ac, 
             Address address	) throws SystemException{
-        this(SleeContainer.lookupFromJndi().getEventTypeID(eventId), event, ac, address);
+        this(SleeContainer.lookupFromJndi().getEventManagement().getEventTypeID(eventId), event, ac, address);
     }
 
     public DeferredEvent (EventTypeID eventTypeId, Object event, ActivityContext ac, 

@@ -47,7 +47,7 @@ public class EventLookupFacilityImpl implements EventLookupFacility{
     }
     
     public int getEventID(String name, String vendor, String version) {
-        EventTypeIDImpl eventID = (EventTypeIDImpl) container.getEventType(new ComponentKey(name, vendor, version));
+        EventTypeIDImpl eventID = (EventTypeIDImpl) container.getEventManagement().getEventType(new ComponentKey(name, vendor, version));
         if (eventID == null) return -1;
         else return eventID.getEventID();
     }
@@ -58,7 +58,7 @@ public class EventLookupFacilityImpl implements EventLookupFacility{
     }
     
     public EventTypeID getEventTypeID(int eventID){
-        return container.getEventTypeID(eventID);
+        return container.getEventManagement().getEventTypeID(eventID);
     }
     
     /*

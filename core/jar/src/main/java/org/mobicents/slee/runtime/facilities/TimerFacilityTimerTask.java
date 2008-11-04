@@ -24,8 +24,8 @@ package org.mobicents.slee.runtime.facilities;
 import java.io.Serializable;
 import java.util.TimerTask;
 
-import javax.naming.NamingException;
 import javax.slee.Address;
+import javax.slee.EventTypeID;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
@@ -33,7 +33,6 @@ import javax.slee.facilities.TimerPreserveMissed;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.runtime.ActivityContext;
 import org.mobicents.slee.runtime.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -45,10 +44,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 	 */
 	private static final long serialVersionUID = -938503788187751855L;
 
-	private static Logger logger = Logger
-            .getLogger(TimerFacilityTimerTask.class);
-
-    private static boolean isDebugEnabled = logger.isDebugEnabled();
+	private static Logger logger = Logger.getLogger(TimerFacilityTimerTask.class);
 
     private TimerID timerId;
 
@@ -70,8 +66,14 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
     
     private long lastTick;
 
-    private EventTypeIDImpl timerEventID;
-
+    private static EventTypeID timerEventId;
+	private static EventTypeID getTimerEventID() {
+		if (timerEventId == null) {
+			timerEventId = SleeContainer.lookupFromJndi().getEventManagement().getEventType(new ComponentKey(
+					"javax.slee.facilities.TimerEvent", "javax.slee", "1.0"));
+		}
+		return timerEventId;
+	}
   
     public String toString() {
         return new StringBuffer().append("timerId = " + timerId).append(
@@ -96,12 +98,6 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
         this.startTime = startTime;
         this.period = period;
         this.numRepetitions = numRepetitions;
-
-         SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
-        ComponentKey timerEventKey = new ComponentKey(
-                "javax.slee.facilities.TimerEvent", "javax.slee", "1.0");
-        this.timerEventID = sleeContainer.getEventType(timerEventKey);
 
         // for infinitely repetitive events the remainingRepetitions value
         // has to be always Int.MAX_VALUE
@@ -148,7 +144,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
     }
 
 	private void runInternal() {
-		if (isDebugEnabled) {
+		if (logger.isDebugEnabled()) {
             logger.debug("In TimerFacilityTimerTask.run()");
         }
 
@@ -167,7 +163,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
              * rate. see Timer.scheduleAtFixedRate()
              */
             postIt = true;
-            if (isDebugEnabled) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("TimerPreserveMissed.ALL so posting the event");
             }
         } else {
@@ -178,7 +174,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
                 timeOut = this.timerOptions.getTimeout();
             }
             timeOut = Math.min(Math.max(timeOut, tRes), this.period);
-            if (isDebugEnabled) {
+            if (logger.isDebugEnabled()) {
                 logger
                         .debug("I'm using "
                                 + timeOut
@@ -187,18 +183,18 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 
             if (this.timerOptions.getPreserveMissed() == TimerPreserveMissed.NONE) {
                 //If events are late we NEVER want to post them
-                if (isDebugEnabled) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("TimerPreserveMissed.NONE");
                 }
                 if (tSys <= this.scheduledExecutionTime() + timeOut) {
                     //Event is not late
                     postIt = true;
-                    if (isDebugEnabled) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("Event is NOT late so I'm posting it");
                     }
                 } else {
                     //Event is late so NOT posting it
-                    if (isDebugEnabled) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("Event is late so I'm NOT posting it");
                     }
                     this.missedRepetitions++;
@@ -206,20 +202,20 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
             } else if (this.timerOptions.getPreserveMissed() == TimerPreserveMissed.LAST) {
                 //Count missed events.
                 //Preserve the last missed event
-                if (isDebugEnabled) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("TimerPreserveMissed.LAST");
                 }
 
                 if (remainingRepetitions > 1
                         && (tSys > this.scheduledExecutionTime() + timeOut)) {
                     //Event is not the last one and event is late
-                    if (isDebugEnabled) {
+                    if (logger.isDebugEnabled()) {
                         logger
                                 .debug("Event is late and NOT the last one so I'm NOT posting it");
                     }
                     this.missedRepetitions++;
                 } else {
-                    if (isDebugEnabled) {
+                    if (logger.isDebugEnabled()) {
                         logger
                                 .debug("Event is either NOT late, or late and is the last event so I'm posting it");
                     }
@@ -228,7 +224,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
             }
         }
 
-        if (isDebugEnabled) {
+        if (logger.isDebugEnabled()) {
             logger.debug("SCHEDULED EXECUTION TIME IS "
                     + this.scheduledExecutionTime());
             logger.debug("Remaining repetitions:" + this.remainingRepetitions);
@@ -250,14 +246,10 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
             //Post the timer event
             SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
-            ComponentKey timerEventKey = new ComponentKey(
-                    "javax.slee.facilities.TimerEvent", "javax.slee", "1.0");
-            EventTypeIDImpl timerEventID = sleeContainer
-                    .getEventType(timerEventKey);
             TimerEventImpl timerEvent = new TimerEventImpl(this.timerId, this
                     .scheduledExecutionTime(), tSys, this.period,
                     this.numRepetitions, this.remainingRepetitions,
-                    this.missedRepetitions, timerEventID,this,timerEnded);
+                    this.missedRepetitions, getTimerEventID(),this,timerEnded);
             this.missedRepetitions = 0;
            
             postEvent(timerEvent);
@@ -293,7 +285,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
             
             //Remove reference to the Timer so the ActivityContext can be
             // reclaimed Spec 13.1.2.1
-            if (isDebugEnabled) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("Timer has expired - removing it");
             }      
            	timerFacility.cancelTimer(timerId);
@@ -325,14 +317,14 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 				if (logger.isDebugEnabled()) {
 					logger
 					.debug("Posting timer event on event router queue. TimerEventID: "
-							+ timerEventID
+							+ getTimerEventID()
 							+ ", Activity:  "
 							+ ac.getActivity()
 							+ " remainingRepetitions: "
 							+ remainingRepetitions);
 				}
 				
-				new DeferredEvent(timerEventID,timerEvent,ac,this.address);
+				new DeferredEvent(getTimerEventID(),timerEvent,ac,this.address);
 				
 				rb = false;
 			}            

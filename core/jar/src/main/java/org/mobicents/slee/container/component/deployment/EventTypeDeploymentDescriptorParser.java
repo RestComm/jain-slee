@@ -8,23 +8,13 @@
 */
 package org.mobicents.slee.container.component.deployment;
 
-import java.io.FileInputStream;
-import java.io.StringReader;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-
 import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.MobicentsEventTypeDescriptorInternal;
-import org.mobicents.slee.container.component.MobicentsEventTypeDescriptorInternalImpl;
 import org.mobicents.slee.container.component.MobicentsEventTypeDescriptor;
-import org.mobicents.slee.container.management.xml.*;
+import org.mobicents.slee.container.component.MobicentsEventTypeDescriptorInternal;
+import org.mobicents.slee.container.management.xml.XMLConstants;
+import org.mobicents.slee.container.management.xml.XMLException;
+import org.mobicents.slee.container.management.xml.XMLUtils;
+import org.w3c.dom.Element;
 
 /**
  * @author Emil Ivov
@@ -32,49 +22,6 @@ import org.mobicents.slee.container.management.xml.*;
 
 public class EventTypeDeploymentDescriptorParser extends AbstractDeploymentDescriptorParser {
     
-    /**
-     * Parse file containing the standard event types. This is called on slee startup.
-     * 
-     * @param sourceUrl
-     */
-
-    public static List parseStandardEvents(String urlForEventJar)
-            throws Exception {
-        FileInputStream reader;
-        byte[] buffer;
-        String eventJarXML = new String();
-
-        reader = new FileInputStream(urlForEventJar);
-        buffer = new byte[reader.available()];
-        reader.read(buffer);
-        eventJarXML = new String(buffer);
-        reader.close();
-
-        EventTypeDeploymentDescriptorParser parser = new EventTypeDeploymentDescriptorParser();
-        InputSource eventJarSource = new InputSource(new StringReader(
-                eventJarXML));
-        Document eventJarDocument = null;
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-
-        builder = factory.newDocumentBuilder();
-        eventJarDocument = builder.parse(eventJarSource);
-
-        List sbbNodes = XMLUtils.getAllChildElements(eventJarDocument
-                .getDocumentElement(), "event-definition");
-        LinkedList retval = new LinkedList();
-        for (int i = 0; i < sbbNodes.size(); i++) {
-        	MobicentsEventTypeDescriptorInternalImpl descriptorImpl = new MobicentsEventTypeDescriptorInternalImpl();
-            Element eventDefinitionNode = (Element) sbbNodes.get(i);
-
-            parser.parse(eventDefinitionNode, descriptorImpl);
-
-            retval.add(descriptorImpl);
-        }
-        return retval;
-
-    }
-
     public MobicentsEventTypeDescriptor parse(Element eventDefinitionNode, MobicentsEventTypeDescriptor descriptorImpl)
         throws XMLException
     {

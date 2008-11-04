@@ -24,7 +24,6 @@ import org.mobicents.slee.runtime.SleeEvent;
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
-import javax.slee.profile.ProfileAddedEvent;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileRemovedEvent;
 
@@ -35,6 +34,15 @@ import javax.slee.profile.ProfileRemovedEvent;
  */
 public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
     
+	private static EventTypeIDImpl eventTypeID;
+	private static EventTypeID lookupEventTypeID() {
+		if (eventTypeID == null) {
+			eventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(new ComponentKey(
+					"javax.slee.profile.ProfileRemovedEvent","javax.slee","1.0"));
+		}
+		return eventTypeID;
+	}
+	
     private ActivityContextInterface aci;
     
     private Address profileAddress;
@@ -43,11 +51,7 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
     
     private Object  removedProfile;
     
-    private EventTypeIDImpl eventTypeId;
-    
     private ProfileTableActivityContextInterfaceFactoryImpl ptableAcif;
-    
-    private SleeContainer serviceContainer;
     
     private ActivityContextInterfaceImpl activityContextInterface;
     
@@ -57,10 +61,7 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
         this.profileAddress = profileAddress;
         this.profile = profileId;
         this.removedProfile = removedProfile;
-        this.serviceContainer = SleeContainer.lookupFromJndi();
         this.activityContextInterface = acii;
-        this.eventTypeId = (EventTypeIDImpl) this.serviceContainer.getEventType
-        		(new ComponentKey("javax.slee.profile.ProfileRemovedEvent","javax.slee","1.0"));
     }
     
     public Object getActivity() {
@@ -95,7 +96,7 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
      * @see org.mobicents.slee.runtime.SleeEvent#getEventTypeID()
      */
     public EventTypeID getEventTypeID() {
-        return this.eventTypeId;
+        return lookupEventTypeID();
     }
 
     

@@ -70,7 +70,7 @@ public class SleeEventImpl implements SleeEvent  {
         this.errorSbbObjects = new ArrayList();
         
         this.activityContextId = activityContextId;
-        this.eventID = SleeContainer.lookupFromJndi().getEventTypeID(eventID);
+        this.eventID = SleeContainer.lookupFromJndi().getEventManagement().getEventTypeID(eventID);
         this.eventObject = event;
         this.address = addr;
         

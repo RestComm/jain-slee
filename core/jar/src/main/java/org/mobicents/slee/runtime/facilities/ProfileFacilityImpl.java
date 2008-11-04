@@ -284,10 +284,11 @@ public class ProfileFacilityImpl implements ProfileFacility {
 		return null;
 	}
 	
+	@Override
 	public String toString() {
 		// get profile manager
 		SleeProfileManager profileManager = SleeProfileManager.getInstance();
-		String tableNames = "ProfileTables:";
+		String tableNames = "";
 		for(Iterator i=profileManager.findAllProfileTables().iterator();i.hasNext();) {
 			String profileTableName = (String) i.next();
 			try {
@@ -297,7 +298,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 				e.printStackTrace();
 			}
 		}
-		return tableNames;
+		return 	"Profile Facility: " +
+				"\n+-- Tables: " + tableNames;
 	}
-
 }

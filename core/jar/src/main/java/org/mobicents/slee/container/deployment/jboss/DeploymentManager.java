@@ -117,7 +117,7 @@ public class DeploymentManager
       }
       
       // Get the deployed Event Types
-      EventTypeID[] sleeEventTypes = sleeContainer.getEventTypes();
+      EventTypeID[] sleeEventTypes = sleeContainer.getEventManagement().getEventTypes();
       
       for( int i = 0; i < sleeEventTypes.length; i++ )
       {
@@ -151,7 +151,7 @@ public class DeploymentManager
       }
       
       // Get the deployed Services
-      ServiceID[] sleeServices = sleeContainer.getServiceIDs();
+      ServiceID[] sleeServices = sleeContainer.getServiceManagement().getServiceIDs();
 
       for( int i = 0; i < sleeServices.length; i++ )
       {

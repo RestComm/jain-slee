@@ -13,6 +13,7 @@ import java.util.Iterator;
 
 import javax.slee.ActivityEndEvent;
 import javax.slee.Address;
+import javax.slee.EventTypeID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.management.ResourceAdaptorEntityState;
@@ -53,12 +54,16 @@ public class SleeEndpointImpl implements SleeEndpoint {
     private static Logger logger = Logger
             .getLogger(SleeEndpointImpl.class);
 
-    private int activityEndEventID;
+    private static EventTypeID activityEndEventId;
+	private static EventTypeID getActivityEndEventID() {
+		if (activityEndEventId == null) {
+			activityEndEventId = SleeContainer.lookupFromJndi().getEventManagement().getEventType(new ComponentKey(
+				"javax.slee.ActivityEndEvent", "javax.slee", "1.0"));
+		}
+		return activityEndEventId;
+	}
 
     private String raEntityName;
-
-    private static final ComponentKey activityEndKey = new ComponentKey("javax.slee.ActivityEndEvent",
-            "javax.slee", "1.0");
     
     public void activityCreated(Object activity) {
 
@@ -99,7 +104,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
      * This is called by a resource adaptor to tell the SLEE that an activity
      * has ended (Spec. 7.3.4.1, 7.3.4.2, 7.3.4.3)
      */
-    public static void notifyActivityEnded(ActivityContext ac, SleeContainer sleeContainer, int activityEndEventID)
+    private static void notifyActivityEnded(ActivityContext ac, SleeContainer sleeContainer, EventTypeID activityEndEventID)
             throws IllegalStateException {
         
     	SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
@@ -152,8 +157,6 @@ public class SleeEndpointImpl implements SleeEndpoint {
         acf = activityContextFactory;
         this.sleeContainer = container;
         this.active = true;
-        activityEndEventID = this.sleeContainer.getEventLookupFacility()
-                .getEventID(activityEndKey);
         this.raEntityName = raEntityName;
     }
 
@@ -207,7 +210,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
         	ActivityContext ac = getActivityContext(sleeHandle);
         	if (ac != null) {
         		// build the deferred event
-        		notifyActivityEnded(ac, sleeContainer, activityEndEventID);
+        		notifyActivityEnded(ac, sleeContainer, getActivityEndEventID());
         	}
         	rollback = false;
         } catch (SystemException e) {
@@ -250,8 +253,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
             	String id = (String) iter.next();
 				ActivityContext ac =sleeContainer.getActivityContextFactory().getActivityContextById(id);
 				if (ac != null && ac.getState().equals(ActivityContextState.ACTIVE)) {
-    	    	    int activityEndEventID = sleeContainer.getEventLookupFacility().getEventID(activityEndKey);
-    	    	    notifyActivityEnded(ac, sleeContainer, activityEndEventID);
+    	    	    notifyActivityEnded(ac, sleeContainer, getActivityEndEventID());
     	    	}
             }
             

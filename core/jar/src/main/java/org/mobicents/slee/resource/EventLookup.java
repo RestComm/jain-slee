@@ -39,30 +39,27 @@ public class EventLookup {
     
     public ClassLoader getEventClassLoader(int eventID) {
         return null;
-        
     }
     
     public int getEventID(String name, String vendor, String version) {
     	if ( logger.isDebugEnabled()) {
     		logger.debug("getEventID(): name = " + name + " vendor = " + vendor + " version = " + version);
     	}
-        EventTypeIDImpl eventID = (EventTypeIDImpl) container.getEventType(new ComponentKey(name, vendor, version));
+        EventTypeIDImpl eventID = (EventTypeIDImpl) container.getEventManagement().getEventType(new ComponentKey(name, vendor, version));
         if (eventID == null) return -1;
         else return eventID.getEventID();
     }
     
     public String[] getEventType(int eventID) {
-        
         return null;
     }
     
     public EventTypeID getEventTypeID(int eventID){
-        return container.getEventTypeID(eventID);
+        return container.getEventManagement().getEventTypeID(eventID);
     }
 
-    
     public int  getEventID(ComponentKey key) {
-        EventTypeIDImpl eventID = (EventTypeIDImpl) container.getEventType(key);
+        EventTypeIDImpl eventID = (EventTypeIDImpl) container.getEventManagement().getEventType(key);
         return eventID.getEventID();
     }
 }

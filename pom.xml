@@ -27,6 +27,7 @@
 		<module>tools/ant-tasks</module>
 		<module>tools/cli</module>
 		<module>core/sar</module>
+		<module>core/standard-events</module>
 		<module>tools/mmc</module>
 	</modules>
 

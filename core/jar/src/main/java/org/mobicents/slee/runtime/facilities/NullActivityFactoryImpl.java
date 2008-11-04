@@ -146,7 +146,8 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 	
 	@Override
 	public String toString() {
-		return "NullActivityFactory[nullActivities="+nullActivitiesActivityContextIds+",size="+nullActivitiesActivityContextIds.size()+"]";
+		return 	"Null Activity Factory: " +
+				"\n+-- Null Activities: " + nullActivitiesActivityContextIds.size();
 	}
 
 }

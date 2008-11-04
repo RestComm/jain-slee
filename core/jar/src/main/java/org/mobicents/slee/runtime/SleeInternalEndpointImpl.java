@@ -35,10 +35,16 @@ public class SleeInternalEndpointImpl implements SleeInternalEndpoint {
     private ActivityContextFactory acf;
     private SleeContainer container;
     private EventRouter router;
-    private boolean active;
     private static Logger logger = Logger.getLogger(SleeInternalEndpointImpl.class);
-    private int activityEndEventID;
-    private EventTypeID activityEndEventTypeID;
+    
+    private EventTypeID activityEndEventId;
+	private EventTypeID getActivityEndEventID() {
+		if (activityEndEventId == null) {
+			activityEndEventId = container.getEventManagement().getEventType(new ComponentKey(
+				"javax.slee.ActivityEndEvent", "javax.slee", "1.0"));
+		}
+		return activityEndEventId;
+	}
     
         
     //only called by jca resource adapter stuff
@@ -92,7 +98,7 @@ public class SleeInternalEndpointImpl implements SleeInternalEndpoint {
 	    		ac.setState(ActivityContextState.ENDING);
 	    	}
                  		
-    		new DeferredEvent(activityEndEventID,  new ActivityEndEventImpl(), ac, null);
+    		new DeferredEvent(getActivityEndEventID(),  new ActivityEndEventImpl(), ac, null);
     		
     		if(logger.isDebugEnabled())
     		    logger.debug("Added deferred event");
@@ -122,10 +128,5 @@ public class SleeInternalEndpointImpl implements SleeInternalEndpoint {
         acf = activityContextFactory;
         this.router = router;
         this.container = container;
-        this.active = true;        
-        ComponentKey key = 
-        	new ComponentKey("javax.slee.ActivityEndEvent", "javax.slee", "1.0");        
-        activityEndEventID = this.container.getEventLookupFacility().getEventID(key); 
-        this.activityEndEventTypeID = this.container.getEventType(key);
     }
 }

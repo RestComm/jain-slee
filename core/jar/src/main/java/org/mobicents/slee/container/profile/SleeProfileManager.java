@@ -797,24 +797,20 @@ public class SleeProfileManager extends ServiceMBeanSupport implements SleeProfi
                     profileAddress, new ProfileID(profileAddress),
                     profileManagement, activityContextInterface,
                     profileTableActivityContextInterfaceFactory);
-            SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
-            int eventID = serviceContainer.getEventLookupFacility().getEventID(
-                    new ComponentKey("javax.slee.profile.ProfileRemovedEvent",
-                            "javax.slee", "1.0"));
+           
             //Profile Removed Event.
             //After a Profile is removed from a Profile Table,
             //the SLEE fires and delivers a Profile Removed
             //Event on the Profile Table’s Activity.
             new DeferredEvent(
-                    eventID,
+                    profileRemovedEvent.getEventTypeID(),
                     profileRemovedEvent,
                     activityContextInterface.getActivityContext(),
                     profileAddress);
             if(logger.isDebugEnabled()) {
             logger.debug("Queued following removed event:"
                     + profileRemovedEvent.getEventTypeID() + ",:"
-                    + activityContextInterface.retrieveActivityContextID()
-                    + ",eventId=" + eventID);
+                    + activityContextInterface.retrieveActivityContextID());
             }
             
         } catch (Exception e) {

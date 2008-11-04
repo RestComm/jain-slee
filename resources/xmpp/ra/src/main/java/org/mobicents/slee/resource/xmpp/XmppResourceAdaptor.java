@@ -72,6 +72,7 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
+import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorState;
@@ -274,13 +275,12 @@ public class XmppResourceAdaptor implements ResourceAdaptor,
 		int[] eventIDs = (int[]) eventIDsOfServicesInstalled.get(arg0);
 		if (eventIDs != null) {
 			for(int i=0;i<eventIDs.length;i++) {
-				EventTypeID eventTypeID = container.getEventTypeID(eventIDs[i]);
-				ComponentKey eventKey = container.getEventKey(eventTypeID);
-				Set servicesActivatedList = (Set) myComponentKeys.get(eventKey);
+				EventTypeIDImpl eventTypeID = container.getEventManagement().getEventTypeID(eventIDs[i]);
+				Set servicesActivatedList = (Set) myComponentKeys.get(eventTypeID.getComponentKey());
 				if (servicesActivatedList != null) {
 					servicesActivatedList.add(arg0);
 					if (log.isDebugEnabled()) {
-						log.debug("Service "+arg0+" is activated and registred to event with key "+eventKey);
+						log.debug("Service "+arg0+" is activated and registred to event with key "+eventTypeID.getComponentKey());
 					}
 				}
 			}
@@ -292,13 +292,12 @@ public class XmppResourceAdaptor implements ResourceAdaptor,
 		int[] eventIDs = (int[]) eventIDsOfServicesInstalled.get(arg0);
 		if (eventIDs != null) {
 			for(int i=0;i<eventIDs.length;i++) {
-				EventTypeID eventTypeID = container.getEventTypeID(eventIDs[i]);
-				ComponentKey eventKey = container.getEventKey(eventTypeID);
-				Set servicesActivatedList = (Set) myComponentKeys.get(eventKey);
+				EventTypeIDImpl eventTypeID = container.getEventManagement().getEventTypeID(eventIDs[i]);
+				Set servicesActivatedList = (Set) myComponentKeys.get(eventTypeID.getComponentKey());
 				if (servicesActivatedList != null) {
 					servicesActivatedList.remove(arg0);		
 					if (log.isDebugEnabled()) {
-						log.debug("Service "+arg0+" was deactivated and unregistred to event with key "+eventKey);
+						log.debug("Service "+arg0+" was deactivated and unregistred to event with key "+eventTypeID.getComponentKey());
 					}
 				}
 			}
@@ -351,9 +350,8 @@ public class XmppResourceAdaptor implements ResourceAdaptor,
 			//event filtering			
 			EventTypeID[] eventTypeIDs = resourceAdaptorEntity
                 .getInstalledResourceAdaptor().getRaType().getRaTypeDescr().getEventTypes();
-			for(int i=0;i<eventTypeIDs.length;i++){				
-				ComponentKey eventKey = container.getEventKey(eventTypeIDs[i]);				
-				myComponentKeys.put(eventKey,Collections.synchronizedSet(new HashSet()));				
+			for(int i=0;i<eventTypeIDs.length;i++){							
+				myComponentKeys.put(((EventTypeIDImpl)eventTypeIDs[i]).getComponentKey(),Collections.synchronizedSet(new HashSet()));				
 			}			
 			if (log.isDebugEnabled()) {				
 				log.debug("Keys for this RA: "+myComponentKeys.keySet().toString());

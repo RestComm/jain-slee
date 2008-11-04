@@ -32,14 +32,22 @@ import org.mobicents.slee.runtime.SleeEvent;
  */
 public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
     
+	private static EventTypeIDImpl eventTypeID;
+	private static EventTypeID lookupEventTypeID() {
+		if (eventTypeID == null) {
+			eventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(new ComponentKey(
+					"javax.slee.profile.ProfileUpdatedEvent","javax.slee","1.0"));
+		}
+		return eventTypeID;
+	}
+	
     private ActivityContextInterface aci;
     private ProfileID profile;
     private Address profileAddress;
     private Object beforeUpdateProfile;
     private Object afterUpdateProfile;
     private ActivityContextInterfaceImpl activityContextInterface;
-    private EventTypeIDImpl eventTypeId;
-    private SleeContainer  serviceContainer;
+    
     private ProfileTableActivityContextInterfaceFactoryImpl profileActivityContextInterfaceFactory;
     
     public ProfileUpdatedEventImpl( Address profileAddress,ProfileID profile,                          
@@ -52,10 +60,6 @@ public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
         this.afterUpdateProfile = afterUpdateProfile;
         this.activityContextInterface = activityContext;
         this.profileActivityContextInterfaceFactory = pACIFactory;
-        this.serviceContainer = SleeContainer.lookupFromJndi();
-        this.eventTypeId = (EventTypeIDImpl) this.serviceContainer.getEventType
-		(new ComponentKey("javax.slee.profile.ProfileUpdatedEvent","javax.slee","1.0"));
-        
     }
     
     public Object getActivity() {
@@ -104,7 +108,7 @@ public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
      * @see org.mobicents.slee.runtime.SleeEvent#getEventTypeID()
      */
     public EventTypeID getEventTypeID() {
-        return this.eventTypeId;
+        return lookupEventTypeID();
     }
 
     /* (non-Javadoc)

@@ -233,7 +233,11 @@ public class ActivityContextNamingFacilityImpl implements
 		}
     	
 		return null;
-    	
-    	
     }
+    
+    @Override
+	public String toString() {
+		return 	"Activity context Naming Facility: " +
+				"\n+-- Names: " + getBindings().keySet();
+	}
 }

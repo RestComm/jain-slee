@@ -298,8 +298,11 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		return new VMID().toString();
 	}
 	
+	@Override
 	public String toString() {
-		tm.mandateTransaction();
-		return "ActivityContextFactoryImpl[a2id.size()="+activityToIdCacheMap.size()+",id2a.size()="+idToAcCacheMap.size()+"]";
+		return 	"Activity Context Factory: " +
+				"\n+-- Activities size: " + activityToIdCacheMap.size() +
+				"\n+-- AC IDs sizes: " + idToAcCacheMap.size();
 	}
+
 }

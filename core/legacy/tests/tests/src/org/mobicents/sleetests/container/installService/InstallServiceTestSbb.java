@@ -28,6 +28,7 @@ import javax.slee.nullactivity.NullActivityFactory;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
+import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.SbbEventEntry;
 import org.mobicents.slee.container.component.ServiceDescriptorImpl;
@@ -382,7 +383,7 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 			try{
 			for(int i=0;i<eventIDs.length;i++)
 			{
-				ComponentKey key=container.getEventKey(eventLookup.getEventTypeID(eventIDs[i]));
+				ComponentKey key= ((EventTypeIDImpl)eventLookup.getEventTypeID(eventIDs[i])).getComponentKey();
 				logger.info("KEY:"+key);
 				//if( (text+key).length()>78)
 				//{
@@ -574,7 +575,7 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 		for(int i=0;i<eventTypeIDs.length;i++)
 		{
 
-			ComponentKey key= container.getEventKey(eventTypeIDs[i]);
+			ComponentKey key= ((EventTypeIDImpl)eventTypeIDs[i]).getComponentKey();
 
 			int eventID=eventLookup.getEventID(key);
 			if(eventID==-1)
@@ -617,8 +618,8 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 			}
 			while(it.hasNext())
 			{
-				EventTypeID id=(EventTypeID) it.next();
-				ComponentKey wrongEventKey=container.getEventKey(id);
+				EventTypeIDImpl id=(EventTypeIDImpl) it.next();
+				ComponentKey wrongEventKey=id.getComponentKey();
 				getX1_eventComponentKeysThatAreNotInRaDesc().add(wrongEventKey);
 
 			}

@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.InvalidStateException;
@@ -41,7 +40,6 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.SleeProfileManager;
@@ -821,14 +819,9 @@ public class DefaultProfileManagementInterceptor implements
                         profileAddress, new ProfileID(profileAddress), profile,
                         activityContextInterface,
                         profileTableActivityContextInterfaceFactory);
-                int eventID = serviceContainer.getEventLookupFacility()
-                        .getEventID(
-                                new ComponentKey(
-                                        "javax.slee.profile.ProfileAddedEvent",
-                                        "javax.slee", "1.0"));
                 try {
                        new DeferredEvent(
-                        eventID,
+                        profileAddedEvent.getEventTypeID(),
                         profileAddedEvent,
                         activityContextInterface.getActivityContext(),
                         profileAddress);
@@ -842,8 +835,7 @@ public class DefaultProfileManagementInterceptor implements
                             + profileAddedEvent.getEventTypeID()
                             + ",:"
                             + activityContextInterface
-                                    .retrieveActivityContextID() + ",eventId="
-                            + eventID);
+                                    .retrieveActivityContextID());
                 }
 
                 profileInBackEndStorage = true;
@@ -853,16 +845,9 @@ public class DefaultProfileManagementInterceptor implements
                         profileAddress, new ProfileID(profileAddress),
                         profileBeforeUpdate, profile, activityContextInterface,
                         profileTableActivityContextInterfaceFactory);
-                int eventID = serviceContainer
-                        .getEventLookupFacility()
-                        .getEventID(
-                                new ComponentKey(
-                                        "javax.slee.profile.ProfileUpdatedEvent",
-                                        "javax.slee", "1.0"));
-                
                 try {
                       new DeferredEvent(
-                        eventID,
+                        profileUpdatedEvent.getEventTypeID(),
                         profileUpdatedEvent,
                         activityContextInterface.getActivityContext(),
                         profileAddress);
@@ -875,8 +860,7 @@ public class DefaultProfileManagementInterceptor implements
                 	logger.debug("Queued following updated event: "
                 
                         + profileUpdatedEvent.getEventTypeID() + ",:"
-                        + activityContextInterface.retrieveActivityContextID()
-                        + ",eventId=" + eventID);
+                        + activityContextInterface.retrieveActivityContextID());
                 }
                 profileInBackEndStorage = true;
             }

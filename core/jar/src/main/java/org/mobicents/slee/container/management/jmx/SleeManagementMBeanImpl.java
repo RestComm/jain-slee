@@ -120,7 +120,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 				"SLEE 1.0 Spec, #14.6, Each time the operational state of the SLEE changes, "
 						+ "the SleeManagementMBean object generates a SLEE state change notification.") };
 		try {
-			logger = Logger.getLogger(SleeManagementMBeanImpl.class);
+			logger = Logger.getLogger(SleeManagementMBean.class);
 		} catch (Exception ex) {
 			logger.error("error initializing slee management mbean");
 		}
@@ -476,24 +476,23 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	/**
 	 * Activate services, which were active before SLEE stopped
 	 * 
-	 * @throws InvalidStateException
-	 * @throws UnrecognizedServiceException
 	 * 
 	 */
-	private void resumeServicesActiveBeforeStop()
-			throws UnrecognizedServiceException, InvalidStateException {
+	private void resumeServicesActiveBeforeStop() {
+		
 		if (activeServicesBeforeStop != null) {
-			for (int i = 0; i < activeServicesBeforeStop.length; i++) {
+			for (ServiceID serviceID : activeServicesBeforeStop) {
 				try {
-
-					sleeContainer
-							.reviveAndStartService(activeServicesBeforeStop[i]);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Reactivating service" + serviceID);
+					}
+					sleeContainer.getServiceManagement().activate(serviceID);				
 				} catch (UnrecognizedServiceException e) {
 					logger.info("Service was removed while SLEE was inactive: "
-							+ activeServicesBeforeStop[i]);
+							+ serviceID);
 				} catch (Exception e) {
 					logger.error("Failed starting service "
-							+ activeServicesBeforeStop[i], e);
+							+ serviceID, e);
 				}
 			}
 		}
@@ -662,14 +661,14 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		// stop all services
 		ServiceID[] services = null;
 		try {
-			services = sleeContainer.getServicesByState(ServiceState.ACTIVE);
+			services = sleeContainer.getServiceManagement().getServices(ServiceState.ACTIVE);
 		} catch (Exception e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 		for (int i = 0; i < services.length; i++) {
 			try {
-				sleeContainer.stopService(services[i]);
+				sleeContainer.getServiceManagement().deactivate(services[i]);
 			} catch (Exception e1) {
 				logger.debug("Failed to schedule SLEE end", e1);
 			}
@@ -716,7 +715,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		boolean rb = true;
 		try {
 			int invalidServices = sleeContainer
-					.getServicesByState(ServiceState.INACTIVE).length;
+					.getServiceManagement().getServices(ServiceState.INACTIVE).length;
 			int allServices = sleeContainer.getDeploymentManager()
 					.getServiceComponents().size();
 			rb = false;
@@ -746,7 +745,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 */
 	private void rememberActiveServicesBeforeStop() throws Exception {
 		activeServicesBeforeStop = sleeContainer
-				.getServicesByState(ServiceState.ACTIVE);
+				.getServiceManagement().getServices(ServiceState.ACTIVE);
 	}
 
 	/**
