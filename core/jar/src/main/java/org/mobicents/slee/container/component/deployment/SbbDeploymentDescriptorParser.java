@@ -211,11 +211,12 @@ public class SbbDeploymentDescriptorParser
             String sbbAliasRef = XMLUtils.getElementTextValue(
                childRelationMethodNode, XMLConstants.SBB_ALIAS_REF_ND);
             ComponentKey childKey = (ComponentKey)sbbReferences.get(sbbAliasRef);
-            descriptorImpl.setChildSbbComponentID(new SbbIDImpl(childKey));
             if(childKey == null){
                 throw new XMLException("SBB alias reference '" + sbbAliasRef
                     + "' unknown in <get-child-relation-method> declaration");
             }
+            descriptorImpl.setChildSbbComponentID(new SbbIDImpl(childKey));
+            
             String getChildRelationMethodName = XMLUtils.getElementTextValue(
                childRelationMethodNode, XMLConstants.GET_CHILD_RELATION_METHOD_NAME_ND);
             String defaultPriority = XMLUtils.getElementTextValue(

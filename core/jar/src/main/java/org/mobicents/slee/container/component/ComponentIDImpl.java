@@ -44,26 +44,29 @@ public  class ComponentIDImpl implements ComponentID,Serializable {
     public ComponentIDImpl(ComponentKey key) {
     	if (key != null) {
     		this.id = key;
-    		if ( this instanceof SbbID) 
-    			this.componentType = SBB_ID;
-    		else if  ( this instanceof ServiceID ) 
-    			this.componentType = SERVICE_ID;
-    		else if  ( this instanceof ResourceAdaptorTypeID )
-    			this.componentType = RESOURCE_ADAPTOR_TYPE_ID;
-    		else if  ( this instanceof ResourceAdaptorID )
-    			this.componentType = RESOURCE_ADAPTOR_ID;
-    		else if  ( this  instanceof ProfileSpecificationID )
-    			this.componentType = PROFILE_SPECIFICATION_ID;
-    		else if ( this instanceof EventTypeID )
-    			this.componentType = EVENT_TYPE_ID;
-    		else this.componentType = "Unknown";
+    		this.componentType=getComponentIDType();
     	}
     	else {
-    		throw new IllegalArgumentException("key is null");
+    		throw new IllegalArgumentException("Cant create ComponentID of type: "+getComponentIDType()+" with key set to null!!!");
     	}
     }
     
-   
+   private String getComponentIDType()
+   {
+	   if ( this instanceof SbbID) 
+			return SBB_ID;
+		else if  ( this instanceof ServiceID ) 
+			return SERVICE_ID;
+		else if  ( this instanceof ResourceAdaptorTypeID )
+			return RESOURCE_ADAPTOR_TYPE_ID;
+		else if  ( this instanceof ResourceAdaptorID )
+			return RESOURCE_ADAPTOR_ID;
+		else if  ( this  instanceof ProfileSpecificationID )
+			return PROFILE_SPECIFICATION_ID;
+		else if ( this instanceof EventTypeID )
+			return EVENT_TYPE_ID;
+		else return "Unknown";
+   }
     
     public ComponentKey getComponentKey(){
         return id;
