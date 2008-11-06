@@ -12,11 +12,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
@@ -31,7 +29,7 @@ import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.component.ComponentContainer;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 
 /**
@@ -82,7 +80,7 @@ public class DeploymentManager {
      *         deployable unit.
      */
     public DeployableUnitID deployUnit(URL sourceUrl, File deploymentRootDir,
-            File classpathDirectory, ComponentContainer componentContainer)
+            File classpathDirectory, SleeContainer componentContainer)
             throws NullPointerException, DeploymentException , AlreadyDeployedException {
 
         DeployableUnitIDImpl deployableUnitID;
@@ -132,173 +130,6 @@ public class DeploymentManager {
             unitJarFile.delete();
             throw new DeploymentException("Could not deploy: " + ex.getMessage(), ex);
         } 
-    }
-
-    /**
-     * Deploy all jars units from a given directory.
-     * 
-     * @param srcPath
-     * @param classpathDirectoryStr
-     * @param componentContainer
-     * @throws NullPointerException
-     * @throws DeploymentException
-     */
-    public void deployAllUnitsAtLocation(String srcPath,
-            String classpathDirectoryStr, ComponentContainer componentContainer)
-            throws NullPointerException, DeploymentException {
-
-        logger.debug("srcPath " + srcPath + " classPathDirectoryStr "
-                + classpathDirectoryStr);
-
-        //Directory where the jar files for deployment are to be found.
-        File srcDir = new File(srcPath);
-
-        if (srcDir.exists()) {
-            if (!srcDir.isDirectory())
-                throw new DeploymentException("Specified Destination "
-                        + srcPath + " is not a directory");
-        } else {
-            throw new DeploymentException("Specified location " + srcPath
-                    + " not found");
-        }
-
-        //Init the directory where component classes will be deployed
-        File classpathDirectory = new File(classpathDirectoryStr);
-
-        //get a list of all files in the specified source directory
-        File[] deployableUnits = srcDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                if (name.endsWith("jar"))
-                    return true;
-                else
-                    return false;
-            }
-        });
-
-        //deploy all files found in the specified directory
-        for (int i = 0; i < deployableUnits.length; i++) {
-            File unitJarFile = (File) deployableUnits[i];
-            try {
-                //extract and deploy all jars found in the deployable unit.
-                /** @todo keep references to deployed units */
-                DeployableUnitDeployer.deploy(deployableUnits[i].toURL(),
-                        unitJarFile, srcDir, componentContainer);
-            } catch (MalformedURLException e1) {
-                logger.fatal("unexpected exception ");
-                e1.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Deploys all jars in <code>sourceUrlStr</code> to
-     * <code>destinationPath</code> and installs them in the specified
-     * container.
-     * 
-     * @param sourceUrlStr
-     *            an url (i.e. a file://... thing) that points to a location
-     *            containing urls.
-     * @param destinationPath
-     *            a path (i.e. a /usr/lib thing and not and url) that specifies
-     *            where the units are to be deployed
-     * @param container
-     *            ComponentContainer the container that wou
-     * @param classpathDirectory
-     *            a target directory for component classes.
-     * @throws NullPointerException
-     * @throws DeploymentException
-     */
-    public void deployAllUnitsAtLocation(String sourceUrlStr,
-            String destinationPath, String classpathDirectoryStr,
-            ComponentContainer componentContainer) throws NullPointerException,
-            DeploymentException {
-        URL sourceUrl;
-        try {
-            sourceUrl = new URL(sourceUrlStr);
-        } catch (MalformedURLException exc) {
-            throw new DeploymentException("Invalid source url.", exc);
-        }
-
-        logger.info("Deploying all units in location" + sourceUrlStr
-                + " to location " + destinationPath);
-
-        File srcDir = new File(sourceUrl.getFile());
-        if (!srcDir.exists() || !srcDir.isDirectory())
-            throw new DeploymentException("Source Directory " + sourceUrlStr
-                    + " does not exist or is not a directory");
-
-        //init the directory where the deployable-unit will be unzipped
-        File destinationDir = new File(destinationPath);
-
-        if (destinationDir.exists())
-            if (!destinationDir.isDirectory())
-                throw new DeploymentException("Specified Destination "
-                        + destinationPath + " is not a directory");
-            else {
-                //create the destination directory
-                if (!destinationDir.mkdirs())
-                    throw new DeploymentException(
-                            "Failed to create destination directory: "
-                                    + destinationPath);
-            }
-
-        //Init the directory where component classes will be deployed
-        File classpathDirectory = new File(classpathDirectoryStr);
-
-        if (destinationDir.exists())
-            if (!destinationDir.isDirectory())
-                throw new DeploymentException("Specified Destination "
-                        + destinationPath + " is not a directory");
-            else {
-                //create the destination directory
-                if (!destinationDir.mkdirs())
-                    throw new DeploymentException(
-                            "Failed to create destination directory: "
-                                    + destinationPath);
-            }
-
-        //get a list of all files in the specified source directory
-        File[] deployableUnits = srcDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                if (name.matches("*.jar"))
-                    return true;
-                else
-                    return false;
-            }
-        });
-
-        //deploy all files found in the specified directory
-        for (int i = 0; i < deployableUnits.length; i++) {
-            try {
-                deployUnit(deployableUnits[i].toURL(), destinationDir,
-                        classpathDirectory, componentContainer);
-            } catch (MalformedURLException ex) {
-                //shouldn't happen as we are constructing urls from existing
-                // files
-                throw new DeploymentException(deployableUnits[i].toString()
-                        + " is not a valid url.", ex);
-            }
-        }
-
-    }
-
-    /**
-     * Fill IN!!!! This is a method that should start monitoring a specific
-     * location and deploy all units that appear in it
-     * 
-     * @param sourceURL
-     *            String
-     * @param deploymentPath
-     *            String
-     * @param container
-     *            ComponentContainer
-     * @throws NullPointerException
-     * @throws DeploymentException
-     */
-    public void startDeployingLocation(String sourceURL, String deploymentPath,
-            ComponentContainer container) throws NullPointerException,
-            DeploymentException {
-        /** @todo implement */
     }
 
     //============================= STATIC UTILITIES

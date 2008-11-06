@@ -36,12 +36,6 @@ public class SbbDeployer {
     private static Logger logger = Logger.getLogger(SbbDeployer.class);;
 
     /**
-     * Pointer to the service container -- this is needed to check if the
-     * correct eventhandler methods exist.
-     */
-    private SleeContainer serviceContainer;
-
-    /**
      * Generator used to generatr the concrete class of the Sbb abstract class
      * provided by the sbb developer
      */
@@ -52,12 +46,6 @@ public class SbbDeployer {
      * concrete class and to verify the generated concrete class
      */
     private SbbVerifier sbbVerifier = null;
-
-    
-    // (ranga): IVELIN -- do we need this static for UsageParameter class generation?
-    
-    // protected static HashSet concreteClassesGenerated;
-    
 
     private String deployPath;
 
@@ -84,9 +72,8 @@ public class SbbDeployer {
      * 
      * @param sbbDeploymentDescriptor
      *            descriptor used to deploy a sbb.
-     * @return true if the sbb has been correctly deployed
      */
-    public boolean deploySbb(MobicentsSbbDescriptor sbbDeploymentDescriptor,
+    public void deploySbb(MobicentsSbbDescriptor sbbDeploymentDescriptor,
             SleeContainer serviceContainer) throws DeploymentException {
         String sbbAbstractClassName = ((MobicentsSbbDescriptor) sbbDeploymentDescriptor)
                 .getSbbAbstractClassName();
@@ -105,6 +92,7 @@ public class SbbDeployer {
                 .getUsageParametersInterface() == null
                 || ConcreteUsageParameterClassGenerator
                         .checkUsageParameterInterface(descriptorImpl);
+        
         if (logger.isDebugEnabled()) {
         	logger.debug("classVerifiedSuccessfully ? =>"
                 + classVerifiedSuccessfully);
@@ -121,8 +109,7 @@ public class SbbDeployer {
                             .generateConcreteUsageParameterClass(descriptorImpl);
                     descriptorImpl.setUsageParameterClass(usageParamClazz);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
-                    return false;
+                    throw new DeploymentException("Failed to generate sbb usage parameter class",ex);
                 }
             }
 
@@ -137,11 +124,9 @@ public class SbbDeployer {
            
             //TODO if the class has been generated, delete it from the disk
             if (clazz != null) {
-         
             	if (logger.isDebugEnabled()) {
             		logger.debug("Generated all classes!");
             	}
-                return true;
             } else
                 throw new DeploymentException(" Could not deploy Sbb "
                         + sbbDeploymentDescriptor.getName());

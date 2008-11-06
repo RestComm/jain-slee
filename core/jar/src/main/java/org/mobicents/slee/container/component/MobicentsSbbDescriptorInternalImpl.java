@@ -30,7 +30,7 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.InitialEventSelectorImpl;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.management.jmx.ResourceManagement;
+import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
@@ -152,7 +152,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 
 	private HashSet sbbRef;
 
-	//Ptr to sbb local interface class.
+	// Ptr to sbb local interface class.
 	private transient Class sbbLocalInterfaceClass;
 
 	private transient Class sbbLocalInterfaceConcreteClass;
@@ -203,7 +203,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	/**
 	 * Default constructor. The fields of this will be filled in with the stuff
 	 * that is parsed from the deployment descriptor.
-	 *  
+	 * 
 	 */
 	public MobicentsSbbDescriptorInternalImpl() {
 		this.resourceAdaptorEntityBindings = new HashMap();
@@ -233,7 +233,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		 * The context class loader is the one that is designated to the DU
 		 * deployment. It loads the DU classes and should be used later on when
 		 * executing SBB code at runtime.
-		 *  
+		 * 
 		 */
 		ClassLoader currentLoader = Thread.currentThread()
 				.getContextClassLoader();
@@ -249,7 +249,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * 
 	 * @param eventType
 	 *            is the Sbb event entry to which the name maps.
-	 *  
+	 * 
 	 */
 
 	public void addEventMap(String typeName, SbbEventEntry eventEntry) {
@@ -325,7 +325,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * 
 	 * @param concreteSbb --
 	 *            the concreteSbb Class to set.
-	 *  
+	 * 
 	 */
 
 	public void setConcreteSbb(Class concreteSbbClass) {
@@ -366,15 +366,15 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		if (selector.isSelectMethod()) {
 			// According to Section 8.5.4, page 115, some fields should be set
 			// before calling the selector method
-			//selector.setEvent(sleeEvent.getEventObject());
-			//selector.setEventName(); //TODO: not sure what value to put here
-			//selector.setActivity(sleeEvent.getActivityContext().getActivity());//TODO:
+			// selector.setEvent(sleeEvent.getEventObject());
+			// selector.setEventName(); //TODO: not sure what value to put here
+			// selector.setActivity(sleeEvent.getActivityContext().getActivity());//TODO:
 			// see how to get the activity now
 			selector.setAddress(sleeEvent.getAddress());
 			selector.setCustomName(null);
 			selector.setInitialEvent(true);
 
-			ObjectPool pool = SleeContainer.lookupFromJndi()
+			ObjectPool pool = SleeContainer.lookupFromJndi().getSbbManagement()
 					.getSbbPoolManagement().getObjectPool(
 							svc.getRootSbbComponent().getID());
 			SbbObject sbbObject = (SbbObject) pool.borrowObject();
@@ -419,7 +419,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		} else
 			buff.append("null");
 
-		//buff.append(e.getActivityContext().getActivityContextID());
+		// buff.append(e.getActivityContext().getActivityContextID());
 		// TODO the ProfileTle select varile for now is null
 
 		buff.append("null");
@@ -498,18 +498,19 @@ public class MobicentsSbbDescriptorInternalImpl implements
 			} else {
 				SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 				ProfileSpecificationDescriptorImpl profileSpecDescriptor = (ProfileSpecificationDescriptorImpl) sleeContainer
-						.getComponentDescriptor(addressProfileId);
+						.getComponentManagement().getComponentDescriptor(
+								addressProfileId);
 				if (profileSpecDescriptor == null) {
 					throw new Exception("Could not find address profile ! "
 							+ addressProfileId);
 				}
-				SleeProfileManager sleeProfileManager = SleeProfileManager
-						.getInstance();
-				String addressProfileTable = ((ServiceComponent) sleeContainer
-						.getDeploymentManager().getServiceComponents().get(
-								svc.getServiceID())).getServiceDescriptor()
+				SleeProfileManager sleeProfileManager = sleeContainer.getSleeProfileManager();
+				String addressProfileTable = sleeContainer
+						.getServiceManagement().getServiceComponent(
+								svc.getServiceID()).getServiceDescriptor()
 						.getAddressProfileTable();
-				// Cannot find an address profile table spec. ( is this the same as 
+				// Cannot find an address profile table spec. ( is this the same
+				// as
 				// the second condtion above?
 				if (logger.isDebugEnabled()) {
 					logger
@@ -805,10 +806,10 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * @param className
 	 */
 	public void setSbbAbstractClassName(String className) {
-		//Emil: RANGA changing this to a string so that parsing won't fail
+		// Emil: RANGA changing this to a string so that parsing won't fail
 		// during deployment (i.e. when the class is not yet in the classpath)
 		this.abstractClassName = className;
-		//FIXME doesn't work even if the class implements Sbb, test done in the
+		// FIXME doesn't work even if the class implements Sbb, test done in the
 		// verifier anyway
 		/**
 		 * if (! abstractClass.isInstance(Sbb.class) ) { throw new
@@ -831,7 +832,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * @param childRelationMethods --
 	 *            an array of GetChildRelationMethod[] parsed from the
 	 *            deployment descriptor.
-	 *  
+	 * 
 	 */
 	public void setChildRelationMethods(
 			GetChildRelationMethod[] childRelationMethods) {
@@ -847,7 +848,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * Get the childrelation acessor methods.
 	 * 
 	 * @return -- an array of childrelation accessors.
-	 *  
+	 * 
 	 */
 	public GetChildRelationMethod[] getChildRelationMethods() {
 		return this.childRelationMethods.values().toArray(
@@ -864,7 +865,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * @param sbbCMPFields --
 	 *            an array of SBBCMPFields to set.
 	 * 
-	 *  
+	 * 
 	 */
 
 	public void setCMPFields(CMPField[] cmpFields) {
@@ -1058,7 +1059,8 @@ public class MobicentsSbbDescriptorInternalImpl implements
 
 	public EventTypeID[] getEventTypes() {
 		EventTypeID[] myTypes = new EventTypeID[this.eventTypes.size()];
-		this.eventTypes.keySet().toArray(myTypes); // ralf: changed to keySet as
+		this.eventTypes.keySet().toArray(myTypes); // ralf: changed to keySet
+													// as
 		// it contains the correct
 		// types
 		return myTypes;
@@ -1202,7 +1204,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 
 	/**
 	 * Get an entity binding for a given resource adaptor type
-	 *  
+	 * 
 	 */
 	public Iterator getResourceAdaptorEntityBindings(
 			ResourceAdaptorTypeIDImpl raTypeID) {
@@ -1237,29 +1239,25 @@ public class MobicentsSbbDescriptorInternalImpl implements
 
 	/**
 	 * 
-	 * @return HashMap containing mapping between EventTypeID and coresponding SbbEventEntry
+	 * @return HashMap containing mapping between EventTypeID and coresponding
+	 *         SbbEventEntry
 	 */
 	public HashMap getEventTypesMappings() {
 		return new HashMap(eventTypes);
 	}
 
 	/**
-	public Map getNamedUsageParameterTable() {
-	    return namedUsageParameterTable;
-	}
-
-	public void putNamedUsageParameterSet(String name, Object newParams) {
-	    namedUsageParameterTable.put(name, newParams);
-	}
-
-	
-	public String[] getAllUsageParameterNames() {
-	    Collection col = this.namedUsageParameterTable.keySet();
-	    String[] retval = new String[col.size()];
-	    col.toArray(retval);
-	    return retval;
-	}
-	 **/
+	 * public Map getNamedUsageParameterTable() { return
+	 * namedUsageParameterTable; }
+	 * 
+	 * public void putNamedUsageParameterSet(String name, Object newParams) {
+	 * namedUsageParameterTable.put(name, newParams); }
+	 * 
+	 * 
+	 * public String[] getAllUsageParameterNames() { Collection col =
+	 * this.namedUsageParameterTable.keySet(); String[] retval = new
+	 * String[col.size()]; col.toArray(retval); return retval; }
+	 */
 
 	public LibraryID[] getLibraries() {
 		// TODO Auto-generated method stub
@@ -1271,21 +1269,18 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * Sets the default usage parameter set associated with the SBB
 	 * 
 	 * @param usageParm
-	 *
-	public void setDefaultUsageParameterSet(
-	        InstalledUsageParameterSet usageParam) {
-	    defaultUsageParameterSet = usageParam;
-	}
-
-	
+	 * 
+	 * public void setDefaultUsageParameterSet( InstalledUsageParameterSet
+	 * usageParam) { defaultUsageParameterSet = usageParam; }
+	 * 
+	 * 
 	 * 
 	 * @return the default usage parameter set associated with the SBB
-	 *  
-	 *
-	public InstalledUsageParameterSet getDefaultUsageParameterSet() {
-	    return defaultUsageParameterSet;
-	}
-	 **/
+	 * 
+	 * 
+	 * public InstalledUsageParameterSet getDefaultUsageParameterSet() { return
+	 * defaultUsageParameterSet; }
+	 */
 
 	public void setupSbbEnvironment() throws Exception {
 
@@ -1742,5 +1737,20 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		}
 
 		return false;
+	}
+
+	// descriptors are stored in maps
+
+	public boolean equals(Object obj) {
+		if (obj != null && obj.getClass() == getClass()) {
+			return ((MobicentsSbbDescriptorInternalImpl) obj).sbbID
+					.equals(this.sbbID);
+		} else {
+			return false;
+		}
+	}
+
+	public int hashCode() {
+		return sbbID.hashCode();
 	}
 }

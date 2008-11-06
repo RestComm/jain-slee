@@ -24,6 +24,7 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileCMPMethod;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.profile.SleeProfileManager;
@@ -94,7 +95,7 @@ public class DefaultSBBProfileCMPInterceptor implements SBBProfileCMPInterceptor
     private Object callGetProfileMethod(ProfileCMPMethod method, ProfileID profileID) 
     	throws UnrecognizedProfileTableNameException, UnrecognizedProfileNameException, SystemException{
 
-        SleeProfileManager sleeProfileManager=SleeProfileManager.getInstance();
+        SleeProfileManager sleeProfileManager=SleeContainer.lookupFromJndi().getSleeProfileManager();
         
         try {
             if(sleeProfileManager.findProfileSpecId(profileID.getProfileTableName())==null)

@@ -86,7 +86,7 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
  * @author Tim
  * @author Ralf Siedow - bug fixes
  * @author eduardomartins
- *  
+ * 
  */
 public class SbbEntity {
 
@@ -172,15 +172,16 @@ public class SbbEntity {
 		setServiceId(svcId);
 		setServiceConvergenceName(convergenceName);
 
-		this.pool = (ObjectPool) SleeContainer.lookupFromJndi()
-				.getSbbPoolManagement().getObjectPool(getSbbId());
-		this.sbbComponent = (MobicentsSbbDescriptor) SleeContainer
-				.lookupFromJndi().getSbbComponent(getSbbId());
+		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
+				.getObjectPool(getSbbId());
+		this.sbbComponent = sleeContainer.getSbbManagement().getSbbComponent(
+				getSbbId());
 		if (this.sbbComponent == null) {
 			String s = "Sbb component/descriptor not found for sbbID["
 					+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "],\n"
 					+ "  Transaction[ID:"
-					+ SleeContainer.getTransactionManager().getTransaction()
+					+ sleeContainer.getTransactionManager().getTransaction()
 					+ "]";
 			log.warn(s);
 			throw new RuntimeException(s);
@@ -193,7 +194,9 @@ public class SbbEntity {
 	 * id. Note that we do not add a transactional action for this constructor.
 	 * 
 	 * @param sbbeId
-	 * @throws RuntimeException if recreation from cache is not possible, i.e., does not exists
+	 * @throws RuntimeException
+	 *             if recreation from cache is not possible, i.e., does not
+	 *             exists
 	 */
 	SbbEntity(String sbbEntityId) {
 
@@ -221,10 +224,11 @@ public class SbbEntity {
 					ACTIVITY_CONTEXTS_CACHE + "-" + ACTIVITY_CONTEXTS + "_"
 							+ sbbeId);
 
-			this.pool = (ObjectPool) SleeContainer.lookupFromJndi()
-					.getSbbPoolManagement().getObjectPool(sbbId);
-			this.sbbComponent = (MobicentsSbbDescriptor) SleeContainer
-					.lookupFromJndi().getSbbComponent(sbbId);
+			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
+					.getObjectPool(getSbbId());
+			this.sbbComponent = sleeContainer.getSbbManagement()
+					.getSbbComponent(getSbbId());
 			if (this.sbbComponent == null) {
 				String s = "Sbb component/descriptor not found for sbbID["
 						+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "]";
@@ -272,7 +276,7 @@ public class SbbEntity {
 
 	/**
 	 * Debugging printf of cached state of a node.
-	 *  
+	 * 
 	 */
 	public void printNode() {
 		if (log.isDebugEnabled()) {
@@ -333,8 +337,8 @@ public class SbbEntity {
 	 * The generated code to access CMP Fields needs to call this method.
 	 * 
 	 * @param cmpField
-	 * @return @throws
-	 *         TransactionRequiredLocalException
+	 * @return
+	 * @throws TransactionRequiredLocalException
 	 * @throws SystemException
 	 */
 	public Object getCMPField(CMPField cmpField)
@@ -485,7 +489,8 @@ public class SbbEntity {
 							"Event is not known by this SBB.");
 				if (sbbEventEntry.isReceived()) {
 					maskedEvents.add(SleeContainer.lookupFromJndi()
-							.getEventManagement().getEventType(sbbEventEntry.getEventTypeRefKey()));
+							.getEventManagement().getEventType(
+									sbbEventEntry.getEventTypeRefKey()));
 				} else {
 					throw new UnrecognizedEventException("Event "
 							+ eventMask[i]
@@ -593,7 +598,9 @@ public class SbbEntity {
 	 * removes the SBB entity from the ChildRelation object that the SBB entity
 	 * belongs to. It removes the persistent representation of the SBB entity.
 	 * 
-	 * @param removeFromParent indicates if the entity should be removed from it's parent or not
+	 * @param removeFromParent
+	 *            indicates if the entity should be removed from it's parent or
+	 *            not
 	 * @throws TransactionRequiredException
 	 * @throws SystemException
 	 */
@@ -615,7 +622,9 @@ public class SbbEntity {
 	}
 
 	/**
-	 * Removes the entity tree from this entity, that is, all sbb entities on it's child relations.
+	 * Removes the entity tree from this entity, that is, all sbb entities on
+	 * it's child relations.
+	 * 
 	 * @throws TransactionRequiredException
 	 * @throws SystemException
 	 */
@@ -636,11 +645,12 @@ public class SbbEntity {
 			if (ac != null && ac.getState().equals(ActivityContextState.ACTIVE)) {
 				ac.detachSbbEntity(this.sbbeId);
 			}
-			// no need to remove ac from entity because the entity is being removed
+			// no need to remove ac from entity because the entity is being
+			// removed
 		}
 
-		// 	It invokes the appropriate life cycle methods (see Section 6.3) of an
-		//  SBB object that caches the SBB entity state.
+		// It invokes the appropriate life cycle methods (see Section 6.3) of an
+		// SBB object that caches the SBB entity state.
 		try {
 			if (this.sbbObject == null) {
 				this.assignAndActivateSbbObject();
@@ -733,7 +743,8 @@ public class SbbEntity {
 
 	/**
 	 * 
-	 * see JSLEE 1.0 spec, section 8.4.2 "SBB abstract class event handler methods"
+	 * see JSLEE 1.0 spec, section 8.4.2 "SBB abstract class event handler
+	 * methods"
 	 * 
 	 */
 	private Method getEventHandlerMethod(SleeEvent sleeEvent) {
@@ -753,7 +764,9 @@ public class SbbEntity {
 
 		Class[] args = new Class[2];
 		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		MobicentsEventTypeDescriptor eventDescriptor = sleeContainer.getEventManagement().getEventDescriptor(sleeEvent.getEventTypeID());
+		MobicentsEventTypeDescriptor eventDescriptor = sleeContainer
+				.getEventManagement().getEventDescriptor(
+						sleeEvent.getEventTypeID());
 		if (log.isDebugEnabled()) {
 			log.debug("EventType ID" + sleeEvent.getEventTypeID());
 			log.debug("EventDescriptor ID"
@@ -783,11 +796,12 @@ public class SbbEntity {
 
 		Method method = null;
 		boolean isCustomAciMethod = false;
-		// Is there a custom SBB activity context interface. 
+		// Is there a custom SBB activity context interface.
 		String customAciName = sbbDescriptor
 				.getActivityContextInterfaceClassName();
 		if (customAciName != null) {
-			// since there is a custom SBB ACI declared, see if there is an event handler with it in the signature
+			// since there is a custom SBB ACI declared, see if there is an
+			// event handler with it in the signature
 			try {
 				args[1] = ccl.loadClass(customAciName);
 			} catch (ClassNotFoundException e) {
@@ -807,9 +821,11 @@ public class SbbEntity {
 			}
 		}
 		if (!isCustomAciMethod) {
-			// since there is no event handler with custom SBB ACI, let's look for a handler with generic ACI argument
+			// since there is no event handler with custom SBB ACI, let's look
+			// for a handler with generic ACI argument
 			try {
-				// since there is no event handler with custom SBB ACI, let's look for a handler with generic ACI argument
+				// since there is no event handler with custom SBB ACI, let's
+				// look for a handler with generic ACI argument
 				args[1] = ActivityContextInterface.class;
 				method = concreteClass.getMethod(methodName, args);
 			} catch (NoSuchMethodException e) {
@@ -825,7 +841,8 @@ public class SbbEntity {
 	/**
 	 * Implementing SLEE 8.4.2
 	 * 
-	 * @param sleeEvent to be delivered to the SBB
+	 * @param sleeEvent
+	 *            to be delivered to the SBB
 	 * @return arguments that will be passed to the SBB event handler method
 	 */
 	private Object[] getEventHandlerParameters(SleeEvent sleeEvent) {
@@ -850,7 +867,11 @@ public class SbbEntity {
 			Class aciClass = this.getSbbDescriptor()
 					.getActivityContextInterfaceConcreteClass();
 			try {
-				//activityContextInterface = (ActivityContextInterface) aciClass.getConstructor(new Class[] { aciImpl.getClass(),this.getSbbDescriptor().getClass() }).newInstance(new Object[] { aciImpl, this.getSbbDescriptor() });
+				// activityContextInterface = (ActivityContextInterface)
+				// aciClass.getConstructor(new Class[] {
+				// aciImpl.getClass(),this.getSbbDescriptor().getClass()
+				// }).newInstance(new Object[] { aciImpl,
+				// this.getSbbDescriptor() });
 				activityContextInterface = (ActivityContextInterface) aciClass
 						.getConstructor(
 								new Class[] {
@@ -860,7 +881,7 @@ public class SbbEntity {
 								new Object[] { aciImpl, this.getSbbDescriptor() });
 			} catch (Exception e) {
 				String s = "Could Not create ACI!";
-				//log.error(s, e);
+				// log.error(s, e);
 				throw new RuntimeException(s, e);
 			}
 
@@ -892,11 +913,11 @@ public class SbbEntity {
 
 	/**
 	 * Actually invoke the event handler.
-	 *  
+	 * 
 	 */
 	public void invokeEventHandler(SleeEvent sleeEvent) throws Exception {
 
-		//Actually invoke the event handler.
+		// Actually invoke the event handler.
 		Method method = getEventHandlerMethod(sleeEvent);
 		setServiceActivityFactory();
 		Object[] parameters = getEventHandlerParameters(sleeEvent);
@@ -915,8 +936,8 @@ public class SbbEntity {
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (InvocationTargetException e) {
-			//Remember the actual exception is hidden inside the
-			//InvocationTarget exception when you use reflection!
+			// Remember the actual exception is hidden inside the
+			// InvocationTarget exception when you use reflection!
 			Throwable realException = e.getCause();
 			if (realException instanceof RuntimeException) {
 				RuntimeException re = (RuntimeException) realException;
@@ -937,6 +958,7 @@ public class SbbEntity {
 
 	/**
 	 * Assigns the sbb entity to a sbb object, and then invoke sbbActivate()
+	 * 
 	 * @throws Exception
 	 */
 	public void assignAndActivateSbbObject() throws Exception {
@@ -955,7 +977,9 @@ public class SbbEntity {
 	}
 
 	/**
-	 * Assigns the sbb entity to a sbb object, and then invoke sbbCreate() and sbbPostCreate()
+	 * Assigns the sbb entity to a sbb object, and then invoke sbbCreate() and
+	 * sbbPostCreate()
+	 * 
 	 * @throws Exception
 	 */
 	public void assignAndCreateSbbObject() throws Exception {
@@ -977,6 +1001,7 @@ public class SbbEntity {
 
 	/**
 	 * Invoke sbbPassivate() and then release the sbb object from the entity
+	 * 
 	 * @throws Exception
 	 */
 	public void passivateAndReleaseSbbObject() throws Exception {
@@ -1001,6 +1026,7 @@ public class SbbEntity {
 
 	/**
 	 * Invoke sbbRemove() and then release the sbb object from the entity
+	 * 
 	 * @throws Exception
 	 */
 	public void removeAndReleaseSbbObject() throws Exception {
@@ -1193,6 +1219,7 @@ public class SbbEntity {
 
 	/**
 	 * Sets the parent child relation name.
+	 * 
 	 * @param name
 	 */
 	private void setParentChildRelation(String parentChildRelation) {
@@ -1214,6 +1241,7 @@ public class SbbEntity {
 
 	/**
 	 * Sets the parent sbb entity id.
+	 * 
 	 * @param name
 	 */
 	private void setParentSbbEntityId(String parentSbbEntityId) {
@@ -1223,7 +1251,7 @@ public class SbbEntity {
 
 	// It removes the SBB entity from the ChildRelation object that the SBB
 	// entity belongs
-	//	to.
+	// to.
 	private void removeFromParent() throws TransactionRequiredException,
 			SystemException {
 
@@ -1237,7 +1265,7 @@ public class SbbEntity {
 					.getChildRelation(getParentChildRelation())
 					.getSbbEntitySet().remove(this.getSbbEntityId());
 		} else {
-			// it's a root sbb entity, remove from service 
+			// it's a root sbb entity, remove from service
 			try {
 				SleeContainer.lookupFromJndi().getServiceManagement()
 						.getService(this.getServiceId()).removeConvergenceName(

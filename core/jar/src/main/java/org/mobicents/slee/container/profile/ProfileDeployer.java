@@ -143,7 +143,7 @@ public class ProfileDeployer {
      */
     private void initializePersistedProfiles(String deployedProfileCmpInterfaceName) {
         if (logger.isDebugEnabled()) logger.debug("Loading profile persistent state information...");
-    	SleeProfileManager profileManager = SleeProfileManager.getInstance();
+    	SleeProfileManager profileManager = SleeContainer.lookupFromJndi().getSleeProfileManager();
         try {
             profileManager.loadProfileTableNames();
             Set allProfileTableNames = profileManager.getProfileCacheManager().getProfileTableNames();

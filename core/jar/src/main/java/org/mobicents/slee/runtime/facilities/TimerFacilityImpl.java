@@ -218,17 +218,9 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 		}
 	}
 
-	public Map getTimerMapFromCache() throws Exception {
-		if (timerCacheMap != null) {
-			return timerCacheMap;
-		} else {
-			timerCacheMap = new CacheableMap(tcache + "-" + FQN_TIMERS_NAME);
-			return timerCacheMap;
-		}
-	}
-
 	public TimerFacilityImpl(SleeContainer sleeContainer) {
 		this.sysTimer = new Timer();
+		this.timerCacheMap = new CacheableMap(tcache + "-" + FQN_TIMERS_NAME);
 	}
 
 	/*
@@ -305,8 +297,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 
 		try {
 			// ---
-			Map cmap = this.getTimerMapFromCache();
-			cmap.put(timerID.toString(), task);
+			timerCacheMap.put(timerID.toString(), task);
 		} catch (Exception e) {
 			throw new FacilityException("Failed to add timer to cache", e);
 		}
@@ -458,7 +449,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			TimerFacilityAction action = new TimerFacilityAction(task);
 
 			try {
-				this.getTimerMapFromCache()
+				timerCacheMap
 						.remove(task.getTimerID().toString());
 				SleeContainer.getTransactionManager().addAfterCommitAction(
 						action);
@@ -484,10 +475,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			// ---
 			// task = (TimerFacilityTimerTask)txMgr.getObject(tcache,fqn,
 			// "task");
-			Map cmap = this.getTimerMapFromCache();
-
-			task = (TimerFacilityTimerTask) cmap.get(timerID.toString());
-
+			task = (TimerFacilityTimerTask) timerCacheMap.get(timerID.toString());
 			if (task == null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("TASK================ Can't find timer["
@@ -510,7 +498,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 				throw new FacilityException("Can't find ac in cache!");
 
 			ac.detachTimer(timerID, checkForActivityEnd);
-			cmap.remove(timerID.toString());
+			timerCacheMap.remove(timerID.toString());
 			// Remove the node
 			// txMgr.removeNode(tcache,fqn);
 		} catch (Exception e) {
@@ -570,13 +558,12 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 
 		SleeContainer.getTransactionManager().mandateTransaction();
 		try {
-			Map cmap = this.getTimerMapFromCache();
 			if (logger.isDebugEnabled())
-				logger.debug("TimeFacility.restart() cmap size " + cmap.size());
+				logger.debug("TimeFacility.restart() cmap size " + timerCacheMap.size());
 
-			for (Iterator it = cmap.keySet().iterator(); it.hasNext();) {
+			for (Iterator it = timerCacheMap.keySet().iterator(); it.hasNext();) {
 				String timerId = (String) it.next();
-				TimerFacilityTimerTask task = (TimerFacilityTimerTask) cmap
+				TimerFacilityTimerTask task = (TimerFacilityTimerTask) timerCacheMap
 						.get(timerId);
 				if (logger.isDebugEnabled())
 					logger
@@ -634,8 +621,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	 * @param task
 	 */
 	public void persistTimer(TimerFacilityTimerTask task) throws Exception {
-		Map cmap = this.getTimerMapFromCache();
-		cmap.put(task.getTimerID().toString(), task);
+		timerCacheMap.put(task.getTimerID().toString(), task);
 	}
 
 	@Override

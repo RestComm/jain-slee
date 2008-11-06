@@ -7,6 +7,7 @@
   <classpathentry kind="src" path="core/sar/xml"/>
   <classpathentry kind="src" path="core/sar/dtd"/>
   <classpathentry kind="src" path="core/standard-events/jar/src/main/resources"/>
+  <classpathentry kind="src" path="core/standard-profiles/jar/src/main/resources"/>
   <classpathentry kind="src" path="examples/asterisk/du/src/main/resources"/>
   <classpathentry kind="src" path="examples/asterisk/sbb/src/main/resources"/>
   <classpathentry kind="src" path="examples/asterisk/sbb/src/main/java"/>

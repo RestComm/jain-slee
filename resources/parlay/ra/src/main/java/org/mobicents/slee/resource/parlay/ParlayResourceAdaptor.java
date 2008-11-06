@@ -3,7 +3,6 @@ package org.mobicents.slee.resource.parlay;
 import java.io.Serializable;
 import java.util.Properties;
 
-import javax.naming.NamingException;
 import javax.slee.Address;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.BootstrapContext;
@@ -523,7 +522,7 @@ public class ParlayResourceAdaptor implements ResourceAdaptor, Serializable {
                         + "; jndiName = " + name);
             }
 
-            SleeContainer.unregisterWithJndi(prefix, name);
+            SleeContainer.unregisterWithJndi(prefix + "/" + name);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("JNDI name unregistered.");

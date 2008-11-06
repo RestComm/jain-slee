@@ -1,4 +1,4 @@
-package org.mobicents.slee.container.management.jmx;
+package org.mobicents.slee.container.management;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,6 +45,8 @@ import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.resource.ResourceAdaptorTypeDescriptorImpl;
 import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
 import org.mobicents.slee.resource.SleeEndpointImpl;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * 
@@ -112,6 +114,10 @@ public class ResourceManagement {
 					+ raTypeDescriptor.getID());
 		}
 
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();
+		sleeTransactionManager.mandateTransaction();
+
 		boolean verified = false;
 		try {
 			verified = new RaTypeVerifier(raTypeDescriptor).verifyRaType();
@@ -130,8 +136,8 @@ public class ResourceManagement {
 				.getEventTypeRefEntries();
 		EventTypeID[] eventTypeIDs = new EventTypeIDImpl[eventTypeRefEntries.length];
 		for (int i = 0; i < eventTypeRefEntries.length; i++) {
-			EventTypeID eventTypeId = (EventTypeID) sleeContainer.getEventManagement()
-					.getEventType(eventTypeRefEntries[i]);
+			EventTypeID eventTypeId = (EventTypeID) sleeContainer
+					.getEventManagement().getEventType(eventTypeRefEntries[i]);
 			if (eventTypeId == null)
 				throw new DeploymentException(
 						"Could not resolve event type ref"
@@ -149,6 +155,14 @@ public class ResourceManagement {
 			throw new DeploymentException("RaType " + raTypeDescriptor.getID()
 					+ " already installed");
 		}
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				resourceAdaptorTypes.remove(id);
+				logger.info("Removed RA Type " + id
+						+ " due to transaction rollback");
+			}
+		};
+		sleeTransactionManager.addAfterRollbackAction(action);
 
 		logger.info("Installed RA Type with id " + id);
 	}
@@ -166,6 +180,10 @@ public class ResourceManagement {
 			logger.debug("Installing RA with id " + raDescr.getID());
 		}
 
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();
+		sleeTransactionManager.mandateTransaction();
+
 		ResourceAdaptorType raType = this.resourceAdaptorTypes.get(raDescr
 				.getResourceAdaptorType());
 		if (raType == null) {
@@ -174,12 +192,21 @@ public class ResourceManagement {
 							+ raDescr.getResourceAdaptorType());
 		}
 
-		ResourceAdaptorIDImpl raID = (ResourceAdaptorIDImpl) raDescr.getID();
+		final ResourceAdaptorIDImpl raID = (ResourceAdaptorIDImpl) raDescr
+				.getID();
 		if (!this.resourceAdaptors.contains(raID)) {
 			raType.getResourceAdaptorIDs().add(raID);
 			try {
 				this.resourceAdaptors.put(raID, new InstalledResourceAdaptor(
 						sleeContainer, raDescr, raID));
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						resourceAdaptors.remove(raID).uninstall();
+						logger.info("Removed RA " + raID
+								+ " due to transaction rollback");
+					}
+				};
+				sleeTransactionManager.addAfterRollbackAction(action);
 				logger.info("Installed RA " + raID);
 			} catch (Exception e) {
 				raType.getResourceAdaptorIDs().remove(raID);
@@ -195,7 +222,7 @@ public class ResourceManagement {
 
 	/**
 	 * unistall a Resource Adaptor.
-	 *
+	 * 
 	 * @param deployableUnitID --
 	 *            deployable unit to unistall
 	 */
@@ -205,24 +232,26 @@ public class ResourceManagement {
 			logger.debug("Removing RAs from DU " + deployableUnitID);
 		}
 
-		for (ResourceAdaptorID raID : this.resourceAdaptors.keySet()) {
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();
+		sleeTransactionManager.mandateTransaction();
 
+		for (final ResourceAdaptorID raID : this.resourceAdaptors.keySet()) {
 			ComponentID[] components = deployableUnitID.getDescriptor()
 					.getComponents();
 			for (ComponentID cID : components) {
 				if (raID.equals(cID)) {
-					if (!deployableUnitID.getDescriptor()
-							.hasInstalledComponent(cID)) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Not removing RA " + raID
-									+ ", it was not installed by DU "
-									+ deployableUnitID.getSourceURL());
-						}
-						continue;
-					}
-					InstalledResourceAdaptor ra = (InstalledResourceAdaptor) this.resourceAdaptors
+					final InstalledResourceAdaptor ra = (InstalledResourceAdaptor) this.resourceAdaptors
 							.remove(raID);
 					ra.uninstall();
+					TransactionalAction action = new TransactionalAction() {
+						public void execute() {
+							resourceAdaptors.put(raID, ra);
+							logger.info("Resintalled RA " + raID
+									+ " due to transaction rollback");
+						}
+					};
+					sleeTransactionManager.addAfterRollbackAction(action);
 					logger.info("Uninstalled RA " + raID);
 				}
 			}
@@ -237,6 +266,10 @@ public class ResourceManagement {
 	 */
 	public void uninstallRAType(DeployableUnitIDImpl deployableUnitID)
 			throws Exception {
+
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();
+		sleeTransactionManager.mandateTransaction();
 
 		ComponentID[] cIDs = deployableUnitID.getDescriptor().getComponents();
 		for (ComponentID cID : cIDs) {
@@ -266,24 +299,28 @@ public class ResourceManagement {
 		}
 		for (Iterator it = this.resourceAdaptorTypes.keySet().iterator(); it
 				.hasNext();) {
-			ResourceAdaptorTypeID raTypeID = (ResourceAdaptorTypeIDImpl) it
+			final ResourceAdaptorTypeID raTypeID = (ResourceAdaptorTypeIDImpl) it
 					.next();
-			// ComponentID components[] =
-			// deployableUnitID.getDescriptor().getComponents();
+
 			for (ComponentID cID : cIDs) {
 				if (raTypeID.equals(cID)) {
-					if (!deployableUnitID.getDescriptor()
-							.hasInstalledComponent(cID)) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Not removing RA Type " + raTypeID
-									+ ", it was not installed by DU "
-									+ deployableUnitID.getSourceURL());
-						}
-						continue;
-					}
-
 					it.remove();
-					this.resourceAdaptorTypes.remove(raTypeID);
+					final ResourceAdaptorType raType = this.resourceAdaptorTypes
+							.remove(raTypeID);
+					final ResourceAdaptorActivityContextInterfaceFactory raACIF = this.activityContextInterfaceFactories
+							.remove(raTypeID);
+					TransactionalAction action = new TransactionalAction() {
+						public void execute() {
+							resourceAdaptorTypes.put(raTypeID, raType);
+							if (raACIF != null) {
+								activityContextInterfaceFactories.put(raTypeID,
+										raACIF);
+							}
+							logger.info("Resintalled RA Type " + raTypeID
+									+ " due to transaction rollback");
+						}
+					};
+					sleeTransactionManager.addAfterRollbackAction(action);
 					logger.info("Uninstalled RA Type " + raTypeID);
 				}
 			}
@@ -339,6 +376,8 @@ public class ResourceManagement {
 					+ entityName + ", properties: " + properties);
 		}
 
+		// TODO tx aware operation
+		
 		final InstalledResourceAdaptor installedRA = resourceAdaptors.get(id);
 		if (installedRA == null) {
 			String msg = "Failed to create RA Entity. RA ID: " + id
@@ -402,6 +441,8 @@ public class ResourceManagement {
 			logger.debug("Activating RA Entity " + entityName);
 		}
 
+		// TODO tx aware operation
+		
 		final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
 				.get(entityName);
 		if (raEntity == null) {
@@ -429,6 +470,8 @@ public class ResourceManagement {
 			logger.debug("Deactivating RA Entity " + entityName);
 		}
 
+		// TODO tx aware operation
+		
 		final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
 				.get(entityName);
 		if (raEntity == null) {
@@ -529,6 +572,8 @@ public class ResourceManagement {
 					+ " and Name " + linkName);
 		}
 
+		// TODO tx aware operation
+		
 		if (linkName == null) {
 			throw new NullPointerException("null link name");
 		}
@@ -565,6 +610,8 @@ public class ResourceManagement {
 			logger.debug("Unbinding RA Entity Link " + linkName);
 		}
 
+		// TODO tx aware operation
+		
 		if (linkName == null) {
 			throw new NullPointerException("null link name");
 		}
@@ -582,10 +629,13 @@ public class ResourceManagement {
 
 		final ResourceAdaptorID raID = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getKey();
-		ComponentID[] refComps = sleeContainer.getReferringComponents(raID);
+		ComponentManagement componentManagement = sleeContainer
+				.getComponentManagement();
+		ComponentID[] refComps = componentManagement
+				.getReferringComponents(raID);
 		for (int i = 0; i < refComps.length; i++) {
-			if (sleeContainer.getComponentDescriptor(refComps[i]) instanceof SbbDescriptor) {
-				SbbDescriptor sbbDesc = (SbbDescriptor) sleeContainer
+			if (componentManagement.getComponentDescriptor(refComps[i]) instanceof SbbDescriptor) {
+				SbbDescriptor sbbDesc = (SbbDescriptor) componentManagement
 						.getComponentDescriptor(refComps[i]);
 				String[] sbbRALinks = sbbDesc.getResourceAdaptorEntityLinks();
 				for (int j = 0; j < sbbRALinks.length; j++) {
@@ -598,7 +648,6 @@ public class ResourceManagement {
 		}
 
 		this.resourceAdaptorEntityLinks.remove(linkName);
-
 		logger.info("Unbound RA Entity Link " + linkName);
 	}
 
@@ -744,7 +793,7 @@ public class ResourceManagement {
 	 * @return
 	 * @throws NullPointerException
 	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws ResourceException 
+	 * @throws ResourceException
 	 */
 	public Properties getConfigurationProperties(String entityName)
 			throws NullPointerException,
@@ -962,12 +1011,15 @@ public class ResourceManagement {
 
 	@Override
 	public String toString() {
-		return 	"Resource Management: " +
-				"\n+-- Resource Adaptor Types: " + resourceAdaptorTypes.keySet() +
-				"\n+-- Resource Adaptor: " + resourceAdaptors.keySet() +
-				"\n+-- Resource Adaptor Entities: " + resourceAdaptorEntities.keySet() +
-				"\n+-- Resource Adaptor Entitiy Links: " + resourceAdaptorEntities.keySet() +
-				"\n+-- Resource Adaptor ACI Factories: " + activityContextInterfaceFactories.keySet();
+		return "Resource Management: " + "\n+-- Resource Adaptor Types: "
+				+ resourceAdaptorTypes.keySet() + "\n+-- Resource Adaptor: "
+				+ resourceAdaptors.keySet()
+				+ "\n+-- Resource Adaptor Entities: "
+				+ resourceAdaptorEntities.keySet()
+				+ "\n+-- Resource Adaptor Entitiy Links: "
+				+ resourceAdaptorEntities.keySet()
+				+ "\n+-- Resource Adaptor ACI Factories: "
+				+ activityContextInterfaceFactories.keySet();
 	}
 
 }

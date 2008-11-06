@@ -23,40 +23,45 @@ import java.security.PrivilegedAction;
  */
 
 public class SleeContainerUtils {
-    public static String toHex(String str){
-        StringBuffer buff = new StringBuffer();
-        for (int i=0; i<str.length(); i++){
-            if (Character.isLetter(str.charAt(i))/*|| str.charAt(i) == '-'*/||Character.isDigit(str.charAt(i))){
-                buff.append(str.charAt(i));
-            }else{
-                buff.append("\\u00");
-                buff.append(Integer.toHexString(str.charAt(i)));
-            }
-        }
-        
-        return buff.toString();
-    }
-    
-    public static String fromHex(String str){
-        StringBuffer buff = new StringBuffer();
-        for (int i=0; i<str.length(); i++){
-            if (str.charAt(i) == '\\'){
-                buff.append(Integer.valueOf(str.substring(i+4, i+6), 16));
-            }else{
-                buff.append(str.charAt(i));
-            }
-        }
-        //logger.debug(buff);
-        return buff.toString();
-    }
-    
-    public static ClassLoader getCurrentThreadClassLoader(){
-        if(SleeContainer.isSecurityEnabled)
-        return (ClassLoader) AccessController.doPrivileged(new PrivilegedAction(){
-            public Object run(){
-                return Thread.currentThread().getContextClassLoader();
-            }
-        });
-        else return Thread.currentThread().getContextClassLoader();
-    }
+
+	public static String toHex(String str) {
+		StringBuffer buff = new StringBuffer();
+		for (int i = 0; i < str.length(); i++) {
+			if (Character.isLetter(str.charAt(i))/*|| str.charAt(i) == '-'*/
+					|| Character.isDigit(str.charAt(i))) {
+				buff.append(str.charAt(i));
+			} else {
+				buff.append("\\u00");
+				buff.append(Integer.toHexString(str.charAt(i)));
+			}
+		}
+
+		return buff.toString();
+	}
+
+	public static String fromHex(String str) {
+		StringBuffer buff = new StringBuffer();
+		for (int i = 0; i < str.length(); i++) {
+			if (str.charAt(i) == '\\') {
+				buff.append(Integer.valueOf(str.substring(i + 4, i + 6), 16));
+			} else {
+				buff.append(str.charAt(i));
+			}
+		}
+		//logger.debug(buff);
+		return buff.toString();
+	}
+
+	public static ClassLoader getCurrentThreadClassLoader() {
+		if (SleeContainer.isSecurityEnabled)
+			return (ClassLoader) AccessController
+					.doPrivileged(new PrivilegedAction() {
+						public Object run() {
+							return Thread.currentThread()
+									.getContextClassLoader();
+						}
+					});
+		else
+			return Thread.currentThread().getContextClassLoader();
+	}
 }

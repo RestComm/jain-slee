@@ -22,19 +22,11 @@
 
 package org.mobicents.slee.container.deployment;
 
-import java.io.IOException;
-import java.lang.reflect.*;
-
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-
-import javax.slee.management.DeploymentException;
-import javax.slee.usage.SampleStatistics;
-import javax.slee.usage.SbbUsageMBean;
 
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
@@ -43,9 +35,11 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
+import javax.slee.management.DeploymentException;
+import javax.slee.usage.SampleStatistics;
+
 import org.jboss.logging.Logger;
 import org.jboss.util.Strings;
-import org.mobicents.slee.container.component.ComponentIDImpl;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.InstalledUsageParameterSet;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
@@ -53,7 +47,6 @@ import org.mobicents.slee.container.component.SbbIDImpl;
 import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.container.management.jmx.SampleStatisticsImpl;
 import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
-import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 /**
  * @author M.Ranganathan
@@ -96,9 +89,10 @@ public class ConcreteUsageParameterClassGenerator {
      * @param sbbDescriptor --
      *            the sbb descriptor
      * @return true if all checks pass correctly and false if not.
+     * @throws DeploymentException 
      */
     public static boolean checkUsageParameterInterface(
-            MobicentsSbbDescriptor sbbDescriptor) {
+            MobicentsSbbDescriptor sbbDescriptor) throws DeploymentException {
         try {
             Class clazz = Thread.currentThread().getContextClassLoader()
                     .loadClass(sbbDescriptor.getUsageParametersInterface());
@@ -187,8 +181,7 @@ public class ConcreteUsageParameterClassGenerator {
             }
             return true;
         } catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
+            throw new DeploymentException("Exception while checking sbb usage parameter interface",ex);
         }
     }
 

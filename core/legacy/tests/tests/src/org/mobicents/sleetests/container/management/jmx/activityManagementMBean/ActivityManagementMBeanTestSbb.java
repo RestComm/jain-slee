@@ -237,7 +237,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 
 		setReport(new StringBuffer("\n"));
 
-		int count = container.getActivityContextCount();
+		int count = container.getActivityContextFactory().getActivityContextCount();
 		
 		logger.info("===[***] Activity Count[" + count + "] on start");
 		this.setAciNumberOnStart(count);
@@ -303,7 +303,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			ActivityContextInterface aci) {
 
 		// Now lets check how many ac we have
-		int acCount = container.getActivityContextCount();
+		int acCount = container.getActivityContextFactory().getActivityContextCount();
 
 		logger.info("===[$$$]onX2[ADD_AC] Activity Count[" + acCount
 				+ "] Should be [" + (getAciNumberOnStart()+ 4) + "]");
@@ -352,7 +352,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			ActivityContextInterface aci) {
 
 		// here we are after removing two null acis, we shold have 4 of them
-		int acCount = container.getActivityContextCount();
+		int acCount = container.getActivityContextFactory().getActivityContextCount();
 
 		logger.info("===[$$$]onX3[REMOVE_AC] Activity Count[" + acCount
 				+ "] Should be [" + (getAciNumberOnStart()+2) + "]");

@@ -54,7 +54,7 @@ import EDU.oswego.cs.dl.util.concurrent.CopyOnWriteArrayList;
  * SbbUsageMBeanImpl -- implementation of the SbbUsageMBean
  * 
  * @author M. Ranganathan
- *  
+ * 
  */
 public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 		NotificationBroadcaster {
@@ -161,9 +161,8 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 		boolean rb = true;
 		try {
 			txmgr.begin();
-			ServiceComponent service = (ServiceComponent) sleeContainer
-					.getDeploymentManager().getServiceComponents().get(
-							this.serviceId);
+			ServiceComponent service = sleeContainer.getServiceManagement()
+					.getServiceComponent(serviceId);
 
 			try {
 				String[] paramNames = service
@@ -177,7 +176,8 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 				}
 			} catch (InvalidArgumentException ex) {
 				// This is ok because the service may not have
-				// any named usage parameters and getNamedUsageParameterSets will
+				// any named usage parameters and getNamedUsageParameterSets
+				// will
 				// throw exception at this point.
 
 			}
@@ -212,7 +212,7 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 	public void addNotificationListener(NotificationListener listener,
 			NotificationFilter filter, Object handback)
 			throws IllegalArgumentException {
-		//logger.debug("addNotificationListener");
+		// logger.debug("addNotificationListener");
 		this.listeners.add(new ListenerFilterHandbackTriplet(listener, filter,
 				handback));
 	}
@@ -225,7 +225,7 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 	 */
 	public void removeNotificationListener(NotificationListener listener)
 			throws ListenerNotFoundException {
-		//logger.debug("removeNotificationListener");
+		// logger.debug("removeNotificationListener");
 		boolean found = false;
 		Iterator iter = listeners.iterator();
 		while (iter.hasNext()) {
@@ -246,7 +246,7 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 	 * @see javax.management.NotificationBroadcaster#getNotificationInfo()
 	 */
 	public MBeanNotificationInfo[] getNotificationInfo() {
-		//logger.debug("getNotificationInfo");
+		// logger.debug("getNotificationInfo");
 		String[] notificationTypes = new String[] { USAGE_NOTIFICATION_TYPE };
 		MBeanNotificationInfo[] mbeanNotificationInfo = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
 				notificationTypes, "UsageNotifications",
@@ -271,7 +271,7 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 				this.serviceId, this.sbbId, usageParameterSetName,
 				usageParameterName, isCounter, value, seqno, System
 						.currentTimeMillis());
-		//logger.debug("sendNotification nListeners = " + listeners.size() );
+		// logger.debug("sendNotification nListeners = " + listeners.size() );
 		Iterator iter = listeners.iterator();
 		while (iter.hasNext()) {
 			ListenerFilterHandbackTriplet triplet = (ListenerFilterHandbackTriplet) iter

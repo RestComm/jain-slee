@@ -65,7 +65,9 @@ public class ProfileFacilityImpl implements ProfileFacility {
     public Collection getProfiles(String profileTableName)
             throws NullPointerException, UnrecognizedProfileTableNameException,
             TransactionRolledbackLocalException, FacilityException {
-        SleeProfileManager profileManager = SleeProfileManager.getInstance();
+        
+    	final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+    	final SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
 
         if (profileTableName == null)
             throw new NullPointerException();
@@ -81,7 +83,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 
         //9.6.2 Required transactional methods : All ProfileFacility interface
         // methods.
-        SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+        SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
         boolean startedTx = txMgr.requireTransaction();
 
         Collection profiles = profileManager
@@ -121,7 +123,8 @@ public class ProfileFacilityImpl implements ProfileFacility {
             AttributeTypeMismatchException,
             TransactionRolledbackLocalException, FacilityException {
 
-        SleeProfileManager profileManager = SleeProfileManager.getInstance();
+    	final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+        final SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
 
         if (profileTableName == null)
             throw new NullPointerException();
@@ -132,7 +135,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 
         //9.6.2 Required transactional methods : All ProfileFacility interface
         // methods.
-        SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+        SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
         boolean startedTx = txMgr.requireTransaction();
 
         ProfileSpecificationID profileSpecification;
@@ -160,7 +163,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
         if (startedTx) {
             try {
                 logger.debug("started tx so committing it");
-                SleeContainer.getTransactionManager().commit();
+                txMgr.commit();
             } catch (Exception e) {
                 throw new TransactionRolledbackLocalException(
                         "Failed to commit transaction");
@@ -182,7 +185,8 @@ public class ProfileFacilityImpl implements ProfileFacility {
             AttributeTypeMismatchException,
             TransactionRolledbackLocalException, FacilityException {
 
-        SleeProfileManager profileManager = SleeProfileManager.getInstance();
+    	final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+        final SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
 
         if (profileTableName == null)
             throw new NullPointerException();
@@ -202,7 +206,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
         }
         //9.6.2 Required transactional methods : All ProfileFacility interface
         // methods.
-        SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+        SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
         boolean startedTx = txMgr.requireTransaction();
 
         Collection profiles = null;
@@ -217,7 +221,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
                 if (logger.isDebugEnabled()) {
                     logger.debug("started tx so committing it");
                 }
-                SleeContainer.getTransactionManager().commit();
+               txMgr.commit();
             } catch (Exception e) {
                 throw new TransactionRolledbackLocalException(
                         "Failed to commit transaction");
@@ -238,13 +242,11 @@ public class ProfileFacilityImpl implements ProfileFacility {
             throws NullPointerException, UnrecognizedProfileTableNameException,
             TransactionRolledbackLocalException, FacilityException {
 
-        SleeProfileManager sleeProfileManager = SleeProfileManager
-                .getInstance();
+    	final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+        final SleeProfileManager sleeProfileManager = sleeContainer.getSleeProfileManager();
 
         if (profileTableName == null)
             throw new NullPointerException();
-
-        SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
         if (!sleeContainer.getSleeState().equals(SleeState.RUNNING))
             throw new FacilityException(
@@ -252,7 +254,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
                             + sleeContainer.getSleeState());
         //9.6.2 Required transactional methods : All ProfileFacility interface
         // methods.
-        SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+        SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
         boolean startedTx = txMgr.requireTransaction();
         try {
             ProfileSpecificationID profileSpecificationID;
@@ -271,7 +273,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
            
             try {
                 if (startedTx)
-                    SleeContainer.getTransactionManager().commit();
+                    txMgr.commit();
             } catch (SystemException e) {
                 throw new FacilityException("error committing tx",e);
             }
@@ -287,7 +289,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	@Override
 	public String toString() {
 		// get profile manager
-		SleeProfileManager profileManager = SleeProfileManager.getInstance();
+		SleeProfileManager profileManager = SleeContainer.lookupFromJndi().getSleeProfileManager();
 		String tableNames = "";
 		for(Iterator i=profileManager.findAllProfileTables().iterator();i.hasNext();) {
 			String profileTableName = (String) i.next();

@@ -292,7 +292,7 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 			String serviceClearID = getServiceID().toString().split("\\[")[1].split("\\]")[0];
 			ComponentKey serviceKey = new ComponentKey(serviceClearID);
 			ServiceID serviceID = new ServiceIDImpl(serviceKey);
-			serviceDesc = (ServiceDescriptorImpl) container.getComponentDescriptor(serviceID);
+			serviceDesc = (ServiceDescriptorImpl) container.getComponentManagement().getComponentDescriptor(serviceID);
 			                                                		
 			if(serviceDesc==null)
 			       throw new IllegalStateException(" SERVICE DESC FOR:\""+serviceID+"\" RETURNED BY SleeContainerImpl is null.");
@@ -414,7 +414,7 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 				while(sbbIdsIterator.hasNext())
 				{
 
-					MobicentsSbbDescriptor  sbbdesc = (MobicentsSbbDescriptor)container.getSbbComponent((SbbID)sbbIdsIterator.next());
+					MobicentsSbbDescriptor  sbbdesc = container.getSbbManagement().getSbbComponent((SbbID)sbbIdsIterator.next());
 					if(sbbdesc==null)
 						continue;
 	        	
@@ -634,7 +634,7 @@ public abstract class InstallServiceTestSbb extends BaseTCKSbb {
 		while(sbbIdsIterator.hasNext())
         {
         	
-        	MobicentsSbbDescriptor  sbbdesc = (MobicentsSbbDescriptor)container.getSbbComponent((SbbID)sbbIdsIterator.next());
+        	MobicentsSbbDescriptor  sbbdesc = container.getSbbManagement().getSbbComponent((SbbID)sbbIdsIterator.next());
         	if(sbbdesc==null)
         		continue;
         	

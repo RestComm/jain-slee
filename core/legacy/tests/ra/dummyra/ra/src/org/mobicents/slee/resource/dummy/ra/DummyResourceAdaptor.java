@@ -143,6 +143,9 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 
 	private transient SleeContainer serviceContainer;
 	private transient BootstrapContext bootstrapContext;
+	
+	private DummyActivityContextInterfaceFactoryImpl acif;
+	
     /** Creates a new instance of DummyResourceAdaptor */
     public DummyResourceAdaptor() {
     }
@@ -260,8 +263,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 					.getInstalledResourceAdaptor().getRaType()
 					.getResourceAdaptorTypeID();
 			log.info("___ = 3 = ___");
-			DummyActivityContextInterfaceFactoryImpl acif=new DummyActivityContextInterfaceFactoryImpl(container,this.bootstrapContext.getEntityName());
-
+			acif=new DummyActivityContextInterfaceFactoryImpl(container,this.bootstrapContext.getEntityName());
 			resourceAdaptorEntity.getServiceContainer().getResourceManagement()
 					.getActivityContextInterfaceFactories()
 					.put(raTypeId, acif);
@@ -310,6 +312,18 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
     }
 
     public void entityDeactivated() {
+    	try {
+			if (this.acif != null) {
+				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif)
+						.getJndiName();
+				// remove "java:" prefix
+				int begind = jndiName.indexOf(':');
+				String javaJNDIName = jndiName.substring(begind + 1);
+				SleeContainer.unregisterWithJndi(javaJNDIName);
+			}
+		} catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
     }
 
     public void eventProcessingSuccessful(ActivityHandle activityHandle, Object object, int i, Address address, int i0) {

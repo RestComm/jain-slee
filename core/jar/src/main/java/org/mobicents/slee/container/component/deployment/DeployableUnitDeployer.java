@@ -35,7 +35,6 @@ import org.jboss.mx.loading.RepositoryClassLoader;
 import org.jboss.mx.loading.UnifiedClassLoader;
 import org.jboss.mx.loading.UnifiedLoaderRepository3;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentContainer;
 import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
@@ -61,7 +60,7 @@ public class DeployableUnitDeployer {
 
     private File tempDUJarsDeploymentDirectory = null;
 
-    private ComponentContainer componentContainer = null;
+    private SleeContainer componentContainer = null;
 
     private DeployableUnitIDImpl deployableUnitID;
 
@@ -138,7 +137,7 @@ public class DeployableUnitDeployer {
      * @throws DeploymentException
      *             if deployment fails.
      */
-    public static synchronized DeployableUnitIDImpl deploy(URL sourceUrl,File deployableUnitJarFile, File deploymentDirectory,ComponentContainer container) throws DeploymentException {
+    public static synchronized DeployableUnitIDImpl deploy(URL sourceUrl,File deployableUnitJarFile, File deploymentDirectory,SleeContainer container) throws DeploymentException {
         if(logger.isDebugEnabled()){
             logger.debug("jarFile = " + deployableUnitJarFile);
         }
@@ -169,7 +168,7 @@ public class DeployableUnitDeployer {
 
         deployer.deployUnitContent();
 
-        container.addDeployableUnit(deployer.deployableUnitID.getDescriptor());
+        container.getDeployableUnitManagement().addDeployableUnit(deployer.deployableUnitID.getDescriptor());
         return deployer.deployableUnitID;
 
     }
@@ -205,7 +204,7 @@ public class DeployableUnitDeployer {
      * 
      * @return the container where we shall install services
      */
-    public ComponentContainer getComponentContainer() {
+    public SleeContainer getComponentContainer() {
         return componentContainer;
     }
 
@@ -357,24 +356,9 @@ public class DeployableUnitDeployer {
                 }
 
             } catch (AlreadyDeployedException ex) {
-                try {
-                    this.getComponentContainer().removeDU(getDescriptor());
-                } catch (Exception e) {
-                    logger.error("Problem undeploying partial deployment",
-                            e);
-                }
-                logger.error(ex.getMessage(), ex);
                 throw ex;
             } catch (Exception ex) {
-                try {
-                    this.getComponentContainer().removeDU(getDescriptor());
-                } catch (Exception e) {
-                    logger.error("Problem undeploying partial deployment",
-                            e);
-                }
-                String s = ex.getMessage();
-                logger.error(s, ex);
-                throw new DeploymentException(s,ex);
+                throw new DeploymentException(ex.getMessage(),ex);
             }
         }
         //Create DeployableUnitJarEntries for all sbb.jars in the
@@ -501,39 +485,11 @@ public class DeployableUnitDeployer {
             loadDeployedComponents(complexCompJarFiles, extractedJars);
         
         } catch (AlreadyDeployedException ex) {
-            String s = "Could not deploy deploybableUnitID = " + deployableUnitID;
-            
-            /**** Do not remove deployed services **/
-            try {
-                this.componentContainer
-                        .removeDU(deployableUnitID.getDescriptor());
-            } catch (Exception ex1) {
-                ex1.printStackTrace();
-            } 
-            
             throw ex;
         } catch (DeploymentException ex) {
-            String s = "Could not deploy deploybableUnitID = " + deployableUnitID;
-            
-            try {
-                this.componentContainer
-                        .removeDU(deployableUnitID.getDescriptor());
-            } catch (Exception ex1) {
-                ex1.printStackTrace();
-            }
-            
             throw ex;
         } catch (Exception ex) {
-            String s = "Could not deploy deploybableUnitID = " + deployableUnitID;
-            
-            try {
-                this.componentContainer
-                        .removeDU(deployableUnitID.getDescriptor());
-            } catch (Exception ex1) {
-                ex1.printStackTrace();
-            }
             classPool.removeClassPath(classPath);
-            
             throw new DeploymentException(ex.getMessage(), ex);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -567,22 +523,8 @@ public class DeployableUnitDeployer {
                 }
                 throw ex;
             } catch (DeploymentException ex) {
-                ex.printStackTrace();
-                try {
-                    this.componentContainer
-                            .removeDU(deployableUnitID.getDescriptor());
-                } catch (Exception ex1) {
-                    ex1.printStackTrace();
-                }
                 throw ex;
             } catch (Exception ex) {
-                ex.printStackTrace();
-                try {
-                    this.componentContainer
-                            .removeDU(deployableUnitID.getDescriptor());
-                } catch (Exception ex1) {
-                    ex1.printStackTrace();
-                }
                 throw new DeploymentException(ex.getMessage(), ex);
             }
         }
@@ -621,17 +563,9 @@ public class DeployableUnitDeployer {
                 serviceXmlFile.delete();
 
             } catch (Exception ex) {
-                try {
-                    this.getComponentContainer().removeDU(
-                            deployableUnitID.getDescriptor());
-                } catch (Exception e) {
-                    logger.error("Error unistalling partial deployment", e);
-                }
                 throw new DeploymentException(ex.getMessage(), ex);
-
             }
         }
-
 
         Iterator it = extractedJars.iterator();
         while (it.hasNext()) {
@@ -667,12 +601,6 @@ public class DeployableUnitDeployer {
                  * to the newly created entry
                  */
             } catch (Exception ex) {
-                ex.printStackTrace();
-                try {
-                    this.componentContainer.removeDU(deployableUnitDescriptor);
-                } catch (Exception ex1) {
-                    ex1.printStackTrace();
-                }
                 throw new DeploymentException(ex.getMessage(), ex);
             }
         }

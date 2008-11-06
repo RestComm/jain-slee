@@ -25,6 +25,7 @@ import javax.slee.management.ServiceState;
 import javax.slee.management.SleeState;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.resource.FailureReason;
+import javax.slee.resource.ResourceAdaptor;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.transaction.SystemException;
 
@@ -34,7 +35,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.resource.SleeActivityHandle;
@@ -69,23 +69,27 @@ public class EventRouterImpl implements EventRouter {
 	private SleeTransactionManager txMgr;
 
 	private EventTypeID activityEndEventId;
+
 	private EventTypeID getActivityEndEventID() {
 		if (activityEndEventId == null) {
-			activityEndEventId = container.getEventManagement().getEventType(new ComponentKey(
-				"javax.slee.ActivityEndEvent", "javax.slee", "1.0"));
+			activityEndEventId = container.getEventManagement().getEventType(
+					new ComponentKey("javax.slee.ActivityEndEvent",
+							"javax.slee", "1.0"));
 		}
 		return activityEndEventId;
 	}
-	
+
 	private EventTypeID timerEventId;
+
 	private EventTypeID getTimerEventID() {
 		if (timerEventId == null) {
-			timerEventId = container.getEventManagement().getEventType(new ComponentKey(
-					"javax.slee.facilities.TimerEvent", "javax.slee", "1.0"));
+			timerEventId = container.getEventManagement().getEventType(
+					new ComponentKey("javax.slee.facilities.TimerEvent",
+							"javax.slee", "1.0"));
 		}
 		return timerEventId;
 	}
-	
+
 	/**
 	 * Flag that turns on or off the monitoring of uncommitted modifications of
 	 * AC attaches. When this flag is true, which means monitoring is on, if
@@ -96,7 +100,7 @@ public class EventRouterImpl implements EventRouter {
 	 * activities after their creation,then turn this off to get more
 	 * performance turn it off.
 	 */
-	public final static boolean MONITOR_UNCOMMITTED_AC_ATTACHS = false;
+	public final static boolean MONITOR_UNCOMMITTED_AC_ATTACHS = true;
 
 	// Executor Pool related fields
 	// TODO: the executor pool size should be configurable
@@ -745,14 +749,15 @@ public class EventRouterImpl implements EventRouter {
 					logger.debug("Retrieveing active services...");
 				}
 
-				serviceIDs = container.getServiceManagement().getServices(ServiceState.ACTIVE);
+				serviceIDs = container.getServiceManagement().getServices(
+						ServiceState.ACTIVE);
 
 				// Iterate through each service that has the event type as an
 				// initial
 				// event type.
 				for (int j = 0; j < serviceIDs.length; j++) {
-					ServiceComponent serviceComponent = (ServiceComponent) this.container
-							.getDeploymentManager().getServiceComponents().get(
+					ServiceComponent serviceComponent = this.container
+							.getServiceManagement().getServiceComponent(
 									serviceIDs[j]);
 					if (serviceComponent != null) {
 						MobicentsSbbDescriptor rootSbbDescriptor = serviceComponent
@@ -1420,7 +1425,12 @@ public class EventRouterImpl implements EventRouter {
 						// ended
 						SleeActivityHandle sah = (SleeActivityHandle) ac
 								.getActivity();
-						sah.getResourceAdaptor().activityEnded(sah.getHandle());
+						if (sah != null) {
+							ResourceAdaptor ra = sah.getResourceAdaptor();
+							if (ra != null) {
+								ra.activityEnded(sah.getHandle());
+							}
+						}
 					} else if (ac.getActivity() instanceof NullActivityImpl) {
 						// null activity, remove from factory
 						NullActivityFactoryImpl nullActivityFactory = container
@@ -1429,7 +1439,7 @@ public class EventRouterImpl implements EventRouter {
 								.getActivityContextId());
 					} else if (ac.getActivity() instanceof ProfileTableActivity) {
 						// profile table activity, clean up
-						SleeProfileManager.getInstance()
+						container.getSleeProfileManager()
 								.removeProfileAfterTableActivityEnd(
 										((ProfileTableActivity) ac
 												.getActivity())
@@ -1584,7 +1594,8 @@ public class EventRouterImpl implements EventRouter {
 			if (de.getActivity() instanceof SleeActivityHandle) {
 				SleeActivityHandle sleeActivityHandle = (SleeActivityHandle) de
 						.getActivity();
-				// Call the RA back that a failure existed while processing the event.    			
+				// Call the RA back that a failure existed while processing the
+				// event.
 				sleeActivityHandle.getResourceAdaptor().eventProcessingFailed(
 						sleeActivityHandle.getHandle(), de.getEvent(),
 						((EventTypeIDImpl) de.getEventTypeId()).getEventID(),

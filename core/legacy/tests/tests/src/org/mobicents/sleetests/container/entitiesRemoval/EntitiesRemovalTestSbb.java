@@ -1,6 +1,7 @@
 package org.mobicents.sleetests.container.entitiesRemoval;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -11,10 +12,12 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.InitialEventSelector;
 import javax.slee.RolledBackContext;
 import javax.slee.SbbContext;
+import javax.slee.ServiceID;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
+import javax.slee.management.ServiceState;
 import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 import javax.slee.nullactivity.NullActivityFactory;
@@ -219,9 +222,11 @@ public abstract class EntitiesRemovalTestSbb extends BaseTCKSbb {
 
 		logger.info("\n------------------------- X1 -----------------------");
 		ServiceComponent svcComponent=null;
-		Set activeServiceIDs=null;
+		Set activeServiceIDs= new HashSet();
 		try {
-			activeServiceIDs=SleeContainer.lookupFromJndi().getDeploymentManager().getActiveServiceIDs();
+			for(ServiceID serviceID: SleeContainer.lookupFromJndi().getServiceManagement().getServices(ServiceState.ACTIVE)) {
+				activeServiceIDs.add(serviceID);
+			}
 		} catch (Exception e1) {
 			TCKSbbUtils.handleException(e1);
 			e1.printStackTrace();
@@ -251,11 +256,13 @@ public abstract class EntitiesRemovalTestSbb extends BaseTCKSbb {
 		//addtional sbb should be created since service is deactivated, thus only originaly creted sbb will receive Y1
 		//FIXME ??
 		Y1Count++;
-		Set activeServiceIDs=null;
+		Set activeServiceIDs= new HashSet();
 		try {
-			activeServiceIDs = container.getDeploymentManager().getActiveServiceIDs();
+			for(ServiceID serviceID: SleeContainer.lookupFromJndi().getServiceManagement().getServices(ServiceState.ACTIVE)) {
+				activeServiceIDs.add(serviceID);
+			}
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
+			TCKSbbUtils.handleException(e1);
 			e1.printStackTrace();
 		}
 		

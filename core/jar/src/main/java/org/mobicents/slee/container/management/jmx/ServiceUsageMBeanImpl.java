@@ -171,13 +171,12 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		try {
 			txmgr.begin();
 			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			if (!sleeContainer.isInstalled(sbbId))
+			if (!sleeContainer.getComponentManagement().isInstalled(sbbId))
 				throw new UnrecognizedSbbException("Sbb not installed " + sbbId);
 
-			//checkSbbUsageParams(sbbId);
-			this.service = (ServiceComponent) sleeContainer
-					.getDeploymentManager().getServiceComponents().get(
-							this.serviceID);
+			// checkSbbUsageParams(sbbId);
+			this.service = sleeContainer.getServiceManagement()
+					.getServiceComponent(serviceID);
 
 			service.removeUsageParameter(sbbId, name);
 		} catch (UnrecognizedUsageParameterSetNameException ex) {
@@ -377,7 +376,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 			InstalledUsageParameterSet usageParam = Service
 					.getDefaultUsageParameterSet(this.serviceID, sbbId);
-			// note that the usage parameter may not yet be instantiated so this may be null.
+			// note that the usage parameter may not yet be instantiated so this
+			// may be null.
 
 			if (usageParam != null)
 				usageParam.reset();
@@ -431,8 +431,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 		try {
 			txMgr.begin();
-			Service service = sleeContainer.getServiceManagement()
-					.getService(this.serviceID);
+			Service service = sleeContainer.getServiceManagement().getService(
+					this.serviceID);
 			for (Iterator it = Service.getAllUsageParameters(this.serviceID); it
 					.hasNext();) {
 				InstalledUsageParameterSet ups = (InstalledUsageParameterSet) it
@@ -474,10 +474,10 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
-		this.service = (ServiceComponent) sleeContainer.getDeploymentManager()
-				.getServiceComponents().get(this.serviceID);
+		this.service = sleeContainer.getServiceManagement()
+				.getServiceComponent(serviceID);
 
-		if (!sleeContainer.isInstalled(sbbId))
+		if (!sleeContainer.getComponentManagement().isInstalled(sbbId))
 			throw new UnrecognizedSbbException("Sbb not installed " + sbbId);
 
 		if (!this.service.isComponent(sbbId))

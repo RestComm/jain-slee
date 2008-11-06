@@ -10,8 +10,8 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
@@ -37,6 +37,7 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.Version;
 import org.mobicents.slee.container.component.ComponentKey;
+import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.SleeEndpointImpl;
@@ -426,9 +427,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			if (isFullSleeStop) {
 				sleeContainer.init(this, rmiServerInterfaceMBean);
 				isFullSleeStop = false;
-			}
-			;
-
+			};
 			changeSleeState(SleeState.RUNNING);
 			reactivateResourceAdaptors();
 			resumeServicesActiveBeforeStop();
@@ -629,9 +628,8 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * 
 	 */
 	private void stopAllProfileTableActivities() {
-		SleeProfileManager sleeProfileManager = SleeProfileManager
-				.getInstance();
-		HashMap profileTableActivities = sleeProfileManager
+		SleeProfileManager sleeProfileManager = sleeContainer.getSleeProfileManager();
+		Map profileTableActivities = sleeProfileManager
 				.getProfileTableActivities();
 		logger.debug("Stopping profile table activities !");
 		Iterator it = profileTableActivities.keySet().iterator();
@@ -716,8 +714,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		try {
 			int invalidServices = sleeContainer
 					.getServiceManagement().getServices(ServiceState.INACTIVE).length;
-			int allServices = sleeContainer.getDeploymentManager()
-					.getServiceComponents().size();
+			int allServices = sleeContainer.getServiceManagement().getServiceIDs().length;
 			rb = false;
 			return (invalidServices == allServices);
 		} catch (Exception e) {

@@ -268,7 +268,7 @@ public abstract class DependencyRemovalTest1Sbb extends BaseTCKSbb {
 		
 		SleeContainer con=SleeContainer.lookupFromJndi();
 		
-		DeployableUnitID[] dids=con.getDeployableUnits();
+		DeployableUnitID[] dids=con.getDeployableUnitManagement().getDeployableUnits();
 		
 		boolean du1Present=false;
 		boolean du2Present=false;
@@ -295,7 +295,7 @@ public abstract class DependencyRemovalTest1Sbb extends BaseTCKSbb {
 		ComponentKey key=new ComponentKey("Sbb1","mobicents","0.1");
 		ComponentIDImpl compID=new SbbIDImpl(key);
 		try{
-			con.getComponentDescriptor(compID);
+			con.getComponentManagement().getComponentDescriptor(compID);
 		}catch(IllegalArgumentException e)
 		{
 			setResultFailed(" === COULDNT LOCATE COMP["+compID+"]["+e+"]");
@@ -304,7 +304,7 @@ public abstract class DependencyRemovalTest1Sbb extends BaseTCKSbb {
 		key=new ComponentKey("Sbb2","mobicents","0.1");
 		compID=new SbbIDImpl(key);
 		try{
-			con.getComponentDescriptor(compID);
+			con.getComponentManagement().getComponentDescriptor(compID);
 		}catch(IllegalArgumentException e)
 		{
 			setResultFailed(" === COULDNT LOCATE COMP["+compID+"]["+e+"]");
@@ -313,7 +313,7 @@ public abstract class DependencyRemovalTest1Sbb extends BaseTCKSbb {
 		key=new ComponentKey("Sbb3","mobicents","0.1");
 		compID=new SbbIDImpl(key);
 		try{
-			con.getComponentDescriptor(compID);
+			con.getComponentManagement().getComponentDescriptor(compID);
 		}catch(IllegalArgumentException e)
 		{
 			setResultFailed(" === COULDNT LOCATE COMP["+compID+"]["+e+"]");
@@ -333,7 +333,7 @@ public abstract class DependencyRemovalTest1Sbb extends BaseTCKSbb {
 		// Sbb2 should still be present.
 		SleeContainer con = SleeContainer.lookupFromJndi();
 
-		DeployableUnitID[] dids = con.getDeployableUnits();
+		DeployableUnitID[] dids = con.getDeployableUnitManagement().getDeployableUnits();
 
 		Object[] message = (Object[]) event.getMessage();
 
@@ -371,7 +371,7 @@ public abstract class DependencyRemovalTest1Sbb extends BaseTCKSbb {
 		ComponentKey key=new ComponentKey("Sbb1","mobicents","0.1");
 		ComponentIDImpl compID=new SbbIDImpl(key);
 		try{
-			con.getComponentDescriptor(compID);
+			con.getComponentManagement().getComponentDescriptor(compID);
 		}catch(IllegalArgumentException e)
 		{
 			try {
@@ -385,7 +385,7 @@ public abstract class DependencyRemovalTest1Sbb extends BaseTCKSbb {
 		key=new ComponentKey("Sbb2","mobicents","0.1");
 		compID=new SbbIDImpl(key);
 		try{
-			con.getComponentDescriptor(compID);
+			con.getComponentManagement().getComponentDescriptor(compID);
 		}catch(IllegalArgumentException e)
 		{
 			try {

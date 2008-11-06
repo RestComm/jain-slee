@@ -17,6 +17,7 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
+import javax.slee.management.ServiceState;
 import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
@@ -77,7 +78,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 		}
 	}
 
-	private Set<String> retrieveAllSbbEntitiesIds() throws SystemException {
+	private Set<String> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException {
 		Set<String> result = new HashSet<String>();
 
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
@@ -85,8 +86,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 		try {
 			sleeContainer.getTransactionManager().begin();
 
-			for (ServiceID serviceID : (Set<ServiceID>) sleeContainer
-					.getDeploymentManager().getActiveServiceIDs()) {
+			for (ServiceID serviceID : sleeContainer.getServiceManagement().getServices(ServiceState.ACTIVE)) {
 				try {
 					Service service = sleeContainer.getServiceManagement()
 							.getService(serviceID);

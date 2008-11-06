@@ -127,13 +127,6 @@
 					<include>*.dtd</include>
 				</includes>
 			</resource>
-			<resource>
-				<directory>xml/slee</directory>
-				<targetPath>xml</targetPath>
-				<includes>
-					<include>*.xml</include>
-				</includes>
-			</resource>
 			<!-- resource>
 				<directory>xml/META-INF</directory>
 				<targetPath>META-INF</targetPath>

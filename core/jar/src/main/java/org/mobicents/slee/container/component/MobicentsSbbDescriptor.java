@@ -510,47 +510,5 @@ public interface MobicentsSbbDescriptor extends Serializable, SbbDescriptor,
      * @return HashMap containing mapping between EventTypeID and coresponding SbbEventEntry
      */
     public HashMap getEventTypesMappings();
-    /**
-    public Map getNamedUsageParameterTable() {
-        return namedUsageParameterTable;
-    }
-
-    public void putNamedUsageParameterSet(String name, Object newParams) {
-        namedUsageParameterTable.put(name, newParams);
-    }
-
-    
-    public String[] getAllUsageParameterNames() {
-        Collection col = this.namedUsageParameterTable.keySet();
-        String[] retval = new String[col.size()];
-        col.toArray(retval);
-        return retval;
-    }
-    **/
-
-	
-
-   
-   
-    /**
-     * 
-     * Sets the default usage parameter set associated with the SBB
-     * 
-     * @param usageParm
-     *
-    public void setDefaultUsageParameterSet(
-            InstalledUsageParameterSet usageParam) {
-        defaultUsageParameterSet = usageParam;
-    }
-
-    
-     * 
-     * @return the default usage parameter set associated with the SBB
-     *  
-     *
-    public InstalledUsageParameterSet getDefaultUsageParameterSet() {
-        return defaultUsageParameterSet;
-    }
-    **/
 
 }

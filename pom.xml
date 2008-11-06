@@ -28,6 +28,7 @@
 		<module>tools/cli</module>
 		<module>core/sar</module>
 		<module>core/standard-events</module>
+		<module>core/standard-profiles</module>
 		<module>tools/mmc</module>
 	</modules>
 

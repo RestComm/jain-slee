@@ -253,4 +253,21 @@ public class ProfileSpecificationDescriptorImpl implements
 	public LibraryID[] getLibraries() {
 		throw new UnsupportedOperationException();
 	}
+	
+	// regarding storage in maps/sets
+	
+	@Override
+	public int hashCode() {
+		return profileKey.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj != null && obj.getClass() == getClass()) {
+			return ((ProfileSpecificationDescriptorImpl)obj).profileKey.equals(this.profileKey);
+		}
+		else {
+			return false;
+		}
+	}
 }
