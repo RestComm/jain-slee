@@ -13,10 +13,6 @@
 package org.mobicents.slee.runtime.sbbentity;
 
 import java.rmi.dgc.VMID;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -24,12 +20,8 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
 import org.jboss.logging.Logger;
-import org.jboss.tm.TxManager;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.GetChildRelationMethod;
-import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * 
