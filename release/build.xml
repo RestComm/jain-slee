@@ -29,13 +29,6 @@
 		<equals arg1="${jboss.config}" arg2="all"/>
 	</condition>
 
-	<target name="release-mobicents-all" depends="build-core,build-ras,build-examples,copy-extra-jbossas-files">
-		<copydir dest="${release.dir}/resources" src="${my.release.dir}/resources" />
-		<copydir dest="${release.dir}/examples" src="${my.release.dir}/examples" />
-		<delete dir="${my.release.dir}/resources" />
-		<delete dir="${my.release.dir}/examples" />
-	</target>
-
 	<target name="build-core" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../..">
 			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
@@ -74,11 +67,12 @@
 
 	<target name="copy-extra-jbossas-files">
 		<copy failonerror="true" file="jbossjta-properties.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jbossjta-properties.xml" overwrite="true" />
-		<copy failonerror="true" file="jboss-log4j.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" />
-		<copy failonerror="true" file="readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
+		<copy failonerror="true" file="jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" />
 	</target>
 
 	<target name="release" depends="get-jboss,unzip-jboss,build-core,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+		<copy failonerror="true" file="readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
+		
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
