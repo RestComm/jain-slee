@@ -2,7 +2,7 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="xmpp,smpp,http-servlet,asterisk,sip,sip11,http-client,jcc,rules,tts"/>
+	<property name="ra.dirs" value="xmpp,smpp,http-servlet,asterisk,sip11,http-client,jcc,rules,tts"/>
 	<property name="example.dirs" value="sip-services,google-talk-bot,sip-wake-up"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
