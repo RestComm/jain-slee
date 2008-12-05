@@ -40,34 +40,35 @@ import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.facilities.TimerFacility;
 
-import org.mobicents.slee.resource.sip.SipActivityContextInterfaceFactory;
-import org.mobicents.slee.resource.sip.SipFactoryProvider;
+import net.java.slee.resource.sip.DialogActivity;
+import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
+import net.java.slee.resource.sip.SleeSipProvider;
 
 public abstract class SimpleReferTestSbb implements Sbb {
 
 	private SipActivityContextInterfaceFactory sipActivityContextInterfaceFactory;
-	private SipFactoryProvider sipFactoryProvider;
+	private SleeSipProvider provider;
 	private AddressFactory addressFactory;
 	private HeaderFactory headerFactory;
 	private MessageFactory messageFactory;
 	private TimerFacility timerFacility;
-	//private static Logger logger = Logger.getLogger(SipResourceAdaptor.class
-	//		.getCanonicalName());
+	// private static Logger logger = Logger.getLogger(SipResourceAdaptor.class
+	// .getCanonicalName());
 
 	private SbbContext ctx = null;
 
 	public void onInviteEvent(javax.sip.RequestEvent requestEvent,
 			ActivityContextInterface aci) {
-		
+
 		try {
 			ServerTransaction serverTransaction = requestEvent
 					.getServerTransaction();
 			// create dialog and attach this entity to it's aci
-			Dialog dialog = (Dialog) sipFactoryProvider.getSipProvider()
-					.getNewDialog(serverTransaction);
+			Dialog dialog = (Dialog) provider.getNewDialog(serverTransaction);
 			dialog.terminateOnBye(true);
 			sipActivityContextInterfaceFactory.getActivityContextInterface(
-					dialog).attach(this.ctx.getSbbLocalObject());
+					(DialogActivity) dialog).attach(
+					this.ctx.getSbbLocalObject());
 			// send 200 ok
 			serverTransaction.sendResponse(createResponse(requestEvent
 					.getRequest(), 200));
@@ -80,12 +81,11 @@ public abstract class SimpleReferTestSbb implements Sbb {
 			ActivityContextInterface aci) {
 		// Actually we do nothing, but here some media transfer shoudl be
 		// initiated
-		
+
 	}
 
 	public void onReferEvent(javax.sip.RequestEvent refer,
 			ActivityContextInterface aci) {
-		
 
 		// STEPS
 		// #1. CHECK if REFER event ir correct - RFC 3515 -
@@ -126,10 +126,8 @@ public abstract class SimpleReferTestSbb implements Sbb {
 	public void onDialogSetupEarly(javax.sip.ResponseEvent event,
 			ActivityContextInterface aci) {
 		Dialog d = (Dialog) aci.getActivity();
-		
 
 		// if remote party has user set to CCC than its our REFERED dialog
-		
 
 		// simplification
 		if (d.getRemoteParty().getURI().toString().contains("CCC")) {
@@ -140,7 +138,7 @@ public abstract class SimpleReferTestSbb implements Sbb {
 				for (ActivityContextInterface _aci : this.ctx.getActivities()) {
 					if (_aci.getActivity() instanceof Dialog) {
 						Dialog _d = (Dialog) _aci.getActivity();
-						
+
 						if (_d.getRemoteParty().getURI().toString().contains(
 								"AAA")) {
 							serverDialog = _d;
@@ -148,37 +146,37 @@ public abstract class SimpleReferTestSbb implements Sbb {
 						}
 					}
 				}
-				//TODO: Check for null dialog, shouldnt happen in example
-				state=headerFactory.createSubscriptionStateHeader("active;expires=3600");
+				// TODO: Check for null dialog, shouldnt happen in example
+				state = headerFactory
+						.createSubscriptionStateHeader("active;expires=3600");
 				Request notify = createNotify(event.getResponse(),
 						serverDialog, state);
-				serverDialog.sendRequest(sipFactoryProvider.getSipProvider().getNewClientTransaction(notify));
+				serverDialog.sendRequest(provider
+						.getNewClientTransaction(notify));
 
 			} catch (Exception e) {
 				e.printStackTrace();
 				// TODO: Send error
 			}
 		}
-		
-		
 
 	}
 
 	public void onDialogSetupConfirmed(javax.sip.ResponseEvent event,
 			ActivityContextInterface aci) {
 		Dialog d = (Dialog) aci.getActivity();
-		
+
 		// Actually we do nothing, but here some media transfer shoudl be
 		// initiated - in case of first dialog
-		
 
 		// simplification
-		
+
 		if (d.getRemoteParty().getURI().toString().contains("CCC")) {
 			try {
-				Request ack=d.createAck( ((CSeqHeader)event.getResponse().getHeader(CSeqHeader.NAME)).getSeqNumber());
+				Request ack = d.createAck(((CSeqHeader) event.getResponse()
+						.getHeader(CSeqHeader.NAME)).getSeqNumber());
 				d.sendAck(ack);
-				
+
 				SubscriptionStateHeader state = null;
 				Dialog serverDialog = null;
 				for (ActivityContextInterface _aci : this.ctx.getActivities()) {
@@ -191,13 +189,14 @@ public abstract class SimpleReferTestSbb implements Sbb {
 						}
 					}
 				}
-				//TODO: Check for null dialog, shouldnt happen in example
-				state=headerFactory.createSubscriptionStateHeader("terminated;reason=noresource");
+				// TODO: Check for null dialog, shouldnt happen in example
+				state = headerFactory
+						.createSubscriptionStateHeader("terminated;reason=noresource");
 				Request notify = createNotify(event.getResponse(),
 						serverDialog, state);
-				serverDialog.sendRequest(sipFactoryProvider.getSipProvider().getNewClientTransaction(notify));
-				
-				
+				serverDialog.sendRequest(provider
+						.getNewClientTransaction(notify));
+
 			} catch (InvalidArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -221,20 +220,19 @@ public abstract class SimpleReferTestSbb implements Sbb {
 				"message", "sipfrag");
 		cth.setParameter("version", "2.0");
 		notifyRequest.addHeader(eh);
-		//notifyRequest.addHeader(cth);
+		// notifyRequest.addHeader(cth);
 		notifyRequest.addHeader(state);
 		notifyRequest.setContent(resp.getReasonPhrase(), cth);
 		return notifyRequest;
 
-		
 	}
 
-	
 	public void onTerminationEvent(javax.sip.RequestEvent requestEvent,
 			ActivityContextInterface aci) {
-		
+
 		try {
-			Response resp=messageFactory.createResponse(Response.OK, requestEvent.getRequest());
+			Response resp = messageFactory.createResponse(Response.OK,
+					requestEvent.getRequest());
 			requestEvent.getServerTransaction().sendResponse(resp);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
@@ -247,8 +245,7 @@ public abstract class SimpleReferTestSbb implements Sbb {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	private Response createResponse(final Request request, int responseType)
 			throws ParseException {
 		final SipURI sipUri = (SipURI) request.getRequestURI();
@@ -274,12 +271,9 @@ public abstract class SimpleReferTestSbb implements Sbb {
 		RouteHeader routeHeader = null;
 		// LETS CREATEOUR HEADERS
 
-		String localAddress = sipFactoryProvider.getSipProvider()
-				.getListeningPoints()[0].getIPAddress();
-		int localPort = sipFactoryProvider.getSipProvider()
-				.getListeningPoints()[0].getPort();
-		String localTransport = sipFactoryProvider.getSipProvider()
-				.getListeningPoints()[0].getTransport();
+		String localAddress = provider.getListeningPoints()[0].getIPAddress();
+		int localPort = provider.getListeningPoints()[0].getPort();
+		String localTransport = provider.getListeningPoints()[0].getTransport();
 
 		ReferToHeader referToHeader = (ReferToHeader) refer.getRequest()
 				.getHeader(ReferToHeader.NAME);
@@ -289,63 +283,50 @@ public abstract class SimpleReferTestSbb implements Sbb {
 		// String peerAddress=uri.getHost();
 		// int peerPort=uri.getPort();
 
-		cseqHeader = sipFactoryProvider.getHeaderFactory().createCSeqHeader(1,
-				Request.INVITE);
-		viaHeader = sipFactoryProvider.getHeaderFactory().createViaHeader(
-				localAddress, localPort, localTransport, null);
-		Address fromAddres = sipFactoryProvider.getAddressFactory()
-				.createAddress(
-						"sip:BBB@" + localAddress + ":" + localPort);
+		cseqHeader = headerFactory.createCSeqHeader(1, Request.INVITE);
+		viaHeader = headerFactory.createViaHeader(localAddress, localPort,
+				localTransport, null);
+		Address fromAddres = addressFactory.createAddress("sip:BBB@"
+				+ localAddress + ":" + localPort);
 		// Address
 		// toAddress=addressFactory.createAddress("sip:pingReceiver@"+peerAddres+":"+peerPort);
 		Address toAddress = referAddress;
-		contactHeader = sipFactoryProvider.getHeaderFactory()
-				.createContactHeader(fromAddres);
-		toHeader = sipFactoryProvider.getHeaderFactory().createToHeader(
-				toAddress, null);
-		fromHeader = sipFactoryProvider.getHeaderFactory().createFromHeader(
-				fromAddres, "SimpleReferExampleTag_1_1");
-		callIdHeader = sipFactoryProvider.getSipProvider().getNewCallId();
-		maxForwardsHeader = sipFactoryProvider.getHeaderFactory()
-				.createMaxForwardsHeader(70);
-		contentTypeHeader = sipFactoryProvider.getHeaderFactory()
-				.createContentTypeHeader("text", "plain");
+		contactHeader = headerFactory.createContactHeader(fromAddres);
+		toHeader = headerFactory.createToHeader(toAddress, null);
+		fromHeader = headerFactory.createFromHeader(fromAddres,
+				"SimpleReferExampleTag_1_1");
+		callIdHeader = provider.getNewCallId();
+		maxForwardsHeader = headerFactory.createMaxForwardsHeader(70);
+		contentTypeHeader = headerFactory.createContentTypeHeader("text",
+				"plain");
 		Address routeAddress = referAddress;
-		
-		
-		routeHeader = sipFactoryProvider.getHeaderFactory().createRouteHeader(
-				routeAddress);
+
+		routeHeader = headerFactory.createRouteHeader(routeAddress);
 
 		// LETS CREATE OUR REQUEST AND
 		ArrayList list = new ArrayList();
 		list.add(viaHeader);
 		URI requestURI = null;
 		Request request = null;
-		
 
-		requestURI = sipFactoryProvider.getAddressFactory().createURI(
-				"sip:" + localAddress);
-		 request = sipFactoryProvider.getMessageFactory()
-				.createRequest(requestURI, Request.INVITE, callIdHeader,
-						cseqHeader, fromHeader, toHeader, list,
-						maxForwardsHeader, contentTypeHeader,
-						"INVITE".getBytes());
+		requestURI = addressFactory.createURI("sip:" + localAddress);
+		request = messageFactory.createRequest(requestURI, Request.INVITE,
+				callIdHeader, cseqHeader, fromHeader, toHeader, list,
+				maxForwardsHeader, contentTypeHeader, "INVITE".getBytes());
 		request.addHeader(routeHeader);
 		request.addHeader(contactHeader);
 
 		ClientTransaction CTInvite = null;
 
-		CTInvite = sipFactoryProvider.getSipProvider().getNewClientTransaction(
-				request);
+		CTInvite = provider.getNewClientTransaction(request);
 
 		// ATLAST SENT IT
 
 		// dial.sendRequest(CT);
 		CTInvite.sendRequest();
-		Dialog dial = sipFactoryProvider.getSipProvider()
-				.getNewDialog(CTInvite);
+		Dialog dial = provider.getNewDialog(CTInvite);
 		ActivityContextInterface dialACI = this.sipActivityContextInterfaceFactory
-				.getActivityContextInterface(dial);
+				.getActivityContextInterface((DialogActivity) dial);
 		SbbLocalObject SLO = this.ctx.getSbbLocalObject();
 		dialACI.attach(SLO);
 
@@ -404,13 +385,13 @@ public abstract class SimpleReferTestSbb implements Sbb {
 		try {
 			Context ctx = (Context) new InitialContext()
 					.lookup("java:comp/env");
+			provider = (SleeSipProvider) ctx
+					.lookup("slee/resources/jainsip/1.2/provider");
+			messageFactory = provider.getMessageFactory();
+			headerFactory = provider.getHeaderFactory();
+			addressFactory = provider.getAddressFactory();
 			sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) ctx
 					.lookup("slee/resources/jainsip/1.2/acifactory");
-			sipFactoryProvider = (SipFactoryProvider) ctx
-					.lookup("slee/resources/jainsip/1.2/provider");
-			addressFactory = sipFactoryProvider.getAddressFactory();
-			headerFactory = sipFactoryProvider.getHeaderFactory();
-			messageFactory = sipFactoryProvider.getMessageFactory();
 			this.timerFacility = (TimerFacility) ctx
 					.lookup("slee/facilities/timer");
 		} catch (NamingException e) {
