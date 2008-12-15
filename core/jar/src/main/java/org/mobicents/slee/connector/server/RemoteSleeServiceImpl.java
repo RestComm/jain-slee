@@ -21,7 +21,7 @@ import javax.slee.connection.ExternalActivityHandle;
 import javax.slee.management.SleeState;
 import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.EventLookup;
 import org.mobicents.slee.runtime.ActivityContext;
@@ -51,7 +51,7 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 
 	private EventLookup eventLookup;
 
-	private static Logger log = Logger.getLogger(RemoteSleeServiceImpl.class);
+	private static final Logger log = Logger.getLogger(RemoteSleeServiceImpl.class);
 
 	class DeferredFireEventAction implements
 			Runnable {
@@ -78,7 +78,8 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 
 	public RemoteSleeServiceImpl(NullActivityFactoryImpl naf, EventLookup eventLookup,
 			ActivityContextFactoryImpl acf) {
-		log.debug("Creating RemoteSleeServiceImpl");
+		if (log.isDebugEnabled())
+			log.debug("Creating RemoteSleeServiceImpl");
 		this.naf = naf;
 		this.eventLookup = eventLookup;
 		this.acf = acf;
@@ -94,9 +95,9 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 	}
 	
 	private ExternalActivityHandleImpl createExternalActivityHandleImpl() {
-		//if (log.isDebugEnabled()) {
-			log.info("Creating external activity handle");
-		//}
+		if (log.isDebugEnabled()) {
+			log.debug("Creating external activity handle");
+		}
 		// creates a new instance of activity handle it with a safe unique id
 		// for a it's null activity (and related activity context) if this
 		// handle is used to fire events
@@ -114,7 +115,9 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 	public void fireEvent(Object event, EventTypeID eventType,
 			ExternalActivityHandle externalActivityHandle, Address address) {
 		
-		log.info("fireEvent(event="+event+",eventType="+eventType+",externalActivityHandle="+externalActivityHandle+",address="+address+")");
+		if (log.isDebugEnabled()) {
+			log.debug("fireEvent(event="+event+",eventType="+eventType+",externalActivityHandle="+externalActivityHandle+",address="+address+")");
+		}
 		
 		if (event == null) {
 			throw new NullPointerException("event is null");
@@ -149,7 +152,8 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 				ac = acf.getActivityContextById(activity.getActivityContextId());
 			}
 			
-			log.info("creating deferred event");
+			if (log.isDebugEnabled())
+				log.debug("creating deferred event");
 			new DeferredEvent(eventType,event,ac,address);
 			rollback = false;
 		} catch (Exception ex) {
@@ -184,7 +188,9 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		if (queue == null)
 			throw new NullPointerException("queue is null");
 		try {
-			log.debug("fireEventQueue() called");
+			if (log.isDebugEnabled()) {
+				log.debug("fireEventQueue() called");
+			}
 			DeferredFireEventAction daf = new DeferredFireEventAction(queue);
 			// The following needs to run in its own tx because 
 			// it has to start transactions.
@@ -209,9 +215,11 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		if (version == null)
 			throw new NullPointerException("version is null");
 
-		log.debug("getEventTypeID() called");
+		if (log.isDebugEnabled())
+			log.debug("getEventTypeID() called");
 		int eventId = eventLookup.getEventID(name, vendor, version);
-		log.debug("eventId is:" + eventId);
+		if (log.isDebugEnabled())
+			log.debug("eventId is:" + eventId);
 		if (eventId == -1) {
 			/*
 			 * The SLEE spec. does not define what to return if the event type
@@ -220,7 +228,8 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			return null;
 		}
 		EventTypeID eventTypeID = eventLookup.getEventTypeID(eventId);
-		log.debug("Event type id is:" + eventTypeID);
+		if (log.isDebugEnabled())
+			log.debug("Event type id is:" + eventTypeID);
 		return eventTypeID;
 	}
 }

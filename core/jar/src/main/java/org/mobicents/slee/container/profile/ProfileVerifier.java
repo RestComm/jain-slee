@@ -16,7 +16,6 @@ package org.mobicents.slee.container.profile;
 
 import java.util.Set;
 
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.Modifier;
@@ -27,6 +26,7 @@ import javax.slee.profile.ProfileSpecificationDescriptor;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.ProfileSpecificationDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 
@@ -91,14 +91,9 @@ public class ProfileVerifier {
     public ProfileVerifier(
             ProfileSpecificationDescriptor profileSpecificationDescriptor) {
 
-        if (((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
-                .getDeployableUnit()) != null) {
-            pool = ((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
+        pool = ((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
                     .getDeployableUnit()).getDUDeployer().getClassPool();
-        } else {
-            // We are verifying a standard profile.
-            pool = ConcreteClassGeneratorUtils.createClassPool();
-        }
+        
         cmpProfileInterfaceName = ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
                 .getCMPInterfaceName();
         profileManagementInterfaceName = ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)

@@ -72,14 +72,7 @@ public class ProfileSpecificationDescriptorImpl implements
     }
 
     public ClassLoader getClassLoader() {
-        // This could be a standard profile -- in which case the classloader to use
-        // is the current thread classloader.
-        if ( this.deployableUnitID == null ) {
-            logger.debug("standard profile -- returning current classloader");
-            return (ClassLoader) SleeContainerUtils.getCurrentThreadClassLoader();
-        } else {
-            return this.deployableUnitID.getDUDeployer().getClassLoader();
-        }
+        return this.deployableUnitID.getDUDeployer().getClassLoader();        
     }
     
     public void setCMPInterfaceName(String cmpInterfaceName) {

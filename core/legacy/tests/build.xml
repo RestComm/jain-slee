@@ -271,6 +271,42 @@
 
 	</target>
 
+	<target name="run-javatest" depends="">
+		<pathconvert targetos="unix" property="slee.tck.du.path" refid="slee.tck.du.path.id" />
+				<pathconvert targetos="unix" property="slee.tck.testsuite.path" refid="slee.tck.testsuite.path.id" />
+				<pathconvert targetos="unix" property="slee.tck.reports.path" refid="slee.tck.reports.path.id" />
+				<pathconvert targetos="unix" property="slee.tck.jtx.file" refid="slee.tck.jtx.file.id" />
+				<pathconvert targetos="unix" property="slee.tests.classes" refid="slee.tests.classes.id" />
+				<pathconvert targetos="unix" property="slee.tests.aux.libs" refid="slee.tests.aux.libs.id" />
+				<echo>slee.tck.testsuite.path=${slee.tck.testsuite.path}</echo>
+				<echo>slee.tests.aux.libs=${slee.tests.aux.libs}</echo>
+				<property name="tck.params" value="" />
+				<echo>Starting TCK with params: ${tck.params}</echo>
+				<echo>Excluding tests listed in file: ${slee.tck.jtx.file}</echo>
+				<property name="mobicents.home.path" location="${mobicents.home}"/>
+				<java classname="com.sun.javatest.tool.Main" fork="yes" maxmemory="256m">
+					<sysproperty key="java.security.manager" value="" />
+					<sysproperty key="javatest.security.allowPropertiesAccess" value="true" />
+					<sysproperty key="java.security.policy" value="${slee.tck.home}/config/tck-security.policy" />
+					<sysproperty key="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser" />
+					<sysproperty key="MOBICENTS_HOME" value="${mobicents.home.path}" />
+					<jvmarg line="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8484,server=y,suspend=n" />
+					<arg line="${tck.params}" />
+					<classpath refid="project.class.path" />
+					<classpath>
+						<pathelement location="${slee.tests.classes}" />
+						<pathelement location="${slee.tck.home}/jars/sleetck.jar" />
+						<pathelement location="${slee.tck.home}/lib/javatest.jar" />
+						<pathelement location="${slee.tck.home}/lib/slee.jar" />
+						<pathelement location="${slee.tck.home}/lib/xerces.jar" />
+						<pathelement location="${slee.tck.home}/lib/sigtest.jar" />
+						<pathelement location="${ant.home}/lib/ant.jar" />
+						<pathelement location="${ant.home}/lib/ant-launcher.jar" />
+						<pathelement path="${slee.tests.aux.libs}" />
+					</classpath>
+				</java>
+	</target>
+	
 	<target name="clean" depends="">
 		<delete failonerror="false" includeemptydirs="true">
 			<fileset dir="${dest}" />

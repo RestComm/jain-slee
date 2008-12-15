@@ -55,7 +55,7 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
  */
 public class SleeManagementMBeanImpl extends StandardMBean implements
 		SleeManagementMBeanImplMBean {
-
+	
 	private MBeanServer mbeanServer;
 
 	private ObjectName alarmMBean;
@@ -332,7 +332,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		this.mbeanServer = mbs;
 		this.objectName = oname;
 		this.sleeContainer = new SleeContainer(mbeanServer);
-
+		
 		return oname;
 	}
 
@@ -837,5 +837,4 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	public void setRmiServerInterfaceMBean(ObjectName rmiServerInterfaceMBean) {
 		this.rmiServerInterfaceMBean = rmiServerInterfaceMBean;
 	}
-
 }

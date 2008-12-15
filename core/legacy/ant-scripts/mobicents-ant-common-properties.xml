@@ -43,7 +43,7 @@
 	<!-- CLASSPATH -->
 
 	<path id="anttasks.class.path">
-		<fileset dir="${ant.file.Mobicents_Ant_Common_Properties__Paths_and_Targets}/../../../../tools/ant-tasks/target">
+		<fileset dir="${ant.file.Mobicents_Ant_Common_Properties__Paths_and_Targets}/../../../ant-tasks/target">
 			<include name="*.jar" />
 		</fileset>
 		<path refid="mobicents.core.classpath" />

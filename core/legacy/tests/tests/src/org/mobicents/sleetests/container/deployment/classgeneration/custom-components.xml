@@ -7,11 +7,10 @@
 		<echo>classes.sleetests=${classes.sleetests}</echo>
 		<echo>test.src=${test.src}</echo>
 		<echo>jars.deployable-units=${jars.deployable-units}</echo>
-		<deployablejar destfile="${jars.deployable-units}/org.mobicents.sleetests.container.deployment.classgeneration.SbbLocalObjectImplGenerationTest-du.jar" 
-      servicexml="${test.src}/META-INF/service-jar.xml">
+		<deployablejar destfile="${jars.deployable-units}/org.mobicents.sleetests.container.deployment.classgeneration.SbbLocalObjectImplGenerationTest-du.jar" servicexml="${test.src}/META-INF/service-jar.xml">
 			<sbbjar sbbjarxml="${test.src}/META-INF/sbb-jar.xml" classpath="${classes.sleetests}">
 				<fileset dir="${classes.sleetests}">
-					<include name="**/*" />
+					<include name="org/mobicents/sleetests/container/deployment/classgeneration/**/*" />
 				</fileset>
 			</sbbjar>
 		</deployablejar>

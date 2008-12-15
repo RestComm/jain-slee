@@ -35,7 +35,6 @@ package org.mobicents.slee.container;
 
 import java.beans.PropertyEditorManager;
 import java.io.File;
-import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -62,6 +61,8 @@ import org.apache.log4j.Logger;
 import org.jboss.mx.util.MBeanProxy;
 import org.jboss.util.naming.NonSerializableFactory;
 import org.jboss.util.naming.Util;
+import org.jboss.virtual.VFS;
+import org.jboss.virtual.VFSUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.management.ComponentManagement;
 import org.mobicents.slee.container.management.DeployableUnitManagement;
@@ -120,15 +121,15 @@ public class SleeContainer {
 	private final static Logger logger = Logger.getLogger(SleeContainer.class);
 
 	// static init code
-	{
+	static {
 		// establish the location of mobicents.sar
 		try {
-			java.net.URL url = SleeContainer.class.getClassLoader()
-					.getResource("META-INF/..");
+			java.net.URL url = VFSUtils.getCompatibleURL(VFS.getRoot(SleeContainer.class.getClassLoader()
+					.getResource("META-INF/..")));;
 			java.net.URI uri = new java.net.URI(url.toExternalForm()
 					.replaceAll(" ", "%20"));
 			deployPath = new File(uri).getAbsolutePath();
-		} catch (URISyntaxException e) {
+		} catch (Exception e) {
 			logger
 					.error(
 							"Failed to establish path to Mobicents root deployment directory (mobicents.sar)",
@@ -203,7 +204,7 @@ public class SleeContainer {
 	private ProfileFacilityImpl profileFacility;
 	private TimerFacilityImpl timerFacility;
 	private TraceFacilityImpl traceFacility;
-
+	
 	// LIFECYLE RELATED
 
 	/**
@@ -315,9 +316,7 @@ public class SleeContainer {
 		PropertyEditorManager.registerEditor(Object.class,
 				ServiceStatePropertyEditor.class);
 		PropertyEditorManager.registerEditor(ResourceAdaptorID.class,
-				ComponentIDPropertyEditor.class);
-		
-		
+				ComponentIDPropertyEditor.class);	
 	}
 
 	/**
@@ -514,7 +513,7 @@ public class SleeContainer {
 	}
 
 	// GETTERS -- slee runtime
-
+	
 	/**
 	 * the container's event router
 	 */

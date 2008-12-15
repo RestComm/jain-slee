@@ -17,7 +17,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -96,12 +98,15 @@ public class DeploymentManager {
         File tempDUJarsDeploymentDir = createTempDUJarsDeploymentDir(deploymentRootDir, sourceUrl);
 
         //Get the DU jar file and put it in the local DU directory.
-        File unitJarFile;//keep a reference so that we may delete it lately
-        JarFile unitJar;
+        File unitJarFile;
         try {
-            unitJarFile = retrieveFile(sourceUrl, tempDUJarsDeploymentDir);
+            unitJarFile = new File(tempDUJarsDeploymentDir, (new File(sourceUrl.getFile()))
+                    .getName());
+            InputStream is = sourceUrl.openStream();
+            OutputStream os = new FileOutputStream(unitJarFile);
+            //copy the file locally
+            pipeStream(is, os);           
         } catch (IOException ioe) {
-            /** @todo rollback the transaction */
             throw new DeploymentException("Error retrieving file from URL=["
                     + sourceUrl + "] to local storage", ioe);
         }
@@ -113,7 +118,7 @@ public class DeploymentManager {
         //extract and deploy all jars found in the deployable unit.
         try {
  
-            deployableUnitID = (DeployableUnitIDImpl) DeployableUnitDeployer
+            deployableUnitID = DeployableUnitDeployer
                     .deploy(sourceUrl, unitJarFile, tempDUJarsDeploymentDir, componentContainer);
 
          if(logger.isDebugEnabled()) {
@@ -134,63 +139,6 @@ public class DeploymentManager {
 
     //============================= STATIC UTILITIES
     // ===============================
-
-    /**
-     * Retrieves the file that the specified <code>url</code> points to,
-     * records it to <code>localDstDir</code> and returns a JarFile instance
-     * corresponding to that file.
-     * 
-     * @param url
-     *            the location where the file is found.
-     * @param localDstDir
-     *            the local directory where this method is supposed to record
-     *            the du file.
-     * @throws NullPointerException
-     *             if a null argument is passed to the method.
-     * @throws IOException
-     *             if retrieving the file and recording locally fails with an
-     *             IOException
-     * @return a JarFile instance corresponding to the retrieved file.
-     */
-    static JarFile retrieveJar(URL url, File localDstDir)
-            throws NullPointerException, IOException {
-        return new JarFile(retrieveFile(url, localDstDir));
-    }
-
-    /**
-     * Retrieves the file that the specified <code>url</code> points to,
-     * records it to <code>localDstDir</code> and returns a JarFile instance
-     * corresponding to that file.
-     * 
-     * @param url
-     *            the location where the file is found.
-     * @param localDstDir
-     *            the local directory where this method is supposed to record
-     *            the du file.
-     * @throws NullPointerException
-     *             if a null argument is passed to the method.
-     * @throws IOException
-     *             if retrieving the file and recording locally fails with an
-     *             IOException
-     * @return a JarFile instance corresponding to the retrieved file.
-     */
-    static File retrieveFile(URL url, File localDstDir)
-            throws NullPointerException, IOException {
-        if (url == null)
-            throw new NullPointerException("NULL url");
-        if (localDstDir == null)
-            throw new NullPointerException("NULL file");
-
-        File destFile = new File(localDstDir, (new File(url.getFile()))
-                .getName());
-        InputStream is = url.openStream();
-        OutputStream os = new FileOutputStream(destFile);
-
-        //copy the file locally
-        pipeStream(is, os);
-
-        return destFile;
-    }
 
     /**
      * Pipes data from the input stream into the output stream.
@@ -254,7 +202,9 @@ public class DeploymentManager {
         
         pipeStream(containingJar.getInputStream(zipFileEntry),
                 new FileOutputStream(extractedFile));
+        
         logger.debug("Extracted file " + extractedFile.getName() );
+        
         return extractedFile;
     }
     
@@ -262,18 +212,21 @@ public class DeploymentManager {
      * This method will extract all the files in the jar file
      * @param jarFile the jar file
      * @param dstDir the destination where files in the jar file be extracted
+     * @param deployableUnitID 
+     * @return 
      * @throws IOException failed to extract files
      */
-    public static void extractJar(JarFile jarFile, File dstDir) throws IOException
+    public static Set<String> extractJar(JarFile jarFile, File dstDir) throws IOException
 	{
 	  
+    	Set<String> filesExtracted = new HashSet<String>();
 	    //Extract jar contents to a classpath location
         JarInputStream jarIs = new JarInputStream(new BufferedInputStream(new FileInputStream( jarFile.getName())));
 	    
 	    for ( JarEntry entry = jarIs.getNextJarEntry();  jarIs.available()>0 && entry != null; entry = jarIs.getNextJarEntry())
 	    {
 	       
-	        logger.debug("zipEntry = " + entry.getName());
+	        logger.debug("jar entry = " + entry.getName());
 	       
 	        //if(entry.getName().indexOf("META-INF") != -1){
 	        //	logger.info("[###] UnPacking META-INF");
@@ -297,7 +250,8 @@ public class DeploymentManager {
 	        }
 	        else // unzip files
 	        {
-	        	File dir = new File(dstDir, entry.getName()).getParentFile();
+	        	File file = new File(dstDir, entry.getName());
+	        	File dir = file.getParentFile();
 
 	            if (!dir.exists() ) 
 	            {
@@ -311,13 +265,15 @@ public class DeploymentManager {
 
 			   
 	            DeploymentManager.pipeStream(jarFile.getInputStream(entry),
-	                                         new FileOutputStream(new File(
-	                dstDir, entry.getName()))
-	                                         );
+	                                         new FileOutputStream(file));
+	            filesExtracted.add(entry.getName());
+	      
+	            
 	        }
 	    }
 	    jarIs.close();
 	    jarFile.close();
+	    return filesExtracted;
 	}
     
 
@@ -330,16 +286,6 @@ public class DeploymentManager {
 
     public void undeployUnit(DeployableUnitIDImpl deployableUnitID) {
 
-        // Delete the unjarred mess
-        for(Iterator it = deployableUnitID.getDeployedFiles(); it.hasNext();) {
-            File f = new File((String) it.next());
-            if (f.isFile()) {
-                f.delete();
-                if(logger.isDebugEnabled()) {
-                	logger.debug("Deleted file " + f.getAbsolutePath());
-                }
-            }
-        }
         // Delete the jar file itself.
         URI deploymentURI = deployableUnitID.getSourceURI();
         if (deploymentURI != null) {
@@ -349,8 +295,6 @@ public class DeploymentManager {
             	logger.debug("Deleted DU jar file " + srcFile.getAbsolutePath());
             }
         }
-        
-        // TODO: Delete the extraxted files from the temp dir
         
         deployableUnitID.getDUDeployer().undeploy();
         

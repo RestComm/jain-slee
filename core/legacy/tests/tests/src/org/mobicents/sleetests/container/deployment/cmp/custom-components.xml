@@ -11,7 +11,7 @@
       servicexml="${test.src}/META-INF/SbbAndSuperClassWithCMPsTest-service-jar.xml">
 			<sbbjar sbbjarxml="${test.src}/META-INF/SbbAndSuperClassWithCMPsTest-sbb-jar.xml" classpath="${classes.sleetests}">
 				<fileset dir="${classes.sleetests}">
-					<include name="**/*" />
+					<include name="org/mobicents/sleetests/container/deployment/cmp/**/*" />
 				</fileset>
 			</sbbjar>
 		</deployablejar>

@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.InitialEventSelectorImpl;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ResourceManagement;
+import org.mobicents.slee.container.management.ComponentClassLoadingManagement;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
@@ -47,9 +48,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		MobicentsSbbDescriptorInternal, MobicentsSbbDescriptor {
 
 	private static final long serialVersionUID = 9153818261657909355L;
-
-	private transient ClassLoader loader;
-
+	
 	// The set of initial events
 	private Set initialEvents;
 
@@ -228,15 +227,6 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		this.activityContextInterfaceAttributeAliases = new HashMap();
 		this.resourceAdapterEntityLinks = new HashSet();
 		this.resourceAdapterTypeIDs = new HashSet();
-
-		/*
-		 * The context class loader is the one that is designated to the DU
-		 * deployment. It loads the DU classes and should be used later on when
-		 * executing SBB code at runtime.
-		 * 
-		 */
-		ClassLoader currentLoader = Thread.currentThread()
-				.getContextClassLoader();
 
 	}
 
@@ -1090,16 +1080,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * @return Returns the loader.
 	 */
 	public ClassLoader getClassLoader() {
-		return loader;
-	}
-
-	/**
-	 * @param loader
-	 *            The loader to set.
-	 */
-	public void setClassLoader(ClassLoader loader) {
-		logger.debug("setClassloader " + loader);
-		this.loader = loader;
+		return ComponentClassLoadingManagement.INSTANCE.getClassLoader(getID());
 	}
 
 	/*
@@ -1139,7 +1120,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	public void checkDeployment() throws DeploymentException {
 		ClassLoader currentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(this.loader);
+		Thread.currentThread().setContextClassLoader(getClassLoader());
 		try {
 			if (this.activityContextInterfaceClassName != null) {
 				if (this.activityContextInterface == null)
@@ -1738,7 +1719,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 
 		return false;
 	}
-
+	
 	// descriptors are stored in maps
 
 	public boolean equals(Object obj) {
@@ -1753,4 +1734,5 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	public int hashCode() {
 		return sbbID.hashCode();
 	}
+	
 }

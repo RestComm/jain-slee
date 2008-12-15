@@ -324,6 +324,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 		} catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
+		nullAci = null;
     }
 
     public void eventProcessingSuccessful(ActivityHandle activityHandle, Object object, int i, Address address, int i0) {

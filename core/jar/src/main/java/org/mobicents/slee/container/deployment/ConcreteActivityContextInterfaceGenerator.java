@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
@@ -29,9 +28,10 @@ import javassist.NotFoundException;
 
 import javax.slee.management.DeploymentException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.interceptors.ActivityContextInterfaceInterceptor;
 import org.mobicents.slee.runtime.ActivityContext;
 import org.mobicents.slee.runtime.ActivityContextIDInterface;
@@ -106,17 +106,9 @@ public class ConcreteActivityContextInterfaceGenerator {
             + activityContextInterfaceName
             + ConcreteClassGeneratorUtils.CONCRETE_ACTIVITY_INTERFACE_CLASS_NAME_SUFFIX;
             
+    		concreteActivityContextInterface = pool.makeClass(tmpClassName);
     		
     		try {
-    			concreteActivityContextInterface =	pool.get(tmpClassName).getClassPool().makeClass(tmpClassName);
-			} catch (NotFoundException e2) {
-				concreteActivityContextInterface = pool
-                .makeClass(tmpClassName);
-			}
-    		
-            
-            
-            try {
                 activityContextInterface = pool
                         .get(activityContextInterfaceName);
                 activityContextIDInterfaceClass = pool
@@ -153,11 +145,7 @@ public class ConcreteActivityContextInterfaceGenerator {
             String sbbDeploymentPathStr = descriptor.getDeploymentPath();
 
             try {
-//            	@@2.4+ -> 3.4+
-                //pool.writeFile(ConcreteClassGeneratorUtils.CONCRETE_ACTIVITY_INTERFACE_CLASS_NAME_PREFIX + activityContextInterfaceName + ConcreteClassGeneratorUtils.CONCRETE_ACTIVITY_INTERFACE_CLASS_NAME_SUFFIX,sbbDeploymentPathStr);
-            	
-            	pool.get(tmpClassName).writeFile(sbbDeploymentPathStr);
-            	pool.get(tmpClassName).detach();
+            	concreteActivityContextInterface.writeFile(sbbDeploymentPathStr);           	
 
                 if(logger.isDebugEnabled()) { 
                 	logger
@@ -175,24 +163,16 @@ public class ConcreteActivityContextInterfaceGenerator {
 
             //load the class
             Class clazz = null;
-            try {
-                //clazz = this.concreteActivityContextInterface.toClass();
+            try {                
                 clazz = Thread.currentThread().getContextClassLoader().loadClass(tmpClassName);
             } catch (Exception e1) {
                 logger.error ("problem loading generated class", e1);
                 throw new DeploymentException(
                         "problem loading the generated class! ", e1);
             }
-            //put in the table the clazz generated under the
-            // abbAbstractClassName
-            //as a key
+
+			this.concreteActivityContextInterface.defrost();
             
-            // IVELIN -- Do we need this static for Usage Parameters?
-            //SbbDeployer.concreteClassesGenerated
-            // .add(activityContextInterfaceName);
-
-            this.concreteActivityContextInterface.defrost();
-
             return clazz;
         
     }

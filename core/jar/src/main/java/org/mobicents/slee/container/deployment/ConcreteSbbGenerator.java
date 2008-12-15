@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
@@ -30,13 +29,14 @@ import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.CMPField;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.GetChildRelationMethod;
 import org.mobicents.slee.container.component.ProfileCMPMethod;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.SbbEventEntry;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.interceptors.ChildRelationInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.DefaultChildRelationInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.DefaultFireEventInterceptor;
@@ -143,7 +143,7 @@ public class ConcreteSbbGenerator {
         // FIXME: the inderection to get to the deployment path is too high.
         // move the deployment path from the ID to the desciriptor
         this.deployPath = ((DeployableUnitIDImpl) (sbbDeploymentDescriptor
-                .getDeployableUnit())).getDUDeployer().getClasspathDirectory()
+                .getDeployableUnit())).getDUDeployer().getTempClassDeploymentDir()
                 .getAbsolutePath();
 
         this.pool = ((DeployableUnitIDImpl) sbbDeploymentDescriptor
@@ -161,17 +161,11 @@ public class ConcreteSbbGenerator {
         String sbbConcreteClassName = ConcreteClassGeneratorUtils
                 .getSbbConcreteClassName(sbbAbstractClassName);
         
+        sbbConcreteClass = pool.makeClass(sbbConcreteClassName);
+		        
         
-        try {
-        	sbbConcreteClass =pool.get(sbbConcreteClassName).getClassPool().makeClass(sbbConcreteClassName);
-		} catch (NotFoundException e3) {
-			sbbConcreteClass = pool.makeClass(sbbConcreteClassName);
-			//e3.printStackTrace();
-		}
-        
-        
-        try {
-
+		 try {
+		 
             try {
                 sbbAbstractClass = pool.get(sbbAbstractClassName);
             } catch (NotFoundException nfe) {
@@ -370,9 +364,9 @@ public class ConcreteSbbGenerator {
                 			+ "activity context interface concrete class not created");
                 	nfe.printStackTrace();
                 } finally {
-                	if (activityContextInterface != null) {
+                	/*if (activityContextInterface != null) {
                 		activityContextInterface.detach();
-                	}
+                	}*/
                 }
                 
             }
@@ -441,8 +435,7 @@ public class ConcreteSbbGenerator {
                 }
             }
             try {
-            	sbbConcreteClass.writeFile(deployPath);
-            	sbbConcreteClass.detach();
+            	sbbConcreteClass.writeFile(deployPath);            	
             	//@@2.4+ -> 3.4+
                 //pool.writeFile(sbbConcreteClassName, deployPath);
                 if (logger.isDebugEnabled()) {
@@ -456,9 +449,8 @@ public class ConcreteSbbGenerator {
             }
 
             Class clazz = null;
-            try {
-                ClassLoader sbbCl = sbbDeploymentDescriptor.getClassLoader();
-                clazz = sbbCl.loadClass(sbbConcreteClassName);
+            try {                
+                clazz = Thread.currentThread().getContextClassLoader().loadClass(sbbConcreteClassName);
             } catch (ClassNotFoundException e1) {
                 String s = "What the heck?! Could not find generated class. Is it under the chair?";
                 logger.error(s, e1);
@@ -466,24 +458,14 @@ public class ConcreteSbbGenerator {
             }
             //set the concrete class in the descriptor
             sbbDeploymentDescriptor.setConcreteSbb(clazz);
-            //put in the table the clazz generated under the
-            // sbbAbstractClassName
-            //as a key
-            
-            
-            //SbbDeployer.concreteClassesGenerated.add(sbbAbstractClassName);
-
+                        
             return clazz;
-        } finally {
-            // Done with it so defrost it ( allows for regeneration on
-            // re-install).
-            if(sbbConcreteClass != null) {
-            	sbbConcreteClass.defrost();
-            }
-            if(sbbAbstractClass != null) {
-            	sbbAbstractClass.detach();
-            }
-        }
+		 } finally {
+			 if(sbbConcreteClass != null) {
+				 sbbConcreteClass.defrost();
+
+			 }
+		 }
     }
 
     /**
@@ -996,28 +978,11 @@ public class ConcreteSbbGenerator {
     protected void createPersistentStateHolderClass(CMPField[] cmpAccessors) {
         //Create the class of the persistent state of the sbb
     	
-    	
-    	
-        CtClass sbbPersisentStateClass = null;
+        CtClass sbbPersisentStateClass=pool.makeClass(sbbAbstractClass.getName() + "PersistentState");
         
         
-        try {
-        	sbbPersisentStateClass=pool.get(sbbAbstractClass.getName()+ "PersistentState");
-        	if(sbbPersisentStateClass.isFrozen())
-        	{
-				sbbPersisentStateClass.defrost();
-        	}
-        	sbbPersisentStateClass.getClassPool().makeClass(sbbAbstractClass.getName() + "PersistentState");
-        	
-		} catch (NotFoundException e2) {
-			sbbPersisentStateClass=pool.makeClass(sbbAbstractClass.getName() + "PersistentState");
-			//e2.printStackTrace();
-			
-		}
+		try {
 		
-        
-        try {
-
             try {
                 //Make the persistent state serializable : this is mandatory by
                 // the
@@ -1062,18 +1027,14 @@ public class ConcreteSbbGenerator {
             }
             //generate the persistent state class of the sbb
             try {
-            	pool.get(sbbAbstractClass.getName() + "PersistentState").writeFile(deployPath);
-            	pool.get(sbbAbstractClass.getName() + "PersistentState").detach();
+            	sbbPersisentStateClass.writeFile(deployPath);            	
             	//@@2.4+ -> 3.4+
                 //pool.writeFile(sbbAbstractClass.getName() + "PersistentState",deployPath);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Concrete Class " + sbbAbstractClass.getName()
                         + "PersistentState"
                         + " generated in the following path " + deployPath);
-                }
-            } catch (NotFoundException e) {
-                // Auto-generated catch block
-                e.printStackTrace();
+                }            
             } catch (CannotCompileException e) {
                 // Auto-generated catch block
                 e.printStackTrace();

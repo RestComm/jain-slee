@@ -108,13 +108,14 @@ public class InstalledResourceAdaptor  implements java.io.Serializable {
      */
     public void uninstall() {
     	this.raType.getResourceAdaptorIDs().remove(descriptor.getID());
-        unbindFromJndi();
+    	unbindFromJndi();
     }
     
     public InstalledResourceAdaptor(SleeContainer container, ResourceAdaptorDescriptorImpl raDescr,
             ResourceAdaptorIDImpl resourceAdaptorId ) throws ClassNotFoundException {
         this.resourceAdaptorEntities = new HashSet();
         this.resourceAdaptorId = resourceAdaptorId;
+        
         this.resourceAdaptorClass = Thread.currentThread().getContextClassLoader().loadClass(raDescr.getResourceAdaptorClasses().getResourceAdaptorClass());
         this.descriptor = raDescr;
         ResourceAdaptorTypeIDImpl ratRef = 
@@ -130,31 +131,28 @@ public class InstalledResourceAdaptor  implements java.io.Serializable {
         for(int i=0;i<activityEntries.length;i++){
             this.activityInterfaceNames[i] = activityEntries[i].getActivityTypeName();
         }
-        
         bindInJndi();
         
     }
     
     private void bindInJndi() {
-        Context ctx;
-        try {
-            ctx = new InitialContext();
+        
+        try {           
             ComponentKey key = resourceAdaptorId.getComponentKey();
-            Util.createSubcontext(ctx, CTX_JAVA_SLEE_RESOURCES + "/" + key.getName() + "/" + key.getVendor() + "/" + key.getVersion());
+            context = Util.createSubcontext(new InitialContext(), CTX_JAVA_SLEE_RESOURCES + "/" + key.getName() + "/" + key.getVendor() + "/" + key.getVersion());
         } catch (NamingException e) {
             log.error("Failed binding RA in JNDI. RA ID: " + resourceAdaptorId, e);
         }
     }
     
     private void unbindFromJndi() {
-        Context ctx;
+       
         try {
-            ctx = new InitialContext();
-            ComponentKey key = resourceAdaptorId.getComponentKey();
-            Util.unbind(ctx, CTX_JAVA_SLEE_RESOURCES + "/" + key.getName() + "/" + key.getVendor() + "/" + key.getVersion());
+           context.close();
         } catch (NamingException e) {
-            log.error("Failed binding RA in JNDI. RA ID: " + resourceAdaptorId, e);
+            log.error("Failed unbinding RA in JNDI. RA ID: " + resourceAdaptorId, e);
         }
     }
     
+    private Context context = null;
 }

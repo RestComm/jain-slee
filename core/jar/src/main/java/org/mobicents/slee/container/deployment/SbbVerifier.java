@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
@@ -43,6 +42,7 @@ import org.mobicents.slee.container.component.MobicentsEventTypeDescriptor;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.ProfileCMPMethod;
 import org.mobicents.slee.container.component.SbbEventEntry;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 
 /**
  * Verify that a sbb abstract class provided by a sbb developer is following a set of constraints.
@@ -98,8 +98,9 @@ public class SbbVerifier {
 		pool = ((DeployableUnitIDImpl) (sbbDescriptor.getDeployableUnit()))
 				.getDUDeployer().getClassPool();
 		try {
+			Thread.currentThread().getContextClassLoader().loadClass(Sbb.class.getName());
 			sbbAbstractClass = pool.get(Sbb.class.getName());
-		} catch (NotFoundException e) {
+		} catch (Exception e) {
 			String s = "Cannot find class ! while verifying ";
 			logger.fatal(e);
 			throw new RuntimeException(s, e);
@@ -140,12 +141,12 @@ public class SbbVerifier {
 
 			CtClass ctClass = null;
 			try {
-				ctClass = pool.get(sbbAbstractClassName).getClassPool()
-						.makeClass(sbbAbstractClassIS);
-			} catch (NotFoundException e) {
-				ctClass = pool.makeClass(sbbAbstractClassIS);
+				ctClass = pool.get(sbbAbstractClassName);
+				ctClass.detach();				
+			} catch (NotFoundException e) {				
 				//e.printStackTrace();
 			}
+			ctClass = pool.makeClass(sbbAbstractClassIS);
 
 			if (!checkSbbAbstractClassConstraints(ctClass)) {
 				logger

@@ -242,6 +242,7 @@ public abstract class EntitiesRemovalTestSbb extends BaseTCKSbb {
 			logger.info(" == RECEIVED SECOND X1, SERVICE STATE - Active["+activeServiceIDs.contains(service)+"], ACTIVITY["+aci.getActivity()+"] ==");
 			try {
 				setResultPassed("== RECEIVED SECOND X1, SERVICE STATE - Active["+activeServiceIDs.contains(service)+"] ==");
+				//Y1Count = 0;
 			} catch (Exception e) {
 				TCKSbbUtils.handleException(e);
 				e.printStackTrace();

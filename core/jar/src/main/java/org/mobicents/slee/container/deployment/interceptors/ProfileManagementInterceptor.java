@@ -63,14 +63,16 @@ public interface ProfileManagementInterceptor {
     
     
     /**
+     * @param profileSpecDUClassLoader 
      * @param string
      */
-    public void copyStateFromDefaultProfile(String profileCMPInterfaceName,String defaultProfileKey) throws ManagementException;
+    public void copyStateFromDefaultProfile(String profileCMPInterfaceName,String defaultProfileKey, ClassLoader profileSpecDUClassLoader) throws ManagementException;
     
     /**
+     * @param profileSpecDUClassLoader 
      * 
      */
-    public void loadStateFromBackendStorage(String profileCMPInterfaceName) throws Exception;
+    public void loadStateFromBackendStorage(String profileCMPInterfaceName, ClassLoader profileSpecDUClassLoader) throws Exception;
 
     public void setProfileTableName(String profileTableName);
     public String getProfileTableName();

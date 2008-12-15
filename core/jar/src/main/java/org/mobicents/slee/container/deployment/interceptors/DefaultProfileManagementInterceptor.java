@@ -132,7 +132,7 @@ public class DefaultProfileManagementInterceptor implements
            }
         }
     }
-
+    
     /**
      * @param proxy
      * @param method
@@ -153,12 +153,10 @@ public class DefaultProfileManagementInterceptor implements
                                             .length());
             String profileTransientStateClassName = ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX
                     + profileCMPInterfaceName
-                    + ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX;
-            final ClassLoader cl = SleeContainerUtils
-                    .getCurrentThreadClassLoader();
-            Class profileTransientStateClass = cl
-                    .loadClass(profileTransientStateClassName);
-            profileTransientState = profileTransientStateClass.newInstance();
+					+ ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX;
+			
+			Class profileTransientStateClass = proxy.getClass().getClassLoader().loadClass(profileTransientStateClassName);
+			profileTransientState = profileTransientStateClass.newInstance();
             //Put all the fields into a hashmap for easier retrieval
             populateFieldsMap();
         }
@@ -1169,14 +1167,13 @@ public class DefaultProfileManagementInterceptor implements
      * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#copyStateFromDefaultProfile(java.lang.String)
      */
     public void copyStateFromDefaultProfile(String profileCMPInterfaceName,
-            String defaultProfileKey) throws ManagementException {
+            String defaultProfileKey,ClassLoader profileSpecClassLoader) throws ManagementException {
         if (profileTransientState == null) {
             String profileTransientStateClassName = profileCMPInterfaceName
                     + "TransientState";
             try {
-                ClassLoader cl = SleeContainerUtils
-                        .getCurrentThreadClassLoader();
-                Class profileTransientStateClass = cl
+                
+                Class profileTransientStateClass = profileSpecClassLoader
                         .loadClass(profileTransientStateClassName);
                 profileTransientState = profileTransientStateClass
                         .newInstance();
@@ -1231,7 +1228,7 @@ public class DefaultProfileManagementInterceptor implements
      * 
      * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#loadStateFromBackendStorage()
      */
-    public void loadStateFromBackendStorage(String profileCMPInterfaceName)
+    public void loadStateFromBackendStorage(String profileCMPInterfaceName, ClassLoader profileSpecClassLoader)
             throws Exception {
     	if(logger.isDebugEnabled()) {
     		logger.debug("loading profile data from backend storage");
@@ -1240,8 +1237,8 @@ public class DefaultProfileManagementInterceptor implements
             String profileTransientStateClassName = ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX
                     + profileCMPInterfaceName
                     + ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX;
-            ClassLoader cl = SleeContainerUtils.getCurrentThreadClassLoader();
-            Class profileTransientStateClass = cl
+            
+            Class profileTransientStateClass = profileSpecClassLoader
                     .loadClass(profileTransientStateClassName);
             profileTransientState = profileTransientStateClass.newInstance();
 

@@ -9,10 +9,19 @@
 
 package org.mobicents.slee.container.component.deployment;
 
-import javax.slee.management.*;
-import java.util.jar.*;
-import java.util.*;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+
+import javax.slee.management.ComponentDescriptor;
+import javax.slee.management.DeploymentException;
+import javax.slee.management.SbbDescriptor;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -20,6 +29,7 @@ import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.DeployedComponent;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.management.ComponentClassLoadingManagement;
 
 /**
  * Instances of this class represent DU components or in other words - JAR file
@@ -108,9 +118,11 @@ abstract class AbstractComponentDeployer {
 			DeployableUnitDescriptorImpl duD = deployableUnitID.getDescriptor();
 
 			if (cd instanceof SbbDescriptor) {
-				MobicentsSbbDescriptor sbbD = (MobicentsSbbDescriptor) cd;
-				ClassLoader cl = this.duDeployer.createDUClassLoader();
-				sbbD.setClassLoader(cl);
+				// we need to create the class loader
+				// FIXME this will have to be done for all components
+				ComponentClassLoadingManagement.INSTANCE.createClassLoader(cd
+						.getID(), deployableUnitID.getDUDeployer()
+						.getTempClassDeploymentDir().toURL());
 			}
 			deployedComponent.checkDeployment();
 			// This is where the classes are generated.
@@ -160,8 +172,8 @@ abstract class AbstractComponentDeployer {
 					logger.debug("Created directory" + dir.getAbsolutePath());
 			} else // unzip files
 			{
-				File dir = new File(classpathDirectory, entry.getName())
-						.getParentFile();
+				File file = new File(classpathDirectory, entry.getName());
+				File dir = file.getParentFile();
 
 				if (!dir.exists()) {
 					if (!dir.mkdirs()) {
@@ -175,12 +187,12 @@ abstract class AbstractComponentDeployer {
 								+ dir.getAbsolutePath());
 				}
 
-				deployableUnitID.addEntry(entry.getName());
+				deployableUnitID.getDeployedFiles().add(entry.getName());
 
 				DeploymentManager.pipeStream(
 						componentJar.getInputStream(entry),
-						new FileOutputStream(new File(classpathDirectory, entry
-								.getName())));
+						new FileOutputStream(file));
+								
 			}
 		}
 		// Done with the jar file.

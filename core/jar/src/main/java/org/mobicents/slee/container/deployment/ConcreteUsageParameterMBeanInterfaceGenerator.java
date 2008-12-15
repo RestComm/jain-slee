@@ -12,20 +12,13 @@
  */
 package org.mobicents.slee.container.deployment;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-
 import javassist.CannotCompileException;
-import javassist.ClassPath;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.Modifier;
-import javassist.NotFoundException;
 
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -33,10 +26,11 @@ import javax.slee.management.ManagementException;
 import javax.slee.usage.SampleStatistics;
 import javax.slee.usage.SbbUsageMBean;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.InstalledUsageParameterSet;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
 
 /**
@@ -50,11 +44,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
 
     private ClassPool classPool;
 
-    private HashSet generatedFields;
-
     private String usageParameterFieldName;
-
-    private String mbeanInterfaceName;
     
     private MobicentsSbbDescriptor sbbDescriptor;
 
@@ -65,19 +55,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
 
     public ConcreteUsageParameterMBeanInterfaceGenerator(MobicentsSbbDescriptor sbbDescriptor) {
         classPool = ((DeployableUnitIDImpl)sbbDescriptor.getDeployableUnit()).getDUDeployer().getClassPool();
-        this.sbbDescriptor = sbbDescriptor;
-        try {
-        	File mobicentsSar = new File(SbbDeployer.getLibPath());
-        	List filesJars = ConcreteClassGeneratorUtils.getJarsFileListing(mobicentsSar);
-
-			for (int i = 0; i < filesJars.size(); i++) {
-				File jar = (File) filesJars.get(i);
-				classPool.appendClassPath(SbbDeployer.getLibPath()+ File.separatorChar + jar.getName());
-			}
-        	
-        } catch (Exception e) {
-            throw new RuntimeException("Could not find library!", e);
-        }
+        this.sbbDescriptor = sbbDescriptor;        
     }
     
     /**
@@ -137,13 +115,17 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
                 .getUsageParametersInterface();
         if (usageParamInterfaceName == null)
             return null;
-        ClassPath classPath = classPool.appendClassPath( sbbDescriptor.getDeploymentPath());
+        
         String concreteMBeanInterfaceName = usageParamInterfaceName + "MBean";
         String concreteMBeanClassName = usageParamInterfaceName + "MBeanImpl";
+        
+        if (logger.isDebugEnabled()) {
+        	logger.debug("generating "+concreteMBeanInterfaceName+" and "+concreteMBeanClassName);
+        }
         CtClass usageParamInterface = classPool.get(usageParamInterfaceName);
         CtClass usageMBeanInterface = classPool.get(SbbUsageMBean.class
                 .getName());
-        CtClass usageParamConcreteClass = classPool.get(usageParamInterfaceName+"Impl");
+        
         CtClass[] parameter = {
                 classPool.get(ServiceID.class.getName()), 
                 classPool.get(SbbID.class.getName()), 
@@ -151,23 +133,14 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
                 classPool.get(String.class.getName()),
                 classPool.get(sbbDescriptor.getUsageParameterClass().getName())};
         
-        CtClass ctInterface=null;
-        try{
-        ctInterface=classPool.get(concreteMBeanInterfaceName).getClassPool().makeInterface(concreteMBeanInterfaceName);
-        }catch(NotFoundException nfe)
-        {
-        	ctInterface= classPool.makeInterface(concreteMBeanInterfaceName);
-        }
+        CtClass ctInterface = classPool.makeInterface(concreteMBeanInterfaceName);
+		       
         ctInterface.addInterface(usageMBeanInterface);
         /*ConcreteClassGeneratorUtils.createInheritanceLink(ctInterface,
                 this.classPool.get("java.lang.Object"));*/
-        CtClass ctClass = null;
-        try{
-        ctClass= classPool.get(concreteMBeanClassName).getClassPool().makeClass(concreteMBeanClassName);
-        }catch(NotFoundException nfe)
-        {
-        	ctClass= classPool.makeClass(concreteMBeanClassName);
-        }
+        
+        CtClass ctClass = classPool.makeClass(concreteMBeanClassName);
+		
         ConcreteClassGeneratorUtils.createInheritanceLink(ctClass,
                 classPool.get(SbbUsageMBeanImpl.class.getName()));
         
@@ -186,25 +159,16 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
         }
 
         String sbbDeploymentPathStr = sbbDescriptor.getDeploymentPath();
-//    	@@2.4+ -> 3.4+
-        //classPool.writeFile(concreteMBeanInterfaceName, sbbDeploymentPathStr);
-        classPool.get(concreteMBeanInterfaceName).writeFile(sbbDeploymentPathStr);
-        classPool.get(concreteMBeanInterfaceName).detach();
+        ctInterface.writeFile(sbbDeploymentPathStr);
         logger.debug("Writing file " + concreteMBeanInterfaceName);
-//    	@@2.4+ -> 3.4+
-        //classPool.writeFile(concreteMBeanClassName, sbbDeploymentPathStr);
-        classPool.get(concreteMBeanClassName).writeFile(sbbDeploymentPathStr);
-        classPool.get(concreteMBeanClassName).detach();
+        ctClass.writeFile(sbbDeploymentPathStr);
         logger.debug("Writing file " + concreteMBeanClassName);
-        
+                
         Class retval = Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanInterfaceName);
+       
         ctInterface.defrost();
         ctClass.defrost();
-        classPool.removeClassPath(classPath);
-        
         return retval;
-        //return ctClass.toClass();
-
     }
 
     private void generateConcreteMethod(CtClass ctClass, CtMethod method) throws Exception{

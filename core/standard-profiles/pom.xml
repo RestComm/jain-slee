@@ -3,16 +3,15 @@
 	<packaging>pom</packaging>
 	
 	<parent>
-		<groupId>org.mobicents</groupId>
-		<artifactId>mobicents-jainslee-server</artifactId>
-		<version>2.0.00-SNAPSHOT</version>
-		<relativePath>../../pom.xml</relativePath>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>parent</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>mobicents-core-standard-profiles</artifactId>
-	<groupId>org.mobicents.core</groupId>
-	<name>Mobicents :: Core  :: ${pom.artifactId}</name>
-			
+	<artifactId>standard-profiles-parent</artifactId>
+	
+	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
+				
 	<modules>
 		<module>jar</module>
 		<module>du</module>

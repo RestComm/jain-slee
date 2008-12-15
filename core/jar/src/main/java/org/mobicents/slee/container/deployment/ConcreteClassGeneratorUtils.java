@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
@@ -77,34 +76,14 @@ public class ConcreteClassGeneratorUtils {
 	
 	// The root class pool
 	
-	private static ClassPool pool;
-	
-
-	/**
-	 * Pool to generate or read classes with javassist Change this for each new
-	 * deployment.
-	 */
 	
 
 	static {
 		logger = Logger.getLogger(ConcreteClassGeneratorUtils.class);
-		pool = new ClassPool(ClassPool.getDefault());
 		
-        try {
-        	File mobicentsSar = new File(SbbDeployer.getLibPath());
-        	List filesJars = ConcreteClassGeneratorUtils.getJarsFileListing(mobicentsSar);
-			for (int i = 0; i < filesJars.size(); i++) {
-				File jar = (File)filesJars.get(i);
-				pool.insertClassPath(SbbDeployer.getLibPath() + jar.getName());
-			}
-        	pool.appendClassPath(SbbDeployer.getLibPath());
-        	
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException("Failed initializing javassist", e);
-		}
 	}
 
+	
     /**
 	 * Recursively walk a directory tree and return a List of all jars Files found;
 	 * the List is sorted using File.compareTo.
@@ -164,16 +143,6 @@ public class ConcreteClassGeneratorUtils {
 			throw new IllegalArgumentException("Directory cannot be read: "
 					+ aDirectory);
 		}
-	}
-	
-	/**
-	 * 
-	 * FIXME: Why is this method needed? Could we do away with it?
-	 * Call this for each deployment.
-	 */
-	public static ClassPool createClassPool() {
-		
-		return new ClassPool(pool);
 	}
 
 	/**

@@ -37,7 +37,6 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.logging.Logger;
-import org.jboss.system.server.ServerConfig;
 import org.jboss.system.server.ServerConfigLocator;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
@@ -83,12 +82,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	 * 
 	 */
 	private File createTempDUJarsDeploymentRoot() {
-		ServerConfig config = ServerConfigLocator.locate();
-		File basedir = config.getServerTempDir();
-
-		// ${jboss.server.home.dir}/tmp/deploy
-		File tempDeploymentRootDir = new File(basedir, "deploy");
-
+		
+		File tempDeploymentRootDir = ServerConfigLocator.locate().getServerTempDeployDir();
 		if (!tempDeploymentRootDir.exists()) {
 			boolean dirCreated = tempDeploymentRootDir.mkdirs();
 			if (!dirCreated)
@@ -188,6 +183,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		final ResourceManagement resourceManagement = sleeContainer
 				.getResourceManagement();
 
+		
+		Thread currentThread = Thread.currentThread();
+		ClassLoader currentClassLoader = null;
+		
 		// we sync on the container's monitor object
 		synchronized (sleeContainer.getManagementMonitor()) {
 
@@ -199,6 +198,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					// get du descriptor
 					DeployableUnitDescriptorImpl deployableUnitDescriptor = deployableUnitManagement
 							.getDeployableUnitDescriptor(deployableUnitID);
+					
 					DeployableUnitIDImpl deployableUnitIDImpl = deployableUnitDescriptor
 							.getDeployableUnit();
 					// Check if its safe to remove the deployable unit.
@@ -212,6 +212,11 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					// check all services are deactivated
 					serviceManagement
 							.checkAllDUServicesAreDeactivated(deployableUnitIDImpl);
+					
+					// change class loader
+					currentClassLoader = currentThread.getContextClassLoader();
+					currentThread.setContextClassLoader(deployableUnitIDImpl.getDUDeployer().getClassLoader());
+					
 					// remove du components referring sets
 					for (ComponentID cid : deployableUnitDescriptor
 							.getComponents()) {
@@ -230,7 +235,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 							.uninstallProfileSpecification(deployableUnitIDImpl);
 					sleeContainer.getSbbManagement().uninstallSbbs(
 							deployableUnitIDImpl);
-
+					
 					// remove du
 					deployableUnitManagement
 							.removeDeployableUnit(deployableUnitIDImpl);
@@ -238,8 +243,14 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					// Clean up all the class files.
 					new DeploymentManager().undeployUnit(deployableUnitIDImpl);
 
-					logger.info("Uninstalled DU with id " + deployableUnitID);
+					// restore classloader
+					currentThread.setContextClassLoader(currentClassLoader);
+					currentClassLoader = null;
+					
 					rollback = false;
+					
+					logger.info("Uninstalled DU with id " + deployableUnitID);
+					
 				} catch (InvalidStateException ex) {
 					logger.error(ex);
 					throw ex;
@@ -253,6 +264,9 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 							"Exception removing deployable Unit ", ex);
 				} finally {
 					try {
+						if (currentClassLoader != null) {
+							currentThread.setContextClassLoader(currentClassLoader);
+						}
 						if (rollback) {
 							sleeTransactionManager.rollback();
 						} else {

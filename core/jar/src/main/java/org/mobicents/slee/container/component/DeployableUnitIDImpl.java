@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.slee.management.DeployableUnitID;
 
@@ -79,24 +80,10 @@ public class DeployableUnitIDImpl implements DeployableUnitID, Serializable  {
     public DeployableUnitDescriptorImpl getDescriptor( ) {
         return this.deployableUnitDescriptor;
     }
-
-
-    /**
-     * @param entry
-     */
-    public void addEntry(String entry) {
-        logger.debug("addEntry " + entry);
-        this.jarFileEntries.add(entry);
-        
+    
+    public Set<String> getDeployedFiles() {
+        return this.jarFileEntries;     
     }
-    
-    
-    
-    public Iterator<String> getDeployedFiles() {
-        return this.jarFileEntries.iterator();
-        
-    }
-
 
     /**
      *@param sourceDirLocation -- dir from where the source was read.

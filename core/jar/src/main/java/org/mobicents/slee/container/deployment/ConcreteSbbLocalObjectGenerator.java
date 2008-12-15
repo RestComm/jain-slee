@@ -19,7 +19,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
@@ -28,10 +27,11 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
@@ -103,14 +103,9 @@ public class ConcreteSbbLocalObjectGenerator {
         try {
         	
         	String tmpClassName=ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_PREFIX + sbbLocalObjectName + ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_SUFFIX;
-        						
-        	try {
-				concreteSbbLocalObject=pool.get(tmpClassName).getClassPool().makeClass(tmpClassName);
-			} catch (NotFoundException e2) {
-				concreteSbbLocalObject = pool.makeClass(tmpClassName);
-				//e2.printStackTrace();
-			}
-            
+        	
+        	concreteSbbLocalObject = pool.makeClass(tmpClassName);
+    		
             try {
                 sleeSbbLocalObject = pool.get(SbbLocalObjectImpl.class
                         .getName());
@@ -162,21 +157,14 @@ public class ConcreteSbbLocalObjectGenerator {
             generateGetSbbEntityId();
 
             try {
-//            	@@2.4+ -> 3.4+
-                //pool.writeFile(ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_PREFIX + sbbLocalObjectName + ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_SUFFIX, deployPath);
-            	pool.get(tmpClassName).writeFile(deployPath);
-            	pool.get(tmpClassName).detach();
-                if (logger.isDebugEnabled()) {
+            	concreteSbbLocalObject.writeFile(deployPath);
+            	if (logger.isDebugEnabled()) {
                     logger
                         .debug("Concrete Class "
                                 + tmpClassName
                                 + " generated in the following path "
                                 + deployPath);
-                }
-            } catch (NotFoundException e) {
-                String s = " Unexpected exception ! ";
-                logger.fatal(s, e);
-                throw new RuntimeException(s, e);
+                }            
             } catch (CannotCompileException e) {
 
                 String s = " Unexpected exception ! ";

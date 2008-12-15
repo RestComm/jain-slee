@@ -9,7 +9,9 @@
 
 package org.mobicents.slee.container.component;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +33,7 @@ import javax.slee.management.SbbDescriptor;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
+import org.jboss.classloader.spi.ClassLoaderPolicy;
 import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorType;
@@ -444,16 +447,11 @@ public interface MobicentsSbbDescriptor extends Serializable, SbbDescriptor,
      */
     public ClassLoader getClassLoader() ;
 
-    /**
-     * @param loader
-     *            The loader to set.
-     */
-    public void setClassLoader(ClassLoader loader) ;
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.management.DeployedComponent#setDeployableUnit(javax.slee.management.DeployableUnitID)
-     */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.slee.container.management.DeployedComponent#setDeployableUnit(javax.slee.management.DeployableUnitID)
+	 */
     public void setDeployableUnit(DeployableUnitID deployableUnitID) ;
 
     /**

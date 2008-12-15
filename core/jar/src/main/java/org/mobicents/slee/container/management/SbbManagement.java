@@ -15,7 +15,6 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
-import org.jboss.mx.loading.UnifiedClassLoader3;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
@@ -37,7 +36,7 @@ public class SbbManagement {
 	private static final Logger logger = Logger.getLogger(SbbManagement.class);
 
 	private final SleeContainer sleeContainer;
-
+	
 	// stores sbb descriptors
 	private final ConcurrentHashMap<ComponentID, MobicentsSbbDescriptor> sbbDescriptors;
 
@@ -116,15 +115,7 @@ public class SbbManagement {
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
-		// add a rollback action to unregister class loader
-		TransactionalAction action1 = new TransactionalAction() {
-			public void execute() {
-				((UnifiedClassLoader3) mobicentsSbbDescriptor.getClassLoader())
-						.unregister();
-			}
-		};
-		sleeTransactionManager.addAfterRollbackAction(action1);
-
+				
 		// create the pool for the given SbbID
 		sbbPoolManagement.createObjectPool(mobicentsSbbDescriptor,
 				sleeTransactionManager);
@@ -232,10 +223,8 @@ public class SbbManagement {
 							+ " from trace and alarm facilities");
 				}
 
-				// remove sbb and class loader
+				// remove sbb
 				sbbDescriptors.remove(sbbDescriptor.getID());
-				((UnifiedClassLoader3) sbbDescriptor.getClassLoader())
-						.unregister();
 				TransactionalAction action1 = new TransactionalAction() {
 					public void execute() {
 						sbbDescriptors.putIfAbsent(sbbDescriptor.getID(),
@@ -244,9 +233,13 @@ public class SbbManagement {
 								+ " due to transaction rollback");
 					}
 				};
-				sleeTransactionManager.addAfterRollbackAction(action1);
+				
+				// remove class loader
+				ComponentClassLoadingManagement.INSTANCE.removeClassLoader(sbbDescriptor.getID());
+				
 				logger.info("Uninstalled SBB " + sbbDescriptor.getID()
 						+ " on DU " + sbbDescriptor.getDeployableUnit());
+				
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("SBB " + sbbDescriptor.getID()
@@ -260,6 +253,6 @@ public class SbbManagement {
 	@Override
 	public String toString() {
 		return "Sbb Management: " + "\n+-- Sbb Descriptors: "
-				+ sbbDescriptors.keySet() + "\n" + sbbPoolManagement;
+				+ sbbDescriptors.keySet() + "\n" + ComponentClassLoadingManagement.INSTANCE + "\n" + sbbPoolManagement;
 	}
 }

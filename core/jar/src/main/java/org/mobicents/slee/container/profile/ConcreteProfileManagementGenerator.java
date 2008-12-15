@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javassist.CannotCompileException;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
@@ -33,6 +32,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.ProfileSpecificationDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 
@@ -115,20 +115,15 @@ public class ConcreteProfileManagementGenerator {
 	 */
 	public ConcreteProfileManagementGenerator(
 			ProfileSpecificationDescriptor profileSpecificationDescriptor) {
-		if (((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
-				.getDeployableUnit()) != null) {
-			this.deployPath = ((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
-					.getDeployableUnit()).getDUDeployer()
-					.getTempClassDeploymentDir().getAbsolutePath();
-			this.pool = ((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
+		this.deployPath = ((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
+				.getDeployableUnit()).getDUDeployer()
+				.getTempClassDeploymentDir().getAbsolutePath();
+		this.pool = ((DeployableUnitIDImpl) ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
 					.getDeployableUnit()).getDUDeployer().getClassPool();
-		} else {
-			this.deployPath = SleeContainer.getDeployPath();
-			this.pool = ConcreteClassGeneratorUtils.createClassPool();
-		}
-
-		if (pool.doPruning)
-			pool.doPruning = false;
+		
+		//if (pool.doPruning)
+		//	pool.doPruning = false;
+		
 		cmpProfileInterfaceName = ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
 				.getCMPInterfaceName();
 		profileManagementInterfaceName = ((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
@@ -155,14 +150,9 @@ public class ConcreteProfileManagementGenerator {
 		}
 		// pool.childFirstLookup=true;
 		String tmpClassName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX+ cmpProfileInterfaceName+ ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
-							  
-		try {
-			cmpProfileConcreteClass = pool.get(tmpClassName).getClassPool()
-					.makeClass(tmpClassName);
-		} catch (NotFoundException e) {
-			cmpProfileConcreteClass = pool.makeClass(tmpClassName);
-		}
-
+		
+		cmpProfileConcreteClass = pool.makeClass(tmpClassName);
+		
 		// Implementation of the both ProfileCMP interface and the
 		// javax.slee.profile.ProfileManagement Interface.
 		try {
@@ -261,19 +251,12 @@ public class ConcreteProfileManagementGenerator {
 
 		try {
 			// @@2.4+ -> 3.4+
-			pool.get(tmpClassName).writeFile(deployPath);
-			pool.get(tmpClassName).detach();
-			// pool.writeFile(
-			// ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX+
-			// cmpProfileInterfaceName+
-			// ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX,
-			// deployPath);
+			cmpProfileConcreteClass.writeFile(deployPath);
+			
 			if(logger.isDebugEnabled()) {
 				logger
 					.debug("Concrete Class "
-							+ ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX
-							+ cmpProfileInterfaceName
-							+ ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX
+							+ tmpClassName
 							+ " generated in the following path " + deployPath);
 			}
 		} catch (Exception e) {
@@ -289,27 +272,24 @@ public class ConcreteProfileManagementGenerator {
 			// hierarchy. This also makes
 			// our deployer essentially single threaded.
 			cmpProfileConcreteClass.defrost();
+			
 		}
 		createPersistentStateHolderClass();
 
 		Class clazz = null;
 		try {
+			// load the generated class
 			clazz = Thread
 					.currentThread()
 					.getContextClassLoader()
 					.loadClass(
-							ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX
-									+ cmpProfileInterfaceName
-									+ ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX);
+					tmpClassName);
+			
 		} catch (ClassNotFoundException e1) {
 			// Auto-generated catch block
 			e1.printStackTrace();
 		}
-		// set the concrete class in the descriptor
-		// sbbDeploymentDescriptor.setConcreteSbb(clazz);
-		// put in the table the clazz generated under the abbAbstractClassName
-		// as a key
-
+		
 		return clazz;
 	}
 
@@ -325,13 +305,8 @@ public class ConcreteProfileManagementGenerator {
 			return null;
 		}
 		// Extends the javax.slee.profile.ProfileMBean
-		try {
-			profileMBeanConcreteInterface=pool.get(cmpProfileInterfaceName + "MBean").getClassPool().makeInterface(cmpProfileInterfaceName + "MBean");
-
-		} catch (NotFoundException e2) {
-			profileMBeanConcreteInterface = pool.makeInterface(cmpProfileInterfaceName + "MBean");
-			//e2.printStackTrace();
-		}
+				
+		profileMBeanConcreteInterface = pool.makeInterface(cmpProfileInterfaceName + "MBean");
 		
 		try {
 			sleeProfileMBean = pool.get("javax.slee.profile.ProfileMBean");
@@ -381,7 +356,6 @@ public class ConcreteProfileManagementGenerator {
 			// @@2.4+ -> 3.4+
 			// pool.writeFile(cmpProfileInterfaceName+"MBean", deployPath);
 			pool.get(cmpProfileInterfaceName + "MBean").writeFile(deployPath);
-			pool.get(cmpProfileInterfaceName + "MBean").detach();
 			if(logger.isDebugEnabled()) {
 				logger.debug("Concrete Interface " + cmpProfileInterfaceName
 						+ "MBean" + " generated in the following path "
@@ -425,13 +399,7 @@ public class ConcreteProfileManagementGenerator {
 		
 		String tmpClassName=ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_PREFIX + cmpProfileInterfaceName + ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX;
 							
-		
-		try {
-			profileMBeanConcreteClass = pool.get(tmpClassName).getClassPool().makeClass(tmpClassName);
-		} catch (NotFoundException e2) {
-			profileMBeanConcreteClass = pool.makeClass(tmpClassName);
-			//e2.printStackTrace();
-		}
+		profileMBeanConcreteClass = pool.makeClass(tmpClassName);
 		
 		// Implements the javax.management.StandardMBean
 		CtClass jmxMBean = null;
@@ -509,7 +477,6 @@ public class ConcreteProfileManagementGenerator {
 			// ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX,
 			// deployPath);
 			pool.get(tmpClassName).writeFile(deployPath);
-			pool.get(tmpClassName).detach();
 			if(logger.isDebugEnabled()) {
 				logger
 				.debug("Concrete Class "
@@ -535,9 +502,7 @@ public class ConcreteProfileManagementGenerator {
 					.currentThread()
 					.getContextClassLoader()
 					.loadClass(
-							ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_PREFIX
-									+ cmpProfileInterfaceName
-									+ ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX);
+							tmpClassName);
 		} catch (ClassNotFoundException e1) {
 			// Auto-generated catch block
 			e1.printStackTrace();
@@ -683,14 +648,8 @@ public class ConcreteProfileManagementGenerator {
 		String tmpClassName=ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX
 		+ cmpProfileInterfaceName
 		+ ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX;
-		CtClass profilePersisentStateClass =null;
 		
-		try {
-			profilePersisentStateClass = pool.get(tmpClassName).getClassPool().makeClass(tmpClassName);
-		} catch (NotFoundException e2) {
-			profilePersisentStateClass = pool.makeClass(tmpClassName);
-			//e2.printStackTrace();
-		}
+		CtClass profilePersisentStateClass = pool.makeClass(tmpClassName);
 		
 		try {
 			// Make the persistent state serializable : this is mandatory by the
@@ -744,28 +703,30 @@ public class ConcreteProfileManagementGenerator {
 
 		// generate the persistent state class of the sbb
 		try {
-			// @@2.4+ -> 3.4+
-			// pool.writeFile(
-			// ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX+
-			// cmpProfileInterfaceName+
-			// ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX,
-			// deployPath);
-			pool.get(tmpClassName).writeFile(deployPath);
-			pool.get(tmpClassName).detach();
+			
+			profilePersisentStateClass.writeFile(deployPath);
+			
 			if(logger.isDebugEnabled()) {
 				logger
 				.debug("Concrete Class "
-						+ ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX
-						+ cmpProfileInterfaceName
-						+ ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX
+						+ tmpClassName
 						+ " generated in the following path " + deployPath);
 			}
 		} catch (Exception e) {
 			logger.error("Bad error generating profile !", e);
 			throw new RuntimeException(
 					"Unrecoverable  error genrating profile", e);
-		} finally {
+		}
+		finally {
 			profilePersisentStateClass.defrost();
+		}
+		
+		try {
+			Thread.currentThread().getContextClassLoader().loadClass(
+					tmpClassName);
+		} catch (ClassNotFoundException e1) {
+			// Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 

@@ -100,7 +100,7 @@ public class EventRouterImpl implements EventRouter {
 	 * activities after their creation,then turn this off to get more
 	 * performance turn it off.
 	 */
-	public final static boolean MONITOR_UNCOMMITTED_AC_ATTACHS = true;
+	public final static boolean MONITOR_UNCOMMITTED_AC_ATTACHS = false;
 
 	// Executor Pool related fields
 	// TODO: the executor pool size should be configurable

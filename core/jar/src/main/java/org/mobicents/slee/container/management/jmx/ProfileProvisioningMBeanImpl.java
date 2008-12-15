@@ -518,9 +518,14 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			SleeProfileManager profileManager = sleeContainer
 					.getSleeProfileManager();
 			ProfileSpecificationID profileSpecificationID;
+			ProfileSpecificationDescriptorImpl profileSpecificationDescriptorImpl;
 			try {
 				profileSpecificationID = profileManager
 						.findProfileSpecId(profileTableName);
+				profileSpecificationDescriptorImpl = profileManager
+						.getProfileSpecificationManagement()
+						.getProfileSpecificationDescriptor(
+								profileSpecificationID);
 			} catch (SystemException e) {
 				throw new ManagementException(errorStr, e);
 			}
@@ -543,7 +548,16 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 				throw new ManagementException(errorStr, e1);
 			}
 			objectName = null;
+
+			// store class loader
+			Thread currentThread = Thread.currentThread();
+			ClassLoader currentClassLoader = currentThread
+					.getContextClassLoader();
 			try {
+				// change class loader
+				currentThread
+						.setContextClassLoader(profileSpecificationDescriptorImpl
+								.getClassLoader());
 				// since all validation checks pass, lets try to create the
 				// profile
 				objectName = profileManager.addProfileToProfileTable(
@@ -558,6 +572,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 								+ "that it can exists only a single profile for it and "
 								+ "there is already a profile for this specification."
 								+ errorStr, e);
+			} finally {
+				// restore class loader
+				currentThread.setContextClassLoader(currentClassLoader);
 			}
 			logger.debug(infoStr
 					+ "DONE. The profile has the following JMX Object Name "

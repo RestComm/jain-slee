@@ -255,7 +255,7 @@ public class ResourceAdaptorEntity  implements Serializable {
         
         Class[] signature = null;
         try {
-            signature = new Class[] {Class.forName(propertyDescriptor.getType())};
+            signature = new Class[] {Thread.currentThread().getContextClassLoader().loadClass(propertyDescriptor.getType())};
         } catch (ClassNotFoundException ex) {
             //should never happen here because successfully parsed
         }

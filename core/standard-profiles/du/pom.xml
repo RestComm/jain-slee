@@ -3,19 +3,20 @@
 	<packaging>pom</packaging>
 	
 	<parent>
-		<groupId>org.mobicents.core</groupId>
-		<artifactId>mobicents-core-standard-profiles</artifactId>
-		<version>2.0.00-SNAPSHOT</version>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>standard-profiles-parent</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-core-standard-profiles-du</artifactId>
-	<name>Mobicents :: Core  :: ${pom.artifactId}</name>
+	<artifactId>standard-profiles-du</artifactId>
+	
+	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
 		
 	<dependencies>
 		<!-- components -->
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>mobicents-core-standard-profiles-jar</artifactId>
+			<artifactId>standard-profiles-jar</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>

@@ -33,18 +33,18 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.Modifier;
-import javassist.NotFoundException;
 
 import javax.slee.management.DeploymentException;
 import javax.slee.usage.SampleStatistics;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.jboss.util.Strings;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.InstalledUsageParameterSet;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.SbbIDImpl;
 import org.mobicents.slee.container.component.ServiceIDImpl;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.management.jmx.SampleStatisticsImpl;
 import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
 
@@ -56,7 +56,7 @@ public class ConcreteUsageParameterClassGenerator {
 
     private static Logger logger;
 
-    private javassist.ClassPool classPool;
+    private ClassPool classPool;
 
     private static final String NAME_FIELD = "name";
 
@@ -198,13 +198,8 @@ public class ConcreteUsageParameterClassGenerator {
                 .get(InstalledUsageParameterSet.class.getName());
         CtMethod[] methods = usageParamInterface.getMethods();
         
-        CtClass ctClass=null;
-        try{
-        	ctClass = classPool.get(concreteClassName).getClassPool().makeClass(concreteClassName);
-        }catch(NotFoundException nfe)
-        {
-        	ctClass  = classPool.makeClass(concreteClassName);
-        }
+        CtClass ctClass = classPool.makeClass(concreteClassName);
+		
         try {
             // createDefaultConstructor(ctClass);
             this.generateFields(ctClass,new CtClass[] {
@@ -249,10 +244,7 @@ public class ConcreteUsageParameterClassGenerator {
             this.createDefaultConstructor(ctClass);
 
             String sbbDeploymentPathStr = sbbDescriptor.getDeploymentPath();
-//        	@@2.4+ -> 3.4+
-            //classPool.writeFile(concreteClassName, sbbDeploymentPathStr);
-            classPool.get(concreteClassName).writeFile(sbbDeploymentPathStr);
-            classPool.get(concreteClassName).detach();
+            ctClass.writeFile(sbbDeploymentPathStr);
             if (logger.isDebugEnabled())
                 logger.debug("UsageParameterGenerator Writing file "
                         + concreteClassName);
