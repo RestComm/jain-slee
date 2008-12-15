@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE deployable-unit PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Deployable Unit 1.0//EN"
-                                 "http://java.sun.com/dtd/slee-deployable-unit_1_0.dtd">
-<deployable-unit>
-    <jar>jars/Dummy-sbb.jar</jar>
-    <jar>jars/SecondDummy-sbb.jar</jar>
-    <service-xml>DummySbb-service.xml</service-xml>
-</deployable-unit>

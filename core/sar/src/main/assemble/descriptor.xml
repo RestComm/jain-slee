@@ -21,12 +21,5 @@
       <useProjectArtifact>false</useProjectArtifact>
       <scope>compile</scope>
     </dependencySet>
-    <dependencySet>
-      <outputFileNameMapping>mobicents.rar</outputFileNameMapping>
-      <outputDirectory>/</outputDirectory>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-      <scope>runtime</scope>
-    </dependencySet>
   </dependencySets>
 </assembly>

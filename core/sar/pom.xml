@@ -22,13 +22,6 @@
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>rar</artifactId>
-			<version>${pom.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
 			<artifactId>ant-tasks</artifactId>
 			<version>${pom.version}</version>
 			<scope>compile</scope>			
@@ -111,6 +104,9 @@
 								<copy todir="${jboss.home}/docs/licenses">
 									<fileset file="LICENSES/*" />
 								</copy>
+								<copy overwrite="true"
+									file="../rar/target/rar-${pom.version}.rar"
+									tofile="target/${build.finalName}.dir/${build.finalName}/mobicents.rar" />
 								<copy todir="${jboss.home}/server/${node}/deploy">
 									<fileset
 										dir="target/${build.finalName}.dir">
