@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deploy-config>
-  <ra-entity resource-adaptor-id="nistTckRA#NIST#1.0" entity-name="tck">
-    <properties file="" />
-    <ra-link name="slee/resources/tck" />
-  </ra-entity>
-</deploy-config>
