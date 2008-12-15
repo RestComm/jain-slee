@@ -2,18 +2,17 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
+		<groupId>org.mobicents.servers.jainslee.1.0.tck</groupId>
 		<artifactId>parent</artifactId>
-		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
-
-	<artifactId>tck-parent</artifactId>
-	<groupId>org.mobicents.resources</groupId>
+		
+	<artifactId>ra-parent</artifactId>
 
 	<packaging>pom</packaging>
 
-	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
-
+	<name>Mobicents :: JAIN SLEE Server :: TCK :: ${pom.artifactId}</name>
+	
 	<modules>
 		<module>events</module>
 		<module>ratype</module>

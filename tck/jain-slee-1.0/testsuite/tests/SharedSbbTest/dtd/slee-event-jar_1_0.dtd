@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+This is the XML DTD for the JAIN SLEE 1.0 event component jar file deployment
+descriptor.  All JAIN SLEE 1.0 event component jar file deployment descriptors
+must include a DOCTYPE of the following form:
+
+  <!DOCTYPE event-jar PUBLIC
+        "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN"
+        "http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
+-->
+
+
+<!--
+The event-jar element is the root element of the event jar deployment
+descriptor.  It contains an optional description about the event jar file and
+one or more event definitions.
+-->
+<!ELEMENT event-jar (description?, event-definition+)>
+
+<!--
+The event-definition element defines an event type.  It contains an optional
+description about the event type being defined, the name, vendor, and version
+of the event type, and the name of the event class.
+
+Used in: event-jar
+-->
+<!ELEMENT event-definition (description?, event-type-name, event-type-vendor,
+          event-type-version, event-class-name)>
+
+<!--
+The description element may contain any descriptive text about the parent
+element.
+
+Used in: event-jar, event-definition
+-->
+<!ELEMENT description (#PCDATA)>
+
+<!--
+The event-type-name element contains the name of the event type component.
+
+Used in: event-definition
+
+Example:
+    <event-type-name>javax.slee.ActivityEndEvent</event-type-name>
+-->
+<!ELEMENT event-type-name (#PCDATA)>
+
+<!--
+The event-type-vendor element contains the vendor of the event type component.
+
+Used in: event-definition
+
+Example:
+    <event-type-vendor>javax.slee</event-type-vendor>
+-->
+<!ELEMENT event-type-vendor (#PCDATA)>
+
+<!--
+The event-type-version element contains the version of the event type
+component.  The version number typically should have the general form
+"major-version.minor-version".
+
+Used in: event-definition
+
+Example:
+    <event-type-version>1.0</event-type-version>
+-->
+<!ELEMENT event-type-version (#PCDATA)>
+
+<!--
+The event-class-name element contains the fully-qualified name of the event
+type's class or interface.
+
+Used in: event-definition
+
+Example:
+    <event-class-name>javax.slee.ActivityEndEvent</event-class-name>
+-->
+<!ELEMENT event-class-name (#PCDATA)>
+
+
+<!-- 
+The ID mechanism is to allow tools that produce additional deployment
+information (ie. information beyond that contained by the standard SLEE
+deployment descriptors) to store the non-standard information in a separate
+file, and easily refer from those tools-specific files to the information in
+the standard deployment descriptor.  The SLEE architecture does not allow the
+tools to add the non-standard information into the SLEE-defined deployment
+descriptors. 
+-->
+<!ATTLIST event-jar id ID #IMPLIED>
+<!ATTLIST event-definition id ID #IMPLIED>
+<!ATTLIST description id ID #IMPLIED>
+<!ATTLIST event-type-name id ID #IMPLIED>
+<!ATTLIST event-type-vendor id ID #IMPLIED>
+<!ATTLIST event-type-version id ID #IMPLIED>
+<!ATTLIST event-class-name id ID #IMPLIED>
+
+
+
