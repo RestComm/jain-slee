@@ -241,7 +241,19 @@ TCKResourceAdaptorSbbInterface, Serializable {
     }
 
     public void entityDeactivated() {
-        // TODO Auto-generated method stub
+    	if (this.tckACIFactory != null) {
+			try {
+				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.tckACIFactory)
+				.getJndiName();
+				// remove "java:" prefix
+				int begind = jndiName.indexOf(':');
+				String javaJNDIName = jndiName.substring(begind + 1);
+				SleeContainer.unregisterWithJndi(javaJNDIName);
+			}
+			catch (Exception e) {
+				log.error("failed to unbind aci factory", e);
+			}
+		}
         
     }
 

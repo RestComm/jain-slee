@@ -2,10 +2,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>mobicents-jainslee-server</artifactId>
-		<groupId>org.mobicents</groupId>
-		<version>2.0.00-SNAPSHOT</version>
-		<relativePath>../../pom.xml</relativePath>
+		<artifactId>parent</artifactId>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>tck-parent</artifactId>
@@ -20,7 +19,6 @@
 		<module>ratype</module>
 		<module>ra</module>
 		<module>mbean</module>
-		<module>sar</module>
 		<module>du</module>
 	</modules>
 

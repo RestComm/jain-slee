@@ -60,12 +60,12 @@ public class SleeTCKPluginWrapper extends ServiceMBeanSupport implements SleeTCK
         
 	    MBeanServer mbserver = getServer();
 	    ObjectName objName = new ObjectName(tckPluginMBObjName);
-	    Logger stdErrLogger = Logger.getLogger("STDERR");
-	    Level oldLevel = stdErrLogger.getLevel();
-	    stdErrLogger.setLevel(Level.OFF);
+	    //Logger stdErrLogger = Logger.getLogger("STDERR");
+	    //Level oldLevel = stdErrLogger.getLevel();
+	    //stdErrLogger.setLevel(Level.OFF);
 	    SleeTCKPlugin tckPlugin = new SleeTCKPlugin(rmiRegistryPort, sleeProviderImpl);
 	    tckPluginMBean = mbserver.registerMBean(tckPlugin, objName);
-	    stdErrLogger.setLevel(oldLevel);
+	    //stdErrLogger.setLevel(oldLevel);
     }
     
     public void stopService() throws Exception
