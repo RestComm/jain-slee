@@ -440,8 +440,8 @@ public class ConcreteSbbLocalObjectGenerator {
                             methodToAdd += "Character.TYPE;";
                         }
                     } else {
-                        methodToAdd += SleeContainerUtils.class.getName() + ".getCurrentThreadClassLoader().loadClass(\""
-                                + parameterTypes[i].getName() + "\"); "; //.class
+                    	methodToAdd += SleeContainerUtils.class.getName() + ".getCurrentThreadClassLoader().loadClass("
+                        + parameterTypes[i].getName() + ".class.getName()); "; //.class
                                                                          // ; "
                                                                          // ;
                     }
