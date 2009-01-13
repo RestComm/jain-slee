@@ -689,8 +689,11 @@ public class DeployableComponent
       }
       else
       {
-        logger.warn( "No Deployment Descriptor found in the " + duWrapper.getFileName() + " entry of a deployable unit." );
-        return null;
+        logger.warn( "\r\n--------------------------------------------------------------------------------\r\n"
+            + "No Component Descriptor found in '" + duWrapper.getFileName() + "'.\r\n"
+            + "--------------------------------------------------------------------------------");
+        
+        return new ArrayList<DeployableComponent>();
       }
     }
     finally
