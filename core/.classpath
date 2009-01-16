@@ -6,10 +6,32 @@
   <classpathentry kind="src" path="jar/src/main/java"/>
   <classpathentry kind="src" path="jar/src/main/resources"/>
   <classpathentry kind="src" path="jar/src/test/java"/>
+  <classpathentry kind="src" path="jaxb/descriptors/src/test/java"/>
+  <classpathentry kind="src" path="jaxb/descriptors/src/main/java"/>
+  <classpathentry kind="src" path="jaxb/du/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/du11/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/event/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/event11/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/jar/src/main/java"/>
+  <classpathentry kind="src" path="jaxb/library/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/src/main/java"/>
+  <classpathentry kind="src" path="jaxb/profile/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/profile11/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/ra/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/ra11/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/ratype/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/ratype11/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/sbb/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/sbb11/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/service/src/main/resources"/>
+  <classpathentry kind="src" path="jaxb/service11/src/main/resources"/>
   <classpathentry kind="src" path="rar/src/main/java"/>
   <classpathentry kind="src" path="sar/src/main/resources"/>
   <classpathentry kind="src" path="standard-events/jar/src/main/resources"/>
   <classpathentry kind="src" path="standard-profiles/jar/src/main/resources"/>
+  <classpathentry kind="src" path="transaction/src/test/java"/>
+  <classpathentry kind="src" path="transaction/src/main/java"/>
   <classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6/antlr-2.7.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/apache-xerces/xml-apis/2.9.1/xml-apis-2.9.1.jar"/>
@@ -22,10 +44,13 @@
   <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/gnu-getopt/getopt/1.0.12-brew/getopt-1.0.12-brew.jar"/>
   <classpathentry kind="var" path="M2_REPO/javassist/javassist/3.9.0.GA/javassist-3.9.0.GA.jar"/>
-  <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1.1/activation-1.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1/activation-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/security/jaas/1.0.01/jaas-1.0.01.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1.draft/jain-slee-1.1.draft.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.1/jaxb-api-2.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/xml/jaxb-impl/2.1/jaxb-impl-2.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/jboss-cache/1.4.1.SP9/jboss-cache-1.4.1.SP9.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/jboss-serialization/1.0.3.GA/jboss-serialization-1.0.3.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/jbossws/jboss-jaxws/3.0.1-native-2.0.4.GA/jboss-jaxws-3.0.1-native-2.0.4.GA.jar"/>

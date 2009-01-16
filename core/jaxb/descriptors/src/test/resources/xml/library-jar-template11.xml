@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE library-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Library 1.1//EN" "http://java.sun.com/dtd/slee-library-jar_1_1.dtd">
+
+<library-jar>
+    <description />
+
+    <library>
+        <description />
+        <library-name>alala</library-name>
+        <library-vendor>org.mobicents</library-vendor>
+        <library-version>xxx11.yyy</library-version>
+
+        <library-ref>
+            <description />
+             <library-name>alala2</library-name>
+        <library-vendor>org.mobicents</library-vendor>
+        <library-version>xxx11.yyy2</library-version>
+        </library-ref>
+
+        <jar>
+            <description />
+            <jar-name>jars/JARED.jar</jar-name>
+            <security-permission>
+                <description />
+                <security-permission-spec>GoDLike</security-permission-spec>
+            </security-permission>
+        </jar>
+    </library>
+
+    <security-permissions>
+        <description />
+         <security-permission-spec>GoDLike</security-permission-spec>
+    </security-permissions>
+</library-jar>

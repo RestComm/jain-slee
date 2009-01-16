@@ -13,6 +13,14 @@
 	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
 		
 	<dependencies>
+	
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>transaction</artifactId>
+			<version>${pom.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>jar</artifactId>

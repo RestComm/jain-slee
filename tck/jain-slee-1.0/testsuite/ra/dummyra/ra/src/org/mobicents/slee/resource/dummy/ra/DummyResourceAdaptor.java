@@ -52,6 +52,7 @@ import org.mobicents.slee.resource.dummy.ra.DummyActivityHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.util.JndiRegistrationManager;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 
@@ -253,7 +254,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 							.debug("jndiName prefix =" + prefix + "; jndiName = "
 									+ name);
 					log.info("___ = 5 = ___");
-					SleeContainer.registerWithJndi(prefix, name, acif);
+					JndiRegistrationManager.registerWithJndi(prefix, name, acif);
 				}
 				}catch(Exception e)
 				{
@@ -290,7 +291,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 				// remove "java:" prefix
 				int begind = jndiName.indexOf(':');
 				String javaJNDIName = jndiName.substring(begind + 1);
-				SleeContainer.unregisterWithJndi(javaJNDIName);
+				JndiRegistrationManager.unregisterWithJndi(javaJNDIName);
 			}
 		} catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();

@@ -35,6 +35,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.tck.TCKActivityHandle;
 import org.mobicents.slee.resource.tck.TCKMarshaller;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
+import org.mobicents.slee.util.JndiRegistrationManager;
 
 import com.opencloud.logging.LogLevel;
 import com.opencloud.logging.PrintWriterLog;
@@ -165,7 +166,7 @@ TCKResourceAdaptorSbbInterface, Serializable {
 					log.debug("jndiName prefix =" + prefix + "; jndiName = "
 							+ name);
 				}
-				SleeContainer
+				JndiRegistrationManager
 						.registerWithJndi(prefix, name, this.tckACIFactory);
 			}
 
@@ -257,7 +258,7 @@ TCKResourceAdaptorSbbInterface, Serializable {
 				// remove "java:" prefix
 				int begind = jndiName.indexOf(':');
 				String javaJNDIName = jndiName.substring(begind + 1);
-				SleeContainer.unregisterWithJndi(javaJNDIName);
+				JndiRegistrationManager.unregisterWithJndi(javaJNDIName);
 			}
 			catch (Exception e) {
 				log.error("failed to unbind aci factory", e);

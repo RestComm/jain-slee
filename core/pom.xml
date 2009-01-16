@@ -22,6 +22,7 @@
 	</scm>
 
 	<modules>
+		<module>transaction</module>
 		<module>jar</module>
 		<module>rar</module>
 		<module>ant-tasks</module>		

@@ -13,8 +13,14 @@
 			
 	<dependencies>
 		
-		<!-- jboss -->
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+           	<artifactId>transaction</artifactId>
+           	<version>${pom.version}</version>           	
+		</dependency>
 		
+		<!-- jboss -->
+				
 		<dependency>
 			<groupId>org.jboss.jbossas</groupId>
            	<artifactId>jboss-as-j2se</artifactId>           	
@@ -25,20 +31,7 @@
   			<artifactId>jboss-as-system-jmx</artifactId>
 		</dependency>
 		
-		<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-				<artifactId>jboss-as-server</artifactId>
-				<exclusions>
-				<exclusion>
-					<groupId>xerces</groupId>
-      				<artifactId>xerces</artifactId>
-      			</exclusion>
-      			<exclusion>
-					<groupId>xml-apis</groupId>
-      				<artifactId>xml-apis</artifactId>
-      			</exclusion>
-      			</exclusions>
-			</dependency>	
+		
 		
 		<dependency>
 				<groupId>org.jboss.jbossas</groupId>
@@ -52,18 +45,8 @@
 		</dependency>
 		-->
 		
-		<dependency>
-			<groupId>jboss</groupId>
-			<artifactId>jboss-cache</artifactId>			
-		</dependency>
+		
 			
-		<!-- jslee -->
-		<dependency>
-			<groupId>javax.slee</groupId>
-			<artifactId>jain-slee</artifactId>
-			<scope>compile</scope>
-		</dependency>
-					
 		<!-- commons -->
 		<dependency>
 			<groupId>commons-pool</groupId>
