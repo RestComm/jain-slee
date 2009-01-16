@@ -9,7 +9,7 @@
 	
 	<groupId>javax.slee</groupId>
 	<artifactId>jain-slee</artifactId>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.1</version>
 	
 	<packaging>jar</packaging>
 	
@@ -31,9 +31,9 @@
 	</dependencies>
 	
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/api/jain-slee-1.1</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/api/jain-slee-1.1</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/api/jain-slee-1.1</url>
 	</scm>
 
 	<profiles>
@@ -65,8 +65,8 @@
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
-					<excludePoms></excludePoms>
-					<classpathExcludes></classpathExcludes>
+					<excludePoms />
+					<classpathExcludes />
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
 					<eclipseProjectName>jain-slee-api</eclipseProjectName>
 				</configuration>
