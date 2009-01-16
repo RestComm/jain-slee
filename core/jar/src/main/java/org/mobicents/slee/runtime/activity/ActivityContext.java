@@ -1,4 +1,4 @@
-package org.mobicents.slee.runtime;
+package org.mobicents.slee.runtime.activity;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -11,10 +11,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.naming.NamingException;
+import javax.slee.EventTypeID;
 import javax.slee.facilities.TimerID;
 import javax.transaction.SystemException;
 
@@ -22,6 +21,8 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.cache.CacheableMap;
 import org.mobicents.slee.runtime.cache.CacheableSet;
+import org.mobicents.slee.runtime.eventrouter.PendingActivityContextAttachmentsManager;
+import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -45,84 +46,25 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 public class ActivityContext implements Serializable {
 
-	/**
-	 * Comment for <code>serialVersionUID</code>
-	 */
 	private static final long serialVersionUID = 487857681918072300L;
+	private static final transient SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	private static final transient SleeTransactionManager txManager = sleeContainer.getTransactionManager();
+	private static final transient Logger logger = Logger.getLogger(ActivityContext.class);
 
-	private static final String tcache = TransactionManagerImpl.RUNTIME_CACHE;
-
-	// this is the distributed data structure which keeps a distributed cache
-	// copy of an ActivityContext
-	// the following section has the actual AC attributes that represent an AC
-	// instance and are stored in the cache map
-	private transient CacheableMap activityContextCacheMap;
-
-	// BEGINnig of section for cacheable data structures
-
-	// Set of timers that are attached to this ActivityContext
-	private transient CacheableSet attachedTimers;
-
-	// this should contain the sbb entity identities that are
-	// attached to me.
-	// a unique ordered list (aka Set). This map is ordered
-	// from highest priority to lowest priority, with consideration of SbbEs
-	// realations - child/parents
-	// this is ensured by
-	private transient CacheableMap acSbbAttachmentSet = null;
-
-	private static final String SBB_ATTACHMENT_SET = "acSbbAttachmentSet";
-
-	// the state of the activity context. One of {ACTIVE, ENDING, INVALID}
-	// private ActivityContextState acState;
-
-	private static final String AC_STATE = "acState";
-
-	// named AC bindings. Used by AC Naming facility
-	// private HashSet namingBinding;
-
-	private transient CacheableSet namingBinding;
-
-	// This stores the Activity Context specific data.
-	// this stores the data that is shared between activities of the activity
-	// context.
-
-	CacheableMap dataAttributes;
-
-	// set of SBBs that received an event during a given event delivery
-	// transaction
-	// private HashSet deliveredSbbSet;
-
-	private static final String DELIVERED_SBB_SET = "acDeliveredSbbSet";
-
-	// END of cacheable data structures
-
-	SleeTransactionManager txManager;
-
-	// The activity for which this activity context was generated.
-	// this is not serialized to the cache
-	private Object activity;
-
-	private static transient Logger logger = Logger
-			.getLogger(ActivityContext.class);
-
-	// An identifier by which this AC can be mapped to an event.
-	private String activityContextId;
-
-	// The SLEE container.
-	private transient SleeContainer sleeContainer;
-
-	private transient SbbEntityFactory sbbEntityFactory;
-
-	private transient SbbEntityComparator sbbEntityComparator;
-
-	/**
-	 * flags whether the AC is marked for removal. It can no longer be used past
-	 * that point. AC is marked for removal after ActivityEnd event has been
-	 * delivered.
-	 */
-	private boolean isMarkedForRemoval = false;
-
+	// --- cache data naming
+	
+	private static final transient String tcache = TransactionManagerImpl.RUNTIME_CACHE;
+	
+	private static final transient String ATTACHED_SBBs = tcache + ":AC:SbbsAttached:";
+	private static final transient String ATTACHED_TIMERS = tcache + ":AC:AttachedTimers:";
+	private static final transient String CMP_ATTRIBUTES = tcache + ":AC:CMPAttributes:";
+	private static final transient String DATA_ATTRIBUTES = tcache + ":AC:DataAttributes:";
+	private static final transient String NAMES_BOUND = tcache + ":AC:NamesBound:";
+	
+	private static final transient String DATA_ATTRIBUTE_STATE = "state";
+	private static final transient String DATA_ATTRIBUTE_DELIVERED_SBB_SET = "deliveredSbbSet:";
+	
+	// --- time stamps
 	
 	/**
 	 * This map contains mappings between acId and Long Objects. Long object represnt  timestamp of last access time to ac. 
@@ -133,12 +75,61 @@ public class ActivityContext implements Serializable {
 	 * acting in multithreaded env we cant be sure if this operation wasnt followed by some update (however tests didnt reveal this situation when trash is left),
 	 * thus here is used WeakHashMap in which entries fade durign time. This is not a problem since ac should be accessed frequently, and if not we consider them old.
 	 */
-	private static Map timeStamps = new WeakHashMap<String, Long>(500);
- 
+	private static ConcurrentHashMap<ActivityContextHandle, Long> timeStamps = new ConcurrentHashMap<ActivityContextHandle, Long>(500);
+	
+	// --- cache data
+	
+	// this is the distributed data structure which keeps a distributed cache
+	// copy of an ActivityContext
+	// the following section has the actual AC attributes that represent an AC
+	// instance and are stored in the cache map
+	private transient CacheableMap dataAttributes;
+
+	// Set of timers that are attached to this ActivityContext
+	private transient CacheableSet attachedTimers;
+
+	// this should contain the sbb entity identities that are
+	// attached to me.
+	// a unique ordered list (aka Set). This map is ordered
+	// from highest priority to lowest priority, with consideration of SbbEs
+	// realations - child/parents
+	// this is ensured by
+	private transient CacheableMap attachedSbbs;
+
+	// named AC bindings. Used by AC Naming facility
+	private transient CacheableSet namesBound;
+
+	// This stores the Activity Context specific data.
+	// this stores the data that is shared between activities of the activity
+	// context.
+	private transient CacheableMap cmpAttributes;
+
+	// --- non cached data
+
+	// The activity for which this activity context was generated.
+	private ActivityContextHandle activityContextHandle;
+	
+	private transient SbbEntityFactory sbbEntityFactory;
+
+	private transient SbbEntityComparator sbbEntityComparator;
+
+	/**
+	 * flags whether the AC is marked for removal. It can no longer be used past
+	 * that point. AC is marked for removal after ActivityEnd event has been
+	 * delivered.
+	 */
+	private boolean isMarkedForRemoval = false;
+	
+	/**
+	 * the node name for this object in the containers cache
+	 */
+	private String activityContextId;
+	 
 	private void printNode() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("ActivityContext.printNode() { \n"
-					+ "activityContextId = " + this.getActivityContextId()
+					+ "activityContextHandle = " + activityContextHandle
+					+ "nodeNameInCache = " + activityContextId
 					+ "\nsbbAttachmentSet = "
 					+ this.getSbbAttachmentSetForDebug()
 					+ "\ngetDeliveredSet() = " + this.getDeliveredSetForDebug()
@@ -149,67 +140,49 @@ public class ActivityContext implements Serializable {
 		}
 	}
 
-	public ActivityContext(String activityContextId, Object activity,
-			boolean refreshAccessTime) {
+	public ActivityContext(ActivityContextHandle activityContextHandle, String id, boolean updateAccessTime) {
 
-		assert (activity != null) : "activity cannot be null, for activity context ID "
-				+ activityContextId;
-		assert (activityContextId != null) : "activity Id cannot be null";
+		assert (activityContextHandle != null) : "activityContextHandle cannot be null";
 
-		this.activity = activity;
+		this.activityContextHandle = activityContextHandle;
+		this.activityContextId = id;
+		this.sbbEntityComparator = new SbbEntityComparator(sbbEntityFactory);
 
-		this.activityContextId = activityContextId;
-
-		this.txManager = SleeContainer.getTransactionManager();
-
-		this.sleeContainer = SleeContainer.lookupFromJndi();
-		sbbEntityComparator = new SbbEntityComparator(sbbEntityFactory);
-
-		// init cacheable structures
-		init(refreshAccessTime);		
+		init(updateAccessTime);		
 				
 		printNode();		
 	}
 
+	public String getActivityContextId() {
+		return activityContextId;
+	}
 	/**
 	 * Associate this object instance with an underlying distributed cache
 	 * structure
 	 * 
 	 */
-	private void init(boolean refreshAccessTime) {
-		txManager.mandateTransaction();
+	private void init(boolean updateAccessTime) {
+		
+		sleeContainer.getTransactionManager().mandateTransaction();
 
-		activityContextCacheMap = new CacheableMap(tcache + "-"
-				+ getNodeNameInCache());
-
-		final String ATTACHED_TIMERS = "acAttachedTimers";
-		attachedTimers = new CacheableSet(tcache + "-" + getNodeNameInCache()
-				+ ":" + ATTACHED_TIMERS);
-
-		final String DATA_ATTRIBUTES = "acDataAttributes";
-		dataAttributes = new CacheableMap(tcache + "-" + getNodeNameInCache()
-				+ ":" + DATA_ATTRIBUTES);
-
-		final String NAMING_BINDING = "acNamingBinding";
-		namingBinding = new CacheableSet(tcache + "-" + getNodeNameInCache()
-				+ ":" + NAMING_BINDING);
-		// acSbbAttachmentSet = new
-		// CacheableTreeMap(tcache,SBB_ATTACHMENT_SET+":"+this.activityContextId,false,new
-		// SbbEntityComparator(SleeContainer.lookupFromJndi().getSbbEntityFactory()));
-		acSbbAttachmentSet = new CacheableMap(tcache + "-" + SBB_ATTACHMENT_SET
-				+ ":" + this.activityContextId);
-
-		Object o = activityContextCacheMap.get(AC_STATE);
+		this.dataAttributes = new CacheableMap(DATA_ATTRIBUTES	+ activityContextId);
+		this.attachedSbbs = new CacheableMap(ATTACHED_SBBs + activityContextId);
+		this.attachedTimers = new CacheableSet(ATTACHED_TIMERS + activityContextId);
+		this.cmpAttributes = new CacheableMap(CMP_ATTRIBUTES + activityContextId);
+		this.namesBound = new CacheableSet(NAMES_BOUND + activityContextId);
+			
+		Object o = dataAttributes.get(DATA_ATTRIBUTE_STATE);
 		
 		// if the AC is just being created, there would not be a cached copy
 		if (o == null) {
-			activityContextCacheMap.put(AC_STATE, ActivityContextState.ACTIVE);
-			activityContextCacheMap.put(DELIVERED_SBB_SET, new HashSet());
+			dataAttributes.put(DATA_ATTRIBUTE_STATE, ActivityContextState.ACTIVE);
+			dataAttributes.put(DATA_ATTRIBUTE_DELIVERED_SBB_SET, new HashSet());
 		}
 		
-		if (refreshAccessTime) {
+		if (updateAccessTime) {
 			this.updateLastAccessTime();
 		}
+		
 	}
 
 	/**
@@ -217,8 +190,7 @@ public class ActivityContext implements Serializable {
 	 * 
 	 */
 	public String getNodeNameInCache() {
-		assert (this.activityContextId != null) : "activityContextId cannot be null!";
-		return "activitycontext:" + this.activityContextId;
+		return activityContextId;
 	}
 
 	/**
@@ -239,7 +211,7 @@ public class ActivityContext implements Serializable {
 		txManager.mandateTransaction();
 		if (logger.isDebugEnabled()) {
 			logger.debug("ActivityContext.attach() : " + sbbEntityId
-					+ " activityContextId = " + this.activityContextId);
+					+ " activityContextId = " + activityContextHandle);
 		}
 
 		if (!getSbbAttachmentSet().containsKey(sbbEntityId)) {
@@ -249,9 +221,10 @@ public class ActivityContext implements Serializable {
 						.debug("After Attach to Activity Context : Attachment Set = "
 								+ this.getSbbAttachmentSet());
 			}
-			if (EventRouterImpl.MONITOR_UNCOMMITTED_AC_ATTACHS) {
-				TemporaryActivityContextAttachmentModifications.SINGLETON().txAttaching(this);
-			}
+			PendingAttachementsMonitor pendingAttachementsMonitor = sleeContainer.getEventRouter().getEventRouterActivity(activityContextHandle).getPendingAttachementsMonitor();
+			if (pendingAttachementsMonitor != null) {
+				pendingAttachementsMonitor.txAttaching();
+			}			
 			return true;
 		} else {
 			// we have a case of multiple consequent attachment attempts,
@@ -269,15 +242,16 @@ public class ActivityContext implements Serializable {
 
 		getSbbAttachmentSet().remove(sbbEntityId);
 
-		if (EventRouterImpl.MONITOR_UNCOMMITTED_AC_ATTACHS) {
-			TemporaryActivityContextAttachmentModifications.SINGLETON().txDetaching(this);
+		PendingAttachementsMonitor pendingAttachementsMonitor = sleeContainer.getEventRouter().getEventRouterActivity(activityContextHandle).getPendingAttachementsMonitor();
+		if (pendingAttachementsMonitor != null) {
+			pendingAttachementsMonitor.txDetaching();
 		}
-		
+				
 		if (logger.isDebugEnabled()) {
 			try {
 				logger.debug("Detaching SbbEntity[ID:" + sbbEntityId
 						+ "] \n" + " from ActivityContext[ID:"
-						+ this.activityContextId + "]\n"
+						+ activityContextHandle + "]\n"
 						+ " Remaining SbbEntities: "
 						+ getSbbAttachmentSet().keySet() + "\n"
 						+ " Transaction[ID:" + txManager.getTransaction()
@@ -300,7 +274,7 @@ public class ActivityContext implements Serializable {
 		Map sbbAttachmentSet = getSbbAttachmentSet();
 		if (logger.isDebugEnabled()) {
 			try {
-				logger.debug("ActivityContext[ID:" + activityContextId + "],\n"
+				logger.debug("ActivityContext[ID:" + activityContextHandle + "],\n"
 						+ "  SbbAttachmentSet: " + sbbAttachmentSet.keySet()
 						+ ",\n  Transaction[ID:" + txManager.getTransaction()
 						+ "]");
@@ -318,17 +292,8 @@ public class ActivityContext implements Serializable {
 	 * 
 	 * @return
 	 */
-	public Object getActivity() {
-		return this.activity;
-	}
-
-	/**
-	 * set the activity for this Acivity
-	 * 
-	 * @param activity
-	 */
-	public void setActivity(Object activity) {
-		this.activity = activity;
+	public ActivityContextHandle getActivityContextHandle() {
+		return this.activityContextHandle;
 	}
 
 	/**
@@ -353,7 +318,7 @@ public class ActivityContext implements Serializable {
 		if (logger.isDebugEnabled())
 			logger.debug("ActivityContext.isEnding(): state = "
 					+ this.getState());
-		return this.getState().equals(ActivityContextState.ENDING);
+		return this.getState() == ActivityContextState.ENDING;
 	}
 
 	/**
@@ -362,8 +327,7 @@ public class ActivityContext implements Serializable {
 	 * @return
 	 */
 	public boolean isInvalid() {
-		return (this.isMarkedForRemoval || this.getState().equals(
-				ActivityContextState.INVALID));
+		return (this.isMarkedForRemoval || this.getState() == ActivityContextState.INVALID);
 	}
 
 	/**
@@ -372,8 +336,8 @@ public class ActivityContext implements Serializable {
 	 * @return the state.
 	 */
 	public ActivityContextState getState() {
-		ActivityContextState acState = (ActivityContextState) activityContextCacheMap
-				.get(AC_STATE);
+		ActivityContextState acState = (ActivityContextState) dataAttributes
+				.get(DATA_ATTRIBUTE_STATE);
 		return (acState != null) ? acState : ActivityContextState.ACTIVE;
 	}
 
@@ -390,7 +354,7 @@ public class ActivityContext implements Serializable {
 			logger.debug("ActivityContext.setDataAttribute(): " + key
 					+ " value " + newValue);
 		}
-		dataAttributes.put(key, newValue);
+		cmpAttributes.put(key, newValue);
 	}
 
 	/**
@@ -405,16 +369,9 @@ public class ActivityContext implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger.debug("ActivityContext.getDataAttribute(): " + key);
 		}
-		return dataAttributes.get(key);
+		return cmpAttributes.get(key);
 	}
-
-	private Object getData() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("ActivityContext.getData()");
-		}
-		return dataAttributes;
-	}
-
+	
 	public Map getDataAttributesCopy() {
 		// Is this safe?
 		return new HashMap((Map) getData());
@@ -441,7 +398,7 @@ public class ActivityContext implements Serializable {
 				// iterator.remove();
 			} catch (Exception e) {
 				logger.warn("Failed to unbind name: " + name
-						+ " from activity context Id:" + activityContextId, e);
+						+ " from activity context Id:" + activityContextHandle, e);
 			}
 		}
 
@@ -473,10 +430,6 @@ public class ActivityContext implements Serializable {
 		this.getNamingBinding().add(aciName);
 	}
 
-	private Set getNamingBinding() {
-		return namingBinding;
-	}
-
 	/**
 	 * Fetches set of names given to this ac
 	 * 
@@ -486,12 +439,7 @@ public class ActivityContext implements Serializable {
 		return new HashSet(getNamingBinding());
 
 	}
-
-	private Set getDeliveredSet() {
-		Set ds = (Set) activityContextCacheMap.get(DELIVERED_SBB_SET);
-		return ds;
-	}
-
+	
 	/**
 	 * Add the given name to the set of activity context names that we are bound
 	 * to. The AC Naming facility implicitly ends the activity after all names
@@ -536,16 +484,16 @@ public class ActivityContext implements Serializable {
 	 * 
 	 */
 	public void markForRemove() {
-		activityContextCacheMap.remove();
-		attachedTimers.remove();
-		namingBinding.remove();
 		dataAttributes.remove();
-		acSbbAttachmentSet.remove();
+		attachedTimers.remove();
+		namesBound.remove();
+		cmpAttributes.remove();
+		attachedSbbs.remove();
 		isMarkedForRemoval = true;
 		// Beyond here we dont stamp this one
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
-				ActivityContext.timeStamps.remove(getActivityContextId());
+				ActivityContext.timeStamps.remove(activityContextHandle);
 			}
 		};
 		txManager.addAfterCommitAction(action);
@@ -567,9 +515,9 @@ public class ActivityContext implements Serializable {
 	}
 
 	public void clearDeliveredSet() {
-		Set ds = (Set) activityContextCacheMap.get(DELIVERED_SBB_SET);
+		Set ds = (Set) dataAttributes.get(DATA_ATTRIBUTE_DELIVERED_SBB_SET);
 		ds.clear();
-		activityContextCacheMap.put(DELIVERED_SBB_SET, ds);
+		dataAttributes.put(DATA_ATTRIBUTE_DELIVERED_SBB_SET, ds);
 	}
 
 	public boolean removeFromDeliveredSet(String sbbEntityId) {
@@ -583,13 +531,6 @@ public class ActivityContext implements Serializable {
 	 */
 	public String getSbbAttachmentSetForDebug() {
 		return this.getSbbAttachmentSet().values().toString();
-	}
-
-	/**
-	 * @return Returns the activityContextId.
-	 */
-	public String getActivityContextId() {
-		return activityContextId;
 	}
 
 	/**
@@ -608,10 +549,6 @@ public class ActivityContext implements Serializable {
 		return this.getAttachedTimers().remove(timerID);
 
 	}
-
-	private Set getAttachedTimers() {
-		return attachedTimers;
-	}
 	
 	/**
 	 * Fetches set of attached timers.
@@ -626,13 +563,76 @@ public class ActivityContext implements Serializable {
 	public Map getSbbAttachmentSet() {
 		// List sbbAttachmentSet =
 		// (List)activityContextCacheMap.get(SBB_ATTACHMENT_SET);
-		return acSbbAttachmentSet;
+		return attachedSbbs;
 	}
-		
-	private void setAcState(ActivityContextState acState) {
-		activityContextCacheMap.put(AC_STATE, acState);
+	
+	public SbbEntity getSbbEntityAttachedWithHigherPriority(EventTypeID eventTypeID) {
+
+		String sbbEntityId = null;
+		SbbEntity sbbEntity = null;
+
+		// get the highest priority sbb from sbb entities attached to AC
+		for (Iterator iter = getSortedCopyOfSbbAttachmentSet().iterator(); iter
+				.hasNext();) {
+			sbbEntityId = (String) iter.next();
+			// check sbb entity is not on the delivery set
+			if (deliveredSetContains(sbbEntityId)) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Already delivered event to sbbEntityId "
+							+ sbbEntityId + ", skipping...");
+				}
+				continue;
+			}
+			try {
+				sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
+				// check event is allowed to be handled by the sbb
+				if (sbbEntity.getSbbDescriptor().getReceivedEvents().contains(
+						eventTypeID)) {
+					return sbbEntity;
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger
+								.debug("Event is not received by sbb descriptor of entity "
+										+ sbbEntityId + ", skipping...");
+					}
+					continue;
+				}
+			} catch (IllegalStateException e) {
+				// ignore, sbb entity has been removed
+				continue;
+			}
+		}
+
+		return null;
+
+	}
+	
+	// --- private helpers
+	
+	private Object getData() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("ActivityContext.getData()");
+		}
+		return cmpAttributes;
 	}
 
+	private Set getNamingBinding() {
+		return namesBound;
+	}
+
+	private Set getDeliveredSet() {
+		Set ds = (Set) dataAttributes.get(DATA_ATTRIBUTE_DELIVERED_SBB_SET);
+		return ds;
+	}
+	
+	private void setAcState(ActivityContextState acState) {
+		dataAttributes.put(DATA_ATTRIBUTE_STATE, acState);
+	}
+
+	private Set getAttachedTimers() {
+		return attachedTimers;
+	}
+	
 	private class SbbEntityComparator implements Comparator {
 		SbbEntityFactory sbbEntityFactory;
 
@@ -640,16 +640,18 @@ public class ActivityContext implements Serializable {
 			this.sbbEntityFactory = sbbEntityFactory;
 		}
 
-		private Stack priorityOfSbb(SbbEntity sbbe) {			
+		private Stack priorityOfSbb(SbbEntity sbbe) {
 			Stack stack = new Stack();
 			// push all non root sbb entities
-			while(!sbbe.isRootSbbEntity()) {
+			while (!sbbe.isRootSbbEntity()) {
 				stack.push(sbbe);
-				sbbe = SbbEntityFactory.getSbbEntity(sbbe.getParentSbbEntityId());
-			};
+				sbbe = SbbEntityFactory.getSbbEntity(sbbe
+						.getParentSbbEntityId());
+			}
+			;
 			// push the root one
 			stack.push(sbbe);
-			
+
 			return stack;
 		}
 
@@ -660,37 +662,32 @@ public class ActivityContext implements Serializable {
 			if (sbbeId1.equals(sbbeId2))
 				return 0;
 			SbbEntity sbbe1 = null;
-			
+
 			try {
-				sbbe1 = SbbEntityFactory.getSbbEntity((String)sbbeId1);
-			}
-			catch (Exception e) {
+				sbbe1 = SbbEntityFactory.getSbbEntity((String) sbbeId1);
+			} catch (Exception e) {
 				// ignore
 			}
 			SbbEntity sbbe2 = null;
 			try {
-				sbbe2 = SbbEntityFactory.getSbbEntity((String)sbbeId2);
-			}
-			catch (Exception e) {
+				sbbe2 = SbbEntityFactory.getSbbEntity((String) sbbeId2);
+			} catch (Exception e) {
 				// ignore
 			}
 			if (sbbe1 == null) {
 				if (sbbe2 == null) {
 					return 0;
-				}
-				else {
+				} else {
 					return 1;
 				}
-			}
-			else {
+			} else {
 				if (sbbe2 == null) {
 					return -1;
-				}
-				else {
+				} else {
 					return higherPrioritySbb(sbbe1, sbbe2);
 				}
 			}
-			
+
 		}
 
 		private int higherPrioritySbb(SbbEntity sbbe1, SbbEntity sbbe2) {
@@ -741,12 +738,14 @@ public class ActivityContext implements Serializable {
 	}
 
 	/**
-	 * Returns time stamp of last access to this ac. If timestamp is found it return its value, if not "0"- it means that ac was accessed not during last few cycles,
-	 * thus its value has faded.
+	 * Returns time stamp of last access to this ac. If timestamp is found it
+	 * return its value, if not "0"- it means that ac was accessed not during
+	 * last few cycles, thus its value has faded.
+	 * 
 	 * @return
 	 */
 	public long getLastAccessTime() {
-		Long l = (Long) ActivityContext.timeStamps.get(this.activityContextId);
+		Long l = (Long) ActivityContext.timeStamps.get(activityContextHandle);
 		if (l != null)
 			return l.longValue();
 		else
@@ -758,20 +757,25 @@ public class ActivityContext implements Serializable {
 		if (this.isMarkedForRemoval)
 			return;
 		
+		// only update for resource adaptor activity contexts
+		if (this.activityContextHandle.getActivityType() != ActivityType.externalActivity) {
+			return;
+		}
+		
 		// update once per tx, after commit
-		if (txManager.getTxLocalData("ts:"+getActivityContextId()) == null) {
+		if (txManager.getTxLocalData("ts:"+activityContextHandle) == null) {
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {
-					ActivityContext.timeStamps.put(getActivityContextId(), new Long(System.currentTimeMillis()));
+					ActivityContext.timeStamps.put(activityContextHandle, new Long(System.currentTimeMillis()));
 				}
 			};
 			txManager.addAfterCommitAction(action);
-			txManager.putTxLocalData("ts:"+getActivityContextId(),new Object());
+			txManager.putTxLocalData("ts:"+activityContextHandle,new Object());
 		}
 	}
 
 	public String toString() {
-		return getClass().getName() + "[" + activityContextId + "]";
+		return getClass().getName() + "[" + activityContextHandle + "]";
 	}
 	
 	// emmartins: added to split null activity end related logic
@@ -796,96 +800,9 @@ public class ActivityContext implements Serializable {
 		return getNamingBinding().isEmpty();
 	}
 	
-	/**
-	 * each activity context has a set of outstanding events, not stored on cache
-	 */ 
-	private static ConcurrentHashMap<String,ConcurrentHashMap<DeferredEvent, DeferredEvent>> outstandingEvents = new ConcurrentHashMap<String,ConcurrentHashMap<DeferredEvent, DeferredEvent>>();
-    
-	/**
-	 * Puts a deferredEvent as an oustanding event for this AC
-	 * @param deferredEvent
-	 */
-    public void putOutstandingEvent(DeferredEvent deferredEvent) {
-    	ConcurrentHashMap<DeferredEvent, DeferredEvent> acOutstandingEvents = outstandingEvents.get(this.getActivityContextId());
-    	if (acOutstandingEvents == null) {
-    		acOutstandingEvents = new ConcurrentHashMap<DeferredEvent, DeferredEvent>();
-    		ConcurrentHashMap<DeferredEvent, DeferredEvent> other = outstandingEvents.putIfAbsent(this.getActivityContextId(), acOutstandingEvents);
-    		if (other != null) {
-    			acOutstandingEvents = other;
-    		}
-    	}
-    	acOutstandingEvents.put(deferredEvent,deferredEvent);
-    }
-    
-    /**
-     * Removes the specified deferred event from the outstanding event's set for this AC
-     * @param deferredEvent
-     */
-    public void removeOutstandingEvent(DeferredEvent deferredEvent) {
-    	
-    	ConcurrentHashMap<DeferredEvent, DeferredEvent> acOutstandingEvents = outstandingEvents.get(this.getActivityContextId());
-    	if (acOutstandingEvents != null) {
-    		acOutstandingEvents.remove(deferredEvent);
-    		if (acOutstandingEvents.isEmpty()) {
-    			// no more outstanding events
-    			if(this.getState().equals(ActivityContextState.ENDING)) {
-    				// and ac is ending
-    				DeferredEvent de = unsetFrozenActivityEndEvent();
-    				if (de != null) {
-    					// we have a frozen activity end event waiting for no more outstanding events, route it now
-    					if(logger.isDebugEnabled()) {
-    						logger.debug("frozen activity end event waiting and no more outstanding events, routing now");
-    					}
-    					sleeContainer.getEventRouter().routeEvent(de);
-    				}
-    			}
-    			else if (this.getState().equals(ActivityContextState.ACTIVE)) {
-    				// do nothing else
-    				return;
-    			}
-    			// ac state is ending or invalid, no more events will be added
-    			outstandingEvents.remove(this.getActivityContextId());
-    		}
-    	}
-    }
-    
-    /**
-     * Retrieves the number of outstanding events for this AC
-     * @return
-     */
-    public int getOutstandingEvents() {
-    	ConcurrentHashMap<DeferredEvent, DeferredEvent> acOutstandingEvents = outstandingEvents.get(this.getActivityContextId());
-    	if (acOutstandingEvents != null) {
-    		return acOutstandingEvents.size();
-    	}
-    	else {
-    		return 0;
-    	}
-    }
-    
-    /**
-     * Each AC my have an activity end event frozen,
-     * resulting from routing the event before all other outstanding events are routed
-     */
-    private static ConcurrentHashMap<String,DeferredEvent> frozenActivityEndEvents = new ConcurrentHashMap<String,DeferredEvent>();
-
-    /**
-     * Sets the deferred event as this AC frozen activity end event
-     * @param de
-     */
-    public void setFrozenActivityEndEvent(DeferredEvent de) {
-    	if (de != null) {
-    		frozenActivityEndEvents.put(this.getActivityContextId(), de);
-    	}
-	}
-	
-	public DeferredEvent unsetFrozenActivityEndEvent() {
-		return frozenActivityEndEvents.remove(this.getActivityContextId());
-	}
-	
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((ActivityContext)obj).activityContextId.equals(this.activityContextId);
+			return ((ActivityContext)obj).activityContextHandle.equals(this.activityContextHandle);
 		}
 		else {
 			return false;
@@ -893,16 +810,14 @@ public class ActivityContext implements Serializable {
 	}
 	
 	public int hashCode() {
-		return activityContextId.hashCode();
+		return activityContextHandle.hashCode();
 	}
 	
 	// FIXME add logic to remove refs in facilities when activity is explicitely
 	// ended. See example 7.3.4.1 in specs.
 	
-	public static String dumpStaticState() {
-		return "ActivityContext map timestamps: "+timeStamps.keySet()
-			+"\nActivityContext map frozenActivityEndEvents: "+frozenActivityEndEvents.keySet()+
-			"\nActivityContext map outstandingEvents: "+outstandingEvents.keySet();
+	public static String dumpState() {
+		return "\n+-- AC Timestamps Map size: "+timeStamps.size();
 	}
 	
 }

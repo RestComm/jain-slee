@@ -62,7 +62,7 @@ public class DefaultSBBProfileCMPInterceptor implements SBBProfileCMPInterceptor
         if (i == profileCMPMethods.length ) throw new AbstractMethodError ("Profile CMP Method not found");
         SbbObject sbbObject = sbbEntity.getSbbObject();
         
-        if ( ! sbbObject.getState().equals(SbbObjectState.READY)) {
+        if ( sbbObject.getState() != SbbObjectState.READY) {
             logger.error("InvalidState ! " + sbbObject.getState());
             throw new IllegalStateException("InvalidState! " + sbbObject.getState());
         }

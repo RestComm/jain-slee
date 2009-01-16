@@ -39,16 +39,16 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.SleeProfileManager;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.DeferredEvent;
-import org.mobicents.slee.runtime.facilities.ProfileAddedEventImpl;
-import org.mobicents.slee.runtime.facilities.ProfileTableActivityContextInterfaceFactoryImpl;
-import org.mobicents.slee.runtime.facilities.ProfileTableActivityImpl;
-import org.mobicents.slee.runtime.facilities.ProfileUpdatedEventImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
@@ -803,7 +803,7 @@ public class DefaultProfileManagementInterceptor implements
             } 
             
             ProfileTableActivityImpl profileTableActivity = new ProfileTableActivityImpl(
-                    profileTableName);
+                    new ProfileTableActivityHandle(profileTableName));
             ActivityContextInterfaceImpl activityContextInterface;
             try {
                 activityContextInterface = (ActivityContextInterfaceImpl) profileTableActivityContextInterfaceFactory
@@ -821,7 +821,7 @@ public class DefaultProfileManagementInterceptor implements
                        new DeferredEvent(
                         profileAddedEvent.getEventTypeID(),
                         profileAddedEvent,
-                        activityContextInterface.getActivityContext(),
+                        activityContextInterface.getActivityContextHandle(),
                         profileAddress);
                 } catch (SystemException e2) {
                     throw new ManagementException("Failed committing profile",
@@ -833,7 +833,7 @@ public class DefaultProfileManagementInterceptor implements
                             + profileAddedEvent.getEventTypeID()
                             + ",:"
                             + activityContextInterface
-                                    .retrieveActivityContextID());
+                                    .getActivityContextHandle());
                 }
 
                 profileInBackEndStorage = true;
@@ -847,7 +847,7 @@ public class DefaultProfileManagementInterceptor implements
                       new DeferredEvent(
                         profileUpdatedEvent.getEventTypeID(),
                         profileUpdatedEvent,
-                        activityContextInterface.getActivityContext(),
+                        activityContextInterface.getActivityContextHandle(),
                         profileAddress);
                 } catch (SystemException e2) {
                     throw new ManagementException("Failed committing profile",
@@ -858,7 +858,7 @@ public class DefaultProfileManagementInterceptor implements
                 	logger.debug("Queued following updated event: "
                 
                         + profileUpdatedEvent.getEventTypeID() + ",:"
-                        + activityContextInterface.retrieveActivityContextID());
+                        + activityContextInterface.getActivityContextHandle());
                 }
                 profileInBackEndStorage = true;
             }

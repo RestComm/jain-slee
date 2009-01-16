@@ -22,7 +22,6 @@ import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
-import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
@@ -33,9 +32,9 @@ import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.interceptors.ActivityContextInterfaceInterceptor;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextIDInterface;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
+import org.mobicents.slee.container.deployment.interceptors.DefaultActivityContextInterfaceInterceptor;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.SbbActivityContextInterface;
 
 /**
  * Class generating the concrete activity context interface class from the
@@ -69,13 +68,6 @@ public class ConcreteActivityContextInterfaceGenerator {
      */
     protected CtClass concreteActivityContextInterface = null;
 
-    protected CtClass activityContextIDInterfaceClass = null;
-
-    private static String ACTIVITY_CONTEXT_INTERFACE_IMPL = "activityContextInterface";
-
-    private static String THIS_ACTIVITY_CONTEXT_INTERFACE_IMPL = "this."
-            + ACTIVITY_CONTEXT_INTERFACE_IMPL;
-
     static {
         logger = Logger
                 .getLogger(ConcreteActivityContextInterfaceGenerator.class);
@@ -107,36 +99,41 @@ public class ConcreteActivityContextInterfaceGenerator {
             + ConcreteClassGeneratorUtils.CONCRETE_ACTIVITY_INTERFACE_CLASS_NAME_SUFFIX;
             
     		concreteActivityContextInterface = pool.makeClass(tmpClassName);
-    		
+    		CtClass sbbActivityContextInterface = null;
     		try {
                 activityContextInterface = pool
                         .get(activityContextInterfaceName);
-                activityContextIDInterfaceClass = pool
-                        .get(ActivityContextIDInterface.class.getName());
+                sbbActivityContextInterface = pool.get(SbbActivityContextInterface.class.getName());
             } catch (NotFoundException nfe) {
                 throw new DeploymentException ("Could not find aci " + activityContextInterfaceName, nfe);
             }
+            
+            //Generates the extends link
+            ConcreteClassGeneratorUtils.createInheritanceLink(concreteActivityContextInterface, sbbActivityContextInterface);
+            
             //Generates the implements link
             ConcreteClassGeneratorUtils.createInterfaceLinks(
                     concreteActivityContextInterface, new CtClass[] {
-                            activityContextInterface,
-                            this.activityContextIDInterfaceClass });
+                            activityContextInterface });
+            
             //Creates the fields
             createFields();
             //Creates the default constructor
             //createDefaultConstructor();
             //Creates the constructor with parameters
-            try {
+            try {    			
                 CtClass[] parameters = new CtClass[] {
+                		pool
+                        .get(ActivityContextInterfaceImpl.class.getName()),
                         pool
-                                .get("org.mobicents.slee.runtime.ActivityContextInterfaceImpl"),
-                        pool
-                                .get("org.mobicents.slee.container.component.MobicentsSbbDescriptor") };
+                                .get(MobicentsSbbDescriptor.class.getName()) };
                 createConstructorWithParameter(parameters);
             } catch (NotFoundException nfe) {
                 logger.error("Could not find class. Constructor With Parameter not created");
                 throw new DeploymentException ("Could not find class. Constructor With Parameter not created",nfe);
             }
+            
+            
             //Generates the methods to implement from the interface
             Map interfaceMethods = ClassUtils
                     .getInterfaceMethodsFromInterface(activityContextInterface);
@@ -146,8 +143,7 @@ public class ConcreteActivityContextInterfaceGenerator {
 
             try {
             	concreteActivityContextInterface.writeFile(sbbDeploymentPathStr);           	
-
-                if(logger.isDebugEnabled()) { 
+				if(logger.isDebugEnabled()) { 
                 	logger
                         .debug("Concrete Class "
                                 + tmpClassName
@@ -165,7 +161,7 @@ public class ConcreteActivityContextInterfaceGenerator {
             Class clazz = null;
             try {                
                 clazz = Thread.currentThread().getContextClassLoader().loadClass(tmpClassName);
-            } catch (Exception e1) {
+            } catch (Exception e1) {            	
                 logger.error ("problem loading generated class", e1);
                 throw new DeploymentException(
                         "problem loading the generated class! ", e1);
@@ -210,110 +206,13 @@ public class ConcreteActivityContextInterfaceGenerator {
                     "sbbActivityContextInterfaceInterceptor", false);
         }
 
-        String methodToAdd = "public Object getActivity() "
-                + "throws javax.slee.TransactionRequiredLocalException, javax.slee.SLEEException {"
-                + " return " + THIS_ACTIVITY_CONTEXT_INTERFACE_IMPL
-                + ".getActivity();" + "}";
-        CtMethod methodTest;
-        try {
-            methodTest = CtNewMethod.make(methodToAdd,
-                    concreteActivityContextInterface);
-            concreteActivityContextInterface.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-        	logger.error(cce);
-        }
-        methodToAdd = "public void attach(javax.slee.SbbLocalObject sbbLocalObject) "
-                + "throws NullPointerException, javax.slee.TransactionRequiredLocalException,"
-                + " javax.slee.TransactionRolledbackLocalException, javax.slee.SLEEException {"
-                + THIS_ACTIVITY_CONTEXT_INTERFACE_IMPL + ".attach($1);" + "}";
-        try {
-            methodTest = CtNewMethod.make(methodToAdd,
-                    concreteActivityContextInterface);
-            concreteActivityContextInterface.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-        	logger.error(cce);
-        }
-        methodToAdd = "public void detach(javax.slee.SbbLocalObject sbbLocalObject) "
-                + "throws NullPointerException, javax.slee.TransactionRequiredLocalException,"
-                + " javax.slee.TransactionRolledbackLocalException, javax.slee.SLEEException {"
-                + THIS_ACTIVITY_CONTEXT_INTERFACE_IMPL + ".detach($1);" + "}";
-        try {
-            methodTest = CtNewMethod.make(methodToAdd,
-                    concreteActivityContextInterface);
-            concreteActivityContextInterface.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-        	logger.error(cce);
-        }
-        methodToAdd = "public boolean isEnding() "
-                + "throws javax.slee.TransactionRequiredLocalException,"
-                + " javax.slee.SLEEException {" + "return "
-                + THIS_ACTIVITY_CONTEXT_INTERFACE_IMPL + ".isEnding();" + "}";
-        try {
-            methodTest = CtNewMethod.make(methodToAdd,
-                    concreteActivityContextInterface);
-            concreteActivityContextInterface.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-        	logger.error(cce);
-        }
-
-        methodToAdd = "public String retrieveActivityContextID() { return "
-                + THIS_ACTIVITY_CONTEXT_INTERFACE_IMPL
-                + ".retrieveActivityContextID(); }";
-        try {
-            methodTest = CtNewMethod.make(methodToAdd,
-                    concreteActivityContextInterface);
-            concreteActivityContextInterface.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-        	logger.error(cce);
-        }
-
-        methodToAdd = "public " + ActivityContext.class.getName()
-                + " retrieveActivityContext() { return "
-                + THIS_ACTIVITY_CONTEXT_INTERFACE_IMPL
-                + ".getActivityContext(); }";
-        try {
-            methodTest = CtNewMethod.make(methodToAdd,
-                    concreteActivityContextInterface);
-            concreteActivityContextInterface.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-            logger.error(cce);
-        }
-
     }
 
     /**
      * Create the Fields needed in the activity context interface concrete class
      */
     protected void createFields() {
-        CtField activityContextInterfaceInterceptor = null;
-        try {
-            activityContextInterfaceInterceptor = new CtField(pool
-                    .get(ActivityContextInterfaceImpl.class.getName()),
-                    ACTIVITY_CONTEXT_INTERFACE_IMPL,
-                    concreteActivityContextInterface);
-            activityContextInterfaceInterceptor.setModifiers(Modifier.PRIVATE);
-            concreteActivityContextInterface
-                    .addField(activityContextInterfaceInterceptor);
-        } catch (CannotCompileException cce) {
-        	logger.error(cce);
-        } catch (NotFoundException nfe) {
-        	logger.error(nfe);
-        }
-        createInterceptorFields();
-        if(logger.isDebugEnabled()) { 
-        	logger.debug("Fields created");
-        }
-    }
-
-    /**
-     * Create the interceptors in the concrete activity context interface It
-     * creates 1 interceptor for the different method calls:
-     * ActivityContextInterfaceInterceptor
-     */
-    protected void createInterceptorFields() {
-        //TODO Get the interceptors from a xml file
-        //Add the activity cntext interceptor
-        CtField activityContextInterfaceInterceptor = null;
+    	CtField activityContextInterfaceInterceptor = null;
         try {
             activityContextInterfaceInterceptor = new CtField(pool
                     .get(ActivityContextInterfaceInterceptor.class.getName()),
@@ -330,29 +229,6 @@ public class ConcreteActivityContextInterfaceGenerator {
     }
 
     /**
-     * Create a default constructor on the Activity context interface Concrete
-     * Class
-     */
-    protected void createDefaultConstructor() {
-        //FIXME Get the interceptors from a xml mapping file
-        CtConstructor defaultConstructor = new CtConstructor(null,
-                concreteActivityContextInterface);
-        String constructorBody = "{";
-        constructorBody += "sbbActivityContextInterfaceInterceptor=new "
-                + "org.mobicents.slee.container.deployment.interceptors.DefaultActivityContextInterfaceInterceptor(null);";
-        constructorBody += "}";
-        try {
-            defaultConstructor.setBody(constructorBody);
-            concreteActivityContextInterface.addConstructor(defaultConstructor);
-            if(logger.isDebugEnabled()) { 
-            	logger.debug("DefaultConstructor created");
-            }
-        } catch (CannotCompileException e) {
-            logger.error(e);
-        }
-    }
-
-    /**
      * Creates a constructor with parameters <BR>
      * For every parameter a field of the same class is created in the concrete
      * class And each field is gonna be initialized with the corresponding
@@ -364,36 +240,12 @@ public class ConcreteActivityContextInterfaceGenerator {
     protected void createConstructorWithParameter(CtClass[] parameters) {
         CtConstructor constructorWithParameter = new CtConstructor(parameters,
                 concreteActivityContextInterface);
-        String constructorBody = "{";
-        //"this();";
-        for (int i = 0; i < parameters.length; i++) {
-            String parameterName = parameters[i].getName();
-            parameterName = parameterName.substring(parameterName
-                    .lastIndexOf(".") + 1);
-            String firstCharLowerCase = parameterName.substring(0, 1)
-                    .toLowerCase();
-            parameterName = firstCharLowerCase.concat(parameterName
-                    .substring(1));
-            try {
-                CtField ctField = new CtField(parameters[i], parameterName,
-                        concreteActivityContextInterface);
-                ctField.setModifiers(Modifier.PRIVATE);
-                concreteActivityContextInterface.addField(ctField);
-            } catch (CannotCompileException cce) {
-            	logger.error(cce);
-            }
-            int paramNumber = i + 1;
-            constructorBody += parameterName + "=$" + paramNumber + ";";
-
-        }
-        constructorBody += "sbbActivityContextInterfaceInterceptor=new "
-                + "org.mobicents.slee.container.deployment.interceptors.DefaultActivityContextInterfaceInterceptor(mobicentsSbbDescriptor);";
-        constructorBody += "sbbActivityContextInterfaceInterceptor.setActivityContextInterface("
-                + "activityContextInterfaceImpl); "
-                + "this."
-                + ACTIVITY_CONTEXT_INTERFACE_IMPL
-                + " = activityContextInterfaceImpl;";
-        constructorBody += "}";
+        String constructorBody = 
+        	"{"
+        		+ "super($1);"
+        		+ "sbbActivityContextInterfaceInterceptor = new "+DefaultActivityContextInterfaceInterceptor.class.getName()+"($2);"
+        		+ "sbbActivityContextInterfaceInterceptor.setActivityContextInterface($1);"               
+        	+ "}";
         try {
             concreteActivityContextInterface
                     .addConstructor(constructorWithParameter);
@@ -405,5 +257,7 @@ public class ConcreteActivityContextInterfaceGenerator {
         	logger.error(e);
         }
     }
+    
+   
 
 }

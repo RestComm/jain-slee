@@ -42,7 +42,7 @@ public class DefaultChildRelationInterceptor implements ChildRelationInterceptor
      */
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
-        if(!sbbEntity.getSbbObject().getState().equals(SbbObjectState.READY))
+        if(sbbEntity.getSbbObject().getState() != SbbObjectState.READY)
             throw new IllegalStateException("Could not invoke  getChildRelation Method, Object is not in the READY state!");
         String accessorName=method.getName();
         if ( logger.isDebugEnabled()) {

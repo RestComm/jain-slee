@@ -1,8 +1,6 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,11 +23,10 @@ import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.SbbIDImpl;
-import org.mobicents.slee.resource.SleeActivityHandle;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.SleeInternalEndpoint;
-import org.mobicents.slee.runtime.cache.XACacheTestViewer;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
@@ -149,25 +146,27 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 				txMgr.begin();
 				createdTx = true;
 			}
-			ActivityContext ac = acFactory.getActivityContextById(nullACID,
-					false);
+			ActivityContext ac = acFactory.getActivityContext(nullACID,false);
 			if (ac == null) {
 				logger.debug("There is no ac associated with given acID["
 						+ nullACID + "]!!");
 				throw new ResourceException("Can not find AC for given ID["
 						+ nullACID + "], try again!!!");
 			}
-			if (ac.getActivity() instanceof NullActivity) {
+			if (ac.getActivityContextHandle().getActivityType() == ActivityType.nullActivity) {
 				logger.debug("Scheduling activity end for acID[" + nullACID
 						+ "]");
-				SleeInternalEndpoint end = container.getSleeEndpoint();
 
-				end.scheduleActivityEndedEvent(ac.getActivity());
+				NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivity();
+				if (nullActivity != null) {
+					nullActivity.endActivity();
+				}
 			} else {
 				logger.debug("AC is not null activity context");
 				throw new IllegalArgumentException("Given ID[" + nullACID
 						+ "] does not point to NullActivity");
 			}
+			
 		} catch (SystemException e) {
 
 			e.printStackTrace();
@@ -212,26 +211,13 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 			// Now we need to sort acs per factory type, raentity ?
 			Set factoriesSet = new HashSet();
 
-			Iterator it = this.acFactory.getAllActivityContextsIds()
+			Iterator<ActivityContextHandle> it = this.acFactory.getAllActivityContextsHandles()
 					.iterator();
 
 			logger.debug("Gathering information");
 
 			while (it.hasNext()) {
-				String id = (String) it.next();
-				ActivityContext ac = this.acFactory.getActivityContextById(id);
-				if (ac != null) {  
-					Object key = null;
-					Object activity = ac.getActivity();
-					if (activity instanceof SleeActivityHandle) {
-						key = ((SleeActivityHandle) activity).getRaEntityName();
-
-					} else {
-						// null and service activities fall here
-						key = activity.getClass().getName();
-					}
-					factoriesSet.add(key);
-				}
+				factoriesSet.add(it.next().getActivitySource());
 			}
 
 			logger.debug("Composing response");
@@ -302,14 +288,13 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 				createdTx = true;
 			}
 
-			ActivityContext ac = this.acFactory.getActivityContextById(AC_ID,
-					false);
+			ActivityContext ac = this.acFactory.getActivityContext(AC_ID,false);
 			if (ac == null) {
 				logger.debug("Ac retrieval failed, no such ac[" + AC_ID
 						+ "]!!!");
 				throw new ResourceException(
 						"Activity Context does not exist (ACID[" + AC_ID
-								+ "]), try another one!!");
+						+ "]), try another one!!");
 			}
 			o = getDetails(ac);
 
@@ -371,59 +356,40 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		logger.info("Listing with criteria[" + criteria + "] with details["
 				+ inDetails + "] only IDS[" + listIDsOnly + "]");
 
-		Iterator it = this.acFactory.getAllActivityContextsIds().iterator();
+		Iterator<ActivityContextHandle> it = this.acFactory.getAllActivityContextsHandles().iterator();
 		ArrayList lst = new ArrayList();
 
 		// Needed by LIST_BY_SBBID
 		HashMap sbbEntityIdToSbbID = new HashMap();
 
 		while (it.hasNext()) {
-			String id = (String) it.next();
-			ActivityContext ac = this.acFactory.getActivityContextById(id);
-			if (ac != null) {  
-				Object activity = null;
-
+			ActivityContext ac = this.acFactory.getActivityContext(it.next(),false);
+			Object activity = ac.getActivityContextHandle().getActivity();
+			if (ac != null && activity != null) {  
+				
 				switch (criteria) {
 				case LIST_BY_ACTIVITY_CLASS:
 
-					String activityClassName = null;
-					activity = ac.getActivity();
-					if (activity instanceof SleeActivityHandle)
-						activity = ((SleeActivityHandle) activity).getActivity();
-
-					activityClassName = activity.getClass().getCanonicalName();
-
-					if (!activityClassName.equals(comparisonCriteria))
+					if (!activity.getClass().getCanonicalName().equals(comparisonCriteria)) {
 						ac = null; // we dont want this one here
+					}						
 					break;
 
 				case LIST_BY_RAENTITY:
 
-					String raEntityName = null;
-
-					activity = ac.getActivity();
-					if (activity instanceof SleeActivityHandle) {
-						SleeActivityHandle SLAH = (SleeActivityHandle) activity;
-						raEntityName = SLAH.getRaEntityName();
-						if (!raEntityName.equals(comparisonCriteria))
+					if (ac.getActivityContextHandle().getActivityType() == ActivityType.externalActivity) {
+						if (!ac.getActivityContextHandle().getActivitySource().equals(comparisonCriteria))
 							ac = null;
 					} else
 						ac = null;
-
 					break;
 
 				case LIST_BY_SBBENTITY:
 
-					// BACKA - String uno="sdgdasgasghashsadhah";
-					// String due="";
-					// uno.contains(due)==true !!!!!!
-
 					// is this enough ?
-
 					if (comparisonCriteria.equals("")
 							|| !ac.getSortedCopyOfSbbAttachmentSet().contains(
 									comparisonCriteria)) {
-
 						ac = null;
 					}
 
@@ -479,7 +445,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 				// Now we have to check - if we want only IDS
 				Object singleResult = null;
 				if (!listIDsOnly) {
-					logger.debug("Adding AC[" + ac.getActivityContextId() + "]");
+					logger.debug("Adding AC[" + ac.getActivityContextHandle() + "]");
 
 					Object[] o = getDetails(ac);
 
@@ -503,7 +469,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 				} else {
 
-					singleResult = ac.getActivityContextId();
+					singleResult = ac.getActivityContextHandle().toString();
 				}
 
 				lst.add(singleResult);
@@ -529,26 +495,20 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	private Object[] getDetails(ActivityContext ac) {
 
 		logger.debug("Retrieveing details for acID["
-				+ ac.getActivityContextId() + "]");
+				+ ac.getActivityContextHandle() + "]");
 		Object[] o = new Object[ARRAY_SIZE];
 
 		o[ActivityManagementMBeanImplMBean.AC_ID] = ac.getActivityContextId();
 		logger.debug("======[getDetails]["
 				+ o[ActivityManagementMBeanImplMBean.AC_ID] + "]["
 				+ ac.hashCode() + "]");
-		String activityClassName = null;
-
-		Object activity = ac.getActivity();
-		if (activity instanceof SleeActivityHandle) {
-			SleeActivityHandle SLAH = (SleeActivityHandle) activity;
-			activityClassName = SLAH.getActivity().getClass()
-					.getCanonicalName();
-			o[RA] = SLAH.getRaEntityName();
-		} else {
-			activityClassName = activity.getClass().getCanonicalName();
+		
+		ActivityContextHandle ach = ac.getActivityContextHandle();
+		if (ach.getActivityType() == ActivityType.externalActivity) {
+			o[RA] = ach.getActivitySource();
 		}
-
-		o[ACTIVITY_CLASS] = activityClassName;
+		
+		o[ACTIVITY_CLASS] = ach.getActivity().getClass().getName();
 		logger.debug("======[getDetails][ACTIVITY_CLASS][" + o[ACTIVITY_CLASS]
 				+ "]");
 		// Date d = new Date(ac.getLastAccessTime());
@@ -776,73 +736,84 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	 */
 	private class PeriodicLivelinessScanner extends TimerTask {
 
-		public void run() {
-
-			// We need to run in tx FOR SURE!!!!
+		private Set<ActivityContextHandle> getActivityContextHandles() {
 			if(logger.isDebugEnabled())
 				logger
-					.debug("Periodic Liveliness Task is on the run, scanning through acs");
-			 //ActivityContext.doDebug();
-			boolean createdTx = txMgr.requireTransaction();
-			boolean rollback = true;
+					.debug("Periodic Liveliness Task is on the run, retrieveing all ACs");
+			
 			try {
-
-				Iterator it = acFactory.getAllActivityContextsIds().iterator();
-				long currentTime = System.currentTimeMillis();
-				// For now lets querry all of them.
-				while (it.hasNext()) {
-
-					String id = (String) it.next();
-					ActivityContext ac = acFactory.getActivityContextById(id);
-					if (ac != null) {  
-						if (!(ac.getActivity() instanceof SleeActivityHandle))
-							continue;
-
-						if ((currentTime - ac.getLastAccessTime()) < maxActivityIdleTime) {
-							// This one has been accessed in near past, so we dont
-							// want to querry it
-							continue;
-						}
-
-						SleeActivityHandle SLAH = (SleeActivityHandle) ac
-								.getActivity();
-						if (SLAH.getResourceAdaptor() != null)
-							SLAH.getResourceAdaptor().queryLiveness(
-									SLAH.getHandle());
-					}
-				}
-				rollback = false;
-			} catch (Exception e) {
-				logger.error("Failure in periodic liveliness scanner", e);
-			} finally {
+				txMgr.begin();
+				return acFactory.getAllActivityContextsHandles();
+			}
+			catch (Exception e) {
+				logger.error("failed to retrieve all ACs to do periodic liveness scan", e);
+				return null;
+			}
+			finally {
 				try {
-					if (createdTx) {
-						if (rollback) {
-							txMgr.rollback();
-						}
-						else {
-							txMgr.commit();	
-						}
-
-					} else {
-						if (rollback) {
-							txMgr.setRollbackOnly();
-						}	
-					}
-				} catch (SystemException e) {
-					logger.error("Tx manager failure in periodic liveliness scanner", e);
+					txMgr.rollback();
 				}
-				if (querryInterval == 0)
-					return;
+				catch (Exception e) {
+					logger.error("failed to end tx to retrieve all ACs and do periodic liveness scan", e);
+				}
+			}
+		}
+		
+		private void queryLiveness(ActivityContextHandle ach,long currentTime) {
+			
+			if(logger.isDebugEnabled())
+				logger
+					.debug("Periodic Liveliness Task is on the run, processing AC "+ach);
+			
+			try {
+				txMgr.begin();
+				ActivityContext ac = acFactory.getActivityContext(ach,false);
+				if (ac != null) {  
+					if (ach.getActivityType() != ActivityType.externalActivity)
+						return;
 
+					if ((currentTime - ac.getLastAccessTime()) < maxActivityIdleTime) {
+						// This one has been accessed in near past, so we dont
+						// want to query it
+						return;
+					}
+					container.getResourceManagement()
+							.getResourceAdaptorEntity(
+									ach.getActivitySource())
+							.getResourceAdaptor().queryLiveness(
+									ach.getActivityHandle());
+				}
+			}
+			catch (Exception e) {
+				logger.error("failed to query liveness on AC "+ach, e);
+				
+			}
+			finally {
+				try {
+					txMgr.commit();
+				}
+				catch (Exception e) {
+					logger.error("failed to end tx to to query liveness on AC "+ach, e);
+				}
+			}
+			
+		}
+		
+		public void run() {
+			Set<ActivityContextHandle> achs = this.getActivityContextHandles();
+			if (achs != null) {
+				long currentTime = System.currentTimeMillis();
+				for (ActivityContextHandle ach : achs) {
+					this.queryLiveness(ach,currentTime);										
+				}
+			}
+			if (querryInterval != 0) {
 				// Lets schedule again				
 				currentQuestioner = new PeriodicLivelinessScanner();
 				queryRunner.schedule(currentQuestioner, querryInterval);
 				if(logger.isDebugEnabled())
 					logger.debug("Periodic Liveliness Task scheduled for next run");
-
 			}
-
 		}
 
 	}

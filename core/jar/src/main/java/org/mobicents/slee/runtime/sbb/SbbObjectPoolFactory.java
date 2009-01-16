@@ -61,7 +61,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
         	//unsetSbbContext must be called with the context classloader
             //of the entities sbbDescriptor as with other sbb invocatiions.
             Thread.currentThread().setContextClassLoader(sbbDescriptor.getClassLoader());
-            if (!sbbObject.getState().equals(SbbObjectState.DOES_NOT_EXIST)) {
+            if (sbbObject.getState() != SbbObjectState.DOES_NOT_EXIST) {
                 sbbObject.unsetSbbContext();
             }
         } finally {

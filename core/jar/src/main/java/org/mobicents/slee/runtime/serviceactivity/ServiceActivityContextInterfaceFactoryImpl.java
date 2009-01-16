@@ -30,36 +30,40 @@ import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityContextInterfaceFactory;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
- *  
+ * Service Activity Context Factory Implementation.
+ * 
+ * @author Eduardo Martins
+ * 
  */
 public class ServiceActivityContextInterfaceFactoryImpl implements
-        ServiceActivityContextInterfaceFactory {
-    
-    private SleeContainer sleeContainer;
+		ServiceActivityContextInterfaceFactory {
 
-    public static String JNDI_NAME = "activitycontextinterfacefactory";
-    
-    public ServiceActivityContextInterfaceFactoryImpl(
-            SleeContainer serviceContainer) {
-        this.sleeContainer = serviceContainer;
-    }
+	public static String JNDI_NAME = "activitycontextinterfacefactory";
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.slee.serviceactivity.ServiceActivityContextInterfaceFactory#getActivityContextInterface(javax.slee.serviceactivity.ServiceActivity)
-     */
-    public ActivityContextInterface getActivityContextInterface(
-            ServiceActivity serviceActivityImpl) throws NullPointerException,
-            TransactionRequiredLocalException, UnrecognizedActivityException,
-            FactoryException {
-        
-        return new ActivityContextInterfaceImpl(((ServiceActivityImpl) serviceActivityImpl).getActivityContextId());
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.serviceactivity.ServiceActivityContextInterfaceFactory#getActivityContextInterface(javax.slee.serviceactivity.ServiceActivity)
+	 */
+	public ActivityContextInterface getActivityContextInterface(
+			ServiceActivity serviceActivityImpl) throws NullPointerException,
+			TransactionRequiredLocalException, UnrecognizedActivityException,
+			FactoryException {
 
-    }
+		ActivityContextHandle ach = ActivityContextHandlerFactory
+		.createServiceActivityContextHandle(new ServiceActivityHandle(((ServiceActivityImpl) serviceActivityImpl).getServiceID()));
+		ActivityContext ac = SleeContainer.lookupFromJndi().getActivityContextFactory().getActivityContext(ach, false);
+		if (ac == null) {
+			throw new UnrecognizedActivityException(serviceActivityImpl);
+		}
+		return new ActivityContextInterfaceImpl(ac);
+
+	}
 
 }
-

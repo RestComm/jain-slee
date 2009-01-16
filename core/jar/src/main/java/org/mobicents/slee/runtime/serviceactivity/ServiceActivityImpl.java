@@ -50,57 +50,34 @@ public class ServiceActivityImpl implements ServiceActivity, Serializable {
      * The Service for which this is a service Activity
      */
     private ServiceID serviceid;
-    
-    /*
-     * The Activity Context Interface for this service activity
-     */
-    private String activityContextId;
-    
-    
-    public ServiceActivityImpl (Service service) {
-        if(service != null) {
-        	this.serviceid = service.getServiceID();
-        }
-        else {
-        	throw new IllegalArgumentException("service is null");
-        }
-        
-    }
-    
-    public ServiceID getService() {
-        return this.serviceid;
-    }
-    
-    public String getActivityContextId() {
-        return this.activityContextId;
-    }
-    
-    public boolean equals(Object obj){
-    	if ((obj != null) && (obj.getClass() == this.getClass())) {
-    		return this.serviceid.equals(((ServiceActivityImpl)obj).serviceid);
-    	}
-    	else {
-    		return false;
-    	}
-   }
-    
-    public int hashCode () {
-        return this.getServiceID().toString().hashCode()  ;
-   }
-    
-    public ServiceID getServiceID() {
-        return this.serviceid;
-    }
-    
-    
 
-    /**
-     * @param serviceActivityContextId
-     */
-    public void setActivityContxtId(String serviceActivityContextId) {
-        this.activityContextId = serviceActivityContextId;
-        
-    }
+	public ServiceActivityImpl(Service service) {
+		if (service != null) {
+			this.serviceid = service.getServiceID();
+		} else {
+			throw new IllegalArgumentException("service is null");
+		}
+	}
+
+	public ServiceID getService() {
+		return this.serviceid;
+	}
+
+	public boolean equals(Object obj) {
+		if ((obj != null) && (obj.getClass() == this.getClass())) {
+			return this.serviceid.equals(((ServiceActivityImpl) obj).serviceid);
+		} else {
+			return false;
+		}
+	}
+
+	public int hashCode() {
+		return this.getServiceID().toString().hashCode();
+	}
+
+	public ServiceID getServiceID() {
+		return this.serviceid;
+	}
 
 }
 

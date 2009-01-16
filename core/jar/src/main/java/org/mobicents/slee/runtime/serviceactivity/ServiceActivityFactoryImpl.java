@@ -46,8 +46,8 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static String JNDI_NAME = "factory";
-	public static String TXLOCALDATA_SERVICEID_KEY = "serviceactivityfactory.serviceid";
+	public static final String JNDI_NAME = "factory";
+	public static final String TXLOCALDATA_SERVICEID_KEY = "serviceactivityfactory.serviceid";
 
 	/* (non-Javadoc)
 	 * @see javax.slee.serviceactivity.ServiceActivityFactory#getActivity()
@@ -59,6 +59,12 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 		stm.mandateTransaction();
 		ServiceID serviceID = (ServiceID) stm
 				.getTxLocalData(TXLOCALDATA_SERVICEID_KEY);
+		return getActivity(serviceID);
+	}
+
+	public static ServiceActivity getActivity(ServiceID serviceID)
+			throws FactoryException {
+
 		try {
 			return SleeContainer.lookupFromJndi().getServiceManagement()
 					.getService(serviceID).getServiceActivity();
@@ -67,5 +73,4 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 					+ serviceID);
 		}
 	}
-
 }

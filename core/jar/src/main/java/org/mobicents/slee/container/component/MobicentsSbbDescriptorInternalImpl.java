@@ -30,14 +30,14 @@ import org.apache.commons.pool.ObjectPool;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.InitialEventSelectorImpl;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ComponentClassLoadingManagement;
+import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
-import org.mobicents.slee.runtime.SleeEvent;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbObject;
@@ -332,13 +332,14 @@ public class MobicentsSbbDescriptorInternalImpl implements
 	 * @return the convergence name or null if this is not an initial event for
 	 *         this service
 	 */
-	public String computeConvergenceName(SleeEvent sleeEvent,
+	public String computeConvergenceName(DeferredEvent sleeEvent,
 			ServiceComponent svc) throws Exception {
-		EventTypeID eventType = sleeEvent.getEventTypeID();
-		SbbEventEntry entry = (SbbEventEntry) eventTypes.get(eventType);
-		Object activity = sleeEvent.getActivity();
+		
+		
+		final SbbEventEntry entry = (SbbEventEntry) eventTypes.get(sleeEvent.getEventTypeId());
+		
 		InitialEventSelectorImpl selector = new InitialEventSelectorImpl(
-				eventType, sleeEvent.getEventObject(), activity, entry
+				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextHandle(), entry
 						.getInitialEventSelectors(), entry
 						.getInitialEventSelectorMethod(), sleeEvent
 						.getAddress());
@@ -405,7 +406,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		StringBuffer buff = new StringBuffer();
 
 		if (selector.isActivityContextSelected()) {
-			buff.append(sleeEvent.getActivityContextID());
+			buff.append(sleeEvent.getActivityContextHandle().toString());
 		} else
 			buff.append("null");
 

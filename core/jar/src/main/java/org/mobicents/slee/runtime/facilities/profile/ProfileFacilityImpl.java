@@ -12,7 +12,7 @@
  * Created on Oct 16, 2004
  *
  */
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.profile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,7 +50,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
     private static Logger logger = Logger.getLogger(ProfileFacilityImpl.class);
 
     public static final String JNDI_NAME = "profile";
-
+  
     /**
      *  
      */
@@ -248,7 +248,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
         if (profileTableName == null)
             throw new NullPointerException();
 
-        if (!sleeContainer.getSleeState().equals(SleeState.RUNNING))
+        if (sleeContainer.getSleeState() != SleeState.RUNNING)
             throw new FacilityException(
                     "Cannot obtain profile activity. Slee container is not in RUNNING state, but "
                             + sleeContainer.getSleeState());
@@ -265,8 +265,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
             if (profileSpecificationID == null)
                 throw new UnrecognizedProfileTableNameException();
 
-            return sleeProfileManager
-                    .createProfileTableActivity(profileTableName);
+            return sleeProfileManager.getProfileTableActivity(profileTableName);
         } catch ( SystemException ex ) {
             throw new FacilityException("Unexpected exception",ex);
         } finally  {

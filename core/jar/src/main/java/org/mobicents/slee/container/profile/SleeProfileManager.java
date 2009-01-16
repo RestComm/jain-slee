@@ -34,16 +34,16 @@ import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileManagement;
 import javax.slee.profile.ProfileSpecificationDescriptor;
 import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
+import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.jboss.cache.Node;
-import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.ProfileSpecificationIDImpl;
@@ -53,14 +53,21 @@ import org.mobicents.slee.container.deployment.interceptors.DefaultProfileManage
 import org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor;
 import org.mobicents.slee.container.management.ProfileSpecificationManagement;
 import org.mobicents.slee.container.management.jmx.ProfileProvisioningMBeanImpl;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.DeferredEvent;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.CacheableSet;
-import org.mobicents.slee.runtime.facilities.ProfileRemovedEventImpl;
-import org.mobicents.slee.runtime.facilities.ProfileTableActivityContextInterfaceFactoryImpl;
-import org.mobicents.slee.runtime.facilities.ProfileTableActivityImpl;
+import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.facilities.profile.ProfileRemovedEventImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * This class is used by the SLEE to manage Profiles. It calls out to the
@@ -72,6 +79,7 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
  * @author Ivelin Ivanov
  * 
  * @author M. Ranganathan
+ * @author martins
  *  
  */
 public class SleeProfileManager {
@@ -302,6 +310,8 @@ public class SleeProfileManager {
 									((ProfileSpecificationDescriptorImpl) profileSpecificationDescriptor)
 											.getSingleProfile()));
 
+			createProfileTableActivity(profileTableName);
+			
 			this.getProfileCacheManager().getProfileTableNames().add(
 					profileTableName);
 			this.getProfileCacheManager().addTransactionalAction();
@@ -519,13 +529,10 @@ public class SleeProfileManager {
 			// Stopping state. This allows
 			// SBB entities attached to Profile Table Activities to clean up in
 			// the usual way.
-
-			ProfileTableActivityImpl profileTableActivity = this
-					.createProfileTableActivity(profileTableName);
-			sleeContainer.getSleeEndpoint().scheduleActivityEndedEvent(
-					profileTableActivity);
-			//transactionManager.removeNode(tcache,key);
-			//this.removeProfileTableActivity(profileTableName);
+			ActivityContextHandle ach = ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableName));
+			ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
+			ac.setState(ActivityContextState.ENDING);
+			new DeferredActivityEndEvent(ach,null);
 
 		} catch (JMException e) {
 			logger.error("Failed to remove profile table: " + profileTableName,
@@ -696,7 +703,9 @@ public class SleeProfileManager {
 		profileManagementInterceptor
 		.loadStateFromBackendStorage(cmpInterfaceName,profileSpecDUClassLoader);
 		/* Profile created from backend storage */
-		logger.info("Added profile class: "+profileManagement.getClass());
+		if (logger.isDebugEnabled()) {
+			logger.debug("Added profile class: "+profileManagement.getClass());
+		}
 		return profileManagement;
 		
 		
@@ -768,8 +777,7 @@ public class SleeProfileManager {
 
 			Address profileAddress = new Address(AddressPlan.SLEE_PROFILE,
 					profileTableName + "/" + profileName);
-			ProfileTableActivityImpl profileTableActivity = this
-					.createProfileTableActivity(profileTableName);
+			ProfileTableActivityImpl profileTableActivity = this.profileTableActivities.get(profileTableName);
 			ActivityContextInterfaceImpl activityContextInterface = (ActivityContextInterfaceImpl) profileTableActivityContextInterfaceFactory
 					.getActivityContextInterface(profileTableActivity);
 
@@ -799,11 +807,11 @@ public class SleeProfileManager {
 			//Event on the Profile Table’s Activity.
 			new DeferredEvent(profileRemovedEvent.getEventTypeID(),
 					profileRemovedEvent, activityContextInterface
-							.getActivityContext(), profileAddress);
+							.getActivityContext().getActivityContextHandle(), profileAddress);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Queued following removed event:"
 						+ profileRemovedEvent.getEventTypeID() + ",:"
-						+ activityContextInterface.retrieveActivityContextID());
+						+ activityContextInterface.getActivityContextHandle());
 			}
 
 		} catch (Exception e) {
@@ -1852,17 +1860,41 @@ public class SleeProfileManager {
 	 * 
 	 * @param profileTableName
 	 * @return
+	 * @throws ActivityAlreadyExistsException 
 	 */
-	public synchronized ProfileTableActivityImpl createProfileTableActivity(
-			String profileTableName) {
+	private ProfileTableActivityImpl createProfileTableActivity(
+			final String profileTableName) throws ActivityAlreadyExistsException {
 
 		ProfileTableActivityImpl profileTableActivity;
 		if ((profileTableActivity = this.profileTableActivities
 				.get(profileTableName)) == null) {
-			profileTableActivity = new ProfileTableActivityImpl(
-					profileTableName);
+			profileTableActivity = new ProfileTableActivityImpl(new ProfileTableActivityHandle(
+					profileTableName));
 			this.profileTableActivities.put(profileTableName,
 					profileTableActivity);
+			sleeContainer
+						.getActivityContextFactory()
+						.createActivityContext(
+								ActivityContextHandlerFactory
+										.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
+												profileTableName)));
+			
+			try {				
+				if (sleeContainer.getTransactionManager().isInTx()) {
+					// add rollback tx action to remove state created
+					TransactionalAction action = new TransactionalAction() {
+						public void execute() {
+							profileTableActivities.remove(profileTableName);					
+						}
+					};
+					sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+				}
+			} catch (SystemException e) {
+				// ignore
+				if (logger.isDebugEnabled()) {
+					logger.debug(e.getMessage(),e);
+				}
+			}
 		}
 		return profileTableActivity;
 	}
@@ -1913,6 +1945,10 @@ public class SleeProfileManager {
 		return profileTableActivities;
 	}
 
+	public ProfileTableActivity getProfileTableActivity(String profileTableName) {
+		return profileTableActivities.get(profileTableName);
+	}
+	
 	/**
 	 * Retrieve the wrapper object (from the back end storage) for the default
 	 * profile by table name
@@ -1991,5 +2027,18 @@ public class SleeProfileManager {
 		return "Profile Manager:"
 			+ "\n+-- Profile Table Activities: "+profileTableActivities.size()
 			+ "\n" + profileSpecsManagement;
+	}
+
+	public void endAllProfileTableActivities() throws SystemException {
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Stopping profile table activities !");
+		}
+
+		Iterator it = profileTableActivities.keySet().iterator();
+		while (it.hasNext()) {
+			String profileTableName = (String) it.next();
+			new DeferredActivityEndEvent(ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableName)),null);
+		}
 	}
 }

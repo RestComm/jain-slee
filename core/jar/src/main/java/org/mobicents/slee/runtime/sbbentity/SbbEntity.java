@@ -62,12 +62,13 @@ import org.mobicents.slee.container.component.MobicentsEventTypeDescriptor;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.SbbEventEntry;
 import org.mobicents.slee.container.service.Service;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.ActivityContextState;
-import org.mobicents.slee.runtime.SleeEvent;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.CacheableMap;
 import org.mobicents.slee.runtime.cache.CacheableSet;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
@@ -92,7 +93,7 @@ public class SbbEntity {
 
 	transient static private Logger log = Logger.getLogger(SbbEntity.class);
 	transient private Transaction transaction;
-	transient SleeEvent currentEvent;
+	transient DeferredEvent currentEvent;
 
 	private final String sbbeId; // This is the primary key of the SbbEntity.
 	private MobicentsSbbDescriptor sbbComponent;
@@ -294,43 +295,43 @@ public class SbbEntity {
 		}
 	}
 
-	private void addEventMaskEntry(String acID, Set evMask, boolean replace) {
+	private void addEventMaskEntry(ActivityContextHandle activityContextHandle, Set evMask, boolean replace) {
 		if (log.isDebugEnabled()) {
-			log.debug("addEventMaskEntry : " + acID + " eventMask = " + evMask);
+			log.debug("addEventMaskEntry : " + activityContextHandle + " eventMask = " + evMask);
 		}
-		Set oldEvMask = (Set) this.eventMask.get(acID);
+		Set oldEvMask = (Set) this.eventMask.get(activityContextHandle);
 		if (oldEvMask == null) {
-			this.eventMask.put(acID, evMask);
+			this.eventMask.put(activityContextHandle, evMask);
 		} else {
 			if (!replace)
 				oldEvMask.addAll(evMask);
 			else
-				this.eventMask.put(acID, evMask);
+				this.eventMask.put(activityContextHandle, evMask);
 		}
 	}
 
-	private void removeEventMaskEntry(String acID) {
+	private void removeEventMaskEntry(ActivityContextHandle activityContextHandle) {
 		if (log.isDebugEnabled()) {
-			log.debug("removeEventMaskEntry : " + acID);
+			log.debug("removeEventMaskEntry : " + activityContextHandle);
 		}
-		this.eventMask.remove(acID);
+		this.eventMask.remove(activityContextHandle);
 	}
 
-	private void addAcToActivityContexts(String acId) {
+	private void addAcToActivityContexts(ActivityContextHandle activityContextHandle) {
 		if (log.isDebugEnabled()) {
 			log.debug("addAcToActivityContexts : sbbEid " + this.sbbeId
-					+ " acId " + acId);
+					+ " acId " + activityContextHandle);
 		}
-		this.getActivityContexts().add(acId);
+		this.getActivityContexts().add(activityContextHandle);
 	}
 
-	private void removeAcFromActivityContexts(String acId) {
+	private void removeAcFromActivityContexts(ActivityContextHandle activityContextHandle) {
 		if (log.isDebugEnabled()) {
 			log.debug("removeAcFromActivityContexts : sbbEid " + this.sbbeId
-					+ " acId " + acId);
+					+ " acId " + activityContextHandle);
 		}
 
-		this.getActivityContexts().remove(acId);
+		this.getActivityContexts().remove(activityContextHandle);
 	}
 
 	/**
@@ -412,10 +413,10 @@ public class SbbEntity {
 		return cmpField.getFieldName();
 	}
 
-	public void afterACAttach(String acId) {
+	public void afterACAttach(ActivityContextHandle activityContextHandle) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("afterACAttach " + acId + " sbbID = " + getSbbId());
+			log.debug("afterACAttach " + activityContextHandle + " sbbID = " + getSbbId());
 		}
 
 		// add event mask entry
@@ -430,51 +431,51 @@ public class SbbEntity {
 				}
 			}
 			if (!maskedEvents.isEmpty()) {
-				this.addEventMaskEntry(acId, maskedEvents, false);
+				this.addEventMaskEntry(activityContextHandle, maskedEvents, false);
 			}
 		}
 
 		// add to ACs attached
-		addAcToActivityContexts(acId);
+		addAcToActivityContexts(activityContextHandle);
 
 	}
 
-	public void afterACDetach(String acId) {
+	public void afterACDetach(ActivityContextHandle activityContextHandle) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("afterACDetach " + acId + " sbbID = " + getSbbId());
+			log.debug("afterACDetach " + activityContextHandle + " sbbID = " + getSbbId());
 		}
 
 		try {
 			// remove from ACs attached
-			this.removeAcFromActivityContexts(acId);
+			this.removeAcFromActivityContexts(activityContextHandle);
 			// remove event mask entry
-			removeEventMaskEntry(acId);
+			removeEventMaskEntry(activityContextHandle);
 		} catch (Exception ex) {
 			throw new RuntimeException("unexpected error", ex);
 		}
 	}
 
-	public Set<EventTypeID> getMaskedEventTypes(String acId) {
+	public Set<EventTypeID> getMaskedEventTypes(ActivityContextHandle ach) {
 
 		if (log.isDebugEnabled()) {
-			log.debug("getMaskedEventTypes: " + acId);
+			log.debug("getMaskedEventTypes: " + ach);
 		}
 		Set<EventTypeID> eventMaskSet = (Set<EventTypeID>) this.eventMask
-				.get(acId);
+				.get(ach);
 		if (eventMaskSet == null) {
 			eventMaskSet = new HashSet<EventTypeID>();
 		}
 		return eventMaskSet;
 	}
 
-	public void setEventMask(String acId, String[] eventMask)
+	public void setEventMask(ActivityContextHandle activityContextHandle, String[] eventMask)
 			throws UnrecognizedEventException {
 
 		HashSet<EventTypeID> maskedEvents = new HashSet<EventTypeID>();
 
 		if (log.isDebugEnabled()) {
-			log.debug("setEventMask " + acId + " eventMask = " + eventMask);
+			log.debug("setEventMask " + activityContextHandle + " eventMask = " + eventMask);
 		}
 
 		// Ralf Siedow: added event mask reset
@@ -499,7 +500,7 @@ public class SbbEntity {
 			}
 		}
 
-		this.addEventMaskEntry(acId, maskedEvents, true);
+		this.addEventMaskEntry(activityContextHandle, maskedEvents, true);
 
 	}
 
@@ -507,15 +508,15 @@ public class SbbEntity {
 		return attachedActivityContexts;
 	}
 
-	public String[] getEventMask(String acId) {
+	public String[] getEventMask(ActivityContextHandle activityContextHandle) {
 
-		Set evMask = (Set) this.eventMask.get(acId);
+		Set evMask = (Set) this.eventMask.get(activityContextHandle);
 		if (log.isDebugEnabled()) {
-			log.debug("getEventMask: returning  event mask for" + acId);
+			log.debug("getEventMask: returning  event mask for" + activityContextHandle);
 		}
 
 		if (evMask == null) {
-			log.debug("getEventMask: returning null event mask for" + acId);
+			log.debug("getEventMask: returning null event mask for" + activityContextHandle);
 			evMask = new HashSet();
 		}
 
@@ -637,12 +638,12 @@ public class SbbEntity {
 
 		// removes the SBB entity from all Activity Contexts.
 		for (Iterator i = this.getActivityContexts().iterator(); i.hasNext();) {
-			String acId = (String) i.next();
+			ActivityContextHandle ach = (ActivityContextHandle) i.next();
 			// get ac
 			ActivityContext ac = SleeContainer.lookupFromJndi()
-					.getActivityContextFactory().getActivityContextById(acId);
+					.getActivityContextFactory().getActivityContext(ach,true);
 			// remove the sbb entity from the attachment set.
-			if (ac != null && ac.getState().equals(ActivityContextState.ACTIVE)) {
+			if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
 				ac.detachSbbEntity(this.sbbeId);
 			}
 			// no need to remove ac from entity because the entity is being
@@ -733,11 +734,11 @@ public class SbbEntity {
 		return Service.getUsageParametersPathName(getServiceId(), getSbbId());
 	}
 
-	public SleeEvent getCurrentEvent() {
+	public DeferredEvent getCurrentEvent() {
 		return this.currentEvent;
 	}
 
-	public void setCurrentEvent(SleeEvent sleeEvent) {
+	public void setCurrentEvent(DeferredEvent sleeEvent) {
 		this.currentEvent = sleeEvent;
 	}
 
@@ -747,9 +748,9 @@ public class SbbEntity {
 	 * methods"
 	 * 
 	 */
-	private Method getEventHandlerMethod(SleeEvent sleeEvent) {
+	private Method getEventHandlerMethod(DeferredEvent sleeEvent) {
 
-		EventTypeID eventType = sleeEvent.getEventTypeID();
+		EventTypeID eventType = sleeEvent.getEventTypeId();
 		MobicentsSbbDescriptor sbbDescriptor = this.getSbbDescriptor();
 		// Note -- this naming convention is part of the slee specification.
 		String methodName = "on" + sbbDescriptor.getEventName(eventType);
@@ -766,12 +767,12 @@ public class SbbEntity {
 		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		MobicentsEventTypeDescriptor eventDescriptor = sleeContainer
 				.getEventManagement().getEventDescriptor(
-						sleeEvent.getEventTypeID());
+						sleeEvent.getEventTypeId());
 		if (log.isDebugEnabled()) {
-			log.debug("EventType ID" + sleeEvent.getEventTypeID());
+			log.debug("EventType ID" + sleeEvent.getEventTypeId());
 			log.debug("EventDescriptor ID"
 					+ sleeContainer.getEventManagement().getEventDescriptor(
-							sleeEvent.getEventTypeID()));
+							sleeEvent.getEventTypeId()));
 		}
 		// Once an error has been seen, we fire no more event handler
 		// methods.
@@ -843,16 +844,17 @@ public class SbbEntity {
 	 * 
 	 * @param sleeEvent
 	 *            to be delivered to the SBB
+	 * @param ac 
 	 * @return arguments that will be passed to the SBB event handler method
 	 */
-	private Object[] getEventHandlerParameters(SleeEvent sleeEvent) {
+	private Object[] getEventHandlerParameters(DeferredEvent sleeEvent, ActivityContext ac) {
 
 		Object[] parameters = new Object[2];
 		if (log.isDebugEnabled()) {
 			log.debug("parameter [0] "
-					+ sleeEvent.getEventObject().getClass().getName());
+					+ sleeEvent.getEvent().getClass().getName());
 		}
-		parameters[0] = sleeEvent.getEventObject();
+		parameters[0] = sleeEvent.getEvent();
 
 		if (log.isDebugEnabled()) {
 			log.debug("**PARAMETER 0 IS:" + parameters[0]);
@@ -862,8 +864,7 @@ public class SbbEntity {
 		ActivityContextInterface activityContextInterface = null;
 
 		if (this.getSbbDescriptor().getActivityContextInterface() != null) {
-			ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(
-					sleeEvent.getActivityContextID());
+			ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(ac);
 			Class aciClass = this.getSbbDescriptor()
 					.getActivityContextInterfaceConcreteClass();
 			try {
@@ -886,12 +887,11 @@ public class SbbEntity {
 			}
 
 		} else {
-			activityContextInterface = new ActivityContextInterfaceImpl(
-					sleeEvent.getActivityContextID());
+			activityContextInterface = new ActivityContextInterfaceImpl(ac);
 		}
 
 		// Stow this information away in case we have to call sbbExceptionThrown
-		sleeEvent.setActivityContextInterface(activityContextInterface);
+		sleeEvent.setLoadedAci(activityContextInterface);
 
 		parameters[1] = (ActivityContextInterface) activityContextInterface;
 		if (log.isDebugEnabled()) {
@@ -915,12 +915,12 @@ public class SbbEntity {
 	 * Actually invoke the event handler.
 	 * 
 	 */
-	public void invokeEventHandler(SleeEvent sleeEvent) throws Exception {
+	public void invokeEventHandler(DeferredEvent sleeEvent, ActivityContext ac) throws Exception {
 
 		// Actually invoke the event handler.
 		Method method = getEventHandlerMethod(sleeEvent);
 		setServiceActivityFactory();
-		Object[] parameters = getEventHandlerParameters(sleeEvent);
+		Object[] parameters = getEventHandlerParameters(sleeEvent,ac);
 
 		if (log.isDebugEnabled()) {
 			log.debug(this.sbbeId + " sbb entity invoking event handler:"
@@ -1058,8 +1058,8 @@ public class SbbEntity {
 		return this.sbbObject;
 	}
 
-	public boolean checkAttached(String acId) {
-		return this.getActivityContexts().contains(acId);
+	public boolean checkAttached(ActivityContextHandle activityContextHandle) {
+		return this.getActivityContexts().contains(activityContextHandle);
 	}
 
 	public Object getDefaultSbbUsageParameterSet() {
@@ -1267,9 +1267,9 @@ public class SbbEntity {
 		} else {
 			// it's a root sbb entity, remove from service
 			try {
-				SleeContainer.lookupFromJndi().getServiceManagement()
-						.getService(this.getServiceId()).removeConvergenceName(
-								this.getServiceConvergenceName());
+				Service service = SleeContainer.lookupFromJndi().getServiceManagement()
+						.getService(this.getServiceId());
+				service.removeConvergenceName(this.getServiceConvergenceName());								
 			} catch (Exception e) {
 				log.info("Failed to remove the root sbb entity " + this.sbbeId
 						+ " with convergence name "

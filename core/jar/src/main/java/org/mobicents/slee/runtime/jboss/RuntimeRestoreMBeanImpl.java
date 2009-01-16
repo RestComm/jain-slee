@@ -34,8 +34,8 @@ import org.jboss.logging.Logger;
 import org.jboss.mx.util.MBeanProxyExt;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean;
-import org.mobicents.slee.runtime.facilities.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 

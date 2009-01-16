@@ -12,9 +12,8 @@ import org.jboss.util.naming.Util;
 import org.mobicents.slee.connector.server.RemoteSleeService;
 import org.mobicents.slee.connector.server.RemoteSleeServiceImpl;
 import org.mobicents.slee.resource.EventLookup;
-import org.mobicents.slee.runtime.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.SleeInternalEndpoint;
-import org.mobicents.slee.runtime.facilities.NullActivityFactoryImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 
 public class HaRmiServerInterfaceMBeanImpl extends ServiceMBeanSupport
 		implements HaRmiServerInterfaceMBeanImplMBean {
@@ -36,8 +35,7 @@ public class HaRmiServerInterfaceMBeanImpl extends ServiceMBeanSupport
 		}
 	}
 
-	public void startRMIServer(NullActivityFactoryImpl naf,
-			SleeInternalEndpoint endpoint, EventLookup eventLookup,
+	public void startRMIServer(NullActivityFactoryImpl naf,EventLookup eventLookup,
 			ActivityContextFactoryImpl activityContextFactory) {
 		RemoteSleeService stub = null;
 		try {

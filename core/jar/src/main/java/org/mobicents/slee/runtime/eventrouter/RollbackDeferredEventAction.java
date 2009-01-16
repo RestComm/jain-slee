@@ -1,4 +1,4 @@
-package org.mobicents.slee.runtime;
+package org.mobicents.slee.runtime.eventrouter;
 
 import java.io.Serializable;
 
@@ -6,6 +6,7 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -24,33 +25,32 @@ public class RollbackDeferredEventAction implements TransactionalAction, Seriali
 	private static Logger logger = Logger
 			.getLogger(RollbackDeferredEventAction.class);
 	
-	private DeferredEvent de;
-	private ActivityContext ac;
+	private final DeferredEvent de;
+	private final ActivityContextHandle ach; 
 	
-	public RollbackDeferredEventAction(DeferredEvent de, ActivityContext ac) {
+	public RollbackDeferredEventAction(DeferredEvent de, ActivityContextHandle ach) {
 		this.de = de;
-		this.ac = ac;
+		this.ach = ach;
 	}
 	
 	public void execute() {
 		// create  a task to be executed by event router on the activity, this will ensure no concurrency problems
+		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		Runnable r = new Runnable() {
 			public void run() {
 				boolean rollback = true;
 				try {
-					SleeContainer.getTransactionManager().begin();
-					ac.removeOutstandingEvent(de);
+					sleeContainer.getEventRouter().getEventRouterActivity(ach).getEventQueueManager().rollback(de);
 					rollback = false;
 				} catch (Exception e) {
 					logger.error("error on rollback of deferred event", e);
 				}
-
 				finally {
 					try {
 						if (rollback) {
-							SleeContainer.getTransactionManager().rollback();
+							sleeContainer.getTransactionManager().rollback();
 						} else {
-							SleeContainer.getTransactionManager().commit();
+							sleeContainer.getTransactionManager().commit();
 						}
 					} catch (SystemException e1) {
 						logger
@@ -61,7 +61,7 @@ public class RollbackDeferredEventAction implements TransactionalAction, Seriali
 				}
 			}
 		};
-		SleeContainer.lookupFromJndi().getEventRouter().serializeTaskForActivity(r,ac.getActivity());
+		sleeContainer.getEventRouter().getEventRouterActivity(ach).getExecutorService().submit(r);
 
 	}
 	

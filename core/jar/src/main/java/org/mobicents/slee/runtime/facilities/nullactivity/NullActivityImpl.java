@@ -20,13 +20,14 @@
  * usefulness of the software.
  */
 
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.nullactivity;
 
 import java.io.Serializable;
 
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.nullactivity.NullActivity;
+import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -46,13 +47,12 @@ public class NullActivityImpl implements NullActivity, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private String acId;
+	private final NullActivityHandle handle;
     
     private static Logger logger = Logger.getLogger( NullActivityImpl.class);
     
-    public NullActivityImpl() {
-        if ( logger.isDebugEnabled())
-            logger.debug("NullActivityImpl()");
+    public NullActivityImpl(NullActivityHandle handle) {
+        this.handle = handle;
     }
 
     /* (non-Javadoc)
@@ -66,43 +66,27 @@ public class NullActivityImpl implements NullActivity, Serializable {
         if ( logger.isDebugEnabled()) {
             logger.debug("NullActivity.endActivity()");
         }
-        SleeContainer.getTransactionManager().mandateTransaction();
-        SleeContainer sleeContainer = SleeContainer.lookupFromJndi();  
-        sleeContainer.getSleeEndpoint().scheduleActivityEndedEvent(this);
+        final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+        sleeContainer.getTransactionManager().mandateTransaction();
+        try {
+			sleeContainer.getNullActivityFactory().endNullActivity(handle);
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
     }
     
-    
-    public String getActivityContextId(){
-        return this.acId;
-    }
-
-    public void setActivityContextId(String aci){
-        this.acId = aci;
-    }
-    
+    protected NullActivityHandle getHandle() {
+		return handle;
+	}
+        
     public int hashCode() {    	
-    	return (acId == null)? super.hashCode() : acId.hashCode();
+    	return handle.hashCode();
     }
     
     public boolean equals(Object object) {
     	if ((object != null) && (object.getClass() == this.getClass())) {
     		NullActivityImpl other = (NullActivityImpl)object;
-    		if (this.acId == null) {
-    			if (other.acId == null) {
-    				return true;
-    			}
-    			else {
-    				return false;
-    			}
-    		}
-    		else {
-    			if (other.acId == null) {
-    				return false;
-    			}
-    			else {
-    				return this.acId.equals(other.acId);
-    			}
-    		}    		    		
+    		return this.handle.equals(other.handle);   		
     	}
     	else {
     		return false;

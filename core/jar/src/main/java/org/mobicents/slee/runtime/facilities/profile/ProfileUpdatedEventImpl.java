@@ -8,9 +8,8 @@
  ***************************************************/
 
 
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.profile;
 
-import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileID;
@@ -19,9 +18,7 @@ import javax.slee.profile.ProfileUpdatedEvent;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.EventTypeIDImpl;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.SleeEvent;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
  * Profile Updated Event implementation.
@@ -30,7 +27,7 @@ import org.mobicents.slee.runtime.SleeEvent;
  * @author Ivelin Ivanov
  *
  */
-public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
+public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent {
     
 	private static EventTypeIDImpl eventTypeID;
 	private static EventTypeID lookupEventTypeID() {
@@ -41,15 +38,12 @@ public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
 		return eventTypeID;
 	}
 	
-    private ActivityContextInterface aci;
     private ProfileID profile;
     private Address profileAddress;
     private Object beforeUpdateProfile;
     private Object afterUpdateProfile;
     private ActivityContextInterfaceImpl activityContextInterface;
-    
-    private ProfileTableActivityContextInterfaceFactoryImpl profileActivityContextInterfaceFactory;
-    
+      
     public ProfileUpdatedEventImpl( Address profileAddress,ProfileID profile,                          
             Object beforeUpdateProfile, Object afterUpdateProfile,
             ActivityContextInterfaceImpl activityContext,
@@ -59,11 +53,6 @@ public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
         this.beforeUpdateProfile = beforeUpdateProfile;
         this.afterUpdateProfile = afterUpdateProfile;
         this.activityContextInterface = activityContext;
-        this.profileActivityContextInterfaceFactory = pACIFactory;
-    }
-    
-    public Object getActivity() {
-        return this.aci.getActivity();
     }
 
     /* (non-Javadoc)
@@ -97,23 +86,10 @@ public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
         return this.afterUpdateProfile;
     }
 
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getActivityContext()
-     */
-    public ActivityContext getActivityContext() {
-        return this.activityContextInterface.getActivityContext();
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getEventTypeID()
-     */
     public EventTypeID getEventTypeID() {
         return lookupEventTypeID();
     }
 
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getEventObject()
-     */
     public Object getEventObject() {
         //return  ((ProfileTableActivityImpl) this.activityContextInterface.getActivity()).getProfileEvent();
         return  (ProfileUpdatedEvent) this;
@@ -123,24 +99,12 @@ public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent,SleeEvent {
         return profileAddress;
     }
 
-    public String getActivityContextID() {
-        return getActivityContext().getActivityContextId();
+    public ActivityContextInterfaceImpl getActivityContextInterface() {
+        return this.activityContextInterface;
     }
 
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getActivityContextInterface()
-     */
-    public ActivityContextInterface getActivityContextInterface() {
-     
-        return this.aci;
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#setActivityContextInterface(javax.slee.ActivityContextInterface)
-     */
-    public void setActivityContextInterface(ActivityContextInterface aci) {
-        this.aci = aci;
-        
+    public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
+        this.activityContextInterface = activityContextInterface;   
     }
 
 }

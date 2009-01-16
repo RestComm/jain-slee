@@ -22,8 +22,8 @@ import javax.slee.ActivityContextInterface;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextIDInterface;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
  * @author DERUELLE Jean <a href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com</a>
@@ -52,7 +52,7 @@ public class DefaultActivityContextInterfaceInterceptor implements
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {       
         // It will be better to ask the activity context for the value not the hashmap
-        ActivityContext ac = ((ActivityContextIDInterface)this.activityContextInterface).retrieveActivityContext();
+        ActivityContext ac = ((ActivityContextInterfaceImpl)this.activityContextInterface).getActivityContext();
         
        
         if (logger.isDebugEnabled()) {

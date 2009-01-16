@@ -87,7 +87,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
 		// check mandated by SLEE TCK test CreateActivityWhileStoppingTest
-		if (!sleeContainer.getSleeState().equals(SleeState.RUNNING))
+		if (sleeContainer.getSleeState() != SleeState.RUNNING)
 			return;
 
 		/*
@@ -280,7 +280,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			b = transactionManager.requireTransaction();
 
 			// check mandated by SLEE TCK test CreateActivityWhileStoppingTest
-			if (!sleeContainer.getSleeState().equals(SleeState.RUNNING))
+			if (sleeContainer.getSleeState() != SleeState.RUNNING)
 				return;
 
 			SleeProfileManager profileManager = sleeContainer

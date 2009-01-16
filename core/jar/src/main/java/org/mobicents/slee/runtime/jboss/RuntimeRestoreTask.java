@@ -26,10 +26,10 @@ import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.facilities.NullActivityFactoryImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**

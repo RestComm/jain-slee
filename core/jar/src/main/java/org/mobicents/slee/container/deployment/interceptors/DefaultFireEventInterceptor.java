@@ -16,17 +16,18 @@ package org.mobicents.slee.container.deployment.interceptors;
 
 import java.lang.reflect.Method;
 
-import javax.slee.ActivityContextInterface;
+import javax.slee.Address;
+import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextIDInterface;
-import org.mobicents.slee.runtime.ActivityContextState;
-import org.mobicents.slee.runtime.DeferredEvent;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextState;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContext;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -37,8 +38,10 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * @author eduardomartins
  */
 public class DefaultFireEventInterceptor implements FireEventInterceptor {
+    
+    private static final Logger logger=Logger.getLogger(DefaultFireEventInterceptor.class);
+    
     SbbEntity sbbEntity=null;
-    static final Logger logger=Logger.getLogger(DefaultFireEventInterceptor.class);
     
     /**
      * 
@@ -54,8 +57,7 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {                	
         
-        // TODO Address not null is not suported yet
-    	// JAIN SLEE (TM) specs - Section 8.4.1
+        // JAIN SLEE (TM) specs - Section 8.4.1
     	// It throws a javax.slee.SLEEException if the requested operation cannot be performed due
     	// to a system-level failure.    	
     	if (args[2] != null)
@@ -64,7 +66,7 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
     	// JAIN SLEE (TM) specs - Section 8.4.1
     	// The SBB object must have an assigned SBB entity when it invokes this method.
     	// Otherwise, this method throws a java.lang.IllegalStateException.     	 
-    	if(sbbEntity == null || sbbEntity.getSbbObject() == null || !sbbEntity.getSbbObject().getState().equals(SbbObjectState.READY))
+    	if(sbbEntity == null || sbbEntity.getSbbObject() == null || sbbEntity.getSbbObject().getState() != SbbObjectState.READY)
     		throw new IllegalStateException ("SbbObject not assigned!");
     	
     	// JAIN SLEE (TM) specs - Section 8.4.1 
@@ -80,19 +82,16 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
     		throw new NullPointerException("JAIN SLEE (TM) specs - Section 8.4.1: The activity ... cannot be null. If ... argument is null, the fire event method throws a java.lang.NullPointerException.");
     	
     	// rebuild the ac from the aci in the 2nd argument of the invoked method, check it's state
-    	ActivityContextInterface activityContextInterface=(ActivityContextInterface)args[1];    	
-        ActivityContext ac = ((ActivityContextIDInterface)activityContextInterface).retrieveActivityContext();
+    	SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+    	        
+    	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(((org.mobicents.slee.runtime.activity.ActivityContextInterface)args[1]).getActivityContextHandle(),true);
         if ( logger.isDebugEnabled() ) {
-        	logger.debug("invoke(): " + 
-        			((ActivityContextIDInterface)activityContextInterface).retrieveActivityContextID() + 
-        			" ACTIVITY: " + activityContextInterface.getActivity());
-        	logger.debug("invoke(): ACTIVITY CONTEXT IS IN STATE: " + ac.getState() 
-        			+ " for activity: " + ac.getActivity() + " ac_id=" + ac.getActivityContextId());            	
-        	logger.debug("invoke(): FIRED EVENT ON ACTIVITY CONTEXT: " + 
-        			((ActivityContextIDInterface)activityContextInterface).retrieveActivityContext());
+        	logger.debug("invoke(): firing event on " + 
+        			ac.getActivityContextHandle() + 
+        			" ACTIVITY: " + ac.getActivityContextHandle().getActivity());
         }
         
-        if (!ac.getState().equals(ActivityContextState.ACTIVE)) {
+        if (ac.getState() != ActivityContextState.ACTIVE) {
         	throw new IllegalStateException ("activity is ending/ended!");
         }
         
@@ -104,7 +103,7 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         // get the event type name from the method name without the "fire" prefix               
         String eventTypeName=method.getName().substring("fire".length());
         if ( logger.isDebugEnabled() ) {            	
-        	logger.debug("invoke(): EventType Name "+ eventTypeName);            	
+        	logger.debug("invoke(): firing event with type name "+ eventTypeName);            	
         }
         
         // get the sbb descriptor & the container
@@ -115,10 +114,15 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         ComponentKey eventKey = mobicentsSbbDescriptor.getEventType(eventTypeName).getEventTypeRefKey();
         
         // get it's id
-        int eventID = SleeContainer.lookupFromJndi().getEventLookupFacility().getEventID(eventKey);
+        EventTypeID eventID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(eventKey);
+        
+        // if we are firing an event on a null activity we need to warn the activity context due to implict end checks
+        if (ac instanceof NullActivityContext) {
+        	((NullActivityContext)ac).firingEvent();
+        }
         
         // build the deferred event 
-        new DeferredEvent(eventID,args[0],ac,null);                                       
+        new DeferredEvent(eventID,args[0],ac.getActivityContextHandle(),(Address)args[2]);                                       
         
         return null;
     }

@@ -1,9 +1,3 @@
-/*
- * The source code contained in this file is in in the public domain.          
- * It can be used in any project or product without prior permission, 	      
- * license or royalty payments. There is no claim of correctness and
- * NO WARRANTY OF ANY KIND provided with this code.
- */
 package org.mobicents.slee.container.service;
 
 import java.io.Serializable;
@@ -17,6 +11,7 @@ import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
+import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.serviceactivity.ServiceStartedEvent;
 import javax.transaction.SystemException;
 
@@ -27,11 +22,16 @@ import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.InstalledUsageParameterSet;
 import org.mobicents.slee.container.component.ServiceDescriptorImpl;
 import org.mobicents.slee.container.component.ServiceIDImpl;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.DeferredEvent;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.CacheableMap;
+import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
+import org.mobicents.slee.runtime.serviceactivity.ServiceActivityHandle;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityImpl;
 import org.mobicents.slee.runtime.serviceactivity.ServiceStartedEventImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -42,9 +42,9 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
  * Represents an instance of a Slee Service. Note that in the SLEE, the Service
  * is a management artifact.
  * 
+ * @author eduardomartins
  * @author Francesco Moggia
  * @author M. Ranganathan
- * @author eduardomartins
  *  
  */
 
@@ -53,7 +53,7 @@ public class Service implements Serializable {
 	/**
 	 * unique vid is required for safe serialization
 	 */
-	private static final long serialVersionUID = 4711716462275941571L;
+	private static final long serialVersionUID = 1L;
 
 	private static String tcache = TransactionManagerImpl.RUNTIME_CACHE;
 
@@ -337,11 +337,18 @@ public class Service implements Serializable {
 			logger.debug("Service.deactivate()  " + this.serviceID);
 		}
 
-		sleeContainer.getSleeEndpoint().scheduleActivityEndedEvent(
-				this.getServiceActivity());
-
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
+		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
+		if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
+			ac.setState(ActivityContextState.ENDING);
+			try {
+				new DeferredActivityEndEvent(ach,null);
+			} catch (SystemException e) {
+				logger.error("failed to create deferred activity end event", e);
+			}
+		}
 	}
-
+	
 	public String getRootSbbEntityId(String convergenceName) {
 		return (String) this.childObj.get(convergenceName);
 	}
@@ -485,11 +492,15 @@ public class Service implements Serializable {
 		this.setState(ServiceState.ACTIVE);
 		// create service activity
 		ServiceActivityImpl serviceActivityImpl = new ServiceActivityImpl(this);
-		// get ac for the activity
-		ActivityContext ac = sleeContainer.getActivityContextFactory()
-				.getActivityContext(serviceActivityImpl);
-		// set ac id in service activity
-		serviceActivityImpl.setActivityContxtId(ac.getActivityContextId());
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
+		// create ac for the activity
+		try {
+			sleeContainer.getActivityContextFactory().createActivityContext(ach);
+		} catch (ActivityAlreadyExistsException e) {
+			final String msg = "service activity already exists";
+			logger.error(msg,e);
+			throw new SystemException(msg);
+		}
 		// save service activity
 		this.setServiceActivity(serviceActivityImpl);
 		// create event
@@ -503,7 +514,7 @@ public class Service implements Serializable {
 							+ serviceID);
 		}
 
-		new DeferredEvent(eventTypeID, ev, ac, null);
+		new DeferredEvent(eventTypeID, ev, ach, null);
 
 	}
 

@@ -12,6 +12,8 @@
  */
 package org.mobicents.slee.connector.server;
 
+import java.util.UUID;
+
 import javax.slee.connection.ExternalActivityHandle;
 
 /**
@@ -23,7 +25,11 @@ import javax.slee.connection.ExternalActivityHandle;
  */
 public class ExternalActivityHandleImpl implements ExternalActivityHandle {
    private String activityContextId;
-
+/*
+   public ExternalActivityHandleImpl() {
+	   this.activityContextId = "ExternalActivityHandle" + UUID.randomUUID().toString();
+   }
+  */ 
    ExternalActivityHandleImpl(String activityContextId) {
       this.activityContextId = activityContextId;
    }

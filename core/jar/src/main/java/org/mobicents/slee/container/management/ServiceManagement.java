@@ -227,11 +227,13 @@ public class ServiceManagement {
 					resourceManagement.getResourceAdaptorEntity(raEntityName)
 							.serviceActivated(serviceID.toString());
 				}
-
-				// Already active just return.
+				
+				// lets cache some info
+				initServiceRuntimeCache(serviceComponent);
+				
 				service.activate();
-				serviceComponent.lock();
-
+				serviceComponent.lock();			
+				
 				rb = false;
 				logger.info("Activated " + serviceID);
 			} catch (InvalidStateException ise) {
@@ -334,7 +336,7 @@ public class ServiceManagement {
 							"Service already deactivated");
 				}
 
-				// notifying the resource adaptors about service activation
+				// notifying the resource adaptors about service deactivation
 				final ResourceManagement resourceManagement = sleeContainer
 						.getResourceManagement();
 				for (String raEntityName : resourceManagement
@@ -346,6 +348,9 @@ public class ServiceManagement {
 				service.deactivate();
 				serviceComponent.unlock();
 
+				// remove runtime cache related wih this service
+				removeServiceRuntimeCache(serviceComponent);
+				
 				rb = false;
 
 			} catch (InvalidStateException e) {
@@ -1021,7 +1026,154 @@ public class ServiceManagement {
 
 	@Override
 	public String toString() {
-		return "Service Management: " + "\n+-- Services: "
-				+ serviceComponents.keySet();
+		return "Service Management: " 
+		+ "\n+-- Services: " + serviceComponents.keySet()
+		+ "\n+-- EventTypeIDs with Active Services: " + eventID2ActiveServices.keySet();
 	}
+	
+	// --- active services info caching
+	
+	private final ConcurrentHashMap<EventTypeID, Set<RuntimeService>> eventID2ActiveServices = new ConcurrentHashMap<EventTypeID, Set<RuntimeService>>();
+	
+	private void initServiceRuntimeCache(final ServiceComponent serviceComponent) {
+		
+		MobicentsSbbDescriptor rootSbbDescriptor = serviceComponent.getRootSbbComponent();
+		
+		RuntimeService runtimeService = new RuntimeService(serviceComponent,rootSbbDescriptor);
+		
+		Set<EventTypeID> initialEvents = rootSbbDescriptor.getInitialEventTypes();
+		
+		for (EventTypeID eventTypeID : rootSbbDescriptor.getEventTypes()) {
+			if (initialEvents.contains(eventTypeID)) {
+				synchronized (eventTypeID) {
+					Set<RuntimeService> eventActiveServices = eventID2ActiveServices.get(eventTypeID);
+					if (eventActiveServices == null) {
+						eventActiveServices = new HashSet<RuntimeService>();
+						Set<RuntimeService> otherEventActiveServices = eventID2ActiveServices.putIfAbsent(eventTypeID, eventActiveServices);
+						if (otherEventActiveServices != null) {
+							eventActiveServices = otherEventActiveServices;
+						}
+					}
+					eventActiveServices.add(runtimeService);
+				}				
+			}
+		}
+		
+		try {
+			if (transactionManager.isInTx()) {
+				// add rollback tx action to remove state created
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						removeServiceRuntimeCache(serviceComponent);					
+					}
+				};
+				transactionManager.addAfterRollbackAction(action);
+			}
+		} catch (SystemException e) {
+			// ignore
+			if (logger.isDebugEnabled()) {
+				logger.debug(e.getMessage(),e);
+			}
+		}
+	}
+	
+	private static final Set<RuntimeService> EMPTY_SET = new HashSet<RuntimeService>(0);
+	
+	/**
+	 * Retrieves all active services that declare the event as initial.
+	 * @param eventTypeID
+	 * @return
+	 */
+	public Set<RuntimeService> getActiveServices(EventTypeID eventTypeID) {
+		Set<RuntimeService> result = eventID2ActiveServices.get(eventTypeID);
+		return (result == null) ? EMPTY_SET : result;
+	}
+	
+	/**
+	 * The service is now inactive, close related runtime resources 
+	 * @param serviceID
+	 */
+	private void removeServiceRuntimeCache(final ServiceComponent serviceComponent) {
+		
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		
+		MobicentsSbbDescriptor rootSbbDescriptor = serviceComponent.getRootSbbComponent();
+		
+		RuntimeService runtimeService = new RuntimeService(serviceComponent,rootSbbDescriptor);
+		
+		Set<EventTypeID> initialEvents = rootSbbDescriptor.getInitialEventTypes();
+		
+		for (EventTypeID eventTypeID : rootSbbDescriptor.getEventTypes()) {
+			if (initialEvents.contains(eventTypeID)) {
+				synchronized (eventTypeID) {
+					Set<RuntimeService> eventActiveServices = eventID2ActiveServices.get(eventTypeID);
+					if (eventActiveServices != null) {
+						eventActiveServices.remove(runtimeService);
+						if (eventActiveServices.isEmpty()) {
+							eventID2ActiveServices.remove(eventTypeID);
+						}
+					}
+					
+				}				
+			}
+		}
+		
+		try {
+			if (transactionManager.isInTx()) {
+				// add rollback tx action to add state removed
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						initServiceRuntimeCache(serviceComponent);					
+					}
+				};
+				transactionManager.addAfterRollbackAction(action);
+			}
+		} catch (SystemException e) {
+			// ignore
+			if (logger.isDebugEnabled()) {
+				logger.debug(e.getMessage(),e);
+			}
+		}
+	}
+	
+	public class RuntimeService {
+		
+		private final ServiceComponent serviceComponent;
+		private final MobicentsSbbDescriptor rootSbbDescriptor;
+		
+		public RuntimeService(ServiceComponent serviceComponent,
+				MobicentsSbbDescriptor rootSbbDescriptor) {
+			this.serviceComponent = serviceComponent;
+			this.rootSbbDescriptor = rootSbbDescriptor;
+		}
+		
+		public MobicentsSbbDescriptor getRootSbbDescriptor() {
+			return rootSbbDescriptor;
+		}
+		
+		public ServiceComponent getServiceComponent() {
+			return serviceComponent;
+		}	
+		
+		@Override
+		public int hashCode() {
+			return serviceComponent.getServiceID().hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj != null && obj.getClass() == this.getClass()) {
+				return ((RuntimeService)obj).serviceComponent.getServiceID().equals(this.serviceComponent.getServiceID());
+			}
+			else {
+				return false;
+			}
+		}
+		
+		@Override
+		public String toString() {
+			return serviceComponent.getServiceID().toString();
+		}
+	}
+	
 }

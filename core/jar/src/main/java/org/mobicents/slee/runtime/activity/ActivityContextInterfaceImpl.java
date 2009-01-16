@@ -10,9 +10,8 @@
  *
  */
 
-package org.mobicents.slee.runtime;
+package org.mobicents.slee.runtime.activity;
 
-import javax.slee.ActivityContextInterface;
 import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
@@ -21,7 +20,6 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.resource.SleeActivityHandle;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -38,36 +36,26 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * 
  * @author M. Ranganathan
  * @author Ralf Siedow
+ * @author martins
  *  
  */
-public class ActivityContextInterfaceImpl implements
-        ActivityContextIDInterface, ActivityContextInterface {
+public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 
-    private static final ActivityContextFactory acif = SleeContainer.lookupFromJndi().getActivityContextFactory();
-    private static final SleeTransactionManager txMgr = SleeContainer.lookupFromJndi().getTransactionManager();
-
-    private String acId;
-
-    private static Logger logger = Logger.getLogger(ActivityContextInterfaceImpl.class);
+	private static Logger logger = Logger.getLogger(ActivityContextInterfaceImpl.class);
     
+    private static final SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+
+    private final ActivityContext activityContext;
+   
     /**
      * This is allocated by the Slee to wrap an incoming event (activity).
      * 
-     * @param activityContextId
+     * @param activityContextHandle
      */
-    public ActivityContextInterfaceImpl(String activityContextId) {
-        if (activityContextId == null)
-            throw new NullPointerException("Null activityContextId Crap!");
-        this.acId = activityContextId;
+    public ActivityContextInterfaceImpl(ActivityContext activityContext) {
+    	this.activityContext = activityContext;
     }
-
-    public ActivityContext getActivityContext() {
-        if (logger.isDebugEnabled())
-            logger.debug("Getting activity context  ID["+acId+"]");
-
-        return this.acif.getActivityContextById(acId);
-    }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -78,27 +66,7 @@ public class ActivityContextInterfaceImpl implements
         
     	txMgr.mandateTransaction();
         
-    	Object activity = this.acif.getActivityFromKey(acId);
-        if (logger.isDebugEnabled()) {
-            logger.debug("getActivity() : activity = " + activity);
-        }
-
-        if (activity instanceof SleeActivityHandle) {
-
-            SleeActivityHandle sleeHandle = (SleeActivityHandle) activity;
-            Object ret = sleeHandle.getActivity();
-            if (logger.isDebugEnabled()) {
-                logger.debug("getActivity(): returning " + ret);
-            }
-            return ret;
-
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("getActivity(): returning " + activity);
-            }
-            return activity;
-        }
-
+    	return getActivityContextHandle().getActivity();
     }
 
     /*
@@ -114,6 +82,7 @@ public class ActivityContextInterfaceImpl implements
             throw new NullPointerException("null SbbLocalObject !");
        
         txMgr.mandateTransaction();
+        
         SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
 
         String sbbeId = sbbLocalObjectImpl.getSbbEntityId();
@@ -125,8 +94,8 @@ public class ActivityContextInterfaceImpl implements
                     .debug("ActivityContextInterface.attach(): ACI attach Called for "
                             + sbbLocalObject
                             + " ACID = "
-                            + this.acId
-                            + "SbbEntityId " + sbbeId);
+                            + getActivityContextHandle()
+                            + " SbbEntityId " + sbbeId);
         }
         
         boolean setRollbackAndThrowException = false;
@@ -137,7 +106,7 @@ public class ActivityContextInterfaceImpl implements
         	}
         	else {
         		// attach entity from ac
-        		sbbEntity.afterACAttach(acId);
+        		sbbEntity.afterACAttach(getActivityContextHandle());
         	}
         }
         catch (Exception e) {
@@ -154,15 +123,15 @@ public class ActivityContextInterfaceImpl implements
         }
         
         if (attached) {
-            ActivityContext localAc = acif.getActivityContextById(acId);
+            
         	//            	JSLEE 1.0 Spec, Section 8.5.8 excerpt:
         	//        		The SLEE delivers the event to an SBB entity that stays attached once. The SLEE may deliver the
         	//        		event to the same SBB entity more than once if it has been detached and then re -attached. 
-            if (localAc.removeFromDeliveredSet(sbbeId)) {
+            if (getActivityContext().removeFromDeliveredSet(sbbeId)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Removed the SBB Entity [" + sbbeId
                             + "] from the delivered set of activity context ["
-                            + localAc.getActivityContextId()
+                            + getActivityContextHandle()
                             + "]. Seems to be a reattachment after detachment in the same event delivery transaction. See JSLEE 1.0 Spec, Section 8.5.8.");
                 }
             }
@@ -180,7 +149,7 @@ public class ActivityContextInterfaceImpl implements
             TransactionRolledbackLocalException, SLEEException {
         if (logger.isDebugEnabled()) {
             logger.debug("ACI detach called for : " + sbbLocalObject
-                    + " ACID = " + this.acId);
+                    + " AC = " + getActivityContextHandle());
         }
 
         if (sbbLocalObject == null)
@@ -193,7 +162,8 @@ public class ActivityContextInterfaceImpl implements
         String sbbeId = sbbLocalObjectImpl.getSbbEntityId();
 
         // detach ac from entity
-        acif.getActivityContextById(acId).detachSbbEntity(sbbeId);
+        final ActivityContext ac = getActivityContext();
+        ac.detachSbbEntity(sbbeId);
 
         boolean setRollbackAndThrowException = false;
         try {
@@ -203,7 +173,7 @@ public class ActivityContextInterfaceImpl implements
         	}
         	else {
         		// detach entity from ac
-        		sbbEntity.afterACDetach(acId);
+        		sbbEntity.afterACDetach(getActivityContextHandle());
         	}
         }
         catch (Exception e) {
@@ -228,18 +198,29 @@ public class ActivityContextInterfaceImpl implements
     public boolean isEnding() throws TransactionRequiredLocalException,
             SLEEException {
     	txMgr.mandateTransaction();
-        ActivityContext localAc = acif.getActivityContextById(acId);
-        return localAc.isEnding();
+        return getActivityContext().isEnding();
     }
 
-    public String retrieveActivityContextID() {
-
-        return acId;
+    public ActivityContextHandle getActivityContextHandle() {
+        return activityContext.getActivityContextHandle();
     }
 
-    public ActivityContext retrieveActivityContext() {
-
-        return this.getActivityContext();
+    public ActivityContext getActivityContext() { 
+        return activityContext;
     }
 
+    @Override
+    public int hashCode() {    	
+    	return activityContext.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (obj != null && obj.getClass() == this.getClass()) {
+    		return ((ActivityContextInterfaceImpl)obj).activityContext.equals(this.activityContext);
+    	}
+    	else {
+    		return false;
+    	}
+    }
 }

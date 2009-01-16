@@ -23,8 +23,6 @@ import javax.slee.resource.BootstrapContext;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.transaction.SleeTransactionManager;
 
-import org.mobicents.slee.runtime.SleeInternalEndpoint;
-
 /**
  * 
  * TODO Class Description

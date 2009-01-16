@@ -28,8 +28,8 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextIDInterface;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.cache.CacheableMap;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
@@ -291,8 +291,10 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			logger.debug("START TIME IS " + startTime);
 		}
 
+		ActivityContextInterfaceImpl aciImpl = (ActivityContextInterfaceImpl) aci;
+		
 		TimerFacilityTimerTask task = new TimerFacilityTimerTask(timerID,
-				((ActivityContextIDInterface) aci).retrieveActivityContextID(),
+				aciImpl.getActivityContextHandle(),
 				address, startTime, period, numRepetitions, timerOptions);
 
 		try {
@@ -306,8 +308,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 		}
 
 		// Attach to activity context
-		((ActivityContextIDInterface) aci).retrieveActivityContext()
-				.attachTimer(timerID);
+		aciImpl.getActivityContext().attachTimer(timerID);
 
 		// Create an action that actually schedules the timer - we execute this
 		// on commit of the tx
@@ -493,7 +494,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 
 			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 			ActivityContext ac = sleeContainer.getActivityContextFactory()
-					.getActivityContextById(task.getActivityContextId());
+					.getActivityContext(task.getActivityContextHandle(),true);
 			if (ac == null)
 				throw new FacilityException("Can't find ac in cache!");
 

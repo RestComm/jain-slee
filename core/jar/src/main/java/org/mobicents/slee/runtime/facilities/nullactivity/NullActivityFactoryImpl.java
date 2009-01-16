@@ -7,7 +7,7 @@
  *                                                 *
  ***************************************************/
 
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.nullactivity;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -17,13 +17,18 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.SleeState;
 import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityFactory;
-
+import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextFactoryImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.CacheableSet;
+import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
 import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 /**
@@ -31,6 +36,7 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov
+ * @author martins
  * 
  */
 public class NullActivityFactoryImpl implements NullActivityFactory {
@@ -43,9 +49,8 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 
 	private static String NULL_ACTIVITY_CACHE = TransactionManagerImpl.RUNTIME_CACHE;
 
-	private Set nullActivitiesActivityContextIds; // This is used to recreate the
-	// factory.
-
+	private Set nullActivitiesActivityContextIds; // This is used to recreate the factory.
+	
 	public NullActivityFactoryImpl(SleeContainer serviceContainer)
 			throws Exception {
 		this.sleeContainer = serviceContainer;
@@ -62,21 +67,15 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 		return createNullActivityImpl(true);
 	}
 
-	/*
-	 * This version of the createNullActivity() method does not require a
-	 * transaction to be in progress. It is used for null activities created via
-	 * the JCA adaptor. It should never be called by SBB or other code which is
-	 * in a transaction.
+	/**
+	 * Creates a null activity handle that can later be used to build a null activity.
+	 * 
+	 * @return
 	 */
-	public NullActivity createNullActivityNoTx() throws FactoryException {
-		try {
-			return createNullActivityImpl(false);		
-		}
-		catch (TransactionRequiredLocalException e) {
-			throw new FactoryException("Failed to create null activity without tx. Exception msg: "+e.getMessage());
-		}
+	public NullActivityHandle createNullActivityHandle() {
+		return new NullActivityHandle(sleeContainer.getUuidGenerator().createUUID());
 	}
-
+	
 	/**
 	 * Creates a new instance of NullActivityImpl, binding it to a ActivityContext.
 	 * @param mandateTransaction specifies if the method should require a transaction.
@@ -85,12 +84,12 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 	 * @throws FactoryException
 	 */
 	public NullActivityImpl createNullActivityImpl(boolean mandateTransaction) throws TransactionRequiredLocalException, FactoryException {
-		return createNullActivityImpl(null,mandateTransaction);
+		return createNullActivityImpl(createNullActivityHandle(),mandateTransaction);
 	}
 	
-	public NullActivityImpl createNullActivityImpl(String activityContextId,boolean mandateTransaction) throws TransactionRequiredLocalException, FactoryException {
+	public NullActivityImpl createNullActivityImpl(NullActivityHandle nullActivityHandle,boolean mandateTransaction) throws TransactionRequiredLocalException, FactoryException {
 		// check mandated by SLEE TCK test CreateActivityWhileStoppingTest
-		if (!sleeContainer.getSleeState().equals(SleeState.RUNNING)) {
+		if (sleeContainer.getSleeState() != SleeState.RUNNING) {
 			return null;
 		}
 
@@ -99,48 +98,60 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 		}
 
 		// create activity
-		NullActivityImpl nullActivity = new NullActivityImpl();
+		NullActivityImpl nullActivity = new NullActivityImpl(nullActivityHandle);
 		// get an activity context for it
-		ActivityContextFactoryImpl acf = (ActivityContextFactoryImpl) sleeContainer
-				.getActivityContextFactory();
-		ActivityContext activityContext = null;
-		if (activityContextId == null) {
-			activityContext = acf.getActivityContext(nullActivity);
+		try {
+			sleeContainer.getActivityContextFactory().createActivityContext(ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityHandle));
+		} catch (ActivityAlreadyExistsException e) {
+			throw new FactoryException(e.getMessage(),e);
 		}
-		else {
-			activityContext = acf.createActivityContext(nullActivity, activityContextId);
-		}
+		
 		if (logger.isDebugEnabled()) {
 			logger
 					.debug("NullActivityFactory.createNullActivity() Creating null activity "
-							+ nullActivity
-							+ " received ac "
-							+ activityContext.getActivityContextId());
+							+ nullActivity);
 		}
-		nullActivitiesActivityContextIds.add(activityContext.getActivityContextId());
+		nullActivitiesActivityContextIds.add(nullActivityHandle.getId());
 		return nullActivity;
 
 	}
 
-	public void removeNullActivity(String acid) {
-		nullActivitiesActivityContextIds.remove(acid);
+	public void endNullActivity(NullActivityHandle nullActivityHandle) throws SystemException {
+		if (nullActivitiesActivityContextIds.contains(nullActivityHandle.getId())) {
+			final ActivityContextHandle ach = ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityHandle);
+			final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
+			if (ac.getState() == ActivityContextState.ACTIVE) {
+				ac.setState(ActivityContextState.ENDING);
+				new DeferredActivityEndEvent(ach,null);	
+			}						
+		}
 	}
 
+	public void activityEnded(NullActivityHandle nullActivityHandle) {
+		try {
+			nullActivitiesActivityContextIds.remove(nullActivityHandle.getId());
+		}
+		catch (Exception e) {
+			logger.error("failed to remove null activity", e);
+		}
+	}
+	
 	public void restart() throws Exception {
-		SleeContainer.getTransactionManager().mandateTransaction();
+		sleeContainer.getTransactionManager().mandateTransaction();
 		if (logger.isDebugEnabled())
 			logger.debug("NullActivityFactory.restart()");
 		// Restore the cached image
-		ActivityContextFactoryImpl acf = (ActivityContextFactoryImpl) SleeContainer
-				.lookupFromJndi().getActivityContextFactory();
+		ActivityContextFactoryImpl acf = sleeContainer.getActivityContextFactory();
 		for (Iterator it = nullActivitiesActivityContextIds.iterator(); it.hasNext();) {
-			String acid = (String) it.next();
+			String id = (String) it.next();
 			if (logger.isDebugEnabled())
 				logger
 					.debug("NullActivityFactory.restart(): restoring null activity "
-							+ acid);
-			NullActivityImpl nullActivity = new NullActivityImpl();
-			acf.createActivityContext(nullActivity, acid);
+							+ id);
+			// recreate handle
+			NullActivityHandle nullActivityHandle = new NullActivityHandle(id);
+			// get an activity context for it
+			acf.createActivityContext(ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityHandle));
 		}
 	}
 	

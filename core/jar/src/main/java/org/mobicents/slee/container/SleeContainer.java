@@ -75,6 +75,7 @@ import org.mobicents.slee.container.management.jmx.ComponentIDArrayPropertyEdito
 import org.mobicents.slee.container.management.jmx.ComponentIDPropertyEditor;
 import org.mobicents.slee.container.management.jmx.DeployableUnitIDPropertyEditor;
 import org.mobicents.slee.container.management.jmx.LevelPropertyEditor;
+import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.jmx.ObjectPropertyEditor;
 import org.mobicents.slee.container.management.jmx.PropertiesPropertyEditor;
 import org.mobicents.slee.container.management.jmx.ServiceStatePropertyEditor;
@@ -84,20 +85,18 @@ import org.mobicents.slee.container.profile.ProfileSpecificationIDPropertyEditor
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.resource.EventLookup;
-import org.mobicents.slee.resource.ResourceAdaptorContext;
-import org.mobicents.slee.runtime.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.EventRouter;
-import org.mobicents.slee.runtime.EventRouterImpl;
-import org.mobicents.slee.runtime.SleeInternalEndpoint;
-import org.mobicents.slee.runtime.SleeInternalEndpointImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
+import org.mobicents.slee.runtime.cache.XACache;
+import org.mobicents.slee.runtime.eventrouter.EventRouter;
+import org.mobicents.slee.runtime.eventrouter.EventRouterImpl;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
-import org.mobicents.slee.runtime.facilities.NullActivityContextInterfaceFactoryImpl;
-import org.mobicents.slee.runtime.facilities.NullActivityFactoryImpl;
-import org.mobicents.slee.runtime.facilities.ProfileFacilityImpl;
-import org.mobicents.slee.runtime.facilities.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileFacilityImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -164,17 +163,12 @@ public class SleeContainer {
 	private static SleeTransactionManager sleeTransactionManager;
 
 	// FIELDS
-	// context for resource adaptors
-	private ResourceAdaptorContext bootstrapContext;
 	// mbean server where the container's mbeans are registred
 	private MBeanServer mbeanServer;
 	/** The lifecycle state of the SLEE */
 	private SleeState sleeState;
 	// An interface for the resource adaptor to retrieve the event type id.
 	private EventLookup eventLookup;
-	// An abstraction used by resource adaptors to post events to the
-	// slee event queue.
-	private SleeInternalEndpoint sleeEndpoint;
 	// the class that actually posts events to the SBBs.
 	// This should be made into a facility and registered with jmx and jndi
 	// so it can be independently controlled.
@@ -204,6 +198,8 @@ public class SleeContainer {
 	private ProfileFacilityImpl profileFacility;
 	private TimerFacilityImpl timerFacility;
 	private TraceFacilityImpl traceFacility;
+	
+	private final MobicentsUUIDGenerator uuidGenerator = MobicentsUUIDGenerator.getInstance(); 
 	
 	// LIFECYLE RELATED
 
@@ -252,18 +248,17 @@ public class SleeContainer {
 		this.sbbManagement = new SbbManagement(this);
 		this.resourceManagement = new ResourceManagement(this);
 		this.activityContextFactory = new ActivityContextFactoryImpl(this);
-		this.router = new EventRouterImpl(this);
-		this.sleeEndpoint = new SleeInternalEndpointImpl(
-				activityContextFactory, router, this);
+		this.router = new EventRouterImpl(this,MobicentsManagement.eventRouterExecutors,MobicentsManagement.monitoringUncommittedAcAttachs);
 		this.activityContextNamingFacility = new ActivityContextNamingFacilityImpl();
 		registerWithJndi("slee/facilities", "activitycontextnaming",
 				activityContextNamingFacility);
+		this.nullActivityFactory = new NullActivityFactoryImpl(this);
 		this.nullActivityContextInterfaceFactory = new NullActivityContextInterfaceFactoryImpl(
 				this);
 		registerWithJndi("slee/nullactivity",
 				"nullactivitycontextinterfacefactory",
 				nullActivityContextInterfaceFactory);
-		this.nullActivityFactory = new NullActivityFactoryImpl(this);
+		
 		registerWithJndi("slee/nullactivity", "nullactivityfactory",
 				nullActivityFactory);
 		this.profileTableActivityContextInterfaceFactory = new ProfileTableActivityContextInterfaceFactoryImpl();
@@ -279,18 +274,14 @@ public class SleeContainer {
 		this.serviceActivityFactory = new ServiceActivityFactoryImpl();
 		registerWithJndi("slee/serviceactivity/",
 				ServiceActivityFactoryImpl.JNDI_NAME, serviceActivityFactory);
-		this.serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl(
-				this);
+		this.serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl();
 		registerWithJndi("slee/serviceactivity/",
 				ServiceActivityContextInterfaceFactoryImpl.JNDI_NAME,
 				serviceActivityContextInterfaceFactory);
-		this.bootstrapContext = new ResourceAdaptorContext(this
-				.getSleeEndpoint(), this.getEventLookupFacility());
 
 		registerWithJndi();
 		
-		startRMIServer(this.nullActivityFactory, this.sleeEndpoint,
-				this.eventLookup, rmiServerInterfaceMBean);
+		startRMIServer(this.nullActivityFactory,this.eventLookup, rmiServerInterfaceMBean);
 
 		// Register property editors for the composite SLEE types so that the
 		// jboss
@@ -364,7 +355,7 @@ public class SleeContainer {
 				+ sleeProfileManager + "\n"
 				+ activityContextFactory + "\n" + activityContextNamingFacility
 				+ "\n" + nullActivityFactory + "\n" + serviceManagement + "\n"
-				+ profileFacility;
+				+ profileFacility + "\n" + getEventRouter() + "\n" + XACache.dumpState();
 	}
 
 	// GETTERS -- managers
@@ -515,27 +506,17 @@ public class SleeContainer {
 	// GETTERS -- slee runtime
 	
 	/**
+	 * a UUID generator for the container
+	 */
+	public MobicentsUUIDGenerator getUuidGenerator() {
+		return uuidGenerator;
+	}
+	
+	/**
 	 * the container's event router
 	 */
 	public EventRouter getEventRouter() {
 		return this.router;
-	}
-
-	/**
-	 * context for resource adaptors
-	 * 
-	 * @return
-	 */
-	public ResourceAdaptorContext getBootstrapContext() {
-		return this.bootstrapContext;
-	}
-
-	/**
-	 * the endpoint to post events into slee
-	 * 
-	 */
-	public SleeInternalEndpoint getSleeEndpoint() {
-		return this.sleeEndpoint;
 	}
 
 	/**
@@ -570,15 +551,14 @@ public class SleeContainer {
 	 * with the SLEE
 	 */
 	private void startRMIServer(NullActivityFactoryImpl naf,
-			SleeInternalEndpoint endpoint, EventLookup eventLookup,
+			EventLookup eventLookup,
 			ObjectName rmiServerInterfaceMBean) {
 		try {
 			logger.debug("creating RmiServerInterface using MBeanProxy");
 			rmiServerInterfaceMBeanImpl = (RmiServerInterfaceMBean) MBeanProxy
 					.get(RmiServerInterfaceMBean.class,
 							rmiServerInterfaceMBean, mbeanServer);
-			rmiServerInterfaceMBeanImpl.startRMIServer(naf, endpoint,
-					eventLookup, activityContextFactory);
+			rmiServerInterfaceMBeanImpl.startRMIServer(naf,eventLookup, activityContextFactory);
 		} catch (Exception e) {
 			logger.error(
 					"Failed to start HA RMI server for Remote slee service", e);

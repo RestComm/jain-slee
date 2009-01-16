@@ -142,7 +142,8 @@ public class SbbEntityFactory {
 	}
 
 	/**
-	 * Removes the specified sbb entity.
+	 * Removes the specified sbb entity. The sbb class loader is used on this operation.
+	 * 
 	 * @param sbbEntity the sbb entity to remove
 	 * @param removeFromParent indicates if the entity should be remove from it's parent also
 	 * @throws TransactionRequiredException
@@ -151,10 +152,32 @@ public class SbbEntityFactory {
 	public static void removeSbbEntity(SbbEntity sbbEntity,
 			boolean removeFromParent) throws TransactionRequiredException,
 			SystemException {
+		
+		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader(); 
+		try {
+			Thread.currentThread().setContextClassLoader(sbbEntity.getSbbDescriptor().getClassLoader());
+			removeSbbEntityWithCurrentClassLoader(sbbEntity, removeFromParent);
+		} finally {
+			// restore old class loader
+			Thread.currentThread().setContextClassLoader(oldClassLoader);
+		}	
+	}
+
+	/**
+	 * Removes the specified sbb entity but without changing to sbb's class loader first.
+	 * 
+	 * @param sbbEntity the sbb entity to remove
+	 * @param removeFromParent indicates if the entity should be remove from it's parent also
+	 * @throws TransactionRequiredException
+	 * @throws SystemException
+	 */
+	public static void removeSbbEntityWithCurrentClassLoader(SbbEntity sbbEntity,
+			boolean removeFromParent) throws TransactionRequiredException,
+			SystemException {
 		// remove entity
 		sbbEntity.remove(removeFromParent);
 	}
-
+	
 	/**
 	 * Removes the specified sbb entity.
 	 * @param sbbEntity the sbb entity to remove

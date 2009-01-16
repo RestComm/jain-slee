@@ -7,7 +7,7 @@
  *                                                 *
  ***************************************************/
 
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.profile;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
@@ -18,13 +18,17 @@ import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
 import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
  * Implmenetation of profile table activity context interface factory.
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov
+ * @author martins
  */
 public class ProfileTableActivityContextInterfaceFactoryImpl implements
 		ProfileTableActivityContextInterfaceFactory {
@@ -62,12 +66,14 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 			throw new FactoryException(e.getMessage());
 		}
 
-		String acid = serviceContainer.getActivityContextFactory()
-				.getActivityContextId(profileTableActivity);
-		ActivityContextInterfaceImpl acii = new ActivityContextInterfaceImpl(
-				acid);
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableActivity.getProfileTableName()));
+        ActivityContext ac = serviceContainer.getActivityContextFactory().getActivityContext(ach, false);
+        if (ac == null) {
+        	throw new UnrecognizedActivityException(profileTableActivity);
+        }
+        
+		return new ActivityContextInterfaceImpl(ac);
 
-		return acii;
 	}
 
 	public SleeContainer getServiceContainer() {

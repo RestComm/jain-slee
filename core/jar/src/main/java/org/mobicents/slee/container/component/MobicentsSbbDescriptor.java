@@ -9,21 +9,12 @@
 
 package org.mobicents.slee.container.component;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.LinkRef;
-import javax.naming.Name;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NameParser;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
@@ -33,14 +24,9 @@ import javax.slee.management.SbbDescriptor;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.jboss.classloader.spi.ClassLoaderPolicy;
 import org.mobicents.slee.container.service.ServiceComponent;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
-import org.mobicents.slee.runtime.SleeEvent;
-import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 
 /**
  * This class contains the information about the Sbb Component extracted from
@@ -145,7 +131,7 @@ public interface MobicentsSbbDescriptor extends Serializable, SbbDescriptor,
      * @return the convergence name or null if this is not an initial event for
      *         this service
      */
-    public String computeConvergenceName(SleeEvent sleeEvent, ServiceComponent svc)
+    public String computeConvergenceName(DeferredEvent sleeEvent, ServiceComponent svc)
             throws Exception ;
 
     /**

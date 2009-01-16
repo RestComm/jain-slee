@@ -7,14 +7,12 @@
  *                                                 *
  ***************************************************/
 
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.profile;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.EventTypeIDImpl;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.SleeEvent;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
@@ -29,7 +27,7 @@ import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
  * @author Ivelin Ivanov
  *
  */
-public class ProfileAddedEventImpl implements ProfileAddedEvent, SleeEvent {
+public class ProfileAddedEventImpl implements ProfileAddedEvent {
     
 	private static EventTypeIDImpl eventTypeID;
 	private static EventTypeID lookupEventTypeID() {
@@ -39,8 +37,6 @@ public class ProfileAddedEventImpl implements ProfileAddedEvent, SleeEvent {
 		}
 		return eventTypeID;
 	}
-    
-    private ActivityContextInterface aci;
     
     private Address profileAddress;
     
@@ -62,7 +58,7 @@ public class ProfileAddedEventImpl implements ProfileAddedEvent, SleeEvent {
     }
     
     public Object getActivity() {
-        return this.aci.getActivity();
+        return this.activityContextInterface.getActivity();
     }
 
     /* (non-Javadoc)
@@ -89,25 +85,10 @@ public class ProfileAddedEventImpl implements ProfileAddedEvent, SleeEvent {
         return this.addedProfile;
     }
 
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getActivityContext()
-     */
-    public ActivityContext getActivityContext() {
-       
-        return this.activityContextInterface.getActivityContext();
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getEventTypeID()
-     */
     public EventTypeID getEventTypeID() {
         return lookupEventTypeID();
     }
 
-    
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getEventObject()
-     */
     public Object getEventObject() {
         //return  ((ProfileTableActivityImpl) this.activityContextInterface.getActivity()).getProfileEvent();
         return  (ProfileAddedEvent) this;
@@ -117,25 +98,12 @@ public class ProfileAddedEventImpl implements ProfileAddedEvent, SleeEvent {
         return profileAddress;
     }
 
-    public String getActivityContextID() {
-        // TODO Auto-generated method stub
-        return this.activityContextInterface.getActivityContext().getActivityContextId();
+    public ActivityContextInterfaceImpl getActivityContextInterface() {
+        return this.activityContextInterface;
     }
 
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getActivityContextInterface()
-     */
-    public ActivityContextInterface getActivityContextInterface() {
-      
-        return this.aci;
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#setActivityContextInterface(javax.slee.ActivityContextInterface)
-     */
-    public void setActivityContextInterface(ActivityContextInterface aci) {
-        this.aci = aci;
-        
+    public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
+        this.activityContextInterface = activityContextInterface;   
     }
 }
 

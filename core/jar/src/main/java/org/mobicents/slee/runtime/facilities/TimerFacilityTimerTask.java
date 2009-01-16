@@ -25,16 +25,15 @@ import java.io.Serializable;
 import java.util.TimerTask;
 
 import javax.slee.Address;
-import javax.slee.EventTypeID;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.DeferredEvent;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class TimerFacilityTimerTask extends TimerTask implements Serializable {
@@ -48,7 +47,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 
     private TimerID timerId;
 
-    private String activityContextId;
+    private ActivityContextHandle activityContextHandle;
 
     private Address address;
 
@@ -66,18 +65,9 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
     
     private long lastTick;
 
-    private static EventTypeID timerEventId;
-	private static EventTypeID getTimerEventID() {
-		if (timerEventId == null) {
-			timerEventId = SleeContainer.lookupFromJndi().getEventManagement().getEventType(new ComponentKey(
-					"javax.slee.facilities.TimerEvent", "javax.slee", "1.0"));
-		}
-		return timerEventId;
-	}
-  
     public String toString() {
         return new StringBuffer().append("timerId = " + timerId).append(
-                "\nacid = " + this.activityContextId).append(
+                "\nach = " + this.activityContextHandle).append(
                 "\nAddress = " + address).append(
                 "\ntimerOptions = " + timerOptions).append(
                 "\nstartTime = " + startTime).append(
@@ -86,14 +76,14 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
                 "\nperiod  " + this.period).toString();
     }
 
-    public TimerFacilityTimerTask(TimerID timerId, String activityContextId,
+    public TimerFacilityTimerTask(TimerID timerId, ActivityContextHandle activityContextHandle,
             Address address, long startTime, long period, int numRepetitions,
             TimerOptions timerOptions) {
 
         this.timerId = timerId;
 
         //this.aci = aci;
-        this.activityContextId = activityContextId;
+        this.activityContextHandle = activityContextHandle;
         this.address = address;
         this.startTime = startTime;
         this.period = period;
@@ -249,7 +239,8 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
             TimerEventImpl timerEvent = new TimerEventImpl(this.timerId, this
                     .scheduledExecutionTime(), tSys, this.period,
                     this.numRepetitions, this.remainingRepetitions,
-                    this.missedRepetitions, getTimerEventID(),this,timerEnded);
+                    this.missedRepetitions, this,timerEnded);
+            
             this.missedRepetitions = 0;
            
             postEvent(timerEvent);
@@ -306,7 +297,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 			
 			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 			ActivityContext ac = sleeContainer.getActivityContextFactory()
-			.getActivityContextById(this.activityContextId);
+			.getActivityContext(this.activityContextHandle,true);
 			
 			// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
 			//   and thus the timer cancelation came a bit late
@@ -316,15 +307,13 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger
-					.debug("Posting timer event on event router queue. TimerEventID: "
-							+ getTimerEventID()
-							+ ", Activity:  "
-							+ ac.getActivity()
+					.debug("Posting timer event on event router queue. Activity:  "
+							+ ac.getActivityContextHandle()
 							+ " remainingRepetitions: "
 							+ remainingRepetitions);
 				}
 				
-				new DeferredEvent(getTimerEventID(),timerEvent,ac,this.address);
+				new DeferredEvent(TimerEventImpl.getEventTypeID(),timerEvent,activityContextHandle,this.address);
 				
 				rb = false;
 			}            
@@ -364,9 +353,9 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
     /**
      * @return the activity context interface for the timer task.
      */
-    public String getActivityContextId() {
+    public ActivityContextHandle getActivityContextHandle() {
         
-        return this.activityContextId;
+        return this.activityContextHandle;
     }
     
     public long getStartTime() {

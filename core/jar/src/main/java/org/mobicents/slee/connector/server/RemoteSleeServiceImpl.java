@@ -24,11 +24,15 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.EventLookup;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.DeferredEvent;
-import org.mobicents.slee.runtime.facilities.NullActivityFactoryImpl;
-import org.mobicents.slee.runtime.facilities.NullActivityImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContext;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
@@ -61,9 +65,6 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			this.eventList = new ArrayList(alist);
 		}
 
-
-
-
 		public void run() {
 			log.debug("afterCompletion called -- fireEventQueue Again!");
 			Iterator iter = eventList.iterator();
@@ -73,7 +74,6 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 						ei.address);
 			}
 		}
-
 	}
 
 	public RemoteSleeServiceImpl(NullActivityFactoryImpl naf, EventLookup eventLookup,
@@ -94,14 +94,14 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		return createExternalActivityHandleImpl();
 	}
 	
-	private ExternalActivityHandleImpl createExternalActivityHandleImpl() {
+	private ExternalActivityHandle createExternalActivityHandleImpl() {
 		if (log.isDebugEnabled()) {
 			log.debug("Creating external activity handle");
 		}
 		// creates a new instance of activity handle it with a safe unique id
 		// for a it's null activity (and related activity context) if this
 		// handle is used to fire events
-		return new ExternalActivityHandleImpl(acf.createNewActivityContextId(null));
+		return naf.createNullActivityHandle();
 	}
 
 	/*
@@ -127,7 +127,7 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		}
 		
 		// check container state is running
-		if (!SleeContainer.lookupFromJndi().getSleeState().equals(SleeState.RUNNING)) {
+		if (SleeContainer.lookupFromJndi().getSleeState() != SleeState.RUNNING) {
 			throw new IllegalStateException("Container is not running");
 		}
 		
@@ -143,18 +143,22 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			if (externalActivityHandle == null) {
 				externalActivityHandle = createExternalActivityHandleImpl();
 			}
-			ExternalActivityHandleImpl handle = (ExternalActivityHandleImpl) externalActivityHandle;
-			
-			ActivityContext ac = acf.getActivityContextById(handle.getActivityContextId());
+			NullActivityHandle nah = (NullActivityHandle) externalActivityHandle;
+			ActivityContextHandle ach = ActivityContextHandlerFactory.createNullActivityContextHandle(nah);
+			ActivityContext ac = acf.getActivityContext(ach,false);
 			if(ac == null) {
 				// ac has ended or does not exists, (re)create it
-				activity = naf.createNullActivityImpl(handle.getActivityContextId(),true);
-				ac = acf.getActivityContextById(activity.getActivityContextId());
+				activity = naf.createNullActivityImpl(nah,true);
+				ac = acf.getActivityContext(ach,false);
 			}
 			
+			// we are firing an event on a null activity thus we need to warn the activity context due to implict end checks
+	       	((NullActivityContext)ac).firingEvent();
+	        
 			if (log.isDebugEnabled())
 				log.debug("creating deferred event");
-			new DeferredEvent(eventType,event,ac,address);
+			
+			new DeferredEvent(eventType,event,ach,address);
 			rollback = false;
 		} catch (Exception ex) {
 			log.error("Exception in fireEvent!", ex);
@@ -179,9 +183,6 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			// else ignore, specs say there is no need to rollback a tx if event
 			// queuing failed
 		}
-		
-	
-	
 	}
 	
 	public void fireEventQueue(ArrayList queue) {

@@ -234,4 +234,14 @@ public class XACache {
 	Map getActualMaps() {
 		return actualMaps;
 	}
+	
+	public static String dumpState() {
+		return tmem.toString();
+	}
+	
+	@Override
+	public String toString() {
+		return 	"XACache: " +
+		"\n+-- Cacheable Maps: " + actualMaps.size();
+	}
 }

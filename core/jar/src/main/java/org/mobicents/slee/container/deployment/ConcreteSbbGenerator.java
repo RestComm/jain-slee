@@ -45,7 +45,7 @@ import org.mobicents.slee.container.deployment.interceptors.DefaultSBBProfileCMP
 import org.mobicents.slee.container.deployment.interceptors.FireEventInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.SBBProfileCMPInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.UsageParameterInterceptor;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;

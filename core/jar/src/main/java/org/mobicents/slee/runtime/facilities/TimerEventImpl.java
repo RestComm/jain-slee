@@ -26,10 +26,31 @@ import javax.slee.EventTypeID;
 import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerID;
 
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ComponentKey;
+
 
 public class TimerEventImpl implements TimerEvent {
 
-    private TimerID timerId;
+	/**
+	 *	the component key for this event
+	 */
+	public static final ComponentKey COMPONENT_KEY = new ComponentKey("javax.slee.facilities.TimerEvent",
+			"javax.slee", "1.0");
+	
+	private static EventTypeID timerEventTypeID = null;
+	/**
+	 * 
+	 * @return the event type id for the timer event
+	 */
+	public static EventTypeID getEventTypeID() {
+		if (timerEventTypeID == null) {
+			timerEventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(TimerEventImpl.COMPONENT_KEY);
+		}
+		return timerEventTypeID;
+	}
+	
+	private TimerID timerId;
 
     private long scheduledTime;
 
@@ -43,10 +64,6 @@ public class TimerEventImpl implements TimerEvent {
 
     private int missedRepetitions;
 
-    //private ActivityContext ac;
-    //private String activityContextId;
-    private EventTypeID eventTypeID;
-
     private TimerFacilityTimerTask timerTask;
 
     //private Address address;
@@ -55,7 +72,7 @@ public class TimerEventImpl implements TimerEvent {
      
     TimerEventImpl(TimerID timerId, long scheduledTime, long expiryTime,
             long period, int numRepetitions, int remainingRepetitions,
-            int missedRepetitions, EventTypeID eventTypeID, 
+            int missedRepetitions,  
             TimerFacilityTimerTask timerTask, boolean lastTimerEvent) {
         this.timerId = timerId;
         this.scheduledTime = scheduledTime;
@@ -65,10 +82,6 @@ public class TimerEventImpl implements TimerEvent {
         this.remainingRepetitions = remainingRepetitions;
         this.missedRepetitions = missedRepetitions;
         this.timerTask = timerTask;
-        //this.ac = ac;
-        //this.activityContextId = activityContextId;
-        this.eventTypeID = eventTypeID;
-        //this.address = address;
         this.lastTimerEvent = lastTimerEvent;
     }
 
@@ -102,10 +115,6 @@ public class TimerEventImpl implements TimerEvent {
 
     public int getMissedRepetitions() {
         return this.missedRepetitions;
-    }
-
-    public EventTypeID getEventTypeID() {
-        return this.eventTypeID;
     }
 
     public boolean isLastTimerEvent() {

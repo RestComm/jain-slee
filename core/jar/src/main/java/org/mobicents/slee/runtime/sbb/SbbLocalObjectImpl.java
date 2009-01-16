@@ -27,8 +27,9 @@ import javax.transaction.TransactionRequiredException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.RolledBackContextImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -262,14 +263,20 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         
         try {
             if (SleeContainer.getTransactionManager().getRollbackOnly()) {
-                RolledBackContext sbbRolledBackContext = new RolledBackContextImpl(
-                        sbbEntity.getCurrentEvent().getEventObject(),
-                        new ActivityContextInterfaceImpl(
-                        		sbbEntity.getCurrentEvent().getActivityContextID()), true);
-                SleeContainer.getTransactionManager().addAfterRollbackAction(new RolledBackAction(
-                        sbbEntityId, sbbRolledBackContext));
-            }
-        } catch (SystemException e) {
+            	RolledBackContext sbbRolledBackContext = new RolledBackContextImpl(
+						sbbEntity.getCurrentEvent().getEvent(),
+						new ActivityContextInterfaceImpl(sleeContainer
+								.getActivityContextFactory()
+								.getActivityContext(
+										sbbEntity.getCurrentEvent()
+												.getActivityContextHandle(),
+										true)), true);
+				SleeContainer.getTransactionManager()
+						.addAfterRollbackAction(
+								new RolledBackAction(sbbEntityId,
+										sbbRolledBackContext));
+			}
+		} catch (Exception e) {
             throw new RuntimeException("Failed to check and possibly set rollback context of entity "+sbbEntityId,e);
         }
 

@@ -10,8 +10,6 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
@@ -36,12 +34,10 @@ import javax.transaction.SystemException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.Version;
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.management.ResourceManagement;
-import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.SleeEndpointImpl;
-import org.mobicents.slee.runtime.facilities.ProfileTableActivityImpl;
+import org.mobicents.slee.runtime.eventrouter.EventRouterImpl;
 
 import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
 
@@ -427,7 +423,11 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			if (isFullSleeStop) {
 				sleeContainer.init(this, rmiServerInterfaceMBean);
 				isFullSleeStop = false;
-			};
+			}
+			else {
+				// re config event router
+				sleeContainer.getEventRouter().config(MobicentsManagement.eventRouterExecutors,MobicentsManagement.monitoringUncommittedAcAttachs);
+			}						
 			changeSleeState(SleeState.RUNNING);
 			reactivateResourceAdaptors();
 			resumeServicesActiveBeforeStop();
@@ -625,28 +625,11 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	}
 
 	/**
+	 * @throws SystemException 
 	 * 
 	 */
-	private void stopAllProfileTableActivities() {
-		SleeProfileManager sleeProfileManager = sleeContainer.getSleeProfileManager();
-		Map profileTableActivities = sleeProfileManager
-				.getProfileTableActivities();
-		logger.debug("Stopping profile table activities !");
-		Iterator it = profileTableActivities.keySet().iterator();
-		while (it.hasNext()) {
-			String profileTableName = (String) it.next();
-			logger.debug("Stopping following profile table activity : "
-					+ profileTableName);
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			int eventID = sleeContainer.getEventLookupFacility().getEventID(
-					new ComponentKey("javax.slee.ActivityEndEvent",
-							"javax.slee", "1.0"));
-
-			ProfileTableActivityImpl profileTableActivity = (ProfileTableActivityImpl) profileTableActivities
-					.get(profileTableName);
-			sleeContainer.getSleeEndpoint().scheduleActivityEndedEvent(
-					profileTableActivity);
-		}
+	private void stopAllProfileTableActivities() throws SystemException {
+		sleeContainer.getSleeProfileManager().endAllProfileTableActivities();
 	}
 
 	/**
@@ -783,7 +766,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 				.sendNotification(new SleeStateChangeNotification(this,
 						newState, oldState, sleeStateChangeSequenceNumber++));
 
-		if (newState.equals(SleeState.RUNNING)) {
+		if (newState == SleeState.RUNNING) {
 			String timerSt = "";
 			if (isFullSleeStop) {
 				startupTime = System.currentTimeMillis() - startupTime;
@@ -794,7 +777,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			logger.info("[[[[[[[[[ " + mobicentsVersion + " Started "
 					+ timerSt + "]]]]]]]]]");
 
-		} else if (newState.equals(SleeState.STOPPED)) {
+		} else if (newState == SleeState.STOPPED) {
 			logger.info("[[[[[[[[[[ " + mobicentsVersion
 					+ " Stopped ]]]]]]]]]");
 		}

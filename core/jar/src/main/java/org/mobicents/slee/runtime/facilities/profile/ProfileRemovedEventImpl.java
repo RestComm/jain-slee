@@ -12,27 +12,24 @@
  * Created on Jan 27, 2005
  * 
  */
-package org.mobicents.slee.runtime.facilities;
+package org.mobicents.slee.runtime.facilities.profile;
 
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.SleeEvent;
-
-import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileRemovedEvent;
+
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ComponentKey;
+import org.mobicents.slee.container.component.EventTypeIDImpl;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /** Profile removed event implementation.
  * 
  * @author DERUELLE Jean <a href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com</a> 
  *
  */
-public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
+public class ProfileRemovedEventImpl implements ProfileRemovedEvent {
     
 	private static EventTypeIDImpl eventTypeID;
 	private static EventTypeID lookupEventTypeID() {
@@ -42,16 +39,12 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
 		}
 		return eventTypeID;
 	}
-	
-    private ActivityContextInterface aci;
     
     private Address profileAddress;
     
     private ProfileID profile;
     
     private Object  removedProfile;
-    
-    private ProfileTableActivityContextInterfaceFactoryImpl ptableAcif;
     
     private ActivityContextInterfaceImpl activityContextInterface;
     
@@ -64,10 +57,6 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
         this.activityContextInterface = acii;
     }
     
-    public Object getActivity() {
-        return this.aci.getActivity();
-    }
-
     /* (non-Javadoc)
      * @see javax.slee.profile.ProfileAddedEvent#getProfile()
      */
@@ -84,25 +73,10 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
         return profileAddress;
     }    
 
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getActivityContext()
-     */
-    public ActivityContext getActivityContext() {
-       
-        return this.activityContextInterface.getActivityContext();
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getEventTypeID()
-     */
     public EventTypeID getEventTypeID() {
         return lookupEventTypeID();
     }
 
-    
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getEventObject()
-     */
     public Object getEventObject() {
         //return  ((ProfileTableActivityImpl) this.activityContextInterface.getActivity()).getProfileEvent();
         return  (ProfileRemovedEvent) this;
@@ -119,25 +93,12 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent, SleeEvent {
         return this.removedProfile;
     }
 
-    public String getActivityContextID() {
-        // TODO Auto-generated method stub
-        return getActivityContextID();
+    public ActivityContextInterfaceImpl getActivityContextInterface() {
+        return this.activityContextInterface;
     }
 
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#getActivityContextInterface()
-     */
-    public ActivityContextInterface getActivityContextInterface() {
-        
-        return this.aci;
-    }
-
-    /* (non-Javadoc)
-     * @see org.mobicents.slee.runtime.SleeEvent#setActivityContextInterface(javax.slee.ActivityContextInterface)
-     */
-    public void setActivityContextInterface(ActivityContextInterface aci) {
-       this.aci = aci;
-        
+    public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
+        this.activityContextInterface = activityContextInterface;   
     }
 }
 

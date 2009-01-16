@@ -23,7 +23,7 @@ import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.deployment.ConcreteSbbGenerator;
 import org.mobicents.slee.container.service.Service;
-import org.mobicents.slee.runtime.SbbInvocationState;
+import org.mobicents.slee.runtime.eventrouter.SbbInvocationState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 /*

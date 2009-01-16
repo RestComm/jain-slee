@@ -20,7 +20,7 @@
  * usefulness of the software.
  */
 
-package org.mobicents.slee.runtime;
+package org.mobicents.slee.runtime.eventrouter;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.RolledBackContext;
@@ -35,12 +35,12 @@ public class RolledBackContextImpl implements RolledBackContext {
 
     private Object event;
 
-    private ActivityContextInterfaceImpl activityContextInterface;
+    private ActivityContextInterface activityContextInterface;
 
     private boolean removeRollback;
 
     public RolledBackContextImpl(Object event,
-            ActivityContextInterfaceImpl activityContextInterface,
+            ActivityContextInterface activityContextInterface,
             boolean removeRollback) {
         this.event = event;
         this.activityContextInterface = activityContextInterface;
