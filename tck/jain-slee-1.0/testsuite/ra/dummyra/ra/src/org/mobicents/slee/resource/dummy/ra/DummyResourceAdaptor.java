@@ -10,65 +10,20 @@
 package org.mobicents.slee.resource.dummy.ra;
 
 import java.io.DataOutputStream;
-import java.io.Serializable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-
-import java.util.*;
-
-
-import javax.naming.NamingException;
-
-import javax.slee.Address;
-import javax.slee.AddressPlan;
-import javax.slee.UnrecognizedActivityException;
-import javax.slee.UnrecognizedEventException;
-import javax.slee.facilities.FacilityException;
-import javax.slee.resource.ActivityIsEndingException;
-import javax.slee.resource.ResourceAdaptorTypeID;
-import javax.slee.resource.ResourceException;
-import javax.slee.resource.ResourceAdaptor;
-import javax.slee.resource.BootstrapContext;
-import javax.slee.resource.SleeEndpoint;
-import javax.slee.facilities.EventLookupFacility;
-import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.FailureReason;
-import javax.slee.resource.Marshaler;
-
-import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
-
-import java.net.Socket;
+import java.io.Serializable;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-
-
-import com.opencloud.sleetck.lib.resource.events.TCKResourceEventX;
-import com.opencloud.sleetck.lib.resource.impl.TCKResourceEventImpl;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
-
-
-
-import org.mobicents.slee.runtime.ActivityContextFactory;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.DeferredEvent;
-import org.mobicents.slee.runtime.SleeInternalEndpoint;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.resource.ResourceAdaptorState;
-
-import javax.slee.EventTypeID;
+import javax.slee.ActivityContextInterface;
+import javax.slee.Address;
 import javax.slee.FactoryException;
-import javax.slee.InvalidStateException;
-import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
@@ -79,10 +34,29 @@ import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 import javax.slee.nullactivity.NullActivityFactory;
 import javax.slee.resource.ActivityHandle;
-
-import javax.slee.resource.ActivityHandle;
-import javax.slee.*;
+import javax.slee.resource.BootstrapContext;
+import javax.slee.resource.FailureReason;
+import javax.slee.resource.Marshaler;
+import javax.slee.resource.ResourceAdaptor;
+import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.slee.resource.ResourceException;
 import javax.transaction.SystemException;
+
+import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ComponentKey;
+import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
+import org.mobicents.slee.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.resource.dummy.ra.DummyActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.resource.dummy.ra.DummyActivityHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextFactory;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+
+import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
+
+import com.opencloud.sleetck.lib.resource.events.TCKResourceEventX;
+import com.opencloud.sleetck.lib.resource.impl.TCKResourceEventImpl;
 
 /**
  *
@@ -138,9 +112,6 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 
 	private ComponentKey raKey = null;
     
-	private static SleeInternalEndpoint sleeInternalEndpoint = SleeContainer
-	.lookupFromJndi().getSleeEndpoint();
-
 	private transient SleeContainer serviceContainer;
 	private transient BootstrapContext bootstrapContext;
 	
@@ -420,13 +391,13 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 		
 			if (nullAci == null) {
 				// check container state is not stopping
-				if (SleeContainer.lookupFromJndi().getSleeState().equals(SleeState.STOPPING)) {
+				if (SleeContainer.lookupFromJndi().getSleeState() == SleeState.STOPPING) {
 					return;
 				}
 				nullAci = retrieveNullActivityContext();
 			}
 				new DeferredEvent(eventLookup.getEventID(
-						TckX1Key.getName(),TckX1Key.getVendor(),TckX1Key.getVersion()), event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null);
+						TckX1Key.getName(),TckX1Key.getVendor(),TckX1Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContextHandle(), null);
 			log.info("==== FIRED ====");
 			
 			rb = false;
@@ -475,14 +446,14 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 		
 			if (nullAci == null) {
 				// check container state is not stopping
-				if (SleeContainer.lookupFromJndi().getSleeState().equals(SleeState.STOPPING)) {
+				if (SleeContainer.lookupFromJndi().getSleeState() == SleeState.STOPPING) {
 					return;
 				}
 				nullAci = retrieveNullActivityContext();
 			}
 			
-			sleeInternalEndpoint.enqueueEvent(new DeferredEvent(eventLookup.getEventID(
-					TckX2Key.getName(),TckX2Key.getVendor(),TckX2Key.getVersion()), event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null));
+			new DeferredEvent(eventLookup.getEventID(
+					TckX2Key.getName(),TckX2Key.getVendor(),TckX2Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContextHandle(), null);
 		
 			rb = false;
 		} catch (Exception e) {
@@ -529,14 +500,14 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 		
 			if (nullAci == null) {
 				// check container state is not stopping
-				if (SleeContainer.lookupFromJndi().getSleeState().equals(SleeState.STOPPING)) {
+				if (SleeContainer.lookupFromJndi().getSleeState() == SleeState.STOPPING) {
 					return;
 				}
 				nullAci = retrieveNullActivityContext();
 			}
 			
-			sleeInternalEndpoint.enqueueEvent(new DeferredEvent(eventLookup.getEventID(
-					TckX3Key.getName(),TckX3Key.getVendor(),TckX3Key.getVersion()), event1, ((ActivityContextInterfaceImpl)nullAci).getActivityContext(), null));
+			new DeferredEvent(eventLookup.getEventID(
+					TckX3Key.getName(),TckX3Key.getVendor(),TckX3Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContextHandle(), null);
 			
 					rb = false;
 		} catch (Exception e) {

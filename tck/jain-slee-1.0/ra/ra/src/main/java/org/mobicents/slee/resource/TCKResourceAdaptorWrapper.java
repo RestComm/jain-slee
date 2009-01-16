@@ -20,6 +20,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.Address;
 import javax.slee.InvalidStateException;
@@ -38,10 +39,12 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 import com.opencloud.logging.LogLevel;
 import com.opencloud.logging.PrintWriterLog;
 import com.opencloud.sleetck.lib.TCKTestErrorException;
+import com.opencloud.sleetck.lib.resource.TCKActivityID;
 import com.opencloud.sleetck.lib.resource.adaptor.TCKResourceAdaptorInterface;
 import com.opencloud.sleetck.lib.resource.adaptor.TCKResourceFactory;
 import com.opencloud.sleetck.lib.resource.adaptor.TCKResourceSetupInterface;
 import com.opencloud.sleetck.lib.resource.events.TCKResourceEvent;
+import com.opencloud.sleetck.lib.resource.sbbapi.TCKActivity;
 import com.opencloud.sleetck.lib.resource.sbbapi.TCKActivityContextInterfaceFactory;
 import com.opencloud.sleetck.lib.resource.sbbapi.TCKResourceAdaptorSbbInterface;
 import com.opencloud.sleetck.lib.resource.sbbapi.TCKResourceSbbInterface;
@@ -71,6 +74,12 @@ TCKResourceAdaptorSbbInterface, Serializable {
         log = Logger.getLogger(TCKResourceAdaptorWrapper.class);
         
     }
+    
+    // we store activities ending because the tck removes them when indicatiing
+	// that to SLEE, which makes it possible to have a NPE in activity end event
+	// handlers
+    protected ConcurrentHashMap<TCKActivityID, TCKActivity> activitiesEnding = new ConcurrentHashMap<TCKActivityID, TCKActivity>();
+    
     public TCKResourceAdaptorWrapper() {
         //new Exception().printStackTrace();
         marshaller = new TCKMarshaller();
@@ -99,7 +108,7 @@ TCKResourceAdaptorSbbInterface, Serializable {
     public void init(BootstrapContext context) throws ResourceException, NullPointerException {
         
         this.context = context;
-        eventHandler = new TCKResourceEventHandlerImpl(context, this.tckResourceAdaptor);
+        eventHandler = new TCKResourceEventHandlerImpl(context, this, this.tckResourceAdaptor);
         try {
             this.tckResourceAdaptor = tckResourceSetup.getResourceAdaptorInterface();
             
@@ -284,6 +293,7 @@ TCKResourceAdaptorSbbInterface, Serializable {
         try {
             TCKActivityHandle tckh = (TCKActivityHandle)ah;
             this.tckResourceAdaptor.onActivityContextInvalid(tckh.getActivityID());
+            activitiesEnding.remove(tckh.getActivityID());
         } catch (RemoteException e) {
             log.error("Failed activityEnded", e);
         }
@@ -304,6 +314,9 @@ TCKResourceAdaptorSbbInterface, Serializable {
         TCKActivityHandle tckHandle = (TCKActivityHandle) handle;
         try {
             Object retval = this.tckResourceAdaptor.getActivity(tckHandle.getActivityID());
+            if (retval == null) {            	
+            	retval = activitiesEnding.get(tckHandle.getActivityID());
+            }
             if ( log.isDebugEnabled()) {
                 log.debug("getActivity():  returning " + retval);
             }

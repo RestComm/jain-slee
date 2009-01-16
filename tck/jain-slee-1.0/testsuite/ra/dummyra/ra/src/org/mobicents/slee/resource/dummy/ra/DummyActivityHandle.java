@@ -9,6 +9,8 @@
 
 package org.mobicents.slee.resource.dummy.ra;
 
+import java.io.Serializable;
+
 import javax.slee.resource.ActivityHandle;
 import org.mobicents.slee.resource.dummy.ratype.DummyActivity;
 
@@ -16,9 +18,13 @@ import org.mobicents.slee.resource.dummy.ratype.DummyActivity;
  *
  * @author Oleg Kulikov
  */
-public class DummyActivityHandle implements ActivityHandle {
+public class DummyActivityHandle implements ActivityHandle, Serializable {
     
-    private String handle = null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String handle = null;
     private DummyActivity activity;
     
     public DummyActivityHandle(String id) {

@@ -96,6 +96,7 @@
 									<tasks>
 										<copy overwrite="true" file="target/${build.finalName}.war"
 											todir="${jboss.home}/server/${node}/deploy" />
+										<delete failonerror="false" dir="${user.dir}/.gwt-cache" />
 									</tasks>
 								</configuration>
 							</execution>

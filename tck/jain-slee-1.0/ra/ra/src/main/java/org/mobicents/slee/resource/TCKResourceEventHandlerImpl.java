@@ -12,26 +12,21 @@
  */
 package org.mobicents.slee.resource;
 
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.resource.tck.TCKActivityHandle;
-import org.mobicents.slee.runtime.SleeInternalEndpoint;
-
 import java.rmi.RemoteException;
-import java.util.StringTokenizer;
 
 import javax.slee.Address;
-import javax.slee.InvalidStateException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.FacilityException;
 import javax.slee.resource.ActivityAlreadyExistsException;
-import javax.slee.resource.ActivityIsEndingException;
 import javax.slee.resource.BootstrapContext;
 import javax.slee.resource.CouldNotStartActivityException;
 import javax.slee.resource.SleeEndpoint;
 
 import org.jboss.logging.Logger;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.resource.tck.TCKActivityHandle;
 
 import com.opencloud.sleetck.lib.TCKTestErrorException;
 import com.opencloud.sleetck.lib.resource.TCKActivityID;
@@ -58,8 +53,11 @@ public class TCKResourceEventHandlerImpl implements TCKResourceEventHandler {
         logger = Logger.getLogger(SleeContainer.class);
     }
 
+    private final TCKResourceAdaptorWrapper resourceAdaptorWrapper;
+    
     public TCKResourceEventHandlerImpl(BootstrapContext ctx,
-            TCKResourceAdaptorInterface raInterface) {
+            TCKResourceAdaptorWrapper resourceAdaptorWrapper, TCKResourceAdaptorInterface raInterface) {
+    	this.resourceAdaptorWrapper = resourceAdaptorWrapper;
         this.raInterface = raInterface;
         this.sleeEndpoint = ctx.getSleeEndpoint();
         eventLookup = ctx.getEventLookupFacility();
@@ -110,6 +108,7 @@ public class TCKResourceEventHandlerImpl implements TCKResourceEventHandler {
 
         try {
             //sleeEndpoint.sendActivityEndEvent(raInterface.getActivity(tckActivityID));
+        	resourceAdaptorWrapper.activitiesEnding.put(tckActivityID, raInterface.getActivity(tckActivityID));
             sleeEndpoint.activityEnding(new TCKActivityHandle(tckActivityID));
         } catch (UnrecognizedActivityException e) {
             // TODO Auto-generated catch block

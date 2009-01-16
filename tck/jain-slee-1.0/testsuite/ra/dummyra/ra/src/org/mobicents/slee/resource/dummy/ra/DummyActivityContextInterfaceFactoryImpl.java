@@ -17,7 +17,7 @@ import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactor
 
 import org.mobicents.slee.resource.dummy.ratype.DummyActivity;
 import org.mobicents.slee.resource.dummy.ratype.DummyActivityContextInterfaceFactory;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.*;
 
 /**
  *
@@ -30,10 +30,12 @@ public class DummyActivityContextInterfaceFactoryImpl
     private SleeContainer sleeContainer;
     // the JNDI name of the ActivityContextInterfaceFactory object
     private final String jndiName;
+    private final String raEntityName;
     
     /** Creates a new instance of DummyActivityContextInterfaceFactoryImpl */
     public DummyActivityContextInterfaceFactoryImpl(SleeContainer sleeContainer, String name) {
         this.sleeContainer = sleeContainer;
+        this.raEntityName = name;
         this.jndiName = "java:slee/resources/" + name + "/dummyacif";
     }
 
@@ -42,7 +44,12 @@ public class DummyActivityContextInterfaceFactoryImpl
     }
 
     public ActivityContextInterface getActivityContextInterface(DummyActivity activity) throws NullPointerException, UnrecognizedActivityException, FactoryException {
-        return new ActivityContextInterfaceImpl(activity.getId());
+    	ActivityContextHandle activityContextHandle = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntityName, new DummyActivityHandle(activity));
+        ActivityContext activityContext = sleeContainer.getActivityContextFactory().getActivityContext(activityContextHandle,true);
+       if (activityContext == null) {
+    	   throw new UnrecognizedActivityException(activity);
+       }
+        return new ActivityContextInterfaceImpl(activityContext);
     }
     
 }

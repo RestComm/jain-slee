@@ -24,6 +24,8 @@ import javax.slee.nullactivity.NullActivityFactory;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.EventLookup;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 import com.opencloud.sleetck.lib.resource.events.TCKResourceEventX;
 import com.opencloud.sleetck.lib.resource.events.TCKResourceEventY;
@@ -253,8 +255,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			e.printStackTrace();
 		}
 		logger.info("[TEST] Adding ["
-				+ container.getActivityContextFactory()
-						.getActivityContextId(naci.getActivity()) + "]");
+				+ ((ActivityContextInterfaceImpl)naci).getActivityContextHandle() + "]");
 
 		naci = retrieveNullActivityContext();
 		naci.attach(getSbbContext().getSbbLocalObject());
@@ -265,9 +266,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			e.printStackTrace();
 		}
 		logger.info("[TEST] Adding ["
-				+ container.getActivityContextFactory()
-						.getActivityContextId(naci.getActivity()) + "]");
-		
+				+ naci.getActivity() + "]");		
 		
 		naci = retrieveNullActivityContext();
 		naci.attach(getSbbContext().getSbbLocalObject());
@@ -278,8 +277,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			e.printStackTrace();
 		}
 		logger.info("[TEST] Adding NACI TO END BY MBEAN["
-				+ container.getActivityContextFactory()
-						.getActivityContextId(naci.getActivity()) + "]");
+				+ ((ActivityContextInterfaceImpl)naci).getActivityContextHandle() + "]");
 
 		naci = retrieveNullActivityContext();
 		naci.attach(getSbbContext().getSbbLocalObject());
@@ -290,8 +288,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			e.printStackTrace();
 		}
 		logger.info("[TEST] Adding ["
-				+ SleeContainer.lookupFromJndi().getActivityContextFactory()
-						.getActivityContextId(naci.getActivity()) + "]");
+				+ ((ActivityContextInterfaceImpl)naci).getActivityContextHandle() + "]");
 		
 		setTestStage(this._ADD_AC);
 
@@ -393,10 +390,9 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 
 			}
 
-			String acID = (SleeContainer.lookupFromJndi())
-					.getActivityContextFactory().getActivityContextId(
-							naci.getActivity());
-
+			org.mobicents.slee.runtime.activity.ActivityContext ac = ((ActivityContextInterfaceImpl)naci).getActivityContext();
+			String acID = ac.getActivityContextId();
+			
 			mbs.invoke(mbeanName, "endActivity", new Object[] { acID },
 					(String[]) new String[] { "java.lang.String" });
 		} catch (Exception e) {

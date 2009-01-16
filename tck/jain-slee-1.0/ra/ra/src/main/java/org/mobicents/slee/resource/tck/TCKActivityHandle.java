@@ -12,6 +12,8 @@
  */
 package org.mobicents.slee.resource.tck;
 
+import java.io.Serializable;
+
 import javax.slee.resource.ActivityHandle;
 
 import com.opencloud.sleetck.lib.resource.TCKActivityID;
@@ -22,7 +24,7 @@ import com.opencloud.sleetck.lib.resource.TCKActivityID;
  * 
  * @author F.Moggia
  */
-public class TCKActivityHandle implements ActivityHandle {
+public class TCKActivityHandle implements ActivityHandle, Serializable {
 
     /**
      * @return Returns the activityID.
