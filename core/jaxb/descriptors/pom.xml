@@ -9,7 +9,7 @@
 	</parent>
 
 	<packaging>jar</packaging>
-	<groupId>org.mobicents.servers.jainslee.core.jaxb.proxy</groupId>
+	<groupId>org.mobicents.servers.jainslee.core.jaxb</groupId>
 	<artifactId>descriptors-impl</artifactId>
 
 	<name>Mobicents :: JAXB-Descriptors :: ${pom.artifactId}</name>

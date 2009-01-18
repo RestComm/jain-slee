@@ -30,7 +30,7 @@ import org.w3c.dom.DocumentType;
 public abstract class JAXBBaseUtilityClass {
 
 	
-	protected Document desccriptorDocument=null;
+	protected Document descriptorDocument=null;
 	private boolean is11=false;
 	private static final JAXBContext jaxbContext = initJAXBContext();
 	//If its not static we can get logger default
@@ -71,12 +71,14 @@ public abstract class JAXBBaseUtilityClass {
     } 
     
 	/**
+	 * @throws DeploymentException 
 	 * 
 	 */
-	public JAXBBaseUtilityClass(Document doc) {
+	public JAXBBaseUtilityClass(Document doc) throws DeploymentException {
 		// TODO Auto-generated constructor stub
 		this.is11=this.isDoctypeSlee11(doc.getDoctype());
-		this.desccriptorDocument=doc;
+		this.descriptorDocument=doc;
+		
 	}
 
 	public JAXBBaseUtilityClass() {
@@ -99,5 +101,5 @@ public abstract class JAXBBaseUtilityClass {
 	 * @throws DeploymentException 
 	 */
 	public abstract void buildDescriptionMap() throws DeploymentException;
-	
+	public abstract Object getJAXBDescriptor();
 }

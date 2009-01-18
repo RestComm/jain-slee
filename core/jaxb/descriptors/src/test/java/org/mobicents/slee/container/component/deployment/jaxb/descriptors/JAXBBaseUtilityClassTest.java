@@ -67,6 +67,12 @@ public class JAXBBaseUtilityClassTest extends TestCase {
 				// TODO Auto-generated method stub
 
 			}
+
+			@Override
+			public Object getJAXBDescriptor() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 	}
 
