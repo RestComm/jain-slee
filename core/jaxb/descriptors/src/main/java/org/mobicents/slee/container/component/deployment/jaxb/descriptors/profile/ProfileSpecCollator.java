@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
+import javax.slee.management.DeploymentException;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Collator;
 
 /**
@@ -40,43 +42,33 @@ public class ProfileSpecCollator {
 		this.localeVariant = localeVariant;
 	}
 
-	public ProfileSpecCollator(Collator collator)
+	public ProfileSpecCollator(Collator collator) throws DeploymentException
 	{
 		this.collator=collator;
 		//init
-	}
-	
-	public ProfileSpecCollator() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public void setStrength(String strength) {
-		this.strength = strength;
-	}
-
-	public void setDecomposition(String decomposition) {
-		this.decomposition = decomposition;
-	}
-
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
-
-	public void setLocaleLanguage(String localeLanguage) {
-		this.localeLanguage = localeLanguage;
-	}
-
-	public void setLocaleCountry(String localeCountry) {
-		this.localeCountry = localeCountry;
-	}
-
-	public void setLocaleVariant(String localeVariant) {
-		this.localeVariant = localeVariant;
+		
+		//Optional
+		this.description=this.collator.getDescription()==null?null:this.collator.getDescription().getvalue();
+		//Optional
+		this.decomposition=this.collator.getDecomposition();
+		if(this.collator.getCollatorAlias()==null || this.collator.getCollatorAlias().getvalue()==null)
+			throw new DeploymentException("Collator Alias cant be null!");
+		
+		this.alias=this.collator.getCollatorAlias().getvalue();
+		
+		if(this.collator.getLocaleLanguage()==null || this.collator.getLocaleLanguage().getvalue()==null)
+			throw new DeploymentException("Collator Locale Language cant be null!");
+		
+		this.localeLanguage=this.collator.getLocaleLanguage().getvalue();
+		//Optional
+		if(this.collator.getLocaleCountry()!=null && this.collator.getLocaleCountry().getvalue()!=null)
+			this.localeCountry=this.collator.getLocaleCountry().getvalue();
+		//Optional
+		if(this.collator.getLocaleVariant()!=null && this.collator.getLocaleVariant().getvalue()!=null)
+			this.localeVariant=this.collator.getLocaleVariant().getvalue();
+		
+		
+		
 	}
 
 	public String getDescription() {

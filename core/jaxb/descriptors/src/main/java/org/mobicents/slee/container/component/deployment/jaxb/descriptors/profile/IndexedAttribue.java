@@ -27,6 +27,8 @@ public class IndexedAttribue {
 	public IndexedAttribue(ProfileIndex indexValue) {
 		super();
 		this.indexValue = indexValue;
+		this.name=this.indexValue.getvalue();
+		this.unique=this.indexValue.getUnique();
 	}
 	public String getName() {
 		return name;

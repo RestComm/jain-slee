@@ -18,12 +18,15 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  */
 public class IndexHint {
 
+	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint = null;
+	private String queryOperator, collatorRef;
 
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint=null;
-	private String queryOperator,collatorRef;
-	public IndexHint(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint) {
-		this.indexHint=indexHint;
-		//init
+	public IndexHint(
+			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint) {
+		this.indexHint = indexHint;
+		// init
+		this.queryOperator = this.indexHint.getQueryOperator();
+		this.collatorRef = this.indexHint.getCollatorRef();
 	}
 
 }

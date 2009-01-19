@@ -25,6 +25,10 @@ public class EnvEntry {
 	public EnvEntry(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.EnvEntry envEntry) {
 		super();
 		this.envEntry = envEntry;
+		this.description=this.envEntry.getDescription().getvalue();
+		this.entryName=this.envEntry.getEnvEntryName().getvalue();
+		this.entryValue=this.envEntry.getEnvEntryValue().getvalue();
+		this.entryType=this.envEntry.getEnvEntryType().getvalue();
 	}
 
 	public String getDescription() {
