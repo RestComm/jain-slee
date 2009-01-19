@@ -8,8 +8,13 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileUsageParametersInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.UsageParameter;
 
 /**
  * Start time:17:19:06 2009-01-18<br>
@@ -21,20 +26,58 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  */
 public class ProfileSpecProfileUsageParameterInterface {
 
-	private String description,profileUsagePamaterersInterfaceName=null;
-	private ProfileUsageParametersInterface profileUsageParametersInterface=null;
+	private String description, profileUsagePamaterersInterfaceName = null;
+	private ProfileUsageParametersInterface profileUsageParametersInterface = null;
+	private Map<String, ProfileUsageParameter> usageParameters = null;
+
 	public String getDescription() {
 		return description;
 	}
+
 	public String getProfileUsagePamaterersInterfaceName() {
 		return profileUsagePamaterersInterfaceName;
 	}
+
 	public ProfileSpecProfileUsageParameterInterface(
-			ProfileUsageParametersInterface profileUsageParametersInterface) {
+			ProfileUsageParametersInterface profileUsageParametersInterface)
+			throws DeploymentException {
 		super();
 		this.profileUsageParametersInterface = profileUsageParametersInterface;
+
+		if (this.profileUsageParametersInterface
+				.getProfileUsageParametersInterfaceName() == null
+				|| this.profileUsageParametersInterface
+						.getProfileUsageParametersInterfaceName().getvalue() == null
+				|| this.profileUsageParametersInterface
+						.getProfileUsageParametersInterfaceName().getvalue()
+						.compareTo("") == 0) {
+			throw new DeploymentException(
+					"Profile usage paraeters interface can not be null or empty when specified");
+		}
+
+		this.description = this.profileUsageParametersInterface
+				.getDescription() == null ? null
+				: this.profileUsageParametersInterface.getDescription()
+						.getvalue();
+		this.profileUsagePamaterersInterfaceName = this.profileUsageParametersInterface
+				.getProfileUsageParametersInterfaceName().getvalue();
+
+		this.usageParameters = new HashMap<String, ProfileUsageParameter>();
+		if (this.profileUsageParametersInterface.getUsageParameter() != null
+				&& this.profileUsageParametersInterface.getUsageParameter()
+						.size() > 0)
+			for (UsageParameter up : this.profileUsageParametersInterface
+					.getUsageParameter()) {
+				ProfileUsageParameter pup=new ProfileUsageParameter(up);
+				this.usageParameters.put(pup.getName(), pup);
+			}
+
+	}
+
+	public Map<String, ProfileUsageParameter> getUsageParameters() {
+		return usageParameters;
 	}
 	
-
-
+	
+	
 }

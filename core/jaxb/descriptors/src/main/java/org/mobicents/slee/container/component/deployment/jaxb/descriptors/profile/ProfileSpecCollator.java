@@ -28,19 +28,7 @@ public class ProfileSpecCollator {
 	private String description,strength,decomposition,alias,localeLanguage,localeCountry,localeVariant;
 	private Collator collator=null;
 	
-	
-	public ProfileSpecCollator(String description, String strength,
-			String decomposition, String alias, String localeLanguage,
-			String localeCountry, String localeVariant) {
-		super();
-		this.description = description;
-		this.strength = strength;
-		this.decomposition = decomposition;
-		this.alias = alias;
-		this.localeLanguage = localeLanguage;
-		this.localeCountry = localeCountry;
-		this.localeVariant = localeVariant;
-	}
+
 
 	public ProfileSpecCollator(Collator collator) throws DeploymentException
 	{

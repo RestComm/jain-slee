@@ -8,6 +8,7 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
+import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileManagementInterfaceName;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileManagementInterface;
@@ -22,17 +23,46 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  */
 public class ProfileSpecProfileManagementInterface {
 
+	private ProfileManagementInterface llProfileManagementInterface = null;
+	private ProfileManagementInterfaceName profileManagementInterface = null;
 
-	private ProfileManagementInterface llProfileManagementInterface=null;
-	private ProfileManagementInterfaceName profileManagementInterface=null;
-	
-	private String description,profileManagementName=null;
-	public ProfileSpecProfileManagementInterface(ProfileManagementInterface llProfileManagementInterface) {
-		this.llProfileManagementInterface=llProfileManagementInterface;
+	private String description, profileManagementName = null;
+
+	public ProfileSpecProfileManagementInterface(
+			ProfileManagementInterface llProfileManagementInterface)
+			throws DeploymentException {
+		this.llProfileManagementInterface = llProfileManagementInterface;
+
+		if (this.llProfileManagementInterface
+				.getProfileManagementInterfaceName() == null
+				|| this.llProfileManagementInterface
+						.getProfileManagementInterfaceName().getvalue() == null
+				|| this.llProfileManagementInterface
+						.getProfileManagementInterfaceName().getvalue()
+						.compareTo("") == 0) {
+			throw new DeploymentException(
+					"Profile management interface can not be null or empty when specified");
+		}
+
+		this.description = this.llProfileManagementInterface.getDescription() == null ? null
+				: this.llProfileManagementInterface.getDescription().getvalue();
+		
+		this.profileManagementName=this.llProfileManagementInterface.getProfileManagementInterfaceName().getvalue();
+		
+
 	}
 
-	public ProfileSpecProfileManagementInterface(ProfileManagementInterfaceName profileManagementInterface) {
-		this.profileManagementInterface=profileManagementInterface;
+	public ProfileSpecProfileManagementInterface(
+			ProfileManagementInterfaceName profileManagementInterface)
+			throws DeploymentException {
+		this.profileManagementInterface = profileManagementInterface;
+		if (this.profileManagementInterface.getvalue() == null
+				|| this.profileManagementInterface.getvalue().compareTo("") == 0) {
+			throw new DeploymentException(
+					"If sppecified profile management interface name can not be null or empty");
+		}
+
+		this.profileManagementName = this.profileManagementInterface.getvalue();
 	}
 
 	public String getDescription() {
@@ -42,7 +72,5 @@ public class ProfileSpecProfileManagementInterface {
 	public String getProfileManagementName() {
 		return profileManagementName;
 	}
-	
-	
-	
+
 }

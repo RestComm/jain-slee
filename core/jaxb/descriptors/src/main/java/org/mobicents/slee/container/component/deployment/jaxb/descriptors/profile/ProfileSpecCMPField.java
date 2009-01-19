@@ -10,6 +10,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
 
 import java.util.ArrayList;
 
+import javax.slee.management.DeploymentException;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField;
 
 /**
@@ -29,7 +31,7 @@ public class ProfileSpecCMPField {
 	private String description,fieldName,unique,uniqueCollatorRef;
 	private ArrayList<IndexHint> indexHints=null;
 	
-	public ProfileSpecCMPField(CmpField cmpFieldDesc) {
+	public ProfileSpecCMPField(CmpField cmpFieldDesc) throws DeploymentException {
 		this.cmpFieldDesc=cmpFieldDesc;
 		this.description=this.cmpFieldDesc.getDescription()!=null?this.cmpFieldDesc.getDescription().getvalue():null;
 		this.fieldName=this.cmpFieldDesc.getCmpFieldName().getvalue();

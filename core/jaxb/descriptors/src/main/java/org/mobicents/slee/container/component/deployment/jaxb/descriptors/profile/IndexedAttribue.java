@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
+import javax.slee.management.DeploymentException;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileIndex;
 
 /**
@@ -24,11 +26,15 @@ public class IndexedAttribue {
 	//FIXME: unique is boolean, parse?
 	private String name, unique;
 	private ProfileIndex indexValue=null;
-	public IndexedAttribue(ProfileIndex indexValue) {
+	public IndexedAttribue(ProfileIndex indexValue) throws DeploymentException {
 		super();
 		this.indexValue = indexValue;
 		this.name=this.indexValue.getvalue();
 		this.unique=this.indexValue.getUnique();
+		if(name==null|| name.compareTo("")==0)
+		{
+			throw new DeploymentException("Indexed Attribute name can not be null or empty");
+		}
 	}
 	public String getName() {
 		return name;

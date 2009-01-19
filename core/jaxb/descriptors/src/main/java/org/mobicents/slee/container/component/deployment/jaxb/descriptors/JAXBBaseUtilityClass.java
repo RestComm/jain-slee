@@ -60,12 +60,12 @@ public abstract class JAXBBaseUtilityClass {
         }
     } 
     
-    public Unmarshaller getUnmarshaller() {
+    public static Unmarshaller getUnmarshaller() {
         try {
             return jaxbContext.createUnmarshaller();
         } catch (JAXBException e) {
         	e.printStackTrace();
-            logger.severe("failed to create unmarshaller: " +e);
+        	Logger.getLogger(JAXBBaseUtilityClass.class.getName()).severe("failed to create unmarshaller: " +e);
             return null;
         }
     } 

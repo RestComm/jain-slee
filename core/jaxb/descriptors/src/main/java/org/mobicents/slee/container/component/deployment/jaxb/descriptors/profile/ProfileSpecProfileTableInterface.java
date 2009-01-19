@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
+import javax.slee.management.DeploymentException;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileTableInterface;
 
 /**
@@ -20,22 +22,38 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  */
 public class ProfileSpecProfileTableInterface {
 
-	//This should be String, but lets be conistent
-	
+	// This should be String, but lets be conistent
+
 	private String description, profileTableInterfaceName;
-	private ProfileTableInterface profileTableInterface=null;
+	private ProfileTableInterface profileTableInterface = null;
+
 	public ProfileSpecProfileTableInterface(
-			ProfileTableInterface profileTableInterface) {
+			ProfileTableInterface profileTableInterface)
+			throws DeploymentException {
 		super();
 		this.profileTableInterface = profileTableInterface;
+
+		if (this.profileTableInterface.getProfileTableInterfaceName() == null
+				|| this.profileTableInterface.getProfileTableInterfaceName()
+						.getvalue() == null
+				|| this.profileTableInterface.getProfileTableInterfaceName()
+						.getvalue().compareTo("") == 0) {
+			throw new DeploymentException(
+					"Profile table  interface can not be null or empty when specified");
+		}
+
+		this.description = this.profileTableInterface.getDescription() == null ? null
+				: this.profileTableInterface.getDescription().getvalue();
+		this.profileTableInterfaceName = this.profileTableInterface
+				.getProfileTableInterfaceName().getvalue();
 	}
+
 	public String getDescription() {
 		return description;
 	}
+
 	public String getProfileTableInterfaceName() {
 		return profileTableInterfaceName;
 	}
-	
-
 
 }

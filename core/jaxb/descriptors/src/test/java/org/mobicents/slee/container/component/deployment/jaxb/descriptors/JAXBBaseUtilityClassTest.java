@@ -35,55 +35,10 @@ import org.xml.sax.SAXException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class JAXBBaseUtilityClassTest extends TestCase {
-
-	protected JAXBBaseUtilityClass testSubject = null;
-	protected EntityResolver resolver = null;
-	protected DocumentBuilderFactory factory = null;
-	protected DocumentBuilder builder = null;
+public class JAXBBaseUtilityClassTest extends SuperTestCase {
 
 	public JAXBBaseUtilityClassTest() {
 		// TODO Auto-generated constructor stub
-	}
-
-	protected Document parseDocument(File f) throws SAXException, IOException {
-		return builder.parse(f);
-	}
-
-	@Override
-	protected void setUp() throws Exception {
-
-		super.setUp();
-		this.resolver = new DefaultEntityResolver(Thread.currentThread()
-				.getContextClassLoader());
-		this.factory = DocumentBuilderFactory.newInstance();
-		this.factory.setValidating(true);
-		this.builder = this.factory.newDocumentBuilder();
-		this.builder.setEntityResolver(this.resolver);
-		this.testSubject = new JAXBBaseUtilityClass() {
-
-			@Override
-			public void buildDescriptionMap() throws DeploymentException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public Object getJAXBDescriptor() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		// TODO Auto-generated method stub
-		super.tearDown();
-		this.resolver = null;
-		this.factory = null;
-		this.builder = null;
-		this.testSubject = null;
 	}
 
 	public void testUnmarshallerPesence() throws Exception {
@@ -91,23 +46,27 @@ public class JAXBBaseUtilityClassTest extends TestCase {
 		assertNotNull(this.testSubject.getUnmarshaller());
 	}
 
-	public void testGetDocment() throws Exception
-	{
-		URL url=Thread.currentThread().getContextClassLoader().getResource("xml/deployable-unit-template11.xml");
-		assertNotNull("Didnt find file: xml/deployable-unit-template11.xml!!!", url);
-		assertNotNull("Failed building document.", this.builder.parse(new File(url.toURI())));
+	public void testGetDocment() throws Exception {
+		URL url = Thread.currentThread().getContextClassLoader().getResource(
+				"xml/deployable-unit-template11.xml");
+		assertNotNull("Didnt find file: xml/deployable-unit-template11.xml!!!",
+				url);
+		assertNotNull("Failed building document.", this.builder.parse(new File(
+				url.toURI())));
 	}
-	
-	public void test11DU() throws Exception
-	{
-		URL url=Thread.currentThread().getContextClassLoader().getResource("xml/deployable-unit-template11.xml");
-		assertNotNull("Didnt find file: xml/deployable-unit-template11.xml!!!", url);
-		
-		Object o=	this.testSubject.getUnmarshaller().unmarshal(this.builder.parse(new File(url.toURI())));
-		
+
+	public void test11DU() throws Exception {
+		URL url = Thread.currentThread().getContextClassLoader().getResource(
+				"xml/deployable-unit-template11.xml");
+		assertNotNull("Didnt find file: xml/deployable-unit-template11.xml!!!",
+				url);
+
+		Object o = this.testSubject.getUnmarshaller().unmarshal(
+				this.builder.parse(new File(url.toURI())));
+
 		assertNotNull("Failed on unmarshaling", o);
-		
+
 		assertTrue("Wrong unmarshall?", o instanceof DeployableUnit);
 	}
-	
+
 }
