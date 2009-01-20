@@ -99,6 +99,7 @@ public abstract class JAXBBaseUtilityClass {
 	/**
 	 * This method must be called prior to any other function after creating. It is supposed to create internal structures to cache JAXB pojos, so they can be accessed in proper way.
 	 * @throws DeploymentException 
+	 * @throws DeploymentException 
 	 */
 	public abstract void buildDescriptionMap() throws DeploymentException;
 	public abstract Object getJAXBDescriptor();

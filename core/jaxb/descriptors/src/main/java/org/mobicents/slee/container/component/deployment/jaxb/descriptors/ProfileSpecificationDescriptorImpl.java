@@ -24,6 +24,7 @@ import javax.xml.bind.JAXBException;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.*;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.SecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.EnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.IndexedAttribue;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.ProfileSpecCollator;
@@ -34,7 +35,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.ProfileSpecProfileTableInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.ProfileSpecProfileUsageParameterInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.QueryElement;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.SecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileIndex;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileSpec;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileSpecJar;
@@ -42,6 +42,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Col
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.LibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Query;
+import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.SecurityPermissions;
 import org.w3c.dom.Document;
 
 /**
@@ -53,7 +54,7 @@ import org.w3c.dom.Document;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
-		implements ProfileSpecificationDescriptor, DeployedComponent {
+		implements DeployedComponent {
 
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecJar llProfileSpecJar = null;
 	private ProfileSpecJar profileSpecJar = null;
@@ -69,7 +70,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 	// This could be string, but lets be consistent
 	private ProfileSpecProfileManagementInterface managementInterface = null;
 	private ProfileSpecManagementAbstractClass managementAbstractClass = null;
-	// This possibly shoudl also be object?
+	// This possibly should also be object?
 	private Set<IndexedAttribue> indexedAttributes = null;
 	// FIXME: add hints here?
 
@@ -84,17 +85,17 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 	private ArrayList<QueryElement> queryElements = null;
 	private ProfileSpecProfileLocalInterface profileLocalInterface = null;
 	private String profileHints = null;
-	private String readOnly=null;
-	private String eventsEnabled=null;
+	private String readOnly = null;
+	private String eventsEnabled = null;
 	// those are profile-spec jar wide, so we include in each descriptor :)
 
 	// private SecurityPermision securityPermisions=null;
 	private SecurityPermision securityPremissions = null;
 
-	
-	//Other:
-	private String source=null;
-	private ComponentID componentID=null;
+	// Other:
+	private String source = null;
+	private ComponentID componentID = null;
+
 	/**
 	 * @param doc
 	 * @throws DeploymentException
@@ -144,20 +145,20 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 					.getvalue(), specs.getProfileSpecVendor().getvalue(), specs
 					.getProfileSpecVersion().getvalue());
 
-			this.readOnly=specs.getProfileReadOnly();
-			this.eventsEnabled=specs.getProfileEventsEnabled();
+			this.readOnly = specs.getProfileReadOnly();
+			this.eventsEnabled = specs.getProfileEventsEnabled();
 			// Here we ignore description elements for now :)
-			this.libraryRefs=new ArrayList<LibraryID>();
+			this.libraryRefs = new ArrayList<LibraryID>();
 			if (specs.getLibraryRef() != null
 					&& specs.getLibraryRef().size() > 0) {
-				
+
 				for (LibraryRef ref : specs.getLibraryRef()) {
 					// FIXME: add library ID
 					// libraryRefs
 				}
 			}
 
-			this.profileSpecReferences=new ArrayList<ProfileSpecificationID>();
+			this.profileSpecReferences = new ArrayList<ProfileSpecificationID>();
 			if (specs.getProfileSpecRef() != null
 					&& specs.getProfileSpecRef().size() > 0) {
 				for (ProfileSpecRef ref : specs.getProfileSpecRef()) {
@@ -224,8 +225,12 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 			}
 
 			if (this.llProfileSpecJar.getSecurityPermissions() != null) {
-				this.securityPremissions = new SecurityPermision(
-						this.llProfileSpecJar.getSecurityPermissions());
+				SecurityPermissions secPerm = this.llProfileSpecJar
+						.getSecurityPermissions();
+				this.securityPremissions = new SecurityPermision(secPerm
+						.getDescription() == null ? null : secPerm
+						.getDescription().getvalue(), secPerm
+						.getSecurityPermissionSpec().getvalue());
 			}
 
 		} else {
@@ -285,16 +290,16 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 		return deployableUnitID;
 	}
 
-
 	public ComponentID getID() {
 		return componentID;
 	}
 
-	public void setID(ComponentID componentID){
-		this.componentID=componentID;
+	public void setID(ComponentID componentID) {
+		this.componentID = componentID;
 	}
+
 	public LibraryID[] getLibraries() {
-		return  this.libraryRefs.toArray(new LibraryID[libraryRefs.size()]);
+		return this.libraryRefs.toArray(new LibraryID[libraryRefs.size()]);
 
 	}
 
@@ -320,9 +325,6 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 
 	}
 
-	
-	
-	
 	public String getSource() {
 		return source;
 	}

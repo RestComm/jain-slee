@@ -6,7 +6,7 @@
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
+package org.mobicents.slee.container.component.deployment.jaxb.descriptors.common;
 
 import javax.slee.management.DeploymentException;
 
@@ -22,27 +22,13 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Sec
  */
 public class SecurityPermision {
 
-	private SecurityPermissions secPerm = null;
 	private String description, securityPermissionSpec;
 
-	public SecurityPermision(SecurityPermissions secPerm)
-			throws DeploymentException {
+	
+	public SecurityPermision(String description, String securityPermissionSpec) {
 		super();
-		this.secPerm = secPerm;
-
-		this.description = secPerm.getDescription() == null ? null
-				: this.secPerm.getDescription().getvalue();
-		if (this.secPerm.getSecurityPermissionSpec() == null
-				|| this.secPerm.getSecurityPermissionSpec().getvalue() == null
-				|| this.secPerm.getSecurityPermissionSpec().getvalue()
-						.compareTo("") == 0) {
-			throw new DeploymentException(
-					"Security permision specification can not be null or empty when specified");
-		}
-
-		this.securityPermissionSpec = this.secPerm.getSecurityPermissionSpec()
-				.getvalue();
-
+		this.description = description;
+		this.securityPermissionSpec = securityPermissionSpec;
 	}
 
 	public String getSecurityPermissionSpec() {

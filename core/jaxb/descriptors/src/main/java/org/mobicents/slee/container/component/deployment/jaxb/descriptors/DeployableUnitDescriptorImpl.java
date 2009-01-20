@@ -20,7 +20,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.ServiceX
 import org.w3c.dom.Document;
 
 public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
-		implements DeployableUnitDescriptor {
+		 {
 
 	private DeployableUnit duDescriptor = null;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit duDescriptorll = null;
@@ -36,10 +36,11 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 	private Date deploymentDate;
 	private transient File tmpDeploymentDirectory;
 	private transient File tmpDUJarsDirectory;
-	
+
 	// tmp, list of jars that already been deployed?
 	private HashSet jars;
-	
+
+	private DeployableUnitDescriptor jsleeDUDescriptor=null;
 
 	public DeployableUnitDescriptorImpl(Document document)
 			throws DeploymentException {
