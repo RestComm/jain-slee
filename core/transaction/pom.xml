@@ -44,37 +44,6 @@
 
   <build>
   	<finalName>mobicents-slee-core-transaction</finalName>
-    <plugins>      
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>deploy</id>
-						<phase>install</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<copy overwrite="true" file="target/${project.build.finalName}.jar" todir="${jboss.home}/server/${node}/deployers" />
-							</tasks>
-						</configuration>
-					</execution>
-					<execution>
-						<id>undeploy</id>
-						<phase>clean</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<delete file="${jboss.home}/server/${node}/deployers/${project.build.finalName}.jar" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-    </plugins>
   </build>
 
 </project>
