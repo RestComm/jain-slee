@@ -30,7 +30,7 @@ public class ProfileSpecCollator {
 	
 
 
-	public ProfileSpecCollator(Collator collator) throws DeploymentException
+	public ProfileSpecCollator(Collator collator)
 	{
 		this.collator=collator;
 		//init
@@ -39,13 +39,13 @@ public class ProfileSpecCollator {
 		this.description=this.collator.getDescription()==null?null:this.collator.getDescription().getvalue();
 		//Optional
 		this.decomposition=this.collator.getDecomposition();
-		if(this.collator.getCollatorAlias()==null || this.collator.getCollatorAlias().getvalue()==null)
-			throw new DeploymentException("Collator Alias cant be null!");
+//		if(this.collator.getCollatorAlias()==null || this.collator.getCollatorAlias().getvalue()==null)
+//			throw new DeploymentException("Collator Alias cant be null!");
 		
 		this.alias=this.collator.getCollatorAlias().getvalue();
-		
-		if(this.collator.getLocaleLanguage()==null || this.collator.getLocaleLanguage().getvalue()==null)
-			throw new DeploymentException("Collator Locale Language cant be null!");
+		this.strength=this.collator.getStrength();
+//		if(this.collator.getLocaleLanguage()==null || this.collator.getLocaleLanguage().getvalue()==null)
+//			throw new DeploymentException("Collator Locale Language cant be null!");
 		
 		this.localeLanguage=this.collator.getLocaleLanguage().getvalue();
 		//Optional

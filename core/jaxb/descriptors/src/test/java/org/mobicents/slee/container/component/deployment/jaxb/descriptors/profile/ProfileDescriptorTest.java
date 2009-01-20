@@ -16,6 +16,9 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SuperTestCase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -55,9 +58,10 @@ public class ProfileDescriptorTest extends SuperTestCase {
 	public void testParseTwo() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		ProfileSpecificationDescriptorImpl[] specs=ProfileSpecificationDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE), null);
+		Document d=super.parseDocument(_TWO_DESCRIPTOR_FILE);
+		ProfileSpecificationDescriptorImpl[] specs=ProfileSpecificationDescriptorImpl.parseDocument(d, null);
 		assertNotNull("Specs return value is null", specs);
-		assertTrue("Profile specs size is wrong!!!", specs.length==2);
+		assertTrue("Profile specs size is wrong: "+specs.length+"!!!", specs.length==2);
 		assertNotNull("Specs return value cell is null", specs[0]);
 		assertNotNull("Specs return value cell is null", specs[1]);
 		doTestOnValues(specs[0]);
@@ -76,10 +80,10 @@ public class ProfileDescriptorTest extends SuperTestCase {
 		assertTrue("Profile specs key.name is not equal to "+_DEFAULT_VALUE, specs.getProfileSpecKey().getName().compareTo(_DEFAULT_VALUE)==0);
 		
 		assertNotNull("Profile specs key.vendor is null", specs.getProfileSpecKey().getVendor());
-		assertTrue("Profile specs key.vendor is not equal to "+_DEFAULT_VALUE, specs.getProfileSpecKey().getVendor().compareTo(_DEFAULT_VALUE)==0);
+		assertTrue("Profile specs key.vendor is not equal to "+_DEFAULT_VALUE, specs.getProfileSpecKey().getVendor().compareTo(_DEFAULT_VALUE+"2")==0);
 		
 		assertNotNull("Profile specs key.version is null", specs.getProfileSpecKey().getVersion());
-		assertTrue("Profile specs key.version is not equal to "+_DEFAULT_VALUE, specs.getProfileSpecKey().getVersion().compareTo(_DEFAULT_VALUE)==0);
+		assertTrue("Profile specs key.version is not equal to "+_DEFAULT_VALUE, specs.getProfileSpecKey().getVersion().compareTo(_DEFAULT_VALUE+"3")==0);
 		
 		//FIXME: check  library and profile refs here once they are done
 		
@@ -96,9 +100,9 @@ public class ProfileDescriptorTest extends SuperTestCase {
 		assertTrue("Collator aliass not equal: "+_DEFAULT_VALUE, psc.getAlias().compareTo(_DEFAULT_VALUE)==0);
 		assertTrue("Collator decomposition nto equal: None", psc.getDecomposition().compareTo("None")==0);
 		assertTrue("Collator strength not equal: Primary", psc.getStrength().compareTo("Primary")==0);
-		assertTrue("Collator locale language not equal: "+_DEFAULT_VALUE, psc.getLocaleLanguage().compareTo(_DEFAULT_VALUE)==0);
-		assertTrue("Collator locale variant not equal: "+_DEFAULT_VALUE, psc.getLocaleVariant().compareTo(_DEFAULT_VALUE)==0);
-		assertTrue("Collator locale country not equal: "+_DEFAULT_VALUE, psc.getLocaleCountry().compareTo(_DEFAULT_VALUE)==0);
+		assertTrue("Collator locale language not equal: "+_DEFAULT_VALUE, psc.getLocaleLanguage().compareTo(_DEFAULT_VALUE+"2")==0);
+		assertTrue("Collator locale variant not equal: "+_DEFAULT_VALUE, psc.getLocaleVariant().compareTo(_DEFAULT_VALUE+"4")==0);
+		assertTrue("Collator locale country not equal: "+_DEFAULT_VALUE, psc.getLocaleCountry().compareTo(_DEFAULT_VALUE+"3")==0);
 		
 		
 		assertNotNull("Profile specs CMP interface is null", specs.getProfileCMPInterface());

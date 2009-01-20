@@ -61,7 +61,7 @@ public class SuperTestCase extends TestCase {
 		this.testSubject = new JAXBBaseUtilityClass() {
 
 			@Override
-			public void buildDescriptionMap() throws DeploymentException {
+			public void buildDescriptionMap() {
 				// TODO Auto-generated method stub
 
 			}

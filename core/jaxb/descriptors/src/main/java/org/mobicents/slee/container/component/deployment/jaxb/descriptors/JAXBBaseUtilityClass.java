@@ -74,7 +74,7 @@ public abstract class JAXBBaseUtilityClass {
 	 * @throws DeploymentException 
 	 * 
 	 */
-	public JAXBBaseUtilityClass(Document doc) throws DeploymentException {
+	public JAXBBaseUtilityClass(Document doc) {
 		// TODO Auto-generated constructor stub
 		this.is11=this.isDoctypeSlee11(doc.getDoctype());
 		this.descriptorDocument=doc;
@@ -101,6 +101,6 @@ public abstract class JAXBBaseUtilityClass {
 	 * @throws DeploymentException 
 	 * @throws DeploymentException 
 	 */
-	public abstract void buildDescriptionMap() throws DeploymentException;
+	public abstract void buildDescriptionMap();
 	public abstract Object getJAXBDescriptor();
 }

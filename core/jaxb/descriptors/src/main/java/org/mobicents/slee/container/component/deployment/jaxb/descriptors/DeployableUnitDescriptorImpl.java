@@ -144,13 +144,13 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 	
 	
 	@Override
-	public void buildDescriptionMap() throws DeploymentException {
+	public void buildDescriptionMap() {
 
 		// This is akward, since we have two classes with the same name in
 		// different package
 		// We could use reflections but it would a killer in case of event
 		// definitions and such ;[
-		try {
+
 			for (Object o : (this.isSlee11() ? this.duDescriptorll
 					.getJarOrServiceXml() : this.duDescriptor
 					.getJarOrServiceXml())) {
@@ -180,10 +180,7 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 					logger.severe("Unknown jaxb element: " + o.getClass());
 				}
 			}
-		} catch (Exception e) {
-			throw new DeploymentException("Failed to build descriptors map: ",
-					e);
-		}
+	
 	}
 
 	@Override

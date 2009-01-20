@@ -26,31 +26,31 @@ public class EnvEntry {
 
 	public EnvEntry(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.EnvEntry envEntry)
-			throws DeploymentException {
+			 {
 		super();
 		this.envEntry = envEntry;
 		this.description = this.envEntry.getDescription() == null ? null
 				: this.envEntry.getDescription().getvalue();
 
-		if (this.envEntry.getEnvEntryName() == null
-				|| this.envEntry.getEnvEntryName().getvalue() == null
-				|| this.envEntry.getEnvEntryName().getvalue().compareTo("") == 0) {
-			throw new DeploymentException(
-					"Env Entry can not have name of null or empty value");
-		}
-
-//		if (this.envEntry.getEnvEntryValue() == null
-//				|| this.envEntry.getEnvEntryValue().getvalue() == null
-//				|| this.envEntry.getEnvEntryValue().getvalue().compareTo("") == 0) {
+//		if (this.envEntry.getEnvEntryName() == null
+//				|| this.envEntry.getEnvEntryName().getvalue() == null
+//				|| this.envEntry.getEnvEntryName().getvalue().compareTo("") == 0) {
 //			throw new DeploymentException(
-//					"Env Entry can not have value of null or empty value");
+//					"Env Entry can not have name of null or empty value");
 //		}
-		if (this.envEntry.getEnvEntryType() == null
-				|| this.envEntry.getEnvEntryType().getvalue() == null
-				|| this.envEntry.getEnvEntryType().getvalue().compareTo("") == 0) {
-			throw new DeploymentException(
-					"Env Entry can not have type of null or empty value");
-		}
+//
+////		if (this.envEntry.getEnvEntryValue() == null
+////				|| this.envEntry.getEnvEntryValue().getvalue() == null
+////				|| this.envEntry.getEnvEntryValue().getvalue().compareTo("") == 0) {
+////			throw new DeploymentException(
+////					"Env Entry can not have value of null or empty value");
+////		}
+//		if (this.envEntry.getEnvEntryType() == null
+//				|| this.envEntry.getEnvEntryType().getvalue() == null
+//				|| this.envEntry.getEnvEntryType().getvalue().compareTo("") == 0) {
+//			throw new DeploymentException(
+//					"Env Entry can not have type of null or empty value");
+//		}
 		this.entryName = this.envEntry.getEnvEntryName().getvalue();
 		//Optional
 		if(this.envEntry.getEnvEntryValue()!=null)

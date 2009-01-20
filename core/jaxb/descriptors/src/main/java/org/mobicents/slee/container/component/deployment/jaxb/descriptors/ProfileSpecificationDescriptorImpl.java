@@ -100,15 +100,13 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 	 * @param doc
 	 * @throws DeploymentException
 	 */
-	private ProfileSpecificationDescriptorImpl(Document doc)
-			throws DeploymentException {
+	private ProfileSpecificationDescriptorImpl(Document doc){
 		super(doc);
 
 	}
 
 	private ProfileSpecificationDescriptorImpl(Document doc,
-			ProfileSpecJar profileSpecJar, int index)
-			throws DeploymentException {
+			ProfileSpecJar profileSpecJar, int index){
 		super(doc);
 
 		this.index = index;
@@ -135,7 +133,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 	 * JAXBBaseUtilityClass#buildDescriptionMap()
 	 */
 	@Override
-	public void buildDescriptionMap() throws DeploymentException {
+	public void buildDescriptionMap()  {
 		if (isSlee11()) {
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpec specs = this.llProfileSpecJar
 					.getProfileSpec().get(index);
@@ -231,6 +229,12 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 						.getDescription() == null ? null : secPerm
 						.getDescription().getvalue(), secPerm
 						.getSecurityPermissionSpec().getvalue());
+			}
+			
+			//Optional
+			if(specs.getProfileClasses().getProfileUsageParametersInterface()!=null)
+			{
+				this.profileUsageParameterInterface=new ProfileSpecProfileUsageParameterInterface(specs.getProfileClasses().getProfileUsageParametersInterface());
 			}
 
 		} else {

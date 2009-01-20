@@ -39,21 +39,20 @@ public class ProfileSpecProfileUsageParameterInterface {
 	}
 
 	public ProfileSpecProfileUsageParameterInterface(
-			ProfileUsageParametersInterface profileUsageParametersInterface)
-			throws DeploymentException {
+			ProfileUsageParametersInterface profileUsageParametersInterface) {
 		super();
 		this.profileUsageParametersInterface = profileUsageParametersInterface;
 
-		if (this.profileUsageParametersInterface
-				.getProfileUsageParametersInterfaceName() == null
-				|| this.profileUsageParametersInterface
-						.getProfileUsageParametersInterfaceName().getvalue() == null
-				|| this.profileUsageParametersInterface
-						.getProfileUsageParametersInterfaceName().getvalue()
-						.compareTo("") == 0) {
-			throw new DeploymentException(
-					"Profile usage paraeters interface can not be null or empty when specified");
-		}
+//		if (this.profileUsageParametersInterface
+//				.getProfileUsageParametersInterfaceName() == null
+//				|| this.profileUsageParametersInterface
+//						.getProfileUsageParametersInterfaceName().getvalue() == null
+//				|| this.profileUsageParametersInterface
+//						.getProfileUsageParametersInterfaceName().getvalue()
+//						.compareTo("") == 0) {
+//			throw new DeploymentException(
+//					"Profile usage paraeters interface can not be null or empty when specified");
+//		}
 
 		this.description = this.profileUsageParametersInterface
 				.getDescription() == null ? null

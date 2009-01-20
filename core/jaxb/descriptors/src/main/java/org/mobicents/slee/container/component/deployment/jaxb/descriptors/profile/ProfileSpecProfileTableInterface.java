@@ -28,19 +28,18 @@ public class ProfileSpecProfileTableInterface {
 	private ProfileTableInterface profileTableInterface = null;
 
 	public ProfileSpecProfileTableInterface(
-			ProfileTableInterface profileTableInterface)
-			throws DeploymentException {
+			ProfileTableInterface profileTableInterface){
 		super();
 		this.profileTableInterface = profileTableInterface;
 
-		if (this.profileTableInterface.getProfileTableInterfaceName() == null
-				|| this.profileTableInterface.getProfileTableInterfaceName()
-						.getvalue() == null
-				|| this.profileTableInterface.getProfileTableInterfaceName()
-						.getvalue().compareTo("") == 0) {
-			throw new DeploymentException(
-					"Profile table  interface can not be null or empty when specified");
-		}
+//		if (this.profileTableInterface.getProfileTableInterfaceName() == null
+//				|| this.profileTableInterface.getProfileTableInterfaceName()
+//						.getvalue() == null
+//				|| this.profileTableInterface.getProfileTableInterfaceName()
+//						.getvalue().compareTo("") == 0) {
+//			throw new DeploymentException(
+//					"Profile table  interface can not be null or empty when specified");
+//		}
 
 		this.description = this.profileTableInterface.getDescription() == null ? null
 				: this.profileTableInterface.getDescription().getvalue();

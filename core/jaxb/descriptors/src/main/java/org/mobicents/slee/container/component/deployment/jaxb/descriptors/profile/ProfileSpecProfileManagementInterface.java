@@ -30,19 +30,19 @@ public class ProfileSpecProfileManagementInterface {
 
 	public ProfileSpecProfileManagementInterface(
 			ProfileManagementInterface llProfileManagementInterface)
-			throws DeploymentException {
+			 {
 		this.llProfileManagementInterface = llProfileManagementInterface;
 
-		if (this.llProfileManagementInterface
-				.getProfileManagementInterfaceName() == null
-				|| this.llProfileManagementInterface
-						.getProfileManagementInterfaceName().getvalue() == null
-				|| this.llProfileManagementInterface
-						.getProfileManagementInterfaceName().getvalue()
-						.compareTo("") == 0) {
-			throw new DeploymentException(
-					"Profile management interface can not be null or empty when specified");
-		}
+//		if (this.llProfileManagementInterface
+//				.getProfileManagementInterfaceName() == null
+//				|| this.llProfileManagementInterface
+//						.getProfileManagementInterfaceName().getvalue() == null
+//				|| this.llProfileManagementInterface
+//						.getProfileManagementInterfaceName().getvalue()
+//						.compareTo("") == 0) {
+//			throw new DeploymentException(
+//					"Profile management interface can not be null or empty when specified");
+//		}
 
 		this.description = this.llProfileManagementInterface.getDescription() == null ? null
 				: this.llProfileManagementInterface.getDescription().getvalue();
@@ -54,13 +54,13 @@ public class ProfileSpecProfileManagementInterface {
 
 	public ProfileSpecProfileManagementInterface(
 			ProfileManagementInterfaceName profileManagementInterface)
-			throws DeploymentException {
+{
 		this.profileManagementInterface = profileManagementInterface;
-		if (this.profileManagementInterface.getvalue() == null
-				|| this.profileManagementInterface.getvalue().compareTo("") == 0) {
-			throw new DeploymentException(
-					"If sppecified profile management interface name can not be null or empty");
-		}
+//		if (this.profileManagementInterface.getvalue() == null
+//				|| this.profileManagementInterface.getvalue().compareTo("") == 0) {
+//			throw new DeploymentException(
+//					"If sppecified profile management interface name can not be null or empty");
+//		}
 
 		this.profileManagementName = this.profileManagementInterface.getvalue();
 	}

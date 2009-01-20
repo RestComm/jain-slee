@@ -29,21 +29,21 @@ public class ProfileSpecProfileLocalInterface {
 	private String description, profileLocalInterfaceName = null;
 
 	public ProfileSpecProfileLocalInterface(
-			ProfileLocalInterface profileLocalInterface) throws DeploymentException{
+			ProfileLocalInterface profileLocalInterface){
 
 		this.profileLocalInterface = profileLocalInterface;
 		// init
 		this.description = this.profileLocalInterface.getDescription() == null ? null
 				: this.profileLocalInterface.getDescription().getvalue();
 
-		if (this.profileLocalInterface.getProfileLocalInterfaceName() == null
-				|| this.profileLocalInterface.getProfileLocalInterfaceName()
-						.getvalue() == null
-				|| this.profileLocalInterface.getProfileLocalInterfaceName()
-						.getvalue().compareTo("") == 0) {
-
-			throw new DeploymentException("Profile local interface class name can not be null or empty");
-		}
+//		if (this.profileLocalInterface.getProfileLocalInterfaceName() == null
+//				|| this.profileLocalInterface.getProfileLocalInterfaceName()
+//						.getvalue() == null
+//				|| this.profileLocalInterface.getProfileLocalInterfaceName()
+//						.getvalue().compareTo("") == 0) {
+//
+//			throw new DeploymentException("Profile local interface class name can not be null or empty");
+//		}
 		this.profileLocalInterfaceName=this.profileLocalInterface.getProfileLocalInterfaceName().getvalue();
 		this.isolateSecurityPermissions=this.profileLocalInterface.getIsolateSecurityPermissions();
 

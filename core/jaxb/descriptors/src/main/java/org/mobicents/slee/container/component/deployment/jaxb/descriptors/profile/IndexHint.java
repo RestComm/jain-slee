@@ -24,16 +24,15 @@ public class IndexHint {
 	private String queryOperator, collatorRef;
 
 	public IndexHint(
-			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint)
-			throws DeploymentException {
+			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint) {
 		this.indexHint = indexHint;
 		// init
 		this.queryOperator = this.indexHint.getQueryOperator();
 		this.collatorRef = this.indexHint.getCollatorRef();
-		if(this.queryOperator==null|| this.queryOperator.compareTo("")==0)
-		{
-			throw new DeploymentException("Index Hint query operator can not be null or empty");
-		}
+//		if(this.queryOperator==null|| this.queryOperator.compareTo("")==0)
+//		{
+//			throw new DeploymentException("Index Hint query operator can not be null or empty");
+//		}
 	}
 
 	public String getQueryOperator() {

@@ -8,118 +8,72 @@
 	<profile-spec profile-read-only="True"
 		profile-events-enabled="True">
 		<description />
-		<profile-spec-name>
-			DVAL
-        </profile-spec-name>
-		<profile-spec-vendor>
-			DVAL
-        </profile-spec-vendor>
-		<profile-spec-version>
-			DVAL
-		</profile-spec-version>
+		<profile-spec-name>DVAL</profile-spec-name>
+		<profile-spec-vendor>DVAL2</profile-spec-vendor>
+		<profile-spec-version>DVAL3</profile-spec-version>
 
 		<library-ref>
 			<description />
-			<library-name>
-				DVAL
-			</library-name>
-			<library-vendor>
-				DVAL
-			</library-vendor>
-			<library-version>
-				DVAL
-			</library-version>
+			<library-name>DVAL</library-name>
+			<library-vendor>DVAL2</library-vendor>
+			<library-version>DVAL3</library-version>
 		</library-ref>
 
 		<profile-spec-ref>
 			<description />
-			<profile-spec-name>
-				DVAL
-			</profile-spec-name>
-			<profile-spec-vendor>
-				DVAL
-			</profile-spec-vendor>
-			<profile-spec-version>
-				DVAL
-			</profile-spec-version>
+			<profile-spec-name>DVAL</profile-spec-name>
+			<profile-spec-vendor>DVAL2</profile-spec-vendor>
+			<profile-spec-version>DVAL3</profile-spec-version>
 		</profile-spec-ref>
 
 		<collator strength="Primary" decomposition="None">
 			<description />
-			<collator-alias>
-				DVAL
-			</collator-alias>
-			<locale-language>
-				DVAL
-			</locale-language>
-			<locale-country>
-				DVAL
-			</locale-country>
-			<locale-variant>
-				DVAL
-			</locale-variant>
+			<collator-alias>DVAL</collator-alias>
+			<locale-language>DVAL2</locale-language>
+			<locale-country>DVAL3</locale-country>
+			<locale-variant>DVAL4</locale-variant>
 		</collator>
 
 		<profile-classes>
 			<description />
 			<profile-cmp-interface>
 				<description />
-				<profile-cmp-interface-name>
-					DVAL
-				</profile-cmp-interface-name>
+				<profile-cmp-interface-name>DVAL</profile-cmp-interface-name>
 				<cmp-field unique="False">
 					<description />
-					<cmp-field-name>
-						DVAL
-					</cmp-field-name>
+					<cmp-field-name>DVAL</cmp-field-name>
 					<index-hint query-operator="equals" collator-ref="DVAL" />
 				</cmp-field>
 			</profile-cmp-interface>
 			<profile-local-interface
 				isolate-security-permissions="False">
 				<description />
-				<profile-local-interface-name>
-					DVAL
-				</profile-local-interface-name>
+				<profile-local-interface-name>DVAL</profile-local-interface-name>
 			</profile-local-interface>
 			<profile-management-interface>
 				<description />
-				<profile-management-interface-name>
-					DVAL
-				</profile-management-interface-name>
+				<profile-management-interface-name>DVAL</profile-management-interface-name>
 			</profile-management-interface>
 			<profile-abstract-class reentrant="False">
 				<description />
-				<profile-abstract-class-name>
-					DVAL
-				</profile-abstract-class-name>
+				<profile-abstract-class-name>DVAL</profile-abstract-class-name>
 			</profile-abstract-class>
 			<profile-table-interface>
 				<description />
-				<profile-table-interface-name>
-					DVAL
-				</profile-table-interface-name>
+				<profile-table-interface-name>DVAL</profile-table-interface-name>
 			</profile-table-interface>
 			<profile-usage-parameters-interface>
 				<description />
-				<profile-usage-parameters-interface-name>
-					DVAL
-				</profile-usage-parameters-interface-name>
+				<profile-usage-parameters-interface-name>DVAL</profile-usage-parameters-interface-name>
 				<usage-parameter name="DVAL" notifications-enabled="False" />
 			</profile-usage-parameters-interface>
 		</profile-classes>
 
 		<env-entry>
 			<description />
-			<env-entry-name>
-				DVAL
-			</env-entry-name>
-			<env-entry-type>
-				DVAL
-			</env-entry-type>
-			<env-entry-value>
-				DVAL
-			</env-entry-value>
+			<env-entry-name>DVAL</env-entry-name>
+			<env-entry-type>DVAL2</env-entry-type>
+			<env-entry-value>DVAL3</env-entry-value>
 		</env-entry>
 
 		<query name="DVAL">
@@ -134,8 +88,6 @@
 
 	<security-permissions>
 		<description />
-		<security-permission-spec>
-			DVAL
-		</security-permission-spec>
+		<security-permission-spec>DVAL</security-permission-spec>
 	</security-permissions>
 </profile-spec-jar>

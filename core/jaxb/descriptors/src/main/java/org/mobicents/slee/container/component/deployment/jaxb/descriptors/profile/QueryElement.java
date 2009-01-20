@@ -32,12 +32,12 @@ public class QueryElement {
 	// this has to be list?
 	private ArrayList<QueryParameter> parameters = null;
 
-	public QueryElement(Query query) throws DeploymentException {
+	public QueryElement(Query query) {
 		this.query = query;
-		if (this.query.getName() == null
-				|| this.query.getName().compareTo("") == 0) {
-			throw new DeploymentException("Query name can not be null or empty");
-		}
+//		if (this.query.getName() == null
+//				|| this.query.getName().compareTo("") == 0) {
+//			throw new DeploymentException("Query name can not be null or empty");
+//		}
 		//FIXME: baranowb: do queries, this is ocmplicated a bit ....
 
 		if(query.getQueryParameter()!=null && query.getQueryParameter().size()>0)

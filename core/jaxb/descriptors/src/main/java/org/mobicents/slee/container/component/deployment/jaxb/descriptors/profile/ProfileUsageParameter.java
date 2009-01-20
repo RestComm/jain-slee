@@ -25,14 +25,13 @@ public class ProfileUsageParameter {
 	private UsageParameter usageParameter = null;
 	private String notificationEnabled, name;
 
-	public ProfileUsageParameter(UsageParameter usageParameter)
-			throws DeploymentException {
+	public ProfileUsageParameter(UsageParameter usageParameter) {
 		this.usageParameter = usageParameter;
-		if (this.usageParameter.getName() == null
-				|| this.usageParameter.getName().compareTo("") == 0) {
-			throw new DeploymentException(
-					"Usage parameter name can not be null or empty");
-		}
+//		if (this.usageParameter.getName() == null
+//				|| this.usageParameter.getName().compareTo("") == 0) {
+//			throw new DeploymentException(
+//					"Usage parameter name can not be null or empty");
+//		}
 		this.name = this.usageParameter.getName();
 		this.notificationEnabled = this.usageParameter
 				.getNotificationsEnabled();

@@ -30,29 +30,27 @@ public class ProfileSpecManagementAbstractClass {
 	private String description, profileAbstractClassName, reentrant;
 
 	public ProfileSpecManagementAbstractClass(
-			ProfileManagementAbstractClassName profileManagementAbstractClass)
-			throws DeploymentException {
+			ProfileManagementAbstractClassName profileManagementAbstractClass){
 		this.profileManagementAbstractClass = profileManagementAbstractClass;
 		this.profileAbstractClassName = this.profileManagementAbstractClass
 				.getvalue();
 	}
 
 	public ProfileSpecManagementAbstractClass(
-			ProfileAbstractClass llProfileManagementAbstractClass)
-			throws DeploymentException {
+			ProfileAbstractClass llProfileManagementAbstractClass){
 		this.llProfileManagementAbstractClass = llProfileManagementAbstractClass;
 		this.description = this.llProfileManagementAbstractClass
 				.getDescription() == null ? null
 				: this.llProfileManagementAbstractClass.getDescription()
 						.getvalue();
 		this.reentrant = this.llProfileManagementAbstractClass.getReentrant();
-		if (this.llProfileManagementAbstractClass.getProfileAbstractClassName() == null
-				|| this.llProfileManagementAbstractClass
-						.getProfileAbstractClassName().getvalue() == null
-				|| this.llProfileManagementAbstractClass
-						.getProfileAbstractClassName().getvalue().compareTo("") == 0)
-			throw new DeploymentException(
-					"Abstract Profile Management Class cant be of null or empty value");
+//		if (this.llProfileManagementAbstractClass.getProfileAbstractClassName() == null
+//				|| this.llProfileManagementAbstractClass
+//						.getProfileAbstractClassName().getvalue() == null
+//				|| this.llProfileManagementAbstractClass
+//						.getProfileAbstractClassName().getvalue().compareTo("") == 0)
+//			throw new DeploymentException(
+//					"Abstract Profile Management Class cant be of null or empty value");
 		this.profileAbstractClassName = this.llProfileManagementAbstractClass
 				.getProfileAbstractClassName().getvalue();
 
