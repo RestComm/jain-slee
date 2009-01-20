@@ -9,22 +9,9 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.logging.Logger;
-
-import javax.slee.management.DeploymentException;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import junit.framework.TestCase;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit;
-import org.w3c.dom.Document;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.SAXException;
 
 /**
  * This class it meant to test if JAXB context and marshalers work properly.

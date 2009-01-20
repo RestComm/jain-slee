@@ -41,7 +41,7 @@ public class ProfileDescriptorTest extends SuperTestCase {
 	public void testParseOne() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		ProfileSpecificationDescriptorImpl[] specs=ProfileSpecificationDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE), new DeployableUnitID(){});
+		ProfileSpecificationDescriptorImpl[] specs=ProfileSpecificationDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE), null);
 		assertNotNull("Specs return value is null", specs);
 		assertTrue("Profile specs size is wrong!!!", specs.length==1);
 		assertNotNull("Specs return value cell is null", specs[0]);
@@ -55,7 +55,7 @@ public class ProfileDescriptorTest extends SuperTestCase {
 	public void testParseTwo() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		ProfileSpecificationDescriptorImpl[] specs=ProfileSpecificationDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE), new DeployableUnitID(){});
+		ProfileSpecificationDescriptorImpl[] specs=ProfileSpecificationDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE), null);
 		assertNotNull("Specs return value is null", specs);
 		assertTrue("Profile specs size is wrong!!!", specs.length==2);
 		assertNotNull("Specs return value cell is null", specs[0]);
