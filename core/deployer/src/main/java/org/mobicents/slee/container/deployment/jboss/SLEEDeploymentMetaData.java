@@ -88,6 +88,10 @@ public class SLEEDeploymentMetaData// extends ServiceDynamicMBeanSupport
       // Parse the DU to see which jars we should process
       DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+      
+      // Set the Entity Resolver
+      docBuilder.setEntityResolver(SLEEDeployerEntityResolver.INSTANCE);
+      
       Document doc = docBuilder.parse (is);
       
       NodeList nodeList = doc.getDocumentElement().getChildNodes();
