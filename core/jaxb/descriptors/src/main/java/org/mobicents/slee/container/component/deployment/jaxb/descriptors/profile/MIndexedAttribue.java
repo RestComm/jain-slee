@@ -21,12 +21,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.Profi
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class IndexedAttribue {
+public class MIndexedAttribue {
 
 	//FIXME: unique is boolean, parse?
 	private String name, unique;
 	private ProfileIndex indexValue=null;
-	public IndexedAttribue(ProfileIndex indexValue) {
+	public MIndexedAttribue(ProfileIndex indexValue) {
 		super();
 		this.indexValue = indexValue;
 		this.name=this.indexValue.getvalue();

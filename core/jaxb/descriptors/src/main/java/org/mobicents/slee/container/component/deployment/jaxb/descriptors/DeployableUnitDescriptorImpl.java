@@ -1,7 +1,6 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -9,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.slee.ComponentID;
-import javax.slee.management.DeployableUnitDescriptor;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 import javax.xml.bind.JAXBException;
@@ -40,7 +38,6 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 	// tmp, list of jars that already been deployed?
 	private HashSet jars;
 
-	private DeployableUnitDescriptor jsleeDUDescriptor=null;
 
 	public DeployableUnitDescriptorImpl(Document document)
 			throws DeploymentException {

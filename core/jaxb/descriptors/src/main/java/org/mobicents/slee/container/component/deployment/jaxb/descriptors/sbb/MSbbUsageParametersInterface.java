@@ -28,15 +28,15 @@ public class MSbbUsageParametersInterface {
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbUsageParametersInterface llSbbusageeParametersInterface = null;
 
 	private String description = null;
-	private String interfaceName = null;
+	private String sbbUsageParametersInterfaceName = null;
 	private ArrayList<MSbbUsageParameter> usageParameters = null;
 
 	public String getDescription() {
 		return description;
 	}
 
-	public String getInterfaceName() {
-		return interfaceName;
+	public String getSbbUsageParametersInterfaceName() {
+		return sbbUsageParametersInterfaceName;
 	}
 
 	public ArrayList<MSbbUsageParameter> getUsageParameters() {
@@ -50,7 +50,7 @@ public class MSbbUsageParametersInterface {
 		this.description = this.llSbbusageeParametersInterface.getDescription() == null ? null
 				: this.llSbbusageeParametersInterface.getDescription()
 						.getvalue();
-		this.interfaceName = this.llSbbusageeParametersInterface
+		this.sbbUsageParametersInterfaceName = this.llSbbusageeParametersInterface
 				.getSbbUsageParametersInterfaceName().getvalue();
 		this.usageParameters = new ArrayList<MSbbUsageParameter>();
 		if (this.llSbbusageeParametersInterface.getUsageParameter() != null) {
@@ -68,7 +68,7 @@ public class MSbbUsageParametersInterface {
 		this.sbbusageeParametersInterface = sbbusageeParametersInterface;
 		this.description = this.sbbusageeParametersInterface.getDescription() == null ? null
 				: this.sbbusageeParametersInterface.getDescription().getvalue();
-		this.interfaceName = this.sbbusageeParametersInterface
+		this.sbbUsageParametersInterfaceName = this.sbbusageeParametersInterface
 				.getSbbUsageParametersInterfaceName().getvalue();
 		this.usageParameters = new ArrayList<MSbbUsageParameter>();
 

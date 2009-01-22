@@ -21,29 +21,30 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecManagementAbstractClass {
+public class MProfileSpecManagementAbstractClass {
 
 	private ProfileManagementAbstractClassName profileManagementAbstractClass = null;
 	private ProfileAbstractClass llProfileManagementAbstractClass = null;
 
 	// FIXME: reentrant is boolean
-	private String description, profileAbstractClassName, reentrant;
+	private String description, profileAbstractClassName;
+	private boolean reentrant=false;
 
-	public ProfileSpecManagementAbstractClass(
+	public MProfileSpecManagementAbstractClass(
 			ProfileManagementAbstractClassName profileManagementAbstractClass){
 		this.profileManagementAbstractClass = profileManagementAbstractClass;
 		this.profileAbstractClassName = this.profileManagementAbstractClass
 				.getvalue();
 	}
 
-	public ProfileSpecManagementAbstractClass(
+	public MProfileSpecManagementAbstractClass(
 			ProfileAbstractClass llProfileManagementAbstractClass){
 		this.llProfileManagementAbstractClass = llProfileManagementAbstractClass;
 		this.description = this.llProfileManagementAbstractClass
 				.getDescription() == null ? null
 				: this.llProfileManagementAbstractClass.getDescription()
 						.getvalue();
-		this.reentrant = this.llProfileManagementAbstractClass.getReentrant();
+		this.reentrant = Boolean.parseBoolean(this.llProfileManagementAbstractClass.getReentrant());
 //		if (this.llProfileManagementAbstractClass.getProfileAbstractClassName() == null
 //				|| this.llProfileManagementAbstractClass
 //						.getProfileAbstractClassName().getvalue() == null
@@ -64,7 +65,7 @@ public class ProfileSpecManagementAbstractClass {
 		return description;
 	}
 
-	public String getReentrant() {
+	public boolean getReentrant() {
 		return reentrant;
 	}
 

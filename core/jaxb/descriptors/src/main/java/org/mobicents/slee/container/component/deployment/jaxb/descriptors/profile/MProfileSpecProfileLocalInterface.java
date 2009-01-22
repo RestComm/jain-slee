@@ -20,7 +20,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecProfileLocalInterface {
+public class MProfileSpecProfileLocalInterface {
 
 	// Again its 1.1 only
 	private ProfileLocalInterface profileLocalInterface = null;
@@ -28,7 +28,7 @@ public class ProfileSpecProfileLocalInterface {
 	private String isolateSecurityPermissions = null;
 	private String description, profileLocalInterfaceName = null;
 
-	public ProfileSpecProfileLocalInterface(
+	public MProfileSpecProfileLocalInterface(
 			ProfileLocalInterface profileLocalInterface){
 
 		this.profileLocalInterface = profileLocalInterface;

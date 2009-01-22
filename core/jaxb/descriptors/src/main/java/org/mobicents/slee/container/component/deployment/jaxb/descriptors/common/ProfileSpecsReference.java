@@ -25,19 +25,19 @@ public class ProfileSpecsReference {
 	
 	private String description=null;
 	//used in sbbs
-	private String alias=null;
+	private String profileSpecAlias=null;
 	private ComponentKey referenceKey=null;
 	public ProfileSpecsReference(String description, String alias, String name, String vendor, String version) {
 		super();
 		this.description = description;
-		this.alias = alias;
+		this.profileSpecAlias = alias;
 		this.referenceKey=new ComponentKey(name,vendor,version);
 	}
 	public String getDescription() {
 		return description;
 	}
-	public String getAlias() {
-		return alias;
+	public String getProfileSpecAlias() {
+		return profileSpecAlias;
 	}
 	public ComponentKey getReferenceKey() {
 		return referenceKey;

@@ -22,23 +22,22 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Que
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class QueryElement {
+public class MQueryElement {
 
 	private Query query = null;
 
 	private String name = null;
-	private String term=null;
-	private String readOnly=null;
+	private String queryTerm=null;
 	// this has to be list?
-	private ArrayList<QueryParameter> parameters = null;
-
-	public QueryElement(Query query) {
+	private ArrayList<MQueryParameter> queryParameters = null;
+	private MQueryOptions queryOptions=null;
+	public MQueryElement(Query query) {
 		this.query = query;
 //		if (this.query.getName() == null
 //				|| this.query.getName().compareTo("") == 0) {
 //			throw new DeploymentException("Query name can not be null or empty");
 //		}
-		//FIXME: baranowb: do queries, this is ocmplicated a bit ....
+		//FIXME: baranowb: do queries,
 
 		if(query.getQueryParameter()!=null && query.getQueryParameter().size()>0)
 			for(int i=0;i<query.getQueryParameter().size();i++)
@@ -46,14 +45,29 @@ public class QueryElement {
 				
 			}
 		
+		if(query.getQueryOptions()!=null)
+		{
+			this.queryOptions=new MQueryOptions(query.getQueryOptions());
+		}
+		
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public ArrayList<QueryParameter> getParameters() {
-		return parameters;
+	public ArrayList<MQueryParameter> getQueryParameters() {
+		return queryParameters;
 	}
+
+	public String getQueryTerm() {
+		return queryTerm;
+	}
+
+	public MQueryOptions getQueryOptions() {
+		return queryOptions;
+	}
+
+
 
 }

@@ -22,20 +22,21 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Cmp
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecCMPField {
+public class MProfileSpecCMPField {
 
 	
 	//easy, there is no CMP Field in 1.0 :)
 	private CmpField cmpFieldDesc=null;
 	//FIXME: unique be boolean ?
-	private String description,fieldName,unique,uniqueCollatorRef;
-	private ArrayList<IndexHint> indexHints=null;
+	private String description,cmpFieldName,uniqueCollatorRef;
+	private boolean unique=false;
+	private ArrayList<MIndexHint> indexHints=null;
 	
-	public ProfileSpecCMPField(CmpField cmpFieldDesc) {
+	public MProfileSpecCMPField(CmpField cmpFieldDesc) {
 		this.cmpFieldDesc=cmpFieldDesc;
 		this.description=this.cmpFieldDesc.getDescription()!=null?this.cmpFieldDesc.getDescription().getvalue():null;
-		this.fieldName=this.cmpFieldDesc.getCmpFieldName().getvalue();
-		this.unique=this.cmpFieldDesc.getUnique()==null?"False":this.cmpFieldDesc.getUnique();
+		this.cmpFieldName=this.cmpFieldDesc.getCmpFieldName().getvalue();
+		this.unique=Boolean.parseBoolean(this.cmpFieldDesc.getUnique()==null?"False":this.cmpFieldDesc.getUnique());
 		
 		
 		//FIXME: add more
@@ -50,12 +51,12 @@ public class ProfileSpecCMPField {
 //		String.equals() method is used for determining equality.
 		this.uniqueCollatorRef=this.cmpFieldDesc.getUniqueCollatorRef();
 		
-		this.indexHints=new ArrayList<IndexHint>();
+		this.indexHints=new ArrayList<MIndexHint>();
 		if(this.cmpFieldDesc.getIndexHint()!=null && this.cmpFieldDesc.getIndexHint().size()>0)
 		{
 			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint ih:this.cmpFieldDesc.getIndexHint())
 			{
-				this.indexHints.add(new IndexHint(ih));
+				this.indexHints.add(new MIndexHint(ih));
 			}
 		}
 		
@@ -66,11 +67,11 @@ public class ProfileSpecCMPField {
 		return description;
 	}
 
-	public String getFieldName() {
-		return fieldName;
+	public String getCmpFieldName() {
+		return cmpFieldName;
 	}
 
-	public String getUnique() {
+	public boolean getUnique() {
 		return unique;
 	}
 
@@ -78,7 +79,7 @@ public class ProfileSpecCMPField {
 		return uniqueCollatorRef;
 	}
 
-	public ArrayList<IndexHint> getIndexHints() {
+	public ArrayList<MIndexHint> getIndexHints() {
 		return indexHints;
 	}
 

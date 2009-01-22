@@ -21,14 +21,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecProfileManagementInterface {
+public class MProfileSpecProfileManagementInterface {
 
 	private ProfileManagementInterface llProfileManagementInterface = null;
 	private ProfileManagementInterfaceName profileManagementInterface = null;
 
 	private String description, profileManagementName = null;
 
-	public ProfileSpecProfileManagementInterface(
+	public MProfileSpecProfileManagementInterface(
 			ProfileManagementInterface llProfileManagementInterface)
 			 {
 		this.llProfileManagementInterface = llProfileManagementInterface;
@@ -52,7 +52,7 @@ public class ProfileSpecProfileManagementInterface {
 
 	}
 
-	public ProfileSpecProfileManagementInterface(
+	public MProfileSpecProfileManagementInterface(
 			ProfileManagementInterfaceName profileManagementInterface)
 {
 		this.profileManagementInterface = profileManagementInterface;

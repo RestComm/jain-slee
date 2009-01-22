@@ -18,12 +18,12 @@ import javax.slee.management.DeploymentException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class IndexHint {
+public class MIndexHint {
 
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint = null;
 	private String queryOperator, collatorRef;
 
-	public IndexHint(
+	public MIndexHint(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint) {
 		this.indexHint = indexHint;
 		// init

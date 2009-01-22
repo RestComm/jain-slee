@@ -27,16 +27,16 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecProfileCMPInterface {
+public class MProfileSpecProfileCMPInterface {
 
 	private ProfileCmpInterface llProfileCmpInterface = null;
 	private ProfileCmpInterfaceName profileCmpInterface = null;
-	private String cmpInterfaceClassName = null;
+	private String profileCmpInterfaceName = null;
 	private String description = null;
-	private Map<String,ProfileSpecCMPField> cmpFields = null;
+	private Map<String,MProfileSpecCMPField> cmpFields = null;
+	
 
-
-	public ProfileSpecProfileCMPInterface(
+	public MProfileSpecProfileCMPInterface(
 			ProfileCmpInterface llProfileCmpInterface){
 		this.llProfileCmpInterface = llProfileCmpInterface;
 //		if (this.llProfileCmpInterface == null
@@ -49,8 +49,8 @@ public class ProfileSpecProfileCMPInterface {
 
 		// init
 		
-		this.cmpInterfaceClassName=this.llProfileCmpInterface.getProfileCmpInterfaceName().getvalue();
-		this.cmpFields=new HashMap<String,ProfileSpecCMPField>();
+		this.profileCmpInterfaceName=this.llProfileCmpInterface.getProfileCmpInterfaceName().getvalue();
+		this.cmpFields=new HashMap<String,MProfileSpecCMPField>();
 		if(this.llProfileCmpInterface.getCmpField()!=null && this.llProfileCmpInterface.getCmpField().size()>0)
 		{
 			for(int i=0;i<this.llProfileCmpInterface.getCmpField().size();i++)
@@ -60,12 +60,12 @@ public class ProfileSpecProfileCMPInterface {
 //				{
 //					throw new DeploymentException("CMP Field name can not be null or empty. Index: "+i);
 //				}
-				this.cmpFields.put(cf.getCmpFieldName().getvalue(),new ProfileSpecCMPField(cf));
+				this.cmpFields.put(cf.getCmpFieldName().getvalue(),new MProfileSpecCMPField(cf));
 			}
 		}
 	}
 
-	public ProfileSpecProfileCMPInterface(
+	public MProfileSpecProfileCMPInterface(
 			ProfileCmpInterfaceName profileCmpInterface) {
 		this.profileCmpInterface = profileCmpInterface;
 		// init
@@ -75,19 +75,19 @@ public class ProfileSpecProfileCMPInterface {
 //			throw new DeploymentException(
 //					"CMP Interface class name can not be empty or null value.");
 //		}
-		this.cmpInterfaceClassName = this.profileCmpInterface.getvalue();
+		this.profileCmpInterfaceName = this.profileCmpInterface.getvalue();
 
 	}
 
-	public String getCmpInterfaceClassName() {
-		return cmpInterfaceClassName;
+	public String getProfileCmpInterfaceName() {
+		return profileCmpInterfaceName;
 	}
 
 	public String getDescription() {
 		return description;
 	}
 
-	public Map<String, ProfileSpecCMPField> getCmpFields() {
+	public Map<String, MProfileSpecCMPField> getCmpFields() {
 		return cmpFields;
 	}
 

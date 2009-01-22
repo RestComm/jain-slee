@@ -18,13 +18,13 @@ import javax.slee.management.DeploymentException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class EnvEntry {
+public class MEnvEntry {
 
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.EnvEntry envEntry = null;
 
-	private String description, entryName, entryValue, entryType;
+	private String description, envEntryName, envEntryValue, envEntryType;
 
-	public EnvEntry(
+	public MEnvEntry(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.EnvEntry envEntry)
 			 {
 		super();
@@ -51,28 +51,28 @@ public class EnvEntry {
 //			throw new DeploymentException(
 //					"Env Entry can not have type of null or empty value");
 //		}
-		this.entryName = this.envEntry.getEnvEntryName().getvalue();
+		this.envEntryName = this.envEntry.getEnvEntryName().getvalue();
 		//Optional
 		if(this.envEntry.getEnvEntryValue()!=null)
-			this.entryValue = this.envEntry.getEnvEntryValue().getvalue();
+			this.envEntryValue = this.envEntry.getEnvEntryValue().getvalue();
 		
-		this.entryType = this.envEntry.getEnvEntryType().getvalue();
+		this.envEntryType = this.envEntry.getEnvEntryType().getvalue();
 	}
 
 	public String getDescription() {
 		return description;
 	}
 
-	public String getEntryName() {
-		return entryName;
+	public String getEnvEntryName() {
+		return envEntryName;
 	}
 
-	public String getEntryValue() {
-		return entryValue;
+	public String getEnvEntryValue() {
+		return envEntryValue;
 	}
 
-	public String getEntryType() {
-		return entryType;
+	public String getEnvEntryType() {
+		return envEntryType;
 	}
 
 }

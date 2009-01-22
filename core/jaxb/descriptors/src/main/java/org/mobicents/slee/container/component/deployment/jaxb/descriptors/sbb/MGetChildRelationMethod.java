@@ -24,15 +24,15 @@ public class MGetChildRelationMethod {
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetChildRelationMethod llGetChildRelationMethod=null;
 	
 	private String description=null;
-	private String sbbAlias=null;
-	private String methodName=null;
+	private String sbbAliasRef=null;
+	private String childRelationMethodName=null;
 	private byte defaultPriority=0;
 	public MGetChildRelationMethod(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetChildRelationMethod getChildRelationMethod) {
 		super();
 		this.getChildRelationMethod = getChildRelationMethod;
 		this.description=this.getChildRelationMethod.getDescription()==null?null:this.getChildRelationMethod.getDescription().getvalue();
-		this.sbbAlias=this.getChildRelationMethod.getSbbAliasRef().getvalue();
-		this.methodName=this.getChildRelationMethod.getGetChildRelationMethodName().getvalue();
+		this.sbbAliasRef=this.getChildRelationMethod.getSbbAliasRef().getvalue();
+		this.childRelationMethodName=this.getChildRelationMethod.getGetChildRelationMethodName().getvalue();
 		String v=this.getChildRelationMethod.getDefaultPriority().getvalue();
 		this.defaultPriority=Byte.parseByte(v);
 	}
@@ -42,19 +42,19 @@ public class MGetChildRelationMethod {
 		this.llGetChildRelationMethod = llGetChildRelationMethod;
 		
 		this.description=this.llGetChildRelationMethod.getDescription()==null?null:this.llGetChildRelationMethod.getDescription().getvalue();
-		this.sbbAlias=this.llGetChildRelationMethod.getSbbAliasRef().getvalue();
-		this.methodName=this.llGetChildRelationMethod.getGetChildRelationMethodName().getvalue();
+		this.sbbAliasRef=this.llGetChildRelationMethod.getSbbAliasRef().getvalue();
+		this.childRelationMethodName=this.llGetChildRelationMethod.getGetChildRelationMethodName().getvalue();
 		String v=this.llGetChildRelationMethod.getDefaultPriority().getvalue();
 		this.defaultPriority=Byte.parseByte(v);
 	}
 	public String getDescription() {
 		return description;
 	}
-	public String getSbbAlias() {
-		return sbbAlias;
+	public String getSbbAliasRef() {
+		return sbbAliasRef;
 	}
-	public String getMethodName() {
-		return methodName;
+	public String getChildRelationMethodName() {
+		return childRelationMethodName;
 	}
 	public byte getDefaultPriority() {
 		return defaultPriority;

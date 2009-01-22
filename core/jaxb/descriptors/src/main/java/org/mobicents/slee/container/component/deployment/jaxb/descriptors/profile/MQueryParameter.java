@@ -19,12 +19,12 @@ import javax.slee.management.DeploymentException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class QueryParameter {
+public class MQueryParameter {
 
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter qParameter=null;
 	private String name, type;
 
-	public QueryParameter(
+	public MQueryParameter(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter parameter) {
 		super();
 		qParameter = parameter;

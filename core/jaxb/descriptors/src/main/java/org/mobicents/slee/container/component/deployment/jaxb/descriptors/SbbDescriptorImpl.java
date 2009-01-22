@@ -29,7 +29,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MS
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbReference;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbUsageParametersInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.validators.SbbValidator;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.validators.SbbJarValidator;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Sbb;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbJar;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ActivityContextAttributeAlias;
@@ -39,6 +40,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.LibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbRef;
+
 import org.w3c.dom.Document;
 
 /**
@@ -70,7 +72,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 	private String sbbAlias = null;
 	private ArrayList<MSbbReference> sbbRefs = null;
 	// Maybe this should be the same as in profiles as reference?
-	private HashMap<String, ProfileSpecsReference> profileSpecReference = null;
+	private HashMap<String, ProfileSpecsReference> profileSpecRefs = null;
 
 	// might be bad, we ommit sbb-classes/description, phew
 	private MSbbAbstractClass sbbAbstractClass = null;
@@ -86,8 +88,6 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 	// 1.1 stuff, profile specs refs have alias element, so we need another.
 	private ArrayList<ComponentKey> libraryRefs = null;
 	private ArrayList<MEjbRef> ejbRefs = null;
-
-	private SbbValidator validator = null;
 
 	private SecurityPermision securityPermisions = null;
 
@@ -162,7 +162,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 			}
 
 			// Profile Refs
-			this.profileSpecReference = new HashMap<String, ProfileSpecsReference>();
+			this.profileSpecRefs = new HashMap<String, ProfileSpecsReference>();
 			if (this.llSbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ProfileSpecRef psr : this.llSbb
 						.getProfileSpecRef()) {
@@ -173,7 +173,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 									.getProfileSpecName().getvalue(), psr
 									.getProfileSpecVendor().getvalue(), psr
 									.getProfileSpecVersion().getvalue());
-					this.profileSpecReference.put(
+					this.profileSpecRefs.put(
 							p.getReferenceKey().getName(), p);
 				}
 			}
@@ -276,7 +276,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 			}
 
 			// Profile Refs
-			this.profileSpecReference = new HashMap<String, ProfileSpecsReference>();
+			this.profileSpecRefs = new HashMap<String, ProfileSpecsReference>();
 			if (this.sbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef psr : this.sbb
 						.getProfileSpecRef()) {
@@ -287,7 +287,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 									.getProfileSpecName().getvalue(), psr
 									.getProfileSpecVendor().getvalue(), psr
 									.getProfileSpecVersion().getvalue());
-					this.profileSpecReference.put(
+					this.profileSpecRefs.put(
 							p.getReferenceKey().getName(), p);
 				}
 			}
@@ -460,7 +460,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 	}
 
 	public HashMap<String, ProfileSpecsReference> getProfileSpecReference() {
-		return profileSpecReference;
+		return profileSpecRefs;
 	}
 
 	public MSbbAbstractClass getSbbAbstractClass() {
@@ -507,9 +507,6 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		return ejbRefs;
 	}
 
-	public SbbValidator getValidator() {
-		return validator;
-	}
 
 	public SecurityPermision getSecurityPermisions() {
 		return securityPermisions;

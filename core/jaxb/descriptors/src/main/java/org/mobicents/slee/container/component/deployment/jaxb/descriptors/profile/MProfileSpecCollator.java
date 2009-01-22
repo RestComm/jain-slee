@@ -8,8 +8,6 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
-import javax.slee.management.DeploymentException;
-
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Collator;
 
 /**
@@ -21,16 +19,16 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Col
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecCollator {
+public class MProfileSpecCollator {
 
 	
 	
-	private String description,strength,decomposition,alias,localeLanguage,localeCountry,localeVariant;
+	private String description,strength,decomposition,collatorAlias,localeLanguage,localeCountry,localeVariant;
 	private Collator collator=null;
 	
 
 
-	public ProfileSpecCollator(Collator collator)
+	public MProfileSpecCollator(Collator collator)
 	{
 		this.collator=collator;
 		//init
@@ -42,7 +40,7 @@ public class ProfileSpecCollator {
 //		if(this.collator.getCollatorAlias()==null || this.collator.getCollatorAlias().getvalue()==null)
 //			throw new DeploymentException("Collator Alias cant be null!");
 		
-		this.alias=this.collator.getCollatorAlias().getvalue();
+		this.collatorAlias=this.collator.getCollatorAlias().getvalue();
 		this.strength=this.collator.getStrength();
 //		if(this.collator.getLocaleLanguage()==null || this.collator.getLocaleLanguage().getvalue()==null)
 //			throw new DeploymentException("Collator Locale Language cant be null!");
@@ -71,8 +69,8 @@ public class ProfileSpecCollator {
 		return decomposition;
 	}
 
-	public String getAlias() {
-		return alias;
+	public String getCollatorAlias() {
+		return collatorAlias;
 	}
 
 	public String getLocaleLanguage() {

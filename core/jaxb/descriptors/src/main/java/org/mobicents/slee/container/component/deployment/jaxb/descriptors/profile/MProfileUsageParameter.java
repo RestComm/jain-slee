@@ -20,12 +20,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Usa
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileUsageParameter {
+public class MProfileUsageParameter {
 
 	private UsageParameter usageParameter = null;
 	private String notificationEnabled, name;
 
-	public ProfileUsageParameter(UsageParameter usageParameter) {
+	public MProfileUsageParameter(UsageParameter usageParameter) {
 		this.usageParameter = usageParameter;
 //		if (this.usageParameter.getName() == null
 //				|| this.usageParameter.getName().compareTo("") == 0) {

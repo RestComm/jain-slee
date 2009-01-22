@@ -18,6 +18,7 @@ import org.mobicents.slee.container.component.deployment.DeployedComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.validators.ServiceValidator;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.service.ServiceXml;
+
 import org.w3c.dom.Document;
 
 /**
@@ -45,8 +46,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 	// Depraceted in 1.1
 	private String resourceInfoProfileTable = null;
 	private DeployableUnitID deployableUnitId;
-	
-	private ServiceValidator validator=null;
+
 	
 	
 	private ServiceDescriptorImpl(Document doc, ServiceXml serviceXML, int index) throws DeploymentException {

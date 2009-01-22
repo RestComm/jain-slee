@@ -27,7 +27,7 @@ public class MEventEntry {
 	private Event event = null;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.Event llEvent = null;
 
-	private boolean initial = false;
+	private boolean initialEvent = false;
 	private MEventDirection eventDirection = null;
 	private boolean maskOnAttach = false;
 	private boolean lastInTransaction = true;
@@ -45,7 +45,7 @@ public class MEventEntry {
 		
 		this.eventDirection = MEventDirection.fromString(this.llEvent
 				.getEventDirection());
-		this.initial = Boolean.parseBoolean(this.llEvent.getInitialEvent());
+		this.initialEvent = Boolean.parseBoolean(this.llEvent.getInitialEvent());
 		this.maskOnAttach = Boolean.parseBoolean(this.llEvent.getMaskOnAttach());
 
 		// 1.1 last in transaction
@@ -92,7 +92,7 @@ public class MEventEntry {
 
 		this.eventDirection = MEventDirection.fromString(this.event
 				.getEventDirection());
-		this.initial = Boolean.parseBoolean(this.event.getInitialEvent());
+		this.initialEvent = Boolean.parseBoolean(this.event.getInitialEvent());
 		this.maskOnAttach = Boolean.parseBoolean(this.event.getMaskOnAttach());
 
 		// 1.1 last in transaction
@@ -128,8 +128,8 @@ public class MEventEntry {
 		
 	}
 
-	public boolean isInitial() {
-		return initial;
+	public boolean isInitialEvent() {
+		return initialEvent;
 	}
 
 	public MEventDirection getEventDirection() {

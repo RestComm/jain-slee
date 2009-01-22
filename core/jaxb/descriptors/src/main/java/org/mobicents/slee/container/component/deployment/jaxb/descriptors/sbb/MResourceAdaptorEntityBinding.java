@@ -25,27 +25,27 @@ public class MResourceAdaptorEntityBinding {
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorEntityBinding llResourceAdaptorEntityBinding=null; 
 	
 	private String description=null;
-	private String objectName=null;
-	private String entityLink=null;
+	private String resourceAdaptorObjectName=null;
+	private String resourceAdaptorEntityLink=null;
 	public String getDescription() {
 		return description;
 	}
-	public String getObjectName() {
-		return objectName;
+	public String getResourceAdaptorObjectName() {
+		return resourceAdaptorObjectName;
 	}
-	public String getEntityLink() {
-		return entityLink;
+	public String getResourceAdaptorEntityLink() {
+		return resourceAdaptorEntityLink;
 	}
 	public MResourceAdaptorEntityBinding(
 			ResourceAdaptorEntityBinding resourceAdaptorEntityBinding) {
 		super();
 		this.resourceAdaptorEntityBinding = resourceAdaptorEntityBinding;
 		this.description=this.resourceAdaptorEntityBinding.getDescription()==null?null:this.resourceAdaptorEntityBinding.getDescription().getvalue();
-		this.objectName=this.resourceAdaptorEntityBinding.getResourceAdaptorObjectName().getvalue();
+		this.resourceAdaptorObjectName=this.resourceAdaptorEntityBinding.getResourceAdaptorObjectName().getvalue();
 		//Optional
 		if(this.resourceAdaptorEntityBinding.getResourceAdaptorEntityLink()!=null)
 		{
-			this.entityLink=this.resourceAdaptorEntityBinding.getResourceAdaptorEntityLink().getvalue();
+			this.resourceAdaptorEntityLink=this.resourceAdaptorEntityBinding.getResourceAdaptorEntityLink().getvalue();
 		}
 		
 	}
@@ -55,11 +55,11 @@ public class MResourceAdaptorEntityBinding {
 		this.llResourceAdaptorEntityBinding = llResourceAdaptorEntityBinding;
 		
 		this.description=this.llResourceAdaptorEntityBinding.getDescription()==null?null:this.llResourceAdaptorEntityBinding.getDescription().getvalue();
-		this.objectName=this.llResourceAdaptorEntityBinding.getResourceAdaptorObjectName().getvalue();
+		this.resourceAdaptorObjectName=this.llResourceAdaptorEntityBinding.getResourceAdaptorObjectName().getvalue();
 		//Optional
 		if(this.llResourceAdaptorEntityBinding.getResourceAdaptorEntityLink()!=null)
 		{
-			this.entityLink=this.llResourceAdaptorEntityBinding.getResourceAdaptorEntityLink().getvalue();
+			this.resourceAdaptorEntityLink=this.llResourceAdaptorEntityBinding.getResourceAdaptorEntityLink().getvalue();
 		}
 		
 	}

@@ -24,31 +24,31 @@ public class MGetProfileCMPMethod {
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetProfileCmpMethod llGetProfileCmpMethod=null;
 	
 	private String description=null;
-	private String profileSpecAlias=null;
-	private String methodName=null;
+	private String profileSpecAliasRef=null;
+	private String profileCmpMethodName=null;
 	public MGetProfileCMPMethod(GetProfileCmpMethod getProfileCmpMethod) {
 		super();
 		this.getProfileCmpMethod = getProfileCmpMethod;
 		this.description=this.getProfileCmpMethod.getDescription()==null?null:this.getProfileCmpMethod.getDescription().getvalue();
-		this.profileSpecAlias=this.getProfileCmpMethod.getProfileSpecAliasRef().getvalue();
-		this.methodName=this.getProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
+		this.profileSpecAliasRef=this.getProfileCmpMethod.getProfileSpecAliasRef().getvalue();
+		this.profileCmpMethodName=this.getProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
 	}
 	public MGetProfileCMPMethod(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetProfileCmpMethod llGetProfileCmpMethod) {
 		super();
 		this.llGetProfileCmpMethod = llGetProfileCmpMethod;
 		this.description=this.llGetProfileCmpMethod.getDescription()==null?null:this.llGetProfileCmpMethod.getDescription().getvalue();
-		this.profileSpecAlias=this.llGetProfileCmpMethod.getProfileSpecAliasRef().getvalue();
-		this.methodName=this.llGetProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
+		this.profileSpecAliasRef=this.llGetProfileCmpMethod.getProfileSpecAliasRef().getvalue();
+		this.profileCmpMethodName=this.llGetProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
 	}
 	public String getDescription() {
 		return description;
 	}
-	public String getProfileSpecAlias() {
-		return profileSpecAlias;
+	public String getProfileSpecAliasRef() {
+		return profileSpecAliasRef;
 	}
-	public String getMethodName() {
-		return methodName;
+	public String getProfileCmpMethodName() {
+		return profileCmpMethodName;
 	}
 	
 	

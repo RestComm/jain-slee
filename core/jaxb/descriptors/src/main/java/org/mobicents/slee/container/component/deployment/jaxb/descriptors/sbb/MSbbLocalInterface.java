@@ -25,21 +25,21 @@ public class MSbbLocalInterface {
 	
 	private boolean isolateSecurityPermissions=false;
 	private String description=null;
-	private String interfaceName=null;
+	private String sbbLocalInterfaceName=null;
 	public boolean isIsolateSecurityPermissions() {
 		return isolateSecurityPermissions;
 	}
 	public String getDescription() {
 		return description;
 	}
-	public String getInterfaceName() {
-		return interfaceName;
+	public String getSbbLocalInterfaceName() {
+		return sbbLocalInterfaceName;
 	}
 	public MSbbLocalInterface(SbbLocalInterface sbbLocalInterface) {
 		super();
 		this.sbbLocalInterface = sbbLocalInterface;
 		this.description=this.sbbLocalInterface.getDescription()==null?null:this.sbbLocalInterface.getDescription().getvalue();
-		this.interfaceName=this.sbbLocalInterface.getSbbLocalInterfaceName().getvalue();
+		this.sbbLocalInterfaceName=this.sbbLocalInterface.getSbbLocalInterfaceName().getvalue();
 		
 	}
 	public MSbbLocalInterface(
@@ -47,7 +47,7 @@ public class MSbbLocalInterface {
 		super();
 		this.llSbbLocalInterface = llSbbLocalInterface;
 		this.description=this.llSbbLocalInterface.getDescription()==null?null:this.llSbbLocalInterface.getDescription().getvalue();
-		this.interfaceName=this.llSbbLocalInterface.getSbbLocalInterfaceName().getvalue();
+		this.sbbLocalInterfaceName=this.llSbbLocalInterface.getSbbLocalInterfaceName().getvalue();
 		
 		String v=this.llSbbLocalInterface.getIsolateSecurityPermissions();
 		if(v!=null && Boolean.parseBoolean(v))

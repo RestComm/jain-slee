@@ -20,14 +20,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Pro
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecProfileTableInterface {
+public class MProfileSpecProfileTableInterface {
 
 	// This should be String, but lets be conistent
 
 	private String description, profileTableInterfaceName;
 	private ProfileTableInterface profileTableInterface = null;
 
-	public ProfileSpecProfileTableInterface(
+	public MProfileSpecProfileTableInterface(
 			ProfileTableInterface profileTableInterface){
 		super();
 		this.profileTableInterface = profileTableInterface;

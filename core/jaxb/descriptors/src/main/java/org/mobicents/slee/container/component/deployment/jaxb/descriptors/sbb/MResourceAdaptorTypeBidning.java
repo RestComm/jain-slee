@@ -28,7 +28,7 @@ public class MResourceAdaptorTypeBidning {
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorTypeBinding llResourceAdaptorTypeBinding = null;
 
 	private String description = null;
-	private ComponentKey raTypeReferenceKey = null;
+	private ComponentKey resourceAdaptorTypeRef = null;
 	private String activityContextInterfaceFactoryName = null;
 	private ArrayList<MResourceAdaptorEntityBinding> resourceAdaptorEntityBinding = null;
 
@@ -36,8 +36,8 @@ public class MResourceAdaptorTypeBidning {
 		return description;
 	}
 
-	public ComponentKey getRaTypeReferenceKey() {
-		return raTypeReferenceKey;
+	public ComponentKey getResourceAdaptorTypeRef() {
+		return resourceAdaptorTypeRef;
 	}
 
 	public String getActivityContextInterfaceFactoryName() {
@@ -54,7 +54,7 @@ public class MResourceAdaptorTypeBidning {
 		this.resourceAdaptorTypeBinding = resourceAdaptorTypeBinding;
 		this.description = this.resourceAdaptorTypeBinding.getDescription() == null ? null
 				: this.resourceAdaptorTypeBinding.getDescription().getvalue();
-		this.raTypeReferenceKey = new ComponentKey(
+		this.resourceAdaptorTypeRef = new ComponentKey(
 				this.resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeName().getvalue(),
 				this.resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
@@ -87,7 +87,7 @@ public class MResourceAdaptorTypeBidning {
 		
 		this.description = this.llResourceAdaptorTypeBinding.getDescription() == null ? null
 				: this.llResourceAdaptorTypeBinding.getDescription().getvalue();
-		this.raTypeReferenceKey = new ComponentKey(
+		this.resourceAdaptorTypeRef = new ComponentKey(
 				this.llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeName().getvalue(),
 				this.llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()

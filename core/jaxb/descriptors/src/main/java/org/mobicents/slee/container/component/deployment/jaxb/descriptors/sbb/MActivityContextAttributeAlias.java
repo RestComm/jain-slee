@@ -29,30 +29,30 @@ public class MActivityContextAttributeAlias {
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ActivityContextAttributeAlias llActivityContextAttributeAlias=null;
 	
 	private String description=null;
-	private String attributeAlias=null;
+	private String attributeAliasName=null;
 	//This is set of attributes that fall in this allias?
-	private Set<String> activityContextAttributes=null;
+	private Set<String> sbbActivityContextAttributeName=null;
 	public String getDescription() {
 		return description;
 	}
-	public String getAttributeAlias() {
-		return attributeAlias;
+	public String getAttributeAliasName() {
+		return attributeAliasName;
 	}
-	public Set<String> getActivityContextAttributes() {
-		return activityContextAttributes;
+	public Set<String> getSbbActivityContextAttributeName() {
+		return sbbActivityContextAttributeName;
 	}
 	public MActivityContextAttributeAlias(
 			ActivityContextAttributeAlias activityContextAttributeAlias) {
 		super();
 		this.activityContextAttributeAlias = activityContextAttributeAlias;
 		this.description=this.activityContextAttributeAlias.getDescription()==null?null:this.activityContextAttributeAlias.getDescription().getvalue();
-		this.attributeAlias=this.activityContextAttributeAlias.getAttributeAliasName().getvalue();
+		this.attributeAliasName=this.activityContextAttributeAlias.getAttributeAliasName().getvalue();
 		
 		//there has to be inimaly one attribute specified, this is validated by validators
-		this.activityContextAttributes=new HashSet<String>();
+		this.sbbActivityContextAttributeName=new HashSet<String>();
 		for(SbbActivityContextAttributeName sacan:this.activityContextAttributeAlias.getSbbActivityContextAttributeName())
 		{
-			this.activityContextAttributes.add(sacan.getvalue());
+			this.sbbActivityContextAttributeName.add(sacan.getvalue());
 		}
 		
 	}
@@ -62,13 +62,13 @@ public class MActivityContextAttributeAlias {
 		this.llActivityContextAttributeAlias = llActivityContextAttributeAlias;
 		
 		this.description=this.llActivityContextAttributeAlias.getDescription()==null?null:this.llActivityContextAttributeAlias.getDescription().getvalue();
-		this.attributeAlias=this.llActivityContextAttributeAlias.getAttributeAliasName().getvalue();
+		this.attributeAliasName=this.llActivityContextAttributeAlias.getAttributeAliasName().getvalue();
 		
 		//there has to be inimaly one attribute specified, this is validated by validators
-		this.activityContextAttributes=new HashSet<String>();
+		this.sbbActivityContextAttributeName=new HashSet<String>();
 		for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbActivityContextAttributeName sacan:this.llActivityContextAttributeAlias.getSbbActivityContextAttributeName())
 		{
-			this.activityContextAttributes.add(sacan.getvalue());
+			this.sbbActivityContextAttributeName.add(sacan.getvalue());
 		}
 	}
 	

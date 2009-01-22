@@ -24,7 +24,7 @@ public class MEnvEntry {
 	
 	
 	
-	private String description, entryName, entryValue, entryType;
+	private String description, envEntryName, envEntryValue, envEntryType;
 	private EnvEntry envEntry;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.EnvEntry llEnvEntry;
 
@@ -37,12 +37,12 @@ public class MEnvEntry {
 				: this.envEntry.getDescription().getvalue();
 
 		
-		this.entryName = this.envEntry.getEnvEntryName().getvalue();
+		this.envEntryName = this.envEntry.getEnvEntryName().getvalue();
 		//Optional
 		if(this.envEntry.getEnvEntryValue()!=null)
-			this.entryValue = this.envEntry.getEnvEntryValue().getvalue();
+			this.envEntryValue = this.envEntry.getEnvEntryValue().getvalue();
 		
-		this.entryType = this.envEntry.getEnvEntryType().getvalue();
+		this.envEntryType = this.envEntry.getEnvEntryType().getvalue();
 	}
 
 	public MEnvEntry(
@@ -54,27 +54,27 @@ public class MEnvEntry {
 				: this.envEntry.getDescription().getvalue();
 
 		
-		this.entryName = this.envEntry.getEnvEntryName().getvalue();
+		this.envEntryName = this.envEntry.getEnvEntryName().getvalue();
 		//Optional
 		if(this.envEntry.getEnvEntryValue()!=null)
-			this.entryValue = this.envEntry.getEnvEntryValue().getvalue();
+			this.envEntryValue = this.envEntry.getEnvEntryValue().getvalue();
 		
-		this.entryType = this.envEntry.getEnvEntryType().getvalue();
+		this.envEntryType = this.envEntry.getEnvEntryType().getvalue();
 	}
 	
 	public String getDescription() {
 		return description;
 	}
 
-	public String getEntryName() {
-		return entryName;
+	public String getEnvEntryName() {
+		return envEntryName;
 	}
 
-	public String getEntryValue() {
-		return entryValue;
+	public String getEnvEntryValue() {
+		return envEntryValue;
 	}
 
-	public String getEntryType() {
-		return entryType;
+	public String getEnvEntryType() {
+		return envEntryType;
 	}
 }

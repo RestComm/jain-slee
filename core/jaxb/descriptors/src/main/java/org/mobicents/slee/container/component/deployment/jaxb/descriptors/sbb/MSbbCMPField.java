@@ -24,8 +24,8 @@ public class MSbbCMPField {
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.CmpField llCmpField = null;
 
 	private String description = null;
-	private String fieldName = null;
-	private String sbbAlias = null;
+	private String cmpFieldName = null;
+	private String sbbAliasRef = null;
 
 	public MSbbCMPField(
 			
@@ -34,8 +34,8 @@ public class MSbbCMPField {
 		
 		this.llCmpField = llCmpField;
 		this.description=this.llCmpField.getDescription()==null?null:this.llCmpField.getDescription().getvalue();
-		this.fieldName=this.llCmpField.getCmpFieldName().getvalue();
-		this.sbbAlias=this.llCmpField.getSbbAliasRef().getvalue();
+		this.cmpFieldName=this.llCmpField.getCmpFieldName().getvalue();
+		this.sbbAliasRef=this.llCmpField.getSbbAliasRef().getvalue();
 	}
 
 	public MSbbCMPField(
@@ -43,8 +43,8 @@ public class MSbbCMPField {
 		super();
 		this.cmpField = cmpField;
 		this.description=this.cmpField.getDescription()==null?null:this.cmpField.getDescription().getvalue();
-		this.fieldName=this.cmpField.getCmpFieldName().getvalue();
-		this.sbbAlias=this.cmpField.getSbbAliasRef().getvalue();
+		this.cmpFieldName=this.cmpField.getCmpFieldName().getvalue();
+		this.sbbAliasRef=this.cmpField.getSbbAliasRef().getvalue();
 	
 	}
 
@@ -52,12 +52,12 @@ public class MSbbCMPField {
 		return description;
 	}
 
-	public String getFieldName() {
-		return fieldName;
+	public String getCmpFieldName() {
+		return cmpFieldName;
 	}
 
-	public String getSbbAlias() {
-		return sbbAlias;
+	public String getSbbAliasRef() {
+		return sbbAliasRef;
 	}
 
 }

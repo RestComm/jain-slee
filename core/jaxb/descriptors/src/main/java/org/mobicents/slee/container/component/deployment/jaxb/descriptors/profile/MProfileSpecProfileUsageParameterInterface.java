@@ -24,11 +24,11 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Usa
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecProfileUsageParameterInterface {
+public class MProfileSpecProfileUsageParameterInterface {
 
 	private String description, profileUsagePamaterersInterfaceName = null;
 	private ProfileUsageParametersInterface profileUsageParametersInterface = null;
-	private Map<String, ProfileUsageParameter> usageParameters = null;
+	private Map<String, MProfileUsageParameter> usageParameters = null;
 
 	public String getDescription() {
 		return description;
@@ -38,7 +38,7 @@ public class ProfileSpecProfileUsageParameterInterface {
 		return profileUsagePamaterersInterfaceName;
 	}
 
-	public ProfileSpecProfileUsageParameterInterface(
+	public MProfileSpecProfileUsageParameterInterface(
 			ProfileUsageParametersInterface profileUsageParametersInterface) {
 		super();
 		this.profileUsageParametersInterface = profileUsageParametersInterface;
@@ -61,19 +61,19 @@ public class ProfileSpecProfileUsageParameterInterface {
 		this.profileUsagePamaterersInterfaceName = this.profileUsageParametersInterface
 				.getProfileUsageParametersInterfaceName().getvalue();
 
-		this.usageParameters = new HashMap<String, ProfileUsageParameter>();
+		this.usageParameters = new HashMap<String, MProfileUsageParameter>();
 		if (this.profileUsageParametersInterface.getUsageParameter() != null
 				&& this.profileUsageParametersInterface.getUsageParameter()
 						.size() > 0)
 			for (UsageParameter up : this.profileUsageParametersInterface
 					.getUsageParameter()) {
-				ProfileUsageParameter pup=new ProfileUsageParameter(up);
+				MProfileUsageParameter pup=new MProfileUsageParameter(up);
 				this.usageParameters.put(pup.getName(), pup);
 			}
 
 	}
 
-	public Map<String, ProfileUsageParameter> getUsageParameters() {
+	public Map<String, MProfileUsageParameter> getUsageParameters() {
 		return usageParameters;
 	}
 	
