@@ -11,6 +11,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
@@ -70,9 +72,10 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 
 	private ComponentKey sbbComponentKey = null;
 	private String sbbAlias = null;
-	private ArrayList<MSbbReference> sbbRefs = null;
+	//its 1.1
+	private List<MSbbReference> sbbRefs = null;
 	// Maybe this should be the same as in profiles as reference?
-	private HashMap<String, ProfileSpecsReference> profileSpecRefs = null;
+	private List<ProfileSpecsReference> profileSpecRefs = null;
 
 	// might be bad, we ommit sbb-classes/description, phew
 	private MSbbAbstractClass sbbAbstractClass = null;
@@ -80,14 +83,14 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 	private MSbbActivityContextInterface sbbActivityContextInterface = null;
 	private MSbbUsageParametersInterface sbbUsageParametersInterface = null;
 	private String addressProfileSpecAliasRef = null;
-	private ArrayList<MEventEntry> events = null;
-	private ArrayList<MActivityContextAttributeAlias> activityContextAttributeAliases = null;
-	private ArrayList<MEnvEntry> envEntries = null;
-	private ArrayList<MResourceAdaptorTypeBidning> resourceAdaptorTypeBindings = null;
+	private List<MEventEntry> events = null;
+	private List<MActivityContextAttributeAlias> activityContextAttributeAliases = null;
+	private List<MEnvEntry> envEntries = null;
+	private List<MResourceAdaptorTypeBidning> resourceAdaptorTypeBindings = null;
 
 	// 1.1 stuff, profile specs refs have alias element, so we need another.
-	private ArrayList<ComponentKey> libraryRefs = null;
-	private ArrayList<MEjbRef> ejbRefs = null;
+	private List<ComponentKey> libraryRefs = null;
+	private List<MEjbRef> ejbRefs = null;
 
 	private SecurityPermision securityPermisions = null;
 
@@ -143,6 +146,8 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 
 			this.sbbAlias = this.llSbb.getSbbAlias().getvalue();
 
+			this.sbbComponentKey=new ComponentKey(this.llSbb.getSbbName().getvalue(),this.llSbb.getSbbVendor().getvalue(),this.llSbb.getSbbVersion().getvalue());
+			
 			// Library Refs
 			this.libraryRefs = new ArrayList<ComponentKey>();
 			if (llSbb.getLibraryRef() != null) {
@@ -162,7 +167,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 			}
 
 			// Profile Refs
-			this.profileSpecRefs = new HashMap<String, ProfileSpecsReference>();
+			this.profileSpecRefs = new ArrayList<ProfileSpecsReference>();
 			if (this.llSbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ProfileSpecRef psr : this.llSbb
 						.getProfileSpecRef()) {
@@ -173,8 +178,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 									.getProfileSpecName().getvalue(), psr
 									.getProfileSpecVendor().getvalue(), psr
 									.getProfileSpecVersion().getvalue());
-					this.profileSpecRefs.put(
-							p.getReferenceKey().getName(), p);
+					this.profileSpecRefs.add(p);
 				}
 			}
 			
@@ -263,11 +267,13 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 
 			this.sbbAlias = this.sbb.getSbbAlias().getvalue();
 
+
+			this.sbbComponentKey=new ComponentKey(this.sbb.getSbbName().getvalue(),this.sbb.getSbbVendor().getvalue(),this.sbb.getSbbVersion().getvalue());
 			// Library Refs
 			this.libraryRefs = new ArrayList<ComponentKey>();
 			
-
-			// SbbRefs
+			//FIXME: template from jslee has child-sbb element, in dtd its sbb-ref !!!!!!!
+			// SbbRefs 
 			this.sbbRefs = new ArrayList<MSbbReference>();
 			if (this.sbb.getSbbRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbRef sr : this.sbb.getSbbRef()) {
@@ -276,7 +282,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 			}
 
 			// Profile Refs
-			this.profileSpecRefs = new HashMap<String, ProfileSpecsReference>();
+			this.profileSpecRefs = new ArrayList<ProfileSpecsReference>();
 			if (this.sbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef psr : this.sbb
 						.getProfileSpecRef()) {
@@ -287,8 +293,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 									.getProfileSpecName().getvalue(), psr
 									.getProfileSpecVendor().getvalue(), psr
 									.getProfileSpecVersion().getvalue());
-					this.profileSpecRefs.put(
-							p.getReferenceKey().getName(), p);
+					this.profileSpecRefs.add(p);
 				}
 			}
 			
@@ -377,7 +382,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		}
 	}
 
-	public SbbDescriptorImpl[] parseDocument(Document sbbJar,
+	public static SbbDescriptorImpl[] parseDocument(Document sbbJar,
 			DeployableUnitID duID) throws DeploymentException {
 		if (isDoctypeSlee11(sbbJar.getDoctype())) {
 			try {
@@ -455,11 +460,11 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		return sbbAlias;
 	}
 
-	public ArrayList<MSbbReference> getSbbRefs() {
+	public List<MSbbReference> getSbbRefs() {
 		return sbbRefs;
 	}
 
-	public HashMap<String, ProfileSpecsReference> getProfileSpecReference() {
+	public List<ProfileSpecsReference> getProfileSpecReference() {
 		return profileSpecRefs;
 	}
 
@@ -483,27 +488,27 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		return addressProfileSpecAliasRef;
 	}
 
-	public ArrayList<MEventEntry> getEvents() {
+	public List<MEventEntry> getEvents() {
 		return events;
 	}
 
-	public ArrayList<MActivityContextAttributeAlias> getActivityContextAttributeAliases() {
+	public List<MActivityContextAttributeAlias> getActivityContextAttributeAliases() {
 		return activityContextAttributeAliases;
 	}
 
-	public ArrayList<MEnvEntry> getEnvEntries() {
+	public List<MEnvEntry> getEnvEntries() {
 		return envEntries;
 	}
 
-	public ArrayList<MResourceAdaptorTypeBidning> getResourceAdaptorTypeBindings() {
+	public List<MResourceAdaptorTypeBidning> getResourceAdaptorTypeBindings() {
 		return resourceAdaptorTypeBindings;
 	}
 
-	public ArrayList<ComponentKey> getLibraryRefs() {
+	public List<ComponentKey> getLibraryRefs() {
 		return libraryRefs;
 	}
 
-	public ArrayList<MEjbRef> getEjbRefs() {
+	public List<MEjbRef> getEjbRefs() {
 		return ejbRefs;
 	}
 

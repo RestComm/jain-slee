@@ -20,6 +20,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.TestCase;
 
 
+import org.mobicents.slee.container.component.ComponentKey;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXException;
@@ -87,4 +88,28 @@ public class SuperTestCase extends TestCase {
 	
 	public void testFake()
 	{}
+	
+	
+	protected void validateKey(ComponentKey key, String text, String[] fieldValueAndName)
+	{
+
+		
+		
+		assertNotNull(text+" cant be null",key);
+		assertNotNull(text+" "+fieldValueAndName[0]+" cant be null",key.getName());
+		assertNotNull(text+" "+fieldValueAndName[1]+" cant be null",key.getVendor());
+		assertNotNull(text+" "+fieldValueAndName[2]+" cant be null",key.getVersion());
+		
+		
+		assertTrue(text+" "+fieldValueAndName[0]+" is not equal to "+fieldValueAndName[0],key.getName().compareTo(fieldValueAndName[0])==0);
+		assertTrue(text+" "+fieldValueAndName[1]+" is not equal to "+fieldValueAndName[1],key.getVendor().compareTo(fieldValueAndName[1])==0);
+		assertTrue(text+" "+fieldValueAndName[2]+" is not equal to "+fieldValueAndName[2],key.getVersion().compareTo(fieldValueAndName[2])==0);
+	}
+	
+	protected void validateValue(String value, String text, String presumableValue)
+	{
+		assertNotNull(text,value);
+		assertTrue(text+" is not equal to "+presumableValue,value.compareTo(presumableValue)==0);
+	}
+	
 }

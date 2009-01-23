@@ -9,6 +9,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
@@ -34,7 +35,7 @@ public class MEventEntry {
 	private String description = null;
 	private ComponentKey eventReference = null;
 	private String eventName = null;
-	private ArrayList<MInitialEventSelect> initialEventSelects = null;
+	private List<MInitialEventSelect> initialEventSelects = null;
 	private String initialEventSelectorMethod = null;
 	private String resourceOption = null;
 
@@ -156,7 +157,7 @@ public class MEventEntry {
 		return eventName;
 	}
 
-	public ArrayList<MInitialEventSelect> getInitialEventSelects() {
+	public List<MInitialEventSelect> getInitialEventSelects() {
 		return initialEventSelects;
 	}
 

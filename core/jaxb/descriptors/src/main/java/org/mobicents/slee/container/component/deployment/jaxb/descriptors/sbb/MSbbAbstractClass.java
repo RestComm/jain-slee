@@ -10,6 +10,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.CmpField;
@@ -39,9 +40,9 @@ public class MSbbAbstractClass {
 	private String sbbAbstractClassName=null;
 	private Map<String,MSbbCMPField> cmpFields=null;
 	//it shoudl be getProfileCMPMethods -- but getter would be getGetxxx
-	private ArrayList<MGetProfileCMPMethod> profileCMPMethods=null;
+	private List<MGetProfileCMPMethod> profileCMPMethods=null;
 	//it shoudl be getChildRelationMethods -- but getter would be getGetxxx
-	private ArrayList<MGetChildRelationMethod> childRelationMethods=null;
+	private List<MGetChildRelationMethod> childRelationMethods=null;
 	public MSbbAbstractClass(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbAbstractClass sbbAbstractClass) {
 		super();
 		this.sAbstractClass = sbbAbstractClass;
@@ -142,10 +143,10 @@ public class MSbbAbstractClass {
 	public Map<String, MSbbCMPField> getCmpFields() {
 		return cmpFields;
 	}
-	public ArrayList<MGetProfileCMPMethod> getProfileCMPMethods() {
+	public List<MGetProfileCMPMethod> getProfileCMPMethods() {
 		return profileCMPMethods;
 	}
-	public ArrayList<MGetChildRelationMethod> getChildRelationMethods() {
+	public List<MGetChildRelationMethod> getChildRelationMethods() {
 		return childRelationMethods;
 	}
 	

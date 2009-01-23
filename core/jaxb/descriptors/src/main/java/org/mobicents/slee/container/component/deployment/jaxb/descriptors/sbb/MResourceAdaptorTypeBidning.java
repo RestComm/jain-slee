@@ -9,6 +9,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorEntityBinding;
@@ -30,7 +31,7 @@ public class MResourceAdaptorTypeBidning {
 	private String description = null;
 	private ComponentKey resourceAdaptorTypeRef = null;
 	private String activityContextInterfaceFactoryName = null;
-	private ArrayList<MResourceAdaptorEntityBinding> resourceAdaptorEntityBinding = null;
+	private List<MResourceAdaptorEntityBinding> resourceAdaptorEntityBinding = null;
 
 	public String getDescription() {
 		return description;
@@ -44,7 +45,7 @@ public class MResourceAdaptorTypeBidning {
 		return activityContextInterfaceFactoryName;
 	}
 
-	public ArrayList<MResourceAdaptorEntityBinding> getResourceAdaptorEntityBinding() {
+	public List<MResourceAdaptorEntityBinding> getResourceAdaptorEntityBinding() {
 		return resourceAdaptorEntityBinding;
 	}
 
