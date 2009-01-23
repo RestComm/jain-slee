@@ -75,7 +75,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 		if (isDoctypeSlee11(serviceJar.getDoctype())) {
 			try {
 				org.mobicents.slee.container.component.deployment.jaxb.slee11.service.ServiceXml psj = (org.mobicents.slee.container.component.deployment.jaxb.slee11.service.ServiceXml) JAXBBaseUtilityClass
-						.getUnmarshaller().unmarshal(serviceJar);
+						.getUnmarshaller(false).unmarshal(serviceJar);
 				if (psj.getService() == null || psj.getService().size() == 0) {
 					// Akward
 					throw new ParseException(
@@ -97,7 +97,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 		} else {
 			try {
 				org.mobicents.slee.container.component.deployment.jaxb.slee.service.ServiceXml psj = (org.mobicents.slee.container.component.deployment.jaxb.slee.service.ServiceXml) JAXBBaseUtilityClass
-						.getUnmarshaller().unmarshal(serviceJar);
+						.getUnmarshaller(true).unmarshal(serviceJar);
 				if (psj.getService() == null || psj.getService().size() == 0) {
 					// Akward
 					throw new ParseException(

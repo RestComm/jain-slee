@@ -382,7 +382,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		if (isDoctypeSlee11(sbbJar.getDoctype())) {
 			try {
 				org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbJar psj = (org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbJar) JAXBBaseUtilityClass
-						.getUnmarshaller().unmarshal(sbbJar);
+						.getUnmarshaller(false).unmarshal(sbbJar);
 				if (psj.getSbb() == null || psj.getSbb().size() == 0) {
 					// Akward
 					throw new ParseException(
@@ -404,7 +404,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		} else {
 			try {
 				org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbJar psj = (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbJar) JAXBBaseUtilityClass
-						.getUnmarshaller().unmarshal(sbbJar);
+						.getUnmarshaller(true).unmarshal(sbbJar);
 				if (psj.getSbb() == null || psj.getSbb().size() == 0) {
 					// Akward
 					throw new ParseException(

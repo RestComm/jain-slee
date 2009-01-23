@@ -32,20 +32,26 @@ public abstract class JAXBBaseUtilityClass {
 	
 	protected Document descriptorDocument=null;
 	private boolean is11=false;
-	private static final JAXBContext jaxbContext = initJAXBContext();
+	private static final JAXBContext jaxbContext = initJAXBContext(false);
+	private static final JAXBContext jaxbContextv10= initJAXBContext(true);
 	//If its not static we can get logger default
 	protected Logger logger=Logger.getLogger(this.getClass().getName());
-    private static JAXBContext initJAXBContext() {
+    private static JAXBContext initJAXBContext(boolean isV10) {
         try {
-            return JAXBContext
-                    .newInstance("org.mobicents.slee.container.component.deployment.jaxb.slee.du"
-                            + ":org.mobicents.slee.container.component.deployment.jaxb.slee.event"
-                            + ":org.mobicents.slee.container.component.deployment.jaxb.slee.ratype"
-                            + ":org.mobicents.slee.container.component.deployment.jaxb.slee.ra"
-                            + ":org.mobicents.slee.container.component.deployment.jaxb.slee.sbb"
-                            + ":org.mobicents.slee.container.component.deployment.jaxb.slee.service"
-                            + ":org.mobicents.slee.container.component.deployment.jaxb.slee.profile"
-                            + ":org.mobicents.slee.container.component.deployment.jaxb.slee11.du"
+        	if(isV10)
+        	{
+        		return JAXBContext.newInstance("org.mobicents.slee.container.component.deployment.jaxb.slee.du"
+                        + ":org.mobicents.slee.container.component.deployment.jaxb.slee.event"
+                        + ":org.mobicents.slee.container.component.deployment.jaxb.slee.ratype"
+                        + ":org.mobicents.slee.container.component.deployment.jaxb.slee.ra"
+                        + ":org.mobicents.slee.container.component.deployment.jaxb.slee.sbb"
+                        + ":org.mobicents.slee.container.component.deployment.jaxb.slee.service"
+                        + ":org.mobicents.slee.container.component.deployment.jaxb.slee.profile");
+        	}
+        	else
+        	{
+        		return JAXBContext
+                    .newInstance(":org.mobicents.slee.container.component.deployment.jaxb.slee11.du"
                             + ":org.mobicents.slee.container.component.deployment.jaxb.slee11.event"
                             + ":org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype"
                             + ":org.mobicents.slee.container.component.deployment.jaxb.slee11.ra"
@@ -53,6 +59,7 @@ public abstract class JAXBBaseUtilityClass {
                             + ":org.mobicents.slee.container.component.deployment.jaxb.slee11.service"
                             + ":org.mobicents.slee.container.component.deployment.jaxb.slee11.profile"
                             + ":org.mobicents.slee.container.component.deployment.jaxb.slee11.library");
+        	}
         } catch (JAXBException e) {
         	//Cause logger is not static.
         	Logger.getLogger(JAXBBaseUtilityClass.class.getName()).severe("failed to create jaxb context"+e);
@@ -60,9 +67,16 @@ public abstract class JAXBBaseUtilityClass {
         }
     } 
     
-    public static Unmarshaller getUnmarshaller() {
+    public static Unmarshaller getUnmarshaller(boolean isV10) {
         try {
-            return jaxbContext.createUnmarshaller();
+        	if(isV10)
+        	{
+        		return jaxbContextv10.createUnmarshaller();
+        	}
+        	else
+        	{
+        		return jaxbContext.createUnmarshaller();
+        	}
         } catch (JAXBException e) {
         	e.printStackTrace();
         	Logger.getLogger(JAXBBaseUtilityClass.class.getName()).severe("failed to create unmarshaller: " +e);

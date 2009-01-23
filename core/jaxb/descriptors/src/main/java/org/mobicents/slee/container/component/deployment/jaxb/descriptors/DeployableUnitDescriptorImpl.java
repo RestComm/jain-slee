@@ -46,10 +46,10 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 		// Here we have to parse
 		try {
 			if (isSlee11()) {
-				duDescriptorll = (org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit) getUnmarshaller()
+				duDescriptorll = (org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit) getUnmarshaller(false)
 						.unmarshal(super.descriptorDocument);
 			} else {
-				duDescriptor = (DeployableUnit) getUnmarshaller().unmarshal(
+				duDescriptor = (DeployableUnit) getUnmarshaller(true).unmarshal(
 						super.descriptorDocument);
 			}
 			buildDescriptionMap();

@@ -30,7 +30,7 @@ public class JAXBBaseUtilityClassTest extends SuperTestCase {
 
 	public void testUnmarshallerPesence() throws Exception {
 
-		assertNotNull(this.testSubject.getUnmarshaller());
+		assertNotNull(this.testSubject.getUnmarshaller(false));
 	}
 
 	public void testGetDocment() throws Exception {
@@ -48,12 +48,13 @@ public class JAXBBaseUtilityClassTest extends SuperTestCase {
 		assertNotNull("Didnt find file: xml/deployable-unit-template11.xml!!!",
 				url);
 
-		Object o = this.testSubject.getUnmarshaller().unmarshal(
+		Object o = this.testSubject.getUnmarshaller(false).unmarshal(
 				this.builder.parse(new File(url.toURI())));
 
 		assertNotNull("Failed on unmarshaling", o);
 
 		assertTrue("Wrong unmarshall?", o instanceof DeployableUnit);
 	}
+
 
 }

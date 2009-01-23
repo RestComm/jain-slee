@@ -24,13 +24,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.Profi
 public class MIndexedAttribue {
 
 	//FIXME: unique is boolean, parse?
-	private String name, unique;
+	private String name;
+	private boolean unique=false;
 	private ProfileIndex indexValue=null;
 	public MIndexedAttribue(ProfileIndex indexValue) {
 		super();
 		this.indexValue = indexValue;
 		this.name=this.indexValue.getvalue();
-		this.unique=this.indexValue.getUnique();
+		this.unique=Boolean.parseBoolean(this.indexValue.getUnique());
 //		if(name==null|| name.compareTo("")==0)
 //		{
 //			throw new DeploymentException("Indexed Attribute name can not be null or empty");
@@ -39,7 +40,7 @@ public class MIndexedAttribue {
 	public String getName() {
 		return name;
 	}
-	public String getUnique() {
+	public boolean getUnique() {
 		return unique;
 	}
 	

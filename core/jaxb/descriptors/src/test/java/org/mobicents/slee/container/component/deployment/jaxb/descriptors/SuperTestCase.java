@@ -13,11 +13,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import javax.slee.management.DeploymentException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
+
 
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;

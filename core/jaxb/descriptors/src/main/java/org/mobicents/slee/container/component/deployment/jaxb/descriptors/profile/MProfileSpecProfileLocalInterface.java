@@ -25,7 +25,7 @@ public class MProfileSpecProfileLocalInterface {
 	// Again its 1.1 only
 	private ProfileLocalInterface profileLocalInterface = null;
 	// FIXME: Maybe this should be boolean?
-	private String isolateSecurityPermissions = null;
+	private boolean isolateSecurityPermissions = false;
 	private String description, profileLocalInterfaceName = null;
 
 	public MProfileSpecProfileLocalInterface(
@@ -45,11 +45,11 @@ public class MProfileSpecProfileLocalInterface {
 //			throw new DeploymentException("Profile local interface class name can not be null or empty");
 //		}
 		this.profileLocalInterfaceName=this.profileLocalInterface.getProfileLocalInterfaceName().getvalue();
-		this.isolateSecurityPermissions=this.profileLocalInterface.getIsolateSecurityPermissions();
+		this.isolateSecurityPermissions=Boolean.parseBoolean(this.profileLocalInterface.getIsolateSecurityPermissions());
 
 	}
 
-	public String getIsolateSecurityPermissions() {
+	public boolean getIsolateSecurityPermissions() {
 		return isolateSecurityPermissions;
 	}
 

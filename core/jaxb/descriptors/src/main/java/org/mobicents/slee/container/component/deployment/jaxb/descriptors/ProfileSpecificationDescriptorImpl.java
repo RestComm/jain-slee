@@ -85,7 +85,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 	private ArrayList<MEnvEntry> envEntries = null;
 	private ArrayList<MQueryElement> queryElements = null;
 	private MProfileSpecProfileLocalInterface profileLocalInterface = null;
-	private String profileHints = null;
+	private boolean profileHints = false;
 	private String readOnly = null;
 	private String eventsEnabled = null;
 	// those are profile-spec jar wide, so we include in each descriptor :)
@@ -220,7 +220,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 			}
 
 			if (specs.getProfileHints() != null) {
-				this.profileHints = specs.getProfileHints().getSingleProfile();
+				this.profileHints = Boolean.parseBoolean(specs.getProfileHints().getSingleProfile());
 			}
 
 			if (this.llProfileSpecJar.getSecurityPermissions() != null) {
@@ -305,7 +305,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 		if (isDoctypeSlee11(profileSpecs.getDoctype())) {
 			try {
 				org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecJar psj = (org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecJar) JAXBBaseUtilityClass
-						.getUnmarshaller().unmarshal(profileSpecs);
+						.getUnmarshaller(false).unmarshal(profileSpecs);
 				if (psj.getProfileSpec() == null
 						|| psj.getProfileSpec().size() == 0) {
 					// Akward
@@ -328,8 +328,9 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 
 		} else {
 			try {
+				
 				ProfileSpecJar psj = (ProfileSpecJar) JAXBBaseUtilityClass
-						.getUnmarshaller().unmarshal(profileSpecs);
+						.getUnmarshaller(true).unmarshal(profileSpecs);
 				if (psj.getProfileSpec() == null
 						|| psj.getProfileSpec().size() == 0) {
 					// Akward
@@ -344,7 +345,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 				}
 				return table;
 			} catch (Exception e) {
-
+				e.printStackTrace();
 				throw new DeploymentException(
 						"Failed to parse xml descriptor of a profile jar due to: ",
 						e);
@@ -416,7 +417,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 		return profileLocalInterface;
 	}
 
-	public String getProfileHints() {
+	public boolean getProfileHints() {
 		return profileHints;
 	}
 

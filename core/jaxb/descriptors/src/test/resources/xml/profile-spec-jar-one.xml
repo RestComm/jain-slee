@@ -39,7 +39,7 @@
 			<profile-cmp-interface>
 				<description />
 				<profile-cmp-interface-name>DVAL</profile-cmp-interface-name>
-				<cmp-field unique="False">
+				<cmp-field>
 					<description />
 					<cmp-field-name>DVAL</cmp-field-name>
 					<index-hint query-operator="equals" collator-ref="DVAL" />
@@ -54,7 +54,7 @@
 				<description />
 				<profile-management-interface-name>DVAL</profile-management-interface-name>
 			</profile-management-interface>
-			<profile-abstract-class reentrant="False">
+			<profile-abstract-class reentrant="True">
 				<description />
 				<profile-abstract-class-name>DVAL</profile-abstract-class-name>
 			</profile-abstract-class>
