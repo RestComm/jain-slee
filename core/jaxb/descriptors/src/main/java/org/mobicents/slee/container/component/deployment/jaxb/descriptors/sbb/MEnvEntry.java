@@ -50,16 +50,16 @@ public class MEnvEntry {
 			 {
 		super();
 		this.llEnvEntry = envEntry;
-		this.description = this.envEntry.getDescription() == null ? null
-				: this.envEntry.getDescription().getvalue();
+		this.description = this.llEnvEntry.getDescription() == null ? null
+				: this.llEnvEntry.getDescription().getvalue();
 
 		
-		this.envEntryName = this.envEntry.getEnvEntryName().getvalue();
+		this.envEntryName = this.llEnvEntry.getEnvEntryName().getvalue();
 		//Optional
-		if(this.envEntry.getEnvEntryValue()!=null)
-			this.envEntryValue = this.envEntry.getEnvEntryValue().getvalue();
+		if(this.llEnvEntry.getEnvEntryValue()!=null)
+			this.envEntryValue = this.llEnvEntry.getEnvEntryValue().getvalue();
 		
-		this.envEntryType = this.envEntry.getEnvEntryType().getvalue();
+		this.envEntryType = this.llEnvEntry.getEnvEntryType().getvalue();
 	}
 	
 	public String getDescription() {

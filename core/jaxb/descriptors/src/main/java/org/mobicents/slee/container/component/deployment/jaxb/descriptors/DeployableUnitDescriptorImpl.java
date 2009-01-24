@@ -1,14 +1,8 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 
-import javax.slee.ComponentID;
-import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 import javax.xml.bind.JAXBException;
 
@@ -25,18 +19,6 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 
 	private List<String> jarEntries = new ArrayList<String>();
 	private List<String> serviceEndtries = new ArrayList<String>();
-
-	private DeployableUnitID duID = null;
-	//FIXME: shouldn it be: java.net.URL ??
-	private String url;
-	private LinkedList components;
-	private LinkedList installedComponents;
-	private Date deploymentDate;
-	private transient File tmpDeploymentDirectory;
-	private transient File tmpDUJarsDirectory;
-
-	// tmp, list of jars that already been deployed?
-	private HashSet jars;
 
 
 	public DeployableUnitDescriptorImpl(Document document)
@@ -63,82 +45,9 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 		}
 	}
 
-	public ComponentID[] getComponents() {
-		ComponentID[] retval = new ComponentID[components.size()];
-		components.toArray(retval);
-		return retval;
-	}
-
-	public String getURL() {
-		return url;
-	}
-
-	public Date getDeploymentDate() {
-		return deploymentDate;
-	}
-
-	public DeployableUnitID getDeployableUnitID() {
-		return duID;
-	}
-
-	public void setDeployableUnitID(DeployableUnitID duID) {
-		this.duID = duID;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public File getTmpDeploymentDirectory() {
-		return tmpDeploymentDirectory;
-	}
-
-	public void setTmpDeploymentDirectory(File tmpDeploymentDirectory) {
-		this.tmpDeploymentDirectory = tmpDeploymentDirectory;
-	}
-
-	public File getTmpDUJarsDirectory() {
-		return tmpDUJarsDirectory;
-	}
-
-	public void setTmpDUJarsDirectory(File tmpDUJarsDirectory) {
-		this.tmpDUJarsDirectory = tmpDUJarsDirectory;
-	}
-
-	/** Add a component to this descriptor.
-	 * 
-	 * @param componentID
-	 */
-	public void addComponent(ComponentID componentID) {
-		this.components.add(componentID);
-	}
 	
-	
-	//TMP
-	/**
-	 * @return Returns the jars.
-	 */
-	public String[] getJars() {
-		if (jars == null)
-			return null;
-		String[] jarArray = new String[jars.size()];
-		jars.toArray(jarArray);
-		return jarArray;
-	}
 
-	/**
-	 * Add a jar to the descriptor
-	 * @param jars
-	 */
-	public void addJar(String jar) {
-		this.jars.add(jar);
-
-	}
-	
+		
 	
 	@Override
 	public void buildDescriptionMap() {
@@ -183,6 +92,22 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 	@Override
 	public Object getJAXBDescriptor() {
 		return this.isSlee11() ? this.duDescriptorll : this.duDescriptor;
+	}
+
+
+
+
+
+	public List<String> getJarEntries() {
+		return jarEntries;
+	}
+
+
+
+
+
+	public List<String> getServiceEndtries() {
+		return serviceEndtries;
 	}
 
 }

@@ -11,6 +11,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -76,9 +77,9 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 	// FIXME: add hints here?
 
 	// 1.1 Stuff
-	private ArrayList<ComponentKey> profileSpecRefs = null;
-	private ArrayList<ComponentKey> libraryRefs = null;
-	private ArrayList<MProfileSpecCollator> collators = null;
+	private List<ComponentKey> profileSpecRefs = null;
+	private List<ComponentKey> libraryRefs = null;
+	private List<MProfileSpecCollator> collators = null;
 
 	private MProfileSpecProfileTableInterface profileTableInterface = null;
 	private MProfileSpecProfileUsageParameterInterface profileUsageParameterInterface = null;
@@ -152,8 +153,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 					&& specs.getLibraryRef().size() > 0) {
 
 				for (LibraryRef ref : specs.getLibraryRef()) {
-					// FIXME: add library ID
-					// libraryRefs
+					libraryRefs.add(new ComponentKey(ref.getLibraryName().getvalue(),ref.getLibraryVendor().getvalue(),ref.getLibraryVersion().getvalue()));
 				}
 			}
 
@@ -162,7 +162,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 					&& specs.getProfileSpecRef().size() > 0) {
 				for (ProfileSpecRef ref : specs.getProfileSpecRef()) {
 					// FIXME: add profile ID
-					// profileSpecReferences
+					profileSpecRefs.add(new ComponentKey(ref.getProfileSpecName().getvalue(),ref.getProfileSpecVendor().getvalue(),ref.getProfileSpecVersion().getvalue()));
 				}
 			}
 
@@ -353,13 +353,10 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 		}
 	}
 
-	public ArrayList<ComponentKey> getLibraryRefs() {
+	public List<ComponentKey> getLibraryRefs() {
 		return libraryRefs;
 	}
 
-	public void setLibraryRefs(ArrayList<ComponentKey> libraryRefs) {
-		this.libraryRefs = libraryRefs;
-	}
 
 	public int getIndex() {
 		return index;
@@ -389,11 +386,11 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 		return indexedAttributes;
 	}
 
-	public ArrayList<ComponentKey> getProfileSpecRefs() {
+	public List<ComponentKey> getProfileSpecRefs() {
 		return profileSpecRefs;
 	}
 
-	public ArrayList<MProfileSpecCollator> getCollators() {
+	public List<MProfileSpecCollator> getCollators() {
 		return collators;
 	}
 

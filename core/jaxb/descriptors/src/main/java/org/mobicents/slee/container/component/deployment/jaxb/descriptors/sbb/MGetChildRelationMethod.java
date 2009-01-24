@@ -34,6 +34,7 @@ public class MGetChildRelationMethod {
 		this.sbbAliasRef=this.getChildRelationMethod.getSbbAliasRef().getvalue();
 		this.childRelationMethodName=this.getChildRelationMethod.getGetChildRelationMethodName().getvalue();
 		String v=this.getChildRelationMethod.getDefaultPriority().getvalue();
+		//This will fail when def priority is empty
 		this.defaultPriority=Byte.parseByte(v);
 	}
 	public MGetChildRelationMethod(

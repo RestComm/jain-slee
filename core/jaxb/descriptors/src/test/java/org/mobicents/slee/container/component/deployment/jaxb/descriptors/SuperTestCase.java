@@ -100,10 +100,10 @@ public class SuperTestCase extends TestCase {
 		assertNotNull(text+" "+fieldValueAndName[1]+" cant be null",key.getVendor());
 		assertNotNull(text+" "+fieldValueAndName[2]+" cant be null",key.getVersion());
 		
-		
-		assertTrue(text+" "+fieldValueAndName[0]+" is not equal to "+fieldValueAndName[0],key.getName().compareTo(fieldValueAndName[0])==0);
-		assertTrue(text+" "+fieldValueAndName[1]+" is not equal to "+fieldValueAndName[1],key.getVendor().compareTo(fieldValueAndName[1])==0);
-		assertTrue(text+" "+fieldValueAndName[2]+" is not equal to "+fieldValueAndName[2],key.getVersion().compareTo(fieldValueAndName[2])==0);
+	
+		assertTrue(text+" "+fieldValueAndName[0]+" is not equal to "+key.getName(),key.getName().compareTo(fieldValueAndName[0])==0);
+		assertTrue(text+" "+fieldValueAndName[1]+" is not equal to "+key.getVendor(),key.getVendor().compareTo(fieldValueAndName[1])==0);
+		assertTrue(text+" "+fieldValueAndName[2]+" is not equal to "+key.getVersion(),key.getVersion().compareTo(fieldValueAndName[2])==0);
 	}
 	
 	protected void validateValue(String value, String text, String presumableValue)

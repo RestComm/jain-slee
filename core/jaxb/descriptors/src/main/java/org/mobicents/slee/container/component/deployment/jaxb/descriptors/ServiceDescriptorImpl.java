@@ -41,7 +41,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 	private String description = null;
 	private ComponentKey rootSbb = null;
 	private ComponentKey serviceKey=null;
-	private byte defaultPriority = (byte) -255;
+	private byte defaultPriority = (byte) -10;
 	private String addressProfileTable = null;
 	// Depraceted in 1.1
 	private String resourceInfoProfileTable = null;
@@ -70,7 +70,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 
 	}
 
-	public ServiceDescriptorImpl[] parseDocument(Document serviceJar,
+	public static ServiceDescriptorImpl[] parseDocument(Document serviceJar,
 			DeployableUnitID duID) throws DeploymentException {
 		if (isDoctypeSlee11(serviceJar.getDoctype())) {
 			try {

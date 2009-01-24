@@ -17,6 +17,7 @@ import java.util.Set;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 
+import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SuperTestCase;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint;
@@ -110,7 +111,7 @@ public class ProfileDescriptorTest extends SuperTestCase {
 		assertNotNull("Profile specs key.version is null", specs.getProfileSpecKey().getVersion());
 		assertTrue("Profile specs key.version is not equal to "+_DEFAULT_VALUE, specs.getProfileSpecKey().getVersion().compareTo(_DEFAULT_VALUE+"3")==0);
 		
-		//FIXME: check  library and profile refs here once they are done
+	
 		
 		if(specs.isSlee11())
 		{
@@ -171,6 +172,24 @@ public class ProfileDescriptorTest extends SuperTestCase {
 			assertNotNull("Profile specs Local interface value is null", specs.getProfileLocalInterface().getProfileLocalInterfaceName());
 			assertTrue("Profile specs Local interface is not equal to "+_DEFAULT_VALUE, specs.getProfileLocalInterface().getProfileLocalInterfaceName().compareTo(_DEFAULT_VALUE)==0);
 			assertTrue("Profile specs Local interface  should not isolate security permissions", !specs.getProfileLocalInterface().getIsolateSecurityPermissions());
+		}
+		
+		if(specs.isSlee11())
+		{
+			List<ComponentKey> libraryRefs=specs.getLibraryRefs();
+			
+			
+			assertNotNull("Profile specs library refs list is null",libraryRefs);
+			assertTrue("Profile specs library refs size is not equal to 1",libraryRefs.size()==1);
+			validateKey(libraryRefs.get(0), "Profile specs library ref key", new String[]{_DEFAULT_VALUE,_DEFAULT_VALUE+"2",_DEFAULT_VALUE+"3"});
+			
+			
+			List<ComponentKey> profileSpecsRefs=specs.getProfileSpecRefs();
+			
+			
+			assertNotNull("Profile specs refs list is null",profileSpecsRefs);
+			assertTrue("Profile specs refs size is not equal to 1",profileSpecsRefs.size()==1);
+			validateKey(profileSpecsRefs.get(0), "Profile specs  ref key", new String[]{_DEFAULT_VALUE,_DEFAULT_VALUE+"2",_DEFAULT_VALUE+"3"});
 		}
 		
 		assertNotNull("Profile specs management interface is null", specs.getProfileManagementInterface());

@@ -48,6 +48,11 @@ public class SbbDescriptorTest extends SuperTestCase {
 	private static final String _SBB_VERSION="sbb-version";
 	private static final String _SBB_ALIAS="sbb-alias";
 	
+	private static final String _LIBRARY_REF_NAME="library-name";
+	private static final String _LIBRARY_REF_VENDOR="library-vendor";
+	private static final String _LIBRARY_REF_VERSION="library-version";
+	
+	
 	private static final String _PROFILE_SPEC_NAME="profile-spec-name";
 	private static final String _PROFILE_SPEC_VENDOR="profile-spec-vendor";
 	private static final String _PROFILE_SPEC_VERSION="profile-spec-version";
@@ -122,6 +127,41 @@ public class SbbDescriptorTest extends SuperTestCase {
 		doTestOnValues(specs[1]);
 	}
 
+	
+	
+	public void testParseOne() throws DeploymentException, SAXException, IOException, URISyntaxException
+	{
+		
+		SbbDescriptorImpl[] specs=SbbDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE), null);
+		assertNotNull("Sbb return value is null", specs);
+		assertTrue("Sbb  size is wrong!!!", specs.length==1);
+		assertNotNull("Sbb return value cell is null", specs[0]);
+		assertTrue("Sbb should indicate v1.1 not v1.0",specs[0].isSlee11());
+		//Test values
+		doTestOnValues(specs[0]);
+		
+	}
+
+	
+	public void testParseTwo() throws DeploymentException, SAXException, IOException, URISyntaxException
+	{
+		
+		SbbDescriptorImpl[] specs=SbbDescriptorImpl.parseDocument(super.parseDocument(_TWO_DESCRIPTOR_FILE), null);
+		assertNotNull("Sbb return value is null", specs);
+		assertTrue("Sbb  size is wrong!!!", specs.length==2);
+		assertNotNull("Sbb return value cell is null", specs[0]);
+		assertTrue("Sbb should indicate v1.1 not v1.0",specs[0].isSlee11());
+		//Test values
+		doTestOnValues(specs[0]);
+		
+		
+		assertNotNull("Sbb return value cell is null", specs[1]);
+		assertTrue("Sbb should indicate v1.1 not v1.0",specs[1].isSlee11());
+		//Test values
+		doTestOnValues(specs[1]);
+	}
+	
+	
 	protected void doTestOnValues(SbbDescriptorImpl sbb) {
 		
 		
@@ -144,6 +184,9 @@ public class SbbDescriptorTest extends SuperTestCase {
 		
 		
 		validateKey(ref.getReferenceKey(),"Profile specs reference",new String[]{_PROFILE_SPEC_NAME,_PROFILE_SPEC_VENDOR,_PROFILE_SPEC_VERSION});
+		assertNotNull("Profile specs reference alias is null ",ref.getProfileSpecAlias());
+		assertTrue("Profile specs reference alias is not equal to "+_PROFILE_SPEC_ALIAS,ref.getProfileSpecAlias().compareTo(_PROFILE_SPEC_ALIAS)==0);
+		
 		
 		List<MEventEntry> events= sbb.getEvents();
 		
@@ -253,7 +296,8 @@ public class SbbDescriptorTest extends SuperTestCase {
 		validateValue(ejbRef.getEjbRefType()," Ejb ref type ",_EJB_REF_TYPE);
 		validateValue(ejbRef.getHome()," Ejb ref home ",_EJB_REF_HOME);
 		validateValue(ejbRef.getRemote()," Ejb ref remote ",_EJB_REF_REMOTE);
-		validateValue(ejbRef.getEjbLink()," Ejb ref link ",_EJB_REF_LINK);
+		if(!sbb.isSlee11())
+			validateValue(ejbRef.getEjbLink()," Ejb ref link ",_EJB_REF_LINK);
 		
 		MSbbAbstractClass mSbbAbstractClass=sbb.getSbbAbstractClass();
 		
@@ -305,6 +349,21 @@ public class SbbDescriptorTest extends SuperTestCase {
 		validateValue(profileCMPMethod.getProfileSpecAliasRef(), "profile cmp method profile specs alias ref ", _PROFILE_SPEC_ALIAST_REF);
 		validateValue(profileCMPMethod.getProfileCmpMethodName(), "profile cmp method name ", _GET_PROFILE_CMP_METHOD_NAME);
 		
+		
+		//if slee 1.1
+		if(sbb.isSlee11())
+		{
+			
+			List<ComponentKey> libraryRefs=sbb.getLibraryRefs();
+			
+			
+			assertNotNull("Sbb library refs list is null",libraryRefs);
+			assertTrue("Sbb library refs size is not equal to 1",libraryRefs.size()==1);
+			validateKey(libraryRefs.get(0), "Sbb library ref key", new String[]{_LIBRARY_REF_NAME,_LIBRARY_REF_VENDOR,_LIBRARY_REF_VERSION});
+			
+			
+			
+		}
 		
 	}
 	
