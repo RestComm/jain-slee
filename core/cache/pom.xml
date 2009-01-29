@@ -23,7 +23,8 @@
 		<dependency>
 			<groupId>org.jboss.cache</groupId>
 			<artifactId>jbosscache-core</artifactId>
-			<version>3.0.3-SNAPSHOT</version>
+			<!--<version>3.0.3-SNAPSHOT</version>-->
+			<version>3.0.2.GA</version>
 		</dependency>
 	</dependencies>
 
