@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deploy-config>
-  <ra-entity resource-adaptor-id="DummyResourceAdaptor#${groupId}#${version}" entity-name="DummyRA">
-    <properties file="dummy.properties" />
-    <ra-link name="DummyRA" />
-  </ra-entity>
-</deploy-config>
