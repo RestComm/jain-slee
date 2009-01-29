@@ -33,71 +33,116 @@
 
 package org.mobicents.slee.runtime.transaction;
 
-import java.util.List;
-
 import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-
-import org.mobicents.slee.runtime.cache.OldCacheManager;
 
 /** 
  * 
  * Transaction manager contract within SLEE. 
- * Provides convenience methods for tx handling 
- * as well as access to tx cache.
+ * Provides convenience methods for tx and its context handling.
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov
+ * @author martins
  * 
  */
-public interface SleeTransactionManager extends OldCacheManager, javax.slee.transaction.SleeTransactionManager {
+public interface SleeTransactionManager extends javax.slee.transaction.SleeTransactionManager {
 	
     public static final String JNDI_NAME = "SleeTransactionManager";
     
-	/** Check if we are in the context of a transaction.
+	/** Verifies if we are in the context of a transaction.
 	 * 
 	 *@throws  TransactionRequiredLocalException if we are not in the context of a transaction.
 	 *
 	 */
 	public void mandateTransaction() throws TransactionRequiredLocalException;
 	
+	/**
+	 * Ensures a transaction exists, i.e., if there is no transaction one is created
+	 * @return true if a transaction was created
+	 */
 	public boolean requireTransaction();
 	
+	/**
+	 * 
+	 * @return true is a transaction exists
+	 * @throws SystemException
+	 */
 	public boolean isInTx() throws SystemException;
 	
+	/**
+	 * starts a new transaction
+	 */
 	public void begin() throws SystemException;
 	
+	/**
+	 * commits the current transaction
+	 */
 	public void commit() throws SystemException;
 	
+	/**
+	 * rollbacks the current transaction
+	 */
 	public void rollback() throws SystemException;
 	
-	public void addAfterCommitAction(TransactionalAction action);
+	/**
+	 * retrieves the context object associated with the current transaction
+	 * @return
+	 * @throws SystemException
+	 */
+	public TransactionContext getTransactionContext() throws SystemException;
 	
-	public void addAfterRollbackAction(TransactionalAction action);
+	/**
+	 * adds a new {@link TransactionalAction} that will be executed as soon as the transaction commits
+	 * @param action
+	 * @throws SystemException
+	 */
+	public void addAfterCommitPriorityAction(TransactionalAction action) throws SystemException; 
 	
+	/**
+	 * adds a new {@link TransactionalAction} that will be executed after the priority actions are executed, which is when the transaction commits
+	 * @param action
+	 * @throws SystemException
+	 */
+	public void addAfterCommitAction(TransactionalAction action) throws SystemException; 
 	
-	public void addPrepareCommitAction(TransactionalAction action );
+	/**
+	 * Convinience method to add a {@link TransactionalAction} to the
+	 * {@link TransactionContext} and execute it if rollback occurrs. This
+	 * method will ignore the action if there is no valid transaction, instead of failing.
+	 * 
+	 * @param action
+	 */
+	public void addAfterRollbackAction(TransactionalAction action); 
 	
+	/**
+	 * adds a new {@link TransactionalAction} that will be executed before the transaction is committed
+	 * @param action
+	 * @throws SystemException
+	 */
+	public void addBeforeCommitAction(TransactionalAction action) throws SystemException; 
+	
+	/**
+	 * Marks the current transaction for rollback 
+	 */
 	public void setRollbackOnly() throws SystemException;
     
+	/**
+	 * 
+	 * @return true if the current transaction is marked for rollback
+	 * @throws SystemException
+	 */
     public boolean getRollbackOnly() throws SystemException;
     
-    public List getPrepareActions() throws SystemException;
-    
+    /**
+     * Retrieves the current transaction
+     */
     public Transaction getTransaction() throws SystemException;
 	
-	//for debugging only
-    public void assertIsInTx();
-    
-    public void assertIsNotInTx();
-
-    /**
+   /**
      * @return String - a list of ongoing SLEE transactions
      */
     public String displayOngoingSleeTransactions();
-
-    
     
 }
