@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements DeployedComponent{
+public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
 
 	private ServiceXml serviceXML = null;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.service.ServiceXml llServiceXML = null;
@@ -45,7 +45,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 	private String addressProfileTable = null;
 	// Depraceted in 1.1
 	private String resourceInfoProfileTable = null;
-	private DeployableUnitID deployableUnitId;
+
 
 	
 	
@@ -167,19 +167,6 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 		}
 	}
 
-	public DeployableUnitID getDeployableUnit() {
-		return this.deployableUnitId;
-	}
-
-	public void setDeployableUnit(DeployableUnitID deployableUnitID) {
-		this.deployableUnitId=deployableUnitID;
-
-	}
-
-	public void checkDeployment() throws DeploymentException {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public int getIndex() {
 		return index;
@@ -209,8 +196,6 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass  implements Depl
 		return resourceInfoProfileTable;
 	}
 
-	public DeployableUnitID getDeployableUnitId() {
-		return deployableUnitId;
-	}
+
 	
 }

@@ -53,8 +53,8 @@ import org.w3c.dom.Document;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
-		DeployedComponent {
+public class SbbDescriptorImpl extends JAXBBaseUtilityClass 
+		 {
 
 	private SbbJar sbbJar = null;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbJar llSbbJar = null;
@@ -95,9 +95,6 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 	private SecurityPermision securityPermisions = null;
 
 	
-	// OTHER
-	
-	private DeployableUnitID deployableUnitId=null;
 	/**
 	 * tttttt
 	 * 
@@ -430,19 +427,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		}
 	}
 
-	public void checkDeployment() throws DeploymentException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public DeployableUnitID getDeployableUnit() {
-		return this.deployableUnitId;
-	}
-
-	public void setDeployableUnit(DeployableUnitID deployableUnitID) {
-		this.deployableUnitId=deployableUnitID;
-
-	}
+	
 
 	public int getIndex() {
 		return index;
@@ -517,9 +502,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass implements
 		return securityPermisions;
 	}
 
-	public DeployableUnitID getDeployableUnitId() {
-		return deployableUnitId;
-	}
+
 
 	
 	

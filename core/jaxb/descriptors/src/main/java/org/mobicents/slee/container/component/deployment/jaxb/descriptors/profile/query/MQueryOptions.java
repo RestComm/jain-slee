@@ -6,7 +6,7 @@
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
+package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryOptions;
 
@@ -23,16 +23,17 @@ public class MQueryOptions {
 	
 	private QueryOptions qo=null;
 
-	private String maxMatches=null;
+	//private String maxMatches=null;
+	private long maxMatches=Long.MAX_VALUE;
 	private boolean readOnly=false;
 	public MQueryOptions(QueryOptions qo) {
 		super();
 		this.qo = qo;
 		
-		this.maxMatches=qo.getMaxMatches();
+		this.maxMatches=qo.getMaxMatches()==null?Long.MAX_VALUE:Long.parseLong(qo.getMaxMatches());
 		this.readOnly=Boolean.parseBoolean(qo.getReadOnly());
 	}
-	public String getMaxMatches() {
+	public long getMaxMatches() {
 		return maxMatches;
 	}
 	public boolean isReadOnly() {

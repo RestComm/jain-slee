@@ -35,7 +35,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileManagementInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileTableInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileUsageParameterInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MQueryElement;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileIndex;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileSpec;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileSpecJar;
@@ -55,13 +55,12 @@ import org.w3c.dom.Document;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
-		implements DeployedComponent {
+public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecJar llProfileSpecJar = null;
 	private ProfileSpecJar profileSpecJar = null;
 	private int index = -1;
-	private DeployableUnitID deployableUnitID;
+
 
 	// 1.0 stuff + some 1.1
 	private String description = null;
@@ -83,8 +82,8 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 
 	private MProfileSpecProfileTableInterface profileTableInterface = null;
 	private MProfileSpecProfileUsageParameterInterface profileUsageParameterInterface = null;
-	private ArrayList<MEnvEntry> envEntries = null;
-	private ArrayList<MQueryElement> queryElements = null;
+	private List<MEnvEntry> envEntries = null;
+	private List<MQuery> queryElements = null;
 	private MProfileSpecProfileLocalInterface profileLocalInterface = null;
 	private boolean profileHints = false;
 	private String readOnly = null;
@@ -94,9 +93,6 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 	// private SecurityPermision securityPermisions=null;
 	private SecurityPermision securityPremissions = null;
 
-	// Other:
-	private String source = null;
-	private ComponentID componentID = null;
 
 	/**
 	 * @param doc
@@ -212,10 +208,10 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 			}
 
 			// Optional
-			this.queryElements = new ArrayList<MQueryElement>();
+			this.queryElements = new ArrayList<MQuery>();
 			if (specs.getQuery() != null && specs.getQuery().size() > 0) {
 				for (Query q : specs.getQuery()) {
-					this.queryElements.add(new MQueryElement(q));
+					this.queryElements.add(new MQuery(q));
 				}
 			}
 
@@ -320,7 +316,8 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 				}
 				return table;
 			} catch (Exception e) {
-
+				
+				e.printStackTrace();
 				throw new DeploymentException(
 						"Failed to parse xml descriptor of a profile jar due to: ",
 						e);
@@ -402,11 +399,11 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 		return profileUsageParameterInterface;
 	}
 
-	public ArrayList<MEnvEntry> getEnvEntries() {
+	public List<MEnvEntry> getEnvEntries() {
 		return envEntries;
 	}
 
-	public ArrayList<MQueryElement> getQueryElements() {
+	public List<MQuery> getQueryElements() {
 		return queryElements;
 	}
 
@@ -430,35 +427,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass
 		return securityPremissions;
 	}
 
-	public String getSource() {
-		return source;
-	}
 
-	public ComponentID getComponentID() {
-		return componentID;
-	}
-
-	public void checkDeployment() throws DeploymentException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public DeployableUnitID getDeployableUnit() {
-		
-		return this.deployableUnitID;
-	}
-
-	public void setDeployableUnit(DeployableUnitID deployableUnitID) {
-		this.deployableUnitID=deployableUnitID;
-		
-	}
-
-	
-	
-	
-	
-	
-	
 	
 	
 	
