@@ -398,7 +398,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 				nullAci = retrieveNullActivityContext();
 			}
 				new DeferredEvent(eventLookup.getEventID(
-						TckX1Key.getName(),TckX1Key.getVendor(),TckX1Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContextHandle(), null);
+						TckX1Key.getName(),TckX1Key.getVendor(),TckX1Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContext(), null);
 			log.info("==== FIRED ====");
 			
 			rb = false;
@@ -454,7 +454,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 			}
 			
 			new DeferredEvent(eventLookup.getEventID(
-					TckX2Key.getName(),TckX2Key.getVendor(),TckX2Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContextHandle(), null);
+					TckX2Key.getName(),TckX2Key.getVendor(),TckX2Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContext(), null);
 		
 			rb = false;
 		} catch (Exception e) {
@@ -508,7 +508,7 @@ public class DummyResourceAdaptor implements ResourceAdaptor, Serializable {
 			}
 			
 			new DeferredEvent(eventLookup.getEventID(
-					TckX3Key.getName(),TckX3Key.getVendor(),TckX3Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContextHandle(), null);
+					TckX3Key.getName(),TckX3Key.getVendor(),TckX3Key.getVersion()), event1, ((org.mobicents.slee.runtime.activity.ActivityContextInterface)nullAci).getActivityContext(), null);
 			
 					rb = false;
 		} catch (Exception e) {

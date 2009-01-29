@@ -255,7 +255,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			e.printStackTrace();
 		}
 		logger.info("[TEST] Adding ["
-				+ ((ActivityContextInterfaceImpl)naci).getActivityContextHandle() + "]");
+				+ ((ActivityContextInterfaceImpl)naci).getActivityContext().getActivityContextId() + "]");
 
 		naci = retrieveNullActivityContext();
 		naci.attach(getSbbContext().getSbbLocalObject());
@@ -277,7 +277,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			e.printStackTrace();
 		}
 		logger.info("[TEST] Adding NACI TO END BY MBEAN["
-				+ ((ActivityContextInterfaceImpl)naci).getActivityContextHandle() + "]");
+				+ ((ActivityContextInterfaceImpl)naci).getActivityContext().getActivityContextId() + "]");
 
 		naci = retrieveNullActivityContext();
 		naci.attach(getSbbContext().getSbbLocalObject());
@@ -288,7 +288,7 @@ public abstract class ActivityManagementMBeanTestSbb extends BaseTCKSbb {
 			e.printStackTrace();
 		}
 		logger.info("[TEST] Adding ["
-				+ ((ActivityContextInterfaceImpl)naci).getActivityContextHandle() + "]");
+				+ ((ActivityContextInterfaceImpl)naci).getActivityContext().getActivityContextId() + "]");
 		
 		setTestStage(this._ADD_AC);
 

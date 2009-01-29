@@ -34,7 +34,6 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.tck.TCKActivityHandle;
 import org.mobicents.slee.resource.tck.TCKMarshaller;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 import org.mobicents.slee.util.JndiRegistrationManager;
 
 import com.opencloud.logging.LogLevel;
@@ -131,7 +130,7 @@ TCKResourceAdaptorSbbInterface, Serializable {
     	
     	try {
             TCKResourceTestInterface testInterface = tckResourceSetup.getTestInterface();
-            transactionIDAccess = new TransactionIDAccessImpl((TransactionManagerImpl)slee.getTransactionManager());
+            transactionIDAccess = new TransactionIDAccessImpl(slee.getTransactionManager());
             int port = slee.getRmiRegistryPort();
             Registry rmiRegistry = LocateRegistry.getRegistry(port);
             Class tcktest = Thread.currentThread().getContextClassLoader().loadClass("com.opencloud.sleetck.lib.resource.impl.TCKResourceTestInterfaceImpl");

@@ -22,7 +22,9 @@
 
 package org.mobicents.slee.resource;
 
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
+import javax.transaction.SystemException;
+
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 import com.opencloud.sleetck.lib.TCKTestErrorException;
 import com.opencloud.sleetck.lib.resource.sbbapi.TransactionIDAccess;
@@ -34,9 +36,9 @@ public class TransactionIDAccessImpl implements TransactionIDAccess {
 
     
     
-    private TransactionManagerImpl transactionManager;
+    private SleeTransactionManager transactionManager;
     
-    public TransactionIDAccessImpl(TransactionManagerImpl transactionManager ) {
+    public TransactionIDAccessImpl(SleeTransactionManager transactionManager ) {
         this.transactionManager = transactionManager;
     }
     /* (non-Javadoc)
@@ -46,9 +48,11 @@ public class TransactionIDAccessImpl implements TransactionIDAccess {
         
         // Note that we cannot return the UserTransaction because it is not serializable.
         
-        //return new Integer( transactionManager.getCurrentTransaction().hashCode());
-        
-        return new Integer(transactionManager.getTransaction().hashCode());
+        try {
+			return new Integer(transactionManager.getTransaction().hashCode());
+		} catch (SystemException e) {
+			throw new TCKTestErrorException(e.getMessage(),e);
+		}
     }
 
 }

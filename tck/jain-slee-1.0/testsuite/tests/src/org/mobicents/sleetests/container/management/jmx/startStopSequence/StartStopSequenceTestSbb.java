@@ -27,7 +27,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.resource.EventLookup;
-import org.mobicents.slee.runtime.serviceactivity.ServiceStartedEventImpl;
+import org.mobicents.slee.container.service.ServiceStartedEventImpl;
 
 import com.opencloud.sleetck.lib.resource.events.TCKResourceEventX;
 import com.opencloud.sleetck.lib.resource.events.TCKResourceEventY;
@@ -221,26 +221,26 @@ public abstract class StartStopSequenceTestSbb extends BaseTCKSbb {
 	public void onTCKResourceEventX1(TCKResourceEventX event,
 			ActivityContextInterface aci) {
 		
-
+		aci.detach(sbbContext.getSbbLocalObject());
 	}
 
 	public void onTCKResourceEventX2(TCKResourceEventX event,
 			ActivityContextInterface aci) {
 
-		
+		aci.detach(sbbContext.getSbbLocalObject());
 
 	}
 
 	public void onTCKResourceEventX3(TCKResourceEventX event,
 			ActivityContextInterface aci) {
 
-		
+		aci.detach(sbbContext.getSbbLocalObject());
 	}
 
 	public void onTCKResourceEventY1(TCKResourceEventY event,
 			ActivityContextInterface aci) {
 
-		
+		aci.detach(sbbContext.getSbbLocalObject());
 	}
 
 	public void onTCKResourceEventY2(TCKResourceEventY event,
@@ -250,17 +250,17 @@ public abstract class StartStopSequenceTestSbb extends BaseTCKSbb {
 
 	public void onTCKResourceEventY3(TCKResourceEventY event,
 			ActivityContextInterface aci) {
-
+		aci.detach(sbbContext.getSbbLocalObject());
 	}
 
 	public void onTimeEvent(javax.slee.facilities.TimerEvent event,
 			ActivityContextInterface aci) {
-
+		aci.detach(sbbContext.getSbbLocalObject());
 	}
 
 	public void onActivityEndEvent(ActivityEndEvent event,
 			ActivityContextInterface aci) {
-
+		aci.detach(sbbContext.getSbbLocalObject());
 		
 
 	}
