@@ -9,9 +9,6 @@
 
 package org.mobicents.slee.runtime.facilities.nullactivity;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import javax.slee.FactoryException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.SleeState;
@@ -27,9 +24,9 @@ import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.cache.CacheableSet;
+import org.mobicents.slee.runtime.activity.ActivityType;
+import org.mobicents.slee.runtime.cache.NullActivityFactoryCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 /**
  * Implementation of the null activity factory.
@@ -45,16 +42,13 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 
 	private static Logger logger = Logger.getLogger(NullActivityFactoryImpl.class);
 
-	private static String setNodeName = "nullactivities";
-
-	private static String NULL_ACTIVITY_CACHE = TransactionManagerImpl.RUNTIME_CACHE;
-
-	private Set nullActivitiesActivityContextIds; // This is used to recreate the factory.
+	private final NullActivityFactoryCacheData cacheData;
 	
 	public NullActivityFactoryImpl(SleeContainer serviceContainer)
 			throws Exception {
 		this.sleeContainer = serviceContainer;
-		nullActivitiesActivityContextIds = new CacheableSet(NULL_ACTIVITY_CACHE + "-" + setNodeName);
+		cacheData = sleeContainer.getCache().getNullActivityFactoryCacheData();
+		cacheData.create();
 	}
 
 	/*
@@ -111,25 +105,26 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 					.debug("NullActivityFactory.createNullActivity() Creating null activity "
 							+ nullActivity);
 		}
-		nullActivitiesActivityContextIds.add(nullActivityHandle.getId());
+		
+		// put in cache
+		cacheData.addNullActivityId(nullActivityHandle.getId());
+		
 		return nullActivity;
 
 	}
 
-	public void endNullActivity(NullActivityHandle nullActivityHandle) throws SystemException {
-		if (nullActivitiesActivityContextIds.contains(nullActivityHandle.getId())) {
-			final ActivityContextHandle ach = ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityHandle);
-			final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
-			if (ac.getState() == ActivityContextState.ACTIVE) {
-				ac.setState(ActivityContextState.ENDING);
-				new DeferredActivityEndEvent(ach,null);	
-			}						
-		}
+	protected void endNullActivity(ActivityContextHandle ach) throws SystemException {		
+		final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
+		if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
+			ac.setState(ActivityContextState.ENDING);
+			new DeferredActivityEndEvent(ac,null);	
+		}	
 	}
 
 	public void activityEnded(NullActivityHandle nullActivityHandle) {
 		try {
-			nullActivitiesActivityContextIds.remove(nullActivityHandle.getId());
+			// put in cache
+			cacheData.removeNullActivityId(nullActivityHandle.getId());
 		}
 		catch (Exception e) {
 			logger.error("failed to remove null activity", e);
@@ -142,8 +137,8 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 			logger.debug("NullActivityFactory.restart()");
 		// Restore the cached image
 		ActivityContextFactoryImpl acf = sleeContainer.getActivityContextFactory();
-		for (Iterator it = nullActivitiesActivityContextIds.iterator(); it.hasNext();) {
-			String id = (String) it.next();
+		for (String id : cacheData.getNullActivityIds()) {
+			
 			if (logger.isDebugEnabled())
 				logger
 					.debug("NullActivityFactory.restart(): restoring null activity "
@@ -158,7 +153,7 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 	@Override
 	public String toString() {
 		return 	"Null Activity Factory: " +
-				"\n+-- Null Activities: " + nullActivitiesActivityContextIds.size();
+				"\n+-- Null Activities: " + cacheData.getNullActivityIds().size();
 	}
 
 }

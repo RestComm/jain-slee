@@ -25,6 +25,7 @@ public class ActivityEndEventImpl implements ActivityEndEvent {
 			"javax.slee", "1.0");
 	
 	private static EventTypeID activityEndEventTypeID = null;
+	
 	/**
 	 * 
 	 * @return the event type id for the activity end event

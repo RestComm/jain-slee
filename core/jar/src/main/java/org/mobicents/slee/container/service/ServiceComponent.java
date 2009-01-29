@@ -211,7 +211,9 @@ public class ServiceComponent implements DeployedComponent, Serializable {
 	 */
 	public void installUsageParameter(SbbID sbbId, String name)
 			throws Exception {
-		boolean b = SleeContainer.getTransactionManager().requireTransaction();
+		
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		boolean b = sleeContainer.getTransactionManager().requireTransaction();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("installUsageParameter: sbbId = " + sbbId + " name = "
@@ -295,7 +297,7 @@ public class ServiceComponent implements DeployedComponent, Serializable {
 			String s = "Unexpected exception !";
 			logger.error(s, e);
 			try {
-				SleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().setRollbackOnly();
 			} catch (SystemException ex) {
 				s = "Tx manager Failure!";
 			}
@@ -303,7 +305,7 @@ public class ServiceComponent implements DeployedComponent, Serializable {
 		} finally {
 			try {
 				if (b)
-					SleeContainer.getTransactionManager().commit();
+					sleeContainer.getTransactionManager().commit();
 			} catch (Exception ex) {
 				throw new RuntimeException("Unexpected error in tx manager", ex);
 			}

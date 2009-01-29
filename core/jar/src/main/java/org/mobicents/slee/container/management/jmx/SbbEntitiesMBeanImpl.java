@@ -137,7 +137,8 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 	private Object[] sbbEntityToArray(SbbEntity entity) {
 		Object[] info = new Object[10];
 		try {
-			SleeContainer.getTransactionManager().begin();
+			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			sleeContainer.getTransactionManager().begin();
 			if (entity == null)
 				return null;
 			info[0] = entity.getSbbEntityId();
@@ -158,7 +159,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 				String[] acs = new String[acsArray.length];
 				info[9] = acs;
 			}
-			SleeContainer.getTransactionManager().commit();
+			sleeContainer.getTransactionManager().commit();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -182,9 +183,10 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 
 	public void removeSbbEntity(String sbbeId) {
 		try {
-			SleeContainer.getTransactionManager().begin();
+			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			sleeContainer.getTransactionManager().begin();
 			SbbEntityFactory.removeSbbEntity(getSbbEntityById(sbbeId), true);
-			SleeContainer.getTransactionManager().commit();
+			sleeContainer.getTransactionManager().commit();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

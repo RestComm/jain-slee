@@ -55,7 +55,10 @@ public class SbbLocalObjectInterceptor {
 
         final ClassLoader oldClassLoader = SleeContainerUtils
                 .getCurrentThreadClassLoader();
-        if (SleeContainer.isSecurityEnabled())
+        
+        SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+        
+        if (sleeContainer.isSecurityEnabled())
             AccessController.doPrivileged(new PrivilegedAction() {
                 public Object run() {
                     Thread.currentThread().setContextClassLoader(myClassLoader);
@@ -74,7 +77,7 @@ public class SbbLocalObjectInterceptor {
             if (logger.isDebugEnabled())
             	logger.debug("Invocation resulted in exception: " + ex.getMessage());
             if(ex.getCause() instanceof RuntimeException){
-            	SleeContainer.getTransactionManager().setRollbackOnly();
+            	sleeContainer.getTransactionManager().setRollbackOnly();
                 this.setRollbackOnly = true;
                 throw new TransactionRolledbackLocalException(
                         "Invocation resulted in exception ! ", ex.getCause());

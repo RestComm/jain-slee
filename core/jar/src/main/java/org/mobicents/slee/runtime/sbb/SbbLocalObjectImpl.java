@@ -18,7 +18,6 @@ package org.mobicents.slee.runtime.sbb;
 import javax.slee.NoSuchObjectLocalException;
 import javax.slee.RolledBackContext;
 import javax.slee.SLEEException;
-import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
@@ -27,7 +26,6 @@ import javax.transaction.TransactionRequiredException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -176,12 +174,12 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
 
     public byte getSbbPriority() throws TransactionRequiredLocalException,
             NoSuchObjectLocalException, SLEEException {
-        SleeContainer.getTransactionManager().mandateTransaction();
+        sleeContainer.getTransactionManager().mandateTransaction();
 
         if (this.rollbackOnly) {
 
             try {
-                SleeContainer.getTransactionManager().setRollbackOnly();
+            	sleeContainer.getTransactionManager().setRollbackOnly();
             } catch (SystemException ex) {
                 throw new SLEEException("unable to set rollbackOnly in transaction manager", ex);
             }
@@ -193,19 +191,19 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         if (this.isRemoved)
             throw new NoSuchObjectLocalException("sbb local object is removed");
 
-        SleeContainer.getTransactionManager().mandateTransaction();
+        sleeContainer.getTransactionManager().mandateTransaction();
         return this.getSbbEntity().getPriority();
 
     }
 
     public boolean isIdentical(SbbLocalObject obj)
             throws TransactionRequiredLocalException, SLEEException {    	
-        SleeContainer.getTransactionManager().mandateTransaction();
+    	sleeContainer.getTransactionManager().mandateTransaction();
         
         // emmartins: adding checks for object state
         if (this.rollbackOnly) {
             try {
-                SleeContainer.getTransactionManager().setRollbackOnly();
+            	sleeContainer.getTransactionManager().setRollbackOnly();
             } catch (SystemException ex) {
                 throw new SLEEException("unable to set rollbackOnly in transaction manager", ex);
             }
@@ -228,11 +226,12 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
                 + " isRollback = " + this.rollbackOnly
                 + " isRemoved = " + this.isRemoved);
         
-        SleeContainer.getTransactionManager().mandateTransaction();
+        
+        sleeContainer.getTransactionManager().mandateTransaction();
         
         if (this.rollbackOnly) {
             try {
-                SleeContainer.getTransactionManager().setRollbackOnly();
+                sleeContainer.getTransactionManager().setRollbackOnly();
             } catch (SystemException ex) {
                 throw new SLEEException("unable to set rollbackOnly in transaction manager", ex);
             }
@@ -262,16 +261,16 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         }
         
         try {
-            if (SleeContainer.getTransactionManager().getRollbackOnly()) {
+            if (sleeContainer.getTransactionManager().getRollbackOnly()) {
             	RolledBackContext sbbRolledBackContext = new RolledBackContextImpl(
 						sbbEntity.getCurrentEvent().getEvent(),
 						new ActivityContextInterfaceImpl(sleeContainer
 								.getActivityContextFactory()
 								.getActivityContext(
 										sbbEntity.getCurrentEvent()
-												.getActivityContextHandle(),
+												.getActivityContextId(),
 										true)), true);
-				SleeContainer.getTransactionManager()
+				sleeContainer.getTransactionManager()
 						.addAfterRollbackAction(
 								new RolledBackAction(sbbEntityId,
 										sbbRolledBackContext));
@@ -292,22 +291,15 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
     public void setSbbPriority(byte priority)
             throws TransactionRequiredLocalException,
             NoSuchObjectLocalException, SLEEException {
-        SleeContainer.getTransactionManager().mandateTransaction();
+    	sleeContainer.getTransactionManager().mandateTransaction();
 
         if (this.rollbackOnly) {
             try {
-                SleeContainer.getTransactionManager().setRollbackOnly();
+            	sleeContainer.getTransactionManager().setRollbackOnly();
             } catch (SystemException ex) {
                 throw new SLEEException("unable to set rollbackOnly in transaction manager", ex);
             }
 
-            try {
-                SbbContext ctx = (SbbContext) SleeContainer
-                        .getTransactionManager().getTxLocalData("sbb_context");
-                ctx.setRollbackOnly();
-            } catch (Exception ex) {
-                throw new SLEEException("Failed to get sbb context", ex);
-            }
             throw new TransactionRolledbackLocalException(
                     "Could not set sbb priority");
 
@@ -352,18 +344,18 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         public void execute() {
             SbbEntity sbbe = null;
             try {
-                SleeContainer.getTransactionManager().begin();
+            	sleeContainer.getTransactionManager().begin();
                 sbbe = SbbEntityFactory.getSbbEntity(sbbeId);
                 sbbe.sbbRolledBack(rollbackContext);
                 sbbe.getSbbObject().sbbStore();
-                SleeContainer.getTransactionManager().commit();
+                sleeContainer.getTransactionManager().commit();
             } catch (RuntimeException e) {
             	if (sbbe != null) {
             		sbbe.trashObject();
             		logger.error("Exception while executing RolledBackAction",e);
             		try {
-            			if (SleeContainer.getTransactionManager().isInTx())
-            				SleeContainer.getTransactionManager().rollback();
+            			if (sleeContainer.getTransactionManager().isInTx())
+            				sleeContainer.getTransactionManager().rollback();
             		} catch (SystemException e1) {
                     logger.error(e1);
                 }
@@ -373,8 +365,8 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
             		sbbe.trashObject();
             		logger.error("Exception while executing RolledBackAction",e);
             		try {
-            			if (SleeContainer.getTransactionManager().isInTx())
-            				SleeContainer.getTransactionManager().rollback();
+            			if (sleeContainer.getTransactionManager().isInTx())
+            				sleeContainer.getTransactionManager().rollback();
             		} catch (SystemException e1) {
             			logger.error(e1);
             		}

@@ -15,7 +15,6 @@
 package org.mobicents.slee.container.deployment.interceptors;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import javax.slee.SLEEException;
 import javax.slee.profile.ProfileID;
@@ -25,14 +24,12 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ProfileCMPMethod;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.ProfileCMPMethod;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Ivelin Ivanov
@@ -43,12 +40,6 @@ public class DefaultSBBProfileCMPInterceptor implements SBBProfileCMPInterceptor
     
     private static Logger logger = Logger.getLogger(DefaultSBBProfileCMPInterceptor.class);
     
-    /**
-     * Caches Profile proxies per Profile Type. 
-     * 	Among other things, a profile proxy traps attempts to call setter methods.
-     */
-    Map profileTypeProxies = new ConcurrentHashMap();
-
     /* (non-Javadoc)
      * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
      */

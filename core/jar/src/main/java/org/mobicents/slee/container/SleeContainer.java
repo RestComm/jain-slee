@@ -81,9 +81,11 @@ import org.mobicents.slee.container.management.xml.DefaultSleeEntityResolver;
 import org.mobicents.slee.container.profile.ProfileSpecificationIDPropertyEditor;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
+import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.resource.EventLookup;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.cache.XACache;
+import org.mobicents.slee.runtime.cache.MobicentsCache;
 import org.mobicents.slee.runtime.eventrouter.EventRouter;
 import org.mobicents.slee.runtime.eventrouter.EventRouterImpl;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
@@ -94,8 +96,6 @@ import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInt
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileFacilityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.util.JndiRegistrationManager;
 
@@ -158,7 +158,8 @@ public class SleeContainer {
 	}
 
 	private static SleeContainer sleeContainer;
-	private static SleeTransactionManager sleeTransactionManager;
+	private final SleeTransactionManager sleeTransactionManager;
+	private final MobicentsCache cache;
 
 	// FIELDS
 	// mbean server where the container's mbeans are registred
@@ -206,10 +207,15 @@ public class SleeContainer {
 	 * SleeManagementMBean to get the whole thing running.
 	 * 
 	 */
-	public SleeContainer(MBeanServer mbserver) throws Exception {
+	public SleeContainer(MBeanServer mbserver, SleeTransactionManager sleeTransactionManager, MobicentsCache cache) throws Exception {
 		// created in STOPPED state and remain so until started
 		this.sleeState = SleeState.STOPPED;
 		this.mbeanServer = mbserver;
+		this.sleeTransactionManager = sleeTransactionManager;
+		this.cache = cache;
+		// Force this property to allow invocation of getters.
+		// http://code.google.com/p/mobicents/issues/detail?id=63
+		System.setProperty("jmx.invoke.getters", "true");
 	}
 
 	/**
@@ -247,7 +253,7 @@ public class SleeContainer {
 		this.resourceManagement = new ResourceManagement(this);
 		this.activityContextFactory = new ActivityContextFactoryImpl(this);
 		this.router = new EventRouterImpl(this,MobicentsManagement.eventRouterExecutors,MobicentsManagement.monitoringUncommittedAcAttachs);
-		this.activityContextNamingFacility = new ActivityContextNamingFacilityImpl();
+		this.activityContextNamingFacility = new ActivityContextNamingFacilityImpl(this);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", "activitycontextnaming",
 				activityContextNamingFacility);
 		this.nullActivityFactory = new NullActivityFactoryImpl(this);
@@ -353,7 +359,7 @@ public class SleeContainer {
 				+ sleeProfileManager + "\n"
 				+ activityContextFactory + "\n" + activityContextNamingFacility
 				+ "\n" + nullActivityFactory + "\n" + serviceManagement + "\n"
-				+ profileFacility + "\n" + getEventRouter() + "\n" + XACache.dumpState();
+				+ profileFacility + "\n" + getEventRouter() + "\n" + getTransactionManager();
 	}
 
 	// GETTERS -- managers
@@ -518,22 +524,22 @@ public class SleeContainer {
 	}
 
 	/**
-	 * Get the transaction manager from class or JNDI
+	 * Get the transaction manager
 	 * 
 	 * @throws
 	 */
-	public static SleeTransactionManager getTransactionManager() {
-		try {
-			if (sleeTransactionManager == null)
-				sleeTransactionManager = (SleeTransactionManager) JndiRegistrationManager.getFromJndi("slee/"
-						+ SleeTransactionManager.JNDI_NAME);
-			return sleeTransactionManager;
-		} catch (Exception ex) {
-			logger.error("Error fetching transaciton manager!", ex);
-			return null;
-		}
+	public SleeTransactionManager getTransactionManager() {
+		return sleeTransactionManager;		
 	}
 
+	/**
+	 * The cache which manages the container's HA and FT data 
+	 * @return
+	 */
+	public MobicentsCache getCache() {
+		return cache;
+	}
+	
 	/**
 	 * Return the MBeanServer that the SLEEE is registers with in the current
 	 * JVM

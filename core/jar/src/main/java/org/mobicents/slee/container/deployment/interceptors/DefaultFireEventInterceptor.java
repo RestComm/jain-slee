@@ -84,11 +84,10 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
     	// rebuild the ac from the aci in the 2nd argument of the invoked method, check it's state
     	SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
     	        
-    	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(((org.mobicents.slee.runtime.activity.ActivityContextInterface)args[1]).getActivityContextHandle(),true);
+    	ActivityContext ac = ((org.mobicents.slee.runtime.activity.ActivityContextInterface)args[1]).getActivityContext();
         if ( logger.isDebugEnabled() ) {
         	logger.debug("invoke(): firing event on " + 
-        			ac.getActivityContextHandle() + 
-        			" ACTIVITY: " + ac.getActivityContextHandle().getActivity());
+        			ac.getActivityContextId());
         }
         
         if (ac.getState() != ActivityContextState.ACTIVE) {
@@ -97,7 +96,7 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         
         // JAIN SLEE (TM) specs - Section 8.4.1 
     	// It is a mandatory transactional method (see Section 9.6.1).    	 
-    	SleeTransactionManager tm = SleeContainer.getTransactionManager();
+    	SleeTransactionManager tm = sleeContainer.getTransactionManager();
         tm.mandateTransaction();
     	    	
         // get the event type name from the method name without the "fire" prefix               
@@ -122,7 +121,7 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         }
         
         // build the deferred event 
-        new DeferredEvent(eventID,args[0],ac.getActivityContextHandle(),(Address)args[2]);                                       
+        new DeferredEvent(eventID,args[0],ac,(Address)args[2]);                                       
         
         return null;
     }

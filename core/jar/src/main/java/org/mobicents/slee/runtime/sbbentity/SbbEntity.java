@@ -36,6 +36,7 @@ package org.mobicents.slee.runtime.sbbentity;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -45,6 +46,7 @@ import javax.slee.EventTypeID;
 import javax.slee.RolledBackContext;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
+import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
@@ -52,7 +54,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionRequiredException;
 
-import org.apache.commons.pool.ObjectPool;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
@@ -62,19 +63,17 @@ import org.mobicents.slee.container.component.MobicentsEventTypeDescriptor;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.SbbEventEntry;
 import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.cache.CacheableMap;
-import org.mobicents.slee.runtime.cache.CacheableSet;
+import org.mobicents.slee.runtime.cache.SbbEntityCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
+import org.mobicents.slee.runtime.sbb.SbbObjectPool;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 /**
  * 
@@ -91,47 +90,22 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
  */
 public class SbbEntity {
 
-	transient static private Logger log = Logger.getLogger(SbbEntity.class);
-	transient private Transaction transaction;
-	transient DeferredEvent currentEvent;
+	static private final Logger log = Logger.getLogger(SbbEntity.class);
+	static private final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
+	private Transaction transaction;
+	private DeferredEvent currentEvent;
 
 	private final String sbbeId; // This is the primary key of the SbbEntity.
-	private MobicentsSbbDescriptor sbbComponent;
-	private String cacheNodeName;
+	
+	private final MobicentsSbbDescriptor sbbComponent;
 	private SbbObject sbbObject;
-	private CacheableMap eventMask;
-	private CacheableSet sbbLocalObjectCmpFields;
-	private ObjectPool pool;
-	private CacheableMap cmpFields;
-	private CacheableMap cachedSbbEntityAttributes;
-	private CacheableSet attachedActivityContexts;
-	private boolean isBeingRemoved = false;
-
-	// cache ids
-	private static final String PARENT_SBB_ENTITY_ID = "parentSbbEntityId";
-	private static final String PARENT_CHILD_RELATION = "parentChildRelationName";
-	private static final String ROOT_SBB_ID = "rootSbbId";
-	private static final String SERVICE_CONVERGENCE_NAME = "serviceConvergenceName";
-	private static final String SBB_ID_CACHE = TransactionManagerImpl.TCACHE;
-	private static final String SBB_ID = "sbbID";
-	private static final String ACTIVITY_CONTEXTS_CACHE = TransactionManagerImpl.TCACHE;
-	private static final String ACTIVITY_CONTEXTS = "activityContexts";
-	private static final String PRIORITY = "priority";
-	private static final String EVENT_MASK_CACHE = TransactionManagerImpl.TCACHE;
-	private static final String EVENT_MASK = "eventMask";
-	private static final String SBB_LOCAL_OBJECT_CMP_FIELDS = "sbbLocalObjectCmpFields";
-	private static final String SERVICE_ID = "serviceId";
-	private static final String CMP_FIELDS_CACHE = TransactionManagerImpl.TCACHE;
-	private static final String CMP_FIELDS = "cmpFields";
-	private static final String CACHED_SBBE_ATTRS = "cached-sbb-entitiy-attributes";
-
-	// local cache of fields
-	private ServiceID serviceID = null;
-	private SbbID sbbID = null;
-	private String convergenceName = null;
-	private String rootSbbEID = null;
-	private String parentSbbEID = null;
-	private String parentChildRelation = null;
+	private final SbbObjectPool pool;
+	
+	// cache data
+	protected SbbEntityCacheData cacheData;
+	
+	private boolean isRemoved;
 
 	/**
 	 * Call this constructor when there's no cached image and the Sbb entity is
@@ -147,33 +121,21 @@ public class SbbEntity {
 			String parentChildRelationName, String rootSbbEntityId,
 			SbbID sbbID, String convergenceName, ServiceID svcId)
 			throws Exception {
-
+		
 		if (sbbID == null)
 			throw new NullPointerException("Null sbbID");
 
 		this.sbbeId = sbbEntityId;
-
-		this.cacheNodeName = "sbbentity:" + sbbeId;
-		this.sbbLocalObjectCmpFields = new CacheableSet(CMP_FIELDS_CACHE + "-"
-				+ SBB_LOCAL_OBJECT_CMP_FIELDS + ":" + cacheNodeName);
-		this.eventMask = new CacheableMap(EVENT_MASK_CACHE + "-" + EVENT_MASK
-				+ ":" + cacheNodeName);
-		this.cmpFields = new CacheableMap(CMP_FIELDS_CACHE + "-" + CMP_FIELDS
-				+ ":" + cacheNodeName);
-		this.cachedSbbEntityAttributes = new CacheableMap(SBB_ID_CACHE + "-"
-				+ CACHED_SBBE_ATTRS + ":" + cacheNodeName);
-		this.attachedActivityContexts = new CacheableSet(
-				ACTIVITY_CONTEXTS_CACHE + "-" + ACTIVITY_CONTEXTS + "_"
-						+ sbbeId);
-
+		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
+		cacheData.create();
+				
 		setParentSbbEntityId(parentSbbEntityId);
 		setParentChildRelation(parentChildRelationName);
 		setRootSbbId(rootSbbEntityId);
 		setSbbId(sbbID);
 		setServiceId(svcId);
 		setServiceConvergenceName(convergenceName);
-
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		
 		this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
 				.getObjectPool(getSbbId());
 		this.sbbComponent = sleeContainer.getSbbManagement().getSbbComponent(
@@ -206,26 +168,10 @@ public class SbbEntity {
 					"SbbEntity cannot be instantiated for sbbeId == null");
 
 		this.sbbeId = sbbEntityId;
-		this.cacheNodeName = "sbbentity:" + sbbeId;
-		this.cachedSbbEntityAttributes = new CacheableMap(SBB_ID_CACHE + "-"
-				+ CACHED_SBBE_ATTRS + ":" + this.cacheNodeName);
-
-		SbbID sbbId = getSbbId();
-
-		if (sbbId != null) {
-
-			this.eventMask = new CacheableMap(EVENT_MASK_CACHE + "-"
-					+ EVENT_MASK + ":" + this.cacheNodeName);
-			this.sbbLocalObjectCmpFields = new CacheableSet(CMP_FIELDS_CACHE
-					+ "-" + SBB_LOCAL_OBJECT_CMP_FIELDS + ":"
-					+ this.cacheNodeName);
-			this.cmpFields = new CacheableMap(CMP_FIELDS_CACHE + "-"
-					+ CMP_FIELDS + ":" + this.cacheNodeName);
-			this.attachedActivityContexts = new CacheableSet(
-					ACTIVITY_CONTEXTS_CACHE + "-" + ACTIVITY_CONTEXTS + "_"
-							+ sbbeId);
-
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		
+		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
+		if (cacheData.exists()) {
+					
 			this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
 					.getObjectPool(getSbbId());
 			this.sbbComponent = sleeContainer.getSbbManagement()
@@ -236,43 +182,27 @@ public class SbbEntity {
 				log.warn(s);
 				throw new RuntimeException(s);
 			}
-		} else {
-			this.cachedSbbEntityAttributes.remove();
-			throw new IllegalStateException(
-					"Sbb id not found, unable to recreate sbb entity");
 		}
-	}
-
-	private Object getObjectFromCache(Object key) {
-		return cachedSbbEntityAttributes.get(key);
-	}
-
-	private Object putObjectInCache(Object key, Object value) {
-		return cachedSbbEntityAttributes.put(key, value);
+		else {
+			throw new IllegalStateException(
+			"Sbb entity "+sbbEntityId+" not found");
+		}
 	}
 
 	public ServiceID getServiceId() {
-		if (serviceID == null) {
-			serviceID = (ServiceID) getObjectFromCache(SERVICE_ID);
-		}
-		return serviceID;
+		return cacheData.getServiceId();		
 	}
 
 	private void setServiceId(ServiceID svcId) {
-		putObjectInCache(SERVICE_ID, svcId);
-		serviceID = svcId;
+		cacheData.setServiceId(svcId);
 	}
 
 	private void setServiceConvergenceName(String convergenceName) {
-		putObjectInCache(SERVICE_CONVERGENCE_NAME, convergenceName);
-		this.convergenceName = convergenceName;
+		cacheData.setServiceConvergenceName(convergenceName);
 	}
 
 	public String getServiceConvergenceName() {
-		if (convergenceName == null) {
-			convergenceName = (String) getObjectFromCache(SERVICE_CONVERGENCE_NAME);
-		}
-		return convergenceName;
+		return cacheData.getServiceConvergenceName();
 	}
 
 	/**
@@ -286,53 +216,14 @@ public class SbbEntity {
 					+ "\nattachmentCount = " + getAttachmentCount()
 					+ "\nrootSbbId = " + this.getRootSbbId() + "\nserviceID = "
 					+ getServiceId() + "\nactivityContexts = "
-					+ this.getActivityContexts() + "\neventMask = "
-					+ this.eventMask + "\nconvergenceName = "
-					+ getServiceConvergenceName()
-					+ "\nsbbLocalObjectCmpFields = "
-					+ this.sbbLocalObjectCmpFields + "\ncmpFields = "
-					+ this.cmpFields + "\n}");
+					+ this.getActivityContexts() + "\nconvergenceName = "					
+					+ getServiceConvergenceName() + "\n}");					
 		}
 	}
 
-	private void addEventMaskEntry(ActivityContextHandle activityContextHandle, Set evMask, boolean replace) {
-		if (log.isDebugEnabled()) {
-			log.debug("addEventMaskEntry : " + activityContextHandle + " eventMask = " + evMask);
-		}
-		Set oldEvMask = (Set) this.eventMask.get(activityContextHandle);
-		if (oldEvMask == null) {
-			this.eventMask.put(activityContextHandle, evMask);
-		} else {
-			if (!replace)
-				oldEvMask.addAll(evMask);
-			else
-				this.eventMask.put(activityContextHandle, evMask);
-		}
-	}
+	
 
-	private void removeEventMaskEntry(ActivityContextHandle activityContextHandle) {
-		if (log.isDebugEnabled()) {
-			log.debug("removeEventMaskEntry : " + activityContextHandle);
-		}
-		this.eventMask.remove(activityContextHandle);
-	}
-
-	private void addAcToActivityContexts(ActivityContextHandle activityContextHandle) {
-		if (log.isDebugEnabled()) {
-			log.debug("addAcToActivityContexts : sbbEid " + this.sbbeId
-					+ " acId " + activityContextHandle);
-		}
-		this.getActivityContexts().add(activityContextHandle);
-	}
-
-	private void removeAcFromActivityContexts(ActivityContextHandle activityContextHandle) {
-		if (log.isDebugEnabled()) {
-			log.debug("removeAcFromActivityContexts : sbbEid " + this.sbbeId
-					+ " acId " + activityContextHandle);
-		}
-
-		this.getActivityContexts().remove(activityContextHandle);
-	}
+	
 
 	/**
 	 * The generated code to access CMP Fields needs to call this method.
@@ -349,36 +240,41 @@ public class SbbEntity {
 			log.debug("getCMPField() " + cmpField.getFieldName());
 		}
 
-		SleeContainer.getTransactionManager().mandateTransaction();
+		sleeContainer.getTransactionManager().mandateTransaction();
 
 		String cmpFieldKey = this.genCMPFieldKey(cmpField);
+		CmpWrapper cmpWrapper = (CmpWrapper) cacheData.getCmpField(cmpFieldKey);
+		if (cmpWrapper != null) {
+			if (cmpWrapper.getType() == CmpType.sbblo) {
 
-		if (this.sbbLocalObjectCmpFields.contains(cmpFieldKey)) {
-			// it's a sbbLocalObject cmp
-			String sbbEntityId = (String) this.cmpFields.get(cmpFieldKey);
-			SbbEntity sbbEntity = null;
-			try {
-				sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
-			} catch (Exception ex) {
-				// Maybe the sbb entity has been removed already.
+				// it's a sbbLocalObject cmp
+				String sbbEntityId = (String) cmpWrapper.getValue();
+				SbbEntity sbbEntity = null;
+				try {
+					sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
+				} catch (Exception ex) {
+					// Maybe the sbb entity has been removed already.
+				}
+				if (sbbEntity == null)
+					return null;
+				else if (sbbEntity.isRemoved())
+					return null;
+				else {
+					return sbbEntity.createSbbLocalObject();
+				}
+			} else {
+				// May return null here. The DefaultPersistenceInterceptor takes
+				// care of
+				// returning the right default value.
+				if (log.isDebugEnabled()) {
+					log.debug("getCMPField() value = "
+							+ cmpWrapper.getValue());
+				}
+				return cmpWrapper.getValue();
 			}
-			if (sbbEntity == null)
-				return null;
-			else if (sbbEntity.isRemoved())
-				return null;
-			else {
-				return sbbEntity.createSbbLocalObject();
-			}
-		} else {
-			// May return null here. The DefaultPersistenceInterceptor takes
-			// care of
-			// returning the right default value.
-			if (log.isDebugEnabled()) {
-				log.debug("getCMPField() value = "
-						+ this.cmpFields.get(cmpFieldKey));
-			}
-			return this.cmpFields.get(cmpFieldKey);
-
+		}
+		else {
+			return null;
 		}
 	}
 
@@ -388,97 +284,85 @@ public class SbbEntity {
 		if (log.isDebugEnabled()) {
 			log
 					.debug("putCMPField(): putting cmp field : "
-							+ this.getCMPFieldsNodeName() + "/" + " object = "
+							+ field.getFieldName() + "/" + " object = "
 							+ object);
 		}
 
-		SleeContainer.getTransactionManager().mandateTransaction();
+		sleeContainer.getTransactionManager().mandateTransaction();
 
 		String cmpFieldKey = this.genCMPFieldKey(field);
-		if (object instanceof SbbLocalObjectImpl) {
-			// it's a sbbLocalObject so we actually store the sbb entity id
-			this.sbbLocalObjectCmpFields.add(cmpFieldKey);
-			SbbLocalObjectImpl sbbLocal = (SbbLocalObjectImpl) object;
-			this.cmpFields.put(cmpFieldKey, sbbLocal.getSbbEntityId());
-		} else {
-			this.cmpFields.put(cmpFieldKey, object);
+		CmpType cmpType = null;
+		Object cmpValue = null;
+		if (object instanceof SbbLocalObject) {
+			cmpType = CmpType.sbblo;
+			cmpValue = ((SbbLocalObjectImpl) object).getSbbEntityId();
 		}
-	}
-
-	private String getCMPFieldsNodeName() {
-		return this.cacheNodeName + "/CMP";
+		else {
+			cmpType = CmpType.normal;
+			cmpValue = object;
+		}
+		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldKey,cmpType,cmpValue);
+		cacheData.setCmpField(cmpFieldKey,cmpWrapper);
 	}
 
 	private String genCMPFieldKey(CMPField cmpField) {
 		return cmpField.getFieldName();
 	}
 
-	public void afterACAttach(ActivityContextHandle activityContextHandle) {
-
-		if (log.isDebugEnabled()) {
-			log.debug("afterACAttach " + activityContextHandle + " sbbID = " + getSbbId());
-		}
+	public void afterACAttach(String acId) {
 
 		// add event mask entry
 		EventTypeID[] eventTypeIDs = sbbComponent.getEventTypes();
+		HashSet<EventTypeID> maskedEvents = null;
 		if (eventTypeIDs != null) {
-			HashSet<EventTypeID> maskedEvents = new HashSet<EventTypeID>();
+			maskedEvents = new HashSet<EventTypeID>();
 			for (EventTypeID eventTypeID : eventTypeIDs) {
 				SbbEventEntry sbbEventEntry = sbbComponent
 						.getEventType(sbbComponent.getEventName(eventTypeID));
 				if (sbbEventEntry.isMasked()) {
 					maskedEvents.add(eventTypeID);
 				}
-			}
-			if (!maskedEvents.isEmpty()) {
-				this.addEventMaskEntry(activityContextHandle, maskedEvents, false);
-			}
+			}			
 		}
-
-		// add to ACs attached
-		addAcToActivityContexts(activityContextHandle);
-
-	}
-
-	public void afterACDetach(ActivityContextHandle activityContextHandle) {
-
+		// add to cache
+		cacheData.attachActivityContext(acId);
+		cacheData.updateEventMask(acId, maskedEvents);
+		
 		if (log.isDebugEnabled()) {
-			log.debug("afterACDetach " + activityContextHandle + " sbbID = " + getSbbId());
-		}
-
-		try {
-			// remove from ACs attached
-			this.removeAcFromActivityContexts(activityContextHandle);
-			// remove event mask entry
-			removeEventMaskEntry(activityContextHandle);
-		} catch (Exception ex) {
-			throw new RuntimeException("unexpected error", ex);
+			log.debug("attached sbb entity " + sbbeId + " to ac " + acId+" , events added to current mask "+maskedEvents);
 		}
 	}
 
-	public Set<EventTypeID> getMaskedEventTypes(ActivityContextHandle ach) {
+	public void afterACDetach(String acId) {
+
+		// remove from cache
+		cacheData.detachActivityContext(acId);
+		
+		if (log.isDebugEnabled()) {
+			log.debug("detached sbb entity " + sbbeId + " to ac " + acId);
+		}
+	}
+
+	public Set getMaskedEventTypes(String acId) {
+
+		Set eventMaskSet = cacheData.getMaskedEventTypes(acId);
 
 		if (log.isDebugEnabled()) {
-			log.debug("getMaskedEventTypes: " + ach);
+			log.debug("event mask for sbb entity " +sbbeId+" and ac "+ acId+" --> "+eventMaskSet);
 		}
-		Set<EventTypeID> eventMaskSet = (Set<EventTypeID>) this.eventMask
-				.get(ach);
+		
 		if (eventMaskSet == null) {
-			eventMaskSet = new HashSet<EventTypeID>();
+			return Collections.EMPTY_SET;
 		}
-		return eventMaskSet;
+		else {
+			return eventMaskSet;
+		}
 	}
 
-	public void setEventMask(ActivityContextHandle activityContextHandle, String[] eventMask)
+	public void setEventMask(String acId, String[] eventMask)
 			throws UnrecognizedEventException {
 
 		HashSet<EventTypeID> maskedEvents = new HashSet<EventTypeID>();
-
-		if (log.isDebugEnabled()) {
-			log.debug("setEventMask " + activityContextHandle + " eventMask = " + eventMask);
-		}
-
-		// Ralf Siedow: added event mask reset
 
 		if (eventMask != null && eventMask.length != 0) {
 
@@ -489,7 +373,7 @@ public class SbbEntity {
 					throw new UnrecognizedEventException(
 							"Event is not known by this SBB.");
 				if (sbbEventEntry.isReceived()) {
-					maskedEvents.add(SleeContainer.lookupFromJndi()
+					maskedEvents.add(sleeContainer
 							.getEventManagement().getEventType(
 									sbbEventEntry.getEventTypeRefKey()));
 				} else {
@@ -500,61 +384,53 @@ public class SbbEntity {
 			}
 		}
 
-		this.addEventMaskEntry(activityContextHandle, maskedEvents, true);
+		cacheData.setEventMask(acId, maskedEvents);
 
-	}
-
-	public Set getActivityContexts() {
-		return attachedActivityContexts;
-	}
-
-	public String[] getEventMask(ActivityContextHandle activityContextHandle) {
-
-		Set evMask = (Set) this.eventMask.get(activityContextHandle);
 		if (log.isDebugEnabled()) {
-			log.debug("getEventMask: returning  event mask for" + activityContextHandle);
-		}
+			log.debug("set event mask "+maskedEvents+" for sbb entity " +sbbeId+" and ac "+ acId);
+		}		
+	}
+	
+	public Set getActivityContexts() {
+		Set result = cacheData.getActivityContexts();
+		return result == null ? Collections.EMPTY_SET : result;
+	}
 
-		if (evMask == null) {
-			log.debug("getEventMask: returning null event mask for" + activityContextHandle);
-			evMask = new HashSet();
+	private static final String[] emptyStringArray = {};
+	
+	public String[] getEventMask(String acId) {
+		
+		Set maskedEvents = (Set) cacheData.getMaskedEventTypes(acId);
+		
+		if (log.isDebugEnabled()) {
+			log.debug("set event mask "+maskedEvents+" for sbb entity " +sbbeId+" and ac "+ acId);
+		}	
+		
+		if (maskedEvents == null || maskedEvents.isEmpty()) {			
+			return emptyStringArray;
 		}
-
-		String[] events = new String[evMask.size()];
-		if (evMask.isEmpty()) {
-			if (log.isDebugEnabled()) {
-				log.debug("eventMask = " + eventMask);
-			}
+		else {
+			String[] events = new String[maskedEvents.size()];
+			Iterator evMaskIt = maskedEvents.iterator();
+			MobicentsSbbDescriptor sbbComponent = this.getSbbDescriptor();
+			for (int i = 0; evMaskIt.hasNext(); i++) {
+				EventTypeID eventTypeId = (EventTypeID) evMaskIt.next();
+				events[i] = sbbComponent.getEventName(eventTypeId);				
+			}			
 			return events;
 		}
-
-		Iterator evMaskIt = evMask.iterator();
-		MobicentsSbbDescriptor sbbComponent = this.getSbbDescriptor();
-		for (int i = 0; evMaskIt.hasNext(); i++) {
-			EventTypeID eventTypeId = (EventTypeID) evMaskIt.next();
-			events[i] = sbbComponent.getEventName(eventTypeId);
-			if (log.isDebugEnabled()) {
-				log.debug("getEventMask:eventName = " + events[i]);
-			}
-		}
-
-		return events;
 	}
 
 	public String getRootSbbId() {
-		if (rootSbbEID == null) {
-			rootSbbEID = (String) this.getObjectFromCache(ROOT_SBB_ID);
-		}
-		return rootSbbEID;
+		return cacheData.getRootSbbId();
 	}
 
 	public boolean isRootSbbEntity() {
 		return getParentSbbEntityId() == null;
 	}
 
-	private void setRootSbbId(String rsbbId) {
-		putObjectInCache(ROOT_SBB_ID, rsbbId);
-		this.rootSbbEID = rsbbId;
+	private void setRootSbbId(String rootSbbEntityId) {
+		cacheData.setRootSbbId(rootSbbEntityId);
 	}
 
 	public int getAttachmentCount() {
@@ -574,22 +450,19 @@ public class SbbEntity {
 						.getSbbEntity(childSbbEntityID);
 				attachmentCount += childSbbEntity.getAttachmentCount();
 			}
-		}
-		if (log.isDebugEnabled()) {
-			log.debug(sbbeId + " getAttachmentCount()=" + attachmentCount);
-		}
+		}		
 		return attachmentCount;
 	}
 
 	public byte getPriority() {
-		return ((Byte) getObjectFromCache(PRIORITY)).byteValue();
+		return cacheData.getPriority().byteValue();
 	}
 
 	public void setPriority(byte priority) {
+		cacheData.setPriority(Byte.valueOf(priority));
 		if (log.isDebugEnabled()) {
-			log.debug("SbbEntity.setPriority() " + priority);
+			log.debug("set sbb entity "+sbbeId+" priority to " + priority);
 		}
-		putObjectInCache(PRIORITY, Byte.valueOf(priority));
 	}
 
 	/**
@@ -638,10 +511,10 @@ public class SbbEntity {
 
 		// removes the SBB entity from all Activity Contexts.
 		for (Iterator i = this.getActivityContexts().iterator(); i.hasNext();) {
-			ActivityContextHandle ach = (ActivityContextHandle) i.next();
+			String acId = (String) i.next();
 			// get ac
 			ActivityContext ac = SleeContainer.lookupFromJndi()
-					.getActivityContextFactory().getActivityContext(ach,true);
+					.getActivityContextFactory().getActivityContext(acId,true);
 			// remove the sbb entity from the attachment set.
 			if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
 				ac.detachSbbEntity(this.sbbeId);
@@ -660,32 +533,24 @@ public class SbbEntity {
 			removeAndReleaseSbbObject();
 		} catch (Exception e) {
 			try {
-				SleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().setRollbackOnly();
 				this.trashObject();
 			} catch (Exception e2) {
 				throw new RuntimeException("Transaction Failure.", e2);
 			}
 		}
 
-		// remove all entities in child relations
-		for (GetChildRelationMethod getChildRelationMethod : this.sbbComponent
-				.getChildRelationMethods()) {
-			// (re)create child relation obj
-			ChildRelationImpl childRelationImpl = new ChildRelationImpl(
-					getChildRelationMethod, this);
-			// iterate all sbb entities in this child relation
-			for (Iterator i = childRelationImpl.getSbbEntitySet().iterator(); i
-					.hasNext();) {
-				String childSbbEntityID = (String) i.next();
-				// recreated the sbb entity and remove it
-				SbbEntityFactory.removeSbbEntity(childSbbEntityID, false);
-			}
-			// remove the child relation
-			childRelationImpl.remove();
-		}
+		// gather all entities in child relations from cache
+		Set childSbbEntities = cacheData.getAllChildSbbEntities();
 
-		// remove entity data from cache
+		// remove this entity data from cache
 		removeFromCache();
+		
+		// now remove children
+		for (Object childSbbEntityId : childSbbEntities) {
+			// recreated the sbb entity and remove it
+			SbbEntityFactory.removeSbbEntity((String)childSbbEntityId, false);
+		}
 	}
 
 	public void trashObject() {
@@ -714,15 +579,11 @@ public class SbbEntity {
 	}
 
 	public SbbID getSbbId() {
-		if (this.sbbID == null) {
-			this.sbbID = (SbbID) getObjectFromCache(SBB_ID);
-		}
-		return sbbID;
+		return cacheData.getSbbId();
 	}
 
 	private void setSbbId(SbbID sbbId) {
-		putObjectInCache(SBB_ID, sbbId);
-		this.sbbID = sbbId;
+		cacheData.setSbbId(sbbId);
 	}
 
 	public String getUsageParameterPathName(String name) {
@@ -734,6 +595,8 @@ public class SbbEntity {
 		return Service.getUsageParametersPathName(getServiceId(), getSbbId());
 	}
 
+	private static final String TRANSACTION_CONTEXT_DATA_KEY_CURRENT_EVENT = "ce";
+	
 	public DeferredEvent getCurrentEvent() {
 		return this.currentEvent;
 	}
@@ -764,7 +627,6 @@ public class SbbEntity {
 		}
 
 		Class[] args = new Class[2];
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		MobicentsEventTypeDescriptor eventDescriptor = sleeContainer
 				.getEventManagement().getEventDescriptor(
 						sleeEvent.getEventTypeId());
@@ -906,7 +768,7 @@ public class SbbEntity {
 	private void setServiceActivityFactory() throws Exception {
 		// store the serviceID in tx local data so shared service
 		// activity factory can use it
-		SleeContainer.getTransactionManager().putTxLocalData(
+		sleeContainer.getTransactionManager().getTransactionContext().getData().put(
 				ServiceActivityFactoryImpl.TXLOCALDATA_SERVICEID_KEY,
 				getServiceId());
 	}
@@ -922,13 +784,8 @@ public class SbbEntity {
 		setServiceActivityFactory();
 		Object[] parameters = getEventHandlerParameters(sleeEvent,ac);
 
-		if (log.isDebugEnabled()) {
-			log.debug(this.sbbeId + " sbb entity invoking event handler:"
-					+ method);
-		}
-
 		try {
-			this.transaction = SleeContainer.getTransactionManager()
+			this.transaction = sleeContainer.getTransactionManager()
 					.getTransaction();
 
 			method.invoke(this.sbbObject.getSbbConcrete(), parameters);
@@ -949,10 +806,6 @@ public class SbbEntity {
 				Exception re = (Exception) realException;
 				throw re;
 			}
-		}
-		if (log.isDebugEnabled()) {
-			log.debug(this.sbbeId + " sbb entity invoked event handler:"
-					+ method);
 		}
 	}
 
@@ -1018,10 +871,7 @@ public class SbbEntity {
 				childSbbEntity.passivateAndReleaseSbbObject();
 			}
 			i.remove();
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("releaseObject: Returned SbbObject to the Pool!");
-		}
+		}		
 	}
 
 	/**
@@ -1043,14 +893,10 @@ public class SbbEntity {
 				childSbbEntity.removeAndReleaseSbbObject();
 			}
 			i.remove();
-		}
-		if (log.isDebugEnabled()) {
-			log
-					.debug("releaseObject: Removing Entity Returned SbbObject to the Pool!");
-		}
+		}		
 	}
 
-	public ObjectPool getObjectPool() {
+	public SbbObjectPool getObjectPool() {
 		return this.pool;
 	}
 
@@ -1058,8 +904,8 @@ public class SbbEntity {
 		return this.sbbObject;
 	}
 
-	public boolean checkAttached(ActivityContextHandle activityContextHandle) {
-		return this.getActivityContexts().contains(activityContextHandle);
+	public boolean isAttached(String acId) {
+		return this.getActivityContexts().contains(acId);
 	}
 
 	public Object getDefaultSbbUsageParameterSet() {
@@ -1140,8 +986,7 @@ public class SbbEntity {
 	public void checkReEntrant() throws SLEEException {
 		try {
 			if ((!this.getSbbDescriptor().isReentrant())
-					&& this.transaction == SleeContainer
-							.getTransactionManager().getTransaction())
+					&& this.transaction == sleeContainer.getTransactionManager().getTransaction())
 				throw new SLEEException(" re-entrancy not allowed ");
 		} catch (SystemException ex) {
 			throw new RuntimeException(
@@ -1183,7 +1028,7 @@ public class SbbEntity {
 	 * @return Returns the isRemoved.
 	 */
 	public boolean isRemoved() {
-		return isBeingRemoved;
+		return isRemoved;
 	}
 
 	/**
@@ -1195,13 +1040,8 @@ public class SbbEntity {
 			log.debug("removing sbb entity " + sbbeId + " from cache");
 		}
 
-		cmpFields.remove();
-		eventMask.remove();
-		cachedSbbEntityAttributes.remove();
-		sbbLocalObjectCmpFields.remove();
-		attachedActivityContexts.remove();
-		isBeingRemoved = true;
-
+		cacheData.remove();
+		isRemoved = true;
 	}
 
 	/**
@@ -1211,10 +1051,7 @@ public class SbbEntity {
 	 * @return
 	 */
 	public String getParentChildRelation() {
-		if (parentChildRelation == null) {
-			parentChildRelation = (String) getObjectFromCache(PARENT_CHILD_RELATION);
-		}
-		return parentChildRelation;
+		return cacheData.getParentChildRelation();
 	}
 
 	/**
@@ -1223,8 +1060,7 @@ public class SbbEntity {
 	 * @param name
 	 */
 	private void setParentChildRelation(String parentChildRelation) {
-		putObjectInCache(PARENT_CHILD_RELATION, parentChildRelation);
-		this.parentChildRelation = parentChildRelation;
+		cacheData.setParentChildRelation(parentChildRelation);
 	}
 
 	/**
@@ -1233,10 +1069,7 @@ public class SbbEntity {
 	 * @return
 	 */
 	public String getParentSbbEntityId() {
-		if (parentSbbEID == null) {
-			parentSbbEID = (String) getObjectFromCache(PARENT_SBB_ENTITY_ID);
-		}
-		return parentSbbEID;
+		return cacheData.getParentSbbEntityId();
 	}
 
 	/**
@@ -1245,8 +1078,7 @@ public class SbbEntity {
 	 * @param name
 	 */
 	private void setParentSbbEntityId(String parentSbbEntityId) {
-		putObjectInCache(PARENT_SBB_ENTITY_ID, parentSbbEntityId);
-		this.parentSbbEID = parentSbbEntityId;
+		cacheData.setParentSbbEntityId(parentSbbEntityId);
 	}
 
 	// It removes the SBB entity from the ChildRelation object that the SBB
@@ -1262,12 +1094,11 @@ public class SbbEntity {
 
 		if (this.getParentSbbEntityId() != null) {
 			SbbEntityFactory.getSbbEntity(this.getParentSbbEntityId())
-					.getChildRelation(getParentChildRelation())
-					.getSbbEntitySet().remove(this.getSbbEntityId());
+					.getChildRelation(getParentChildRelation()).removeChild(this.getSbbEntityId());
 		} else {
 			// it's a root sbb entity, remove from service
 			try {
-				Service service = SleeContainer.lookupFromJndi().getServiceManagement()
+				Service service = sleeContainer.getServiceManagement()
 						.getService(this.getServiceId());
 				service.removeConvergenceName(this.getServiceConvergenceName());								
 			} catch (Exception e) {

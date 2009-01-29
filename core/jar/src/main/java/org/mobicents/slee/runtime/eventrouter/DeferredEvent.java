@@ -9,8 +9,6 @@
 
 package org.mobicents.slee.runtime.eventrouter;
 
-//import java.io.Serializable;
-
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
@@ -19,6 +17,7 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
@@ -34,8 +33,11 @@ public class DeferredEvent {
 
 	private static Logger log = Logger.getLogger(DeferredEvent.class);
 
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
 	private final EventTypeID eventTypeId;
-	private final ActivityContextHandle activityContextHandle;
+	private final String acId;
+	private final ActivityContextHandle ach;
 	private final Object event;
 	private final Address address;
 	
@@ -45,51 +47,55 @@ public class DeferredEvent {
 	private ActivityContextInterface loadedAci;
 	
 	public DeferredEvent(int eventId, Object event,
-			ActivityContextHandle activityContextHandle, Address address)
+			ActivityContext ac, Address address)
 			throws SystemException {
-		this(SleeContainer.lookupFromJndi().getEventManagement()
-				.getEventTypeID(eventId), event, activityContextHandle, address);
+		this(sleeContainer.getEventManagement()
+				.getEventTypeID(eventId), event, ac, address);
 	}
 
 	public DeferredEvent(EventTypeID eventTypeId, Object event,
-			ActivityContextHandle activityContextHandle, Address address)
+			ActivityContext ac, Address address)
 			throws SystemException {
 		if (log.isDebugEnabled()) {
 			log.debug("DeferredEvent() " + eventTypeId + "\n"
-					+ "Activity Context:" + activityContextHandle);
+					+ "Activity Context:" + ac.getActivityContextId());
 		}
 
 		this.eventTypeId = eventTypeId;
 		this.event = event;
-		this.activityContextHandle = activityContextHandle;
+		this.acId = ac.getActivityContextId();
+		this.ach = ac.getActivityContextHandle();
 		this.address = address;
 
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		// put event as pending in ac event queue manager
 		ActivityEventQueueManager aeqm = sleeContainer.getEventRouter()
-				.getEventRouterActivity(activityContextHandle)
+				.getEventRouterActivity(acId)
 				.getEventQueueManager();
 		if (aeqm != null) {
 			aeqm.pending(this);
 			// add tx actions to commit or rollback
-			SleeContainer.getTransactionManager().addAfterCommitAction(
+			sleeContainer.getTransactionManager().addAfterCommitPriorityAction(
 					new CommitDeferredEventAction(this, aeqm));
-			SleeContainer.getTransactionManager()
+			sleeContainer.getTransactionManager()
 					.addAfterRollbackAction(
 							new RollbackDeferredEventAction(this,
-									activityContextHandle));
+									acId));
 		} else {
 			throw new SLEEException("unable to find ACs event queue manager");
 		}		
 	}
 
 	/**
-	 * @return Returns the activity.
+	 * @return Returns the activity id.
 	 */
-	public ActivityContextHandle getActivityContextHandle() {
-		return activityContextHandle;
+	public String getActivityContextId() {
+		return acId;
 	}
 
+	public ActivityContextHandle getActivityContextHandle() {
+		return ach;
+	}
+	
 	/**
 	 * @return Returns the address.
 	 */

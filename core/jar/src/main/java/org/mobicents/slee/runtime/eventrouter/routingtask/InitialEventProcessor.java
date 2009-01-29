@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceComponent;
+import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
@@ -58,7 +59,7 @@ public class InitialEventProcessor {
 				 * service deployment. The names set is composed by only one
 				 * convergence name the error is due an error in the pseudocode
 				 */
-				final Service service = Service.getService(svc
+				final Service service = ServiceFactory.getService(svc
 						.getServiceDescriptor());
 				
 				if (service.getState().isActive()) {
@@ -87,7 +88,7 @@ public class InitialEventProcessor {
 									invokerClassLoader);
 							// invoke sbb lifecycle methods on sbb entity creation
 							try {
-								sbbEntity.assignAndCreateSbbObject();
+								sbbEntity.assignAndCreateSbbObject();								
 								sbbObject = sbbEntity.getSbbObject();
 							} catch (Exception ex) {
 								sbbObject = sbbEntity.getSbbObject();
@@ -101,11 +102,11 @@ public class InitialEventProcessor {
 								throw ex;
 							}
 							// attach sbb entity on AC
-							ActivityContextHandle ach = deferredEvent.getActivityContextHandle();
-							ActivityContext ac = activityContextFactory.getActivityContext(deferredEvent.getActivityContextHandle(),true);
-							ac.attachSbbEntity(sbbEntity.getSbbEntityId());
-							// do the reverse on the sbb entity
-							sbbEntity.afterACAttach(ach);
+							ActivityContext ac = activityContextFactory.getActivityContext(deferredEvent.getActivityContextId(),true);
+							if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
+								// do the reverse on the sbb entity
+								sbbEntity.afterACAttach(deferredEvent.getActivityContextId());
+							}
 
 						} else {
 							
@@ -115,10 +116,11 @@ public class InitialEventProcessor {
 							// get sbb entity id for this convergence name
 							String rootSbbEntityId = service.getRootSbbEntityId(name);
 							// attach sbb entity on AC
-							activityContextFactory.getActivityContext(deferredEvent.getActivityContextHandle(),true).attachSbbEntity(rootSbbEntityId);
-							// do the reverse on the sbb entity
-							SbbEntityFactory.getSbbEntity(rootSbbEntityId)
-									.afterACAttach(deferredEvent.getActivityContextHandle());
+							if (activityContextFactory.getActivityContext(deferredEvent.getActivityContextId(),true).attachSbbEntity(rootSbbEntityId)) {
+								// do the reverse on the sbb entity
+								SbbEntityFactory.getSbbEntity(rootSbbEntityId)
+								.afterACAttach(deferredEvent.getActivityContextId());
+							}
 						}
 
 					} else {
@@ -138,22 +140,33 @@ public class InitialEventProcessor {
 
 			boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject, null, null, caught, invokerClassLoader, txMgr);
 			
-			// If there is no entity associated then the invokeSbbRolledBack is
-			// handle in
-			// the same tx, otherwise in a new tx (6.10.1)
-			if (sbbEntity == null && invokeSbbRolledBack) {
-				handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
-				/* original code was, confirm in specs that at this time we should not send event object and aci
-				 * 
-				handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
-						invokerClassLoader, false);
-						*/
+			if (sbbEntity != null) {
+				if (!invokeSbbRolledBack) {
+					if (sbbObject != null) {
+						// we have an sbb object loaded due to sbb entity creation
+						sbbEntity.passivateAndReleaseSbbObject();						
+					}
+				}
 			}
-			
+			else {
+				// If there is no entity associated then the invokeSbbRolledBack is
+				// handle in
+				// the same tx, otherwise in a new tx (6.10.1)
+				if (invokeSbbRolledBack) {
+					handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
+					/* original code was, confirm in specs that at this time we should not send event object and aci
+					 * 
+					handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
+							invokerClassLoader, false);
+							*/
+				}				
+			}
+						
 			// commit or rollback the tx. if the setRollbackOnly flag is set then this will trigger rollback action.
 			if (logger.isDebugEnabled()) {
 				logger.debug("Committing SLEE Originated Invocation Sequence");
 			}
+			
 			txMgr.commit();
 			
 			// We may need to run sbbRolledBack for invocation sequence 1 in another tx
@@ -165,7 +178,7 @@ public class InitialEventProcessor {
 						invokerClassLoader, false);
 						*/
 			}
-			
+						
 		} catch (Exception e) {
 			logger.error("Failed to process initial event for "
 					+ svc.getServiceID(), e);

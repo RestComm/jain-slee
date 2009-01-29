@@ -59,7 +59,7 @@ public class EventRoutingTask implements Runnable {
 		
 		if (logger.isDebugEnabled())
 			logger.debug("\n\n\nrouteTheEvent : [[[ eventId "
-					+ de.getEventTypeId() + " on ac "+de.getActivityContextHandle());
+					+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
 
 		final SleeTransactionManager txMgr = this.container.getTransactionManager();
 				
@@ -77,21 +77,7 @@ public class EventRoutingTask implements Runnable {
 						.getServiceComponent(), runtimeService
 						.getRootSbbDescriptor(), de, txMgr, this.container.getActivityContextFactory());
 			}
-
 			
-			
-			/*
-			 * TODO one tx per service which declares the event type as initial
-			 * and already attached services[] begin() find
-			 * highestPrioritySbbEntity find highestPriorityService if
-			 * (highestPriorityService.getPriority() >
-			 * highestPrioritySbbEntity.getPriority()) { sbbEntity =
-			 * processInitialEvent(highestPriorityService);
-			 * services.remove(highestPriorityService); if (sbbEntity == null) {
-			 * sbbEntity = highestPrioritySbbEntity; } }
-			 * addToDeliveredSet(sbbEntity) invokeEventHandler(sbbEntity)
-			 */
-
 			// For each SBB that is attached to this activity context.
 			boolean gotSbb = false;
 			do {
@@ -127,43 +113,41 @@ public class EventRoutingTask implements Runnable {
 					
 					txMgr.begin();
 					
-					if (logger.isDebugEnabled()) {
-						logger.debug("Delivering event "+de+" to sbb entities attached to AC "+de.getActivityContextHandle());
-					}
-
 					ActivityContext ac = null;
 					Exception caught = null;
 					SbbEntity highestPrioritySbbEntity = null;
 					ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 					
+					Set<String> sbbEntitiesThatHandledCurrentEvent = container
+							.getEventRouter().getEventRouterActivity(
+									de.getActivityContextId())
+							.getSbbEntitiesThatHandledCurrentEvent();
+					
 					try {
 					
-						ac = container.getActivityContextFactory().getActivityContext(de.getActivityContextHandle(),true);
+						ac = container.getActivityContextFactory().getActivityContext(de.getActivityContextId(),true);
 
 						try {
 							highestPrioritySbbEntity = nextSbbEntityFinder.next(ac, de.getEventTypeId());
 						} catch (Exception e) {
-							logger.warn("Failed to find next sbb entity to deliver the event "+de+" in "+ac.getActivityContextHandle(), e);
+							logger.warn("Failed to find next sbb entity to deliver the event "+de+" in "+ac.getActivityContextId(), e);
 							highestPrioritySbbEntity = null;
 						}
 
 						if (highestPrioritySbbEntity == null) {
-							if (logger.isDebugEnabled()) {
-								logger.debug("No more sbbs to deliver the event");
-							}
 							gotSbb = false;
-							ac.clearDeliveredSet();						
+							sbbEntitiesThatHandledCurrentEvent.clear();						
 						} else {
 							gotSbb = true;
-							ac.addToDeliveredSet(highestPrioritySbbEntity.getSbbEntityId());
+							sbbEntitiesThatHandledCurrentEvent.add(highestPrioritySbbEntity.getSbbEntityId());
 						}
 
 						if (gotSbb) {
 
 							if (logger.isDebugEnabled()) {
 								logger
-										.debug("Highest priority SBB entity to deliver the event: "
-												+ highestPrioritySbbEntity);
+										.debug("Highest priority SBB entity, which is attached to the ac "+de.getActivityContextId()+" , to deliver the event: "
+												+ highestPrioritySbbEntity.getSbbEntityId());
 							}
 
 							// CHANGE CLASS LOADER
@@ -175,23 +159,30 @@ public class EventRoutingTask implements Runnable {
 
 							sbbEntity.setCurrentEvent(de);
 
-							// Assign an sbb from the pool if was not assigned
-							// in initial event processing
-							if (sbbEntity.getSbbObject() == null) {
-								sbbEntity.assignAndActivateSbbObject();
-							}
-
+							// Assign an sbb from the pool
+							sbbEntity.assignAndActivateSbbObject();
 							sbbObject = sbbEntity.getSbbObject();
 							sbbObject.sbbLoad();
 
 							// GET AND CHECK EVENT MASK FOR THIS SBB ENTITY
-							Set eventMask = sbbEntity.getMaskedEventTypes(de.getActivityContextHandle());
+							Set eventMask = sbbEntity.getMaskedEventTypes(de.getActivityContextId());
 							if (!eventMask.contains(de.getEventTypeId())) {
 
 								// TIME TO INVOKE THE EVENT HANDLER METHOD
 								sbbObject.setSbbInvocationState(SbbInvocationState.INVOKING_EVENT_HANDLER);
+								
+								if (logger.isDebugEnabled()) {
+									logger
+											.debug("---> Invoking event handler: ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
+								}
+								
 								sbbEntity.invokeEventHandler(de,ac);
 
+								if (logger.isDebugEnabled()) {
+									logger
+											.debug("<--- Invoked event handler: ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
+								}
+								
 								// check to see if the transaction is marked for
 								// rollback if it is then we need to get out of
 								// here soon as we can.
@@ -211,12 +202,20 @@ public class EventRoutingTask implements Runnable {
 
 							// IF IT'S AN ACTIVITY END EVENT DETACH SBB ENTITY HERE
 							if (de.getEventTypeId().equals(ActivityEndEventImpl.getEventTypeID())) {
-								highestPrioritySbbEntity.afterACDetach(de.getActivityContextHandle());
+								if (logger.isDebugEnabled()) {
+									logger
+											.debug("The event is an activity end event, detaching ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId());
+								}
+								highestPrioritySbbEntity.afterACDetach(de.getActivityContextId());
 							}
 
 							// CHECK IF WE CAN CLAIM THE ROOT SBB ENTITY
 							if (rootSbbEntityId != null) {
 								if (SbbEntityFactory.getSbbEntity(rootSbbEntityId).getAttachmentCount() != 0) {
+									if (logger.isDebugEnabled()) {
+										logger
+												.debug("Not removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
+									}
 									// the root sbb entity is not be claimed
 									rootSbbEntityId = null;
 								}
@@ -224,7 +223,8 @@ public class EventRoutingTask implements Runnable {
 								// it's a root sbb
 								if (!sbbEntity.isRemoved()	&& sbbEntity.getAttachmentCount() == 0) {
 									if (logger.isDebugEnabled()) {
-										logger.debug("Attachment count for sbb entity "	+ sbbEntity.getSbbEntityId() + " is 0, removing it...");
+										logger
+												.debug("Removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
 									}
 									// If it's the same entity then this is an
 									// "Op and
@@ -264,7 +264,7 @@ public class EventRoutingTask implements Runnable {
 						} finally {
 							if (skipAnotherLoop) {
 								gotSbb = false;
-								ac.clearDeliveredSet();
+								sbbEntitiesThatHandledCurrentEvent.clear();
 							}
 						}
 					}
@@ -440,7 +440,7 @@ public class EventRoutingTask implements Runnable {
 			 */
 
 			if (de.getEventTypeId().equals(ActivityEndEventImpl.getEventTypeID())) {
-				activityEndEventPostProcessor.process(de.getActivityContextHandle(), txMgr, this.container.getActivityContextFactory());
+				activityEndEventPostProcessor.process(de.getActivityContextId(), txMgr, this.container.getActivityContextFactory());
 			} else if (de.getEventTypeId().equals(TimerEventImpl.getEventTypeID())) {
 				timerEventPostProcessor.process(de,this.container.getTimerFacility());
 			}

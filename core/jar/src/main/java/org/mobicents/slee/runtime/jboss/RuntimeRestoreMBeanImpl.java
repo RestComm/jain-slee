@@ -28,20 +28,13 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
-import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.jboss.mx.util.MBeanProxyExt;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean;
-import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
-import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
-import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
 
 /**
  * This is the code that runs when a new node is chosen as the cluster leader.

@@ -19,8 +19,8 @@ public class ProfileTableActivityHandle implements ActivityHandle, Serializable 
 	
 	private final String profileTable;
 
-	public ProfileTableActivityHandle(String id) {
-		this.profileTable = id;
+	public ProfileTableActivityHandle(String profileTable) {
+		this.profileTable = profileTable;
 	}
     
 	public boolean equals(Object obj) {

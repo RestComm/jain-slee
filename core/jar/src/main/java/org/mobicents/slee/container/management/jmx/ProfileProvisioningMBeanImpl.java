@@ -15,6 +15,7 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 import javax.management.MalformedObjectNameException;
@@ -440,11 +441,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 			SleeProfileManager profileManager = sleeContainer
 					.getSleeProfileManager();
-			;
+			
 			try {
-				Object profile = profileManager
-						.findDefaultProfile(profileTableName);
-				if (profile == null)
+				if (!profileManager.profileTableExists(profileTableName))			
 					throw new UnrecognizedProfileTableNameException();
 				rb = false;
 				ObjectName on = getDefaultProfileObjectName(profileTableName);
@@ -510,11 +509,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 				throw new InvalidArgumentException();
 			if (profileHasInvalidCharacters(newProfileName))
 				throw new InvalidArgumentException();
-			// FIXME As the profile is stored under tree cache the character /
-			// is important so it is replace by a space in the profile name,
-			// find a workaround
-			newProfileName = newProfileName.replace('/', ' ');
-
+			
 			SleeProfileManager profileManager = sleeContainer
 					.getSleeProfileManager();
 			ProfileSpecificationID profileSpecificationID;
@@ -544,7 +539,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 						newProfileName)) {
 					throw new ProfileAlreadyExistsException(errorStr);
 				}
-			} catch (SystemException e1) {
+			} catch (ProfileAlreadyExistsException e1) {
+				throw e1;			
+			} catch (Exception e1) {
 				throw new ManagementException(errorStr, e1);
 			}
 			objectName = null;
@@ -611,11 +608,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new NullPointerException();
 		if (profileName == null)
 			throw new NullPointerException();
-		// FIXME As the profile is stored under jboss cache the character / is
-		// important so it is replace by a space in the profile name, find a
-		// workaround
-		profileName = profileName.replace('/', ' ');
-
+		
 		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final SleeTransactionManager transactionManager = sleeContainer
 				.getTransactionManager();
@@ -687,11 +680,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new NullPointerException();
 		if (profileName == null)
 			throw new NullPointerException();
-		// FIXME As the profile is stored under jboss cache the character / is
-		// important so it is replace by a space in the profile name, find a
-		// workaround
-		profileName = profileName.replace('/', ' ');
-
+		
 		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final SleeTransactionManager transactionManager = sleeContainer
 				.getTransactionManager();
@@ -726,7 +715,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					throw new UnrecognizedProfileNameException(
 							"Profile has been created but not committed.");
 				}
-			} catch (SystemException e1) {
+			} catch (UnrecognizedProfileNameException e1) {
+				throw e1;	
+			} catch (Exception e1) {
 				throw new ManagementException("System-level failure", e1);
 			}
 
@@ -799,15 +790,14 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final SleeTransactionManager transactionManager = sleeContainer
 				.getTransactionManager();
-
-		Collection profileTables = null;
+		
 		boolean b = false;
 		try {
 			b = transactionManager.requireTransaction();
-			SleeProfileManager profileManager = sleeContainer
-					.getSleeProfileManager();
-			profileTables = profileManager.findAllProfileTables();
-			profileTables = new HashSet(profileTables);
+			
+			return Collections.unmodifiableCollection(sleeContainer
+					.getSleeProfileManager().getProfileTables());
+			
 		} catch (Exception x) {
 			try {
 				transactionManager.setRollbackOnly();
@@ -827,10 +817,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					logger.error("System Exception", e);
 					throw new ManagementException("System Exception", e);
 				}
-		}
-		// a serializable copy is needed. the original reference has ties to the
-		// distributed cache
-		return profileTables;
+		}		
 	}
 
 	/*
@@ -866,7 +853,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			if (profileSpecificationID == null)
 				throw new UnrecognizedProfileTableNameException();
 			profiles = profileManager
-					.findAllProfilesByTableName(profileTableName);
+					.getProfiles(profileTableName);
 
 			rb = false;
 		} finally {

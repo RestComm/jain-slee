@@ -42,6 +42,13 @@ public interface ActivityContextFactory {
     public ActivityContext getActivityContext(String acId, boolean updateAccessTime);
     
     /**
+     * Retrieves the {@link ActivityContextHandle} mapped to the specified ac id.
+     * @param acId
+     * @return
+     */
+    public ActivityContextHandle getActivityContextHandle(String acId);
+    
+    /**
      * Removes the {@link ActivityContext} for the specified {@link ActivityContextHandle}.
      * @param ac
      */
@@ -58,5 +65,10 @@ public interface ActivityContextFactory {
      * @return Set of all registered SLEE activity context handles
      */
     public Set<ActivityContextHandle> getAllActivityContextsHandles();
+    
+    /**
+     * @return Set of all registered SLEE activity context ids
+     */
+    public Set<String> getAllActivityContextsIds();
     
 }

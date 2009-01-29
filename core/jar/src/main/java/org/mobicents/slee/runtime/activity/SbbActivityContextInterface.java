@@ -18,8 +18,8 @@ public class SbbActivityContextInterface implements ActivityContextInterface {
 		this.aciImpl = aciImpl;
 	}
 
-	public ActivityContextHandle getActivityContextHandle() {
-		return aciImpl.getActivityContextHandle();
+	public ActivityContext getActivityContext() {
+		return aciImpl.getActivityContext();
 	}
 
 	public ActivityContextInterfaceImpl getAciImpl() {

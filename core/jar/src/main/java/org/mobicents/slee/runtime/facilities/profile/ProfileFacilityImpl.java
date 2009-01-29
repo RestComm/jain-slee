@@ -87,7 +87,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
         boolean startedTx = txMgr.requireTransaction();
 
         Collection profiles = profileManager
-                .findAllProfilesByTableName(profileTableName);
+                .getProfiles(profileTableName);
 
         Collection profileIDs = new ArrayList();
         Iterator it = profiles.iterator();
@@ -101,7 +101,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
                 if (logger.isDebugEnabled()) {
                     logger.debug("started tx so committing it");
                 }
-                SleeContainer.getTransactionManager().commit();
+                txMgr.commit();
             } catch (Exception e) {
                 throw new TransactionRolledbackLocalException(
                         "Failed to commit transaction");
@@ -290,7 +290,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 		// get profile manager
 		SleeProfileManager profileManager = SleeContainer.lookupFromJndi().getSleeProfileManager();
 		String tableNames = "";
-		for(Iterator i=profileManager.findAllProfileTables().iterator();i.hasNext();) {
+		for(Iterator i=profileManager.getProfileTables().iterator();i.hasNext();) {
 			String profileTableName = (String) i.next();
 			try {
 				tableNames+=profileTableName+"("+getProfiles(profileTableName).size()+") ";

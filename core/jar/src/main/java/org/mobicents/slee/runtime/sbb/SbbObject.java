@@ -53,6 +53,8 @@ public class SbbObject implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
 	transient private SbbObjectState state;
 
 	transient private SbbInvocationState invocationState = SbbInvocationState.NOT_INVOKING;
@@ -67,8 +69,6 @@ public class SbbObject implements Serializable {
 
 	// My SBB concrete class
 	private SbbConcrete sbbConcrete;
-
-	private ArrayList<String> invocationSeq;
 
 	/*
 	 * this class contains the information in the deployer descriptor -list of
@@ -102,8 +102,7 @@ public class SbbObject implements Serializable {
 
 		this.sbbID = (SbbID) sbbDescriptor.getID();
 		this.createConcreteClass();
-		this.invocationSeq = new ArrayList<String>();
-		
+				
 		// set sbb context
 		this.sbbContext = new SbbContextImpl(this);
 		if (log.isDebugEnabled()) {
@@ -165,8 +164,6 @@ public class SbbObject implements Serializable {
 		this.state = state;
 		if (this.sbbConcrete != null)
 			this.sbbConcrete.setState(state);
-		if (log.isDebugEnabled())
-			this.invocationSeq.add(state.toString());
 	}
 
 	/**
@@ -282,8 +279,6 @@ public class SbbObject implements Serializable {
 							+ this.getState());
 		}
 		this.invocationState = SbbInvocationState.INVOKING_SBB_CREATE;
-		if (log.isDebugEnabled())
-			this.invocationSeq.add("CREATE");
 		this.sbbConcrete.sbbCreate();
 		this.invocationState = SbbInvocationState.NOT_INVOKING;
 
@@ -305,8 +300,6 @@ public class SbbObject implements Serializable {
 	 */
 	public void sbbPostCreate() throws CreateException {
 		this.invocationState = SbbInvocationState.INVOKING_SBB_POSTCREATE;
-		if (log.isDebugEnabled())
-			this.invocationSeq.add("POST CREATE");
 		this.sbbConcrete.sbbPostCreate();
 		this.invocationState = SbbInvocationState.NOT_INVOKING;
 
@@ -316,11 +309,14 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbActivate()
 	 */
 	public void sbbActivate() {
+		
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbActivate()");
+		}
+		
 		if (this.getState() != SbbObjectState.POOLED) {
 			log.warn("wrong state -- expected POOLED  was " + this.getState());
-		}
-		if (log.isDebugEnabled())
-			this.invocationSeq.add("ACTIVATE");
+		}		
 		this.sbbConcrete.sbbActivate();
 	}
 
@@ -328,8 +324,11 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbPassivate()
 	 */
 	public void sbbPassivate() {
-		if (log.isDebugEnabled())
-			this.invocationSeq.add("PASSIVATE");
+		
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbPassivate()");
+		}
+		
 		this.sbbConcrete.sbbPassivate();
 	}
 
@@ -338,14 +337,17 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbLoad()
 	 */
 	public void sbbLoad() throws TransactionRequiredLocalException {
-		SleeContainer.getTransactionManager().mandateTransaction();
+		
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbLoad()");
+		}
+		
+		sleeContainer.getTransactionManager().mandateTransaction();
 		if (this.getState() != SbbObjectState.READY) {
 			log.warn("sbbLoad called from wrong state should be READY was "
 					+ this.getState());
-		}
+		}		
 		this.invocationState = SbbInvocationState.INVOKING_SBB_LOAD;
-		if (log.isDebugEnabled())
-			this.invocationSeq.add("LOAD");
 		this.sbbConcrete.sbbLoad();
 		this.invocationState = SbbInvocationState.NOT_INVOKING;
 
@@ -357,7 +359,13 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbStore()
 	 */
 	public void sbbStore() {
-		SleeContainer.getTransactionManager().mandateTransaction();
+		
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbStore()");
+		}
+		
+		sleeContainer.getTransactionManager().mandateTransaction();
+
 		if (this.getState() != SbbObjectState.READY) {
 			log.warn("sbbStore called from wrong state should be READY was "
 					+ this.getState());
@@ -380,11 +388,10 @@ public class SbbObject implements Serializable {
 					Thread.currentThread().setContextClassLoader(cl);
 
 				if (this.sbbConcrete != null) {
-					this.invocationState = SbbInvocationState.INVOKING_SBB_STORE;
+					this.invocationState = SbbInvocationState.INVOKING_SBB_STORE;					
 					this.sbbConcrete.sbbStore();
 					this.invocationState = SbbInvocationState.NOT_INVOKING;
 					if (log.isDebugEnabled()) {
-						this.invocationSeq.add("STORE");
 						log.debug("Called sbbStore!");
 					}
 				} else {
@@ -411,6 +418,11 @@ public class SbbObject implements Serializable {
 
 	public void sbbExceptionThrown(Exception exception, Object eventObject,
 			ActivityContextInterface activityContextInterface) {
+		
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbExceptionThrown() : exception="+exception+" , eventObject="+eventObject+" , aci="+activityContextInterface);
+		}
+		
 		getSbbContext().setRollbackOnly();
 
 		ClassLoader oldClassLoader = Thread.currentThread()
@@ -421,8 +433,6 @@ public class SbbObject implements Serializable {
 
 			this.sbbConcrete.sbbExceptionThrown(exception, eventObject,
 					activityContextInterface);
-			if (log.isDebugEnabled())
-				this.invocationSeq.add("EXCEPTION THROWN");
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
@@ -445,6 +455,11 @@ public class SbbObject implements Serializable {
 	}
 
 	public void sbbRolledBack(RolledBackContext sbbRolledBackContext) {
+		
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbRolledBack() : rolledBackContext="+sbbRolledBackContext);
+		}
+		
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		try {
@@ -452,8 +467,6 @@ public class SbbObject implements Serializable {
 					this.sbbDescriptor.getClassLoader());
 
 			this.sbbConcrete.sbbRolledBack(sbbRolledBackContext);
-			if (log.isDebugEnabled())
-				this.invocationSeq.add("ROLLED BACK");
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
@@ -461,6 +474,11 @@ public class SbbObject implements Serializable {
 	}
 
 	public void sbbRemove() {
+		
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbRemove()");
+		}
+		
 		final ClassLoader oldClassLoader = SleeContainerUtils
 				.getCurrentThreadClassLoader();
 		try {
@@ -477,14 +495,10 @@ public class SbbObject implements Serializable {
 				Thread.currentThread().setContextClassLoader(cl);
 
 			if (this.sbbConcrete != null) {
-				this.sbbConcrete.sbbRemove();
-				if (log.isDebugEnabled()) {
-					this.invocationSeq.add("REMOVE");
-					log.debug("Called sbbRemove");
-				}
+				this.sbbConcrete.sbbRemove();				
 			} else {
 				if (log.isDebugEnabled())
-					log.debug("sbbRemove not called: concrete sbb is null");
+					log.debug("sbbRemove on the concrete sbb not called: concrete sbb is null");
 			}
 
 		} finally {
@@ -576,21 +590,5 @@ public class SbbObject implements Serializable {
 		}
 
 	}
-
-	/**
-	 * @return Returns the invocationSeq.
-	 */
-	public void printInvocationSeq() {
-		if (log.isDebugEnabled()) {
-			Iterator i = invocationSeq.iterator();
-			String str = new String();
-			while (i.hasNext())
-				str += i.next().toString() + "\n";
-
-			log.debug("INVOCATION OF LIFECYCLE METHOD FOR COMPONENT: " + sbbID
-					+ "\n" + str);
-		}
-
-	}
-
+	
 }

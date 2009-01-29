@@ -55,8 +55,8 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 
 		}
 
-		SleeContainer serviceContainer = getServiceContainer();
-		SleeContainer.getTransactionManager().mandateTransaction();
+		SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
+		serviceContainer.getTransactionManager().mandateTransaction();
 		try {
 			// check if this is an assigned profile table
 			// name.
@@ -75,9 +75,4 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 		return new ActivityContextInterfaceImpl(ac);
 
 	}
-
-	public SleeContainer getServiceContainer() {
-		return SleeContainer.lookupFromJndi();
-	}
-
 }

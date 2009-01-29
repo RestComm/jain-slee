@@ -45,6 +45,11 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
          * sbbCreate - in which case it is illegal to call sbbActivat before
          * sbbCreate - Tim
          */
+    	
+    	if (logger.isDebugEnabled()) {
+        	logger.debug("activateObject() for "+sbbDescriptor.getID());
+        }
+    	
     }
 
     public void destroyObject(Object sbb) throws java.lang.Exception {

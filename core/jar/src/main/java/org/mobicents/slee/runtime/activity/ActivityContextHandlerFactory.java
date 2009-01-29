@@ -2,9 +2,9 @@ package org.mobicents.slee.runtime.activity;
 
 import javax.slee.resource.ActivityHandle;
 
+import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityHandle;
 
 public class ActivityContextHandlerFactory {
 	

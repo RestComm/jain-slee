@@ -20,7 +20,7 @@
  * usefulness of the software.
  */
 
-package org.mobicents.slee.runtime.serviceactivity;
+package org.mobicents.slee.container.service;
 
 import java.io.Serializable;
 
@@ -29,6 +29,7 @@ import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityFactory;
+import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -55,10 +56,14 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 	public ServiceActivity getActivity()
 			throws TransactionRequiredLocalException, FactoryException {
 
-		SleeTransactionManager stm = SleeContainer.getTransactionManager();
+		SleeTransactionManager stm = SleeContainer.lookupFromJndi().getTransactionManager();
 		stm.mandateTransaction();
-		ServiceID serviceID = (ServiceID) stm
-				.getTxLocalData(TXLOCALDATA_SERVICEID_KEY);
+		ServiceID serviceID = null;
+		try {
+			serviceID = (ServiceID) stm.getTransactionContext().getData().get(TXLOCALDATA_SERVICEID_KEY);
+		} catch (SystemException e) {
+			throw new FactoryException(e.getMessage(),e);
+		}
 		return getActivity(serviceID);
 	}
 

@@ -1,11 +1,7 @@
 package org.mobicents.slee.runtime.facilities.nullactivity;
 
-import javax.transaction.SystemException;
-
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -13,11 +9,11 @@ public class NullActivityImplictEndTask implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(NullActivityImplictEndTask.class);
 	
-	private final ActivityContextHandle ach;
+	private final String acId;
 
-	public NullActivityImplictEndTask(ActivityContextHandle ach) {
+	public NullActivityImplictEndTask(String acId) {
 		super();
-		this.ach = ach;
+		this.acId = acId;
 	}
 	
 	public void run() {
@@ -27,7 +23,7 @@ public class NullActivityImplictEndTask implements Runnable {
 		boolean rollback = true;
 		try {
 			txManager.begin();
-			NullActivityContext ac = (NullActivityContext) sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
+			NullActivityContext ac = (NullActivityContext) sleeContainer.getActivityContextFactory().getActivityContext(acId,false);
 			if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
 				ac.implicitEndSecondCheck();
 			}

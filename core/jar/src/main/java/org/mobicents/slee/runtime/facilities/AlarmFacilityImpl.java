@@ -151,7 +151,7 @@ public class AlarmFacilityImpl implements AlarmFacility {
 	    		registeredComps.remove(sbbid);    
 	    	}
 	    };
-	    SleeContainer.getTransactionManager().addAfterRollbackAction(action);
+	    SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
 	}
 	
 	/**
@@ -167,7 +167,7 @@ public class AlarmFacilityImpl implements AlarmFacility {
 		    		registeredComps.put(sbbId,registeredComp);    
 		    	}
 		    };
-		    SleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		    SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
 	    }
 	}
 	

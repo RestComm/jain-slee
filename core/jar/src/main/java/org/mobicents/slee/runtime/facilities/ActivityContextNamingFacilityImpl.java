@@ -13,7 +13,6 @@
  */
 package org.mobicents.slee.runtime.facilities;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.slee.ActivityContextInterface;
@@ -26,10 +25,8 @@ import javax.slee.facilities.NameNotBoundException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.cache.CacheableMap;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
+import org.mobicents.slee.runtime.cache.ActivityContextNamingFacilityCacheData;
 
 /*
  * Ranga - Initial and refactored for Tx isolation.
@@ -48,28 +45,20 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 public class ActivityContextNamingFacilityImpl implements
         ActivityContextNamingFacility {
 
-    private static final String tcache = TransactionManagerImpl.RUNTIME_CACHE;
-   
     private static Logger log = Logger.getLogger(ActivityContextNamingFacilityImpl.class);
     
-    private static String MAP_NODE_NAME = "namedActivityContexts";
+    private final SleeContainer sleeContainer;
     
-    /**
-     * tx isolated cache map. 
-     * the map as a whole is isolated from other transactions. phantom reads for map entries are not allowed.
-     */      
-    private Map getNameMap() throws Exception {
-    	   // phantom reads are not allowed for ACI access
-    	   CacheableMap cmap = new CacheableMap(tcache + "-" + MAP_NODE_NAME);
-    	   cmap.setAllowPhantomReads(false);
-    	   return cmap;
-   }
+    private final ActivityContextNamingFacilityCacheData cacheData;
     
     /**
      * constructor.
      *  
      */
-    public ActivityContextNamingFacilityImpl() {
+    public ActivityContextNamingFacilityImpl(SleeContainer sleeContainer) {
+    	this.sleeContainer = sleeContainer;
+    	cacheData = sleeContainer.getCache().getActivityContextNamingFacilityCacheData();
+    	cacheData.create();
     }
 
     /*
@@ -83,9 +72,7 @@ public class ActivityContextNamingFacilityImpl implements
             TransactionRequiredLocalException, NameAlreadyBoundException,
             FacilityException {
         // Check if we are in the context of a transaction.
-        
-    	final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-    	
+       
     	sleeContainer.getTransactionManager().mandateTransaction();
             
         if (aciName == null)
@@ -96,17 +83,13 @@ public class ActivityContextNamingFacilityImpl implements
             throw new NullPointerException ("Null ACI! ");
           
         try {        
-            Map hmap = this.getNameMap();
-            
-            String nodeName = aciName;
-            if ( hmap.containsKey(nodeName)) 
-                throw new NameAlreadyBoundException("Name already bound ! " + aciName);	
-	       
-            org.mobicents.slee.runtime.activity.ActivityContextInterface sleeAci = (org.mobicents.slee.runtime.activity.ActivityContextInterface)aci;
-	        
-            //Creating a new node per binding allows fine grained locking	        
-	        hmap.put(nodeName,sleeAci.getActivityContextHandle());
-	        sleeContainer.getActivityContextFactory().getActivityContext(sleeAci.getActivityContextHandle(),true).addNameBinding(aciName);
+        	org.mobicents.slee.runtime.activity.ActivityContextInterface sleeAci = (org.mobicents.slee.runtime.activity.ActivityContextInterface)aci;
+        	String acId = sleeAci.getActivityContext().getActivityContextId();
+        	cacheData.bindName(acId,aciName);
+	        sleeContainer.getActivityContextFactory().getActivityContext(acId,true).addNameBinding(aciName);
+	        if (log.isDebugEnabled()) {
+	        	log.debug("aci name "+aciName+" bound to "+acId+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
+	        }
         } catch (NameAlreadyBoundException ex) {
             if (log.isDebugEnabled()) {
                 log.debug("name already bound " + aciName);
@@ -128,28 +111,21 @@ public class ActivityContextNamingFacilityImpl implements
             FacilityException {
         //Check if we are in the context of a transaction.
         
-    	final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-    	
     	sleeContainer.getTransactionManager().mandateTransaction();
 
         if (aciName == null)
             throw new NullPointerException("null activity context name!");
         
-        String nodeName =  aciName;
-        
         try {       
             
-            Map acNames = this.getNameMap();
-            if (! acNames.containsKey(aciName)) 
-                throw new NameNotBoundException ("Name not bound " + aciName);
-           
-            ActivityContextHandle ach = (ActivityContextHandle) acNames.get(aciName);
-            acNames.remove(nodeName);
+        	String acId = cacheData.unbindName(aciName);         
             ActivityContext ac = sleeContainer.
-            	getActivityContextFactory().getActivityContext(ach,true);
+            	getActivityContextFactory().getActivityContext(acId,true);
             if ( ac != null )
                 ac.removeNameBinding(aciName);
-        
+            if (log.isDebugEnabled()) {
+	        	log.debug("aci name "+aciName+" unbound from ac with id "+acId+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
+	        }
         } catch ( NameNotBoundException ex) {
             if (log.isDebugEnabled()) {
                 log.debug("Name not bound " + aciName);
@@ -161,39 +137,18 @@ public class ActivityContextNamingFacilityImpl implements
 	      
     }
         
-    public void unbindWithoutCheck(String aciName) throws NullPointerException,
+    public void removeName(String aciName) throws NullPointerException,
 		    TransactionRequiredLocalException, NameNotBoundException, FacilityException 
     {
 		//Check if we are in the context of a transaction.
 		
-    	final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-    	
     	sleeContainer.getTransactionManager().mandateTransaction();
     	
 		if (log.isDebugEnabled()) {
-	        log.debug("Unbinding: aci " + aciName);
+	        log.debug("Removing name from facility: aci " + aciName);
 		}
 		
-		if (aciName == null)
-		    throw new NullPointerException("null activity context name!");
-		
-		
-		try {        		    
-		    Map acNames = this.getNameMap();
-          
-		    ActivityContextHandle ach = (ActivityContextHandle) acNames.remove(aciName);
-            if (ach == null) {
-            	throw new NameNotBoundException(aciName);
-            }
-            ActivityContext ac = sleeContainer.
-        	getActivityContextFactory().getActivityContext(ach,true);
-            if ( ac != null )
-                ac.removeNameBinding(aciName);
-        
-        
-		} catch (Exception e) {
-			throw new FacilityException("Failed to remove ac name binding from cache", e);
-		}
+		cacheData.unbindName(aciName);
   
     }
 
@@ -215,14 +170,18 @@ public class ActivityContextNamingFacilityImpl implements
         
         try {        
             
-            Map acNames = this.getNameMap();
-            ActivityContextHandle ach = (ActivityContextHandle) acNames.get(acName);
- 
-        	if (ach == null ) return null;
-        	
-        	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, true);
+	        String acId = cacheData.lookupName(acName);
+	        
+	        if (log.isDebugEnabled()) {
+	        	log.debug("lookup of aci name "+acName+" result is "+acId+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
+	        }
+	        
+            if (acId == null) {
+        		return null;
+        	}       	
+        	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(acId, true);
         	if (ac == null) {
-        		acNames.remove(acName);
+        		cacheData.unbindName(acName);
         		throw new FacilityException("name found but unable to retrieve activity context");
         	}
         	return new ActivityContextInterfaceImpl(ac);        
@@ -232,15 +191,12 @@ public class ActivityContextNamingFacilityImpl implements
         
     }
     
-    public Map getBindings()
-    {
+    public Map getBindings() {
     	
     	try {
-			Map acNames = this.getNameMap();
-			return new HashMap(acNames);
+    		return cacheData.getNameBindings();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(),e);
 		}
     	
 		return null;

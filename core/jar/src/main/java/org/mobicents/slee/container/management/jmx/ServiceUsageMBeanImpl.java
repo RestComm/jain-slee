@@ -106,7 +106,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throw new InvalidArgumentException(
 					"The lenght of the Usage Parameter Set Name is zero!");
 
-		SleeTransactionManager txmgr = SleeContainer.getTransactionManager();
+		SleeTransactionManager txmgr = SleeContainer.lookupFromJndi().getTransactionManager();
 		boolean rb = true;
 		try {
 
@@ -166,11 +166,11 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throw new NullPointerException("Sbb usage param set is null");
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
-		SleeTransactionManager txmgr = SleeContainer.getTransactionManager();
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		boolean rb = true;
 		try {
-			txmgr.begin();
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			sleeContainer.getTransactionManager().begin();
+			
 			if (!sleeContainer.getComponentManagement().isInstalled(sbbId))
 				throw new UnrecognizedSbbException("Sbb not installed " + sbbId);
 
@@ -191,8 +191,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		} finally {
 			try {
 				if (rb)
-					txmgr.setRollbackOnly();
-				txmgr.commit();
+					sleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().commit();
 			} catch (SystemException ex) {
 				logger.fatal("Unexpected exception !", ex);
 				throw new RuntimeException("Unexpected exception !", ex);
@@ -218,11 +218,10 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
-		SleeTransactionManager txmgr = SleeContainer.getTransactionManager();
 		String[] usageParameterSets = null;
 		boolean rb = true;
 		try {
-			txmgr.begin();
+			sleeContainer.getTransactionManager().begin();
 			checkSbbUsageParams(sbbId);
 
 			usageParameterSets = service.getNamedUsageParameterSets(sbbId);
@@ -241,8 +240,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		} finally {
 			try {
 				if (rb)
-					txmgr.setRollbackOnly();
-				txmgr.commit();
+					sleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().commit();
 			} catch (SystemException ex) {
 				logger.error("Txmgr failed", ex);
 				throw new RuntimeException("Txmgr failed", ex);
@@ -262,11 +261,10 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
 		boolean rb = true;
 
 		try {
-			txMgr.begin();
+			sleeContainer.getTransactionManager().begin();
 
 			checkSbbUsageParams(sbbId);
 			ObjectName on = (ObjectName) service
@@ -287,8 +285,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		} finally {
 			try {
 				if (rb)
-					txMgr.setRollbackOnly();
-				txMgr.commit();
+					sleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().commit();
 			} catch (Exception e) {
 				throw new RuntimeException("Unexpected error with tx manager",
 						e);
@@ -313,11 +311,10 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (name == null)
 			throw new NullPointerException("Sbb usage param set is null");
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
 		boolean rb = true;
 
 		try {
-			txMgr.begin();
+			sleeContainer.getTransactionManager().begin();
 
 			checkSbbUsageParams(sbbId);
 			ObjectName on = (ObjectName) service.getUsageParameterObjectName(
@@ -341,8 +338,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		} finally {
 			try {
 				if (rb)
-					txMgr.setRollbackOnly();
-				txMgr.commit();
+					sleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().commit();
 			} catch (Exception e) {
 				throw new RuntimeException("Unexpected error with tx manager",
 						e);
@@ -368,10 +365,9 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null");
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
 		boolean rb = true;
 		try {
-			txMgr.begin();
+			sleeContainer.getTransactionManager().begin();
 			checkSbbUsageParams(sbbId);
 
 			InstalledUsageParameterSet usageParam = Service
@@ -406,8 +402,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		} finally {
 			try {
 				if (rb)
-					txMgr.setRollbackOnly();
-				txMgr.commit();
+					sleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().commit();
 			} catch (Exception e) {
 				throw new RuntimeException("Unexpected error with tx manager",
 						e);
@@ -426,11 +422,10 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	public void resetAllUsageParameters() throws ManagementException {
 
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
 		boolean rb = true;
 
 		try {
-			txMgr.begin();
+			sleeContainer.getTransactionManager().begin();
 			Service service = sleeContainer.getServiceManagement().getService(
 					this.serviceID);
 			for (Iterator it = Service.getAllUsageParameters(this.serviceID); it
@@ -445,8 +440,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		} finally {
 			try {
 				if (rb)
-					txMgr.setRollbackOnly();
-				txMgr.commit();
+					sleeContainer.getTransactionManager().setRollbackOnly();
+				sleeContainer.getTransactionManager().commit();
 			} catch (Exception ex) {
 				throw new RuntimeException("unexpected system exception ", ex);
 			}

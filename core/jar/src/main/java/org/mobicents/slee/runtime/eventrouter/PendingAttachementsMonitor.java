@@ -2,13 +2,11 @@ package org.mobicents.slee.runtime.eventrouter;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -34,15 +32,10 @@ public class PendingAttachementsMonitor {
 
 	private final Object monitor = new Object();
 	
-	private void txModifyingAttachs(boolean attach) throws TransactionRequiredLocalException {
+	private void txModifyingAttachs(boolean attach) throws SystemException {
 		
-		SleeTransactionManager txManager = SleeContainer.getTransactionManager();
-		String txId = null;
-		try {
-			txId = txManager.getTransaction().toString();
-		} catch (SystemException e) {
-			throw new TransactionRequiredLocalException("failed to retreive transaction from slee transaction manager");
-		}
+		SleeTransactionManager txManager = SleeContainer.lookupFromJndi().getTransactionManager();
+		String txId = txManager.getTransaction().toString();
 		
 		// get the current value of the attachment
 		TxModifyingAttachsState state = txsModifyingAttachs.get(txId);
@@ -70,18 +63,18 @@ public class PendingAttachementsMonitor {
 	}
 	
 	/**
-	 * Adds current tx to the set of txs attaching to the {@link ActivityContextHandle} related with this object.
+	 * Adds current tx to the set of txs attaching to the {@link ActivityContext} related with this object.
 	 * @throws SystemException
 	 */
-	public void txAttaching() throws TransactionRequiredLocalException {
+	public void txAttaching() throws SystemException {
 		txModifyingAttachs(true);	
 	}
 	
 	/**
-	 * Adds current tx to the set of txs dettaching to the {@link ActivityContextHandle} related with this object.
+	 * Adds current tx to the set of txs dettaching to the {@link ActivityContext} related with this object.
 	 * @throws SystemException
 	 */
-	public void txDetaching() throws TransactionRequiredLocalException {
+	public void txDetaching() throws SystemException {
 		txModifyingAttachs(false);
 	}
 	

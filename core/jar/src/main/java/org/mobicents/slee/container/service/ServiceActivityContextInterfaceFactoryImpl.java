@@ -20,7 +20,7 @@
  * usefulness of the software.
  */
 
-package org.mobicents.slee.runtime.serviceactivity;
+package org.mobicents.slee.container.service;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;

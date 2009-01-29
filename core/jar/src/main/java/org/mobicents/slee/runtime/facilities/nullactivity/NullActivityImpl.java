@@ -31,6 +31,7 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 
 
 /** Implementation of the null activity.
@@ -51,6 +52,8 @@ public class NullActivityImpl implements NullActivity, Serializable {
     
     private static Logger logger = Logger.getLogger( NullActivityImpl.class);
     
+    private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+    
     public NullActivityImpl(NullActivityHandle handle) {
         this.handle = handle;
     }
@@ -66,10 +69,9 @@ public class NullActivityImpl implements NullActivity, Serializable {
         if ( logger.isDebugEnabled()) {
             logger.debug("NullActivity.endActivity()");
         }
-        final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
         sleeContainer.getTransactionManager().mandateTransaction();
         try {
-			sleeContainer.getNullActivityFactory().endNullActivity(handle);
+			sleeContainer.getNullActivityFactory().endNullActivity(ActivityContextHandlerFactory.createNullActivityContextHandle(handle));
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}

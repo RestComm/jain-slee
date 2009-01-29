@@ -14,7 +14,6 @@
 package org.mobicents.slee.runtime.sbb;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
@@ -33,9 +32,9 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * SBB Context Implementation.
@@ -85,6 +84,8 @@ public class SbbContextImpl implements SbbContext, Serializable {
 
 	volatile private static Logger logger = Logger.getLogger(SbbContextImpl.class);
    
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
     /** The SBB entity to which I am assigned. */
     private SbbObject sbbObject;
 
@@ -105,22 +106,19 @@ public class SbbContextImpl implements SbbContext, Serializable {
                             + this.sbbObject.getState());
         }
         Set activities = sbbObject.getSbbEntity().getActivityContexts();
-        ActivityContextInterface[] aci = new ActivityContextInterface[activities
-                .size()];
+        Object[] activityContextIds = activities.toArray();
+        ActivityContextInterface[] aci = new ActivityContextInterface[activityContextIds
+                .length];
         if (logger.isDebugEnabled()) {
-            logger.debug("The Sbb is attached to " + activities.size()
+            logger.debug("The Sbb is attached to " + activityContextIds.length
                 + "activities");
         }
-        Iterator it = activities.iterator();
-        int i = 0;
-        ActivityContextFactory acf = SleeContainer.lookupFromJndi().getActivityContextFactory();
-        while (it.hasNext()) {           
-        	ActivityContextHandle ach = (ActivityContextHandle) it.next();
-        	ActivityContext ac = acf.getActivityContext(ach, true);
-            aci[i++] = new ActivityContextInterfaceImpl(ac);
+        ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
+        for (int i=0; i < activityContextIds.length;i++) {
+        	ActivityContext ac = acf.getActivityContext((String)activityContextIds[i], true);
+            aci[i] = new ActivityContextInterfaceImpl(ac);
         }
         return aci;
-
     }
 
     public String[] getEventMask(ActivityContextInterface aci)
@@ -135,23 +133,23 @@ public class SbbContextImpl implements SbbContext, Serializable {
     	{
     		throw new IllegalStateException("Wrong state! SbbEntity is not assigned");
     	}
-    	SleeContainer.getTransactionManager().mandateTransaction();
-    	//ActivityContextInterface sbbObjectAci = sbbObject.getActivityContextInterface(aci);
-    	ActivityContextHandle activityContextHandle = ((ActivityContextInterfaceImpl)aci).getActivityContextHandle();
-    	if ( ! sbbObject.getSbbEntity().checkAttached(activityContextHandle))
+    	sleeContainer.getTransactionManager().mandateTransaction();    	
+    	String acId = ((ActivityContextInterfaceImpl)aci).getActivityContext().getActivityContextId();
+    	if ( ! sbbObject.getSbbEntity().isAttached(acId))
     	    throw new NotAttachedException("ACI not attached to SBB");
     	
-        return sbbObject.getSbbEntity().getEventMask(activityContextHandle);
+        return sbbObject.getSbbEntity().getEventMask(acId);
     }
 
     public boolean getRollbackOnly() throws TransactionRequiredLocalException,
             SLEEException {
-        SleeContainer.getTransactionManager().mandateTransaction();
+    	SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
+    	txMgr.mandateTransaction();
         if (logger.isDebugEnabled()) {
             logger.debug("in getRollbackOnly on " + this);
         }
         try {
-            return SleeContainer.getTransactionManager().getRollbackOnly();
+            return txMgr.getRollbackOnly();
         } catch (SystemException e) {
             throw new SLEEException ("Problem with the tx manager!"	);
         }
@@ -164,7 +162,7 @@ public class SbbContextImpl implements SbbContext, Serializable {
     public SbbLocalObject getSbbLocalObject()
             throws TransactionRequiredLocalException, IllegalStateException,
             SLEEException {
-        SleeContainer.getTransactionManager().mandateTransaction();
+        sleeContainer.getTransactionManager().mandateTransaction();
         if (this.sbbObject == null || this.sbbObject.getSbbEntity() == null ||
                 this.sbbObject.getState() != SbbObjectState.READY)
             throw new IllegalStateException("Bad state : " + this.sbbObject.getState());
@@ -203,11 +201,11 @@ public class SbbContextImpl implements SbbContext, Serializable {
     		throw new IllegalStateException("Wrong state! SbbEntity is not assigned");
     	}
         
-        SleeContainer.getTransactionManager().mandateTransaction();
-        ActivityContextHandle activityContextHandle = ((ActivityContextInterfaceImpl)aci).getActivityContextHandle();
+        sleeContainer.getTransactionManager().mandateTransaction();
+        String acId = ((ActivityContextInterfaceImpl)aci).getActivityContext().getActivityContextId();
     	
-        if ( !sbbObject.getSbbEntity().checkAttached(activityContextHandle)) throw new NotAttachedException("ACI is not attached to SBB ");
-        sbbObject.getSbbEntity().setEventMask(activityContextHandle, eventNames);
+        if ( !sbbObject.getSbbEntity().isAttached(acId)) throw new NotAttachedException("ACI is not attached to SBB ");
+        sbbObject.getSbbEntity().setEventMask(acId, eventNames);
 
     }
     /**
@@ -219,12 +217,13 @@ public class SbbContextImpl implements SbbContext, Serializable {
      */
     public void setRollbackOnly() throws TransactionRequiredLocalException,
             SLEEException {
-        SleeContainer.getTransactionManager().mandateTransaction();
+    	SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+    	sleeTransactionManager.mandateTransaction();
         
         logger.debug("in setRollbackOnly on " + this);
         
         try {
-            SleeContainer.getTransactionManager().setRollbackOnly();
+        	sleeTransactionManager.setRollbackOnly();
             
         } catch (SystemException e) {
             throw new SLEEException ("tx manager failure!");

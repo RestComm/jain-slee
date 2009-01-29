@@ -34,16 +34,14 @@ public class HandleRollback {
 	public boolean handleRollback(SbbObject sbbObject, Object eventObject, ActivityContextInterface aci,
 			Exception e, ClassLoader contextClassLoader,SleeTransactionManager txMgr) {
 		
-		txMgr.assertIsInTx();
+		txMgr.mandateTransaction();
 
 		boolean invokeSbbRolledBack = false;
 
 		if (e != null && e instanceof RuntimeException) {
 
 			// See spec. 9.12.2 for full details of what we do here
-			if (logger.isInfoEnabled())
-				logger.info("Caught RuntimeException in invoking SLEE originated invocation",e);
-
+			
 			// We only invoke sbbExceptionThrown if there is an sbb Object *and* an sbb object method was being invoked when the exception was thrown
 			if (sbbObject != null && sbbObject.getInvocationState() != SbbInvocationState.NOT_INVOKING) {
 				

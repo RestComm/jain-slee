@@ -46,15 +46,11 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent {
     
     private Object  removedProfile;
     
-    private ActivityContextInterfaceImpl activityContextInterface;
-    
     public ProfileRemovedEventImpl ( Address profileAddress, ProfileID profileId, 
-            Object removedProfile, ActivityContextInterfaceImpl acii,
-            ProfileTableActivityContextInterfaceFactoryImpl ptableAcif ) {
+            Object removedProfile, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif ) {
         this.profileAddress = profileAddress;
         this.profile = profileId;
-        this.removedProfile = removedProfile;
-        this.activityContextInterface = acii;
+        this.removedProfile = removedProfile;        
     }
     
     /* (non-Javadoc)
@@ -93,12 +89,5 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent {
         return this.removedProfile;
     }
 
-    public ActivityContextInterfaceImpl getActivityContextInterface() {
-        return this.activityContextInterface;
-    }
-
-    public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
-        this.activityContextInterface = activityContextInterface;   
-    }
 }
 

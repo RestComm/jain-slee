@@ -1,4 +1,4 @@
-package org.mobicents.slee.runtime.serviceactivity;
+package org.mobicents.slee.container.service;
 
 import java.io.Serializable;
 
@@ -34,4 +34,8 @@ public class ServiceActivityHandle implements ActivityHandle, Serializable {
 		return serviceid.toString().hashCode();
 	}
     
+	@Override
+	public String toString() {
+		return serviceid.toString();
+	}
 }

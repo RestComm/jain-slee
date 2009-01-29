@@ -14,7 +14,10 @@ import javax.slee.Address;
 import javax.slee.EventTypeID;
 
 import org.mobicents.slee.container.component.SbbEventEntry;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 
 /**
  * 
@@ -27,10 +30,12 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandle;
  */
 public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector{
     
+	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
 	private EventTypeID eventTypeID;
     private String eventName;
     private Object event;
-    private ActivityContextHandle activityContextHandle;
+    private String acId;
     private Address address;
     private String customName;
 
@@ -46,11 +51,11 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
     
     private String selectMethodName;
  
-    public InitialEventSelectorImpl(EventTypeID type, Object event, ActivityContextHandle activityContextHandle,  int[] select, String methodName, Address address) {
+    public InitialEventSelectorImpl(EventTypeID type, Object event, String acId,  int[] select, String methodName, Address address) {
         eventTypeID = type;
         this.event = event;
         this.address = address;
-        this.activityContextHandle = activityContextHandle;
+        this.acId = acId;
         
         for(int i=0; i<select.length;i++){
             switch(select[i]){ 
@@ -74,7 +79,7 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
         return "InitialEventSelector = {\n eventTypeID " + eventTypeID 
         	+ " eventName " + eventName
         	+ " event " + event 
-        	+ " acHandle " + activityContextHandle
+        	+ " acId " + acId
         	+ " address " + address
         	+ "\n activityContextSelected = "  + isActivityContextSelected
         	+ "\n isAddressSelected " + isAddressSelected
@@ -189,7 +194,8 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
      * @see javax.slee.InitialEventSelector#getActivity()
      */
     public Object getActivity() {
-        return activityContextHandle.getActivity();
+        return sleeContainer.getActivityContextFactory().getActivityContextHandle(acId)
+				.getActivity();
     }
     /* (non-Javadoc)
      * @see javax.slee.InitialEventSelector#getAddress()

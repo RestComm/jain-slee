@@ -7,7 +7,6 @@ import javax.slee.resource.FailureReason;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
  * 
@@ -49,15 +48,15 @@ public class ActivityEventQueueManager {
 	private final SleeContainer sleeContainer;
 
 	/**
-	 * the activity context handle that identifies this object
+	 * the activity context id that identifies this object
 	 */
-	private final ActivityContextHandle activityContextHandle;
+	private final String acId;
 
 	public ActivityEventQueueManager(
-			ActivityContextHandle activityContextHandle,
+			String acId,
 			SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
-		this.activityContextHandle = activityContextHandle;
+		this.acId = acId;
 	}
 
 	/**
@@ -79,10 +78,8 @@ public class ActivityEventQueueManager {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("pending event of type " + dE.getEventTypeId()
-					+ " for activity handle "
-					+ dE.getActivityContextHandle().getActivityHandle()
-					+ " of type "
-					+ dE.getActivityContextHandle().getActivityType());
+					+ " for activity context with id "
+					+ dE.getActivityContextId());
 		}
 
 		if (activityEndEvent == null) {
@@ -105,10 +102,8 @@ public class ActivityEventQueueManager {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("committing event of type " + dE.getEventTypeId()
-					+ " for activity handle "
-					+ dE.getActivityContextHandle().getActivityHandle()
-					+ " of type "
-					+ dE.getActivityContextHandle().getActivityType());
+					+ " for activity context with id "
+					+ dE.getActivityContextId());
 		}
 
 		if (pendingEvents.remove(dE) != null) {
@@ -165,10 +160,8 @@ public class ActivityEventQueueManager {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("rolling back event of type " + dE.getEventTypeId()
-					+ " for activity handle "
-					+ dE.getActivityContextHandle().getActivityHandle()
-					+ " of type "
-					+ dE.getActivityContextHandle().getActivityType());
+					+ " for activity context with id "
+					+ dE.getActivityContextId());
 		}
 
 		if (pendingEvents.remove(dE) != null) {
@@ -180,8 +173,8 @@ public class ActivityEventQueueManager {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((ActivityEventQueueManager) obj).activityContextHandle
-					.equals(this.activityContextHandle);
+			return ((ActivityEventQueueManager) obj).acId
+					.equals(this.acId);
 		} else {
 			return false;
 		}
@@ -189,6 +182,6 @@ public class ActivityEventQueueManager {
 
 	@Override
 	public int hashCode() {
-		return activityContextHandle.hashCode();
+		return acId.hashCode();
 	}
 }

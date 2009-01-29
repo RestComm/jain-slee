@@ -183,8 +183,7 @@ public class ConcreteSbbGenerator {
 
             ConcreteClassGeneratorUtils.createInheritanceLink(sbbConcreteClass,
                     sbbAbstractClass);
-            createInterceptorFields();
-            createDefaultConstructor();
+            
 
             try {
                 createFields(new CtClass[] {
@@ -193,6 +192,7 @@ public class ConcreteSbbGenerator {
 
                 CtClass[] parameters = new CtClass[] { pool.get(SbbEntity.class
                         .getName()) };
+                createInterceptorFields();
                 createStateGetterAndSetter(sbbConcreteClass);
                 createInterceptors(sbbConcreteClass);
                 createSbbEntityGetterAndSetter(sbbConcreteClass);
@@ -200,7 +200,9 @@ public class ConcreteSbbGenerator {
                 createDefaultUsageParameterGetter(sbbConcreteClass);
                 createNamedUsageParameterSetter(sbbConcreteClass);
                 createNamedUsageParameterGetter(sbbConcreteClass);
+                createDefaultConstructor();
                 createConstructorWithParameter(parameters);
+               
             } catch (NotFoundException nfe) {
                 logger.error("Constructor With Parameter not created");
                 throw new DeploymentException("Constructor not created.", nfe);
@@ -497,7 +499,7 @@ public class ConcreteSbbGenerator {
         CtConstructor constructorWithParameter = new CtConstructor(parameters,
                 sbbConcreteClass);
         String constructorBody = "{" + "this();";
-        for (int i = 0; i < parameters.length; i++) {
+        /*for (int i = 0; i < parameters.length; i++) {
             String parameterName = parameters[i].getName();
             parameterName = parameterName.substring(parameterName
                     .lastIndexOf(".") + 1);
@@ -508,8 +510,7 @@ public class ConcreteSbbGenerator {
 
             int paramNumber = i + 1;
             constructorBody += parameterName + "=$" + paramNumber + ";";
-        }
-        constructorBody += "createInterceptors();";
+        }        */
         constructorBody += "this.setSbbEntity($1);";
         constructorBody += "}";
         try {
@@ -556,7 +557,7 @@ public class ConcreteSbbGenerator {
         // create the object instance to run the method that
         // creates the convergence name.
 
-        String constructorBody = "{}";
+        String constructorBody = "{ createInterceptors(); }";
 
         try {
             defaultConstructor.setBody(constructorBody);
@@ -952,8 +953,7 @@ public class ConcreteSbbGenerator {
                             "public void setSbbEntity ( "
                                     + SbbEntity.class.getName()
                                     + " sbbEntity )"
-                                    + "{"
-                                    + "this.createInterceptors();"
+                                    + "{"                                   
                                     + "this.sbbEntity = sbbEntity;"
                                     + SBB_PERSISTENCE_INTERCEPTOR_FIELD + ".setSbbEntity(sbbEntity);"
                                     + SBB_FIREEVENT_INTERCEPTOR + ".setSbbEntity(sbbEntity);"

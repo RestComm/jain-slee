@@ -2,6 +2,7 @@ package org.mobicents.slee.runtime.eventrouter;
 
 import javax.slee.resource.FailureReason;
 
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
@@ -13,11 +14,11 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 public interface EventRouter {
 
 	/**
-	 * Retrieves the event router activity object for the specified {@link ActivityContextHandle}
+	 * Retrieves the event router activity object for the {@link ActivityContext} with the specified id
 	 * 
 	 * @return
 	 */
-	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach);
+	public EventRouterActivity getEventRouterActivity(String acId);
 
 	/**
 	 * Requests the routing of a {@link DeferredEvent}
@@ -43,13 +44,13 @@ public interface EventRouter {
 	 * The activity has started so the event router may init related runtime resources
 	 * @param ach
 	 */
-	public void activityStarted(ActivityContextHandle ach);
+	public void activityStarted(String acId);
 	
 	/**
 	 * The activity has ended so the event router may close related runtime resources 
 	 * @param ach
 	 */
-	public void activityEnded(ActivityContextHandle ach);
+	public void activityEnded(String acId);
 
 	/**
 	 * Configures the event router, defining the number of event executors and

@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
+import org.mobicents.slee.runtime.sbb.SbbObjectPool;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
@@ -86,7 +87,7 @@ public class HandleSbbRollback {
 					logger
 							.debug("Invoking sbbRolledBack on different sbb object");
 				}
-				ObjectPool pool = sbbEntity.getObjectPool();
+				SbbObjectPool pool = sbbEntity.getObjectPool();
 
 				// Get rid of old object (if any) first
 				if (sbbEntity.getSbbObject() != null) {

@@ -51,7 +51,7 @@ public class RuntimeRestoreTask implements Runnable {
     public void run() {
 
         SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-        SleeTransactionManager txmgr = SleeContainer.getTransactionManager();
+        SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
         boolean rb = true;
         try {
            

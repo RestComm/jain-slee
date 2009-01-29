@@ -1,21 +1,43 @@
 package org.mobicents.slee.runtime.eventrouter;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 public class EventRouterActivity {
 
-	private final ActivityContextHandle ach;
+	/**
+	 * 
+	 */
+	private final String acId;
+	
+	/**
+	 * 
+	 */
 	private ExecutorService executorService;
+	
+	/**
+	 * 
+	 */
 	private final ActivityEventQueueManager eventQueueManager;
+	
+	/**
+	 * 
+	 */
 	private final PendingAttachementsMonitor pendingAttachementsMonitor;
 	
-	public EventRouterActivity(ActivityContextHandle ach, PendingAttachementsMonitor pendingAttachementsMonitor, SleeContainer sleeContainer) {
-		this.ach = ach;
-		this.eventQueueManager = new ActivityEventQueueManager(ach,sleeContainer);
+	/**
+	 * the set containing all sbb entities that handled the current event being routed
+	 */
+	private final Set<String> sbbEntitiesThatHandledCurrentEvent;
+	
+	public EventRouterActivity(String acId, PendingAttachementsMonitor pendingAttachementsMonitor, SleeContainer sleeContainer) {
+		this.acId = acId;
+		this.eventQueueManager = new ActivityEventQueueManager(acId,sleeContainer);
 		this.pendingAttachementsMonitor = pendingAttachementsMonitor;
+		this.sbbEntitiesThatHandledCurrentEvent = new HashSet<String>();
 	}
 	
 	public ActivityEventQueueManager getEventQueueManager() {
@@ -34,15 +56,19 @@ public class EventRouterActivity {
 		return pendingAttachementsMonitor;
 	}
 	
-	public ActivityContextHandle getActivityContextHandle() {
-		return ach;
+	public String getActivityContextId() {
+		return acId;
+	}
+	
+	public Set<String> getSbbEntitiesThatHandledCurrentEvent() {
+		return sbbEntitiesThatHandledCurrentEvent;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((EventRouterActivity) obj).ach
-					.equals(this.ach);
+			return ((EventRouterActivity) obj).acId
+					.equals(this.acId);
 		} else {
 			return false;
 		}
@@ -50,7 +76,7 @@ public class EventRouterActivity {
 
 	@Override
 	public int hashCode() {
-		return ach.hashCode();
+		return acId.hashCode();
 	}
 	
 }

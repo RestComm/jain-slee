@@ -39,6 +39,7 @@ import javax.slee.management.DeploymentException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.SbbDescriptor;
 import javax.slee.management.ServiceState;
+import javax.slee.management.SleeState;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.transaction.SystemException;
 
@@ -53,6 +54,7 @@ import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceComponent;
+import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.mobicents.slee.resource.ResourceAdaptorTypeDescriptorImpl;
@@ -231,7 +233,14 @@ public class ServiceManagement {
 				// lets cache some info
 				initServiceRuntimeCache(serviceComponent);
 				
-				service.activate();
+				// change service state
+				service.setState(ServiceState.ACTIVE);
+				
+				// only create activity if slee is already running, otherwise
+				// slee will do it by itself when state changes
+				if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+					service.startActivity();
+				}
 				serviceComponent.lock();			
 				
 				rb = false;
@@ -345,7 +354,16 @@ public class ServiceManagement {
 							.serviceDeactivated(serviceID.toString());
 				}
 
-				service.deactivate();
+				service.setState(ServiceState.STOPPING);
+				
+				// only end activity if slee is running, otherwise
+				// slee already did it
+				if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+					service.endActivity();
+				}
+				else {
+					service.setState(ServiceState.INACTIVE);
+				}
 				serviceComponent.unlock();
 
 				// remove runtime cache related wih this service
@@ -557,7 +575,7 @@ public class ServiceManagement {
 
 	private Service getServiceFromServiceComponent(
 			ServiceComponent serviceComponent) {
-		return Service.getService(serviceComponent.getServiceDescriptor());
+		return ServiceFactory.getService(serviceComponent.getServiceDescriptor());
 	}
 
 	/**
@@ -586,6 +604,8 @@ public class ServiceManagement {
 					"cannot find root SbbID component ! cannot install service ");
 		}
 
+		ServiceFactory.createService(serviceDescriptorImpl);
+		
 		serviceComponents.putIfAbsent(serviceComponent.getServiceID(),
 				serviceComponent);
 
@@ -1059,22 +1079,13 @@ public class ServiceManagement {
 			}
 		}
 		
-		try {
-			if (transactionManager.isInTx()) {
-				// add rollback tx action to remove state created
-				TransactionalAction action = new TransactionalAction() {
-					public void execute() {
-						removeServiceRuntimeCache(serviceComponent);					
-					}
-				};
-				transactionManager.addAfterRollbackAction(action);
+		// add rollback tx action to remove state created
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				removeServiceRuntimeCache(serviceComponent);					
 			}
-		} catch (SystemException e) {
-			// ignore
-			if (logger.isDebugEnabled()) {
-				logger.debug(e.getMessage(),e);
-			}
-		}
+		};
+		transactionManager.addAfterRollbackAction(action);		
 	}
 	
 	private static final Set<RuntimeService> EMPTY_SET = new HashSet<RuntimeService>(0);
@@ -1118,22 +1129,13 @@ public class ServiceManagement {
 			}
 		}
 		
-		try {
-			if (transactionManager.isInTx()) {
-				// add rollback tx action to add state removed
-				TransactionalAction action = new TransactionalAction() {
-					public void execute() {
-						initServiceRuntimeCache(serviceComponent);					
-					}
-				};
-				transactionManager.addAfterRollbackAction(action);
+		// add rollback tx action to add state removed
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				initServiceRuntimeCache(serviceComponent);					
 			}
-		} catch (SystemException e) {
-			// ignore
-			if (logger.isDebugEnabled()) {
-				logger.debug(e.getMessage(),e);
-			}
-		}
+		};
+		transactionManager.addAfterRollbackAction(action);		
 	}
 	
 	public class RuntimeService {
@@ -1173,6 +1175,20 @@ public class ServiceManagement {
 		@Override
 		public String toString() {
 			return serviceComponent.getServiceID().toString();
+		}
+	}
+
+	public void endActiveServicesActivities() throws NullPointerException, ManagementException, UnrecognizedServiceException {
+		for (ServiceID serviceID : getServices(ServiceState.ACTIVE)) {
+			Service service = getService(serviceID);
+			service.endActivity();
+		}
+	}
+	
+	public void startActiveServicesActivities() throws NullPointerException, ManagementException, UnrecognizedServiceException, SystemException {
+		for (ServiceID serviceID : getServices(ServiceState.ACTIVE)) {
+			Service service = getService(serviceID);
+			service.startActivity();
 		}
 	}
 	

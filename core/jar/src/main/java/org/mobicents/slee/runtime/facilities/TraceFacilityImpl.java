@@ -92,7 +92,7 @@ public class TraceFacilityImpl implements TraceFacility {
   	    		}
   	    	}
   	    };
-  	    SleeContainer.getTransactionManager().addAfterRollbackAction(action);
+  	    SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
     }
     
     public void setTraceLevel (ComponentID componentId, Level newLevel) {
@@ -114,7 +114,7 @@ public class TraceFacilityImpl implements TraceFacility {
     	    		traceLevelTable.put(componentId,level);    
     	    	}
     	    };
-    	    SleeContainer.getTransactionManager().addAfterRollbackAction(action);
+    	    SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
         }
     }
     

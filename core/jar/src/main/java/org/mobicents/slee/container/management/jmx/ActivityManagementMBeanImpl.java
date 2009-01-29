@@ -356,7 +356,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		logger.info("Listing with criteria[" + criteria + "] with details["
 				+ inDetails + "] only IDS[" + listIDsOnly + "]");
 
-		Iterator<ActivityContextHandle> it = this.acFactory.getAllActivityContextsHandles().iterator();
+		Iterator<String> it = this.acFactory.getAllActivityContextsIds().iterator();
 		ArrayList lst = new ArrayList();
 
 		// Needed by LIST_BY_SBBID
@@ -364,8 +364,11 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 		while (it.hasNext()) {
 			ActivityContext ac = this.acFactory.getActivityContext(it.next(),false);
+			if (ac == null) {
+				continue;
+			}
 			Object activity = ac.getActivityContextHandle().getActivity();
-			if (ac != null && activity != null) {  
+			if (activity != null) {  
 				
 				switch (criteria) {
 				case LIST_BY_ACTIVITY_CLASS:
@@ -445,7 +448,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 				// Now we have to check - if we want only IDS
 				Object singleResult = null;
 				if (!listIDsOnly) {
-					logger.debug("Adding AC[" + ac.getActivityContextHandle() + "]");
+					logger.debug("Adding AC[" + ac.getActivityContextId() + "]");
 
 					Object[] o = getDetails(ac);
 
@@ -469,7 +472,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 				} else {
 
-					singleResult = ac.getActivityContextHandle().toString();
+					singleResult = ac.getActivityContextId();
 				}
 
 				lst.add(singleResult);
@@ -495,7 +498,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	private Object[] getDetails(ActivityContext ac) {
 
 		logger.debug("Retrieveing details for acID["
-				+ ac.getActivityContextHandle() + "]");
+				+ ac.getActivityContextId() + "]");
 		Object[] o = new Object[ARRAY_SIZE];
 
 		o[ActivityManagementMBeanImplMBean.AC_ID] = ac.getActivityContextId();
@@ -719,7 +722,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		if (this.acFactory == null) {
 			this.container = SleeContainer.lookupFromJndi();
 			this.acFactory = container.getActivityContextFactory();
-			this.txMgr = SleeContainer.getTransactionManager();
+			this.txMgr = container.getTransactionManager();
 			this.currentQuestioner = new PeriodicLivelinessScanner();
 			this.queryRunner.schedule(this.currentQuestioner,
 					this.querryInterval);

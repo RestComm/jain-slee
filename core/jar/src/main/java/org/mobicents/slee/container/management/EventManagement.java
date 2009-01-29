@@ -3,8 +3,10 @@ package org.mobicents.slee.container.management;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
 import javax.slee.management.AlreadyDeployedException;
 import javax.slee.management.DeployableUnitID;
+import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -105,8 +107,7 @@ public class EventManagement {
 					logger.info("Removed event " + ckey +" due to transaction rollback");
 				}
 			};
-			sleeContainer.getTransactionManager()
-					.addAfterRollbackAction(action);
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 			logger.info("Installed event " + ckey);
 		} else {
 			throw new AlreadyDeployedException("The event " + ckey
@@ -150,8 +151,7 @@ public class EventManagement {
 						logger.info("Reinstalled event " + eventTypeID +" due to transaction rollback");
 					}
 				};
-				sleeContainer.getTransactionManager().addAfterRollbackAction(
-						action);
+				sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 				logger.info("Uninstalled event " + eventTypeID);
 			}
 		}

@@ -11,13 +11,12 @@
 package org.mobicents.slee.runtime.activity;
 
 import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.resource.ActivityAlreadyExistsException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.cache.ActivityContextFactoryCacheData;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContext;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -38,19 +37,20 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
 public class ActivityContextFactoryImpl implements ActivityContextFactory {
 
 	private static Logger logger = Logger.getLogger(ActivityContextFactoryImpl.class);
-
-	/**
-	 * {@link ActivityContextHandle} to AC ID mapping
-	 */
-	private final ConcurrentHashMap<ActivityContextHandle, String> activityContexts = new ConcurrentHashMap<ActivityContextHandle, String>();
 	
 	/**
 	 * the container for this factory
 	 */
 	private final SleeContainer sleeContainer;
 	
+	private ActivityContextFactoryCacheData cacheData;
+	
 	public ActivityContextFactoryImpl(SleeContainer sleeContainer) {		
 		this.sleeContainer = sleeContainer;		
+		cacheData = sleeContainer.getCache().getActivityContextFactoryCacheData();
+		if (!cacheData.exists()) {
+			cacheData.create();
+		}
 	}
 
 	/*
@@ -65,43 +65,44 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		}
 	}
 	
+	private String createActivityContextId(ActivityContextHandle ach) {
+		String acId = null;
+		if (ach.getActivityType() != ActivityType.nullActivity) {
+			acId = "ac:" + sleeContainer.getUuidGenerator().createUUID();
+		}
+		else {
+			// lets reuse its id
+			acId = "ac:" + ((NullActivityHandle) ach.getActivityHandle()).getId();			
+		}	
+		return acId;
+	}
+	
 	public ActivityContext createActivityContext(final ActivityContextHandle ach) throws ActivityAlreadyExistsException {
 		
-		if (!activityContexts.containsKey(ach)) {
-			// create id
-			String acId = null;
-			if (ach.getActivityType() != ActivityType.nullActivity) {
-				acId = "ac:" + sleeContainer.getUuidGenerator().createUUID();
-			}
-			else {
-				// lets reuse its id
-				acId = "ac:" + ((NullActivityHandle) ach.getActivityHandle()).getId();			
-			}		
+		// create id
+		final String acId = createActivityContextId(ach);
+		
+		if (cacheData.addActivityContext(ach, acId)) {
 			// create ac
 			ActivityContext ac = createActivityContextInstance(ach,acId,true);
 			// warn event router about it
-			sleeContainer.getEventRouter().activityStarted(ach);
+			sleeContainer.getEventRouter().activityStarted(acId);
 			// add rollback tx action to remove state created
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {
-					removeActivityContextData(ach);					
+					sleeContainer.getEventRouter().activityEnded(acId);				
 				}
 			};
 			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-			// map ach to id
-			if (activityContexts.putIfAbsent(ach, acId) != null) {
-				ac.markForRemove();
-				throw new ActivityAlreadyExistsException(); 
-			}
 			return ac;
 		}
 		else {
-			throw new ActivityAlreadyExistsException(); 
+			throw new ActivityAlreadyExistsException(ach.toString());
 		}
 	}
 
 	public ActivityContext getActivityContext(ActivityContextHandle ach, boolean updateAccessTime) {
-		String acId = activityContexts.get(ach);
+		String acId = cacheData.getActivityContextId(ach);
 		if (acId != null) {
 			return createActivityContextInstance(ach,acId,updateAccessTime);
 		}
@@ -111,12 +112,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	}
 	
 	public ActivityContext getActivityContext(String acId, boolean updateAccessTime) {
-		ActivityContextHandle ach = null;
-		for (Entry<ActivityContextHandle, String> entry : activityContexts.entrySet()) {
-			if (entry.getValue().equals(acId)) {
-				ach = entry.getKey();
-			}
-		}
+		ActivityContextHandle ach = (ActivityContextHandle) cacheData.getActivityContextHandle(acId);
 		if (ach != null) {
 			return createActivityContextInstance(ach,acId,updateAccessTime);
 		}
@@ -126,62 +122,54 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	}
 
 	public Set<ActivityContextHandle> getAllActivityContextsHandles() {
-		return activityContexts.keySet();
+		return cacheData.getActivityContextHandles();
 	}
 
+	public Set<String> getAllActivityContextsIds() {
+		return cacheData.getActivityContextIds();
+	}
+	
 	public void removeActivityContext(final ActivityContext ac) {
 
-		// since the ac ended we may need to warn the activity source that it has ended
-		ac.getActivityContextHandle().activityEnded();
-		
 		// remove references to this AC in timer and ac naming facility
 		ac.removeNamingBindings();
 		ac.removeFromTimers(); // Spec 7.3.4.1 Step 10
 		
-		ac.markForRemove();
+		ac.removeFromCache();
 		
-		removeActivityContextData(ac.getActivityContextHandle());
+		cacheData.removeActivityContext(ac.getActivityContextHandle(),ac.getActivityContextId());
+		
+		sleeContainer.getEventRouter().activityEnded(ac.getActivityContextId());
 		
 		// add rollback tx action to remove state created
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
-				try {
-					createActivityContext(ac.getActivityContextHandle());
-				} catch (ActivityAlreadyExistsException e) {
-					// ignore
-					if (logger.isDebugEnabled()) {
-						logger.debug(e.getMessage(),e);
-					}
-				}					
+				sleeContainer.getEventRouter().activityStarted(ac.getActivityContextId());				
 			}
 		};
 		sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		
+		// since the ac ended we may need to warn the activity source that it has ended
+		ac.getActivityContextHandle().activityEnded();
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activity context with handle "+ac.getActivityContextHandle()+" removed");
 		}
 		
 	}
-
-	/*
-	 * removes the data related with the activity context
-	 */
-	private void removeActivityContextData(ActivityContextHandle ach) {
-		// remove ac handle from factory
-		if (activityContexts.remove(ach) != null) {
-			// inform the event router, may have resources to close
-			sleeContainer.getEventRouter().activityEnded(ach);			
-		}
-	}
 	
-	public int getActivityContextCount() {
-		return activityContexts.size();
+	public int getActivityContextCount() {		
+		return getAllActivityContextsHandles().size();
 	}
 	
 	@Override
 	public String toString() {
 		return "ActivityContext Factory: " 
-			+ "\n+-- Number of ACs: " + activityContexts.size();
+			+ "\n+-- Number of ACs: " + getActivityContextCount();
+	}
+
+	public ActivityContextHandle getActivityContextHandle(String acId) {
+		return (ActivityContextHandle) cacheData.getActivityContextHandle(acId);
 	}
 	
 }

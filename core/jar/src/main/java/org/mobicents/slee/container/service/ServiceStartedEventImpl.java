@@ -20,15 +20,20 @@
  * usefulness of the software.
  */
 
-package org.mobicents.slee.runtime.serviceactivity;
+package org.mobicents.slee.container.service;
 
+import javax.slee.EventTypeID;
 import javax.slee.ServiceID;
 import javax.slee.serviceactivity.ServiceStartedEvent;
+
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ComponentKey;
 
 /**
  * Implementation of the Service Started Event.
  * 
  * @author M. Ranganathan
+ * @author martins
  *
  */
 public class ServiceStartedEventImpl implements ServiceStartedEvent {
@@ -42,5 +47,24 @@ public class ServiceStartedEventImpl implements ServiceStartedEvent {
         return this.serviceID;
     }
 
+    /**
+	 *	the component key for this event
+	 */
+	public static final ComponentKey COMPONENT_KEY = new ComponentKey("javax.slee.serviceactivity.ServiceStartedEvent", "javax.slee",
+	"1.0");
+	
+	private static EventTypeID eventTypeID = null;
+	
+	/**
+	 * 
+	 * @return the event type id for the activity end event
+	 */
+	public static EventTypeID getEventTypeID() {
+		if (eventTypeID == null) {
+			eventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(COMPONENT_KEY);
+		}
+		return eventTypeID;
+	}
+	
 }
 

@@ -1,6 +1,7 @@
 package org.mobicents.slee.runtime.sbbentity;
 
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +16,8 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.eventrouter.EventRouterActivity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class RootSbbEntitiesRemovalTask extends TimerTask {
@@ -92,8 +95,8 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 
 		this.cancel();
 
-		SleeTransactionManager sleeTransactionManager = SleeContainer
-				.getTransactionManager();
+		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 
 		Iterator i = null;
 
@@ -105,7 +108,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 
 				if (i == null) {
 					// get service
-					Service service = SleeContainer.lookupFromJndi()
+					Service service = sleeContainer
 							.getServiceManagement().getService(serviceID);
 					if (service.getState() == ServiceState.INACTIVE) {
 						i = service.getChildObj().iterator();
@@ -116,34 +119,98 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 				}
 
 				if (i.hasNext()) {
+					final String sbbEntityId = (String) i.next();
 					// get sbb entity
 					SbbEntity sbbEntity = null;
 					try {
-						sbbEntity = SbbEntityFactory.getSbbEntity((String) i
-								.next());
+						sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
 					} catch (Exception e) {
 						// entity does not exists anymore, continue
 						continue;
 					}
-					// save current class loader
-					ClassLoader oldClassLoader = Thread.currentThread()
-							.getContextClassLoader();
-					try {
-						// change to the sbb object class loader
-						Thread.currentThread().setContextClassLoader(
-								sbbEntity.getSbbDescriptor().getClassLoader());
-						// remove sbb entity
+					
+					Set attachedACs = sbbEntity.getActivityContexts();
+					
+					if (logger.isDebugEnabled()) {
+						logger.debug("sbb entity "+sbbEntityId+" is attached to ACs "+attachedACs);
+					}
+					
+					boolean noTransaction = !attachedACs.isEmpty();
+					if (noTransaction) {
+						// close this transaction we don't need it now
+						sleeTransactionManager.commit();
+
+						// detach the entity from activities using the activities executor service
+						for (Object obj : attachedACs) {
+
+							final String acId = (String) obj;
+
+							try {
+								EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(acId);
+								if (era != null) {
+
+									Runnable r = new Runnable() {
+										public void run() {
+											try {
+												sleeTransactionManager.begin();
+												ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(acId,false);
+												if (ac != null) {
+													ac.detachSbbEntity(sbbEntityId);
+													if (logger.isDebugEnabled()) {
+														logger.debug("sbb entity "+sbbEntityId+" is now detached from AC "+acId);
+													}
+												}												
+											}
+											catch (Exception e) {
+												// ignore
+												if (logger.isDebugEnabled()) {
+													logger.debug(e.getMessage(),e);
+												}
+											}	
+											finally {
+												try {
+													sleeTransactionManager.commit();
+												} catch (Exception e) {
+													// ignore
+													if (logger.isDebugEnabled()) {
+														logger.debug(e.getMessage(),e);
+													}
+												}
+											}
+										}								
+									};
+									// submit and block till it is executed
+									era.getExecutorService().submit(r).get();
+								}
+							}
+							catch (Exception e) {
+								// ignore
+								if (logger.isDebugEnabled()) {
+									logger.debug(e.getMessage(),e);
+								}
+							}
+						}						
+					
+						// create transaction and reload sbb entity whch should not have any ac attached
+						sleeTransactionManager.begin();
+						try {
+							sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
+						} catch (Exception e) {
+							// entity does not exists anymore, continue
+							continue;
+						} 
+					}
+					
+					try {		
+						// finally remove sbb entity
 						SbbEntityFactory.removeSbbEntity(sbbEntity, false);
 					} catch (Exception ex) {
 						if (logger.isDebugEnabled()) {
 							logger.debug("error removing entity "
 									+ sbbEntity.getSbbEntityId(), ex);
 						}
-					} finally {
-						// restore old class loader
-						Thread.currentThread().setContextClassLoader(
-								oldClassLoader);
 					}
+					
 				} else {
 					// no more entities, finish task
 					break;

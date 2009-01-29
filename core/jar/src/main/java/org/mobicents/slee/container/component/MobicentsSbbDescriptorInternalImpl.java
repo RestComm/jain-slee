@@ -33,6 +33,8 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ComponentClassLoadingManagement;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorType;
@@ -41,8 +43,7 @@ import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbObject;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityContextInterfaceFactoryImpl;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
+import org.mobicents.slee.runtime.sbb.SbbObjectPool;
 
 public class MobicentsSbbDescriptorInternalImpl implements
 		MobicentsSbbDescriptorInternal, MobicentsSbbDescriptor {
@@ -339,7 +340,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		final SbbEventEntry entry = (SbbEventEntry) eventTypes.get(sleeEvent.getEventTypeId());
 		
 		InitialEventSelectorImpl selector = new InitialEventSelectorImpl(
-				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextHandle(), entry
+				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextId(), entry
 						.getInitialEventSelectors(), entry
 						.getInitialEventSelectorMethod(), sleeEvent
 						.getAddress());
@@ -365,7 +366,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 			selector.setCustomName(null);
 			selector.setInitialEvent(true);
 
-			ObjectPool pool = SleeContainer.lookupFromJndi().getSbbManagement()
+			SbbObjectPool pool = SleeContainer.lookupFromJndi().getSbbManagement()
 					.getSbbPoolManagement().getObjectPool(
 							svc.getRootSbbComponent().getID());
 			SbbObject sbbObject = (SbbObject) pool.borrowObject();
@@ -406,7 +407,7 @@ public class MobicentsSbbDescriptorInternalImpl implements
 		StringBuffer buff = new StringBuffer();
 
 		if (selector.isActivityContextSelected()) {
-			buff.append(sleeEvent.getActivityContextHandle().toString());
+			buff.append(sleeEvent.getActivityContextId());
 		} else
 			buff.append("null");
 

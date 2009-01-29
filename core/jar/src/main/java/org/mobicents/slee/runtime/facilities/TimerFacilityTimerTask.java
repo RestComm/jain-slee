@@ -32,7 +32,6 @@ import javax.slee.facilities.TimerPreserveMissed;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -47,7 +46,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 
     private TimerID timerId;
 
-    private ActivityContextHandle activityContextHandle;
+    private String acId;
 
     private Address address;
 
@@ -67,7 +66,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 
     public String toString() {
         return new StringBuffer().append("timerId = " + timerId).append(
-                "\nach = " + this.activityContextHandle).append(
+                "\nacId = " + this.acId).append(
                 "\nAddress = " + address).append(
                 "\ntimerOptions = " + timerOptions).append(
                 "\nstartTime = " + startTime).append(
@@ -76,14 +75,14 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
                 "\nperiod  " + this.period).toString();
     }
 
-    public TimerFacilityTimerTask(TimerID timerId, ActivityContextHandle activityContextHandle,
+    public TimerFacilityTimerTask(TimerID timerId, String acId,
             Address address, long startTime, long period, int numRepetitions,
             TimerOptions timerOptions) {
 
         this.timerId = timerId;
 
         //this.aci = aci;
-        this.activityContextHandle = activityContextHandle;
+        this.acId = acId;
         this.address = address;
         this.startTime = startTime;
         this.period = period;
@@ -285,7 +284,8 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
     
     void postEvent(TimerEventImpl timerEvent) {
         
-    	SleeTransactionManager txmgr = SleeContainer.getTransactionManager();
+    	SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+    	SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
 		// b is true if tx is created
 		boolean b = txmgr.requireTransaction();
 		// rb is true if a rollback is needed
@@ -295,9 +295,9 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 			//Post the timer event to the queue.
 			this.lastTick = System.currentTimeMillis();
 			
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			
 			ActivityContext ac = sleeContainer.getActivityContextFactory()
-			.getActivityContext(this.activityContextHandle,true);
+			.getActivityContext(this.acId,true);
 			
 			// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
 			//   and thus the timer cancelation came a bit late
@@ -307,13 +307,13 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger
-					.debug("Posting timer event on event router queue. Activity:  "
-							+ ac.getActivityContextHandle()
+					.debug("Posting timer event on event router queue. Activity context:  "
+							+ ac.getActivityContextId()
 							+ " remainingRepetitions: "
 							+ remainingRepetitions);
 				}
 				
-				new DeferredEvent(TimerEventImpl.getEventTypeID(),timerEvent,activityContextHandle,this.address);
+				new DeferredEvent(TimerEventImpl.getEventTypeID(),timerEvent,ac,this.address);
 				
 				rb = false;
 			}            
@@ -353,9 +353,9 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
     /**
      * @return the activity context interface for the timer task.
      */
-    public ActivityContextHandle getActivityContextHandle() {
+    public String getActivityContextId() {
         
-        return this.activityContextHandle;
+        return this.acId;
     }
     
     public long getStartTime() {

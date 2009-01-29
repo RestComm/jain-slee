@@ -49,24 +49,13 @@ public interface ProfileManagementInterceptor {
      * 
      * @return
      */
-    public Object getProfile();
-    /**
-     * 
-     * @param profileKey
-     */
-    public void setProfileKey(String profileKey);
-    /**
-     * 
-     * @return
-     */
-    public String getProfileKey();
-    
+    public Object getProfile();   
     
     /**
      * @param profileSpecDUClassLoader 
      * @param string
      */
-    public void copyStateFromDefaultProfile(String profileCMPInterfaceName,String defaultProfileKey, ClassLoader profileSpecDUClassLoader) throws ManagementException;
+    public void copyStateFromDefaultProfile(String profileCMPInterfaceName, ClassLoader profileSpecDUClassLoader) throws ManagementException;
     
     /**
      * @param profileSpecDUClassLoader 

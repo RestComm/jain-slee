@@ -22,7 +22,6 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * 
@@ -41,186 +40,195 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  */
 public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 
-	private static Logger logger = Logger.getLogger(ActivityContextInterfaceImpl.class);
-    
-    private static final SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+	private static Logger logger = Logger
+			.getLogger(ActivityContextInterfaceImpl.class);
 
-    private final ActivityContext activityContext;
-   
-    /**
-     * This is allocated by the Slee to wrap an incoming event (activity).
-     * 
-     * @param activityContextHandle
-     */
-    public ActivityContextInterfaceImpl(ActivityContext activityContext) {
-    	this.activityContext = activityContext;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.slee.ActivityContextInterface#getActivity()
-     */
-    public Object getActivity() throws TransactionRequiredLocalException,
-            SLEEException {
-        
-    	txMgr.mandateTransaction();
-        
-    	return getActivityContextHandle().getActivity();
-    }
+	private static final SleeContainer sleeContainer = SleeContainer
+			.lookupFromJndi();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.slee.ActivityContextInterface#attach(javax.slee.SbbLocalObject)
-     */
-    public void attach(SbbLocalObject sbbLocalObject)
-            throws NullPointerException, TransactionRequiredLocalException,
-            TransactionRolledbackLocalException, SLEEException {
+	private final ActivityContext activityContext;
 
-        if (sbbLocalObject == null)
-            throw new NullPointerException("null SbbLocalObject !");
-       
-        txMgr.mandateTransaction();
-        
-        SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
+	/**
+	 * This is allocated by the Slee to wrap an incoming event (activity).
+	 * 
+	 * @param activityContextHandle
+	 */
+	public ActivityContextInterfaceImpl(ActivityContext activityContext) {
+		this.activityContext = activityContext;
+	}
 
-        String sbbeId = sbbLocalObjectImpl.getSbbEntityId();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.ActivityContextInterface#getActivity()
+	 */
+	public Object getActivity() throws TransactionRequiredLocalException,
+			SLEEException {
 
-        boolean attached = getActivityContext().attachSbbEntity(sbbeId);
+		sleeContainer.getTransactionManager().mandateTransaction();
 
-        if (logger.isDebugEnabled()) {
-            logger
-                    .debug("ActivityContextInterface.attach(): ACI attach Called for "
-                            + sbbLocalObject
-                            + " ACID = "
-                            + getActivityContextHandle()
-                            + " SbbEntityId " + sbbeId);
-        }
-        
-        boolean setRollbackAndThrowException = false;
-        try {
-        	SbbEntity sbbEntity = sbbLocalObjectImpl.getSbbEntity();
-        	if (sbbEntity.isRemoved()) {
-        		setRollbackAndThrowException = true;
-        	}
-        	else {
-        		// attach entity from ac
-        		sbbEntity.afterACAttach(getActivityContextHandle());
-        	}
-        }
-        catch (Exception e) {
-        	setRollbackAndThrowException = true;
-        }
-        if (setRollbackAndThrowException) {
-        	try {
-				txMgr.setRollbackOnly();
-			} catch (SystemException e) {
-				logger.warn("failed to set rollback flag while asserting valid sbb entity",e);
+		return activityContext.getActivityContextHandle().getActivity();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.ActivityContextInterface#attach(javax.slee.SbbLocalObject)
+	 */
+	public void attach(SbbLocalObject sbbLocalObject)
+			throws NullPointerException, TransactionRequiredLocalException,
+			TransactionRolledbackLocalException, SLEEException {
+
+		if (sbbLocalObject == null)
+			throw new NullPointerException("null SbbLocalObject !");
+
+		sleeContainer.getTransactionManager().mandateTransaction();
+
+		SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
+
+		String sbbeId = sbbLocalObjectImpl.getSbbEntityId();
+
+		boolean attached = getActivityContext().attachSbbEntity(sbbeId);
+
+		if (logger.isDebugEnabled()) {
+			logger
+					.debug("ActivityContextInterface.attach(): ACI attach Called for "
+							+ sbbLocalObject
+							+ " ACID = "
+							+ getActivityContext().getActivityContextId()
+							+ " SbbEntityId "
+							+ sbbeId);
+		}
+
+		boolean setRollbackAndThrowException = false;
+
+		if (attached) {
+			try {
+				SbbEntity sbbEntity = sbbLocalObjectImpl.getSbbEntity();
+				if (sbbEntity.isRemoved()) {
+					setRollbackAndThrowException = true;
+				} else {
+					// attach entity from ac
+					sbbEntity.afterACAttach(getActivityContext().getActivityContextId());
+				}
+			} catch (Exception e) {
+				setRollbackAndThrowException = true;
 			}
-            throw new TransactionRolledbackLocalException(
-                        "Failed to attach invalid sbb entity. SbbID " + sbbeId);
-        }
-        
-        if (attached) {
-            
-        	//            	JSLEE 1.0 Spec, Section 8.5.8 excerpt:
-        	//        		The SLEE delivers the event to an SBB entity that stays attached once. The SLEE may deliver the
-        	//        		event to the same SBB entity more than once if it has been detached and then re -attached. 
-            if (getActivityContext().removeFromDeliveredSet(sbbeId)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Removed the SBB Entity [" + sbbeId
-                            + "] from the delivered set of activity context ["
-                            + getActivityContextHandle()
-                            + "]. Seems to be a reattachment after detachment in the same event delivery transaction. See JSLEE 1.0 Spec, Section 8.5.8.");
-                }
-            }
-        }
+		}
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.slee.ActivityContextInterface#detach(javax.slee.SbbLocalObject)
-     */
-    public void detach(SbbLocalObject sbbLocalObject)
-            throws NullPointerException, TransactionRequiredLocalException,
-            TransactionRolledbackLocalException, SLEEException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("ACI detach called for : " + sbbLocalObject
-                    + " AC = " + getActivityContextHandle());
-        }
-
-        if (sbbLocalObject == null)
-            throw new NullPointerException("null SbbLocalObject !");
-        
-        txMgr.mandateTransaction();
-        
-        SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
-
-        String sbbeId = sbbLocalObjectImpl.getSbbEntityId();
-
-        // detach ac from entity
-        final ActivityContext ac = getActivityContext();
-        ac.detachSbbEntity(sbbeId);
-
-        boolean setRollbackAndThrowException = false;
-        try {
-        	SbbEntity sbbEntity = sbbLocalObjectImpl.getSbbEntity();
-        	if (sbbEntity.isRemoved()) {
-        		setRollbackAndThrowException = true;
-        	}
-        	else {
-        		// detach entity from ac
-        		sbbEntity.afterACDetach(getActivityContextHandle());
-        	}
-        }
-        catch (Exception e) {
-        	setRollbackAndThrowException = true;
-        }
-        if (setRollbackAndThrowException) {
-        	try {
-				txMgr.setRollbackOnly();
+		if (setRollbackAndThrowException) {
+			try {
+				sleeContainer.getTransactionManager().setRollbackOnly();
 			} catch (SystemException e) {
-				logger.warn("failed to set rollback flag while asserting valid sbb entity",e);
+				logger
+						.warn(
+								"failed to set rollback flag while asserting valid sbb entity",
+								e);
 			}
-            throw new TransactionRolledbackLocalException(
-                        "Failed to detach invalid sbb entity. SbbID " + sbbeId);
-        }
-    }
+			throw new TransactionRolledbackLocalException(
+					"Failed to attach invalid sbb entity. SbbID " + sbbeId);
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.slee.ActivityContextInterface#isEnding()
-     */
-    public boolean isEnding() throws TransactionRequiredLocalException,
-            SLEEException {
-    	txMgr.mandateTransaction();
-        return getActivityContext().isEnding();
-    }
+		if (attached) {
 
-    public ActivityContextHandle getActivityContextHandle() {
-        return activityContext.getActivityContextHandle();
-    }
+			//            	JSLEE 1.0 Spec, Section 8.5.8 excerpt:
+			//        		The SLEE delivers the event to an SBB entity that stays attached once. The SLEE may deliver the
+			//        		event to the same SBB entity more than once if it has been detached and then re -attached. 
+			if (sleeContainer.getEventRouter().getEventRouterActivity(
+					getActivityContext().getActivityContextId())
+					.getSbbEntitiesThatHandledCurrentEvent().remove(sbbeId)) {
+				if (logger.isDebugEnabled()) {
+					logger
+							.debug("Removed the SBB Entity ["
+									+ sbbeId
+									+ "] from the delivered set of activity context ["
+									+ getActivityContext().getActivityContextId()
+									+ "]. Seems to be a reattachment after detachment in the same event delivery transaction. See JSLEE 1.0 Spec, Section 8.5.8.");
+				}
+			}
+		}
 
-    public ActivityContext getActivityContext() { 
-        return activityContext;
-    }
+	}
 
-    @Override
-    public int hashCode() {    	
-    	return activityContext.hashCode();
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-    	if (obj != null && obj.getClass() == this.getClass()) {
-    		return ((ActivityContextInterfaceImpl)obj).activityContext.equals(this.activityContext);
-    	}
-    	else {
-    		return false;
-    	}
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.ActivityContextInterface#detach(javax.slee.SbbLocalObject)
+	 */
+	public void detach(SbbLocalObject sbbLocalObject)
+			throws NullPointerException, TransactionRequiredLocalException,
+			TransactionRolledbackLocalException, SLEEException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("ACI detach called for : " + sbbLocalObject + " AC = "
+					+ getActivityContext().getActivityContextId());
+		}
+
+		if (sbbLocalObject == null)
+			throw new NullPointerException("null SbbLocalObject !");
+
+		sleeContainer.getTransactionManager().mandateTransaction();
+
+		SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
+
+		String sbbeId = sbbLocalObjectImpl.getSbbEntityId();
+
+		// detach ac from entity
+		final ActivityContext ac = getActivityContext();
+		ac.detachSbbEntity(sbbeId);
+
+		boolean setRollbackAndThrowException = false;
+		try {
+			SbbEntity sbbEntity = sbbLocalObjectImpl.getSbbEntity();
+			if (sbbEntity.isRemoved()) {
+				setRollbackAndThrowException = true;
+			} else {
+				// detach entity from ac
+				sbbEntity.afterACDetach(getActivityContext().getActivityContextId());
+			}
+		} catch (Exception e) {
+			setRollbackAndThrowException = true;
+		}
+		if (setRollbackAndThrowException) {
+			try {
+				sleeContainer.getTransactionManager().setRollbackOnly();
+			} catch (SystemException e) {
+				logger
+						.warn(
+								"failed to set rollback flag while asserting valid sbb entity",
+								e);
+			}
+			throw new TransactionRolledbackLocalException(
+					"Failed to detach invalid sbb entity. SbbID " + sbbeId);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.ActivityContextInterface#isEnding()
+	 */
+	public boolean isEnding() throws TransactionRequiredLocalException,
+			SLEEException {
+		sleeContainer.getTransactionManager().mandateTransaction();
+		return getActivityContext().isEnding();
+	}
+
+	public ActivityContext getActivityContext() {
+		return activityContext;
+	}
+
+	@Override
+	public int hashCode() {
+		return activityContext.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj != null && obj.getClass() == this.getClass()) {
+			return ((ActivityContextInterfaceImpl) obj).activityContext
+					.equals(this.activityContext);
+		} else {
+			return false;
+		}
+	}
 }

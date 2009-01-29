@@ -16,17 +16,11 @@ package org.mobicents.slee.container.profile;
 
 import java.io.File;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileSpecificationDescriptor;
 
-import org.jboss.cache.Node;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * Class deploying a profile
@@ -143,10 +137,10 @@ public class ProfileDeployer {
      */
     private void initializePersistedProfiles(String deployedProfileCmpInterfaceName) {
         if (logger.isDebugEnabled()) logger.debug("Loading profile persistent state information...");
+        /* FIXME emmartins: old code and feature to be reworked
     	SleeProfileManager profileManager = SleeContainer.lookupFromJndi().getSleeProfileManager();
         try {
-            profileManager.loadProfileTableNames();
-            Set allProfileTableNames = profileManager.getProfileCacheManager().getProfileTableNames();
+        	Set allProfileTableNames = profileManager.getProfileTableNames();
             if (allProfileTableNames != null) {
                 Iterator it = allProfileTableNames.iterator();
                 boolean hasProfileChildren = false;
@@ -168,24 +162,15 @@ public class ProfileDeployer {
                             null, true);    
                     
                     Node childNode = (Node) profileManager.loadNodeFromCache(profileTableKey);            
-                    Map profiles = childNode.getChildren();
-                    if (profiles != null) {
-                        Iterator profilesIt = profiles.values().iterator();
-                        while (profilesIt.hasNext()) {
-                
-                            Node profileNode = (Node) profilesIt.next();
-                            String profileName = profileNode.getFqn()
-                                    .toString().substring(
-                                            (profileManager.getRootFqn() + "/profile:"
-                                                    + profileTableName + "/")
-                                                    .length());
-                            if (logger.isDebugEnabled()) {
-                            	logger.debug("Initializing profile " + profileName);
-                            }
-                            profileManager.instantiateProfile(cmpInterfaceName,
-                                    profileTableName, profileName, true);
+                    for (Object obj : childNode.getChildren()) {
+                    	Node profileNode = (Node) obj;
+                        String profileName = profileNode.getFqn().getLastElementAsString();
+                        if (logger.isDebugEnabled()) {
+                        	logger.debug("Initializing profile " + profileName);
                         }
-                    }
+                        profileManager.instantiateProfile(cmpInterfaceName,
+                                profileTableName, profileName, true);
+                    }                    
                 }
                 if (!hasProfileChildren) {
                 	if (logger.isDebugEnabled()) {
@@ -202,13 +187,7 @@ public class ProfileDeployer {
         } finally {
             profileManager.displayAllProfilePersistentInformation();
         }
+        */
     }
-    
-    /**
-     *  convenience method for looking up the Slee TX manager
-     */
-    public SleeTransactionManager getTransactionManager() {
-        return SleeContainer.getTransactionManager();
-    }
-    
+     
 }

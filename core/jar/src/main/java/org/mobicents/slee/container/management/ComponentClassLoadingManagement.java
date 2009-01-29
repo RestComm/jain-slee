@@ -7,7 +7,9 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.ComponentID;
+import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.jboss.classloader.spi.ClassLoaderPolicy;
@@ -97,12 +99,15 @@ public class ComponentClassLoadingManagement {
 				.getInstance();
 		ClassLoadingInfo classLoadingInfo = new ClassLoadingInfo(componentID,
 				classLoaderPolicy);
+		
 		if (classLoadingInfoMap.putIfAbsent(componentID, classLoadingInfo) == null) {
 			classLoadingInfo.classLoader = classLoaderSystem
 					.registerClassLoaderPolicy(classLoaderSystem.DEFAULT_DOMAIN_NAME,ParentPolicy.AFTER,classLoaderPolicy);
+			
 			if (logger.isDebugEnabled()) {
 				logger.debug("Registred class loading policy for component "+componentID);
 			}
+			
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {
 					classLoadingInfoMap.remove(componentID);
@@ -113,8 +118,8 @@ public class ComponentClassLoadingManagement {
 					}
 				}
 			};
-			SleeContainer.getTransactionManager()
-					.addAfterRollbackAction(action);
+			SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+			
 		} else {
 			throw new DeploymentException(
 					"Error registring class loader for component " + componentID
@@ -161,7 +166,7 @@ public class ComponentClassLoadingManagement {
 				}
 			}
 		};
-		SleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
 	}
 
 	@Override

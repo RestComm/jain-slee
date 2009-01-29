@@ -50,7 +50,6 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 /**
  * @author DERUELLE Jean <a
@@ -59,9 +58,8 @@ import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
  */
 public class DefaultProfileManagementInterceptor implements
         ProfileManagementInterceptor {
-    private static String tcache = TransactionManagerImpl.PROFILE_CACHE;
-
-    private boolean dirtyFlag = false;
+    
+	private boolean dirtyFlag = false;
 
     private boolean profileWriteable = true;
 
@@ -71,8 +69,6 @@ public class DefaultProfileManagementInterceptor implements
 
     private static Logger logger = Logger
             .getLogger(DefaultProfileManagementInterceptor.class);
-
-    private String profileKey;
 
     private Object profileTransientState = null;
 
@@ -183,7 +179,7 @@ public class DefaultProfileManagementInterceptor implements
              * situation.
              */
             if (logger.isDebugEnabled())
-                logger.debug("isProfileDirty called (profileKey=" + profileKey
+                logger.debug("isProfileDirty called (profile=" + profileTableName + "/" + profileName
                         + ")");
             if (profileWriteable && dirtyFlag)
                 return new Boolean(true);
@@ -200,8 +196,8 @@ public class DefaultProfileManagementInterceptor implements
              * state.
              */
             if (logger.isDebugEnabled())
-                logger.debug("isProfileWriteable called (profileKey="
-                        + profileKey + ")");
+                logger.debug("isProfileWriteable called (profile ="
+                        + profileTableName + "/" + profileName + ")");
             return new Boolean(profileWriteable);
         }
         /*
@@ -232,7 +228,7 @@ public class DefaultProfileManagementInterceptor implements
              * must roll back the transaction before returning.
              */
             if (logger.isDebugEnabled()) {
-                logger.debug("restoreProfile called (profileKey=" + profileKey
+                logger.debug("restoreProfile called (profile =" + profileTableName + "/" + profileName
                         + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
@@ -246,7 +242,8 @@ public class DefaultProfileManagementInterceptor implements
                 throw new InvalidStateException();
             //rollback everything
             //sleeProfileManager.rollbackTransaction(profileKey);
-            txManager.setRollbackOnly();
+            txManager.rollback();
+            txManager.begin();
             //and then restore the values that were last comitted into the
             // transient state class
             profileLoad();
@@ -270,7 +267,7 @@ public class DefaultProfileManagementInterceptor implements
              * this then test # 4386 will fail! )
              */
             if (logger.isDebugEnabled()) {
-                logger.debug("closeProfile called (profileKey=" + profileKey
+                logger.debug("closeProfile called (profile =" + profileTableName + "/" + profileName
                         + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
@@ -305,7 +302,7 @@ public class DefaultProfileManagementInterceptor implements
              * object).
              */
             if (logger.isDebugEnabled()) {
-                logger.debug("editProfile called (profileKey=" + profileKey
+                logger.debug("editProfile called (profile =" + profileTableName + "/" + profileName
                         + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
@@ -345,8 +342,8 @@ public class DefaultProfileManagementInterceptor implements
         //ProfileManagement Methods
         if (method.getName().equals("markProfileDirty")) {
             if (logger.isDebugEnabled()) {
-                logger.debug("markProfileDirty called (profileKey="
-                        + profileKey + ")");
+                logger.debug("markProfileDirty called (profile ="
+                        + profileTableName + "/" + profileName + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
             }
@@ -364,8 +361,8 @@ public class DefaultProfileManagementInterceptor implements
         if (method.getName().equals("profileInitialize")) {
 
             if (logger.isDebugEnabled()) {
-                logger.debug("profileInitialize called (profileKey="
-                        + profileKey + ")");
+                logger.debug("profileInitialize called (profile ="
+                        + profileTableName + "/" + profileName + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
             }
@@ -383,7 +380,7 @@ public class DefaultProfileManagementInterceptor implements
         }
         if (method.getName().equals("profileStore")) {
             if (logger.isDebugEnabled()) {
-                logger.debug("profileStore called (profileKey=" + profileKey
+                logger.debug("profileStore called (profile =" + profileTableName + "/" + profileName
                         + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
@@ -416,7 +413,7 @@ public class DefaultProfileManagementInterceptor implements
         if (method.getName().equals("profileLoad")) {
 
             if (logger.isDebugEnabled()) {
-                logger.debug("profileLoad called (profileKey=" + profileKey
+                logger.debug("profileLoad called (profile =" + profileTableName + "/" + profileName
                         + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
@@ -439,7 +436,7 @@ public class DefaultProfileManagementInterceptor implements
         if (method.getName().equals("isProfileValid")) {
 
             if (logger.isDebugEnabled()) {
-                logger.debug("isProfileValid called (profileKey=" + profileKey
+                logger.debug("isProfileValid called (profile = " + profileTableName + "/" + profileName
                         + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
@@ -484,8 +481,7 @@ public class DefaultProfileManagementInterceptor implements
                 if (isSbbProfile) {
                     String attributeName = Introspector.decapitalize(method
                             .getName().substring(3));
-                    return sleeProfileManager.getProfileAttributeValue(
-                            profileKey, attributeName);
+                    return sleeProfileManager.getProfileAttributeValue(profileTableName, profileName, attributeName);
                 } else {
                     final String fieldName = Introspector.decapitalize(method
                             .getName().substring(3));
@@ -583,7 +579,7 @@ public class DefaultProfileManagementInterceptor implements
 
         if (logger.isDebugEnabled()) {
             logger
-                    .debug("profileVerify called (profileKey=" + profileKey
+                    .debug("profileVerify called (profile =" + profileTableName + "/" + profileName
                             + ")");
             logger.debug("profileWriteable " + profileWriteable);
             logger.debug("dirtyFlag " + dirtyFlag);
@@ -702,7 +698,7 @@ public class DefaultProfileManagementInterceptor implements
                 throw new InvalidStateException();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("commitProfile called (profileKey=" + profileKey
+                logger.debug("commitProfile called (profile =" + profileTableName + "/" + profileName
                         + ")");
                 logger.debug("profileWriteable " + profileWriteable);
                 logger.debug("dirtyFlag " + dirtyFlag);
@@ -713,12 +709,11 @@ public class DefaultProfileManagementInterceptor implements
                 ProfileID profileID = new ProfileID(profileTableName,
                         profileName);
                 try {
-                    txManager.putObject(tcache, getProfileKey(), "profileID",
-                            profileID);
+                    sleeProfileManager.commitProfile(profileID);
                 } catch (Exception e4) {
                     logger.error(
-                            "Failed profile commit, createNode() exception. Profile key: "
-                                    + getProfileKey(), e4);
+                            "Failed profile commit, createNode() exception. Profile : "
+                                    + profileTableName + "/" + profileName, e4);
                     throw new ManagementException(e4.getMessage());
                 }
             }
@@ -821,7 +816,7 @@ public class DefaultProfileManagementInterceptor implements
                        new DeferredEvent(
                         profileAddedEvent.getEventTypeID(),
                         profileAddedEvent,
-                        activityContextInterface.getActivityContextHandle(),
+                        activityContextInterface.getActivityContext(),
                         profileAddress);
                 } catch (SystemException e2) {
                     throw new ManagementException("Failed committing profile",
@@ -833,7 +828,7 @@ public class DefaultProfileManagementInterceptor implements
                             + profileAddedEvent.getEventTypeID()
                             + ",:"
                             + activityContextInterface
-                                    .getActivityContextHandle());
+                                    .getActivityContext().getActivityContextId());
                 }
 
                 profileInBackEndStorage = true;
@@ -847,7 +842,7 @@ public class DefaultProfileManagementInterceptor implements
                       new DeferredEvent(
                         profileUpdatedEvent.getEventTypeID(),
                         profileUpdatedEvent,
-                        activityContextInterface.getActivityContextHandle(),
+                        activityContextInterface.getActivityContext(),
                         profileAddress);
                 } catch (SystemException e2) {
                     throw new ManagementException("Failed committing profile",
@@ -858,7 +853,7 @@ public class DefaultProfileManagementInterceptor implements
                 	logger.debug("Queued following updated event: "
                 
                         + profileUpdatedEvent.getEventTypeID() + ",:"
-                        + activityContextInterface.getActivityContextHandle());
+                        + activityContextInterface.getActivityContext().getActivityContextId());
                 }
                 profileInBackEndStorage = true;
             }
@@ -882,7 +877,7 @@ public class DefaultProfileManagementInterceptor implements
                     txManager.rollback();
                 } catch (SystemException e2) {
                     logger.error("Failed rolling back profile: "
-                            + getProfileKey(), e2);
+                            + profileTableName + "/" + profileName, e2);
                     throw new ManagementException(e.getMessage());
                 }
                 throw new ManagementException(e.getMessage());
@@ -913,8 +908,8 @@ public class DefaultProfileManagementInterceptor implements
                 }
             } catch (SystemException se) {
                 logger.error(
-                        "Failed completing profile commit due to TX access problem. Profile key: "
-                                + getProfileKey(), se);
+                        "Failed completing profile commit due to TX access problem. Profile : "
+                                + profileTableName + "/" + profileName, se);
                 throw new ManagementException(se.getMessage());
             }
         }
@@ -1032,7 +1027,7 @@ public class DefaultProfileManagementInterceptor implements
         for (int i = 0; i < fields.length; i++) {
 
             Object fieldValue = sleeProfileManager.getProfileAttributeValue(
-                    this.profileKey, fields[i].getName());
+                    profileTableName, profileName, fields[i].getName());
             String debugString = "set " + fields[i].getName() + " to value "
                     + fieldValue;
             if (fieldValue != null)
@@ -1143,31 +1138,7 @@ public class DefaultProfileManagementInterceptor implements
         return sleeProfileManager;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#setProfileKey(java.lang.String)
-     */
-    public void setProfileKey(String profileKey) {
-        this.profileKey = profileKey;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#getProfileKey()
-     */
-    public String getProfileKey() {
-        return this.profileKey;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#copyStateFromDefaultProfile(java.lang.String)
-     */
-    public void copyStateFromDefaultProfile(String profileCMPInterfaceName,
-            String defaultProfileKey,ClassLoader profileSpecClassLoader) throws ManagementException {
+    public void copyStateFromDefaultProfile(String profileCMPInterfaceName, ClassLoader profileSpecClassLoader) throws ManagementException {
         if (profileTransientState == null) {
             String profileTransientStateClassName = profileCMPInterfaceName
                     + "TransientState";
@@ -1192,13 +1163,13 @@ public class DefaultProfileManagementInterceptor implements
                             .getDeclaredFields();
                 for (int i = 0; i < fields.length; i++) {
                     Object fieldValue = sleeProfileManager
-                            .getProfileAttributeValue(defaultProfileKey,
+                            .getProfileAttributeValue(profileTableName,null,
                                     fields[i].getName());
                     fields[i].set(profileTransientState, fieldValue);
                 }
                 populateFieldsMap();
             } catch (Exception e) {
-                logger.error(e);
+                logger.error(e.getMessage(),e);
                 throw new ManagementException(
                         "State cannot be copied from the default Profile.");
             }
@@ -1305,7 +1276,7 @@ public class DefaultProfileManagementInterceptor implements
             fields = profileTransientState.getClass().getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Object fieldValue = fields[i].get(profileTransientState);
-            sleeProfileManager.setProfileAttributeValue(profileKey, fields[i]
+            sleeProfileManager.setProfileAttributeValue(profileTableName, profileName, fields[i]
                     .getName(), fieldValue);
         }
     }

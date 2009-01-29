@@ -28,13 +28,13 @@ import javassist.NotFoundException;
 import javax.slee.profile.ProfileSpecificationDescriptor;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
 import org.mobicents.slee.container.component.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
+import org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor;
 
 /**
  * Class generating a concrete profile implementation class from the Sbb
@@ -221,13 +221,17 @@ public class ConcreteProfileManagementGenerator {
 		// createDefaultConstructor();
 		// Creates the constructor with parameters
 		try {
+			String [] parameterNames = { "profileManagementInterceptor", "sleeProfileManager", "profileTable", "profileName" };
+			
 			CtClass[] parameters = new CtClass[] {
 					pool
-							.get("org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor"),
+							.get(ProfileManagementInterceptor.class.getName()),
 					pool
-							.get("org.mobicents.slee.container.profile.SleeProfileManager"),
-					pool.get("java.lang.String") };
-			createConstructorWithParameter(parameters, cmpProfileConcreteClass,
+							.get(SleeProfileManager.class.getName()),
+							
+					pool.get(String.class.getName()),
+					pool.get(String.class.getName())};
+			createConstructorWithParameter(parameterNames, parameters, cmpProfileConcreteClass,
 					false);
 		} catch (NotFoundException nfe) {
 
@@ -435,11 +439,12 @@ public class ConcreteProfileManagementGenerator {
 		// createDefaultConstructor();
 		// Creates the constructor with parameters
 		try {
-			CtClass[] parameters = new CtClass[] {
+			String [] parameterNames = { "profileManagementInterceptor", "profile" };
+			CtClass[] parametersClasses = new CtClass[] {
 					pool
 							.get("org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor"),
 					pool.get("java.lang.Object") };
-			createConstructorWithParameter(parameters,
+			createConstructorWithParameter(parameterNames,parametersClasses,
 					profileMBeanConcreteClass, true);
 		} catch (NotFoundException nfe) {
 			logger.error("Constructor With Parameter not created");
@@ -558,7 +563,7 @@ public class ConcreteProfileManagementGenerator {
 	 * @param mbean
 	 *            tells if it the constructor for the mbean class
 	 */
-	protected void createConstructorWithParameter(CtClass[] parameters,
+	protected void createConstructorWithParameter(String[] parameterNames, CtClass[] parameters,
 			CtClass concreteClass, boolean mbean) {
 
 		CtConstructor constructorWithParameter = new CtConstructor(parameters,
@@ -573,15 +578,9 @@ public class ConcreteProfileManagementGenerator {
 		}
 		// "this();";
 		for (int i = 0; i < parameters.length; i++) {
-			String parameterName = parameters[i].getName();
-			parameterName = parameterName.substring(parameterName
-					.lastIndexOf(".") + 1);
-			String firstCharLowerCase = parameterName.substring(0, 1)
-					.toLowerCase();
-			parameterName = firstCharLowerCase.concat(parameterName
-					.substring(1));
+			
 			try {
-				CtField ctField = new CtField(parameters[i], parameterName,
+				CtField ctField = new CtField(parameters[i], parameterNames[i],
 						concreteClass);
 				if (ctField.getName().equals("java.lang.Object"))
 					ctField.setModifiers(Modifier.PUBLIC);
@@ -592,7 +591,7 @@ public class ConcreteProfileManagementGenerator {
 				cce.printStackTrace();
 			}
 			int paramNumber = i + 1;
-			constructorBody += parameterName + "=$" + paramNumber + ";";
+			constructorBody += parameterNames[i] + "=$" + paramNumber + ";";
 		}
 
 		CtField[] ctFields = concreteClass.getDeclaredFields();
@@ -604,8 +603,7 @@ public class ConcreteProfileManagementGenerator {
 					if (ctFields[i]
 							.getType()
 							.getName()
-							.equals(
-									"org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor"))
+							.equals(ProfileManagementInterceptor.class.getName()))
 						isProfileManagementInterceptor = true;
 				} catch (NotFoundException e1) {
 					e1.printStackTrace();
@@ -615,12 +613,13 @@ public class ConcreteProfileManagementGenerator {
 			if (isProfileManagementInterceptor) {
 				if (!mbean) {
 					constructorBody += ctFields[i].getName()
-							+ ".setProfileManager(" + "sleeProfileManager); ";
+							+ ".setProfileManager(sleeProfileManager); ";
 					constructorBody += ctFields[i].getName()
-							+ ".setProfileKey(" + "string); ";
+							+ ".setProfileTableName(profileTable); ";
+					constructorBody += ctFields[i].getName()
+							+ ".setProfileName(profileName); ";
 				} else {
-					constructorBody += ctFields[i].getName() + ".setProfile("
-							+ "object); ";
+					constructorBody += ctFields[i].getName() + ".setProfile(profile); ";
 				}
 			}
 		}

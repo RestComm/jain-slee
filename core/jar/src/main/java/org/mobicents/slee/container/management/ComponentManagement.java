@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
 import javax.slee.ServiceID;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DeployableUnitDescriptor;
@@ -159,7 +160,7 @@ public class ComponentManagement {
 							new ConcurrentHashMap<ComponentID, ComponentID>());
 				}
 			};
-			sleeTransactionManager.addAfterRollbackAction(action);
+			sleeTransactionManager.addAfterRollbackAction(action);		
 		}
 	}
 

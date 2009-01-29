@@ -157,7 +157,7 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 	 */
 	public void resetAllUsageParameters() throws ManagementException {
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager txmgr = SleeContainer.getTransactionManager();
+		SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
 		boolean rb = true;
 		try {
 			txmgr.begin();

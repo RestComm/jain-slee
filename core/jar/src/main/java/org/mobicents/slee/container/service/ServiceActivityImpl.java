@@ -8,14 +8,13 @@
  ***************************************************/
 
 
-package org.mobicents.slee.runtime.serviceactivity;
+package org.mobicents.slee.container.service;
 
 import java.io.Serializable;
 
 import javax.slee.ServiceID;
 import javax.slee.serviceactivity.ServiceActivity;
 
-import org.mobicents.slee.container.service.Service;
 
 /**
  *Service Activity Implementation.

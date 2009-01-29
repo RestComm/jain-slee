@@ -9,8 +9,6 @@
 
 package org.mobicents.slee.resource;
 
-import java.util.Iterator;
-
 import javax.slee.Address;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
@@ -62,7 +60,9 @@ public class SleeEndpointImpl implements SleeEndpoint {
     	if(sleeContainer.getSleeState() != SleeState.STOPPING) {
 			
     		if(sleeContainer.getSleeState() == SleeState.STOPPED) {
-    			// FIXME check it's right
+    			if (logger.isDebugEnabled()) {
+        			logger.debug(" Slee state is STOPPED, unable to create activity for activity handle "+ach);
+        		}
     			throw new IllegalStateException();
     		}
         	
@@ -97,6 +97,11 @@ public class SleeEndpointImpl implements SleeEndpoint {
     		
 		}
         
+    	else {
+    		if (logger.isDebugEnabled()) {
+    			logger.debug(" Slee state is STOPPING, ignored starting of activity for activity handle "+ach);
+    		}
+    	}
         return ac;
     }
     
@@ -107,21 +112,29 @@ public class SleeEndpointImpl implements SleeEndpoint {
     private static void notifyActivityEnded(ActivityContext ac, SleeContainer sleeContainer)
             throws IllegalStateException {
         
-    	SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+    	SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
         boolean txStarted = txMgr.requireTransaction();
         boolean rollback = true;
         try {
 
-            logger.debug("Notifying that activity has ended:" + ac.getActivityContextHandle());
-            
+        	if (logger.isDebugEnabled()) {
+        		logger.debug("Notifying that activity has ended:" + ac.getActivityContextId());
+    		}
+                        
             //Check the ac is active
             if (ac.getState() != ActivityContextState.ACTIVE) {
+            	if (logger.isDebugEnabled()) {
+            		logger.debug("Activity "+ac.getActivityContextId()+" is not on ACTIVE state");
+        		}
                 throw new IllegalStateException("Activity is not active");
             } else {
             	ac.setState(ActivityContextState.ENDING);
             }
 
-            new DeferredActivityEndEvent(ac.getActivityContextHandle(),null);	
+            if (logger.isDebugEnabled()) {
+        		logger.debug("Posting the activity end event for "+ac.getActivityContextId());
+    		}
+            new DeferredActivityEndEvent(ac,null);	
         	rollback = false;
         } catch (SystemException e) {
             logger.error("failed in tx while firing activity end event", e);
@@ -173,11 +186,6 @@ public class SleeEndpointImpl implements SleeEndpoint {
             throws NullPointerException, IllegalStateException,
             ActivityAlreadyExistsException, CouldNotStartActivityException {
 
-        // check mandated by SLEE TCK test CreateActivityWhileStoppingTest
-        // when SLEE is not running, activities cannot be started
-        if (sleeContainer.getSleeState() != SleeState.RUNNING) 
-            return;
-        
         this.activityCreated(ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntityName,handle));
 
     }
@@ -233,7 +241,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
     public static void allActivitiesEnding() {
         
-        SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+        SleeTransactionManager txMgr = SleeContainer.lookupFromJndi().getTransactionManager();
         boolean b = false;
         boolean rb = true;
         try {        
@@ -241,14 +249,26 @@ public class SleeEndpointImpl implements SleeEndpoint {
             
             SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
          
-            Iterator<ActivityContextHandle> iter = sleeContainer.getActivityContextFactory().getAllActivityContextsHandles().iterator();
-            while (iter.hasNext()) {
-            	ActivityContext ac =sleeContainer.getActivityContextFactory().getActivityContext(iter.next(),false);
-				if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
-    	    	    notifyActivityEnded(ac, sleeContainer);
-    	    	}
-            }
-            
+            for (String acId : sleeContainer.getActivityContextFactory().getAllActivityContextsIds()) {
+            	try {
+            		if (logger.isDebugEnabled()) {
+                		logger.debug("Ending activity "+acId);
+            		}
+                	ActivityContext ac =sleeContainer.getActivityContextFactory().getActivityContext(acId,false);
+    				if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
+        	    	    notifyActivityEnded(ac, sleeContainer);
+        	    	}
+    				else {
+    					if (logger.isDebugEnabled()) {
+    	            		logger.debug("Unable to end activity "+acId+" . State is not ACTIVE or activity does not exist");
+    	        		}
+    				}
+				} catch (Exception e) {
+					if (logger.isDebugEnabled()) {
+                		logger.debug("Failed to end activity "+acId,e);
+            		}
+				}            	
+            }                        
 	        rb = false;
         } finally {
             try {
@@ -294,11 +314,15 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				}
         	}
         	if (ac != null) {        		
-        		if (ac.getState() != ActivityContextState.ACTIVE) {
-        			return;
+        		if (ac.getState() == ActivityContextState.ACTIVE) {
+        			// build the deferred event 
+            		new DeferredEvent(eventType, event, ac, address);            		
         		} 
-        		// build the deferred event 
-        		new DeferredEvent(eventType, event, ach , address);
+        		else {
+        			if (logger.isDebugEnabled()) {
+                		logger.debug("Unable to fire event on activity "+ach+" . The activity context state is not on ACTIVE state");
+            		}
+        		}        		
         	}
         	rollback = false;
         } catch (SystemException e) {

@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.slee.ChildRelation;
 import javax.slee.CreateException;
@@ -19,13 +20,14 @@ import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
+import javax.transaction.TransactionRequiredException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.GetChildRelationMethod;
-import org.mobicents.slee.runtime.cache.CacheableSet;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * 
@@ -45,94 +47,20 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(ChildRelationImpl.class);
+	private static final Logger logger = Logger.getLogger(ChildRelationImpl.class);
 	
-    private CacheableSet children = null;
-    private GetChildRelationMethod getChildRelationMethod;    
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
+	private GetChildRelationMethod getChildRelationMethod;    
     private SbbEntity sbbEntity;
-
+    
     private HashSet<SbbLocalObject> getLocalObjects() {
         HashSet<SbbLocalObject> localObjects = new HashSet<SbbLocalObject>();
-        for (Iterator it = this.children.iterator(); it.hasNext();) {
+        for (Iterator it = sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod).iterator(); it.hasNext();) {
             String sbbEntityId = (String) it.next();
             localObjects.add(SbbEntityFactory.getSbbEntity(sbbEntityId).createSbbLocalObject());
         }
         return localObjects;
-    }
-
-    /*
-     * JAIN SLEE 1.0 Specification, Final Release Page 62 The iterator method
-     * and the Iterator objects returned by this method. Chapter 6 The SBB
-     * Abstract Class
-     * 
-     * The SLEE must implement the methods of the Iterator objects returned by
-     * the iterator method by following the contract defined by the
-     * java.util.Iterator interface. o The next method of the Iterator object
-     * returns an object that implements the SBB local interface of the child
-     * SBB of the child relation. Java typecast can be used to narrow the
-     * returned object reference to the SBB local interface of the child SBB. o
-     * The remove method of the Iterator object removes the SBB entity that is
-     * represented by the last SBB local object returned by the next method of
-     * the Iterator object from the child relation. Removing an SBB entity from
-     * a child relation by invoking this remove method initiates a cascading
-     * removal of the SBB entity tree rooted by the SBB entity, similar to
-     * invoking the remove method on an SBB local object that represents the SBB
-     * entity. The behavior of the Iterator object is unspecified if the
-     * underlying child relation is modified while the iteration is in progress
-     * in any way other than by calling this remove method.
-     */
-    class ChildRelationIterator implements Iterator {
-
-        private Iterator myIterator;
-        private String nextEntity;
-        private SbbLocalObject nextSbbLocalObject;
-        
-        public ChildRelationIterator() {
-        	if(logger.isDebugEnabled()){
-        		logger.debug("ChildRelationIterator() for child relation with name "+getChildRelationMethod.getMethodName()+" of entity "+sbbEntity.getSbbEntityId());
-        	}
-        	this.myIterator = children.iterator();
-        }
-      
-        /*
-         * public ChildRelationIterator(HashSet entities) { this.sbbEntities =
-         * new HashSet(); for (Iterator it = entities.iterator(); it.hasNext(); ) {
-         * SbbEntity sbbe = (SbbEntity) it.next(); SbbLocalObjectImpl
-         * sbbLocalObject = (SbbLocalObjectImpl) sbbe.getSbbLocalObject(); if (!
-         * sbbLocalObject.isRemoved()) this.sbbEntities.add(sbbe); }
-         * 
-         * this.myIterator = this.sbbEntities.iterator(); }
-         */        
-        public void remove() {
-        	if(logger.isDebugEnabled()) {
-        		logger.debug("ChildRelationIterator.remove() for child relation with name "+getChildRelationMethod.getMethodName()+" of entity "+sbbEntity.getSbbEntityId());
-        	}
-            myIterator.remove();
-            nextSbbLocalObject.remove();
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.util.Iterator#hasNext()
-         */
-        public boolean hasNext() {
-            return myIterator.hasNext();
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.util.Iterator#next()
-         */
-        public Object next() {
-            nextEntity = (String) myIterator.next();
-            SbbEntity childSbbEntity = SbbEntityFactory.getSbbEntity(nextEntity);
-            this.nextSbbLocalObject = childSbbEntity.createSbbLocalObject();
-            sbbEntity.addChildWithSbbObject(childSbbEntity);
-            return nextSbbLocalObject;
-        }
-
     }
 
     /**
@@ -147,8 +75,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
             throw new NullPointerException("null getChildRelationMethod");
         
         this.sbbEntity = sbbEntity;
-        this.getChildRelationMethod = getChildRelationMethod;
-        this.children = new CacheableSet(sbbEntity.getSbbEntityId()+":childRelation:"+getChildRelationMethod.getMethodName());
+        this.getChildRelationMethod = getChildRelationMethod;        
     }
 
     public Iterator iterator() {
@@ -169,7 +96,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
             return false;
         SbbLocalObjectImpl sbblocal = (SbbLocalObjectImpl) object;
         String sbbEntityId = sbblocal.getSbbEntityId();
-        return this.children.contains(sbbEntityId);
+        return sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod, sbbEntityId);
     }
 
     /*
@@ -180,7 +107,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     public SbbLocalObject create() throws CreateException,
             TransactionRequiredLocalException, SLEEException {
         
-    	SleeContainer.getTransactionManager().mandateTransaction();
+    	SleeTransactionManager sleeTransactionManager = SleeContainer.lookupFromJndi().getTransactionManager();
+    	sleeTransactionManager.mandateTransaction();
 
         SbbEntity childSbbEntity = SbbEntityFactory.createSbbEntity(
 						this.getChildRelationMethod.getSbbID(),
@@ -237,14 +165,14 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         	//All RuntimeExceptions are dealt with here
             logger.error("Caught RuntimeException in creating child entity", e);
             try {
-                SleeContainer.getTransactionManager().setRollbackOnly();
+            	sleeTransactionManager.setRollbackOnly();
             } catch (SystemException e1) {
             	logger.error("Failed to set rollbackonly", e);
             }
             childSbbEntity.trashObject();
         } 
         
-        children.add(childSbbEntity.getSbbEntityId()); // Ralf Siedow: added this
+        sbbEntity.cacheData.addChildRelationSbbEntity(getChildRelationMethod,childSbbEntity.getSbbEntityId());
         sbbEntity.addChildWithSbbObject(childSbbEntity);
         return childSbbEntity.createSbbLocalObject();
     }
@@ -255,7 +183,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * @see java.util.Collection#size()
      */
     public int size() {
-        return this.children.size();
+        return sbbEntity.cacheData.childRelationSbbEntitiesSize(getChildRelationMethod);
     }
 
     /*
@@ -264,13 +192,11 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * @see java.util.Collection#clear()
      */
     public void clear() {
-    	SleeContainer.getTransactionManager().mandateTransaction();
-        for ( Iterator it = this.iterator(); it.hasNext() ; ) {
-            it.next();
-            it.remove();
-        }
-        
-
+    	sleeContainer.getTransactionManager().mandateTransaction();
+    	for (Iterator it = iterator();it.hasNext();) {
+    		it.next();
+    		it.remove();
+    	}
     }
 
     /*
@@ -279,7 +205,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * @see java.util.Collection#isEmpty()
      */
     public boolean isEmpty() {
-        return !this.iterator().hasNext();
+        return size() == 0;
     }
 
     /*
@@ -289,7 +215,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      */
     public Object[] toArray() {
 
-    	SleeContainer.getTransactionManager().mandateTransaction();
+    	sleeContainer.getTransactionManager().mandateTransaction();
 
         return this.getLocalObjects().toArray();
     }
@@ -327,28 +253,28 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      *  
      */
     public boolean remove(Object object) {
-    	SleeContainer.getTransactionManager().mandateTransaction();
-        if(logger.isDebugEnabled()) {
+    	
+    	sleeContainer.getTransactionManager().mandateTransaction();
+        
+    	if(logger.isDebugEnabled()) {
         	logger.debug("removing sbb local object " + object);
         }
+        
         if (object == null)
             throw new NullPointerException("Null arg for remove ");
-        if (!(object instanceof SbbLocalObject))
+        
+        if (!(object instanceof SbbLocalObjectImpl))
             return false;
-        String target = ((SbbLocalObjectImpl)object).getSbbEntityId();
-        boolean retval = this.children.remove(target);
-        if (retval) {
-            ((SbbLocalObjectImpl) object).remove();
-            retval = false;
+        
+        SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl)object;
+        	       
+        if (sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod, sbbLocalObjectImpl.getSbbEntityId())) {
+        	sbbLocalObjectImpl.remove();
+        	return true;
         }
-        return retval;
-    }
-
-    public void remove() {
-    	if(logger.isDebugEnabled()) {
-    		logger.debug("Removing child relation of sbb entity "+this.sbbEntity.getSbbEntityId()+" with name "+this.getChildRelationMethod.getMethodName());
-    	}
-    	children.remove();
+        else {
+        	return false;
+        }
     }
     
     /**
@@ -380,25 +306,24 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * relation, then this method returns false.
      */
     public boolean containsAll(Collection c) {
-        if (c == null)
+        
+    	if (c == null)
             throw new NullPointerException("null collection!");
-        HashSet localInterfaces = getLocalObjects();
-        if(logger.isDebugEnabled()) {
-        	logger.debug("containsAll : collection = " + c + " sbbLocalObject = " + localInterfaces);
-        }
-        boolean retval  = true;
+        
         for ( Iterator it = c.iterator(); it.hasNext(); ) {
             SbbLocalObjectConcrete sbbLocalInterface = ( SbbLocalObjectConcrete) it.next();
-            if(logger.isDebugEnabled()) {
-            	logger.debug("Checking membership for : "  + sbbLocalInterface.getSbbEntityId());
-            }
-            if ( ! children.contains(sbbLocalInterface.getSbbEntityId())) {
-                retval = false;
-                break;
+            if (!sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod, sbbLocalInterface.getSbbEntityId())) {                        	
+            	if(logger.isDebugEnabled()) {
+                	logger.debug("containsAll : collection = " + c + " > "+sbbLocalInterface.getSbbEntityId()+" not in child relation");
+                }
+                return false;
             }
         }
         
-        return retval;
+        if(logger.isDebugEnabled()) {
+        	logger.debug("containsAll : collection = " + c + " > all in child relation");
+        }
+        return true;
     }
 
     /**
@@ -450,8 +375,69 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         return localObjects.toArray(a);
     }
      
-     public CacheableSet getSbbEntitySet(){
-         return this.children;
-     }
-     
+    public Set getSbbEntitySet(){
+    	return new HashSet<String>(sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod));
+    }
+
+	public void removeChild(String sbbEntityId) {
+		sbbEntity.cacheData.removeChildRelationSbbEntity(getChildRelationMethod, sbbEntityId);
+		
+	}
+    
+	// --- ITERATOR
+	
+	/*
+     * JAIN SLEE 1.0 Specification, Final Release Page 62 The iterator method
+     * and the Iterator objects returned by this method. Chapter 6 The SBB
+     * Abstract Class
+     * 
+     * The SLEE must implement the methods of the Iterator objects returned by
+     * the iterator method by following the contract defined by the
+     * java.util.Iterator interface. o The next method of the Iterator object
+     * returns an object that implements the SBB local interface of the child
+     * SBB of the child relation. Java typecast can be used to narrow the
+     * returned object reference to the SBB local interface of the child SBB. o
+     * The remove method of the Iterator object removes the SBB entity that is
+     * represented by the last SBB local object returned by the next method of
+     * the Iterator object from the child relation. Removing an SBB entity from
+     * a child relation by invoking this remove method initiates a cascading
+     * removal of the SBB entity tree rooted by the SBB entity, similar to
+     * invoking the remove method on an SBB local object that represents the SBB
+     * entity. The behavior of the Iterator object is unspecified if the
+     * underlying child relation is modified while the iteration is in progress
+     * in any way other than by calling this remove method.
+     */
+    class ChildRelationIterator implements Iterator {
+
+        private Iterator<String> myIterator;
+        private String nextEntity;
+        private SbbLocalObject nextSbbLocalObject;
+        
+        public ChildRelationIterator() {        	        	
+        	this.myIterator = getSbbEntitySet().iterator();
+        }
+      
+        public void remove() {        
+        	if (nextSbbLocalObject != null) {
+        		myIterator.remove();
+            	nextSbbLocalObject.remove();
+        	}
+        	else {
+        		throw new IllegalStateException();
+        	}
+        }
+
+        public boolean hasNext() {
+            return myIterator.hasNext();
+        }
+        
+        public Object next() {
+            nextEntity = myIterator.next();
+            SbbEntity childSbbEntity = SbbEntityFactory.getSbbEntity(nextEntity);
+            this.nextSbbLocalObject = childSbbEntity.createSbbLocalObject();
+            sbbEntity.addChildWithSbbObject(childSbbEntity);
+            return nextSbbLocalObject;
+        }
+
+    }
 }

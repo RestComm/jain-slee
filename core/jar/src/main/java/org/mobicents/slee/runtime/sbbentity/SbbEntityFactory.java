@@ -12,14 +12,13 @@
  */
 package org.mobicents.slee.runtime.sbbentity;
 
-import java.rmi.dgc.VMID;
-
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
 import org.jboss.logging.Logger;
+import org.mobicents.slee.container.MobicentsUUIDGenerator;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -39,12 +38,12 @@ public class SbbEntityFactory {
 
 	private static Logger log = Logger.getLogger(SbbEntityFactory.class);
 
-	private static String genId() {
-		//Use a GUID for the sbb entity id - a counter won't work in a cluster
-		VMID vmid = new VMID();
-		return vmid.toString();
+	private static String genId() {		
+		return MobicentsUUIDGenerator.getInstance().createUUID();
 	}
 
+	private static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
 	/**
 	 * Creates a new non root sbb entity.
 	 * @param sbbId
@@ -67,8 +66,8 @@ public class SbbEntityFactory {
 			SbbEntity sbbe = new SbbEntity(sbbeId, parentSbbEntityId,
 					parentChildRelation, rootSbbEntityId, sbbId,
 					convergenceName, svcId);
-			// store it in the tx
-			SleeContainer.getTransactionManager().putTxLocalData(sbbeId, sbbe);
+			// store it in the tx, we need to do it due to sbb local object and current storing in sbb entity per tx
+			sleeContainer.getTransactionManager().getTransactionContext().getData().put(sbbeId, sbbe);
 			return sbbe;
 		} catch (Exception ex) {
 			String s = "Exception in creating non root sbb entity!";
@@ -94,8 +93,8 @@ public class SbbEntityFactory {
 			// create sbb entity
 			SbbEntity sbbe = new SbbEntity(sbbeId, null, null, sbbeId, sbbId,
 					convergenceName, svcId);
-			// store it in the tx
-			SleeContainer.getTransactionManager().putTxLocalData(sbbeId, sbbe);
+			// store it in the tx, we need to do it due to sbb local object and current storing in sbb entity per tx
+			sleeContainer.getTransactionManager().getTransactionContext().getData().put(sbbeId, sbbe);
 			return sbbe;
 		} catch (Exception ex) {
 			String s = "exception in creating root sbb entity!";
@@ -127,17 +126,32 @@ public class SbbEntityFactory {
 		 */
 
 		//Look for it in the per transaction cache
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
-		SbbEntity sbb = (SbbEntity) txMgr.getTxLocalData(sbbeId);
+		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
+		SbbEntity sbb = null;
+		try {
+			sbb = (SbbEntity) txMgr.getTransactionContext().getData().get(sbbeId);
+		} catch (SystemException e) {
+			if (log.isDebugEnabled()) {
+				log.debug(e.getMessage(),e);
+			}
+		}
 		if (sbb == null) {
 			if (log.isDebugEnabled())
 				log.debug("Loading sbb entity " + sbbeId + " from cache");
 			// not found, recreate it from cache
 			sbb = new SbbEntity(sbbeId);
-			// and store in local tx data
-			txMgr.putTxLocalData(sbbeId, sbb);
+			// store it in the tx, we need to do it due to sbb local object and current storing in sbb entity per tx
+			try {
+				txMgr.getTransactionContext().getData().put(sbbeId, sbb);
+			} catch (SystemException e) {
+				log.error(e.getMessage(),e);
+			}
 		}
-
+		/*
+		else {
+			log.info("found sbb entity "+sbbeId+" in tx context");
+		}
+		*/
 		return sbb;
 	}
 
@@ -176,6 +190,8 @@ public class SbbEntityFactory {
 			SystemException {
 		// remove entity
 		sbbEntity.remove(removeFromParent);
+		sleeContainer.getTransactionManager().getTransactionContext().getData().remove(sbbEntity.getSbbEntityId());
+		//log.info("removed sbb entity "+sbbEntity.getSbbEntityId()+" in tx context");
 	}
 	
 	/**

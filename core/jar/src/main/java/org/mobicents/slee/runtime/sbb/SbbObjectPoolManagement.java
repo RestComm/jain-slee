@@ -27,7 +27,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	private final static Logger logger = Logger
 			.getLogger(SbbObjectPoolManagement.class);
 
-	private final ConcurrentHashMap<ComponentID, ObjectPool> pools;
+	private final ConcurrentHashMap<ComponentID, SbbObjectPool> pools;
 	private final SleeContainer sleeContainer;
 
 	private GenericObjectPool.Config config;
@@ -42,13 +42,13 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 		config.minEvictableIdleTimeMillis = 60000;
 		config.minIdle = 0;
 		config.numTestsPerEvictionRun = -1;
-		config.testOnBorrow = false;
-		config.testOnReturn = false;
+		config.testOnBorrow = true;
+		config.testOnReturn = true;
 		config.testWhileIdle = false;
 		config.timeBetweenEvictionRunsMillis = 300000;
 		config.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
 		// create pools map
-		pools = new ConcurrentHashMap<ComponentID, ObjectPool>();
+		pools = new ConcurrentHashMap<ComponentID, SbbObjectPool>();
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	 * @return the object pool for the sbb id.
 	 * 
 	 */
-	public ObjectPool getObjectPool(ComponentID sbbID) {
+	public SbbObjectPool getObjectPool(ComponentID sbbID) {
 		return pools.get(sbbID);
 	}
 
@@ -128,8 +128,8 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 		GenericObjectPoolFactory poolFactory = new GenericObjectPoolFactory(
 				new SbbObjectPoolFactory(sbbDescriptor), config);
 		final ObjectPool objectPool = poolFactory.createPool();
-		final ObjectPool oldObjectPool = pools.put(sbbDescriptor.getID(),
-				objectPool);
+		final SbbObjectPool oldObjectPool = pools.put(sbbDescriptor.getID(),
+				new SbbObjectPool(objectPool));
 		if (oldObjectPool != null) {
 			// there was an old pool, close it
 			try {
@@ -188,7 +188,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	 * @throws Exception
 	 */
 	private void removeObjectPool(ComponentID id) throws Exception {
-		final ObjectPool objectPool = pools.remove(id);
+		final SbbObjectPool objectPool = pools.remove(id);
 		if (objectPool != null) {
 			objectPool.close();
 		}

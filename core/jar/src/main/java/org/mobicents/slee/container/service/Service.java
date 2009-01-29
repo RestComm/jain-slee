@@ -7,18 +7,15 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.CreateException;
-import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
 import javax.slee.resource.ActivityAlreadyExistsException;
-import javax.slee.serviceactivity.ServiceStartedEvent;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.InstalledUsageParameterSet;
 import org.mobicents.slee.container.component.ServiceDescriptorImpl;
 import org.mobicents.slee.container.component.ServiceIDImpl;
@@ -26,16 +23,10 @@ import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.cache.CacheableMap;
+import org.mobicents.slee.runtime.cache.ServiceCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityHandle;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityImpl;
-import org.mobicents.slee.runtime.serviceactivity.ServiceStartedEventImpl;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 
 /**
  * Service implementation. This is the run-time representation of the service
@@ -55,50 +46,30 @@ public class Service implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static String tcache = TransactionManagerImpl.RUNTIME_CACHE;
-
-	private CacheableMap serviceAttributes;
-
-	private CacheableMap childObj;
-
-	private byte defaultPriority;
-
-	private ServiceIDImpl serviceID;
-
-	// The child Relation object containing the set of sbb entities created for
-	// the service
-
-	private static String CHILD_OBJ = "rootSbbEntities";
-
-	private static String SERVICE_ATTRS = "serviceAttributes";
-
-	private static final String SERVICE_STATE = "serviceState";
-
-	private static final String SERVICE_ACTIVITY = "serviceActivity";
-
-	private static Logger logger = Logger.getLogger(Service.class);
-
-	transient private SleeContainer sleeContainer;
-
-	boolean isRemoved;
-
+	private static final transient Logger logger = Logger.getLogger(Service.class);
+	
+	private static final transient SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
 	//  The named usage parameters.
 	// Index is serviceID+ssbbID + name
 	// Do these need to be replicated?
 
-	private static ConcurrentHashMap<ServiceID, HashMap> usageParameters = new ConcurrentHashMap<ServiceID, HashMap>();
-
-	// the name of the node in the cache where Service attributes are stored
-	private String cacheNodeName;
-
-	private SbbID rootSbbID;
+	private static ConcurrentHashMap<ServiceID, HashMap> _usageParameters;
 
 	public static String getUsageParametersPathName(ServiceID serviceId,
 			SbbID sbbId) {
 		return serviceId.toString() + "/" + sbbId.toString();
 	}
 
+	private static ConcurrentHashMap<ServiceID, HashMap> getUsageParameters() {
+		if (_usageParameters == null) {
+			_usageParameters = new ConcurrentHashMap<ServiceID, HashMap>();
+		}
+		return _usageParameters;
+	}
+	
 	private static HashMap getUsageParameters(ServiceID serviceId) {
+		ConcurrentHashMap<ServiceID, HashMap> usageParameters = getUsageParameters();
 		HashMap hashMap = (HashMap) usageParameters.get(serviceId);
 		if (hashMap == null) {
 			hashMap = new HashMap();
@@ -118,34 +89,16 @@ public class Service implements Serializable {
 				+ SleeContainerUtils.toHex(name);
 	}
 
-	/**
-	 * Set the service state.
-	 * 
-	 * @param serviceState
-	 */
-	public void setState(ServiceState serviceState) {
-		if (logger.isDebugEnabled()) {
-			try {
-				ServiceState oldServiceState = (ServiceState) serviceAttributes
-						.get(SERVICE_STATE);
-				logger
-						.debug("ServiceComponent.setState(): State service ID =  "
-								+ this.serviceID
-								+ " current State = "
-								+ oldServiceState
-								+ " new State = "
-								+ serviceState
-								+ " TX ID: "
-								+ SleeContainer.getTransactionManager()
-										.getTransaction());
-				// logger.info(SleeContainer.getTransactionManager().displayOngoingSleeTransactions());
-			} catch (SystemException e) {
-				logger.error("error in debugging setState(): ", e);
-			}
-		}
-		serviceAttributes.put(SERVICE_STATE, serviceState);
-	}
+	// --- service
+	
+	private byte defaultPriority;
 
+	private final ServiceIDImpl serviceID;
+
+	private final SbbID rootSbbID;
+
+	private final ServiceCacheData cacheData;
+	
 	/**
 	 * The Public constructor. This is used to create a runtime representation
 	 * of the service.
@@ -156,10 +109,11 @@ public class Service implements Serializable {
 	 * @throws RuntimeException
 	 */
 
-	private Service(ServiceDescriptorImpl serviceDescriptor)
-			throws RuntimeException {
+	protected Service(ServiceDescriptorImpl serviceDescriptor, boolean initCachedData) throws RuntimeException {
+		
 		if (serviceDescriptor == null)
 			throw new NullPointerException("null descriptor or container");
+		
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Service.Service(): creating service"
@@ -167,80 +121,34 @@ public class Service implements Serializable {
 			}
 
 			this.serviceID = (ServiceIDImpl) serviceDescriptor.getID();
-
+			this.defaultPriority = serviceDescriptor.getDefaultPriority();	
+			this.rootSbbID = serviceDescriptor.getRootSbb();
+			
+			ConcurrentHashMap<ServiceID, HashMap> usageParameters = getUsageParameters();
 			if (usageParameters.get(serviceID) == null) {
 				HashMap hmap = new HashMap();
 				usageParameters.put(serviceID, hmap);
 			}
-			sleeContainer = SleeContainer.lookupFromJndi();
-
-			this.defaultPriority = serviceDescriptor.getDefaultPriority();
-
-			childObj = new CacheableMap(tcache + "-" + getCacheNodeName() + "#"
-					+ CHILD_OBJ);
-
-			serviceAttributes = new CacheableMap(tcache + "-"
-					+ getCacheNodeName() + "#" + SERVICE_ATTRS);
-
-			rootSbbID = serviceDescriptor.getRootSbb();
-
+			
+			this.cacheData = sleeContainer.getCache().getServiceCacheData(this.serviceID);
+			if (initCachedData && !cacheData.exists()) {
+				cacheData.create();
+			}
+			
 		} catch (Exception ex) {
 			String s = "Exception encountered while loading service ";
 			logger.error(s, ex);
 			throw new RuntimeException(s, ex);
 		}
 	}
-
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("Service.printNode() { serviceID = " + this.serviceID + "\n");
-		if (logger.isDebugEnabled()) {
-			// very expensive operation.  Use w/ care
-			sb.append("childObj = " + childObj + "/n");
-		} else {
-			sb.append("childObj = <not fully loaded from cache>\n");
-		}
-		sb
-				.append(
-						"defaultPriority =  " + this.getDefaultPriority()
-								+ "\n")
-				.append("serviceActivity = " + this.getServiceActivity() + "\n")
-				.append("serviceState = " + this.getState() + "\n").append("}");
-
-		return sb.toString();
-
-	}
-
+	
 	/**
-	 * Returns the service state.
-	 * 
-	 * @return
+	 * get the default priority.
 	 */
-	public ServiceState getState() {
-		ServiceState serviceState = null;
-		serviceState = (ServiceState) serviceAttributes.get(SERVICE_STATE);
-		if (serviceState == null) {
-			serviceState = ServiceState.INACTIVE;
-		}
-		return serviceState;
+	public byte getDefaultPriority() {
+		return this.defaultPriority;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mobicents.slee.runtime.Cacheable#getNodeName()
-	 */
-	public String getCacheNodeName() {
-		if (this.cacheNodeName != null)
-			return this.cacheNodeName;
-		else
-			this.cacheNodeName = "services:"
-					+ serviceID.getComponentKey().getName() + "-"
-					+ serviceID.getComponentKey().getVendor() + "-"
-					+ serviceID.getComponentKey().getVersion();
-		return cacheNodeName;
-	}
-
+	
 	/**
 	 * get the component key for the service component from which this service
 	 * was created.
@@ -250,11 +158,54 @@ public class Service implements Serializable {
 	}
 
 	/**
-	 * get the default priority.
+	 * Retrieves the {@link SbbID} of the root sbb for this service
+	 * @return
 	 */
-	public byte getDefaultPriority() {
+	public SbbID getRootSbbID() {
+		return rootSbbID;
+	}
 
-		return this.defaultPriority;
+	/**
+	 * Set the service state.
+	 * 
+	 * @param serviceState
+	 */
+	public void setState(ServiceState serviceState) {
+		if (logger.isDebugEnabled()) {
+			try {
+				ServiceState oldServiceState = cacheData.getState();
+				logger
+						.debug("ServiceComponent.setState(): State service ID =  "
+								+ this.serviceID
+								+ " current State = "
+								+ oldServiceState
+								+ " new State = "
+								+ serviceState
+								+ " TX ID: "
+								+ sleeContainer.getTransactionManager()
+										.getTransaction());				
+			} catch (SystemException e) {
+				logger.error("error in debugging setState(): ", e);
+			}
+		}
+		cacheData.setState(serviceState);
+	}
+
+	/**
+	 * Returns the service state.
+	 * 
+	 * @return
+	 */
+	public ServiceState getState() {
+		if (cacheData.exists() && !cacheData.isRemoved()) {
+			// we need to trap service state retrieval since it may be done for
+			// a service that is not in cache
+			ServiceState serviceState = cacheData.getState();
+			if (serviceState != null) {
+				return serviceState;
+			}
+		}
+		return ServiceState.INACTIVE;
 	}
 
 	/**
@@ -265,17 +216,17 @@ public class Service implements Serializable {
 	 *  
 	 */
 	public Collection getChildObj() {
-		return this.childObj.values();
+		return cacheData.getChildSbbEntities();
 	}
 
 	/**
-	 * Check if this service maps a given convergence name.
+	 * Check if this service maps the specified convergence name.
 	 * 
 	 * @param convergenceName
 	 * @return
 	 */
 	public boolean containsConvergenceName(String convergenceName) {
-		return this.childObj.containsKey(convergenceName);
+		return cacheData.hasChild(convergenceName);
 	}
 
 	/**
@@ -287,98 +238,40 @@ public class Service implements Serializable {
 	public SbbEntity addChild(String convergenceName) throws CreateException {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Service.addChild " + this.serviceID
-					+ " convergence name " + convergenceName);
+			if (logger.isDebugEnabled()) {
+				logger.debug(getServiceID().toString() + " adding convergence name "+convergenceName);
+			}
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
+		// create root sbb entity
 		SbbEntity sbbEntity = SbbEntityFactory.createRootSbbEntity(rootSbbID,
 				this.getServiceID(), convergenceName);
-
+		// set default priority
 		sbbEntity.setPriority(getDefaultPriority());
-
-		childObj.put(convergenceName, sbbEntity.getSbbEntityId());
+		// store in cache
+		cacheData.addChild(convergenceName, sbbEntity.getSbbEntityId());
 
 		return sbbEntity;
-
 	}
 
-	/**
-	 * This sets the service state to STOPPING and sends out activity end events
-	 * on the ServiceActivity. The state transitions to INACTIVE happens in the
-	 * EventRouter after the EndActivity for the service activty is Consumed.
-	 * The root sbb entity trees are forcefully removed when the service
-	 * activity is consumed.
-	 * 
-	 * A Service enters the Stopping state from the Active state when the
-	 * Service is deactivated. At this point, the SLEE ends the Activity
-	 * associated with the Service, if it exists (see Section 8.7.2), and fires
-	 * an Activity End Event on this Activity. SBB entities belonging to the
-	 * Service that require clean-up when the Service is deactivated should
-	 * listen to this event and terminate their processing quickly but
-	 * gracefully when this event is received. Optionally, after some SLEE
-	 * implementation determined time, the SLEE may also forcefully remove the
-	 * outstanding SBB entity trees of the Service. · The SLEE moves a Service
-	 * to the Inactive state from the Stopping state spontaneously when all
-	 * outstanding SBB entity trees of the Service complete their processing.
-	 * The operational state of a Service is persistent, i.e. the SLEE remembers
-	 * the last state the Service is in. If the SLEE is shut down and then
-	 * restarted, the SLEE restores these Services to their previous operational
-	 * state.
-	 * 
-	 *  
-	 */
-	public void deactivate() {
-
-		this.setState(ServiceState.STOPPING);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Service.deactivate()  " + this.serviceID);
-		}
-
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
-		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
-		if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
-			ac.setState(ActivityContextState.ENDING);
-			try {
-				new DeferredActivityEndEvent(ach,null);
-			} catch (SystemException e) {
-				logger.error("failed to create deferred activity end event", e);
-			}
-		}
-	}
-	
 	public String getRootSbbEntityId(String convergenceName) {
-		return (String) this.childObj.get(convergenceName);
+		return cacheData.getChild(convergenceName);
 	}
 
-	public void removeConvergenceName(String name) {
+	public void removeConvergenceName(String convergenceName) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Service.removeConvergenceName() " + this.serviceID
-					+ " name = " + name);
+			logger.debug(getServiceID().toString() + " removing convergence name "+convergenceName);
 		}
-		this.childObj.remove(name);
+		cacheData.removeChild(convergenceName);
 	}
 
 	/**
 	 * @return the service activity for this service.
 	 */
 	public ServiceActivityImpl getServiceActivity() {
-		return (ServiceActivityImpl) serviceAttributes.get(SERVICE_ACTIVITY);
-	}
-
-	/**
-	 * Remove my cached image.
-	 *  
-	 */
-	public void removeFromCache() throws SystemException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Service.removeFromCache() " + this.serviceID);
-		}
-
-		serviceAttributes.remove();
-		childObj.remove();
+		return new ServiceActivityImpl(this);
 	}
 
 	/**
@@ -391,7 +284,7 @@ public class Service implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Service.getUsageParameterTable() " + serviceID);
 		}
-		return usageParameters.get(serviceID);
+		return getUsageParameters().get(serviceID);
 	}
 
 	/**
@@ -410,7 +303,7 @@ public class Service implements Serializable {
 		String key = Service.getUsageParametersPathName(serviceId, sbbId);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Service.getDefaultUsageParameterSet: "
-					+ usageParameters + " key = " + key);
+					+ getUsageParameters() + " key = " + key);
 		}
 		return (InstalledUsageParameterSet) getUsageParameters(serviceId).get(
 				key);
@@ -450,7 +343,6 @@ public class Service implements Serializable {
 	protected static void removeUsageParameter(ServiceID serviceID,
 			String pathName) {
 		getUsageParameters(serviceID).remove(pathName);
-
 	}
 
 	/**
@@ -460,7 +352,6 @@ public class Service implements Serializable {
 	protected static void addUsageParameter(ServiceID serviceID,
 			String pathName, Object usageParam) {
 		getUsageParameters(serviceID).put(pathName, usageParam);
-
 	}
 
 	/**
@@ -468,7 +359,7 @@ public class Service implements Serializable {
 	 *            service id for which we want to remove all usage mbeans
 	 */
 	public void removeAllUsageParameters() {
-		usageParameters.remove(this.serviceID);
+		getUsageParameters().remove(this.serviceID);
 	}
 
 	/**
@@ -486,60 +377,94 @@ public class Service implements Serializable {
 	 * these Services to their previous operational state.
 	 *  
 	 */
-	public void activate() throws SystemException {
+	public void startActivity() throws SystemException {
 
-		// change service state
-		this.setState(ServiceState.ACTIVE);
-		// create service activity
-		ServiceActivityImpl serviceActivityImpl = new ServiceActivityImpl(this);
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
 		// create ac for the activity
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
+		ActivityContext ac = null;
 		try {
-			sleeContainer.getActivityContextFactory().createActivityContext(ach);
+			ac = sleeContainer.getActivityContextFactory().createActivityContext(ach);
 		} catch (ActivityAlreadyExistsException e) {
 			final String msg = "service activity already exists";
 			logger.error(msg,e);
 			throw new SystemException(msg);
 		}
-		// save service activity
-		this.setServiceActivity(serviceActivityImpl);
-		// create event
-		EventTypeID eventTypeID = sleeContainer.getEventManagement().getEventType(new ComponentKey("javax.slee.serviceactivity.ServiceStartedEvent", "javax.slee",
-				"1.0"));
-		ServiceStartedEvent ev = new ServiceStartedEventImpl(serviceID);
-
+		
 		if (logger.isDebugEnabled()) {
 			logger
-					.debug("Service.activate(): sending ServiceStartedEvent for service "
+					.debug("starting service activity for "
 							+ serviceID);
 		}
-
-		new DeferredEvent(eventTypeID, ev, ach, null);
-
+		new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(serviceID));
 	}
 
-	private void setServiceActivity(ServiceActivityImpl serviceActivity) {
-		serviceAttributes.put(SERVICE_ACTIVITY, serviceActivity);
-	}
+	/**
+	 * This sets the service state to STOPPING and sends out activity end events
+	 * on the ServiceActivity. The state transitions to INACTIVE happens in the
+	 * EventRouter after the EndActivity for the service activty is Consumed.
+	 * The root sbb entity trees are forcefully removed when the service
+	 * activity is consumed.
+	 * 
+	 * A Service enters the Stopping state from the Active state when the
+	 * Service is deactivated. At this point, the SLEE ends the Activity
+	 * associated with the Service, if it exists (see Section 8.7.2), and fires
+	 * an Activity End Event on this Activity. SBB entities belonging to the
+	 * Service that require clean-up when the Service is deactivated should
+	 * listen to this event and terminate their processing quickly but
+	 * gracefully when this event is received. Optionally, after some SLEE
+	 * implementation determined time, the SLEE may also forcefully remove the
+	 * outstanding SBB entity trees of the Service. · The SLEE moves a Service
+	 * to the Inactive state from the Stopping state spontaneously when all
+	 * outstanding SBB entity trees of the Service complete their processing.
+	 * The operational state of a Service is persistent, i.e. the SLEE remembers
+	 * the last state the Service is in. If the SLEE is shut down and then
+	 * restarted, the SLEE restores these Services to their previous operational
+	 * state.
+	 * 
+	 *  
+	 */
+	public void endActivity() {
 
-	public static Service getService(ServiceDescriptorImpl serviceDescriptorImpl) {
-
-		final SleeTransactionManager txMgr = SleeContainer.lookupFromJndi()
-				.getTransactionManager();
-
-		txMgr.mandateTransaction();
-
-		// check local tx data
-		Service service = (Service) txMgr.getTxLocalData(serviceDescriptorImpl
-				.getID());
-
-		if (service == null) {
-			// not in tx local data so recreate the service and store in tx 
-			service = new Service(serviceDescriptorImpl);
-			txMgr.putTxLocalData(serviceDescriptorImpl.getID(), service);
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
+		if (logger.isDebugEnabled()) {
+			logger.debug("ending service activity "+ach);
 		}
-
-		return service;
-
+		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
+		if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
+			ac.setState(ActivityContextState.ENDING);
+			try {
+				new DeferredActivityEndEvent(ac,null);
+			} catch (SystemException e) {
+				logger.error("failed to create deferred activity end event", e);
+			}
+		}
 	}
+	
+	/**
+	 * Removes the service data
+	 */
+	public void removeFromCache() {
+		cacheData.remove();
+	}	
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Service.printNode() { serviceID = " + this.serviceID + "\n");
+		if (logger.isDebugEnabled()) {
+			// very expensive operation.  Use w/ care
+			sb.append("childObj = " + cacheData.getChildSbbEntities() + "/n");
+		} else {
+			sb.append("childObj = <not fully loaded from cache>\n");
+		}
+		sb
+				.append(
+						"defaultPriority =  " + this.getDefaultPriority()
+								+ "\n")
+				.append("serviceActivity = " + this.getServiceActivity() + "\n")
+				.append("serviceState = " + this.getState() + "\n").append("}");
+
+		return sb.toString();
+	}
+
+	
 }

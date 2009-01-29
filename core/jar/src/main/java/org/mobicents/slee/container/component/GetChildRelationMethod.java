@@ -8,6 +8,8 @@
 
 package org.mobicents.slee.container.component;
 
+import java.io.Serializable;
+
 import javax.slee.SbbID;
 
 /**
@@ -17,8 +19,15 @@ import javax.slee.SbbID;
  * @author Emil Ivov
  */
 
-public class GetChildRelationMethod {
-    private SbbID sbbID = null;
+public class GetChildRelationMethod implements Serializable{
+	
+	
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private SbbID sbbID = null;
     private String name = null;
     private byte defaultPriority = 0;
 

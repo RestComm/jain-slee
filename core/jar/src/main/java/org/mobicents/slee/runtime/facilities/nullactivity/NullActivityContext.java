@@ -1,7 +1,9 @@
 package org.mobicents.slee.runtime.facilities.nullactivity;
 
+import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.TimerID;
+import javax.slee.nullactivity.NullActivity;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -9,10 +11,13 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.cache.CacheableMap;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
+/**
+ * A special activity context, which is bound to a {@link NullActivity}.
+ * @author martins
+ *
+ */
 public class NullActivityContext extends ActivityContext {
 
 	/**
@@ -23,26 +28,26 @@ public class NullActivityContext extends ActivityContext {
 	private static transient Logger logger = Logger
 			.getLogger(NullActivityContext.class);
 	
-	private static final String tcache = TransactionManagerImpl.RUNTIME_CACHE;
-	
 	/**
 	 * unique key used to flag that an implicit null aci end check action has
 	 * been scheduled on tx commit
 	 */
-	private static final String txLocalNullACEnd1stCheckKey = "tx-local-flag-NullActivityContextImplicitEndCheck-1stcheck";
-	private static final String txLocalNullACEnd2ndCheckKey = "tx-local-flag-NullActivityContextCreation-2ndcheck";
-	private static final String txLocalNullACCreatedKey = "tx-local-flag-NullActivityContextCreation";
-	private static final Object MAP_VALUE = new Object();
+	private static final String NODE_MAP_KEY_NullACEnd1stCheckKey = "nac-end-check-1";
+	private static final String NODE_MAP_KEY_NullACEnd2ndCheckKey = "nac-end-check-2";
+	private static final String NODE_MAP_KEY_NullACCreatedKey = "nac-creation";
 	
-	private CacheableMap cacheMap;
+	private static final Object MAP_VALUE = new Object();
 	
 	public NullActivityContext(ActivityContextHandle ach, String acId, boolean updateAccessTime) {
 		super(ach,acId,updateAccessTime);
-		cacheMap = new CacheableMap(tcache + "-" + getNodeNameInCache());
-		if (cacheMap.get(txLocalNullACCreatedKey) == null) {
+		if (cacheData.getObject(NODE_MAP_KEY_NullACCreatedKey) == null) {
 			// ac creation, put flag in cache and schedule check for implicit end
-			cacheMap.put(txLocalNullACCreatedKey, MAP_VALUE);
-			scheduleCheckForNullActivityImplicitEnd();			
+			cacheData.putObject(NODE_MAP_KEY_NullACCreatedKey, MAP_VALUE);
+			try {
+				scheduleCheckForNullActivityImplicitEnd();
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}			
 		}				
 	}
 	
@@ -50,30 +55,36 @@ public class NullActivityContext extends ActivityContext {
 	public boolean attachSbbEntity(String sbbEntityId)
 			throws TransactionRequiredLocalException {
 		boolean b = super.attachSbbEntity(sbbEntityId);
-		if (b && cacheMap.get(txLocalNullACEnd2ndCheckKey) != null) {
-			// a new attachment and a task to check for implicit removal is queued, cancel it by setting the flag off
-			cacheMap.remove(txLocalNullACEnd2ndCheckKey);
+		if (b) {
+			// a new attachment and a task to check for implicit removal may be queued, cancel it by setting the flag off
+			cacheData.removeObject(NODE_MAP_KEY_NullACEnd2ndCheckKey);
 		}
 		return b;
 	}
 	
 	public void detachSbbEntity(String sbbEntityId) {		
 		super.detachSbbEntity(sbbEntityId);
-		scheduleCheckForNullActivityImplicitEnd();
+		try {
+			scheduleCheckForNullActivityImplicitEnd();
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 	}
 	
 	@Override
 	public void attachTimer(TimerID timerID) {
 		super.attachTimer(timerID);
-		if (cacheMap.get(txLocalNullACEnd2ndCheckKey) != null) {
-			// a new timer and a task to check for implicit removal is queued, cancel it by setting the flag off
-			cacheMap.remove(txLocalNullACEnd2ndCheckKey);
-		}
+		// a new timer and a task to check for implicit removal may be queued, cancel it by setting the flag off
+		cacheData.removeObject(NODE_MAP_KEY_NullACEnd2ndCheckKey);		
 	}
 	
-	public boolean detachTimer(TimerID timerID, boolean checkForActivityEnd) {
-		if(super.detachTimer(timerID, checkForActivityEnd)) {
-			scheduleCheckForNullActivityImplicitEnd();
+	public boolean detachTimer(TimerID timerID) {
+		if(super.detachTimer(timerID)) {
+			try {
+				scheduleCheckForNullActivityImplicitEnd();
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
 			return true;
 		}
 		else {
@@ -84,15 +95,17 @@ public class NullActivityContext extends ActivityContext {
 	@Override
 	public void addNameBinding(String aciName) {
 		super.addNameBinding(aciName);
-		if (cacheMap.get(txLocalNullACEnd2ndCheckKey) != null) {
-			// a new name bound and a task to check for implicit removal is queued, cancel it by setting the flag off
-			cacheMap.remove(txLocalNullACEnd2ndCheckKey);
-		}
+		// a new name bound and a task to check for implicit removal may be queued, cancel it by setting the flag off
+		cacheData.removeObject(NODE_MAP_KEY_NullACEnd2ndCheckKey);		
 	}
 	
 	public boolean removeNameBinding(String aciName) {
 		if(super.removeNameBinding(aciName)) {
-			scheduleCheckForNullActivityImplicitEnd();
+			try {
+				scheduleCheckForNullActivityImplicitEnd();
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
 			return true;
 		}		
 		else {
@@ -100,27 +113,21 @@ public class NullActivityContext extends ActivityContext {
 		}
 	}
 	
-	public String getNodeNameInCache() {		
-		return "null"+ super.getNodeNameInCache();
-	}
-	
-	private void scheduleCheckForNullActivityImplicitEnd() {
-		
-		
+	private void scheduleCheckForNullActivityImplicitEnd() throws SystemException {
 		
 		if (this.getState() != ActivityContextState.ENDING) {
 			
 			// schedule of implicit check only once at  time
-			if (cacheMap.get(txLocalNullACEnd1stCheckKey) != null && cacheMap.get(txLocalNullACEnd2ndCheckKey) != null) {
+			if (cacheData.getObject(NODE_MAP_KEY_NullACEnd1stCheckKey) != null && cacheData.getObject(NODE_MAP_KEY_NullACEnd2ndCheckKey) != null) {
 				return;
 			}
 			else {
 				// raise the 1st check flag to ensure that the check is not scheduled more than once
-				cacheMap.put(txLocalNullACEnd1stCheckKey, MAP_VALUE);		
+				cacheData.putObject(NODE_MAP_KEY_NullACEnd1stCheckKey, MAP_VALUE);		
 			}
 			
 			if (logger.isDebugEnabled()) {
-				logger.debug("schedule checking for implicit end of null activity on ac "+this.getActivityContextHandle());
+				logger.debug("schedule checking for implicit end of null activity on ac "+this.getActivityContextId());
 			}
 			
 			TransactionalAction implicitEndCheck = new TransactionalAction() {
@@ -129,7 +136,7 @@ public class NullActivityContext extends ActivityContext {
 				}
 			};
 			
-			getTxManager().addPrepareCommitAction(implicitEndCheck);
+			sleeContainer.getTransactionManager().addBeforeCommitAction(implicitEndCheck);
 		}
 		
 	}
@@ -173,34 +180,39 @@ public class NullActivityContext extends ActivityContext {
 	 *      	the NullActivity objects whose Activity Contexts were enrolled in the transaction to determine which
 	 *      	NullActivity objects should end.
 	 * </pre>
+	 * @throws SystemException 
 	 */
 	private void implicitEndFirstCheck() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("1st Checking for implicit end of null activity on ac "+this.getActivityContextHandle());
+			logger.debug("1st Checking for implicit end of null activity on ac "+this.getActivityContextId());
 		}
 		
-		if (cacheMap.get(txLocalNullACEnd2ndCheckKey) == null) {
+		if (cacheData.getObject(NODE_MAP_KEY_NullACEnd2ndCheckKey) == null) {
 			if (this.getState() == ActivityContextState.ACTIVE) {
 				if (this.isSbbAttachmentSetEmpty()
 						&& this.isAttachedTimersEmpty()
 						&& this.isNamingBindingEmpty()) {
 
 					// raise the 2nd check flag
-					cacheMap.put(txLocalNullACEnd2ndCheckKey, MAP_VALUE);
+					cacheData.putObject(NODE_MAP_KEY_NullACEnd2ndCheckKey, MAP_VALUE);
 					// remove 1st level check flag
-					cacheMap.remove(txLocalNullACEnd1stCheckKey);
+					cacheData.removeObject(NODE_MAP_KEY_NullACEnd1stCheckKey);
 					
 					// lets submit final check task to activity event executor after commit
-					final ActivityContextHandle ach = getActivityContextHandle();
+					final String acId = getActivityContextId();
 					TransactionalAction action = new TransactionalAction() {
 						public void execute() {
 							SleeContainer.lookupFromJndi().getEventRouter()
-							.getEventRouterActivity(ach).getExecutorService()
-							.submit(new NullActivityImplictEndTask(ach));
+							.getEventRouterActivity(acId).getExecutorService()
+							.submit(new NullActivityImplictEndTask(acId));
 						}
 					};
 					
-					getTxManager().addAfterCommitAction(action);
+					try {
+						sleeContainer.getTransactionManager().addAfterCommitAction(action);
+					} catch (SystemException e) {
+						logger.error(e.getMessage(),e);
+					}
 					
 				}
 			}
@@ -209,30 +221,27 @@ public class NullActivityContext extends ActivityContext {
 	
 	public void implicitEndSecondCheck() {
 		// final verification task, remove activity		
-		if (cacheMap.get(txLocalNullACEnd2ndCheckKey) != null) {
+		if (cacheData.getObject(NODE_MAP_KEY_NullACEnd2ndCheckKey) != null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("implicit null activity ending");
 			}
 			try {
-				SleeContainer.lookupFromJndi().getNullActivityFactory().endNullActivity((NullActivityHandle)getActivityContextHandle().getActivityHandle());
+				sleeContainer.getNullActivityFactory().endNullActivity(getActivityContextHandle());
 			} catch (SystemException e) {
 				logger.error("failed to implicit end null activity",e);
 			}
 		}
 	}
 	
-	public void firingEvent() {
-		if (cacheMap.get(txLocalNullACEnd2ndCheckKey) != null) {
+	public void firingEvent() throws SystemException {
+		if (cacheData.getObject(NODE_MAP_KEY_NullACEnd2ndCheckKey) != null) {
 			// we are firing an event thus we need to cancel a possible implict end
-			cacheMap.remove(txLocalNullACEnd2ndCheckKey);
+			cacheData.removeObject(NODE_MAP_KEY_NullACEnd2ndCheckKey);
 			// but this event may not be adding new attach, timer or name, so schedule the implict end 1st check again
 			scheduleCheckForNullActivityImplicitEnd();
 		}
 	}
 	
-	public void markForRemove() {
-		super.markForRemove();
-		cacheMap.remove();
-	}
+	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 }

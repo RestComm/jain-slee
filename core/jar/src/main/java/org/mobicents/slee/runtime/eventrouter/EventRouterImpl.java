@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTask;
 
@@ -33,7 +32,7 @@ public class EventRouterImpl implements EventRouter {
 	/**
 	 * the {@link EventRouterActivity} objects, which hold all runtime structures related to the activity
 	 */
-	private final ConcurrentHashMap<ActivityContextHandle, EventRouterActivity> activities = new ConcurrentHashMap<ActivityContextHandle, EventRouterActivity>();
+	private final ConcurrentHashMap<String, EventRouterActivity> activities = new ConcurrentHashMap<String, EventRouterActivity>();
 	
 	/**
 	 * The array of {@link ExecutorService}s that are used to route events
@@ -55,8 +54,8 @@ public class EventRouterImpl implements EventRouter {
 	public void routeEvent(DeferredEvent de) {
 		
 		if (logger.isDebugEnabled()) {
-			logger.debug("Routing event: " + de.getEventTypeId() + " activity "
-					+ de.getActivityContextHandle() + " address " + de.getAddress());
+			logger.debug("Routing event: " + de.getEventTypeId() + " activity context "
+					+ de.getActivityContextId() + " address " + de.getAddress());
 		}
 
 		if (container.getSleeState() == SleeState.STOPPED) {
@@ -65,7 +64,7 @@ public class EventRouterImpl implements EventRouter {
 		}
 
 		// execute routing of event
-		final EventRouterActivity era = activities.get(de.getActivityContextHandle());
+		final EventRouterActivity era = activities.get(de.getActivityContextId());
 		era.getExecutorService().execute(new EventRoutingTask(container,de,era.getPendingAttachementsMonitor()));
 
 	}
@@ -114,18 +113,18 @@ public class EventRouterImpl implements EventRouter {
 		}
 	}
 
-	public void activityEnded(ActivityContextHandle ach) {
-		activities.remove(ach);
+	public void activityEnded(String acId) {
+		activities.remove(acId);
 	}
 
-	public void activityStarted(ActivityContextHandle ach) {
+	public void activityStarted(String acId) {
 		PendingAttachementsMonitor pendingAttachementsMonitor = null;
 		if (monitorPendingACAttachements) {
 			pendingAttachementsMonitor = new PendingAttachementsMonitor();
 		}
-		EventRouterActivity era = new EventRouterActivity(ach,pendingAttachementsMonitor,container);
-		if (activities.putIfAbsent(ach,era) == null) {
-			era.setExecutorService(mapExecutor(ach));
+		EventRouterActivity era = new EventRouterActivity(acId,pendingAttachementsMonitor,container);
+		if (activities.putIfAbsent(acId,era) == null) {
+			era.setExecutorService(mapExecutor(acId));
 		}
 	}
 	
@@ -134,7 +133,7 @@ public class EventRouterImpl implements EventRouter {
 	 * 
 	 * @return
 	 */
-	private ExecutorService mapExecutor(ActivityContextHandle activityHandle) {
+	private ExecutorService mapExecutor(String acId) {
 		return executors[activities.size() % executors.length];
 	}
 	
@@ -167,7 +166,7 @@ public class EventRouterImpl implements EventRouter {
 		}
 	}
 	
-	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach) {		
-		return activities.get(ach);
+	public EventRouterActivity getEventRouterActivity(String acId) {		
+		return activities.get(acId);
 	}
 }

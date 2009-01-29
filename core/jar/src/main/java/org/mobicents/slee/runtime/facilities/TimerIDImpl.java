@@ -23,8 +23,10 @@
 package org.mobicents.slee.runtime.facilities;
 
 import java.io.Serializable;
-import java.rmi.dgc.VMID;
+
 import javax.slee.facilities.TimerID;
+
+import org.mobicents.slee.container.MobicentsUUIDGenerator;
 
 /**
  * An implementation of timer ID.
@@ -37,9 +39,7 @@ public class TimerIDImpl implements TimerID, Serializable {
 	private static final long serialVersionUID = -230916225922881179L;
 	private String id;
     TimerIDImpl() {
-        //Create a GUID unique across all JVMS - we use a utility class from RMI to do this
-        VMID vmid = new VMID();
-        id = vmid.toString();       
+        id = MobicentsUUIDGenerator.getInstance().createUUID();       
     }
     public boolean equals(Object obj) {
     	if ((obj != null) && (obj.getClass() == this.getClass())) {

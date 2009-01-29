@@ -13,9 +13,11 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
@@ -30,12 +32,9 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.cache.CacheableMap;
+import org.mobicents.slee.runtime.cache.TimerFacilityCacheData;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionManagerImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
-
-import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
 
 /*
  * Tim - major refactoring - prevented thrashing, made threadsafe, added
@@ -60,34 +59,24 @@ import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
  */
 public class TimerFacilityImpl implements Serializable, TimerFacility {
 
+	private static Logger logger = Logger.getLogger(TimerFacilityImpl.class);
+	
 	private static final long serialVersionUID = 5281276761487630957L;
 
 	private static final int DEFAULT_TIMEOUT = 100;
 
 	public static final String JNDI_NAME = "timer";
-
-	private static final String FQN_PREFIX = "timerfacility:";
-
-	private static final String FQN_TIMERS_NAME = FQN_PREFIX
-			+ "timers:timertasks";
-
-	private static String tcache = TransactionManagerImpl.RUNTIME_CACHE;
-
+    	
 	// this is supposed to be the timer resolution in ms of the hosting
 	// OS/hardware
 	private int timerResolution = 10;
 
 	private transient Timer sysTimer = new Timer();
 
-	/**
-	 * map of all scheduled timers keyed by their ID
-	 */
-	private Map timerCacheMap;
-
-	// private transient SleeContainer serviceContainer;
-
-	private static Logger logger = Logger.getLogger(TimerFacilityImpl.class);
-
+	private final SleeContainer sleeContainer;
+	
+	private final TimerFacilityCacheData cacheData;
+	
 	class TimerFacilityAction implements TransactionalAction {
 
 		private static final int TYPE_SET_ONETIME = 0;
@@ -209,9 +198,10 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 
 		public void execute() {
 
-			// SleeContainer.getTransactionManager().assertIsNotInTx();
 			try {
-				new DirectExecutor().execute(new TimerStarterTask(this));
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.execute(new TimerStarterTask(this));
+				executor.shutdown();				
 			} catch (Exception e) {
 				logger.error("Failed to execute TimerStarterTask", e);
 			}
@@ -219,8 +209,11 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	}
 
 	public TimerFacilityImpl(SleeContainer sleeContainer) {
-		this.sysTimer = new Timer();
-		this.timerCacheMap = new CacheableMap(tcache + "-" + FQN_TIMERS_NAME);
+		this.sleeContainer = sleeContainer;
+		this.sysTimer = new Timer();		
+		// init cache data
+		cacheData = sleeContainer.getCache().getTimerFacilityCacheData();
+		cacheData.create();
 	}
 
 	/*
@@ -269,7 +262,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			timerOptions.setTimeout(Math.min(period, this.getResolution())); // SPEC
 		// 13.1.3
 
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
 
 		boolean startedTx = txMgr.requireTransaction();
 
@@ -294,12 +287,11 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 		ActivityContextInterfaceImpl aciImpl = (ActivityContextInterfaceImpl) aci;
 		
 		TimerFacilityTimerTask task = new TimerFacilityTimerTask(timerID,
-				aciImpl.getActivityContextHandle(),
+				aciImpl.getActivityContext().getActivityContextId(),
 				address, startTime, period, numRepetitions, timerOptions);
 
 		try {
-			// ---
-			timerCacheMap.put(timerID.toString(), task);
+			cacheData.addTask(timerID, task);
 		} catch (Exception e) {
 			throw new FacilityException("Failed to add timer to cache", e);
 		}
@@ -315,12 +307,17 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 		TimerFacilityAction action = new TimerFacilityAction(task, new Date(
 				startTime), period);
 		
-		SleeContainer.getTransactionManager().addAfterCommitAction(action);
+		try {
+			txMgr.addAfterCommitAction(action);
+		} catch (SystemException e1) {
+			logger.error(e1.getMessage(),e1);
+			throw new FacilityException(e1.getMessage());
+		}
 
 		// If we started a tx for this operation, we commit it now
 		if (startedTx) {
 			try {
-				SleeContainer.getTransactionManager().commit();
+				txMgr.commit();
 			} catch (Exception e) {
 				throw new TransactionRolledbackLocalException(
 						"Failed to commit transaction");
@@ -337,17 +334,11 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	 */
 	public void cancelTimer(TimerID timerID) throws NullPointerException,
 			TransactionRolledbackLocalException, FacilityException {
-		this.cancelTimer(timerID, true);
-	}
-
-	protected void cancelTimer(TimerID timerID, boolean checkForActivityEnd)
-			throws NullPointerException, TransactionRolledbackLocalException,
-			FacilityException {
-
+		
 		if (timerID == null)
 			throw new NullPointerException("Null TimerID");
 
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
 
 		boolean startedTx = txMgr.requireTransaction();
 		if (logger.isDebugEnabled()) {
@@ -356,8 +347,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 		}
 
 		try {
-			TimerFacilityTimerTask task = removeReferencesToTimer(timerID,
-					checkForActivityEnd);
+			TimerFacilityTimerTask task = removeReferencesToTimer(timerID);
 			if (task != null) {
 				addPostTimerCancelationAction(timerID, txMgr, task);
 			}
@@ -367,14 +357,14 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 					if (logger.isDebugEnabled()) {
 						logger.debug("started tx so committing it");
 					}
-					SleeContainer.getTransactionManager().commit();
+					txMgr.commit();
 				} catch (Exception e) {
 					logger
 							.error(
 									"Failed to commit tx in cancelTimer(). Rolling back tx.",
 									e);
 					try {
-						SleeContainer.getTransactionManager().rollback();
+						txMgr.rollback();
 					} catch (SystemException e1) {
 						logger.error("Failed to rollback tx in cancelTimer().",
 								e1);
@@ -404,7 +394,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 		boolean needToAdd = true;
 
 		try {
-			List actions = ((TransactionManagerImpl) txMgr).getCommitActions();
+			List actions = txMgr.getTransactionContext().getAfterCommitActions();
 			if (actions != null) {
 				Iterator iter = actions.iterator();
 				while (iter.hasNext()) {
@@ -450,9 +440,8 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			TimerFacilityAction action = new TimerFacilityAction(task);
 
 			try {
-				timerCacheMap
-						.remove(task.getTimerID().toString());
-				SleeContainer.getTransactionManager().addAfterCommitAction(
+				cacheData.removeTask(task.getTimerID());
+				txMgr.addAfterCommitAction(
 						action);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Added cancel timer commit action");
@@ -461,13 +450,12 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			} catch (Exception e) {
 				// This only happens if it is not in a transaction - this should
 				// never happen
-				logger.error(e);
+				logger.error(e.getMessage(),e);
 			}
 		}
 	}
 
-	private TimerFacilityTimerTask removeReferencesToTimer(TimerID timerID,
-			boolean checkForActivityEnd) {
+	private TimerFacilityTimerTask removeReferencesToTimer(TimerID timerID) {
 		// Remove the timer from the tree cache
 		// String fqn = FQN_TIMERS_PREFIX + timerID.toString();
 		// logger.debug("Removing node: " + fqn);
@@ -476,7 +464,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			// ---
 			// task = (TimerFacilityTimerTask)txMgr.getObject(tcache,fqn,
 			// "task");
-			task = (TimerFacilityTimerTask) timerCacheMap.get(timerID.toString());
+			task = (TimerFacilityTimerTask) cacheData.getTask(timerID);
 			if (task == null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("TASK================ Can't find timer["
@@ -491,17 +479,13 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 			}
 
 			// Detach this timer from the ac
-
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 			ActivityContext ac = sleeContainer.getActivityContextFactory()
-					.getActivityContext(task.getActivityContextHandle(),true);
+					.getActivityContext(task.getActivityContextId(),true);
 			if (ac == null)
 				throw new FacilityException("Can't find ac in cache!");
 
-			ac.detachTimer(timerID, checkForActivityEnd);
-			timerCacheMap.remove(timerID.toString());
-			// Remove the node
-			// txMgr.removeNode(tcache,fqn);
+			ac.detachTimer(timerID);
+			cacheData.removeTask(timerID);			
 		} catch (Exception e) {
 			throw new FacilityException("Failed to remove timer from cache", e);
 		}
@@ -557,15 +541,17 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	 */
 	public void restart() {
 
-		SleeContainer.getTransactionManager().mandateTransaction();
+		sleeContainer.getTransactionManager().mandateTransaction();
 		try {
+			
+			Set tasks = cacheData.getTasks();
+			
 			if (logger.isDebugEnabled())
-				logger.debug("TimeFacility.restart() cmap size " + timerCacheMap.size());
+				logger.debug("TimeFacility.restart() cmap size " + tasks.size());
 
-			for (Iterator it = timerCacheMap.keySet().iterator(); it.hasNext();) {
-				String timerId = (String) it.next();
-				TimerFacilityTimerTask task = (TimerFacilityTimerTask) timerCacheMap
-						.get(timerId);
+			for (Object obj : tasks) {
+				
+				TimerFacilityTimerTask task = (TimerFacilityTimerTask) obj;
 				if (logger.isDebugEnabled())
 					logger
 							.debug("TimerFacility.restart(): restarting timer task \n"
@@ -587,7 +573,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 				TimerFacilityAction action = new TimerFacilityAction(task,
 						new Date(startTime), period);
 
-				SleeContainer.getTransactionManager().addAfterCommitAction(
+				sleeContainer.getTransactionManager().addAfterCommitAction(
 							action);
 			}
 		} catch (Exception ex) {
@@ -622,12 +608,12 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	 * @param task
 	 */
 	public void persistTimer(TimerFacilityTimerTask task) throws Exception {
-		timerCacheMap.put(task.getTimerID().toString(), task);
+		cacheData.addTask(task.getTimerID(), task);		
 	}
 
 	@Override
 	public String toString() {
 		return 	"Timer Facility: " +
-				"\n+-- Timers: " + timerCacheMap.size();
+				"\n+-- Timer tasks: " + cacheData.getTasks().size();
 	}
 }

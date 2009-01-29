@@ -3,7 +3,7 @@ package org.mobicents.slee.runtime.eventrouter;
 import javax.slee.Address;
 import javax.transaction.SystemException;
 
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 
 /**
  * Useful activity end event version of the {@link DeferredEvent}.
@@ -13,7 +13,7 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandle;
  */
 public class DeferredActivityEndEvent extends DeferredEvent {
 
-	public DeferredActivityEndEvent(ActivityContextHandle ach, Address address) throws SystemException {
-		super(ActivityEndEventImpl.getEventTypeID(),ActivityEndEventImpl.SINGLETON,ach,address);
+	public DeferredActivityEndEvent(ActivityContext ac, Address address) throws SystemException {
+		super(ActivityEndEventImpl.getEventTypeID(),ActivityEndEventImpl.SINGLETON,ac,address);
 	}
 }

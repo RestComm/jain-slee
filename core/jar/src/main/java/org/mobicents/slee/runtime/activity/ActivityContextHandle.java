@@ -4,7 +4,6 @@ import javax.slee.SLEEException;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ServiceState;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
-import javax.slee.profile.ProfileTableActivity;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ResourceAdaptor;
 
@@ -13,6 +12,10 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
+import org.mobicents.slee.container.service.ServiceActivityHandle;
+import org.mobicents.slee.container.service.ServiceActivityImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
@@ -20,9 +23,6 @@ import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityFactoryImpl;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityHandle;
-import org.mobicents.slee.runtime.serviceactivity.ServiceActivityImpl;
 
 /**
  * The handle for an {@link ActivityContext}.
@@ -35,36 +35,22 @@ public class ActivityContextHandle {
 	
 	private static final Logger logger = Logger.getLogger(ActivityContextHandle.class);
 	
-	private static ResourceManagement _resourceManagement = null;
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
 	private static ResourceManagement getResourceManagement() {
-		if (_resourceManagement == null) {
-			_resourceManagement = SleeContainer.lookupFromJndi().getResourceManagement();			
-		}
-		return _resourceManagement;
+		return sleeContainer.getResourceManagement();			
 	}
 		
-	private static ServiceManagement _serviceManagement = null;
-	private static ServiceManagement getServiceManagement() {
-		if (_serviceManagement == null) {
-			_serviceManagement = SleeContainer.lookupFromJndi().getServiceManagement();			
-		}
-		return _serviceManagement;
+	private static ServiceManagement getServiceManagement() {		
+		return sleeContainer.getServiceManagement();
 	}
 	
-	private static SleeProfileManager _sleeProfileManager = null;
-	private static SleeProfileManager getSleeProfileManager() {
-		if (_sleeProfileManager == null) {
-			_sleeProfileManager = SleeContainer.lookupFromJndi().getSleeProfileManager();			
-		}
-		return _sleeProfileManager;
+	private static SleeProfileManager getSleeProfileManager() {		
+		return sleeContainer.getSleeProfileManager();
 	}
-	
-	private static NullActivityFactoryImpl _nullActivityFactoryImpl = null;
-	private static NullActivityFactoryImpl getNullActivityFactoryImpl() {
-		if (_nullActivityFactoryImpl == null) {
-			_nullActivityFactoryImpl = SleeContainer.lookupFromJndi().getNullActivityFactory();			
-		}
-		return _nullActivityFactoryImpl;
+		
+	private static NullActivityFactoryImpl getNullActivityFactoryImpl() {		
+		return sleeContainer.getNullActivityFactory();
 	}
 	
 	private ActivityHandle activityHandle;
@@ -93,9 +79,18 @@ public class ActivityContextHandle {
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
 			ActivityContextHandle other = (ActivityContextHandle) obj;
-			return other.activityType == this.activityType 
-				&& other.activitySource.equals(this.activitySource)
-				&& other.activityHandle.equals(this.activityHandle);
+			if(other.activityType == this.activityType && other.activityHandle.equals(this.activityHandle)) {
+				// only compare the source if the activity type is external
+				if (this.activityType == ActivityType.externalActivity) {
+					return other.activitySource.equals(this.activitySource);
+				}
+				else {
+					return true;
+				}
+			}
+			else {
+				return false;
+			}				
 		}
 		else {
 			return false;
@@ -172,19 +167,21 @@ public class ActivityContextHandle {
 			break;
 			
 		case profileTableActivity:
-			// profile table activity, clean up
-			getSleeProfileManager().removeProfileAfterTableActivityEnd(((ProfileTableActivity) getActivity()).getProfileTableName());
+			// do nothing
 			break;
 			
 		case serviceActivity:
-			// service activity ending
 			ServiceActivityImpl serviceActivity = (ServiceActivityImpl) getActivity();			
-			// change service state to inactive
+			
 			try {
-				getServiceManagement().getService(serviceActivity.getService()).setState(ServiceState.INACTIVE);
-				// schedule task to remove outstanding root sbb entities of the service
-				new RootSbbEntitiesRemovalTask(serviceActivity.getService());
-				Logger.getLogger(ServiceManagement.class).info("Deactivated "+ serviceActivity.getService());					
+				// change service state to inactive if it is stopping
+				Service service = getServiceManagement().getService(serviceActivity.getService());
+				if (service.getState().isStopping()) {
+					service.setState(ServiceState.INACTIVE);
+					// schedule task to remove outstanding root sbb entities of the service
+					new RootSbbEntitiesRemovalTask(serviceActivity.getService());
+					Logger.getLogger(ServiceManagement.class).info("Deactivated "+ serviceActivity.getService());
+				}
 			} catch (UnrecognizedServiceException e) {
 				logger.error("Unable to find "+serviceActivity.getService()+" to deactivate",e);
 			}
@@ -199,7 +196,7 @@ public class ActivityContextHandle {
 	
 	@Override
 	public String toString() {
-		return "activity context handle : type="+activityType+", source="+activitySource+", handle"+activityHandle;
+		return "ac handle : type="+activityType+", source="+activitySource+", handle="+activityHandle;
 	}
 	
 }

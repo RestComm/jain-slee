@@ -127,14 +127,15 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		}
 		
 		// check container state is running
-		if (SleeContainer.lookupFromJndi().getSleeState() != SleeState.RUNNING) {
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		if (sleeContainer.getSleeState() != SleeState.RUNNING) {
 			throw new IllegalStateException("Container is not running");
 		}
 		
 		// get the null activity
 		NullActivityImpl activity = null;
 		
-		SleeTransactionManager txMgr = SleeContainer.getTransactionManager();
+		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
 		boolean newTx = txMgr.requireTransaction();
 		boolean rollback = true;
 		
@@ -158,7 +159,7 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			if (log.isDebugEnabled())
 				log.debug("creating deferred event");
 			
-			new DeferredEvent(eventType,event,ach,address);
+			new DeferredEvent(eventType,event,ac,address);
 			rollback = false;
 		} catch (Exception ex) {
 			log.error("Exception in fireEvent!", ex);
