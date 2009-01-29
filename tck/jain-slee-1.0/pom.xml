@@ -42,7 +42,7 @@
 					<artifactId>maven-release-plugin</artifactId>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
-						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/tck/jain-slee-1.0</tagBase>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tck/jain-slee-1.0</tagBase>
 					</configuration>
 					</plugin>
 				</plugins>
