@@ -1,9 +1,9 @@
 
 ========================================================
-! Welcome to Mobicents - The Open Source SLEE          !
+! Welcome to Mobicents - The Open Source JAIN SLEE     !
 ========================================================
 
-Mobicents is the First and Only Certified Open Source implementation of JSLEE.  
+Mobicents is the First and Only Certified Open Source implementation of JAIN-SLEE.  
 
 Mobicents home page: http://www.mobicents.org
 
@@ -14,7 +14,7 @@ Directory Structure
 
 There are 3 top-level directories:
 
- +jboss-4.X.Y.GA	(JBoss AS, the JAIN SLEE container, Sip Servlets container, Media Server and other base services)
+ +jboss-5.X.Y.GA	(JBoss AS with the JAIN SLEE container deployed)
  +resources		(various resource adaptors and related scripts)
  +examples		(various examples)
  
@@ -23,8 +23,8 @@ How to use?
 -----------
 
 (*) Starting the server - run this from the command line:
- jboss-4.X.Y.GA/bin/run.sh  (UNIX)
- jboss-4.X.Y.GA\bin\run.bat (Windows)
+ jboss-5.X.Y.GA/bin/run.sh  (UNIX)
+ jboss-5.X.Y.GA\bin\run.bat (Windows)
  
  To verify that the SLEE server started successfully, open your favorite web browser and point it to
   http://localhost:8080/management-console

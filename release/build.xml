@@ -2,12 +2,12 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="xmpp,smpp,http-servlet,asterisk,sip11,http-client,jcc,rules,tts"/>
-	<property name="example.dirs" value="sip-services,google-talk-bot,sip-wake-up"/>
+	<property name="ra.dirs" value="sip11"/>
+	<property name="example.dirs" value="sip-services,sip-wake-up"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
-	<property name="jboss.version" value="4.2.2.GA"/>
-	<property name="release.version" value="1.3.0-SNAPSHOT"/>
+	<property name="jboss.version" value="5.0.0.GA"/>
+	<property name="release.version" value="2.0.0-SNAPSHOT"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
     <property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
     <property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
@@ -30,47 +30,62 @@
 	</condition>
 
 	<target name="build-core" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../..">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/core">
 			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
 	</target>
 
+	<target name="build-mmc" description="">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/mmc">
+			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
+		</exec>
+	</target>
+	
 	<target name="build-ras" description="Resource adapters.">
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
-				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
+				<echo>Packaging RA for release from DIR[${ant.file.mobicents.release}/../checkout/resources/@{dir.name}]</echo>
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
 					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P set-svn-revision" />
 				</exec>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../resources/@{dir.name}">
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}">
 					<arg line="-o install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
 		<delete dir="${release.dir}/tmp"/>
+		<copy failonerror="true" toDir="${release.dir}/resources" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/resources"/>
+		</copy>
+
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/resources"/>
 	</target>
 
 	<target name="build-examples" description="Examples.">
 		<for delimiter="," param="dir.name" list="${example.dirs}">
 			<sequential>
-				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
+				<echo>Packaging Example for release from DIR[${ant.file.mobicents.release}/../checkout/examples/@{dir.name}]</echo>
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
 					<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P set-svn-revision" />
 				</exec>
-				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../../examples/@{dir.name}">
+				<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}">
 					<arg line="-o install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
 				</exec>
 			</sequential>
 		</for>
 		<delete dir="${release.dir}/tmp"/>
+		<copy failonerror="true" toDir="${release.dir}/examples" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/examples"/>
+		</copy>
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/examples"/>
 	</target>
 
 	<target name="copy-extra-jbossas-files">
-		<copy failonerror="true" file="${ant.file.mobicents.release}/../jbossjta-properties.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jbossjta-properties.xml" overwrite="true" />
+		<!-- <copy failonerror="true" file="${ant.file.mobicents.release}/../jbossjta-properties.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jbossjta-properties.xml" overwrite="true" /> -->
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" />
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,build-core,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-components,build-core,build-mmc,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		
 		<tstamp>
@@ -102,6 +117,8 @@
 		<antcall target="delete-all-jboss-config"/>
 		<antcall target="delete-default-jboss-config"/>
 		<delete dir="${jboss.home}/server/minimal" />
+		<delete dir="${jboss.home}/server/standard" />
+		<delete dir="${jboss.home}/server/web" />		
 	</target>
 	<target name="delete-all-jboss-config" unless="all.jboss.config">
 		<delete dir="${jboss.home}/server/all" />
@@ -116,7 +133,7 @@
 		<property name="debug.src.zip.filename" value="sources.zip" />
 		<mkdir dir="${release.dir}/sources" />
 		<for param="dir.name">
-			<dirset dir="${ant.file.mobicents.release}/../.."
+			<dirset dir="${ant.file.mobicents.release}/../checkout"
 				includes="**/src/main/java"
 				excludes="**/maven-archetypes/** **/management-console/**"
 				 />
@@ -173,9 +190,9 @@
 	<target name="build-ras-src">
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
-				<echo>Packaging RA sources for release from DIR[${ant.file.mobicents.release}/../../resources/@{dir.name}]</echo>
+				<echo>Packaging RA sources for release from DIR[${ant.file.mobicents.release}/../checkout/resources/@{dir.name}]</echo>
 				<copy todir="${release.dir}/src/mobicents/servers/jain-slee/resources/@{dir.name}" includeEmptyDirs="false">
-					<fileset dir="${ant.file.mobicents.release}/../../resources/@{dir.name}" />
+					<fileset dir="${ant.file.mobicents.release}/../checkout/resources/@{dir.name}" />
 				</copy>
 			</sequential>
 		</for>
@@ -184,9 +201,9 @@
 	<target name="build-examples-src">
 		<for delimiter="," param="dir.name" list="${example.dirs}">
 			<sequential>
-				<echo>Packaging Example sources for release from DIR[${ant.file.mobicents.release}/../../examples/@{dir.name}]</echo>
+				<echo>Packaging Example sources for release from DIR[${ant.file.mobicents.release}/../checkout/examples/@{dir.name}]</echo>
 				<copy todir="${release.dir}/src/mobicents/servers/jain-slee/examples/@{dir.name}" includeEmptyDirs="false">
-					<fileset dir="${ant.file.mobicents.release}/../../examples/@{dir.name}"/>
+					<fileset dir="${ant.file.mobicents.release}/../checkout/examples/@{dir.name}"/>
 				</copy>
 			</sequential>
 		</for>
@@ -194,14 +211,13 @@
 
 	<target name="build-src-zip" depends="set-src-excludes, build-ras-src, build-examples-src">
 		<copy todir="${release.dir}/src/mobicents/servers/jain-slee/core" includeEmptyDirs="false">
-			<fileset dir="${ant.file.mobicents.release}/../../core"/>
+			<fileset dir="${ant.file.mobicents.release}/../checkout/core"/>
 		</copy>
 		<copy todir="${release.dir}/src/mobicents/servers/jain-slee/tools" includeEmptyDirs="false">
-			<fileset dir="${ant.file.mobicents.release}/../../tools"
-        		     excludes="**/maven-archetypes/** **/management-console/**"/>
+			<fileset dir="${ant.file.mobicents.release}/../checkout/tools"
+        		     excludes=""/>
 		</copy>
-		<copy todir="${release.dir}/src/mobicents/servers/jain-slee" file="${ant.file.mobicents.release}/../../pom.xml"/>
-
+		
 		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" basedir="${release.dir}/src" />
 		
 		<antcall target="checksum">
@@ -217,11 +233,39 @@
 	<available file="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" property="got.jboss" />
 	<target name="get-jboss" unless="got.jboss">
 		<echo>Downloading JBoss AS</echo>
-		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-4.2.2.GA.zip"/>
+		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-${jboss.version}.zip"/>
 	</target>
 
 	<target name="checksum">
 		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}.asc" forceOverwrite="yes"/>
+	</target>
+
+	<!-- get components -->
+
+	<condition property="components.checkedout">
+		<and>
+			<available file="${ant.file.mobicents.release}/../checkout/core/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/mmc/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/resources/sip11/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/examples/sip-services/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/examples/sip-services/.svn/entries" />									
+		</and>
+	</condition>
+
+	<target name="get-components" depends="checkout-components,update-components" />
+	
+	<target name="checkout-components" unless="components.checkedout">
+		<echo>Checking out servers</echo>
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
+			<arg line="validate -P checkout" />
+		</exec>
+	</target>
+
+	<target name="update-components">
+		<echo>Updating servers</echo>
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../">
+			<arg line="validate -P update" />
+		</exec>
 	</target>
 
 </project>
