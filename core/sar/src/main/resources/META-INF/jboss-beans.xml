@@ -3,19 +3,20 @@
 <deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:jboss:bean-deployer:2.0">
 
 	<bean name="Mobicents.JAINSLEE.TransactionManagerMBean"
-		class="org.mobicents.slee.runtime.transaction.TransactionManagerImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=TransactionManagerMBean",exposedInterface=org.mobicents.slee.runtime.transaction.TransactionManagerImpl.class, registerDirectly=true)</annotation>
-		<!-- jboss as tx manager bean -->
-		<property name="treeCacheName">jboss.cache:service=TreeCache</property>
-		<property name="deploymentTreeCacheName">jboss.cache:service=DeploymentTreeCache</property>
-		<property name="profileTreeCacheName">jboss.cache:service=ProfileTreeCache</property>
-		<property name="runtimeTreeCacheName">jboss.cache:service=RuntimeTreeCache</property>
-		<demand>TransactionManager</demand>
-		<depends>jboss.cache:service=TreeCache</depends>
-		<depends>jboss.cache:service=DeploymentTreeCache</depends>
-		<depends>jboss.cache:service=ProfileTreeCache</depends>
-		<depends>jboss.cache:service=RuntimeTreeCache</depends>
-	</bean>
+		class="org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl">
+		<!-- jboss as tx manager bean -->		
+		<constructor>          
+          <parameter><inject bean="RealTransactionManager"/></parameter>
+     	</constructor>							
+	</bean>	
+	
+	<bean name="Mobicents.JAINSLEE.Cache"
+		class="org.mobicents.slee.runtime.cache.MobicentsCache">
+		<constructor>
+          <parameter><inject bean="MobicentsJBossCache"/></parameter>
+          <parameter><inject bean="RealTransactionManager"/></parameter>
+     	</constructor>					
+	</bean>	
 	
 	<bean name="Mobicents.JAINSLEE.RmiServerInterfaceMBean"
 		class="org.mobicents.slee.container.management.jmx.RmiServerInterfaceMBeanImpl">
@@ -64,6 +65,8 @@
 	<bean name="Mobicents.JAINSLEE.SleeManagement"
 		class="org.mobicents.slee.container.management.jmx.SleeManagementMBeanImpl">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:service=SleeManagement",exposedInterface=org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean.class, registerDirectly=true)</annotation>
+		<property name="sleeTransactionManager"><inject bean="Mobicents.JAINSLEE.TransactionManagerMBean"/></property>
+		<property name="mobicentsCache"><inject bean="Mobicents.JAINSLEE.Cache"/></property>
 		<property name="alarmMBean">slee:name=AlarmMBean</property>
 		<property name="deploymentMBean">slee:name=DeploymentMBean</property>
 		<property name="serviceManagementMBean">slee:name=ServiceManagementMBean</property>
@@ -73,9 +76,8 @@
 		<property name="sbbEntitiesMBean">slee:name=SbbEntitiesMBean</property>
 		<property name="rmiServerInterfaceMBean">slee:service=RmiServerInterfaceMBean</property>
 		<property name="activityManagementMBean">slee:name=ActivityManagementMBean</property>
-		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
 		<demand>Mobicents.JAINSLEE.RmiServerInterfaceMBean</demand>
-		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
+		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>						
 	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.ActivityManagementMBean"
@@ -98,4 +100,48 @@
 		<property name="eventRouterExecutors">313</property>				
 	</bean>
 	
+	<!-- JBOSS CACHE 3 -->
+	
+	<!-- First we create a Configuration object for the cache -->
+
+   <bean name="MobicentsJBossCacheConfig" class="org.jboss.cache.config.Configuration">  
+         
+      <property name="runtimeConfig">
+         <bean name="MobicentsJBossCacheRuntimeConfig" class="org.jboss.cache.config.RuntimeConfig">
+            <property name="transactionManager">
+               <inject bean="RealTransactionManager"/>
+            </property>
+            <!-- <property name="muxChannelFactory"><inject bean="JChannelFactory"/></property> -->
+         </bean>
+      </property>
+      
+      <property name="isolationLevel">READ_COMMITTED</property>
+      <property name="cacheMode">LOCAL</property>
+      <property name="lockParentForChildInsertRemove">false</property>
+      <property name="lockAcquisitionTimeout">15000</property>
+      <property name="concurrencyLevel">10000</property>
+      
+   </bean>
+
+   <!-- Factory to build the Cache. -->
+   <bean name="MobicentsJBossCacheFactory" class="org.jboss.cache.DefaultCacheFactory">      
+      <constructor factoryClass="org.jboss.cache.DefaultCacheFactory" factoryMethod="getInstance" />
+   </bean>  
+
+   <!-- The cache itself -->
+   <bean name="MobicentsJBossCache" class="org.jboss.cache.Cache">
+      <constructor factoryMethod="createCache">
+          <factory bean="MobicentsJBossCacheFactory"/>
+          <parameter class="org.jboss.cache.config.Configuration"><inject bean="MobicentsJBossCacheConfig"/></parameter>
+          <parameter class="boolean">false</parameter>
+      </constructor>
+   </bean>
+
+	<bean name="MobicentsJBossCacheJmxWrapper" class="org.jboss.cache.jmx.CacheJmxWrapper">
+      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss.cache:service=MobicentsJBossCache",exposedInterface=org.jboss.cache.jmx.CacheJmxWrapperMBean.class,registerDirectly=true)</annotation>
+      <constructor>
+          <parameter><inject bean="MobicentsJBossCache"/></parameter>
+      </constructor>
+   </bean>
+   	
 </deployment>
