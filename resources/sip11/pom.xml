@@ -3,15 +3,16 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<artifactId>mobicents-jainslee-server</artifactId>
+		<artifactId>mobicents</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>1.2.4.GA-SNAPSHOT</version>
+		<version>8</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	
 	<artifactId>sip11-parent</artifactId>
 	<groupId>org.mobicents.resources</groupId>
-
+	<version>2.0.0-SNAPSHOT</version>
+	
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
 	<modules>
@@ -20,6 +21,12 @@
 		<module>ra</module>
 		<module>du</module>
 	</modules>
+	
+	<properties>
+		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
+		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
+	</properties>
+	
 	<profiles>
 		<profile>
 			<id>release</id>
@@ -58,6 +65,54 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>maven-release</id>
+			<modules>
+			</modules>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11</tagBase>
+					</configuration>
+					</plugin>
+				</plugins>
+			</build>		
+		</profile>
 	</profiles>
 
+
+<scm>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</url>
+	</scm>
+	
+<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+   				<groupId>org.mobicents.tools</groupId>
+    			<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms></excludePoms>
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+						<exclude>org.jboss.jbossas:jboss-as-system:5.0.0.CR2</exclude>
+						<exclude>org.jboss.jbossas:jboss-as-deployment:5.0.0.CR2</exclude>
+						<exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>																		
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>mobicents-jainslee-ra-sip11</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>		
+	</build>
+	
 </project>

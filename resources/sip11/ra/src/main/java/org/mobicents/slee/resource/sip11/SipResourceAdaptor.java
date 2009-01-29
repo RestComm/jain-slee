@@ -8,24 +8,18 @@ import java.io.Serializable;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
-import javax.sip.DialogState;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.InvalidArgumentException;
@@ -58,6 +52,7 @@ import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.InvalidStateException;
 import javax.slee.facilities.EventLookupFacility;
+import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.BootstrapContext;
 import javax.slee.resource.FailureReason;
@@ -75,8 +70,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.resource.ResourceAdaptorState;
-
 import org.mobicents.slee.resource.sip11.mbean.SipRaConfiguration;
 import org.mobicents.slee.resource.sip11.wrappers.ACKDummyTransaction;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
@@ -88,6 +81,7 @@ import org.mobicents.slee.resource.sip11.wrappers.TimeoutEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.TransactionTerminatedEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.WrapperSuperInterface;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.util.JndiRegistrationManager;
 
 public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		Serializable {
@@ -157,8 +151,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	private transient SipActivityContextInterfaceFactory acif;
 
 	private String entityName = "SipRA";
-
-	private ResourceAdaptorState state;
 
 	private String configurationMBeanName = "SipRA_1_1_Configuration";
 
@@ -233,10 +225,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	}
 
 	public void configure(Properties properties) throws InvalidStateException {
-		if (this.state != ResourceAdaptorState.UNCONFIGURED) {
-			throw new InvalidStateException("Cannot configure RA wrong state: "
-					+ this.state);
-		}
 
 		if (log.isDebugEnabled()) {
 			log.debug("Configuring RA" + properties);
@@ -352,8 +340,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 		log.info("RA bound to " + this.port);
 
-		state = ResourceAdaptorState.CONFIGURED;
-
 	}
 
 	public void start() throws ResourceException {
@@ -368,7 +354,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 
 			activities = new ConcurrentHashMap();
 			fromTagCallId2Handle = new ConcurrentHashMap<String, SipActivityHandle>();
-			state = ResourceAdaptorState.ACTIVE;
 
 			boolean created = false;
 
@@ -435,13 +420,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	}
 
 	public void setProperties(Properties properties) throws ResourceException {
-		if (state == ResourceAdaptorState.UNCONFIGURED) {
-			this.properties = properties;
-		} else {
-			throw new ResourceException(
-					"Cannot modify configuration properties wrong state: "
-							+ state);
-		}
+		this.properties = properties;
+		
 	}
 
 	public Properties getProperties(Properties pproperties) {
@@ -454,15 +434,17 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	 * jndi.
 	 * 
 	 * @throws NamingException
+	 * @throws UnrecognizedResourceAdaptorEntityException 
+	 * @throws NullPointerException 
 	 */
-	private void initializeNamingContext() throws NamingException {
+	private void initializeNamingContext() throws NamingException, NullPointerException, UnrecognizedResourceAdaptorEntityException {
 		SleeContainer container = SleeContainer.lookupFromJndi();
 		serviceContainer = container;
 		// activityContextFactory =
 		// serviceContainer.getActivityContextFactory();
 		tm = serviceContainer.getTransactionManager();
 		ResourceAdaptorEntity resourceAdaptorEntity = ((ResourceAdaptorEntity) container
-				.getResourceAdaptorEnitity(this.bootstrapContext
+				.getResourceManagement().getResourceAdaptorEntity(this.bootstrapContext
 						.getEntityName()));
 		ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
 				.getInstalledResourceAdaptor().getRaType()
@@ -475,8 +457,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 						.getTransactionManager());
 
 		resourceAdaptorEntity.getServiceContainer()
-				.getActivityContextInterfaceFactories()
-				.put(raTypeId, this.acif);
+				.getResourceManagement().getActivityContextInterfaceFactories()
+				.put(raTypeId, (ResourceAdaptorActivityContextInterfaceFactory)this.acif);
 		entityName = this.bootstrapContext.getEntityName();
 
 		try {
@@ -492,7 +474,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 					log.debug("jndiName prefix =" + prefix + "; jndiName = "
 							+ name);
 				}
-				SleeContainer.registerWithJndi(prefix, name, this.acif);
+				JndiRegistrationManager.registerWithJndi(prefix, name, this.acif);
 			}
 		} catch (IndexOutOfBoundsException e) {
 			// not register with JNDI
@@ -509,7 +491,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 				// remove "java:" prefix
 				int begind = jndiName.indexOf(':');
 				String javaJNDIName = jndiName.substring(begind + 1);
-				SleeContainer.unregisterWithJndi(javaJNDIName);
+				JndiRegistrationManager.unregisterWithJndi(javaJNDIName);
 			}
 		} catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -517,7 +499,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 	}
 
 	public void stopping() {
-		state = ResourceAdaptorState.STOPPING;
+		
 	}
 
 	public void stop() {
@@ -553,8 +535,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 			log.error("Cannot unbind naming context", e);
 		}
 
-		this.state = ResourceAdaptorState.UNCONFIGURED;
-
 		if (log.isDebugEnabled()) {
 			log.debug("Sip Resource Adaptor stopped.");
 		}
@@ -572,7 +552,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		this.eventLookup = bootstrapContext.getEventLookupFacility();
 
 		// properties = new Properties();
-		this.state = ResourceAdaptorState.UNCONFIGURED;
 
 	}
 

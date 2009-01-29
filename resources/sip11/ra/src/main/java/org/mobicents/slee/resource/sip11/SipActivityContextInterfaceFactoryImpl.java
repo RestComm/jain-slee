@@ -4,7 +4,6 @@ import java.util.logging.Logger;
 
 import javax.sip.ClientTransaction;
 import javax.sip.ServerTransaction;
-import javax.sip.message.Request;
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
 import javax.slee.UnrecognizedActivityException;
@@ -15,13 +14,14 @@ import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
-import org.mobicents.slee.resource.SleeActivityHandle;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ServerTransactionWrapper;
-import org.mobicents.slee.runtime.ActivityContext;
-import org.mobicents.slee.runtime.ActivityContextFactory;
-import org.mobicents.slee.runtime.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class SipActivityContextInterfaceFactoryImpl implements
@@ -57,9 +57,8 @@ public class SipActivityContextInterfaceFactoryImpl implements
 		if (clientTransaction == null)
 			throw new NullPointerException("sip activity ! huh!!");
 
-		return new ActivityContextInterfaceImpl(this.serviceContainer, this
-				.getActivityContextForActivity(clientTransaction, ((ClientTransactionWrapper)clientTransaction).getActivityHandle())
-				.getActivityContextId());
+		return new ActivityContextInterfaceImpl(this
+				.getActivityContextForActivity(clientTransaction, ((ClientTransactionWrapper)clientTransaction).getActivityHandle()));
 	}
 
 	public ActivityContextInterface getActivityContextInterface(
@@ -67,9 +66,8 @@ public class SipActivityContextInterfaceFactoryImpl implements
 			UnrecognizedActivityException, FactoryException {
 		if (serverTransaction == null)
 			throw new NullPointerException("sip activity ! huh!!");
-		return new ActivityContextInterfaceImpl(this.serviceContainer, this
-				.getActivityContextForActivity(serverTransaction, ((ServerTransactionWrapper)serverTransaction).getActivityHandle())
-				.getActivityContextId());
+		return new ActivityContextInterfaceImpl(this
+				.getActivityContextForActivity(serverTransaction, ((ServerTransactionWrapper)serverTransaction).getActivityHandle()));
 	}
 
 	public ActivityContextInterface getActivityContextInterface(
@@ -81,9 +79,8 @@ public class SipActivityContextInterfaceFactoryImpl implements
 			throw new NullPointerException("sip activity ! huh!!");
 		}
 		
-		return new ActivityContextInterfaceImpl(this.serviceContainer, this
-				.getActivityContextForActivity(dialog, ((DialogWrapper)dialog).getActivityHandle())
-				.getActivityContextId());
+		return new ActivityContextInterfaceImpl(this
+				.getActivityContextForActivity(dialog, ((DialogWrapper)dialog).getActivityHandle()));
 
 	}
 
@@ -103,7 +100,14 @@ public class SipActivityContextInterfaceFactoryImpl implements
 			throw new UnrecognizedActivityException("Handle: "+activityHandle,activity);	
 		}
 		else {
-			return this.activityContextFactory.getActivityContext(new SleeActivityHandle(raEntityName,activityHandle,serviceContainer));
+			ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntityName, activityHandle);
+			ActivityContext ac = activityContextFactory.getActivityContext(ach, true);
+			if (ac != null) {
+				return ac;
+			}
+			else {
+				throw new UnrecognizedActivityException(activity);
+			}
 		}
 	 }
 }
