@@ -20,9 +20,9 @@
 		<checkout.username>ze carlos</checkout.username>
 		<checkout.password></checkout.password>
 		
-		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
+		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.0.0.ALPHA1</core.connectionURL>
 		<mmc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/branches/servers/jain-slee/1.x.y/tools/mmc</mmc.connectionURL>
-		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
+		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/2.0.0.ALPHA1</ra.sip11.connectionURL>
 		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/branches/servers/jain-slee/1.x.y/examples/sip-services</example.sipservices.connectionURL>
 		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/branches/servers/jain-slee/1.x.y/examples/sip-wake-up</example.sipwakeup.connectionURL>
 		
