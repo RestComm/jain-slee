@@ -1,0 +1,44 @@
+package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
+
+/**
+ * 
+ * MResourceAdaptorClass.java
+ *
+ * <br>Project:  mobicents
+ * <br>4:47:51 PM Jan 22, 2009 
+ * <br>
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
+ */
+public class MResourceAdaptorClass {
+
+  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorClass resourceAdaptorClass11;
+  
+  protected Boolean supportsActiveReconfiguration;
+  protected String description;
+  protected String resourceAdaptorClassName;
+
+  public MResourceAdaptorClass(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorClass resourceAdaptorClass11)
+  {
+    this.resourceAdaptorClass11 = resourceAdaptorClass11;
+    
+    this.supportsActiveReconfiguration = Boolean.parseBoolean(resourceAdaptorClass11.getSupportsActiveReconfiguration());
+    
+    this.resourceAdaptorClassName = resourceAdaptorClass11.getResourceAdaptorClassName().getvalue();
+  }
+  
+  public Boolean getSupportsActiveReconfiguration()
+  {
+    return supportsActiveReconfiguration;
+  }
+  
+  public String getDescription()
+  {
+    return description;
+  }
+  
+  public String getResourceAdaptorClassName()
+  {
+    return resourceAdaptorClassName;
+  }
+}
