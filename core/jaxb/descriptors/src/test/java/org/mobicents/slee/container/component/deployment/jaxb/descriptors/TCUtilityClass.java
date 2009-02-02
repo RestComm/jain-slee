@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SuperTestCase extends TestCase {
+public class TCUtilityClass extends TestCase {
 	protected JAXBBaseUtilityClass testSubject = null;
 	protected EntityResolver resolver = null;
 	protected DocumentBuilderFactory factory = null;
@@ -86,8 +86,6 @@ public class SuperTestCase extends TestCase {
 		this.testSubject = null;
 	}
 	
-	public void testFake()
-	{}
 	
 	
 	protected void validateKey(ComponentKey key, String text, String[] fieldValueAndName)

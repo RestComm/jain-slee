@@ -11,7 +11,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
 import java.util.List;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SuperTestCase;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MCompare;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MHasPrefix;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MLongestPrefixMatch;
@@ -30,7 +31,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileDescriptorQueriesTest extends SuperTestCase {
+public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 
 	private static final String _FILE_QUERY_COMPARE = "xml/profile-spec-jar-querry-compare.xml";
 	private static final String _FILE_QUERY_LONGEST_PREFIX_MATCH = "xml/profile-spec-jar-querry-longest-prefix-match.xml";
@@ -40,8 +41,6 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 	private static final String _FILE_QUERY_OR_ = "xml/profile-spec-jar-querry-or.xml";
 	private static final String _FILE_QUERY_NOT_ = "xml/profile-spec-jar-querry-not.xml";
 
-	
-	
 	private static final String _QUERY_NAME = "query";
 	private static final String _QUERY_PARAMETER_NAME = "query-parameter";
 	private static final String _QUERY_PARAMETER_TYPE = "java.lang.String";
@@ -146,8 +145,7 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 
 	public void testAnd() throws Exception {
 		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_AND_),
-						null);
+				.parseDocument(super.parseDocument(_FILE_QUERY_AND_), null);
 
 		ProfileSpecificationDescriptorImpl descriptor = specs[0];
 		assertNotNull("Query elements list is null", descriptor
@@ -165,8 +163,7 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 
 	public void testOr() throws Exception {
 		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_OR_),
-						null);
+				.parseDocument(super.parseDocument(_FILE_QUERY_OR_), null);
 
 		ProfileSpecificationDescriptorImpl descriptor = specs[0];
 		assertNotNull("Query elements list is null", descriptor
@@ -181,11 +178,10 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 		testComplicated(query.getQueryExpression(), insideType);
 
 	}
-	
+
 	public void testNot() throws Exception {
 		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_NOT_),
-						null);
+				.parseDocument(super.parseDocument(_FILE_QUERY_NOT_), null);
 
 		ProfileSpecificationDescriptorImpl descriptor = specs[0];
 		assertNotNull("Query elements list is null", descriptor
@@ -200,7 +196,7 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 		testComplicated(query.getQueryExpression(), insideType);
 
 	}
-	
+
 	private void testComplicated(MQueryExpression expression,
 			MQueryExpressionType[] memberTypes) {
 
@@ -213,7 +209,9 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 				assertTrue("Child type is not proper, it is[" + child.getType()
 						+ "] should be[" + memberTypes[index] + "] on And",
 						child.getType() == memberTypes[index]);
-				assertTrue("Child parent type["+child.getParentType()+"] does not match parent type["+expression.getType()+"]",
+				assertTrue("Child parent type[" + child.getParentType()
+						+ "] does not match parent type["
+						+ expression.getType() + "]",
 						child.getParentType() == expression.getType());
 				switch (expression.getType()) {
 				case Or:
@@ -248,7 +246,9 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 				assertTrue("Child type is not proper, it is[" + child.getType()
 						+ "] should be[" + memberTypes[index] + "] on And",
 						child.getType() == memberTypes[index]);
-				assertTrue("Child parent type["+child.getParentType()+"] does not match parent type["+expression.getType()+"]",
+				assertTrue("Child parent type[" + child.getParentType()
+						+ "] does not match parent type["
+						+ expression.getType() + "]",
 						child.getParentType() == expression.getType());
 				switch (expression.getType()) {
 				case Or:
@@ -278,9 +278,10 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 
 			break;
 		case Not:
-			
-			//There will be only one loop go
-			assertTrue("Not statement must have more than one member",expression.getAnd().size()==1);
+
+			// There will be only one loop go
+			assertTrue("Not statement must have more than one member",
+					expression.getAnd().size() == 1);
 			for (int index = 0; index < expression.getAnd().size(); index++) {
 				child = expression.getAnd().get(index);
 				assertTrue("Child type is not proper, it is[" + child.getType()
@@ -426,7 +427,7 @@ public class ProfileDescriptorQueriesTest extends SuperTestCase {
 		case HasPrefix:
 			expressionWrapper = expression.getHasPrefix();
 			assertNotNull("Expression wrapper is null", expressionWrapper);
-	
+
 			break;
 		case LongestPrefixMatch:
 			expressionWrapper = expression.getLongestPrefixMatch();

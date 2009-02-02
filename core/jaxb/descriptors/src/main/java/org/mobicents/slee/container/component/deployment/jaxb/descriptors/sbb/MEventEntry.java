@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mobicents.slee.container.component.ComponentKey;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEventRefrence;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEventSelect;
 
@@ -33,7 +34,9 @@ public class MEventEntry {
 	private boolean maskOnAttach = false;
 	private boolean lastInTransaction = true;
 	private String description = null;
-	private ComponentKey eventReference = null;
+	private MEventRefrence eventReference=null;
+	
+	//private ComponentKey eventReference = null;
 	private String eventName = null;
 	private List<MInitialEventSelect> initialEventSelects = null;
 	private String initialEventSelectorMethod = null;
@@ -58,10 +61,13 @@ public class MEventEntry {
 		
 		this.description = this.llEvent.getDescription() == null ? null
 				: this.llEvent.getDescription().getvalue();
-		this.eventReference = new ComponentKey(this.llEvent.getEventTypeRef()
-				.getEventTypeName().getvalue(), this.llEvent.getEventTypeRef()
-				.getEventTypeVendor().getvalue(), this.llEvent.getEventTypeRef()
-				.getEventTypeVersion().getvalue());
+		
+		
+		this.eventReference=new MEventRefrence(this.llEvent.getEventTypeRef(),null);
+//		this.eventReference = new ComponentKey(this.llEvent.getEventTypeRef()
+//				.getEventTypeName().getvalue(), this.llEvent.getEventTypeRef()
+//				.getEventTypeVendor().getvalue(), this.llEvent.getEventTypeRef()
+//				.getEventTypeVersion().getvalue());
 
 		this.eventName=this.llEvent.getEventName().getvalue();
 		this.initialEventSelects=new ArrayList<MInitialEventSelect>();
@@ -99,10 +105,11 @@ public class MEventEntry {
 		// 1.1 last in transaction
 		this.description = this.event.getDescription() == null ? null
 				: this.event.getDescription().getvalue();
-		this.eventReference = new ComponentKey(this.event.getEventTypeRef()
-				.getEventTypeName().getvalue(), this.event.getEventTypeRef()
-				.getEventTypeVendor().getvalue(), this.event.getEventTypeRef()
-				.getEventTypeVersion().getvalue());
+		this.eventReference=new MEventRefrence(this.event.getEventTypeRef(),null);
+//		this.eventReference = new ComponentKey(this.event.getEventTypeRef()
+//				.getEventTypeName().getvalue(), this.event.getEventTypeRef()
+//				.getEventTypeVendor().getvalue(), this.event.getEventTypeRef()
+//				.getEventTypeVersion().getvalue());
 
 		this.eventName=this.event.getEventName().getvalue();
 		this.initialEventSelects=new ArrayList<MInitialEventSelect>();
@@ -149,7 +156,7 @@ public class MEventEntry {
 		return description;
 	}
 
-	public ComponentKey getEventReference() {
+	public MEventRefrence getEventReference() {
 		return eventReference;
 	}
 

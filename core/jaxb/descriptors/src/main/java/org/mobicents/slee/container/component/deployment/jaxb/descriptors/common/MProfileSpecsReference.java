@@ -19,7 +19,7 @@ import org.mobicents.slee.container.component.ComponentKey;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecsReference {
+public class MProfileSpecsReference {
 
 	//This is common, either we have 3 identical classes or this one common taking strings as args
 	
@@ -27,7 +27,7 @@ public class ProfileSpecsReference {
 	//used in sbbs
 	private String profileSpecAlias=null;
 	private ComponentKey referenceKey=null;
-	public ProfileSpecsReference(String description, String alias, String name, String vendor, String version) {
+	public MProfileSpecsReference(String description, String alias, String name, String vendor, String version) {
 		super();
 		this.description = description;
 		this.profileSpecAlias = alias;

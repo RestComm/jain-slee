@@ -10,6 +10,8 @@ package org.mobicents.slee.container.component;
 
 import java.util.logging.Logger;
 
+import javassist.CtClass;
+
 import javax.slee.SbbID;
 import javax.slee.management.DeployableUnitID;
 
@@ -55,6 +57,15 @@ public class SbbComponent {
 	
 
 
+	public SbbComponent() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public SbbComponent(String tets) {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	public SbbDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
@@ -140,6 +151,30 @@ public class SbbComponent {
 			Class activityContextInterfaceConcreteClass) {
 		this.activityContextInterfaceConcreteClass = activityContextInterfaceConcreteClass;
 	}
+
+	public boolean isSlee11() {
+		return this.descriptor.isSlee11();
+	}
+	
+	
+	public CtClass getCtAbstractSbbClass() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public CtClass getCtActivityContextInterface() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+
+	public CtClass getCtSbbLocalInterface() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
 	
 	
 	

@@ -18,8 +18,8 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SuperTestCase;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.ProfileSpecsReference;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef;
 import org.xml.sax.SAXException;
 
@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SbbDescriptorTest extends SuperTestCase {
+public class SbbDescriptorTest extends TCUtilityClass {
 
 	
 	
@@ -175,10 +175,10 @@ public class SbbDescriptorTest extends SuperTestCase {
 		assertNotNull("Sbb component key sbb-alias cant be null",sbb.getSbbAlias());
 		assertTrue("Sbb component key sbb-alias is not equal to "+_SBB_ALIAS,sbb.getSbbAlias().compareTo(_SBB_ALIAS)==0);
 		
-		List<ProfileSpecsReference> profilesSpecs=sbb.getProfileSpecReference();
+		List<MProfileSpecsReference> profilesSpecs=sbb.getProfileSpecReference();
 		assertNotNull("Profile specs references list is null",profilesSpecs);
 		assertTrue("Profile specs references list size is not 1",profilesSpecs.size()==1);
-		ProfileSpecsReference ref=profilesSpecs.get(0);
+		MProfileSpecsReference ref=profilesSpecs.get(0);
 		
 		assertNotNull("Profile specs reference is null",ref);
 		
@@ -198,7 +198,7 @@ public class SbbDescriptorTest extends SuperTestCase {
 		
 		assertNotNull("Event entry is null",eventEntry);
 		
-		validateKey(eventEntry.getEventReference(), " Event entry reference ", new String[]{_EVENT_TYPE_NAME,_EVENT_TYPE_VENDOR,_EVENT_TYPE_VERSION});
+		validateKey(eventEntry.getEventReference().getReference(), " Event entry reference ", new String[]{_EVENT_TYPE_NAME,_EVENT_TYPE_VENDOR,_EVENT_TYPE_VERSION});
 		
 		assertNotNull("Event entry event-name is null",eventEntry.getEventName());
 		assertTrue("Event entry event-name is not equal "+_EVENT_NAME,eventEntry.getEventName().compareTo(_EVENT_NAME)==0);

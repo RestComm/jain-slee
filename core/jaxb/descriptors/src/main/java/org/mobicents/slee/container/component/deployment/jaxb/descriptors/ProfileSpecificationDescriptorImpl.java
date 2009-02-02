@@ -25,7 +25,7 @@ import javax.xml.bind.JAXBException;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.*;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.SecurityPermision;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MIndexedAttribue;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecCollator;
@@ -91,7 +91,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 	// those are profile-spec jar wide, so we include in each descriptor :)
 
 	// private SecurityPermision securityPermisions=null;
-	private SecurityPermision securityPremissions = null;
+	private MSecurityPermision securityPremissions = null;
 
 
 	/**
@@ -222,7 +222,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 			if (this.llProfileSpecJar.getSecurityPermissions() != null) {
 				SecurityPermissions secPerm = this.llProfileSpecJar
 						.getSecurityPermissions();
-				this.securityPremissions = new SecurityPermision(secPerm
+				this.securityPremissions = new MSecurityPermision(secPerm
 						.getDescription() == null ? null : secPerm
 						.getDescription().getvalue(), secPerm
 						.getSecurityPermissionSpec().getvalue());
@@ -423,7 +423,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 		return eventsEnabled;
 	}
 
-	public SecurityPermision getSecurityPremissions() {
+	public MSecurityPermision getSecurityPremissions() {
 		return securityPremissions;
 	}
 

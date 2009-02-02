@@ -19,8 +19,8 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.DeployedComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.ProfileSpecsReference;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.SecurityPermision;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEnvEntry;
@@ -75,7 +75,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	//its 1.1
 	private List<MSbbReference> sbbRefs = null;
 	// Maybe this should be the same as in profiles as reference?
-	private List<ProfileSpecsReference> profileSpecRefs = null;
+	private List<MProfileSpecsReference> profileSpecRefs = null;
 
 	// might be bad, we ommit sbb-classes/description, phew
 	private MSbbAbstractClass sbbAbstractClass = null;
@@ -92,7 +92,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	private List<ComponentKey> libraryRefs = null;
 	private List<MEjbRef> ejbRefs = null;
 
-	private SecurityPermision securityPermisions = null;
+	private MSecurityPermision securityPermisions = null;
 
 	
 	/**
@@ -164,12 +164,12 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 			}
 
 			// Profile Refs
-			this.profileSpecRefs = new ArrayList<ProfileSpecsReference>();
+			this.profileSpecRefs = new ArrayList<MProfileSpecsReference>();
 			if (this.llSbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ProfileSpecRef psr : this.llSbb
 						.getProfileSpecRef()) {
 					// Second arg == Alias, its depraceted in 1.1
-					ProfileSpecsReference p = new ProfileSpecsReference(null,
+					MProfileSpecsReference p = new MProfileSpecsReference(null,
 							psr.getProfileSpecAlias() == null ? null : psr
 									.getProfileSpecAlias().getvalue(), psr
 									.getProfileSpecName().getvalue(), psr
@@ -250,7 +250,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 			if(this.llSbbJar.getSecurityPermissions()!=null)
 			{
 				org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SecurityPermissions secPerm = this.llSbbJar.getSecurityPermissions();
-				this.securityPermisions = new SecurityPermision(secPerm
+				this.securityPermisions = new MSecurityPermision(secPerm
 				.getDescription() == null ? null : secPerm
 				.getDescription().getvalue(), secPerm
 				.getSecurityPermissionSpec().getvalue());
@@ -279,12 +279,12 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 			}
 
 			// Profile Refs
-			this.profileSpecRefs = new ArrayList<ProfileSpecsReference>();
+			this.profileSpecRefs = new ArrayList<MProfileSpecsReference>();
 			if (this.sbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef psr : this.sbb
 						.getProfileSpecRef()) {
 					// Second arg == Alias, its depraceted in 1.1
-					ProfileSpecsReference p = new ProfileSpecsReference(null,
+					MProfileSpecsReference p = new MProfileSpecsReference(null,
 							psr.getProfileSpecAlias() == null ? null : psr
 									.getProfileSpecAlias().getvalue(), psr
 									.getProfileSpecName().getvalue(), psr
@@ -449,7 +449,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 		return sbbRefs;
 	}
 
-	public List<ProfileSpecsReference> getProfileSpecReference() {
+	public List<MProfileSpecsReference> getProfileSpecReference() {
 		return profileSpecRefs;
 	}
 
@@ -498,7 +498,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	}
 
 
-	public SecurityPermision getSecurityPermisions() {
+	public MSecurityPermision getSecurityPermisions() {
 		return securityPermisions;
 	}
 

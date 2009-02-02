@@ -22,7 +22,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.Deployab
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class JAXBBaseUtilityClassTest extends SuperTestCase {
+public class JAXBBaseUtilityClassTest extends TCUtilityClass {
 
 	public JAXBBaseUtilityClassTest() {
 		// TODO Auto-generated constructor stub

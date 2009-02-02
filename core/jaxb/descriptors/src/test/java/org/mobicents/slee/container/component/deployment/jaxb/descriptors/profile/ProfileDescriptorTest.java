@@ -14,16 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SuperTestCase;
-import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -34,7 +30,7 @@ import org.xml.sax.SAXException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileDescriptorTest extends SuperTestCase {
+public class ProfileDescriptorTest extends TCUtilityClass {
 
 	
 	private static final String _DEFAULT_VALUE="DVAL";

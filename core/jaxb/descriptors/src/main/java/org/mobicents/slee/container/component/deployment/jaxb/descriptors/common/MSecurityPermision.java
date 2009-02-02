@@ -20,12 +20,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Sec
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SecurityPermision {
+public class MSecurityPermision {
 
 	private String description, securityPermissionSpec;
 
 	
-	public SecurityPermision(String description, String securityPermissionSpec) {
+	public MSecurityPermision(String description, String securityPermissionSpec) {
 		super();
 		this.description = description;
 		this.securityPermissionSpec = securityPermissionSpec;

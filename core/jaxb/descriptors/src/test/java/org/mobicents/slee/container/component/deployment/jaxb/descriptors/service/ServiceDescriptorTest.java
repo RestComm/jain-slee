@@ -10,18 +10,11 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.servi
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
 
 import javax.slee.management.DeploymentException;
 
-
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SuperTestCase;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.ProfileSpecsReference;
-import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.xml.sax.SAXException;
 
 /**
@@ -32,7 +25,7 @@ import org.xml.sax.SAXException;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ServiceDescriptorTest extends SuperTestCase {
+public class ServiceDescriptorTest extends TCUtilityClass {
 
 	
 	
