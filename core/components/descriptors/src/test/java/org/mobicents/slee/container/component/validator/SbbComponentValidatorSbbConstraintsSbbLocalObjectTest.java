@@ -38,31 +38,14 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
 	public void testSbbOne11ConstraintsSbbLocalInterfaceOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-			
-			@Override
-			public CtClass getCtSbbLocalInterface() {
-				try {
-					return classPool.get(descriptor.getSbbLocalInterface().getSbbLocalInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -70,9 +53,9 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
 
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
@@ -84,32 +67,14 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
 	public void testSbbOne11ConstraintsSbbLocalInterfaceWrongReturnType() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_WRONG_RETURN_TYPE_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-				
-			}
-
-			@Override
-			public CtClass getCtSbbLocalInterface() {
-				try {
-					return classPool.get(descriptor.getSbbLocalInterface().getSbbLocalInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -117,9 +82,9 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
 
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
 
@@ -128,32 +93,14 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
 	public void testSbbOne11ConstraintsSbbLocalInterfaceWrongThrows() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_WRONG_THROWS_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-				
-			}
-
-			@Override
-			public CtClass getCtSbbLocalInterface() {
-				try {
-					return classPool.get(descriptor.getSbbLocalInterface().getSbbLocalInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -161,9 +108,9 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
 
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
 
@@ -175,42 +122,23 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
 	public void testSbbOne11ConstraintsSbbLocalInterfaceMissingMethod() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_MISSING_METHOD_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-				
-			}
-
-			@Override
-			public CtClass getCtSbbLocalInterface() {
-				try {
-					return classPool.get(descriptor.getSbbLocalInterface().getSbbLocalInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
-
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
 

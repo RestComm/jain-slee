@@ -31,7 +31,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MS
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbReference;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbUsageParametersInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.validators.SbbJarValidator;
+
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Sbb;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbJar;

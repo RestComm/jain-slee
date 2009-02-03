@@ -11,8 +11,11 @@
 
 package org.mobicents.slee.container.component.validator;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,19 +38,50 @@ public class ClassUtils {
 	public static final String SET_PREFIX = "set";
 
 	/**
-	 * Retrieve all concrete (non-abstract and non-native) methods from a class
-	 * Stored under key Name+signature for instance: name =
-	 * "sbbExceptionThrown", signature =
-	 * "(Ljava/lang/Exception;Ljava/lang/Object;Ljavax/slee/ActivityContextInterface;)"
+	 * Searches for provided interface in passed Class object - it can be class
+	 * or interface. If it finds, it return instance of it.
 	 * 
-	 * @param sbbClass
-	 *            the class to extract the concrete methods from
-	 * @return all concrete methods from a class
+	 * @param classOrInterfaceWithInterfaces
+	 * @param interfaceSearched
+	 * @return
 	 */
-	public static Map<String, CtMethod> getConcreteMethodsFromClass(
-			CtClass xClass) {
-		HashMap<String, CtMethod> concreteMethods = new HashMap<String, CtMethod>();
-		CtMethod[] methods = xClass.getDeclaredMethods();
+	public static Class checkInterfaces(Class classOrInterfaceWithInterfaces,
+			String interfaceSearched) {
+		Class returnValue = null;
+
+		// we do check only on get interfaces
+		for (Class iface : classOrInterfaceWithInterfaces.getInterfaces()) {
+			if (iface.getName().compareTo(interfaceSearched) == 0) {
+				returnValue = iface;
+
+			} else {
+				returnValue = checkInterfaces(iface, interfaceSearched);
+			}
+
+			if (returnValue != null)
+				break;
+		}
+
+		if (!classOrInterfaceWithInterfaces.isInterface()
+				&& returnValue == null) {
+			Class superClass = classOrInterfaceWithInterfaces.getSuperclass();
+			if (superClass != null) {
+				returnValue = checkInterfaces(superClass, interfaceSearched);
+			}
+		}
+
+		return returnValue;
+	}
+
+	public static String getMethodKey(Method method) {
+		String ret = method.getName()
+				+ Arrays.toString(method.getParameterTypes())+method.getReturnType();
+		return ret;
+	}
+
+	public static Map<String, Method> getConcreteMethodsFromClass(Class xClass) {
+		HashMap<String, Method> concreteMethods = new HashMap<String, Method>();
+		Method[] methods = xClass.getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
 			int mods = methods[i].getModifiers();
 			if (!Modifier.isAbstract(mods) && !Modifier.isNative(mods)) {
@@ -57,64 +91,64 @@ public class ClassUtils {
 		return concreteMethods;
 	}
 
-	/**
-	 * Retrieve all concrete (non-abstract and non-native) methods from a class
-	 * Stored under key Name+signature for instance: name =
-	 * "sbbExceptionThrown", signature =
-	 * "(Ljava/lang/Exception;Ljava/lang/Object;Ljavax/slee/ActivityContextInterface;)"
-	 * 
-	 * @param sbbClass
-	 *            the class to extract the concrete methods from
-	 * @return all concrete methods from a class
-	 */
-	public static Map<String, CtMethod> getSuperClassesConcreteMethodsFromClass(
-			CtClass xClass) {
-		HashMap<String, CtMethod> concreteMethods = new HashMap<String, CtMethod>();
+	public static Map<String, Method> getSuperClassesConcreteMethodsFromClass(
+			Class xClass) {
+		HashMap<String, Method> concreteMethods = new HashMap<String, Method>();
 
 		// We could; use CtClass.getMethods() which:
 		// Returns an array containing CtMethod objects representing all the
 		// non-private methods of the class. That array includes non-private
 		// methods inherited from the superclasses. But we dont want
 		// java.lang.Object
-		CtMethod[] methods = null;
-		CtClass superClass;
-		try {
-			superClass = xClass.getSuperclass();
+		Method[] methods = null;
+		Class superClass;
 
-			while (superClass.getName().compareTo("java.lang.Object") != 0) {
-				methods = superClass.getDeclaredMethods();
-				for (int i = 0; i < methods.length; i++) {
-					if (Modifier.isAbstract(methods[i].getModifiers())) {
-						concreteMethods.put(getMethodKey(methods[i]),
-								methods[i]);
-					}
+		superClass = xClass.getSuperclass();
+
+		while (superClass.getName().compareTo("java.lang.Object") != 0) {
+			methods = superClass.getDeclaredMethods();
+			for (int i = 0; i < methods.length; i++) {
+				if (Modifier.isAbstract(methods[i].getModifiers())) {
+					concreteMethods.put(getMethodKey(methods[i]), methods[i]);
 				}
-				superClass = superClass.getSuperclass();
 			}
-		} catch (NotFoundException e) {
-			String s = "Method not found ! Huh!!";
-			// ConcreteClassGeneratorUtils.logger.fatal(s,e);
-			throw new RuntimeException("s", e);
+			superClass = superClass.getSuperclass();
 		}
+
 		return concreteMethods;
 	}
 
 	/**
-	 * Create a unique key for store the CtMethod object in an Map object.
+	 * Returns methods of this interface and all super interfaces
 	 * 
-	 * @param CtMethod
-	 *            to store in the Map
-	 * @return a String key unique for the method.
+	 * @param ctInterfaceClass
+	 * @return
 	 */
-	public static String getMethodKey(CtMethod method) {
-		String ret = method.getName() + method.getSignature();
-		return ret;
+	public static Map<String, Method> getAllInterfacesMethods(
+			Class xInterfaceClass, Set<String> ignore) {
+		HashMap<String, Method> abstractMethods = new HashMap<String, Method>();
+		Method[] methods = null;
+		Class[] superInterfaces;
+
+		superInterfaces = xInterfaceClass.getInterfaces();
+
+		for (Class superInterface : superInterfaces) {
+			if (!ignore.contains(superInterface.getName()))
+				abstractMethods.putAll(getAllInterfacesMethods(superInterface,
+						ignore));
+		}
+
+		methods = xInterfaceClass.getDeclaredMethods();
+		for (int i = 0; i < methods.length; i++) {
+			abstractMethods.put(getMethodKey(methods[i]), methods[i]);
+		}
+
+		return abstractMethods;
 	}
 
-	public static Map<String, CtMethod> getAbstractMethodsFromClass(
-			CtClass ctAbstractSbbClass) {
-		HashMap<String, CtMethod> abstractMethods = new HashMap<String, CtMethod>();
-		CtMethod[] methods = ctAbstractSbbClass.getDeclaredMethods();
+	public static Map<String, Method> getAbstractMethodsFromClass(Class xClass) {
+		HashMap<String, Method> abstractMethods = new HashMap<String, Method>();
+		Method[] methods = xClass.getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (Modifier.isAbstract(methods[i].getModifiers())) {
 				abstractMethods.put(getMethodKey(methods[i]), methods[i]);
@@ -124,104 +158,25 @@ public class ClassUtils {
 		return abstractMethods;
 	}
 
-	public static Map<String, CtMethod> getAbstractSuperClassesMethodsFromClass(
-			CtClass ctAbstractSbbClass) {
-		HashMap<String, CtMethod> abstractMethods = new HashMap<String, CtMethod>();
-		CtMethod[] methods = null;
-		CtClass superClass;
-		try {
-			superClass = ctAbstractSbbClass.getSuperclass();
+	public static Map<String, Method> getAbstractSuperClassesMethodsFromClass(
+			Class xClass) {
+		HashMap<String, Method> abstractMethods = new HashMap<String, Method>();
+		Method[] methods = null;
+		Class superClass;
 
-			while (superClass.getName().compareTo("java.lang.Object") != 0) {
-				methods = superClass.getDeclaredMethods();
-				for (int i = 0; i < methods.length; i++) {
-					if (Modifier.isAbstract(methods[i].getModifiers())) {
-						abstractMethods.put(getMethodKey(methods[i]),
-								methods[i]);
-					}
-				}
-				superClass = superClass.getSuperclass();
-			}
-		} catch (NotFoundException e) {
-			String s = "Method not found ! Huh!!";
-			throw new RuntimeException("s", e);
-		}
-		return abstractMethods;
-	}
+		superClass = xClass.getSuperclass();
 
-	/**
-	 * Returns methods of this interface and all super interfaces
-	 * 
-	 * @param ctInterfaceClass
-	 * @return
-	 */
-	public static Map<String, CtMethod> getAllInterfacesMethods(
-			CtClass ctInterfaceClass, Set<String> ignore) {
-		HashMap<String, CtMethod> abstractMethods = new HashMap<String, CtMethod>();
-		CtMethod[] methods = null;
-		CtClass[] superInterfaces;
-		try {
-			superInterfaces = ctInterfaceClass.getInterfaces();
-
-			for (CtClass superInterface : superInterfaces) {
-				if (!ignore.contains(superInterface.getName()))
-					abstractMethods.putAll(getAllInterfacesMethods(
-							superInterface, ignore));
-			}
-
-			methods = ctInterfaceClass.getDeclaredMethods();
+		while (superClass.getName().compareTo("java.lang.Object") != 0) {
+			methods = superClass.getDeclaredMethods();
 			for (int i = 0; i < methods.length; i++) {
-				abstractMethods.put(getMethodKey(methods[i]), methods[i]);
+				if (Modifier.isAbstract(methods[i].getModifiers())) {
+					abstractMethods.put(getMethodKey(methods[i]), methods[i]);
+				}
 			}
-
-		} catch (NotFoundException e) {
-			String s = "Method not found ! Huh!!";
-			throw new RuntimeException("s", e);
+			superClass = superClass.getSuperclass();
 		}
+
 		return abstractMethods;
-	}
-
-	/**
-	 * Check if among the interfaces one is the class searched
-	 * 
-	 * 
-	 * @param interfaceSearched
-	 *            the interface to look for return true if among the interfaces
-	 *            one is the class searched
-	 */
-	public static CtClass checkInterfaces(
-			CtClass classOrInterfaceWithInterfaces, String interfaceSearched) {
-
-		CtClass returnValue = null;
-		try {
-
-			// we do check only on get interfaces
-			for (CtClass iface : classOrInterfaceWithInterfaces.getInterfaces()) {
-				if (iface.getName().compareTo(interfaceSearched) == 0) {
-					returnValue = iface;
-
-				} else {
-					returnValue = checkInterfaces(iface, interfaceSearched);
-				}
-
-				if (returnValue != null)
-					break;
-			}
-
-			if (!classOrInterfaceWithInterfaces.isInterface()
-					&& returnValue == null) {
-				CtClass superClass = classOrInterfaceWithInterfaces
-						.getSuperclass();
-				if (superClass != null) {
-					returnValue = checkInterfaces(superClass, interfaceSearched);
-				}
-			}
-
-		} catch (NotFoundException nfe) {
-			nfe.printStackTrace();
-		}
-		return returnValue;
-
 	}
 
 }

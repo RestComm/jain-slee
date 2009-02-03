@@ -36,33 +36,14 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 	public void testSbbOne11ConstraintsACIOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-
-			@Override
-			public CtClass getCtActivityContextInterface() {
-				try {
-					return classPool.get(descriptor.getSbbActivityContextInterface().getInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-			
-			
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -70,9 +51,9 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 
 		boolean b = validator.validateSbbActivityContextInterface(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
@@ -81,33 +62,14 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 	public void testSbbOne11ConstraintsACIReturnBaseOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-
-			@Override
-			public CtClass getCtActivityContextInterface() {
-				try {
-					return classPool.get(descriptor.getSbbActivityContextInterface().getInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-			
-			
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -115,9 +77,9 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 
 		boolean b = validator.validateSbbActivityContextInterface(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
@@ -129,33 +91,14 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 	public void testSbbOne11ConstraintsACIWrongMethod() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-
-			@Override
-			public CtClass getCtActivityContextInterface() {
-				try {
-					return classPool.get(descriptor.getSbbActivityContextInterface().getInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-			
-			
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -163,9 +106,9 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 
 		boolean b = validator.validateSbbActivityContextInterface(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
 
@@ -173,33 +116,14 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 	public void testSbbOne11ConstraintsACIWrongParameterType() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-
-			@Override
-			public CtClass getCtActivityContextInterface() {
-				try {
-					return classPool.get(descriptor.getSbbActivityContextInterface().getInterfaceName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-			
-			
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -207,9 +131,9 @@ public class SbbComponentValidatorSbbConstraintsACITest extends
 
 		boolean b = validator.validateSbbActivityContextInterface(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
 

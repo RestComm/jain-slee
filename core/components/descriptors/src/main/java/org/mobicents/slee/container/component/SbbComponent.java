@@ -155,31 +155,4 @@ public class SbbComponent {
 	public boolean isSlee11() {
 		return this.descriptor.isSlee11();
 	}
-	
-	
-	public CtClass getCtAbstractSbbClass() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public CtClass getCtActivityContextInterface() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
-
-	public CtClass getCtSbbLocalInterface() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
 }

@@ -15,7 +15,6 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.DeployedComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.validators.ServiceValidator;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.service.ServiceXml;
 

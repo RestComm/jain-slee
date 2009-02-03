@@ -8,7 +8,6 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-
 import javassist.CtClass;
 import javassist.NotFoundException;
 
@@ -36,30 +35,19 @@ public class SbbComponentValidatorSbbConstraintsTest extends
 	public void testSbbOne11ConstraintsOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
-
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
-		boolean b = validator.validateAbstractClassConstraints(
-				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+		boolean b = validator.validateAbstractClassConstraints(ClassUtils
+				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
+				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
@@ -72,30 +60,19 @@ public class SbbComponentValidatorSbbConstraintsTest extends
 						super
 								.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_LIFECYCLE_ABSTRACT),
 						null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
-
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
-		boolean b = validator.validateAbstractClassConstraints(
-				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+		boolean b = validator.validateAbstractClassConstraints(ClassUtils
+				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
+				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated and it shoudl not be", b);
 
@@ -105,69 +82,48 @@ public class SbbComponentValidatorSbbConstraintsTest extends
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_EJB_METHOD),
 				null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
-
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
-		boolean b = validator.validateAbstractClassConstraints(
-				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+		boolean b = validator.validateAbstractClassConstraints(ClassUtils
+				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
+				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						.getAbstractSbbClass()));
 
 		assertFalse(
 				"Sbb class has been validated and it shoudl not be, it has ejbX method",
 				b);
 
 	}
+
 	public void testSbbOne11ConstraintsSbbMethod() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_SBB_METHOD),
 				null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
-
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
-		boolean b = validator.validateAbstractClassConstraints(
-				ClassUtils.getConcreteMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+		boolean b = validator.validateAbstractClassConstraints(ClassUtils
+				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
+				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						.getAbstractSbbClass()));
 
 		assertFalse(
 				"Sbb class has been validated and it shoudl not be, it has sbX method",
 				b);
 
 	}
-	
+
 }

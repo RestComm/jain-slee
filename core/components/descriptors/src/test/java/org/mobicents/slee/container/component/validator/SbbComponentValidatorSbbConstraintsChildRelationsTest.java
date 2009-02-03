@@ -37,20 +37,12 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 	public void testSbbOne11Constraints2ChildRelation() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION), null)[0];
-		SbbComponent component = new SbbComponent() {
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
 
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -58,9 +50,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated, it should be", b);
 
@@ -69,20 +61,12 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 	public void testSbbOne11ConstraintsNoChildRelation() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_NO_CHILD_RELATION), null)[0];
-		SbbComponent component = new SbbComponent() {
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
 
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -90,9 +74,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated, it should not be, it does not have child relateion method defined in descriptor", b);
 
@@ -101,20 +85,12 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 	public void testSbbOne11Constraints2ChildRelationWrongPrefix() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_WRONG_PREFIX), null)[0];
-		SbbComponent component = new SbbComponent() {
-
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
+	
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -122,9 +98,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated, it should not be, it does declare child relation method with wrong prefix", b);
 
@@ -132,20 +108,12 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 	public void testSbbOne11Constraints2ChildRelationThrowsException() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_THROW_EXCEPTION), null)[0];
-		SbbComponent component = new SbbComponent() {
+		SbbComponent component = new SbbComponent();
+		component.setAbstractSbbClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getSbbAbstractClass()
+								.getSbbAbstractClassName()));
 
-			public CtClass getCtAbstractSbbClass() {
-
-				try {
-					return classPool.get(descriptor.getSbbAbstractClass()
-							.getSbbAbstractClassName());
-				} catch (NotFoundException e) {
-					System.err.println(e);
-					e.printStackTrace();
-				}
-				return null;
-			}
-		};
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setDescriptor(descriptor);
@@ -153,9 +121,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(
 				ClassUtils.getAbstractMethodsFromClass(component
-						.getCtAbstractSbbClass()), ClassUtils
+						.getAbstractSbbClass()), ClassUtils
 						.getAbstractSuperClassesMethodsFromClass(component
-								.getCtAbstractSbbClass()));
+								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated, it should not be, it does declare child relation method with throws clause", b);
 
