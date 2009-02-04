@@ -11,6 +11,8 @@ package org.mobicents.slee.runtime.transaction;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.TransactionRequiredLocalException;
+import javax.slee.transaction.CommitListener;
+import javax.slee.transaction.RollbackListener;
 import javax.slee.transaction.SleeTransaction;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -24,6 +26,8 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 import org.apache.log4j.Logger;
+
+import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
 
 /**
  * Implementation of SLEE Tx manager.
@@ -40,258 +44,23 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 
 	private static Logger logger = Logger
 			.getLogger(SleeTransactionManagerImpl.class);
-
+	
+	/**
+	 * transaction context per transaction map
+	 */
 	private ConcurrentHashMap<Transaction, TransactionContext> transactionContexts = new ConcurrentHashMap<Transaction, TransactionContext>();
 
+	/**
+	 * the underlying JTA tx manager
+	 */
 	private final TransactionManager transactionManager;
 	
 	public SleeTransactionManagerImpl(TransactionManager transactionManager) {		
 		this.transactionManager = transactionManager;
 		logger.info("SLEE Transaction Manager created.");
 	}
-	
-	public void begin() throws SystemException {
-		
-		Transaction tx = getTransaction();
-		
-		// check there is no transaction
-		if (tx != null) {
-			throw new SystemException("Transaction already started, cannot nest tx. Ongoing Tx: "+ tx);			
-		} 
-		
-		// begin transaction
-		try {
-			transactionManager.begin();
-		} catch (NotSupportedException e) {				
-			throw new SystemException("Failed to begin transaction." + e);
-		}
-		
-		tx = getTransaction();
-		
-		if (logger.isDebugEnabled()) {
-			logger.debug("Transaction started: "+tx);
-		}	
 
-		// register for call-backs
-		try {
-			tx.registerSynchronization(new SynchronizationHandler(tx));
-		} catch (RollbackException e) {
-			throw new SystemException("Unable to register listener for created transaction. Error: "+e.getMessage());
-		}
-		
-	}
-
-	public void commit() throws SystemException {
-		
-		Transaction tx = getTransaction();
-
-		if (tx == null) {
-			throw new SystemException(
-					"Failed to commit transaction since there is no transaction to commit!");
-		}
-
-		if (getRollbackOnly()) {
-			if (logger.isDebugEnabled())
-				logger
-						.debug("Transaction marked for roll back, cannot commit, ending with rollback: "
-								+ tx);
-			rollback();
-		} else if (tx.getStatus() == Status.STATUS_ACTIVE) {
-			try {
-				transactionManager.commit();
-				if (logger.isDebugEnabled())
-					logger.debug("Committed tx "+tx);
-			} catch (Exception e) {
-				throw new SystemException("Failed to commit tx " + tx + ". Error: "
-						+ e.getMessage());
-			}
-		} else {
-			throw new SystemException(
-					"Failed to commit transaction "+tx+" since state is "
-							+ tx.getStatus());
-		}
-	}
-
-
-	public boolean getRollbackOnly() throws SystemException {
-		
-		Transaction tx = getTransaction();
-		
-		if (tx == null) {
-			throw new SystemException("no transaction");
-		}
-		return tx.getStatus() == Status.STATUS_MARKED_ROLLBACK;
-		// this code was hack to trap setRollbackOnly() due to jboss cache, don't remove it may be needed again
-		//return tx.getStatus() == Status.STATUS_MARKED_ROLLBACK || (tx.getStatus() == Status.STATUS_ACTIVE && getTransactionContext().getRollbackOnly());
-	}
-
-	public void setRollbackOnly() throws SystemException {
-		
-		if (transactionManager != null) {
-			
-			transactionManager.setRollbackOnly();
-			// this code was hack to trap setRollbackOnly() due to jboss cache, don't remove it may be needed again
-			//getTransactionContext().setRollbackOnly();
-			
-			if (logger.isDebugEnabled())
-				logger.debug("rollbackonly set on tx "
-						+ getTransaction());
-		}
-		else {
-			throw new SystemException("tx manager unavailable");
-		}			
-	}
-	
-	public void rollback() throws SystemException {
-		
-		Transaction tx = getTransaction();
-		
-		if (tx == null) {
-			throw new SystemException(
-					"Failed to rollback transaction since there is no transaction to rollback!");
-		}
-
-		if (tx.getStatus() != Status.STATUS_ACTIVE && tx.getStatus() != Status.STATUS_MARKED_ROLLBACK) {
-			throw new SystemException(
-					"Failed to rollback transaction since transaction is in state: "
-							+ tx.getStatus());
-		}
-
-		transactionManager.rollback();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Rollbacked tx "+tx);
-		}
-	}
-
-	public Transaction getTransaction() {
-		
-		if (transactionManager != null) {
-			try {
-				return transactionManager.getTransaction();
-			} catch (SystemException e) {
-				throw new RuntimeException(
-						"Failed to obtain active JTA transaction");
-			}
-		}
-		else {
-			throw new RuntimeException("tx manager unavailable");
-		}
-	}
-
-	public boolean isInTx() throws SystemException {
-		
-		return getTransaction() != null;
-	}
-
-	public void mandateTransaction() throws TransactionRequiredLocalException {
-		
-		try {
-			Transaction tx = getTransaction();
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("mandateTransaction() invoked. tx = "+tx);
-			}
-			
-			if (tx == null)
-				throw new TransactionRequiredLocalException(
-						"Transaction Mandatory");
-
-			if (tx.getStatus() != Status.STATUS_ACTIVE && tx.getStatus() != Status.STATUS_MARKED_ROLLBACK) {
-				throw new IllegalStateException(
-						"There is no active tx, tx is in state: "
-								+ tx.getStatus());
-			}
-		} catch (SystemException e) {
-			logger.error(
-					"Caught SystemException in getting transaction/ status", e);
-		}		
-	}
-
-	public boolean requireTransaction() {
-		
-		try {
-			Transaction tx = getTransaction();
-
-			if (tx == null) {
-				// No transaction so start a new one
-				if (logger.isDebugEnabled()) {
-					logger.debug("requireTransaction: no tx, creating one");
-				}
-				this.begin();
-				return true;
-			}
-			
-			if (logger.isDebugEnabled()) {
-				logger.debug("requireTransaction: tx already exists");
-			}
-			
-			if (tx.getStatus() != Status.STATUS_ACTIVE && tx.getStatus() != Status.STATUS_MARKED_ROLLBACK) {
-				throw new IllegalStateException(
-						"Transaction is in illegal state: " + tx.getStatus());
-			}
-		} catch (SystemException e) {
-			logger.error("Caught SystemException in checking transaction", e);
-		}
-		return false;
-	}
-
-	
-
-	public int getStatus() throws SystemException {
-		
-		Transaction tx = getTransaction();
-
-		if (tx == null)
-			throw new SystemException("no transaction");
-
-		return tx.getStatus();
-		
-		// this code was hack to trap setRollbackOnly() due to jboss cache, don't remove it may be needed again
-		/*
-		int status = tx.getStatus();
-		if (status == Status.STATUS_ACTIVE && getTransactionContext().getRollbackOnly()) {
-			return Status.STATUS_MARKED_ROLLBACK;
-		}
-		else {
-			return status;
-		}
-		*/
-	}
-
-	public void resume(Transaction txToResume) throws InvalidTransactionException,
-			IllegalStateException, SystemException {
-		
-		if (transactionManager != null) {
-			transactionManager.resume(txToResume);	
-		}
-		else {
-			throw new SystemException("tx manager unavailable");
-		}				
-	}
-
-	public void setTransactionTimeout(int timeout) throws SystemException {
-		
-		if (transactionManager != null) {
-			transactionManager.setTransactionTimeout(timeout);	
-		}
-		else {
-			throw new SystemException("tx manager unavailable");
-		}		
-	}
-
-	public Transaction suspend() throws SystemException {
-		
-		if (transactionManager != null) {
-			return transactionManager.suspend();
-		}
-		else {
-			throw new SystemException("tx manager unavailable");
-		}		
-	}
-	
 	public String displayOngoingSleeTransactions() {
-
 		if (logger.isDebugEnabled()) {		
 			String msg = "---------+ Begin dump of SLEE TX map: +--------------------------";
 			for (Transaction tx : transactionContexts.keySet()) {							
@@ -304,16 +73,242 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 	}
 
-	// --- TX CONTEXT AND ACTION METHODS
-	
-	public TransactionContext getTransactionContext() throws SystemException {
-		
+	public boolean getRollbackOnly() throws SystemException {
 		Transaction tx = getTransaction();
-		
 		if (tx == null) {
 			throw new SystemException("no transaction");
 		}
+		return tx.getStatus() == Status.STATUS_MARKED_ROLLBACK;
+		// this code was hack to trap setRollbackOnly() due to jboss cache, don't remove it may be needed again
+		//return tx.getStatus() == Status.STATUS_MARKED_ROLLBACK || (tx.getStatus() == Status.STATUS_ACTIVE && getTransactionContext().getRollbackOnly());
+	}
+
+	public void mandateTransaction() throws TransactionRequiredLocalException,SystemException {
 		
+		Transaction tx = getTransaction();
+		if (logger.isDebugEnabled()) {
+			logger.debug("mandateTransaction() invoked. tx = "+tx);
+		}
+		if (tx == null)
+			throw new TransactionRequiredLocalException(
+					"Transaction Mandatory");
+		int status = tx.getStatus();
+		if (status != Status.STATUS_ACTIVE && status != Status.STATUS_MARKED_ROLLBACK) {
+			throw new IllegalStateException(
+					"There is no active tx, tx is in state: "
+					+ status);
+		}
+
+	}
+
+	public boolean requireTransaction() {
+		try {
+			Transaction tx = getTransaction();
+			int status = -1;
+			if (tx != null) {
+				status = tx.getStatus();
+			}
+			if (tx == null || (status != Status.STATUS_ACTIVE && status != Status.STATUS_MARKED_ROLLBACK)) {
+				// start a new one
+				if (logger.isDebugEnabled()) {
+					logger.debug("requireTransaction: no tx or tx is inactive, creating one");
+				}
+				this.begin();
+				return true;
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("requireTransaction: active tx already exists");
+			}						
+		} catch (NotSupportedException e) {
+			logger.error("Exception creating transaction", e);
+		} catch (SystemException e) {
+			logger.error("Caught SystemException in checking transaction", e);
+		}
+		return false;
+	}
+
+	public SleeTransaction asSleeTransaction(Transaction transaction)
+			throws NullPointerException, IllegalArgumentException,
+			SystemException {
+		if (transaction == null) {
+			throw new NullPointerException("null transaction");
+		}
+		if (transaction instanceof SleeTransactionImpl) {
+			return (SleeTransaction) transaction;
+		}
+		if (transaction instanceof TransactionImple) {
+			return new SleeTransactionImpl((TransactionImple) transaction);
+		}
+		throw new IllegalArgumentException("unexpected transaction class type "+transaction.getClass());
+	}
+	
+	public void asyncCommit(CommitListener commitListener) throws IllegalStateException,
+			SecurityException {
+		try {
+			SleeTransaction sleeTransaction = getSleeTransaction();
+			if (sleeTransaction == null) {
+				throw new IllegalStateException("no transaction");
+			}
+			else {
+				sleeTransaction.asyncCommit(commitListener);
+			}
+		} catch (SystemException e) {
+			if (commitListener != null) {
+				commitListener.systemException(e);
+			}
+		}		
+	}
+
+	public void asyncRollback(RollbackListener rollbackListener)
+			throws IllegalStateException, SecurityException {
+		try {
+			SleeTransaction sleeTransaction = getSleeTransaction();
+			if (sleeTransaction == null) {
+				throw new IllegalStateException("no transaction");
+			}
+			else {
+				sleeTransaction.asyncRollback(rollbackListener);
+			}			
+		} catch (SystemException e) {
+			if (rollbackListener != null) {
+				rollbackListener.systemException(e);
+			}
+		}
+	}
+
+	public SleeTransaction beginSleeTransaction() throws NotSupportedException,
+			SystemException {
+		begin();
+		return getSleeTransaction();
+	}
+
+	public SleeTransaction getSleeTransaction() throws SystemException {
+		Transaction transaction = getTransaction();
+		if (transaction == null) {
+			throw new IllegalStateException("no transaction");
+		}
+		return new SleeTransactionImpl((TransactionImple)transaction);
+	}
+
+	public void begin() throws NotSupportedException, SystemException {
+		// begin transaction
+		transactionManager.begin();
+		Transaction tx = getTransaction();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Transaction started: "+tx);
+		}	
+		// register for call-backs
+		try {
+			tx.registerSynchronization(new SynchronizationHandler(tx));
+		} catch (RollbackException e) {
+			throw new SystemException("Unable to register listener for created transaction. Error: "+e.getMessage());
+		}
+	}
+
+	public void commit() throws RollbackException, HeuristicMixedException,
+			HeuristicRollbackException, SecurityException,
+			IllegalStateException, SystemException {
+		Transaction tx = null;
+		if (logger.isDebugEnabled()) {
+			tx = getTransaction();
+		}
+		
+		transactionManager.commit();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Committed tx "+tx);
+		}
+	}
+
+	public int getStatus() throws SystemException {
+		int status = transactionManager.getStatus();				
+		// this code was hack to trap setRollbackOnly() due to jboss cache, don't remove it may be needed again
+		/*
+		if (status == Status.STATUS_ACTIVE && getTransactionContext().getRollbackOnly()) {
+			return Status.STATUS_MARKED_ROLLBACK;
+		}
+		else {
+			return status;
+		}
+		*/
+		return status;
+	}
+
+	public Transaction getTransaction() throws SystemException {
+		if (transactionManager != null) {
+			return transactionManager.getTransaction();
+		}
+		else {
+			throw new SystemException("tx manager unavailable");
+		}
+	}
+
+	public void resume(Transaction transaction) throws InvalidTransactionException,
+			IllegalStateException, SystemException {
+		if (transactionManager != null) {
+			transactionManager.resume(transaction);	
+		}
+		else {
+			throw new SystemException("tx manager unavailable");
+		}	
+	}
+
+	public void rollback() throws IllegalStateException, SecurityException,
+			SystemException {
+		Transaction tx = null;
+		if (logger.isDebugEnabled()) {
+			tx = getTransaction();
+		}
+		
+		transactionManager.rollback();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Rollbacked tx "+tx);
+		}		
+	}
+
+	public void setRollbackOnly() throws IllegalStateException, SystemException {
+		if (transactionManager != null) {
+			transactionManager.setRollbackOnly();
+			if (logger.isDebugEnabled()) {
+				logger.debug("rollbackonly set on tx "
+						+ getTransaction());
+			}
+		}
+		else {
+			throw new SystemException("tx manager unavailable");
+		}
+	}
+
+	public void setTransactionTimeout(int seconds) throws SystemException {
+		if (transactionManager != null) {
+			transactionManager.setTransactionTimeout(seconds);	
+		}
+		else {
+			throw new SystemException("tx manager unavailable");
+		}			
+	}
+
+	public Transaction suspend() throws SystemException {
+		if (transactionManager != null) {
+			return transactionManager.suspend();
+		}
+		else {
+			throw new SystemException("tx manager unavailable");
+		}		
+	}
+	
+	@Override
+	public String toString() {
+		return "SLEE Transaction Manager: " 
+			+ "\n+-- Number of transactions: " + transactionContexts.size();
+	}
+	
+	// --- TX CONTEXT AND ACTION METHODS
+	
+	public TransactionContext getTransactionContext() throws SystemException {
+		Transaction tx = getTransaction();
+		if (tx == null) {
+			throw new SystemException("no transaction");
+		}
 		TransactionContext tc = transactionContexts.get(tx);
 		if (tc == null) {
 			tc = new TransactionContext();
@@ -327,13 +322,11 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 
 	public void addAfterCommitAction(TransactionalAction action)
 			throws SystemException {
-
 		getTransactionContext().getAfterCommitActions().add(action);
 	}
 	
 	public void addAfterCommitPriorityAction(TransactionalAction action)
 			throws SystemException {
-		
 		getTransactionContext().getAfterCommitPriorityActions().add(action);
 	}
 	
@@ -351,28 +344,8 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 	
 	public void addBeforeCommitAction(TransactionalAction action)
 			throws SystemException {
-		
 		getTransactionContext().getBeforeCommitActions().add(action);
 	}
-	
-	// --- NOT IMPLEMENTED
-	
-	public void asyncCommit() throws IllegalStateException, SecurityException,
-			RollbackException, HeuristicMixedException,
-			HeuristicRollbackException, SystemException {
-		throw new UnsupportedOperationException();		
-	}
-
-	public void asyncRollback() throws IllegalStateException,
-			SecurityException, SystemException {
-		throw new UnsupportedOperationException();		
-	}
-
-	public SleeTransaction beginSleeTransaction() throws NotSupportedException,
-			SystemException {
-		throw new UnsupportedOperationException();
-	}
-
 	
 	// --- TX MANAGER LISTENER
 	
@@ -384,7 +357,6 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 
 		public void afterCompletion(int status) {
-
 			// get tx context
 			TransactionContext txContext = transactionContexts.remove(tx);
 			if (txContext != null) {
@@ -422,11 +394,5 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 				tc.executeBeforeCommitActions();
 			}
 		}
-	}
-	
-	@Override
-	public String toString() {
-		return "SLEE Transaction Manager: " 
-			+ "\n+-- Number of transactions: " + transactionContexts.size();
 	}
 }

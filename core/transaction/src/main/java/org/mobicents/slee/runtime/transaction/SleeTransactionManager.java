@@ -35,7 +35,6 @@ package org.mobicents.slee.runtime.transaction;
 
 import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 
 /** 
  * 
@@ -54,37 +53,16 @@ public interface SleeTransactionManager extends javax.slee.transaction.SleeTrans
 	/** Verifies if we are in the context of a transaction.
 	 * 
 	 *@throws  TransactionRequiredLocalException if we are not in the context of a transaction.
+	 * @throws SystemException 
 	 *
 	 */
-	public void mandateTransaction() throws TransactionRequiredLocalException;
+	public void mandateTransaction() throws TransactionRequiredLocalException, SystemException;
 	
 	/**
 	 * Ensures a transaction exists, i.e., if there is no transaction one is created
 	 * @return true if a transaction was created
 	 */
 	public boolean requireTransaction();
-	
-	/**
-	 * 
-	 * @return true is a transaction exists
-	 * @throws SystemException
-	 */
-	public boolean isInTx() throws SystemException;
-	
-	/**
-	 * starts a new transaction
-	 */
-	public void begin() throws SystemException;
-	
-	/**
-	 * commits the current transaction
-	 */
-	public void commit() throws SystemException;
-	
-	/**
-	 * rollbacks the current transaction
-	 */
-	public void rollback() throws SystemException;
 	
 	/**
 	 * retrieves the context object associated with the current transaction
@@ -124,22 +102,12 @@ public interface SleeTransactionManager extends javax.slee.transaction.SleeTrans
 	public void addBeforeCommitAction(TransactionalAction action) throws SystemException; 
 	
 	/**
-	 * Marks the current transaction for rollback 
-	 */
-	public void setRollbackOnly() throws SystemException;
-    
-	/**
 	 * 
 	 * @return true if the current transaction is marked for rollback
 	 * @throws SystemException
 	 */
     public boolean getRollbackOnly() throws SystemException;
     
-    /**
-     * Retrieves the current transaction
-     */
-    public Transaction getTransaction() throws SystemException;
-	
    /**
      * @return String - a list of ongoing SLEE transactions
      */
