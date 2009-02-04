@@ -10,24 +10,31 @@ package org.mobicents.slee.container.component.validator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
-import javassist.CtMethod;
-import javassist.Modifier;
-import javassist.NotFoundException;
+import javax.slee.SbbID;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
 
 /**
  * Start time:17:06:21 2009-01-30<br>
  * Project: mobicents-jainslee-server-core<br>
+ * base validator for sbb components. It validates all sbb class constraints.
+ * However it does not check referential constraints and similar. Checks that
+ * have to be done before this class is used are: reference checks(this includes
+ * dependencies), field values - like duplicate cmps, duplicate entries.
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
@@ -414,7 +421,7 @@ public class SbbComponentValidator implements Validator {
 				passed = false;
 				errorBuffer = appendToBuffer(
 						this.component.getAbstractSbbClass()
-								+ " narrow method asSbbActivityContextInterface must be public,abstract and not native.",
+								+ " narrow method asSbbActivityContextInterface must have return type.",
 						"7.7.2", errorBuffer);
 			} else if (returnType.equals(definedReturnType)) {
 				// its ok
@@ -791,7 +798,7 @@ public class SbbComponentValidator implements Validator {
 							+ "DSbbLocalInterface: "
 							+ sbbLocalInterfaceClass.getName()
 							+ " does not implement javax.slee.SbbLocalInterface super interface in any way!!!",
-					"6.5", errorBuffer);
+					"5.6", errorBuffer);
 
 		}
 
@@ -809,7 +816,7 @@ public class SbbComponentValidator implements Validator {
 			passed = false;
 			errorBuffer = appendToBuffer(this.component.getAbstractSbbClass()
 					+ "SbbLocalInterface: " + sbbLocalInterfaceClass.getName()
-					+ " must be public!", "6.5", errorBuffer);
+					+ " must be public!", "5.6", errorBuffer);
 		}
 
 		Set<String> ignore = new HashSet<String>();
@@ -829,7 +836,7 @@ public class SbbComponentValidator implements Validator {
 				errorBuffer = appendToBuffer("Method from SbbLocalInterface: "
 						+ sbbLocalInterfaceClass.getName()
 						+ " starts with wrong prefix: "
-						+ methodToCheck.getName(), "6.5", errorBuffer);
+						+ methodToCheck.getName(), "5.6", errorBuffer);
 
 			}
 
@@ -849,7 +856,7 @@ public class SbbComponentValidator implements Validator {
 								+ "with name:  "
 								+ methodToCheck.getName()
 								+ " is not implemented by sbb class or its super classes!",
-						"6.5", errorBuffer);
+						"5.6", errorBuffer);
 
 				// we fails fast here
 				continue;
@@ -864,7 +871,8 @@ public class SbbComponentValidator implements Validator {
 					methodToCheck.getName()) == 0)
 					|| !methodFromSbbClass.getReturnType().equals(
 							methodToCheck.getReturnType())
-				    || !Arrays.equals(methodFromSbbClass.getParameterTypes(),methodToCheck.getParameterTypes())
+					|| !Arrays.equals(methodFromSbbClass.getParameterTypes(),
+							methodToCheck.getParameterTypes())
 					|| !Arrays.equals((Object[]) methodFromSbbClass
 							.getExceptionTypes(), (Object[]) methodToCheck
 							.getExceptionTypes())) {
@@ -876,7 +884,7 @@ public class SbbComponentValidator implements Validator {
 								+ " with name:  "
 								+ methodToCheck.getName()
 								+ " is not implemented by sbb class or its super classes. Its visibility, throws clause is different or modifiers are different!",
-						"6.5", errorBuffer);
+						"5.6", errorBuffer);
 
 				// we fails fast here
 				continue;
@@ -896,6 +904,273 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		return passed;
+	}
+
+	boolean validateCmpFileds(Map<String, Method> sbbAbstractClassMethods,
+			Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
+
+		boolean passed = true;
+		String errorBuffer = new String("");
+
+		List<MSbbCMPField> cmpFields = this.component.getDescriptor()
+				.getSbbAbstractClass().getCmpFields();
+
+		for (MSbbCMPField entry : cmpFields) {
+
+			String fieldName = entry.getCmpFieldName();
+
+			Character c = fieldName.charAt(0);
+			// we must start with lower case letter
+			if (!Character.isLetter(c) || !Character.isLowerCase(c)) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field name. Name must start with lower case letter: "
+								+ fieldName, "6.5.1", errorBuffer);
+
+				// In this case we should fail fast?
+				continue;
+			}
+
+			// lets find method in abstracts, it cannot be implemented
+			// FIXME: do we have to check concrete as well?
+			String methodPartFieldName = Character.toUpperCase(c)
+					+ fieldName.substring(1);
+			String getterName = "get" + methodPartFieldName;
+			String setterName = "set" + methodPartFieldName;
+			Method getterFieldMethod = null;
+			Method setterFieldMethod = null;
+
+			// Both have to be present, lets do trick, first we can get getter
+			// so we know field type and can get setter
+			Class sbbAbstractClass = this.component.getAbstractSbbClass();
+			try {
+				getterFieldMethod = sbbAbstractClass
+						.getMethod(getterName, null);
+			} catch (Exception e) {
+				// SecurityException and MethodNotFoundExpcetion
+
+				e.printStackTrace();
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field. Could not find getter method: "
+								+ getterName
+								+ ". Both accessors must be present.", "6.5.1",
+						errorBuffer);
+
+				passed = false;
+				// we fail fast here
+				continue;
+			}
+			try {
+				setterFieldMethod = sbbAbstractClass.getMethod(setterName,
+						getterFieldMethod.getReturnType());
+			} catch (Exception e) {
+				// SecurityException and MethodNotFoundExpcetion
+
+				e.printStackTrace();
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field. Could not find setter method: "
+								+ setterName
+								+ " with single parameter of type: "
+								+ getterFieldMethod.getReturnType()
+								+ ". Both accessors must be present.", "6.5.1",
+						errorBuffer);
+
+				passed = false;
+				// we fail fast here
+				continue;
+			}
+
+			if (setterFieldMethod.getReturnType().getName().compareTo("void") != 0) {
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field. Setter method: "
+								+ setterName + " has return type of: "
+								+ setterFieldMethod.getReturnType(), "6.5.1",
+						errorBuffer);
+			}
+
+			Class fieldType = getterFieldMethod.getReturnType();
+
+			// we know methods are here, we must check if they are - abstract,
+			// public, what about static and native?
+			int modifiers = getterFieldMethod.getModifiers();
+
+			if (!Modifier.isPublic(modifiers)
+					|| !Modifier.isAbstract(modifiers)) {
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field. Getter method is either public or not abstract: "
+								+ getterName, "6.5.1", errorBuffer);
+
+				passed = false;
+			}
+
+			modifiers = setterFieldMethod.getModifiers();
+
+			if (!Modifier.isPublic(modifiers)
+					|| !Modifier.isAbstract(modifiers)) {
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field. Setter method is neither public nor abstract: "
+								+ getterName, "6.5.1", errorBuffer);
+
+				passed = false;
+			}
+
+			// 1.1 and 1.0 allow
+			// primitives and serializables and if reference is present sbbLo or
+			// derived type
+			boolean referenceIsPresent = entry.getSbbAliasRef() != null;
+			boolean isSbbLOFieldType = false;
+			if (_PRIMITIVES.contains(fieldType.getName())) {
+				// do nothing, this does not include wrapper classes,
+				isSbbLOFieldType = false;
+			} else if (ClassUtils.checkInterfaces(fieldType,
+					"javax.slee.SbbLocalObject") != null) {
+				// FIXME: is there a better way?
+				// in 1.0 sbb ref MUST be present always
+				// again, if referenced sbb has wrong type of SbbLO defined here
+				// it mail fail, however it a matter of validating other
+				// component
+				isSbbLOFieldType = true;
+
+				if (!this.component.isSlee11() && !referenceIsPresent) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Failed to validate CMP field. In JSLEE 1.0 Sbb reference element must be present when CMP type is Sbb Local Object or derived, field name: "+fieldName+" type: "+fieldType, "6.5.1", errorBuffer);
+
+					// for this we fail fast, nothing more to do.
+					continue;
+
+				}
+
+				// now its a check for 1.1 and 1.0
+				if (referenceIsPresent) {
+					SbbComponent referencedComponent = this.repository
+							.getComponentByID(new SbbID("","",""));
+					// FIXME: field type must be equal to defined or must be
+					// javax.slee.SbbLocalObject = what about intermediate types
+					// X -> Y -> SbbLocalObject - and we have Y?
+					if (fieldType.getName().compareTo(
+							referencedComponent.getSbbLocalInterfaceClass()
+									.getName()) == 0) {
+						// its ok
+					} else if (fieldType.getName().compareTo(
+							"javax.slee.SbbLocalObject") == 0) {
+						// its ok?
+					} else {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Failed to validate CMP field. Field type for sbb entities must be of generic type javax.slee.SbbLocalObject or type declared by referenced sbb, field name: "+fieldName+" type: "
+										+ fieldType, "6.5.1", errorBuffer);
+					}
+
+				} else {
+					// here only 1.1 will go
+					if (fieldType.getName().compareTo(
+							"javax.slee.SbbLocalObject") == 0) {
+						// its ok?
+					} else {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Failed to validate CMP field. Field type for sbb entities must be of generic type javax.slee.SbbLocalObject when no reference to sbb is present, field name: "+fieldName+" type: "
+										+ fieldType, "6.5.1", errorBuffer);
+					}
+				}
+
+				// FIXME: end of checks here?
+
+			} else if (this.component.isSlee11()) {
+				isSbbLOFieldType = false;
+
+				if (fieldType.getName().compareTo("javax.slee.EventContext") == 0) {
+					// we do nothing, its ok.
+				} else if (ClassUtils.checkInterfaces(fieldType,
+						"javax.slee.profile.ProfileLocalObject") != null) {
+					// FIXME: there is no ref maybe we shoudl check referenced
+					// profiles?
+				} else if (ClassUtils.checkInterfaces(fieldType,
+						"java.io.Serializable") != null) {
+
+					// do nothing, its check same as below
+				} else if (ClassUtils.checkInterfaces(fieldType,
+						"javax.slee.ActivityContextInterface") != null) {
+
+					// we can haev generic ACI or derived object defined in
+					// sbb,... uffff
+					Class definedAciType = this.component
+							.getActivityContextInterface();
+					if (definedAciType.getName().compareTo(fieldType.getName()) == 0) {
+						// do nothing
+					} else if (fieldType.getName().compareTo(
+							"javax.slee.ActivityContextInterface") == 0) {
+						//do nothing
+					} else {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Failed to validate CMP field. Field type for ACIs must be of generic type javax.slee.ActivityContextInterface or defined by sbb Custom ACI: "
+										+ fieldType, "6.5.1", errorBuffer);
+					}
+
+				} else {
+					// FAIL
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Failed to validate CMP field. Field type must be: primitive,serializable, SbbLocalObject or derived,(1.1): EventContext, ActivityContextInterface or derived"
+									+ fieldType, "6.5.1", errorBuffer);
+				}
+
+			} else if (ClassUtils.checkInterfaces(fieldType,
+					"java.io.Serializable") != null) {
+				// This is tricky, someone can implement serializable in SbbLO
+				// derived objec, however it could not be valid SBB LO(for
+				// isntance wrong Sbb,not extending SbbLO) but if this was first
+				// it would pass test without checks on constraints
+
+				// this includes all serializables and primitive wrapper classes
+				isSbbLOFieldType = false;
+			} else {
+				// FAIL
+
+			}
+
+			
+			//Check throws clause
+			
+			if(getterFieldMethod.getExceptionTypes().length>0)
+			{
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field. Getter method declared throws clause: "
+								+ Arrays.toString(getterFieldMethod.getExceptionTypes()), "6.5.1", errorBuffer);
+			}
+			
+			if(setterFieldMethod.getExceptionTypes().length>0)
+			{
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Failed to validate CMP field. Setter method declared throws clause: "
+								+ Arrays.toString(setterFieldMethod.getExceptionTypes()), "6.5.1", errorBuffer);
+			}
+			
+			
+			//else remove those from list
+			sbbAbstractClassMethods.remove(ClassUtils.getMethodKey(setterFieldMethod));
+			sbbAbstractClassMethods.remove(ClassUtils.getMethodKey(getterFieldMethod));
+			sbbAbstractMethodsFromSuperClasses.remove(ClassUtils.getMethodKey(setterFieldMethod));
+			sbbAbstractMethodsFromSuperClasses.remove(ClassUtils.getMethodKey(getterFieldMethod));
+			
+		}
+		
+		
+		
+		
+		
+
+		if (!passed) {
+			logger.error(errorBuffer.toString());
+			System.err.println(errorBuffer);
+		}
+
+		return passed;
+
 	}
 
 	protected String appendToBuffer(String message, String section,

@@ -38,7 +38,9 @@ public class MSbbAbstractClass {
 	private boolean reentrant=false;
 	private String description=null;
 	private String sbbAbstractClassName=null;
-	private Map<String,MSbbCMPField> cmpFields=null;
+	//Map at this level will mask duplicate declarations
+	//private Map<String,MSbbCMPField> cmpFields=null;
+	private List<MSbbCMPField> cmpFields=null;
 	//it shoudl be getProfileCMPMethods -- but getter would be getGetxxx
 	private List<MGetProfileCMPMethod> profileCMPMethods=null;
 	//it shoudl be getChildRelationMethods -- but getter would be getGetxxx
@@ -49,12 +51,14 @@ public class MSbbAbstractClass {
 		this.description=this.sAbstractClass.getDescription()==null?null:this.sAbstractClass.getDescription().getvalue();
 		this.sbbAbstractClassName=this.sAbstractClass.getSbbAbstractClassName().getvalue();
 		
-		this.cmpFields=new HashMap<String, MSbbCMPField>();
+		//this.cmpFields=new HashMap<String, MSbbCMPField>();
+		this.cmpFields=new ArrayList< MSbbCMPField>();
 		if(this.sAbstractClass.getCmpField()!=null)
 			for(CmpField cf:this.sAbstractClass.getCmpField())
 			{
 				MSbbCMPField scf=new MSbbCMPField(cf);
-				this.cmpFields.put(scf.getCmpFieldName(),scf);
+				//this.cmpFields.put(scf.getCmpFieldName(),scf);
+				this.cmpFields.add(scf);
 			}
 		
 		this.profileCMPMethods=new ArrayList<MGetProfileCMPMethod>();
@@ -94,12 +98,14 @@ public class MSbbAbstractClass {
 		this.description=this.llsAbstractClass.getDescription()==null?null:this.llsAbstractClass.getDescription().getvalue();
 		this.sbbAbstractClassName=this.llsAbstractClass.getSbbAbstractClassName().getvalue();
 		
-		this.cmpFields=new HashMap<String, MSbbCMPField>();
+		//this.cmpFields=new HashMap<String, MSbbCMPField>();
+		this.cmpFields=new ArrayList< MSbbCMPField>();
 		if(this.llsAbstractClass.getCmpField()!=null)
 			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.CmpField cf:this.llsAbstractClass.getCmpField())
 			{
 				MSbbCMPField scf=new MSbbCMPField(cf);
-				this.cmpFields.put(scf.getCmpFieldName(),scf);
+				//this.cmpFields.put(scf.getCmpFieldName(),scf);
+				this.cmpFields.add(scf);
 			}
 		
 		this.profileCMPMethods=new ArrayList<MGetProfileCMPMethod>();
@@ -140,7 +146,10 @@ public class MSbbAbstractClass {
 	public String getSbbAbstractClassName() {
 		return sbbAbstractClassName;
 	}
-	public Map<String, MSbbCMPField> getCmpFields() {
+//	public Map<String, MSbbCMPField> getCmpFields() {
+//		return cmpFields;
+//	}
+	public List<MSbbCMPField> getCmpFields() {
 		return cmpFields;
 	}
 	public List<MGetProfileCMPMethod> getProfileCMPMethods() {

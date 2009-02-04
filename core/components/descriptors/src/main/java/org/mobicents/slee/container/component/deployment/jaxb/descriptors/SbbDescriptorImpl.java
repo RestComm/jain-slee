@@ -18,7 +18,7 @@ import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.deployment.DeployedComponent;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;

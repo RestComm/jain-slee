@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.validator;
 
+import org.mobicents.slee.container.component.ComponentRepository;
+
 /**
  * 
  * Start time:17:12:16 2009-01-30<br>

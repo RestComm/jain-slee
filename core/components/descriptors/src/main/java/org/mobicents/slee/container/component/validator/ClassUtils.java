@@ -48,7 +48,12 @@ public class ClassUtils {
 	public static Class checkInterfaces(Class classOrInterfaceWithInterfaces,
 			String interfaceSearched) {
 		Class returnValue = null;
+		
+		
+		if(classOrInterfaceWithInterfaces.getName().compareTo(interfaceSearched) == 0) {
+			return classOrInterfaceWithInterfaces;
 
+		}
 		// we do check only on get interfaces
 		for (Class iface : classOrInterfaceWithInterfaces.getInterfaces()) {
 			if (iface.getName().compareTo(interfaceSearched) == 0) {

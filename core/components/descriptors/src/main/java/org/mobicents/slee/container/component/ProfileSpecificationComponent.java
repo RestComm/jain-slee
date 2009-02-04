@@ -23,10 +23,10 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileComponent {
+public class ProfileSpecificationComponent {
 	
 	protected static final transient Logger logger = Logger
-			.getLogger(ProfileComponent.class.getName());
+			.getLogger(ProfileSpecificationComponent.class.getName());
 	
 	protected DeployableUnitID deployableUnitID=null;
 	protected ProfileSpecificationDescriptorImpl descriptor=null;

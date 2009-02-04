@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javassist.CtClass;
@@ -90,7 +92,10 @@ public class SbbComponent {
 		return concreteSbbClass;
 	}
 
-
+	/**
+	 * This must never return null, if no custom interface is defined, this has to return generic javax.slee.SbbLocalObject 
+	 * @return
+	 */
 	public Class getSbbLocalInterfaceClass() {
 		return sbbLocalInterfaceClass;
 	}
@@ -154,5 +159,12 @@ public class SbbComponent {
 
 	public boolean isSlee11() {
 		return this.descriptor.isSlee11();
+	}
+
+	
+	
+	public Map<String, SbbID> getSbbReferences() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -322,17 +322,29 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Get child relation method default priority is not equal to 123",getChildRelationMethod.getDefaultPriority()==123);
 		
 		
-		Map<String,MSbbCMPField> cmpFields=mSbbAbstractClass.getCmpFields();
+//		Map<String,MSbbCMPField> cmpFields=mSbbAbstractClass.getCmpFields();
+//		
+//		assertNotNull("Sbb cmp fields list is null",cmpFields);
+//		assertTrue("Sbb cmp fields list size is not equal to 1",cmpFields.size()==1);
+//		assertNotNull("Sbb cmp field is null",cmpFields.get(cmpFields.keySet().iterator().next()));
+//		
+//		MSbbCMPField cmpField=cmpFields.get(cmpFields.keySet().iterator().next());
+//		assertTrue("CMP Field name does not match cmp field key",cmpFields.keySet().iterator().next().compareTo(cmpField.getCmpFieldName())==0);
+//		validateValue(cmpField.getCmpFieldName(), "CMP Field name ", _CMP_FIELD_NAME);
+//		validateValue(cmpField.getSbbAliasRef(), "CMP Field sbba alias ref ", _SBB_ALIAS_REF);
+//		
+		
+		
+		List<MSbbCMPField> cmpFields=mSbbAbstractClass.getCmpFields();
 		
 		assertNotNull("Sbb cmp fields list is null",cmpFields);
 		assertTrue("Sbb cmp fields list size is not equal to 1",cmpFields.size()==1);
-		assertNotNull("Sbb cmp field is null",cmpFields.get(cmpFields.keySet().iterator().next()));
+		assertNotNull("Sbb cmp field is null",cmpFields.iterator().next());
 		
-		MSbbCMPField cmpField=cmpFields.get(cmpFields.keySet().iterator().next());
-		assertTrue("CMP Field name does not match cmp field key",cmpFields.keySet().iterator().next().compareTo(cmpField.getCmpFieldName())==0);
+		MSbbCMPField cmpField=cmpFields.iterator().next();
+	
 		validateValue(cmpField.getCmpFieldName(), "CMP Field name ", _CMP_FIELD_NAME);
 		validateValue(cmpField.getSbbAliasRef(), "CMP Field sbba alias ref ", _SBB_ALIAS_REF);
-		
 		
 		
 		List<MGetProfileCMPMethod> profileCMPMethods=mSbbAbstractClass.getProfileCMPMethods();

@@ -35,7 +35,8 @@ public class MSbbCMPField {
 		this.llCmpField = llCmpField;
 		this.description=this.llCmpField.getDescription()==null?null:this.llCmpField.getDescription().getvalue();
 		this.cmpFieldName=this.llCmpField.getCmpFieldName().getvalue();
-		this.sbbAliasRef=this.llCmpField.getSbbAliasRef().getvalue();
+		if(this.llCmpField.getSbbAliasRef()!=null)
+			this.sbbAliasRef=this.llCmpField.getSbbAliasRef().getvalue();
 	}
 
 	public MSbbCMPField(
@@ -44,7 +45,10 @@ public class MSbbCMPField {
 		this.cmpField = cmpField;
 		this.description=this.cmpField.getDescription()==null?null:this.cmpField.getDescription().getvalue();
 		this.cmpFieldName=this.cmpField.getCmpFieldName().getvalue();
-		this.sbbAliasRef=this.cmpField.getSbbAliasRef().getvalue();
+		if(this.cmpField.getSbbAliasRef()!=null)
+			this.sbbAliasRef=this.cmpField.getSbbAliasRef().getvalue();
+		//FIXME: check this, THIS MUST BE PRESENT FOR SBB LOs, can be checked only at runtime
+		
 	
 	}
 
