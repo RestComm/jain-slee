@@ -25,10 +25,10 @@ import org.mobicents.slee.container.component.validator.sbb.abstracts.aci.ACICon
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public abstract class SbbEventHandlersOkSbb extends SbbConstraintsOkSbb {
+public abstract class SbbEventHandlersWrongInitalEventSelectorSbb extends SbbConstraintsOkSbb {
 
-	public InitialEventSelector myInitialEventSelector(InitialEventSelector ies) {
-		return null;
+	public void myInitialEventSelector(InitialEventSelector ies) {
+		return ;
 	}
 
 	public void onCustomEventOne(XEvent event, ActivityContextInterface aci) {

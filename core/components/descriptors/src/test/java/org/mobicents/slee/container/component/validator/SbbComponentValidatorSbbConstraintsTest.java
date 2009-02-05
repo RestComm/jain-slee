@@ -13,6 +13,7 @@ import javassist.NotFoundException;
 
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.ClassUtils;
 import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
@@ -25,7 +26,7 @@ import org.mobicents.slee.container.component.validator.SbbComponentValidator;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbComponentValidatorSbbConstraintsTest extends
-		ValidatorSuperTestCase {
+TCUtilityClass {
 
 	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS = "xml/validator/sbb/sbb-jar-one-SbbConstraintsOk_1_1.xml";
 	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_LIFECYCLE_ABSTRACT = "xml/validator/sbb/sbb-jar-one-SbbConstraintsLifeCycleAbstract_1_1.xml";

@@ -26,6 +26,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.ClassUtils;
 import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
@@ -37,8 +38,7 @@ import org.mobicents.slee.container.component.validator.SbbComponentValidator;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SbbComponentValidatorSbbConstraintsCMPsTest extends
-		ValidatorSuperTestCase {
+public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass {
 
 	public static final String _SBB_JAR_ONE_11_OK_CMPS = "xml/validator/sbb/cmp/sbb-jar-one-SbbConstraintsSbbCMPsOk_1_1.xml";
 	public static final String _SBB_JAR_ONE_11_CMPS_NO_REF_ON_CUSTOM_SBBLO = "xml/validator/sbb/cmp/sbb-jar-one-SbbConstraintsSbbCMPsNoRefOnCustomSbbLO_1_1.xml";
@@ -47,9 +47,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends
 	public static final String _SBB_JAR_ONE_11_CMPS_THROWS = "xml/validator/sbb/cmp/sbb-jar-one-SbbConstraintsSbbCMPsThrows_1_1.xml";
 	public static final String _SBB_JAR_ONE_11_CMPS_CONCRETE = "xml/validator/sbb/cmp/sbb-jar-one-SbbConstraintsSbbCMPsConcrete_1_1.xml";
 	public static final String _SBB_JAR_ONE_11_CMPS_SCOPE = "xml/validator/sbb/cmp/sbb-jar-one-SbbConstraintsSbbCMPsScope_1_1.xml";
-	
-	
-	
+
 	public void testSbbOne11ConstraintsCMPsOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CMPS), null)[0];
@@ -242,14 +240,9 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends
 
 	}
 
-	
-	
 	public void testSbbOne11ConstraintsCMPsThrows() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_SBB_JAR_ONE_11_CMPS_THROWS),
-						null)[0];
+		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
+				super.parseDocument(_SBB_JAR_ONE_11_CMPS_THROWS), null)[0];
 		final SbbComponent component = new SbbComponent();
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
@@ -310,13 +303,9 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends
 
 	}
 
-	
 	public void testSbbOne11ConstraintsCMPsConcrete() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_SBB_JAR_ONE_11_CMPS_CONCRETE),
-						null)[0];
+		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
+				super.parseDocument(_SBB_JAR_ONE_11_CMPS_CONCRETE), null)[0];
 		final SbbComponent component = new SbbComponent();
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
@@ -377,14 +366,9 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends
 
 	}
 
-	
-	
 	public void testSbbOne11ConstraintsCMPsScope() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_SBB_JAR_ONE_11_CMPS_SCOPE),
-						null)[0];
+		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
+				super.parseDocument(_SBB_JAR_ONE_11_CMPS_SCOPE), null)[0];
 		final SbbComponent component = new SbbComponent();
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
@@ -444,6 +428,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends
 		assertFalse("Sbb class has been validated", b);
 
 	}
+
 	public void testSbbOne11ConstraintsCMPsNoRefCustomSbbLO() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
 				.parseDocument(

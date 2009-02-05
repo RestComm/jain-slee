@@ -25,7 +25,7 @@ import org.mobicents.slee.container.component.validator.sbb.abstracts.aci.ACICon
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public abstract class SbbEventHandlersOkSbb extends SbbConstraintsOkSbb {
+public abstract class SbbEventHandlersLackFireSbb extends SbbConstraintsOkSbb {
 
 	public InitialEventSelector myInitialEventSelector(InitialEventSelector ies) {
 		return null;
@@ -51,8 +51,6 @@ public abstract class SbbEventHandlersOkSbb extends SbbConstraintsOkSbb {
 
 	}
 
-	public abstract void fireCustomEventFive(XEvent event,
-			ActivityContextInterface aci, Address address);
 
 	public void onCustomEventSix(XEvent event, ACIConstraintsOk aci) {
 

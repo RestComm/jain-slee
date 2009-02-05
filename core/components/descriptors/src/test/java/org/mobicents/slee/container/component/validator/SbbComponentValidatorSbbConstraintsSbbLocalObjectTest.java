@@ -14,6 +14,7 @@ import javassist.NotFoundException;
 
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.ClassUtils;
 import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
@@ -26,7 +27,7 @@ import org.mobicents.slee.container.component.validator.SbbComponentValidator;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends
-		ValidatorSuperTestCase {
+TCUtilityClass {
 
 	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_SBB_LOCAL_INTERFACE = "xml/validator/sbb/sbblo/sbb-jar-one-SbbConstraintsSbbLocalInterfaceOk_1_1.xml";
 	public static final String _SBB_JAR_ONE_11_WRONG_THROWS_SBB_LOCAL_INTERFACE = "xml/validator/sbb/sbblo/sbb-jar-one-SbbConstraintsSbbLocalInterfaceWrongThrows_1_1.xml";

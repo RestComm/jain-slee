@@ -1240,8 +1240,6 @@ public class SbbComponentValidator implements Validator {
 
 		// we can have only one receive method
 
-		// this is optional
-		Method initialEvenSelectorMethod = null;
 		Class eventClass = this.repository.getComponentByID(
 				event.getEventReference().getReference()).getEventTypeClass();
 		Class sbbAbstractClass = this.component.getAbstractSbbClass();
@@ -1453,13 +1451,13 @@ public class SbbComponentValidator implements Validator {
 
 			if (m.getReturnType().getName().compareTo(
 					"javax.slee.InitialEventSelector") != 0) {
-				if (Modifier.isStatic(modifiers)) {
-					passed = false;
-					errorBuffer = appendToBuffer(
-							"Failed to validate initial event selector method"
-									+ " Return type must be javax.slee.InitialEventSelector, method: "
-									+ m.getName(), "8.6.4", errorBuffer);
-				}
+
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Failed to validate initial event selector method"
+								+ " Return type must be javax.slee.InitialEventSelector, method: "
+								+ m.getName(), "8.6.4", errorBuffer);
+
 			}
 		} finally {
 			if (!passed) {
@@ -1509,22 +1507,22 @@ public class SbbComponentValidator implements Validator {
 		// FIXME: native?
 
 		// FIXME: only runtime exceptions?
-		// if (m.getExceptionTypes().length > 0) {
-		// passed = false;
-		// errorBuffer = appendToBuffer("Failed to validate fire event method"
-		// + " Fire method is has throws clause, method: "
-		// + m.getName(), section, errorBuffer);
-		//
-		// }
+		if (m.getExceptionTypes().length > 0) {
+			passed = false;
+			errorBuffer = appendToBuffer("Failed to validate fire event method"
+					+ " Fire method is has throws clause, method: "
+					+ m.getName(), section, errorBuffer);
+
+		}
 
 		if (m.getReturnType().getName().compareTo("void") != 0) {
-			if (Modifier.isStatic(modifiers)) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Failed to validate Receive event method"
-								+ " Receive method cant have return type, method: "
-								+ m.getName(), section, errorBuffer);
-			}
+
+			passed = false;
+			errorBuffer = appendToBuffer(
+					"Failed to validate Receive event method"
+							+ " Receive method cant have return type, method: "
+							+ m.getName(), section, errorBuffer);
+
 		}
 
 		if (!passed) {
@@ -1668,13 +1666,12 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (m.getReturnType().getName().compareTo("void") != 0) {
-			if (Modifier.isStatic(modifiers)) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Failed to validate fire event method"
-								+ " Fire method cant have return type, method: "
-								+ m.getName(), section, errorBuffer);
-			}
+
+			passed = false;
+			errorBuffer = appendToBuffer("Failed to validate fire event method"
+					+ " Fire method cant have return type, method: "
+					+ m.getName(), section, errorBuffer);
+
 		}
 
 		if (!passed) {
