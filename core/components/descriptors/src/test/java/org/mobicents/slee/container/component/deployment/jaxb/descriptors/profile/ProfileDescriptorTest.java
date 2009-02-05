@@ -210,8 +210,8 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		
 		if(specs.isSlee11()){
 			assertNotNull("Profile specs usage parameters interface is null", specs.getProfileUsageParameterInterface());
-			assertNotNull("Profile specs usage parameters interface value is null", specs.getProfileUsageParameterInterface().getProfileUsagePamaterersInterfaceName());
-			assertTrue("Profile specs usage parameters interface not equal to "+_DEFAULT_VALUE, specs.getProfileUsageParameterInterface().getProfileUsagePamaterersInterfaceName().compareTo(_DEFAULT_VALUE)==0);
+			assertNotNull("Profile specs usage parameters interface value is null", specs.getProfileUsageParameterInterface().getUsageParametersInterfaceName());
+			assertTrue("Profile specs usage parameters interface not equal to "+_DEFAULT_VALUE, specs.getProfileUsageParameterInterface().getUsageParametersInterfaceName().compareTo(_DEFAULT_VALUE)==0);
 		}
 		if(specs.isSlee11()){
 			List<MEnvEntry> entries=specs.getEnvEntries();

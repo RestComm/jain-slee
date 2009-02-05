@@ -2,6 +2,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.List;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MProfileSpecRef;
@@ -10,7 +11,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MRe
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorClasses;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorJar;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorTypeRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorUsageParametersInterface;
 import org.w3c.dom.Document;
 
 /**
@@ -38,7 +38,7 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
   private List<MConfigProperty> configProperties;
   private Boolean ignoreRaTypeEventTypeCheck;
   
-  private MResourceAdaptorUsageParametersInterface resourceAdaptorUsageParametersInterface;
+  private MUsageParametersInterface resourceAdaptorUsageParametersInterface;
   private String resourceAdaptorClassName;
 
   private Boolean supportsActiveReconfiguration;
@@ -128,7 +128,7 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
     return ignoreRaTypeEventTypeCheck;
   }
   
-  public MResourceAdaptorUsageParametersInterface getResourceAdaptorUsageParametersInterface()
+  public MUsageParametersInterface getResourceAdaptorUsageParametersInterface()
   {
     return resourceAdaptorUsageParametersInterface;
   }

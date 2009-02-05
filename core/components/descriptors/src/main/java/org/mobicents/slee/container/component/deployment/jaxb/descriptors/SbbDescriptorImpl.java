@@ -21,6 +21,7 @@ import org.mobicents.slee.container.component.ComponentKey;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEnvEntry;
@@ -30,7 +31,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MS
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbActivityContextInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbReference;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbUsageParametersInterface;
+
 
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Sbb;
@@ -81,7 +82,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	private MSbbAbstractClass sbbAbstractClass = null;
 	private MSbbLocalInterface sbbLocalInterface = null;
 	private MSbbActivityContextInterface sbbActivityContextInterface = null;
-	private MSbbUsageParametersInterface sbbUsageParametersInterface = null;
+	private MUsageParametersInterface sbbUsageParametersInterface = null;
 	private String addressProfileSpecAliasRef = null;
 	private List<MEventEntry> events = null;
 	private List<MActivityContextAttributeAlias> activityContextAttributeAliases = null;
@@ -195,7 +196,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 			//Optional
 			if(this.llSbb.getSbbClasses().getSbbUsageParametersInterface()!=null)
 			{
-				this.sbbUsageParametersInterface=new MSbbUsageParametersInterface(this.llSbb.getSbbClasses().getSbbUsageParametersInterface());
+				this.sbbUsageParametersInterface=new MUsageParametersInterface(this.llSbb.getSbbClasses().getSbbUsageParametersInterface());
 			}
 			
 			//Optional
@@ -304,7 +305,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 			//Optional
 			if(this.sbb.getSbbClasses().getSbbUsageParametersInterface()!=null)
 			{
-				this.sbbUsageParametersInterface=new MSbbUsageParametersInterface(this.sbb.getSbbClasses().getSbbUsageParametersInterface());
+				this.sbbUsageParametersInterface=new MUsageParametersInterface(this.sbb.getSbbClasses().getSbbUsageParametersInterface());
 			}
 			
 			//Optional
@@ -465,7 +466,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 		return sbbActivityContextInterface;
 	}
 
-	public MSbbUsageParametersInterface getSbbUsageParametersInterface() {
+	public MUsageParametersInterface getSbbUsageParametersInterface() {
 		return sbbUsageParametersInterface;
 	}
 

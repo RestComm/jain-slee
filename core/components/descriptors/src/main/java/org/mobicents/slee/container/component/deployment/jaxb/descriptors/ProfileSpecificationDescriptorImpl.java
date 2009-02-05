@@ -12,20 +12,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import javax.slee.ComponentID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.LibraryID;
-import javax.slee.profile.ProfileSpecificationDescriptor;
-import javax.slee.profile.ProfileSpecificationID;
-import javax.xml.bind.JAXBException;
 
 import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.deployment.*;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MIndexedAttribue;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecCollator;
@@ -34,7 +28,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileLocalInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileManagementInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileTableInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileUsageParameterInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileIndex;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileSpec;
@@ -44,7 +37,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Lib
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Query;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.SecurityPermissions;
-
 import org.w3c.dom.Document;
 
 /**
@@ -81,7 +73,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 	private List<MProfileSpecCollator> collators = null;
 
 	private MProfileSpecProfileTableInterface profileTableInterface = null;
-	private MProfileSpecProfileUsageParameterInterface profileUsageParameterInterface = null;
+	private MUsageParametersInterface profileUsageParameterInterface = null;
 	private List<MEnvEntry> envEntries = null;
 	private List<MQuery> queryElements = null;
 	private MProfileSpecProfileLocalInterface profileLocalInterface = null;
@@ -231,7 +223,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 			//Optional
 			if(specs.getProfileClasses().getProfileUsageParametersInterface()!=null)
 			{
-				this.profileUsageParameterInterface=new MProfileSpecProfileUsageParameterInterface(specs.getProfileClasses().getProfileUsageParametersInterface());
+				this.profileUsageParameterInterface=new MUsageParametersInterface(specs.getProfileClasses().getProfileUsageParametersInterface());
 			}
 
 		} else {
@@ -395,7 +387,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 		return profileTableInterface;
 	}
 
-	public MProfileSpecProfileUsageParameterInterface getProfileUsageParameterInterface() {
+	public MUsageParametersInterface getProfileUsageParameterInterface() {
 		return profileUsageParameterInterface;
 	}
 

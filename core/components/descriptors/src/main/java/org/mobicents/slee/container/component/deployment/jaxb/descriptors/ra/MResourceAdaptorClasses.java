@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
+
 /**
  * 
  * MResourceAdaptorClasses.java
@@ -21,7 +23,7 @@ public class MResourceAdaptorClasses {
   // For JAIN SLEE 1.1
   private String description;
   private MResourceAdaptorClass resourceAdaptorClass;
-  private MResourceAdaptorUsageParametersInterface resourceAdaptorUsageParametersInterface;
+  private MUsageParametersInterface resourceAdaptorUsageParametersInterface;
 
   public MResourceAdaptorClasses(org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptorClasses resourceAdaptorClasses10)
   {
@@ -36,7 +38,7 @@ public class MResourceAdaptorClasses {
 
     this.description = resourceAdaptorClasses11.getDescription() == null ? null : resourceAdaptorClasses11.getDescription().getvalue();
     this.resourceAdaptorClass = new MResourceAdaptorClass(resourceAdaptorClasses11.getResourceAdaptorClass());
-    this.resourceAdaptorUsageParametersInterface = new MResourceAdaptorUsageParametersInterface(resourceAdaptorClasses11.getResourceAdaptorUsageParametersInterface());
+    this.resourceAdaptorUsageParametersInterface = new MUsageParametersInterface(resourceAdaptorClasses11.getResourceAdaptorUsageParametersInterface());
   }
   
   public String getResourceAdaptorClasses()
@@ -54,7 +56,7 @@ public class MResourceAdaptorClasses {
     return resourceAdaptorClass;
   }
   
-  public MResourceAdaptorUsageParametersInterface getResourceAdaptorUsageParametersInterface()
+  public MUsageParametersInterface getResourceAdaptorUsageParametersInterface()
   {
     return resourceAdaptorUsageParametersInterface;
   }
