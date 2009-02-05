@@ -198,7 +198,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		
 		assertNotNull("Event entry is null",eventEntry);
 		
-		validateKey(eventEntry.getEventReference().getReference(), " Event entry reference ", new String[]{_EVENT_TYPE_NAME,_EVENT_TYPE_VENDOR,_EVENT_TYPE_VERSION});
+		//validateKey(eventEntry.getEventReference().getReference(), " Event entry reference ", new String[]{_EVENT_TYPE_NAME,_EVENT_TYPE_VENDOR,_EVENT_TYPE_VERSION});
 		
 		assertNotNull("Event entry event-name is null",eventEntry.getEventName());
 		assertTrue("Event entry event-name is not equal "+_EVENT_NAME,eventEntry.getEventName().compareTo(_EVENT_NAME)==0);

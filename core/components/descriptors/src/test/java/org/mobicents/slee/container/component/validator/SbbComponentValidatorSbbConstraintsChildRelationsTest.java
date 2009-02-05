@@ -28,10 +28,10 @@ import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 		ValidatorSuperTestCase {
 
-	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_NO_CHILD_RELATION = "xml/validator/sbb/sbb-jar-one-SbbConstraintsOkNoChildRelation_1_1.xml";
-	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION = "xml/validator/sbb/sbb-jar-one-SbbConstraintsOk2ChildRelation_1_1.xml";
-	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_THROW_EXCEPTION = "xml/validator/sbb/sbb-jar-one-SbbConstraintsOkChildRelationThrowException_1_1.xml";
-	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_WRONG_PREFIX = "xml/validator/sbb/sbb-jar-one-SbbConstraintsOk2ChildRelationWrongPrefix_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_NO_CHILD_RELATION = "xml/validator/sbb/child/sbb-jar-one-SbbConstraintsOkNoChildRelation_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION = "xml/validator/sbb/child/sbb-jar-one-SbbConstraintsOk2ChildRelation_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_THROW_EXCEPTION = "xml/validator/sbb/child/sbb-jar-one-SbbConstraintsOkChildRelationThrowException_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_WRONG_PREFIX = "xml/validator/sbb/child/sbb-jar-one-SbbConstraintsOk2ChildRelationWrongPrefix_1_1.xml";
 	
 	
 	public void testSbbOne11Constraints2ChildRelation() throws Exception {

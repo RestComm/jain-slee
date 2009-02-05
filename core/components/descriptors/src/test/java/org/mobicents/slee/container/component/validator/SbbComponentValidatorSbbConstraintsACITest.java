@@ -28,10 +28,10 @@ import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 public class SbbComponentValidatorSbbConstraintsACITest extends
 		ValidatorSuperTestCase {
 
-	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS = "xml/validator/sbb/sbb-jar-one-SbbConstraintsACIOk_1_1.xml";
-	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE = "xml/validator/sbb/sbb-jar-one-SbbConstraintsACIReturnBaseOk_1_1.xml";
-	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE = "xml/validator/sbb/sbb-jar-one-SbbConstraintsACIWrongParameterType_1_1.xml";
-	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD = "xml/validator/sbb/sbb-jar-one-SbbConstraintsACIWrongMethod_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS = "xml/validator/sbb/aci/sbb-jar-one-SbbConstraintsACIOk_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE = "xml/validator/sbb/aci/sbb-jar-one-SbbConstraintsACIReturnBaseOk_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE = "xml/validator/sbb/aci/sbb-jar-one-SbbConstraintsACIWrongParameterType_1_1.xml";
+	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD = "xml/validator/sbb/aci/sbb-jar-one-SbbConstraintsACIWrongMethod_1_1.xml";
 	
 	public void testSbbOne11ConstraintsACIOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(

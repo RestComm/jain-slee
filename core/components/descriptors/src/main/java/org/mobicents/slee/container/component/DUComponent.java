@@ -36,16 +36,6 @@ public class DUComponent {
 	protected static final transient Logger logger=Logger.getLogger(DUComponent.class.getName());
 	
 
-	//FIXME: this is croess reference, comment out when compiling for now
-	//protected DeployableUnitDeployer duDeployer=null;
-//	/**
-//	 * DU Class loader.
-//	 */
-//	protected ClassLoader duClassLoader=null;
-//	/**
-//	 * DU class Pool reference
-//	 */
-//	protected ClassPool pool=null;
 	
 	
 	private transient File tmpDeploymentDirectory;
@@ -151,8 +141,5 @@ public class DUComponent {
 	}
 
 
-	//public DeployableUnitDeployer getDuDeployer() {
-//		return duDeployer;
-	//}
 	
 }
