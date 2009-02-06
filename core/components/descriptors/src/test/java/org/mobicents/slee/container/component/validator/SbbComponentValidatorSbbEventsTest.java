@@ -380,10 +380,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		
 		component.setAbstractSbbClass(EventHandlersNotPublic.class);
 		Method[] ms=EventHandlersNotPublic.class.getDeclaredMethods();
-		for(Method m:ms)
-		{
-			System.err.println(m);
-		}
+		
 		//ech this fails ;[
 //		boolean b = validator.validateFireMethodSignature(EventHandlersNotPublic.class.getMethod(fireMethodName, XEvent.class,ActivityContextInterface.class,Address.class), "" );
 //		assertFalse("Fire method must be public", b);

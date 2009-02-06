@@ -290,7 +290,9 @@ public class UsageProfileValidator {
 			agregatedSample.addAll(identifiedGetSample);
 			agregatedSample.addAll(identifiedSample);
 			Set<String> tmp = new HashSet<String>(agregatedSample);
-			if (tmp.retainAll(agregatedIncrement)) {
+
+			tmp.retainAll(agregatedIncrement);
+			if (tmp.size() > 0) {
 				// ugh, its the end
 				passed = false;
 				errorBuffer = appendToBuffer(
@@ -306,15 +308,31 @@ public class UsageProfileValidator {
 				tmp.clear();
 				tmp.addAll(agregatedSample);
 				tmp.addAll(agregatedIncrement);
-				localParametersMap.keySet().removeAll(tmp);
-				if (localParametersMap.size() > 0) {
+
+				if (localParametersMap.size() != tmp.size()) {
 					passed = false;
+
+					String errorPart = null;
+					if (localParametersMap.size() > tmp.size()) {
+						// is there any bettter way?
+						for (String s : localParametersMap.keySet())
+							tmp.remove(s);
+						errorPart = "More parameters are defined in descriptor, offending parameters: "
+								+ Arrays.toString(tmp.toArray());
+					}else
+					{
+						for (String s : tmp)
+							localParametersMap.remove(s);
+						errorPart = "More parameters are defined in descriptor, offending parameters: "
+								+ Arrays.toString(localParametersMap.keySet()
+										.toArray());
+					}
+
 					errorBuffer = appendToBuffer(
 							id,
-							"Failed to map descriptor defined usage parameters against interface class, offending parameters: "
-									+ Arrays.toString(localParametersMap
-											.keySet().toArray()), "11.2",
-							errorBuffer);
+							"Failed to map descriptor defined usage parameters against interface class methods. "
+									+ errorPart, "11.2", errorBuffer);
+
 				}
 			}
 		} finally {
@@ -362,7 +380,7 @@ public class UsageProfileValidator {
 								+ m, section, errorBuffer);
 			}
 
-			Class[] params = new Class[] {  };
+			Class[] params = new Class[] {};
 			if (!Arrays.equals(m.getParameterTypes(), params)) {
 				passed = false;
 				errorBuffer = appendToBuffer(id,
@@ -447,12 +465,12 @@ public class UsageProfileValidator {
 			m = componentClass.getMethod(methodName, null);
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		if (m != null) {
 			foundAtleastOne = true;
-			if (validateMethodSignature(component.getSbbID(), m, component
+			if (!validateMethodSignature(component.getSbbID(), m, component
 					.getUsageParametersInterface(), new Class[] {}, "8.4.1")) {
 				passed = false;
 
@@ -463,12 +481,12 @@ public class UsageProfileValidator {
 			m = componentClass.getMethod(methodName, String.class);
 		} catch (Exception e) {
 
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		if (m != null) {
 			foundAtleastOne = true;
-			if (validateMethodSignature(
+			if (!validateMethodSignature(
 					component.getSbbID(),
 					m,
 					component.getUsageParametersInterface(),
@@ -479,14 +497,14 @@ public class UsageProfileValidator {
 			}
 		}
 
-		if (validateUsageParameterInterface(component.getSbbID(), component
+		if (!validateUsageParameterInterface(component.getSbbID(), component
 				.isSlee11(), component.getUsageParametersInterface(), component
 				.getDescriptor().getSbbUsageParametersInterface()
 				.getUsageParameter())) {
 			passed = false;
 		}
 
-		if (foundAtleastOne) {
+		if (!foundAtleastOne) {
 			passed = false;
 			errorBuffer = appendToBuffer(
 					component.getSbbID(),
@@ -534,14 +552,14 @@ public class UsageProfileValidator {
 		// }
 
 		// FIXME: native?
-		if (Arrays.equals(m.getExceptionTypes(), exceptions)) {
+		if (!Arrays.equals(m.getExceptionTypes(), exceptions)) {
 			passed = false;
 			errorBuffer = appendToBuffer(id,
 					"Usage interface access method has wrong exception types defined, method: "
-							+ m.getName(), section, errorBuffer);
+							+ m.getName() +", allowed: "+Arrays.toString(exceptions)+", present: "+Arrays.toString(m.getExceptionTypes()), section, errorBuffer);
 
 		}
-
+		
 		if (m.getReturnType().getName().compareTo(returnType.getName()) != 0) {
 
 			passed = false;
@@ -550,8 +568,12 @@ public class UsageProfileValidator {
 							+ m.getName(), section, errorBuffer);
 
 		}
-
-		return false;
+		if (!passed) {
+			logger.error(errorBuffer.toString());
+			System.err.println(errorBuffer);
+		}
+		
+		return passed;
 	}
 
 	static boolean validateResourceAdaptorUsageParameterInterface(

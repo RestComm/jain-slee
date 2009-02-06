@@ -1706,7 +1706,7 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			System.err.println(errorBuffer);
+			
 		}
 
 		return passed;

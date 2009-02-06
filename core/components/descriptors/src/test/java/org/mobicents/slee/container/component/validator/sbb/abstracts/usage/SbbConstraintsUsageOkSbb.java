@@ -4,6 +4,7 @@ import javax.naming.Context;
 import javax.slee.ActivityContextInterface;
 import javax.slee.RolledBackContext;
 import javax.slee.SbbContext;
+import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 
 
@@ -69,7 +70,7 @@ public abstract class SbbConstraintsUsageOkSbb implements javax.slee.Sbb {
 	protected SbbContext getSbbContext() {
 		return null;
 	}
+	public abstract UsageOkInterface getDefaultSbbUsageParameterSet();
 
-
-
+	public abstract UsageOkInterface getSbbUsageParameterSet(String x) throws UnrecognizedUsageParameterSetNameException;
 }
