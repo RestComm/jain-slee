@@ -55,7 +55,7 @@ public class SbbComponent {
 	// Ptr to activity context interface concrete class.
 	private transient Class activityContextInterfaceConcreteClass;
 	
-	
+	private transient Class usageParametersInterface;
 	
 
 
@@ -167,4 +167,14 @@ public class SbbComponent {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	public Class getUsageParametersInterface() {
+		return usageParametersInterface;
+	}
+
+	public void setUsageParametersInterface(Class usageParametersInterface) {
+		this.usageParametersInterface = usageParametersInterface;
+	}
+	
+	
 }

@@ -525,11 +525,25 @@ public class SbbComponentValidator implements Validator {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
+		try{
+			
+		if(!sbbAciInterface.isInterface())
+		{
+			passed = false;
+			errorBuffer = appendToBuffer(
+					this.component.getAbstractSbbClass()
+							+ " sbb activity context interface MUST be an interface.",
+					"7.5", errorBuffer);
+			return passed;
+		}
+		
+			
 		// here we need all fields :)
 		HashSet<String> ignore = new HashSet<String>();
 		ignore.add("javax.slee.ActivityContextInterface");
 		// FIXME: we could go other way, run this for each super interface we
 		// have???
+		
 		Map<String, Method> aciInterfacesDefinedMethods = ClassUtils
 				.getAllInterfacesMethods(sbbAciInterface, ignore);
 
@@ -667,9 +681,11 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		// FIXME: add check against components get aci fields ?
-
+		}finally
+		{
 		if (!passed) {
 			logger.error(errorBuffer.toString());
+		}
 		}
 
 		return passed;
@@ -780,11 +796,27 @@ public class SbbComponentValidator implements Validator {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
+		
+		try{
 		if (this.component.getDescriptor().getSbbLocalInterface() == null)
 			return passed;
 
 		Class sbbLocalInterfaceClass = this.component
 				.getSbbLocalInterfaceClass();
+		
+		if(!sbbLocalInterfaceClass.isInterface())
+		{
+			passed = false;
+			
+			errorBuffer = appendToBuffer(
+					this.component.getAbstractSbbClass()
+							+ "DSbbLocalInterface: "
+							+ sbbLocalInterfaceClass.getName()
+							+ " MUST be an interface!",
+					"5.6", errorBuffer);
+			return passed;
+		}
+		
 		Class genericSbbLocalInterface = ClassUtils.checkInterfaces(
 				sbbLocalInterfaceClass, "javax.slee.SbbLocalObject");
 
@@ -895,12 +927,13 @@ public class SbbComponentValidator implements Validator {
 		// methods check will make it fail later, but not concrete ?
 		// now lets check javax.slee.SbbLocalObject methods - sbb cant have
 		// those implemented or defined as abstract.
-
+		}finally
+		{
 		if (!passed) {
 			logger.error(errorBuffer.toString());
 
 		}
-
+		}
 		return passed;
 	}
 
@@ -1370,7 +1403,6 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -1462,7 +1494,6 @@ public class SbbComponentValidator implements Validator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer.toString());
-				System.err.println(errorBuffer);
 			}
 		}
 		return passed;
@@ -1527,7 +1558,7 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			System.err.println(errorBuffer);
+
 		}
 
 		return passed;
@@ -1621,7 +1652,6 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -1683,6 +1713,21 @@ public class SbbComponentValidator implements Validator {
 
 	}
 
+	
+	boolean validateSbbUsageParameterInterface(Map<String, Method> sbbAbstractClassMethods,
+			Map<String, Method> sbbAbstractMethodsFromSuperClasses)
+	{
+		if(this.component.getUsageParametersInterface()==null)
+		{
+			return true;
+		}else
+		{
+			return UsageProfileValidator.validateSbbUsageParameterInterface(this.component);
+		}
+	}
+	
+	
+	
 	protected String appendToBuffer(String message, String section,
 			String buffer) {
 		buffer += (this.component.getDescriptor().getSbbComponentKey()

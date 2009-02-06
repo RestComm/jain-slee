@@ -170,7 +170,6 @@ public class ClassUtils {
 		Class superClass;
 
 		superClass = xClass.getSuperclass();
-
 		while (superClass.getName().compareTo("java.lang.Object") != 0) {
 			methods = superClass.getDeclaredMethods();
 			for (int i = 0; i < methods.length; i++) {

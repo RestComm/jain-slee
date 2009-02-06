@@ -54,7 +54,7 @@ TCUtilityClass {
 
 	}
 
-	public void testSbbOne11ConstraintsLifeCycleMethodAbstract()
+	public void testSbbOne11UsageConstraintsOk()
 			throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
 				.parseDocument(
@@ -75,7 +75,7 @@ TCUtilityClass {
 				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
 						.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated and it shoudl not be", b);
+		assertFalse("Sbb class has been validated and it should not be", b);
 
 	}
 

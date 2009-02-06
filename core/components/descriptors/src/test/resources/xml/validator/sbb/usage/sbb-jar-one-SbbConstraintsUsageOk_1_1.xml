@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+
+<sbb-jar>
+    <description />
+
+    <sbb>
+        <description />
+        <sbb-name>sbb-name</sbb-name>
+        <sbb-vendor>sbb-vendor</sbb-vendor>
+        <sbb-version>sbb-version</sbb-version>
+        <sbb-alias>sbb-alias</sbb-alias>
+
+        <library-ref>
+            <description />
+            <library-name>library-name</library-name>
+            <library-vendor>library-vendor</library-vendor>
+            <library-version>library-version</library-version>
+        </library-ref>
+
+        <sbb-ref>
+            <description />
+             <sbb-name>sbb-name</sbb-name>
+        	<sbb-vendor>sbb-vendor</sbb-vendor>
+        	<sbb-version>sbb-version</sbb-version>
+        	<sbb-alias>sbb-alias</sbb-alias>
+        </sbb-ref>
+
+        <profile-spec-ref>
+            <description />
+            <profile-spec-name>profile-spec-name</profile-spec-name>
+            <profile-spec-vendor>profile-spec-vendor</profile-spec-vendor>
+            <profile-spec-version>profile-spec-version</profile-spec-version>
+            <profile-spec-alias>profile-spec-alias</profile-spec-alias>
+        </profile-spec-ref>
+
+        <sbb-classes>
+            <description />
+            <sbb-abstract-class reentrant="False">
+                <description />
+                <sbb-abstract-class-name>org.mobicents.slee.container.component.validator.sbb.abstracts.usage.SbbConstraintsUsageOkSbb</sbb-abstract-class-name>
+                <cmp-field>
+                    <description />
+                    <cmp-field-name>cmp-field-name</cmp-field-name>
+                    <sbb-alias-ref>sbb-alias-ref</sbb-alias-ref>
+                </cmp-field>
+                <get-child-relation-method>
+                    <description />
+                    <sbb-alias-ref>sbb-alias-ref</sbb-alias-ref>
+                    <get-child-relation-method-name>get-child-relation-method-name</get-child-relation-method-name>
+                    <default-priority>123</default-priority>
+                </get-child-relation-method>
+                <get-profile-cmp-method>
+                    <description />
+                    <profile-spec-alias-ref>profile-spec-alias-ref</profile-spec-alias-ref>
+                    <get-profile-cmp-method-name>get-profile-cmp-method-name</get-profile-cmp-method-name>
+                </get-profile-cmp-method>
+            </sbb-abstract-class>
+            <sbb-local-interface isolate-security-permissions="False">
+                <description />
+                <sbb-local-interface-name>sbb-local-interface-name</sbb-local-interface-name>
+            </sbb-local-interface>
+            <sbb-activity-context-interface>
+                <description />
+                <sbb-activity-context-interface-name>sbb-activity-context-interface-name</sbb-activity-context-interface-name>
+            </sbb-activity-context-interface>
+            <sbb-usage-parameters-interface>
+                <description />
+                <sbb-usage-parameters-interface-name>org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageOkInterface</sbb-usage-parameters-interface-name>
+                <usage-parameter name="sample" notifications-enabled="True"/>
+                <usage-parameter name="sampleTwo" notifications-enabled="True"/>
+                <usage-parameter name="sampleIncrement" notifications-enabled="True"/>
+            </sbb-usage-parameters-interface>
+        </sbb-classes>
+	</sbb>
+     
+</sbb-jar>
