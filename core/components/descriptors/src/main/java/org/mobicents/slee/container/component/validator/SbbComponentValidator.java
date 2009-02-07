@@ -105,7 +105,7 @@ public class SbbComponentValidator implements Validator {
 		tmp.add(Float.TYPE.getName());
 		tmp.add(Long.TYPE.getName());
 		tmp.add(Short.TYPE.getName());
-		tmp.add(String.class.getName())
+		tmp.add(String.class.getName());
 		_ENV_ENTRIES_TYPES = Collections.unmodifiableSet(tmp);
 
 	}
