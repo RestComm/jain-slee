@@ -38,14 +38,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class UsageProfileValidator {
+public class UsageInterfaceValidator {
 
 	private final static String _INCREMENT_METHOD_PREFIX = "increment";
 	private final static String _GET_METHOD_PREFIX = "get";
 	private final static String _SAMPLE_METHOD_PREFIX = "sample";
 
 	private static transient Logger logger = Logger
-			.getLogger(UsageProfileValidator.class);
+			.getLogger(UsageInterfaceValidator.class);
 
 	/**
 	 * This methods validate component which has usage parameter interface. Its

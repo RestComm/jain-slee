@@ -21,13 +21,21 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.slee.SbbID;
+import javax.slee.profile.ProfileID;
+import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.profile.UnrecognizedProfileNameException;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.component.EventTypeComponent;
+import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventDirection.*;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
 
 /**
@@ -85,6 +93,24 @@ public class SbbComponentValidator implements Validator {
 		_PRIMITIVES = Collections.unmodifiableSet(tmp);
 
 	}
+	
+	private final static Set<String> _ENV_ENTRIES_TYPES;
+	static {
+		Set<String> tmp = new HashSet<String>();
+		tmp.add(Integer.TYPE.getName());
+		tmp.add(Boolean.TYPE.getName());
+		tmp.add(Byte.TYPE.getName());
+		tmp.add(Character.TYPE.getName());
+		tmp.add(Double.TYPE.getName());
+		tmp.add(Float.TYPE.getName());
+		tmp.add(Long.TYPE.getName());
+		tmp.add(Short.TYPE.getName());
+		tmp.add(String.class.getName())
+		_ENV_ENTRIES_TYPES = Collections.unmodifiableSet(tmp);
+
+	}
+	
+	
 
 	public boolean validate() {
 
@@ -525,167 +551,168 @@ public class SbbComponentValidator implements Validator {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
-		try{
-			
-		if(!sbbAciInterface.isInterface())
-		{
-			passed = false;
-			errorBuffer = appendToBuffer(
-					this.component.getAbstractSbbClass()
-							+ " sbb activity context interface MUST be an interface.",
-					"7.5", errorBuffer);
-			return passed;
-		}
-		
-			
-		// here we need all fields :)
-		HashSet<String> ignore = new HashSet<String>();
-		ignore.add("javax.slee.ActivityContextInterface");
-		// FIXME: we could go other way, run this for each super interface we
-		// have???
-		
-		Map<String, Method> aciInterfacesDefinedMethods = ClassUtils
-				.getAllInterfacesMethods(sbbAciInterface, ignore);
+		try {
 
-		// Here we will store fields name-type - if there is getter and setter,
-		// type must match!!!
-		Map<String, Class> localNameToType = new HashMap<String, Class>();
-
-		for (String methodKey : aciInterfacesDefinedMethods.keySet()) {
-
-			Method fieldMethod = aciInterfacesDefinedMethods.get(methodKey);
-			String methodName = fieldMethod.getName();
-			if (!(methodName.startsWith("get") || methodName.startsWith("set"))) {
+			if (!sbbAciInterface.isInterface()) {
 				passed = false;
 				errorBuffer = appendToBuffer(
 						this.component.getAbstractSbbClass()
-								+ " sbb activity context interface can have only getter/setter  methods.",
-						"7.5.1", errorBuffer);
-				continue;
+								+ " sbb activity context interface MUST be an interface.",
+						"7.5", errorBuffer);
+				return passed;
 			}
 
-			// let us get field name:
+			// here we need all fields :)
+			HashSet<String> ignore = new HashSet<String>();
+			ignore.add("javax.slee.ActivityContextInterface");
+			// FIXME: we could go other way, run this for each super interface
+			// we
+			// have???
 
-			String fieldName = methodName.replaceFirst("set", "").replaceFirst(
-					"get", "");
+			Map<String, Method> aciInterfacesDefinedMethods = ClassUtils
+					.getAllInterfacesMethods(sbbAciInterface, ignore);
 
-			if (!Character.isUpperCase(fieldName.charAt(0))) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						this.component.getAbstractSbbClass()
-								+ " sbb activity context interface can have only getter/setter  methods - 4th char in those methods must be capital.",
-						"7.5.1", errorBuffer);
+			// Here we will store fields name-type - if there is getter and
+			// setter,
+			// type must match!!!
+			Map<String, Class> localNameToType = new HashMap<String, Class>();
 
-			}
+			for (String methodKey : aciInterfacesDefinedMethods.keySet()) {
 
-			// check throws clause.
-			// number of parameters
-
-			if (fieldMethod.getExceptionTypes().length > 0) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						this.component.getAbstractSbbClass()
-								+ " sbb activity context interface getter method must have empty throws clause: "
-								+ fieldMethod.getName(), "7.5.1", errorBuffer);
-
-			}
-
-			boolean isGetter = methodName.startsWith("get");
-			Class fieldType = null;
-			if (isGetter) {
-				// no params
-				if (fieldMethod.getParameterTypes() != null
-						&& fieldMethod.getParameterTypes().length > 0) {
+				Method fieldMethod = aciInterfacesDefinedMethods.get(methodKey);
+				String methodName = fieldMethod.getName();
+				if (!(methodName.startsWith("get") || methodName
+						.startsWith("set"))) {
 					passed = false;
 					errorBuffer = appendToBuffer(
 							this.component.getAbstractSbbClass()
-									+ " sbb activity context interface getter method must not have parameters: "
-									+ fieldMethod.getName(), "7.5.1",
-							errorBuffer);
-
-				}
-
-				fieldType = fieldMethod.getReturnType();
-				if (fieldType.getName().compareTo("void") == 0) {
-					passed = false;
-					errorBuffer = appendToBuffer(
-							this.component.getAbstractSbbClass()
-									+ " sbb activity context interface getter method must have return type: "
-									+ fieldMethod.getName(), "7.5.1",
-							errorBuffer);
-
-				}
-
-			} else {
-				if (fieldMethod.getParameterTypes() != null
-						&& fieldMethod.getParameterTypes().length != 1) {
-					passed = false;
-					errorBuffer = appendToBuffer(
-							this.component.getAbstractSbbClass()
-									+ " sbb activity context interface setter method must single parameter: "
-									+ fieldMethod.getName(), "7.5.1",
-							errorBuffer);
-
-					// Here we quick fail
+									+ " sbb activity context interface can have only getter/setter  methods.",
+							"7.5.1", errorBuffer);
 					continue;
 				}
 
-				fieldType = fieldMethod.getParameterTypes()[0];
-				if (fieldMethod.getReturnType().getName().compareTo("void") != 0) {
+				// let us get field name:
+
+				String fieldName = methodName.replaceFirst("set", "")
+						.replaceFirst("get", "");
+
+				if (!Character.isUpperCase(fieldName.charAt(0))) {
 					passed = false;
 					errorBuffer = appendToBuffer(
 							this.component.getAbstractSbbClass()
-									+ " sbb activity context interface setter method must not have return type: "
+									+ " sbb activity context interface can have only getter/setter  methods - 4th char in those methods must be capital.",
+							"7.5.1", errorBuffer);
+
+				}
+
+				// check throws clause.
+				// number of parameters
+
+				if (fieldMethod.getExceptionTypes().length > 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							this.component.getAbstractSbbClass()
+									+ " sbb activity context interface getter method must have empty throws clause: "
 									+ fieldMethod.getName(), "7.5.1",
 							errorBuffer);
 
 				}
 
-			}
+				boolean isGetter = methodName.startsWith("get");
+				Class fieldType = null;
+				if (isGetter) {
+					// no params
+					if (fieldMethod.getParameterTypes() != null
+							&& fieldMethod.getParameterTypes().length > 0) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								this.component.getAbstractSbbClass()
+										+ " sbb activity context interface getter method must not have parameters: "
+										+ fieldMethod.getName(), "7.5.1",
+								errorBuffer);
 
-			// Field type can be primitive and serialzable
-			if (!(_PRIMITIVES.contains(fieldType.getName()) || ClassUtils
-					.checkInterfaces(fieldType, "java.io.Serializable") != null)) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						this.component.getAbstractSbbClass()
-								+ " sbb activity context interface field("
-								+ fieldName
-								+ ") has wrong type, only primitives and serializable: "
-								+ fieldType, "7.5.1", errorBuffer);
-				// we fail here
-				continue;
-			}
+					}
 
-			if (localNameToType.containsKey(fieldName)) {
-				Class storedType = localNameToType.get(fieldName);
-				if (!storedType.equals(fieldType)) {
+					fieldType = fieldMethod.getReturnType();
+					if (fieldType.getName().compareTo("void") == 0) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								this.component.getAbstractSbbClass()
+										+ " sbb activity context interface getter method must have return type: "
+										+ fieldMethod.getName(), "7.5.1",
+								errorBuffer);
+
+					}
+
+				} else {
+					if (fieldMethod.getParameterTypes() != null
+							&& fieldMethod.getParameterTypes().length != 1) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								this.component.getAbstractSbbClass()
+										+ " sbb activity context interface setter method must single parameter: "
+										+ fieldMethod.getName(), "7.5.1",
+								errorBuffer);
+
+						// Here we quick fail
+						continue;
+					}
+
+					fieldType = fieldMethod.getParameterTypes()[0];
+					if (fieldMethod.getReturnType().getName().compareTo("void") != 0) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								this.component.getAbstractSbbClass()
+										+ " sbb activity context interface setter method must not have return type: "
+										+ fieldMethod.getName(), "7.5.1",
+								errorBuffer);
+
+					}
+
+				}
+
+				// Field type can be primitive and serialzable
+				if (!(_PRIMITIVES.contains(fieldType.getName()) || ClassUtils
+						.checkInterfaces(fieldType, "java.io.Serializable") != null)) {
 					passed = false;
-
 					errorBuffer = appendToBuffer(
 							this.component.getAbstractSbbClass()
-									+ " sbb activity context interface has wrong definition of parameter - setter and getter types do not match: "
-									+ fieldName + ", type1: "
-									+ fieldType.getName() + " typ2:"
-									+ storedType.getName(), "7.5.1",
-							errorBuffer);
-
+									+ " sbb activity context interface field("
+									+ fieldName
+									+ ") has wrong type, only primitives and serializable: "
+									+ fieldType, "7.5.1", errorBuffer);
 					// we fail here
 					continue;
 				}
-			} else {
-				// simply store
-				localNameToType.put(fieldName, fieldType);
+
+				if (localNameToType.containsKey(fieldName)) {
+					Class storedType = localNameToType.get(fieldName);
+					if (!storedType.equals(fieldType)) {
+						passed = false;
+
+						errorBuffer = appendToBuffer(
+								this.component.getAbstractSbbClass()
+										+ " sbb activity context interface has wrong definition of parameter - setter and getter types do not match: "
+										+ fieldName + ", type1: "
+										+ fieldType.getName() + " typ2:"
+										+ storedType.getName(), "7.5.1",
+								errorBuffer);
+
+						// we fail here
+						continue;
+					}
+				} else {
+					// simply store
+					localNameToType.put(fieldName, fieldType);
+				}
+
 			}
 
-		}
-
-		// FIXME: add check against components get aci fields ?
-		}finally
-		{
-		if (!passed) {
-			logger.error(errorBuffer.toString());
-		}
+			// FIXME: add check against components get aci fields ?
+		} finally {
+			if (!passed) {
+				logger.error(errorBuffer.toString());
+			}
 		}
 
 		return passed;
@@ -796,143 +823,148 @@ public class SbbComponentValidator implements Validator {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
-		
-		try{
-		if (this.component.getDescriptor().getSbbLocalInterface() == null)
-			return passed;
 
-		Class sbbLocalInterfaceClass = this.component
-				.getSbbLocalInterfaceClass();
-		
-		if(!sbbLocalInterfaceClass.isInterface())
-		{
-			passed = false;
-			
-			errorBuffer = appendToBuffer(
-					this.component.getAbstractSbbClass()
-							+ "DSbbLocalInterface: "
-							+ sbbLocalInterfaceClass.getName()
-							+ " MUST be an interface!",
-					"5.6", errorBuffer);
-			return passed;
-		}
-		
-		Class genericSbbLocalInterface = ClassUtils.checkInterfaces(
-				sbbLocalInterfaceClass, "javax.slee.SbbLocalObject");
+		try {
+			if (this.component.getDescriptor().getSbbLocalInterface() == null)
+				return passed;
 
-		if (genericSbbLocalInterface == null) {
-			passed = false;
+			Class sbbLocalInterfaceClass = this.component
+					.getSbbLocalInterfaceClass();
 
-			errorBuffer = appendToBuffer(
-					this.component.getAbstractSbbClass()
-							+ "DSbbLocalInterface: "
-							+ sbbLocalInterfaceClass.getName()
-							+ " does not implement javax.slee.SbbLocalInterface super interface in any way!!!",
-					"5.6", errorBuffer);
-
-		}
-
-		int sbbLocalInterfaceClassModifiers = sbbLocalInterfaceClass
-				.getModifiers();
-		if (this.component.isSlee11()
-				&& sbbLocalInterfaceClass.getPackage() == null) {
-			passed = false;
-			errorBuffer = appendToBuffer(this.component.getAbstractSbbClass()
-					+ "SbbLocalInterface: " + sbbLocalInterfaceClass.getName()
-					+ " is nto defined in package", "6.5", errorBuffer);
-		}
-
-		if (!Modifier.isPublic(sbbLocalInterfaceClassModifiers)) {
-			passed = false;
-			errorBuffer = appendToBuffer(this.component.getAbstractSbbClass()
-					+ "SbbLocalInterface: " + sbbLocalInterfaceClass.getName()
-					+ " must be public!", "5.6", errorBuffer);
-		}
-
-		Set<String> ignore = new HashSet<String>();
-		ignore.add("javax.slee.SbbLocalObject");
-		ignore.add("java.lang.Object");
-		Map<String, Method> interfaceMethods = ClassUtils
-				.getAllInterfacesMethods(sbbLocalInterfaceClass, ignore);
-
-		// here we have all defined methods in interface, we have to checkif
-		// their names do not start with sbb/ejb and if they are contained in
-		// collections with concrete methods from sbb
-
-		for (Method methodToCheck : interfaceMethods.values()) {
-			if (methodToCheck.getName().startsWith("ejb")
-					|| methodToCheck.getName().startsWith("sbb")) {
+			if (!sbbLocalInterfaceClass.isInterface()) {
 				passed = false;
-				errorBuffer = appendToBuffer("Method from SbbLocalInterface: "
+
+				errorBuffer = appendToBuffer(this.component
+						.getAbstractSbbClass()
+						+ "DSbbLocalInterface: "
 						+ sbbLocalInterfaceClass.getName()
-						+ " starts with wrong prefix: "
-						+ methodToCheck.getName(), "5.6", errorBuffer);
+						+ " MUST be an interface!", "5.6", errorBuffer);
+				return passed;
+			}
+
+			Class genericSbbLocalInterface = ClassUtils.checkInterfaces(
+					sbbLocalInterfaceClass, "javax.slee.SbbLocalObject");
+
+			if (genericSbbLocalInterface == null) {
+				passed = false;
+
+				errorBuffer = appendToBuffer(
+						this.component.getAbstractSbbClass()
+								+ "DSbbLocalInterface: "
+								+ sbbLocalInterfaceClass.getName()
+								+ " does not implement javax.slee.SbbLocalInterface super interface in any way!!!",
+						"5.6", errorBuffer);
 
 			}
 
-			Method methodFromSbbClass = sbbAbstractClassConcreteMethods
-					.get(ClassUtils.getMethodKey(methodToCheck));
-			if (methodFromSbbClass == null) {
-				methodFromSbbClass = sbbAbstractClassConcreteFromSuperClasses
+			int sbbLocalInterfaceClassModifiers = sbbLocalInterfaceClass
+					.getModifiers();
+			if (this.component.isSlee11()
+					&& sbbLocalInterfaceClass.getPackage() == null) {
+				passed = false;
+				errorBuffer = appendToBuffer(this.component
+						.getAbstractSbbClass()
+						+ "SbbLocalInterface: "
+						+ sbbLocalInterfaceClass.getName()
+						+ " is nto defined in package", "6.5", errorBuffer);
+			}
+
+			if (!Modifier.isPublic(sbbLocalInterfaceClassModifiers)) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						this.component.getAbstractSbbClass()
+								+ "SbbLocalInterface: "
+								+ sbbLocalInterfaceClass.getName()
+								+ " must be public!", "5.6", errorBuffer);
+			}
+
+			Set<String> ignore = new HashSet<String>();
+			ignore.add("javax.slee.SbbLocalObject");
+			ignore.add("java.lang.Object");
+			Map<String, Method> interfaceMethods = ClassUtils
+					.getAllInterfacesMethods(sbbLocalInterfaceClass, ignore);
+
+			// here we have all defined methods in interface, we have to checkif
+			// their names do not start with sbb/ejb and if they are contained
+			// in
+			// collections with concrete methods from sbb
+
+			for (Method methodToCheck : interfaceMethods.values()) {
+				if (methodToCheck.getName().startsWith("ejb")
+						|| methodToCheck.getName().startsWith("sbb")) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Method from SbbLocalInterface: "
+									+ sbbLocalInterfaceClass.getName()
+									+ " starts with wrong prefix: "
+									+ methodToCheck.getName(), "5.6",
+							errorBuffer);
+
+				}
+
+				Method methodFromSbbClass = sbbAbstractClassConcreteMethods
 						.get(ClassUtils.getMethodKey(methodToCheck));
+				if (methodFromSbbClass == null) {
+					methodFromSbbClass = sbbAbstractClassConcreteFromSuperClasses
+							.get(ClassUtils.getMethodKey(methodToCheck));
+				}
+
+				if (methodFromSbbClass == null) {
+
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Method from SbbLocalInterface: "
+									+ sbbLocalInterfaceClass.getName()
+									+ "with name:  "
+									+ methodToCheck.getName()
+									+ " is not implemented by sbb class or its super classes!",
+							"5.6", errorBuffer);
+
+					// we fails fast here
+					continue;
+				}
+
+				// XXX: Note this does not check throws clause, only name and
+				// signature
+				// this side
+				// FIXME: Note that we dont check modifier, is this corerct
+
+				if (!(methodFromSbbClass.getName().compareTo(
+						methodToCheck.getName()) == 0)
+						|| !methodFromSbbClass.getReturnType().equals(
+								methodToCheck.getReturnType())
+						|| !Arrays.equals(methodFromSbbClass
+								.getParameterTypes(), methodToCheck
+								.getParameterTypes())
+						|| !Arrays.equals((Object[]) methodFromSbbClass
+								.getExceptionTypes(), (Object[]) methodToCheck
+								.getExceptionTypes())) {
+
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Method from SbbLocalInterface: "
+									+ sbbLocalInterfaceClass.getName()
+									+ " with name:  "
+									+ methodToCheck.getName()
+									+ " is not implemented by sbb class or its super classes. Its visibility, throws clause is different or modifiers are different!",
+							"5.6", errorBuffer);
+
+					// we fails fast here
+					continue;
+
+				}
+
 			}
 
-			if (methodFromSbbClass == null) {
-
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Method from SbbLocalInterface: "
-								+ sbbLocalInterfaceClass.getName()
-								+ "with name:  "
-								+ methodToCheck.getName()
-								+ " is not implemented by sbb class or its super classes!",
-						"5.6", errorBuffer);
-
-				// we fails fast here
-				continue;
-			}
-
-			// XXX: Note this does not check throws clause, only name and
-			// signature
-			// this side
-			// FIXME: Note that we dont check modifier, is this corerct
-
-			if (!(methodFromSbbClass.getName().compareTo(
-					methodToCheck.getName()) == 0)
-					|| !methodFromSbbClass.getReturnType().equals(
-							methodToCheck.getReturnType())
-					|| !Arrays.equals(methodFromSbbClass.getParameterTypes(),
-							methodToCheck.getParameterTypes())
-					|| !Arrays.equals((Object[]) methodFromSbbClass
-							.getExceptionTypes(), (Object[]) methodToCheck
-							.getExceptionTypes())) {
-
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Method from SbbLocalInterface: "
-								+ sbbLocalInterfaceClass.getName()
-								+ " with name:  "
-								+ methodToCheck.getName()
-								+ " is not implemented by sbb class or its super classes. Its visibility, throws clause is different or modifiers are different!",
-						"5.6", errorBuffer);
-
-				// we fails fast here
-				continue;
+			// FIXME: is this ok, is it needed ? If not checked here, abstract
+			// methods check will make it fail later, but not concrete ?
+			// now lets check javax.slee.SbbLocalObject methods - sbb cant have
+			// those implemented or defined as abstract.
+		} finally {
+			if (!passed) {
+				logger.error(errorBuffer.toString());
 
 			}
-
-		}
-
-		// FIXME: is this ok, is it needed ? If not checked here, abstract
-		// methods check will make it fail later, but not concrete ?
-		// now lets check javax.slee.SbbLocalObject methods - sbb cant have
-		// those implemented or defined as abstract.
-		}finally
-		{
-		if (!passed) {
-			logger.error(errorBuffer.toString());
-
-		}
 		}
 		return passed;
 	}
@@ -1080,6 +1112,15 @@ public class SbbComponentValidator implements Validator {
 				if (referenceIsPresent) {
 					SbbComponent referencedComponent = this.repository
 							.getComponentByID(new SbbID("", "", ""));
+
+					if (referencedComponent == null) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Failed to validate CMP field. Field references sbb entity which has not been validated. Field: "
+										+ fieldName, "6.5.1", errorBuffer);
+						continue;
+
+					}
 					// FIXME: field type must be equal to defined or must be
 					// javax.slee.SbbLocalObject = what about intermediate types
 					// X -> Y -> SbbLocalObject - and we have Y?
@@ -1271,26 +1312,89 @@ public class SbbComponentValidator implements Validator {
 		boolean passed = true;
 		String errorBuffer = new String("");
 
-		// we can have only one receive method
+		try {
+			// we can have only one receive method
 
-		Class eventClass = this.repository.getComponentByID(
-				event.getEventReference().getReference()).getEventTypeClass();
-		Class sbbAbstractClass = this.component.getAbstractSbbClass();
-		String methodName = "on" + event.getEventName();
+			EventTypeComponent eventTypeComponent = this.repository
+					.getComponentByID(event.getEventReference().getReference());
 
-		// lets look for basic event handler
-		// the thing with each event handler is that aci can be generic or sbb
-		// custom....
+			if (eventTypeComponent == null) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Failed to validate event receive method. reference points to event comopnent that has not been validated, event name: "
+								+ event.getEventName(), "8.5.2", errorBuffer);
+				return passed;
+			}
 
-		Method receiveMethod = null;
-		Method receiveMethodCustomACI = null;
-		boolean receiverWithContextPresent = false;
-		boolean receiverWithoutContextPresent = false;
-		if (this.component.isSlee11()) {
+			Class eventClass = eventTypeComponent.getEventTypeClass();
+			Class sbbAbstractClass = this.component.getAbstractSbbClass();
+			String methodName = "on" + event.getEventName();
+
+			// lets look for basic event handler
+			// the thing with each event handler is that aci can be generic or
+			// sbb
+			// custom....
+
+			Method receiveMethod = null;
+			Method receiveMethodCustomACI = null;
+			boolean receiverWithContextPresent = false;
+			boolean receiverWithoutContextPresent = false;
+			if (this.component.isSlee11()) {
+				try {
+					receiveMethod = sbbAbstractClass.getMethod(methodName,
+							eventClass,
+							javax.slee.ActivityContextInterface.class,
+							javax.slee.EventContext.class);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					// e.printStackTrace();
+				}
+
+				if (this.component.getActivityContextInterface() != null)
+					try {
+						receiveMethodCustomACI = sbbAbstractClass.getMethod(
+								methodName, eventClass, this.component
+										.getActivityContextInterface(),
+								javax.slee.EventContext.class);
+						// is there any clever way to lookup those?
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						// e.printStackTrace();
+					}
+
+				// ok, here only one method can be present
+				if (receiveMethod != null && receiveMethodCustomACI != null) {
+					// we cant have both
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Failed to validate event receive method. Sbb can not define event receive method with generic and custom aci, event name: "
+									+ event.getEventName(), "8.5.2",
+							errorBuffer);
+				}
+
+				// now here we are sure we have one or none
+				if (receiveMethod != null) {
+					receiverWithContextPresent = true;
+
+					if (!validateReceiveMethodSignature(receiveMethod, "8.5.2")) {
+						passed = false;
+					}
+					receiveMethod = null;
+				} else if (receiveMethodCustomACI != null) {
+					receiverWithContextPresent = true;
+					if (!validateReceiveMethodSignature(receiveMethodCustomACI,
+							"8.5.2")) {
+						passed = false;
+					}
+
+					receiveMethodCustomACI = null;
+				}
+			}
+
+			// this is for all
 			try {
 				receiveMethod = sbbAbstractClass.getMethod(methodName,
-						eventClass, javax.slee.ActivityContextInterface.class,
-						javax.slee.EventContext.class);
+						eventClass, javax.slee.ActivityContextInterface.class);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
@@ -1300,8 +1404,7 @@ public class SbbComponentValidator implements Validator {
 				try {
 					receiveMethodCustomACI = sbbAbstractClass.getMethod(
 							methodName, eventClass, this.component
-									.getActivityContextInterface(),
-							javax.slee.EventContext.class);
+									.getActivityContextInterface());
 					// is there any clever way to lookup those?
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -1319,92 +1422,46 @@ public class SbbComponentValidator implements Validator {
 
 			// now here we are sure we have one or none
 			if (receiveMethod != null) {
-				receiverWithContextPresent = true;
+				receiverWithoutContextPresent = true;
 
-				if (!validateReceiveMethodSignature(receiveMethod, "8.5.2")) {
+				if (!validateReceiveMethodSignature(receiveMethod, "8.5.2"))
 					passed = false;
-				}
-				receiveMethod = null;
 			} else if (receiveMethodCustomACI != null) {
-				receiverWithContextPresent = true;
+				receiverWithoutContextPresent = true;
 				if (!validateReceiveMethodSignature(receiveMethodCustomACI,
-						"8.5.2")) {
+						"8.5.2"))
 					passed = false;
-				}
-
-				receiveMethodCustomACI = null;
-			}
-		}
-
-		// this is for all
-		try {
-			receiveMethod = sbbAbstractClass.getMethod(methodName, eventClass,
-					javax.slee.ActivityContextInterface.class);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
-
-		if (this.component.getActivityContextInterface() != null)
-			try {
-				receiveMethodCustomACI = sbbAbstractClass.getMethod(methodName,
-						eventClass, this.component
-								.getActivityContextInterface());
-				// is there any clever way to lookup those?
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
 			}
 
-		// ok, here only one method can be present
-		if (receiveMethod != null && receiveMethodCustomACI != null) {
-			// we cant have both
-			passed = false;
-			errorBuffer = appendToBuffer(
-					"Failed to validate event receive method. Sbb can not define event receive method with generic and custom aci, event name: "
-							+ event.getEventName(), "8.5.2", errorBuffer);
-		}
-
-		// now here we are sure we have one or none
-		if (receiveMethod != null) {
-			receiverWithoutContextPresent = true;
-
-			if (!validateReceiveMethodSignature(receiveMethod, "8.5.2"))
+			// here we have to check, only one can be present
+			if (receiverWithoutContextPresent && receiverWithContextPresent) {
 				passed = false;
-		} else if (receiveMethodCustomACI != null) {
-			receiverWithoutContextPresent = true;
-			if (!validateReceiveMethodSignature(receiveMethodCustomACI, "8.5.2"))
+				errorBuffer = appendToBuffer(
+						"Failed to validate event receive method. Sbb can not define event receive method with and without EventContext, only one can be present: "
+								+ event.getEventName(), "8.5.2", errorBuffer);
+			}
+
+			if (!receiverWithoutContextPresent && !receiverWithContextPresent) {
 				passed = false;
-		}
+				errorBuffer = appendToBuffer(
+						"Failed to validate event receive method. Sbb must define handler method when direction is \"XReceive\", event: "
+								+ event.getEventName(), "8.5.2", errorBuffer);
+			}
+			// now its time for initial event selector
+			if (event.isInitialEvent()
+					&& event.getInitialEventSelectorMethod() != null
+					&& !validateInitialEventSelector(event)) {
+				// FIXME: we dont check if variable or selector method is
+				// present
+				// here, we only check
+				passed = false;
 
-		// here we have to check, only one can be present
-		if (receiverWithoutContextPresent && receiverWithContextPresent) {
-			passed = false;
-			errorBuffer = appendToBuffer(
-					"Failed to validate event receive method. Sbb can not define event receive method with and without EventContext, only one can be present: "
-							+ event.getEventName(), "8.5.2", errorBuffer);
+			}
+		} finally {
+			if (!passed) {
+				logger.error(errorBuffer.toString());
+			}
 		}
-
-		if (!receiverWithoutContextPresent && !receiverWithContextPresent) {
-			passed = false;
-			errorBuffer = appendToBuffer(
-					"Failed to validate event receive method. Sbb must define handler method when direction is \"XReceive\", event: "
-							+ event.getEventName(), "8.5.2", errorBuffer);
-		}
-		// now its time for initial event selector
-		if (event.isInitialEvent()
-				&& event.getInitialEventSelectorMethod() != null
-				&& !validateInitialEventSelector(event)) {
-			// FIXME: we dont check if variable or selector method is present
-			// here, we only check
-			passed = false;
-
-		}
-
-		if (!passed) {
-			logger.error(errorBuffer.toString());
-		}
-
 		return passed;
 	}
 
@@ -1570,90 +1627,111 @@ public class SbbComponentValidator implements Validator {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
-		Class eventClass = this.repository.getComponentByID(
-				event.getEventReference().getReference()).getEventTypeClass();
-		Class sbbAbstractClass = this.component.getAbstractSbbClass();
-
-		String methodName = "fire" + event.getEventName();
-
-		// we we have to validate abstract methods :}
-		// this is 1.0
-		Method fireMethod = null;
-		// this is 1.1
-		Method fire11Method = null;
-
-		// FIXME: is it ok to refer directly to:
-		// javax.slee.ActivityContextInterface.class ??
-		try {
-			fireMethod = sbbAbstractClass.getMethod(methodName, eventClass,
-					javax.slee.ActivityContextInterface.class,
-					javax.slee.Address.class);
-		} catch (Exception e) {
-			// For now lets ignore, since in 1.1 we can have another method to
-			// fire :)
-			// e.printStackTrace();
-		}
 
 		try {
-			fire11Method = sbbAbstractClass.getMethod(methodName, eventClass,
-					javax.slee.ActivityContextInterface.class,
-					javax.slee.Address.class, javax.slee.ServiceID.class);
-		} catch (Exception e) {
-			// For now lets ignore, since in 1.1 we can have another method to
-			// fire :)
-			// e.printStackTrace();
-		}
+			// we can have only one receive method
 
-		if (!this.component.isSlee11()) {
-			if (fireMethod == null) {
-				// fail fast
+			EventTypeComponent eventTypeComponent = this.repository
+					.getComponentByID(event.getEventReference().getReference());
+
+			if (eventTypeComponent == null) {
 				passed = false;
 				errorBuffer = appendToBuffer(
-						"Failed to validate fire vent method, JSLEE 1.0 sbbs have to have method with signature: public abstract void fire<event name>(<event class> event,ActivityContextInterface activity,Address address);. Event name: "
-								+ event.getEventName(), "8.5.1", errorBuffer);
-				// the end
+						"Failed to validate event receive method. reference points to event comopnent that has not been validated, event name: "
+								+ event.getEventName(), "8.5.2", errorBuffer);
 				return passed;
 			}
-		} else {
-			if (fireMethod == null && fire11Method == null) {
-				// fail fast
+
+			Class eventClass = eventTypeComponent.getEventTypeClass();
+			Class sbbAbstractClass = this.component.getAbstractSbbClass();
+
+			String methodName = "fire" + event.getEventName();
+
+			// we we have to validate abstract methods :}
+			// this is 1.0
+			Method fireMethod = null;
+			// this is 1.1
+			Method fire11Method = null;
+
+			// FIXME: is it ok to refer directly to:
+			// javax.slee.ActivityContextInterface.class ??
+			try {
+				fireMethod = sbbAbstractClass.getMethod(methodName, eventClass,
+						javax.slee.ActivityContextInterface.class,
+						javax.slee.Address.class);
+			} catch (Exception e) {
+				// For now lets ignore, since in 1.1 we can have another method
+				// to
+				// fire :)
+				// e.printStackTrace();
+			}
+
+			try {
+				fire11Method = sbbAbstractClass.getMethod(methodName,
+						eventClass, javax.slee.ActivityContextInterface.class,
+						javax.slee.Address.class, javax.slee.ServiceID.class);
+			} catch (Exception e) {
+				// For now lets ignore, since in 1.1 we can have another method
+				// to
+				// fire :)
+				// e.printStackTrace();
+			}
+
+			if (!this.component.isSlee11()) {
+				if (fireMethod == null) {
+					// fail fast
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Failed to validate fire vent method, JSLEE 1.0 sbbs have to have method with signature: public abstract void fire<event name>(<event class> event,ActivityContextInterface activity,Address address);. Event name: "
+									+ event.getEventName(), "8.5.1",
+							errorBuffer);
+					// the end
+					return passed;
+				}
+			} else {
+				if (fireMethod == null && fire11Method == null) {
+					// fail fast
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Failed to validate fire vent method, JSLEE 1.1 sbbs have to have one of those methods. Event name: "
+									+ event.getEventName(), "8.5.1",
+							errorBuffer);
+					// the end
+					return passed;
+				}
+			}
+
+			if (this.component.isSlee11() && fire11Method != null
+					&& !validateFireMethodSignature(fire11Method, "8.5.1")) {
 				passed = false;
-				errorBuffer = appendToBuffer(
-						"Failed to validate fire vent method, JSLEE 1.1 sbbs have to have one of those methods. Event name: "
-								+ event.getEventName(), "8.5.1", errorBuffer);
-				// the end
-				return passed;
+			}
+
+			// if we are here we are either 1.0 in which case this method is not
+			// null, or we are 1.1 in which case it could be
+			if (fireMethod != null
+					&& !validateFireMethodSignature(fireMethod, "8.5.1")) {
+				passed = false;
+			}
+
+			if (fire11Method != null) {
+				sbbAbstractClassMethods.remove(ClassUtils
+						.getMethodKey(fire11Method));
+				sbbAbstractMethodsFromSuperClasses.remove(ClassUtils
+						.getMethodKey(fire11Method));
+			}
+			if (fireMethod != null) {
+				sbbAbstractClassMethods.remove(ClassUtils
+						.getMethodKey(fireMethod));
+				sbbAbstractMethodsFromSuperClasses.remove(ClassUtils
+						.getMethodKey(fireMethod));
+			}
+
+		} finally {
+
+			if (!passed) {
+				logger.error(errorBuffer.toString());
 			}
 		}
-
-		if (this.component.isSlee11() && fire11Method != null
-				&& !validateFireMethodSignature(fire11Method, "8.5.1")) {
-			passed = false;
-		}
-
-		// if we are here we are either 1.0 in which case this method is not
-		// null, or we are 1.1 in which case it could be
-		if (fireMethod != null
-				&& !validateFireMethodSignature(fireMethod, "8.5.1")) {
-			passed = false;
-		}
-
-		if (fire11Method != null) {
-			sbbAbstractClassMethods.remove(ClassUtils
-					.getMethodKey(fire11Method));
-			sbbAbstractMethodsFromSuperClasses.remove(ClassUtils
-					.getMethodKey(fire11Method));
-		}
-		if (fireMethod != null) {
-			sbbAbstractClassMethods.remove(ClassUtils.getMethodKey(fireMethod));
-			sbbAbstractMethodsFromSuperClasses.remove(ClassUtils
-					.getMethodKey(fireMethod));
-		}
-
-		if (!passed) {
-			logger.error(errorBuffer.toString());
-		}
-
 		return passed;
 
 	}
@@ -1706,28 +1784,213 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			
+
 		}
 
 		return passed;
 
 	}
 
-	
-	boolean validateSbbUsageParameterInterface(Map<String, Method> sbbAbstractClassMethods,
-			Map<String, Method> sbbAbstractMethodsFromSuperClasses)
-	{
-		if(this.component.getUsageParametersInterface()==null)
-		{
+	boolean validateSbbUsageParameterInterface(
+			Map<String, Method> sbbAbstractClassMethods,
+			Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
+		if (this.component.getUsageParametersInterface() == null) {
 			return true;
-		}else
-		{
-			return UsageProfileValidator.validateSbbUsageParameterInterface(this.component);
+		} else {
+			return UsageInterfaceValidator
+					.validateSbbUsageParameterInterface(this.component);
 		}
 	}
-	
-	
-	
+
+	boolean validateGetProfileCmpInterfaceMethods(
+			Map<String, Method> sbbAbstractClassMethods,
+			Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
+
+		// Section 6.7
+		boolean passed = false;
+		String errorBuffer = new String("");
+
+		try {
+			List<MGetProfileCMPMethod> profileCmpMethods = this.component
+					.getDescriptor().getSbbAbstractClass()
+					.getProfileCMPMethods();
+			if (profileCmpMethods.size() == 0) {
+				return passed;
+			}
+
+			// eh, else we have to do all checks
+			for (MGetProfileCMPMethod method : profileCmpMethods) {
+
+				if (method.getProfileCmpMethodName().startsWith("ejb")
+						|| method.getProfileCmpMethodName().startsWith("sbb")) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Wrong method prefix, get profile cmp interface method must not start with \"sbb\" or \"ejb\", method: "
+									+ method.getProfileCmpMethodName(), "6,7",
+							errorBuffer);
+
+				}
+
+				Method m = null;
+				try {
+					m = this.component.getAbstractSbbClass().getMethod(
+							method.getProfileCmpMethodName(), ProfileID.class);
+				} catch (Exception e) {
+
+					// e.printStackTrace();
+				}
+
+				if (m == null) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Failed to find method in sbb asbtract class - it either does not exist,is private or has wrong parameter, method: "
+									+ method.getProfileCmpMethodName(), "6,7",
+							errorBuffer);
+					continue;
+				}
+
+				int modifiers = m.getModifiers();
+
+				if (!Modifier.isPublic(modifiers)) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Get profile CMP interface method must be public, method: "
+									+ method.getProfileCmpMethodName(), "6,7",
+							errorBuffer);
+					continue;
+				}
+
+				if (!Modifier.isAbstract(modifiers)) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Get profile CMP interface method must be abstract, method: "
+									+ method.getProfileCmpMethodName(), "6,7",
+							errorBuffer);
+					continue;
+				}
+
+				Class methodReturnType = m.getReturnType();
+
+				// this is referential integrity
+				ProfileSpecificationID profileID = this.component
+						.getProfileReferences().get(
+								method.getProfileSpecAliasRef());
+				ProfileSpecificationComponent profileComponent = this.repository
+						.getComponentByID(profileID);
+
+				if (profileComponent == null) {
+					// this means referential integrity is nto met, possibly
+					// class is not loaded
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Get profile CMP interface method references profile which has not been validated, method: "
+									+ method.getProfileCmpMethodName()
+									+ " , reference: "
+									+ method.getProfileSpecAliasRef(), "6,7",
+							errorBuffer);
+					continue;
+				}
+
+				Class profileDefinedCMPInterface = profileComponent
+						.getProfileCmpInterfaceClass();
+
+				if (methodReturnType.getName().compareTo(
+						profileDefinedCMPInterface.getName()) != 0
+						&& ClassUtils.checkInterfaces(
+								profileDefinedCMPInterface, methodReturnType
+										.getName()) == null) {
+
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Get profile CMP interface method has wrong return type - it has to be defined CMP interface or its super class, method: "
+									+ method.getProfileCmpMethodName(), "6,7",
+							errorBuffer);
+
+				}
+
+				Class[] exceptions = m.getExceptionTypes();
+				// UnrecognizedProfileTableNameException,
+				// UnrecognizedProfileNameException
+				if (exceptions.length != 2) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Get profile CMP interface method has wrong number of exceptions, it can throw only two, method: "
+									+ method.getProfileCmpMethodName(), "6,7",
+							errorBuffer);
+				}
+
+				HashSet<String> possibleExcpetions = new HashSet<String>();
+
+				possibleExcpetions
+						.add(UnrecognizedProfileTableNameException.class
+								.getName());
+				possibleExcpetions.add(UnrecognizedProfileNameException.class
+						.getName());
+
+				for (Class c : exceptions) {
+					if (possibleExcpetions.contains(c.getName())) {
+						possibleExcpetions.remove(c.getName());
+					}
+				}
+
+				if (possibleExcpetions.size() != 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Get profile CMP interface method has decalration of throws clause, it lacks following exceptions: "
+									+ Arrays.toString(possibleExcpetions
+											.toArray())
+									+ " , method: "
+									+ method.getProfileCmpMethodName(), "6,7",
+							errorBuffer);
+				}
+
+			}
+
+		} finally {
+			if (!passed) {
+				System.err.println(errorBuffer);
+				logger.error(errorBuffer);
+			}
+
+		}
+
+		return passed;
+
+	}
+
+	boolean validateEnvEntries() {
+
+		boolean passed = false;
+		String errorBuffer = new String("");
+
+		try {
+			
+			List<MEnvEntry> envEntries=this.component.getDescriptor().getEnvEntries();
+			for(MEnvEntry e:envEntries)
+			{
+				if(!_ENV_ENTRIES_TYPES.contains(e.getEnvEntryType()))
+				{
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Env entry has wrong type: "+e.getEnvEntryType()+" , method: "
+									+ e.getEnvEntryName(), "6.13",
+							errorBuffer);
+				}
+				
+				
+			}
+			
+		} finally {
+			if (!passed) {
+				System.err.println(errorBuffer);
+				logger.error(errorBuffer);
+			}
+
+		}
+
+		return passed;
+	}
+
 	protected String appendToBuffer(String message, String section,
 			String buffer) {
 		buffer += (this.component.getDescriptor().getSbbComponentKey()

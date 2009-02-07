@@ -16,6 +16,8 @@ import javassist.CtClass;
 
 import javax.slee.SbbID;
 import javax.slee.management.DeployableUnitID;
+import javax.slee.profile.ProfileID;
+import javax.slee.profile.ProfileSpecificationID;
 
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
@@ -174,6 +176,11 @@ public class SbbComponent {
 
 	public void setUsageParametersInterface(Class usageParametersInterface) {
 		this.usageParametersInterface = usageParametersInterface;
+	}
+
+	public Map<String, ProfileSpecificationID> getProfileReferences() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

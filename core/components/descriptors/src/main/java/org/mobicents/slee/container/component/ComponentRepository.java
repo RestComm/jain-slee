@@ -18,7 +18,7 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 /**
  * Start time:17:54:46 2009-01-30<br>
  * Project: mobicents-jainslee-server-core<br>
- * 
+ * It provides elements which atleast passed referential constraints
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
