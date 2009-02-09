@@ -89,6 +89,9 @@ public class ProfileSpecificationComponent {
 		this.profileTableInterfaceClass = profileTableInterfaceClass;
 	}
 	
-	
+	public boolean isSlee11() {
+		return this.descriptor.isSlee11();
+	}
+
 	
 }

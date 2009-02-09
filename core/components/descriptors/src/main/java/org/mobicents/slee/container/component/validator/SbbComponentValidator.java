@@ -53,26 +53,10 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MS
  */
 public class SbbComponentValidator implements Validator {
 
-	// public static final String _SBB_EXCEPTION_THROWN_NAME =
-	// "sbbExceptionThrown";
-	// public static final String _SBB_EXCEPTION_THROWN_SIGNATURE =
-	// "(Ljava/lang/Exception;Ljava/lang/Object;Ljavax/slee/ActivityContextInterface;)V";
 
-	// public static final String _SBB_ROLLERD_BACK_NAME = "sbbRolledBack";
-	// public static final String _SBB_ROLLERD_BACK_SIGNATURE =
-	// "(Ljavax/slee/RolledBackContext;)V";
 
 	public static final String _SBB_AS_SBB_ACTIVITY_CONTEXT_INTERFACE = "asSbbActivityContextInterface";
-	// This has to be terminated by
-	// component.getSbbActivityContextInterface().getName+";" to form full
-	// signature, however in 1.1 The return type must be the Activity Context
-	// Interface interface of the SBB, or a base interface of
-	// the Activity Context Interface interface of the SBB. <--- what does this
-	// mean - we define ACI_X(extends ACI_Y) as aci of sbb, but we can return
-	// ACI_Y ?
-	// public static final String
-	// _SBB_AS_SBB_ACTIVITY_CONTEXT_INTERFACE_SIGNATURE_PART =
-	// "(Ljavax/slee/ActivityContextInterface;)L";
+
 
 	public static final String _SBB_GET_CHILD_RELATION_SIGNATURE_PART = "[]";
 
