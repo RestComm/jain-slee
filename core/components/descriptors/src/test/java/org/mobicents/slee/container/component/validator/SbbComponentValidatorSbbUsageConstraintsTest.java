@@ -22,7 +22,6 @@ import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageInterfaceToFewMethods;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageInterfaceToManyMethods;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageOkInterface;
-import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageSetterWrongLevelInterface;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageThrowsOnGetterInterface;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageThrowsOnSetterInterface;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageWrongAccesorLevelInterface;
@@ -218,7 +217,8 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 		assertFalse("Sbb class has been validated", b);
 
 	}
-	public void testSbbOne11UsageWrongAccesorLevelInterface() throws Exception {
+	//methods from interfaces are always public?
+	public void _testSbbOne11UsageWrongAccesorLevelInterface() throws Exception {
 		//setter is increment or sample method
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
 				.parseDocument(super

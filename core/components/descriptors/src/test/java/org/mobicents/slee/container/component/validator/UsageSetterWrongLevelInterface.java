@@ -1,8 +1,8 @@
-package org.mobicents.slee.container.component.validator.sbb.abstracts.usage;
+package org.mobicents.slee.container.component.validator;
 
 import javax.slee.usage.SampleStatistics;
 
-public interface UsageSetterWrongLevelInterface {
+interface UsageSetterWrongLevelInterface {
 
 	public SampleStatistics getSample();
 	public void sampleSample(long t);

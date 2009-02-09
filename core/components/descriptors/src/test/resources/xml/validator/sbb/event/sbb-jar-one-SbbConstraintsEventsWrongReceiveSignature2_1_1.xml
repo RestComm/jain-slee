@@ -107,17 +107,6 @@
             <initial-event-select variable="Address" />
             <event-resource-option />
         </event>
-        <event event-direction="Fire">
-            <description />
-            <event-name>CustomEventFour</event-name>
-            <event-type-ref>
-                <event-type-name>event-type-name</event-type-name>
-                <event-type-vendor>event-type-vendor</event-type-vendor>
-                <event-type-version>event-type-version</event-type-version>
-            </event-type-ref>
-            <initial-event-select variable="Address" />
-            <event-resource-option />
-        </event>
          <event event-direction="Fire">
             <description />
             <event-name>CustomEventFour</event-name>

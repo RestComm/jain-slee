@@ -27,6 +27,7 @@ import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -73,7 +74,7 @@ public class SbbComponentValidator implements Validator {
 	// _SBB_AS_SBB_ACTIVITY_CONTEXT_INTERFACE_SIGNATURE_PART =
 	// "(Ljavax/slee/ActivityContextInterface;)L";
 
-	public static final String _SBB_GET_CHILD_RELATION_SIGNATURE_PART = "[]interface javax.slee.ChildRelation";
+	public static final String _SBB_GET_CHILD_RELATION_SIGNATURE_PART = "[]";
 
 	private SbbComponent component = null;
 	private ComponentRepository repository = null;
@@ -93,7 +94,7 @@ public class SbbComponentValidator implements Validator {
 		_PRIMITIVES = Collections.unmodifiableSet(tmp);
 
 	}
-	
+
 	private final static Set<String> _ENV_ENTRIES_TYPES;
 	static {
 		Set<String> tmp = new HashSet<String>();
@@ -109,12 +110,107 @@ public class SbbComponentValidator implements Validator {
 		_ENV_ENTRIES_TYPES = Collections.unmodifiableSet(tmp);
 
 	}
-	
-	
 
 	public boolean validate() {
 
-		return false;
+		boolean valid = true;
+		// Uf here we go
+		try {
+
+			Map<String, Method> abstractMehotds, superClassesAbstractMethod, concreteMethods, superClassesConcreteMethods;
+
+			abstractMehotds = ClassUtils
+					.getAbstractMethodsFromClass(this.component
+							.getAbstractSbbClass());
+			superClassesAbstractMethod = ClassUtils
+					.getAbstractSuperClassesMethodsFromClass(this.component
+							.getAbstractSbbClass());
+			concreteMethods = ClassUtils
+					.getConcreteMethodsFromClass(this.component
+							.getAbstractSbbClass());
+			superClassesConcreteMethods = ClassUtils
+					.getSuperClassesConcreteMethodsFromClass(this.component
+							.getAbstractSbbClass());
+
+
+			if (!validateAbstractClassConstraints(concreteMethods,
+					superClassesConcreteMethods)) {
+				valid = false;
+			}
+
+			
+			if (!validateCmpFileds(abstractMehotds, superClassesAbstractMethod)) {
+				valid = false;
+			}
+
+			if (!validateEventHandlers(abstractMehotds,
+					superClassesAbstractMethod, concreteMethods,
+					superClassesAbstractMethod)) {
+				valid = false;
+			}
+
+			if (!validateGetChildRelationMethods(abstractMehotds,
+					superClassesAbstractMethod)) {
+				valid = false;
+			}
+
+			if (!validateGetProfileCmpInterfaceMethods(abstractMehotds,
+					superClassesAbstractMethod)) {
+				valid = false;
+			}
+
+			if (!validateSbbActivityContextInterface(abstractMehotds,
+					superClassesAbstractMethod)) {
+				valid = false;
+			}
+
+			if (!validateSbbLocalInterface(concreteMethods,
+					superClassesConcreteMethods)) {
+				valid = false;
+			}
+
+			if (!validateSbbUsageParameterInterface(abstractMehotds,
+					superClassesAbstractMethod)) {
+				valid = false;
+			}
+
+			if (!validateEnvEntries()) {
+				valid = false;
+			}
+			
+	
+			// now lets test abstract methods, we have to remove all of them by
+			// now?
+			if (abstractMehotds.size() > 0
+					|| superClassesAbstractMethod.size() > 0) {
+				valid = false;
+		
+					logger
+							.error(this.component.getDescriptor()
+									.getSbbComponentKey()
+									+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
+									+ Arrays.toString(abstractMehotds.keySet()
+											.toArray())
+									+ ", methods from super classes: "+Arrays.toString(superClassesAbstractMethod.keySet()
+											.toArray()));
+					//System.err.println(this.component.getDescriptor()
+//							.getSbbComponentKey()
+//							+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
+//							+ Arrays.toString(abstractMehotds.keySet()
+//									.toArray())
+//							+ ", methods from super classes: "+Arrays.toString(superClassesAbstractMethod.keySet()
+//									.toArray()));
+				
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			valid = false;
+
+		}
+
+		return valid;
+
 	}
 
 	public void setComponentRepository(ComponentRepository repository) {
@@ -339,8 +435,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
-
+			
+			logger.error(errorBuffer);
+			//System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -520,8 +617,8 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
-
+			logger.error(errorBuffer);
+			//System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -711,7 +808,8 @@ public class SbbComponentValidator implements Validator {
 			// FIXME: add check against components get aci fields ?
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 		}
 
@@ -809,7 +907,8 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
+			//System.err.println(errorBuffer);
 
 		}
 
@@ -915,7 +1014,7 @@ public class SbbComponentValidator implements Validator {
 					errorBuffer = appendToBuffer(
 							"Method from SbbLocalInterface: "
 									+ sbbLocalInterfaceClass.getName()
-									+ "with name:  "
+									+ " with name:  "
 									+ methodToCheck.getName()
 									+ " is not implemented by sbb class or its super classes!",
 							"5.6", errorBuffer);
@@ -962,7 +1061,8 @@ public class SbbComponentValidator implements Validator {
 			// those implemented or defined as abstract.
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
+				//System.err.println(errorBuffer);
 
 			}
 		}
@@ -1006,13 +1106,14 @@ public class SbbComponentValidator implements Validator {
 			// Both have to be present, lets do trick, first we can get getter
 			// so we know field type and can get setter
 			Class sbbAbstractClass = this.component.getAbstractSbbClass();
-			try {
-				getterFieldMethod = sbbAbstractClass
-						.getMethod(getterName, null);
-			} catch (Exception e) {
-				// SecurityException and MethodNotFoundExpcetion
 
-				// e.printStackTrace();
+			getterFieldMethod = ClassUtils.getMethodFromMap(getterName,
+					new Class[0], sbbAbstractClassMethods,
+					sbbAbstractMethodsFromSuperClasses);
+
+
+			
+			if (getterFieldMethod == null) {
 				errorBuffer = appendToBuffer(
 						"Failed to validate CMP field. Could not find getter method: "
 								+ getterName
@@ -1023,13 +1124,15 @@ public class SbbComponentValidator implements Validator {
 				// we fail fast here
 				continue;
 			}
-			try {
-				setterFieldMethod = sbbAbstractClass.getMethod(setterName,
-						getterFieldMethod.getReturnType());
-			} catch (Exception e) {
-				// SecurityException and MethodNotFoundExpcetion
 
-				// e.printStackTrace();
+			Class fieldType = getterFieldMethod.getReturnType();
+
+			setterFieldMethod = ClassUtils.getMethodFromMap(setterName,
+					new Class[] { fieldType }, sbbAbstractClassMethods,
+					sbbAbstractMethodsFromSuperClasses);
+
+			
+			if (setterFieldMethod == null) {
 				errorBuffer = appendToBuffer(
 						"Failed to validate CMP field. Could not find setter method: "
 								+ setterName
@@ -1052,8 +1155,6 @@ public class SbbComponentValidator implements Validator {
 			// + setterFieldMethod.getReturnType(), "6.5.1",
 			// errorBuffer);
 			// }
-
-			Class fieldType = getterFieldMethod.getReturnType();
 
 			// we know methods are here, we must check if they are - abstract,
 			// public, what about static and native?
@@ -1131,6 +1232,9 @@ public class SbbComponentValidator implements Validator {
 					} else if (fieldType.getName().compareTo(
 							"javax.slee.SbbLocalObject") == 0) {
 						// its ok?
+					} else if (ClassUtils.checkInterfaces(referencedComponent
+							.getSbbLocalInterfaceClass(), fieldType.getName()) != null) {
+						// its ok
 					} else {
 						passed = false;
 						errorBuffer = appendToBuffer(
@@ -1180,6 +1284,9 @@ public class SbbComponentValidator implements Validator {
 					} else if (fieldType.getName().compareTo(
 							"javax.slee.ActivityContextInterface") == 0) {
 						// do nothing
+					} else if (ClassUtils.checkInterfaces(definedAciType,
+							fieldType.getName()) != null) {
+						// do anything
 					} else {
 						passed = false;
 						errorBuffer = appendToBuffer(
@@ -1253,7 +1360,8 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
+			//System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -1261,7 +1369,9 @@ public class SbbComponentValidator implements Validator {
 	}
 
 	boolean validateEventHandlers(Map<String, Method> sbbAbstractClassMethods,
-			Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
+			Map<String, Method> sbbAbstractMethodsFromSuperClasses,
+			Map<String, Method> concreteMethods,
+			Map<String, Method> concreteMethodsFromSuperClasses) {
 
 		boolean passed = true;
 		// String errorBuffer = new String("");
@@ -1286,7 +1396,8 @@ public class SbbComponentValidator implements Validator {
 				break;
 
 			case Receive:
-				if (!validateReceiveEvent(event)) {
+				if (!validateReceiveEvent(event, concreteMethods,
+						concreteMethodsFromSuperClasses)) {
 					passed = false;
 				}
 				break;
@@ -1296,7 +1407,8 @@ public class SbbComponentValidator implements Validator {
 						sbbAbstractMethodsFromSuperClasses)) {
 					passed = false;
 				}
-				if (!validateReceiveEvent(event)) {
+				if (!validateReceiveEvent(event, concreteMethods,
+						concreteMethodsFromSuperClasses)) {
 					passed = false;
 				}
 				break;
@@ -1308,7 +1420,9 @@ public class SbbComponentValidator implements Validator {
 		return passed;
 	}
 
-	boolean validateReceiveEvent(MEventEntry event) {
+	boolean validateReceiveEvent(MEventEntry event,
+			Map<String, Method> concreteMethods,
+			Map<String, Method> concreteMethodsFromSuperClasses) {
 		boolean passed = true;
 		String errorBuffer = new String("");
 
@@ -1340,27 +1454,23 @@ public class SbbComponentValidator implements Validator {
 			boolean receiverWithContextPresent = false;
 			boolean receiverWithoutContextPresent = false;
 			if (this.component.isSlee11()) {
-				try {
-					receiveMethod = sbbAbstractClass.getMethod(methodName,
-							eventClass,
-							javax.slee.ActivityContextInterface.class,
-							javax.slee.EventContext.class);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					// e.printStackTrace();
-				}
 
+				receiveMethod = ClassUtils.getMethodFromMap(methodName,
+						new Class[] { eventClass,
+								javax.slee.ActivityContextInterface.class,
+								javax.slee.EventContext.class },
+						concreteMethods, concreteMethodsFromSuperClasses);
 				if (this.component.getActivityContextInterface() != null)
-					try {
-						receiveMethodCustomACI = sbbAbstractClass.getMethod(
-								methodName, eventClass, this.component
-										.getActivityContextInterface(),
-								javax.slee.EventContext.class);
-						// is there any clever way to lookup those?
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						// e.printStackTrace();
-					}
+
+					receiveMethodCustomACI = ClassUtils.getMethodFromMap(
+							methodName, new Class[] {
+									eventClass,
+									this.component
+											.getActivityContextInterface(),
+									javax.slee.EventContext.class },
+							concreteMethods, concreteMethodsFromSuperClasses);
+
+				// is there any clever way to lookup those?
 
 				// ok, here only one method can be present
 				if (receiveMethod != null && receiveMethodCustomACI != null) {
@@ -1392,24 +1502,19 @@ public class SbbComponentValidator implements Validator {
 			}
 
 			// this is for all
-			try {
-				receiveMethod = sbbAbstractClass.getMethod(methodName,
-						eventClass, javax.slee.ActivityContextInterface.class);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-			}
+
+			receiveMethod = ClassUtils.getMethodFromMap(methodName,
+					new Class[] { eventClass,
+							javax.slee.ActivityContextInterface.class },
+					concreteMethods, concreteMethodsFromSuperClasses);
 
 			if (this.component.getActivityContextInterface() != null)
-				try {
-					receiveMethodCustomACI = sbbAbstractClass.getMethod(
-							methodName, eventClass, this.component
-									.getActivityContextInterface());
-					// is there any clever way to lookup those?
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					// e.printStackTrace();
-				}
+
+				receiveMethodCustomACI = ClassUtils.getMethodFromMap(
+						methodName, new Class[] { eventClass,
+								this.component.getActivityContextInterface() },
+						concreteMethods, concreteMethodsFromSuperClasses);
+			// is there any clever way to lookup those?
 
 			// ok, here only one method can be present
 			if (receiveMethod != null && receiveMethodCustomACI != null) {
@@ -1450,22 +1555,25 @@ public class SbbComponentValidator implements Validator {
 			// now its time for initial event selector
 			if (event.isInitialEvent()
 					&& event.getInitialEventSelectorMethod() != null
-					&& !validateInitialEventSelector(event)) {
+					&& !validateInitialEventSelector(event, concreteMethods,
+							concreteMethodsFromSuperClasses)) {
 				// FIXME: we dont check if variable or selector method is
 				// present
-				// here, we only check
 				passed = false;
 
 			}
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
+				 //System.err.println(errorBuffer);
 			}
 		}
 		return passed;
 	}
 
-	boolean validateInitialEventSelector(MEventEntry event) {
+	boolean validateInitialEventSelector(MEventEntry event,
+			Map<String, Method> concreteMethods,
+			Map<String, Method> concreteMethodsFromSuperClasses) {
 		boolean passed = true;
 		String errorBuffer = new String("");
 		try {
@@ -1479,12 +1587,11 @@ public class SbbComponentValidator implements Validator {
 						"8.6.4", errorBuffer);
 			}
 
-			Method m = null;
-			try {
-				m = this.component.getAbstractSbbClass().getMethod(
-						event.getInitialEventSelectorMethod(),
-						javax.slee.InitialEventSelector.class);
-			} catch (Exception e) {
+			Method m = ClassUtils.getMethodFromMap(event
+					.getInitialEventSelectorMethod(),
+					new Class[] { javax.slee.InitialEventSelector.class },
+					concreteMethods, concreteMethodsFromSuperClasses);
+			if (m == null) {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
 				passed = false;
@@ -1495,6 +1602,7 @@ public class SbbComponentValidator implements Validator {
 				return passed;
 			}
 
+			// FIXME: It has to be concrete...
 			int modifiers = m.getModifiers();
 			if (Modifier.isAbstract(modifiers)) {
 				passed = false;
@@ -1550,7 +1658,8 @@ public class SbbComponentValidator implements Validator {
 			}
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
+				 //System.err.println(errorBuffer);
 			}
 		}
 		return passed;
@@ -1614,7 +1723,8 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
+			logger.error(errorBuffer);
+			//System.err.println(errorBuffer);
 
 		}
 
@@ -1655,27 +1765,19 @@ public class SbbComponentValidator implements Validator {
 
 			// FIXME: is it ok to refer directly to:
 			// javax.slee.ActivityContextInterface.class ??
-			try {
-				fireMethod = sbbAbstractClass.getMethod(methodName, eventClass,
-						javax.slee.ActivityContextInterface.class,
-						javax.slee.Address.class);
-			} catch (Exception e) {
-				// For now lets ignore, since in 1.1 we can have another method
-				// to
-				// fire :)
-				// e.printStackTrace();
-			}
 
-			try {
-				fire11Method = sbbAbstractClass.getMethod(methodName,
-						eventClass, javax.slee.ActivityContextInterface.class,
-						javax.slee.Address.class, javax.slee.ServiceID.class);
-			} catch (Exception e) {
-				// For now lets ignore, since in 1.1 we can have another method
-				// to
-				// fire :)
-				// e.printStackTrace();
-			}
+			fireMethod = ClassUtils.getMethodFromMap(methodName, new Class[] {
+					eventClass, javax.slee.ActivityContextInterface.class,
+					javax.slee.Address.class }, sbbAbstractClassMethods,
+					sbbAbstractMethodsFromSuperClasses);
+
+			fire11Method = ClassUtils
+					.getMethodFromMap(methodName, new Class[] { eventClass,
+							javax.slee.ActivityContextInterface.class,
+							javax.slee.Address.class,
+							javax.slee.ServiceID.class },
+							sbbAbstractClassMethods,
+							sbbAbstractMethodsFromSuperClasses);
 
 			if (!this.component.isSlee11()) {
 				if (fireMethod == null) {
@@ -1729,9 +1831,12 @@ public class SbbComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer.toString());
+				logger.error(errorBuffer);
+				 //System.err.println(errorBuffer);
+
 			}
 		}
+
 		return passed;
 
 	}
@@ -1783,8 +1888,8 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer.toString());
-
+			logger.error(errorBuffer);
+			 //System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -1798,7 +1903,7 @@ public class SbbComponentValidator implements Validator {
 			return true;
 		} else {
 			return UsageInterfaceValidator
-					.validateSbbUsageParameterInterface(this.component);
+					.validateSbbUsageParameterInterface(this.component,sbbAbstractClassMethods,sbbAbstractMethodsFromSuperClasses);
 		}
 	}
 
@@ -1807,7 +1912,7 @@ public class SbbComponentValidator implements Validator {
 			Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
 
 		// Section 6.7
-		boolean passed = false;
+		boolean passed = true;
 		String errorBuffer = new String("");
 
 		try {
@@ -1824,6 +1929,7 @@ public class SbbComponentValidator implements Validator {
 				if (method.getProfileCmpMethodName().startsWith("ejb")
 						|| method.getProfileCmpMethodName().startsWith("sbb")) {
 					passed = false;
+
 					errorBuffer = appendToBuffer(
 							"Wrong method prefix, get profile cmp interface method must not start with \"sbb\" or \"ejb\", method: "
 									+ method.getProfileCmpMethodName(), "6,7",
@@ -1831,21 +1937,21 @@ public class SbbComponentValidator implements Validator {
 
 				}
 
-				Method m = null;
-				try {
-					m = this.component.getAbstractSbbClass().getMethod(
-							method.getProfileCmpMethodName(), ProfileID.class);
-				} catch (Exception e) {
-
-					// e.printStackTrace();
-				}
+				Method m = ClassUtils.getMethodFromMap(method
+						.getProfileCmpMethodName(),
+						new Class[] { ProfileID.class },
+						sbbAbstractClassMethods,
+						sbbAbstractMethodsFromSuperClasses);
+				;
 
 				if (m == null) {
 					passed = false;
+
 					errorBuffer = appendToBuffer(
-							"Failed to find method in sbb asbtract class - it either does not exist,is private or has wrong parameter, method: "
+							"Failed to find method in sbb abstract class - it either does not exist,is private or has wrong parameter, method: "
 									+ method.getProfileCmpMethodName(), "6,7",
 							errorBuffer);
+
 					continue;
 				}
 
@@ -1872,9 +1978,10 @@ public class SbbComponentValidator implements Validator {
 				Class methodReturnType = m.getReturnType();
 
 				// this is referential integrity
-				ProfileSpecificationID profileID = this.component
-						.getProfileReferences().get(
-								method.getProfileSpecAliasRef());
+				Map<String, ProfileSpecificationID> map = this.component
+						.getProfileReferences();
+				ProfileSpecificationID profileID = map.get(method
+						.getProfileSpecAliasRef());
 				ProfileSpecificationComponent profileComponent = this.repository
 						.getComponentByID(profileID);
 
@@ -1948,7 +2055,7 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 				logger.error(errorBuffer);
 			}
 
@@ -1960,29 +2067,27 @@ public class SbbComponentValidator implements Validator {
 
 	boolean validateEnvEntries() {
 
-		boolean passed = false;
+		boolean passed = true;
 		String errorBuffer = new String("");
 
 		try {
-			
-			List<MEnvEntry> envEntries=this.component.getDescriptor().getEnvEntries();
-			for(MEnvEntry e:envEntries)
-			{
-				if(!_ENV_ENTRIES_TYPES.contains(e.getEnvEntryType()))
-				{
+
+			List<MEnvEntry> envEntries = this.component.getDescriptor()
+					.getEnvEntries();
+			for (MEnvEntry e : envEntries) {
+				if (!_ENV_ENTRIES_TYPES.contains(e.getEnvEntryType())) {
+					
 					passed = false;
-					errorBuffer = appendToBuffer(
-							"Env entry has wrong type: "+e.getEnvEntryType()+" , method: "
-									+ e.getEnvEntryName(), "6.13",
-							errorBuffer);
+					errorBuffer = appendToBuffer("Env entry has wrong type: "
+							+ e.getEnvEntryType() + " , method: "
+							+ e.getEnvEntryName(), "6.13", errorBuffer);
 				}
-				
-				
+
 			}
-			
+
 		} finally {
 			if (!passed) {
-				System.err.println(errorBuffer);
+				 //System.err.println(errorBuffer);
 				logger.error(errorBuffer);
 			}
 

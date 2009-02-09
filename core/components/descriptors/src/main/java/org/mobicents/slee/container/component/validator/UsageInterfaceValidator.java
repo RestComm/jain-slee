@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import javax.slee.ComponentID;
 import javax.slee.SbbID;
+import javax.slee.profile.ProfileID;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
@@ -309,7 +310,10 @@ public class UsageInterfaceValidator {
 				tmp.addAll(agregatedSample);
 				tmp.addAll(agregatedIncrement);
 
+			
+				
 				if (localParametersMap.size() != tmp.size()) {
+			
 					passed = false;
 
 					String errorPart = null;
@@ -319,8 +323,7 @@ public class UsageInterfaceValidator {
 							tmp.remove(s);
 						errorPart = "More parameters are defined in descriptor, offending parameters: "
 								+ Arrays.toString(tmp.toArray());
-					}else
-					{
+					} else {
 						for (String s : tmp)
 							localParametersMap.remove(s);
 						errorPart = "More parameters are defined in descriptor, offending parameters: "
@@ -338,7 +341,7 @@ public class UsageInterfaceValidator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer.toString());
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 		}
 
@@ -391,7 +394,7 @@ public class UsageInterfaceValidator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer.toString());
-				System.err.println(errorBuffer);
+				// //System.err.println(errorBuffer);
 			}
 		}
 
@@ -444,14 +447,16 @@ public class UsageInterfaceValidator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer.toString());
-				System.err.println(errorBuffer);
+				// //System.err.println(errorBuffer);
 			}
 		}
 
 		return passed;
 	}
 
-	static boolean validateSbbUsageParameterInterface(SbbComponent component) {
+	static boolean validateSbbUsageParameterInterface(SbbComponent component,
+			Map<String, Method> sbbAbstractClassMethods,
+			Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
 
 		String errorBuffer = new String("");
 		boolean passed = true;
@@ -461,12 +466,10 @@ public class UsageInterfaceValidator {
 
 		Method m = null;
 
-		try {
-			m = componentClass.getMethod(methodName, null);
-		} catch (Exception e) {
+		m = ClassUtils.getMethodFromMap(methodName, new Class[] {},
+				sbbAbstractClassMethods, sbbAbstractMethodsFromSuperClasses);
+		
 
-			// e.printStackTrace();
-		}
 
 		if (m != null) {
 			foundAtleastOne = true;
@@ -475,14 +478,16 @@ public class UsageInterfaceValidator {
 				passed = false;
 
 			}
+
+			sbbAbstractClassMethods.remove(ClassUtils.getMethodKey(m));
+			sbbAbstractMethodsFromSuperClasses.remove(ClassUtils
+					.getMethodKey(m));
+
 		}
 		methodName = "getSbbUsageParameterSet";
-		try {
-			m = componentClass.getMethod(methodName, String.class);
-		} catch (Exception e) {
 
-			// e.printStackTrace();
-		}
+		m = ClassUtils.getMethodFromMap(methodName, new Class[] { String.class },
+				sbbAbstractClassMethods, sbbAbstractMethodsFromSuperClasses);
 
 		if (m != null) {
 			foundAtleastOne = true;
@@ -495,6 +500,9 @@ public class UsageInterfaceValidator {
 				passed = false;
 
 			}
+			sbbAbstractClassMethods.remove(ClassUtils.getMethodKey(m));
+			sbbAbstractMethodsFromSuperClasses.remove(ClassUtils
+					.getMethodKey(m));
 		}
 
 		if (!validateUsageParameterInterface(component.getSbbID(), component
@@ -514,7 +522,7 @@ public class UsageInterfaceValidator {
 
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			System.err.println(errorBuffer);
+			//System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -556,10 +564,13 @@ public class UsageInterfaceValidator {
 			passed = false;
 			errorBuffer = appendToBuffer(id,
 					"Usage interface access method has wrong exception types defined, method: "
-							+ m.getName() +", allowed: "+Arrays.toString(exceptions)+", present: "+Arrays.toString(m.getExceptionTypes()), section, errorBuffer);
+							+ m.getName() + ", allowed: "
+							+ Arrays.toString(exceptions) + ", present: "
+							+ Arrays.toString(m.getExceptionTypes()), section,
+					errorBuffer);
 
 		}
-		
+
 		if (m.getReturnType().getName().compareTo(returnType.getName()) != 0) {
 
 			passed = false;
@@ -570,9 +581,9 @@ public class UsageInterfaceValidator {
 		}
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			System.err.println(errorBuffer);
+			 //System.err.println(errorBuffer);
 		}
-		
+
 		return passed;
 	}
 

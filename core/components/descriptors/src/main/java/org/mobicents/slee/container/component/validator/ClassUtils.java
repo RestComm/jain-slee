@@ -48,9 +48,9 @@ public class ClassUtils {
 	public static Class checkInterfaces(Class classOrInterfaceWithInterfaces,
 			String interfaceSearched) {
 		Class returnValue = null;
-		
-		
-		if(classOrInterfaceWithInterfaces.getName().compareTo(interfaceSearched) == 0) {
+
+		if (classOrInterfaceWithInterfaces.getName().compareTo(
+				interfaceSearched) == 0) {
 			return classOrInterfaceWithInterfaces;
 
 		}
@@ -80,7 +80,9 @@ public class ClassUtils {
 
 	public static String getMethodKey(Method method) {
 		String ret = method.getName()
-				+ Arrays.toString(method.getParameterTypes())+method.getReturnType();
+				+ Arrays.toString(method.getParameterTypes());
+		// System.err.println("KEY: "+ret);
+
 		return ret;
 	}
 
@@ -89,10 +91,12 @@ public class ClassUtils {
 		Method[] methods = xClass.getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
 			int mods = methods[i].getModifiers();
+
 			if (!Modifier.isAbstract(mods) && !Modifier.isNative(mods)) {
 				concreteMethods.put(getMethodKey(methods[i]), methods[i]);
 			}
 		}
+
 		return concreteMethods;
 	}
 
@@ -113,7 +117,8 @@ public class ClassUtils {
 		while (superClass.getName().compareTo("java.lang.Object") != 0) {
 			methods = superClass.getDeclaredMethods();
 			for (int i = 0; i < methods.length; i++) {
-				if (Modifier.isAbstract(methods[i].getModifiers())) {
+				if (!Modifier.isAbstract(methods[i].getModifiers())
+						&& !Modifier.isNative(methods[i].getModifiers())) {
 					concreteMethods.put(getMethodKey(methods[i]), methods[i]);
 				}
 			}
@@ -153,6 +158,9 @@ public class ClassUtils {
 
 	public static Map<String, Method> getAbstractMethodsFromClass(Class xClass) {
 		HashMap<String, Method> abstractMethods = new HashMap<String, Method>();
+
+		// This includes methods only decalred, we also methods that are nto
+		// implemented, but abstract since they come from interfaces.... ech ;[
 		Method[] methods = xClass.getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
 			if (Modifier.isAbstract(methods[i].getModifiers())) {
@@ -160,6 +168,28 @@ public class ClassUtils {
 			}
 		}
 
+		// now here comes methods from interfaces
+		Set<String> ignore = new HashSet<String>();
+		ignore.add("java.lang.Object");
+		Map<String, Method> interfaceMethods = getAllInterfacesMethods(xClass,
+				ignore);
+		for (Method im : interfaceMethods.values()) {
+			try {
+				Method m = xClass.getMethod(im.getName(), im
+						.getParameterTypes());
+				if (Modifier.isAbstract(m.getModifiers())) {
+					abstractMethods.put(getMethodKey(m), m);
+				}
+			} catch (SecurityException e) {
+
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+				// in any case this shoudl be present there
+			}
+		}
+
+		// System.err.println("RET : "+abstractMethods);
 		return abstractMethods;
 	}
 
@@ -177,10 +207,63 @@ public class ClassUtils {
 					abstractMethods.put(getMethodKey(methods[i]), methods[i]);
 				}
 			}
+
+			Set<String> ignore = new HashSet<String>();
+			ignore.add("java.lang.Object");
+			Map<String, Method> interfaceMethods = getAllInterfacesMethods(
+					superClass, ignore);
+			for (Method im : interfaceMethods.values()) {
+				try {
+					// yes, xClass
+					Method m = xClass.getMethod(im.getName(), im
+							.getParameterTypes());
+					if (Modifier.isAbstract(m.getModifiers())) {
+						abstractMethods.put(getMethodKey(m), m);
+					}
+				} catch (SecurityException e) {
+
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					// e.printStackTrace();
+					// in any case this shoudl be present there
+				}
+			}
+
 			superClass = superClass.getSuperclass();
 		}
 
+		// System.err.println("RET SUPER: "+abstractMethods);
 		return abstractMethods;
+	}
+
+	// public static Method getMethodFromMap(String name, String[]
+	// parameterNames,Map<String,Method>... methods)
+	// {
+	// String key=name+Arrays.toString(parameterNames);
+	// for(Map<String,Method> m:methods)
+	// if(m.containsKey(key))
+	// {
+	// return m.get(key);
+	// }else
+	// {
+	//			
+	// }
+	//		
+	// return null;
+	//		
+	// }
+
+	public static Method getMethodFromMap(String name, Class[] parameters,
+			Map<String, Method>... methods) {
+		String key = name + Arrays.toString(parameters);
+		for (Map<String, Method> m : methods) {
+			if (m.containsKey(key)) {
+				return m.get(key);
+			} else {
+
+			}
+		}
+		return null;
 	}
 
 }
