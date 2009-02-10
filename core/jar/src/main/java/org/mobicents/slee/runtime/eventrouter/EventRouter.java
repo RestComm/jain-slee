@@ -38,7 +38,7 @@ public interface EventRouter {
 	 * @param dE
 	 * @param reason
 	 */
-	public void processEventRoutingFailure(DeferredEvent dE,FailureReason failureReason);
+	public void processEventRoutingFailure(DeferredEvent dE,int i);
 
 	/**
 	 * The activity has started so the event router may init related runtime resources

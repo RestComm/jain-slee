@@ -7,7 +7,6 @@ import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -34,14 +33,15 @@ public class InitialEventProcessor {
 			logger.debug("Initial event processing for " + svc.getServiceID());
 		}
 		
+		Exception caught = null;
+		SbbEntity sbbEntity = null;
+		SbbObject sbbObject = null;
+		ClassLoader invokerClassLoader = null;
+		ClassLoader oldClassLoader = Thread.currentThread()
+				.getContextClassLoader();
+		
 		try {
-			Exception caught = null;
-			SbbEntity sbbEntity = null;
-			SbbObject sbbObject = null;
-			ClassLoader invokerClassLoader = null;
-			ClassLoader oldClassLoader = Thread.currentThread()
-					.getContextClassLoader();
-
+		
 			txMgr.begin();
 
 			try {
@@ -107,7 +107,21 @@ public class InitialEventProcessor {
 								// do the reverse on the sbb entity
 								sbbEntity.afterACAttach(deferredEvent.getActivityContextId());
 							}
-
+							// passivate sbb object
+							try {
+								sbbEntity.passivateAndReleaseSbbObject();
+								sbbObject = sbbEntity.getSbbObject();
+							} catch (Exception ex) {
+								sbbObject = sbbEntity.getSbbObject();
+								if (sbbObject != null) {
+									try {
+										sbbEntity.removeAndReleaseSbbObject();										
+									} catch (Exception e) {
+										logger.error(e.getMessage(),e);
+									}
+								}								
+								throw ex;
+							}
 						} else {
 							
 							if (logger.isDebugEnabled()) {
@@ -134,32 +148,20 @@ public class InitialEventProcessor {
 				logger.error("Caught an error! ", e);
 				caught = e;
 				
-			} finally {
-				Thread.currentThread().setContextClassLoader(oldClassLoader);
 			}
 
 			boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject, null, null, caught, invokerClassLoader, txMgr);
 			
-			if (sbbEntity != null) {
-				if (!invokeSbbRolledBack) {
-					if (sbbObject != null) {
-						// we have an sbb object loaded due to sbb entity creation
-						sbbEntity.passivateAndReleaseSbbObject();						
-					}
-				}
-			}
-			else {
+			if (sbbEntity == null && invokeSbbRolledBack) {
 				// If there is no entity associated then the invokeSbbRolledBack is
 				// handle in
 				// the same tx, otherwise in a new tx (6.10.1)
-				if (invokeSbbRolledBack) {
-					handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
-					/* original code was, confirm in specs that at this time we should not send event object and aci
-					 * 
+				handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
+				/* original code was, confirm in specs that at this time we should not send event object and aci
+				 * 
 					handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
 							invokerClassLoader, false);
-							*/
-				}				
+				 */
 			}
 						
 			// commit or rollback the tx. if the setRollbackOnly flag is set then this will trigger rollback action.
@@ -167,7 +169,12 @@ public class InitialEventProcessor {
 				logger.debug("Committing SLEE Originated Invocation Sequence");
 			}
 			
-			txMgr.commit();
+			try {
+				txMgr.commit();
+			} catch (Exception e) {
+				logger.error("failed to commit transaction, invoking sbbRolledBack",e);
+				invokeSbbRolledBack = true;
+			}
 			
 			// We may need to run sbbRolledBack for invocation sequence 1 in another tx
 			if (sbbEntity != null && invokeSbbRolledBack) {
@@ -182,6 +189,10 @@ public class InitialEventProcessor {
 		} catch (Exception e) {
 			logger.error("Failed to process initial event for "
 					+ svc.getServiceID(), e);
+		}
+		
+		if (invokerClassLoader != null) {
+			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
 	}
 

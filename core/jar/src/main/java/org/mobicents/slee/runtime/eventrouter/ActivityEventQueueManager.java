@@ -89,7 +89,7 @@ public class ActivityEventQueueManager {
 		} else {
 			// signal event router that processing of the event failed
 			sleeContainer.getEventRouter().processEventRoutingFailure(dE,
-					FailureReason.ACTIVITY_ENDING);
+					FailureReason.REASON_OTHER_REASON);
 		}
 	}
 
@@ -130,7 +130,7 @@ public class ActivityEventQueueManager {
 			}
 		} else {
 			sleeContainer.getEventRouter().processEventRoutingFailure(dE,
-					FailureReason.REASON_UNKNOWN);
+					FailureReason.REASON_OTHER_REASON);
 		}
 	}
 

@@ -401,7 +401,7 @@ public class EventRoutingTask implements Runnable {
 					logger.error("Unhandled Throwable in event router: ", t);
 				} finally {
 					try {
-						if (txMgr.isInTx()) {
+						if (txMgr.getTransaction() != null) {
 							if (rollbackTx) {
 								logger
 										.error("Rolling back tx in routeTheEvent.");

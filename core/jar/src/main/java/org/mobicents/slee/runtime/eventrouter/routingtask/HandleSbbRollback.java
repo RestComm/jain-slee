@@ -71,7 +71,18 @@ public class HandleSbbRollback {
 				txMgr.begin();
 				// we have to refresh the sbb entity by reading it frmo the
 				// cache
-				sbbEntity = SbbEntityFactory.getSbbEntity(sbbId);
+				try {
+					sbbEntity = SbbEntityFactory.getSbbEntity(sbbId);
+				} catch (Exception e) {
+					// sbb entity does not exists, recreate it but set tx for a rollback
+					txMgr.setRollbackOnly();
+					if (sbbEntity.isRootSbbEntity()) {
+						sbbEntity = SbbEntityFactory.createRootSbbEntity(sbbEntity.getSbbId(), sbbEntity.getServiceId(), sbbEntity.getServiceConvergenceName());
+					}
+					else {
+						sbbEntity = SbbEntityFactory.createSbbEntity(sbbEntity.getSbbId(), sbbEntity.getServiceId(), sbbEntity.getParentSbbEntityId(), sbbEntity.getParentChildRelation(), sbbEntity.getRootSbbId(), sbbEntity.getServiceConvergenceName());
+					}
+				}
 			}
 
 			RolledBackContext rollbackContext = new RolledBackContextImpl(
@@ -119,9 +130,13 @@ public class HandleSbbRollback {
 
 			if (sbbEntity != null) {
 				try {
-					txMgr.commit();
-				} catch (SystemException ex) {
-					ex.printStackTrace();
+					if (txMgr.getRollbackOnly()) {
+						txMgr.rollback();
+					}
+					else {
+						txMgr.commit();
+					}
+				} catch (SystemException ex) {					
 					throw new RuntimeException("tx manager System Failure ", ex);
 				}
 			}
@@ -138,8 +153,18 @@ public class HandleSbbRollback {
 			sbbObject.sbbExceptionThrown(e, eventObject, aci);
 		} finally {
 			try {
-				if (txMgr.isInTx())
-					txMgr.commit();
+				if (txMgr.getTransaction() != null) {
+					try {
+						if (txMgr.getRollbackOnly()) {
+							txMgr.rollback();
+						}
+						else {
+							txMgr.commit();
+						}
+					} catch (SystemException ex) {					
+						throw new RuntimeException("tx manager System Failure ", ex);
+					}
+				}
 			} catch (Exception e2) {
 				logger.error("Failed to commit transaction", e2);
 				throw new RuntimeException("Failed to commit tx ", e2);

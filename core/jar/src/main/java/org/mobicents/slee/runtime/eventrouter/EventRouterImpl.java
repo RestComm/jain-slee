@@ -70,7 +70,7 @@ public class EventRouterImpl implements EventRouter {
 	}
 
 	public void processEventRoutingFailure(DeferredEvent de,
-		FailureReason failureReason) {
+		int failureReason) {
 		if (container.getSleeState() != SleeState.STOPPED) {
 			if (de.getActivityContextHandle().getActivityType() == ActivityType.externalActivity) {
 				ResourceAdaptorEntity raEntity;
