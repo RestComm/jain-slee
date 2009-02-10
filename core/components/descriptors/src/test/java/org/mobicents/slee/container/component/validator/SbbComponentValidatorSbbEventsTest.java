@@ -79,10 +79,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
@@ -107,10 +107,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -135,10 +135,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -163,10 +163,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -191,10 +191,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -221,10 +221,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -249,10 +249,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -277,10 +277,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -305,10 +305,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -334,10 +334,10 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()),ClassUtils
 						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
@@ -362,42 +362,42 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		component.setAbstractSbbClass(AbstractIES.class);
 		boolean b = validator.validateInitialEventSelector(event,ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not be abstract", b);
 
 		component.setAbstractSbbClass(FinalIES.class);
 		b = validator.validateInitialEventSelector(event,ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not be final", b);
 
 		component.setAbstractSbbClass(NotPublicIES.class);
 		b = validator.validateInitialEventSelector(event,ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can must be public", b);
 
 		component.setAbstractSbbClass(StaticIES.class);
 		b = validator.validateInitialEventSelector(event,ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not be static", b);
 
 		component.setAbstractSbbClass(ThrowsIES.class);
 		b = validator.validateInitialEventSelector(event,ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not have throws clause", b);
 
 		component.setAbstractSbbClass(ReturnTypeIES.class);
 		b = validator.validateInitialEventSelector(event,ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 		assertFalse(
 				"Initial Event Selector  must have javax.slee.InitialEventSelector as return type",

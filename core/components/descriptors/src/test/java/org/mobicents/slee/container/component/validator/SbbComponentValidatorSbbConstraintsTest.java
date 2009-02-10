@@ -47,7 +47,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateAbstractClassConstraints(ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
@@ -72,7 +72,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateAbstractClassConstraints(ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated and it should not be", b);
@@ -94,7 +94,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateAbstractClassConstraints(ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse(
@@ -118,7 +118,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateAbstractClassConstraints(ClassUtils
 				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getSuperClassesConcreteMethodsFromClass(component
+				ClassUtils.getConcreteMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse(

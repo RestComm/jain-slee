@@ -51,7 +51,7 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated, it should be", b);
@@ -76,7 +76,7 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse(
@@ -104,7 +104,7 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse(
@@ -132,7 +132,7 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse(

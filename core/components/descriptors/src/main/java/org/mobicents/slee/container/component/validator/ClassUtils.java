@@ -100,7 +100,7 @@ public class ClassUtils {
 		return concreteMethods;
 	}
 
-	public static Map<String, Method> getSuperClassesConcreteMethodsFromClass(
+	public static Map<String, Method> getConcreteMethodsFromSuperClasses(
 			Class xClass) {
 		HashMap<String, Method> concreteMethods = new HashMap<String, Method>();
 
@@ -193,7 +193,7 @@ public class ClassUtils {
 		return abstractMethods;
 	}
 
-	public static Map<String, Method> getAbstractSuperClassesMethodsFromClass(
+	public static Map<String, Method> getAbstractMethodsFromSuperClasses(
 			Class xClass) {
 		HashMap<String, Method> abstractMethods = new HashMap<String, Method>();
 		Method[] methods = null;
@@ -264,6 +264,32 @@ public class ClassUtils {
 			}
 		}
 		return null;
+	}
+
+	public static Class checkClasses(Class xClass, String classToSearch) {
+;
+
+			if (xClass.getName().compareTo(
+					classToSearch) == 0) {
+				return xClass;
+
+			}
+			Class superClass;
+
+			superClass = xClass.getSuperclass();
+
+			while (superClass.getName().compareTo("java.lang.Object") != 0) {
+				
+				if (xClass.getName().compareTo(
+						classToSearch) == 0) {
+					return xClass;
+
+				}
+				
+				superClass = superClass.getSuperclass();
+			}
+			
+			return null;
 	}
 
 }

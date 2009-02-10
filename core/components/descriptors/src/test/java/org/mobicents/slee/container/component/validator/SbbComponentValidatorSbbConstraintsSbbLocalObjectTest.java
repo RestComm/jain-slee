@@ -55,7 +55,7 @@ TCUtilityClass {
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
 						.getAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
+						.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
@@ -84,7 +84,7 @@ TCUtilityClass {
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
 						.getAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
+						.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -110,7 +110,7 @@ TCUtilityClass {
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
 						.getAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
+						.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -138,7 +138,7 @@ TCUtilityClass {
 		boolean b = validator.validateSbbLocalInterface(
 				ClassUtils.getConcreteMethodsFromClass(component
 						.getAbstractSbbClass()), ClassUtils
-						.getSuperClassesConcreteMethodsFromClass(component
+						.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);

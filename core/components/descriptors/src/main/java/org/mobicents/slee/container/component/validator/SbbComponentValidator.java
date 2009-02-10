@@ -107,13 +107,13 @@ public class SbbComponentValidator implements Validator {
 					.getAbstractMethodsFromClass(this.component
 							.getAbstractSbbClass());
 			superClassesAbstractMethod = ClassUtils
-					.getAbstractSuperClassesMethodsFromClass(this.component
+					.getAbstractMethodsFromSuperClasses(this.component
 							.getAbstractSbbClass());
 			concreteMethods = ClassUtils
 					.getConcreteMethodsFromClass(this.component
 							.getAbstractSbbClass());
 			superClassesConcreteMethods = ClassUtils
-					.getSuperClassesConcreteMethodsFromClass(this.component
+					.getConcreteMethodsFromSuperClasses(this.component
 							.getAbstractSbbClass());
 
 

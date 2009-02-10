@@ -104,7 +104,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
@@ -168,7 +168,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -233,7 +233,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -296,7 +296,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -359,7 +359,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -422,7 +422,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -488,7 +488,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);

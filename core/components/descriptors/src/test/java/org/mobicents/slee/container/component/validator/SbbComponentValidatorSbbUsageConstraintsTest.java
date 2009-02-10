@@ -61,7 +61,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
@@ -85,7 +85,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -106,7 +106,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -126,7 +126,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -148,7 +148,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -170,7 +170,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -190,7 +190,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -211,7 +211,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
@@ -233,7 +233,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
 				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractSuperClassesMethodsFromClass(component
+				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);

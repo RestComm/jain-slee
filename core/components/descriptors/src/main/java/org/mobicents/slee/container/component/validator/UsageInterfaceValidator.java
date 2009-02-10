@@ -24,6 +24,8 @@ import javax.slee.profile.ProfileID;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParameter;
 
@@ -310,10 +312,8 @@ public class UsageInterfaceValidator {
 				tmp.addAll(agregatedSample);
 				tmp.addAll(agregatedIncrement);
 
-			
-				
 				if (localParametersMap.size() != tmp.size()) {
-			
+
 					passed = false;
 
 					String errorPart = null;
@@ -341,7 +341,7 @@ public class UsageInterfaceValidator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer.toString());
-				//System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
 			}
 		}
 
@@ -468,12 +468,10 @@ public class UsageInterfaceValidator {
 
 		m = ClassUtils.getMethodFromMap(methodName, new Class[] {},
 				sbbAbstractClassMethods, sbbAbstractMethodsFromSuperClasses);
-		
-
 
 		if (m != null) {
 			foundAtleastOne = true;
-			if (!validateMethodSignature(component.getSbbID(), m, component
+			if (!validateGetUsageMethodSignature(component.getSbbID(), m, component
 					.getUsageParametersInterface(), new Class[] {}, "8.4.1")) {
 				passed = false;
 
@@ -486,12 +484,13 @@ public class UsageInterfaceValidator {
 		}
 		methodName = "getSbbUsageParameterSet";
 
-		m = ClassUtils.getMethodFromMap(methodName, new Class[] { String.class },
-				sbbAbstractClassMethods, sbbAbstractMethodsFromSuperClasses);
+		m = ClassUtils.getMethodFromMap(methodName,
+				new Class[] { String.class }, sbbAbstractClassMethods,
+				sbbAbstractMethodsFromSuperClasses);
 
 		if (m != null) {
 			foundAtleastOne = true;
-			if (!validateMethodSignature(
+			if (!validateGetUsageMethodSignature(
 					component.getSbbID(),
 					m,
 					component.getUsageParametersInterface(),
@@ -522,14 +521,14 @@ public class UsageInterfaceValidator {
 
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			//System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 		}
 
 		return passed;
 
 	}
 
-	static boolean validateMethodSignature(ComponentID id, Method m,
+	static boolean validateGetUsageMethodSignature(ComponentID id, Method m,
 			Class returnType, Class[] exceptions, String section) {
 
 		// must be public, abstract
@@ -571,34 +570,108 @@ public class UsageInterfaceValidator {
 
 		}
 
-		if (m.getReturnType().getName().compareTo(returnType.getName()) != 0) {
+		if (m.getReturnType().getName().compareTo(returnType.getName()) == 0 || ClassUtils.checkInterfaces(returnType, m.getReturnType().getName())!=null) {
 
+			//ok
+		
+
+		}else
+		{
 			passed = false;
 			errorBuffer = appendToBuffer(id,
 					"Usage interface access method has wrong return type defined, method: "
 							+ m.getName(), section, errorBuffer);
-
 		}
 		if (!passed) {
 			logger.error(errorBuffer.toString());
-			 //System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 		}
 
 		return passed;
 	}
 
 	static boolean validateResourceAdaptorUsageParameterInterface(
-			Class usageComponent, Class usageInterface,
-			List<MUsageParameter> parameters) {
+			ResourceAdaptorComponent component,
+			Map<String, Method> abstractClassMethods,
+			Map<String, Method> abstractMethodsFromSuperClasses) {
 
 		return false;
 	}
 
-	static boolean validateprofileSpecificationUsageParameterInterface(
-			Class usageComponent, Class usageInterface,
-			List<MUsageParameter> parameters) {
+	static boolean validateProfileSpecificationUsageParameterInterface(
+			ProfileSpecificationComponent component,
+			Map<String, Method> abstractClassMethods,
+			Map<String, Method> abstractMethodsFromSuperClasses) {
 
-		return false;
+		
+		
+		String errorBuffer = new String("");
+		boolean passed = true;
+		boolean foundAtleastOne = false;
+		String methodName = "getDefaultUsageParameterSet";
+		Class componentClass = component.getProfileAbstractClass();
+
+		Method m = null;
+
+		m = ClassUtils.getMethodFromMap(methodName, new Class[] {},
+				abstractClassMethods, abstractMethodsFromSuperClasses);
+
+		if (m != null) {
+			foundAtleastOne = true;
+			if (!validateGetUsageMethodSignature(component.getProfileSpecificationID(), m, component
+					.getProfileUsageInterfaceClass(), new Class[] {}, "11.4.2")){
+				passed = false;
+
+			}
+
+			abstractClassMethods.remove(ClassUtils.getMethodKey(m));
+			abstractMethodsFromSuperClasses.remove(ClassUtils
+					.getMethodKey(m));
+
+		}
+		methodName = "getUsageParameterSet";
+
+		m = ClassUtils.getMethodFromMap(methodName,
+				new Class[] { String.class }, abstractClassMethods,
+				abstractMethodsFromSuperClasses);
+
+		if (m != null) {
+			foundAtleastOne = true;
+			if (!validateGetUsageMethodSignature(
+					component.getProfileSpecificationID(),
+					m,
+					component.getProfileUsageInterfaceClass(),
+					new Class[] { UnrecognizedUsageParameterSetNameException.class },
+					"11.4.2")) {
+				passed = false;
+
+			}
+			abstractClassMethods.remove(ClassUtils.getMethodKey(m));
+			abstractMethodsFromSuperClasses.remove(ClassUtils
+					.getMethodKey(m));
+		}
+
+		if (!validateUsageParameterInterface(component.getProfileSpecificationID(), component
+				.isSlee11(), component.getProfileUsageInterfaceClass(), component
+				.getDescriptor().getProfileUsageParameterInterface().getUsageParameter()
+				)) {
+			passed = false;
+		}
+
+		if (!foundAtleastOne) {
+			passed = false;
+			errorBuffer = appendToBuffer(
+					component.getProfileSpecificationID(),
+					"Atleast one get usage interface method must be present(it must be public).",
+					"11.4.2", errorBuffer);
+		}
+
+		if (!passed) {
+			logger.error(errorBuffer.toString());
+			// System.err.println(errorBuffer);
+		}
+
+		return passed;
 	}
 
 	protected static String appendToBuffer(ComponentID id, String message,
@@ -607,4 +680,7 @@ public class UsageInterfaceValidator {
 				+ " of jSLEE 1.1 specification : " + message + "\n");
 		return buffer;
 	}
+
+	
+
 }
