@@ -2,6 +2,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.List;
 
+import javax.slee.resource.ResourceAdaptorID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MLibraryRef;
@@ -29,6 +31,8 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
   private int index;
   
   private MResourceAdaptor resourceAdaptor;
+  
+  private ResourceAdaptorID resourceAdaptorID;
   private String description;
   
   private List<MLibraryRef> libraryRefs;
@@ -69,6 +73,7 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
   {
     this.resourceAdaptor = this.resourceAdaptorJar.getResourceAdaptor().get(index);
     this.description = this.resourceAdaptor.getDescription();
+    this.resourceAdaptorID = new ResourceAdaptorID(resourceAdaptor.getResourceAdaptorName(), resourceAdaptor.getResourceAdaptorVendor(), resourceAdaptor.getResourceAdaptorVersion());
     
     this.libraryRefs = this.resourceAdaptor.getLibraryRef();
     this.resourceAdaptorTypeRefs = this.resourceAdaptor.getResourceAdaptorTypeRefs();
@@ -142,5 +147,9 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
   {
     return supportsActiveReconfiguration;
   }
+  
+  public ResourceAdaptorID getResourceAdaptorID() {
+	return resourceAdaptorID;
+  }	
   
 }

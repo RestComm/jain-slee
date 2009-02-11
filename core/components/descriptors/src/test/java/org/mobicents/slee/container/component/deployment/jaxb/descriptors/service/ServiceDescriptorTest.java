@@ -88,8 +88,8 @@ public class ServiceDescriptorTest extends TCUtilityClass {
 	protected void doTestOnValues(ServiceDescriptorImpl service,int index) {
 		
 
-		validateKey(service.getRootSbb(), "Root Sbb key", new String[]{_SBB_NAME+index,_SBB_VENDOR+index,_SBB_VERSION+index});
-		validateKey(service.getServiceKey(), "Service key", new String[]{_SERVICE_NAME+index,_SERVICE_VENDOR+index,_SERVICE_VERSION+index});
+		validateKey(service.getRootSbbID(), "Root Sbb key", new String[]{_SBB_NAME+index,_SBB_VENDOR+index,_SBB_VERSION+index});
+		validateKey(service.getServiceID(), "Service key", new String[]{_SERVICE_NAME+index,_SERVICE_VENDOR+index,_SERVICE_VERSION+index});
 		validateValue(service.getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
 		
 		if(!service.isSlee11())

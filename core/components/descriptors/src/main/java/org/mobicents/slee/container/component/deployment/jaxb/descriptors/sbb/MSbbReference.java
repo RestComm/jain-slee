@@ -8,7 +8,8 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
-import org.mobicents.slee.container.component.ComponentKey;
+import javax.slee.SbbID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbRef;
 
 
@@ -28,21 +29,21 @@ public class MSbbReference {
 	
 	private String description;
 	private String sbbAlias=null;
-	private ComponentKey referenceKey=null;
+	private SbbID referenceKey=null;
 	public String getDescription() {
 		return description;
 	}
 	public String getSbbAlias() {
 		return sbbAlias;
 	}
-	public ComponentKey getReferenceKey() {
+	public SbbID getReferenceSbbID() {
 		return referenceKey;
 	}
 	public MSbbReference(SbbRef llSbbRef) {
 		super();
 		this.llSbbRef = llSbbRef;
 		this.description=this.llSbbRef.getDescription()==null?null:this.llSbbRef.getDescription().getvalue();
-		this.referenceKey=new ComponentKey(this.llSbbRef.getSbbName().getvalue(),this.llSbbRef.getSbbVendor().getvalue(),this.llSbbRef.getSbbVersion().getvalue());
+		this.referenceKey=new SbbID(this.llSbbRef.getSbbName().getvalue(),this.llSbbRef.getSbbVendor().getvalue(),this.llSbbRef.getSbbVersion().getvalue());
 		this.sbbAlias=this.llSbbRef.getSbbAlias().getvalue();
 		
 	}
@@ -51,7 +52,7 @@ public class MSbbReference {
 		super();
 		this.sbbRef = sbbRef;
 		this.description=this.sbbRef.getDescription()==null?null:this.sbbRef.getDescription().getvalue();
-		this.referenceKey=new ComponentKey(this.sbbRef.getSbbName().getvalue(),this.sbbRef.getSbbVendor().getvalue(),this.sbbRef.getSbbVersion().getvalue());
+		this.referenceKey=new SbbID(this.sbbRef.getSbbName().getvalue(),this.sbbRef.getSbbVendor().getvalue(),this.sbbRef.getSbbVersion().getvalue());
 		this.sbbAlias=this.sbbRef.getSbbAlias().getvalue();
 	}
 	

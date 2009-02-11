@@ -14,13 +14,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 
+import javax.slee.ComponentID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
 
-import org.mobicents.slee.container.component.ComponentKey;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXException;
@@ -88,7 +88,7 @@ public class TCUtilityClass extends TestCase {
 	
 	
 	
-	protected void validateKey(ComponentKey key, String text, String[] fieldValueAndName)
+	protected void validateKey(ComponentID key, String text, String[] fieldValueAndName)
 	{
 
 		

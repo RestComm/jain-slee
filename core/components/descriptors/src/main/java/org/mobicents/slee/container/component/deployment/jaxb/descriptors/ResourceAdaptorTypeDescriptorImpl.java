@@ -2,6 +2,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.List;
 
+import javax.slee.resource.ResourceAdaptorTypeID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityContextInterfaceFactoryInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityType;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MEventTypeRef;
@@ -30,6 +32,8 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
   
   private MResourceAdaptorType raType;
 
+  private ResourceAdaptorTypeID resourceAdaptorTypeID;
+  
   private String description;
   
   private List<MEventTypeRef> eventTypeRefs;
@@ -83,7 +87,7 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
   {
     this.raType = this.resourceAdaptorTypeJar.getResourceAdaptorType().get(index);
     this.description = this.raType.getDescription();
-    
+    this.resourceAdaptorTypeID = new ResourceAdaptorTypeID(raType.getResourceAdaptorTypeName(), raType.getResourceAdaptorTypeVendor(), raType.getResourceAdaptorTypeVersion());
     MResourceAdaptorTypeClasses resourceAdaptorTypeClasses = this.raType.getResourceAdaptorTypeClasses(); 
     
     this.eventTypeRefs = this.raType.getEventTypeRef();
@@ -134,4 +138,9 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
   {
     return resourceAdaptorInterface;
   }
+  
+  public ResourceAdaptorTypeID getResourceAdaptorTypeID() {
+	return resourceAdaptorTypeID;
+  }
+  
 }

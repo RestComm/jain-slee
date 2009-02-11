@@ -11,7 +11,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.slee.container.component.ComponentKey;
+import javax.slee.resource.ResourceAdaptorTypeID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorTypeBinding;
 
@@ -23,13 +24,13 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceA
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MResourceAdaptorTypeBidning {
+public class MResourceAdaptorTypeBinding {
 
 	private ResourceAdaptorTypeBinding resourceAdaptorTypeBinding = null;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorTypeBinding llResourceAdaptorTypeBinding = null;
 
 	private String description = null;
-	private ComponentKey resourceAdaptorTypeRef = null;
+	private ResourceAdaptorTypeID resourceAdaptorTypeRef = null;
 	private String activityContextInterfaceFactoryName = null;
 	private List<MResourceAdaptorEntityBinding> resourceAdaptorEntityBinding = null;
 
@@ -37,7 +38,7 @@ public class MResourceAdaptorTypeBidning {
 		return description;
 	}
 
-	public ComponentKey getResourceAdaptorTypeRef() {
+	public ResourceAdaptorTypeID getResourceAdaptorTypeRef() {
 		return resourceAdaptorTypeRef;
 	}
 
@@ -49,13 +50,13 @@ public class MResourceAdaptorTypeBidning {
 		return resourceAdaptorEntityBinding;
 	}
 
-	public MResourceAdaptorTypeBidning(
+	public MResourceAdaptorTypeBinding(
 			ResourceAdaptorTypeBinding resourceAdaptorTypeBinding) {
 		super();
 		this.resourceAdaptorTypeBinding = resourceAdaptorTypeBinding;
 		this.description = this.resourceAdaptorTypeBinding.getDescription() == null ? null
 				: this.resourceAdaptorTypeBinding.getDescription().getvalue();
-		this.resourceAdaptorTypeRef = new ComponentKey(
+		this.resourceAdaptorTypeRef = new ResourceAdaptorTypeID(
 				this.resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeName().getvalue(),
 				this.resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
@@ -81,14 +82,14 @@ public class MResourceAdaptorTypeBidning {
 		
 	}
 
-	public MResourceAdaptorTypeBidning(
+	public MResourceAdaptorTypeBinding(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorTypeBinding llResourceAdaptorTypeBinding) {
 		super();
 		this.llResourceAdaptorTypeBinding = llResourceAdaptorTypeBinding;
 		
 		this.description = this.llResourceAdaptorTypeBinding.getDescription() == null ? null
 				: this.llResourceAdaptorTypeBinding.getDescription().getvalue();
-		this.resourceAdaptorTypeRef = new ComponentKey(
+		this.resourceAdaptorTypeRef = new ResourceAdaptorTypeID(
 				this.llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeName().getvalue(),
 				this.llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()

@@ -31,7 +31,7 @@ public class DefaultEntityResolver implements EntityResolver{
         instance = new DefaultEntityResolver(sleeClassLoader);
     }
     
-    DefaultEntityResolver(ClassLoader classLoader) {
+    public DefaultEntityResolver(ClassLoader classLoader) {
         this.classLoader = classLoader;
         
         resources = new Hashtable();

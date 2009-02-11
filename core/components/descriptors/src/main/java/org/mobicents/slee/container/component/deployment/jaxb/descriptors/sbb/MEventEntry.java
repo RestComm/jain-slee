@@ -11,7 +11,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEventRefrence;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEventSelect;

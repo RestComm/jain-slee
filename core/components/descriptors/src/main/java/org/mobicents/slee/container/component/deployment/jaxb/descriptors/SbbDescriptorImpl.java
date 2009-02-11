@@ -10,14 +10,14 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
+import javax.slee.SbbID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
-
-import org.mobicents.slee.container.component.ComponentKey;
+import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
@@ -26,14 +26,11 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MA
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBidning;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbActivityContextInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbReference;
-
-
-
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Sbb;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbJar;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ActivityContextAttributeAlias;
@@ -43,7 +40,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.LibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbRef;
-
 import org.w3c.dom.Document;
 
 /**
@@ -71,7 +67,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	
 	private String description = null;
 
-	private ComponentKey sbbComponentKey = null;
+	private SbbID sbbID = null;
 	private String sbbAlias = null;
 	//its 1.1
 	private List<MSbbReference> sbbRefs = null;
@@ -87,17 +83,15 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	private List<MEventEntry> events = null;
 	private List<MActivityContextAttributeAlias> activityContextAttributeAliases = null;
 	private List<MEnvEntry> envEntries = null;
-	private List<MResourceAdaptorTypeBidning> resourceAdaptorTypeBindings = null;
+	private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBindings = null;
 
 	// 1.1 stuff, profile specs refs have alias element, so we need another.
-	private List<ComponentKey> libraryRefs = null;
+	private Set<LibraryID> libraryRefs = null;
 	private List<MEjbRef> ejbRefs = null;
 
 	private MSecurityPermision securityPermisions = null;
 
-	
 	/**
-	 * tttttt
 	 * 
 	 * @param doc
 	 * @throws DeploymentException
@@ -144,13 +138,13 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 
 			this.sbbAlias = this.llSbb.getSbbAlias().getvalue();
 
-			this.sbbComponentKey=new ComponentKey(this.llSbb.getSbbName().getvalue(),this.llSbb.getSbbVendor().getvalue(),this.llSbb.getSbbVersion().getvalue());
+			this.sbbID=new SbbID(this.llSbb.getSbbName().getvalue(),this.llSbb.getSbbVendor().getvalue(),this.llSbb.getSbbVersion().getvalue());
 			
 			// Library Refs
-			this.libraryRefs = new ArrayList<ComponentKey>();
+			this.libraryRefs = new HashSet<LibraryID>();
 			if (llSbb.getLibraryRef() != null) {
 				for (LibraryRef lr : this.llSbb.getLibraryRef()) {
-					this.libraryRefs.add(new ComponentKey(lr.getLibraryName()
+					this.libraryRefs.add(new LibraryID(lr.getLibraryName()
 							.getvalue(), lr.getLibraryVendor().getvalue(), lr
 							.getLibraryVersion().getvalue()));
 				}
@@ -231,12 +225,12 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 				}
 			}
 			
-			this.resourceAdaptorTypeBindings=new ArrayList<MResourceAdaptorTypeBidning>();
+			this.resourceAdaptorTypeBindings=new ArrayList<MResourceAdaptorTypeBinding>();
 			if(this.llSbb.getResourceAdaptorTypeBinding()!=null)
 			{
 				for(ResourceAdaptorTypeBinding ratb: this.llSbb.getResourceAdaptorTypeBinding())
 				{
-					this.resourceAdaptorTypeBindings.add(new MResourceAdaptorTypeBidning(ratb));
+					this.resourceAdaptorTypeBindings.add(new MResourceAdaptorTypeBinding(ratb));
 				}
 			}
 			
@@ -266,9 +260,9 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 			this.sbbAlias = this.sbb.getSbbAlias().getvalue();
 
 
-			this.sbbComponentKey=new ComponentKey(this.sbb.getSbbName().getvalue(),this.sbb.getSbbVendor().getvalue(),this.sbb.getSbbVersion().getvalue());
+			this.sbbID=new SbbID(this.sbb.getSbbName().getvalue(),this.sbb.getSbbVendor().getvalue(),this.sbb.getSbbVersion().getvalue());
 			// Library Refs
-			this.libraryRefs = new ArrayList<ComponentKey>();
+			this.libraryRefs = new HashSet<LibraryID>();
 			
 			//FIXME: template from jslee has child-sbb element, in dtd its sbb-ref !!!!!!!
 			// SbbRefs 
@@ -340,12 +334,12 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 				}
 			}
 			
-			this.resourceAdaptorTypeBindings=new ArrayList<MResourceAdaptorTypeBidning>();
+			this.resourceAdaptorTypeBindings=new ArrayList<MResourceAdaptorTypeBinding>();
 			if(this.sbb.getResourceAdaptorTypeBinding()!=null)
 			{
 				for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorTypeBinding ratb: this.sbb.getResourceAdaptorTypeBinding())
 				{
-					this.resourceAdaptorTypeBindings.add(new MResourceAdaptorTypeBidning(ratb));
+					this.resourceAdaptorTypeBindings.add(new MResourceAdaptorTypeBinding(ratb));
 				}
 			}
 			
@@ -438,8 +432,8 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 		return description;
 	}
 
-	public ComponentKey getSbbComponentKey() {
-		return sbbComponentKey;
+	public SbbID getSbbID() {
+		return sbbID;
 	}
 
 	public String getSbbAlias() {
@@ -486,11 +480,11 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 		return envEntries;
 	}
 
-	public List<MResourceAdaptorTypeBidning> getResourceAdaptorTypeBindings() {
+	public List<MResourceAdaptorTypeBinding> getResourceAdaptorTypeBindings() {
 		return resourceAdaptorTypeBindings;
 	}
 
-	public List<ComponentKey> getLibraryRefs() {
+	public Set<LibraryID> getLibraryRefs() {
 		return libraryRefs;
 	}
 
@@ -498,13 +492,8 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 		return ejbRefs;
 	}
 
-
 	public MSecurityPermision getSecurityPermisions() {
 		return securityPermisions;
 	}
-
-
-
-	
 	
 }

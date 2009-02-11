@@ -3,6 +3,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.slee.management.LibraryID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MJar;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MLibrary;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MLibraryJar;
@@ -27,9 +29,7 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
   
   private String description;
   private List<MJar> jars = new ArrayList<MJar>();
-  private String libraryName;
-  private String libraryVendor;
-  private String libraryVersion;
+  private LibraryID libraryID;
   
   public LibraryDescriptorImpl(Document doc)
   {
@@ -50,9 +50,7 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
     
     this.jars = this.library.getJar();
     
-    this.libraryName = this.library.getLibraryName();
-    this.libraryVendor = this.library.getLibraryVendor();
-    this.libraryVersion = this.library.getLibraryVersion();
+    libraryID = new LibraryID(library.getLibraryName(), library.getLibraryVendor(),library.getLibraryVersion());
   }
 
   @Override
@@ -76,19 +74,8 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
     return jars;
   }
   
-  public String getLibraryName()
-  {
-    return libraryName;
-  }
-  
-  public String getLibraryVendor()
-  {
-    return libraryVendor;
-  }
-  
-  public String getLibraryVersion()
-  {
-    return libraryVersion;
+  public LibraryID getLibraryID() {
+	return libraryID;
   }
   
 }

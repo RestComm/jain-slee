@@ -2,6 +2,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.List;
 
+import javax.slee.EventTypeID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventDefinition;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventJar;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MLibraryRef;
@@ -21,7 +23,7 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
 
   private int index;
   private MEventJar eventJar;
-  private MEventDefinition eventDefinition;
+  private EventTypeID eventTypeID;
   private String description;
   private String eventClassName;
   private List<MLibraryRef> libraryRefs;
@@ -50,10 +52,10 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
   @Override
   public void buildDescriptionMap()
   {
-    this.eventDefinition = this.eventJar.getEventDefinition().get(index);
-    this.description = this.eventDefinition.getDescription();
-    
-    this.eventClassName = this.eventDefinition.getEventClassName();
+    MEventDefinition eventDefinition = this.eventJar.getEventDefinition().get(index);
+    this.description = eventDefinition.getDescription();
+    this.eventTypeID = new EventTypeID(eventDefinition.getEventTypeName(),eventDefinition.getEventTypeVendor(),eventDefinition.getEventTypeVersion());
+    this.eventClassName = eventDefinition.getEventClassName();
     
     // FIXME: alexandre: is this supposed to be like that? do we use it in here?
     this.libraryRefs = this.eventJar.getLibraryRef();
@@ -65,9 +67,8 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
     return this.eventJar;
   }
   
-  public MEventDefinition getEventDefinition()
-  {
-    return eventDefinition;
+  public EventTypeID getEventTypeID() {
+	return eventTypeID;
   }
   
   public String getDescription()

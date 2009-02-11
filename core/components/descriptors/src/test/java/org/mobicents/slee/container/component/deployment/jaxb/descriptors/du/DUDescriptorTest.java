@@ -16,7 +16,6 @@ import java.util.Map;
 import javax.slee.management.DeploymentException;
 
 
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;

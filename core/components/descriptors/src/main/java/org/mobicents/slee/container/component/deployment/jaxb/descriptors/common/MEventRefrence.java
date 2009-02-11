@@ -10,7 +10,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.commo
 
 import javax.slee.EventTypeID;
 
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EventTypeRef;
 
 /**

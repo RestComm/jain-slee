@@ -8,7 +8,7 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.common;
 
-import org.mobicents.slee.container.component.ComponentKey;
+import javax.slee.profile.ProfileSpecificationID;
 
 
 /**
@@ -26,12 +26,12 @@ public class MProfileSpecsReference {
 	private String description=null;
 	//used in sbbs
 	private String profileSpecAlias=null;
-	private ComponentKey referenceKey=null;
+	private ProfileSpecificationID referenceKey=null;
 	public MProfileSpecsReference(String description, String alias, String name, String vendor, String version) {
 		super();
 		this.description = description;
 		this.profileSpecAlias = alias;
-		this.referenceKey=new ComponentKey(name,vendor,version);
+		this.referenceKey=new ProfileSpecificationID(name,vendor,version);
 	}
 	public String getDescription() {
 		return description;
@@ -39,7 +39,7 @@ public class MProfileSpecsReference {
 	public String getProfileSpecAlias() {
 		return profileSpecAlias;
 	}
-	public ComponentKey getReferenceKey() {
+	public ProfileSpecificationID getReferenceProfileSpecificationID() {
 		return referenceKey;
 	}
 	

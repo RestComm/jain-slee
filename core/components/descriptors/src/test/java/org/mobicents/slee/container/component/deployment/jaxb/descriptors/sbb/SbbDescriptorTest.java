@@ -11,16 +11,14 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
 
-
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
-import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef;
 import org.xml.sax.SAXException;
 
 /**
@@ -167,8 +165,8 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		
 		
 		
-		validateKey(sbb.getSbbComponentKey(),"Sbb component key",new String[]{_SBB_NAME,_SBB_VENDOR,_SBB_VERSION});
-		assertNotNull("Sbb component key cant be null",sbb.getSbbComponentKey());
+		validateKey(sbb.getSbbID(),"Sbb component key",new String[]{_SBB_NAME,_SBB_VENDOR,_SBB_VERSION});
+		assertNotNull("Sbb component key cant be null",sbb.getSbbID());
 	
 		
 		//Alias is Optional, but its filled
@@ -183,7 +181,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertNotNull("Profile specs reference is null",ref);
 		
 		
-		validateKey(ref.getReferenceKey(),"Profile specs reference",new String[]{_PROFILE_SPEC_NAME,_PROFILE_SPEC_VENDOR,_PROFILE_SPEC_VERSION});
+		validateKey(ref.getReferenceProfileSpecificationID(),"Profile specs reference",new String[]{_PROFILE_SPEC_NAME,_PROFILE_SPEC_VENDOR,_PROFILE_SPEC_VERSION});
 		assertNotNull("Profile specs reference alias is null ",ref.getProfileSpecAlias());
 		assertTrue("Profile specs reference alias is not equal to "+_PROFILE_SPEC_ALIAS,ref.getProfileSpecAlias().compareTo(_PROFILE_SPEC_ALIAS)==0);
 		
@@ -259,14 +257,14 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Sbb env entry value not equal: "+_ENV_ENTRY_VALUE, entry.getEnvEntryValue().compareTo(_ENV_ENTRY_VALUE)==0);
 		
 		
-		List<MResourceAdaptorTypeBidning> raTypeBindings=sbb.getResourceAdaptorTypeBindings();
+		List<MResourceAdaptorTypeBinding> raTypeBindings=sbb.getResourceAdaptorTypeBindings();
 		
 		
 		assertNotNull("Sbb ra typee bindings list is null",raTypeBindings);
 		assertTrue("Sbb ra typee bindings list size is not equal to 1",raTypeBindings.size()==1);
 		assertNotNull("Sbb ra typee binding is null",raTypeBindings.get(0));
 		
-		MResourceAdaptorTypeBidning raTypeBinding=raTypeBindings.get(0);
+		MResourceAdaptorTypeBinding raTypeBinding=raTypeBindings.get(0);
 		
 		validateKey(raTypeBinding.getResourceAdaptorTypeRef(), "Resource Adaptor Type Binding reference key ", new String[]{_RATYPE_BINDING_NAME,_RATYPE_BINDING_VENDOR,_RATYPE_BINDING_VERSION});
 		
@@ -366,12 +364,12 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		if(sbb.isSlee11())
 		{
 			
-			List<ComponentKey> libraryRefs=sbb.getLibraryRefs();
+			Set<LibraryID> libraryRefs=sbb.getLibraryRefs();
 			
 			
 			assertNotNull("Sbb library refs list is null",libraryRefs);
 			assertTrue("Sbb library refs size is not equal to 1",libraryRefs.size()==1);
-			validateKey(libraryRefs.get(0), "Sbb library ref key", new String[]{_LIBRARY_REF_NAME,_LIBRARY_REF_VENDOR,_LIBRARY_REF_VERSION});
+			validateKey(libraryRefs.iterator().next(), "Sbb library ref key", new String[]{_LIBRARY_REF_NAME,_LIBRARY_REF_VENDOR,_LIBRARY_REF_VERSION});
 			
 			
 			

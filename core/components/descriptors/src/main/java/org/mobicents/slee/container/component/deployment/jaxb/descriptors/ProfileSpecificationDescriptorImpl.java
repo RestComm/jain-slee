@@ -16,8 +16,9 @@ import java.util.Set;
 
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
+import javax.slee.profile.ProfileSpecificationID;
 
-import org.mobicents.slee.container.component.ComponentKey;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MEnvEntry;
@@ -57,7 +58,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 	// 1.0 stuff + some 1.1
 	private String description = null;
 	// name/vendor/version
-	private ComponentKey profileSpecKey = null;
+	private ProfileSpecificationID profileSpecificationID = null;
 
 	private MProfileSpecProfileCMPInterface profileCMPInterface = null;
 	// This could be string, but lets be consistent
@@ -68,8 +69,8 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 	// FIXME: add hints here?
 
 	// 1.1 Stuff
-	private List<ComponentKey> profileSpecRefs = null;
-	private List<ComponentKey> libraryRefs = null;
+	private Set<ProfileSpecificationID> profileSpecRefs = null;
+	private Set<LibraryID> libraryRefs = null;
 	private List<MProfileSpecCollator> collators = null;
 
 	private MProfileSpecProfileTableInterface profileTableInterface = null;
@@ -129,28 +130,27 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 					.getProfileSpec().get(index);
 			this.description = specs.getDescription() != null ? specs
 					.getDescription().getvalue() : null;
-			this.profileSpecKey = new ComponentKey(specs.getProfileSpecName()
+			this.profileSpecificationID = new ProfileSpecificationID(specs.getProfileSpecName()
 					.getvalue(), specs.getProfileSpecVendor().getvalue(), specs
 					.getProfileSpecVersion().getvalue());
 
 			this.readOnly = specs.getProfileReadOnly();
 			this.eventsEnabled = specs.getProfileEventsEnabled();
 			// Here we ignore description elements for now :)
-			this.libraryRefs = new ArrayList<ComponentKey>();
+			this.libraryRefs = new HashSet<LibraryID>();
 			if (specs.getLibraryRef() != null
 					&& specs.getLibraryRef().size() > 0) {
 
 				for (LibraryRef ref : specs.getLibraryRef()) {
-					libraryRefs.add(new ComponentKey(ref.getLibraryName().getvalue(),ref.getLibraryVendor().getvalue(),ref.getLibraryVersion().getvalue()));
+					libraryRefs.add(new LibraryID(ref.getLibraryName().getvalue(),ref.getLibraryVendor().getvalue(),ref.getLibraryVersion().getvalue()));
 				}
 			}
 
-			this.profileSpecRefs = new ArrayList<ComponentKey>();
+			this.profileSpecRefs = new HashSet<ProfileSpecificationID>();
 			if (specs.getProfileSpecRef() != null
 					&& specs.getProfileSpecRef().size() > 0) {
-				for (ProfileSpecRef ref : specs.getProfileSpecRef()) {
-					// FIXME: add profile ID
-					profileSpecRefs.add(new ComponentKey(ref.getProfileSpecName().getvalue(),ref.getProfileSpecVendor().getvalue(),ref.getProfileSpecVersion().getvalue()));
+				for (ProfileSpecRef ref : specs.getProfileSpecRef()) {					
+					profileSpecRefs.add(new ProfileSpecificationID(ref.getProfileSpecName().getvalue(),ref.getProfileSpecVendor().getvalue(),ref.getProfileSpecVersion().getvalue()));
 				}
 			}
 
@@ -231,7 +231,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 			// FIXME: should catch Runtime and throw Deployment
 			this.description = specs.getDescription() != null ? specs
 					.getDescription().getvalue() : null;
-			this.profileSpecKey = new ComponentKey(specs.getProfileSpecName()
+			this.profileSpecificationID = new ProfileSpecificationID(specs.getProfileSpecName()
 					.getvalue(), specs.getProfileSpecVendor().getvalue(), specs
 					.getProfileSpecVersion().getvalue());
 
@@ -342,10 +342,9 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 		}
 	}
 
-	public List<ComponentKey> getLibraryRefs() {
+	public Set<LibraryID> getLibraryRefs() {
 		return libraryRefs;
 	}
-
 
 	public int getIndex() {
 		return index;
@@ -355,8 +354,8 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 		return description;
 	}
 
-	public ComponentKey getProfileSpecKey() {
-		return profileSpecKey;
+	public ProfileSpecificationID getProfileSpecificationID() {
+		return profileSpecificationID;
 	}
 
 	public MProfileSpecProfileCMPInterface getProfileCMPInterface() {
@@ -375,7 +374,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 		return indexedAttributes;
 	}
 
-	public List<ComponentKey> getProfileSpecRefs() {
+	public Set<ProfileSpecificationID> getProfileSpecRefs() {
 		return profileSpecRefs;
 	}
 

@@ -171,7 +171,7 @@ public class SbbComponentValidator implements Validator {
 		
 					logger
 							.error(this.component.getDescriptor()
-									.getSbbComponentKey()
+									.getSbbID()
 									+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
 									+ Arrays.toString(abstractMehotds.keySet()
 											.toArray())
@@ -443,7 +443,7 @@ public class SbbComponentValidator implements Validator {
 			// FIXME: add check for asSbbActivityContextInteface method ? This
 			// will be catched at the end of check anyway
 			if (logger.isInfoEnabled()) {
-				logger.info(this.component.getDescriptor().getSbbComponentKey()
+				logger.info(this.component.getDescriptor().getSbbID()
 						+ " : No Sbb activity context interface defined");
 			}
 			return true;
@@ -2082,7 +2082,7 @@ public class SbbComponentValidator implements Validator {
 
 	protected String appendToBuffer(String message, String section,
 			String buffer) {
-		buffer += (this.component.getDescriptor().getSbbComponentKey()
+		buffer += (this.component.getDescriptor().getSbbID()
 				+ " : violates section " + section
 				+ " of jSLEE 1.1 specification : " + message + "\n");
 		return buffer;

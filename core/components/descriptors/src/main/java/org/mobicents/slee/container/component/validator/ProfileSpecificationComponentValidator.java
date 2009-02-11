@@ -1328,7 +1328,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 	protected String appendToBuffer(String message, String section,
 			String buffer) {
-		buffer += (this.component.getDescriptor().getProfileSpecKey()
+		buffer += (this.component.getDescriptor().getProfileSpecificationID()
 				+ " : violates section " + section
 				+ " of jSLEE 1.1 specification : " + message + "\n");
 		return buffer;
