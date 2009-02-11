@@ -8,20 +8,14 @@
  */
 package org.mobicents.slee.container.component;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javassist.CtClass;
-
+import javax.slee.ComponentID;
 import javax.slee.SbbID;
-import javax.slee.management.DeployableUnitID;
-import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
 
-
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
-
 
 /**
  * Start time:16:00:31 2009-01-25<br>
@@ -31,15 +25,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDes
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SbbComponent {
+public class SbbComponent extends SleeComponent {
 
 	
 	protected static final transient Logger logger=Logger.getLogger(SbbComponent.class.getName());
 	
 	protected SbbDescriptorImpl descriptor=null;
 	protected SbbID sbbID=null;
-	protected DeployableUnitID deployableUnitID=null;
-	
+		
 	// The concrete SBB class
 	private transient Class abstractSbbClass;
 	
@@ -79,12 +72,6 @@ public class SbbComponent {
 		return sbbID;
 	}
 
-
-	public DeployableUnitID getDeployableUnitID() {
-		return deployableUnitID;
-	}
-
-
 	public Class getAbstractSbbClass() {
 		return abstractSbbClass;
 	}
@@ -121,12 +108,6 @@ public class SbbComponent {
 	public void setDescriptor(SbbDescriptorImpl descriptor) {
 		this.descriptor = descriptor;
 	}
-
-
-	public void setDeployableUnitID(DeployableUnitID deployableUnitID) {
-		this.deployableUnitID = deployableUnitID;
-	}
-
 
 	public void setAbstractSbbClass(Class abstractSbbClass) {
 		this.abstractSbbClass = abstractSbbClass;
@@ -183,5 +164,8 @@ public class SbbComponent {
 		return null;
 	}
 	
-	
+	@Override
+	public ComponentID getComponentID() {
+		return getSbbID();
+	}
 }

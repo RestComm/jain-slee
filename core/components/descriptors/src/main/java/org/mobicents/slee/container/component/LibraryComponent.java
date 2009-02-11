@@ -8,7 +8,7 @@
  */
 package org.mobicents.slee.container.component;
 
-import javax.slee.management.DeployableUnitID;
+import javax.slee.ComponentID;
 import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorImpl;
@@ -21,11 +21,10 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Librar
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class LibraryComponent {
+public class LibraryComponent extends SleeComponent {
 
 	protected LibraryDescriptorImpl descriptor = null;
 	protected LibraryID libraryID = null;
-	protected DeployableUnitID deployableUnitID = null;
 
 	public LibraryDescriptorImpl getDescriptor() {
 		return descriptor;
@@ -43,12 +42,8 @@ public class LibraryComponent {
 		this.libraryID = libraryID;
 	}
 
-	public DeployableUnitID getDeployableUnitID() {
-		return deployableUnitID;
+	@Override
+	public ComponentID getComponentID() {
+		return getLibraryID();
 	}
-
-	public void setDeployableUnitID(DeployableUnitID deployableUnitID) {
-		this.deployableUnitID = deployableUnitID;
-	}
-
 }

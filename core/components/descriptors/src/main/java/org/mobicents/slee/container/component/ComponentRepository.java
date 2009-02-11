@@ -25,15 +25,45 @@ import javax.slee.resource.ResourceAdaptorTypeID;
  */
 public interface ComponentRepository {
 
-	
-	//FIXME: possibly rename
-	
-	
-	public SbbComponent getComponentByID(SbbID id);
+	/**
+	 * Retrieves the {@link EventTypeComponent} associated with the specified id;
+	 * @param id
+	 * @return null if no such component exists
+	 */
 	public EventTypeComponent getComponentByID(EventTypeID id);
+	
+	/**
+	 * Retrieves the {@link ProfileSpecificationComponent} associated with the specified id;
+	 * @param id
+	 * @return null if no such component exists
+	 */
 	public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id);
+	
+	/**
+	 * Retrieves the {@link LibraryComponent} associated with the specified id;
+	 * @param id
+	 * @return null if no such component exists
+	 */
 	public LibraryComponent getComponentByID(LibraryID id);
+	
+	/**
+	 * Retrieves the {@link ResourceAdaptorComponent} associated with the specified id;
+	 * @param id
+	 * @return null if no such component exists
+	 */
 	public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id);
+	
+	/**
+	 * Retrieves the {@link ResourceAdaptorTypeComponent} associated with the specified id;
+	 * @param id
+	 * @return null if no such component exists
+	 */
 	public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id);
 	
+	/**
+	 * Retrieves the {@link SbbComponent} associated with the specified id;
+	 * @param id
+	 * @return null if no such component exists
+	 */
+	public SbbComponent getComponentByID(SbbID id);
 }

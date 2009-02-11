@@ -8,11 +8,10 @@
  */
 package org.mobicents.slee.container.component;
 
+import javax.slee.ComponentID;
 import javax.slee.management.DeployableUnitID;
-import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorImpl;
 
 /**
@@ -23,21 +22,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Resour
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ResourceAdaptorComponent {
+public class ResourceAdaptorComponent extends SleeComponent {
 
-	protected DeployableUnitID deployableUnitID = null;
 	protected ResourceAdaptorDescriptorImpl descriptor = null;
 	protected ResourceAdaptorID resourceAdaptorID = null;
 	protected Class resourceAdaptorClass = null;
 	protected Class resourceAdaptorUsageParametersInterfaceClass = null;
-
-	public DeployableUnitID getDeployableUnitID() {
-		return deployableUnitID;
-	}
-
-	public void setDeployableUnitID(DeployableUnitID deployableUnitID) {
-		this.deployableUnitID = deployableUnitID;
-	}
 
 	public ResourceAdaptorDescriptorImpl getDescriptor() {
 		return descriptor;
@@ -72,4 +62,8 @@ public class ResourceAdaptorComponent {
 		this.resourceAdaptorUsageParametersInterfaceClass = resourceAdaptorUsageParametersInterfaceClass;
 	}
 
+	@Override
+	public ComponentID getComponentID() {
+		return getResourceAdaptorID();
+	}
 }

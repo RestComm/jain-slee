@@ -10,7 +10,7 @@ package org.mobicents.slee.container.component;
 
 import java.util.logging.Logger;
 
-import javax.slee.management.DeployableUnitID;
+import javax.slee.ComponentID;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
@@ -23,12 +23,11 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecificationComponent {
+public class ProfileSpecificationComponent extends SleeComponent {
 
 	protected static final transient Logger logger = Logger
 			.getLogger(ProfileSpecificationComponent.class.getName());
 
-	protected DeployableUnitID deployableUnitID = null;
 	protected ProfileSpecificationDescriptorImpl descriptor = null;
 	protected ProfileSpecificationID profileSpecificationID = null;
 
@@ -38,14 +37,6 @@ public class ProfileSpecificationComponent {
 	protected transient Class profileAbstractClass = null;
 	protected transient Class profileTableInterfaceClass = null;
 	protected transient Class profileUsageInterfaceClass = null;
-
-	public DeployableUnitID getDeployableUnitID() {
-		return deployableUnitID;
-	}
-
-	public void setDeployableUnitID(DeployableUnitID deployableUnitID) {
-		this.deployableUnitID = deployableUnitID;
-	}
 
 	public ProfileSpecificationDescriptorImpl getDescriptor() {
 		return descriptor;
@@ -118,4 +109,8 @@ public class ProfileSpecificationComponent {
 		return this.descriptor.isSlee11();
 	}
 
+	@Override
+	public ComponentID getComponentID() {
+		return getProfileSpecificationID();
+	}
 }

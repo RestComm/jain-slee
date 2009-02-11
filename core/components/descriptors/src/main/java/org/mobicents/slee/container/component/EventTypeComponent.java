@@ -8,8 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
-import javax.slee.management.DeployableUnitID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventDescriptorImpl;
 
@@ -21,10 +21,9 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventD
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class EventTypeComponent {
+public class EventTypeComponent extends SleeComponent {
 
 	protected EventTypeID eventTypeID = null;
-	protected DeployableUnitID deployableUnitID = null;
 	protected EventDescriptorImpl descriptor = null;
 
 	protected Class eventTypeClass = null;
@@ -47,14 +46,6 @@ public class EventTypeComponent {
 		this.eventTypeID = eventTypeID;
 	}
 
-	public DeployableUnitID getDeployableUnitID() {
-		return deployableUnitID;
-	}
-
-	public void setDeployableUnitID(DeployableUnitID deployableUnitID) {
-		this.deployableUnitID = deployableUnitID;
-	}
-
 	public EventDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
@@ -63,4 +54,8 @@ public class EventTypeComponent {
 		this.descriptor = descriptor;
 	}
 
+	@Override
+	public ComponentID getComponentID() {
+		return getEventTypeID();
+	}
 }

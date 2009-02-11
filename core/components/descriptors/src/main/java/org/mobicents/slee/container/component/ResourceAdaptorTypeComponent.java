@@ -8,7 +8,7 @@
  */
 package org.mobicents.slee.container.component;
 
-import javax.slee.management.DeployableUnitID;
+import javax.slee.ComponentID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorTypeDescriptorImpl;
@@ -21,19 +21,10 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Resour
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ResourceAdaptorTypeComponent {
+public class ResourceAdaptorTypeComponent extends SleeComponent {
 
-	protected DeployableUnitID deployableUnitID = null;
 	protected ResourceAdaptorTypeDescriptorImpl descriptor = null;
 	protected ResourceAdaptorTypeID resourceAdaptorTypeID = null;
-
-	public DeployableUnitID getDeployableUnitID() {
-		return deployableUnitID;
-	}
-
-	public void setDeployableUnitID(DeployableUnitID deployableUnitID) {
-		this.deployableUnitID = deployableUnitID;
-	}
 
 	public ResourceAdaptorTypeDescriptorImpl getDescriptor() {
 		return descriptor;
@@ -52,4 +43,8 @@ public class ResourceAdaptorTypeComponent {
 		this.resourceAdaptorTypeID = resourceAdaptorTypeID;
 	}
 
+	@Override
+	public ComponentID getComponentID() {
+		return getResourceAdaptorTypeID();
+	}
 }
