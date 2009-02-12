@@ -1,14 +1,15 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventDefinition;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventJar;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MLibraryRef;
 import org.w3c.dom.Document;
 
 /**
@@ -30,6 +31,8 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
   private String eventClassName;
   private List<MLibraryRef> libraryRefs;
   
+  private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
+
   public EventDescriptorImpl(Document doc)
   {
     super(doc);
@@ -61,6 +64,16 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
     
     // FIXME: alexandre: is this supposed to be like that? do we use it in here?
     this.libraryRefs = this.eventJar.getLibraryRef();
+
+    buildDependenciesSet();
+  }
+  
+  private void buildDependenciesSet()
+  {
+    for(MLibraryRef libraryRef : libraryRefs)
+    {
+      this.dependenciesSet.add( libraryRef.getComponentID() );
+    }
   }
 
   @Override
@@ -89,8 +102,7 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
   }
   
   public Set<ComponentID> getDependenciesSet() {
-	// TODO Auto-generated method stub
-	return null;
+    return this.dependenciesSet;
   }
 
 }

@@ -1,14 +1,7 @@
-/**
- * Start time:17:15:13 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.ComponentID;
@@ -19,7 +12,6 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.service.ServiceXml;
-
 import org.w3c.dom.Document;
 
 /**
@@ -46,6 +38,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass {
 	private String addressProfileTable = null;
 	// Deprecated in 1.1
 	private String resourceInfoProfileTable = null;
+  private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
 	public ServiceDescriptorImpl(Document doc)
 	{
@@ -167,8 +160,14 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass {
 			}
 		}
 
+    buildDependenciesSet();
 	}
 
+  private void buildDependenciesSet()
+  {
+    this.dependenciesSet.add(rootSbbID);
+  }
+	
 	@Override
 	public Object getJAXBDescriptor() {
 		if (isSlee11()) {
@@ -207,8 +206,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass {
 	}
 
 	public Set<ComponentID> getDependenciesSet() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.dependenciesSet;
 	}
 
 }

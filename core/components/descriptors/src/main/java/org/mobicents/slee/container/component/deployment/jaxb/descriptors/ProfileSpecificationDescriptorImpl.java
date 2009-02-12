@@ -17,11 +17,11 @@ import java.util.Set;
 import javax.slee.ComponentID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;
@@ -70,7 +70,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
 	// 1.1 Stuff
 	private Set<ProfileSpecificationID> profileSpecRefs = null;
-	private Set<LibraryID> libraryRefs = null;
+	private Set<MLibraryRef> libraryRefs = null;
 	private List<MCollator> collators = null;
 
 	private MProfileTableInterface profileTableInterface = null;
@@ -85,6 +85,8 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
 	// private SecurityPermision securityPermisions=null;
 	private MSecurityPermision securityPremissions = null;
+	
+  private Set<ComponentID> dependenciesSet;
 
 	/**
 	 * @param doc
@@ -137,14 +139,12 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 			this.readOnly = specs.getProfileReadOnly();
 			this.eventsEnabled = specs.getProfileEventsEnabled();
 			// Here we ignore description elements for now :)
-			this.libraryRefs = new HashSet<LibraryID>();
+			this.libraryRefs = new HashSet<MLibraryRef>();
 			if (specs.getLibraryRef() != null
 					&& specs.getLibraryRef().size() > 0) {
 
 				for (LibraryRef ref : specs.getLibraryRef()) {
-					libraryRefs.add(new LibraryID(ref.getLibraryName()
-							.getvalue(), ref.getLibraryVendor().getvalue(), ref
-							.getLibraryVersion().getvalue()));
+					libraryRefs.add(new MLibraryRef(ref));
 				}
 			}
 
@@ -270,8 +270,17 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
 		}
 
+		buildDependenciesSet();
 	}
 
+  private void buildDependenciesSet()
+  {
+    for(MLibraryRef libraryRef : libraryRefs)
+    {
+      this.dependenciesSet.add( libraryRef.getComponentID() );
+    }
+  }
+  
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -346,7 +355,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 		}
 	}
 
-	public Set<LibraryID> getLibraryRefs() {
+	public Set<MLibraryRef> getLibraryRefs() {
 		return libraryRefs;
 	}
 
@@ -423,8 +432,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 	}
 
 	public Set<ComponentID> getDependenciesSet() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.dependenciesSet;
 	}
 
 }

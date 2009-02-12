@@ -20,18 +20,20 @@ import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbActivityContextInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbReference;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Sbb;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbJar;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ActivityContextAttributeAlias;
@@ -69,9 +71,9 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 	private SbbID sbbID = null;
 	private String sbbAlias = null;
 	// its 1.1
-	private List<MSbbReference> sbbRefs = null;
+	private List<MSbbRef> sbbRefs = null;
 	// Maybe this should be the same as in profiles as reference?
-	private List<MProfileSpecsReference> profileSpecRefs = null;
+	private List<MProfileSpecRef> profileSpecRefs = null;
 
 	// might be bad, we ommit sbb-classes/description, phew
 	private MSbbAbstractClass sbbAbstractClass = null;
@@ -85,10 +87,12 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 	private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBindings = null;
 
 	// 1.1 stuff, profile specs refs have alias element, so we need another.
-	private Set<LibraryID> libraryRefs = null;
+	private Set<MLibraryRef> libraryRefs = null;
 	private List<MEjbRef> ejbRefs = null;
 
 	private MSecurityPermision securityPermisions = null;
+
+	private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
 	/**
 	 * 
@@ -142,35 +146,28 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 							.getSbbVersion().getvalue());
 
 			// Library Refs
-			this.libraryRefs = new HashSet<LibraryID>();
+			this.libraryRefs = new HashSet<MLibraryRef>();
 			if (llSbb.getLibraryRef() != null) {
 				for (LibraryRef lr : this.llSbb.getLibraryRef()) {
-					this.libraryRefs.add(new LibraryID(lr.getLibraryName()
-							.getvalue(), lr.getLibraryVendor().getvalue(), lr
-							.getLibraryVersion().getvalue()));
+					this.libraryRefs.add(new MLibraryRef(lr));
 				}
 			}
 
 			// SbbRefs
-			this.sbbRefs = new ArrayList<MSbbReference>();
+			this.sbbRefs = new ArrayList<MSbbRef>();
 			if (this.llSbb.getSbbRef() != null) {
 				for (SbbRef sr : this.llSbb.getSbbRef()) {
-					this.sbbRefs.add(new MSbbReference(sr));
+					this.sbbRefs.add(new MSbbRef(sr));
 				}
 			}
 
 			// Profile Refs
-			this.profileSpecRefs = new ArrayList<MProfileSpecsReference>();
+			this.profileSpecRefs = new ArrayList<MProfileSpecRef>();
 			if (this.llSbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ProfileSpecRef psr : this.llSbb
 						.getProfileSpecRef()) {
 					// Second arg == Alias, its depraceted in 1.1
-					MProfileSpecsReference p = new MProfileSpecsReference(null,
-							psr.getProfileSpecAlias() == null ? null : psr
-									.getProfileSpecAlias().getvalue(), psr
-									.getProfileSpecName().getvalue(), psr
-									.getProfileSpecVendor().getvalue(), psr
-									.getProfileSpecVersion().getvalue());
+				  MProfileSpecRef p = new MProfileSpecRef(psr);
 					this.profileSpecRefs.add(p);
 				}
 			}
@@ -261,31 +258,26 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 					.getSbbVendor().getvalue(), this.sbb.getSbbVersion()
 					.getvalue());
 			// Library Refs
-			this.libraryRefs = new HashSet<LibraryID>();
+			this.libraryRefs = new HashSet<MLibraryRef>();
 
 			// FIXME: template from jslee has child-sbb element, in dtd its
 			// sbb-ref !!!!!!!
 			// SbbRefs
-			this.sbbRefs = new ArrayList<MSbbReference>();
+			this.sbbRefs = new ArrayList<MSbbRef>();
 			if (this.sbb.getSbbRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbRef sr : this.sbb
 						.getSbbRef()) {
-					this.sbbRefs.add(new MSbbReference(sr));
+					this.sbbRefs.add(new MSbbRef(sr));
 				}
 			}
 
 			// Profile Refs
-			this.profileSpecRefs = new ArrayList<MProfileSpecsReference>();
+			this.profileSpecRefs = new ArrayList<MProfileSpecRef>();
 			if (this.sbb.getProfileSpecRef() != null) {
 				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef psr : this.sbb
 						.getProfileSpecRef()) {
 					// Second arg == Alias, its depraceted in 1.1
-					MProfileSpecsReference p = new MProfileSpecsReference(null,
-							psr.getProfileSpecAlias() == null ? null : psr
-									.getProfileSpecAlias().getvalue(), psr
-									.getProfileSpecName().getvalue(), psr
-									.getProfileSpecVendor().getvalue(), psr
-									.getProfileSpecVersion().getvalue());
+				  MProfileSpecRef p = new MProfileSpecRef(psr);
 					this.profileSpecRefs.add(p);
 				}
 			}
@@ -352,12 +344,36 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 					this.ejbRefs.add(new MEjbRef(er));
 				}
 			}
-
 		}
-
+		
+    buildDependenciesSet();
 	}
+	
+  private void buildDependenciesSet()
+  {
+    for(MSbbRef sbbRef : sbbRefs)
+    {
+      this.dependenciesSet.add( sbbRef.getComponentID() );
+    }
 
-	/*
+    for(MProfileSpecRef profileSpecRef : profileSpecRefs)
+    {
+      this.dependenciesSet.add( profileSpecRef.getComponentID() );
+    }
+
+    for(MLibraryRef libraryRef : libraryRefs)
+    {
+      this.dependenciesSet.add( libraryRef.getComponentID() );
+    }
+
+    // FIXME: EJB's do not have component ID... what gives?
+    // for(MEjbRef ejbRef : ejbRefs)
+    // {
+    //   this.dependenciesSet.add( ejbRef.getComponentID() );
+    // }
+  }
+
+  /*
 	 * (non-Javadoc)
 	 * 
 	 * @seeorg.mobicents.slee.container.component.deployment.jaxb.descriptors.
@@ -436,11 +452,11 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 		return sbbAlias;
 	}
 
-	public List<MSbbReference> getSbbRefs() {
+	public List<MSbbRef> getSbbRefs() {
 		return sbbRefs;
 	}
 
-	public List<MProfileSpecsReference> getProfileSpecReference() {
+	public List<MProfileSpecRef> getProfileSpecReference() {
 		return profileSpecRefs;
 	}
 
@@ -480,7 +496,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 		return resourceAdaptorTypeBindings;
 	}
 
-	public Set<LibraryID> getLibraryRefs() {
+	public Set<MLibraryRef> getLibraryRefs() {
 		return libraryRefs;
 	}
 
@@ -493,8 +509,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 	}
 
 	public Set<ComponentID> getDependenciesSet() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.dependenciesSet;
 	}
 
 }

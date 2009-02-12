@@ -1,12 +1,14 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.management.LibraryID;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MJar;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MLibrary;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MLibraryJar;
@@ -33,6 +35,10 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
   private List<MJar> jars = new ArrayList<MJar>();
   private LibraryID libraryID;
   
+  private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
+  
+  private List<MLibraryRef> libraryRefs;
+  
   public LibraryDescriptorImpl(Document doc)
   {
     super(doc);
@@ -52,7 +58,19 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
     
     this.jars = this.library.getJar();
     
+    this.libraryRefs = this.library.getLibraryRef();
+    
     libraryID = new LibraryID(library.getLibraryName(), library.getLibraryVendor(),library.getLibraryVersion());
+    
+    buildDependenciesSet();
+  }
+
+  private void buildDependenciesSet()
+  {
+    for(MLibraryRef libraryRef : libraryRefs)
+    {
+      this.dependenciesSet.add( libraryRef.getComponentID() );
+    }
   }
 
   @Override
@@ -80,9 +98,9 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
 	return libraryID;
   }
   
-  public Set<ComponentID> getDependenciesSet() {
-	// TODO Auto-generated method stub
-	return null;
+  public Set<ComponentID> getDependenciesSet()
+  {
+    return this.dependenciesSet;
   }
   
 }

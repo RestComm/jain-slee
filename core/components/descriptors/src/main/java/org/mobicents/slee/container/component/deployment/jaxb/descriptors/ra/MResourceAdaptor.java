@@ -3,6 +3,10 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
+
 /**
  * 
  * MResourceAdaptor.java

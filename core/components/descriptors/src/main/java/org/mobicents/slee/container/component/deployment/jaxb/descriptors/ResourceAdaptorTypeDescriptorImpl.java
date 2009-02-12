@@ -1,15 +1,16 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityContextInterfaceFactoryInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityType;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MEventTypeRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorType;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorTypeClasses;
@@ -45,6 +46,8 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
   private MActivityContextInterfaceFactoryInterface activityContextInterfaceFactoryInterface;
   private MResourceAdaptorInterface resourceAdaptorInterface;
   
+  private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
+
   public ResourceAdaptorTypeDescriptorImpl(Document doc)
   {
     super(doc);
@@ -100,6 +103,21 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
     this.resourceAdaptorInterface = resourceAdaptorTypeClasses.getResourceAdaptorInterface();
   }
 
+  private void buildDependenciesSet()
+  {
+    for(MEventTypeRef eventTypeRef : eventTypeRefs)
+    {
+      this.dependenciesSet.add( eventTypeRef.getComponentID() );
+    }
+
+    for(MLibraryRef libraryRef : libraryRefs)
+    {
+      this.dependenciesSet.add( libraryRef.getComponentID() );
+    }
+    
+    buildDependenciesSet();
+  }
+
   @Override
   public Object getJAXBDescriptor()
   {
@@ -142,12 +160,11 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
   }
   
   public ResourceAdaptorTypeID getResourceAdaptorTypeID() {
-	return resourceAdaptorTypeID;
+    return resourceAdaptorTypeID;
   }
   
   public Set<ComponentID> getDependenciesSet() {
-	// TODO Auto-generated method stub
-	return null;
+    return this.dependenciesSet;
   }
 
 }

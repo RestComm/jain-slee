@@ -3,6 +3,9 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratyp
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+
 /**
  * 
  * MResourceAdaptorType.java

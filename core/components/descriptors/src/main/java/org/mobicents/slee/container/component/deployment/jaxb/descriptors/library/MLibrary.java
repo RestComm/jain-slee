@@ -3,6 +3,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.libra
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+
 /**
  * 
  * MLibrary.java

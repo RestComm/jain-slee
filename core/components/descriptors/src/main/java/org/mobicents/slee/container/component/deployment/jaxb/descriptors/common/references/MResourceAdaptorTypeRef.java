@@ -1,4 +1,6 @@
-package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
+package org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references;
+
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 /**
  * 
@@ -12,18 +14,15 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
  */
 public class MResourceAdaptorTypeRef {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptorTypeRef resourceAdaptorTypeRef10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorTypeRef resourceAdaptorTypeRef11;
-  
   protected String description;
   protected String resourceAdaptorTypeName;
   protected String resourceAdaptorTypeVendor;
   protected String resourceAdaptorTypeVersion;
   
+  private ResourceAdaptorTypeID resourceAdaptorTypeID;
+  
   public MResourceAdaptorTypeRef(org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptorTypeRef resourceAdaptorTypeRef10)
   {
-    this.resourceAdaptorTypeRef10 = resourceAdaptorTypeRef10;
-    
     this.description = resourceAdaptorTypeRef10.getDescription() == null ? null : resourceAdaptorTypeRef10.getDescription().getvalue();
     
     this.resourceAdaptorTypeName = resourceAdaptorTypeRef10.getResourceAdaptorTypeName().getvalue();
@@ -33,8 +32,6 @@ public class MResourceAdaptorTypeRef {
   
   public MResourceAdaptorTypeRef(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorTypeRef resourceAdaptorTypeRef11)
   {
-    this.resourceAdaptorTypeRef11 = resourceAdaptorTypeRef11;
-    
     this.description = resourceAdaptorTypeRef11.getDescription() == null ? null : resourceAdaptorTypeRef11.getDescription().getvalue();
     
     this.resourceAdaptorTypeName = resourceAdaptorTypeRef11.getResourceAdaptorTypeName().getvalue();
@@ -62,4 +59,8 @@ public class MResourceAdaptorTypeRef {
     return resourceAdaptorTypeVersion;
   }
 
+  public ResourceAdaptorTypeID getComponentID()
+  {
+    return this.resourceAdaptorTypeID;
+  }
 }

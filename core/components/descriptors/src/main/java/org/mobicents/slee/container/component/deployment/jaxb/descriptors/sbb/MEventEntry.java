@@ -11,7 +11,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEventRefrence;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEventSelect;
 
@@ -33,7 +33,7 @@ public class MEventEntry {
 	private boolean maskOnAttach = false;
 	private boolean lastInTransaction = true;
 	private String description = null;
-	private MEventRefrence eventReference=null;
+	private MEventTypeRef eventReference=null;
 	
 	//private ComponentKey eventReference = null;
 	private String eventName = null;
@@ -62,7 +62,7 @@ public class MEventEntry {
 				: this.llEvent.getDescription().getvalue();
 		
 		
-		this.eventReference=new MEventRefrence(this.llEvent.getEventTypeRef(),null);
+		this.eventReference=new MEventTypeRef(this.llEvent.getEventTypeRef());
 //		this.eventReference = new ComponentKey(this.llEvent.getEventTypeRef()
 //				.getEventTypeName().getvalue(), this.llEvent.getEventTypeRef()
 //				.getEventTypeVendor().getvalue(), this.llEvent.getEventTypeRef()
@@ -104,7 +104,7 @@ public class MEventEntry {
 		// 1.1 last in transaction
 		this.description = this.event.getDescription() == null ? null
 				: this.event.getDescription().getvalue();
-		this.eventReference=new MEventRefrence(this.event.getEventTypeRef(),null);
+		this.eventReference=new MEventTypeRef(this.event.getEventTypeRef());
 //		this.eventReference = new ComponentKey(this.event.getEventTypeRef()
 //				.getEventTypeName().getvalue(), this.event.getEventTypeRef()
 //				.getEventTypeVendor().getvalue(), this.event.getEventTypeRef()
@@ -155,7 +155,7 @@ public class MEventEntry {
 		return description;
 	}
 
-	public MEventRefrence getEventReference() {
+	public MEventTypeRef getEventReference() {
 		return eventReference;
 	}
 
