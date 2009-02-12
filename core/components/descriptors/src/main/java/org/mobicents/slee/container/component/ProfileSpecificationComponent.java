@@ -183,6 +183,11 @@ public class ProfileSpecificationComponent extends SleeComponent {
 	}
 
 	@Override
+	void addToDeployableUnit() {
+		getDeployableUnit().getProfileSpecificationComponents().put(getProfileSpecificationID(), this);
+	}
+	
+	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
 	}

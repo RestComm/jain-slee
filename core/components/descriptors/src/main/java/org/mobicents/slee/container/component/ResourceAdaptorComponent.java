@@ -98,6 +98,11 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	}
 
 	@Override
+	void addToDeployableUnit() {
+		getDeployableUnit().getResourceAdaptorComponents().put(getResourceAdaptorID(), this);
+	}
+	
+	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
 	}

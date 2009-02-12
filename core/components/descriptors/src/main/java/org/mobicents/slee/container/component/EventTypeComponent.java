@@ -76,6 +76,11 @@ public class EventTypeComponent extends SleeComponent {
 	}
 
 	@Override
+	void addToDeployableUnit() {
+		getDeployableUnit().getEventTypeComponents().put(getEventTypeID(), this);
+	}
+	
+	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
 	}

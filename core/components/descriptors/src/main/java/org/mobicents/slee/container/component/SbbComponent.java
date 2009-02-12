@@ -210,6 +210,11 @@ public class SbbComponent extends SleeComponent {
 	}
 	
 	@Override
+	void addToDeployableUnit() {
+		getDeployableUnit().getSbbComponents().put(getSbbID(), this);
+	}
+	
+	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
 	}

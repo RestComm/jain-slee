@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
+import javax.slee.ServiceID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
@@ -81,6 +82,11 @@ public class DeployableUnit {
 	 * the DU sbb components
 	 */
 	private final Map<SbbID, SbbComponent> sbbComponents = new HashMap<SbbID,SbbComponent>();
+	
+	/**
+	 * the DU service components
+	 */
+	private final Map<ServiceID, ServiceComponent> serviceComponents = new HashMap<ServiceID,ServiceComponent>();
 
 	public DeployableUnit(DeployableUnitID deployableUnitID,
 			DeployableUnitDescriptorImpl duDescriptor,
@@ -183,6 +189,14 @@ public class DeployableUnit {
 		return sbbComponents;
 	}
 
+	/**
+	 * Retrieves the DU service components
+	 * @return
+	 */
+	public Map<ServiceID, ServiceComponent> getServiceComponents() {
+		return serviceComponents;
+	}
+	
 	@Override
 	public int hashCode() {
 		return id.hashCode();

@@ -55,6 +55,11 @@ public class LibraryComponent extends SleeComponent {
 	}
 
 	@Override
+	void addToDeployableUnit() {
+		getDeployableUnit().getLibraryComponents().put(getLibraryID(), this);
+	}
+	
+	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
 	}

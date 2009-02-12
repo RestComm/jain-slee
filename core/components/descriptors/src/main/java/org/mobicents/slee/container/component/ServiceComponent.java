@@ -55,6 +55,11 @@ public class ServiceComponent extends SleeComponent {
 	}
 	
 	@Override
+	void addToDeployableUnit() {
+		getDeployableUnit().getServiceComponents().put(getServiceID(), this);
+	}
+	
+	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
 	}
