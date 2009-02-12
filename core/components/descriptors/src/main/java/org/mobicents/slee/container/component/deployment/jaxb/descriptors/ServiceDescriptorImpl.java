@@ -47,7 +47,12 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass {
 	// Deprecated in 1.1
 	private String resourceInfoProfileTable = null;
 
-	private ServiceDescriptorImpl(Document doc, ServiceXml serviceXML, int index)
+	public ServiceDescriptorImpl(Document doc)
+	{
+	  super(doc);  
+	}
+	
+	public ServiceDescriptorImpl(Document doc, ServiceXml serviceXML, int index)
 			throws DeploymentException {
 		super(doc);
 
@@ -57,7 +62,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass {
 
 	}
 
-	private ServiceDescriptorImpl(
+	public ServiceDescriptorImpl(
 			Document doc,
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.service.ServiceXml serviceXML,
 			int index) throws DeploymentException {

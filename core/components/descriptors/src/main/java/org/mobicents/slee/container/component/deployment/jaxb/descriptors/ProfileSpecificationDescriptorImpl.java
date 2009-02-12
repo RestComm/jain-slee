@@ -90,12 +90,12 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 	 * @param doc
 	 * @throws DeploymentException
 	 */
-	private ProfileSpecificationDescriptorImpl(Document doc) {
+	public ProfileSpecificationDescriptorImpl(Document doc) {
 		super(doc);
 
 	}
 
-	private ProfileSpecificationDescriptorImpl(Document doc,
+	public ProfileSpecificationDescriptorImpl(Document doc,
 			ProfileSpecJar profileSpecJar, int index) {
 		super(doc);
 
@@ -105,7 +105,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
 	}
 
-	private ProfileSpecificationDescriptorImpl(
+	public ProfileSpecificationDescriptorImpl(
 			Document doc,
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecJar llProfileSpecJar,
 			int index) throws DeploymentException {

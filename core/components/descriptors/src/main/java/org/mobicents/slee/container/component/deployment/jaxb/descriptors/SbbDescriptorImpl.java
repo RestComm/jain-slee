@@ -95,12 +95,12 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 	 * @param doc
 	 * @throws DeploymentException
 	 */
-	private SbbDescriptorImpl(Document doc) throws DeploymentException {
+	public SbbDescriptorImpl(Document doc) throws DeploymentException {
 		super(doc);
 		// TODO Auto-generated constructor stub
 	}
 
-	private SbbDescriptorImpl(Document doc, SbbJar sbbJar, int index)
+	public SbbDescriptorImpl(Document doc, SbbJar sbbJar, int index)
 			throws DeploymentException {
 		super(doc);
 
@@ -110,7 +110,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 
 	}
 
-	private SbbDescriptorImpl(
+	public SbbDescriptorImpl(
 			Document doc,
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbJar sbbJar,
 			int index) throws DeploymentException {
