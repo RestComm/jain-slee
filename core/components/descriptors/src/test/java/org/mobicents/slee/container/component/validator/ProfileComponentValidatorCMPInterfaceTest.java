@@ -8,16 +8,9 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-import javassist.CtClass;
-import javassist.NotFoundException;
-
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.ClassUtils;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceForbbidenMethods;
 import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceGetterThrows;
 import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceSetterThrows;
@@ -42,14 +35,13 @@ TCUtilityClass {
 	public void testProfileCMPInterfaceConstraintsOk() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_CONSTRAINTS), null)[0];
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent();
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
-		component.setDescriptor(descriptor);
+		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
 		boolean b = validator.validateCMPInterface();
@@ -62,11 +54,10 @@ TCUtilityClass {
 	public void testProfileSuperCMPInterface() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_CONSTRAINTS), null)[0];
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent();
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(ProfileSuperCMPInterface.class);
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateCMPInterface();
@@ -80,11 +71,10 @@ TCUtilityClass {
 	public void testProfileCMPInterfaceWrongFieldType() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_CONSTRAINTS), null)[0];
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent();
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(ProfileCMPInterfaceWrongFieldType.class);
 
-		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
-		component.setDescriptor(descriptor);
+		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
 		boolean b = validator.validateCMPInterface();
@@ -96,11 +86,10 @@ TCUtilityClass {
 	public void testProfileCMPInterfaceFieldTypeMissmatch() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_CONSTRAINTS), null)[0];
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent();
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(ProfileCMPInterfaceTypeMissMatch.class);
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateCMPInterface();
@@ -112,11 +101,10 @@ TCUtilityClass {
 	public void testProfileCMPInterfaceSetterThrows() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_CONSTRAINTS), null)[0];
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent();
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(ProfileCMPInterfaceSetterThrows.class);
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateCMPInterface();
@@ -127,11 +115,10 @@ TCUtilityClass {
 	public void testProfileCMPInterfaceGetterThrows() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_CONSTRAINTS), null)[0];
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent();
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(ProfileCMPInterfaceGetterThrows.class);
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateCMPInterface();
@@ -142,11 +129,10 @@ TCUtilityClass {
 	public void testProfileCMPInterfaceForbbidenMethod() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_CONSTRAINTS), null)[0];
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent();
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(ProfileCMPInterfaceForbbidenMethods.class);
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateCMPInterface();

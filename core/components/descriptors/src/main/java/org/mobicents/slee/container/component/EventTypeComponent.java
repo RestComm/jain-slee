@@ -23,39 +23,64 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventD
  */
 public class EventTypeComponent extends SleeComponent {
 
-	protected EventTypeID eventTypeID = null;
-	protected EventDescriptorImpl descriptor = null;
+	/**
+	 * the event type descriptor
+	 */
+	private final EventDescriptorImpl descriptor;
 
-	protected Class eventTypeClass = null;
+	/**
+	 * the event type class
+	 */
+	private Class eventTypeClass = null;
 
+	/**
+	 * 
+	 * @param descriptor
+	 */
+	public EventTypeComponent(EventDescriptorImpl descriptor) {
+		this.descriptor = descriptor;
+	}
+	
+	/**
+	 * Retrieves the event type class
+	 * @return
+	 */
 	public Class getEventTypeClass() {
-		// TODO Auto-generated method stub
 		return eventTypeClass;
 	}
 
+	/**
+	 * Sets the event type class
+	 * @param eventTypeClass
+	 */
 	public void setEventTypeClass(Class eventTypeClass) {
-
 		this.eventTypeClass = eventTypeClass;
 	}
 
+	/**
+	 * Retrieves the event type id
+	 * @return
+	 */
 	public EventTypeID getEventTypeID() {
-		return eventTypeID;
+		return descriptor.getEventTypeID();
 	}
 
-	public void setEventTypeID(EventTypeID eventTypeID) {
-		this.eventTypeID = eventTypeID;
-	}
-
+	/**
+	 * Retrieves the event type descriptor
+	 * @return
+	 */
 	public EventDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
 
-	public void setDescriptor(EventDescriptorImpl descriptor) {
-		this.descriptor = descriptor;
+	@Override
+	public boolean isSlee11() {
+		return descriptor.isSlee11();
 	}
-
+	
 	@Override
 	public ComponentID getComponentID() {
 		return getEventTypeID();
 	}
+		
 }

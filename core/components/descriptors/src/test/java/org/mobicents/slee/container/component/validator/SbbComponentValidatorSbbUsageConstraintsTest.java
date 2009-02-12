@@ -9,19 +9,12 @@
 package org.mobicents.slee.container.component.validator;
 
 import javax.slee.Sbb;
-import javax.slee.usage.SampleStatistics;
-
-import javassist.CtClass;
-import javassist.NotFoundException;
 
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.ClassUtils;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageInterfaceToFewMethods;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageInterfaceToManyMethods;
-import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageOkInterface;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageThrowsOnGetterInterface;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageThrowsOnSetterInterface;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageWrongAccesorLevelInterface;
@@ -46,7 +39,7 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -56,7 +49,6 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 						descriptor.getSbbUsageParametersInterface()
 								.getUsageParametersInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -67,20 +59,17 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 		assertTrue("Sbb class has not been validated", b);
 
 	}
-
-
 	
 	public void testSbbOne11ToManyUsageMethodDefined() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageInterfaceToManyMethods.class);
 		component
 				.setUsageParametersInterface(UsageInterfaceToManyMethods.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -97,11 +86,10 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageWrongSetterPrameterInterface.class);
 		component.setUsageParametersInterface(UsageWrongSetterPrameterInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -117,11 +105,10 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageInterfaceToFewMethods.class);
 		component.setUsageParametersInterface(UsageInterfaceToFewMethods.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -139,11 +126,10 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageThrowsOnGetterInterface.class);
 		component.setUsageParametersInterface(UsageThrowsOnGetterInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -161,11 +147,10 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageThrowsOnSetterInterface.class);
 		component.setUsageParametersInterface(UsageThrowsOnSetterInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -181,11 +166,10 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageWrongSampleReturnTypeInterface.class);
 		component.setUsageParametersInterface(UsageWrongSampleReturnTypeInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -202,11 +186,10 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageSetterWrongLevelInterface.class);
 		component.setUsageParametersInterface(UsageSetterWrongLevelInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils
@@ -224,11 +207,10 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(SbbUsageWrongAccesorLevelInterface.class);
 		component.setUsageParametersInterface(UsageWrongAccesorLevelInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbUsageParameterInterface(ClassUtils

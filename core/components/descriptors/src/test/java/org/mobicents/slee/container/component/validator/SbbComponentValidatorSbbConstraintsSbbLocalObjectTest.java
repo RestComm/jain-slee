@@ -39,7 +39,7 @@ TCUtilityClass {
 	public void testSbbOne11ConstraintsSbbLocalInterfaceOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -49,7 +49,6 @@ TCUtilityClass {
 						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbLocalInterface(
@@ -68,7 +67,7 @@ TCUtilityClass {
 	public void testSbbOne11ConstraintsSbbLocalInterfaceWrongReturnType() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_WRONG_RETURN_TYPE_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -78,7 +77,6 @@ TCUtilityClass {
 						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbLocalInterface(
@@ -94,7 +92,7 @@ TCUtilityClass {
 	public void testSbbOne11ConstraintsSbbLocalInterfaceWrongThrows() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_WRONG_THROWS_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -104,7 +102,6 @@ TCUtilityClass {
 						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbLocalInterface(
@@ -123,7 +120,7 @@ TCUtilityClass {
 	public void testSbbOne11ConstraintsSbbLocalInterfaceMissingMethod() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_MISSING_METHOD_SBB_LOCAL_INTERFACE), null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -132,7 +129,6 @@ TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbLocalInterface(

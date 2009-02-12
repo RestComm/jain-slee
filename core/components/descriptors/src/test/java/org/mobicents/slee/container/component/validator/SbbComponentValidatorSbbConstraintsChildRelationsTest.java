@@ -8,14 +8,9 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-import javassist.CtClass;
-import javassist.NotFoundException;
-
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.ClassUtils;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
 /**
  * Start time:17:07:31 2009-01-31<br>
@@ -39,14 +34,13 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 						super
 								.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
 								.getSbbAbstractClassName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils
@@ -64,14 +58,13 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 						super
 								.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_NO_CHILD_RELATION),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
 								.getSbbAbstractClassName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils
@@ -92,14 +85,13 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 						super
 								.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_WRONG_PREFIX),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
 								.getSbbAbstractClassName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils
@@ -120,14 +112,13 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends
 						super
 								.parseDocument(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_THROW_EXCEPTION),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
 								.getSbbAbstractClassName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateGetChildRelationMethods(ClassUtils

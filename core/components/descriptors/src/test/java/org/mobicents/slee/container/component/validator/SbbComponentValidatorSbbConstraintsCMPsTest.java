@@ -15,9 +15,6 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import javassist.CtClass;
-import javassist.NotFoundException;
-
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.LibraryComponent;
@@ -27,8 +24,6 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.ClassUtils;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
 /**
  * Start time:17:07:31 2009-01-31<br>
@@ -51,7 +46,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 	public void testSbbOne11ConstraintsCMPsOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CMPS), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -65,7 +60,6 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
 
@@ -115,7 +109,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CMPS_REF_ON_NOT_SBBLO),
 				null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -129,7 +123,6 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
 
@@ -180,7 +173,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_CMPS_DIFFERENT_TYPES),
 						null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -194,7 +187,6 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
 
@@ -243,7 +235,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 	public void testSbbOne11ConstraintsCMPsThrows() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CMPS_THROWS), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -257,7 +249,6 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
 
@@ -306,7 +297,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 	public void testSbbOne11ConstraintsCMPsConcrete() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CMPS_CONCRETE), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -320,7 +311,6 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
 
@@ -369,7 +359,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 	public void testSbbOne11ConstraintsCMPsScope() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CMPS_SCOPE), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -383,7 +373,6 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
 
@@ -435,7 +424,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						super
 								.parseDocument(_SBB_JAR_ONE_11_CMPS_NO_REF_ON_CUSTOM_SBBLO),
 						null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -449,7 +438,6 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
 

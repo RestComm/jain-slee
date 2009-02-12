@@ -23,26 +23,36 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Servic
  */
 public class ServiceComponent extends SleeComponent {
 
-	private ServiceDescriptorImpl descriptor;
-
-	private ServiceID serviceID;
+	/**
+	 * the service descriptor
+	 */
+	private final ServiceDescriptorImpl descriptor;
 	
+	/**
+	 * 
+	 * @param descriptor
+	 */
+	public ServiceComponent(ServiceDescriptorImpl descriptor) {
+		this.descriptor = descriptor;
+	}
+	
+	/**
+	 * Retrieves the service descriptor
+	 * @return
+	 */
 	public ServiceDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
 
-	public void setDescriptor(ServiceDescriptorImpl descriptor) {
-		this.descriptor = descriptor;
-	}
-	
+	/**
+	 * Retrieves the id of the service
+	 * @return
+	 */
 	public ServiceID getServiceID() {
-		return serviceID;
+		return descriptor.getServiceID();
 	}
 	
-	public void setServiceID(ServiceID serviceID) {
-		this.serviceID = serviceID;
-	}
-	
+	@Override
 	public boolean isSlee11() {
 		return this.descriptor.isSlee11();
 	}	

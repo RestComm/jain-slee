@@ -21,9 +21,6 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import javassist.CtClass;
-import javassist.NotFoundException;
-
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.LibraryComponent;
@@ -34,8 +31,6 @@ import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
-import org.mobicents.slee.container.component.validator.ClassUtils;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.event.XEvent;
 
 /**
@@ -64,7 +59,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_EVENTS_OK), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -74,7 +69,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -92,7 +86,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsLackFire() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_EVENTS_LACK_FIRE), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -102,7 +96,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -120,7 +113,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsHasThrow() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_EVENTS_THROW), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -130,7 +123,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -148,7 +140,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsWrongFireSignature() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_FIRE_SIGNATURE), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -158,7 +150,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -176,7 +167,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsWrongFireSignature2() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_FIRE_SIGNATURE2), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -186,7 +177,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -206,7 +196,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_EVENTS_LACK_RECEIVER),
 						null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -216,7 +206,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -234,7 +223,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsWrongReceiveSignature() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -244,7 +233,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -262,7 +250,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsWrongReceiveSignature2() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE2), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -272,7 +260,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -290,7 +277,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsConcreteFire() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_CONCRETE_FIRE), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -300,7 +287,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -319,7 +305,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		// This test is just to see if it will fail, IES is checekd lower
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_WRONG_IES), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -329,7 +315,6 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						descriptor.getSbbActivityContextInterface()
 								.getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 		boolean b = validator.validateEventHandlers(ClassUtils
@@ -350,10 +335,9 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_IES_CONSTRAINTS), null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 
@@ -412,10 +396,9 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 				.parseDocument(super
 						.parseDocument(_SBB_JAR_ONE_11_HANDLERS_CONSTRAINTS),
 						null)[0];
-		final SbbComponent component = new SbbComponent();
+		final SbbComponent component = new SbbComponent(descriptor);
 		
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 
@@ -466,7 +449,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		}
 
 		public EventTypeComponent getComponentByID(EventTypeID id) {
-			EventTypeComponent event = new EventTypeComponent();
+			EventTypeComponent event = new EventTypeComponent(null);
 			event.setEventTypeClass(XEvent.class);
 			return event;
 		}

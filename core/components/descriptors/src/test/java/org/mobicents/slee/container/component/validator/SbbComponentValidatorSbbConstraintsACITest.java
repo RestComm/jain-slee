@@ -8,14 +8,9 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-import javassist.CtClass;
-import javassist.NotFoundException;
-
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.ClassUtils;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
 /**
  * Start time:17:07:31 2009-01-31<br>
@@ -35,7 +30,7 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 	public void testSbbOne11ConstraintsACIOk() throws Exception {
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS), null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -46,7 +41,6 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 								.getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbActivityContextInterface(ClassUtils
@@ -64,7 +58,7 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 						super
 								.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -75,7 +69,6 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 								.getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbActivityContextInterface(ClassUtils
@@ -93,7 +86,7 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 						super
 								.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -104,7 +97,6 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 								.getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbActivityContextInterface(ClassUtils
@@ -122,7 +114,7 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 						super
 								.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE),
 						null)[0];
-		SbbComponent component = new SbbComponent();
+		SbbComponent component = new SbbComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -133,7 +125,6 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 								.getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 
 		boolean b = validator.validateSbbActivityContextInterface(ClassUtils

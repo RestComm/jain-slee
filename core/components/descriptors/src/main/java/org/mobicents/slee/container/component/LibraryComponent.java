@@ -23,25 +23,40 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Librar
  */
 public class LibraryComponent extends SleeComponent {
 
-	protected LibraryDescriptorImpl descriptor = null;
-	protected LibraryID libraryID = null;
-
+	/**
+	 * the library descriptor
+	 */
+	private final LibraryDescriptorImpl descriptor;
+	
+	/**
+	 * 
+	 * @param descriptor
+	 */
+	public LibraryComponent(LibraryDescriptorImpl descriptor) {
+		this.descriptor = descriptor;
+	}
+	
+	/**
+	 * Retrieves the library descriptor
+	 * @return
+	 */
 	public LibraryDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
 
-	public void setDescriptor(LibraryDescriptorImpl descriptor) {
-		this.descriptor = descriptor;
-	}
-
+	/**
+	 * Retrieves the library id
+	 * @return
+	 */
 	public LibraryID getLibraryID() {
-		return libraryID;
+		return descriptor.getLibraryID();
 	}
 
-	public void setLibraryID(LibraryID libraryID) {
-		this.libraryID = libraryID;
+	@Override
+	public boolean isSlee11() {
+		return descriptor.isSlee11();
 	}
-
+	
 	@Override
 	public ComponentID getComponentID() {
 		return getLibraryID();

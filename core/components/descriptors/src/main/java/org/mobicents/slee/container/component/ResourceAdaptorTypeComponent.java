@@ -23,26 +23,41 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Resour
  */
 public class ResourceAdaptorTypeComponent extends SleeComponent {
 
-	protected ResourceAdaptorTypeDescriptorImpl descriptor = null;
-	protected ResourceAdaptorTypeID resourceAdaptorTypeID = null;
+	/**
+	 * the ratype descriptor
+	 */
+	private final ResourceAdaptorTypeDescriptorImpl descriptor;
+	
+	/**
+	 * 
+	 * @param descriptor
+	 */
+	public ResourceAdaptorTypeComponent(
+			ResourceAdaptorTypeDescriptorImpl descriptor) {
+		this.descriptor = descriptor;
+	}
 
+	/**
+	 * Retrieves the ratype descriptor
+	 * @return
+	 */
 	public ResourceAdaptorTypeDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
 
-	public void setDescriptor(ResourceAdaptorTypeDescriptorImpl descriptor) {
-		this.descriptor = descriptor;
-	}
-
+	/**
+	 * Retrieves the ratype id
+	 * @return
+	 */
 	public ResourceAdaptorTypeID getResourceAdaptorTypeID() {
-		return resourceAdaptorTypeID;
+		return descriptor.getResourceAdaptorTypeID();
 	}
 
-	public void setResourceAdaptorTypeID(
-			ResourceAdaptorTypeID resourceAdaptorTypeID) {
-		this.resourceAdaptorTypeID = resourceAdaptorTypeID;
+	@Override
+	public boolean isSlee11() {
+		return descriptor.isSlee11();
 	}
-
+	
 	@Override
 	public ComponentID getComponentID() {
 		return getResourceAdaptorTypeID();

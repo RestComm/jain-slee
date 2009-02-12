@@ -132,6 +132,12 @@ public abstract class SleeComponent {
 	 */
 	public abstract ComponentID getComponentID();
 	
+	/**
+	 * Indicates if the component is new to SLEE 1.1 specs 
+	 * @return
+	 */
+	public abstract boolean isSlee11();
+	
 	@Override
 	public int hashCode() {		
 		return getComponentID().hashCode();

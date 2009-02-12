@@ -9,7 +9,6 @@
 package org.mobicents.slee.container.component;
 
 import javax.slee.ComponentID;
-import javax.slee.management.DeployableUnitID;
 import javax.slee.resource.ResourceAdaptorID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorImpl;
@@ -24,39 +23,73 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Resour
  */
 public class ResourceAdaptorComponent extends SleeComponent {
 
-	protected ResourceAdaptorDescriptorImpl descriptor = null;
-	protected ResourceAdaptorID resourceAdaptorID = null;
-	protected Class resourceAdaptorClass = null;
-	protected Class resourceAdaptorUsageParametersInterfaceClass = null;
+	/**
+	 * the ra descriptor
+	 */
+	private final ResourceAdaptorDescriptorImpl descriptor;
+	
+	/**
+	 * the ra class
+	 */
+	private Class resourceAdaptorClass = null;
+	
+	/**
+	 * the ra usage parameters interface
+	 */
+	private Class resourceAdaptorUsageParametersInterfaceClass = null;
 
+	/**
+	 * 
+	 * @param descriptor
+	 */
+	public ResourceAdaptorComponent(ResourceAdaptorDescriptorImpl descriptor) {
+		this.descriptor = descriptor;
+	}
+
+	/**
+	 * Retrieves the ra descriptor
+	 * @return
+	 */
 	public ResourceAdaptorDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
 
-	public void setDescriptor(ResourceAdaptorDescriptorImpl descriptor) {
-		this.descriptor = descriptor;
-	}
-
+	/**
+	 * Retrieves the ra id
+	 * @return
+	 */
 	public ResourceAdaptorID getResourceAdaptorID() {
-		return resourceAdaptorID;
+		return descriptor.getResourceAdaptorID();
 	}
 
-	public void setResourceAdaptorID(ResourceAdaptorID resourceAdaptorID) {
-		this.resourceAdaptorID = resourceAdaptorID;
-	}
-
+	/**
+	 * Retrieves the ra class
+	 * @return
+	 */
 	public Class getResourceAdaptorClass() {
 		return resourceAdaptorClass;
 	}
 
+	/**
+	 * Sets the ra class
+	 * @param resourceAdaptorClass
+	 */
 	public void setResourceAdaptorClass(Class resourceAdaptorClass) {
 		this.resourceAdaptorClass = resourceAdaptorClass;
 	}
 
+	/**
+	 * Retrieves the ra usage parameters interface
+	 * @return
+	 */
 	public Class getResourceAdaptorUsageParametersInterfaceClass() {
 		return resourceAdaptorUsageParametersInterfaceClass;
 	}
 
+	/**
+	 * Sets the ra usage parameters interface
+	 * @param resourceAdaptorUsageParametersInterfaceClass
+	 */
 	public void setResourceAdaptorUsageParametersInterfaceClass(
 			Class resourceAdaptorUsageParametersInterfaceClass) {
 		this.resourceAdaptorUsageParametersInterfaceClass = resourceAdaptorUsageParametersInterfaceClass;
@@ -65,5 +98,10 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	@Override
 	public ComponentID getComponentID() {
 		return getResourceAdaptorID();
+	}
+	
+	@Override
+	public boolean isSlee11() {
+		return descriptor.isSlee11();
 	}
 }

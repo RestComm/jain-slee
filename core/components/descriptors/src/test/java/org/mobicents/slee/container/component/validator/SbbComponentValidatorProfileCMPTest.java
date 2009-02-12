@@ -18,9 +18,6 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import javassist.CtClass;
-import javassist.NotFoundException;
-
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.LibraryComponent;
@@ -56,14 +53,13 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
-		SbbComponent component = new FakeComponent();
+		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
 								.getSbbAbstractClassName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new FakeRepository());
 		boolean b = validator.validateGetProfileCmpInterfaceMethods(ClassUtils
@@ -79,11 +75,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
-		SbbComponent component = new FakeComponent();
+		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongThrowsSbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
 
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new FakeRepository());
 		boolean b = validator.validateGetProfileCmpInterfaceMethods(ClassUtils
@@ -98,11 +93,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
-		SbbComponent component = new FakeComponent();
+		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongParameterSbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
 
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new FakeRepository());
 		boolean b = validator.validateGetProfileCmpInterfaceMethods(ClassUtils
@@ -117,11 +111,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
-		SbbComponent component = new FakeComponent();
+		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongVisibilitySbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
 
-		component.setDescriptor(descriptor);
 		validator.setComponent(component);
 		validator.setComponentRepository(new FakeRepository());
 		boolean b = validator.validateGetProfileCmpInterfaceMethods(ClassUtils
@@ -137,14 +130,14 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 
 		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
 				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_WRONG_PREFIX), null)[0];
-		SbbComponent component = new FakeComponent();
+		SbbComponent component = new FakeComponent(descriptor);
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
 								.getSbbAbstractClassName()));
-		component.setDescriptor(descriptor);
+		
 		validator.setComponent(component);
 		validator.setComponentRepository(new FakeRepository());
 		boolean b = validator.validateGetProfileCmpInterfaceMethods(ClassUtils
@@ -175,7 +168,7 @@ class FakeRepository implements ComponentRepository {
 	public ProfileSpecificationComponent getComponentByID(
 			ProfileSpecificationID id) {
 
-		ProfileSpecificationComponent cmp = new ProfileSpecificationComponent();
+		ProfileSpecificationComponent cmp = new ProfileSpecificationComponent(null);
 		cmp.setProfileCmpInterfaceClass(ProfileCmpInterface.class);
 
 		return cmp;
@@ -201,7 +194,13 @@ class FakeRepository implements ComponentRepository {
 class FakeComponent extends SbbComponent
 {
 
-	@Override
+	public FakeComponent(SbbDescriptorImpl descriptor) {
+		super(descriptor);
+	}
+
+	/**
+	 * FIXME emmartins: is this needed? it is not used, I removed it from component class so I had to remove the override annot here too
+	 */
 	public Map<String, ProfileSpecificationID> getProfileReferences() {
 		HashMap<String, ProfileSpecificationID> tmps=new HashMap<String, ProfileSpecificationID>();
 		tmps.put("xxx",new ProfileSpecificationID("x","y","z"));
