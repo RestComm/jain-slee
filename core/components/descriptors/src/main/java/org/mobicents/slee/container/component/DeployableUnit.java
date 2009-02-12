@@ -9,8 +9,11 @@
 package org.mobicents.slee.container.component;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
@@ -195,6 +198,23 @@ public class DeployableUnit {
 	 */
 	public Map<ServiceID, ServiceComponent> getServiceComponents() {
 		return serviceComponents;
+	}
+	
+	/**
+	 * Returns an unmodifiable set with all {@link SleeComponent}s of the deployable unit.
+	 *  
+	 * @return
+	 */
+	public Set<SleeComponent> getDeployableUnitComponents() {
+		Set<SleeComponent> result = new HashSet<SleeComponent>();
+		result.addAll(getEventTypeComponents().values());
+		result.addAll(getLibraryComponents().values());
+		result.addAll(getProfileSpecificationComponents().values());
+		result.addAll(getResourceAdaptorComponents().values());
+		result.addAll(getResourceAdaptorTypeComponents().values());
+		result.addAll(getSbbComponents().values());
+		result.addAll(getServiceComponents().values());
+		return Collections.unmodifiableSet(result);
 	}
 	
 	@Override
