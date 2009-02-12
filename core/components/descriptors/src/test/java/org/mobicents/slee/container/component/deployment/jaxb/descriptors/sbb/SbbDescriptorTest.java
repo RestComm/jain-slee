@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Set;
 
 import javax.slee.management.DeploymentException;
-import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.xml.sax.SAXException;
 
 /**
@@ -173,16 +174,17 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertNotNull("Sbb component key sbb-alias cant be null",sbb.getSbbAlias());
 		assertTrue("Sbb component key sbb-alias is not equal to "+_SBB_ALIAS,sbb.getSbbAlias().compareTo(_SBB_ALIAS)==0);
 		
-		List<MProfileSpecsReference> profilesSpecs=sbb.getProfileSpecReference();
+		List<MProfileSpecRef> profilesSpecs=sbb.getProfileSpecReference();
 		assertNotNull("Profile specs references list is null",profilesSpecs);
 		assertTrue("Profile specs references list size is not 1",profilesSpecs.size()==1);
-		MProfileSpecsReference ref=profilesSpecs.get(0);
+		MProfileSpecRef ref=profilesSpecs.get(0);
 		
 		assertNotNull("Profile specs reference is null",ref);
 		
 		
-		validateKey(ref.getReferenceProfileSpecificationID(),"Profile specs reference",new String[]{_PROFILE_SPEC_NAME,_PROFILE_SPEC_VENDOR,_PROFILE_SPEC_VERSION});
-		assertNotNull("Profile specs reference alias is null ",ref.getProfileSpecAlias());
+		validateKey(ref.getComponentID(),"Profile specs reference",new String[]{_PROFILE_SPEC_NAME,_PROFILE_SPEC_VENDOR,_PROFILE_SPEC_VERSION});
+		if(!sbb.isSlee11())
+		  assertNotNull("Profile specs reference alias is null ",ref.getProfileSpecAlias());
 		assertTrue("Profile specs reference alias is not equal to "+_PROFILE_SPEC_ALIAS,ref.getProfileSpecAlias().compareTo(_PROFILE_SPEC_ALIAS)==0);
 		
 		
@@ -364,12 +366,12 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		if(sbb.isSlee11())
 		{
 			
-			Set<LibraryID> libraryRefs=sbb.getLibraryRefs();
+			Set<MLibraryRef> libraryRefs=sbb.getLibraryRefs();
 			
 			
 			assertNotNull("Sbb library refs list is null",libraryRefs);
 			assertTrue("Sbb library refs size is not equal to 1",libraryRefs.size()==1);
-			validateKey(libraryRefs.iterator().next(), "Sbb library ref key", new String[]{_LIBRARY_REF_NAME,_LIBRARY_REF_VENDOR,_LIBRARY_REF_VERSION});
+			validateKey(libraryRefs.iterator().next().getComponentID(), "Sbb library ref key", new String[]{_LIBRARY_REF_NAME,_LIBRARY_REF_VENDOR,_LIBRARY_REF_VERSION});
 			
 			
 			
