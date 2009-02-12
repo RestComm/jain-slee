@@ -13,6 +13,7 @@ import java.util.Map;
 
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
+import javax.slee.ServiceID;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
@@ -25,6 +26,7 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.ClassUtils;
@@ -186,6 +188,11 @@ class FakeRepository implements ComponentRepository {
 
 	public ResourceAdaptorTypeComponent getComponentByID(
 			ResourceAdaptorTypeID id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public ServiceComponent getComponentByID(ServiceID id) {
 		// TODO Auto-generated method stub
 		return null;
 	}

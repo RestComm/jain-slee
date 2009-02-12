@@ -3,12 +3,6 @@ package org.mobicents.slee.container.component;
 import java.util.Set;
 
 import javax.slee.ComponentID;
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
-import javax.slee.management.LibraryID;
-import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.resource.ResourceAdaptorID;
-import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderPolicy;

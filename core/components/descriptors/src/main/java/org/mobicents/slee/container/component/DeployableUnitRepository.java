@@ -2,6 +2,7 @@ package org.mobicents.slee.container.component;
 
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
+import javax.slee.ServiceID;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
@@ -91,4 +92,13 @@ public class DeployableUnitRepository implements ComponentRepository {
 		return component;
 	}
 	
+	public ServiceComponent getComponentByID(ServiceID id) {
+		// get from repository
+		ServiceComponent component = componentRepository.getComponentByID(id);
+		if (component == null) {
+			// not found in repository, get it from deployable unit
+			component = deployableUnit.getServiceComponents().get(id);
+		}
+		return component;
+	}
 }

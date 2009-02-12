@@ -10,6 +10,7 @@ package org.mobicents.slee.container.component;
 
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
+import javax.slee.ServiceID;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
@@ -66,4 +67,11 @@ public interface ComponentRepository {
 	 * @return null if no such component exists
 	 */
 	public SbbComponent getComponentByID(SbbID id);
+
+	/**
+	 * Retrieves the {@link ServiceComponent} associated with the specified id
+	 * @param id
+	 * @return null if no such component exists
+	 */
+	public ServiceComponent getComponentByID(ServiceID id);
 }
