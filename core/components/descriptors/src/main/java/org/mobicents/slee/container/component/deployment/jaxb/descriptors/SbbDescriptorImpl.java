@@ -20,7 +20,7 @@ import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
@@ -90,7 +90,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 	private Set<MLibraryRef> libraryRefs = null;
 	private List<MEjbRef> ejbRefs = null;
 
-	private MSecurityPermision securityPermisions = null;
+	private MSecurityPermissions securityPermisions = null;
 
 	private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
@@ -240,7 +240,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 			if (this.llSbbJar.getSecurityPermissions() != null) {
 				org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SecurityPermissions secPerm = this.llSbbJar
 						.getSecurityPermissions();
-				this.securityPermisions = new MSecurityPermision(secPerm
+				this.securityPermisions = new MSecurityPermissions(secPerm
 						.getDescription() == null ? null : secPerm
 						.getDescription().getvalue(), secPerm
 						.getSecurityPermissionSpec().getvalue());
@@ -504,7 +504,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 		return ejbRefs;
 	}
 
-	public MSecurityPermision getSecurityPermisions() {
+	public MSecurityPermissions getSecurityPermisions() {
 		return securityPermisions;
 	}
 
