@@ -12,8 +12,11 @@ import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventDescriptorImpl;
+import org.mobicents.slee.container.component.validator.Validator;
 
 /**
  * Start time:00:44:47 2009-02-04<br>
@@ -94,5 +97,10 @@ public class EventTypeComponent extends SleeComponent {
 	public ComponentID getComponentID() {
 		return getEventTypeID();
 	}
-		
+	
+	@Override
+	public boolean validate() throws DependencyException, DeploymentException {
+		// FIXME use validator when available
+		return true;
+	}
 }

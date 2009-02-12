@@ -12,6 +12,8 @@ import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.ServiceID;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
 
@@ -72,5 +74,11 @@ public class ServiceComponent extends SleeComponent {
 	@Override
 	public ComponentID getComponentID() {
 		return getServiceID();
+	}
+	
+	@Override
+	public boolean validate() throws DependencyException, DeploymentException {
+		// FIXME use validator when available
+		return true;
 	}
 }

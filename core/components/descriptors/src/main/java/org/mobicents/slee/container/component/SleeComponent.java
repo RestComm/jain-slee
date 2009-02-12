@@ -3,6 +3,8 @@ package org.mobicents.slee.container.component;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 
 import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderPolicy;
@@ -147,6 +149,15 @@ public abstract class SleeComponent {
 	 */
 	public abstract boolean isSlee11();
 
+	/**
+	 * Validates the component.
+	 * 
+	 * @return
+	 * @throws DependencyException
+	 * @throws DeploymentException
+	 */
+	public abstract boolean validate() throws DependencyException, DeploymentException;
+	
 	@Override
 	public int hashCode() {
 		return getComponentID().hashCode();

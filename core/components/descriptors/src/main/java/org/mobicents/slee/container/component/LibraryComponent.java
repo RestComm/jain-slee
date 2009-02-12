@@ -11,6 +11,8 @@ package org.mobicents.slee.container.component;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorImpl;
@@ -72,5 +74,11 @@ public class LibraryComponent extends SleeComponent {
 	@Override
 	public ComponentID getComponentID() {
 		return getLibraryID();
+	}
+	
+	@Override
+	public boolean validate() throws DependencyException, DeploymentException {
+		// FIXME use validator when available
+		return true;
 	}
 }

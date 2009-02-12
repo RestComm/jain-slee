@@ -11,6 +11,8 @@ package org.mobicents.slee.container.component;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 import javax.slee.resource.ResourceAdaptorID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorImpl;
@@ -115,5 +117,11 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	@Override
 	public boolean isSlee11() {
 		return descriptor.isSlee11();
+	}
+	
+	@Override
+	public boolean validate() throws DependencyException, DeploymentException {
+		// FIXME use validator when available
+		return true;
 	}
 }

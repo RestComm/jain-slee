@@ -177,7 +177,10 @@ public class DeployableUnitBuilder {
 			loadAndSetNonGeneratedComponentClasses(sleeComponent);
 		}
 		
-		// TODO validate each component
+		// validate each component
+		for (SleeComponent sleeComponent : duComponentsSet) {
+			sleeComponent.validate();
+		}
 		
 		// TODO generate any classes needed by the component
 		

@@ -15,11 +15,11 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.slee.management.DeploymentException;
-import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -173,12 +173,11 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		
 		if(specs.isSlee11())
 		{
-			Set<LibraryID> libraryRefs=specs.getLibraryRefs();
-			
-			
+			Set<MLibraryRef> libraryRefs=specs.getLibraryRefs();
+						
 			assertNotNull("Profile specs library refs list is null",libraryRefs);
 			assertTrue("Profile specs library refs size is not equal to 1",libraryRefs.size()==1);
-			validateKey(libraryRefs.iterator().next(), "Profile specs library ref key", new String[]{_DEFAULT_VALUE,_DEFAULT_VALUE+"2",_DEFAULT_VALUE+"3"});
+			validateKey(libraryRefs.iterator().next().getComponentID(), "Profile specs library ref key", new String[]{_DEFAULT_VALUE,_DEFAULT_VALUE+"2",_DEFAULT_VALUE+"3"});
 			
 			
 			Set<ProfileSpecificationID> profileSpecsRefs=specs.getProfileSpecRefs();
@@ -190,8 +189,8 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		}
 		
 		assertNotNull("Profile specs management interface is null", specs.getProfileManagementInterface());
-		assertNotNull("Profile specs management interface value is null", specs.getProfileManagementInterface().getProfileManagementName());
-		assertTrue("Profile specs management interface is not equal to "+_DEFAULT_VALUE, specs.getProfileManagementInterface().getProfileManagementName().compareTo(_DEFAULT_VALUE)==0);
+		assertNotNull("Profile specs management interface value is null", specs.getProfileManagementInterface().getProfileManagementInterfaceName());
+		assertTrue("Profile specs management interface is not equal to "+_DEFAULT_VALUE, specs.getProfileManagementInterface().getProfileManagementInterfaceName().compareTo(_DEFAULT_VALUE)==0);
 		
 		
 		assertNotNull("Profile specs abstract class is null", specs.getProfileAbstractClass());

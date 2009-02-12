@@ -12,8 +12,11 @@ import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.SbbID;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
+import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
 /**
  * Start time:16:00:31 2009-01-25<br>
@@ -222,5 +225,13 @@ public class SbbComponent extends SleeComponent {
 	@Override
 	public ComponentID getComponentID() {
 		return getSbbID();
+	}
+	
+	@Override
+	public boolean validate() throws DependencyException, DeploymentException {
+		SbbComponentValidator validator = new SbbComponentValidator();
+		validator.setComponent(this);
+		validator.setComponentRepository(getDeployableUnit().getDeployableUnitRepository());
+		return validator.validate();
 	}
 }
