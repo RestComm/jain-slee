@@ -1,11 +1,3 @@
-/**
- * Start time:11:10:10 2009-01-29<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
 import java.util.ArrayList;
@@ -23,114 +15,133 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Ran
  * This class is agregation of query expresion elements defined in: slee.1.1
  * specs chapter 10.20.2. Generaly it creates expression tree from passed
  * arguments to match one defined in xml descriptor. This is an abstraction from plain translation from xml structure <br>
+ * 
  * Start time:11:10:10 2009-01-29<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class MQueryExpression {
 
-	
-	
 	private MQueryExpressionType type;
 	private MQueryExpressionType parentType;
+
 	//for not, or, and
-	private ArrayList<MQueryExpression> childExpressions=new ArrayList<MQueryExpression>();
+	private ArrayList<MQueryExpression> childExpressions = new ArrayList<MQueryExpression>();
 	
 	//For others
-	private MCompare compare=null;
-	private MLongestPrefixMatch longestPrefixMatch=null;
-	private MHasPrefix hasPrefix=null;
-	private MRangeMatch rangeMatch=null;
+	private MCompare compare;
+	private MLongestPrefixMatch longestPrefixMatch;
+	private MHasPrefix hasPrefix;
+	private MRangeMatch rangeMatch;
+	
 	/**
 	 * Constructs this query expression tree
 	 * 
-	 * @param o
+	 * @param operator
 	 */
-	public MQueryExpression(Object o) {
-
-		if(o instanceof Compare)
+	public MQueryExpression(Object operator)
+	{
+		if(operator instanceof Compare)
 		{
-			this.parentType=null;
-			this.type=MQueryExpressionType.Compare;
-			this.compare=new MCompare((Compare) o);
-		}else if(o instanceof HasPrefix)
+			this.parentType = null;
+			this.type = MQueryExpressionType.Compare;
+			this.compare = new MCompare((Compare) operator);
+		}
+		else if(operator instanceof HasPrefix)
 		{
-			this.parentType=null;
-			this.type=MQueryExpressionType.HasPrefix;
-			this.hasPrefix=new MHasPrefix( (HasPrefix) o);
-		}else if(o instanceof LongestPrefixMatch)
+			this.parentType = null;
+			this.type = MQueryExpressionType.HasPrefix;
+			this.hasPrefix = new MHasPrefix( (HasPrefix) operator);
+		}
+		else if(operator instanceof LongestPrefixMatch)
 		{
-			this.parentType=null;
-			this.type=MQueryExpressionType.LongestPrefixMatch;
-			this.longestPrefixMatch=new MLongestPrefixMatch( (LongestPrefixMatch) o);
-		}else if(o instanceof RangeMatch)
+			this.parentType = null;
+			this.type = MQueryExpressionType.LongestPrefixMatch;
+			this.longestPrefixMatch = new MLongestPrefixMatch( (LongestPrefixMatch) operator);
+		}
+		else if(operator instanceof RangeMatch)
 		{
-			this.parentType=null;
-			this.type=MQueryExpressionType.RangeMatch;
-			this.rangeMatch=new MRangeMatch( (RangeMatch) o);
-		}else if(o instanceof Or)
+			this.parentType = null;
+			this.type = MQueryExpressionType.RangeMatch;
+			this.rangeMatch = new MRangeMatch( (RangeMatch) operator);
+		}
+		else if(operator instanceof Or)
 		{
 			//here we will have atleast two elements
-			Or or=(Or)o;
-			this.parentType=null;
-			this.type=MQueryExpressionType.Or;
+			Or or = (Or)operator;
+			this.parentType = null;
+			this.type = MQueryExpressionType.Or;
 
-			for(Object childRaw:or.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
+			for(Object childRaw : or.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
 			{
-				MQueryExpression child=new MQueryExpression(childRaw);
-				child.parentType=this.type;
+				MQueryExpression child = new MQueryExpression(childRaw);
+				child.parentType = this.type;
 				this.childExpressions.add(child);
 			}
 			
-		}else if(o instanceof And)
+		}
+		else if(operator instanceof And)
 		{
 			//here we will have atleast two elements
-			And and=(And)o;
-			this.parentType=null;
-			this.type=MQueryExpressionType.And;
+			And and = (And)operator;
+			this.parentType = null;
+			this.type = MQueryExpressionType.And;
 
-			for(Object childRaw:and.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
+			for(Object childRaw  :  and.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
 			{
-				MQueryExpression child=new MQueryExpression(childRaw);
-				child.parentType=this.type;
+				MQueryExpression child = new MQueryExpression(childRaw);
+				child.parentType = this.type;
 				this.childExpressions.add(child);
 			}
-		}else if(o instanceof Not)
+		}
+		else if(operator instanceof Not)
 		{
 			//Not should have one, we will get one, this is xml validation part
-			Not not=(Not)o;
-			this.parentType=null;
-			this.type=MQueryExpressionType.Not;
+			Not not = (Not)operator;
+			this.parentType = null;
+			this.type = MQueryExpressionType.Not;
 
-			for(Object childRaw:not.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
+			for(Object childRaw : not.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
 			{
-				MQueryExpression child=new MQueryExpression(childRaw);
-				child.parentType=this.type;
+				MQueryExpression child = new MQueryExpression(childRaw);
+				child.parentType = this.type;
 				this.childExpressions.add(child);
 			}
-		}else
-			throw new IllegalArgumentException("Can not match query expression element to any known: "+o);
+		}
+		else
+			throw new IllegalArgumentException("Can not match query expression element to any known: " + operator);
 		
 	}
-	public MQueryExpressionType getType() {
+	
+	public MQueryExpressionType getType()
+	{
 		return type;
 	}
-	public MQueryExpressionType getParentType() {
+	
+	public MQueryExpressionType getParentType()
+	{
 		return parentType;
 	}
-	public MCompare getCompare() {
+	
+	public MCompare getCompare()
+	{
 		return compare;
 	}
-	public MLongestPrefixMatch getLongestPrefixMatch() {
+	
+	public MLongestPrefixMatch getLongestPrefixMatch()
+	{
 		return longestPrefixMatch;
 	}
-	public MHasPrefix getHasPrefix() {
+	
+	public MHasPrefix getHasPrefix()
+	{
 		return hasPrefix;
 	}
-	public MRangeMatch getRangeMatch() {
+	
+	public MRangeMatch getRangeMatch()
+	{
 		return rangeMatch;
 	}
 	

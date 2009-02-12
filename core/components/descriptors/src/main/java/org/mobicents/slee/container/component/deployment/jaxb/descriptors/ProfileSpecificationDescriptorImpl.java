@@ -22,14 +22,14 @@ import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MEnvEntry;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MIndexedAttribue;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecCollator;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecManagementAbstractClass;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileCMPInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileLocalInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileManagementInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpecProfileTableInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileLocalInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileManagementInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileTableInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileIndex;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileSpec;
@@ -60,24 +60,24 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 	// name/vendor/version
 	private ProfileSpecificationID profileSpecificationID = null;
 
-	private MProfileSpecProfileCMPInterface profileCMPInterface = null;
+	private MProfileCMPInterface profileCMPInterface = null;
 	// This could be string, but lets be consistent
-	private MProfileSpecProfileManagementInterface profileManagementInterface = null;
-	private MProfileSpecManagementAbstractClass profileAbstractClass = null;
+	private MProfileManagementInterface profileManagementInterface = null;
+	private MProfileAbstractClass profileAbstractClass = null;
 	// This possibly should also be object?
-	private Set<MIndexedAttribue> indexedAttributes = null;
+	private Set<MProfileIndex> indexedAttributes = null;
 	// FIXME: add hints here?
 
 	// 1.1 Stuff
 	private Set<ProfileSpecificationID> profileSpecRefs = null;
 	private Set<LibraryID> libraryRefs = null;
-	private List<MProfileSpecCollator> collators = null;
+	private List<MCollator> collators = null;
 
-	private MProfileSpecProfileTableInterface profileTableInterface = null;
+	private MProfileTableInterface profileTableInterface = null;
 	private MUsageParametersInterface profileUsageParameterInterface = null;
 	private List<MEnvEntry> envEntries = null;
 	private List<MQuery> queryElements = null;
-	private MProfileSpecProfileLocalInterface profileLocalInterface = null;
+	private MProfileLocalInterface profileLocalInterface = null;
 	private boolean profileHints = false;
 	private String readOnly = null;
 	private String eventsEnabled = null;
@@ -160,38 +160,38 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 			}
 
 			// Collator, what ever that is
-			this.collators = new ArrayList<MProfileSpecCollator>();
+			this.collators = new ArrayList<MCollator>();
 			if (specs.getCollator() != null && specs.getCollator().size() > 0) {
 				for (Collator collator : specs.getCollator()) {
-					this.collators.add(new MProfileSpecCollator(collator));
+					this.collators.add(new MCollator(collator));
 				}
 			}
 
 			// Obligatory
-			this.profileCMPInterface = new MProfileSpecProfileCMPInterface(
+			this.profileCMPInterface = new MProfileCMPInterface(
 					specs.getProfileClasses().getProfileCmpInterface());
 
 			// Optional
 			if (specs.getProfileClasses().getProfileLocalInterface() != null) {
-				this.profileLocalInterface = new MProfileSpecProfileLocalInterface(
+				this.profileLocalInterface = new MProfileLocalInterface(
 						specs.getProfileClasses().getProfileLocalInterface());
 			}
 			// Optional
 			if (specs.getProfileClasses().getProfileManagementInterface() != null) {
-				this.profileManagementInterface = new MProfileSpecProfileManagementInterface(
+				this.profileManagementInterface = new MProfileManagementInterface(
 						specs.getProfileClasses()
 								.getProfileManagementInterface());
 			}
 
 			// Optional
 			if (specs.getProfileClasses().getProfileAbstractClass() != null) {
-				this.profileAbstractClass = new MProfileSpecManagementAbstractClass(
+				this.profileAbstractClass = new MProfileAbstractClass(
 						specs.getProfileClasses().getProfileAbstractClass());
 			}
 
 			// Optional
 			if (specs.getProfileClasses().getProfileTableInterface() != null) {
-				this.profileTableInterface = new MProfileSpecProfileTableInterface(
+				this.profileTableInterface = new MProfileTableInterface(
 						specs.getProfileClasses().getProfileTableInterface());
 			}
 
@@ -244,27 +244,27 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 					.getProfileSpecVersion().getvalue());
 
 			// Obligatory
-			this.profileCMPInterface = new MProfileSpecProfileCMPInterface(
+			this.profileCMPInterface = new MProfileCMPInterface(
 					specs.getProfileClasses().getProfileCmpInterfaceName());
 
 			// Optional
 			if (specs.getProfileClasses().getProfileManagementInterfaceName() != null)
-				this.profileManagementInterface = new MProfileSpecProfileManagementInterface(
+				this.profileManagementInterface = new MProfileManagementInterface(
 						specs.getProfileClasses()
 								.getProfileManagementInterfaceName());
 
 			// Optional
 			if (specs.getProfileClasses()
 					.getProfileManagementAbstractClassName() != null)
-				this.profileAbstractClass = new MProfileSpecManagementAbstractClass(
+				this.profileAbstractClass = new MProfileAbstractClass(
 						specs.getProfileClasses()
 								.getProfileManagementAbstractClassName());
 
-			this.indexedAttributes = new HashSet<MIndexedAttribue>();
+			this.indexedAttributes = new HashSet<MProfileIndex>();
 			if (specs.getProfileIndex() != null
 					&& specs.getProfileIndex().size() > 0) {
 				for (ProfileIndex index : specs.getProfileIndex()) {
-					this.indexedAttributes.add(new MIndexedAttribue(index));
+					this.indexedAttributes.add(new MProfileIndex(index));
 				}
 			}
 
@@ -362,19 +362,19 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 		return profileSpecificationID;
 	}
 
-	public MProfileSpecProfileCMPInterface getProfileCMPInterface() {
+	public MProfileCMPInterface getProfileCMPInterface() {
 		return profileCMPInterface;
 	}
 
-	public MProfileSpecProfileManagementInterface getProfileManagementInterface() {
+	public MProfileManagementInterface getProfileManagementInterface() {
 		return profileManagementInterface;
 	}
 
-	public MProfileSpecManagementAbstractClass getProfileAbstractClass() {
+	public MProfileAbstractClass getProfileAbstractClass() {
 		return profileAbstractClass;
 	}
 
-	public Set<MIndexedAttribue> getIndexedAttributes() {
+	public Set<MProfileIndex> getIndexedAttributes() {
 		return indexedAttributes;
 	}
 
@@ -382,11 +382,11 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 		return profileSpecRefs;
 	}
 
-	public List<MProfileSpecCollator> getCollators() {
+	public List<MCollator> getCollators() {
 		return collators;
 	}
 
-	public MProfileSpecProfileTableInterface getProfileTableInterface() {
+	public MProfileTableInterface getProfileTableInterface() {
 		return profileTableInterface;
 	}
 
@@ -402,7 +402,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 		return queryElements;
 	}
 
-	public MProfileSpecProfileLocalInterface getProfileLocalInterface() {
+	public MProfileLocalInterface getProfileLocalInterface() {
 		return profileLocalInterface;
 	}
 

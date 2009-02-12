@@ -1,14 +1,4 @@
-/**
- * Start time:16:51:40 2009-01-18<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
-
-import javax.slee.management.DeploymentException;
 
 /**
  * Start time:16:51:40 2009-01-18<br>
@@ -20,19 +10,17 @@ import javax.slee.management.DeploymentException;
  */
 public class MIndexHint {
 
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint = null;
-	private String queryOperator, collatorRef;
+	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint11;
+	
+	private String queryOperator;
+	private String collatorRef;
 
-	public MIndexHint(
-			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint) {
-		this.indexHint = indexHint;
-		// init
-		this.queryOperator = this.indexHint.getQueryOperator();
-		this.collatorRef = this.indexHint.getCollatorRef();
-//		if(this.queryOperator==null|| this.queryOperator.compareTo("")==0)
-//		{
-//			throw new DeploymentException("Index Hint query operator can not be null or empty");
-//		}
+	public MIndexHint(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.IndexHint indexHint11)
+	{
+	  this.indexHint11 = indexHint11;
+	  
+		this.queryOperator = indexHint11.getQueryOperator();
+		this.collatorRef = indexHint11.getCollatorRef();
 	}
 
 	public String getQueryOperator() {
@@ -42,7 +30,4 @@ public class MIndexHint {
 	public String getCollatorRef() {
 		return collatorRef;
 	}
-
-	
-	
 }

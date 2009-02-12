@@ -1,45 +1,39 @@
-/**
- * Start time:11:59:13 2009-01-29<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
-import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.RangeMatch;
-
 /**
  * Start time:11:59:13 2009-01-29<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class MRangeMatch {
 
-	private RangeMatch rangeMatch = null;
+	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.RangeMatch rangeMatch11;
 
-	protected String attributeName = null;
+	private String attributeName;
 
-	// optional
-	protected String fromValue = null;
-	protected String fromParameter = null;
-	protected String toValue = null;
-	protected String toParameter = null;
-	protected String collatorRef = null;
+	private String fromValue;
+	private String fromParameter;
+	
+	private String toValue;
+	private String toParameter;
+	
+	private String collatorRef;
 
-	public MRangeMatch(RangeMatch rangeMatch) {
-		super();
-		this.rangeMatch = rangeMatch;
-		this.attributeName=this.rangeMatch.getAttributeName();
-		this.fromValue=this.rangeMatch.getFromValue();
-		this.fromParameter=this.rangeMatch.getFromParameter();
-		this.toValue=this.rangeMatch.getToValue();
-		this.toParameter=this.rangeMatch.getToParameter();
-		this.collatorRef=this.rangeMatch.getCollatorRef();
+	public MRangeMatch(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.RangeMatch rangeMatch11)
+	{
+		this.rangeMatch11 = rangeMatch11;
+		
+		this.attributeName = rangeMatch11.getAttributeName();
+		
+		this.fromValue = rangeMatch11.getFromValue();
+		this.fromParameter = rangeMatch11.getFromParameter();
+		
+		this.toValue = rangeMatch11.getToValue();
+		this.toParameter = rangeMatch11.getToParameter();
+		
+		this.collatorRef = rangeMatch11.getCollatorRef();
 	}
 
 	public String getAttributeName() {

@@ -1,44 +1,33 @@
-/**
- * Start time:17:30:02 2009-01-18<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
-import javax.slee.management.DeploymentException;
-
-
 /**
  * Start time:17:30:02 2009-01-18<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class MQueryParameter {
 
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter qParameter=null;
-	private String name, type;
+  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter queryParameter11;
 
-	public MQueryParameter(
-			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter parameter) {
-		super();
-		qParameter = parameter;
+  private String name;
+  private String type;
 
-		this.name=qParameter.getName();
-		this.type=qParameter.getType();
-	}
+  public MQueryParameter(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter queryParameter11)
+  {
+    this.queryParameter11 = queryParameter11;
 
-	public String getName() {
-		return name;
-	}
+    this.name = queryParameter11.getName();
+    this.type = queryParameter11.getType();
+  }
 
-	public String getType() {
-		return type;
-	}
+  public String getName() {
+    return name;
+  }
+
+  public String getType() {
+    return type;
+  }
 
 }
