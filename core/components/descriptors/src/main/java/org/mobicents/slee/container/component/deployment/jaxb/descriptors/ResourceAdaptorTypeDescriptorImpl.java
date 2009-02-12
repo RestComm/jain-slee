@@ -1,7 +1,9 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.List;
+import java.util.Set;
 
+import javax.slee.ComponentID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityContextInterfaceFactoryInterface;
@@ -143,4 +145,9 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
 	return resourceAdaptorTypeID;
   }
   
+  public Set<ComponentID> getDependenciesSet() {
+	// TODO Auto-generated method stub
+	return null;
+  }
+
 }

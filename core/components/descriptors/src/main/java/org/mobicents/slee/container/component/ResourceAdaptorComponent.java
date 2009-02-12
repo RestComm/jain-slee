@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.Set;
+
 import javax.slee.ComponentID;
 import javax.slee.resource.ResourceAdaptorID;
 
@@ -95,6 +97,11 @@ public class ResourceAdaptorComponent extends SleeComponent {
 		this.resourceAdaptorUsageParametersInterfaceClass = resourceAdaptorUsageParametersInterfaceClass;
 	}
 
+	@Override
+	public Set<ComponentID> getDependenciesSet() {
+		return descriptor.getDependenciesSet();
+	}
+	
 	@Override
 	public ComponentID getComponentID() {
 		return getResourceAdaptorID();

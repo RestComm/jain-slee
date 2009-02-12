@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.Set;
+
 import javax.slee.ComponentID;
 import javax.slee.management.LibraryID;
 
@@ -52,6 +54,11 @@ public class LibraryComponent extends SleeComponent {
 		return descriptor.getLibraryID();
 	}
 
+	@Override
+	public Set<ComponentID> getDependenciesSet() {
+		return descriptor.getDependenciesSet();
+	}
+	
 	@Override
 	public boolean isSlee11() {
 		return descriptor.isSlee11();

@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.Set;
+
 import javax.slee.ComponentID;
 import javax.slee.profile.ProfileSpecificationID;
 
@@ -180,6 +182,11 @@ public class ProfileSpecificationComponent extends SleeComponent {
 		return profileUsageInterfaceClass;
 	}
 
+	@Override
+	public Set<ComponentID> getDependenciesSet() {
+		return descriptor.getDependenciesSet();
+	}
+	
 	@Override
 	public boolean isSlee11() {
 		return this.descriptor.isSlee11();

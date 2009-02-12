@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.slee.ComponentID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
@@ -48,12 +49,11 @@ import org.w3c.dom.Document;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
+public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecJar llProfileSpecJar = null;
 	private ProfileSpecJar profileSpecJar = null;
 	private int index = -1;
-
 
 	// 1.0 stuff + some 1.1
 	private String description = null;
@@ -86,18 +86,17 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 	// private SecurityPermision securityPermisions=null;
 	private MSecurityPermision securityPremissions = null;
 
-
 	/**
 	 * @param doc
 	 * @throws DeploymentException
 	 */
-	private ProfileSpecificationDescriptorImpl(Document doc){
+	private ProfileSpecificationDescriptorImpl(Document doc) {
 		super(doc);
 
 	}
 
 	private ProfileSpecificationDescriptorImpl(Document doc,
-			ProfileSpecJar profileSpecJar, int index){
+			ProfileSpecJar profileSpecJar, int index) {
 		super(doc);
 
 		this.index = index;
@@ -124,14 +123,15 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 	 * JAXBBaseUtilityClass#buildDescriptionMap()
 	 */
 	@Override
-	public void buildDescriptionMap()  {
+	public void buildDescriptionMap() {
 		if (isSlee11()) {
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpec specs = this.llProfileSpecJar
 					.getProfileSpec().get(index);
 			this.description = specs.getDescription() != null ? specs
 					.getDescription().getvalue() : null;
-			this.profileSpecificationID = new ProfileSpecificationID(specs.getProfileSpecName()
-					.getvalue(), specs.getProfileSpecVendor().getvalue(), specs
+			this.profileSpecificationID = new ProfileSpecificationID(specs
+					.getProfileSpecName().getvalue(), specs
+					.getProfileSpecVendor().getvalue(), specs
 					.getProfileSpecVersion().getvalue());
 
 			this.readOnly = specs.getProfileReadOnly();
@@ -142,15 +142,20 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 					&& specs.getLibraryRef().size() > 0) {
 
 				for (LibraryRef ref : specs.getLibraryRef()) {
-					libraryRefs.add(new LibraryID(ref.getLibraryName().getvalue(),ref.getLibraryVendor().getvalue(),ref.getLibraryVersion().getvalue()));
+					libraryRefs.add(new LibraryID(ref.getLibraryName()
+							.getvalue(), ref.getLibraryVendor().getvalue(), ref
+							.getLibraryVersion().getvalue()));
 				}
 			}
 
 			this.profileSpecRefs = new HashSet<ProfileSpecificationID>();
 			if (specs.getProfileSpecRef() != null
 					&& specs.getProfileSpecRef().size() > 0) {
-				for (ProfileSpecRef ref : specs.getProfileSpecRef()) {					
-					profileSpecRefs.add(new ProfileSpecificationID(ref.getProfileSpecName().getvalue(),ref.getProfileSpecVendor().getvalue(),ref.getProfileSpecVersion().getvalue()));
+				for (ProfileSpecRef ref : specs.getProfileSpecRef()) {
+					profileSpecRefs.add(new ProfileSpecificationID(ref
+							.getProfileSpecName().getvalue(), ref
+							.getProfileSpecVendor().getvalue(), ref
+							.getProfileSpecVersion().getvalue()));
 				}
 			}
 
@@ -163,8 +168,8 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 			}
 
 			// Obligatory
-			this.profileCMPInterface = new MProfileSpecProfileCMPInterface(specs
-					.getProfileClasses().getProfileCmpInterface());
+			this.profileCMPInterface = new MProfileSpecProfileCMPInterface(
+					specs.getProfileClasses().getProfileCmpInterface());
 
 			// Optional
 			if (specs.getProfileClasses().getProfileLocalInterface() != null) {
@@ -208,7 +213,8 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 			}
 
 			if (specs.getProfileHints() != null) {
-				this.profileHints = Boolean.parseBoolean(specs.getProfileHints().getSingleProfile());
+				this.profileHints = Boolean.parseBoolean(specs
+						.getProfileHints().getSingleProfile());
 			}
 
 			if (this.llProfileSpecJar.getSecurityPermissions() != null) {
@@ -219,11 +225,12 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 						.getDescription().getvalue(), secPerm
 						.getSecurityPermissionSpec().getvalue());
 			}
-			
-			//Optional
-			if(specs.getProfileClasses().getProfileUsageParametersInterface()!=null)
-			{
-				this.profileUsageParameterInterface=new MUsageParametersInterface(specs.getProfileClasses().getProfileUsageParametersInterface());
+
+			// Optional
+			if (specs.getProfileClasses().getProfileUsageParametersInterface() != null) {
+				this.profileUsageParameterInterface = new MUsageParametersInterface(
+						specs.getProfileClasses()
+								.getProfileUsageParametersInterface());
 			}
 
 		} else {
@@ -231,13 +238,14 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 			// FIXME: should catch Runtime and throw Deployment
 			this.description = specs.getDescription() != null ? specs
 					.getDescription().getvalue() : null;
-			this.profileSpecificationID = new ProfileSpecificationID(specs.getProfileSpecName()
-					.getvalue(), specs.getProfileSpecVendor().getvalue(), specs
+			this.profileSpecificationID = new ProfileSpecificationID(specs
+					.getProfileSpecName().getvalue(), specs
+					.getProfileSpecVendor().getvalue(), specs
 					.getProfileSpecVersion().getvalue());
 
 			// Obligatory
-			this.profileCMPInterface = new MProfileSpecProfileCMPInterface(specs
-					.getProfileClasses().getProfileCmpInterfaceName());
+			this.profileCMPInterface = new MProfileSpecProfileCMPInterface(
+					specs.getProfileClasses().getProfileCmpInterfaceName());
 
 			// Optional
 			if (specs.getProfileClasses().getProfileManagementInterfaceName() != null)
@@ -275,10 +283,6 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 		return this.isSlee11() ? this.llProfileSpecJar : this.profileSpecJar;
 	}
 
-	
-
-	
-
 	/**
 	 * Profile specs document contains multiple profile-specs. This method
 	 * converts them into multiple instances of descriptors - its language, no
@@ -308,7 +312,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 				}
 				return table;
 			} catch (Exception e) {
-				
+
 				e.printStackTrace();
 				throw new DeploymentException(
 						"Failed to parse xml descriptor of a profile jar due to: ",
@@ -317,7 +321,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 
 		} else {
 			try {
-				
+
 				ProfileSpecJar psj = (ProfileSpecJar) JAXBBaseUtilityClass
 						.getUnmarshaller(true).unmarshal(profileSpecs);
 				if (psj.getProfileSpec() == null
@@ -418,8 +422,9 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass{
 		return securityPremissions;
 	}
 
+	public Set<ComponentID> getDependenciesSet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	
-	
-	
 }

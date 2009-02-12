@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.Set;
+
 import javax.slee.ComponentID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
@@ -53,6 +55,11 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 		return descriptor.getResourceAdaptorTypeID();
 	}
 
+	@Override
+	public Set<ComponentID> getDependenciesSet() {
+		return descriptor.getDependenciesSet();
+	}
+	
 	@Override
 	public boolean isSlee11() {
 		return descriptor.isSlee11();

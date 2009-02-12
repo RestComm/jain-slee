@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.Set;
+
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 
@@ -73,6 +75,11 @@ public class EventTypeComponent extends SleeComponent {
 		return descriptor;
 	}
 
+	@Override
+	public Set<ComponentID> getDependenciesSet() {
+		return descriptor.getDependenciesSet();
+	}
+	
 	@Override
 	public boolean isSlee11() {
 		return descriptor.isSlee11();

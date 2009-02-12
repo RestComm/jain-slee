@@ -113,18 +113,11 @@ public abstract class SleeComponent {
 	}
 
 	/**
-	 * the set of component IDs this component depends
-	 */
-	private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
-
-	/**
 	 * Retrieves the set of components IDs this component depends
 	 * 
 	 * @return
 	 */
-	public Set<ComponentID> getDependenciesSet() {
-		return dependenciesSet;
-	}
+	public abstract Set<ComponentID> getDependenciesSet();
 	
 	/**
 	 * Retrieves the ID of this component

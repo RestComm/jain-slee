@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.slee.ComponentID;
 import javax.slee.SbbID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
@@ -50,8 +51,7 @@ import org.w3c.dom.Document;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SbbDescriptorImpl extends JAXBBaseUtilityClass 
-		 {
+public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 
 	private SbbJar sbbJar = null;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbJar llSbbJar = null;
@@ -64,12 +64,11 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	 */
 	private int index = -1;
 
-	
 	private String description = null;
 
 	private SbbID sbbID = null;
 	private String sbbAlias = null;
-	//its 1.1
+	// its 1.1
 	private List<MSbbReference> sbbRefs = null;
 	// Maybe this should be the same as in profiles as reference?
 	private List<MProfileSpecsReference> profileSpecRefs = null;
@@ -130,7 +129,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	 * JAXBBaseUtilityClass#buildDescriptionMap()
 	 */
 	@Override
-	public void buildDescriptionMap()  {
+	public void buildDescriptionMap() {
 		if (isSlee11()) {
 			this.llSbb = this.llSbbJar.getSbb().get(index);
 			this.description = llSbb.getDescription() == null ? null
@@ -138,8 +137,10 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 
 			this.sbbAlias = this.llSbb.getSbbAlias().getvalue();
 
-			this.sbbID=new SbbID(this.llSbb.getSbbName().getvalue(),this.llSbb.getSbbVendor().getvalue(),this.llSbb.getSbbVersion().getvalue());
-			
+			this.sbbID = new SbbID(this.llSbb.getSbbName().getvalue(),
+					this.llSbb.getSbbVendor().getvalue(), this.llSbb
+							.getSbbVersion().getvalue());
+
 			// Library Refs
 			this.libraryRefs = new HashSet<LibraryID>();
 			if (llSbb.getLibraryRef() != null) {
@@ -173,102 +174,102 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 					this.profileSpecRefs.add(p);
 				}
 			}
-			
-			this.sbbAbstractClass=new MSbbAbstractClass(this.llSbb.getSbbClasses().getSbbAbstractClass());
-			
-			//Optional , 1.1
-			if(this.llSbb.getSbbClasses().getSbbLocalInterface()!=null)
-			{
-				this.sbbLocalInterface=new MSbbLocalInterface(this.llSbb.getSbbClasses().getSbbLocalInterface());
+
+			this.sbbAbstractClass = new MSbbAbstractClass(this.llSbb
+					.getSbbClasses().getSbbAbstractClass());
+
+			// Optional , 1.1
+			if (this.llSbb.getSbbClasses().getSbbLocalInterface() != null) {
+				this.sbbLocalInterface = new MSbbLocalInterface(this.llSbb
+						.getSbbClasses().getSbbLocalInterface());
 			}
-			
-			//Optional
-			if(this.llSbb.getSbbClasses().getSbbActivityContextInterface()!=null)
-			{
-				this.sbbActivityContextInterface=new MSbbActivityContextInterface(this.llSbb.getSbbClasses().getSbbActivityContextInterface());
+
+			// Optional
+			if (this.llSbb.getSbbClasses().getSbbActivityContextInterface() != null) {
+				this.sbbActivityContextInterface = new MSbbActivityContextInterface(
+						this.llSbb.getSbbClasses()
+								.getSbbActivityContextInterface());
 			}
-			//Optional
-			if(this.llSbb.getSbbClasses().getSbbUsageParametersInterface()!=null)
-			{
-				this.sbbUsageParametersInterface=new MUsageParametersInterface(this.llSbb.getSbbClasses().getSbbUsageParametersInterface());
+			// Optional
+			if (this.llSbb.getSbbClasses().getSbbUsageParametersInterface() != null) {
+				this.sbbUsageParametersInterface = new MUsageParametersInterface(
+						this.llSbb.getSbbClasses()
+								.getSbbUsageParametersInterface());
 			}
-			
-			//Optional
-			if(this.llSbb.getAddressProfileSpecAliasRef()!=null)
-			{
-				this.addressProfileSpecAliasRef=this.llSbb.getAddressProfileSpecAliasRef().getvalue();
+
+			// Optional
+			if (this.llSbb.getAddressProfileSpecAliasRef() != null) {
+				this.addressProfileSpecAliasRef = this.llSbb
+						.getAddressProfileSpecAliasRef().getvalue();
 			}
-			
-			this.events=new ArrayList<MEventEntry>();
-			if(this.llSbb.getEvent()!=null)
-			{
-				for(Event e:this.llSbb.getEvent())
-				{
+
+			this.events = new ArrayList<MEventEntry>();
+			if (this.llSbb.getEvent() != null) {
+				for (Event e : this.llSbb.getEvent()) {
 					this.events.add(new MEventEntry(e));
 				}
 			}
-			
-			this.activityContextAttributeAliases=new ArrayList<MActivityContextAttributeAlias>();
-			if(this.llSbb.getActivityContextAttributeAlias()!=null)
-			{
-				for(ActivityContextAttributeAlias acaa:this.llSbb.getActivityContextAttributeAlias())
-				{
-					this.activityContextAttributeAliases.add(new MActivityContextAttributeAlias(acaa));
+
+			this.activityContextAttributeAliases = new ArrayList<MActivityContextAttributeAlias>();
+			if (this.llSbb.getActivityContextAttributeAlias() != null) {
+				for (ActivityContextAttributeAlias acaa : this.llSbb
+						.getActivityContextAttributeAlias()) {
+					this.activityContextAttributeAliases
+							.add(new MActivityContextAttributeAlias(acaa));
 				}
 			}
-			this.envEntries=new ArrayList<MEnvEntry>();
-			if(this.llSbb.getEnvEntry()!=null)
-			{
-				for(EnvEntry ee:this.llSbb.getEnvEntry())
-				{
+			this.envEntries = new ArrayList<MEnvEntry>();
+			if (this.llSbb.getEnvEntry() != null) {
+				for (EnvEntry ee : this.llSbb.getEnvEntry()) {
 					this.envEntries.add(new MEnvEntry(ee));
 				}
 			}
-			
-			this.resourceAdaptorTypeBindings=new ArrayList<MResourceAdaptorTypeBinding>();
-			if(this.llSbb.getResourceAdaptorTypeBinding()!=null)
-			{
-				for(ResourceAdaptorTypeBinding ratb: this.llSbb.getResourceAdaptorTypeBinding())
-				{
-					this.resourceAdaptorTypeBindings.add(new MResourceAdaptorTypeBinding(ratb));
+
+			this.resourceAdaptorTypeBindings = new ArrayList<MResourceAdaptorTypeBinding>();
+			if (this.llSbb.getResourceAdaptorTypeBinding() != null) {
+				for (ResourceAdaptorTypeBinding ratb : this.llSbb
+						.getResourceAdaptorTypeBinding()) {
+					this.resourceAdaptorTypeBindings
+							.add(new MResourceAdaptorTypeBinding(ratb));
 				}
 			}
-			
-			this.ejbRefs=new ArrayList<MEjbRef>();
-			if(this.llSbb.getEjbRef()!=null)
-			{
-				for(EjbRef er:this.llSbb.getEjbRef())
-				{
+
+			this.ejbRefs = new ArrayList<MEjbRef>();
+			if (this.llSbb.getEjbRef() != null) {
+				for (EjbRef er : this.llSbb.getEjbRef()) {
 					this.ejbRefs.add(new MEjbRef(er));
 				}
 			}
-			if(this.llSbbJar.getSecurityPermissions()!=null)
-			{
-				org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SecurityPermissions secPerm = this.llSbbJar.getSecurityPermissions();
+			if (this.llSbbJar.getSecurityPermissions() != null) {
+				org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SecurityPermissions secPerm = this.llSbbJar
+						.getSecurityPermissions();
 				this.securityPermisions = new MSecurityPermision(secPerm
-				.getDescription() == null ? null : secPerm
-				.getDescription().getvalue(), secPerm
-				.getSecurityPermissionSpec().getvalue());
+						.getDescription() == null ? null : secPerm
+						.getDescription().getvalue(), secPerm
+						.getSecurityPermissionSpec().getvalue());
 			}
-			
+
 		} else {
 
 			this.sbb = this.sbbJar.getSbb().get(index);
-			this.description = sbb.getDescription() == null ? null
-					: this.sbb.getDescription().getvalue();
+			this.description = sbb.getDescription() == null ? null : this.sbb
+					.getDescription().getvalue();
 
 			this.sbbAlias = this.sbb.getSbbAlias().getvalue();
 
-
-			this.sbbID=new SbbID(this.sbb.getSbbName().getvalue(),this.sbb.getSbbVendor().getvalue(),this.sbb.getSbbVersion().getvalue());
+			this.sbbID = new SbbID(this.sbb.getSbbName().getvalue(), this.sbb
+					.getSbbVendor().getvalue(), this.sbb.getSbbVersion()
+					.getvalue());
 			// Library Refs
 			this.libraryRefs = new HashSet<LibraryID>();
-			
-			//FIXME: template from jslee has child-sbb element, in dtd its sbb-ref !!!!!!!
-			// SbbRefs 
+
+			// FIXME: template from jslee has child-sbb element, in dtd its
+			// sbb-ref !!!!!!!
+			// SbbRefs
 			this.sbbRefs = new ArrayList<MSbbReference>();
 			if (this.sbb.getSbbRef() != null) {
-				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbRef sr : this.sbb.getSbbRef()) {
+				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbRef sr : this.sbb
+						.getSbbRef()) {
 					this.sbbRefs.add(new MSbbReference(sr));
 				}
 			}
@@ -288,71 +289,70 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 					this.profileSpecRefs.add(p);
 				}
 			}
-			
-			this.sbbAbstractClass=new MSbbAbstractClass(this.sbb.getSbbClasses().getSbbAbstractClass());
-			
-			//Optional
-			if(this.sbb.getSbbClasses().getSbbActivityContextInterface()!=null)
-			{
-				this.sbbActivityContextInterface=new MSbbActivityContextInterface(this.sbb.getSbbClasses().getSbbActivityContextInterface());
+
+			this.sbbAbstractClass = new MSbbAbstractClass(this.sbb
+					.getSbbClasses().getSbbAbstractClass());
+
+			// Optional
+			if (this.sbb.getSbbClasses().getSbbActivityContextInterface() != null) {
+				this.sbbActivityContextInterface = new MSbbActivityContextInterface(
+						this.sbb.getSbbClasses()
+								.getSbbActivityContextInterface());
 			}
-			//Optional
-			if(this.sbb.getSbbClasses().getSbbUsageParametersInterface()!=null)
-			{
-				this.sbbUsageParametersInterface=new MUsageParametersInterface(this.sbb.getSbbClasses().getSbbUsageParametersInterface());
+			// Optional
+			if (this.sbb.getSbbClasses().getSbbUsageParametersInterface() != null) {
+				this.sbbUsageParametersInterface = new MUsageParametersInterface(
+						this.sbb.getSbbClasses()
+								.getSbbUsageParametersInterface());
 			}
-			
-			//Optional
-			if(this.sbb.getAddressProfileSpecAliasRef()!=null)
-			{
-				this.addressProfileSpecAliasRef=this.sbb.getAddressProfileSpecAliasRef().getvalue();
+
+			// Optional
+			if (this.sbb.getAddressProfileSpecAliasRef() != null) {
+				this.addressProfileSpecAliasRef = this.sbb
+						.getAddressProfileSpecAliasRef().getvalue();
 			}
-			
-			this.events=new ArrayList<MEventEntry>();
-			if(this.sbb.getEvent()!=null)
-			{
-				for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event e:this.sbb.getEvent())
-				{
+
+			this.events = new ArrayList<MEventEntry>();
+			if (this.sbb.getEvent() != null) {
+				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event e : this.sbb
+						.getEvent()) {
 					this.events.add(new MEventEntry(e));
 				}
 			}
-			
-			this.activityContextAttributeAliases=new ArrayList<MActivityContextAttributeAlias>();
-			if(this.sbb.getActivityContextAttributeAlias()!=null)
-			{
-				for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ActivityContextAttributeAlias acaa:this.sbb.getActivityContextAttributeAlias())
-				{
-					this.activityContextAttributeAliases.add(new MActivityContextAttributeAlias(acaa));
+
+			this.activityContextAttributeAliases = new ArrayList<MActivityContextAttributeAlias>();
+			if (this.sbb.getActivityContextAttributeAlias() != null) {
+				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ActivityContextAttributeAlias acaa : this.sbb
+						.getActivityContextAttributeAlias()) {
+					this.activityContextAttributeAliases
+							.add(new MActivityContextAttributeAlias(acaa));
 				}
 			}
-			this.envEntries=new ArrayList<MEnvEntry>();
-			if(this.sbb.getEnvEntry()!=null)
-			{
-				for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EnvEntry ee:this.sbb.getEnvEntry())
-				{
+			this.envEntries = new ArrayList<MEnvEntry>();
+			if (this.sbb.getEnvEntry() != null) {
+				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EnvEntry ee : this.sbb
+						.getEnvEntry()) {
 					this.envEntries.add(new MEnvEntry(ee));
 				}
 			}
-			
-			this.resourceAdaptorTypeBindings=new ArrayList<MResourceAdaptorTypeBinding>();
-			if(this.sbb.getResourceAdaptorTypeBinding()!=null)
-			{
-				for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorTypeBinding ratb: this.sbb.getResourceAdaptorTypeBinding())
-				{
-					this.resourceAdaptorTypeBindings.add(new MResourceAdaptorTypeBinding(ratb));
+
+			this.resourceAdaptorTypeBindings = new ArrayList<MResourceAdaptorTypeBinding>();
+			if (this.sbb.getResourceAdaptorTypeBinding() != null) {
+				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorTypeBinding ratb : this.sbb
+						.getResourceAdaptorTypeBinding()) {
+					this.resourceAdaptorTypeBindings
+							.add(new MResourceAdaptorTypeBinding(ratb));
 				}
 			}
-			
-			this.ejbRefs=new ArrayList<MEjbRef>();
-			if(this.sbb.getEjbRef()!=null)
-			{
-				for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EjbRef er:this.sbb.getEjbRef())
-				{
+
+			this.ejbRefs = new ArrayList<MEjbRef>();
+			if (this.sbb.getEjbRef() != null) {
+				for (org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EjbRef er : this.sbb
+						.getEjbRef()) {
 					this.ejbRefs.add(new MEjbRef(er));
 				}
 			}
-			
-			
+
 		}
 
 	}
@@ -365,11 +365,9 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	 */
 	@Override
 	public Object getJAXBDescriptor() {
-		if(isSlee11())
-		{
+		if (isSlee11()) {
 			return this.llSbb;
-		}else
-		{
+		} else {
 			return this.sbb;
 		}
 	}
@@ -421,8 +419,6 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 			}
 		}
 	}
-
-	
 
 	public int getIndex() {
 		return index;
@@ -495,5 +491,10 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass
 	public MSecurityPermision getSecurityPermisions() {
 		return securityPermisions;
 	}
-	
+
+	public Set<ComponentID> getDependenciesSet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

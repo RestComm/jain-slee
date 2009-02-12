@@ -2,7 +2,9 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import javax.slee.ComponentID;
 import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MJar;
@@ -76,6 +78,11 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
   
   public LibraryID getLibraryID() {
 	return libraryID;
+  }
+  
+  public Set<ComponentID> getDependenciesSet() {
+	// TODO Auto-generated method stub
+	return null;
   }
   
 }

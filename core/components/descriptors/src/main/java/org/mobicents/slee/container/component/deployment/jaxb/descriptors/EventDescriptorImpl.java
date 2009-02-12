@@ -1,7 +1,9 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.List;
+import java.util.Set;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventDefinition;
@@ -84,6 +86,11 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
   public List<MLibraryRef> getLibraryRefs()
   {
     return libraryRefs;
+  }
+  
+  public Set<ComponentID> getDependenciesSet() {
+	// TODO Auto-generated method stub
+	return null;
   }
 
 }

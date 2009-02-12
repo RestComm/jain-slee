@@ -9,7 +9,9 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.text.ParseException;
+import java.util.Set;
 
+import javax.slee.ComponentID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.DeployableUnitID;
@@ -28,7 +30,7 @@ import org.w3c.dom.Document;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
+public class ServiceDescriptorImpl extends JAXBBaseUtilityClass {
 
 	private ServiceXml serviceXML = null;
 	private org.mobicents.slee.container.component.deployment.jaxb.slee11.service.ServiceXml llServiceXML = null;
@@ -39,13 +41,14 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
 
 	private String description = null;
 	private SbbID rootSbbID = null;
-	private ServiceID serviceID=null;
+	private ServiceID serviceID = null;
 	private byte defaultPriority = (byte) -10;
 	private String addressProfileTable = null;
 	// Deprecated in 1.1
 	private String resourceInfoProfileTable = null;
 
-	private ServiceDescriptorImpl(Document doc, ServiceXml serviceXML, int index) throws DeploymentException {
+	private ServiceDescriptorImpl(Document doc, ServiceXml serviceXML, int index)
+			throws DeploymentException {
 		super(doc);
 
 		this.index = index;
@@ -77,8 +80,8 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
 					throw new ParseException(
 							"No elements to parse in sbb-jar descriptor", 0);
 				}
-				ServiceDescriptorImpl[] table = new ServiceDescriptorImpl[psj.getService()
-						.size()];
+				ServiceDescriptorImpl[] table = new ServiceDescriptorImpl[psj
+						.getService().size()];
 				for (int i = 0; i < psj.getService().size(); i++) {
 					table[i] = new ServiceDescriptorImpl(serviceJar, psj, i);
 				}
@@ -99,8 +102,8 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
 					throw new ParseException(
 							"No elements to parse in sbb-jar descriptor", 0);
 				}
-				ServiceDescriptorImpl[] table = new ServiceDescriptorImpl[psj.getService()
-						.size()];
+				ServiceDescriptorImpl[] table = new ServiceDescriptorImpl[psj
+						.getService().size()];
 				for (int i = 0; i < psj.getService().size(); i++) {
 					table[i] = new ServiceDescriptorImpl(serviceJar, psj, i);
 				}
@@ -113,40 +116,49 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
 			}
 		}
 	}
-	
-	
+
 	@Override
 	public void buildDescriptionMap() {
-		if(isSlee11())
-		{
-			this.llService=this.llServiceXML.getService().get(index);
+		if (isSlee11()) {
+			this.llService = this.llServiceXML.getService().get(index);
 			this.description = llService.getDescription() == null ? null
 					: this.llService.getDescription().getvalue();
-			this.rootSbbID=new SbbID(this.llService.getRootSbb().getSbbName().getvalue(),this.llService.getRootSbb().getSbbVendor().getvalue(),this.llService.getRootSbb().getSbbVersion().getvalue());
-			this.defaultPriority=Byte.parseByte(this.llService.getDefaultPriority().getvalue());
-			this.serviceID=new ServiceID(this.llService.getServiceName().getvalue(),this.llService.getServiceVendor().getvalue(),this.llService.getServiceVersion().getvalue());
-			//Optional
-			if(this.llService.getAddressProfileTable()!=null)
-			{
-				this.addressProfileTable=this.llService.getAddressProfileTable().getvalue();
+			this.rootSbbID = new SbbID(this.llService.getRootSbb().getSbbName()
+					.getvalue(), this.llService.getRootSbb().getSbbVendor()
+					.getvalue(), this.llService.getRootSbb().getSbbVersion()
+					.getvalue());
+			this.defaultPriority = Byte.parseByte(this.llService
+					.getDefaultPriority().getvalue());
+			this.serviceID = new ServiceID(this.llService.getServiceName()
+					.getvalue(), this.llService.getServiceVendor().getvalue(),
+					this.llService.getServiceVersion().getvalue());
+			// Optional
+			if (this.llService.getAddressProfileTable() != null) {
+				this.addressProfileTable = this.llService
+						.getAddressProfileTable().getvalue();
 			}
-			
-		}else
-		{
-			this.service=this.serviceXML.getService().get(index);
+
+		} else {
+			this.service = this.serviceXML.getService().get(index);
 			this.description = service.getDescription() == null ? null
 					: this.service.getDescription().getvalue();
-			this.rootSbbID=new SbbID(this.service.getRootSbb().getSbbName().getvalue(),this.service.getRootSbb().getSbbVendor().getvalue(),this.service.getRootSbb().getSbbVersion().getvalue());
-			this.defaultPriority=Byte.parseByte(this.service.getDefaultPriority().getvalue());
-			this.serviceID=new ServiceID(this.service.getServiceName().getvalue(),this.service.getServiceVendor().getvalue(),this.service.getServiceVersion().getvalue());
-			//Optional
-			if(this.service.getAddressProfileTable()!=null)
-			{
-				this.addressProfileTable=this.service.getAddressProfileTable().getvalue();
+			this.rootSbbID = new SbbID(this.service.getRootSbb().getSbbName()
+					.getvalue(), this.service.getRootSbb().getSbbVendor()
+					.getvalue(), this.service.getRootSbb().getSbbVersion()
+					.getvalue());
+			this.defaultPriority = Byte.parseByte(this.service
+					.getDefaultPriority().getvalue());
+			this.serviceID = new ServiceID(this.service.getServiceName()
+					.getvalue(), this.service.getServiceVendor().getvalue(),
+					this.service.getServiceVersion().getvalue());
+			// Optional
+			if (this.service.getAddressProfileTable() != null) {
+				this.addressProfileTable = this.service
+						.getAddressProfileTable().getvalue();
 			}
-			if(this.service.getResourceInfoProfileTable()!=null)
-			{
-				this.resourceInfoProfileTable=this.service.getResourceInfoProfileTable().getvalue();
+			if (this.service.getResourceInfoProfileTable() != null) {
+				this.resourceInfoProfileTable = this.service
+						.getResourceInfoProfileTable().getvalue();
 			}
 		}
 
@@ -154,11 +166,9 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
 
 	@Override
 	public Object getJAXBDescriptor() {
-		if(isSlee11())
-		{
+		if (isSlee11()) {
 			return llService;
-		}else
-		{
+		} else {
 			return service;
 		}
 	}
@@ -190,5 +200,10 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass{
 	public String getResourceInfoProfileTable() {
 		return resourceInfoProfileTable;
 	}
-	
+
+	public Set<ComponentID> getDependenciesSet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.Set;
+
 import javax.slee.ComponentID;
 import javax.slee.SbbID;
 
@@ -205,6 +207,11 @@ public class SbbComponent extends SleeComponent {
 	 */
 	public void setUsageParametersInterface(Class usageParametersInterface) {
 		this.usageParametersInterface = usageParametersInterface;
+	}
+	
+	@Override
+	public Set<ComponentID> getDependenciesSet() {
+		return descriptor.getDependenciesSet();
 	}
 	
 	@Override
