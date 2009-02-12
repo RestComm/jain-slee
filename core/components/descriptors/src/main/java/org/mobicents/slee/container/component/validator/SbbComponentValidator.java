@@ -1414,7 +1414,7 @@ public class SbbComponentValidator implements Validator {
 			// we can have only one receive method
 
 			EventTypeComponent eventTypeComponent = this.repository
-					.getComponentByID(event.getEventReference().getReference());
+					.getComponentByID(event.getEventReference().getComponentID());
 
 			if (eventTypeComponent == null) {
 				passed = false;
@@ -1726,7 +1726,7 @@ public class SbbComponentValidator implements Validator {
 			// we can have only one receive method
 
 			EventTypeComponent eventTypeComponent = this.repository
-					.getComponentByID(event.getEventReference().getReference());
+					.getComponentByID(event.getEventReference().getComponentID());
 
 			if (eventTypeComponent == null) {
 				passed = false;

@@ -10,18 +10,11 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.du;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
 
 import javax.slee.management.DeploymentException;
 
-
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MProfileSpecsReference;
-import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ProfileSpecRef;
 import org.xml.sax.SAXException;
 
 /**

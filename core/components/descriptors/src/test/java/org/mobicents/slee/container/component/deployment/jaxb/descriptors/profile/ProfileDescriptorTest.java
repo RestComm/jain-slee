@@ -114,7 +114,7 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		{
 			assertNotNull("Collators list should not be null",specs.getCollators());
 			assertTrue("Collators list should not be empty",specs.getCollators().size()==1);
-			MProfileSpecCollator psc=specs.getCollators().get(0);
+			MCollator psc=specs.getCollators().get(0);
 			assertNotNull("Collator aliass can not be null", psc.getCollatorAlias());
 			assertNotNull("Collator decomposition can not be null", psc.getDecomposition());
 			assertNotNull("Collator strength can not be null", psc.getStrength());
@@ -139,13 +139,13 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		assertTrue("Profile specs CMP interface is null not equal to "+_DEFAULT_VALUE, specs.getProfileCMPInterface().getProfileCmpInterfaceName().compareTo(_DEFAULT_VALUE)==0);
 
 		
-		Map<String,MProfileSpecCMPField> cmps=specs.getProfileCMPInterface().getCmpFields();
+		Map<String,MCMPField> cmps=specs.getProfileCMPInterface().getCmpFields();
 		
 		if(specs.isSlee11()){
 			assertNotNull("Profile specs CMP Interface cmp fields are null!!",cmps);
 			assertTrue("Profile specs CMP Interface cmp fields size is not 1", cmps.keySet().size()==1);
 			assertTrue("Profile specs CMP Interface cmp field association name is not equal "+_DEFAULT_VALUE,cmps.keySet().iterator().next().compareTo(_DEFAULT_VALUE)==0);
-			MProfileSpecCMPField cmp=cmps.get(cmps.keySet().iterator().next());
+			MCMPField cmp=cmps.get(cmps.keySet().iterator().next());
 			assertNotNull("Profile specs CMP Interface cmp field is null",cmp);
 			assertTrue("Profile specs CMP Interface cmp field name is not equal to "+_DEFAULT_VALUE,cmp.getCmpFieldName().compareTo(_DEFAULT_VALUE)==0);
 			assertTrue("Profile specs CMP Interface cmp field should not be unique (default value set by JXB is false)",!cmp.getUnique());
@@ -240,12 +240,12 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		
 		if(!specs.isSlee11()){
 			//This is slee 1.0 stuf only
-			Set<MIndexedAttribue> indexedAttribute=specs.getIndexedAttributes();
+			Set<MProfileIndex> indexedAttribute=specs.getIndexedAttributes();
 			
 
 			assertNotNull("Profile indexed attributes set is null",indexedAttribute);
 			assertTrue("Profile indexed attributes set is size is not 1",indexedAttribute.size()==1);
-			MIndexedAttribue ia=indexedAttribute.iterator().next();
+			MProfileIndex ia=indexedAttribute.iterator().next();
 			assertNotNull("Profile indexed attribute is null",ia);
 			assertNotNull("Profile indexed attribute is name is null",ia.getName());
 			assertTrue("Profile indexed attribute is name is not equal "+_DEFAULT_VALUE,ia.getName().compareTo(_DEFAULT_VALUE)==0);
