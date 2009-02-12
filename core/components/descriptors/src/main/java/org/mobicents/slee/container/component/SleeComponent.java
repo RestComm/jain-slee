@@ -131,4 +131,19 @@ public abstract class SleeComponent {
 	 * @return
 	 */
 	public abstract ComponentID getComponentID();
+	
+	@Override
+	public int hashCode() {		
+		return getComponentID().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj != null && obj.getClass() == this.getClass()) {
+			return ((SleeComponent)obj).getComponentID().equals(this.getComponentID());
+		}
+		else {
+			return false;
+		}
+	}
 }
