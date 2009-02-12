@@ -10,20 +10,27 @@ package org.mobicents.slee.container.component.validator;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.slee.SLEEException;
 
 import javassist.Modifier;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpression;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryParameter;
 
 import com.sun.org.apache.xpath.internal.operations.Mod;
 
@@ -139,6 +146,31 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 	}
 
+	private final static Set<String> _ALLOWED_QUERY_PARAMETER_TYPES;
+	static {
+		Set<String> tmp = new HashSet<String>();
+		// Section 10.17
+		tmp.add("int");
+		tmp.add("boolean");
+		tmp.add("byte");
+		tmp.add("char");
+		tmp.add("double");
+		tmp.add("float");
+		tmp.add("long");
+		tmp.add("short");
+		tmp.add(Integer.class.getName());
+		tmp.add(Boolean.class.getName());
+		tmp.add(Byte.class.getName());
+		tmp.add(Character.class.getName());
+		tmp.add(Double.class.getName());
+		tmp.add(Float.class.getName());
+		tmp.add(Long.class.getName());
+		tmp.add(Short.class.getName());
+		tmp.add(String.class.getName());
+		_ALLOWED_QUERY_PARAMETER_TYPES = Collections.unmodifiableSet(tmp);
+
+	}
+
 	private boolean requriedProfileAbstractClass = false;
 
 	public void setComponentRepository(ComponentRepository repository) {
@@ -162,7 +194,58 @@ public class ProfileSpecificationComponentValidator implements Validator {
 	 */
 	public boolean validate() {
 
-		return false;
+		
+		boolean passed = true;
+		
+		try{
+			
+			if(!validateDescriptor())
+			{
+				//this is quick fail
+				passed = false;
+				return passed;
+			}
+			// we cant validate some parts on fail here
+			
+			if(!validateCMPInterface())
+			{
+				passed = false;
+			
+			}else
+			{
+				if(!validatePorfileTableInterface())
+				{
+					passed = false;
+				}
+				
+				
+			}
+			
+			if(!validateProfileLocalInterface())
+			{
+				passed = false;
+			}
+			
+			if(!validateProfileManagementInterface())
+			{
+				passed = false;
+			}
+			
+			if(!validateAbstractClass())
+			{
+				passed = false;
+			}
+			
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		
+		
+		return passed;
+		
+		
 	}
 
 	boolean validateCMPInterface() {
@@ -1215,9 +1298,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			}
 
-			//FIXME: add check on abstract methods same as in SBB ?
-			
-			
+			// FIXME: add check on abstract methods same as in SBB ?
+
 		} finally {
 
 			if (!passed) {
@@ -1283,12 +1365,240 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		String errorBuffer = new String("");
 
 		// FIXME: should not this return generic?
-		if (!this.component.isSlee11()) {
+		if (!this.component.isSlee11()
+				|| this.component.getDescriptor().getProfileTableInterface() == null) {
 			// its nto mandatory
 			return passed;
 		}
 
 		try {
+
+			Class profileTableInterface = this.component
+					.getProfileTableInterfaceClass();
+
+			// must be in pacakge
+			if (profileTableInterface.getPackage() == null) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Profile specification profile table interface must be declared inside pacakge.",
+						"10.8", errorBuffer);
+
+			}
+
+			if (!Modifier.isPublic(profileTableInterface.getModifiers())) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Profile specification profile table interface must be declared as public.",
+						"10.8", errorBuffer);
+			}
+
+			Class genericProfileTableInterface = ClassUtils.checkInterfaces(
+					profileTableInterface, "javax.slee.profile.ProfileTable");
+
+			if (genericProfileTableInterface == null) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Profile specification profile table interface must extend in some way javax.slee.profile.ProfileTable.",
+						"10.8", errorBuffer);
+				// we fail here fast?
+				return passed;
+			}
+			Set<String> ignore = new HashSet<String>();
+			ignore.add("java.lang.Object");
+
+			// There is no clause in specs saying custom can not override
+			// methods, this will fail on concrete class generation though, let
+			// filter
+			Map<String, Method> javaxSleeProfileProfileTableMethods = ClassUtils
+					.getAllInterfacesMethods(genericProfileTableInterface,
+							ignore);
+
+			ignore.add("javax.slee.profile.ProfileTable");
+
+			Map<String, Method> profileTableInterfaceMethods = ClassUtils
+					.getAllInterfacesMethods(profileTableInterface, ignore);
+
+			// if we have common part here, this means that methods are double
+			// declared, either exactly the same or with different return type
+			// or exceptions
+			Set<String> tmpKeySet = new HashSet<String>();
+			Set<String> tmpKeySetToCompare = new HashSet<String>();
+
+			tmpKeySet.addAll(javaxSleeProfileProfileTableMethods.keySet());
+			tmpKeySetToCompare.addAll(profileTableInterfaceMethods.keySet());
+			tmpKeySet.retainAll(tmpKeySetToCompare);
+			if (tmpKeySet.size() != 0) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Profile specification profile table interface declares methods that double generic profile table interface, this may cause concrete class generation/instantion to fail.",
+						"10.8", errorBuffer);
+			}
+
+			// else its query validation, here we have slightly different
+			// approach, let iterate over methods, as we shoudl validate them
+			// here we asume that xml constraints/conent is ok, - for intance
+			// compare->parameter == query-parameter->name, parameter types have
+			// been checked
+			// here we just validate method against required ones
+			// by now all queries are validated, no doubling
+			Iterator<Entry<String, Method>> iterator = profileTableInterfaceMethods
+					.entrySet().iterator();
+
+			// FIXME: all queries have to match?
+			Map<String, MQuery> nameToQueryMap = this.component.getDescriptor()
+					.getQueriesMap();
+
+			Class cmpInterfaceClass = this.component
+					.getProfileCmpInterfaceClass();
+
+			while (iterator.hasNext()) {
+				Entry<String, Method> entry = iterator.next();
+				Method m = entry.getValue();
+				String methodName = m.getName();
+
+				if (!methodName.startsWith("query")) {
+					passed = false;
+					iterator.remove();
+					errorBuffer = appendToBuffer(
+							"Profile specification profile table interface declares method with wrong name: "
+									+ methodName, "10.8.2", errorBuffer);
+					continue;
+				}
+
+				String queryName = methodName.replace("query", "");
+				queryName = queryName.replaceFirst(queryName.charAt(0) + "",
+						Character.toLowerCase(queryName.charAt(0)) + "");
+
+				if (!nameToQueryMap.containsKey(queryName)) {
+					passed = false;
+					iterator.remove();
+					errorBuffer = appendToBuffer(
+							"Profile specification profile table interface declares wrong method with name: "
+									+ methodName
+									+ ", it does not match any query defined in descriptor",
+							"10.8.2", errorBuffer);
+					continue;
+				}
+
+				MQuery query = nameToQueryMap.get(queryName);
+
+				// defined parameter types are ok in case of xml, we need to
+				// check method
+				Class returnType = m.getReturnType();
+
+				if (returnType.getName().compareTo("java.util.Collection") != 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile table interface declares wrong return type: "
+									+ returnType + " in method with name: "
+									+ methodName
+									+ ", it should be java.util.Collection.",
+							"10.8.2", errorBuffer);
+				}
+
+				Class[] exceptions = m.getExceptionTypes();
+
+				boolean foundTransactionRequiredLocalException = false;
+				boolean foundSLEEException = false;
+				for (Class c : exceptions) {
+					if (c.getName().compareTo(
+							"javax.slee.TransactionRequiredLocalException") == 0)
+						foundTransactionRequiredLocalException = true;
+					else if (c.getName().compareTo("javax.slee.SLEEException") == 0) {
+						foundSLEEException = true;
+					} else {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification profile table interface declares method with wrong exception in throws method with name: "
+										+ methodName
+										+ ", exception: "
+										+ c.getName(), "10.8.2", errorBuffer);
+					}
+				}
+
+				if (foundSLEEException
+						&& foundTransactionRequiredLocalException) {
+					// do nothing
+				} else {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile table interface declares method with wrong exception in throws method with name: "
+									+ methodName
+									+ ", it shoudl declare SLEEException["
+									+ foundSLEEException
+									+ "] and TransactionRequiredLocalException["
+									+ foundTransactionRequiredLocalException
+									+ "]", "10.8.2", errorBuffer);
+				}
+
+				// lets see params - param type must match declared in MQuery,
+				// also type must match CMP field from interface (and there must
+				// be that kind of cmp
+
+				Class[] parameterTypes = m.getParameterTypes();
+
+				List<MQueryParameter> queryParameters = new ArrayList<MQueryParameter>();
+				queryParameters.addAll(query.getQueryParameters());
+
+				if (parameterTypes.length != queryParameters.size()) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile table interface declares method with wrong parameters count, present: "
+									+ parameterTypes.length
+									+ ", expected: "
+									+ queryParameters.size(), "10.8.2",
+							errorBuffer);
+				} else {
+
+					// yes, a bit different
+					String parametersErrorBuffer = "Parameters that did not match descriptor: ";
+					boolean failedOnQueries = false;
+					for (int index = 0; index < parameterTypes.length; index++) {
+
+						// we can make some checks
+						// first lets check type
+
+						if (parameterTypes[index].getName().compareTo(
+								queryParameters.get(index).getType()) != 0) {
+							failedOnQueries = true;
+							passed = false;
+							parametersErrorBuffer += " parameter: "
+									+ queryParameters.get(index).getName()
+									+ " declared type: "
+									+ queryParameters.get(index).getType()
+									+ " method type: " + parameterTypes[index]
+									+ " in query method at index: " + index
+									+ ",";
+						}
+						
+						//ech, this could go into xml validation
+						if(!_ALLOWED_QUERY_PARAMETER_TYPES.contains(parameterTypes[index].getName()))
+						{
+							parametersErrorBuffer += " method parameter: "
+								+ queryParameters.get(index).getName()+
+								"has wrong type: " + parameterTypes[index]+", ";
+						}
+
+					}
+
+					if (failedOnQueries) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification profile table interface declares wrong method["+methodName+"] to match declared query, failed to match parameters - \n"
+										+ parametersErrorBuffer, "10.20.2",
+								errorBuffer);
+					}
+
+					if (!validateQueryAgainstCMPFields(queryName,
+							cmpInterfaceClass, query.getQueryExpression())) {
+						passed = false;
+					}
+
+				}
+
+				// now we have to validate CMP part
+
+			}
 
 		} finally {
 
@@ -1300,6 +1610,125 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		}
 
 		return passed;
+	}
+
+	boolean validateQueryAgainstCMPFields(String queryName,
+			Class cmpInterfaceClass, MQueryExpression expression) {
+		boolean passed = true;
+		String attributeName = null;
+		String errorBuffer = new String("");
+		try {
+			switch (expression.getType()) {
+			// "complex types"
+			case And:
+				for (MQueryExpression mqe : expression.getAnd()) {
+					if (!validateQueryAgainstCMPFields(queryName,
+							cmpInterfaceClass, mqe)) {
+						passed = false;
+					}
+				}
+				break;
+			case Or:
+				for (MQueryExpression mqe : expression.getOr()) {
+					if (!validateQueryAgainstCMPFields(queryName,
+							cmpInterfaceClass, mqe)) {
+						passed = false;
+					}
+				}
+				break;
+			// "simple" types
+			case Not:
+				// this is one akward case :)
+				switch (expression.getNot().getType()) {
+				// "complex types"
+
+				case Compare:
+					attributeName = expression.getNot().getCompare()
+							.getAttributeName();
+					break;
+				case HasPrefix:
+					attributeName = expression.getNot().getHasPrefix()
+							.getAttributeName();
+					break;
+				case LongestPrefixMatch:
+					attributeName = expression.getNot().getLongestPrefixMatch()
+							.getAttributeName();
+					break;
+				case RangeMatch:
+					attributeName = expression.getNot().getRangeMatch()
+							.getAttributeName();
+					break;
+				}
+
+				break;
+
+			case Compare:
+				attributeName = expression.getCompare().getAttributeName();
+				break;
+			case HasPrefix:
+				attributeName = expression.getHasPrefix().getAttributeName();
+				break;
+			case LongestPrefixMatch:
+				attributeName = expression.getLongestPrefixMatch()
+						.getAttributeName();
+				break;
+			case RangeMatch:
+				attributeName = expression.getRangeMatch().getAttributeName();
+				break;
+			}
+
+			// now we have to validate CMP field and type
+			try {
+				Method m = cmpInterfaceClass.getMethod(
+						"get"
+								+ (attributeName.replaceFirst(""
+										+ attributeName.charAt(0), ""
+										+ Character.toUpperCase(attributeName
+												.charAt(0)))), null);
+				if (m.getReturnType().getName().compareTo(
+						java.lang.String.class.getName()) != 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification declared wrong static query - operator references wrong type cmp field, cmp attribute: "
+									+ attributeName
+									+ ", type: "
+									+ m.getReturnType()
+									+ ", type can onyl be java.lang.String",
+							"10.20.2", errorBuffer);
+				}
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Profile specification declared wrong static query - operator does not match against cmp field, requested cmp attribute: "
+								+ attributeName, "10.20.2", errorBuffer);
+			}
+
+		} finally {
+
+			if (!passed) {
+				logger.error(errorBuffer);
+				System.err.println(errorBuffer);
+			}
+
+		}
+
+		return passed;
+	}
+
+	/**
+	 * Validated descriptor against some basic constraints: all references are
+	 * correct, some fields are decalred properly, no double definitions, if
+	 * proper elements are present - for instance some elements exclude others.
+	 * 
+	 * @return
+	 */
+	boolean validateDescriptor() {
+
+		return false;
+		
 	}
 
 	boolean compareMethod(Method m1, Method m2) {
