@@ -8,16 +8,17 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.slee.ComponentID;
-import javax.slee.management.DependencyException;
-import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileSpecificationID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.validator.ProfileSpecificationComponentValidator;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 
 /**
  * Start time:15:32:06 2009-02-02<br>
@@ -205,6 +206,8 @@ public class ProfileSpecificationComponent extends SleeComponent {
 	public ComponentID getComponentID() {
 		return getProfileSpecificationID();
 	}
+
+	
 	
 	@Override
 	public boolean validate() throws DependencyException, DeploymentException {
