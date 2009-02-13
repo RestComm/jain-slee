@@ -140,13 +140,13 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		assertTrue("Profile specs CMP interface is null not equal to "+_DEFAULT_VALUE, specs.getProfileCMPInterface().getProfileCmpInterfaceName().compareTo(_DEFAULT_VALUE)==0);
 
 		
-		Map<String,MCMPField> cmps=specs.getProfileCMPInterface().getCmpFields();
+		List<MCMPField> cmps=specs.getProfileCMPInterface().getCmpFields();
 		
 		if(specs.isSlee11()){
 			assertNotNull("Profile specs CMP Interface cmp fields are null!!",cmps);
-			assertTrue("Profile specs CMP Interface cmp fields size is not 1", cmps.keySet().size()==1);
-			assertTrue("Profile specs CMP Interface cmp field association name is not equal "+_DEFAULT_VALUE,cmps.keySet().iterator().next().compareTo(_DEFAULT_VALUE)==0);
-			MCMPField cmp=cmps.get(cmps.keySet().iterator().next());
+			assertTrue("Profile specs CMP Interface cmp fields size is not 1", cmps.size()==1);
+			assertTrue("Profile specs CMP Interface cmp field association name is not equal "+_DEFAULT_VALUE,cmps.get(0).getCmpFieldName().compareTo(_DEFAULT_VALUE)==0);
+			MCMPField cmp=cmps.get(0);
 			assertNotNull("Profile specs CMP Interface cmp field is null",cmp);
 			assertTrue("Profile specs CMP Interface cmp field name is not equal to "+_DEFAULT_VALUE,cmp.getCmpFieldName().compareTo(_DEFAULT_VALUE)==0);
 			assertTrue("Profile specs CMP Interface cmp field should not be unique (default value set by JXB is false)",!cmp.getUnique());

@@ -266,7 +266,15 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 					this.indexedAttributes.add(new MProfileIndex(index));
 				}
 			}
-
+			
+			
+			//let create what we dont have
+			this.libraryRefs = new HashSet<MLibraryRef>();
+			this.queryElements = new ArrayList<MQuery>();
+			this.envEntries = new ArrayList<MEnvEntry>();
+			this.collators = new ArrayList<MCollator>();
+			this.profileSpecRefs = new HashSet<ProfileSpecificationID>();
+			
 		}
 
 			buildDependenciesSet();
@@ -274,6 +282,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
   private void buildDependenciesSet()
   {
+	  this.dependenciesSet=new HashSet<ComponentID>();
     for(MLibraryRef libraryRef : libraryRefs)
     {
       this.dependenciesSet.add( libraryRef.getComponentID() );

@@ -31,6 +31,7 @@ public class MProfileCMPInterface {
 		this.profileCMPInterfaceName10 = profileCMPInterfaceName10;
 
 		this.profileCmpInterfaceName = profileCMPInterfaceName10.getvalue();
+		this.cmpFields = new ArrayList<MCMPField>();
 	}
 
 	public MProfileCMPInterface(
@@ -45,12 +46,12 @@ public class MProfileCMPInterface {
 
 		// this.cmpFields = new HashMap<String, MCMPField>();
 		this.cmpFields = new ArrayList<MCMPField>();
-		if (profileCMPInterface11.getCmpField() != null
-				&& profileCMPInterface11.getCmpField().size() > 0) {
+		if (profileCMPInterface11.getCmpField() != null) {
 			for (org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField cmpField : profileCMPInterface11
 					.getCmpField()) {
 				// this.cmpFields.put(cmpField.getCmpFieldName().getvalue(), new
 				// MCMPField(cmpField));
+				this.cmpFields.add(new MCMPField(cmpField));
 			}
 		}
 	}
