@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.DeploymentException;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
@@ -48,7 +49,7 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
   
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
-  public ResourceAdaptorTypeDescriptorImpl(Document doc)
+  public ResourceAdaptorTypeDescriptorImpl(Document doc)throws DeploymentException
   {
     super(doc);
   }
@@ -60,7 +61,7 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
    * @param resourceAdaptorTypeJar10
    * @param index
    */
-  public ResourceAdaptorTypeDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar10, int index)
+  public ResourceAdaptorTypeDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar10, int index)throws DeploymentException
   {
     super(doc);
     
@@ -77,7 +78,7 @@ public class ResourceAdaptorTypeDescriptorImpl extends JAXBBaseUtilityClass {
    * @param resourceAdaptorTypeJar11
    * @param index
    */
-  public ResourceAdaptorTypeDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar11, int index)
+  public ResourceAdaptorTypeDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorTypeJar resourceAdaptorTypeJar11, int index)throws DeploymentException
   {
     super(doc);
     

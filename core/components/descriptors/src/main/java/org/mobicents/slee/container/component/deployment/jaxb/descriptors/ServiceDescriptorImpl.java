@@ -40,7 +40,7 @@ public class ServiceDescriptorImpl extends JAXBBaseUtilityClass {
 	private String resourceInfoProfileTable = null;
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
-	public ServiceDescriptorImpl(Document doc)
+	public ServiceDescriptorImpl(Document doc)throws DeploymentException
 	{
 	  super(doc);  
 	}

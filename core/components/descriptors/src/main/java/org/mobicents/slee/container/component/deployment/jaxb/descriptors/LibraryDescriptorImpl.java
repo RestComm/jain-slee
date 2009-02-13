@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
@@ -39,7 +40,7 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
   
   private List<MLibraryRef> libraryRefs;
   
-  public LibraryDescriptorImpl(Document doc)
+  public LibraryDescriptorImpl(Document doc) throws DeploymentException
   {
     super(doc);
   }

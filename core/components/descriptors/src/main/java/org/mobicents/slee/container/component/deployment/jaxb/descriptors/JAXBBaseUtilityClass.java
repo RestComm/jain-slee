@@ -63,11 +63,12 @@ public abstract class JAXBBaseUtilityClass {
         } catch (JAXBException e) {
         	//Cause logger is not static.
         	Logger.getLogger(JAXBBaseUtilityClass.class.getName()).severe("failed to create jaxb context"+e);
+        	//we cant throw exception
             return null;
         }
     } 
     
-    public static Unmarshaller getUnmarshaller(boolean isV10) {
+    public static Unmarshaller getUnmarshaller(boolean isV10) throws DeploymentException {
         try {
         	if(isV10)
         	{
@@ -77,18 +78,25 @@ public abstract class JAXBBaseUtilityClass {
         	{
         		return jaxbContext.createUnmarshaller();
         	}
-        } catch (JAXBException e) {
-        	e.printStackTrace();
+        }catch(NullPointerException npe)
+        {
+        	
+        	Logger.getLogger(JAXBBaseUtilityClass.class.getName()).severe("failed to create unmarshaller: " +npe);
+        	throw new DeploymentException("Failed to create unmarshaler, propably context has not been create, see console for error.",npe);
+        } catch (Exception e) {
+        	
         	Logger.getLogger(JAXBBaseUtilityClass.class.getName()).severe("failed to create unmarshaller: " +e);
-            return null;
+        	throw new DeploymentException("Failed to create unmarshaler!",e);
+            
         }
     } 
     
 	/**
 	 * @throws DeploymentException 
+	 * @throws DeploymentException 
 	 * 
 	 */
-	public JAXBBaseUtilityClass(Document doc) {
+	public JAXBBaseUtilityClass(Document doc) throws DeploymentException {
 		// TODO Auto-generated constructor stub
 		this.is11=this.isDoctypeSlee11(doc.getDoctype());
 		this.descriptorDocument=doc;
@@ -104,9 +112,13 @@ public abstract class JAXBBaseUtilityClass {
 		return is11;
 	}
 	
-	public static boolean isDoctypeSlee11(DocumentType docType)
+	public static boolean isDoctypeSlee11(DocumentType docType) throws DeploymentException
 	{
 		//By default this is: http://java.sun.com/dtd/slee-deployable-unit_1_1.dtd
+		if(docType==null || docType.getSystemId()==null)
+		{
+			throw new DeploymentException("Doctype not present in xml file or system id of document is not specified. Document can not be reconized as valid descritpor nor parsed");
+		}
 		return docType.getSystemId().endsWith("_1_1.dtd");
 	}
 	

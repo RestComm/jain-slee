@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
+import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.event.MEventDefinition;
@@ -33,12 +34,12 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
   
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
-  public EventDescriptorImpl(Document doc)
+  public EventDescriptorImpl(Document doc) throws DeploymentException
   {
     super(doc);
   }
   
-  public EventDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee.event.EventJar eventJar10, int index)
+  public EventDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee.event.EventJar eventJar10, int index)throws DeploymentException
   {
     super(doc);
     
@@ -46,7 +47,7 @@ public class EventDescriptorImpl extends JAXBBaseUtilityClass {
     this.index = index;
   }
   
-  public EventDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee11.event.EventJar eventJar11, int index)
+  public EventDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee11.event.EventJar eventJar11, int index)throws DeploymentException
   {
     super(doc);
 

@@ -94,13 +94,13 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 	 * @param doc
 	 * @throws DeploymentException
 	 */
-	public ProfileSpecificationDescriptorImpl(Document doc) {
+	public ProfileSpecificationDescriptorImpl(Document doc) throws DeploymentException{
 		super(doc);
 
 	}
 
 	public ProfileSpecificationDescriptorImpl(Document doc,
-			ProfileSpecJar profileSpecJar, int index) {
+			ProfileSpecJar profileSpecJar, int index) throws DeploymentException{
 		super(doc);
 
 		this.index = index;
