@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents</artifactId>
-		<version>8</version>
+		<version>9</version>
 	</parent>
 	
 	<groupId>org.mobicents.servers.jainslee.core</groupId>
@@ -73,6 +73,11 @@
 				<groupId>org.jboss.jbossas</groupId>
 				<artifactId>jboss-as-server</artifactId>
 				<version>5.0.0.GA</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.slee</groupId>
+				<artifactId>jain-slee</artifactId>
+				<version>1.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
