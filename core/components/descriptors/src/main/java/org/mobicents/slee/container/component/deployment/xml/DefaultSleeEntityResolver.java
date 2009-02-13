@@ -21,16 +21,11 @@ public class DefaultSleeEntityResolver implements EntityResolver{
 
     private Hashtable resources = null;
     
-    private static DefaultSleeEntityResolver instance;
     private static Logger log = Logger.getLogger(DefaultSleeEntityResolver.class.getName());
     
-    private ClassLoader sleeClassLoader;
+    private final ClassLoader sleeClassLoader;
     
-    public static void init(ClassLoader sleeClassLoader) {
-        instance = new DefaultSleeEntityResolver(sleeClassLoader);
-    }
-    
-    private DefaultSleeEntityResolver(ClassLoader sleeClassLoader) {
+    public DefaultSleeEntityResolver(ClassLoader sleeClassLoader) {
         this.sleeClassLoader = sleeClassLoader;
         
         resources = new Hashtable();
@@ -52,17 +47,6 @@ public class DefaultSleeEntityResolver implements EntityResolver{
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN", "dtd/slee-profile-spec-jar_1_1.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN", "dtd/slee-event-jar_1_1.dtd");
         registerResource("-//Sun Microsystems, Inc.//DTD JAIN SLEE Library 1.1//EN","dtd/slee-library-jar_1_1.dtd");
-    }
-    
-   
-    /**
-     * Returns a singleton instance of the resolver.
-     * @return a singleton instance of the resolver.
-     */
-    static DefaultSleeEntityResolver getInstance()
-    {
-        if (instance == null) throw new IllegalStateException("First create instance with slee classloader");
-        return instance;
     }
 
     /**

@@ -48,8 +48,8 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.*;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.xml.DefaultSleeEntityResolver;
 import org.w3c.dom.Document;
 
 public class DeployableUnitBuilder {
@@ -58,6 +58,7 @@ public class DeployableUnitBuilder {
 	
 	private static final DeployableUnitJarComponentBuilder duComponentBuilder = new DeployableUnitJarComponentBuilder();
 	private static final DeployableUnitServiceComponentBuilder duServiceComponentBuilder = new DeployableUnitServiceComponentBuilder();
+    private static final DefaultSleeEntityResolver entityResolver = new DefaultSleeEntityResolver(Thread.currentThread().getContextClassLoader());
     
     /**
      * Installs a JAIN SLEE DU.
@@ -109,8 +110,8 @@ public class DeployableUnitBuilder {
 		} catch (ParserConfigurationException e) {
 			throw new SLEEException("failed to create DOM builder factory when installing "+deployableUnitID,e);
 		}
-		builder.setEntityResolver(new DefaultEntityResolver(Thread.currentThread()
-				.getContextClassLoader()));
+		
+		builder.setEntityResolver(entityResolver);
 		Document duXmlDocument = null;
 		InputStream duXmlInputStream = null;
 		try {
