@@ -10,20 +10,24 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MEnvEntry;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
@@ -270,7 +274,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
 		}
 
-		buildDependenciesSet();
+			buildDependenciesSet();
 	}
 
   private void buildDependenciesSet()
@@ -280,7 +284,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
       this.dependenciesSet.add( libraryRef.getComponentID() );
     }
   }
-  
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -433,6 +437,16 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 
 	public Set<ComponentID> getDependenciesSet() {
 		return this.dependenciesSet;
+	}
+	public Map<String, MQuery> getQueriesMap() {
+		List<MQuery> qs=this.getQueryElements();
+		Map<String,MQuery> result=new HashMap<String, MQuery>();
+		for(MQuery q:qs)
+		{
+			result.put(q.getName(), q);
+		}
+		
+		return result;
 	}
 
 }
