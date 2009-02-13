@@ -25,10 +25,10 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.*;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEnvEntry;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
