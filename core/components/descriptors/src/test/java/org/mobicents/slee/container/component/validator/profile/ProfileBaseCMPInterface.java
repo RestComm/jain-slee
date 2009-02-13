@@ -5,4 +5,6 @@ public interface ProfileBaseCMPInterface extends ProfileSuperCMPInterface {
 	public int getMasterTest();
 	
 	public void setMasterTestArray(int[] v);
+	
+	
 }

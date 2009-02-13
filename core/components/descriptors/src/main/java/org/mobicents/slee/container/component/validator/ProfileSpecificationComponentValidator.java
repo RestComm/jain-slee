@@ -33,6 +33,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MIndexHint;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MCompare;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MHasPrefix;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MLongestPrefixMatch;
@@ -293,6 +294,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			Set<String> ignore = new HashSet<String>();
 			ignore.add("java.lang.Object");
+
 			Map<String, Method> interfaceMethods = ClassUtils
 					.getAllInterfacesMethods(interfaceClass, ignore);
 
@@ -400,6 +402,56 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					continue;
 				}
 
+			}
+
+			// here we have to check if we are 1.1 - declaredcmp fields vs
+			// occurances + collators, those can be present only for String type
+			// fields
+			if (this.component.isSlee11()) {
+
+				// if we are here we know there are no dups
+				List<MCMPField> cmpFields = this.component.getDescriptor()
+						.getProfileCMPInterface().getCmpFields();
+				
+				if (cmpFields.size() != fieldToType.size()) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile cmp interface cmp field declarations do not match declaredfields in descriptor.",
+							"10.6", errorBuffer);
+
+					// FIXME: should we fail here
+					methodsIterator.remove();
+				}
+
+				for (MCMPField f : cmpFields) {
+					Class type = fieldToType.get(f.getCmpFieldName());
+
+					// might be null in case of above errror
+					if (type != null) {
+						
+						if(f.getUniqueCollatorRef()!=null && type.getName().compareTo(
+											"java.lang.String") != 0) {
+								// only stirng fields can have it
+								passed = false;
+								errorBuffer = appendToBuffer(
+										"Profile specification profile cmp field declares collator ref, but field type is not java.lang.String. Cmpfield: "+f.getCmpFieldName(),
+										"10.6", errorBuffer);
+							}
+						
+						
+						for (MIndexHint indexHint : f.getIndexHints()) {
+							if (indexHint.getCollatorRef() != null
+									&& type.getName().compareTo(
+											"java.lang.String") != 0) {
+								// only stirng fields can have it
+								passed = false;
+								errorBuffer = appendToBuffer(
+										"Profile specification profile cmp field decalres index hint with collator ref, but field type is not java.lang.String. Cmpfield: "+f.getCmpFieldName(),
+										"10.6", errorBuffer);
+							}
+						}
+					}
+				}
 			}
 
 		} finally {
@@ -629,7 +681,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 				passed = false;
 				errorBuffer = appendToBuffer(
-						"Profile specification profile management interface must be decalred as public.",
+						"Profile specification profile management interface must be declaredas public.",
 						"10.10", errorBuffer);
 
 			}
@@ -1693,7 +1745,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					// return type must be the
 					String returnType = m.getReturnType().getName();
-					
+
 					if (returnType.compareTo("boolean") == 0
 							|| returnType.compareTo("Boolean") == 0) {
 						// only op that can be used are: “equals”, or
@@ -1732,14 +1784,20 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					}
 
 					// we know that parameter references are ok
-					if(compare.getParameter()!=null && parameter2Type.get(compare.getParameter()).compareTo(returnType)!=0)
-					{
+					if (compare.getParameter() != null
+							&& parameter2Type.get(compare.getParameter())
+									.compareTo(returnType) != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - Compare expression references attribute type: "
 										+ returnType
 										+ ", attribute:"
-										+ attributeName+", does not match parameter type: "+parameter2Type.get(compare.getParameter())+", parameter name: "+compare.getParameter()
+										+ attributeName
+										+ ", does not match parameter type: "
+										+ parameter2Type.get(compare
+												.getParameter())
+										+ ", parameter name: "
+										+ compare.getParameter()
 										+ ", query: "
 										+ queryName, "10.20.2", errorBuffer);
 					}
@@ -1747,9 +1805,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// constructor if its present, if not or if it fails make
 					// fail validation?
 
-					
-					if(compare.getCollatorRef()!=null && returnType.compareTo("java.lang.String")!=0)
-					{
+					if (compare.getCollatorRef() != null
+							&& returnType.compareTo("java.lang.String") != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - Compare expression references attribute of wrong type(only string parameter references can declare collator): "
@@ -1772,7 +1829,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
 				break;
 			case HasPrefix:
-				MHasPrefix mhp=expression.getHasPrefix();
+				MHasPrefix mhp = expression.getHasPrefix();
 				attributeName = expression.getHasPrefix().getAttributeName();
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
@@ -1784,34 +1841,36 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					// return type must be the
 					String returnType = m.getReturnType().getName();
-					
-					
+
 					if (returnType.compareTo("java.lang.String") != 0) {
 						// only op that can be used are: “equals”, or
-					
-							passed = false;
-							errorBuffer = appendToBuffer(
-									"Profile specification declared wrong static query - HasPrefix expression references attribute of wrong type: "
-											+ returnType
-											+ ", attribute:"
-											+ attributeName
-											+ ", query: "
-											+ queryName, "10.20.2", errorBuffer);
-						
+
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification declared wrong static query - HasPrefix expression references attribute of wrong type: "
+										+ returnType
+										+ ", attribute:"
+										+ attributeName
+										+ ", query: "
+										+ queryName, "10.20.2", errorBuffer);
+
 					}
 
-				
-
-
 					// we know that parameter references are ok
-					if(mhp.getParameter()!=null && parameter2Type.get(mhp.getParameter()).compareTo(returnType)!=0)
-					{
+					if (mhp.getParameter() != null
+							&& parameter2Type.get(mhp.getParameter())
+									.compareTo(returnType) != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - HasPrefix expression references attribute type: "
 										+ returnType
 										+ ", attribute:"
-										+ attributeName+", does not match parameter type: "+parameter2Type.get(mhp.getParameter())+", parameter name: "+mhp.getParameter()
+										+ attributeName
+										+ ", does not match parameter type: "
+										+ parameter2Type
+												.get(mhp.getParameter())
+										+ ", parameter name: "
+										+ mhp.getParameter()
 										+ ", query: "
 										+ queryName, "10.20.2", errorBuffer);
 					}
@@ -1819,9 +1878,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// constructor if its present, if not or if it fails make
 					// fail validation?
 
-					
-					if(mhp.getCollatorRef()!=null && returnType.compareTo("java.lang.String")!=0)
-					{
+					if (mhp.getCollatorRef() != null
+							&& returnType.compareTo("java.lang.String") != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - HasPrefix expression references attribute of wrong type(only string parameter references can declare collator): "
@@ -1844,11 +1902,11 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
 				break;
 			case LongestPrefixMatch:
-				
-				MLongestPrefixMatch mlpm=expression.getLongestPrefixMatch();
+
+				MLongestPrefixMatch mlpm = expression.getLongestPrefixMatch();
 				attributeName = expression.getLongestPrefixMatch()
 						.getAttributeName();
-				
+
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
 							+ attributeName, null);
@@ -1859,33 +1917,36 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					// return type must be the
 					String returnType = m.getReturnType().getName();
-					
+
 					if (returnType.compareTo("java.lang.String") != 0) {
 						// only op that can be used are: “equals”, or
-					
-							passed = false;
-							errorBuffer = appendToBuffer(
-									"Profile specification declared wrong static query - LongestPrefixMatch expression references attribute of wrong type: "
-											+ returnType
-											+ ", attribute:"
-											+ attributeName
-											+ ", query: "
-											+ queryName, "10.20.2", errorBuffer);
-						
+
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification declared wrong static query - LongestPrefixMatch expression references attribute of wrong type: "
+										+ returnType
+										+ ", attribute:"
+										+ attributeName
+										+ ", query: "
+										+ queryName, "10.20.2", errorBuffer);
+
 					}
 
-				
-
-
 					// we know that parameter references are ok
-					if(mlpm.getParameter()!=null && parameter2Type.get(mlpm.getParameter()).compareTo(returnType)!=0)
-					{
+					if (mlpm.getParameter() != null
+							&& parameter2Type.get(mlpm.getParameter())
+									.compareTo(returnType) != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - LongestPrefixMatch expression references attribute type: "
 										+ returnType
 										+ ", attribute:"
-										+ attributeName+", does not match parameter type: "+parameter2Type.get(mlpm.getParameter())+", parameter name: "+mlpm.getParameter()
+										+ attributeName
+										+ ", does not match parameter type: "
+										+ parameter2Type.get(mlpm
+												.getParameter())
+										+ ", parameter name: "
+										+ mlpm.getParameter()
 										+ ", query: "
 										+ queryName, "10.20.2", errorBuffer);
 					}
@@ -1893,9 +1954,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// constructor if its present, if not or if it fails make
 					// fail validation?
 
-					
-					if(mlpm.getCollatorRef()!=null && returnType.compareTo("java.lang.String")!=0)
-					{
+					if (mlpm.getCollatorRef() != null
+							&& returnType.compareTo("java.lang.String") != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - LongestPrefixMatch expression references attribute of wrong type(only string parameter references can declare collator): "
@@ -1919,7 +1979,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				break;
 			case RangeMatch:
 				attributeName = expression.getRangeMatch().getAttributeName();
-				MRangeMatch mrm=expression.getRangeMatch();
+				MRangeMatch mrm = expression.getRangeMatch();
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
 							+ attributeName, null);
@@ -1930,49 +1990,56 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					// return type must be the
 					String returnType = m.getReturnType().getName();
-					
-				
 
 					// now lets chec type
 					if (!_ALLOWED_QUERY_PARAMETER_TYPES.contains(returnType)) {
 						// there is one case we can not be wrogn here:
-					
-							passed = false;
-							errorBuffer = appendToBuffer(
-									"Profile specification declared wrong static query - RangeMatch expression references attribute of wrong type: "
-											+ returnType
-											+ ", attribute:"
-											+ attributeName
-											+ ", query: "
-											+ queryName, "10.20.2", errorBuffer);
-					
+
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification declared wrong static query - RangeMatch expression references attribute of wrong type: "
+										+ returnType
+										+ ", attribute:"
+										+ attributeName
+										+ ", query: "
+										+ queryName, "10.20.2", errorBuffer);
 
 					}
 
-					
-					
 					// we know that parameter references are ok
-					if(mrm.getToParameter()!=null && parameter2Type.get(mrm.getToParameter()).compareTo(returnType)!=0)
-					{
+					if (mrm.getToParameter() != null
+							&& parameter2Type.get(mrm.getToParameter())
+									.compareTo(returnType) != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - RangeMatch expression references attribute type: "
 										+ returnType
 										+ ", attribute:"
-										+ attributeName+", does not match parameter type: "+parameter2Type.get(mrm.getToParameter())+", toParameter name: "+mrm.getToParameter()
+										+ attributeName
+										+ ", does not match parameter type: "
+										+ parameter2Type.get(mrm
+												.getToParameter())
+										+ ", toParameter name: "
+										+ mrm.getToParameter()
 										+ ", query: "
 										+ queryName, "10.20.2", errorBuffer);
 					}
-					
+
 					// we know that parameter references are ok
-					if(mrm.getFromParameter()!=null && parameter2Type.get(mrm.getFromParameter()).compareTo(returnType)!=0)
-					{
+					if (mrm.getFromParameter() != null
+							&& parameter2Type.get(mrm.getFromParameter())
+									.compareTo(returnType) != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - RangeMatch expression references attribute type: "
 										+ returnType
 										+ ", attribute:"
-										+ attributeName+", does not match parameter type: "+parameter2Type.get(mrm.getFromParameter())+", fromParameter name: "+mrm.getFromParameter()
+										+ attributeName
+										+ ", does not match parameter type: "
+										+ parameter2Type.get(mrm
+												.getFromParameter())
+										+ ", fromParameter name: "
+										+ mrm.getFromParameter()
 										+ ", query: "
 										+ queryName, "10.20.2", errorBuffer);
 					}
@@ -1980,9 +2047,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// constructor if its present, if not or if it fails make
 					// fail validation?
 
-					
-					if(mrm.getCollatorRef()!=null && returnType.compareTo("java.lang.String")!=0)
-					{
+					if (mrm.getCollatorRef() != null
+							&& returnType.compareTo("java.lang.String") != 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declared wrong static query - RangeMatch expression references attribute of wrong type(only string parameter references can declare collator): "
@@ -2003,7 +2069,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 							"Profile specification declared wrong static query - operator does not match against cmp field, requested cmp attribute: "
 									+ attributeName, "10.20.2", errorBuffer);
 				}
-				
+
 				break;
 			}
 
@@ -2052,7 +2118,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 	/**
 	 * Validated descriptor against some basic constraints: all references are
-	 * correct, some fields are decalred properly, no double definitions, if
+	 * correct, some fields are declaredproperly, no double definitions, if
 	 * proper elements are present - for instance some elements exclude others.
 	 * 
 	 * @return
@@ -2061,6 +2127,11 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
+
+		if (!this.component.isSlee11()) {
+			return passed;
+			// there is not much we can do for those oldies.
+		}
 
 		try {
 			HashSet<String> collatorAlliases = new HashSet<String>();
@@ -2081,6 +2152,15 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			// double deifnition of refs is allowed.
 			Map<String, MCMPField> cmpName2Field = new HashMap<String, MCMPField>();
 			for (MCMPField c : desc.getProfileCMPInterface().getCmpFields()) {
+
+				if (!Character.isLowerCase(c.getCmpFieldName().charAt(0))) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification declares wrong cmp field name, first char is not lower case, field: "
+									+ c.getCmpFieldName(), "3.3.7",
+							errorBuffer);
+				}
+
 				if (cmpName2Field.containsKey(c.getCmpFieldName())) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -2100,6 +2180,21 @@ public class ProfileSpecificationComponentValidator implements Validator {
 									+ c.getUniqueCollatorRef(), "3.3.7",
 							errorBuffer);
 				}
+				
+				for(MIndexHint indexHint: c.getIndexHints())
+				{
+					if(indexHint.getCollatorRef()!=null && !collatorAlliases.contains(indexHint.getCollatorRef()))
+					{
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification declares cmp field: "
+										+ c.getCmpFieldName()
+										+ ", with index hint declaring wrong collator reference: "
+										+ c.getUniqueCollatorRef(), "3.3.7",
+								errorBuffer);
+					}
+				}
+				
 			}
 
 			Set<String> queriesNames = new HashSet<String>();
@@ -2112,7 +2207,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 									+ mq.getName(), "3.3.7", errorBuffer);
 				} else {
 
-					// FIXME: all decalred parameters have to be used in
+					// FIXME: all declaredparameters have to be used in
 					// expressions?
 					HashSet<String> decalredParameters = new HashSet<String>();
 					HashSet<String> usedParameters = new HashSet<String>();
@@ -2304,7 +2399,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			if (!cmpFieldNames.contains(attributeName)) {
 				passed = false;
 				errorBuffer = appendToBuffer(
-						"Profile specification declares in static query usage of cmp field that does not exist, decalred cmp field: "
+						"Profile specification declares in static query usage of cmp field that does not exist, declaredcmp field: "
 								+ attributeName + ", query name: " + queryName,
 						"10.20.2", errorBuffer);
 			}

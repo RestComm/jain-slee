@@ -13,7 +13,20 @@
 		<profile-spec-version>DVAL3</profile-spec-version>
 
 
-
+		<collator strength="Primary" decomposition="None">
+			<description />
+			<collator-alias>DVAL</collator-alias>
+			<locale-language>DVAL2</locale-language>
+			<locale-country>DVAL3</locale-country>
+			<locale-variant>DVAL4</locale-variant>
+		</collator>
+		<collator strength="Primary" decomposition="None">
+			<description />
+			<collator-alias>DVAL2</collator-alias>
+			<locale-language>DVAL3</locale-language>
+			<locale-country>DVAL4</locale-country>
+			<locale-variant>DVAL5</locale-variant>
+		</collator>
 		<profile-classes>
 			<description />
 			<profile-cmp-interface>
@@ -30,6 +43,15 @@
 				<cmp-field>
 					<description />
 					<cmp-field-name>masterTestSerializable</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>withCollator</cmp-field-name>
+					<index-hint query-operator="equals" collator-ref="DVAL" />
+				</cmp-field>
+				<cmp-field>
+					<description />
+					<cmp-field-name>withoutCollatorBoolean</cmp-field-name>
 				</cmp-field>
 			</profile-cmp-interface>
 
