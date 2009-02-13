@@ -27,7 +27,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorImpl;
@@ -62,7 +62,7 @@ public class DeployableUnitServiceComponentBuilder {
 		JarEntry componentDescriptor = deployableUnitJar.getJarEntry(serviceDescriptorFileName);
 		InputStream componentDescriptorInputStream = null;
     	try {
-    		deployableUnitJar.getInputStream(componentDescriptor);
+    		componentDescriptorInputStream = deployableUnitJar.getInputStream(componentDescriptor);
     		Document componentDescriptorDocument = documentBuilder.parse(componentDescriptorInputStream);
     		descriptor = new ServiceDescriptorImpl(componentDescriptorDocument);    		
     	} catch (SAXException e) {
