@@ -15,7 +15,7 @@ import javax.slee.EventTypeID;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.validator.Validator;
 
 /**
@@ -31,7 +31,7 @@ public class EventTypeComponent extends SleeComponent {
 	/**
 	 * the event type descriptor
 	 */
-	private final EventDescriptorImpl descriptor;
+	private final EventTypeDescriptorImpl descriptor;
 
 	/**
 	 * the event type class
@@ -42,7 +42,7 @@ public class EventTypeComponent extends SleeComponent {
 	 * 
 	 * @param descriptor
 	 */
-	public EventTypeComponent(EventDescriptorImpl descriptor) {
+	public EventTypeComponent(EventTypeDescriptorImpl descriptor) {
 		this.descriptor = descriptor;
 	}
 	
@@ -74,7 +74,7 @@ public class EventTypeComponent extends SleeComponent {
 	 * Retrieves the event type descriptor
 	 * @return
 	 */
-	public EventDescriptorImpl getDescriptor() {
+	public EventTypeDescriptorImpl getDescriptor() {
 		return descriptor;
 	}
 

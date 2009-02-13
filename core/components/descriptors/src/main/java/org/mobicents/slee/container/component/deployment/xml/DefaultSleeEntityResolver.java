@@ -89,17 +89,18 @@ public class DefaultSleeEntityResolver implements EntityResolver{
     public InputSource resolveEntity(String publicId, String systemId)
         throws IOException
     {
-        URL resourceURL = (URL)resources.get(publicId);
-        if(resourceURL != null)
-        {
-            InputStream resourceStream = null;
-            resourceStream = resourceURL.openStream();
-            InputSource is = new InputSource(resourceStream);
-            is.setPublicId(publicId);
-            is.setSystemId(resourceURL.toExternalForm());
-            return is;
-        }
-        return null;
-    }
+    	if (publicId != null) {
+			URL resourceURL = (URL) resources.get(publicId);
+			if (resourceURL != null) {
+				InputStream resourceStream = null;
+				resourceStream = resourceURL.openStream();
+				InputSource is = new InputSource(resourceStream);
+				is.setPublicId(publicId);
+				is.setSystemId(resourceURL.toExternalForm());
+				return is;
+			}
+		}
+		return null;
+	}
 
 }

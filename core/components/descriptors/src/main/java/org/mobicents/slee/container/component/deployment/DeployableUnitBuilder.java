@@ -180,7 +180,19 @@ public class DeployableUnitBuilder {
 		
 		// validate each component
 		for (SleeComponent sleeComponent : duComponentsSet) {
-			sleeComponent.validate();
+			ClassLoader componentClassLoader = sleeComponent.getClassLoader();
+			ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+			try {
+				if (componentClassLoader != null) {
+					Thread.currentThread().setContextClassLoader(componentClassLoader);
+				}
+				sleeComponent.validate();
+			}
+			finally {
+				if (componentClassLoader != null) {
+					Thread.currentThread().setContextClassLoader(oldClassLoader);
+				}
+			}
 		}
 		
 		// TODO generate any classes needed by the component
@@ -381,8 +393,8 @@ public class DeployableUnitBuilder {
         try {
             // first create a dummy file to gurantee uniqueness. I would have been nice if the File class had a createTempDir() method
             // IVELIN -- do not use jarName here because windows cannot see the path (exceeds system limit)
-            File tempFile = File.createTempFile("", "", deploymentRoot);
-            File tempDUDeploymentDir = new File(tempFile.getAbsolutePath() + "-mobicents-slee-du");
+            File tempFile = File.createTempFile("mobicents-slee-du-", "", deploymentRoot);
+            File tempDUDeploymentDir = new File(tempFile.getAbsolutePath() + "-contents");
             if (!tempDUDeploymentDir.exists()) {
             	tempDUDeploymentDir.mkdirs();
             }

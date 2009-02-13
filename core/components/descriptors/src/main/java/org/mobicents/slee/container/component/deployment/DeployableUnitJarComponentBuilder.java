@@ -30,7 +30,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SleeComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorImpl;
@@ -80,7 +80,7 @@ public class DeployableUnitJarComponentBuilder {
 
 		// now extract the jar file to a new dir
 		File componentJarDeploymentDir = new File(deploymentDir,
-				componentJarFileName);
+				componentJarFileName+"-contents");
 		if (!componentJarDeploymentDir.exists()) {
 			if (!componentJarDeploymentDir.mkdir()) {
 				throw new SLEEException("dir for jar " + componentJarFileName
@@ -135,7 +135,7 @@ public class DeployableUnitJarComponentBuilder {
 						.getInputStream(componentDescriptor);
 				Document componentDescriptorDocument = documentBuilder
 						.parse(componentDescriptorInputStream);
-				EventDescriptorImpl descriptor = new EventDescriptorImpl(
+				EventTypeDescriptorImpl descriptor = new EventTypeDescriptorImpl(
 						componentDescriptorDocument);
 				component = new EventTypeComponent(descriptor);
 			} else if ((componentDescriptor = componentJarFile
