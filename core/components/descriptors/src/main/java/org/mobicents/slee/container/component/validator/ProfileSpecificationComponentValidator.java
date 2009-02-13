@@ -412,7 +412,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				// if we are here we know there are no dups
 				List<MCMPField> cmpFields = this.component.getDescriptor()
 						.getProfileCMPInterface().getCmpFields();
-				
+
 				if (cmpFields.size() != fieldToType.size()) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -428,17 +428,17 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					// might be null in case of above errror
 					if (type != null) {
-						
-						if(f.getUniqueCollatorRef()!=null && type.getName().compareTo(
-											"java.lang.String") != 0) {
-								// only stirng fields can have it
-								passed = false;
-								errorBuffer = appendToBuffer(
-										"Profile specification profile cmp field declares collator ref, but field type is not java.lang.String. Cmpfield: "+f.getCmpFieldName(),
-										"10.6", errorBuffer);
-							}
-						
-						
+
+						if (f.getUniqueCollatorRef() != null
+								&& type.getName().compareTo("java.lang.String") != 0) {
+							// only stirng fields can have it
+							passed = false;
+							errorBuffer = appendToBuffer(
+									"Profile specification profile cmp field declares collator ref, but field type is not java.lang.String. Cmpfield: "
+											+ f.getCmpFieldName(), "10.6",
+									errorBuffer);
+						}
+
 						for (MIndexHint indexHint : f.getIndexHints()) {
 							if (indexHint.getCollatorRef() != null
 									&& type.getName().compareTo(
@@ -446,8 +446,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 								// only stirng fields can have it
 								passed = false;
 								errorBuffer = appendToBuffer(
-										"Profile specification profile cmp field decalres index hint with collator ref, but field type is not java.lang.String. Cmpfield: "+f.getCmpFieldName(),
-										"10.6", errorBuffer);
+										"Profile specification profile cmp field decalres index hint with collator ref, but field type is not java.lang.String. Cmpfield: "
+												+ f.getCmpFieldName(), "10.6",
+										errorBuffer);
 							}
 						}
 					}
@@ -714,6 +715,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				String key = entry.getKey();
 
 				if (cmpInterfaceMethods.containsKey(key)) {
+
+					// FIXME: possibly we shoudl iterate over names?
+
 					if (!compareMethod(entry.getValue(), cmpInterfaceMethods
 							.get(key))) {
 						// return type or throws clause, or modifiers differ
@@ -722,59 +726,57 @@ public class ProfileSpecificationComponentValidator implements Validator {
 								"Profile specification profile management interface declares method which has signature simlar to CMP method, but it has different throws clause, return type or modifiers, which is wrong.",
 								"10.10", errorBuffer);
 
-					} else {
-						// we can have setter/getter like as stand alone ?
-						if (_FORBIDEN_METHODS.contains(key)) {
-							// this is forrbiden, section 10.18
-							errorBuffer = appendToBuffer(
-									"Profile specification profile management interface declares method from forbiden list, method: "
-											+ entry.getKey(), "10.18",
-									errorBuffer);
+					}
+				} else {
+					// we can have setter/getter like as stand alone ?
+					if (_FORBIDEN_METHODS.contains(key)) {
+						// this is forrbiden, section 10.18
+						errorBuffer = appendToBuffer(
+								"Profile specification profile management interface declares method from forbiden list, method: "
+										+ entry.getKey(), "10.18", errorBuffer);
 
-							continue;
-						}
-						// is this the right place? This tells validator
-						// wheather it should require profile abstract class in
-						// case of 1.1
-						requriedProfileAbstractClass = true;
-						// we know that name is ok.
-						// FIXME: SPECS Are weird - Management methods may not
-						// have the same name and arguments as a Profile CMP
-						// field get or set accessor method. <---- ITS CMP
-						// METHOD< SIGNATURE IS NAME AND
-						// PARAMETERS and its implemented if its doubled from
-						// CMP or this interface extends CMP
-						// interface.....!!!!!!!!!!!!!!!!!!
-						if (key.startsWith("ejb")) {
+						continue;
+					}
+					// is this the right place? This tells validator
+					// wheather it should require profile abstract class in
+					// case of 1.1
+					requriedProfileAbstractClass = true;
+					// we know that name is ok.
+					// FIXME: SPECS Are weird - Management methods may not
+					// have the same name and arguments as a Profile CMP
+					// field get or set accessor method. <---- ITS CMP
+					// METHOD< SIGNATURE IS NAME AND
+					// PARAMETERS and its implemented if its doubled from
+					// CMP or this interface extends CMP
+					// interface.....!!!!!!!!!!!!!!!!!!
+
+					if (key.startsWith("ejb")) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification profile management interface declares method with wrong prefix, method: "
+										+ entry.getKey(), "10.18", errorBuffer);
+
+						continue;
+					}
+
+					// there are no reqs other than parameters?
+					Class[] params = entry.getValue().getParameterTypes();
+					for (int index = 0; index < params.length; index++) {
+						if (_ALLOWED_MANAGEMENT_TYPES.contains(params[index]
+								.toString())) {
+
+						} else {
 							passed = false;
 							errorBuffer = appendToBuffer(
-									"Profile specification profile management interface declares method with wrong prefix, method: "
+									"Profile specification profile management interface declares management method with wrong parameter at index["
+											+ index
+											+ "], method: "
 											+ entry.getKey(), "10.18",
 									errorBuffer);
-
-							continue;
 						}
-
-						// there are no reqs other than parameters?
-						Class[] params = entry.getValue().getParameterTypes();
-						for (int index = 0; index < params.length; index++) {
-							if (_ALLOWED_MANAGEMENT_TYPES
-									.contains(params[index].toString())) {
-
-							} else {
-								passed = false;
-								errorBuffer = appendToBuffer(
-										"Profile specification profile management interface declares management method with wrong parameter at index["
-												+ index
-												+ "], method: "
-												+ entry.getKey(), "10.18",
-										errorBuffer);
-							}
-						}
-
 					}
-				}
 
+				}
 			}
 
 		} finally {
@@ -2157,8 +2159,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Profile specification declares wrong cmp field name, first char is not lower case, field: "
-									+ c.getCmpFieldName(), "3.3.7",
-							errorBuffer);
+									+ c.getCmpFieldName(), "3.3.7", errorBuffer);
 				}
 
 				if (cmpName2Field.containsKey(c.getCmpFieldName())) {
@@ -2180,11 +2181,11 @@ public class ProfileSpecificationComponentValidator implements Validator {
 									+ c.getUniqueCollatorRef(), "3.3.7",
 							errorBuffer);
 				}
-				
-				for(MIndexHint indexHint: c.getIndexHints())
-				{
-					if(indexHint.getCollatorRef()!=null && !collatorAlliases.contains(indexHint.getCollatorRef()))
-					{
+
+				for (MIndexHint indexHint : c.getIndexHints()) {
+					if (indexHint.getCollatorRef() != null
+							&& !collatorAlliases.contains(indexHint
+									.getCollatorRef())) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification declares cmp field: "
@@ -2194,7 +2195,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 								errorBuffer);
 					}
 				}
-				
+
 			}
 
 			Set<String> queriesNames = new HashSet<String>();
