@@ -3,14 +3,14 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.mobicents.servers.jainslee.core.jaxb</groupId>
-		<artifactId>parsing-parent</artifactId>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>components-parent</artifactId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<packaging>pom</packaging>
-	<groupId>org.mobicents.servers.jainslee.core.jaxb.slee11</groupId>
-	<artifactId>event</artifactId>
+
+	<artifactId>components-jaxb-event11</artifactId>
 
 	<name>Mobicents :: JAXB-Descriptors :: ${pom.artifactId}</name>
 	<properties>

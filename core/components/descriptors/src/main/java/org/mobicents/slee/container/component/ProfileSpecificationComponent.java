@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.validator.ProfileSpecificationComponentValidator;
@@ -207,8 +209,6 @@ public class ProfileSpecificationComponent extends SleeComponent {
 		return getProfileSpecificationID();
 	}
 
-	
-	
 	@Override
 	public boolean validate() throws DependencyException, DeploymentException {
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
