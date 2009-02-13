@@ -19,6 +19,7 @@ import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;

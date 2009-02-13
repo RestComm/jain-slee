@@ -17,6 +17,7 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
