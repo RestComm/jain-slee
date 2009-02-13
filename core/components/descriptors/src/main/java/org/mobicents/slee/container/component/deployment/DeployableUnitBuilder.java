@@ -48,7 +48,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DefaultEntityResolver;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.*;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 import org.w3c.dom.Document;
 

@@ -33,6 +33,7 @@ import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventDirection.*;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
@@ -1962,8 +1963,13 @@ public class SbbComponentValidator implements Validator {
 				Class methodReturnType = m.getReturnType();
 
 				// this is referential integrity
-				Map<String, ProfileSpecificationID> map = this.component
-						.getProfileReferences();
+				Map<String, ProfileSpecificationID> map = new HashMap<String, ProfileSpecificationID>();
+				
+				for(MProfileSpecRef rf:this.component.getDescriptor().getProfileSpecReference())
+				{
+					map.put(rf.getProfileSpecAlias(), rf.getComponentID());
+				}
+				
 				ProfileSpecificationID profileID = map.get(method
 						.getProfileSpecAliasRef());
 				ProfileSpecificationComponent profileComponent = this.repository

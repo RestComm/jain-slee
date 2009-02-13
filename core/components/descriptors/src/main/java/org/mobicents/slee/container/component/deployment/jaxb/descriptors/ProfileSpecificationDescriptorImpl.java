@@ -19,15 +19,13 @@ import java.util.Set;
 import javax.slee.ComponentID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermision;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
-
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
