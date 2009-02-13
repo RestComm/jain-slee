@@ -3,6 +3,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
+
 /**
  * 
  * MResourceAdaptorJar.java
@@ -15,17 +17,12 @@ import java.util.List;
  */
 public class MResourceAdaptorJar {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptorJar resourceAdaptorJar10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorJar resourceAdaptorJar11;
-  
   protected String description;
   protected List<MResourceAdaptor> resourceAdaptor = new ArrayList<MResourceAdaptor>();
   protected MSecurityPermissions securityPermissions;
 
   public MResourceAdaptorJar(org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptorJar resourceAdaptorJar10)
   {
-    this.resourceAdaptorJar10 = resourceAdaptorJar10;
-    
     this.description = resourceAdaptorJar10.getDescription() == null ? null : resourceAdaptorJar10.getDescription().getvalue();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptor resourceAdaptor10 : resourceAdaptorJar10.getResourceAdaptor())
@@ -36,8 +33,6 @@ public class MResourceAdaptorJar {
 
   public MResourceAdaptorJar(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorJar resourceAdaptorJar11)
   {
-    this.resourceAdaptorJar11 = resourceAdaptorJar11;
-    
     this.description = resourceAdaptorJar11.getDescription() == null ? null : resourceAdaptorJar11.getDescription().getvalue();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptor resourceAdaptor11 : resourceAdaptorJar11.getResourceAdaptor())

@@ -222,10 +222,7 @@ public class ProfileSpecificationDescriptorImpl extends JAXBBaseUtilityClass {
 			if (this.llProfileSpecJar.getSecurityPermissions() != null) {
 				SecurityPermissions secPerm = this.llProfileSpecJar
 						.getSecurityPermissions();
-				this.securityPremissions = new MSecurityPermissions(secPerm
-						.getDescription() == null ? null : secPerm
-						.getDescription().getvalue(), secPerm
-						.getSecurityPermissionSpec().getvalue());
+				this.securityPremissions = new MSecurityPermissions(secPerm);
 			}
 
 			// Optional

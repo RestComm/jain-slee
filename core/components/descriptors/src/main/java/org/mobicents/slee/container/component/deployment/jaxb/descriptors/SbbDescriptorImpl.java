@@ -18,17 +18,15 @@ import javax.slee.ComponentID;
 import javax.slee.SbbID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.LibraryID;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.*;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;
-
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
@@ -240,10 +238,7 @@ public class SbbDescriptorImpl extends JAXBBaseUtilityClass {
 			if (this.llSbbJar.getSecurityPermissions() != null) {
 				org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SecurityPermissions secPerm = this.llSbbJar
 						.getSecurityPermissions();
-				this.securityPermisions = new MSecurityPermissions(secPerm
-						.getDescription() == null ? null : secPerm
-						.getDescription().getvalue(), secPerm
-						.getSecurityPermissionSpec().getvalue());
+				this.securityPermisions = new MSecurityPermissions(secPerm);
 			}
 
 		} else {

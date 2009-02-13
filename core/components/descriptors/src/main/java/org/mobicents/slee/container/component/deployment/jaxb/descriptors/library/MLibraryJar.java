@@ -3,6 +3,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.libra
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
+
 /**
  * 
  * MLibraryJar.java
@@ -15,8 +17,6 @@ import java.util.List;
  */
 public class MLibraryJar {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.library.LibraryJar libraryJar11;
-  
   private String description;
   
   private List<MLibrary> library = new ArrayList<MLibrary>();
@@ -25,8 +25,6 @@ public class MLibraryJar {
 
   public MLibraryJar(org.mobicents.slee.container.component.deployment.jaxb.slee11.library.LibraryJar libraryJar11)
   {
-    this.libraryJar11 = libraryJar11;
-    
     this.description = libraryJar11.getDescription() == null ? null : libraryJar11.getDescription().getvalue();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.library.Library library11 : libraryJar11.getLibrary())

@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.library;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
+
 /**
  * 
  * MJar.java
@@ -12,8 +14,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.libra
  */
 public class MJar {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.library.Jar jar11;
-  
   private String description;
   
   private String jarName;
@@ -22,8 +22,6 @@ public class MJar {
   
   public MJar(org.mobicents.slee.container.component.deployment.jaxb.slee11.library.Jar jar11)
   {
-    this.jar11 = jar11;
-    
     this.description = jar11.getDescription() == null ? null : jar11.getDescription().getvalue();
     
     this.jarName = jar11.getJarName().getvalue();
