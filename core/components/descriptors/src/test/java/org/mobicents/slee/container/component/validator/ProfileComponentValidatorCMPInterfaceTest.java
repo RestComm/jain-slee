@@ -85,7 +85,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - it should not - CMP type is not allowed", b);
 
 	}
 	
@@ -100,7 +100,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - it should not - cmp get/set parameter types missmatch", b);
 
 	}
 	
@@ -115,7 +115,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - accessors can not declare throws clause", b);
 
 	}
 	public void testProfileCMPInterfaceGetterThrows() throws Exception {
@@ -129,7 +129,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - accessors can not declare throws clause", b);
 
 	}
 	public void testProfileCMPInterfaceForbbidenMethod() throws Exception {
@@ -143,11 +143,11 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - decalres forbiden method", b);
 
 	}
 	
-	public void testProfileCMPInterfaceLackdeclaredCMPInInterface() throws Exception {
+	public void testProfileCMPInterfaceLackDeclaredCMPInInterface() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
 				super.parseDocument(_PROFILE_SPEC_JAR_ONE_COLLATOR_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
@@ -158,7 +158,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - it shoudl not since it lack accessors for decalred cmp", b);
 
 	}
 	
@@ -173,7 +173,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - it should not - cmp field declares index hint with collator ref, but field type is not java.lang.String", b);
 
 	}
 	
@@ -188,7 +188,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - CMP interface has more accessors than cmp fields defined in xml", b);
 
 	}
 	
@@ -218,7 +218,7 @@ TCUtilityClass {
 
 		boolean b = validator.validateDescriptor();
 
-		assertFalse("CMP Interface class has been validated", b);
+		assertFalse("CMP Interface class has been validated - it should not - declares cmp field: withCollator, with index hint declaring wrong collator reference: null", b);
 		
 
 	}
