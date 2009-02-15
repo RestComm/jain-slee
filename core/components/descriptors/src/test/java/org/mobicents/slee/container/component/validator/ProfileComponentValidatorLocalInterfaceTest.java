@@ -20,16 +20,18 @@ import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterf
 import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceTypeMissMatch;
 import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceWrongFieldType;
 import org.mobicents.slee.container.component.validator.profile.ProfileSuperCMPInterface;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceOkDeclareValidCMPMethod;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceOkDeclareValidCMPMethodWithThrows;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceOkExtendCMPInterface;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceWrongMethod_DynamicMBean;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceWrongMethod_MBeanRegistration;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceWrongMethod_Profile;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceWrongMethod_ProfileMBean;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceWrongMethod_ProfileManagement;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceWrongPrefix;
-import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceWrongType;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceNoProfileLocalObject;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceOkDeclareValidCMPMethod;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceOkDeclareValidCMPMethodWithThrows;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceOkExtendCMPInterface;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceWrongMethod_DynamicMBean;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceWrongMethod_MBeanRegistration;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceWrongMethod_Profile;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceWrongMethod_ProfileMBean;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceWrongMethod_ProfileManagement;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceWrongPrefix;
+import org.mobicents.slee.container.component.validator.profile.localinterface.LocalInterfaceWrongType;
+
 
 /**
  * Start time:17:07:31 2009-01-31<br>
@@ -39,45 +41,45 @@ import org.mobicents.slee.container.component.validator.profile.managementinterf
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileComponentValidatorManagementInterfaceTest extends
+public class ProfileComponentValidatorLocalInterfaceTest extends
 TCUtilityClass {
 
-	public static final String _PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS = "xml/validator/profile/mgmt/profile-spec-jar-one-ManagementInterface.xml";
+	public static final String _PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS = "xml/validator/profile/local/profile-spec-jar-one-LocalInterface.xml";
 	
 	
-	public void testProfilemanagmentInterfaceConstraintsOk() throws Exception {
+	public void testProfileLocalInterfaceConstraintsOk() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(Thread.currentThread()
+		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
-								.getProfileManagementInterfaceName()));
+						descriptor.getProfileLocalInterface()
+								.getProfileLocalInterfaceName()));
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertTrue("Management Interface class has not been validated", b);
+		assertTrue("Local Interface class has not been validated", b);
 
 	}
 	
 	
-	public void testProfilemanagmentInterfaceConstraintsOkExtendCMPInterface() throws Exception {
+	public void testProfileLocalInterfaceConstraintsOkExtendCMPInterface() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceOkExtendCMPInterface.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceOkExtendCMPInterface.class);
 		
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
@@ -88,176 +90,193 @@ TCUtilityClass {
 
 	}
 	
-	public void testProfilemanagmentInterfaceConstraintsOkDeclareValidCMPMethod() throws Exception {
+	public void testProfileLocalInterfaceConstraintsOkDeclareValidCMPMethod() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceOkDeclareValidCMPMethod.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceOkDeclareValidCMPMethod.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertTrue("Management Interface class has not been validated - it does not extend CMP interface, however it is valid to declare CMP method.", b);
+		assertTrue("Local Interface class has not been validated - it does not extend CMP interface, however it is valid to declare CMP method.", b);
 
 	}
 	
-	public void testProfilemanagmentInterfaceConstraintsDeclareValidCMPMethodWithThrows() throws Exception {
+	public void testProfileLocalInterfaceConstraintsDeclareValidCMPMethodWithThrows() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceOkDeclareValidCMPMethodWithThrows.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceOkDeclareValidCMPMethodWithThrows.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not - it declares CMP methods with throws clause.", b);
+		assertFalse("Local Interface class has been validated, it should not - it declares CMP methods with throws clause.", b);
 
 	}
 	
-	public void testProfilemanagmentInterfaceConstraintsWrongPrefix() throws Exception {
+	public void testProfileLocalInterfaceConstraintsWrongPrefix() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongPrefix.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceWrongPrefix.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not as interface declares method with wrong prefix.", b);
+		assertFalse("Local Interface class has been validated, it should not as interface declares method with wrong prefix.", b);
 
 	}
-	public void testProfilemanagmentInterfaceConstraintsWrongParameterType() throws Exception {
+	public void testProfileLocalInterfaceConstraintsWrongParameterType() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongType.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceWrongType.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not, as it decalres method with wrong parameter.", b);
+		assertFalse("Local Interface class has been validated, it should not, as it decalres method with wrong parameter.", b);
 
 	}
 	
 	
-	public void testProfilemanagmentInterfaceConstraintsWrongMethodProfileMBean() throws Exception {
+	public void testProfileLocalInterfaceConstraintsWrongMethodProfileMBean() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_ProfileMBean.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_ProfileMBean.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not as it declared method from ProfileMBean", b);
+		assertFalse("Local Interface class has been validated, it should not as it declared method from ProfileMBean", b);
 
 	}
 	
-	public void testProfilemanagmentInterfaceConstraintsWrongMethodProfileManagement() throws Exception {
+	public void testProfileLocalInterfaceConstraintsWrongMethodProfileLocal() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_ProfileManagement.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_ProfileManagement.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not as it declared method from ProfileManagement", b);
+		assertFalse("Local Interface class has been validated, it should not as it declared method from ProfileLocal", b);
 
 	}
 	
-	public void testProfilemanagmentInterfaceConstraintsWrongMethodProfile() throws Exception {
+	public void testProfileLocalInterfaceConstraintsWrongMethodProfile() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_Profile.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_Profile.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not as it declared method from Profile", b);
+		assertFalse("Local Interface class has been validated, it should not as it declared method from Profile", b);
 
 	}
 	
-	public void testProfilemanagmentInterfaceConstraintsWrongMethodDynamicMBean() throws Exception {
+	public void testProfileLocalInterfaceConstraintsWrongMethodDynamicMBean() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_DynamicMBean.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_DynamicMBean.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not as it declared method from DynamicMBean", b);
+		assertFalse("Local Interface class has been validated, it should not as it declared method from DynamicMBean", b);
 
 	}
 	
-	public void testProfilemanagmentInterfaceConstraintsWrongMethodMBeanRegistration() throws Exception {
+	public void testProfileLocalInterfaceConstraintsWrongMethodMBeanRegistration() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS), null)[0];
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
-		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_MBeanRegistration.class);
+		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_MBeanRegistration.class);
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
-		boolean b = validator.validateProfileManagementInterface();
+		boolean b = validator.validateProfileLocalInterface();
 
-		assertFalse("Management Interface class has been validated, it should not as it declared method from MBeanRegistration", b);
+		assertFalse("Local Interface class has been validated, it should not as it declared method from MBeanRegistration", b);
 
 	}
 	
-	
+	public void testProfileLocalInterfaceConstraintsNoSuperInterface() throws Exception {
+		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
+				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		component.setProfileCmpInterfaceClass(Thread.currentThread()
+				.getContextClassLoader().loadClass(
+						descriptor.getProfileCMPInterface()
+								.getProfileCmpInterfaceName()));
+
+		component.setProfileLocalInterfaceClass(LocalInterfaceNoProfileLocalObject.class);
+		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
+		validator.setComponent(component);
+
+		boolean b = validator.validateProfileLocalInterface();
+
+		assertFalse("Local Interface class has been validated, it should not as it does not extends ProfileLocalObject", b);
+
+	}
 }

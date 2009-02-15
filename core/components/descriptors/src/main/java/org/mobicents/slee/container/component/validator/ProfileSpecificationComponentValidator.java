@@ -9,6 +9,7 @@
 package org.mobicents.slee.container.component.validator;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -880,87 +881,83 @@ public class ProfileSpecificationComponentValidator implements Validator {
 								"Profile specification profile local interface declares method which has signature similar to CMP method, but it has different throws clause, return type or modifiers, which is wrong.",
 								"10.7.4", errorBuffer);
 
-					} else {
-						// we can have setter/getter like as stand alone ?
-						if (_FORBIDEN_METHODS.contains(key)) {
-							// this is forrbiden, section 10.18
-							errorBuffer = appendToBuffer(
-									"Profile specification profile local interface declares method from forbiden list, method: "
-											+ entry.getKey(), "10.18",
-									errorBuffer);
+					}
+				} else {
 
-							continue;
-						} else if (key.startsWith("get")
-								|| key.startsWith("set")) {
+					// we can have setter/getter like as stand alone ?
+					if (_FORBIDEN_METHODS.contains(key)) {
+						// this is forrbiden, section 10.18
+						errorBuffer = appendToBuffer(
+								"Profile specification profile local interface declares method from forbiden list, method: "
+										+ entry.getKey(), "10.18", errorBuffer);
+
+						continue;
+					} else if (key.startsWith("get") || key.startsWith("set")) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification profile local interface declares method which is setter/getter and does not match CMP interface method, method: "
+										+ entry.getKey(), "10.18", errorBuffer);
+
+						continue;
+					}
+
+					// is this the right place? This tells validator
+					// wheather it should require profile abstract class in
+					// case of 1.1
+					requriedProfileAbstractClass = true;
+
+					// we know that name is ok.
+					// FIXME: SPECS Are weird - Management methods may not
+					// have the same name and arguments as a Profile CMP
+					// field get or set accessor method. <---- ITS CMP
+					// METHOD< SIGNATURE IS NAME AND
+					// PARAMETERS and its implemented if its doubled from
+					// CMP or this interface extends CMP
+					// interface.....!!!!!!!!!!!!!!!!!!
+					if (key.startsWith("ejb")) {
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification profile local interface declares method with wrong prefix, method: "
+										+ entry.getKey(), "10.18", errorBuffer);
+
+						continue;
+					}
+
+					Class[] params = entry.getValue().getParameterTypes();
+					for (int index = 0; index < params.length; index++) {
+						// FIXME: whichc should we use here?
+						if ((_ALLOWED_CMPS_TYPES.contains(params[index]
+								.toString()) || validateSerializableType(
+								params[index], key))) {
+
+						} else {
 							passed = false;
 							errorBuffer = appendToBuffer(
-									"Profile specification profile local interface declares method which is setter/getter and does not match CMP interface method, method: "
+									"Profile specification profile management interface declares management method with wrong parameter at index["
+											+ index
+											+ "], method: "
 											+ entry.getKey(), "10.18",
 									errorBuffer);
-
-							continue;
-						}
-
-						// is this the right place? This tells validator
-						// wheather it should require profile abstract class in
-						// case of 1.1
-						requriedProfileAbstractClass = true;
-
-						// we know that name is ok.
-						// FIXME: SPECS Are weird - Management methods may not
-						// have the same name and arguments as a Profile CMP
-						// field get or set accessor method. <---- ITS CMP
-						// METHOD< SIGNATURE IS NAME AND
-						// PARAMETERS and its implemented if its doubled from
-						// CMP or this interface extends CMP
-						// interface.....!!!!!!!!!!!!!!!!!!
-						if (key.startsWith("ejb")) {
-							passed = false;
-							errorBuffer = appendToBuffer(
-									"Profile specification profile local interface declares method with wrong prefix, method: "
-											+ entry.getKey(), "10.18",
-									errorBuffer);
-
-							continue;
-						}
-
-						Class[] params = entry.getValue().getParameterTypes();
-						for (int index = 0; index < params.length; index++) {
-							// FIXME: whichc should we use here?
-							if ((_ALLOWED_CMPS_TYPES.contains(params[index]
-									.toString()) || validateSerializableType(
-									params[index], key))) {
-
-							} else {
-								passed = false;
-								errorBuffer = appendToBuffer(
-										"Profile specification profile management interface declares management method with wrong parameter at index["
-												+ index
-												+ "], method: "
-												+ entry.getKey(), "10.18",
-										errorBuffer);
-							}
-						}
-
-						// lets check exceptions, we can define all except
-						// java.rmi.RemoteException
-						for (Class exceptionClass : entry.getValue()
-								.getExceptionTypes()) {
-							// FIXME: should we check unckecked exceptions here
-							// ?
-							if (ClassUtils.checkClasses(exceptionClass,
-									"java.rmi.RemoteException") != null) {
-								passed = false;
-								errorBuffer = appendToBuffer(
-										"Profile specification profile management interface declares management method with wrong exception in throws clause, it can not throw java.rmi.RemoteException(or its sub classes), method: "
-												+ entry.getKey(), "10.7.4",
-										errorBuffer);
-							}
-
 						}
 					}
-				}
 
+					// lets check exceptions, we can define all except
+					// java.rmi.RemoteException
+					for (Class exceptionClass : entry.getValue()
+							.getExceptionTypes()) {
+						// FIXME: should we check unckecked exceptions here
+						// ?
+						if (ClassUtils.checkClasses(exceptionClass,
+								"java.rmi.RemoteException") != null) {
+							passed = false;
+							errorBuffer = appendToBuffer(
+									"Profile specification profile management interface declares management method with wrong exception in throws clause, it can not throw java.rmi.RemoteException(or its sub classes), method: "
+											+ entry.getKey(), "10.7.4",
+									errorBuffer);
+						}
+
+					}
+				}
 			}
 
 		} finally {
@@ -1019,13 +1016,49 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			// return passed;
 			// }
 
-			if (this.component.isSlee11()
-					&& profileAbstractClass.getPackage() == null) {
+			if (this.component.isSlee11()) {
 
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Profile specification profile abstract class must be defined in package.",
-						"10.11", errorBuffer);
+				if (profileAbstractClass.getPackage() == null) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile abstract class must be defined in package.",
+							"10.11", errorBuffer);
+
+				}
+
+				// FIXME: what about 1.0 ?
+				// public, no arg constructor without throws clause
+				Constructor c = null;
+				try {
+					c = profileAbstractClass.getConstructor(null);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					//e.printStackTrace();
+				} 
+
+				if (c == null) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile abstract class must define public no arg constructor.",
+							"10.11", errorBuffer);
+				} else {
+					if (!Modifier.isPublic(c.getModifiers())) {
+
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification profile abstract class must define public no arg constructor.",
+								"10.11", errorBuffer);
+						
+					}
+					
+					if(c.getExceptionTypes().length>0)
+					{
+						passed = false;
+						errorBuffer = appendToBuffer(
+								"Profile specification profile abstract class must define public no arg constructor without throws clause.",
+								"10.11", errorBuffer);
+					}
+				}
 
 			}
 
@@ -1059,9 +1092,14 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					errorBuffer = appendToBuffer(
 							"Profile specification profile abstract class must implement javax.slee.profile.Profile.",
 							"10.11", errorBuffer);
-				}
-				requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
+					
+					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
+							javax.slee.profile.ProfileLocalObject.class, ignore);
+				}else
+				{
+					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
 						javaxSleeProfileProfileClass, ignore);
+				}
 			} else {
 				Class javaxSleeProfileProfileManagement = ClassUtils
 						.checkInterfaces(profileAbstractClass,
@@ -1071,9 +1109,13 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					errorBuffer = appendToBuffer(
 							"Profile specification profile abstract class must implement javax.slee.profile.ProfileManagement.",
 							"10.8", errorBuffer);
-				}
-				requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
+					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
+							javax.slee.profile.ProfileManagement.class, ignore);
+				}else
+				{
+					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
 						javaxSleeProfileProfileManagement, ignore);
+				}
 			}
 
 			Map<String, Method> abstractMethods = ClassUtils
@@ -1095,6 +1137,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 						.getName(), m.getParameterTypes(), concreteMethods,
 						concreteMethodsFromSuperClasses);
 
+				
 				if (methodFromClass == null) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -1126,6 +1169,36 @@ public class ProfileSpecificationComponentValidator implements Validator {
 							"10.11", errorBuffer);
 				}
 
+				// must be public, not abstract, not final, not static
+				modifiers = methodFromClass.getModifiers();
+				if (!Modifier.isPublic(modifiers)) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile abstract class must implement certain lifecycle methods. Method with name: "
+									+ m.getName()
+									+ " found in concrete(non private) methods must be public.",
+							"10.11", errorBuffer);
+				}
+				if (Modifier.isStatic(modifiers)) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile abstract class must implement certain lifecycle methods. Method with name: "
+									+ m.getName()
+									+ " found in concrete(non private) methods must not be static.",
+							"10.11", errorBuffer);
+				}
+				if (Modifier.isFinal(modifiers)) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification profile abstract class must implement certain lifecycle methods. Method with name: "
+									+ m.getName()
+									+ " found in concrete(non private) methods must not be final.",
+							"10.11", errorBuffer);
+				}
+
+				
+				// FIXME: native?
+
 			}
 
 			// in 1.1 and 1.0 it must implement CMP interfaces, but methods
@@ -1134,8 +1207,17 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					profileAbstractClass, this.component
 							.getProfileCmpInterfaceClass().getName());
 
+			if(profileCMPInterface==null)
+			{
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Profile specification profile abstract class must implement profile CMP interface.",
+						"10.11", errorBuffer);
+				return passed;
+			}
 			// abstract class implements CMP Interface, but leaves all methods
 			// as abstract
+	
 			Map<String, Method> cmpInterfaceMethods = ClassUtils
 					.getAllInterfacesMethods(profileCMPInterface, ignore);
 
@@ -1155,13 +1237,18 @@ public class ProfileSpecificationComponentValidator implements Validator {
 							.getName(), m.getParameterTypes(), concreteMethods,
 							concreteMethodsFromSuperClasses);
 
-					if (methodFromClass == null) {
+					if (methodFromClass != null) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification profile abstract class must leave CMP interface methods as abstract, it can not be concrete: "
 										+ m.getName(), "10.11", errorBuffer);
 						continue;
 					}
+					
+					
+					 methodFromClass = ClassUtils.getMethodFromMap(m
+								.getName(), m.getParameterTypes(), abstractMethods,
+								abstractMethodsFromSuperClasses);
 
 					// it concrete - must check return type
 					if (m.getReturnType().getName().compareTo(
@@ -1220,6 +1307,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					} else {
 						// 10.8/10.11
+						
+						
 						Method concreteMethodFromAbstractClass = ClassUtils
 								.getMethodFromMap(m.getName(), m
 										.getParameterTypes(), concreteMethods,
@@ -1278,21 +1367,24 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					if (ClassUtils.checkInterfaces(profileAbstractClass,
 							this.component.getDescriptor()
 									.getProfileLocalInterface()
-									.getProfileLocalInterfaceName()) != null) {
+									.getProfileLocalInterfaceName()) != null || ClassUtils.checkInterfaces(profileAbstractClass,
+											"javax.slee.profile.ProfileLocalObject") != null) {
 						passed = false;
 						errorBuffer = appendToBuffer(
-								"Profile specification profile abstract class must not implement profile local interface in any way",
+								"Profile specification profile abstract class must not implement profile local interface in any way(only methods must be implemented)",
 								"10.11", errorBuffer);
 					}
 
 					Class profileLocalObjectClass = this.component
 							.getProfileLocalInterfaceClass();
+					ignore.add("javax.slee.profile.ProfileLocalObject");
 					Map<String, Method> profileLocalObjectInterfaceMethods = ClassUtils
 							.getAllInterfacesMethods(profileLocalObjectClass,
 									ignore);
+					ignore.remove("javax.slee.profile.ProfileLocalObject");
 					// methods except those defined in CMP interface must be
 					// concrete
-
+				
 					for (Entry<String, Method> entry : profileLocalObjectInterfaceMethods
 							.entrySet()) {
 
