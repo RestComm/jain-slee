@@ -46,7 +46,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	public static final String _PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS_10 = "xml/validator/profile/abstrakt/profile-spec-jar-one10.xml";
 	
-	public void testProfileLocalObjectInterfaceConstraintsOk() throws Exception {
+	public void testAbstractClassConstraintsOk() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -89,7 +89,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	
 	
 	
-	public void testProfileLocalObjectInterfaceConstraintsDeclareConcreteCMPMethod() throws Exception {
+	public void testAbstractClassConstraintsDeclareConcreteCMPMethod() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -127,7 +127,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 	
-	public void testProfileLocalObjectInterfaceConstraintsNotImplementingCMP() throws Exception {
+	public void testAbstractClassConstraintsNotImplementingCMP() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -165,7 +165,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 
-	public void testProfileLocalObjectInterfaceConstraintsNotImplementingManagementInterface() throws Exception {
+	public void testAbstractClassConstraintsNotImplementingManagementInterface() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -204,7 +204,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 
-	public void testProfileLocalObjectInterfaceConstraintsImplementingProfileLocalObject() throws Exception {
+	public void testAbstractClassConstraintsImplementingProfileLocalObject() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -242,7 +242,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 	
-	public void testProfileLocalObjectInterfaceConstraintsNotImplementingProfileLocalObjectMethod() throws Exception {
+	public void testAbstractClassConstraintsNotImplementingProfileLocalObjectMethod() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -280,7 +280,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 	
-	public void testProfileLocalObjectInterfaceConstraintsNoDefaultConstructor() throws Exception {
+	public void testAbstractClassConstraintsNoDefaultConstructor() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -318,7 +318,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 	
-	public void testProfileLocalObjectInterfaceConstraintsDefaultConstructorThrows() throws Exception {
+	public void testAbstractClassConstraintsDefaultConstructorThrows() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -356,7 +356,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 	
-	public void testProfileLocalObjectInterfaceConstraintsNoUsageParameterInterfaceAccessMethod() throws Exception {
+	public void testAbstractClassConstraintsNoUsageParameterInterfaceAccessMethod() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -394,7 +394,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 	
-	public void testProfileLocalObjectInterfaceConstraintsConcreteUsageParameterInterfaceAccessMethod() throws Exception {
+	public void testAbstractClassConstraintsConcreteUsageParameterInterfaceAccessMethod() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -433,7 +433,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	
-	public void testProfileLocalObjectInterfaceConstraintsLackLifeCycle() throws Exception {
+	public void testAbstractClassConstraintsLackLifeCycle() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -472,7 +472,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	
-	public void testProfileLocalObjectInterfaceConstraintsOk10() throws Exception {
+	public void testAbstractClassConstraintsOk10() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -504,7 +504,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 		assertTrue("Abstract class class has not been validated", b);
 
 	}
-	public void testProfileLocalObjectInterfaceConstraintsLackLifeCycle10() throws Exception {
+	public void testAbstractClassConstraintsLackLifeCycle10() throws Exception {
 		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
 				.parseDocument(
 						super
@@ -524,15 +524,8 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 						descriptor.getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
-		component.setProfileLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
-								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
-								.getUsageParametersInterfaceName()));
-
+		
+		
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 

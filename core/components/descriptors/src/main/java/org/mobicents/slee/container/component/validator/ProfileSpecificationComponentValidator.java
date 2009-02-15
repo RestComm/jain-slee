@@ -1033,8 +1033,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					c = profileAbstractClass.getConstructor(null);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					//e.printStackTrace();
-				} 
+					// e.printStackTrace();
+				}
 
 				if (c == null) {
 					passed = false;
@@ -1048,11 +1048,10 @@ public class ProfileSpecificationComponentValidator implements Validator {
 						errorBuffer = appendToBuffer(
 								"Profile specification profile abstract class must define public no arg constructor.",
 								"10.11", errorBuffer);
-						
+
 					}
-					
-					if(c.getExceptionTypes().length>0)
-					{
+
+					if (c.getExceptionTypes().length > 0) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification profile abstract class must define public no arg constructor without throws clause.",
@@ -1092,13 +1091,15 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					errorBuffer = appendToBuffer(
 							"Profile specification profile abstract class must implement javax.slee.profile.Profile.",
 							"10.11", errorBuffer);
-					
-					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
-							javax.slee.profile.ProfileLocalObject.class, ignore);
-				}else
-				{
-					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
-						javaxSleeProfileProfileClass, ignore);
+
+					requiredLifeCycleMethods = ClassUtils
+							.getAllInterfacesMethods(
+									javax.slee.profile.ProfileLocalObject.class,
+									ignore);
+				} else {
+					requiredLifeCycleMethods = ClassUtils
+							.getAllInterfacesMethods(
+									javaxSleeProfileProfileClass, ignore);
 				}
 			} else {
 				Class javaxSleeProfileProfileManagement = ClassUtils
@@ -1109,12 +1110,14 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					errorBuffer = appendToBuffer(
 							"Profile specification profile abstract class must implement javax.slee.profile.ProfileManagement.",
 							"10.8", errorBuffer);
-					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
-							javax.slee.profile.ProfileManagement.class, ignore);
-				}else
-				{
-					requiredLifeCycleMethods = ClassUtils.getAllInterfacesMethods(
-						javaxSleeProfileProfileManagement, ignore);
+					requiredLifeCycleMethods = ClassUtils
+							.getAllInterfacesMethods(
+									javax.slee.profile.ProfileManagement.class,
+									ignore);
+				} else {
+					requiredLifeCycleMethods = ClassUtils
+							.getAllInterfacesMethods(
+									javaxSleeProfileProfileManagement, ignore);
 				}
 			}
 
@@ -1137,7 +1140,6 @@ public class ProfileSpecificationComponentValidator implements Validator {
 						.getName(), m.getParameterTypes(), concreteMethods,
 						concreteMethodsFromSuperClasses);
 
-				
 				if (methodFromClass == null) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -1196,7 +1198,6 @@ public class ProfileSpecificationComponentValidator implements Validator {
 							"10.11", errorBuffer);
 				}
 
-				
 				// FIXME: native?
 
 			}
@@ -1207,8 +1208,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					profileAbstractClass, this.component
 							.getProfileCmpInterfaceClass().getName());
 
-			if(profileCMPInterface==null)
-			{
+			if (profileCMPInterface == null) {
 				passed = false;
 				errorBuffer = appendToBuffer(
 						"Profile specification profile abstract class must implement profile CMP interface.",
@@ -1217,7 +1217,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			}
 			// abstract class implements CMP Interface, but leaves all methods
 			// as abstract
-	
+
 			Map<String, Method> cmpInterfaceMethods = ClassUtils
 					.getAllInterfacesMethods(profileCMPInterface, ignore);
 
@@ -1244,11 +1244,10 @@ public class ProfileSpecificationComponentValidator implements Validator {
 										+ m.getName(), "10.11", errorBuffer);
 						continue;
 					}
-					
-					
-					 methodFromClass = ClassUtils.getMethodFromMap(m
-								.getName(), m.getParameterTypes(), abstractMethods,
-								abstractMethodsFromSuperClasses);
+
+					methodFromClass = ClassUtils.getMethodFromMap(m.getName(),
+							m.getParameterTypes(), abstractMethods,
+							abstractMethodsFromSuperClasses);
 
 					// it concrete - must check return type
 					if (m.getReturnType().getName().compareTo(
@@ -1307,8 +1306,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 					} else {
 						// 10.8/10.11
-						
-						
+
 						Method concreteMethodFromAbstractClass = ClassUtils
 								.getMethodFromMap(m.getName(), m
 										.getParameterTypes(), concreteMethods,
@@ -1367,8 +1365,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					if (ClassUtils.checkInterfaces(profileAbstractClass,
 							this.component.getDescriptor()
 									.getProfileLocalInterface()
-									.getProfileLocalInterfaceName()) != null || ClassUtils.checkInterfaces(profileAbstractClass,
-											"javax.slee.profile.ProfileLocalObject") != null) {
+									.getProfileLocalInterfaceName()) != null
+							|| ClassUtils.checkInterfaces(profileAbstractClass,
+									"javax.slee.profile.ProfileLocalObject") != null) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification profile abstract class must not implement profile local interface in any way(only methods must be implemented)",
@@ -1384,7 +1383,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					ignore.remove("javax.slee.profile.ProfileLocalObject");
 					// methods except those defined in CMP interface must be
 					// concrete
-				
+
 					for (Entry<String, Method> entry : profileLocalObjectInterfaceMethods
 							.entrySet()) {
 
@@ -1605,8 +1604,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					.entrySet().iterator();
 
 			// FIXME: all queries have to match?
-			Map<String, MQuery> nameToQueryMap = this.component.getDescriptor()
-					.getQueriesMap();
+			Map<String, MQuery> nameToQueryMap = new HashMap<String, MQuery>();
+			nameToQueryMap.putAll(this.component.getDescriptor()
+					.getQueriesMap());
 
 			Class cmpInterfaceClass = this.component
 					.getProfileCmpInterfaceClass();
@@ -1629,6 +1629,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				queryName = queryName.replaceFirst(queryName.charAt(0) + "",
 						Character.toLowerCase(queryName.charAt(0)) + "");
 
+				System.err.println("x: " + queryName + " --> "
+						+ nameToQueryMap.containsKey(queryName));
+
 				if (!nameToQueryMap.containsKey(queryName)) {
 					passed = false;
 					iterator.remove();
@@ -1640,7 +1643,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					continue;
 				}
 
-				MQuery query = nameToQueryMap.get(queryName);
+				MQuery query = nameToQueryMap.remove(queryName);
 
 				// defined parameter types are ok in case of xml, we need to
 				// check method
@@ -1772,6 +1775,14 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			}
 
+			if (nameToQueryMap.size() != 0) {
+				passed = false;
+				errorBuffer = appendToBuffer(
+						"Profile specification profile table interface does not decalre query method for all queries, no methods for: "
+								+ nameToQueryMap.keySet(), "10.20.2",
+						errorBuffer);
+			}
+
 		} finally {
 
 			if (!passed) {
@@ -1825,7 +1836,11 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			// FIXME: tahts not nice, but lets have sippet for each case
 
 			case Compare:
+				// XXX: We know that attribute starts with lower case
 				attributeName = expression.getCompare().getAttributeName();
+				attributeName = attributeName.replaceFirst(""
+						+ attributeName.charAt(0), ""
+						+ Character.toUpperCase(attributeName.charAt(0)));
 				// now we have to validate CMP field and type
 				MCompare compare = expression.getCompare();
 				String op = compare.getOp();
@@ -1915,7 +1930,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// This should not happen, lets leave exception for this
 					// case to
 					// be alarmed.
-					e.printStackTrace();
+					// e.printStackTrace();
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Profile specification declared wrong static query - operator does not match against cmp field, requested cmp attribute: "
@@ -1925,6 +1940,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			case HasPrefix:
 				MHasPrefix mhp = expression.getHasPrefix();
 				attributeName = expression.getHasPrefix().getAttributeName();
+				attributeName = attributeName.replaceFirst(""
+						+ attributeName.charAt(0), ""
+						+ Character.toUpperCase(attributeName.charAt(0)));
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
 							+ attributeName, null);
@@ -1988,7 +2006,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// This should not happen, lets leave exception for this
 					// case to
 					// be alarmed.
-					e.printStackTrace();
+					// e.printStackTrace();
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Profile specification declared wrong static query - operator does not match against cmp field, requested cmp attribute: "
@@ -2000,6 +2018,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				MLongestPrefixMatch mlpm = expression.getLongestPrefixMatch();
 				attributeName = expression.getLongestPrefixMatch()
 						.getAttributeName();
+				attributeName = attributeName.replaceFirst(""
+						+ attributeName.charAt(0), ""
+						+ Character.toUpperCase(attributeName.charAt(0)));
 
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
@@ -2064,7 +2085,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// This should not happen, lets leave exception for this
 					// case to
 					// be alarmed.
-					e.printStackTrace();
+					// e.printStackTrace();
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Profile specification declared wrong static query - operator does not match against cmp field, requested cmp attribute: "
@@ -2073,6 +2094,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				break;
 			case RangeMatch:
 				attributeName = expression.getRangeMatch().getAttributeName();
+				attributeName = attributeName.replaceFirst(""
+						+ attributeName.charAt(0), ""
+						+ Character.toUpperCase(attributeName.charAt(0)));
 				MRangeMatch mrm = expression.getRangeMatch();
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
@@ -2157,7 +2181,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// This should not happen, lets leave exception for this
 					// case to
 					// be alarmed.
-					e.printStackTrace();
+					// e.printStackTrace();
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Profile specification declared wrong static query - operator does not match against cmp field, requested cmp attribute: "
@@ -2416,37 +2440,31 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				break;
 
 			case Compare:
-				attributeName = expression.getNot().getCompare()
-						.getAttributeName();
-				collatorRef = expression.getNot().getCompare().getCollatorRef();
-				parameter = expression.getNot().getCompare().getParameter();
-				value = expression.getNot().getCompare().getValue();
+				attributeName = expression.getCompare().getAttributeName();
+				collatorRef = expression.getCompare().getCollatorRef();
+				parameter = expression.getCompare().getParameter();
+				value = expression.getCompare().getValue();
 
 				break;
 			case HasPrefix:
-				attributeName = expression.getNot().getHasPrefix()
-						.getAttributeName();
-				collatorRef = expression.getNot().getHasPrefix()
-						.getCollatorRef();
-				parameter = expression.getNot().getHasPrefix().getParameter();
-				value = expression.getNot().getHasPrefix().getValue();
+				attributeName = expression.getHasPrefix().getAttributeName();
+				collatorRef = expression.getHasPrefix().getCollatorRef();
+				parameter = expression.getHasPrefix().getParameter();
+				value = expression.getHasPrefix().getValue();
 				break;
 			case LongestPrefixMatch:
-				attributeName = expression.getNot().getLongestPrefixMatch()
+				attributeName = expression.getLongestPrefixMatch()
 						.getAttributeName();
-				collatorRef = expression.getNot().getLongestPrefixMatch()
+				collatorRef = expression.getLongestPrefixMatch()
 						.getCollatorRef();
-				parameter = expression.getNot().getLongestPrefixMatch()
-						.getParameter();
-				value = expression.getNot().getLongestPrefixMatch().getValue();
+				parameter = expression.getLongestPrefixMatch().getParameter();
+				value = expression.getLongestPrefixMatch().getValue();
 				break;
 			case RangeMatch:
-				attributeName = expression.getNot().getRangeMatch()
-						.getAttributeName();
-				collatorRef = expression.getNot().getRangeMatch()
-						.getCollatorRef();
+				attributeName = expression.getRangeMatch().getAttributeName();
+				collatorRef = expression.getRangeMatch().getCollatorRef();
 
-				MRangeMatch mrm = expression.getNot().getRangeMatch();
+				MRangeMatch mrm = expression.getRangeMatch();
 
 				ignoreAbsence = true;
 				if (mrm.getFromParameter() == null
@@ -2489,36 +2507,49 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				break;
 			}
 
-			if (!cmpFieldNames.contains(attributeName)) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Profile specification declares in static query usage of cmp field that does not exist, declaredcmp field: "
-								+ attributeName + ", query name: " + queryName,
-						"10.20.2", errorBuffer);
-			}
-			if (collatorRef != null && !collatorAliasses.contains(collatorRef)) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Profile specification declares in static query usage of collator that is not aliased, collator alias: "
-								+ collatorRef + ", query name: " + queryName,
-						"10.20.2", errorBuffer);
-			}
+			//This will hapen for Not,And, Or operators
+			if (attributeName != null) {
+				if (!Character.isLowerCase(attributeName.charAt(0))) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification declares in static query usage of cmp attribute that is not valid cmp identifier, declared cmp field: "
+									+ attributeName
+									+ ", query name: "
+									+ queryName, "10.20.2", errorBuffer);
+				} else if (!cmpFieldNames.contains(attributeName)) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification declares in static query usage of cmp field that does not exist, declared cmp field: "
+									+ attributeName
+									+ ", query name: "
+									+ queryName, "10.20.2", errorBuffer);
+				}
+				if (collatorRef != null
+						&& !collatorAliasses.contains(collatorRef)) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification declares in static query usage of collator that is not aliased, collator alias: "
+									+ collatorRef
+									+ ", query name: "
+									+ queryName, "10.20.2", errorBuffer);
+				}
 
-			if (!ignoreAbsence && parameter != null && value != null) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Profile specification declares in static query wrong properties, value and parameter can not be present at the same time, query name: "
-								+ queryName, "10.20.2", errorBuffer);
-			}
+				if (!ignoreAbsence && parameter != null && value != null) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification declares in static query wrong properties, value and parameter can not be present at the same time, query name: "
+									+ queryName, "10.20.2", errorBuffer);
+				}
 
-			if (!ignoreAbsence && parameter == null && value == null) {
-				passed = false;
-				errorBuffer = appendToBuffer(
-						"Profile specification declares in static query wrong properties, either value or parameter must be present, query name: "
-								+ queryName, "10.20.2", errorBuffer);
-			}
-			if (parameter != null) {
-				usedQueryParameter.add(parameter);
+				if (!ignoreAbsence && parameter == null && value == null) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile specification declares in static query wrong properties, either value or parameter must be present, query name: "
+									+ queryName, "10.20.2", errorBuffer);
+				}
+				if (parameter != null) {
+					usedQueryParameter.add(parameter);
+				}
 			}
 
 		} finally {
