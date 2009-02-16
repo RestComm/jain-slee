@@ -18,7 +18,10 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MA
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbb;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbActivityContextInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbClasses;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
 
 /**
  * Start time:16:54:43 2009-01-19<br>
@@ -187,5 +190,21 @@ public class SbbDescriptorImpl {
   public boolean isSlee11()
   {
     return isSlee11;
+  }
+
+  // Convenience methods
+  public MSbbAbstractClass getSbbAbstractClass()
+  {
+    return this.sbbClasses.getSbbAbstractClass();
+  }
+
+  public MSbbLocalInterface getSbbLocalInterface()
+  {
+    return this.sbbClasses.getSbbLocalInterface();
+  }
+
+  public MSbbActivityContextInterface getSbbActivityContextInterface()
+  {
+    return this.sbbClasses.getSbbActivityContextInterface();
   }
 }

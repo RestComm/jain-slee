@@ -11,13 +11,20 @@ import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileClasses;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileLocalInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileManagementInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpec;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileTableInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
+import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileManagementInterface;
 
 /**
  * Start time:13:41:11 2009-01-18<br>
@@ -37,8 +44,8 @@ public class ProfileSpecificationDescriptorImpl {
   // FIXME: add hints here?
 
   // 1.1 Stuff
-  private List<MLibraryRef> libraryRefs;
-  private List<MProfileSpecRef> profileSpecRefs;
+  private Set<MLibraryRef> libraryRefs;
+  private Set<MProfileSpecRef> profileSpecRefs;
   private List<MCollator> collators;
 
   private List<MEnvEntry> envEntries;
@@ -67,8 +74,8 @@ public class ProfileSpecificationDescriptorImpl {
     }
 
     // Now it's only 1.1
-    this.libraryRefs = profileSpec.getLibraryRef();
-    this.profileSpecRefs = profileSpec.getProfileSpecRef();
+    this.libraryRefs = new HashSet(profileSpec.getLibraryRef());
+    this.profileSpecRefs = new HashSet(profileSpec.getProfileSpecRef());
     this.collators = profileSpec.getCollator();
 
     this.envEntries = profileSpec.getEnvEntry();
@@ -95,7 +102,7 @@ public class ProfileSpecificationDescriptorImpl {
     }
   }
 
-  public List<MLibraryRef> getLibraryRefs() {
+  public Set<MLibraryRef> getLibraryRefs() {
     return libraryRefs;
   }
 
@@ -116,7 +123,7 @@ public class ProfileSpecificationDescriptorImpl {
     return indexedAttributes;
   }
 
-  public List<MProfileSpecRef> getProfileSpecRefs() {
+  public Set<MProfileSpecRef> getProfileSpecRefs() {
     return profileSpecRefs;
   }
 
@@ -168,6 +175,37 @@ public class ProfileSpecificationDescriptorImpl {
     }
 
     return result;
+  }
+
+  // Convenience methods
+  public MProfileTableInterface getProfileTableInterface()
+  {
+    return this.profileClasses.getProfileTableInterface();
+  }
+
+  public MUsageParametersInterface getProfileUsageParameterInterface()
+  {
+    return this.profileClasses.getProfileUsageParameterInterface();
+  }
+
+  public MProfileAbstractClass getProfileAbstractClass()
+  {
+    return this.profileClasses.getProfileAbstractClass();
+  }
+
+  public MProfileManagementInterface getProfileManagementInterface()
+  {
+    return this.profileClasses.getProfileManagementInterface();
+  }
+
+  public MProfileCMPInterface getProfileCMPInterface()
+  {
+    return this.profileClasses.getProfileCMPInterface();
+  }
+
+  public MProfileLocalInterface getProfileLocalInterface()
+  {
+    return this.profileClasses.getProfileLocalInterface();
   }
 
 }
