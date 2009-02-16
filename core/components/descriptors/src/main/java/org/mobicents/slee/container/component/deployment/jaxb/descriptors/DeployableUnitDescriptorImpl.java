@@ -4,61 +4,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.slee.management.DeploymentException;
-import javax.xml.bind.JAXBException;
 
-import org.mobicents.slee.container.component.deployment.jaxb.slee.du.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.Jar;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.ServiceXml;
-import org.w3c.dom.Document;
 
-public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
-		 {
+public class DeployableUnitDescriptorImpl {
 
-	private DeployableUnit duDescriptor = null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit duDescriptorll = null;
+	private final org.mobicents.slee.container.component.deployment.jaxb.slee.du.DeployableUnit duDescriptor10;
+	private final org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit duDescriptor11;
+	private final boolean isSlee11;
+	
+	private final List<String> jarEntries = new ArrayList<String>();
+	private final List<String> serviceEndtries = new ArrayList<String>();
 
-	private List<String> jarEntries = new ArrayList<String>();
-	private List<String> serviceEndtries = new ArrayList<String>();
-
-
-	public DeployableUnitDescriptorImpl(Document document)
-			throws DeploymentException {
-
-		super(document);
-		// Here we have to parse
+	public DeployableUnitDescriptorImpl(org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit duDescriptor11)
+	throws DeploymentException {		
 		try {
-			if (isSlee11()) {
-				duDescriptorll = (org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit) getUnmarshaller(false)
-						.unmarshal(super.descriptorDocument);
-			} else {
-				duDescriptor = (DeployableUnit) getUnmarshaller(true).unmarshal(
-						super.descriptorDocument);
-			}
-			buildDescriptionMap();
-		} catch (JAXBException jaxbe) {
-
+			this.duDescriptor10 = null;
+			this.duDescriptor11 = duDescriptor11;
+			this.isSlee11 = true;
+			buildDescriptionMap();		
+		} catch (DeploymentException e) {
+			throw e;		
+		} catch (Exception e) {
 			throw new DeploymentException(
-					"Failed to parse descriptor due to: ", jaxbe);
-		} catch (RuntimeException re) {
+					"Failed to parse descriptor due to: ", e);
+		}		
+	}
+	public DeployableUnitDescriptorImpl(org.mobicents.slee.container.component.deployment.jaxb.slee.du.DeployableUnit duDescriptor10)
+			throws DeploymentException {
+		try {
+			this.duDescriptor10 = duDescriptor10;
+			this.duDescriptor11 = null;
+			this.isSlee11 = false;
+			buildDescriptionMap();		
+		} catch (DeploymentException e) {
+			throw e;		
+		} catch (Exception e) {
 			throw new DeploymentException(
-					"Failed to parse descriptor due to: ", re);
+					"Failed to parse descriptor due to: ", e);
 		}
 	}
 
-	
-
-		
-	
-	@Override
-	public void buildDescriptionMap() {
+	private void buildDescriptionMap() throws DeploymentException {
 
 		// This is akward, since we have two classes with the same name in
 		// different package
 		// We could use reflections but it would a killer in case of event
 		// definitions and such ;[
 
-			for (Object o : (this.isSlee11() ? this.duDescriptorll
-					.getJarOrServiceXml() : this.duDescriptor
+			for (Object o : (this.isSlee11() ? this.duDescriptor11
+					.getJarOrServiceXml() : this.duDescriptor10
 					.getJarOrServiceXml())) {
 				if (o.getClass().getCanonicalName().contains("Jar")) {
 					String v = null;
@@ -83,31 +79,21 @@ public class DeployableUnitDescriptorImpl extends JAXBBaseUtilityClass
 					}
 					this.serviceEndtries.add(v);
 				} else {
-					logger.severe("Unknown jaxb element: " + o.getClass());
+					throw new DeploymentException("Unknown jaxb du element: " + o.getClass());
 				}
 			}
 	
 	}
 
-	@Override
-	public Object getJAXBDescriptor() {
-		return this.isSlee11() ? this.duDescriptorll : this.duDescriptor;
-	}
-
-
-
-
-
 	public List<String> getJarEntries() {
 		return jarEntries;
 	}
-
-
-
-
 
 	public List<String> getServiceEndtries() {
 		return serviceEndtries;
 	}
 
+	public boolean isSlee11() {
+		return isSlee11;
+	}
 }

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -48,6 +49,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.xml.DefaultSleeEntityResolver;
 import org.w3c.dom.Document;
@@ -58,7 +60,6 @@ public class DeployableUnitBuilder {
 	
 	private static final DeployableUnitJarComponentBuilder duComponentBuilder = new DeployableUnitJarComponentBuilder();
 	private static final DeployableUnitServiceComponentBuilder duServiceComponentBuilder = new DeployableUnitServiceComponentBuilder();
-    private static final DefaultSleeEntityResolver entityResolver = new DefaultSleeEntityResolver(Thread.currentThread().getContextClassLoader());
     
     /**
      * Installs a JAIN SLEE DU.
@@ -102,34 +103,8 @@ public class DeployableUnitBuilder {
         if (duXmlEntry == null) {
         	throw new DeploymentException("META-INF/deployable-unit.xml was not found in " + deployableUnitJar.getName());
         }
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setValidating(true);
-		DocumentBuilder builder = null;
-		try {
-			builder = factory.newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
-			throw new SLEEException("failed to create DOM builder factory when installing "+deployableUnitID,e);
-		}
-		
-		builder.setEntityResolver(entityResolver);
-		Document duXmlDocument = null;
-		InputStream duXmlInputStream = null;
-		try {
-			duXmlInputStream = deployableUnitJar.getInputStream(duXmlEntry);
-			duXmlDocument = builder.parse(duXmlInputStream);
-		} catch (Exception e) {
-			throw new DeploymentException("failed to parse deployable unit xml descriptor when installing "+deployableUnitID,e);
-		}
-		finally {
-			if (duXmlInputStream != null) {
-				try {
-					duXmlInputStream.close();
-				} catch (Exception e) {
-					logger.error("failed to close du descriptor inputstream ",e);
-				}
-			}
-		}
-		DeployableUnitDescriptorImpl deployableUnitDescriptor = new DeployableUnitDescriptorImpl(duXmlDocument);
+        DeployableUnitDescriptorFactory descriptorFactory = new DeployableUnitDescriptorFactory();
+		DeployableUnitDescriptorImpl deployableUnitDescriptor = descriptorFactory.parse(deployableUnitJar.getInputStream(duXmlEntry));
 		
 		// create the du dir
 		File deploymentDir = createTempDUDeploymentDir(deploymentRoot, deployableUnitID);
@@ -138,14 +113,15 @@ public class DeployableUnitBuilder {
 		DeployableUnit deployableUnit = new DeployableUnit(deployableUnitID,deployableUnitDescriptor,componentRepository,deploymentDir);
 		
 		// build each du jar component
-		for (String jarFileName : deployableUnitDescriptor.getJarEntries()) {			
-			SleeComponent sleeComponent = duComponentBuilder.buildComponent(jarFileName, deployableUnitJar, deployableUnit.getDeploymentDir(), builder);
-			sleeComponent.setDeployableUnit(deployableUnit);
+		for (String jarFileName : deployableUnitDescriptor.getJarEntries()) {					
+			for (SleeComponent sleeComponent : duComponentBuilder.buildComponents(jarFileName, deployableUnitJar, deployableUnit.getDeploymentDir())) {
+				sleeComponent.setDeployableUnit(deployableUnit);
+			}
 		}
 		
 		// build each du service component
 		for (String serviceDescriptorFileName : deployableUnitDescriptor.getServiceEndtries()) {			
-			ServiceComponent serviceComponent = duServiceComponentBuilder.buildComponent(serviceDescriptorFileName, deployableUnitJar, builder);
+			ServiceComponent serviceComponent = duServiceComponentBuilder.buildComponents(serviceDescriptorFileName, deployableUnitJar, builder);
 			serviceComponent.setDeployableUnit(deployableUnit);
 		}
 		
@@ -227,17 +203,17 @@ public class DeployableUnitBuilder {
 				}				
 				else if (sleeComponent instanceof ProfileSpecificationComponent) {
 					ProfileSpecificationComponent component = (ProfileSpecificationComponent) sleeComponent;
-					Class profileCmpInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileCMPInterface().getProfileCmpInterfaceName());
+					Class profileCmpInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileCMPInterface().getProfileCmpInterfaceName());
 					component.setProfileCmpInterfaceClass(profileCmpInterfaceClass);
-					Class profileLocalInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileLocalInterface().getProfileLocalInterfaceName());
+					Class profileLocalInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileLocalInterface().getProfileLocalInterfaceName());
 					component.setProfileLocalInterfaceClass(profileLocalInterfaceClass);
-					Class profileManagementInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileManagementInterface().getProfileManagementInterfaceName());
+					Class profileManagementInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileManagementInterface().getProfileManagementInterfaceName());
 					component.setProfileManagementInterfaceClass(profileManagementInterfaceClass);
-					Class profileAbstractClass = componentClassLoader.loadClass(component.getDescriptor().getProfileAbstractClass().getProfileAbstractClassName());
+					Class profileAbstractClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileAbstractClass().getProfileAbstractClassName());
 					component.setProfileAbstractClass(profileAbstractClass);
-					Class profileTableInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileTableInterface().getProfileTableInterfaceName());
+					Class profileTableInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileTableInterface().getProfileTableInterfaceName());
 					component.setProfileTableInterfaceClass(profileTableInterfaceClass);
-					Class profileUsageInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileUsageParameterInterface().getUsageParametersInterfaceName());
+					Class profileUsageInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileUsageParameterInterface().getUsageParametersInterfaceName());
 					component.setProfileUsageInterfaceClass(profileUsageInterfaceClass);
 				}
 				else if (sleeComponent instanceof ResourceAdaptorComponent) {

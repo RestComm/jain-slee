@@ -8,7 +8,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -16,9 +18,10 @@ import java.util.zip.ZipEntry;
 
 import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
-import javax.xml.parsers.DocumentBuilder;
+import javax.slee.management.LibraryID;
 
 import org.apache.log4j.Logger;
+import org.jboss.classloader.spi.ClassLoaderPolicy;
 import org.jboss.classloading.spi.metadata.ExportAll;
 import org.jboss.classloading.spi.vfs.policy.VFSClassLoaderPolicy;
 import org.jboss.virtual.VFS;
@@ -30,14 +33,19 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorTypeDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorTypeDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MJar;
 
 /**
  * DU Component jar builder
@@ -62,9 +70,8 @@ public class DeployableUnitJarComponentBuilder {
 	 * @return
 	 * @throws DeploymentException
 	 */
-	public SleeComponent buildComponent(String componentJarFileName,
-			JarFile deployableUnitJar, File deploymentDir,
-			DocumentBuilder documentBuilder) throws DeploymentException {
+	public List<SleeComponent> buildComponents(String componentJarFileName,
+			JarFile deployableUnitJar, File deploymentDir) throws DeploymentException {
 
 		// extract the component jar from the DU jar, to the temp du dir
 		File extractedFile = extractFile(componentJarFileName,
@@ -75,97 +82,140 @@ public class DeployableUnitJarComponentBuilder {
 		} catch (IOException e) {
 			throw new DeploymentException(
 					"failed to create jar file for extracted file "
-							+ extractedFile);
+					+ extractedFile);
 		}
 
-		// now extract the jar file to a new dir
-		File componentJarDeploymentDir = new File(deploymentDir,
-				componentJarFileName+"-contents");
-		if (!componentJarDeploymentDir.exists()) {
-			if (!componentJarDeploymentDir.mkdir()) {
-				throw new SLEEException("dir for jar " + componentJarFileName
-						+ " not created in " + deploymentDir);
-			}
-		} else {
-			throw new SLEEException("dir for jar " + componentJarFileName
-					+ " already exists in " + deploymentDir);
-		}
-		extractJar(componentJarFile, componentJarDeploymentDir);
-
-		// and delete the extracted jar file, we don't need it anymore
-		if (!extractedFile.delete()) {
-			logger.warn("failed to delete " + extractedFile);
-		}
-
-		// create component
-		JarEntry componentDescriptor = null;
 		InputStream componentDescriptorInputStream = null;
-		SleeComponent component = null;
+		List<SleeComponent> components = new ArrayList<SleeComponent>();
+
 		try {
+			// now extract the jar file to a new dir
+			File componentJarDeploymentDir = new File(deploymentDir,
+					componentJarFileName+"-contents");
+			if (!componentJarDeploymentDir.exists()) {
+				if (!componentJarDeploymentDir.mkdir()) {
+					throw new SLEEException("dir for jar " + componentJarFileName
+							+ " not created in " + deploymentDir);
+				}
+			} else {
+				throw new SLEEException("dir for jar " + componentJarFileName
+						+ " already exists in " + deploymentDir);
+			}
+			extractJar(componentJarFile, componentJarDeploymentDir);
+
+			// create class loader policy pointing to the the temp dir of the
+			// component, all components except libraries will use this policy to
+			// build their base class loader
+			ClassLoaderPolicy componentJarclassLoaderPolicy = 
+				createClassLoaderPolicy(componentJarDeploymentDir
+						.toURL());
+
+			// create components from descriptor
+			JarEntry componentDescriptor = null;		
 			if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/sbb-jar.xml")) != null) {
 				componentDescriptorInputStream = componentJarFile
-						.getInputStream(componentDescriptor);
-				Document componentDescriptorDocument = documentBuilder
-						.parse(componentDescriptorInputStream);
-				SbbDescriptorImpl descriptor = new SbbDescriptorImpl(
-						componentDescriptorDocument);
-				component = new SbbComponent(descriptor);
+				.getInputStream(componentDescriptor);
+				SbbDescriptorFactory descriptorFactory = new SbbDescriptorFactory();
+				List<SbbDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				for (SbbDescriptorImpl descriptor : descriptors) {
+					SbbComponent component = new SbbComponent(descriptor);
+					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					components.add(component);
+				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/profile-spec-jar.xml")) != null) {
 				componentDescriptorInputStream = componentJarFile
-						.getInputStream(componentDescriptor);
-				Document componentDescriptorDocument = documentBuilder
-						.parse(componentDescriptorInputStream);
-				ProfileSpecificationDescriptorImpl descriptor = new ProfileSpecificationDescriptorImpl(
-						componentDescriptorDocument);
-				component = new ProfileSpecificationComponent(descriptor);
+				.getInputStream(componentDescriptor);
+				ProfileSpecificationDescriptorFactory descriptorFactory = new ProfileSpecificationDescriptorFactory();
+				List<ProfileSpecificationDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				for (ProfileSpecificationDescriptorImpl descriptor : descriptors) {
+					ProfileSpecificationComponent component = new ProfileSpecificationComponent(descriptor);
+					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					components.add(component);
+				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/library-jar.xml")) != null) {
 				componentDescriptorInputStream = componentJarFile
-						.getInputStream(componentDescriptor);
-				Document componentDescriptorDocument = documentBuilder
-						.parse(componentDescriptorInputStream);
-				LibraryDescriptorImpl descriptor = new LibraryDescriptorImpl(
-						componentDescriptorDocument);
-				component = new LibraryComponent(descriptor);
+				.getInputStream(componentDescriptor);
+				LibraryDescriptorFactory descriptorFactory = new LibraryDescriptorFactory();
+				List<LibraryDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				for (LibraryDescriptorImpl descriptor : descriptors) {
+					LibraryComponent component = new LibraryComponent(descriptor);
+					// create temp dir to hold all classes of the jars that this library refers
+					File tempLibraryDir = createTempLibraryDeploymentDir(componentJarDeploymentDir,component.getLibraryID());
+					// for each referenced jar unpack all classes
+					for (MJar mJar : descriptor.getJars()) {
+						// for each library component we need to unpack each referenced jar in the library component jar
+						// similar process we did for component jars of the du
+						File extractedLibraryFile = extractFile(mJar.getJarName(),
+								componentJarFile, tempLibraryDir);
+						JarFile extractedLibraryJarFile = null;
+						try {
+							extractedLibraryJarFile = new JarFile(extractedLibraryFile);
+							extractJar(extractedLibraryJarFile, tempLibraryDir);
+
+						} catch (IOException e) {
+							throw new DeploymentException(
+									"failed to create jar file for extracted file "
+									+ extractedFile);
+						}
+						finally {
+							// close library jar file
+							if (extractedLibraryJarFile != null) {
+								try {
+									extractedLibraryJarFile.close();
+								} catch (IOException e) {
+									logger.error("failed to close component jar file", e);
+								}
+							}
+							// and delete the extracted library jar file, we don't need it anymore
+							if (!extractedLibraryFile.delete()) {
+								logger.warn("failed to delete library " + extractedFile);
+							}
+						}
+					}
+					component.setClassLoaderPolicy(createClassLoaderPolicy(tempLibraryDir.toURL()));
+					components.add(component);
+				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/event-jar.xml")) != null) {
-				componentDescriptorInputStream = componentJarFile
-						.getInputStream(componentDescriptor);
-				Document componentDescriptorDocument = documentBuilder
-						.parse(componentDescriptorInputStream);
-				EventTypeDescriptorImpl descriptor = new EventTypeDescriptorImpl(
-						componentDescriptorDocument);
-				component = new EventTypeComponent(descriptor);
+				componentDescriptorInputStream = componentJarFile.getInputStream(componentDescriptor);
+				EventTypeDescriptorFactory descriptorFactory = new EventTypeDescriptorFactory();
+				List<EventTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				for (EventTypeDescriptorImpl descriptor : descriptors) {
+					EventTypeComponent component = new EventTypeComponent(descriptor);
+					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					components.add(component);
+				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/resource-adaptor-type-jar.xml")) != null) {
 				componentDescriptorInputStream = componentJarFile
-						.getInputStream(componentDescriptor);
-				Document componentDescriptorDocument = documentBuilder
-						.parse(componentDescriptorInputStream);
-				ResourceAdaptorTypeDescriptorImpl descriptor = new ResourceAdaptorTypeDescriptorImpl(
-						componentDescriptorDocument);
-				component = new ResourceAdaptorTypeComponent(descriptor);
+				.getInputStream(componentDescriptor);
+				ResourceAdaptorTypeDescriptorFactory descriptorFactory = new ResourceAdaptorTypeDescriptorFactory();
+				List<ResourceAdaptorTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				for (ResourceAdaptorTypeDescriptorImpl descriptor : descriptors) {
+					ResourceAdaptorTypeComponent component = new ResourceAdaptorTypeComponent(descriptor);
+					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					components.add(component);
+				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/resource-adaptor-jar.xml")) != null) {
 				componentDescriptorInputStream = componentJarFile
-						.getInputStream(componentDescriptor);
-				Document componentDescriptorDocument = documentBuilder
-						.parse(componentDescriptorInputStream);
-				ResourceAdaptorDescriptorImpl descriptor = new ResourceAdaptorDescriptorImpl(
-						componentDescriptorDocument);
-				component = new ResourceAdaptorComponent(descriptor);
+				.getInputStream(componentDescriptor);
+				ResourceAdaptorDescriptorFactory descriptorFactory = new ResourceAdaptorDescriptorFactory();
+				List<ResourceAdaptorDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				for (ResourceAdaptorDescriptorImpl descriptor : descriptors) {
+					ResourceAdaptorComponent component = new ResourceAdaptorComponent(descriptor);
+					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					components.add(component);
+				}
 			} else {
 				throw new DeploymentException(
 						"No Deployment Descriptor found in the "
-								+ componentJarFile.getName()
-								+ " entry of a deployable unit.");
+						+ componentJarFile.getName()
+						+ " entry of a deployable unit.");
 			}
-		} catch (SAXException e) {
-			throw new DeploymentException(
-					"failed to parse jar descriptor from "
-							+ componentJarFile.getName(), e);
 		} catch (IOException e) {
 			throw new DeploymentException(
 					"failed to parse jar descriptor from "
@@ -182,32 +232,41 @@ public class DeployableUnitJarComponentBuilder {
 			}
 		}
 
+		// close component jar file
 		try {
 			componentJarFile.close();
 		} catch (IOException e) {
 			logger.error("failed to close component jar file", e);
 		}
+		// and delete the extracted jar file, we don't need it anymore
+		if (!extractedFile.delete()) {
+			logger.warn("failed to delete " + extractedFile);
+		}
+		
+		return components;
+	}
 
-		// create class loading policy pointing to the dir where the component jar was extracted
+	/**
+	 * creates a {@link ClassLoaderPolicy} pointing to the specified directory
+	 * @param componentTempDir
+	 * @return
+	 */
+	private ClassLoaderPolicy createClassLoaderPolicy(URL componentTempDir) {
+		// create class loading policy pointing to the dir 
 		VirtualFile tempClassDeploymentDirVF = null;
 		try {
-			tempClassDeploymentDirVF = VFS.getRoot(componentJarDeploymentDir.toURL());
+			tempClassDeploymentDirVF = VFS.getRoot(componentTempDir);
 		} catch (Exception e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
 		VFSClassLoaderPolicy classLoaderPolicy = VFSClassLoaderPolicy.createVFSClassLoaderPolicy(tempClassDeploymentDirVF);
-    	classLoaderPolicy.setImportAll(true); // if you want to see other classes in the domain
-    	classLoaderPolicy.setBlackListable(false);
-    	classLoaderPolicy.setExportAll(ExportAll.NON_EMPTY); // if you want others to see your classes
-    	classLoaderPolicy.setCacheable(true);            	
-    	if (logger.isDebugEnabled()) {
-    		logger.debug("DU Component built has class loader policy with the following exported packages: "+Arrays.asList(classLoaderPolicy.getExportedPackages()));
-    	}
-    	component.setClassLoaderPolicy(classLoaderPolicy);
-		
-		return component;
+		classLoaderPolicy.setImportAll(true); // see other classes in the domain
+		classLoaderPolicy.setBlackListable(false);
+		classLoaderPolicy.setExportAll(ExportAll.NON_EMPTY); // others will see this classes
+		classLoaderPolicy.setCacheable(true);            	
+		return classLoaderPolicy;
 	}
-
+	
 	/**
 	 * Extracts the file with name <code>fileName</code> out of the
 	 * <code>containingJar</code> archive and stores it in <code>dstDir</code>.
@@ -221,7 +280,7 @@ public class DeployableUnitJarComponentBuilder {
 	 * @return a <code>java.io.File</code> reference to the extracted file.
 	 * @throws DeploymentException
 	 */
-	private static File extractFile(String fileName, JarFile containingJar,
+	private File extractFile(String fileName, JarFile containingJar,
 			File dstDir) throws DeploymentException {
 
 		ZipEntry zipFileEntry = containingJar.getEntry(fileName);
@@ -259,7 +318,7 @@ public class DeployableUnitJarComponentBuilder {
 	 * @throws DeploymentException
 	 *             failed to extract files
 	 */
-	private static void extractJar(JarFile jarFile, File dstDir)
+	private void extractJar(JarFile jarFile, File dstDir)
 			throws DeploymentException {
 
 		// Extract jar contents to a classpath location
@@ -331,7 +390,7 @@ public class DeployableUnitJarComponentBuilder {
 	 * @throws IOException
 	 *             if reading or writing the data fails.
 	 */
-	private static void pipeStream(InputStream is, OutputStream os)
+	private void pipeStream(InputStream is, OutputStream os)
 			throws IOException {
 		synchronized (buffer) {
 			try {
@@ -353,4 +412,30 @@ public class DeployableUnitJarComponentBuilder {
 			}
 		}
 	}
+	
+	/**
+	 * Creates the directory that will be used for unpacking the child jars for a given library.
+	 * @param rootDir
+	 * @param sourceUrl
+	 * @throws SLEEException if the dir can't be created
+	 * @return
+	 */
+    private File createTempLibraryDeploymentDir(File deploymentRoot, LibraryID libraryID) {
+        try {
+            // first create a dummy file to gurantee uniqueness. I would have been nice if the File class had a createTempDir() method
+            // IVELIN -- do not use jarName here because windows cannot see the path (exceeds system limit)
+            File tempFile = File.createTempFile("mobicents-slee-library-", "", deploymentRoot);
+            File tempDeploymentDir = new File(tempFile.getAbsolutePath() + "-contents");
+            if (!tempDeploymentDir.exists()) {
+            	tempDeploymentDir.mkdirs();
+            }
+            else {
+            	throw new SLEEException("Dir "+tempDeploymentDir+" already exists, unable to create deployment dir for library "+libraryID);
+            }
+            tempFile.delete();
+            return tempDeploymentDir;
+        } catch (IOException e) {            
+            throw new SLEEException("Failed to create deployment dir for library "+libraryID, e);
+        }
+    }
 }
