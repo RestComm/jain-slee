@@ -63,6 +63,17 @@ public class MProfileSpecRef {
     this.profileSpecificationID = new ProfileSpecificationID(this.profileSpecName, this.profileSpecVendor, this.profileSpecVersion);
   }
 
+  public MProfileSpecRef(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpecRef profileSpecRef11)
+  {
+    this.description = profileSpecRef11.getDescription() == null ? null : profileSpecRef11.getDescription().getvalue();
+    
+    this.profileSpecName = profileSpecRef11.getProfileSpecName().getvalue();
+    this.profileSpecVendor = profileSpecRef11.getProfileSpecVendor().getvalue();
+    this.profileSpecVersion = profileSpecRef11.getProfileSpecVersion().getvalue();
+    
+    this.profileSpecificationID = new ProfileSpecificationID(this.profileSpecName, this.profileSpecVendor, this.profileSpecVersion);
+  }
+
   public String getDescription()
   {
     return description;
