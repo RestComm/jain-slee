@@ -53,34 +53,42 @@ public class SbbDescriptorImpl {
 
   private MSecurityPermissions securityPermisions;
 
+  private boolean isSlee11;
+  
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
   public SbbDescriptorImpl(MSbb sbb, MSecurityPermissions sbbJarSecurityPermissions, boolean isSlee11) throws DeploymentException
   {
-    this.description = sbb.getDescription();
-    this.sbbID = new SbbID(sbb.getSbbName(), sbb.getSbbVendor(), sbb.getSbbVersion());
+    try
+    {
+      this.description = sbb.getDescription();
+      this.sbbID = new SbbID(sbb.getSbbName(), sbb.getSbbVendor(), sbb.getSbbVersion());
 
-    this.sbbAlias = sbb.getSbbAlias();
+      this.sbbAlias = sbb.getSbbAlias();
 
-    this.libraryRefs = sbb.getLibraryRef();
-    this.ejbRefs = sbb.getEjbRef();
-    this.profileSpecRefs = sbb.getProfileSpecRef();
-    this.sbbRefs = sbb.getSbbRef();
+      this.libraryRefs = sbb.getLibraryRef();
+      this.ejbRefs = sbb.getEjbRef();
+      this.profileSpecRefs = sbb.getProfileSpecRef();
+      this.sbbRefs = sbb.getSbbRef();
 
-    this.sbbClasses = sbb.getSbbClasses();
+      this.sbbClasses = sbb.getSbbClasses();
 
-    this.addressProfileSpecAliasRef = sbb.getAddressProfileSpecAliasRef();
-    
-    this.events = sbb.getEvent();
-    
-    this.activityContextAttributeAliases = sbb.getActivityContextAttributeAlias();
-    this.envEntries = sbb.getEnvEntry();
-    
-    this.resourceAdaptorTypeBindings = sbb.getResourceAdaptorTypeBinding();
-    
-    this.securityPermisions = sbbJarSecurityPermissions;
+      this.addressProfileSpecAliasRef = sbb.getAddressProfileSpecAliasRef();
 
-    buildDependenciesSet();
+      this.events = sbb.getEvent();
+
+      this.activityContextAttributeAliases = sbb.getActivityContextAttributeAlias();
+      this.envEntries = sbb.getEnvEntry();
+
+      this.resourceAdaptorTypeBindings = sbb.getResourceAdaptorTypeBinding();
+
+      this.securityPermisions = sbbJarSecurityPermissions;
+
+      buildDependenciesSet();
+    }
+    catch (Exception e) {
+      throw new DeploymentException("Failed to build sbb descriptor", e);
+    }
   }
 
   private void buildDependenciesSet()
@@ -132,12 +140,12 @@ public class SbbDescriptorImpl {
   {
     return profileSpecRefs;
   }
-  
+
   public MSbbClasses getSbbClasses()
   {
     return sbbClasses;
   }
-  
+
   public String getAddressProfileSpecAliasRef() {
     return addressProfileSpecAliasRef;
   }
@@ -174,4 +182,8 @@ public class SbbDescriptorImpl {
     return this.dependenciesSet;
   }
 
+  public boolean isSlee11()
+  {
+    return isSlee11;
+  }
 }
