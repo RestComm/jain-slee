@@ -8,8 +8,8 @@ import javax.slee.ComponentID;
 import javax.slee.management.DeploymentException;
 import javax.slee.resource.ResourceAdaptorID;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
@@ -17,8 +17,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MCo
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorClasses;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorJar;
-import org.w3c.dom.Document;
 
 /**
  * 
@@ -31,12 +29,7 @@ import org.w3c.dom.Document;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
-
-	private MResourceAdaptorJar resourceAdaptorJar;
-	private int index;
-
-	private MResourceAdaptor resourceAdaptor;
+public class ResourceAdaptorDescriptorImpl {
 
 	private ResourceAdaptorID resourceAdaptorID;
 	private String description;
@@ -53,54 +46,40 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
 
 	private Boolean supportsActiveReconfiguration;
 	
+  private MSecurityPermissions securityPermissions;
+
+  private boolean isSlee11;
+
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
+  
+	public ResourceAdaptorDescriptorImpl( MResourceAdaptor resourceAdaptor, MSecurityPermissions securityPermissions, boolean isSlee11 ) throws DeploymentException
+  {
+    this.description = resourceAdaptor.getDescription();
+    this.resourceAdaptorID = new ResourceAdaptorID(resourceAdaptor.getResourceAdaptorName(), resourceAdaptor.getResourceAdaptorVendor(), resourceAdaptor.getResourceAdaptorVersion());
 
-	public ResourceAdaptorDescriptorImpl(Document doc)throws DeploymentException
-	{
-		super(doc);
-	}
+    this.libraryRefs = resourceAdaptor.getLibraryRef();
+    this.resourceAdaptorTypeRefs = resourceAdaptor.getResourceAdaptorTypeRefs();
 
-	public ResourceAdaptorDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptorJar resourceAdaptorJar10, int index)throws DeploymentException
-	{
-		super(doc);
+    this.profileSpecRefs = resourceAdaptor.getProfileSpecRef();
 
-		this.resourceAdaptorJar = new MResourceAdaptorJar(resourceAdaptorJar10);
-		this.index = index;
-	}
+    this.configProperties = resourceAdaptor.getConfigProperty();
+    this.ignoreRaTypeEventTypeCheck = resourceAdaptor.getIgnoreRaTypeEventTypeCheck();
 
-	public ResourceAdaptorDescriptorImpl(	Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorJar resourceAdaptorJar11, int index)throws DeploymentException
-	{
-		super(doc);
+    MResourceAdaptorClasses raClasses = resourceAdaptor.getResourceAdaptorClasses();
+    MResourceAdaptorClass raClass = raClasses.getResourceAdaptorClass();
 
-		this.resourceAdaptorJar = new MResourceAdaptorJar(resourceAdaptorJar11);
-		this.index = index;
-	}
+    this.resourceAdaptorUsageParametersInterface = raClasses.getResourceAdaptorUsageParametersInterface();
+    this.resourceAdaptorClassName = raClass.getResourceAdaptorClassName();
 
-	@Override
-	public void buildDescriptionMap()
-	{
-		this.resourceAdaptor = this.resourceAdaptorJar.getResourceAdaptor().get(index);
-		this.description = this.resourceAdaptor.getDescription();
-		this.resourceAdaptorID = new ResourceAdaptorID(resourceAdaptor.getResourceAdaptorName(), resourceAdaptor.getResourceAdaptorVendor(), resourceAdaptor.getResourceAdaptorVersion());
+    this.supportsActiveReconfiguration = raClass.getSupportsActiveReconfiguration();
 
-		this.libraryRefs = this.resourceAdaptor.getLibraryRef();
-		this.resourceAdaptorTypeRefs = this.resourceAdaptor.getResourceAdaptorTypeRefs();
-
-		this.profileSpecRefs = this.resourceAdaptor.getProfileSpecRef();
-
-		this.configProperties = this.resourceAdaptor.getConfigProperty();
-		this.ignoreRaTypeEventTypeCheck = this.resourceAdaptor.getIgnoreRaTypeEventTypeCheck();
-
-		MResourceAdaptorClasses raClasses = this.resourceAdaptor.getResourceAdaptorClasses();
-		MResourceAdaptorClass raClass = raClasses.getResourceAdaptorClass();
-
-		this.resourceAdaptorUsageParametersInterface = raClasses.getResourceAdaptorUsageParametersInterface();
-		this.resourceAdaptorClassName = raClass.getResourceAdaptorClassName();
-
-		this.supportsActiveReconfiguration = raClass.getSupportsActiveReconfiguration();
-
+    this.securityPermissions = securityPermissions;
+    
+    this.isSlee11 = isSlee11;
+    
     buildDependenciesSet();
-	}
+  }
+	
 
   private void buildDependenciesSet()
   {
@@ -119,15 +98,6 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
       this.dependenciesSet.add( libraryRef.getComponentID() );
     }
   }
-
-  @Override
-	public Object getJAXBDescriptor() {
-		return this.resourceAdaptorJar;
-	}
-
-	public MResourceAdaptor getResourceAdaptor() {
-		return resourceAdaptor;
-	}
 
 	public String getDescription() {
 		return description;
@@ -173,4 +143,13 @@ public class ResourceAdaptorDescriptorImpl extends JAXBBaseUtilityClass {
 		return this.dependenciesSet;
 	}
 
+  public MSecurityPermissions getSecurityPermissions()
+  {
+    return securityPermissions;
+  }
+  
+  public boolean isSlee11()
+  {
+    return isSlee11;
+  }
 }

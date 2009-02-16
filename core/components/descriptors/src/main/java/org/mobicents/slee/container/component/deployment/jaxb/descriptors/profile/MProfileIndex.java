@@ -12,16 +12,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.Profi
  */
 public class MProfileIndex {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileIndex profileIndex10;
-
   private String name;
 
   private boolean unique;
 
   public MProfileIndex(ProfileIndex profileIndex10)
   {
-    this.profileIndex10 = profileIndex10;
-
     this.name = profileIndex10.getvalue();
     this.unique = Boolean.parseBoolean(profileIndex10.getUnique());
   }

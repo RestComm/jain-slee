@@ -9,11 +9,10 @@ import javax.slee.ComponentID;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MJar;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MLibrary;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.library.MLibraryJar;
-import org.w3c.dom.Document;
 
 /**
  * 
@@ -25,47 +24,34 @@ import org.w3c.dom.Document;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
+public class LibraryDescriptorImpl {
 
-  private int index;
-  private MLibraryJar libraryJar;
-  
-  private MLibrary library;
-  
+  private LibraryID libraryID;
   private String description;
   private List<MJar> jars = new ArrayList<MJar>();
-  private LibraryID libraryID;
+  private List<MLibraryRef> libraryRefs;
+  private MSecurityPermissions securityPermissions;
   
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
-  
-  private List<MLibraryRef> libraryRefs;
-  
-  public LibraryDescriptorImpl(Document doc) throws DeploymentException
-  {
-    super(doc);
-  }
-  
-  public LibraryDescriptorImpl(Document doc, org.mobicents.slee.container.component.deployment.jaxb.slee11.library.LibraryJar libraryJar11, int index)
-  {
-    this.libraryJar = new MLibraryJar(libraryJar11);
-    this.index = index;
-  }
 
-  @Override
-  public void buildDescriptionMap()
+  public LibraryDescriptorImpl(MLibrary library, MSecurityPermissions securityPermissions, boolean isSlee11) throws DeploymentException
   {
-    this.library = this.libraryJar.getLibrary().get(index);
-    this.description = this.library.getDescription();
-    
-    this.jars = this.library.getJar();
-    
-    this.libraryRefs = this.library.getLibraryRef();
-    
-    libraryID = new LibraryID(library.getLibraryName(), library.getLibraryVendor(),library.getLibraryVersion());
-    
-    buildDependenciesSet();
+    try
+    {
+      this.description = library.getDescription();
+      this.jars = library.getJar();
+      this.libraryRefs = library.getLibraryRef();
+      this.securityPermissions = securityPermissions;
+      
+      this.libraryID = new LibraryID(library.getLibraryName(), library.getLibraryVendor(),library.getLibraryVersion());
+      
+      buildDependenciesSet();
+    }
+    catch (Exception e) {
+      throw new DeploymentException("Failed to build library descriptor", e);      
+    }
   }
-
+  
   private void buildDependenciesSet()
   {
     for(MLibraryRef libraryRef : libraryRefs)
@@ -74,17 +60,6 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
     }
   }
 
-  @Override
-  public Object getJAXBDescriptor()
-  {
-    return this.libraryJar;
-  }
-  
-  public MLibrary getLibrary()
-  {
-    return library;
-  }
-  
   public String getDescription()
   {
     return description;
@@ -97,6 +72,11 @@ public class LibraryDescriptorImpl extends JAXBBaseUtilityClass  {
   
   public LibraryID getLibraryID() {
 	return libraryID;
+  }
+  
+  public MSecurityPermissions getSecurityPermissions()
+  {
+    return this.securityPermissions;
   }
   
   public Set<ComponentID> getDependenciesSet()
