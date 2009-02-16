@@ -11,10 +11,8 @@ package org.mobicents.slee.container.component.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -31,9 +29,6 @@ import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.jboss.classloader.spi.ClassLoaderDomain;
@@ -51,8 +46,6 @@ import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.xml.DefaultSleeEntityResolver;
-import org.w3c.dom.Document;
 
 public class DeployableUnitBuilder {
     
@@ -104,8 +97,14 @@ public class DeployableUnitBuilder {
         	throw new DeploymentException("META-INF/deployable-unit.xml was not found in " + deployableUnitJar.getName());
         }
         DeployableUnitDescriptorFactory descriptorFactory = new DeployableUnitDescriptorFactory();
-		DeployableUnitDescriptorImpl deployableUnitDescriptor = descriptorFactory.parse(deployableUnitJar.getInputStream(duXmlEntry));
-		
+        DeployableUnitDescriptorImpl deployableUnitDescriptor = null;
+        try {
+        	deployableUnitDescriptor = descriptorFactory.parse(deployableUnitJar.getInputStream(duXmlEntry));
+        } catch (IOException e) {
+            throw new DeploymentException(
+                    "Failed to get DU descriptor DU inputstream from JAR file "+ sourceUrl.getFile(), e);
+        }
+        
 		// create the du dir
 		File deploymentDir = createTempDUDeploymentDir(deploymentRoot, deployableUnitID);
 		
@@ -120,9 +119,10 @@ public class DeployableUnitBuilder {
 		}
 		
 		// build each du service component
-		for (String serviceDescriptorFileName : deployableUnitDescriptor.getServiceEndtries()) {			
-			ServiceComponent serviceComponent = duServiceComponentBuilder.buildComponents(serviceDescriptorFileName, deployableUnitJar, builder);
-			serviceComponent.setDeployableUnit(deployableUnit);
+		for (String serviceDescriptorFileName : deployableUnitDescriptor.getServiceEndtries()) {		
+			for (ServiceComponent serviceComponent : duServiceComponentBuilder.buildComponents(serviceDescriptorFileName, deployableUnitJar)) {
+				serviceComponent.setDeployableUnit(deployableUnit);
+			}
 		}
 		
 		// get a set with all components of the DU

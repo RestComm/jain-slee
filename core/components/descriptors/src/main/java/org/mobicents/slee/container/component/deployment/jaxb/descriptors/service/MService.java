@@ -14,6 +14,7 @@ public class MService {
 
   private org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service service10;
   private org.mobicents.slee.container.component.deployment.jaxb.slee11.service.Service service11;
+  private boolean isSlee11;
   
   private String description;
   
@@ -31,7 +32,7 @@ public class MService {
   public MService(org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service service10)
   {
     this.service10 = service10;
-    
+    this.isSlee11 = false;
     this.description = service10.getDescription() == null ? null : service10.getDescription().getvalue();
     
     this.serviceName = service10.getServiceName().getvalue();
@@ -49,7 +50,7 @@ public class MService {
   public MService(org.mobicents.slee.container.component.deployment.jaxb.slee11.service.Service service11)
   {
     this.service11 = service11;
-
+    this.isSlee11 = true;
     this.description = service11.getDescription() == null ? null : service11.getDescription().getvalue();
 
     this.serviceName = service11.getServiceName().getvalue();
@@ -115,6 +116,10 @@ public class MService {
   public String getResourceInfoProfileTable()
   {
     return resourceInfoProfileTable;
+  }
+  
+  public boolean isSlee11() {
+	return isSlee11;
   }
   
 }
