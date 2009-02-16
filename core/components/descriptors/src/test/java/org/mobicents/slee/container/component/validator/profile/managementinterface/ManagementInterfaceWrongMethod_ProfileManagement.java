@@ -6,7 +6,7 @@ import javax.slee.profile.ProfileVerificationException;
 
 public interface ManagementInterfaceWrongMethod_ProfileManagement {
 
-	public void doSomeTricktMGMTMagic(Object xxxx);
+	public void doSomeTricktMGMTMagic(String xxxx);
 	public void dontLookAtMeImUglyDefinedMethodWithLongName(java.io.Serializable cheese);
 	
 	public void profileLoad();

@@ -108,7 +108,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated- it should not - it lacks fire method", b);
 
 	}
 
@@ -135,7 +135,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated - it should not - handler methods decalres throws", b);
 
 	}
 
@@ -162,7 +162,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated- it should not - it declares fire method with wrong signature", b);
 
 	}
 
@@ -218,7 +218,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated - it should not - it does not declare receiver method", b);
 
 	}
 
@@ -245,7 +245,8 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated - it should not - it does not declare receiver method", b);
+
 
 	}
 
@@ -272,7 +273,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated - it should not - it does not declare receiver method", b);
 
 	}
 
@@ -299,7 +300,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated - it should not - it declares concrete impl of fire method", b);
 
 	}
 
@@ -327,7 +328,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 						ClassUtils.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has  been validated", b);
+		assertFalse("Sbb class has  been validated - it should not - it declares wrong IES", b);
 
 	}
 

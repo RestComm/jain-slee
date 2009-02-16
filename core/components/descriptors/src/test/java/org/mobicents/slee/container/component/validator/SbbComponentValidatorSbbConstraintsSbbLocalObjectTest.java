@@ -85,7 +85,7 @@ TCUtilityClass {
 						.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated - it should not - it declares SBB LO method with different return type", b);
 
 	}
 	
@@ -110,7 +110,7 @@ TCUtilityClass {
 						.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated -it should not - it declares SBB LO method with different throws.", b);
 
 	}
 	
@@ -137,7 +137,7 @@ TCUtilityClass {
 						.getConcreteMethodsFromSuperClasses(component
 								.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated - it should not - it does not implement method from SBBLO", b);
 
 	}
 	

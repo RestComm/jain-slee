@@ -8,8 +8,10 @@ import javax.slee.profile.ProfileVerificationException;
 
 public interface LocalInterfaceWrongMethod_MBeanRegistration extends javax.slee.profile.ProfileLocalObject{
 
-	public void doSomeTricktMGMTMagic(Object xxxx);
+	public void doSomeTricktMGMTMagic(String xxxx);
 	public void dontLookAtMeImUglyDefinedMethodWithLongName(java.io.Serializable cheese);
 	
-	void postDeregister();
+	//JDK 1.5 and 1.6 ?
+	 public void postRegister(Boolean registrationDone);
+	 public void postRegister();
 }

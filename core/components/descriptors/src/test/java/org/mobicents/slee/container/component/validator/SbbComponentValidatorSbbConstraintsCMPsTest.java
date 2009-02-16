@@ -245,7 +245,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated - it should not - accessors ahve different type", b);
 
 	}
 
@@ -312,7 +312,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated - it should not - accessor has throws", b);
 
 	}
 
@@ -446,7 +446,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated it shouyld not - it declares not public cmp acccessor", b);
 
 	}
 
@@ -516,7 +516,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated it should not - since cmp field has no sbb reference - it must store generic SBB LO", b);
 
 	}
 

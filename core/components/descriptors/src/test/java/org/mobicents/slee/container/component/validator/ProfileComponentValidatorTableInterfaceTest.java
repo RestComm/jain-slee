@@ -84,7 +84,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 
 		boolean b = validator.validatePorfileTableInterface();
 
-		assertFalse("Table interface class has been validated - it shoudl not since table interface method does not match declared parameter type", b);
+		assertFalse("Table interface class has been validated - it should not since table interface method does not match declared parameter type", b);
 
 	}
 	
@@ -110,7 +110,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 
 		boolean b = validator.validatePorfileTableInterface();
 
-		assertFalse("Table interface class has been validated - it shoudl not since table interface method does not match declared parameter type", b);
+		assertFalse("Table interface class has been validated - it should not since table interface method does not match declared parameter type", b);
 
 	}
 

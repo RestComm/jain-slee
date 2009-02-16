@@ -78,15 +78,9 @@ public abstract  class SbbConstraintsSbbLocalInterfaceWrongThrowsSbb implements 
 	}
 
 	public void makeSomeStupidThing(String paramOne, int makeCounterParamTwo)
-			throws NoSuchMethodException {
+			throws Error {
 		// TODO Auto-generated method stub
 		
-	}
-
-	public int makeSomeThingDifferentGood(Serializable ser, SbbLocalObject local)
-			throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	public int makeSomeThingDifferent(Serializable ser, SbbLocalObject local)
@@ -95,11 +89,12 @@ public abstract  class SbbConstraintsSbbLocalInterfaceWrongThrowsSbb implements 
 		return 0;
 	}
 
+	public int makeSomeThingDifferentGood(Serializable ser, SbbLocalObject local)
+			throws IllegalArgumentException, IllegalStateException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-
-
-
-	
 
 
 }

@@ -104,7 +104,7 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated - it shoudl nto since only getter and setter methods are allowed", b);
 
 	}
 
@@ -132,7 +132,7 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 				ClassUtils.getAbstractMethodsFromSuperClasses(component
 						.getAbstractSbbClass()));
 
-		assertFalse("Sbb class has been validated", b);
+		assertFalse("Sbb class has been validated - it should not - Object is not permited type", b);
 
 	}
 
