@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.slee.ComponentID;
-import javax.slee.SbbID;
-import javax.slee.profile.ProfileID;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
@@ -506,7 +504,7 @@ public class UsageInterfaceValidator {
 
 		if (!validateUsageParameterInterface(component.getSbbID(), component
 				.isSlee11(), component.getUsageParametersInterface(), component
-				.getDescriptor().getSbbUsageParametersInterface()
+				.getDescriptor().getSbbClasses().getSbbUsageParametersInterface()
 				.getUsageParameter())) {
 			passed = false;
 		}
@@ -659,7 +657,7 @@ public class UsageInterfaceValidator {
 
 		if (!validateUsageParameterInterface(component.getProfileSpecificationID(), component
 				.isSlee11(), component.getProfileUsageInterfaceClass(), component
-				.getDescriptor().getProfileUsageParameterInterface().getUsageParameter()
+				.getDescriptor().getProfileClasses().getProfileUsageParameterInterface().getUsageParameter()
 				)) {
 			passed = false;
 		}

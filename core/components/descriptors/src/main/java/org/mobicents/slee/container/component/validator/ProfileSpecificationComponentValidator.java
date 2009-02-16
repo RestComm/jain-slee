@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.slee.SLEEException;
-import javax.slee.management.LibraryID;
-
 import javassist.Modifier;
 
 import org.apache.log4j.Logger;
@@ -40,12 +37,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MLongestPrefixMatch;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpression;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpressionType;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryParameter;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MRangeMatch;
-import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField;
-
-import com.sun.org.apache.xpath.internal.operations.Mod;
 
 /**
  * Start time:10:45:52 2009-02-09<br>
@@ -412,7 +405,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 				// if we are here we know there are no dups
 				List<MCMPField> cmpFields = this.component.getDescriptor()
-						.getProfileCMPInterface().getCmpFields();
+						.getProfileClasses().getProfileCMPInterface().getCmpFields();
 
 				if (cmpFields.size() != fieldToType.size()) {
 					passed = false;
@@ -986,7 +979,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		try {
 
-			if (this.component.getDescriptor().getProfileAbstractClass() == null) {
+			if (this.component.getDescriptor().getProfileClasses().getProfileAbstractClass() == null) {
 
 				if (this.requriedProfileAbstractClass) {
 					errorBuffer = appendToBuffer(
@@ -1286,7 +1279,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			// those checks are......
 			// 1.0 and 1.1 if we define management interface we have to
 			// implement it, and all methods that are not CMPs
-			if (this.component.getDescriptor().getProfileManagementInterface() != null) {
+			if (this.component.getDescriptor().getProfileClasses().getProfileManagementInterface() != null) {
 				Class profileManagementInterfaceClass = this.component
 						.getProfileManagementInterfaceClass();
 				Map<String, Method> profileManagementInterfaceMethods = ClassUtils
@@ -1362,12 +1355,12 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				// uff, ProfileLocal again that stupid check cross two
 				// interfaces and one abstract class.....
 
-				if (this.component.getDescriptor().getProfileLocalInterface() != null) {
+				if (this.component.getDescriptor().getProfileClasses().getProfileLocalInterface() != null) {
 
 					// abstract class MUST NOT implement it
 					if (ClassUtils.checkInterfaces(profileAbstractClass,
 							this.component.getDescriptor()
-									.getProfileLocalInterface()
+									.getProfileClasses().getProfileLocalInterface()
 									.getProfileLocalInterfaceName()) != null
 							|| ClassUtils.checkInterfaces(profileAbstractClass,
 									"javax.slee.profile.ProfileLocalObject") != null) {
@@ -1450,7 +1443,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 				// usage parameters
 				if (this.component.getDescriptor()
-						.getProfileUsageParameterInterface() != null) {
+						.getProfileClasses().getProfileUsageParameterInterface() != null) {
 					if (!validateProfileUsageInterface(abstractMethods,
 							abstractMethodsFromSuperClasses)) {
 						passed = false;
@@ -1489,7 +1482,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		try {
 			if (this.component.getProfileUsageInterfaceClass() == null) {
 				if (this.component.getDescriptor()
-						.getProfileUsageParameterInterface() != null) {
+						.getProfileClasses().getProfileUsageParameterInterface() != null) {
 					passed = false;
 
 					errorBuffer = appendToBuffer(
@@ -1528,7 +1521,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		// FIXME: should not this return generic?
 		if (!this.component.isSlee11()
-				|| this.component.getDescriptor().getProfileTableInterface() == null) {
+				|| this.component.getDescriptor().getProfileClasses().getProfileTableInterface() == null) {
 			// its nto mandatory
 			return passed;
 		}
@@ -2270,7 +2263,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			// double deifnition of refs is allowed.
 			Map<String, MCMPField> cmpName2Field = new HashMap<String, MCMPField>();
-			for (MCMPField c : desc.getProfileCMPInterface().getCmpFields()) {
+			for (MCMPField c : desc.getProfileClasses().getProfileCMPInterface().getCmpFields()) {
 
 				if (!Character.isLowerCase(c.getCmpFieldName().charAt(0))) {
 					passed = false;

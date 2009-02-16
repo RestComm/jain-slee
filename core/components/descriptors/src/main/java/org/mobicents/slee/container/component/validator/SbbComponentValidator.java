@@ -35,7 +35,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
@@ -441,7 +440,7 @@ public class SbbComponentValidator implements Validator {
 			Map<String, Method> sbbAbstractClassAbstraMethod,
 			Map<String, Method> sbbAbstractClassAbstraMethodFromSuperClasses) {
 
-		if (this.component.getDescriptor().getSbbActivityContextInterface() == null) {
+		if (this.component.getDescriptor().getSbbClasses().getSbbActivityContextInterface() == null) {
 			// FIXME: add check for asSbbActivityContextInteface method ? This
 			// will be catched at the end of check anyway
 			if (logger.isInfoEnabled()) {
@@ -812,7 +811,7 @@ public class SbbComponentValidator implements Validator {
 		// FIXME: its cant be out of scope, since its byte....
 		// we look for method key
 		for (MGetChildRelationMethod mMetod : this.component.getDescriptor()
-				.getSbbAbstractClass().getChildRelationMethods()) {
+				.getSbbClasses().getSbbAbstractClass().getChildRelationMethods()) {
 			if (mMetod.getDefaultPriority() > 127
 					|| mMetod.getDefaultPriority() < -128) {
 				passed = false;
@@ -910,7 +909,7 @@ public class SbbComponentValidator implements Validator {
 		String errorBuffer = new String("");
 
 		try {
-			if (this.component.getDescriptor().getSbbLocalInterface() == null)
+			if (this.component.getDescriptor().getSbbClasses().getSbbLocalInterface() == null)
 				return passed;
 
 			Class sbbLocalInterfaceClass = this.component
@@ -1062,7 +1061,7 @@ public class SbbComponentValidator implements Validator {
 		String errorBuffer = new String("");
 
 		List<MSbbCMPField> cmpFields = this.component.getDescriptor()
-				.getSbbAbstractClass().getCmpFields();
+				.getSbbClasses().getSbbAbstractClass().getCmpFields();
 
 		for (MSbbCMPField entry : cmpFields) {
 
@@ -1903,7 +1902,7 @@ public class SbbComponentValidator implements Validator {
 
 		try {
 			List<MGetProfileCMPMethod> profileCmpMethods = this.component
-					.getDescriptor().getSbbAbstractClass()
+					.getDescriptor().getSbbClasses().getSbbAbstractClass()
 					.getProfileCMPMethods();
 			if (profileCmpMethods.size() == 0) {
 				return passed;
@@ -2146,7 +2145,7 @@ public class SbbComponentValidator implements Validator {
 			Set<String> childRelationMethods = new HashSet<String>();
 
 			for (MGetChildRelationMethod childMethod : descriptor
-					.getSbbAbstractClass().getChildRelationMethods()) {
+					.getSbbClasses().getSbbAbstractClass().getChildRelationMethods()) {
 				if (childMethod.getChildRelationMethodName() == null
 						|| childMethod.getChildRelationMethodName().compareTo(
 								"") == 0) {
@@ -2184,7 +2183,7 @@ public class SbbComponentValidator implements Validator {
 			}
 
 			Map<String, MSbbCMPField> declaredCmps = new HashMap<String, MSbbCMPField>();
-			for (MSbbCMPField cmp : descriptor.getSbbAbstractClass()
+			for (MSbbCMPField cmp : descriptor.getSbbClasses().getSbbAbstractClass()
 					.getCmpFields()) {
 				if (cmp.getCmpFieldName() == null
 						|| cmp.getCmpFieldName().compareTo("") == 0) {
@@ -2243,10 +2242,10 @@ public class SbbComponentValidator implements Validator {
 
 			// FIXME: ra part?
 
-			if (descriptor.getSbbActivityContextInterface() != null) {
-				if (descriptor.getSbbActivityContextInterface()
+			if (descriptor.getSbbClasses().getSbbActivityContextInterface() != null) {
+				if (descriptor.getSbbClasses().getSbbActivityContextInterface()
 						.getInterfaceName() == null
-						|| descriptor.getSbbActivityContextInterface()
+						|| descriptor.getSbbClasses().getSbbActivityContextInterface()
 								.getInterfaceName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -2255,10 +2254,10 @@ public class SbbComponentValidator implements Validator {
 				}
 			}
 
-			if (descriptor.getSbbLocalInterface() != null) {
-				if (descriptor.getSbbLocalInterface()
+			if (descriptor.getSbbClasses().getSbbLocalInterface() != null) {
+				if (descriptor.getSbbClasses().getSbbLocalInterface()
 						.getSbbLocalInterfaceName() == null
-						|| descriptor.getSbbLocalInterface()
+						|| descriptor.getSbbClasses().getSbbLocalInterface()
 								.getSbbLocalInterfaceName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -2267,10 +2266,10 @@ public class SbbComponentValidator implements Validator {
 				}
 			}
 
-			if (descriptor.getSbbUsageParametersInterface() != null) {
-				if (descriptor.getSbbUsageParametersInterface()
+			if (descriptor.getSbbClasses().getSbbUsageParametersInterface() != null) {
+				if (descriptor.getSbbClasses().getSbbUsageParametersInterface()
 						.getUsageParametersInterfaceName() == null
-						|| descriptor.getSbbUsageParametersInterface()
+						|| descriptor.getSbbClasses().getSbbUsageParametersInterface()
 								.getUsageParametersInterfaceName()
 								.compareTo("") == 0) {
 					passed = false;
