@@ -32,19 +32,19 @@ public class MSbb {
 
   private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();
   private List<MSbbRef> sbbRef = new ArrayList<MSbbRef>();
-  private List<MProfileSpecRef> profileSpecRef;
+  private List<MProfileSpecRef> profileSpecRef = new ArrayList<MProfileSpecRef>();
   private MSbbClasses sbbClasses;
 
   private String addressProfileSpecAliasRef;
 
-  private List<MEventEntry> event;
+  private List<MEventEntry> event = new ArrayList<MEventEntry>();
 
-  private List<MActivityContextAttributeAlias> activityContextAttributeAlias;
-  private List<MEnvEntry> envEntry;
+  private List<MActivityContextAttributeAlias> activityContextAttributeAlias = new ArrayList<MActivityContextAttributeAlias>();
+  private List<MEnvEntry> envEntry = new ArrayList<MEnvEntry>();
 
-  private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBinding;
+  private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBinding = new ArrayList<MResourceAdaptorTypeBinding>();
 
-  private List<MEjbRef> ejbRef;
+  private List<MEjbRef> ejbRef = new ArrayList<MEjbRef>();
 
   public MSbb(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Sbb sbb10)
   {
