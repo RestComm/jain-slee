@@ -35,6 +35,10 @@ import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderPolicy;
 import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.jboss.classloader.spi.ParentPolicy;
+import org.jboss.classloading.spi.metadata.ExportAll;
+import org.jboss.classloading.spi.vfs.policy.VFSClassLoaderPolicy;
+import org.jboss.virtual.VFS;
+import org.jboss.virtual.VirtualFile;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.DeployableUnit;
 import org.mobicents.slee.container.component.EventTypeComponent;
@@ -135,18 +139,27 @@ public class DeployableUnitBuilder {
 				
 		// if component has a class loader policy then create class loader domain and register the policy
 		ClassLoaderSystem classLoaderSystem = ClassLoaderSystem.getInstance();
-		for (SleeComponent sleeComponent : duComponentsSet) {
-			ClassLoaderPolicy policy = sleeComponent.getClassLoaderPolicy();
-			if (policy != null) {
-				ClassLoaderDomain domain = classLoaderSystem.createAndRegisterDomain(sleeComponent.getDeployableUnit().getDeployableUnitID().toString()+sleeComponent.getComponentID(), ParentPolicy.AFTER, classLoaderSystem.getDefaultDomain());
-				ClassLoader classLoader = classLoaderSystem.registerClassLoaderPolicy(domain, policy);
-				sleeComponent.setClassLoader(classLoader);
+		for (SleeComponent component : duComponentsSet) {			
+			URL componentDeploymentDir = component.getDeploymentDir();
+			if (componentDeploymentDir != null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Creating class loading domain for component "+component);
+				}
+				ClassLoaderDomain classLoaderDomain = classLoaderSystem.createAndRegisterDomain(component.getComponentID().toString(), ParentPolicy.AFTER, classLoaderSystem.getDefaultDomain());
+				component.setClassLoaderDomain(classLoaderDomain);
+				ClassLoader classLoader = classLoaderSystem.registerClassLoaderPolicy(classLoaderDomain, createClassLoaderPolicy(component.getComponentID().toString(), componentDeploymentDir));
+				component.setClassLoader(classLoader);
 			}
 		}
 		
 		// now that all components have class loading domains, let's add the policies of the components it depends
-		for (SleeComponent sleeComponent : duComponentsSet) {
-			 addDependenciesClassLoadingPolicies(sleeComponent,sleeComponent.getClassLoaderDomain(),classLoaderSystem);
+		for (SleeComponent component : duComponentsSet) {			
+			if (component.getDeploymentDir() != null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Adding class loading policies from dependencies to class loading domain of component "+component);
+				}
+				addDependenciesClassLoadingPolicies(component,component.getClassLoaderDomain(),classLoaderSystem);
+			}
 		}
 		
 		// for each component load and set its non generated classes
@@ -182,6 +195,27 @@ public class DeployableUnitBuilder {
 		return deployableUnit;
     }
 
+    /**
+	 * creates a {@link ClassLoaderPolicy} pointing to the specified directory
+	 * @param componentTempDir
+	 * @return
+	 */
+	private ClassLoaderPolicy createClassLoaderPolicy(String policyName, URL componentTempDir) {
+		// create class loading policy pointing to the dir 
+		VirtualFile tempClassDeploymentDirVF = null;
+		try {
+			tempClassDeploymentDirVF = VFS.getRoot(componentTempDir);
+		} catch (Exception e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
+		VFSClassLoaderPolicy classLoaderPolicy = VFSClassLoaderPolicy.createVFSClassLoaderPolicy(policyName,tempClassDeploymentDirVF);
+		classLoaderPolicy.setImportAll(true); // see other classes in the domain
+		classLoaderPolicy.setBlackListable(false);
+		classLoaderPolicy.setExportAll(ExportAll.NON_EMPTY); // others will see this classes
+		classLoaderPolicy.setCacheable(true);            	
+		return classLoaderPolicy;
+	}
+	
     /**
      * Loads all non SLEE generated classes from the component class loader to the component, those will be needed for validation or runtime purposes
      * @param sleeComponent
@@ -257,60 +291,36 @@ public class DeployableUnitBuilder {
 	private void addDependenciesClassLoadingPolicies(
 			SleeComponent sleeComponent, ClassLoaderDomain domainToAddPolicies, ClassLoaderSystem classLoaderSystem) {
 		for (ComponentID componentID : sleeComponent.getDependenciesSet()) {
+			SleeComponent component = null;
 			if (componentID instanceof EventTypeID) {
-				SleeComponent component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((EventTypeID)componentID);
-    			ClassLoaderPolicy policy = component.getClassLoaderPolicy();
-				if (policy != null) {
-					classLoaderSystem.registerClassLoaderPolicy(domainToAddPolicies, policy);
-				}
-				// and add the component dependencies too
-				addDependenciesClassLoadingPolicies(component, domainToAddPolicies, classLoaderSystem);
+				component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((EventTypeID)componentID);				
     		}
     		else if (componentID instanceof LibraryID) {
-    			SleeComponent component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((LibraryID)componentID);
-    			ClassLoaderPolicy policy = component.getClassLoaderPolicy();
-				if (policy != null) {
-					classLoaderSystem.registerClassLoaderPolicy(domainToAddPolicies, policy);
-				}
-				// and add the component dependencies too
-				addDependenciesClassLoadingPolicies(component, domainToAddPolicies, classLoaderSystem);
+    			component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((LibraryID)componentID);
     		}
     		else if (componentID instanceof ProfileSpecificationID) {
-    			SleeComponent component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((ProfileSpecificationID)componentID);
-    			ClassLoaderPolicy policy = component.getClassLoaderPolicy();
-				if (policy != null) {
-					classLoaderSystem.registerClassLoaderPolicy(domainToAddPolicies, policy);
-				}
-				// and add the component dependencies too
-				addDependenciesClassLoadingPolicies(component, domainToAddPolicies, classLoaderSystem);
+    			component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((ProfileSpecificationID)componentID);
     		}
     		else if (componentID instanceof ResourceAdaptorID) {
-    			SleeComponent component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((ResourceAdaptorID)componentID);
-    			ClassLoaderPolicy policy = component.getClassLoaderPolicy();
-				if (policy != null) {
-					classLoaderSystem.registerClassLoaderPolicy(domainToAddPolicies, policy);
-				}
-				// and add the component dependencies too
-				addDependenciesClassLoadingPolicies(component, domainToAddPolicies, classLoaderSystem);
+    			component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((ResourceAdaptorID)componentID);
     		}
     		else if (componentID instanceof ResourceAdaptorTypeID) {
-    			SleeComponent component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((ResourceAdaptorTypeID)componentID);
-    			ClassLoaderPolicy policy = component.getClassLoaderPolicy();
-				if (policy != null) {
-					classLoaderSystem.registerClassLoaderPolicy(domainToAddPolicies, policy);
-				}
-				// and add the component dependencies too
-				addDependenciesClassLoadingPolicies(component, domainToAddPolicies, classLoaderSystem);
+    			component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((ResourceAdaptorTypeID)componentID);
     		}
     		else if (componentID instanceof SbbID) {
-    			SleeComponent component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((SbbID)componentID);
-    			ClassLoaderPolicy policy = component.getClassLoaderPolicy();
-				if (policy != null) {
-					classLoaderSystem.registerClassLoaderPolicy(domainToAddPolicies, policy);
+    			component = sleeComponent.getDeployableUnit().getDeployableUnitRepository().getComponentByID((SbbID)componentID);
+    		}
+			if (component != null) {
+				URL componentDeploymentDir = component.getDeploymentDir();
+				if (componentDeploymentDir != null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Adding class loading policies from component "+component+" to class loading domain "+domainToAddPolicies);
+					}
+					classLoaderSystem.registerClassLoaderPolicy(domainToAddPolicies, createClassLoaderPolicy(domainToAddPolicies.getName()+" dep > "+component.getComponentID(), componentDeploymentDir));
 				}
 				// and add the component dependencies too
 				addDependenciesClassLoadingPolicies(component, domainToAddPolicies, classLoaderSystem);
-    		}
+			}
 		 }
 	}
 

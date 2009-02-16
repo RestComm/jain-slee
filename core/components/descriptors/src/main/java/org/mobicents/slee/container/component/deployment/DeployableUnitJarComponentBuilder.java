@@ -21,11 +21,6 @@ import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 
 import org.apache.log4j.Logger;
-import org.jboss.classloader.spi.ClassLoaderPolicy;
-import org.jboss.classloading.spi.metadata.ExportAll;
-import org.jboss.classloading.spi.vfs.policy.VFSClassLoaderPolicy;
-import org.jboss.virtual.VFS;
-import org.jboss.virtual.VirtualFile;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.LibraryComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -102,14 +97,7 @@ public class DeployableUnitJarComponentBuilder {
 						+ " already exists in " + deploymentDir);
 			}
 			extractJar(componentJarFile, componentJarDeploymentDir);
-
-			// create class loader policy pointing to the the temp dir of the
-			// component, all components except libraries will use this policy to
-			// build their base class loader
-			ClassLoaderPolicy componentJarclassLoaderPolicy = 
-				createClassLoaderPolicy(componentJarDeploymentDir
-						.toURL());
-
+			URL componentJarDeploymentDirURL = componentJarDeploymentDir.toURL();
 			// create components from descriptor
 			JarEntry componentDescriptor = null;		
 			if ((componentDescriptor = componentJarFile
@@ -120,7 +108,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<SbbDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (SbbDescriptorImpl descriptor : descriptors) {
 					SbbComponent component = new SbbComponent(descriptor);
-					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					component.setDeploymentDir(componentJarDeploymentDirURL);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -131,7 +119,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<ProfileSpecificationDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (ProfileSpecificationDescriptorImpl descriptor : descriptors) {
 					ProfileSpecificationComponent component = new ProfileSpecificationComponent(descriptor);
-					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					component.setDeploymentDir(componentJarDeploymentDirURL);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -175,7 +163,7 @@ public class DeployableUnitJarComponentBuilder {
 							}
 						}
 					}
-					component.setClassLoaderPolicy(createClassLoaderPolicy(tempLibraryDir.toURL()));
+					component.setDeploymentDir(tempLibraryDir.toURL());										
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -185,7 +173,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<EventTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (EventTypeDescriptorImpl descriptor : descriptors) {
 					EventTypeComponent component = new EventTypeComponent(descriptor);
-					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					component.setDeploymentDir(componentJarDeploymentDirURL);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -196,7 +184,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<ResourceAdaptorTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (ResourceAdaptorTypeDescriptorImpl descriptor : descriptors) {
 					ResourceAdaptorTypeComponent component = new ResourceAdaptorTypeComponent(descriptor);
-					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					component.setDeploymentDir(componentJarDeploymentDirURL);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -207,7 +195,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<ResourceAdaptorDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (ResourceAdaptorDescriptorImpl descriptor : descriptors) {
 					ResourceAdaptorComponent component = new ResourceAdaptorComponent(descriptor);
-					component.setClassLoaderPolicy(componentJarclassLoaderPolicy);
+					component.setDeploymentDir(componentJarDeploymentDirURL);
 					components.add(component);
 				}
 			} else {
@@ -246,27 +234,6 @@ public class DeployableUnitJarComponentBuilder {
 		return components;
 	}
 
-	/**
-	 * creates a {@link ClassLoaderPolicy} pointing to the specified directory
-	 * @param componentTempDir
-	 * @return
-	 */
-	private ClassLoaderPolicy createClassLoaderPolicy(URL componentTempDir) {
-		// create class loading policy pointing to the dir 
-		VirtualFile tempClassDeploymentDirVF = null;
-		try {
-			tempClassDeploymentDirVF = VFS.getRoot(componentTempDir);
-		} catch (Exception e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
-		VFSClassLoaderPolicy classLoaderPolicy = VFSClassLoaderPolicy.createVFSClassLoaderPolicy(tempClassDeploymentDirVF);
-		classLoaderPolicy.setImportAll(true); // see other classes in the domain
-		classLoaderPolicy.setBlackListable(false);
-		classLoaderPolicy.setExportAll(ExportAll.NON_EMPTY); // others will see this classes
-		classLoaderPolicy.setCacheable(true);            	
-		return classLoaderPolicy;
-	}
-	
 	/**
 	 * Extracts the file with name <code>fileName</code> out of the
 	 * <code>containingJar</code> archive and stores it in <code>dstDir</code>.

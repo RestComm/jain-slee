@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.component;
 
+import java.net.URL;
 import java.util.Set;
 
 import javax.slee.ComponentID;
@@ -26,16 +27,15 @@ public abstract class SleeComponent {
 	private ClassLoaderDomain classLoaderDomain;
 
 	/**
-	 * the component class loader policy, "pointing" to all classes of the
-	 * component
-	 */
-	private ClassLoaderPolicy classLoaderPolicy;
-
-	/**
 	 * the component class loader
 	 */
 	private ClassLoader classLoader;
 
+	/**
+	 * where this component is deployed
+	 */
+	private URL deploymentDir;
+	
 	/**
 	 * Retrieves the component class loader
 	 * 
@@ -72,22 +72,12 @@ public abstract class SleeComponent {
 		this.classLoaderDomain = classLoaderDomain;
 	}
 
-	/**
-	 * Retrieves the component class loader policy
-	 * 
-	 * @return
-	 */
-	public ClassLoaderPolicy getClassLoaderPolicy() {
-		return classLoaderPolicy;
+	public URL getDeploymentDir() {
+		return deploymentDir;
 	}
-
-	/**
-	 * Sets the component class loader policy
-	 * 
-	 * @param classLoaderPolicy
-	 */
-	public void setClassLoaderPolicy(ClassLoaderPolicy classLoaderPolicy) {
-		this.classLoaderPolicy = classLoaderPolicy;
+	
+	public void setDeploymentDir(URL deploymentDir) {
+		this.deploymentDir = deploymentDir;
 	}
 
 	/**
@@ -171,5 +161,10 @@ public abstract class SleeComponent {
 		} else {
 			return false;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return getComponentID().toString();
 	}
 }
