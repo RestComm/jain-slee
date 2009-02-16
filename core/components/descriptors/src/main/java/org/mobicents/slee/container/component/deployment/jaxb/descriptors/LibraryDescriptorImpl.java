@@ -1,6 +1,5 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,11 +25,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.librar
  */
 public class LibraryDescriptorImpl {
 
-  private LibraryID libraryID;
-  private String description;
-  private List<MJar> jars = new ArrayList<MJar>();
-  private List<MLibraryRef> libraryRefs;
-  private MSecurityPermissions securityPermissions;
+  private final LibraryID libraryID;
+  private final String description;
+  private final List<MJar> jars;
+  private final List<MLibraryRef> libraryRefs;
+  private final MSecurityPermissions securityPermissions;
+  private final boolean isSlee11;
   
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
@@ -42,7 +42,7 @@ public class LibraryDescriptorImpl {
       this.jars = library.getJar();
       this.libraryRefs = library.getLibraryRef();
       this.securityPermissions = securityPermissions;
-      
+      this.isSlee11 = isSlee11;
       this.libraryID = new LibraryID(library.getLibraryName(), library.getLibraryVendor(),library.getLibraryVersion());
       
       buildDependenciesSet();
@@ -82,6 +82,10 @@ public class LibraryDescriptorImpl {
   public Set<ComponentID> getDependenciesSet()
   {
     return this.dependenciesSet;
+  }
+  
+  public boolean isSlee11() {
+	return isSlee11;
   }
   
 }
