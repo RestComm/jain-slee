@@ -7,8 +7,9 @@ import java.util.List;
 import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorType;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorTypeJar;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbb;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbJar;
 
 /**
  * 
@@ -16,6 +17,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype
  *
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
+ * @author <a href="mailto:emmartins@gmail.com"> Eduardo Martins </a> 
  */
 public class SbbDescriptorFactory extends AbstractDescriptorFactory {
 
@@ -46,9 +48,10 @@ public class SbbDescriptorFactory extends AbstractDescriptorFactory {
       throw new SLEEException("unexpected class of jaxb pojo built: "+(jaxbPojo != null ? jaxbPojo.getClass() : null));
     }
 
-    for (MResourceAdaptorType mResourceAdaptorType : mResourceAdaptorTypeJar.getResourceAdaptorType())
+    MSecurityPermissions mSbbJarSecurityPermissions = mSbbJar.getSecurityPermissions();
+    for (MSbb mSbb : mSbbJar.getSbb())
     {
-      result.add(new SbbDescriptorImpl(mResourceAdaptorType, isSlee11));
+      result.add(new SbbDescriptorImpl(mSbb, mSbbJarSecurityPermissions, isSlee11));
     }
 
     return result;

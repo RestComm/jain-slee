@@ -1,165 +1,112 @@
-/**
- * Start time:11:19:14 2009-01-20<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.CmpField;
-import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetProfileCmpMethod;
-import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbAbstractClass;
-import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetChildRelationMethod;
-
-
-
-
 
 /**
  * Start time:11:19:14 2009-01-20<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ * @author <a href="mailto:emmartins@gmail.com"> Eduardo Martins </a>
  */
 public class MSbbAbstractClass {
 
-	private org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbAbstractClass sAbstractClass=null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbAbstractClass llsAbstractClass=null;
-	
-	private boolean reentrant=false;
-	private String description=null;
-	private String sbbAbstractClassName=null;
-	//Map at this level will mask duplicate declarations
-	//private Map<String,MSbbCMPField> cmpFields=null;
-	private List<MSbbCMPField> cmpFields=null;
-	//it shoudl be getProfileCMPMethods -- but getter would be getGetxxx
-	private List<MGetProfileCMPMethod> profileCMPMethods=null;
-	//it shoudl be getChildRelationMethods -- but getter would be getGetxxx
-	private List<MGetChildRelationMethod> childRelationMethods=null;
-	public MSbbAbstractClass(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbAbstractClass sbbAbstractClass) {
-		super();
-		this.sAbstractClass = sbbAbstractClass;
-		this.description=this.sAbstractClass.getDescription()==null?null:this.sAbstractClass.getDescription().getvalue();
-		this.sbbAbstractClassName=this.sAbstractClass.getSbbAbstractClassName().getvalue();
-		
-		//this.cmpFields=new HashMap<String, MSbbCMPField>();
-		this.cmpFields=new ArrayList< MSbbCMPField>();
-		if(this.sAbstractClass.getCmpField()!=null)
-			for(CmpField cf:this.sAbstractClass.getCmpField())
-			{
-				MSbbCMPField scf=new MSbbCMPField(cf);
-				//this.cmpFields.put(scf.getCmpFieldName(),scf);
-				this.cmpFields.add(scf);
-			}
-		
-		this.profileCMPMethods=new ArrayList<MGetProfileCMPMethod>();
-		if(this.sAbstractClass.getGetProfileCmpMethod()!=null)
-		{
-			for(GetProfileCmpMethod gpc:this.sAbstractClass.getGetProfileCmpMethod())
-			{
-				MGetProfileCMPMethod mgpcm=new MGetProfileCMPMethod(gpc);
-				this.profileCMPMethods.add(mgpcm);
-			}
-		}
-		
-		this.childRelationMethods=new ArrayList<MGetChildRelationMethod>();
-		if(this.sAbstractClass.getGetChildRelationMethod()!=null)
-		{
-			for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetChildRelationMethod gcrm:this.sAbstractClass.getGetChildRelationMethod())
-			{
-				MGetChildRelationMethod mg=new MGetChildRelationMethod(gcrm);
-				this.childRelationMethods.add(mg);
-			}
-		}
-		
-		String v=this.sAbstractClass.getReentrant();
-		if(v==null || !Boolean.parseBoolean(v))
-		{
-			this.reentrant=false;
-		}else
-		{
-			this.reentrant=true;
-		}
-	}
-	public MSbbAbstractClass(
-			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbAbstractClass llSbbAbstractClass) {
-		super();
-		this.llsAbstractClass = llSbbAbstractClass;
-		
-		this.description=this.llsAbstractClass.getDescription()==null?null:this.llsAbstractClass.getDescription().getvalue();
-		this.sbbAbstractClassName=this.llsAbstractClass.getSbbAbstractClassName().getvalue();
-		
-		//this.cmpFields=new HashMap<String, MSbbCMPField>();
-		this.cmpFields=new ArrayList< MSbbCMPField>();
-		if(this.llsAbstractClass.getCmpField()!=null)
-			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.CmpField cf:this.llsAbstractClass.getCmpField())
-			{
-				MSbbCMPField scf=new MSbbCMPField(cf);
-				//this.cmpFields.put(scf.getCmpFieldName(),scf);
-				this.cmpFields.add(scf);
-			}
-		
-		this.profileCMPMethods=new ArrayList<MGetProfileCMPMethod>();
-		if(this.llsAbstractClass.getGetProfileCmpMethod()!=null)
-		{
-			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetProfileCmpMethod gpc:this.llsAbstractClass.getGetProfileCmpMethod())
-			{
-				MGetProfileCMPMethod mgpcm=new MGetProfileCMPMethod(gpc);
-				this.profileCMPMethods.add(mgpcm);
-			}
-		}
-		
-		this.childRelationMethods=new ArrayList<MGetChildRelationMethod>();
-		if(this.llsAbstractClass.getGetChildRelationMethod()!=null)
-		{
-			for(GetChildRelationMethod gcrm:this.llsAbstractClass.getGetChildRelationMethod())
-			{
-				MGetChildRelationMethod mg=new MGetChildRelationMethod(gcrm);
-				this.childRelationMethods.add(mg);
-			}
-		}
-		
-		String v=this.llsAbstractClass.getReentrant();
-		if(v==null || !Boolean.parseBoolean(v))
-		{
-			this.reentrant=false;
-		}else
-		{
-			this.reentrant=true;
-		}
-	}
-	public boolean isReentrant() {
-		return reentrant;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public String getSbbAbstractClassName() {
-		return sbbAbstractClassName;
-	}
-//	public Map<String, MSbbCMPField> getCmpFields() {
-//		return cmpFields;
-//	}
-	public List<MSbbCMPField> getCmpFields() {
-		return cmpFields;
-	}
-	public List<MGetProfileCMPMethod> getProfileCMPMethods() {
-		return profileCMPMethods;
-	}
-	public List<MGetChildRelationMethod> getChildRelationMethods() {
-		return childRelationMethods;
-	}
-	
-	
-	
-	
+  private String description;
+  private String sbbAbstractClassName;
+
+  private boolean reentrant = false;
+
+  //Map at this level will mask duplicate declarations
+  //private Map<String,MSbbCMPField> cmpFields;
+  private List<MSbbCMPField> cmpFields;
+
+  private List<MGetProfileCMPMethod> getProfileCMPMethods;
+
+  private List<MGetChildRelationMethod> getChildRelationMethods;
+
+  public MSbbAbstractClass(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbAbstractClass sbbAbstractClass10)
+  {
+    this.description = sbbAbstractClass10.getDescription() == null ? null : sbbAbstractClass10.getDescription().getvalue();
+    this.sbbAbstractClassName = sbbAbstractClass10.getSbbAbstractClassName().getvalue();
+
+    this.reentrant = Boolean.parseBoolean( sbbAbstractClass10.getReentrant() );
+
+    this.cmpFields = new ArrayList< MSbbCMPField>();
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.CmpField cmpField10 : sbbAbstractClass10.getCmpField())
+    {
+      this.cmpFields.add(new MSbbCMPField(cmpField10));
+    }
+
+    this.getProfileCMPMethods = new ArrayList<MGetProfileCMPMethod>();
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetProfileCmpMethod getProfileCmpMethod10 : sbbAbstractClass10.getGetProfileCmpMethod())
+    {
+      this.getProfileCMPMethods.add(new MGetProfileCMPMethod(getProfileCmpMethod10));
+    }
+
+    this.getChildRelationMethods = new ArrayList<MGetChildRelationMethod>();
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetChildRelationMethod getChildRelationMethod10 : sbbAbstractClass10.getGetChildRelationMethod())
+    {
+      MGetChildRelationMethod mg=new MGetChildRelationMethod(getChildRelationMethod10);
+      this.getChildRelationMethods.add(mg);
+    }
+  }
+
+  public MSbbAbstractClass(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbAbstractClass sbbAbstractClass11)
+  {
+    this.description = sbbAbstractClass11.getDescription() == null ? null : sbbAbstractClass11.getDescription().getvalue();
+    this.sbbAbstractClassName = sbbAbstractClass11.getSbbAbstractClassName().getvalue();
+
+    this.reentrant = Boolean.parseBoolean( sbbAbstractClass11.getReentrant() );
+
+    this.cmpFields = new ArrayList< MSbbCMPField>();
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.CmpField cmpField11 : sbbAbstractClass11.getCmpField())
+    {
+      this.cmpFields.add(new MSbbCMPField(cmpField11));
+    }
+
+    this.getProfileCMPMethods=new ArrayList<MGetProfileCMPMethod>();
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetProfileCmpMethod getProfileCmpMethod11 : sbbAbstractClass11.getGetProfileCmpMethod())
+    {
+      this.getProfileCMPMethods.add(new MGetProfileCMPMethod(getProfileCmpMethod11));
+    }
+
+    this.getChildRelationMethods=new ArrayList<MGetChildRelationMethod>();
+    for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetChildRelationMethod getChildRelationMethod11 : sbbAbstractClass11.getGetChildRelationMethod())
+    {
+      this.getChildRelationMethods.add(new MGetChildRelationMethod(getChildRelationMethod11));
+    }
+  }
+
+  public String getDescription()
+  {
+    return description;
+  }
+
+  public boolean isReentrant() 
+  {
+    return reentrant;
+  }
+
+  public String getSbbAbstractClassName()
+  {
+    return sbbAbstractClassName;
+  }
+
+  public List<MSbbCMPField> getCmpFields()
+  {
+    return cmpFields;
+  }
+
+  public List<MGetProfileCMPMethod> getProfileCMPMethods()
+  {
+    return getProfileCMPMethods;
+  }
+
+  public List<MGetChildRelationMethod> getChildRelationMethods()
+  {
+    return getChildRelationMethods;
+  }
+
 }
