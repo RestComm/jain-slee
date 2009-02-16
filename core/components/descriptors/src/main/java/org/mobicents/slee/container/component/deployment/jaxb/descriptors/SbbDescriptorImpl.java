@@ -84,6 +84,8 @@ public class SbbDescriptorImpl {
 
       this.securityPermisions = sbbJarSecurityPermissions;
 
+      this.isSlee11 = isSlee11;
+      
       buildDependenciesSet();
     }
     catch (Exception e) {
