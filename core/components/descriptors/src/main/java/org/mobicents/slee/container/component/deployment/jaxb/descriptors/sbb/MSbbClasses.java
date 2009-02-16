@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
+import javax.slee.management.DeploymentException;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
 
 /**
@@ -23,21 +25,31 @@ public class MSbbClasses {
   
   private MUsageParametersInterface sbbUsageParametersInterface;
   
-  public MSbbClasses(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbClasses sbbClasses10)
+  public MSbbClasses(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbClasses sbbClasses10) throws DeploymentException
   {
     this.description = sbbClasses10.getDescription() == null ? null : sbbClasses10.getDescription().getvalue();
     
-    this.sbbAbstractClass = new MSbbAbstractClass(sbbClasses10.getSbbAbstractClass());
+    if (sbbClasses10.getSbbAbstractClass() != null) {
+    	this.sbbAbstractClass = new MSbbAbstractClass(sbbClasses10.getSbbAbstractClass());
+    }
+    else {
+    	throw new DeploymentException("no sbb abstract class defined");
+    }
     this.sbbLocalInterface = sbbClasses10.getSbbLocalInterface() == null ? null : new MSbbLocalInterface(sbbClasses10.getSbbLocalInterface());
     this.sbbActivityContextInterface = sbbClasses10.getSbbActivityContextInterface() == null ? null : new MSbbActivityContextInterface(sbbClasses10.getSbbActivityContextInterface());
     this.sbbUsageParametersInterface = sbbClasses10.getSbbUsageParametersInterface() == null ? null : new MUsageParametersInterface(sbbClasses10.getSbbUsageParametersInterface());
   }
   
-  public MSbbClasses(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbClasses sbbClasses11)
+  public MSbbClasses(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbClasses sbbClasses11) throws DeploymentException
   {
     this.description = sbbClasses11.getDescription() == null ? null : sbbClasses11.getDescription().getvalue();
     
-    this.sbbAbstractClass = new MSbbAbstractClass(sbbClasses11.getSbbAbstractClass());
+    if (sbbClasses11.getSbbAbstractClass() != null) {
+    	this.sbbAbstractClass = new MSbbAbstractClass(sbbClasses11.getSbbAbstractClass());
+    }
+    else {
+    	throw new DeploymentException("no sbb abstract class defined");
+    }
     this.sbbLocalInterface = sbbClasses11.getSbbLocalInterface() == null ? null : new MSbbLocalInterface(sbbClasses11.getSbbLocalInterface());
     this.sbbActivityContextInterface = sbbClasses11.getSbbActivityContextInterface() == null ? null : new MSbbActivityContextInterface(sbbClasses11.getSbbActivityContextInterface());
     this.sbbUsageParametersInterface = sbbClasses11.getSbbUsageParametersInterface() == null ? null : new MUsageParametersInterface(sbbClasses11.getSbbUsageParametersInterface());
