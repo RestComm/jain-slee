@@ -68,7 +68,7 @@ public class LibraryComponent extends SleeComponent {
 	
 	@Override
 	public boolean isSlee11() {
-		return descriptor.isSlee11();
+		return true;
 	}
 	
 	@Override
