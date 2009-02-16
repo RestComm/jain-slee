@@ -28,10 +28,9 @@ public class MSbbClasses {
     this.description = sbbClasses10.getDescription() == null ? null : sbbClasses10.getDescription().getvalue();
     
     this.sbbAbstractClass = new MSbbAbstractClass(sbbClasses10.getSbbAbstractClass());
-    this.sbbLocalInterface = new MSbbLocalInterface(sbbClasses10.getSbbLocalInterface());
-    this.sbbActivityContextInterface = new MSbbActivityContextInterface(sbbClasses10.getSbbActivityContextInterface());
-    
-    this.sbbUsageParametersInterface = new MUsageParametersInterface(sbbClasses10.getSbbUsageParametersInterface());
+    this.sbbLocalInterface = sbbClasses10.getSbbLocalInterface() == null ? null : new MSbbLocalInterface(sbbClasses10.getSbbLocalInterface());
+    this.sbbActivityContextInterface = sbbClasses10.getSbbActivityContextInterface() == null ? null : new MSbbActivityContextInterface(sbbClasses10.getSbbActivityContextInterface());
+    this.sbbUsageParametersInterface = sbbClasses10.getSbbUsageParametersInterface() == null ? null : new MUsageParametersInterface(sbbClasses10.getSbbUsageParametersInterface());
   }
   
   public MSbbClasses(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.SbbClasses sbbClasses11)
@@ -39,10 +38,9 @@ public class MSbbClasses {
     this.description = sbbClasses11.getDescription() == null ? null : sbbClasses11.getDescription().getvalue();
     
     this.sbbAbstractClass = new MSbbAbstractClass(sbbClasses11.getSbbAbstractClass());
-    this.sbbLocalInterface = new MSbbLocalInterface(sbbClasses11.getSbbLocalInterface());
-    this.sbbActivityContextInterface = new MSbbActivityContextInterface(sbbClasses11.getSbbActivityContextInterface());
-    
-    this.sbbUsageParametersInterface = new MUsageParametersInterface(sbbClasses11.getSbbUsageParametersInterface());
+    this.sbbLocalInterface = sbbClasses11.getSbbLocalInterface() == null ? null : new MSbbLocalInterface(sbbClasses11.getSbbLocalInterface());
+    this.sbbActivityContextInterface = sbbClasses11.getSbbActivityContextInterface() == null ? null : new MSbbActivityContextInterface(sbbClasses11.getSbbActivityContextInterface());
+    this.sbbUsageParametersInterface = sbbClasses11.getSbbUsageParametersInterface() == null ? null : new MUsageParametersInterface(sbbClasses11.getSbbUsageParametersInterface());
   }
   
   public String getDescription()
