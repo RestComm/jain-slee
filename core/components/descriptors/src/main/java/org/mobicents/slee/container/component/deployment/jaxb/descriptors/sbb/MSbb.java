@@ -54,7 +54,7 @@ public class MSbb {
     this.sbbVendor = sbb10.getSbbVendor().getvalue();
     this.sbbVersion = sbb10.getSbbVersion().getvalue();
 
-    this.sbbAlias = sbb10.getSbbAlias().getvalue();
+    this.sbbAlias = sbb10.getSbbAlias() == null ? null : sbb10.getSbbAlias().getvalue();
 
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbRef sbbRef10 : sbb10.getSbbRef())
     {
