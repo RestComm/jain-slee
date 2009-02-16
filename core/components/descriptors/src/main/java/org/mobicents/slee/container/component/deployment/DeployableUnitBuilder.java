@@ -230,13 +230,13 @@ public class DeployableUnitBuilder {
 				}
 				else if (sleeComponent instanceof SbbComponent) {
 					SbbComponent component = (SbbComponent) sleeComponent;
-					Class abstractSbbClass = componentClassLoader.loadClass(component.getDescriptor().getSbbAbstractClass().getSbbAbstractClassName());
+					Class abstractSbbClass = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbAbstractClass().getSbbAbstractClassName());
 					component.setAbstractSbbClass(abstractSbbClass);
-					Class sbbLocalInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getSbbLocalInterface().getSbbLocalInterfaceName());
+					Class sbbLocalInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbLocalInterface().getSbbLocalInterfaceName());
 					component.setSbbLocalInterfaceClass(sbbLocalInterfaceClass);
-					Class activityContextInterface = componentClassLoader.loadClass(component.getDescriptor().getSbbActivityContextInterface().getInterfaceName());
+					Class activityContextInterface = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbActivityContextInterface().getInterfaceName());
 					component.setActivityContextInterface(activityContextInterface);
-					Class usageParametersInterface = componentClassLoader.loadClass(component.getDescriptor().getSbbUsageParametersInterface().getUsageParametersInterfaceName());
+					Class usageParametersInterface = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbUsageParametersInterface().getUsageParametersInterfaceName());
 					component.setUsageParametersInterface(usageParametersInterface);
 				}
 			}
