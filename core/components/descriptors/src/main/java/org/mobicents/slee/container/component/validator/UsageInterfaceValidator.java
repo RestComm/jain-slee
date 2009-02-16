@@ -591,11 +591,17 @@ public class UsageInterfaceValidator {
 	}
 
 	static boolean validateResourceAdaptorUsageParameterInterface(
-			ResourceAdaptorComponent component,
-			Map<String, Method> abstractClassMethods,
-			Map<String, Method> abstractMethodsFromSuperClasses) {
+			ResourceAdaptorComponent component) {
 
-		return false;
+		boolean passed = true;
+		if (!validateUsageParameterInterface(component.getResourceAdaptorID(), component
+				.isSlee11(), component.getResourceAdaptorUsageParametersInterfaceClass(), component
+				.getDescriptor().getResourceAdaptorUsageParametersInterface().getUsageParameter()
+				)) {
+			passed = false;
+		}
+		
+		return passed;
 	}
 
 	static boolean validateProfileSpecificationUsageParameterInterface(
