@@ -416,6 +416,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 				if (cmpFields.size() != fieldToType.size()) {
 					passed = false;
+					//System.err.println(fieldToType.keySet());
 					errorBuffer = appendToBuffer(
 							"Profile specification profile cmp interface cmp field declarations do not match declaredfields in descriptor.",
 							"10.6", errorBuffer);
@@ -460,7 +461,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -517,7 +518,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -574,7 +575,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -632,7 +633,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -732,6 +733,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// we can have setter/getter like as stand alone ?
 					if (_FORBIDEN_METHODS.contains(key)) {
 						// this is forrbiden, section 10.18
+						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification profile management interface declares method from forbiden list, method: "
 										+ entry.getKey(), "10.18", errorBuffer);
@@ -764,7 +766,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					Class[] params = entry.getValue().getParameterTypes();
 					for (int index = 0; index < params.length; index++) {
 						if (_ALLOWED_MANAGEMENT_TYPES.contains(params[index]
-								.toString())) {
+								.toString()) || ClassUtils.checkInterfaces(params[index], "java.io.Serializable")!=null) {
 
 						} else {
 							passed = false;
@@ -784,7 +786,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -866,7 +868,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			// FIXME: does mgmt interface have to define both CMP accessors?
 			Iterator<Entry<String, Method>> entryIterator = managementInterfaceMethods
 					.entrySet().iterator();
-
+	
 			while (entryIterator.hasNext()) {
 
 				Entry<String, Method> entry = entryIterator.next();
@@ -885,8 +887,10 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				} else {
 
 					// we can have setter/getter like as stand alone ?
+
 					if (_FORBIDEN_METHODS.contains(key)) {
 						// this is forrbiden, section 10.18
+						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification profile local interface declares method from forbiden list, method: "
 										+ entry.getKey(), "10.18", errorBuffer);
@@ -927,8 +931,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					for (int index = 0; index < params.length; index++) {
 						// FIXME: whichc should we use here?
 						if ((_ALLOWED_CMPS_TYPES.contains(params[index]
-								.toString()) || validateSerializableType(
-								params[index], key))) {
+								.toString())  || ClassUtils.checkInterfaces(params[index], "java.io.Serializable")!=null)) {
 
 						} else {
 							passed = false;
@@ -964,7 +967,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -1463,7 +1466,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -1510,7 +1513,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -1629,8 +1632,6 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				queryName = queryName.replaceFirst(queryName.charAt(0) + "",
 						Character.toLowerCase(queryName.charAt(0)) + "");
 
-				System.err.println("x: " + queryName + " --> "
-						+ nameToQueryMap.containsKey(queryName));
 
 				if (!nameToQueryMap.containsKey(queryName)) {
 					passed = false;
@@ -1787,7 +1788,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -2195,7 +2196,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -2225,7 +2226,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				// System.err.println(errorBuffer);
+				// //System.err.println(errorBuffer);
 				logger.error(errorBuffer);
 			}
 
@@ -2374,7 +2375,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}
@@ -2556,7 +2557,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				//System.err.println(errorBuffer);
 			}
 
 		}

@@ -92,4 +92,71 @@ public class MProfileSpecRef {
   {
     return this.profileSpecificationID;
   }
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result
+			+ ((description == null) ? 0 : description.hashCode());
+	result = prime * result
+			+ ((profileSpecAlias == null) ? 0 : profileSpecAlias.hashCode());
+	result = prime * result
+			+ ((profileSpecName == null) ? 0 : profileSpecName.hashCode());
+	result = prime * result
+			+ ((profileSpecVendor == null) ? 0 : profileSpecVendor.hashCode());
+	result = prime
+			* result
+			+ ((profileSpecVersion == null) ? 0 : profileSpecVersion.hashCode());
+	result = prime
+			* result
+			+ ((profileSpecificationID == null) ? 0 : profileSpecificationID
+					.hashCode());
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	MProfileSpecRef other = (MProfileSpecRef) obj;
+	if (description == null) {
+		if (other.description != null)
+			return false;
+	} else if (!description.equals(other.description))
+		return false;
+	if (profileSpecAlias == null) {
+		if (other.profileSpecAlias != null)
+			return false;
+	} else if (!profileSpecAlias.equals(other.profileSpecAlias))
+		return false;
+	if (profileSpecName == null) {
+		if (other.profileSpecName != null)
+			return false;
+	} else if (!profileSpecName.equals(other.profileSpecName))
+		return false;
+	if (profileSpecVendor == null) {
+		if (other.profileSpecVendor != null)
+			return false;
+	} else if (!profileSpecVendor.equals(other.profileSpecVendor))
+		return false;
+	if (profileSpecVersion == null) {
+		if (other.profileSpecVersion != null)
+			return false;
+	} else if (!profileSpecVersion.equals(other.profileSpecVersion))
+		return false;
+	if (profileSpecificationID == null) {
+		if (other.profileSpecificationID != null)
+			return false;
+	} else if (!profileSpecificationID.equals(other.profileSpecificationID))
+		return false;
+	return true;
+}
+  
+  
+  
 }

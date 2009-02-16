@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.slee.SbbID;
 import javax.slee.profile.ProfileID;
@@ -27,14 +26,16 @@ import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventDirection.*;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
@@ -54,10 +55,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MS
  */
 public class SbbComponentValidator implements Validator {
 
-
-
 	public static final String _SBB_AS_SBB_ACTIVITY_CONTEXT_INTERFACE = "asSbbActivityContextInterface";
-
 
 	public static final String _SBB_GET_CHILD_RELATION_SIGNATURE_PART = "[]";
 
@@ -101,7 +99,11 @@ public class SbbComponentValidator implements Validator {
 		boolean valid = true;
 		// Uf here we go
 		try {
-
+			if(!validateDescriptor())
+			{
+				valid = false;
+				return valid;
+			}
 			Map<String, Method> abstractMehotds, superClassesAbstractMethod, concreteMethods, superClassesConcreteMethods;
 
 			abstractMehotds = ClassUtils
@@ -117,13 +119,11 @@ public class SbbComponentValidator implements Validator {
 					.getConcreteMethodsFromSuperClasses(this.component
 							.getAbstractSbbClass());
 
-
 			if (!validateAbstractClassConstraints(concreteMethods,
 					superClassesConcreteMethods)) {
 				valid = false;
 			}
 
-			
 			if (!validateCmpFileds(abstractMehotds, superClassesAbstractMethod)) {
 				valid = false;
 			}
@@ -162,30 +162,31 @@ public class SbbComponentValidator implements Validator {
 			if (!validateEnvEntries()) {
 				valid = false;
 			}
-			
-	
+
 			// now lets test abstract methods, we have to remove all of them by
 			// now?
 			if (abstractMehotds.size() > 0
 					|| superClassesAbstractMethod.size() > 0) {
 				valid = false;
-		
-					logger
-							.error(this.component.getDescriptor()
-									.getSbbID()
-									+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
-									+ Arrays.toString(abstractMehotds.keySet()
-											.toArray())
-									+ ", methods from super classes: "+Arrays.toString(superClassesAbstractMethod.keySet()
-											.toArray()));
-					//System.err.println(this.component.getDescriptor()
-//							.getSbbComponentKey()
-//							+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
-//							+ Arrays.toString(abstractMehotds.keySet()
-//									.toArray())
-//							+ ", methods from super classes: "+Arrays.toString(superClassesAbstractMethod.keySet()
-//									.toArray()));
-				
+
+				logger
+						.error(this.component.getDescriptor().getSbbID()
+								+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
+								+ Arrays.toString(abstractMehotds.keySet()
+										.toArray())
+								+ ", methods from super classes: "
+								+ Arrays.toString(superClassesAbstractMethod
+										.keySet().toArray()));
+				// //System.err.println(this.component.getDescriptor()
+				// .getSbbComponentKey()
+				// +
+				// " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
+				// + Arrays.toString(abstractMehotds.keySet()
+				// .toArray())
+				// +
+				// ", methods from super classes: "+Arrays.toString(superClassesAbstractMethod.keySet()
+				// .toArray()));
+
 			}
 
 		} catch (Exception e) {
@@ -420,9 +421,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			
+
 			logger.error(errorBuffer);
-			//System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -603,7 +604,7 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer);
-			//System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -794,7 +795,7 @@ public class SbbComponentValidator implements Validator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer);
-				//System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
 			}
 		}
 
@@ -893,7 +894,7 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer);
-			//System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 
 		}
 
@@ -972,6 +973,7 @@ public class SbbComponentValidator implements Validator {
 			// their names do not start with sbb/ejb and if they are contained
 			// in
 			// collections with concrete methods from sbb
+			// System.err.println(sbbAbstractClassConcreteMethods.keySet());
 
 			for (Method methodToCheck : interfaceMethods.values()) {
 				if (methodToCheck.getName().startsWith("ejb")
@@ -986,12 +988,11 @@ public class SbbComponentValidator implements Validator {
 
 				}
 
-				Method methodFromSbbClass = sbbAbstractClassConcreteMethods
-						.get(ClassUtils.getMethodKey(methodToCheck));
-				if (methodFromSbbClass == null) {
-					methodFromSbbClass = sbbAbstractClassConcreteFromSuperClasses
-							.get(ClassUtils.getMethodKey(methodToCheck));
-				}
+				Method methodFromSbbClass = ClassUtils.getMethodFromMap(
+						methodToCheck.getName(), methodToCheck
+								.getParameterTypes(),
+						sbbAbstractClassConcreteMethods,
+						sbbAbstractClassConcreteFromSuperClasses);
 
 				if (methodFromSbbClass == null) {
 
@@ -1030,7 +1031,7 @@ public class SbbComponentValidator implements Validator {
 									+ sbbLocalInterfaceClass.getName()
 									+ " with name:  "
 									+ methodToCheck.getName()
-									+ " is not implemented by sbb class or its super classes. Its visibility, throws clause is different or modifiers are different!",
+									+ " is not implemented by sbb class or its super classes. Its visibility, throws clause or modifiers are different!",
 							"5.6", errorBuffer);
 
 					// we fails fast here
@@ -1047,7 +1048,7 @@ public class SbbComponentValidator implements Validator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer);
-				//System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
 
 			}
 		}
@@ -1096,8 +1097,6 @@ public class SbbComponentValidator implements Validator {
 					new Class[0], sbbAbstractClassMethods,
 					sbbAbstractMethodsFromSuperClasses);
 
-
-			
 			if (getterFieldMethod == null) {
 				errorBuffer = appendToBuffer(
 						"Failed to validate CMP field. Could not find getter method: "
@@ -1116,7 +1115,6 @@ public class SbbComponentValidator implements Validator {
 					new Class[] { fieldType }, sbbAbstractClassMethods,
 					sbbAbstractMethodsFromSuperClasses);
 
-			
 			if (setterFieldMethod == null) {
 				errorBuffer = appendToBuffer(
 						"Failed to validate CMP field. Could not find setter method: "
@@ -1346,7 +1344,7 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer);
-			//System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -1415,7 +1413,8 @@ public class SbbComponentValidator implements Validator {
 			// we can have only one receive method
 
 			EventTypeComponent eventTypeComponent = this.repository
-					.getComponentByID(event.getEventReference().getComponentID());
+					.getComponentByID(event.getEventReference()
+							.getComponentID());
 
 			if (eventTypeComponent == null) {
 				passed = false;
@@ -1534,7 +1533,7 @@ public class SbbComponentValidator implements Validator {
 			if (!receiverWithoutContextPresent && !receiverWithContextPresent) {
 				passed = false;
 				errorBuffer = appendToBuffer(
-						"Failed to validate event receive method. Sbb must define handler method when direction is \"XReceive\", event: "
+						"Failed to validate event receive method. Sbb must define handler method when direction is \"XReceive\". Event receiver has different name or wrong parameters, event: "
 								+ event.getEventName(), "8.5.2", errorBuffer);
 			}
 			// now its time for initial event selector
@@ -1550,7 +1549,7 @@ public class SbbComponentValidator implements Validator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer);
-				 //System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
 			}
 		}
 		return passed;
@@ -1644,7 +1643,7 @@ public class SbbComponentValidator implements Validator {
 		} finally {
 			if (!passed) {
 				logger.error(errorBuffer);
-				 //System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
 			}
 		}
 		return passed;
@@ -1709,7 +1708,7 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer);
-			//System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 
 		}
 
@@ -1727,7 +1726,8 @@ public class SbbComponentValidator implements Validator {
 			// we can have only one receive method
 
 			EventTypeComponent eventTypeComponent = this.repository
-					.getComponentByID(event.getEventReference().getComponentID());
+					.getComponentByID(event.getEventReference()
+							.getComponentID());
 
 			if (eventTypeComponent == null) {
 				passed = false;
@@ -1780,7 +1780,7 @@ public class SbbComponentValidator implements Validator {
 					// fail fast
 					passed = false;
 					errorBuffer = appendToBuffer(
-							"Failed to validate fire vent method, JSLEE 1.1 sbbs have to have one of those methods. Event name: "
+							"Failed to validate fire vent method, JSLEE 1.1 sbbs have to have one of those methods. Sbb class either does not declare them, method has wrong parameters/name or is concrete. Event name: "
 									+ event.getEventName(), "8.5.1",
 							errorBuffer);
 					// the end
@@ -1817,7 +1817,7 @@ public class SbbComponentValidator implements Validator {
 
 			if (!passed) {
 				logger.error(errorBuffer);
-				 //System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
 
 			}
 		}
@@ -1874,7 +1874,7 @@ public class SbbComponentValidator implements Validator {
 
 		if (!passed) {
 			logger.error(errorBuffer);
-			 //System.err.println(errorBuffer);
+			// System.err.println(errorBuffer);
 		}
 
 		return passed;
@@ -1887,8 +1887,9 @@ public class SbbComponentValidator implements Validator {
 		if (this.component.getUsageParametersInterface() == null) {
 			return true;
 		} else {
-			return UsageInterfaceValidator
-					.validateSbbUsageParameterInterface(this.component,sbbAbstractClassMethods,sbbAbstractMethodsFromSuperClasses);
+			return UsageInterfaceValidator.validateSbbUsageParameterInterface(
+					this.component, sbbAbstractClassMethods,
+					sbbAbstractMethodsFromSuperClasses);
 		}
 	}
 
@@ -1964,12 +1965,12 @@ public class SbbComponentValidator implements Validator {
 
 				// this is referential integrity
 				Map<String, ProfileSpecificationID> map = new HashMap<String, ProfileSpecificationID>();
-				
-				for(MProfileSpecRef rf:this.component.getDescriptor().getProfileSpecReference())
-				{
+
+				for (MProfileSpecRef rf : this.component.getDescriptor()
+						.getProfileSpecReference()) {
 					map.put(rf.getProfileSpecAlias(), rf.getComponentID());
 				}
-				
+
 				ProfileSpecificationID profileID = map.get(method
 						.getProfileSpecAliasRef());
 				ProfileSpecificationComponent profileComponent = this.repository
@@ -2011,7 +2012,7 @@ public class SbbComponentValidator implements Validator {
 				if (exceptions.length != 2) {
 					passed = false;
 					errorBuffer = appendToBuffer(
-							"Get profile CMP interface method has wrong number of exceptions, it can throw only two, method: "
+							"Get profile CMP interface method has wrong number of exceptions, it can throw only two - UnrecognizedProfileNameException and UnrecognizedProfileTableNameException, method: "
 									+ method.getProfileCmpMethodName(), "6,7",
 							errorBuffer);
 				}
@@ -2045,7 +2046,7 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				//System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
 				logger.error(errorBuffer);
 			}
 
@@ -2066,7 +2067,7 @@ public class SbbComponentValidator implements Validator {
 					.getEnvEntries();
 			for (MEnvEntry e : envEntries) {
 				if (!_ENV_ENTRIES_TYPES.contains(e.getEnvEntryType())) {
-					
+
 					passed = false;
 					errorBuffer = appendToBuffer("Env entry has wrong type: "
 							+ e.getEnvEntryType() + " , method: "
@@ -2077,7 +2078,211 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				 //System.err.println(errorBuffer);
+				// System.err.println(errorBuffer);
+				logger.error(errorBuffer);
+			}
+
+		}
+
+		return passed;
+	}
+
+	boolean validateDescriptor() {
+		boolean passed = true;
+		String errorBuffer = new String("");
+
+		try {
+
+			Map<String, MProfileSpecRef> declaredProfileReferences = new HashMap<String, MProfileSpecRef>();
+			Map<String, MSbbRef> declaredSbbreferences = new HashMap<String, MSbbRef>();
+
+			SbbDescriptorImpl descriptor = this.component.getDescriptor();
+
+			for (MProfileSpecRef ref : descriptor.getProfileSpecReference()) {
+				// if(ref.getProfileSpecAlias()==null ||
+				// ref.getProfileSpecAlias().compareTo("")==0)
+				if (ref.getProfileSpecAlias() != null
+						&& ref.getProfileSpecAlias().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares profile spec reference without alias, id: "
+									+ ref.getComponentID(), "3.1.8",
+							errorBuffer);
+
+				} else if (declaredProfileReferences.containsKey(ref
+						.getProfileSpecAlias())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares profile spec reference more than once, alias: "
+									+ ref.getProfileSpecAlias(), "3.1.8",
+							errorBuffer);
+
+				} else {
+					declaredProfileReferences.put(ref.getProfileSpecAlias(),
+							ref);
+				}
+			}
+
+			for (MSbbRef ref : descriptor.getSbbRefs()) {
+				if (ref.getSbbAlias() == null
+						|| ref.getSbbAlias().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares sbb reference without alias, id: "
+									+ ref.getComponentID(), "3.1.8",
+							errorBuffer);
+
+				} else if (declaredSbbreferences.containsKey(ref.getSbbAlias())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares sbb reference more than once, alias: "
+									+ ref.getSbbAlias(), "3.1.8", errorBuffer);
+
+				} else {
+					declaredSbbreferences.put(ref.getSbbAlias(), ref);
+				}
+			}
+
+			Set<String> childRelationMethods = new HashSet<String>();
+
+			for (MGetChildRelationMethod childMethod : descriptor
+					.getSbbAbstractClass().getChildRelationMethods()) {
+				if (childMethod.getChildRelationMethodName() == null
+						|| childMethod.getChildRelationMethodName().compareTo(
+								"") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares child relation method without name, alias: "
+									+ childMethod.getSbbAliasRef(), "3.1.8",
+							errorBuffer);
+				} else if (childMethod.getSbbAliasRef() == null
+						|| childMethod.getSbbAliasRef().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares child relation method without sbb alias, name: "
+									+ childMethod.getChildRelationMethodName(),
+							"3.1.8", errorBuffer);
+				} else if (!declaredSbbreferences.containsKey(childMethod
+						.getSbbAliasRef())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares child relation method with sbb alias that has not been declared, name: "
+									+ childMethod.getChildRelationMethodName(),
+							"3.1.8", errorBuffer);
+				} else if (childRelationMethods.contains(childMethod
+						.getChildRelationMethodName())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares child relation method more than once, name: "
+									+ childMethod.getChildRelationMethodName(),
+							"3.1.8", errorBuffer);
+				} else {
+					childRelationMethods.add(childMethod
+							.getChildRelationMethodName());
+				}
+
+			}
+
+			Map<String, MSbbCMPField> declaredCmps = new HashMap<String, MSbbCMPField>();
+			for (MSbbCMPField cmp : descriptor.getSbbAbstractClass()
+					.getCmpFields()) {
+				if (cmp.getCmpFieldName() == null
+						|| cmp.getCmpFieldName().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor cmp field with empty name.",
+							"3.1.8", errorBuffer);
+				} else if (cmp.getSbbAliasRef() != null
+						|| cmp.getSbbAliasRef().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares cmp field with empty sbb alias, name: "
+									+ cmp.getCmpFieldName(), "3.1.8",
+							errorBuffer);
+				} else if (declaredCmps.containsKey(cmp.getCmpFieldName())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares cmp field more than once, name: "
+									+ cmp.getCmpFieldName(), "3.1.8",
+							errorBuffer);
+				} else {
+					declaredCmps.put(cmp.getCmpFieldName(), cmp);
+				}
+			}
+
+			// This is required, events can be decalred once
+			Map<String, MEventTypeRef> eventNameToReference = new HashMap<String, MEventTypeRef>();
+			for (int i = 0; i < descriptor.getEvents().size(); i++) {
+				MEventEntry event = descriptor.getEvents().get(i);
+				if (event.getEventName() == null
+						|| event.getEventName().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares event with empty event name, ",
+							"3.1.8", errorBuffer);
+				} else if (eventNameToReference.containsKey(event
+						.getEventName())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares event with the same event name more than once, name: "
+									+ event.getEventName(), "3.1.8",
+							errorBuffer);
+				} else if (eventNameToReference.containsValue(event
+						.getEventReference())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares  event reference twice, events can be references only once, name: "
+									+ event.getEventName(), "3.1.8",
+							errorBuffer);
+				} else {
+					eventNameToReference.put(event.getEventName(), event
+							.getEventReference());
+				}
+
+			}
+
+			// FIXME: ra part?
+
+			if (descriptor.getSbbActivityContextInterface() != null) {
+				if (descriptor.getSbbActivityContextInterface()
+						.getInterfaceName() == null
+						|| descriptor.getSbbActivityContextInterface()
+								.getInterfaceName().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares sbb aci which is empty.",
+							"3.1.8", errorBuffer);
+				}
+			}
+
+			if (descriptor.getSbbLocalInterface() != null) {
+				if (descriptor.getSbbLocalInterface()
+						.getSbbLocalInterfaceName() == null
+						|| descriptor.getSbbLocalInterface()
+								.getSbbLocalInterfaceName().compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares sbb local interface which is empty.",
+							"3.1.8", errorBuffer);
+				}
+			}
+
+			if (descriptor.getSbbUsageParametersInterface() != null) {
+				if (descriptor.getSbbUsageParametersInterface()
+						.getUsageParametersInterfaceName() == null
+						|| descriptor.getSbbUsageParametersInterface()
+								.getUsageParametersInterfaceName()
+								.compareTo("") == 0) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Sbb descriptor declares sbb usage interface which is empty.",
+							"3.1.8", errorBuffer);
+				}
+			}
+
+		} finally {
+			if (!passed) {
+				// System.err.println(errorBuffer);
 				logger.error(errorBuffer);
 			}
 
