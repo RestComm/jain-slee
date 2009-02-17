@@ -50,13 +50,13 @@
                 </cmp-field>
                  <get-child-relation-method>
                     <description />
-                    <sbb-alias-ref>sbb-alias-ref</sbb-alias-ref>
+                    <sbb-alias-ref>sbb-alias</sbb-alias-ref>
                     <get-child-relation-method-name>childRelationOne</get-child-relation-method-name>
                     <default-priority>123</default-priority>
                 </get-child-relation-method>
                 <get-child-relation-method>
                     <description />
-                    <sbb-alias-ref>sbb-alias-ref</sbb-alias-ref>
+                    <sbb-alias-ref>sbb-alias</sbb-alias-ref>
                     <get-child-relation-method-name>childRelationTwo</get-child-relation-method-name>
                     <default-priority>123</default-priority>
                 </get-child-relation-method>

@@ -114,7 +114,8 @@ public class TCUtilityClass extends TestCase {
 	protected void validateValue(String value, String text, String presumableValue)
 	{
 		assertNotNull(text,value);
-		assertTrue(text+" is not equal to "+presumableValue,value.compareTo(presumableValue)==0);
+		assertTrue(text+": \""+value+"\" +is not equal to \""+presumableValue+"\"",value.compareTo(presumableValue)==0);
+		
 	}
 	
 }

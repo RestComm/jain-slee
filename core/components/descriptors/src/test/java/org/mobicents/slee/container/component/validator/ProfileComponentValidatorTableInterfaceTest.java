@@ -181,7 +181,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	public void testProfileTableInterfaceConstraintsWrongOP() throws Exception {
 	
 		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
-		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_WRONG_OP_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
@@ -209,7 +209,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	public void testProfileTableInterfaceConstraintsCollatorOnNonString() throws Exception {
 
 		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
-		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_COLLATOR_ON_NONSTRING_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
@@ -240,7 +240,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	public void testProfileTableInterfaceConstraintsExceptionalType() throws Exception {
 
 		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
-		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_ADDRESS_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
