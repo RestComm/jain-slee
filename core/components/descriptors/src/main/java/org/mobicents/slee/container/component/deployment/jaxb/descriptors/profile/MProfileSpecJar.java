@@ -41,7 +41,8 @@ public class MProfileSpecJar {
       this.profileSpec.add( new MProfileSpec(profileSpec11) );
     }
 
-    this.securityPermissions = new MSecurityPermissions(profileSpecJar11.getSecurityPermissions());
+    if(profileSpecJar11.getSecurityPermissions()!=null)
+    	this.securityPermissions = new MSecurityPermissions(profileSpecJar11.getSecurityPermissions());
   }
   
   public String getDescription()

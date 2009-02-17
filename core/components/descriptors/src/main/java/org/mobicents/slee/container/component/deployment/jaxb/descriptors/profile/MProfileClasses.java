@@ -38,12 +38,17 @@ public class MProfileClasses {
     this.description = profileClasses11.getDescription() == null ? null : profileClasses11.getDescription().getvalue();
 
     this.profileCMPInterface = new MProfileCMPInterface(profileClasses11.getProfileCmpInterface());
-    this.profileManagementInterface = new MProfileManagementInterface(profileClasses11.getProfileManagementInterface());
-    this.profileAbstractClass = new MProfileAbstractClass(profileClasses11.getProfileAbstractClass());
+    if(profileClasses11.getProfileManagementInterface()!=null)
+    	this.profileManagementInterface = new MProfileManagementInterface(profileClasses11.getProfileManagementInterface());
+    if(profileClasses11.getProfileAbstractClass()!=null)
+    	this.profileAbstractClass = new MProfileAbstractClass(profileClasses11.getProfileAbstractClass());
 
-    this.profileLocalInterface = new MProfileLocalInterface(profileClasses11.getProfileLocalInterface());
-    this.profileTableInterface = new MProfileTableInterface(profileClasses11.getProfileTableInterface());
-    this.profileUsageParameterInterface = new MUsageParametersInterface(profileClasses11.getProfileUsageParametersInterface());
+    if(profileClasses11.getProfileLocalInterface()!=null)
+    	this.profileLocalInterface = new MProfileLocalInterface(profileClasses11.getProfileLocalInterface());
+    if(profileClasses11.getProfileTableInterface()!=null)
+    	this.profileTableInterface = new MProfileTableInterface(profileClasses11.getProfileTableInterface());
+    if(profileClasses11.getProfileUsageParametersInterface()!=null)
+    	this.profileUsageParameterInterface = new MUsageParametersInterface(profileClasses11.getProfileUsageParametersInterface());
   }
 
   public String getDescription()

@@ -9,6 +9,7 @@
 package org.mobicents.slee.container.component.validator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.slee.EventTypeID;
@@ -27,6 +28,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.ClassUtils;
@@ -52,9 +54,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	
 	public void testSbbOne11ConstraintsOk() throws Exception {
 		
-
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		final SbbDescriptorImpl descriptor = specs.get(0);
+		
+		
 		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
@@ -75,8 +78,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	
 	public void testSbbOne11ConstraintsWrongThrows() throws Exception {
 
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
+		
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		final SbbDescriptorImpl descriptor = specs.get(0);
+
 		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongThrowsSbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -93,8 +98,9 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	}
 	public void testSbbOne11ConstraintsWrongParameter() throws Exception {
 
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		final SbbDescriptorImpl descriptor = specs.get(0);
+
 		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongParameterSbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -111,8 +117,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	}
 	public void testSbbOne11ConstraintsWrongVisibility() throws Exception {
 
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_OK), null)[0];
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		final SbbDescriptorImpl descriptor = specs.get(0);
+
+	
 		SbbComponent component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongVisibilitySbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -130,8 +138,9 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	
 	public void testSbbOne11ConstraintsWrongPrefix() throws Exception {
 
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_PROFILE_CMP_WRONG_PREFIX), null)[0];
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_WRONG_PREFIX));
+		final SbbDescriptorImpl descriptor = specs.get(0);
+
 		SbbComponent component = new FakeComponent(descriptor);
 
 		SbbComponentValidator validator = new SbbComponentValidator();

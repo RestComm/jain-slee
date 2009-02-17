@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.slee.ComponentID;
+import javax.slee.SbbID;
+import javax.slee.profile.ProfileID;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;

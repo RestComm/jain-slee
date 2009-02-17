@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.slee.management.DeploymentException;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
@@ -98,13 +99,16 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	public void testParseOne10() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		SbbDescriptorImpl[] specs=SbbDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE10), null);
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE10));
+		
+		
 		assertNotNull("Sbb return value is null", specs);
-		assertTrue("Sbb  size is wrong!!!", specs.length==1);
-		assertNotNull("Sbb return value cell is null", specs[0]);
-		assertFalse("Sbb should indicate v1.0 not v1.1",specs[0].isSlee11());
+		assertTrue("Sbb  size is wrong!!!", specs.size()==1);
+		assertNotNull("Sbb return value cell is null", specs.get(0));
+		assertFalse("Sbb should indicate v1.0 not v1.1",specs.get(0).isSlee11());
 		//Test values
-		doTestOnValues(specs[0]);
+		doTestOnValues(specs.get(0));
 		
 	}
 
@@ -112,33 +116,35 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	public void testParseTwo10() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		SbbDescriptorImpl[] specs=SbbDescriptorImpl.parseDocument(super.parseDocument(_TWO_DESCRIPTOR_FILE10), null);
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE10));
+		
+
 		assertNotNull("Sbb return value is null", specs);
-		assertTrue("Sbb  size is wrong!!!", specs.length==2);
-		assertNotNull("Sbb return value cell is null", specs[0]);
-		assertFalse("Sbb should indicate v1.0 not v1.1",specs[0].isSlee11());
+		assertTrue("Sbb  size is wrong!!!", specs.size()==2);
+		assertNotNull("Sbb return value cell is null", specs.get(0));
+		assertFalse("Sbb should indicate v1.0 not v1.1",specs.get(0).isSlee11());
 		//Test values
-		doTestOnValues(specs[0]);
+		doTestOnValues(specs.get(0));
 		
 		
-		assertNotNull("Sbb return value cell is null", specs[1]);
-		assertFalse("Sbb should indicate v1.0 not v1.1",specs[1].isSlee11());
+		assertNotNull("Sbb return value cell is null", specs.get(1));
+		assertFalse("Sbb should indicate v1.0 not v1.1",specs.get(1).isSlee11());
 		//Test values
-		doTestOnValues(specs[1]);
+		doTestOnValues(specs.get(1));
 	}
 
 	
 	
 	public void testParseOne() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
-		
-		SbbDescriptorImpl[] specs=SbbDescriptorImpl.parseDocument(super.parseDocument(_ONE_DESCRIPTOR_FILE), null);
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE));
 		assertNotNull("Sbb return value is null", specs);
-		assertTrue("Sbb  size is wrong!!!", specs.length==1);
-		assertNotNull("Sbb return value cell is null", specs[0]);
-		assertTrue("Sbb should indicate v1.1 not v1.0",specs[0].isSlee11());
+		assertTrue("Sbb  size is wrong!!!", specs.size()==1);
+		assertNotNull("Sbb return value cell is null", specs.get(0));
+		assertTrue("Sbb should indicate v1.1 not v1.0",specs.get(0).isSlee11());
 		//Test values
-		doTestOnValues(specs[0]);
+		doTestOnValues(specs.get(0));
 		
 	}
 
@@ -146,19 +152,20 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	public void testParseTwo() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		SbbDescriptorImpl[] specs=SbbDescriptorImpl.parseDocument(super.parseDocument(_TWO_DESCRIPTOR_FILE), null);
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE));
 		assertNotNull("Sbb return value is null", specs);
-		assertTrue("Sbb  size is wrong!!!", specs.length==2);
-		assertNotNull("Sbb return value cell is null", specs[0]);
-		assertTrue("Sbb should indicate v1.1 not v1.0",specs[0].isSlee11());
+		assertTrue("Sbb  size is wrong!!!", specs.size()==2);
+		assertNotNull("Sbb return value cell is null", specs.get(0));
+		assertTrue("Sbb should indicate v1.1 not v1.0",specs.get(0).isSlee11());
 		//Test values
-		doTestOnValues(specs[0]);
+		doTestOnValues(specs.get(0));
 		
 		
-		assertNotNull("Sbb return value cell is null", specs[1]);
-		assertTrue("Sbb should indicate v1.1 not v1.0",specs[1].isSlee11());
+		assertNotNull("Sbb return value cell is null", specs.get(1));
+		assertTrue("Sbb should indicate v1.1 not v1.0",specs.get(1).isSlee11());
 		//Test values
-		doTestOnValues(specs[1]);
+		doTestOnValues(specs.get(1));
 	}
 	
 	
@@ -367,7 +374,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		if(sbb.isSlee11())
 		{
 			
-			Set<MLibraryRef> libraryRefs=sbb.getLibraryRefs();
+			List<MLibraryRef> libraryRefs=sbb.getLibraryRefs();
 			
 			
 			assertNotNull("Sbb library refs list is null",libraryRefs);

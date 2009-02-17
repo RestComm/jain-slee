@@ -25,6 +25,7 @@ public class MProfileManagementInterface {
 
   public MProfileManagementInterface(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileManagementInterface profileManagementInterface11)
   {
+	 
     this.profileManagementInterface11 = profileManagementInterface11;
 
     this.description = profileManagementInterface11.getDescription() == null ? null : profileManagementInterface11.getDescription().getvalue();

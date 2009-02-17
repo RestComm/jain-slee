@@ -45,6 +45,7 @@ public class ProfileSpecificationDescriptorImpl {
 
   // 1.1 Stuff
   private Set<MLibraryRef> libraryRefs;
+  //FIXME: what the hell - again its a set, now we CANT validate if it doubles or declares the same alias ;....
   private Set<MProfileSpecRef> profileSpecRefs;
   private List<MCollator> collators;
 
@@ -67,6 +68,7 @@ public class ProfileSpecificationDescriptorImpl {
 
     this.profileClasses = profileSpec.getProfileClasses();
 
+    indexedAttributes=new HashSet<MProfileIndex>();
     // Just for 1.0
     for(MProfileIndex indexedAttribute : profileSpec.getProfileIndex())
     {

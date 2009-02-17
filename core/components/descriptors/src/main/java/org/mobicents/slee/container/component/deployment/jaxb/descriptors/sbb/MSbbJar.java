@@ -46,7 +46,8 @@ public class MSbbJar {
       this.sbb.add( new MSbb(sbb11) );
     }
     
-    this.securityPermissions = new MSecurityPermissions(sbbJar11.getSecurityPermissions());
+    if(sbbJar11.getSecurityPermissions()!=null)
+    	this.securityPermissions = new MSecurityPermissions(sbbJar11.getSecurityPermissions());
   }
   
   public String getDescription()

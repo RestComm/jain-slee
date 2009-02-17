@@ -9,7 +9,10 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -34,7 +37,7 @@ import org.xml.sax.SAXException;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class TCUtilityClass extends TestCase {
-	protected JAXBBaseUtilityClass testSubject = null;
+
 	protected EntityResolver resolver = null;
 	protected DocumentBuilderFactory factory = null;
 	protected DocumentBuilder builder = null;
@@ -60,22 +63,26 @@ public class TCUtilityClass extends TestCase {
 		this.factory.setValidating(true);
 		this.builder = this.factory.newDocumentBuilder();
 		this.builder.setEntityResolver(this.resolver);
-		this.testSubject = new JAXBBaseUtilityClass() {
-
-			@Override
-			public void buildDescriptionMap() {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public Object getJAXBDescriptor() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
+		
 	}
 
+	
+	protected InputStream getFileStream(String filePath)
+	{
+		
+		ClassLoader cl=Thread.currentThread().getContextClassLoader();
+		try {
+			return new FileInputStream( new File(cl.getResource(filePath).toURI()));
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	@Override
 	protected void tearDown() throws Exception {
 		// TODO Auto-generated method stub
@@ -83,7 +90,7 @@ public class TCUtilityClass extends TestCase {
 		this.resolver = null;
 		this.factory = null;
 		this.builder = null;
-		this.testSubject = null;
+
 	}
 	
 	

@@ -8,11 +8,14 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.du;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 import javax.slee.management.DeploymentException;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.xml.sax.SAXException;
@@ -39,7 +42,7 @@ public class DUDescriptorTest extends TCUtilityClass {
 	public void testParseOne10() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		DeployableUnitDescriptorImpl du=new DeployableUnitDescriptorImpl(super.parseDocument(_ONE_DESCRIPTOR_FILE10));
+		DeployableUnitDescriptorImpl du=new DeployableUnitDescriptorFactory().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE10));
 		assertNotNull("DU return value is null", du);
 
 		assertFalse("DU should indicate v1.0 not v1.1",du.isSlee11());
@@ -56,7 +59,7 @@ public class DUDescriptorTest extends TCUtilityClass {
 	public void testParseOne() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		DeployableUnitDescriptorImpl du=new DeployableUnitDescriptorImpl(super.parseDocument(_ONE_DESCRIPTOR_FILE));
+		DeployableUnitDescriptorImpl du=new DeployableUnitDescriptorFactory().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE));
 		assertNotNull("DU return value is null", du);
 
 		assertTrue("DU should indicate v1.1 not v1.0",du.isSlee11());

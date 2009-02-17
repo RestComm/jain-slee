@@ -8,7 +8,12 @@
  */
 package org.mobicents.slee.container.component.validator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
+
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceCollatorOnNonString;
@@ -48,17 +53,21 @@ TCUtilityClass {
 	
 	
 	public void testProfileLocalInterfaceConstraintsOk() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
@@ -71,12 +80,16 @@ TCUtilityClass {
 	
 	
 	public void testProfileLocalInterfaceConstraintsOkExtendCMPInterface() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceOkExtendCMPInterface.class);
@@ -91,12 +104,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsOkDeclareValidCMPMethod() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceOkDeclareValidCMPMethod.class);
@@ -110,12 +127,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsDeclareValidCMPMethodWithThrows() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceOkDeclareValidCMPMethodWithThrows.class);
@@ -129,12 +150,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsWrongPrefix() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceWrongPrefix.class);
@@ -147,12 +172,15 @@ TCUtilityClass {
 
 	}
 	public void testProfileLocalInterfaceConstraintsWrongParameterType() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceWrongType.class);
@@ -167,12 +195,16 @@ TCUtilityClass {
 	
 	
 	public void testProfileLocalInterfaceConstraintsWrongMethodProfileMBean() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_ProfileMBean.class);
@@ -186,12 +218,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsWrongMethodProfileLocal() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_ProfileManagement.class);
@@ -205,12 +241,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsWrongMethodProfile() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_Profile.class);
@@ -224,12 +264,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsWrongMethodDynamicMBean() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_DynamicMBean.class);
@@ -243,12 +287,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsWrongMethodMBeanRegistration() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceWrongMethod_MBeanRegistration.class);
@@ -262,12 +310,16 @@ TCUtilityClass {
 	}
 	
 	public void testProfileLocalInterfaceConstraintsNoSuperInterface() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl.parseDocument(
-				super.parseDocument(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS), null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_LOCAL_INTERFACE_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(LocalInterfaceNoProfileLocalObject.class);

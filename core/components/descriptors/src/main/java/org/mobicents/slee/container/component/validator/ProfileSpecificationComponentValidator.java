@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.slee.SLEEException;
+import javax.slee.management.LibraryID;
+
 import javassist.Modifier;
 
 import org.apache.log4j.Logger;
@@ -37,8 +40,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MLongestPrefixMatch;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpression;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpressionType;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryParameter;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MRangeMatch;
+import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField;
+
+import com.sun.org.apache.xpath.internal.operations.Mod;
 
 /**
  * Start time:10:45:52 2009-02-09<br>
@@ -1442,8 +1449,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
 
 				// usage parameters
-				if (this.component.getDescriptor()
-						.getProfileClasses().getProfileUsageParameterInterface() != null) {
+				if (this.component.getDescriptor().getProfileClasses()
+						.getProfileUsageParameterInterface() != null) {
 					if (!validateProfileUsageInterface(abstractMethods,
 							abstractMethodsFromSuperClasses)) {
 						passed = false;
@@ -1481,8 +1488,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		try {
 			if (this.component.getProfileUsageInterfaceClass() == null) {
-				if (this.component.getDescriptor()
-						.getProfileClasses().getProfileUsageParameterInterface() != null) {
+				if (this.component.getDescriptor().getProfileClasses()
+						.getProfileUsageParameterInterface() != null) {
 					passed = false;
 
 					errorBuffer = appendToBuffer(

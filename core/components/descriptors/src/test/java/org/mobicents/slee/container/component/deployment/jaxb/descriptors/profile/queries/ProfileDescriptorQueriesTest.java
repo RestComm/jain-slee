@@ -8,8 +8,11 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.queries;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 
@@ -61,10 +64,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 			MQueryExpressionType.LongestPrefixMatch };
 
 	public void testQueryCompare() throws Exception {
-		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_COMPARE), null);
 
-		ProfileSpecificationDescriptorImpl descriptor = specs[0];
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+				.parse(super.getFileStream(_FILE_QUERY_COMPARE));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		assertNotNull("Query elements list is null", descriptor
 				.getQueryElements());
 		assertTrue("Query elements list size is not 1", descriptor
@@ -81,11 +85,12 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 	}
 
 	public void testQueryLongest() throws Exception {
-		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super
-						.parseDocument(_FILE_QUERY_LONGEST_PREFIX_MATCH), null);
 
-		ProfileSpecificationDescriptorImpl descriptor = specs[0];
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+				.parse(super.getFileStream(
+						_FILE_QUERY_LONGEST_PREFIX_MATCH));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		assertNotNull("Query elements list is null", descriptor
 				.getQueryElements());
 		assertTrue("Query elements list size is not 1", descriptor
@@ -102,11 +107,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 	}
 
 	public void testHasPrefix() throws Exception {
-		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_HAS_PREFIX),
-						null);
 
-		ProfileSpecificationDescriptorImpl descriptor = specs[0];
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+				.parse(super.getFileStream(_FILE_QUERY_HAS_PREFIX));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		assertNotNull("Query elements list is null", descriptor
 				.getQueryElements());
 		assertTrue("Query elements list size is not 1", descriptor
@@ -123,11 +128,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 	}
 
 	public void testRangeMatch() throws Exception {
-		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_RANGE_MATCH_),
-						null);
 
-		ProfileSpecificationDescriptorImpl descriptor = specs[0];
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+				.parse(super.getFileStream(_FILE_QUERY_RANGE_MATCH_));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		assertNotNull("Query elements list is null", descriptor
 				.getQueryElements());
 		assertTrue("Query elements list size is not 1", descriptor
@@ -144,10 +149,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 	}
 
 	public void testAnd() throws Exception {
-		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_AND_), null);
 
-		ProfileSpecificationDescriptorImpl descriptor = specs[0];
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+				.parse(super.getFileStream(_FILE_QUERY_AND_));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		assertNotNull("Query elements list is null", descriptor
 				.getQueryElements());
 		assertTrue("Query elements list size is not 1", descriptor
@@ -162,10 +168,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 	}
 
 	public void testOr() throws Exception {
-		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_OR_), null);
 
-		ProfileSpecificationDescriptorImpl descriptor = specs[0];
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+				.parse(super.getFileStream(_FILE_QUERY_OR_));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		assertNotNull("Query elements list is null", descriptor
 				.getQueryElements());
 		assertTrue("Query elements list size is not 1", descriptor
@@ -180,10 +187,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 	}
 
 	public void testNot() throws Exception {
-		ProfileSpecificationDescriptorImpl[] specs = ProfileSpecificationDescriptorImpl
-				.parseDocument(super.parseDocument(_FILE_QUERY_NOT_), null);
 
-		ProfileSpecificationDescriptorImpl descriptor = specs[0];
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+				.parse(super.getFileStream(_FILE_QUERY_NOT_));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		assertNotNull("Query elements list is null", descriptor
 				.getQueryElements());
 		assertTrue("Query elements list size is not 1", descriptor

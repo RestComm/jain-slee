@@ -8,7 +8,10 @@
  */
 package org.mobicents.slee.container.component.validator;
 
+import java.util.List;
+
 import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 
@@ -28,109 +31,80 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 	public static final String _SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD = "xml/validator/sbb/aci/sbb-jar-one-SbbConstraintsACIWrongMethod_1_1.xml";
 
 	public void testSbbOne11ConstraintsACIOk() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validateSbbActivityContextInterface(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateSbbActivityContextInterface(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
 	}
 
 	public void testSbbOne11ConstraintsACIReturnBaseOk() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE),
-						null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validateSbbActivityContextInterface(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateSbbActivityContextInterface(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
 	}
 
 	public void testSbbOne11ConstraintsACIWrongMethod() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD),
-						null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validateSbbActivityContextInterface(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateSbbActivityContextInterface(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated - it shoudl nto since only getter and setter methods are allowed", b);
 
 	}
 
 	public void testSbbOne11ConstraintsACIWrongParameterType() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE),
-						null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validateSbbActivityContextInterface(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateSbbActivityContextInterface(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated - it should not - Object is not permited type", b);
 

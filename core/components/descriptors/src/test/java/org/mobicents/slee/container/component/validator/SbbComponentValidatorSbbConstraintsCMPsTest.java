@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.validator;
 
+import java.util.List;
+
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -24,6 +26,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 
@@ -46,21 +49,16 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 	public static final String _SBB_JAR_ONE_11_CMPS_SCOPE = "xml/validator/sbb/cmp/sbb-jar-one-SbbConstraintsSbbCMPsScope_1_1.xml";
 
 	public void testSbbOne11ConstraintsCMPsOk() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_OK_CMPS), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CMPS));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setSbbLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbLocalInterface()
-								.getSbbLocalInterfaceName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
@@ -75,8 +73,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ProfileSpecificationComponent getComponentByID(
-					ProfileSpecificationID id) {
+			public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -86,49 +83,39 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ResourceAdaptorComponent getComponentByID(
-					ResourceAdaptorID id) {
+			public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public ResourceAdaptorTypeComponent getComponentByID(
-					ResourceAdaptorTypeID id) {
+			public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			public ServiceComponent getComponentByID(ServiceID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 		});
-		boolean b = validator.validateCmpFileds(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
 	}
 
 	public void testSbbOne11ConstraintsCMPsRefNotSbbLO() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_CMPS_REF_ON_NOT_SBBLO),
-				null)[0];
+		
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CMPS_REF_ON_NOT_SBBLO));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setSbbLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbLocalInterface()
-								.getSbbLocalInterfaceName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
@@ -143,8 +130,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ProfileSpecificationComponent getComponentByID(
-					ProfileSpecificationID id) {
+			public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -154,50 +140,39 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ResourceAdaptorComponent getComponentByID(
-					ResourceAdaptorID id) {
+			public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public ResourceAdaptorTypeComponent getComponentByID(
-					ResourceAdaptorTypeID id) {
+			public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
-			
+
 			public ServiceComponent getComponentByID(ServiceID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 		});
-		boolean b = validator.validateCmpFileds(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
 
 	}
 
 	public void testSbbOne11ConstraintsCMPsDifferentTypes() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(super
-						.parseDocument(_SBB_JAR_ONE_11_CMPS_DIFFERENT_TYPES),
-						null)[0];
+	
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CMPS_DIFFERENT_TYPES));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setSbbLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbLocalInterface()
-								.getSbbLocalInterfaceName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
@@ -212,8 +187,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ProfileSpecificationComponent getComponentByID(
-					ProfileSpecificationID id) {
+			public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -223,14 +197,12 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ResourceAdaptorComponent getComponentByID(
-					ResourceAdaptorID id) {
+			public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public ResourceAdaptorTypeComponent getComponentByID(
-					ResourceAdaptorTypeID id) {
+			public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -240,31 +212,24 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 		});
-		boolean b = validator.validateCmpFileds(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated - it should not - accessors ahve different type", b);
 
 	}
 
 	public void testSbbOne11ConstraintsCMPsThrows() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_CMPS_THROWS), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CMPS_THROWS));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setSbbLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbLocalInterface()
-								.getSbbLocalInterfaceName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
@@ -279,8 +244,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ProfileSpecificationComponent getComponentByID(
-					ProfileSpecificationID id) {
+			public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -290,14 +254,12 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ResourceAdaptorComponent getComponentByID(
-					ResourceAdaptorID id) {
+			public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public ResourceAdaptorTypeComponent getComponentByID(
-					ResourceAdaptorTypeID id) {
+			public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -307,31 +269,24 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 		});
-		boolean b = validator.validateCmpFileds(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated - it should not - accessor has throws", b);
 
 	}
 
 	public void testSbbOne11ConstraintsCMPsConcrete() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_CMPS_CONCRETE), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CMPS_CONCRETE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setSbbLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbLocalInterface()
-								.getSbbLocalInterfaceName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
@@ -346,8 +301,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ProfileSpecificationComponent getComponentByID(
-					ProfileSpecificationID id) {
+			public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -357,14 +311,12 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ResourceAdaptorComponent getComponentByID(
-					ResourceAdaptorID id) {
+			public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public ResourceAdaptorTypeComponent getComponentByID(
-					ResourceAdaptorTypeID id) {
+			public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -374,31 +326,24 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 		});
-		boolean b = validator.validateCmpFileds(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated", b);
 
 	}
 
 	public void testSbbOne11ConstraintsCMPsScope() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_CMPS_SCOPE), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CMPS_SCOPE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setSbbLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbLocalInterface()
-								.getSbbLocalInterfaceName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
@@ -413,8 +358,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ProfileSpecificationComponent getComponentByID(
-					ProfileSpecificationID id) {
+			public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -424,14 +368,12 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ResourceAdaptorComponent getComponentByID(
-					ResourceAdaptorID id) {
+			public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public ResourceAdaptorTypeComponent getComponentByID(
-					ResourceAdaptorTypeID id) {
+			public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -441,34 +383,24 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 		});
-		boolean b = validator.validateCmpFileds(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated it shouyld not - it declares not public cmp acccessor", b);
 
 	}
 
 	public void testSbbOne11ConstraintsCMPsNoRefCustomSbbLO() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_SBB_JAR_ONE_11_CMPS_NO_REF_ON_CUSTOM_SBBLO),
-						null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CMPS_NO_REF_ON_CUSTOM_SBBLO));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setSbbLocalInterfaceClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbLocalInterface()
-								.getSbbLocalInterfaceName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new ComponentRepository() {
@@ -483,8 +415,7 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ProfileSpecificationComponent getComponentByID(
-					ProfileSpecificationID id) {
+			public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -494,14 +425,12 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 
-			public ResourceAdaptorComponent getComponentByID(
-					ResourceAdaptorID id) {
+			public ResourceAdaptorComponent getComponentByID(ResourceAdaptorID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public ResourceAdaptorTypeComponent getComponentByID(
-					ResourceAdaptorTypeID id) {
+			public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -511,10 +440,8 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				return null;
 			}
 		});
-		boolean b = validator.validateCmpFileds(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has been validated it should not - since cmp field has no sbb reference - it must store generic SBB LO", b);
 

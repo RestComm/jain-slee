@@ -10,9 +10,11 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.servi
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import javax.slee.management.DeploymentException;
 
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.xml.sax.SAXException;
@@ -50,38 +52,39 @@ public class ServiceDescriptorTest extends TCUtilityClass {
 	public void testParseTwo10() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		ServiceDescriptorImpl[] specs=ServiceDescriptorImpl.parseDocument(super.parseDocument(_TWO_DESCRIPTOR_FILE10), null);
+		List<ServiceDescriptorImpl> specs=new ServiceDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE10));
+
 		assertNotNull("Service return value is null", specs);
-		assertTrue("Service  size is wrong!!!", specs.length==2);
-		assertNotNull("Service return value cell is null", specs[0]);
-		assertFalse("Service should indicate v1.0 not v1.1",specs[0].isSlee11());
+		assertTrue("Service  size is wrong!!!", specs.size()==2);
+		assertNotNull("Service return value cell is null", specs.get(0));
+		assertFalse("Service should indicate v1.0 not v1.1",specs.get(0).isSlee11());
 		//Test values
-		doTestOnValues(specs[0],1);
+		doTestOnValues(specs.get(0),1);
 		
 		
-		assertNotNull("Service return value cell is null", specs[1]);
-		assertFalse("Service should indicate v1.0 not v1.1",specs[1].isSlee11());
+		assertNotNull("Service return value cell is null", specs.get(1));
+		assertFalse("Service should indicate v1.0 not v1.1",specs.get(1).isSlee11());
 		//Test values
-		doTestOnValues(specs[1],2);
+		doTestOnValues(specs.get(1),2);
 	}
 
 	
 	public void testParseTwo() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		ServiceDescriptorImpl[] specs=ServiceDescriptorImpl.parseDocument(super.parseDocument(_TWO_DESCRIPTOR_FILE), null);
+		List<ServiceDescriptorImpl> specs=new ServiceDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE));
 		assertNotNull("Service return value is null", specs);
-		assertTrue("Service  size is wrong!!!", specs.length==2);
-		assertNotNull("Service return value cell is null", specs[0]);
-		assertTrue("Service should indicate v1.1 not v1.0",specs[0].isSlee11());
+		assertTrue("Service  size is wrong!!!", specs.size()==2);
+		assertNotNull("Service return value cell is null", specs.get(0));
+		assertTrue("Service should indicate v1.1 not v1.0",specs.get(0).isSlee11());
 		//Test values
-		doTestOnValues(specs[0],1);
+		doTestOnValues(specs.get(0),1);
 		
 		
-		assertNotNull("Service return value cell is null", specs[1]);
-		assertTrue("Service should indicate v1.1 not v1.0",specs[1].isSlee11());
+		assertNotNull("Service return value cell is null", specs.get(1));
+		assertTrue("Service should indicate v1.1 not v1.0",specs.get(1).isSlee11());
 		//Test values
-		doTestOnValues(specs[1],2);
+		doTestOnValues(specs.get(1),2);
 	}
 	
 	
@@ -90,10 +93,10 @@ public class ServiceDescriptorTest extends TCUtilityClass {
 
 		validateKey(service.getRootSbbID(), "Root Sbb key", new String[]{_SBB_NAME+index,_SBB_VENDOR+index,_SBB_VERSION+index});
 		validateKey(service.getServiceID(), "Service key", new String[]{_SERVICE_NAME+index,_SERVICE_VENDOR+index,_SERVICE_VERSION+index});
-		validateValue(service.getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
+		validateValue(service.getDescriptor().getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
 		
 		if(!service.isSlee11())
-			validateValue(service.getResourceInfoProfileTable(), "Resource info profile table", _RESOURCE_INFO_PROFILE_TABLE+index);
+			validateValue(service.getDescriptor().getAddressProfileTable(), "Resource info profile table", _RESOURCE_INFO_PROFILE_TABLE+index);
 	}
 	
 	

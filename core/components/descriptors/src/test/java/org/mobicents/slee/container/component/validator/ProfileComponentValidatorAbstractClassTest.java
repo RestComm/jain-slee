@@ -8,7 +8,12 @@
  */
 package org.mobicents.slee.container.component.validator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.List;
+
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceCollatorOnNonString;
@@ -47,35 +52,36 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	public static final String _PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS_10 = "xml/validator/profile/abstrakt/profile-spec-jar-one10.xml";
 	
 	public void testAbstractClassConstraintsOk() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
+		
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileAbstractClass()
+						descriptor.getProfileClasses().getProfileAbstractClass()
 								.getProfileAbstractClassName()));
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -90,32 +96,35 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	
 	
 	public void testAbstractClassConstraintsDeclareConcreteCMPMethod() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+	
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
+		
+		
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassDeclareConcreteCMP.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -128,32 +137,33 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	public void testAbstractClassConstraintsNotImplementingCMP() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassNotImplementingCMP.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -166,32 +176,33 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 
 	public void testAbstractClassConstraintsNotImplementingManagementInterface() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassNotImplementingManagementInterface.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -205,32 +216,32 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	
 
 	public void testAbstractClassConstraintsImplementingProfileLocalObject() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassImplementingProfileLocalObject.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -243,32 +254,33 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	public void testAbstractClassConstraintsNotImplementingProfileLocalObjectMethod() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassNotImplementingProfileLocalMethod.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -281,32 +293,32 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	public void testAbstractClassConstraintsNoDefaultConstructor() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassNoDefaultConstructor.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -319,32 +331,33 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	public void testAbstractClassConstraintsDefaultConstructorThrows() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassDefaultConstructorThrows.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -357,32 +370,33 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	public void testAbstractClassConstraintsNoUsageParameterInterfaceAccessMethod() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassNoUsageParametersAccess.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -395,32 +409,33 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	}
 	
 	public void testAbstractClassConstraintsConcreteUsageParameterInterfaceAccessMethod() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassConcreteUsageParametersAccess.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -434,32 +449,33 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	
 	
 	public void testAbstractClassConstraintsLackLifeCycle() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClassLackLifeCycle.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		component.setProfileLocalInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileLocalInterface()
+						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
 		component.setProfileUsageInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileUsageParameterInterface()
+						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
@@ -473,26 +489,27 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 	
 	
 	public void testAbstractClassConstraintsOk10() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS_10),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS_10));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileAbstractClass()
+						descriptor.getProfileClasses().getProfileAbstractClass()
 								.getProfileAbstractClassName()));
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		
@@ -505,23 +522,24 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 
 	}
 	public void testAbstractClassConstraintsLackLifeCycle10() throws Exception {
-		final ProfileSpecificationDescriptorImpl descriptor = ProfileSpecificationDescriptorImpl
-				.parseDocument(
-						super
-								.parseDocument(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS_10),
-						null)[0];
+
+		
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_ABSTRACTCLASS_OK_CONSTRAINTS_10));
+
+		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
 		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileCMPInterface()
+						descriptor.getProfileClasses().getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileAbstractClass(ProfileAbstractClass10LackLifeCycle.class);
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileManagementInterface()
+						descriptor.getProfileClasses().getProfileManagementInterface()
 								.getProfileManagementInterfaceName()));
 
 		

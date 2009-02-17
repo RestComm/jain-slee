@@ -9,6 +9,7 @@
 package org.mobicents.slee.container.component.validator;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
@@ -30,6 +31,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
@@ -59,246 +61,180 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public static final String _SBB_JAR_ONE_11_HANDLERS_CONSTRAINTS = "xml/validator/sbb/event/sbb-jar-one-SbbConstraintsEventsHandlerConstraints_1_1.xml";
 
 	public void testSbbOne11EventsOk() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_EVENTS_OK), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_OK));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertTrue("Sbb class has not been validated", b);
 
 	}
 
 	public void testSbbOne11EventsLackFire() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_EVENTS_LACK_FIRE), null)[0];
+	
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_LACK_FIRE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated- it should not - it lacks fire method", b);
 
 	}
 
 	public void testSbbOne11EventsHasThrow() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_EVENTS_THROW), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_THROW));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated - it should not - handler methods decalres throws", b);
 
 	}
 
 	public void testSbbOne11EventsWrongFireSignature() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_FIRE_SIGNATURE), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_FIRE_SIGNATURE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated- it should not - it declares fire method with wrong signature", b);
 
 	}
 
 	public void testSbbOne11EventsWrongFireSignature2() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_FIRE_SIGNATURE2), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_FIRE_SIGNATURE2));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated", b);
 
 	}
 
 	public void testSbbOne11EventsLackReceiver() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(super
-						.parseDocument(_SBB_JAR_ONE_11_EVENTS_LACK_RECEIVER),
-						null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_LACK_RECEIVER));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated - it should not - it does not declare receiver method", b);
 
 	}
 
 	public void testSbbOne11EventsWrongReceiveSignature() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated - it should not - it does not declare receiver method", b);
-
 
 	}
 
 	public void testSbbOne11EventsWrongReceiveSignature2() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE2), null)[0];
+	
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE2));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated - it should not - it does not declare receiver method", b);
 
 	}
 
 	public void testSbbOne11EventsConcreteFire() throws Exception {
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_CONCRETE_FIRE), null)[0];
+
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CONCRETE_FIRE));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated - it should not - it declares concrete impl of fire method", b);
 
@@ -306,27 +242,20 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsWrongIES() throws Exception {
 		// This test is just to see if it will fail, IES is checekd lower
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_WRONG_IES), null)[0];
+	
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_WRONG_IES));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		component.setAbstractSbbClass(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbAbstractClass()
-								.getSbbAbstractClassName()));
-		component.setActivityContextInterface(Thread.currentThread()
-				.getContextClassLoader().loadClass(
-						descriptor.getSbbActivityContextInterface()
-								.getInterfaceName()));
+		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
+		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
+				descriptor.getSbbActivityContextInterface().getInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
-		boolean b = validator.validateEventHandlers(ClassUtils
-				.getAbstractMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getAbstractMethodsFromSuperClasses(component
-						.getAbstractSbbClass()),ClassUtils
-						.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-						ClassUtils.getConcreteMethodsFromSuperClasses(component
-								.getAbstractSbbClass()));
+		boolean b = validator.validateEventHandlers(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromClass(component
+				.getAbstractSbbClass()), ClassUtils.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 
 		assertFalse("Sbb class has  been validated - it should not - it declares wrong IES", b);
 
@@ -336,8 +265,8 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testInitialEventSelectorConstraints() throws Exception {
 		// This test is just to see if it will fail, IES is checekd lower
 
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl.parseDocument(
-				super.parseDocument(_SBB_JAR_ONE_11_IES_CONSTRAINTS), null)[0];
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_IES_CONSTRAINTS));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
 
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -347,102 +276,92 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		// quicker way to validate :)
 		MEventEntry event = descriptor.getEvents().get(0);
 		component.setAbstractSbbClass(AbstractIES.class);
-		boolean b = validator.validateInitialEventSelector(event,ClassUtils
-				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getConcreteMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		boolean b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not be abstract", b);
 
 		component.setAbstractSbbClass(FinalIES.class);
-		b = validator.validateInitialEventSelector(event,ClassUtils
-				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getConcreteMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not be final", b);
 
 		component.setAbstractSbbClass(NotPublicIES.class);
-		b = validator.validateInitialEventSelector(event,ClassUtils
-				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getConcreteMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can must be public", b);
 
 		component.setAbstractSbbClass(StaticIES.class);
-		b = validator.validateInitialEventSelector(event,ClassUtils
-				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getConcreteMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not be static", b);
 
 		component.setAbstractSbbClass(ThrowsIES.class);
-		b = validator.validateInitialEventSelector(event,ClassUtils
-				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getConcreteMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
+		b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
 		assertFalse("Initial Event Selector can not have throws clause", b);
 
 		component.setAbstractSbbClass(ReturnTypeIES.class);
-		b = validator.validateInitialEventSelector(event,ClassUtils
-				.getConcreteMethodsFromClass(component.getAbstractSbbClass()),
-				ClassUtils.getConcreteMethodsFromSuperClasses(component
-						.getAbstractSbbClass()));
-		assertFalse(
-				"Initial Event Selector  must have javax.slee.InitialEventSelector as return type",
-				b);
+		b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
+				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
+		assertFalse("Initial Event Selector  must have javax.slee.InitialEventSelector as return type", b);
 
 	}
 
 	public void testEventHandlersConstraints() throws Exception {
 		// This test is just to see if it will fail, IES is checekd lower
 
-		final SbbDescriptorImpl descriptor = SbbDescriptorImpl
-				.parseDocument(super
-						.parseDocument(_SBB_JAR_ONE_11_HANDLERS_CONSTRAINTS),
-						null)[0];
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_HANDLERS_CONSTRAINTS));
+		final SbbDescriptorImpl descriptor = specs.get(0);
 		final SbbComponent component = new SbbComponent(descriptor);
-		
+
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 
 		// quicker way to validate :)
 		MEventEntry event = descriptor.getEvents().get(0);
-		String receiveMethodName="on"+event.getEventName();
-		String fireMethodName="fire"+event.getEventName();
-		
-		
-		
+		String receiveMethodName = "on" + event.getEventName();
+		String fireMethodName = "fire" + event.getEventName();
+
 		component.setAbstractSbbClass(EventHandlersNotPublic.class);
-		Method[] ms=EventHandlersNotPublic.class.getDeclaredMethods();
-		
-		//ech this fails ;[
-//		boolean b = validator.validateFireMethodSignature(EventHandlersNotPublic.class.getMethod(fireMethodName, XEvent.class,ActivityContextInterface.class,Address.class), "" );
-//		assertFalse("Fire method must be public", b);
-//		b=validator.validateReceiveMethodSignature(EventHandlersNotPublic.class.getMethod(receiveMethodName, XEvent.class,ActivityContextInterface.class,EventContext.class), "");
-//		assertFalse("Receive method must be public", b);
-		
+		Method[] ms = EventHandlersNotPublic.class.getDeclaredMethods();
+
+		// ech this fails ;[
+		// boolean b =
+		// validator.validateFireMethodSignature(EventHandlersNotPublic.class.getMethod(fireMethodName,
+		// XEvent.class,ActivityContextInterface.class,Address.class), "" );
+		// assertFalse("Fire method must be public", b);
+		// b=validator.validateReceiveMethodSignature(EventHandlersNotPublic.class.getMethod(receiveMethodName,
+		// XEvent.class,ActivityContextInterface.class,EventContext.class), "");
+		// assertFalse("Receive method must be public", b);
+
 		boolean b = true;
-//		b = validator.validateFireMethodSignature(EventHandlersNotPublic.class.getMethod(fireMethodName, XEvent.class,ActivityContextInterface.class,Address.class), "" );
-//		assertFalse("Fire method must be public", b);
-		b=validator.validateReceiveMethodSignature(EventHandlersStatic.class.getMethod(receiveMethodName, XEvent.class,ActivityContextInterface.class,EventContext.class), "");
+		// b =
+		// validator.validateFireMethodSignature(EventHandlersNotPublic.class.getMethod(fireMethodName,
+		// XEvent.class,ActivityContextInterface.class,Address.class), "" );
+		// assertFalse("Fire method must be public", b);
+		b = validator.validateReceiveMethodSignature(EventHandlersStatic.class.getMethod(receiveMethodName, XEvent.class,
+				ActivityContextInterface.class, EventContext.class), "");
 		assertFalse("Receive method must not be static", b);
-		
-		b=validator.validateReceiveMethodSignature(EventHandlersFinal.class.getMethod(receiveMethodName, XEvent.class,ActivityContextInterface.class,EventContext.class), "");
+
+		b = validator.validateReceiveMethodSignature(EventHandlersFinal.class.getMethod(receiveMethodName, XEvent.class,
+				ActivityContextInterface.class, EventContext.class), "");
 		assertFalse("Receive method must not be final", b);
-		
-		
-		
-		b = validator.validateFireMethodSignature(EventHandlersThrows.class.getMethod(fireMethodName, XEvent.class,ActivityContextInterface.class,Address.class), "" );
+
+		b = validator.validateFireMethodSignature(EventHandlersThrows.class.getMethod(fireMethodName, XEvent.class, ActivityContextInterface.class,
+				Address.class), "");
 		assertFalse("Fire method must not declare throws", b);
-		b=validator.validateReceiveMethodSignature(EventHandlersThrows.class.getMethod(receiveMethodName, XEvent.class,ActivityContextInterface.class,EventContext.class), "");
+		b = validator.validateReceiveMethodSignature(EventHandlersThrows.class.getMethod(receiveMethodName, XEvent.class,
+				ActivityContextInterface.class, EventContext.class), "");
 		assertFalse("Receive method must not declare throws", b);
-		
-		
-		b = validator.validateFireMethodSignature(EventHandlersReturn.class.getMethod(fireMethodName, XEvent.class,ActivityContextInterface.class,Address.class), "" );
+
+		b = validator.validateFireMethodSignature(EventHandlersReturn.class.getMethod(fireMethodName, XEvent.class, ActivityContextInterface.class,
+				Address.class), "");
 		assertFalse("Fire method must not declare return type", b);
-		b=validator.validateReceiveMethodSignature(EventHandlersReturn.class.getMethod(receiveMethodName, XEvent.class,ActivityContextInterface.class,EventContext.class), "");
+		b = validator.validateReceiveMethodSignature(EventHandlersReturn.class.getMethod(receiveMethodName, XEvent.class,
+				ActivityContextInterface.class, EventContext.class), "");
 		assertFalse("Receive method must not declare return type", b);
-		
+
 	}
 
 	private class XComponentRepository implements ComponentRepository {
@@ -457,8 +376,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 			return event;
 		}
 
-		public ProfileSpecificationComponent getComponentByID(
-				ProfileSpecificationID id) {
+		public ProfileSpecificationComponent getComponentByID(ProfileSpecificationID id) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -473,8 +391,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 			return null;
 		}
 
-		public ResourceAdaptorTypeComponent getComponentByID(
-				ResourceAdaptorTypeID id) {
+		public ResourceAdaptorTypeComponent getComponentByID(ResourceAdaptorTypeID id) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -488,34 +405,29 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 }
 
 abstract class AbstractIES {
-	public abstract InitialEventSelector myInitialEventSelector(
-			InitialEventSelector ies);
+	public abstract InitialEventSelector myInitialEventSelector(InitialEventSelector ies);
 }
 
 abstract class FinalIES {
-	final public InitialEventSelector myInitialEventSelector(
-			InitialEventSelector ies) {
+	final public InitialEventSelector myInitialEventSelector(InitialEventSelector ies) {
 		return null;
 	}
 }
 
 abstract class NotPublicIES {
-	protected InitialEventSelector myInitialEventSelector(
-			InitialEventSelector ies) {
+	protected InitialEventSelector myInitialEventSelector(InitialEventSelector ies) {
 		return null;
 	}
 }
 
 abstract class StaticIES {
-	public static InitialEventSelector myInitialEventSelector(
-			InitialEventSelector ies) {
+	public static InitialEventSelector myInitialEventSelector(InitialEventSelector ies) {
 		return null;
 	}
 }
 
 abstract class ThrowsIES {
-	public InitialEventSelector myInitialEventSelector(InitialEventSelector ies)
-			throws Error {
+	public InitialEventSelector myInitialEventSelector(InitialEventSelector ies) throws Error {
 		return null;
 	}
 }
@@ -525,56 +437,44 @@ abstract class ReturnTypeIES {
 		return;
 	}
 
-	
-
 }
 
 abstract class EventHandlersNotPublic {
-	 void onCustomEventFive(XEvent event, ActivityContextInterface aci,
-			EventContext ctx) {
+	void onCustomEventFive(XEvent event, ActivityContextInterface aci, EventContext ctx) {
 
 	}
 
-	  abstract void fireCustomEventFive(XEvent event,
-			ActivityContextInterface aci, Address address);
+	abstract void fireCustomEventFive(XEvent event, ActivityContextInterface aci, Address address);
 }
 
 abstract class EventHandlersStatic {
-	public static void onCustomEventFive(XEvent event, ActivityContextInterface aci,
-			EventContext ctx) {
+	public static void onCustomEventFive(XEvent event, ActivityContextInterface aci, EventContext ctx) {
 
 	}
 
-	public abstract void fireCustomEventFive(XEvent event,
-			ActivityContextInterface aci, Address address);
+	public abstract void fireCustomEventFive(XEvent event, ActivityContextInterface aci, Address address);
 }
 
 abstract class EventHandlersThrows {
-	public void onCustomEventFive(XEvent event, ActivityContextInterface aci,
-			EventContext ctx) throws Error{
+	public void onCustomEventFive(XEvent event, ActivityContextInterface aci, EventContext ctx) throws Error {
 
 	}
 
-	public abstract void fireCustomEventFive(XEvent event,
-			ActivityContextInterface aci, Address address) throws Error;
+	public abstract void fireCustomEventFive(XEvent event, ActivityContextInterface aci, Address address) throws Error;
 }
 
 abstract class EventHandlersReturn {
-	public int onCustomEventFive(XEvent event, ActivityContextInterface aci,
-			EventContext ctx){
+	public int onCustomEventFive(XEvent event, ActivityContextInterface aci, EventContext ctx) {
 		return 0;
 	}
 
-	public abstract int fireCustomEventFive(XEvent event,
-			ActivityContextInterface aci, Address address);
+	public abstract int fireCustomEventFive(XEvent event, ActivityContextInterface aci, Address address);
 }
 
 abstract class EventHandlersFinal {
-	public final void onCustomEventFive(XEvent event, ActivityContextInterface aci,
-			EventContext ctx){
+	public final void onCustomEventFive(XEvent event, ActivityContextInterface aci, EventContext ctx) {
 
 	}
 
-	public abstract void fireCustomEventFive(XEvent event,
-			ActivityContextInterface aci, Address address);
+	public abstract void fireCustomEventFive(XEvent event, ActivityContextInterface aci, Address address);
 }
