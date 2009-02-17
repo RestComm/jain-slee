@@ -65,7 +65,7 @@ public class ProfileSpecificationDescriptorImpl {
   {
     this.description = profileSpec.getDescription();
     this.profileSpecificationID =  new ProfileSpecificationID(profileSpec.getProfileSpecName(), profileSpec.getProfileSpecVendor(), profileSpec.getProfileSpecVersion());
-
+    this.securityPremissions=securityPermissions;
     this.profileClasses = profileSpec.getProfileClasses();
 
     indexedAttributes=new HashSet<MProfileIndex>();
