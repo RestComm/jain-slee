@@ -50,6 +50,10 @@ import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileTableInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbActivityContextInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
 
 public class DeployableUnitBuilder {
     
@@ -175,7 +179,9 @@ public class DeployableUnitBuilder {
 				if (componentClassLoader != null) {
 					Thread.currentThread().setContextClassLoader(componentClassLoader);
 				}
-				sleeComponent.validate();
+				if (!sleeComponent.validate()) {
+					throw new DeploymentException(sleeComponent.toString()+" validation failed, check logs for errors found");
+				}
 			}
 			finally {
 				if (componentClassLoader != null) {
@@ -245,17 +251,23 @@ public class DeployableUnitBuilder {
 					component.setProfileManagementInterfaceClass(profileManagementInterfaceClass);
 					Class profileAbstractClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileAbstractClass().getProfileAbstractClassName());
 					component.setProfileAbstractClass(profileAbstractClass);
-					Class profileTableInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileTableInterface().getProfileTableInterfaceName());
-					component.setProfileTableInterfaceClass(profileTableInterfaceClass);
-					Class profileUsageInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getProfileClasses().getProfileUsageParameterInterface().getUsageParametersInterfaceName());
-					component.setProfileUsageInterfaceClass(profileUsageInterfaceClass);
+					MProfileTableInterface mProfileTableInterface = component.getDescriptor().getProfileClasses().getProfileTableInterface();
+					if (mProfileTableInterface != null) {
+						component.setProfileTableInterfaceClass(componentClassLoader.loadClass(mProfileTableInterface.getProfileTableInterfaceName()));
+					}
+					MUsageParametersInterface mUsageParametersInterface = component.getDescriptor().getProfileClasses().getProfileUsageParameterInterface();
+					if (mUsageParametersInterface != null) {
+						component.setProfileUsageInterfaceClass(componentClassLoader.loadClass(mUsageParametersInterface.getUsageParametersInterfaceName()));
+					}
 				}
 				else if (sleeComponent instanceof ResourceAdaptorComponent) {
 					ResourceAdaptorComponent component = (ResourceAdaptorComponent) sleeComponent;
 					Class resourceAdaptorClass = componentClassLoader.loadClass(component.getDescriptor().getResourceAdaptorClassName());
 					component.setResourceAdaptorClass(resourceAdaptorClass);
-					Class resourceAdaptorUsageParametersInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getResourceAdaptorUsageParametersInterface().getUsageParametersInterfaceName());
-					component.setResourceAdaptorUsageParametersInterfaceClass(resourceAdaptorUsageParametersInterfaceClass);
+					MUsageParametersInterface mUsageParametersInterface = component.getDescriptor().getResourceAdaptorUsageParametersInterface();
+					if (mUsageParametersInterface != null) {
+						component.setResourceAdaptorUsageParametersInterfaceClass(componentClassLoader.loadClass(mUsageParametersInterface.getUsageParametersInterfaceName()));
+					}
 				}
 				else if (sleeComponent instanceof ResourceAdaptorTypeComponent) {
 					ResourceAdaptorTypeComponent component = (ResourceAdaptorTypeComponent) sleeComponent;
@@ -266,12 +278,18 @@ public class DeployableUnitBuilder {
 					SbbComponent component = (SbbComponent) sleeComponent;
 					Class abstractSbbClass = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbAbstractClass().getSbbAbstractClassName());
 					component.setAbstractSbbClass(abstractSbbClass);
-					Class sbbLocalInterfaceClass = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbLocalInterface().getSbbLocalInterfaceName());
-					component.setSbbLocalInterfaceClass(sbbLocalInterfaceClass);
-					Class activityContextInterface = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbActivityContextInterface().getInterfaceName());
-					component.setActivityContextInterface(activityContextInterface);
-					Class usageParametersInterface = componentClassLoader.loadClass(component.getDescriptor().getSbbClasses().getSbbUsageParametersInterface().getUsageParametersInterfaceName());
-					component.setUsageParametersInterface(usageParametersInterface);
+					MSbbLocalInterface mSbbLocalInterface = component.getDescriptor().getSbbClasses().getSbbLocalInterface();
+					if (mSbbLocalInterface != null) {
+						component.setSbbLocalInterfaceClass(componentClassLoader.loadClass(mSbbLocalInterface.getSbbLocalInterfaceName()));
+					}
+					MSbbActivityContextInterface mSbbActivityContextInterface = component.getDescriptor().getSbbClasses().getSbbActivityContextInterface();
+					if (mSbbActivityContextInterface != null) {
+						component.setActivityContextInterface(componentClassLoader.loadClass(mSbbActivityContextInterface.getInterfaceName()));
+					}
+					MUsageParametersInterface mUsageParametersInterface = component.getDescriptor().getSbbClasses().getSbbUsageParametersInterface();					
+					if (mUsageParametersInterface != null) {
+						component.setUsageParametersInterface(componentClassLoader.loadClass(mUsageParametersInterface.getUsageParametersInterfaceName()));
+					}
 				}
 			}
 		} catch (ClassNotFoundException e) {
