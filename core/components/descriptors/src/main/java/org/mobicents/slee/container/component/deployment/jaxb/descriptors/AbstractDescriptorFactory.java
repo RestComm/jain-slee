@@ -13,6 +13,9 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.deployment.xml.DefaultSleeEntityResolver;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 public abstract class AbstractDescriptorFactory {
 
@@ -47,6 +50,7 @@ public abstract class AbstractDescriptorFactory {
 			factory.setValidating(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			builder.setEntityResolver(new DefaultSleeEntityResolver(Thread.currentThread().getContextClassLoader()));
+			builder.setErrorHandler(new PrivateErrorHandler());
 			return builder;
 		} catch (Exception e) {
 			logger.error("failed to create dom builder"+e);
@@ -83,8 +87,10 @@ public abstract class AbstractDescriptorFactory {
 		Document document = null;		
 		try {			
 			document = documentBuilder.parse(inputStream);
-		} catch (Exception e) {
-			throw new DeploymentException("failed to parse descriptor into dom document",e);
+		} catch (SAXException e) {
+			throw new DeploymentException("Failed to parse descriptor into dom document cause: \""+e.getMessage()+"\"");
+		}catch (Exception e) {
+			throw new DeploymentException("Failed to parse descriptor into dom document",e);
 		}
 		finally {
 			try {
@@ -131,5 +137,26 @@ public abstract class AbstractDescriptorFactory {
         	throw new DeploymentException("Failed to create unmarshaler!",e);
         }
     } 
+    
+   static class PrivateErrorHandler implements ErrorHandler
+    {
+
+		public void error(SAXParseException e) throws SAXException {
+			throw new SAXException("Error. Failed to parse due to: "+e.getMessage());
+			
+		}
+
+		public void fatalError(SAXParseException e) throws SAXException {
+			throw new SAXException("Fatal error. Failed to parse due to: "+e.getMessage());
+			
+		}
+
+		public void warning(SAXParseException e) throws SAXException {
+			logger.error(e.getMessage());
+			
+		}
+    	
+    }
 	
 }
+
