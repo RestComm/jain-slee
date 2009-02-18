@@ -5,7 +5,7 @@ import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.serviceactivity.ServiceStartedEvent;
 
-public abstract class Sbb1 implements Sbb, Sbb1LocalObject {
+public abstract class Sbb1 implements Sbb {
 
 	public void sbbActivate() {
 		// TODO Auto-generated method stub
