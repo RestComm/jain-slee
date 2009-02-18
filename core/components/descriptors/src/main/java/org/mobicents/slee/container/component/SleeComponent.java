@@ -32,7 +32,7 @@ public abstract class SleeComponent {
 	private ClassLoader classLoader;
 
 	/**
-	 * where this component is deployed
+	 * the URL where this component is deployed
 	 */
 	private URL deploymentDir;
 	
@@ -72,10 +72,18 @@ public abstract class SleeComponent {
 		this.classLoaderDomain = classLoaderDomain;
 	}
 
+	/**
+	 * Retrieves the URL where this component is deployed
+	 * @return
+	 */
 	public URL getDeploymentDir() {
 		return deploymentDir;
 	}
 	
+	/**
+	 * Sets the URL where this component is deployed
+	 * @param deploymentDir
+	 */
 	public void setDeploymentDir(URL deploymentDir) {
 		this.deploymentDir = deploymentDir;
 	}

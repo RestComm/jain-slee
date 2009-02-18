@@ -24,6 +24,8 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
+import org.jboss.classloader.spi.ClassLoaderDomain;
+import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 
 /**
@@ -231,4 +233,32 @@ public class DeployableUnit {
 			return false;
 		}
 	}
+	
+	public void undeploy() {
+		// remove all component class loader domains
+		ClassLoaderSystem classLoaderSystem = ClassLoaderSystem.getInstance();
+		for (SleeComponent component : getDeployableUnitComponents()) {
+			ClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
+			if (classLoaderDomain != null) {
+				classLoaderSystem.unregisterDomain(classLoaderDomain);
+			}
+		}
+		// now delete the deployment dir
+		deletePath(getDeploymentDir());
+	}
+	
+	/**
+     * deletes the whole path, going through directories
+     * @param path
+     */
+    private void deletePath(File path) {
+    	if (path.isDirectory()) {
+    		for(File file : path.listFiles()) {
+    			deletePath(file);
+    		}
+    	}
+    	path.delete();
+    }
+
+
 }
