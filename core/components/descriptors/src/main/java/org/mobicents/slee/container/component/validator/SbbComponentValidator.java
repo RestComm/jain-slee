@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
@@ -984,6 +985,9 @@ public class SbbComponentValidator implements Validator {
 				// component
 				isSbbLOFieldType = true;
 
+				/*
+				 * emmartins: page 70 of slee 1.1 specs say that sbb-alias-ref is now optional (it doesn't say it is just for slee 1.1 components)
+				 * 
 				if (!this.component.isSlee11() && !referenceIsPresent) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -994,19 +998,40 @@ public class SbbComponentValidator implements Validator {
 					continue;
 
 				}
-
+				 */
+				
 				// now its a check for 1.1 and 1.0
 				if (referenceIsPresent) {
-					SbbComponent referencedComponent = this.repository.getComponentByID(new SbbID("", "", ""));
-
-					if (referencedComponent == null) {
-						passed = false;
-						errorBuffer = appendToBuffer(
-								"Failed to validate CMP field. Field references sbb entity which has not been validated. Field: " + fieldName,
-								"6.5.1", errorBuffer);
-						continue;
-
+					
+					SbbID referencedSbb = null;
+					SbbComponent referencedComponent = null;
+					if (entry.getSbbAliasRef().equals(this.component.getDescriptor().getSbbAlias())) {
+						referencedSbb = this.component.getSbbID();
+						referencedComponent = this.component;
 					}
+					else {
+						for (MSbbRef mSbbRef : this.component.getDescriptor().getSbbRefs()) {
+							if (mSbbRef.getSbbAlias().equals(entry.getSbbAliasRef())) {
+								referencedSbb =  new SbbID(mSbbRef.getSbbName(), mSbbRef.getSbbVendor(), mSbbRef.getSbbVersion());
+								break;
+							}
+						}
+						
+						if (referencedSbb == null) {
+							passed = false;
+							errorBuffer = appendToBuffer(
+									"Failed to validate CMP field. Field references sbb with alias "+entry.getSbbAliasRef()+" but no sbb ref has been found with which such alias. Field: " + fieldName,
+									"6.5.1", errorBuffer);
+							continue;
+						}
+						else {
+							referencedComponent = this.repository.getComponentByID(referencedSbb);
+							if (referencedComponent == null) {
+								throw new SLEEException("Referenced (in cmp field) "+referencedSbb+" was not found in component repository, this should not happen since dependencies were already verified");
+							}
+						}
+					}
+										
 					// FIXME: field type must be equal to defined or must be
 					// javax.slee.SbbLocalObject = what about intermediate types
 					// X -> Y -> SbbLocalObject - and we have Y?
@@ -1023,7 +1048,11 @@ public class SbbComponentValidator implements Validator {
 										+ fieldName + " type: " + fieldType, "6.5.1", errorBuffer);
 					}
 
-				} else {
+				}
+				/*
+				 * emmartins: page 70 of slee 1.1 specs say that sbb-alias-ref is now optional
+				 * 
+				else {
 					// here only 1.1 will go
 					if (fieldType.getName().compareTo("javax.slee.SbbLocalObject") == 0) {
 						// its ok?
@@ -1034,7 +1063,7 @@ public class SbbComponentValidator implements Validator {
 										+ fieldName + " type: " + fieldType, "6.5.1", errorBuffer);
 					}
 				}
-
+				*/
 				// FIXME: end of checks here?
 
 			} else if (this.component.isSlee11()) {

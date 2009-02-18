@@ -24,7 +24,7 @@
              <sbb-name>sbb-name</sbb-name>
         	<sbb-vendor>sbb-vendor</sbb-vendor>
         	<sbb-version>sbb-version</sbb-version>
-        	<sbb-alias>sbb-alias</sbb-alias>
+        	<sbb-alias>sbb-alias-ref</sbb-alias>
         </sbb-ref>
 
         <profile-spec-ref>
