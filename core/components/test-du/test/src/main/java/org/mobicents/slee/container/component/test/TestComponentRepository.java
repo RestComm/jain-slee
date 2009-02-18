@@ -1,3 +1,4 @@
+package org.mobicents.slee.container.component.test;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;

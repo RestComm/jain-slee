@@ -8,14 +8,13 @@ import javax.slee.management.DeploymentException;
 import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.jboss.test.kernel.junit.MicrocontainerTest;
-import org.mobicents.slee.container.component.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.DeployableUnitBuilder;
 import org.mobicents.slee.container.component.test.TestComponentRepository;
 
 
-public class Du1Test extends MicrocontainerTest {
+public class Du2Test extends MicrocontainerTest {
 
-	public Du1Test(String name) {
+	public Du2Test(String name) {
 		super(name);		
 	}
 
@@ -23,10 +22,16 @@ public class Du1Test extends MicrocontainerTest {
 		ClassLoaderDomain defaultDomain = ClassLoaderSystem.getInstance().getDefaultDomain();
 		getLog().debug(defaultDomain.toLongString());
 		TestComponentRepository componentRepository = new TestComponentRepository();
-		URL url = Thread.currentThread().getContextClassLoader().getResource("Du1Test.class");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("Du2Test.class");
 		File root = new File(url.toURI()).getParentFile();
 		DeployableUnitBuilder builder = new DeployableUnitBuilder();
-		DeployableUnit du = builder.build(root.toURL().toString()+"components-test-du-1.jar", root, componentRepository);
-		du.undeploy();
+		try {
+			builder.build(root.toURL().toString()+"components-test-du-2.jar", root, componentRepository);
+		}
+		catch (DeploymentException e) {
+			getLog().debug("got expected exception",e);
+			return;
+		}		
+		fail("the du2 building should throw a DeploymentException due to break of class loading isolation");
 	}
 }

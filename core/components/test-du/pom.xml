@@ -16,6 +16,7 @@
 
 	<modules>
 		<module>du1</module>
+		<module>du2</module>
 		<module>test</module>
 	</modules>
 

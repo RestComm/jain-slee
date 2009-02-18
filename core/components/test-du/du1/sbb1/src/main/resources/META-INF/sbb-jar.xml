@@ -8,10 +8,10 @@
         <sbb-version>1.0</sbb-version>        
         <sbb-classes>
             <sbb-abstract-class reentrant="False">
-                <sbb-abstract-class-name>Sbb1</sbb-abstract-class-name>                       
+                <sbb-abstract-class-name>org.mobicents.slee.container.component.test.du1.Sbb1</sbb-abstract-class-name>                       
 	        </sbb-abstract-class>	 
 	        <sbb-local-interface>                
-                <sbb-local-interface-name>Sbb1LocalObject</sbb-local-interface-name>
+                <sbb-local-interface-name>org.mobicents.slee.container.component.test.du1.Sbb1LocalObject</sbb-local-interface-name>
             </sbb-local-interface>       
         </sbb-classes>    
         

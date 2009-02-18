@@ -1,3 +1,4 @@
+package org.mobicents.slee.container.component.test.du1;
 import javax.slee.ActivityContextInterface;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
