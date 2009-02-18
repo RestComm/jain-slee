@@ -22,7 +22,7 @@
                 <cmp-field>
                     <description />
                     <cmp-field-name>sbb1</cmp-field-name>
-                   <!-- <sbb-alias-ref>sbb1</sbb-alias-ref> -->
+                    <sbb-alias-ref>sbb1</sbb-alias-ref>
                 </cmp-field>                      
 	        </sbb-abstract-class>		                
         </sbb-classes>            
