@@ -13,6 +13,8 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.deployment.xml.DefaultSleeEntityResolver;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -87,6 +89,8 @@ public abstract class AbstractDescriptorFactory {
 		Document document = null;		
 		try {			
 			document = documentBuilder.parse(inputStream);
+			// trim text nodes in parsed document
+			trimTextChildNodes(document.getDocumentElement());
 		} catch (SAXException e) {
 			throw new DeploymentException("Failed to parse descriptor into dom document cause: \""+e.getMessage()+"\"");
 		}catch (Exception e) {
@@ -118,6 +122,18 @@ public abstract class AbstractDescriptorFactory {
 		
 	}
 
+	private void trimTextChildNodes(Node node) {
+		if (node.getNodeType() == Node.TEXT_NODE) {
+			node.setNodeValue(node.getNodeValue().trim());
+		}
+		else {
+			NodeList childNodesList = node.getChildNodes();
+			for (int i=0;i< childNodesList.getLength();i++) {
+				trimTextChildNodes(childNodesList.item(i));
+			}
+		}
+	}
+	
     private Unmarshaller getUnmarshaller(boolean isV10) throws DeploymentException {
         try {
         	if(isV10)
