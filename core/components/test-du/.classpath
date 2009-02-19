@@ -9,6 +9,9 @@
   <classpathentry kind="src" path="du2/du/src/main/resources"/>
   <classpathentry kind="src" path="du2/sbb2/src/main/resources"/>
   <classpathentry kind="src" path="du2/sbb2/src/main/java"/>
+  <classpathentry kind="src" path="du3/du/src/main/resources"/>
+  <classpathentry kind="src" path="du3/sbb/src/main/java"/>
+  <classpathentry kind="src" path="du3/sbb/src/main/resources"/>
   <classpathentry kind="src" path="test/src/main/java"/>
   <classpathentry kind="src" path="test/src/test/java"/>
   <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6/antlr-2.7.6.jar"/>
