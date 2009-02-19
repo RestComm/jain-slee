@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -207,7 +208,7 @@ public class DeployableUnitBuilder {
 										+ component);
 					}
 					addDependenciesClassLoadingPolicies(component, component
-							.getClassLoaderDomain(), classLoaderSystem);
+							.getClassLoaderDomain(), classLoaderSystem, new HashSet<SleeComponent>());
 				}
 			}
 
@@ -450,10 +451,11 @@ public class DeployableUnitBuilder {
 	 * @param sleeComponent
 	 * @param domainToAddPolicies
 	 * @param classLoaderSystem
+	 * @param componentsProcessed the components already processed, to avoid loops on circular dependencies
 	 */
 	private void addDependenciesClassLoadingPolicies(
 			SleeComponent sleeComponent, ClassLoaderDomain domainToAddPolicies,
-			ClassLoaderSystem classLoaderSystem) {
+			ClassLoaderSystem classLoaderSystem, Set<SleeComponent> componentsProcessed) {
 		for (ComponentID componentID : sleeComponent.getDependenciesSet()) {
 			SleeComponent component = null;
 			if (componentID instanceof EventTypeID) {
@@ -482,24 +484,35 @@ public class DeployableUnitBuilder {
 								(SbbID) componentID);
 			}
 			if (component != null) {
-				URL componentDeploymentDir = component.getDeploymentDir();
-				if (componentDeploymentDir != null) {
-					if (logger.isDebugEnabled()) {
-						logger
-								.debug("Adding class loading policies from component "
-										+ component
-										+ " to class loading domain "
-										+ domainToAddPolicies);
-					}
-					classLoaderSystem.registerClassLoaderPolicy(
-							domainToAddPolicies, createClassLoaderPolicy(
-									domainToAddPolicies.getName() + " dep > "
-											+ component.getComponentID(),
-									componentDeploymentDir));
+				if (componentsProcessed.add(component)) {
+					// register the component policy
+					URL componentDeploymentDir = component.getDeploymentDir();
+					if (componentDeploymentDir != null) {
+						if (logger.isDebugEnabled()) {
+							logger
+							.debug("Adding class loading policies from component "
+									+ component
+									+ " to class loading domain "
+									+ domainToAddPolicies);
+						}
+						classLoaderSystem.registerClassLoaderPolicy(
+								domainToAddPolicies, createClassLoaderPolicy(
+										domainToAddPolicies.getName() + " dep > "
+										+ component.getComponentID(),
+										componentDeploymentDir));
+					}				
+					// and add the component dependencies too
+					addDependenciesClassLoadingPolicies(component,
+							domainToAddPolicies, classLoaderSystem,componentsProcessed);
 				}
-				// and add the component dependencies too
-				addDependenciesClassLoadingPolicies(component,
-						domainToAddPolicies, classLoaderSystem);
+				else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Class loading policy for component "+component+" already registred in domain "+domainToAddPolicies);
+					}
+				}
+			}
+			else {
+				logger.warn("Unable to register policy for component "+component+" in domain "+domainToAddPolicies+". Component not found in the deployable unit component repository");
 			}
 		}
 	}
