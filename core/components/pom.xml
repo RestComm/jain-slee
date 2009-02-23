@@ -37,6 +37,7 @@
 		<!-- Jar has to go last -->
 		<module>jar</module>
 		<module>descriptors</module>
+		<module>test-du</module>
 	</modules>
 
 	<dependencyManagement>
