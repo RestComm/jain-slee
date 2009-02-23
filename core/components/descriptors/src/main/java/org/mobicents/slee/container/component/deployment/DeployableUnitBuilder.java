@@ -23,6 +23,7 @@ import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
+import javax.slee.management.AlreadyDeployedException;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
@@ -78,10 +79,10 @@ public class DeployableUnitBuilder {
 	 */
 	public DeployableUnit build(String url, File deploymentRoot,
 			ComponentRepository componentRepository)
-			throws DeploymentException, MalformedURLException {
+			throws DeploymentException, AlreadyDeployedException, MalformedURLException {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Installing DU from " + url);
+			logger.debug("Building DU from " + url);
 		}
 
 		DeployableUnitID deployableUnitID = new DeployableUnitID(url);
@@ -149,6 +150,9 @@ public class DeployableUnitBuilder {
 						.buildComponents(jarFileName, deployableUnitJar,
 								deployableUnit.getDeploymentDir())) {
 					sleeComponent.setDeployableUnit(deployableUnit);
+					if (componentRepository.isInstalled(sleeComponent.getComponentID())) {
+						throw new AlreadyDeployedException("Component "+sleeComponent.getComponentID()+" already deployed");
+					}
 				}
 			}
 
@@ -159,6 +163,9 @@ public class DeployableUnitBuilder {
 						.buildComponents(serviceDescriptorFileName,
 								deployableUnitJar)) {
 					serviceComponent.setDeployableUnit(deployableUnit);
+					if (componentRepository.isInstalled(serviceComponent.getComponentID())) {
+						throw new AlreadyDeployedException("Component "+serviceComponent.getComponentID()+" already deployed");
+					}
 				}
 			}
 
@@ -268,6 +275,8 @@ public class DeployableUnitBuilder {
 			}
 			if (e instanceof DeploymentException) {
 				throw (DeploymentException) e;
+			} else if (e instanceof AlreadyDeployedException) {
+				throw (AlreadyDeployedException) e;
 			} else {
 				throw new DeploymentException(
 						"failed to build deployable unit", e);

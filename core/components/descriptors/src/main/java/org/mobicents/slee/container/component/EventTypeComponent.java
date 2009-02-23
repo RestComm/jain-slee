@@ -8,15 +8,19 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
+import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.EventTypeDescriptor;
+import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
-import org.mobicents.slee.container.component.validator.Validator;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 
 /**
  * Start time:00:44:47 2009-02-04<br>
@@ -38,6 +42,11 @@ public class EventTypeComponent extends SleeComponent {
 	 */
 	private Class eventTypeClass = null;
 
+	/**
+	 * the JAIN SLEE specs event type descriptor
+	 */
+	private EventTypeDescriptor specsDescriptor = null;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -100,7 +109,28 @@ public class EventTypeComponent extends SleeComponent {
 	
 	@Override
 	public boolean validate() throws DependencyException, DeploymentException {
-		// FIXME use validator when available
+		// nothing to validate
 		return true;
+	}
+	
+	/**
+	 * Retrieves the JAIN SLEE specs event type descriptor
+	 * @return
+	 */
+	public EventTypeDescriptor getSpecsDescriptor() {
+		if (specsDescriptor == null) {
+			Set<LibraryID> libraryIDSet = new HashSet<LibraryID>();
+			for (MLibraryRef mLibraryRef : getDescriptor().getLibraryRefs()) {
+				libraryIDSet.add(mLibraryRef.getComponentID());
+			}
+			LibraryID[] libraryIDs = libraryIDSet.toArray(new LibraryID[libraryIDSet.size()]);
+			specsDescriptor = new EventTypeDescriptor(getEventTypeID(),getDeployableUnit().getDeployableUnitID(),getDeploymentUnitSource(),libraryIDs,getDescriptor().getEventClassName());
+		}
+		return specsDescriptor;
+	}
+	
+	@Override
+	public ComponentDescriptor getComponentDescriptor() {
+		return getSpecsDescriptor(); 
 	}
 }

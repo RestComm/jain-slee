@@ -1670,7 +1670,7 @@ public class SbbComponentValidator implements Validator {
 				// this is referential integrity
 				Map<String, ProfileSpecificationID> map = new HashMap<String, ProfileSpecificationID>();
 
-				for (MProfileSpecRef rf : this.component.getDescriptor().getProfileSpecReference()) {
+				for (MProfileSpecRef rf : this.component.getDescriptor().getProfileSpecRefs()) {
 					map.put(rf.getProfileSpecAlias(), rf.getComponentID());
 				}
 
@@ -1779,7 +1779,7 @@ public class SbbComponentValidator implements Validator {
 
 			SbbDescriptorImpl descriptor = this.component.getDescriptor();
 
-			for (MProfileSpecRef ref : descriptor.getProfileSpecReference()) {
+			for (MProfileSpecRef ref : descriptor.getProfileSpecRefs()) {
 				// if(ref.getProfileSpecAlias()==null ||
 				// ref.getProfileSpecAlias().compareTo("")==0)
 				if (ref.getProfileSpecAlias() != null && ref.getProfileSpecAlias().compareTo("") == 0) {

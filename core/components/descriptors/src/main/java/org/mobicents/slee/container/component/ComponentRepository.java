@@ -8,6 +8,7 @@
  */
 package org.mobicents.slee.container.component;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -74,4 +75,11 @@ public interface ComponentRepository {
 	 * @return null if no such component exists
 	 */
 	public ServiceComponent getComponentByID(ServiceID id);
+
+	/**
+	 * 
+	 * @param componentID
+	 * @return true if a component with the specified id is in the repository, false otherwise
+	 */
+	public boolean isInstalled(ComponentID componentID);
 }

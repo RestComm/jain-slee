@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.component;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -100,5 +101,9 @@ public class DeployableUnitRepository implements ComponentRepository {
 			component = deployableUnit.getServiceComponents().get(id);
 		}
 		return component;
+	}
+	
+	public boolean isInstalled(ComponentID componentID) {
+		return componentRepository.isInstalled(componentID);
 	}
 }

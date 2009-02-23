@@ -8,10 +8,9 @@ import javax.slee.management.DeploymentException;
 import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.jboss.test.kernel.junit.MicrocontainerTest;
+import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.DeployableUnitBuilder;
-import org.mobicents.slee.container.component.test.TestComponentRepository;
-
 
 public class Du3Test extends MicrocontainerTest {
 
@@ -22,7 +21,7 @@ public class Du3Test extends MicrocontainerTest {
 	public void test() throws MalformedURLException, DeploymentException, URISyntaxException {	
 		ClassLoaderDomain defaultDomain = ClassLoaderSystem.getInstance().getDefaultDomain();
 		getLog().debug(defaultDomain.toLongString());
-		TestComponentRepository componentRepository = new TestComponentRepository();
+		ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
 		URL url = Thread.currentThread().getContextClassLoader().getResource("Du3Test.class");
 		File root = new File(url.toURI()).getParentFile();
 		DeployableUnitBuilder builder = new DeployableUnitBuilder();

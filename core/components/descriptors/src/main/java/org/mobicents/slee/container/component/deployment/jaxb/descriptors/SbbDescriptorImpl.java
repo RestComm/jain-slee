@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.slee.ComponentID;
 import javax.slee.SbbID;
 import javax.slee.management.DeploymentException;
+import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
@@ -44,7 +45,7 @@ public class SbbDescriptorImpl {
   private MSbbClasses sbbClasses;
 
   // might be bad, we ommit sbb-classes/description, phew
-  private String addressProfileSpecAliasRef;
+  private ProfileSpecificationID addressProfileSpecRef;
   private List<MEventEntry> events;
   private List<MActivityContextAttributeAlias> activityContextAttributeAliases;
   private List<MEnvEntry> envEntries;
@@ -72,12 +73,25 @@ public class SbbDescriptorImpl {
       this.libraryRefs = sbb.getLibraryRef();
       this.ejbRefs = sbb.getEjbRef();
       this.profileSpecRefs = sbb.getProfileSpecRef();
+      
+      String addressProfileSpecAliasRef = sbb.getAddressProfileSpecAliasRef();
+	  if (addressProfileSpecAliasRef != null) {
+		  if (this.profileSpecRefs != null) {
+			  for (MProfileSpecRef mProfileSpecRef : this.profileSpecRefs) {
+				  if (mProfileSpecRef.getProfileSpecAlias().equals(addressProfileSpecAliasRef)) {
+					  this.addressProfileSpecRef = mProfileSpecRef.getComponentID();
+				  }
+			  }
+	 	  }
+		  else {
+			  throw new DeploymentException("the address profile spec alias in sbb descriptor is defined but there are no profile specs references");	
+		  }
+	  }
+	  
       this.sbbRefs = sbb.getSbbRef();
 
       this.sbbClasses = sbb.getSbbClasses();
-
-      this.addressProfileSpecAliasRef = sbb.getAddressProfileSpecAliasRef();
-
+      
       this.events = sbb.getEvent();
 
       this.activityContextAttributeAliases = sbb.getActivityContextAttributeAlias();
@@ -91,7 +105,10 @@ public class SbbDescriptorImpl {
       
       buildDependenciesSet();
     }
-    catch (Exception e) {
+    catch (DeploymentException e) {
+        throw e;
+    }
+    catch (Throwable e) {
       throw new DeploymentException("Failed to build sbb descriptor", e);
     }
   }
@@ -137,10 +154,6 @@ public class SbbDescriptorImpl {
     return sbbRefs;
   }
 
-  public List<MProfileSpecRef> getProfileSpecReference() {
-    return profileSpecRefs;
-  }
-
   public List<MProfileSpecRef> getProfileSpecRefs()
   {
     return profileSpecRefs;
@@ -151,8 +164,8 @@ public class SbbDescriptorImpl {
     return sbbClasses;
   }
 
-  public String getAddressProfileSpecAliasRef() {
-    return addressProfileSpecAliasRef;
+  public ProfileSpecificationID getAddressProfileSpecRef() {
+    return addressProfileSpecRef;
   }
 
   public List<MEventEntry> getEvents() {

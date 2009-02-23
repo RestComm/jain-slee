@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
+import javax.slee.ComponentID;
 import javax.slee.EventContext;
 import javax.slee.EventTypeID;
 import javax.slee.InitialEventSelector;
@@ -399,6 +400,11 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		public ServiceComponent getComponentByID(ServiceID id) {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		public boolean isInstalled(ComponentID componentID) {
+			// TODO Auto-generated method stub
+			return false;
 		}
 	}
 

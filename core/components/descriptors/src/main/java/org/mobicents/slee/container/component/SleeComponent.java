@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 
@@ -32,9 +33,19 @@ public abstract class SleeComponent {
 	private ClassLoader classLoader;
 
 	/**
+	 * the DU the component belongs
+	 */
+	private DeployableUnit deployableUnit;
+	
+	/**
 	 * the URL where this component is deployed
 	 */
 	private URL deploymentDir;
+	
+	/**
+	 * the source for this component (component jar/service descriptor) in the deployable unit
+	 */
+	private String deploymentUnitSource;
 	
 	/**
 	 * Retrieves the component class loader
@@ -89,9 +100,20 @@ public abstract class SleeComponent {
 	}
 
 	/**
-	 * the DU the component belongs
+	 * Retrieves the source for this component (component jar/service descriptor) in the deployable unit
+	 * @return
 	 */
-	private DeployableUnit deployableUnit;
+	public String getDeploymentUnitSource() {
+		return deploymentUnitSource;
+	}
+
+	/**
+	 * Sets the source for this component (component jar/service descriptor) in the deployable unit
+	 * @param deploymentUnitSource
+	 */
+	public void setDeploymentUnitSource(String deploymentUnitSource) {
+		this.deploymentUnitSource = deploymentUnitSource;
+	}
 
 	/**
 	 * Retrieves the Deployable Unit this component belongs
@@ -175,4 +197,11 @@ public abstract class SleeComponent {
 	public String toString() {
 		return getComponentID().toString();
 	}
+
+	/**
+	 * Retrieves the JAIN SLEE specs component descriptor
+	 * @return
+	 */
+	public abstract ComponentDescriptor getComponentDescriptor();
+
 }

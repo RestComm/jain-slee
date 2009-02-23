@@ -10,14 +10,17 @@ package org.mobicents.slee.container.component;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
+import javax.slee.management.DeployableUnitDescriptor;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
@@ -93,6 +96,11 @@ public class DeployableUnit {
 	 */
 	private final Map<ServiceID, ServiceComponent> serviceComponents = new HashMap<ServiceID,ServiceComponent>();
 
+	/**
+	 * the date this deployable unit was built
+	 */
+	private final Date date = new Date();
+	
 	public DeployableUnit(DeployableUnitID deployableUnitID,
 			DeployableUnitDescriptorImpl duDescriptor,
 			ComponentRepository componentRepository,File deploymentDir) {
@@ -260,5 +268,15 @@ public class DeployableUnit {
     	path.delete();
     }
 
-
+    /**
+     * Returns the {@link DeployableUnitDescriptor} for this deployable unit.
+     * @return
+     */
+    public javax.slee.management.DeployableUnitDescriptor getSpecsDeployableUnitDescriptor() {
+    	Set<ComponentID> componentIDs = new HashSet<ComponentID>();
+    	for (SleeComponent component : getDeployableUnitComponents()) {
+    		componentIDs.add(component.getComponentID());
+    	}
+		return new DeployableUnitDescriptor(getDeployableUnitID(),date,componentIDs.toArray(new ComponentID[0]));
+	}
 }

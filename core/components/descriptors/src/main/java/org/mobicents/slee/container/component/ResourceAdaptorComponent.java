@@ -8,14 +8,23 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
+import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.resource.ResourceAdaptorDescriptor;
 import javax.slee.resource.ResourceAdaptorID;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
 
 /**
  * Start time:00:45:25 2009-02-04<br>
@@ -42,6 +51,11 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	 */
 	private Class resourceAdaptorUsageParametersInterfaceClass = null;
 
+	/**
+	 * the JAIN SLEE specs descriptor
+	 */
+	private ResourceAdaptorDescriptor specsDescriptor = null;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -123,5 +137,41 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	public boolean validate() throws DependencyException, DeploymentException {
 		// FIXME use validator when available
 		return true;
+	}
+	
+	/**
+	 *  Retrieves the JAIN SLEE specs descriptor
+	 * @return
+	 */
+	public ResourceAdaptorDescriptor getSpecsDescriptor() {
+		if (specsDescriptor == null) {
+			Set<LibraryID> libraryIDSet = new HashSet<LibraryID>();
+			for (MLibraryRef mLibraryRef : getDescriptor().getLibraryRefs()) {
+				libraryIDSet.add(mLibraryRef.getComponentID());
+			}
+			LibraryID[] libraryIDs = libraryIDSet.toArray(new LibraryID[libraryIDSet.size()]);
+			
+			Set<ResourceAdaptorTypeID> raTypeIDSet = new HashSet<ResourceAdaptorTypeID>();
+			for (MResourceAdaptorTypeRef mResourceAdaptorTypeRef : getDescriptor()
+					.getResourceAdaptorTypeRefs()) {
+				raTypeIDSet.add(mResourceAdaptorTypeRef.getComponentID());
+			}
+			ResourceAdaptorTypeID[] raTypeIDs = raTypeIDSet
+					.toArray(new ResourceAdaptorTypeID[raTypeIDSet.size()]);
+			
+			Set<ProfileSpecificationID> profileSpecSet = new HashSet<ProfileSpecificationID>();
+			for (MProfileSpecRef mProfileSpecRef : getDescriptor().getProfileSpecRefs()) {
+				profileSpecSet.add(mProfileSpecRef.getComponentID());
+			}
+			ProfileSpecificationID[] profileSpecs = profileSpecSet.toArray(new ProfileSpecificationID[profileSpecSet.size()]);
+			
+			specsDescriptor = new ResourceAdaptorDescriptor(getResourceAdaptorID(),getDeployableUnit().getDeployableUnitID(),getDeploymentUnitSource(),libraryIDs,raTypeIDs,profileSpecs,getDescriptor().getSupportsActiveReconfiguration());
+		}
+		return specsDescriptor;
+	}
+	
+	@Override
+	public ComponentDescriptor getComponentDescriptor() {
+		return getSpecsDescriptor();
 	}
 }

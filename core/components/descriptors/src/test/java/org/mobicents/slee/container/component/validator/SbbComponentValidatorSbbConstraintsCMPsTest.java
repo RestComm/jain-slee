@@ -10,6 +10,7 @@ package org.mobicents.slee.container.component.validator;
 
 import java.util.List;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -97,6 +98,11 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			public boolean isInstalled(ComponentID componentID) {
+				// TODO Auto-generated method stub
+				return false;
+			}
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
 				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
@@ -153,6 +159,11 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 			public ServiceComponent getComponentByID(ServiceID id) {
 				// TODO Auto-generated method stub
 				return null;
+			}
+
+			public boolean isInstalled(ComponentID componentID) {
+				// TODO Auto-generated method stub
+				return false;
 			}
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
@@ -211,6 +222,11 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			public boolean isInstalled(ComponentID componentID) {
+				// TODO Auto-generated method stub
+				return false;
+			}
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
 				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
@@ -267,6 +283,11 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 			public ServiceComponent getComponentByID(ServiceID id) {
 				// TODO Auto-generated method stub
 				return null;
+			}
+
+			public boolean isInstalled(ComponentID componentID) {
+				// TODO Auto-generated method stub
+				return false;
 			}
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
@@ -325,6 +346,11 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			public boolean isInstalled(ComponentID componentID) {
+				// TODO Auto-generated method stub
+				return false;
+			}
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
 				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
@@ -382,6 +408,11 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			public boolean isInstalled(ComponentID componentID) {
+				// TODO Auto-generated method stub
+				return false;
+			}
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
 				.getAbstractMethodsFromSuperClasses(component.getAbstractSbbClass()));
@@ -438,6 +469,11 @@ public class SbbComponentValidatorSbbConstraintsCMPsTest extends TCUtilityClass 
 			public ServiceComponent getComponentByID(ServiceID id) {
 				// TODO Auto-generated method stub
 				return null;
+			}
+
+			public boolean isInstalled(ComponentID componentID) {
+				// TODO Auto-generated method stub
+				return false;
 			}
 		});
 		boolean b = validator.validateCmpFileds(ClassUtils.getAbstractMethodsFromClass(component.getAbstractSbbClass()), ClassUtils

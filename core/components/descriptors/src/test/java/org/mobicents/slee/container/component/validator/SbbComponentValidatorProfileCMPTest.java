@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -204,6 +205,11 @@ class FakeRepository implements ComponentRepository {
 	public ServiceComponent getComponentByID(ServiceID id) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public boolean isInstalled(ComponentID componentID) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
 

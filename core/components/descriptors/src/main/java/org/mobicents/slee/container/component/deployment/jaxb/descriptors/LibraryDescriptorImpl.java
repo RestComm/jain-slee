@@ -88,4 +88,8 @@ public class LibraryDescriptorImpl {
 	return isSlee11;
   }
   
+  public List<MLibraryRef> getLibraryRefs() {
+	return libraryRefs;
+  }
+  
 }

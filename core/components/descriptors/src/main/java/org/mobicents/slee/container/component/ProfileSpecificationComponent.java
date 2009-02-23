@@ -8,19 +8,21 @@
  */
 package org.mobicents.slee.container.component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
+import javax.slee.profile.ProfileSpecificationDescriptor;
 import javax.slee.profile.ProfileSpecificationID;
 
-import org.mobicents.slee.container.component.validator.ProfileSpecificationComponentValidator;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.validator.ProfileSpecificationComponentValidator;
 
 /**
  * Start time:15:32:06 2009-02-02<br>
@@ -66,6 +68,11 @@ public class ProfileSpecificationComponent extends SleeComponent {
 	 * the profile usage interface
 	 */
 	private Class profileUsageInterfaceClass = null;
+	
+	/**
+	 * the JAIN SLEE specs descriptor
+	 */
+	private ProfileSpecificationDescriptor specsDescriptor = null;
 	
 	/**
 	 * 
@@ -215,5 +222,31 @@ public class ProfileSpecificationComponent extends SleeComponent {
 		validator.setComponent(this);
 		validator.setComponentRepository(getDeployableUnit().getDeployableUnitRepository());
 		return validator.validate();
+	}
+	
+	/**
+	 *  Retrieves the JAIN SLEE specs descriptor
+	 * @return
+	 */
+	public ProfileSpecificationDescriptor getSpecsDescriptor() {
+		if (specsDescriptor == null) {
+			Set<LibraryID> libraryIDSet = new HashSet<LibraryID>();
+			for (MLibraryRef mLibraryRef : getDescriptor().getLibraryRefs()) {
+				libraryIDSet.add(mLibraryRef.getComponentID());
+			}
+			LibraryID[] libraryIDs = libraryIDSet.toArray(new LibraryID[libraryIDSet.size()]);
+			Set<ProfileSpecificationID> profileSpecSet = new HashSet<ProfileSpecificationID>();
+			for (MProfileSpecRef mProfileSpecRef : getDescriptor().getProfileSpecRefs()) {
+				profileSpecSet.add(mProfileSpecRef.getComponentID());
+			}
+			ProfileSpecificationID[] profileSpecs = profileSpecSet.toArray(new ProfileSpecificationID[profileSpecSet.size()]);
+			specsDescriptor = new ProfileSpecificationDescriptor(getProfileSpecificationID(),getDeployableUnit().getDeployableUnitID(),getDeploymentUnitSource(),libraryIDs,profileSpecs,getDescriptor().getProfileCMPInterface().getProfileCmpInterfaceName());
+		}
+		return specsDescriptor;
+	}
+	
+	@Override
+	public ComponentDescriptor getComponentDescriptor() {
+		return getSpecsDescriptor();
 	}
 }

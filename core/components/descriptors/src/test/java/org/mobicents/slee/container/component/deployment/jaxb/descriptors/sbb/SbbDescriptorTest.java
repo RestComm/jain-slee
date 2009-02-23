@@ -182,7 +182,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertNotNull("Sbb component key sbb-alias cant be null",sbb.getSbbAlias());
 		assertTrue("Sbb component key sbb-alias is not equal to "+_SBB_ALIAS,sbb.getSbbAlias().compareTo(_SBB_ALIAS)==0);
 		
-		List<MProfileSpecRef> profilesSpecs=sbb.getProfileSpecReference();
+		List<MProfileSpecRef> profilesSpecs=sbb.getProfileSpecRefs();
 		assertNotNull("Profile specs references list is null",profilesSpecs);
 		assertTrue("Profile specs references list size is not 1",profilesSpecs.size()==1);
 		MProfileSpecRef ref=profilesSpecs.get(0);

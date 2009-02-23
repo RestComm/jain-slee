@@ -8,14 +8,22 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.EventTypeID;
+import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
+import javax.slee.resource.ResourceAdaptorTypeDescriptor;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorTypeDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityType;
 
 /**
  * Start time:00:45:05 2009-02-04<br>
@@ -45,6 +53,11 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 	   * Resource adaptor SBB interface
 	   */
 	private Class resourceAdaptorSBBInterface = null;
+	
+	/**
+	 * the JAIN SLEE specs descriptor
+	 */
+	private ResourceAdaptorTypeDescriptor specsDescriptor = null;
 	
 	/**
 	 * 
@@ -139,5 +152,37 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 		this.resourceAdaptorSBBInterface = resourceAdaptorSBBInterface;
 	}
 	
+	/**
+	 *  Retrieves the JAIN SLEE specs descriptor
+	 * @return
+	 */
+	public ResourceAdaptorTypeDescriptor getSpecsDescriptor() {
+		if (specsDescriptor == null) {
+			Set<LibraryID> libraryIDSet = new HashSet<LibraryID>();
+			for (MLibraryRef mLibraryRef : getDescriptor().getLibraryRefs()) {
+				libraryIDSet.add(mLibraryRef.getComponentID());
+			}
+			LibraryID[] libraryIDs = libraryIDSet.toArray(new LibraryID[libraryIDSet.size()]);
+			
+			Set<String> activityTypeSet = new HashSet<String>();
+			for (MActivityType mActivityType : getDescriptor().getActivityTypes()) {
+				activityTypeSet.add(mActivityType.getActivityTypeName());
+			}
+			String[] activityTypes = activityTypeSet.toArray(new String[activityTypeSet.size()]);
+			
+			Set<EventTypeID> eventTypeSet = new HashSet<EventTypeID>();
+			for (MEventTypeRef mEventTypeRef : getDescriptor().getEventTypeRefs()) {
+				eventTypeSet.add(mEventTypeRef.getComponentID());
+			}
+			EventTypeID[] eventTypes = eventTypeSet.toArray(new EventTypeID[eventTypeSet.size()]);
+			
+			specsDescriptor = new ResourceAdaptorTypeDescriptor(getResourceAdaptorTypeID(),getDeployableUnit().getDeployableUnitID(),getDeploymentUnitSource(),libraryIDs,activityTypes,getDescriptor().getResourceAdaptorInterface().getResourceAdaptorInterfaceName(),eventTypes);
+		}
+		return specsDescriptor;
+	}
 	
+	@Override
+	public ComponentDescriptor getComponentDescriptor() {
+		return getSpecsDescriptor();
+	}
 }
