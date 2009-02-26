@@ -11,7 +11,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.slee.management.DeploymentException;
 
@@ -314,15 +314,15 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		validateValue(mSbbAbstractClass.getSbbAbstractClassName(),"Sbb abstract class name",_SBB_ABSTRACT_CLASS_NAME);
 		
 		
-		List<MGetChildRelationMethod> getChildRelationMethods=mSbbAbstractClass.getChildRelationMethods();
+		Map<String,MGetChildRelationMethod> getChildRelationMethods=mSbbAbstractClass.getChildRelationMethods();
 		
 		
 		
 		assertNotNull("Sbb get child relation list is null",getChildRelationMethods);
 		assertTrue("Sbb get child relation list size is not equal to 1",getChildRelationMethods.size()==1);
-		assertNotNull("Sbb get child relation is null",getChildRelationMethods.get(0));
+		assertNotNull("Sbb get child relation is null",getChildRelationMethods.values().iterator().next());
 		
-		MGetChildRelationMethod getChildRelationMethod=getChildRelationMethods.get(0);
+		MGetChildRelationMethod getChildRelationMethod=getChildRelationMethods.values().iterator().next();
 		
 		
 		validateValue(getChildRelationMethod.getChildRelationMethodName(), "Get child relation method name ", _GET_CHILD_RELATION_METHOD_NAME);
@@ -355,15 +355,15 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		validateValue(cmpField.getSbbAliasRef(), "CMP Field sbba alias ref ", _SBB_ALIAS_REF);
 		
 		
-		List<MGetProfileCMPMethod> profileCMPMethods=mSbbAbstractClass.getProfileCMPMethods();
+		Map<String,MGetProfileCMPMethod> profileCMPMethods=mSbbAbstractClass.getProfileCMPMethods();
 		
 		
 		
 		assertNotNull("Sbb profile cmp methods list is null",profileCMPMethods);
 		assertTrue("Sbb profile cmp methods size is not equal to 1",profileCMPMethods.size()==1);
-		assertNotNull("Sbb profile cmp method is null",profileCMPMethods.get(0));
+		assertNotNull("Sbb profile cmp method is null",profileCMPMethods.values().iterator().next());
 		
-		MGetProfileCMPMethod profileCMPMethod=profileCMPMethods.get(0);
+		MGetProfileCMPMethod profileCMPMethod=profileCMPMethods.values().iterator().next();
 		
 		
 		validateValue(profileCMPMethod.getProfileSpecAliasRef(), "profile cmp method profile specs alias ref ", _PROFILE_SPEC_ALIAST_REF);

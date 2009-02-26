@@ -9,7 +9,7 @@ import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.jboss.test.kernel.junit.MicrocontainerTest;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
-import org.mobicents.slee.container.component.DeployableUnit;
+import org.mobicents.slee.container.component.deployment.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.DeployableUnitBuilder;
 
 public class Du1Test extends MicrocontainerTest {

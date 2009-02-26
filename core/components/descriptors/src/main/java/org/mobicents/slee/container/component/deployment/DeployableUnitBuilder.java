@@ -42,7 +42,6 @@ import org.jboss.classloading.spi.vfs.policy.VFSClassLoaderPolicy;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VirtualFile;
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.DeployableUnit;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;

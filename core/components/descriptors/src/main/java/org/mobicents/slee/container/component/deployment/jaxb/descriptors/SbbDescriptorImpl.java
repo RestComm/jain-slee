@@ -2,6 +2,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.slee.ComponentID;
@@ -17,6 +18,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbb;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
@@ -61,6 +64,16 @@ public class SbbDescriptorImpl {
   
   private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
+  /**
+   * references sbb abstract class map of get profile cmp methods 
+   */
+  private Map<String,MGetProfileCMPMethod> getProfileCMPMethods;
+
+  /**
+   * references sbb abstract class map of get child relation methods 
+   */
+  private Map<String,MGetChildRelationMethod> getChildRelationMethods;
+  
   public SbbDescriptorImpl(MSbb sbb, MSecurityPermissions sbbJarSecurityPermissions, boolean isSlee11) throws DeploymentException
   {
     try
@@ -102,6 +115,26 @@ public class SbbDescriptorImpl {
       this.securityPermisions = sbbJarSecurityPermissions;
 
       this.isSlee11 = isSlee11;
+      
+      // lets prepare child relation and profile cmp methods with aliases dereferenced, for optimized runtime performance
+      this.getChildRelationMethods = sbbClasses.getSbbAbstractClass().getChildRelationMethods();
+      for (MGetChildRelationMethod mGetChildRelationMethod : getChildRelationMethods.values()) {
+    	  for (MSbbRef mSbbRef : sbbRefs) {
+    		  if (mGetChildRelationMethod.getSbbAliasRef().equals(mSbbRef.getSbbAlias())) {
+    			  mGetChildRelationMethod.setSbbID(mSbbRef.getComponentID());
+    			  break;
+    		  }
+    	  }
+      }
+      this.getProfileCMPMethods = sbbClasses.getSbbAbstractClass().getProfileCMPMethods();
+      for (MGetProfileCMPMethod mGetProfileCMPMethod : getProfileCMPMethods.values()) {
+    	  for (MProfileSpecRef mProfileSpecRef : profileSpecRefs) {
+    		  if (mGetProfileCMPMethod.getProfileSpecAliasRef().equals(mProfileSpecRef.getProfileSpecAlias())) {
+    			  mGetProfileCMPMethod.setProfileSpecificationID(mProfileSpecRef.getComponentID());
+    			  break;
+    		  }
+    	  }
+      }
       
       buildDependenciesSet();
     }
@@ -220,4 +253,13 @@ public class SbbDescriptorImpl {
   {
     return this.sbbClasses.getSbbActivityContextInterface();
   }
+  
+  public Map<String, MGetChildRelationMethod> getGetChildRelationMethods() {
+	return getChildRelationMethods;
+  }
+  
+  public Map<String, MGetProfileCMPMethod> getGetProfileCMPMethods() {
+	return getProfileCMPMethods;
+  }
+  
 }

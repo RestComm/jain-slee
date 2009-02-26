@@ -6,7 +6,7 @@
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-package org.mobicents.slee.container.component;
+package org.mobicents.slee.container.component.deployment;
 
 import java.io.File;
 import java.util.Collections;
@@ -29,6 +29,15 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderSystem;
+import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.component.EventTypeComponent;
+import org.mobicents.slee.container.component.LibraryComponent;
+import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.SleeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 
 /**
@@ -246,10 +255,17 @@ public class DeployableUnit {
 		// remove all component class loader domains
 		ClassLoaderSystem classLoaderSystem = ClassLoaderSystem.getInstance();
 		for (SleeComponent component : getDeployableUnitComponents()) {
+			ClassPool classPool = component.getClassPool();
+			if (classPool != null) {
+				classPool.clean();
+				component.setClassPool(null);
+			}
 			ClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
 			if (classLoaderDomain != null) {
 				classLoaderSystem.unregisterDomain(classLoaderDomain);
-			}
+				component.setClassLoaderDomain(null);
+				component.setClassLoader(null);
+			}						
 		}
 		// now delete the deployment dir
 		deletePath(getDeploymentDir());

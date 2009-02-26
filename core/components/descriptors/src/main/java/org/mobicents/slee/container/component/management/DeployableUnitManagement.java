@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.slee.management.DeployableUnitID;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.DeployableUnit;
+import org.mobicents.slee.container.component.deployment.DeployableUnit;
 
 public class DeployableUnitManagement {
 

@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
+import javax.slee.profile.ProfileSpecificationID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetProfileCmpMethod;
 
 /**
@@ -20,26 +22,27 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetProfil
  */
 public class MGetProfileCMPMethod {
 
-	private GetProfileCmpMethod getProfileCmpMethod=null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetProfileCmpMethod llGetProfileCmpMethod=null;
-	
 	private String description=null;
 	private String profileSpecAliasRef=null;
 	private String profileCmpMethodName=null;
+	
+	/**
+	 * the id of the profile specification deferenced by the alias name
+	 */
+	private ProfileSpecificationID profileSpecificationID;
+	
 	public MGetProfileCMPMethod(GetProfileCmpMethod getProfileCmpMethod) {
 		super();
-		this.getProfileCmpMethod = getProfileCmpMethod;
-		this.description=this.getProfileCmpMethod.getDescription()==null?null:this.getProfileCmpMethod.getDescription().getvalue();
-		this.profileSpecAliasRef=this.getProfileCmpMethod.getProfileSpecAliasRef().getvalue();
-		this.profileCmpMethodName=this.getProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
+		this.description=getProfileCmpMethod.getDescription()==null?null:getProfileCmpMethod.getDescription().getvalue();
+		this.profileSpecAliasRef=getProfileCmpMethod.getProfileSpecAliasRef().getvalue();
+		this.profileCmpMethodName=getProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
 	}
 	public MGetProfileCMPMethod(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetProfileCmpMethod llGetProfileCmpMethod) {
 		super();
-		this.llGetProfileCmpMethod = llGetProfileCmpMethod;
-		this.description=this.llGetProfileCmpMethod.getDescription()==null?null:this.llGetProfileCmpMethod.getDescription().getvalue();
-		this.profileSpecAliasRef=this.llGetProfileCmpMethod.getProfileSpecAliasRef().getvalue();
-		this.profileCmpMethodName=this.llGetProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
+		this.description=llGetProfileCmpMethod.getDescription()==null?null:llGetProfileCmpMethod.getDescription().getvalue();
+		this.profileSpecAliasRef=llGetProfileCmpMethod.getProfileSpecAliasRef().getvalue();
+		this.profileCmpMethodName=llGetProfileCmpMethod.getGetProfileCmpMethodName().getvalue();
 	}
 	public String getDescription() {
 		return description;
@@ -51,7 +54,13 @@ public class MGetProfileCMPMethod {
 		return profileCmpMethodName;
 	}
 	
+	public ProfileSpecificationID getProfileSpecificationID() {
+		return profileSpecificationID;
+	}
 	
-	
-	
+	public void setProfileSpecificationID(
+			ProfileSpecificationID profileSpecificationID) {
+		this.profileSpecificationID = profileSpecificationID;
+	}
+		
 }

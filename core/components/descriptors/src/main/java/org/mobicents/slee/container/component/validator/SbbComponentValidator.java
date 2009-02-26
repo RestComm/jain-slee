@@ -693,7 +693,7 @@ public class SbbComponentValidator implements Validator {
 
 		// FIXME: its cant be out of scope, since its byte....
 		// we look for method key
-		for (MGetChildRelationMethod mMetod : this.component.getDescriptor().getSbbClasses().getSbbAbstractClass().getChildRelationMethods()) {
+		for (MGetChildRelationMethod mMetod : this.component.getDescriptor().getSbbClasses().getSbbAbstractClass().getChildRelationMethods().values()) {
 			if (mMetod.getDefaultPriority() > 127 || mMetod.getDefaultPriority() < -128) {
 				passed = false;
 
@@ -1617,14 +1617,14 @@ public class SbbComponentValidator implements Validator {
 		String errorBuffer = new String("");
 
 		try {
-			List<MGetProfileCMPMethod> profileCmpMethods = this.component.getDescriptor().getSbbClasses().getSbbAbstractClass()
+			Map<String,MGetProfileCMPMethod> profileCmpMethods = this.component.getDescriptor().getSbbClasses().getSbbAbstractClass()
 					.getProfileCMPMethods();
 			if (profileCmpMethods.size() == 0) {
 				return passed;
 			}
 
 			// eh, else we have to do all checks
-			for (MGetProfileCMPMethod method : profileCmpMethods) {
+			for (MGetProfileCMPMethod method : profileCmpMethods.values()) {
 
 				if (method.getProfileCmpMethodName().startsWith("ejb") || method.getProfileCmpMethodName().startsWith("sbb")) {
 					passed = false;
@@ -1817,7 +1817,7 @@ public class SbbComponentValidator implements Validator {
 
 			Set<String> childRelationMethods = new HashSet<String>();
 
-			for (MGetChildRelationMethod childMethod : descriptor.getSbbClasses().getSbbAbstractClass().getChildRelationMethods()) {
+			for (MGetChildRelationMethod childMethod : descriptor.getSbbClasses().getSbbAbstractClass().getChildRelationMethods().values()) {
 				if (childMethod.getChildRelationMethodName() == null || childMethod.getChildRelationMethodName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer(

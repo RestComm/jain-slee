@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
+import javax.slee.SbbID;
+
 
 /**
  * Start time:11:43:35 2009-01-20<br>
@@ -19,33 +21,33 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
  */
 public class MGetChildRelationMethod {
 
-	
-	private org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetChildRelationMethod getChildRelationMethod=null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetChildRelationMethod llGetChildRelationMethod=null;
-	
 	private String description=null;
 	private String sbbAliasRef=null;
 	private String childRelationMethodName=null;
 	private byte defaultPriority=0;
+	
+	/**
+	 * the sbb id referenced by the alias
+	 */
+	private SbbID sbbID;
+	
 	public MGetChildRelationMethod(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetChildRelationMethod getChildRelationMethod) {
 		super();
-		this.getChildRelationMethod = getChildRelationMethod;
-		this.description=this.getChildRelationMethod.getDescription()==null?null:this.getChildRelationMethod.getDescription().getvalue();
-		this.sbbAliasRef=this.getChildRelationMethod.getSbbAliasRef().getvalue();
-		this.childRelationMethodName=this.getChildRelationMethod.getGetChildRelationMethodName().getvalue();
-		String v=this.getChildRelationMethod.getDefaultPriority().getvalue();
+		this.description=getChildRelationMethod.getDescription()==null?null:getChildRelationMethod.getDescription().getvalue();
+		this.sbbAliasRef=getChildRelationMethod.getSbbAliasRef().getvalue();
+		this.childRelationMethodName=getChildRelationMethod.getGetChildRelationMethodName().getvalue();
+		String v=getChildRelationMethod.getDefaultPriority().getvalue();
 		//This will fail when def priority is empty
 		this.defaultPriority=Byte.parseByte(v);
 	}
 	public MGetChildRelationMethod(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetChildRelationMethod llGetChildRelationMethod) {
 		super();
-		this.llGetChildRelationMethod = llGetChildRelationMethod;
 		
-		this.description=this.llGetChildRelationMethod.getDescription()==null?null:this.llGetChildRelationMethod.getDescription().getvalue();
-		this.sbbAliasRef=this.llGetChildRelationMethod.getSbbAliasRef().getvalue();
-		this.childRelationMethodName=this.llGetChildRelationMethod.getGetChildRelationMethodName().getvalue();
-		String v=this.llGetChildRelationMethod.getDefaultPriority().getvalue();
+		this.description=llGetChildRelationMethod.getDescription()==null?null:llGetChildRelationMethod.getDescription().getvalue();
+		this.sbbAliasRef=llGetChildRelationMethod.getSbbAliasRef().getvalue();
+		this.childRelationMethodName=llGetChildRelationMethod.getGetChildRelationMethodName().getvalue();
+		String v=llGetChildRelationMethod.getDefaultPriority().getvalue();
 		this.defaultPriority=Byte.parseByte(v);
 	}
 	public String getDescription() {
@@ -61,8 +63,12 @@ public class MGetChildRelationMethod {
 		return defaultPriority;
 	}
 	
+	public SbbID getSbbID() {
+		return sbbID;
+	}
 	
-	
-	
-	
+	public void setSbbID(SbbID sbbID) {
+		this.sbbID = sbbID;
+	}
+		
 }

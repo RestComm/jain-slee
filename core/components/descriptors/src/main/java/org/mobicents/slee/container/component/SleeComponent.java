@@ -3,13 +3,16 @@ package org.mobicents.slee.container.component;
 import java.net.URL;
 import java.util.Set;
 
+import javassist.LoaderClassPath;
+
 import javax.slee.ComponentID;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 
 import org.jboss.classloader.spi.ClassLoaderDomain;
-import org.jboss.classloader.spi.ClassLoaderPolicy;
+import org.mobicents.slee.container.component.deployment.ClassPool;
+import org.mobicents.slee.container.component.deployment.DeployableUnit;
 
 /**
  * Base class for a SLEE component, providing features related with class
@@ -32,6 +35,11 @@ public abstract class SleeComponent {
 	 */
 	private ClassLoader classLoader;
 
+	/**
+	 * the javassist class pool
+	 */
+	private ClassPool classPool;
+	
 	/**
 	 * the DU the component belongs
 	 */
@@ -63,8 +71,29 @@ public abstract class SleeComponent {
 	 */
 	public void setClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
+		if (classPool != null) {
+			classPool.clean();
+		}
+		classPool = new ClassPool();
+    	classPool.appendClassPath(new LoaderClassPath(this.classLoader)); 
 	}
 
+	/**
+	 * Sets the component javassist class pool
+	 * @param classPool
+	 */
+	public void setClassPool(ClassPool classPool) {
+		this.classPool = classPool;
+	}
+	
+	/**
+	 * Retrieves the component javassist class pool
+	 * @return
+	 */
+	public ClassPool getClassPool() {
+		return classPool;
+	}
+	
 	/**
 	 * Retrieves the component class loader domain
 	 * 
