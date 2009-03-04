@@ -78,7 +78,7 @@
             <description />
             <event-name>CustomEventOne</event-name>
             <event-type-ref>
-                <event-type-name>event-type-name</event-type-name>
+                <event-type-name>event-type-name1</event-type-name>
                 <event-type-vendor>event-type-vendor</event-type-vendor>
                 <event-type-version>event-type-version</event-type-version>
             </event-type-ref>
@@ -89,7 +89,7 @@
             <description />
             <event-name>CustomEventTwo</event-name>
             <event-type-ref>
-                <event-type-name>event-type-name</event-type-name>
+                <event-type-name>event-type-name2</event-type-name>
                 <event-type-vendor>event-type-vendor</event-type-vendor>
                 <event-type-version>event-type-version</event-type-version>
             </event-type-ref>
@@ -100,7 +100,7 @@
             <description />
             <event-name>CustomEventThree</event-name>
             <event-type-ref>
-                <event-type-name>event-type-name</event-type-name>
+                <event-type-name>event-type-name3</event-type-name>
                 <event-type-vendor>event-type-vendor</event-type-vendor>
                 <event-type-version>event-type-version</event-type-version>
             </event-type-ref>
@@ -111,7 +111,7 @@
             <description />
             <event-name>CustomEventFour</event-name>
             <event-type-ref>
-                <event-type-name>event-type-name</event-type-name>
+                <event-type-name>event-type-name4</event-type-name>
                 <event-type-vendor>event-type-vendor</event-type-vendor>
                 <event-type-version>event-type-version</event-type-version>
             </event-type-ref>
@@ -122,7 +122,7 @@
             <description />
             <event-name>CustomEventFive</event-name>
             <event-type-ref>
-                <event-type-name>event-type-name</event-type-name>
+                <event-type-name>event-type-name5</event-type-name>
                 <event-type-vendor>event-type-vendor</event-type-vendor>
                 <event-type-version>event-type-version</event-type-version>
             </event-type-ref>
@@ -133,7 +133,7 @@
             <description />
             <event-name>CustomEventSix</event-name>
             <event-type-ref>
-                <event-type-name>event-type-name</event-type-name>
+                <event-type-name>event-type-name6</event-type-name>
                 <event-type-vendor>event-type-vendor</event-type-vendor>
                 <event-type-version>event-type-version</event-type-version>
             </event-type-ref>

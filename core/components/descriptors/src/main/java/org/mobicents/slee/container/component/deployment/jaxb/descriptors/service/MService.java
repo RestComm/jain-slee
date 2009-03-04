@@ -13,8 +13,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.servi
  */
 public class MService {
 
-	private org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service service10;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.service.Service service11;
+	//private org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service service10;
+	//private org.mobicents.slee.container.component.deployment.jaxb.slee11.service.Service service11;
 	private boolean isSlee11;
 
 	private String description;
@@ -25,13 +25,13 @@ public class MService {
 
 	private MRootSbb rootSbb;
 
-	private String defaultPriority;
+	private byte defaultPriority = 0;
 
 	private String addressProfileTable;
 	private String resourceInfoProfileTable;
 
 	public MService(org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service service10) {
-		this.service10 = service10;
+		//this.service10 = service10;
 		this.isSlee11 = false;
 		this.description = service10.getDescription() == null ? null : service10.getDescription().getvalue();
 
@@ -41,14 +41,14 @@ public class MService {
 
 		this.rootSbb = new MRootSbb(service10.getRootSbb());
 
-		this.defaultPriority = service10.getDefaultPriority().getvalue();
+		this.defaultPriority = Byte.parseByte(service10.getDefaultPriority().getvalue());
 
 		this.addressProfileTable = service10.getAddressProfileTable() == null ? null : service10.getAddressProfileTable().getvalue();
 		this.resourceInfoProfileTable = service10.getResourceInfoProfileTable() == null ? null : service10.getResourceInfoProfileTable().getvalue();
 	}
 
 	public MService(org.mobicents.slee.container.component.deployment.jaxb.slee11.service.Service service11) {
-		this.service11 = service11;
+		//this.service11 = service11;
 		this.isSlee11 = true;
 		this.description = service11.getDescription() == null ? null : service11.getDescription().getvalue();
 
@@ -58,7 +58,7 @@ public class MService {
 
 		this.rootSbb = new MRootSbb(service11.getRootSbb());
 
-		this.defaultPriority = service11.getDefaultPriority().getvalue();
+		this.defaultPriority = Byte.parseByte(service11.getDefaultPriority().getvalue());
 
 		this.addressProfileTable = service11.getAddressProfileTable() == null ? null : service11.getAddressProfileTable().getvalue();
 
@@ -105,7 +105,7 @@ public class MService {
 		return rootSbb;
 	}
 
-	public String getDefaultPriority() {
+	public byte getDefaultPriority() {
 		return defaultPriority;
 	}
 

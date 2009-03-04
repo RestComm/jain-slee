@@ -275,7 +275,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 
 		// quicker way to validate :)
-		MEventEntry event = descriptor.getEvents().get(0);
+		MEventEntry event = descriptor.getEventEntries().values().iterator().next();
 		component.setAbstractSbbClass(AbstractIES.class);
 		boolean b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
 				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
@@ -320,7 +320,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		validator.setComponentRepository(new XComponentRepository());
 
 		// quicker way to validate :)
-		MEventEntry event = descriptor.getEvents().get(0);
+		MEventEntry event = descriptor.getEventEntries().values().iterator().next();
 		String receiveMethodName = "on" + event.getEventName();
 		String fireMethodName = "fire" + event.getEventName();
 

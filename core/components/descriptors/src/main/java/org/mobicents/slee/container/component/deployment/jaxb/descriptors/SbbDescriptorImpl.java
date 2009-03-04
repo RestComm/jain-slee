@@ -1,11 +1,13 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileSpecificationID;
@@ -33,233 +35,280 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MS
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- * @author <a href="mailto:emmartins@gmail.com"> Eduardo Martins </a> 
+ * @author <a href="mailto:emmartins@gmail.com"> Eduardo Martins </a>
  */
 public class SbbDescriptorImpl {
 
-  private String description;
+	private String description;
 
-  private SbbID sbbID;
-  private String sbbAlias;
+	private SbbID sbbID;
+	private String sbbAlias;
 
-  private List<MSbbRef> sbbRefs;
-  private List<MProfileSpecRef> profileSpecRefs;
+	private List<MSbbRef> sbbRefs;
+	private List<MProfileSpecRef> profileSpecRefs;
 
-  private MSbbClasses sbbClasses;
+	private MSbbClasses sbbClasses;
 
-  // might be bad, we ommit sbb-classes/description, phew
-  private ProfileSpecificationID addressProfileSpecRef;
-  private List<MEventEntry> events;
-  private List<MActivityContextAttributeAlias> activityContextAttributeAliases;
-  private List<MEnvEntry> envEntries;
-  private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBindings;
+	// might be bad, we ommit sbb-classes/description, phew
+	private ProfileSpecificationID addressProfileSpecRef;
 
-  // 1.1 stuff, profile specs refs have alias element, so we need another.
-  private List<MLibraryRef> libraryRefs;
-  private List<MEjbRef> ejbRefs;
+	/**
+	 * mapping between event type id to event entries in descriptor
+	 */
+	private Map<EventTypeID, MEventEntry> eventEntries;
 
-  private MSecurityPermissions securityPermisions;
+	/**
+	 * mapping between event name and event type id in descriptor
+	 */
+	private Map<String, EventTypeID> eventTypesPerName;
+	
+	private List<MActivityContextAttributeAlias> activityContextAttributeAliases;
+	private List<MEnvEntry> envEntries;
+	private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBindings;
 
-  private boolean isSlee11;
-  
-  private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
+	// 1.1 stuff, profile specs refs have alias element, so we need another.
+	private List<MLibraryRef> libraryRefs;
+	private List<MEjbRef> ejbRefs;
 
-  /**
-   * references sbb abstract class map of get profile cmp methods 
-   */
-  private Map<String,MGetProfileCMPMethod> getProfileCMPMethods;
+	private MSecurityPermissions securityPermisions;
 
-  /**
-   * references sbb abstract class map of get child relation methods 
-   */
-  private Map<String,MGetChildRelationMethod> getChildRelationMethods;
-  
-  public SbbDescriptorImpl(MSbb sbb, MSecurityPermissions sbbJarSecurityPermissions, boolean isSlee11) throws DeploymentException
-  {
-    try
-    {
-      this.description = sbb.getDescription();
-      this.sbbID = new SbbID(sbb.getSbbName(), sbb.getSbbVendor(), sbb.getSbbVersion());
+	private boolean isSlee11;
 
-      this.sbbAlias = sbb.getSbbAlias();
+	private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
-      this.libraryRefs = sbb.getLibraryRef();
-      this.ejbRefs = sbb.getEjbRef();
-      this.profileSpecRefs = sbb.getProfileSpecRef();
-      
-      String addressProfileSpecAliasRef = sbb.getAddressProfileSpecAliasRef();
-	  if (addressProfileSpecAliasRef != null) {
-		  if (this.profileSpecRefs != null) {
-			  for (MProfileSpecRef mProfileSpecRef : this.profileSpecRefs) {
-				  if (mProfileSpecRef.getProfileSpecAlias().equals(addressProfileSpecAliasRef)) {
-					  this.addressProfileSpecRef = mProfileSpecRef.getComponentID();
-				  }
-			  }
-	 	  }
-		  else {
-			  throw new DeploymentException("the address profile spec alias in sbb descriptor is defined but there are no profile specs references");	
-		  }
-	  }
-	  
-      this.sbbRefs = sbb.getSbbRef();
+	/**
+	 * references sbb abstract class map of get profile cmp methods
+	 */
+	private Map<String, MGetProfileCMPMethod> getProfileCMPMethods;
 
-      this.sbbClasses = sbb.getSbbClasses();
-      
-      this.events = sbb.getEvent();
+	/**
+	 * references sbb abstract class map of get child relation methods
+	 */
+	private Map<String, MGetChildRelationMethod> getChildRelationMethods;
 
-      this.activityContextAttributeAliases = sbb.getActivityContextAttributeAlias();
-      this.envEntries = sbb.getEnvEntry();
+	public SbbDescriptorImpl(MSbb sbb,
+			MSecurityPermissions sbbJarSecurityPermissions, boolean isSlee11)
+			throws DeploymentException {
+		try {
+			this.description = sbb.getDescription();
+			this.sbbID = new SbbID(sbb.getSbbName(), sbb.getSbbVendor(), sbb
+					.getSbbVersion());
 
-      this.resourceAdaptorTypeBindings = sbb.getResourceAdaptorTypeBinding();
+			this.sbbAlias = sbb.getSbbAlias();
 
-      this.securityPermisions = sbbJarSecurityPermissions;
+			this.libraryRefs = sbb.getLibraryRef();
+			this.ejbRefs = sbb.getEjbRef();
+			this.profileSpecRefs = sbb.getProfileSpecRef();
 
-      this.isSlee11 = isSlee11;
-      
-      // lets prepare child relation and profile cmp methods with aliases dereferenced, for optimized runtime performance
-      this.getChildRelationMethods = sbbClasses.getSbbAbstractClass().getChildRelationMethods();
-      for (MGetChildRelationMethod mGetChildRelationMethod : getChildRelationMethods.values()) {
-    	  for (MSbbRef mSbbRef : sbbRefs) {
-    		  if (mGetChildRelationMethod.getSbbAliasRef().equals(mSbbRef.getSbbAlias())) {
-    			  mGetChildRelationMethod.setSbbID(mSbbRef.getComponentID());
-    			  break;
-    		  }
-    	  }
-      }
-      this.getProfileCMPMethods = sbbClasses.getSbbAbstractClass().getProfileCMPMethods();
-      for (MGetProfileCMPMethod mGetProfileCMPMethod : getProfileCMPMethods.values()) {
-    	  for (MProfileSpecRef mProfileSpecRef : profileSpecRefs) {
-    		  if (mGetProfileCMPMethod.getProfileSpecAliasRef().equals(mProfileSpecRef.getProfileSpecAlias())) {
-    			  mGetProfileCMPMethod.setProfileSpecificationID(mProfileSpecRef.getComponentID());
-    			  break;
-    		  }
-    	  }
-      }
-      
-      buildDependenciesSet();
-    }
-    catch (DeploymentException e) {
-        throw e;
-    }
-    catch (Throwable e) {
-      throw new DeploymentException("Failed to build sbb descriptor", e);
-    }
-  }
+			String addressProfileSpecAliasRef = sbb
+					.getAddressProfileSpecAliasRef();
+			if (addressProfileSpecAliasRef != null) {
+				if (this.profileSpecRefs != null) {
+					for (MProfileSpecRef mProfileSpecRef : this.profileSpecRefs) {
+						if (mProfileSpecRef.getProfileSpecAlias().equals(
+								addressProfileSpecAliasRef)) {
+							this.addressProfileSpecRef = mProfileSpecRef
+									.getComponentID();
+						}
+					}
+				} else {
+					throw new DeploymentException(
+							"the address profile spec alias in sbb descriptor is defined but there are no profile specs references");
+				}
+			}
 
-  private void buildDependenciesSet()
-  {
-    for(MSbbRef sbbRef : sbbRefs)
-    {
-      this.dependenciesSet.add( sbbRef.getComponentID() );
-    }
+			this.sbbRefs = sbb.getSbbRef();
 
-    for(MProfileSpecRef profileSpecRef : profileSpecRefs)
-    {
-      this.dependenciesSet.add( profileSpecRef.getComponentID() );
-    }
+			this.sbbClasses = sbb.getSbbClasses();
 
-    for(MLibraryRef libraryRef : libraryRefs)
-    {
-      this.dependenciesSet.add( libraryRef.getComponentID() );
-    }
+			// build event type map and sets optimized for runtime
+			eventEntries = new HashMap<EventTypeID, MEventEntry>(sbb.getEvent()
+					.size() * 2 + 1);
+			eventTypesPerName = new HashMap<String,EventTypeID>(sbb.getEvent()
+					.size() * 2 + 1);
+			for (MEventEntry mEventEntry : sbb.getEvent()) {			
+				EventTypeID eventTypeID = mEventEntry.getEventReference().getComponentID();
+				if (eventEntries.containsKey(eventTypeID)) {
+					throw new DeploymentException("the sbb descriptor contains multiple event handler methods for "+eventTypeID);
+				}
+				eventEntries.put(eventTypeID, mEventEntry);
+				eventTypesPerName.put(mEventEntry.getEventName(), eventTypeID);
+			}
 
-    // FIXME: EJB's do not have component ID... what gives?
-    // for(MEjbRef ejbRef : ejbRefs)
-    // {
-    //   this.dependenciesSet.add( ejbRef.getComponentID() );
-    // }
-  }
+			this.activityContextAttributeAliases = sbb
+					.getActivityContextAttributeAlias();
+			this.envEntries = sbb.getEnvEntry();
 
+			this.resourceAdaptorTypeBindings = sbb
+					.getResourceAdaptorTypeBinding();
 
-  public String getDescription() {
-    return description;
-  }
+			this.securityPermisions = sbbJarSecurityPermissions;
 
-  public SbbID getSbbID() {
-    return sbbID;
-  }
+			this.isSlee11 = isSlee11;
 
-  public String getSbbAlias() {
-    return sbbAlias;
-  }
+			// lets prepare child relation and profile cmp methods with aliases
+			// dereferenced, for optimized runtime performance
+			this.getChildRelationMethods = sbbClasses.getSbbAbstractClass()
+					.getChildRelationMethods();
+			for (MGetChildRelationMethod mGetChildRelationMethod : getChildRelationMethods
+					.values()) {
+				for (MSbbRef mSbbRef : sbbRefs) {
+					if (mGetChildRelationMethod.getSbbAliasRef().equals(
+							mSbbRef.getSbbAlias())) {
+						mGetChildRelationMethod.setSbbID(mSbbRef
+								.getComponentID());
+						break;
+					}
+				}
+			}
+			this.getProfileCMPMethods = sbbClasses.getSbbAbstractClass()
+					.getProfileCMPMethods();
+			for (MGetProfileCMPMethod mGetProfileCMPMethod : getProfileCMPMethods
+					.values()) {
+				for (MProfileSpecRef mProfileSpecRef : profileSpecRefs) {
+					if (mGetProfileCMPMethod.getProfileSpecAliasRef().equals(
+							mProfileSpecRef.getProfileSpecAlias())) {
+						mGetProfileCMPMethod
+								.setProfileSpecificationID(mProfileSpecRef
+										.getComponentID());
+						break;
+					}
+				}
+			}
 
-  public List<MSbbRef> getSbbRefs() {
-    return sbbRefs;
-  }
+			buildDependenciesSet();
+		} catch (DeploymentException e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new DeploymentException("Failed to build sbb descriptor", e);
+		}
+	}
 
-  public List<MProfileSpecRef> getProfileSpecRefs()
-  {
-    return profileSpecRefs;
-  }
+	private void buildDependenciesSet() {
+		for (MSbbRef sbbRef : sbbRefs) {
+			this.dependenciesSet.add(sbbRef.getComponentID());
+		}
 
-  public MSbbClasses getSbbClasses()
-  {
-    return sbbClasses;
-  }
+		for (MProfileSpecRef profileSpecRef : profileSpecRefs) {
+			this.dependenciesSet.add(profileSpecRef.getComponentID());
+		}
 
-  public ProfileSpecificationID getAddressProfileSpecRef() {
-    return addressProfileSpecRef;
-  }
+		for (MLibraryRef libraryRef : libraryRefs) {
+			this.dependenciesSet.add(libraryRef.getComponentID());
+		}
 
-  public List<MEventEntry> getEvents() {
-    return events;
-  }
+		// FIXME: EJB's do not have component ID... what gives?
+		// for(MEjbRef ejbRef : ejbRefs)
+		// {
+		// this.dependenciesSet.add( ejbRef.getComponentID() );
+		// }
+	}
 
-  public List<MActivityContextAttributeAlias> getActivityContextAttributeAliases() {
-    return activityContextAttributeAliases;
-  }
+	public String getDescription() {
+		return description;
+	}
 
-  public List<MEnvEntry> getEnvEntries() {
-    return envEntries;
-  }
+	public SbbID getSbbID() {
+		return sbbID;
+	}
 
-  public List<MResourceAdaptorTypeBinding> getResourceAdaptorTypeBindings() {
-    return resourceAdaptorTypeBindings;
-  }
+	public String getSbbAlias() {
+		return sbbAlias;
+	}
 
-  public List<MLibraryRef> getLibraryRefs() {
-    return libraryRefs;
-  }
+	public List<MSbbRef> getSbbRefs() {
+		return sbbRefs;
+	}
 
-  public List<MEjbRef> getEjbRefs() {
-    return ejbRefs;
-  }
+	public List<MProfileSpecRef> getProfileSpecRefs() {
+		return profileSpecRefs;
+	}
 
-  public MSecurityPermissions getSecurityPermisions() {
-    return securityPermisions;
-  }
+	public MSbbClasses getSbbClasses() {
+		return sbbClasses;
+	}
 
-  public Set<ComponentID> getDependenciesSet() {
-    return this.dependenciesSet;
-  }
+	public ProfileSpecificationID getAddressProfileSpecRef() {
+		return addressProfileSpecRef;
+	}
 
-  public boolean isSlee11()
-  {
-    return isSlee11;
-  }
+	/**
+	 * Retrieves the map between event names and event entries, in descriptors
+	 * 
+	 * @return
+	 */
+	public Map<EventTypeID, MEventEntry> getEventEntries() {
+		return eventEntries;
+	}
 
-  // Convenience methods
-  public MSbbAbstractClass getSbbAbstractClass()
-  {
-    return this.sbbClasses.getSbbAbstractClass();
-  }
+	/**
+	 * Retrieves the event type id mapped to the specified event name
+	 * @param eventName
+	 * @return
+	 */
+	public EventTypeID getEventTypeID(String eventName) {
+		return eventTypesPerName.get(eventName);
+	}
+	
+	public List<MActivityContextAttributeAlias> getActivityContextAttributeAliases() {
+		return activityContextAttributeAliases;
+	}
 
-  public MSbbLocalInterface getSbbLocalInterface()
-  {
-    return this.sbbClasses.getSbbLocalInterface();
-  }
+	public List<MEnvEntry> getEnvEntries() {
+		return envEntries;
+	}
 
-  public MSbbActivityContextInterface getSbbActivityContextInterface()
-  {
-    return this.sbbClasses.getSbbActivityContextInterface();
-  }
-  
-  public Map<String, MGetChildRelationMethod> getGetChildRelationMethods() {
-	return getChildRelationMethods;
-  }
-  
-  public Map<String, MGetProfileCMPMethod> getGetProfileCMPMethods() {
-	return getProfileCMPMethods;
-  }
-  
+	public List<MResourceAdaptorTypeBinding> getResourceAdaptorTypeBindings() {
+		return resourceAdaptorTypeBindings;
+	}
+
+	public List<MLibraryRef> getLibraryRefs() {
+		return libraryRefs;
+	}
+
+	public List<MEjbRef> getEjbRefs() {
+		return ejbRefs;
+	}
+
+	public MSecurityPermissions getSecurityPermisions() {
+		return securityPermisions;
+	}
+
+	public Set<ComponentID> getDependenciesSet() {
+		return this.dependenciesSet;
+	}
+
+	public boolean isSlee11() {
+		return isSlee11;
+	}
+
+	// Convenience methods
+	public MSbbAbstractClass getSbbAbstractClass() {
+		return this.sbbClasses.getSbbAbstractClass();
+	}
+
+	public MSbbLocalInterface getSbbLocalInterface() {
+		return this.sbbClasses.getSbbLocalInterface();
+	}
+
+	public MSbbActivityContextInterface getSbbActivityContextInterface() {
+		return this.sbbClasses.getSbbActivityContextInterface();
+	}
+
+	/**
+	 * @see MSbbAbstractClass#getChildRelationMethods()
+	 * @return
+	 */
+	public Map<String, MGetChildRelationMethod> getGetChildRelationMethods() {
+		return getChildRelationMethods;
+	}
+
+	/**
+	 * @see MSbbAbstractClass#getGetProfileCMPMethods()
+	 * @return
+	 */
+	public Map<String, MGetProfileCMPMethod> getGetProfileCMPMethods() {
+		return getProfileCMPMethods;
+	}
+
 }

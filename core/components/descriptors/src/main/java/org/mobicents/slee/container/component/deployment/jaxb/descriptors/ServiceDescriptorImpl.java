@@ -20,16 +20,16 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.servic
  */
 public class ServiceDescriptorImpl {
 
-	private final MService descriptor;
+	private final MService mService;
 	private final ServiceID serviceID;
 	private final SbbID rootSbbID;
 	private final Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
 
-	public ServiceDescriptorImpl(MService descriptor) throws DeploymentException {
+	public ServiceDescriptorImpl(MService mService) throws DeploymentException {
 		try {
-			this.descriptor = descriptor;			
-			this.serviceID = new ServiceID(descriptor.getServiceName(),descriptor.getServiceVendor(),descriptor.getServiceVersion());
-			this.rootSbbID = new SbbID(descriptor.getRootSbb().getSbbName(),descriptor.getRootSbb().getSbbVendor(),descriptor.getRootSbb().getSbbVersion());	
+			this.mService = mService;			
+			this.serviceID = new ServiceID(mService.getServiceName(),mService.getServiceVendor(),mService.getServiceVersion());
+			this.rootSbbID = new SbbID(mService.getRootSbb().getSbbName(),mService.getRootSbb().getSbbVendor(),mService.getRootSbb().getSbbVersion());
 		} catch (Exception e) {
 			throw new DeploymentException("failed to build service descriptor",e);
 		}
@@ -39,8 +39,8 @@ public class ServiceDescriptorImpl {
 		return dependenciesSet;
 	}
 	
-	public MService getDescriptor() {
-		return descriptor;
+	public MService getMService() {
+		return mService;
 	}
 	
 	public SbbID getRootSbbID() {
@@ -52,6 +52,6 @@ public class ServiceDescriptorImpl {
 	}
 	
 	public boolean isSlee11() {
-		return descriptor.isSlee11();
+		return mService.isSlee11();
 	}
 }

@@ -20,40 +20,24 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEv
  */
 public class MInitialEventSelect {
 
-	
-	private InitialEventSelect initialEventSelect=null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.InitialEventSelect llInitialEventSelect=null;
-	
-	//Possibly this should be just a string....
-	private String variable=null;
-
-	
-	
+	private InitialEventSelectVariable variable;
 	
 	public MInitialEventSelect(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.InitialEventSelect llInitialEventSelect) {
-		super();
-		this.llInitialEventSelect = llInitialEventSelect;
-		this.variable=this.llInitialEventSelect.getVariable();
+		this.variable=InitialEventSelectVariable.valueOf(llInitialEventSelect.getVariable());
 	}
 
 	public MInitialEventSelect(InitialEventSelect initialEventSelect) {
-		super();
-		this.initialEventSelect = initialEventSelect;
-		this.variable=this.initialEventSelect.getVariable();
+		this.variable=InitialEventSelectVariable.valueOf(initialEventSelect.getVariable());
 	}
 
-	public String getVariable() {
+	public InitialEventSelectVariable getVariable() {
 		return variable;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((variable == null) ? 0 : variable.hashCode());
-		return result;
+		return variable.hashCode();
 	}
 
 	@Override
@@ -72,7 +56,5 @@ public class MInitialEventSelect {
 			return false;
 		return true;
 	}
-	
-	
-	
+		
 }

@@ -8,14 +8,17 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.ServiceDescriptor;
+import javax.slee.management.ServiceUsageMBean;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
 
@@ -39,6 +42,16 @@ public class ServiceComponent extends SleeComponent {
 	 */
 	private ServiceDescriptor specsDescriptor = null;
 
+	/**
+	 * the {@link SbbComponent} the service defines as root
+	 */
+	private SbbComponent rootSbbComponent = null;
+	
+	/**
+	 * the usage mbean for this service
+	 */
+	private ServiceUsageMBean serviceUsageMBean;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -101,8 +114,8 @@ public class ServiceComponent extends SleeComponent {
 			specsDescriptor = new ServiceDescriptor(getServiceID(),
 					getDeployableUnit().getDeployableUnitID(),
 					getDeploymentUnitSource(), getDescriptor().getRootSbbID(),
-					getDescriptor().getDescriptor().getAddressProfileTable(),
-					getDescriptor().getDescriptor()
+					getDescriptor().getMService().getAddressProfileTable(),
+					getDescriptor().getMService()
 							.getResourceInfoProfileTable());
 		}
 		return specsDescriptor;
@@ -111,5 +124,61 @@ public class ServiceComponent extends SleeComponent {
 	@Override
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
+	}
+	
+	/**
+	 * Retrieves the set of sbbs used by this service
+	 * @param componentRepository
+	 * @return
+	 */
+	public Set<SbbID> getSbbIDs(ComponentRepository componentRepository) {
+		Set<SbbID> result = new HashSet<SbbID>();
+		buildSbbTree(getDescriptor().getRootSbbID(),result,componentRepository);
+		return result;
+	}
+	
+	private void buildSbbTree(SbbID sbbID, Set<SbbID> result,ComponentRepository componentRepository) {
+		result.add(sbbID);
+		SbbComponent sbbComponent = componentRepository.getComponentByID(sbbID);
+		for (ComponentID componentID : sbbComponent.getDependenciesSet()) {
+			if (componentID instanceof SbbID) {
+				SbbID anotherSbbID = (SbbID)componentID;
+				if (!result.contains(anotherSbbID)) {
+					buildSbbTree(anotherSbbID, result, componentRepository);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Retrieves the {@link SbbComponent} the service defines as root
+	 * @return
+	 */
+	public SbbComponent getRootSbbComponent() {
+		return rootSbbComponent;
+	}
+	
+	/**
+	 * Sets the {@link SbbComponent} the service defines as root
+	 * @param rootSbbComponent
+	 */
+	public void setRootSbbComponent(SbbComponent rootSbbComponent) {
+		this.rootSbbComponent = rootSbbComponent;
+	}
+	
+	/**
+	 * Retrieves the usage mbean for this service
+	 * @return
+	 */
+	public ServiceUsageMBean getServiceUsageMBean() {
+		return serviceUsageMBean;
+	}
+	
+	/**
+	 * Sets the usage mbean for this service
+	 * @param serviceUsageMBean
+	 */
+	public void setServiceUsageMBean(ServiceUsageMBean serviceUsageMBean) {
+		this.serviceUsageMBean = serviceUsageMBean;
 	}
 }

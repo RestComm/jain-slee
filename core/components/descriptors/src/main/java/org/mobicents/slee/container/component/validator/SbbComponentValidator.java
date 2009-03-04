@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.profile.ProfileID;
@@ -1163,13 +1164,9 @@ public class SbbComponentValidator implements Validator {
 		// Abstract methods are for fire methods, we have to check them and
 		// remove if present :)
 
-		List<MEventEntry> events = this.component.getDescriptor().getEvents();
+		Map<EventTypeID,MEventEntry> events = this.component.getDescriptor().getEventEntries();
 
-		// FIXME: there should be a check for method event type depulicates
-		// section 8.5.2
-		for (int index = 0; index < events.size(); index++) {
-
-			MEventEntry event = events.get(index);
+		for (MEventEntry event : events.values()) {
 
 			switch (event.getEventDirection()) {
 
@@ -1861,8 +1858,7 @@ public class SbbComponentValidator implements Validator {
 
 			// This is required, events can be decalred once
 			Map<String, MEventTypeRef> eventNameToReference = new HashMap<String, MEventTypeRef>();
-			for (int i = 0; i < descriptor.getEvents().size(); i++) {
-				MEventEntry event = descriptor.getEvents().get(i);
+			for (MEventEntry event : descriptor.getEventEntries().values()) {
 				if (event.getEventName() == null || event.getEventName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer("Sbb descriptor declares event with empty event name, ", "3.1.8", errorBuffer);

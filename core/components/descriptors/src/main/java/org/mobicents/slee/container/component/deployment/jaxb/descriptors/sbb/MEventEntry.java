@@ -175,4 +175,19 @@ public class MEventEntry {
 		return resourceOption;
 	}
 
+	/**
+	 * 
+	 * @return true if the event direction is Receive or FireAndReceive
+	 */
+	public boolean isReceived() {
+		return eventDirection == MEventDirection.Receive || eventDirection == MEventDirection.FireAndReceive;
+	}
+
+	/**
+	 * 
+	 * @return true if the event direction is Fire or FireAndReceive
+	 */
+	public boolean isFired() {
+		return eventDirection == MEventDirection.Fire || eventDirection == MEventDirection.FireAndReceive;
+	}
 }

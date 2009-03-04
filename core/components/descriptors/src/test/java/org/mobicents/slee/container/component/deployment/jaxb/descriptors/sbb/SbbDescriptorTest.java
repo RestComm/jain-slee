@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+import javax.slee.EventTypeID;
 import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
@@ -196,13 +197,13 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Profile specs reference alias is not equal to "+_PROFILE_SPEC_ALIAS,ref.getProfileSpecAlias().compareTo(_PROFILE_SPEC_ALIAS)==0);
 		
 		
-		List<MEventEntry> events= sbb.getEvents();
+		Map<EventTypeID,MEventEntry> events= sbb.getEventEntries();
 		
 		assertNotNull("Events list is null",events);
 		
 		assertTrue("Events list size is not equal 1",events.size()==1);
 		
-		MEventEntry eventEntry=events.get(0);
+		MEventEntry eventEntry=events.values().iterator().next();
 		
 		assertNotNull("Event entry is null",eventEntry);
 		
@@ -229,7 +230,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		MInitialEventSelect mISelect=iSelect.get(0);
 		assertNotNull("Event initial select is null",mISelect);
 		assertNotNull("Event initial select variable is null",mISelect.getVariable());
-		assertTrue("Event initial select variable is equal Address",mISelect.getVariable().compareTo("Address")==0);
+		assertTrue("Event initial select variable is equal Address",mISelect.getVariable() == InitialEventSelectVariable.Address);
 		
 	
 		List<MActivityContextAttributeAlias> aciAliasses=sbb.getActivityContextAttributeAliases();

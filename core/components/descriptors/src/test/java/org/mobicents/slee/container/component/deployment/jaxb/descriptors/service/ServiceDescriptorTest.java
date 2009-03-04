@@ -93,12 +93,12 @@ public class ServiceDescriptorTest extends TCUtilityClass {
 
 		validateKey(service.getRootSbbID(), "Root Sbb key", new String[]{_SBB_NAME+index,_SBB_VENDOR+index,_SBB_VERSION+index});
 		validateKey(service.getServiceID(), "Service key", new String[]{_SERVICE_NAME+index,_SERVICE_VENDOR+index,_SERVICE_VERSION+index});
-		validateValue(service.getDescriptor().getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
+		validateValue(service.getMService().getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
 	
 		
-		validateValue(service.getDescriptor().getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
+		validateValue(service.getMService().getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
 		if(!service.isSlee11())
-			validateValue(service.getDescriptor().getResourceInfoProfileTable(), "Resource info profile table", _RESOURCE_INFO_PROFILE_TABLE+index);
+			validateValue(service.getMService().getResourceInfoProfileTable(), "Resource info profile table", _RESOURCE_INFO_PROFILE_TABLE+index);
 	}
 	
 	

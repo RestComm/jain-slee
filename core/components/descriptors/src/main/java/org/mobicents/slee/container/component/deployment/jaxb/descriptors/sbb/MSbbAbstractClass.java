@@ -41,14 +41,14 @@ public class MSbbAbstractClass {
       this.cmpFields.add(new MSbbCMPField(cmpField10));
     }
 
-    this.getProfileCMPMethods = new HashMap<String,MGetProfileCMPMethod>();
+    this.getProfileCMPMethods = new HashMap<String,MGetProfileCMPMethod>(sbbAbstractClass10.getGetProfileCmpMethod().size()*2+1);
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetProfileCmpMethod getProfileCmpMethod10 : sbbAbstractClass10.getGetProfileCmpMethod())
     {
     	MGetProfileCMPMethod mGetProfileCMPMethod = new MGetProfileCMPMethod(getProfileCmpMethod10);	
     	this.getProfileCMPMethods.put(mGetProfileCMPMethod.getProfileCmpMethodName(),mGetProfileCMPMethod);
     }
 
-    this.getChildRelationMethods = new HashMap<String,MGetChildRelationMethod>();
+    this.getChildRelationMethods = new HashMap<String,MGetChildRelationMethod>(sbbAbstractClass10.getGetChildRelationMethod().size()*2+1);
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetChildRelationMethod getChildRelationMethod10 : sbbAbstractClass10.getGetChildRelationMethod())
     {
       MGetChildRelationMethod mg=new MGetChildRelationMethod(getChildRelationMethod10);
@@ -69,14 +69,14 @@ public class MSbbAbstractClass {
       this.cmpFields.add(new MSbbCMPField(cmpField11));
     }
 
-    this.getProfileCMPMethods = new HashMap<String,MGetProfileCMPMethod>();
+    this.getProfileCMPMethods = new HashMap<String,MGetProfileCMPMethod>(sbbAbstractClass11.getGetProfileCmpMethod().size()*2+1);
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetProfileCmpMethod getProfileCmpMethod11 : sbbAbstractClass11.getGetProfileCmpMethod())
     {
     	MGetProfileCMPMethod mGetProfileCMPMethod = new MGetProfileCMPMethod(getProfileCmpMethod11);	
     	this.getProfileCMPMethods.put(mGetProfileCMPMethod.getProfileCmpMethodName(),mGetProfileCMPMethod);
     }
 
-    this.getChildRelationMethods = new HashMap<String,MGetChildRelationMethod>();
+    this.getChildRelationMethods = new HashMap<String,MGetChildRelationMethod>(sbbAbstractClass11.getGetChildRelationMethod().size()*2+1);
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.GetChildRelationMethod getChildRelationMethod11 : sbbAbstractClass11.getGetChildRelationMethod())
     {
       MGetChildRelationMethod mg=new MGetChildRelationMethod(getChildRelationMethod11);
@@ -104,11 +104,19 @@ public class MSbbAbstractClass {
     return cmpFields;
   }
 
+  /**
+   * Retrieves the map between profile CMP method names and {@link MGetProfileCMPMethod}s
+   * @return
+   */
   public Map<String,MGetProfileCMPMethod> getProfileCMPMethods()
   {
     return getProfileCMPMethods;
   }
 
+  /**
+   * Retrieves the Map between child relation method names and {@link MGetChildRelationMethod}s
+   * @return
+   */
   public Map<String,MGetChildRelationMethod> getChildRelationMethods()
   {
     return getChildRelationMethods;

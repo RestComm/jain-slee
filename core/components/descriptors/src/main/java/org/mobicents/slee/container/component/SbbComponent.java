@@ -11,6 +11,7 @@ package org.mobicents.slee.container.component;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.management.ObjectName;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
@@ -91,6 +92,11 @@ public class SbbComponent extends SleeComponent {
 	 */
 	private SbbDescriptor specsDescriptor = null;
 
+	/**
+	 * the service component usage mbean
+	 */
+	private ObjectName usageMBean;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -237,6 +243,22 @@ public class SbbComponent extends SleeComponent {
 	}
 
 	/**
+	 * Retrieves the service component usage mbean 
+	 * @return
+	 */
+	public ObjectName getUsageMBean() {
+		return usageMBean;
+	}
+	
+	/**
+	 * Sets the service component usage mbean
+	 * @param usageMBean
+	 */
+	public void setUsageMBean(ObjectName usageMBean) {
+		this.usageMBean = usageMBean;
+	}
+	
+	/**
 	 * Retrieves the sbb usage parameters interface
 	 * 
 	 * @return
@@ -324,7 +346,7 @@ public class SbbComponent extends SleeComponent {
 					.toArray(new ProfileSpecificationID[profileSpecSet.size()]);
 
 			Set<EventTypeID> eventTypeSet = new HashSet<EventTypeID>();
-			for (MEventEntry mEventEntry : getDescriptor().getEvents()) {
+			for (MEventEntry mEventEntry : getDescriptor().getEventEntries().values()) {
 				eventTypeSet.add(mEventEntry.getEventReference()
 						.getComponentID());
 			}
