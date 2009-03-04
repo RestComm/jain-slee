@@ -27,10 +27,10 @@ import javax.slee.usage.SampleStatistics;
 import javax.slee.usage.SbbUsageMBean;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.InstalledUsageParameterSet;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
+import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
 import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
 
 /**
@@ -40,22 +40,14 @@ import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
  */
 public class ConcreteUsageParameterMBeanInterfaceGenerator {
 
-    private static Logger logger;
-
-    private ClassPool classPool;
+    private static Logger logger= Logger.getLogger(ConcreteUsageParameterMBeanInterfaceGenerator.class);
 
     private String usageParameterFieldName;
     
-    private MobicentsSbbDescriptor sbbDescriptor;
+    private final SbbComponent sbbComponent;
 
-    static {
-        logger = Logger.getLogger(ConcreteUsageParameterMBeanInterfaceGenerator.class);
-        
-    }
-
-    public ConcreteUsageParameterMBeanInterfaceGenerator(MobicentsSbbDescriptor sbbDescriptor) {
-        classPool = ((DeployableUnitIDImpl)sbbDescriptor.getDeployableUnit()).getDUDeployer().getClassPool();
-        this.sbbDescriptor = sbbDescriptor;        
+    public ConcreteUsageParameterMBeanInterfaceGenerator(SbbComponent sbbComponent) {
+    	this.sbbComponent = sbbComponent;        
     }
     
     /**
@@ -111,10 +103,10 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
 
     public Class generateConcreteUsageParameterMBeanInterface(
             ) throws Exception {
-        String usageParamInterfaceName = sbbDescriptor
-                .getUsageParametersInterface();
-        if (usageParamInterfaceName == null)
+        MUsageParametersInterface mUsageParametersInterface = sbbComponent.getDescriptor().getSbbClasses().getSbbUsageParametersInterface();
+        if (mUsageParametersInterface == null)
             return null;
+        String usageParamInterfaceName = mUsageParametersInterface.getUsageParametersInterfaceName();
         
         String concreteMBeanInterfaceName = usageParamInterfaceName + "MBean";
         String concreteMBeanClassName = usageParamInterfaceName + "MBeanImpl";
@@ -122,6 +114,9 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
         if (logger.isDebugEnabled()) {
         	logger.debug("generating "+concreteMBeanInterfaceName+" and "+concreteMBeanClassName);
         }
+        
+        ClassPool classPool = sbbComponent.getClassPool();
+        
         CtClass usageParamInterface = classPool.get(usageParamInterfaceName);
         CtClass usageMBeanInterface = classPool.get(SbbUsageMBean.class
                 .getName());
@@ -131,7 +126,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
                 classPool.get(SbbID.class.getName()), 
                 classPool.get(String.class.getName()),
                 classPool.get(String.class.getName()),
-                classPool.get(sbbDescriptor.getUsageParameterClass().getName())};
+                classPool.get(sbbComponent.getUsageParametersInterfaceConcreteClass().getName())};
         
         CtClass ctInterface = classPool.makeInterface(concreteMBeanInterfaceName);
 		       
@@ -158,7 +153,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
             generateConcreteMethod(ctClass, methods[i]);
         }
 
-        String sbbDeploymentPathStr = sbbDescriptor.getDeploymentPath();
+        String sbbDeploymentPathStr = sbbComponent.getDeploymentDir().toExternalForm();
         ctInterface.writeFile(sbbDeploymentPathStr);
         logger.debug("Writing file " + concreteMBeanInterfaceName);
         ctClass.writeFile(sbbDeploymentPathStr);
@@ -209,8 +204,10 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
 
         String methodName = method.getName();
         String body = "";
-        CtClass managementExceptionClass = this.classPool.get(ManagementException.class.getName());
-        CtClass sampleStatisticsClass = this.classPool.get(SampleStatistics.class.getName());
+        
+        ClassPool classPool = sbbComponent.getClassPool();
+        CtClass managementExceptionClass = classPool.get(ManagementException.class.getName());
+        CtClass sampleStatisticsClass = classPool.get(SampleStatistics.class.getName());
         CtMethod newMethod = null;
         
 

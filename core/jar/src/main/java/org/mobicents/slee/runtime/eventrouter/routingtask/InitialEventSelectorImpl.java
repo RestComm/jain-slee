@@ -8,16 +8,15 @@
 * license or royalty payments. There is no claim of correctness and
 * NO WARRANTY OF ANY KIND provided with this code.
 */
-package org.mobicents.slee.container;
+package org.mobicents.slee.runtime.eventrouter.routingtask;
+
+import java.util.List;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 
-import org.mobicents.slee.container.component.SbbEventEntry;
-import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
-import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MInitialEventSelect;
 
 /**
  * 
@@ -39,7 +38,6 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
     private Address address;
     private String customName;
 
-    int[] select;
     private boolean isSelectMethod = false;
     private boolean isActivityContextSelected= false;
     private boolean isAddressProfileSelected= false;
@@ -51,19 +49,19 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
     
     private String selectMethodName;
  
-    public InitialEventSelectorImpl(EventTypeID type, Object event, String acId,  int[] select, String methodName, Address address) {
+    public InitialEventSelectorImpl(EventTypeID type, Object event, String acId,  List<MInitialEventSelect> select, String methodName, Address address) {
         eventTypeID = type;
         this.event = event;
         this.address = address;
         this.acId = acId;
         
-        for(int i=0; i<select.length;i++){
-            switch(select[i]){ 
-            	case SbbEventEntry.ACTIVITY_CONTEXT_INITIAL_EVENT_SELECT: this.isActivityContextSelected = true;break;
-            	case SbbEventEntry.ADDRESS_INITIAL_EVENT_SELECT:this.isAddressSelected=true;break;
-            	case SbbEventEntry.ADDRESS_PROFILE_INITIAL_EVENT_SELECT:this.isAddressProfileSelected=true;break;
-            	case SbbEventEntry.EVENT_INITIAL_EVENT_SELECT:this.isEventSelected=true;break;
-            	case SbbEventEntry.EVENT_TYPE_INITIAL_EVENT_SELECT:this.isEventTypeSelected=true;break;
+        for(MInitialEventSelect mInitialEventSelect : select){
+            switch(mInitialEventSelect.getVariable()){ 
+            	case ActivityContext: this.isActivityContextSelected = true;break;
+            	case Address:this.isAddressSelected=true;break;
+            	case AddressProfile:this.isAddressProfileSelected=true;break;
+            	case Event:this.isEventSelected=true;break;
+            	case EventType:this.isEventTypeSelected=true;break;
             }
         }
         

@@ -273,7 +273,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
             try {
                 if (startedTx)
                     txMgr.commit();
-            } catch (SystemException e) {
+            } catch (Exception e) {
                 throw new FacilityException("error committing tx",e);
             }
            

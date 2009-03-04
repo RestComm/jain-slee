@@ -313,7 +313,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 							+ remainingRepetitions);
 				}
 				
-				new DeferredEvent(TimerEventImpl.getEventTypeID(),timerEvent,ac,this.address);
+				new DeferredEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,ac,this.address);
 				
 				rb = false;
 			}            

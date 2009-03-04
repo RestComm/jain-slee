@@ -19,7 +19,7 @@ import javax.management.ObjectName;
 import org.jboss.deployment.DeploymentException;
 import org.jboss.deployment.SubDeployerSupport;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.component.DeployableUnitDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.xml.XMLConstants;
 import org.mobicents.slee.container.management.xml.XMLUtils;

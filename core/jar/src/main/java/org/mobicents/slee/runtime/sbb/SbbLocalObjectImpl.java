@@ -155,7 +155,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         this();
         
         this.sleeContainer = SleeContainer.lookupFromJndi();
-        this.contextClassLoader = sbbEntity.getSbbDescriptor().getClassLoader();
+        this.contextClassLoader = sbbEntity.getSbbComponent().getClassLoader();
         this.sbbEntityId = sbbEntity.getSbbEntityId();
         if (sbbEntity.getSbbObject() == null){
             try {
@@ -354,7 +354,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
             		sbbe.trashObject();
             		logger.error("Exception while executing RolledBackAction",e);
             		try {
-            			if (sleeContainer.getTransactionManager().isInTx())
+            			if (sleeContainer.getTransactionManager().getTransaction() != null)
             				sleeContainer.getTransactionManager().rollback();
             		} catch (SystemException e1) {
                     logger.error(e1);
@@ -365,7 +365,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
             		sbbe.trashObject();
             		logger.error("Exception while executing RolledBackAction",e);
             		try {
-            			if (sleeContainer.getTransactionManager().isInTx())
+            			if (sleeContainer.getTransactionManager().getTransaction() != null)
             				sleeContainer.getTransactionManager().rollback();
             		} catch (SystemException e1) {
             			logger.error(e1);

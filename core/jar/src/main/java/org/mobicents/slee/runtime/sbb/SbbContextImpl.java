@@ -156,7 +156,7 @@ public class SbbContextImpl implements SbbContext, Serializable {
     }
 
     public SbbID getSbb() throws SLEEException {
-        return (SbbID) this.sbbObject.getSbbDescriptor().getID();
+        return this.sbbObject.getSbbComponent().getSbbID();
     }
 
     public SbbLocalObject getSbbLocalObject()
@@ -167,7 +167,7 @@ public class SbbContextImpl implements SbbContext, Serializable {
                 this.sbbObject.getState() != SbbObjectState.READY)
             throw new IllegalStateException("Bad state : " + this.sbbObject.getState());
         Class sbbLocalClass;
-        if((sbbLocalClass = sbbObject.getSbbDescriptor().getLocalInterfaceConcreteClass())!= null) {
+        if((sbbLocalClass = sbbObject.getSbbComponent().getSbbLocalInterfaceConcreteClass())!= null) {
             Object[] objs = {sbbObject.getSbbEntity()};
             Class[] types = {SbbEntity.class};
             try {

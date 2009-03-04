@@ -225,7 +225,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 			} finally {
 				try {
 					sleeTransactionManager.commit();
-				} catch (SystemException e) {
+				} catch (Exception e) {
 					if (logger.isDebugEnabled()) {
 						logger
 								.debug(

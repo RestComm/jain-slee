@@ -18,10 +18,11 @@ import javax.management.StandardMBean;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
+import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.GetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.sbbentity.ChildRelationImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -78,7 +79,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 		}
 	}
 
-	private Set<String> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException {
+	private Set<String> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException, NotSupportedException {
 		Set<String> result = new HashSet<String>();
 
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
@@ -115,10 +116,9 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 
 		try {
 			SbbEntity sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
-			for (GetChildRelationMethod method : sbbEntity.getSbbDescriptor()
-					.getChildRelationMethods()) {
+			for (MGetChildRelationMethod method : sbbEntity.getSbbComponent().getDescriptor().getGetChildRelationMethods().values()) {
 				ChildRelationImpl childRelationImpl = sbbEntity
-						.getChildRelation(method.getMethodName());
+						.getChildRelation(method.getChildRelationMethodName());
 				if (childRelationImpl != null) {
 					for (String childSbbEntityId : (Set<String>) childRelationImpl
 							.getSbbEntitySet()) {

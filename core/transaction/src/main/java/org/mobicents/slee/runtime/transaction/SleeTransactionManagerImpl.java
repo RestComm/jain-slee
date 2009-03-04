@@ -10,6 +10,7 @@ package org.mobicents.slee.runtime.transaction;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.transaction.CommitListener;
 import javax.slee.transaction.RollbackListener;
@@ -83,16 +84,26 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		//return tx.getStatus() == Status.STATUS_MARKED_ROLLBACK || (tx.getStatus() == Status.STATUS_ACTIVE && getTransactionContext().getRollbackOnly());
 	}
 
-	public void mandateTransaction() throws TransactionRequiredLocalException,SystemException {
+	public void mandateTransaction() throws TransactionRequiredLocalException {
 		
-		Transaction tx = getTransaction();
+		Transaction tx = null;
+		try {
+			tx = getTransaction();
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("mandateTransaction() invoked. tx = "+tx);
 		}
 		if (tx == null)
 			throw new TransactionRequiredLocalException(
 					"Transaction Mandatory");
-		int status = tx.getStatus();
+		int status = -1;
+		try {
+			status = tx.getStatus();
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 		if (status != Status.STATUS_ACTIVE && status != Status.STATUS_MARKED_ROLLBACK) {
 			throw new IllegalStateException(
 					"There is no active tx, tx is in state: "

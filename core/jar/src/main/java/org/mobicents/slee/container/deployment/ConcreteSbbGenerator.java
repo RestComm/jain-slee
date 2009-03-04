@@ -12,8 +12,8 @@ package org.mobicents.slee.container.deployment;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javassist.CannotCompileException;
@@ -26,17 +26,19 @@ import javassist.Modifier;
 import javassist.NotFoundException;
 
 import javax.slee.SLEEException;
+import javax.slee.SbbLocalObject;
 import javax.slee.management.DeploymentException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.CMPField;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.GetChildRelationMethod;
-import org.mobicents.slee.container.component.ProfileCMPMethod;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.component.SbbEventEntry;
+import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
 import org.mobicents.slee.container.deployment.interceptors.ChildRelationInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.DefaultChildRelationInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.DefaultFireEventInterceptor;
@@ -45,6 +47,7 @@ import org.mobicents.slee.container.deployment.interceptors.DefaultSBBProfileCMP
 import org.mobicents.slee.container.deployment.interceptors.FireEventInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.SBBProfileCMPInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.UsageParameterInterceptor;
+import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
@@ -82,9 +85,9 @@ public class ConcreteSbbGenerator {
     public static final String NAMED_USAGE_PARAMETER_SETTER = "sbbSetNamedUsageParameterTable";
 
     /**
-     * the sbb deployment descriptor used to generate the concrete class
+     * the sbb component
      */
-    private MobicentsSbbDescriptor sbbDeploymentDescriptor = null;
+    private final SbbComponent sbbComponent;
 
     /**
      * the sbb abstract class used to generate the concrete class
@@ -125,9 +128,9 @@ public class ConcreteSbbGenerator {
     private Map superClassesAbstractMethods;
 
     /**
-     * The path where DU classes will reside
+     * The path where classes will reside
      */
-    private String deployPath;
+    private final String deployDir;
 
     static {
         logger = Logger.getLogger(ConcreteSbbGenerator.class);
@@ -136,18 +139,11 @@ public class ConcreteSbbGenerator {
     /**
      * Constructor
      */
-    public ConcreteSbbGenerator(MobicentsSbbDescriptor sbbDeploymentDescriptor) {
-        this.sbbDeploymentDescriptor = sbbDeploymentDescriptor;
+    public ConcreteSbbGenerator(SbbComponent sbbComponent) {
+        this.sbbComponent = sbbComponent;
+        this.deployDir = sbbComponent.getDeploymentDir().toExternalForm();;
+        this.pool = sbbComponent.getClassPool();
         this.mappingManager = new MappingManager();
-
-        // FIXME: the inderection to get to the deployment path is too high.
-        // move the deployment path from the ID to the desciriptor
-        this.deployPath = ((DeployableUnitIDImpl) (sbbDeploymentDescriptor
-                .getDeployableUnit())).getDUDeployer().getTempClassDeploymentDir()
-                .getAbsolutePath();
-
-        this.pool = ((DeployableUnitIDImpl) sbbDeploymentDescriptor
-                .getDeployableUnit()).getDUDeployer().getClassPool();
     }
 
     /**
@@ -156,14 +152,12 @@ public class ConcreteSbbGenerator {
      * @return the concrete sbb class
      */
     public Class generateConcreteSbb() throws DeploymentException {
-        String sbbAbstractClassName = sbbDeploymentDescriptor
-                .getSbbAbstractClassName();
+        String sbbAbstractClassName = sbbComponent.getAbstractSbbClass().getName();
         String sbbConcreteClassName = ConcreteClassGeneratorUtils
                 .getSbbConcreteClassName(sbbAbstractClassName);
         
         sbbConcreteClass = pool.makeClass(sbbConcreteClassName);
-		        
-        
+		                
 		 try {
 		 
             try {
@@ -196,9 +190,7 @@ public class ConcreteSbbGenerator {
                 createStateGetterAndSetter(sbbConcreteClass);
                 createInterceptors(sbbConcreteClass);
                 createSbbEntityGetterAndSetter(sbbConcreteClass);
-                createDefaultUsageParameterSetter(sbbConcreteClass);
                 createDefaultUsageParameterGetter(sbbConcreteClass);
-                createNamedUsageParameterSetter(sbbConcreteClass);
                 createNamedUsageParameterGetter(sbbConcreteClass);
                 createDefaultConstructor();
                 createConstructorWithParameter(parameters);
@@ -211,18 +203,11 @@ public class ConcreteSbbGenerator {
                     .getAbstractMethodsFromClass(sbbAbstractClass);
             superClassesAbstractMethods = ClassUtils
                     .getSuperClassesAbstractMethodsFromClass(sbbAbstractClass);
-            CMPField[] cmpFieldDescriptors = sbbDeploymentDescriptor
-                    .getCMPFields();
-            createCMPAccessors(cmpFieldDescriptors);
-            GetChildRelationMethod[] childRelations = sbbDeploymentDescriptor
-                    .getChildRelationMethods();
-            createGetChildRelationsMethod(childRelations);
-            ProfileCMPMethod[] cmpProfiles = sbbDeploymentDescriptor
-                    .getProfileCMPMethods();
-            createGetProfileCMPMethods(cmpProfiles);
-            HashSet sbbEventEntries = sbbDeploymentDescriptor
-                    .getSbbEventEntries();
-            createFireEventMethods(sbbEventEntries);
+            MSbbAbstractClass mSbbAbstractClass = sbbComponent.getDescriptor().getSbbClasses().getSbbAbstractClass();
+            createCMPAccessors(mSbbAbstractClass.getCmpFields());
+            createGetChildRelationsMethod(mSbbAbstractClass.getChildRelationMethods().values());
+            createGetProfileCMPMethods(mSbbAbstractClass.getProfileCMPMethods().values());
+            createFireEventMethods(sbbComponent.getDescriptor().getEventEntries().values());
             //GetUsageParametersMethod[] usageParameters=
             //  sbbDeploymentDescriptor.getUsageParametersMethods();
 
@@ -232,8 +217,7 @@ public class ConcreteSbbGenerator {
             //then generates the concrete class of the activity context
             // interface
             //and implements the narrow method
-            String activityContextInterfaceName = sbbDeploymentDescriptor
-                    .getActivityContextInterfaceClassName();
+            String activityContextInterfaceName = sbbComponent.getDescriptor().getSbbActivityContextInterface().getInterfaceName();
 
             if (activityContextInterfaceName != null) {
                 Class activityContextInterfaceClass = null;
@@ -340,11 +324,10 @@ public class ConcreteSbbGenerator {
                 	this.createSetActivityContextInterfaceMethod(activityContextInterface);
 
                 	ConcreteActivityContextInterfaceGenerator concreteActivityContextInterfaceGenerator = new ConcreteActivityContextInterfaceGenerator(
-                			sbbDeploymentDescriptor);
+                			activityContextInterfaceClass.getName(), deployDir, pool);
                 	
                 	Class concreteActivityContextInterfaceClass = concreteActivityContextInterfaceGenerator
-                	.generateActivityContextInterfaceConcreteClass(activityContextInterfaceClass
-                			.getName());
+                	.generateActivityContextInterfaceConcreteClass();
                 	
                 	createGetSbbActivityContextInterfaceMethod(
                 			activityContextInterface,
@@ -355,9 +338,9 @@ public class ConcreteSbbGenerator {
                 	if (logger.isDebugEnabled()) {
                 		logger.debug("SETTING ACI concrete class  "
                 				+ concreteActivityContextInterfaceClass
-                				+ " in " + sbbDeploymentDescriptor);
+                				+ " in " + sbbComponent);
                 	}
-                	sbbDeploymentDescriptor
+                	sbbComponent
                 	.setActivityContextInterfaceConcreteClass(concreteActivityContextInterfaceClass);
 
                 } catch (NotFoundException nfe) {
@@ -375,8 +358,7 @@ public class ConcreteSbbGenerator {
             //if the sbb local object has been defined in the descriptor file
             //then generates the concrete class of the sbb local object
             //and implements the narrow method
-            Class sbbLocalInterfaceClass = sbbDeploymentDescriptor
-                    .getSbbLocalInterface();
+            Class sbbLocalInterfaceClass = sbbComponent.getSbbLocalInterfaceClass();
             if (logger.isDebugEnabled()) {
                 logger.debug("Sbb Local Object interface :"
                     + sbbLocalInterfaceClass.getName());
@@ -396,16 +378,14 @@ public class ConcreteSbbGenerator {
                     try {
                         CtClass sbbLocalInterface = pool
                                 .get(sbbLocalInterfaceClass.getName());
-                        ConcreteSbbLocalObjectGenerator concreteSbbLocalObjectGenerator = new ConcreteSbbLocalObjectGenerator(
-                                this.sbbDeploymentDescriptor);
+                        ConcreteSbbLocalObjectGenerator concreteSbbLocalObjectGenerator = 
+                        	new ConcreteSbbLocalObjectGenerator(
+								sbbLocalInterfaceClass.getName(),
+								sbbAbstractClassName, this.deployDir, pool);
                         Class concreteSbbLocalObjectClass = concreteSbbLocalObjectGenerator
-                                .generateSbbLocalObjectConcreteClass(
-                                        this.deployPath, sbbLocalInterfaceClass
-                                                .getName(),
-                                        sbbAbstractClassName);
+                                .generateSbbLocalObjectConcreteClass();
                         //set the sbb Local object class in the descriptor
-                        sbbDeploymentDescriptor
-                                .setLocalInterfaceConcreteClass(concreteSbbLocalObjectClass);
+                        sbbComponent.setSbbLocalInterfaceConcreteClass(concreteSbbLocalObjectClass);
 
                     } catch (NotFoundException nfe) {
                         String s = "sbb Local Object concrete class not created for interface "
@@ -428,21 +408,19 @@ public class ConcreteSbbGenerator {
             else {
 
                 try {
-                    sbbDeploymentDescriptor
-                            .setSbbLocalInterfaceClassName("javax.slee.SbbLocalObject");
-                    sbbDeploymentDescriptor
-                            .setLocalInterfaceConcreteClass(SbbLocalObjectImpl.class);
+                	sbbComponent.setSbbLocalInterfaceClass(SbbLocalObject.class);
+                    sbbComponent.setSbbLocalInterfaceConcreteClass(SbbLocalObjectImpl.class);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             try {
-            	sbbConcreteClass.writeFile(deployPath);            	
+            	sbbConcreteClass.writeFile(deployDir);            	
             	//@@2.4+ -> 3.4+
                 //pool.writeFile(sbbConcreteClassName, deployPath);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Concrete Class " + sbbConcreteClassName
-                        + " generated in the following path " + deployPath);
+                        + " generated in the following path " + deployDir);
                 }
             } catch (Exception e) {
                 String s = "Error generating concrete class";
@@ -459,7 +437,7 @@ public class ConcreteSbbGenerator {
                 throw new RuntimeException(s, e1);
             }
             //set the concrete class in the descriptor
-            sbbDeploymentDescriptor.setConcreteSbb(clazz);
+            sbbComponent.setConcreteSbbClass(clazz);
                         
             return clazz;
 		 } finally {
@@ -655,12 +633,12 @@ public class ConcreteSbbGenerator {
      * @param cmpAccessors
      *            the description of the cmp fields
      */
-    protected void createCMPAccessors(CMPField[] cmpAccessors) {
-        if (cmpAccessors == null)
+    protected void createCMPAccessors(List<MSbbCMPField> cmps) {
+        if (cmps == null)
             return;
         //Create the concrete implemntation of the accessors
-        for (int i = 0; i < cmpAccessors.length; i++) {
-            String fieldName = cmpAccessors[i].getFieldName();
+        for (MSbbCMPField cmp : cmps) {
+            String fieldName = cmp.getCmpFieldName();
             //Set the first char of the accessor to UpperCase to follow the
             // javabean requirements
             fieldName = fieldName.substring(0, 1).toUpperCase()
@@ -686,7 +664,7 @@ public class ConcreteSbbGenerator {
                         SBB_PERSISTENCE_INTERCEPTOR_FIELD, false);
         }
         //Create the persistent state of the sbb
-        createPersistentStateHolderClass(cmpAccessors);
+        createPersistentStateHolderClass(cmps);
     }
 
     /**
@@ -721,16 +699,17 @@ public class ConcreteSbbGenerator {
      * @param sbbConcrete
      */
     private void createDefaultUsageParameterGetter(CtClass sbbConcrete) {
-        String usageParameterInterfaceName = this.sbbDeploymentDescriptor
-                .getUsageParametersInterface();
-        if (usageParameterInterfaceName == null)
+    	MUsageParametersInterface mUsageParametersInterface = this.sbbComponent.getDescriptor().getSbbClasses().getSbbUsageParametersInterface();
+    	if (mUsageParametersInterface == null)
             return;
+    	String usageParameterInterfaceName = mUsageParametersInterface.getUsageParametersInterfaceName();
+        
         try {
             CtMethod getDefaultUsageParameter = CtNewMethod.make("public "
                     + usageParameterInterfaceName
                     + " getDefaultSbbUsageParameterSet( ) { " +
 
-                    "return this.defaultUsageParameterSet;" +
+                    "return ("+usageParameterInterfaceName+") getSbbEntity().getDefaultSbbUsageParameterSet();" +
 
                     "}", sbbConcrete);
             getDefaultUsageParameter.setModifiers(Modifier.PUBLIC);
@@ -742,78 +721,16 @@ public class ConcreteSbbGenerator {
     }
 
     /**
-     * Create a setter for the default usage parameter
-     * 
-     * @param sbbConcrete
-     */
-    private void createDefaultUsageParameterSetter(CtClass sbbConcrete) {
-        String usageParameterInterfaceName = this.sbbDeploymentDescriptor
-                .getUsageParametersInterface();
-        if (usageParameterInterfaceName == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("No usage parameter interface for this sbb.");
-            }
-            return;
-        }
-        try {
-            CtField defaultUsageParameter = new CtField(pool
-                    .get(usageParameterInterfaceName),
-                    "defaultUsageParameterSet", sbbConcreteClass);
-            defaultUsageParameter.setModifiers(Modifier.PRIVATE);
-            sbbConcreteClass.addField(defaultUsageParameter);
-            CtMethod setDefaultUsageParameter = CtNewMethod.make(
-                    "public void  " + DEFAULT_USAGE_PARAMETER_SETTER + "("
-                            + usageParameterInterfaceName
-                            + " defaultUsageParameter ) { " +
-
-                            "this.defaultUsageParameterSet = defaultUsageParameter ;"
-                            +
-
-                            "}", sbbConcrete);
-            setDefaultUsageParameter.setModifiers(Modifier.PUBLIC);
-            sbbConcrete.addMethod(setDefaultUsageParameter);
-        } catch (Exception ex) {
-            logger.fatal("Unexpected exception ", ex);
-        }
-    }
-
-    /**
-     * Create a way to export the hash table where the service container stores
-     * named sbb usage parameters.
-     * 
-     * @param sbbConcrete
-     */
-    
-    private void createNamedUsageParameterSetter(CtClass sbbConcrete) {
-        try {
-            CtField ctField = new CtField(pool.get(Map.class.getName()),
-                    "usageParameterTable", sbbConcrete);
-            ctField.setModifiers(Modifier.PRIVATE);
-            sbbConcrete.addField(ctField);
-            CtMethod setNamedUsageParameterTable = CtNewMethod.make(
-                    "public void " + NAMED_USAGE_PARAMETER_SETTER + " ( "
-                            + Map.class.getName() + " usageParamTable )  {"
-                            + "this.usageParameterTable = usageParamTable; }",
-                    sbbConcrete);
-            sbbConcrete.addMethod(setNamedUsageParameterTable);
-        } catch (Exception ex) {
-            String s = "Unexpected exception in setNamedUsageParameterTable generation";
-            logger.fatal(s, ex);
-        }
-    }
-    
-
-    /**
      * Create a named usage parameter getter.
      * 
      * @param sbbConcrete
      */
     
     private void createNamedUsageParameterGetter(CtClass sbbConcrete) {
-        String usageParameterInterfaceName = this.sbbDeploymentDescriptor
-                .getUsageParametersInterface();
-        if (usageParameterInterfaceName == null)
+    	MUsageParametersInterface mUsageParametersInterface = this.sbbComponent.getDescriptor().getSbbClasses().getSbbUsageParametersInterface();
+    	if (mUsageParametersInterface == null)
             return;
+    	String usageParameterInterfaceName = mUsageParametersInterface.getUsageParametersInterfaceName();
         try {
             CtMethod getDefaultUsageParameter = CtNewMethod.make("public "
                     + usageParameterInterfaceName
@@ -821,13 +738,14 @@ public class ConcreteSbbGenerator {
                     + "throws "
                     + UnrecognizedUsageParameterSetNameException.class
                             .getName() + " { "
-                    + "if(this.usageParameterTable.get( sbbEntity.getUsageParameterPathName(name))"+ 
+                    + InstalledUsageParameterSet.class.getName() + " usageParameterSet = getSbbEntity().getSbbUsageParameterSet(name);"       
+                    + "if(usageParameterSet"+ 
                     	" ==null) throw new "
                     + UnrecognizedUsageParameterSetNameException.class.getName()
                     + "(\"Usage Parameter Set \" + name +  \" does not exist!\");"
                     + "return " + "("
                     + usageParameterInterfaceName
-                    + ") this.usageParameterTable.get(sbbEntity.getUsageParameterPathName(name)) ;"+ 
+                    + ") usageParameterSet;"+ 
                       " } ",
                     sbbConcrete);
             getDefaultUsageParameter.setModifiers(Modifier.PUBLIC);
@@ -837,10 +755,8 @@ public class ConcreteSbbGenerator {
             logger.fatal(s, ex);
             throw new RuntimeException(s, ex);
         }
-
     }
     
-
     /**
      * Create a method wrapper. This sets the classloader before invoking the
      * method in the parent class.
@@ -881,10 +797,10 @@ public class ConcreteSbbGenerator {
 
             wrapper += "   {  "
                 	+ "sbbEntity.checkReEntrant();"
-                	+ MobicentsSbbDescriptor.class.getName()
-                	+ "sbbDescriptor  =  sbbEntity.getSbbDescriptor();"
+                	+ SbbComponent.class.getName()
+                	+ "sbbComponent  =  sbbEntity.getSbbComponent();"
                     + ClassLoader.class.getName()
-                    + " oldClassLoader =  Thread.currentThread().setContextClassLoader(sbbDescriptor.getClassLoader());";
+                    + " oldClassLoader =  Thread.currentThread().setContextClassLoader(sbbComponent.getClassLoader());";
             wrapper += " try { ";
             if (!returnType.equals("void")) {
                 wrapper += "return ";
@@ -975,7 +891,7 @@ public class ConcreteSbbGenerator {
      * @param cmpAccessors
      *            the description of the cmp fields
      */
-    protected void createPersistentStateHolderClass(CMPField[] cmpAccessors) {
+    protected void createPersistentStateHolderClass(List<MSbbCMPField> cmps) {
         //Create the class of the persistent state of the sbb
     	
         CtClass sbbPersisentStateClass=pool.makeClass(sbbAbstractClass.getName() + "PersistentState");
@@ -995,8 +911,8 @@ public class ConcreteSbbGenerator {
                 e1.printStackTrace();
             }
             //Create the fields of the sbb persistent state class
-            for (int i = 0; i < cmpAccessors.length; i++) {
-                String fieldName = cmpAccessors[i].getFieldName();
+            for (MSbbCMPField cmp : cmps) {
+                String fieldName = cmp.getCmpFieldName();
                 //Set the first char of the accessor to UpperCase to follow the
                 // javabean requirements
                 fieldName = fieldName.substring(0, 1).toUpperCase()
@@ -1027,13 +943,13 @@ public class ConcreteSbbGenerator {
             }
             //generate the persistent state class of the sbb
             try {
-            	sbbPersisentStateClass.writeFile(deployPath);            	
+            	sbbPersisentStateClass.writeFile(deployDir);            	
             	//@@2.4+ -> 3.4+
                 //pool.writeFile(sbbAbstractClass.getName() + "PersistentState",deployPath);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Concrete Class " + sbbAbstractClass.getName()
                         + "PersistentState"
-                        + " generated in the following path " + deployPath);
+                        + " generated in the following path " + deployDir);
                 }            
             } catch (CannotCompileException e) {
                 // Auto-generated catch block
@@ -1054,15 +970,12 @@ public class ConcreteSbbGenerator {
      * @param firedEvents
      *            the set of fire event
      */
-    protected void createFireEventMethods(HashSet firedEvents) {
-        if (firedEvents == null)
+    protected void createFireEventMethods(Collection<MEventEntry> mEventEntries) {
+        if (mEventEntries == null)
             return;
-        Iterator it = firedEvents.iterator();
-        //firedEvents
-        while (it.hasNext()) {
-            SbbEventEntry sbbEventEntry = (SbbEventEntry) it.next();
-            if ( sbbEventEntry.isFired() )  {
-	            String methodName = "fire" + sbbEventEntry.getEventName();
+        for (MEventEntry mEventEntry : mEventEntries) {
+        	if ( mEventEntry.isFired() )  {
+	            String methodName = "fire" + mEventEntry.getEventName();
 	            CtMethod method = (CtMethod) abstractMethods.get(methodName);
 	            if  ( method == null ) {
 	            	method = (CtMethod) superClassesAbstractMethods.get(methodName);
@@ -1073,7 +986,7 @@ public class ConcreteSbbGenerator {
 	                        false);
 	            }
             }
-        }
+        }        
     }
 
     /**
@@ -1084,11 +997,11 @@ public class ConcreteSbbGenerator {
      *            the childRelations method to add to the concrete class
      */
     protected void createGetChildRelationsMethod(
-            GetChildRelationMethod[] childRelations) {
+    		Collection<MGetChildRelationMethod> childRelations) {
         if (childRelations == null)
             return;
-        for (int i = 0; i < childRelations.length; i++) {
-            String methodName = childRelations[i].getMethodName();
+        for (MGetChildRelationMethod childRelation : childRelations) {
+            String methodName = childRelation.getChildRelationMethodName();
             CtMethod method = (CtMethod) abstractMethods.get(methodName);
             CtMethod superClassMethod = (CtMethod) this.superClassesAbstractMethods
                     .get(methodName);
@@ -1111,15 +1024,15 @@ public class ConcreteSbbGenerator {
      * @param cmpProfiles
      *            the CMP Profiles method to add to the concrete class
      */
-    protected void createGetProfileCMPMethods(ProfileCMPMethod[] cmpProfiles) {
+    protected void createGetProfileCMPMethods(Collection<MGetProfileCMPMethod> cmpProfiles) {
         if (cmpProfiles == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("no CMP Profile method implementation to generate.");
             }
             return;
         }
-        for (int i = 0; i < cmpProfiles.length; i++) {
-            String methodName = cmpProfiles[i].getProfileCMPMethod();
+        for (MGetProfileCMPMethod cmpProfile : cmpProfiles) {
+            String methodName = cmpProfile.getProfileCmpMethodName();
             CtMethod method = (CtMethod) abstractMethods.get(methodName);
             if ( method == null )
             	method = (CtMethod) superClassesAbstractMethods.get(methodName);

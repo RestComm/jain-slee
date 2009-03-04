@@ -29,8 +29,6 @@ import javassist.NotFoundException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
@@ -51,10 +49,16 @@ public class ConcreteSbbLocalObjectGenerator {
      */
     private static Logger logger = null;
 
+    private final String sbbLocalObjectName;
+    
+    private final String sbbAbstractClassName;
+    
+    private final String deployPath;
+    
     /**
      * Pool to generate or read classes with javassist
      */
-    private ClassPool pool = null;
+    private final ClassPool pool;
 
     /**
      *  
@@ -75,10 +79,12 @@ public class ConcreteSbbLocalObjectGenerator {
         logger = Logger.getLogger(ConcreteSbbLocalObjectGenerator.class);
     }
     
-    public ConcreteSbbLocalObjectGenerator( MobicentsSbbDescriptor sbbDescriptor) {
-        this.pool =
-            ((DeployableUnitIDImpl)sbbDescriptor.getDeployableUnit()).
-            getDUDeployer().getClassPool();
+    public ConcreteSbbLocalObjectGenerator(String sbbLocalObjectName, String sbbAbstractClassName, String deployPath,
+            ClassPool pool) {
+        this.sbbLocalObjectName = sbbLocalObjectName;
+        this.sbbAbstractClassName = sbbAbstractClassName;
+        this.deployPath = deployPath;
+        this.pool = pool;
     }
 
     /**
@@ -89,8 +95,7 @@ public class ConcreteSbbLocalObjectGenerator {
      * @return the concrete Sbb Local Object class implementing the Sbb Local
      *         Object
      */
-    public Class generateSbbLocalObjectConcreteClass(String deployPath,
-            String sbbLocalObjectName, String sbbAbstractClassName) {
+    public Class generateSbbLocalObjectConcreteClass() {
         //Generates the implements link
         if (logger.isDebugEnabled()) {
             logger

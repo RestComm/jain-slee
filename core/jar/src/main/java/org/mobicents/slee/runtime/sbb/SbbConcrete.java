@@ -22,8 +22,6 @@
 
 package org.mobicents.slee.runtime.sbb;
 
-import java.util.Map;
-
 import javax.slee.Sbb;
 
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -32,19 +30,14 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntity;
  * An implementation interface for sbbs. Additonal methods are added to store the runtime state.
  */
 public interface SbbConcrete extends Sbb {
-    public void setState( SbbObjectState sbbObjectState);
+    
+	public void setState( SbbObjectState sbbObjectState);
     
     public SbbObjectState getState();
     
     public SbbEntity getSbbEntity();
     
     public void setSbbEntity(SbbEntity sbbEntity);
-    
-
-    /**
-     * @param usageParameterTable
-     */
-    public void sbbSetNamedUsageParameterTable(Map usageParameterTable);
     
     public void sbbSetActivityContextInterface(Object aci );
     

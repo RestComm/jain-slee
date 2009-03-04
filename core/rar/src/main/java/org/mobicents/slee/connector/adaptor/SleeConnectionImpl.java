@@ -20,7 +20,6 @@ import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
 import javax.slee.connection.SleeConnection;
-import javax.slee.connection.TimeoutException;
 
 import org.jboss.logging.Logger;
 
@@ -124,13 +123,5 @@ public class SleeConnectionImpl implements SleeConnection {
 
 	public void endExternalActivity(ExternalActivityHandle handle) throws ResourceException {
 		throw new UnsupportedOperationException();
-	}
-
-	public Object request(Object requestEvent, EventTypeID eventType, Address address, int timeout) throws NullPointerException, UnrecognizedEventException, TimeoutException, ResourceException {
-		throw new UnsupportedOperationException();
-	}
-
-	public Object request(Object requestEvent, EventTypeID eventType, Address address, ExternalActivityHandle handle, int timeout) throws NullPointerException, UnrecognizedActivityException, UnrecognizedEventException, TimeoutException, ResourceException {
-		throw new UnsupportedOperationException();
-	}
+	}	
 }

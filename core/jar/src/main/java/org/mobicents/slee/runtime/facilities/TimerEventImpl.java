@@ -26,29 +26,13 @@ import javax.slee.EventTypeID;
 import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerID;
 
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-
-
 public class TimerEventImpl implements TimerEvent {
 
 	/**
-	 *	the component key for this event
-	 */
-	public static final ComponentKey COMPONENT_KEY = new ComponentKey("javax.slee.facilities.TimerEvent",
+	 *	the event type id key for this event
+	 */	
+	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.facilities.TimerEvent",
 			"javax.slee", "1.0");
-	
-	private static EventTypeID timerEventTypeID = null;
-	/**
-	 * 
-	 * @return the event type id for the timer event
-	 */
-	public static EventTypeID getEventTypeID() {
-		if (timerEventTypeID == null) {
-			timerEventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(TimerEventImpl.COMPONENT_KEY);
-		}
-		return timerEventTypeID;
-	}
 	
 	private TimerID timerId;
 

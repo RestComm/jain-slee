@@ -31,22 +31,16 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcaster;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
+import javax.management.ObjectName;
 import javax.management.StandardMBean;
-import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
 import javax.slee.usage.SbbUsageMBean;
 import javax.slee.usage.UsageNotification;
-import javax.transaction.SystemException;
 
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.InstalledUsageParameterSet;
-import org.mobicents.slee.container.service.Service;
-import org.mobicents.slee.container.service.ServiceComponent;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 import EDU.oswego.cs.dl.util.concurrent.CopyOnWriteArrayList;
 
@@ -65,10 +59,14 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 
 	private List listeners;
 
-	private InstalledUsageParameterSet usagePramSet;
+	private InstalledUsageParameterSet usageParameterSet;
 
 	private ServiceID serviceId;
 
+	private ObjectName objectName; 
+	
+	private ServiceUsageMBeanImpl serviceUsageMBeanImpl;
+	
 	/*
 	 * static { logger = Logger.getLogger(SbbUsageMBeanImpl.class); }
 	 */
@@ -146,8 +144,11 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 			throw new InvalidStateException(
 					"Could not close Usage MBean listeners still attached!");
 		}
-		// TODO Auto-generated method stub
-
+		try {
+			serviceUsageMBeanImpl.removeUsageParameterSet(sbbId, name);
+		} catch (Throwable e) {
+			throw new ManagementException(e.getMessage(),e);
+		}
 	}
 
 	/*
@@ -156,50 +157,11 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 	 * @see javax.slee.usage.SbbUsageMBean#resetAllUsageParameters()
 	 */
 	public void resetAllUsageParameters() throws ManagementException {
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
-		boolean rb = true;
 		try {
-			txmgr.begin();
-			ServiceComponent service = sleeContainer.getServiceManagement()
-					.getServiceComponent(serviceId);
-
-			try {
-				String[] paramNames = service
-						.getNamedUsageParameterSets(this.sbbId);
-
-				for (int i = 0; paramNames != null && i < paramNames.length; i++) {
-					InstalledUsageParameterSet ups = Service
-							.getNamedUsageParameter(this.serviceId, sbbId, name);
-					if (ups != null)
-						ups.reset();
-				}
-			} catch (InvalidArgumentException ex) {
-				// This is ok because the service may not have
-				// any named usage parameters and getNamedUsageParameterSets
-				// will
-				// throw exception at this point.
-
-			}
-			InstalledUsageParameterSet ups = Service
-					.getDefaultUsageParameterSet(this.serviceId, this.sbbId);
-			if (ups != null)
-				ups.reset();
-			rb = false;
-
-		} catch (Exception ex) {
-			throw new ManagementException("error resetting usage parametes", ex);
-		} finally {
-			try {
-				if (rb)
-					txmgr.setRollbackOnly();
-				txmgr.commit();
-			} catch (SystemException e) {
-				throw new RuntimeException("Txmgr failed", e);
-			}
-
+			usageParameterSet.reset();
+		} catch (Throwable e) {
+			throw new ManagementException(e.getMessage(),e);
 		}
-
 	}
 
 	/*
@@ -287,11 +249,52 @@ public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
 	}
 
 	/**
+	 * Retrieves the installed usage paramater set
+	 * @return
+	 */
+	public InstalledUsageParameterSet getUsageParameter() {
+		return this.usageParameterSet;
+	}
+	
+	/**
+	 * Sets the installed usage paramater set
 	 * @param usageParam
 	 */
 	public void setUsageParameter(InstalledUsageParameterSet usageParam) {
-		this.usagePramSet = usageParam;
-
+		this.usageParameterSet = usageParam;
 	}
 
+	/**
+	 * Retrieves the object name of this mbean
+	 * @return
+	 */
+	public ObjectName getObjectName() {
+		return objectName;
+	}
+	
+	/**
+	 * Sets the object name of this mbean
+	 * @param objectName
+	 */
+	public void setObjectName(ObjectName objectName) {
+		this.objectName = objectName;
+	}
+
+	/**
+	 * Retrieves the parent service usage mbean
+	 * @return
+	 */
+	public ServiceUsageMBeanImpl getServiceUsageMBeanImpl() {
+		return serviceUsageMBeanImpl;
+	}
+	
+	/**
+	 * Sets the parent service usage mbean
+	 * @param serviceUsageMBeanImpl
+	 */
+	public void setServiceUsageMBeanImpl(
+			ServiceUsageMBeanImpl serviceUsageMBeanImpl) {
+		this.serviceUsageMBeanImpl = serviceUsageMBeanImpl;
+	}
+	
 }

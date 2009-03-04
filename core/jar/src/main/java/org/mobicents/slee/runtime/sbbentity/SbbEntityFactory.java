@@ -169,7 +169,7 @@ public class SbbEntityFactory {
 		
 		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader(); 
 		try {
-			Thread.currentThread().setContextClassLoader(sbbEntity.getSbbDescriptor().getClassLoader());
+			Thread.currentThread().setContextClassLoader(sbbEntity.getSbbComponent().getClassLoader());
 			removeSbbEntityWithCurrentClassLoader(sbbEntity, removeFromParent);
 		} finally {
 			// restore old class loader

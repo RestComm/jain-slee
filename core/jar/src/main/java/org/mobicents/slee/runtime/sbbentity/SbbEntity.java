@@ -36,6 +36,7 @@ package org.mobicents.slee.runtime.sbbentity;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,11 +58,14 @@ import javax.transaction.TransactionRequiredException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.CMPField;
-import org.mobicents.slee.container.component.GetChildRelationMethod;
-import org.mobicents.slee.container.component.MobicentsEventTypeDescriptor;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.component.SbbEventEntry;
+import org.mobicents.slee.container.component.EventTypeComponent;
+import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
+import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
+import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -98,7 +102,7 @@ public class SbbEntity {
 
 	private final String sbbeId; // This is the primary key of the SbbEntity.
 	
-	private final MobicentsSbbDescriptor sbbComponent;
+	private final SbbComponent sbbComponent;
 	private SbbObject sbbObject;
 	private final SbbObjectPool pool;
 	
@@ -138,8 +142,7 @@ public class SbbEntity {
 		
 		this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
 				.getObjectPool(getSbbId());
-		this.sbbComponent = sleeContainer.getSbbManagement().getSbbComponent(
-				getSbbId());
+		this.sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getSbbId());
 		if (this.sbbComponent == null) {
 			String s = "Sbb component/descriptor not found for sbbID["
 					+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "],\n"
@@ -174,8 +177,7 @@ public class SbbEntity {
 					
 			this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
 					.getObjectPool(getSbbId());
-			this.sbbComponent = sleeContainer.getSbbManagement()
-					.getSbbComponent(getSbbId());
+			this.sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getSbbId());
 			if (this.sbbComponent == null) {
 				String s = "Sbb component/descriptor not found for sbbID["
 						+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "]";
@@ -221,10 +223,6 @@ public class SbbEntity {
 		}
 	}
 
-	
-
-	
-
 	/**
 	 * The generated code to access CMP Fields needs to call this method.
 	 * 
@@ -233,17 +231,16 @@ public class SbbEntity {
 	 * @throws TransactionRequiredLocalException
 	 * @throws SystemException
 	 */
-	public Object getCMPField(CMPField cmpField)
+	public Object getCMPField(String cmpFieldName)
 			throws TransactionRequiredLocalException, SystemException {
 
 		if (log.isDebugEnabled()) {
-			log.debug("getCMPField() " + cmpField.getFieldName());
+			log.debug("getCMPField() " + cmpFieldName);
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		String cmpFieldKey = this.genCMPFieldKey(cmpField);
-		CmpWrapper cmpWrapper = (CmpWrapper) cacheData.getCmpField(cmpFieldKey);
+		CmpWrapper cmpWrapper = (CmpWrapper) cacheData.getCmpField(cmpFieldName);
 		if (cmpWrapper != null) {
 			if (cmpWrapper.getType() == CmpType.sbblo) {
 
@@ -278,19 +275,18 @@ public class SbbEntity {
 		}
 	}
 
-	public void setCMPField(CMPField field, Object object)
+	public void setCMPField(String cmpFieldName, Object object)
 			throws TransactionRequiredLocalException, SystemException {
 
 		if (log.isDebugEnabled()) {
 			log
 					.debug("putCMPField(): putting cmp field : "
-							+ field.getFieldName() + "/" + " object = "
+							+ cmpFieldName + "/" + " object = "
 							+ object);
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		String cmpFieldKey = this.genCMPFieldKey(field);
 		CmpType cmpType = null;
 		Object cmpValue = null;
 		if (object instanceof SbbLocalObject) {
@@ -301,26 +297,20 @@ public class SbbEntity {
 			cmpType = CmpType.normal;
 			cmpValue = object;
 		}
-		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldKey,cmpType,cmpValue);
-		cacheData.setCmpField(cmpFieldKey,cmpWrapper);
+		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldName,cmpType,cmpValue);
+		cacheData.setCmpField(cmpFieldName,cmpWrapper);
 	}
-
-	private String genCMPFieldKey(CMPField cmpField) {
-		return cmpField.getFieldName();
-	}
-
+	
 	public void afterACAttach(String acId) {
 
 		// add event mask entry
-		EventTypeID[] eventTypeIDs = sbbComponent.getEventTypes();
+		Collection<MEventEntry> mEventEntries = sbbComponent.getDescriptor().getEventEntries().values();
 		HashSet<EventTypeID> maskedEvents = null;
-		if (eventTypeIDs != null) {
+		if (mEventEntries != null) {
 			maskedEvents = new HashSet<EventTypeID>();
-			for (EventTypeID eventTypeID : eventTypeIDs) {
-				SbbEventEntry sbbEventEntry = sbbComponent
-						.getEventType(sbbComponent.getEventName(eventTypeID));
-				if (sbbEventEntry.isMasked()) {
-					maskedEvents.add(eventTypeID);
+			for (MEventEntry mEventEntry : mEventEntries) {
+				if (mEventEntry.isMaskOnAttach()) {
+					maskedEvents.add(mEventEntry.getEventReference().getComponentID());
 				}
 			}			
 		}
@@ -367,15 +357,12 @@ public class SbbEntity {
 		if (eventMask != null && eventMask.length != 0) {
 
 			for (int i = 0; i < eventMask.length; i++) {
-				SbbEventEntry sbbEventEntry = sbbComponent
-						.getEventType(eventMask[i]);
+				MEventEntry sbbEventEntry = sbbComponent.getDescriptor().getEventEntries().get(eventMask[i]);
 				if (sbbEventEntry == null)
 					throw new UnrecognizedEventException(
 							"Event is not known by this SBB.");
 				if (sbbEventEntry.isReceived()) {
-					maskedEvents.add(sleeContainer
-							.getEventManagement().getEventType(
-									sbbEventEntry.getEventTypeRefKey()));
+					maskedEvents.add(sbbEventEntry.getEventReference().getComponentID());
 				} else {
 					throw new UnrecognizedEventException("Event "
 							+ eventMask[i]
@@ -412,10 +399,9 @@ public class SbbEntity {
 		else {
 			String[] events = new String[maskedEvents.size()];
 			Iterator evMaskIt = maskedEvents.iterator();
-			MobicentsSbbDescriptor sbbComponent = this.getSbbDescriptor();
 			for (int i = 0; evMaskIt.hasNext(); i++) {
 				EventTypeID eventTypeId = (EventTypeID) evMaskIt.next();
-				events[i] = sbbComponent.getEventName(eventTypeId);				
+				events[i] = sbbComponent.getDescriptor().getEventEntries().get(eventTypeId).getEventName();				
 			}			
 			return events;
 		}
@@ -436,8 +422,7 @@ public class SbbEntity {
 	public int getAttachmentCount() {
 		int attachmentCount = getActivityContexts().size();
 		// needs to add all children attachement counts too
-		for (GetChildRelationMethod getChildRelationMethod : this.sbbComponent
-				.getChildRelationMethods()) {
+		for (MGetChildRelationMethod getChildRelationMethod : this.sbbComponent.getDescriptor().getGetChildRelationMethods().values()) {
 			// (re)create child relation obj
 			ChildRelationImpl childRelationImpl = new ChildRelationImpl(
 					getChildRelationMethod, this);
@@ -586,15 +571,6 @@ public class SbbEntity {
 		cacheData.setSbbId(sbbId);
 	}
 
-	public String getUsageParameterPathName(String name) {
-		return Service.getUsageParametersPathName(getServiceId(), getSbbId(),
-				name);
-	}
-
-	public String getUsageParameterPathName() {
-		return Service.getUsageParametersPathName(getServiceId(), getSbbId());
-	}
-
 	private static final String TRANSACTION_CONTEXT_DATA_KEY_CURRENT_EVENT = "ce";
 	
 	public DeferredEvent getCurrentEvent() {
@@ -614,34 +590,26 @@ public class SbbEntity {
 	private Method getEventHandlerMethod(DeferredEvent sleeEvent) {
 
 		EventTypeID eventType = sleeEvent.getEventTypeId();
-		MobicentsSbbDescriptor sbbDescriptor = this.getSbbDescriptor();
 		// Note -- this naming convention is part of the slee specification.
-		String methodName = "on" + sbbDescriptor.getEventName(eventType);
+		String methodName = "on" + sbbComponent.getDescriptor().getEventEntries().get(eventType).getEventName();
 
-		Class concreteClass = sbbDescriptor.getConcreteSbbClass();
+		Class concreteClass = sbbComponent.getConcreteSbbClass();
 
 		if (log.isDebugEnabled()) {
 			log.debug("invoking event handler " + methodName + " on "
-					+ concreteClass.getName() + " ID " + sbbDescriptor.getID()
+					+ concreteClass.getName() + " ID " + sbbComponent.getSbbID()
 					+ " sbbEntity " + this + " currentEvent " + sleeEvent);
 		}
 
 		Class[] args = new Class[2];
-		MobicentsEventTypeDescriptor eventDescriptor = sleeContainer
-				.getEventManagement().getEventDescriptor(
-						sleeEvent.getEventTypeId());
-		if (log.isDebugEnabled()) {
-			log.debug("EventType ID" + sleeEvent.getEventTypeId());
-			log.debug("EventDescriptor ID"
-					+ sleeContainer.getEventManagement().getEventDescriptor(
-							sleeEvent.getEventTypeId()));
-		}
+		EventTypeComponent eventComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(sleeEvent.getEventTypeId());
+		
 		// Once an error has been seen, we fire no more event handler
 		// methods.
 
 		ClassLoader ccl = SleeContainerUtils.getCurrentThreadClassLoader();
 		try {
-			args[0] = ccl.loadClass(eventDescriptor.getEventClassName());
+			args[0] = ccl.loadClass(eventComponent.getDescriptor().getEventClassName());
 		} catch (ClassNotFoundException e) {
 			String s = "Caught ClassNotFoundException in loading class";
 			log.error(s, e);
@@ -649,7 +617,7 @@ public class SbbEntity {
 		}
 		if (log.isDebugEnabled()) {
 			log.debug("event className is "
-					+ eventDescriptor.getEventClassName());
+					+ eventComponent.getDescriptor().getEventClassName());
 			log
 					.debug("event class is ARGS[0] of the event handler: args[0] == "
 							+ args[0]);
@@ -660,18 +628,8 @@ public class SbbEntity {
 		Method method = null;
 		boolean isCustomAciMethod = false;
 		// Is there a custom SBB activity context interface.
-		String customAciName = sbbDescriptor
-				.getActivityContextInterfaceClassName();
-		if (customAciName != null) {
-			// since there is a custom SBB ACI declared, see if there is an
-			// event handler with it in the signature
-			try {
-				args[1] = ccl.loadClass(customAciName);
-			} catch (ClassNotFoundException e) {
-				String s = "Caught ClassNotFoundException while attempting to check for event handler signature with custom SBB ACI.";
-				log.error(s, e);
-				throw new RuntimeException(s, e);
-			}
+		args[1] = sbbComponent.getActivityContextInterface();
+		if (args[1] != null) {			
 			try {
 				method = concreteClass.getMethod(methodName, args);
 				isCustomAciMethod = true;
@@ -679,8 +637,7 @@ public class SbbEntity {
 				String s = "Caught NoSuchMethodException in loading class. There is no event handler with custom SBB ACI argument";
 				if (log.isDebugEnabled()) {
 					log.debug(s, e);
-				}
-				;
+				}				
 			}
 		}
 		if (!isCustomAciMethod) {
@@ -725,9 +682,9 @@ public class SbbEntity {
 		}
 		ActivityContextInterface activityContextInterface = null;
 
-		if (this.getSbbDescriptor().getActivityContextInterface() != null) {
+		if (this.getSbbComponent().getActivityContextInterface() != null) {
 			ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(ac);
-			Class aciClass = this.getSbbDescriptor()
+			Class aciClass = this.getSbbComponent()
 					.getActivityContextInterfaceConcreteClass();
 			try {
 				// activityContextInterface = (ActivityContextInterface)
@@ -739,9 +696,9 @@ public class SbbEntity {
 						.getConstructor(
 								new Class[] {
 										aciImpl.getClass(),
-										org.mobicents.slee.container.component.MobicentsSbbDescriptor.class })
+										SbbComponent.class })
 						.newInstance(
-								new Object[] { aciImpl, this.getSbbDescriptor() });
+								new Object[] { aciImpl, this.getSbbComponent() });
 			} catch (Exception e) {
 				String s = "Could Not create ACI!";
 				// log.error(s, e);
@@ -908,15 +865,29 @@ public class SbbEntity {
 		return this.getActivityContexts().contains(acId);
 	}
 
-	public Object getDefaultSbbUsageParameterSet() {
-		return Service.getDefaultUsageParameterSet(getServiceId(), getSbbId());
+	public InstalledUsageParameterSet getDefaultSbbUsageParameterSet() {
+		if (log.isDebugEnabled()) {
+			log.debug("getDefaultSbbUsageParameterSet(): " + getServiceId()
+					+ " sbbID = " + getSbbId());
+		}
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		ServiceComponent serviceComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getServiceId());
+		ServiceUsageMBeanImpl serviceUsageMbean = (ServiceUsageMBeanImpl) serviceComponent.getServiceUsageMBean();
+		return serviceUsageMbean.getDefaultInstalledUsageParameterSet(getSbbId());
 	}
 
 	public Object getSbbUsageParameterSet(String name) {
-		return Service.getNamedUsageParameter(getServiceId(), getSbbId(), name);
+		if (log.isDebugEnabled()) {
+			log.debug("getSbbUsageParameterSet(): serviceId = " + getServiceId()
+					+ " , sbbID = " + getSbbId()+" , name = "+name);
+		}
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		ServiceComponent serviceComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getServiceId());
+		ServiceUsageMBeanImpl serviceUsageMbean = (ServiceUsageMBeanImpl) serviceComponent.getServiceUsageMBean();
+		return serviceUsageMbean.getInstalledUsageParameterSet(getSbbId(),name);
 	}
 
-	public MobicentsSbbDescriptor getSbbDescriptor() {
+	public SbbComponent getSbbComponent() {
 		return this.sbbComponent;
 	}
 
@@ -929,10 +900,10 @@ public class SbbEntity {
 	 */
 	public ChildRelationImpl getChildRelation(String accessorName) {
 
-		GetChildRelationMethod getChildRelationMethod = null;
+		MGetChildRelationMethod getChildRelationMethod = null;
 		// get the child relation metod from the sbb component
 		if ((getChildRelationMethod = this.sbbComponent
-				.getChildRelationMethod(accessorName)) != null) {
+				.getDescriptor().getGetChildRelationMethods().get(accessorName)) != null) {
 			// this is a valid name of a child relation for this entity
 			return new ChildRelationImpl(getChildRelationMethod, this);
 		} else {
@@ -951,15 +922,15 @@ public class SbbEntity {
 	public void asSbbActivityContextInterface(ActivityContextInterface aci) {
 		try {
 			ActivityContextInterfaceImpl aciImpl = (ActivityContextInterfaceImpl) aci;
-			Class aciclass = this.getSbbDescriptor()
+			Class aciclass = this.getSbbComponent()
 					.getActivityContextInterfaceConcreteClass();
 			if (aciclass != null) {
 
 				Class[] argTypes = new Class[] { aciImpl.getClass(),
-						MobicentsSbbDescriptor.class };
+						SbbComponent.class };
 				Constructor cons = aciclass.getConstructor(argTypes);
 				Object retval = cons.newInstance(new Object[] { aciImpl,
-						this.getSbbDescriptor() });
+						this.getSbbComponent() });
 				SbbConcrete sbbConcrete = (SbbConcrete) this.getSbbObject()
 						.getSbbConcrete();
 				sbbConcrete.sbbSetActivityContextInterface(retval);
@@ -985,7 +956,7 @@ public class SbbEntity {
 
 	public void checkReEntrant() throws SLEEException {
 		try {
-			if ((!this.getSbbDescriptor().isReentrant())
+			if ((!this.getSbbComponent().getDescriptor().getSbbAbstractClass().isReentrant())
 					&& this.transaction == sleeContainer.getTransactionManager().getTransaction())
 				throw new SLEEException(" re-entrancy not allowed ");
 		} catch (SystemException ex) {
@@ -996,14 +967,13 @@ public class SbbEntity {
 
 	public SbbLocalObjectImpl createSbbLocalObject() {
 		Class sbbLocalClass;
-		MobicentsSbbDescriptor sbbDescriptor = this.getSbbDescriptor();
 		if (log.isDebugEnabled())
 			log
 					.debug("createSbbLocalObject "
-							+ this.getSbbDescriptor().getID());
+							+ this.getSbbComponent());
 
 		// The concrete class generated in ConcreteLocalObjectGenerator
-		if ((sbbLocalClass = sbbDescriptor.getLocalInterfaceConcreteClass()) != null) {
+		if ((sbbLocalClass = sbbComponent.getSbbLocalInterfaceConcreteClass()) != null) {
 			if (log.isDebugEnabled())
 				log.debug("creatingCustom local class "
 						+ sbbLocalClass.getName());

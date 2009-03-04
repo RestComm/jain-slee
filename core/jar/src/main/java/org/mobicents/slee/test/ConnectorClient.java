@@ -19,10 +19,8 @@ package org.mobicents.slee.test;
  *
  */
 
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.ProfileSpecificationIDImpl;
-
 import javax.naming.*;
+import javax.slee.profile.ProfileSpecificationID;
 import javax.management.*;
 import java.util.*;
 import org.jboss.jmx.adaptor.rmi.RMIAdaptor;
@@ -122,9 +120,7 @@ public class ConnectorClient
 		try{
 			ConnectorClient connector=new ConnectorClient("jnp://localhost:2000");			
 			ObjectName name = new ObjectName( "slee:name=ProfileProvisoning" );
-			ComponentKey componentKey = new ComponentKey("jean/nist-sip/1.0");
-	        javax.slee.profile.ProfileSpecificationID profileSpecificationID=new ProfileSpecificationIDImpl(componentKey);
-
+	        ProfileSpecificationID profileSpecificationID=new ProfileSpecificationID("jean","nist-sip","1.0");
 			Object[] params=new Object[]{profileSpecificationID,"jean"};
 			String[] sig=new String[]{"javax.slee.profile.ProfileSpecificationID","java.lang.String"};
 			Object result = connector.invokeOperation(name, "createProfileTable",params,sig);

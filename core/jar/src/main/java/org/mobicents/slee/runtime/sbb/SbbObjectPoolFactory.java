@@ -18,7 +18,7 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.SbbComponent;
 
 /**
  * Implements the methods invoked by the object pool to create the SbbEntity
@@ -31,11 +31,11 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
 
 	private static Logger logger = Logger.getLogger(SbbObjectPoolFactory.class);
 	   
-	private final MobicentsSbbDescriptor sbbDescriptor; 
+	private final SbbComponent sbbComponent; 
 
     /** Creates a new instance of SbbObjectPoolFactory */
-    public SbbObjectPoolFactory(MobicentsSbbDescriptor sbbDescriptor) {
-        this.sbbDescriptor = sbbDescriptor;
+    public SbbObjectPoolFactory(SbbComponent sbbComponent) {
+        this.sbbComponent = sbbComponent;
     }
 
     public void activateObject(Object obj) throws java.lang.Exception {
@@ -47,7 +47,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
          */
     	
     	if (logger.isDebugEnabled()) {
-        	logger.debug("activateObject() for "+sbbDescriptor.getID());
+        	logger.debug("activateObject() for "+sbbComponent);
         }
     	
     }
@@ -55,7 +55,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
     public void destroyObject(Object sbb) throws java.lang.Exception {
     	
     	if (logger.isDebugEnabled()) {
-        	logger.debug("destroyObject() for "+sbbDescriptor.getID());
+        	logger.debug("destroyObject() for "+sbbComponent);
         }
         
         SbbObject sbbObject = (SbbObject) sbb;
@@ -65,7 +65,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
         try {
         	//unsetSbbContext must be called with the context classloader
             //of the entities sbbDescriptor as with other sbb invocatiions.
-            Thread.currentThread().setContextClassLoader(sbbDescriptor.getClassLoader());
+            Thread.currentThread().setContextClassLoader(sbbComponent.getClassLoader());
             if (sbbObject.getState() != SbbObjectState.DOES_NOT_EXIST) {
                 sbbObject.unsetSbbContext();
             }
@@ -95,14 +95,14 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
         
         SbbObject retval;
         if (logger.isDebugEnabled()) {
-            logger.debug("makeObject() for "+sbbDescriptor.getID());
+            logger.debug("makeObject() for "+sbbComponent);
         }
 
         final ClassLoader oldClassLoader = SleeContainerUtils
                 .getCurrentThreadClassLoader();
 
         try {
-            final ClassLoader cl = sbbDescriptor.getClassLoader();
+            final ClassLoader cl = sbbComponent.getClassLoader();
             if (SleeContainer.isSecurityEnabled())
                 AccessController.doPrivileged(new PrivilegedAction() {
                     public Object run() {
@@ -114,7 +114,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
             else
                 Thread.currentThread().setContextClassLoader(cl);
             
-            retval = new SbbObject(sbbDescriptor);
+            retval = new SbbObject(sbbComponent);
         
         } finally {
             if (SleeContainer.isSecurityEnabled())
@@ -137,7 +137,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
     public void passivateObject(Object sbb) throws java.lang.Exception {
     	
     	if (logger.isDebugEnabled()) {
-    		logger.debug("passivateObject() for "+sbbDescriptor.getID());
+    		logger.debug("passivateObject() for "+sbbComponent);
     	}
     	
         SbbObject sbbObj = (SbbObject) sbb;
@@ -149,7 +149,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
     	boolean retval = ((SbbObject) sbbo).getState() == SbbObjectState.POOLED;
         
     	if (logger.isDebugEnabled()) {
-        	logger.debug("validateObject() for "+sbbDescriptor.getID()+" returning " + retval);
+        	logger.debug("validateObject() for "+sbbComponent+" returning " + retval);
         }
         
     	return retval;

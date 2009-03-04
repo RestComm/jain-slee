@@ -43,7 +43,7 @@ public class ConcreteActivityContextInterfaceGeneratorTest extends TestCase {
         super.setUp();
         BasicConfigurator.configure();
         Logger.setPluginClassName(Log4jLoggerPlugin.class.getName());
-        new SbbDeployer("temp"); // TODO: is "temp" good enough?
+        new SbbClassCodeGenerator("temp"); // TODO: is "temp" good enough?
         sbbDeploymentDescriptor=new MobicentsSbbDescriptorInternalImpl();
         CMPField[] cmpFields=new CMPField[3];
         cmpFields[0]=new CMPField("Counter",null);

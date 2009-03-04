@@ -25,8 +25,6 @@ import javax.slee.management.DeploymentException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 
 /**
@@ -45,9 +43,9 @@ import org.mobicents.slee.container.component.deployment.ClassPool;
 public class SbbAbstractDecorator {
 
     /**
-     * the sbb deployment descriptor
+     * the sbb abstract class name
      */
-    private MobicentsSbbDescriptor sbbDeploymentDescriptor = null;
+    private final String sbbAbstractClassName;
 
     /**
      * the sbb abstract class
@@ -67,12 +65,12 @@ public class SbbAbstractDecorator {
     /**
      * Pool to generate or read classes with javassist
      */
-    private  ClassPool pool = null;
+    private final ClassPool pool;
 
     /**
-     * The path where DU classes will reside
+     * The path where classes will reside
      */
-    private String deployPath;
+    private final String deployDir;
 
     /**
      * Optimization variable. Helps avoid writing to disk abstract classes, which are not modified.
@@ -86,17 +84,10 @@ public class SbbAbstractDecorator {
     /**
      * Constructor
      */
-    public SbbAbstractDecorator(MobicentsSbbDescriptor sbbDeploymentDescriptor) {
-        this.sbbDeploymentDescriptor = sbbDeploymentDescriptor;
-
-        // FIXME: the inderection to get to the deployment path is too high.
-        // move the deployment path from the ID to the desciriptor
-        this.deployPath = ((DeployableUnitIDImpl) (sbbDeploymentDescriptor
-                .getDeployableUnit())).getDUDeployer().getTempClassDeploymentDir()
-                .getAbsolutePath();
-
-        this.pool = ((DeployableUnitIDImpl) (sbbDeploymentDescriptor
-                .getDeployableUnit())).getDUDeployer().getClassPool();
+    public SbbAbstractDecorator(String sbbAbstractClassName, String deploymentDir, ClassPool classPool) {
+        this.sbbAbstractClassName = sbbAbstractClassName;
+        this.deployDir = deploymentDir;
+        this.pool = classPool;
     }
 
     /**
@@ -105,9 +96,7 @@ public class SbbAbstractDecorator {
      * @return the decorated sbb abstract class
      */
     public void decorateAbstractSbb() throws DeploymentException {
-        String sbbAbstractClassName = sbbDeploymentDescriptor
-                .getSbbAbstractClassName();
-
+       
         try {
             sbbAbstractClass = pool.get(sbbAbstractClassName);
         } catch (NotFoundException nfe) {
@@ -130,7 +119,7 @@ public class SbbAbstractDecorator {
         /* Make sure that the class is written to disc and can be properly loaded */
         Class clazz = null;
         try {
-            clazz = sbbDeploymentDescriptor.getClassLoader().loadClass(sbbAbstractClassName);
+            clazz = Thread.currentThread().getContextClassLoader().loadClass(sbbAbstractClassName);
         } catch (ClassNotFoundException e1) {
             String s = "What the heck?! Could not find decorated abstract sbb class. Is it under the chair?";
             logger.fatal(s, e1);
@@ -143,7 +132,7 @@ public class SbbAbstractDecorator {
         try {
 //        	@@2.4+ -> 3.4+
             //pool.writeFile(sbbAbstractClass.getName(), deployPath);
-            sbbAbstractClass.writeFile(deployPath);
+            sbbAbstractClass.writeFile(deployDir);
             sbbAbstractClass.detach();
             // the file on disk is now in sync with the latest in-memory version
             isAbstractSbbClassDecorated = false;
@@ -151,7 +140,7 @@ public class SbbAbstractDecorator {
                 logger.debug("Modified Abstract Class "
                             + sbbAbstractClass.getName()
                             + " generated in the following path "
-                            + deployPath);
+                            + deployDir);
             }
         //} catch (NotFoundException e) {
         //    String s = "Error writing modified abstract sbb class";

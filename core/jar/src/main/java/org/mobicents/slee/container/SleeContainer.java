@@ -60,10 +60,8 @@ import org.jboss.mx.util.MBeanProxy;
 import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
+import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.management.ComponentManagement;
-import org.mobicents.slee.container.management.DeployableUnitManagement;
-import org.mobicents.slee.container.management.EventManagement;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.SbbManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
@@ -177,10 +175,9 @@ public class SleeContainer {
 	// for external access to slee
 	private RmiServerInterfaceMBean rmiServerInterfaceMBeanImpl;
 	// component managers
+	private ComponentRepositoryImpl componentRepositoryImpl;
 	private ServiceManagement serviceManagement;
-	private ComponentManagement componentManagement;
-	private DeployableUnitManagement deployableUnitManagement;
-	private EventManagement eventManagement;
+	
 	private SleeProfileManager sleeProfileManager;
 	private ResourceManagement resourceManagement;
 	private SbbManagement sbbManagement;
@@ -243,10 +240,8 @@ public class SleeContainer {
 		ConcreteClassGeneratorUtils.class.getClass();
 		DefaultSleeEntityResolver.init(this.getClass().getClassLoader());
 
-		this.componentManagement = new ComponentManagement(this);
-		this.deployableUnitManagement = new DeployableUnitManagement(this);
+		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
-		this.eventManagement = new EventManagement(this);
 		this.eventLookup = new EventLookup(this);
 		this.sleeProfileManager = new SleeProfileManager(this);
 		this.sbbManagement = new SbbManagement(this);
@@ -353,9 +348,8 @@ public class SleeContainer {
 	 * @return
 	 */
 	public String dumpState() {
-		return eventManagement.toString() + "\n" + resourceManagement + "\n"
+		return resourceManagement + "\n"
 				+ sbbManagement + "\n" + timerFacility + "\n"
-				+ deployableUnitManagement + "\n" + componentManagement + "\n"
 				+ sleeProfileManager + "\n"
 				+ activityContextFactory + "\n" + activityContextNamingFacility
 				+ "\n" + nullActivityFactory + "\n" + serviceManagement + "\n"
@@ -373,33 +367,13 @@ public class SleeContainer {
 	}
 
 	/**
-	 * manages (un)install of components in general and takes care of
-	 * dependencies
-	 * 
+	 * retrieves the container's component repository implementation
 	 * @return
 	 */
-	public ComponentManagement getComponentManagement() {
-		return componentManagement;
+	public ComponentRepositoryImpl getComponentRepositoryImpl() {
+		return componentRepositoryImpl;
 	}
-
-	/**
-	 * manages (un)install of deployable units
-	 * 
-	 * @return
-	 */
-	public DeployableUnitManagement getDeployableUnitManagement() {
-		return deployableUnitManagement;
-	}
-
-	/**
-	 * manages (un)install of events
-	 * 
-	 * @return
-	 */
-	public EventManagement getEventManagement() {
-		return eventManagement;
-	}
-
+	
 	/**
 	 * manages (un)install of resource adaptors
 	 * 

@@ -22,12 +22,8 @@
 
 package org.mobicents.slee.runtime.jboss;
 
-import java.util.HashSet;
-
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -73,7 +69,7 @@ public class RuntimeRestoreTask implements Runnable {
             ex.printStackTrace();
             logger.error("An exception occurred while restoring facility", ex);
             try {
-                if (txmgr.isInTx() && rb) {
+                if (txmgr.getTransaction() != null && rb) {
                     txmgr.setRollbackOnly();
                 }
             } catch (Exception e) {
@@ -82,7 +78,7 @@ public class RuntimeRestoreTask implements Runnable {
 
         } finally {
             try {
-                if (txmgr.isInTx())
+                if (txmgr.getTransaction() != null)
                     txmgr.commit();
             } catch (Exception ex) {
                 throw new RuntimeException("Error restoring cache!!", ex);

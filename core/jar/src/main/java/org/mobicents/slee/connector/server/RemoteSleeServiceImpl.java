@@ -176,7 +176,7 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 				else {
 					try {
 						txMgr.commit();
-					} catch (SystemException e) {
+					} catch (Exception e) {
 						log.error("failed to commit implicit tx", e);
 					}
 				}

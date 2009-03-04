@@ -903,7 +903,7 @@ public class DefaultProfileManagementInterceptor implements
             try {
                 // if the tx was not completed by now, then there was an
                 // exception and it should roll back
-                if (b && txManager.isInTx()) {
+                if (b && txManager.getTransaction() != null) {
                     txManager.rollback();
                 }
             } catch (SystemException se) {

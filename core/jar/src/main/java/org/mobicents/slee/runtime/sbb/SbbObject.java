@@ -1,28 +1,20 @@
 package org.mobicents.slee.runtime.sbb;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.CreateException;
 import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
-import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.deployment.ConcreteSbbGenerator;
-import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.runtime.eventrouter.SbbInvocationState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
@@ -61,8 +53,6 @@ public class SbbObject implements Serializable {
 
 	transient static private Logger log = Logger.getLogger(SbbEntity.class);
 
-	private SbbID sbbID;
-
 	private ServiceID serviceID = null;
 
 	private transient SbbEntity sbbEntity;
@@ -70,14 +60,10 @@ public class SbbObject implements Serializable {
 	// My SBB concrete class
 	private SbbConcrete sbbConcrete;
 
-	/*
-	 * this class contains the information in the deployer descriptor -list of
-	 * the received events -list of the intial events these informations may
-	 * change at runtime (e.g. An Sbb can modify the event mask using the
-	 * SbbContext).
+	/**
+	 * the sbb component
 	 */
-
-	private MobicentsSbbDescriptor sbbDescriptor;
+	private SbbComponent sbbComponent;
 
 	/**
 	 * The Sbb context is the object through which the Sbb interacts with the
@@ -88,40 +74,31 @@ public class SbbObject implements Serializable {
 	/**
 	 * Creates a new instance of SbbObject.
 	 * 
-	 * @param serviceContainer --
-	 *            container where we are installed.
-	 * @param sbbDescriptor --
-	 *            my descriptor.
+	 * @param sbbComponent
+	 *            .
 	 * 
 	 * 
 	 */
-	public SbbObject(MobicentsSbbDescriptor sbbDescriptor) {
+	public SbbObject(SbbComponent sbbComponent) {
 
-		// my deployment descriptor.
-		this.sbbDescriptor = sbbDescriptor;
+		this.sbbComponent = sbbComponent;
 
-		this.sbbID = (SbbID) sbbDescriptor.getID();
 		this.createConcreteClass();
 				
 		// set sbb context
 		this.sbbContext = new SbbContextImpl(this);
 		if (log.isDebugEnabled()) {
-			log.debug("---> invoking setSbbContext() for "+sbbDescriptor.getID());
+			log.debug("---> invoking setSbbContext() for "+sbbComponent);
 		}
 		this.sbbConcrete.setSbbContext(this.sbbContext);
 		if (log.isDebugEnabled()) {
-			log.debug("<--- invoked setSbbContext() for "+sbbDescriptor.getID());
+			log.debug("<--- invoked setSbbContext() for "+sbbComponent);
 		}
 	}
 
 	public void setSbbEntity(SbbEntity sbbe) {
 		this.sbbEntity = sbbe;
 		this.sbbConcrete.setSbbEntity(sbbe);
-
-		this.setDefaultUsageParameterSet(sbbe);
-		this.setUsageParameterTable(sbbe);
-
-		// Set the named usage parameter set also here.
 	}
 
 	public void setServiceID(ServiceID serviceId) {
@@ -190,19 +167,10 @@ public class SbbObject implements Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mobicents.slee.runtime.SbbEntity#getSbbDescriptor()
+	 * @see org.mobicents.slee.runtime.SbbEntity#getSbbComponent()
 	 */
-	public MobicentsSbbDescriptor getSbbDescriptor() {
-		return this.sbbDescriptor;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mobicents.slee.runtime.SbbEntity#getInitalEventTypes()
-	 */
-	public Set getInitalEventTypes() {
-		return sbbDescriptor.getInitialEventTypes();
+	public SbbComponent getSbbComponent() {
+		return this.sbbComponent;
 	}
 
 	/**
@@ -217,7 +185,7 @@ public class SbbObject implements Serializable {
 								+ this.getState());
 		}
 		if (log.isDebugEnabled())
-			log.debug("unsetSbbContext " + this.getSbbID());
+			log.debug("unsetSbbContext " + this.sbbComponent.getSbbID());
 
 		final ClassLoader oldClassLoader = SleeContainerUtils
 				.getCurrentThreadClassLoader();
@@ -227,7 +195,7 @@ public class SbbObject implements Serializable {
 		// This is the case if failure occurs in sbbCreate
 
 		try {
-			final ClassLoader cl = this.sbbDescriptor.getClassLoader();
+			final ClassLoader cl = this.sbbComponent.getClassLoader();
 			if (SleeContainer.isSecurityEnabled())
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run() {
@@ -375,7 +343,7 @@ public class SbbObject implements Serializable {
 		final ClassLoader oldClassLoader = SleeContainerUtils
 				.getCurrentThreadClassLoader();
 		if (this.sbbConcrete != null) {
-			final ClassLoader cl = this.sbbDescriptor.getClassLoader();
+			final ClassLoader cl = this.sbbComponent.getClassLoader();
 			try {
 				if (SleeContainer.isSecurityEnabled())
 					AccessController.doPrivileged(new PrivilegedAction() {
@@ -429,7 +397,7 @@ public class SbbObject implements Serializable {
 				.getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(
-					this.sbbDescriptor.getClassLoader());
+					this.sbbComponent.getClassLoader());
 
 			this.sbbConcrete.sbbExceptionThrown(exception, eventObject,
 					activityContextInterface);
@@ -437,21 +405,6 @@ public class SbbObject implements Serializable {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
 
-	}
-
-	/**
-	 * @return Returns the sbbID.
-	 */
-	public SbbID getSbbID() {
-		return (SbbID) this.sbbDescriptor.getID();
-	}
-
-	/**
-	 * @param sbbID
-	 *            The sbbID to set.
-	 */
-	public void setSbbID(SbbID sbbID) {
-		this.sbbID = sbbID;
 	}
 
 	public void sbbRolledBack(RolledBackContext sbbRolledBackContext) {
@@ -464,7 +417,7 @@ public class SbbObject implements Serializable {
 				.getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(
-					this.sbbDescriptor.getClassLoader());
+					this.sbbComponent.getClassLoader());
 
 			this.sbbConcrete.sbbRolledBack(sbbRolledBackContext);
 		} finally {
@@ -483,7 +436,7 @@ public class SbbObject implements Serializable {
 				.getCurrentThreadClassLoader();
 		try {
 
-			final ClassLoader cl = this.sbbDescriptor.getClassLoader();
+			final ClassLoader cl = this.sbbComponent.getClassLoader();
 			if (SleeContainer.isSecurityEnabled())
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run() {
@@ -517,59 +470,6 @@ public class SbbObject implements Serializable {
 
 	}
 
-	/**
-	 * Set a pointer to the default usage parameter table in the sbb object.
-	 * 
-	 * @param sbbe --
-	 *            the sbb entity to which we are assigned.
-	 * 
-	 */
-	private void setDefaultUsageParameterSet(SbbEntity sbbe) {
-		// Set a pointer to the usage parameter set in the generated class
-		if (sbbe != null) {
-			try {
-				Object usageParameterSet = sbbe
-						.getDefaultSbbUsageParameterSet();
-				if (usageParameterSet != null) {
-
-					String usageParameterInterfaceName = this
-							.getSbbDescriptor().getUsageParametersInterface();
-					Class usageParameterInterfaceClass = SleeContainerUtils
-							.getCurrentThreadClassLoader().loadClass(
-									usageParameterInterfaceName);
-					Class concreteClass = this.sbbConcrete.getClass();
-					Method setter = concreteClass
-							.getMethod(
-									ConcreteSbbGenerator.DEFAULT_USAGE_PARAMETER_SETTER,
-									new Class[] { usageParameterInterfaceClass });
-					setter.invoke(this.sbbConcrete,
-							new Object[] { usageParameterSet });
-				}
-			} catch (Exception ex) {
-				throw new RuntimeException(
-						"Unexpected Exception while setting default usage parameters",
-						ex);
-			}
-		}
-	}
-
-	/**
-	 * Set a pointer to the usage parameter hashmap in the sbbobject
-	 * 
-	 * @param sbbe --
-	 *            the sbb entity to which we are assigned.
-	 * 
-	 */
-	private void setUsageParameterTable(SbbEntity sbbe) {
-
-		Map usageParameterTable = null;
-		if (sbbe != null)
-			usageParameterTable = Service.getUsageParameterTable(sbbe
-					.getServiceId());
-		sbbConcrete.sbbSetNamedUsageParameterTable(usageParameterTable);
-
-	}
-
 	private void createConcreteClass() {
 		try {
 
@@ -577,7 +477,7 @@ public class SbbObject implements Serializable {
 			// Concrete class of the Sbb. the concrete sbb class is the
 			// class that implements the Sbb methods. This is obtained
 			// from the deployment descriptor and the abstract sbb class.
-			this.sbbConcrete = (SbbConcrete) sbbDescriptor
+			this.sbbConcrete = (SbbConcrete) sbbComponent
 					.getConcreteSbbClass().newInstance();
 
 		} catch (Exception ex) {
@@ -586,7 +486,7 @@ public class SbbObject implements Serializable {
 			log.error("unexpected exception creating concrete class!", ex);
 			throw new RuntimeException(
 					"Unexpected exception creating concrete class for "
-							+ this.sbbID, ex);
+							+ this.sbbComponent.getSbbID(), ex);
 		}
 
 	}

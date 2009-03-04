@@ -14,6 +14,6 @@ import org.mobicents.slee.runtime.activity.ActivityContext;
 public class DeferredActivityEndEvent extends DeferredEvent {
 
 	public DeferredActivityEndEvent(ActivityContext ac, Address address) throws SystemException {
-		super(ActivityEndEventImpl.getEventTypeID(),ActivityEndEventImpl.SINGLETON,ac,address);
+		super(ActivityEndEventImpl.EVENT_TYPE_ID,ActivityEndEventImpl.SINGLETON,ac,address);
 	}
 }

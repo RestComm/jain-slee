@@ -5,13 +5,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.slee.ComponentID;
+import javax.slee.SbbID;
 
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPoolFactory;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -27,7 +28,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	private final static Logger logger = Logger
 			.getLogger(SbbObjectPoolManagement.class);
 
-	private final ConcurrentHashMap<ComponentID, SbbObjectPool> pools;
+	private final ConcurrentHashMap<SbbID, SbbObjectPool> pools;
 	private final SleeContainer sleeContainer;
 
 	private GenericObjectPool.Config config;
@@ -48,7 +49,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 		config.timeBetweenEvictionRunsMillis = 300000;
 		config.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
 		// create pools map
-		pools = new ConcurrentHashMap<ComponentID, SbbObjectPool>();
+		pools = new ConcurrentHashMap<SbbID, SbbObjectPool>();
 	}
 
 	/**
@@ -88,14 +89,14 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	 * @param sbbDescriptor
 	 * @param sleeTransactionManager
 	 */
-	public void createObjectPool(final MobicentsSbbDescriptor sbbDescriptor,
+	public void createObjectPool(final SbbComponent sbbComponent,
 			final SleeTransactionManager sleeTransactionManager) {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Creating Pool for SBB " + sbbDescriptor.getID());
+			logger.debug("Creating Pool for SBB " + sbbComponent);
 		}
 
-		createObjectPool(sbbDescriptor);
+		createObjectPool(sbbComponent);
 
 		if (sleeTransactionManager != null) {
 			// add a rollback action to remove sbb object pool
@@ -104,13 +105,13 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 					if (logger.isDebugEnabled()) {
 						logger
 								.debug("Due to tx rollback, removing pool for sbb "
-										+ sbbDescriptor.getID());
+										+ sbbComponent);
 					}
 					try {
-						removeObjectPool(sbbDescriptor.getID());
+						removeObjectPool(sbbComponent.getSbbID());
 					} catch (Exception e) {
 						logger.error("Failed to remove SBB "
-								+ sbbDescriptor.getID() + " object pool", e);
+								+ sbbComponent + " object pool", e);
 					}
 				}
 			};
@@ -123,12 +124,12 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	 * 
 	 * @param sbbDescriptor
 	 */
-	private void createObjectPool(final MobicentsSbbDescriptor sbbDescriptor) {
+	private void createObjectPool(final SbbComponent sbbComponent) {
 		// create the pool for the given SbbID
 		GenericObjectPoolFactory poolFactory = new GenericObjectPoolFactory(
-				new SbbObjectPoolFactory(sbbDescriptor), config);
+				new SbbObjectPoolFactory(sbbComponent), config);
 		final ObjectPool objectPool = poolFactory.createPool();
-		final SbbObjectPool oldObjectPool = pools.put(sbbDescriptor.getID(),
+		final SbbObjectPool oldObjectPool = pools.put(sbbComponent.getSbbID(),
 				new SbbObjectPool(objectPool));
 		if (oldObjectPool != null) {
 			// there was an old pool, close it
@@ -137,12 +138,12 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Failed to close old pool for SBB "
-							+ sbbDescriptor.getID());
+							+ sbbComponent);
 				}
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Created Pool for SBB " + sbbDescriptor.getID());
+			logger.debug("Created Pool for SBB " + sbbComponent);
 		}
 	}
 
@@ -155,15 +156,15 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	 * @param sleeTransactionManager
 	 * @throws Exception
 	 */
-	public void removeObjectPool(final MobicentsSbbDescriptor sbbDescriptor,
+	public void removeObjectPool(final SbbComponent sbbComponent,
 			final SleeTransactionManager sleeTransactionManager)
 			throws Exception {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Removing Pool for SBB " + sbbDescriptor.getID());
+			logger.debug("Removing Pool for SBB " + sbbComponent);
 		}
 
-		removeObjectPool(sbbDescriptor.getID());
+		removeObjectPool(sbbComponent.getSbbID());
 
 		if (sleeTransactionManager != null) {
 			// restore object pool if tx rollbacks
@@ -172,9 +173,9 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 					if (logger.isDebugEnabled()) {
 						logger
 								.debug("Due to tx rollback, restoring pool for sbb "
-										+ sbbDescriptor.getID());
+										+ sbbComponent);
 					}
-					createObjectPool(sbbDescriptor);
+					createObjectPool(sbbComponent);
 				}
 			};
 			sleeTransactionManager.addAfterRollbackAction(action);
@@ -308,9 +309,8 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 
 	public void reconfig() {
 		for (Object key : pools.keySet().toArray()) {
-			final MobicentsSbbDescriptor sbbDescriptor = sleeContainer
-					.getSbbManagement().getSbbComponent((ComponentID) key);
-			createObjectPool(sbbDescriptor);
+			final SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID((SbbID)key);
+			createObjectPool(sbbComponent);
 		}
 	}
 

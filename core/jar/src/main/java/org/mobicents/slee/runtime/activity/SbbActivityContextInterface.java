@@ -63,4 +63,9 @@ public class SbbActivityContextInterface implements ActivityContextInterface {
 		return aciImpl.isEnding();
 	}	
 	
+	public boolean isAttached(SbbLocalObject arg0) throws NullPointerException,
+			TransactionRequiredLocalException,
+			TransactionRolledbackLocalException, SLEEException {
+		return aciImpl.isAttached(arg0);
+	}
 }

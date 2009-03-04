@@ -10,9 +10,12 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.io.Serializable;
-import java.util.Iterator;
+import java.lang.reflect.Constructor;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
@@ -21,19 +24,17 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedSbbException;
-import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceUsageMBean;
 import javax.slee.management.UsageParameterSetNameAlreadyExistsException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
-import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.InstalledUsageParameterSet;
-import org.mobicents.slee.container.service.Service;
-import org.mobicents.slee.container.service.ServiceComponent;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.container.SleeContainerUtils;
+import org.mobicents.slee.container.component.ComponentRepositoryImpl;
+import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.ServiceComponent;
 
 /**
  * 
@@ -52,15 +53,23 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 	private static final long serialVersionUID = 2670146310843436229L;
 
-	// This is the service ID for this service usage mbean.
-	private ServiceID serviceID;
-
-	private static Logger logger = Logger
+	private static transient Logger logger = Logger
 			.getLogger(ServiceUsageMBeanImpl.class);
 
-	// Note that this is just to save a lookup
-	// It is not serialized.
-	private transient ServiceComponent service;
+	private static final String[] emptyUsageParameterSet = new String[0];
+
+	/**
+	 * This is the service ID for this service usage mbean.
+	 * 
+	 */
+	private ServiceID serviceID;
+
+	/**
+	 * the sbb usage mbeans registred by this service usage mbean
+	 */
+	private ConcurrentHashMap<String, SbbUsageMBeanImpl> sbbUsageMBeans = new ConcurrentHashMap<String, SbbUsageMBeanImpl>();
+
+	private ObjectName objectName;
 
 	public ServiceUsageMBeanImpl() throws NotCompliantMBeanException {
 		super(ServiceUsageMBean.class);
@@ -71,7 +80,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			NullPointerException {
 		this();
 		this.serviceID = serviceID;
-
 	}
 
 	/*
@@ -80,7 +88,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.ServiceUsageMBean#getService()
 	 */
 	public ServiceID getService() throws ManagementException {
-
 		return this.serviceID;
 	}
 
@@ -90,56 +97,137 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.ServiceUsageMBean#createUsageParameterSet(javax.slee.SbbID,
 	 *      java.lang.String)
 	 */
-	public void createUsageParameterSet(SbbID sbbId,
-			String usageParameterSetName) throws NullPointerException,
-			UnrecognizedSbbException, InvalidArgumentException,
+	public void createUsageParameterSet(SbbID sbbId, String name)
+			throws NullPointerException, UnrecognizedSbbException,
+			InvalidArgumentException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
 
-		if (usageParameterSetName == null)
+		if (name == null)
 			throw new NullPointerException("Sbb usage param set is null");
+		if (name.length() == 0)
+			throw new InvalidArgumentException(
+					"The lenght of the Usage Parameter Set Name is zero!");
+		if (!isValidUsageParameterName(name))
+			throw new InvalidArgumentException(
+					"The lenght of the Usage Parameter Set Name is zero!");
+
+		_createUsageParameterSet(sbbId, name, true);
+
+	}
+
+	/*
+	 * creates the default usage parameter set
+	 */
+	public void createUsageParameterSet(SbbID sbbId)
+			throws NullPointerException, UnrecognizedSbbException,
+			InvalidArgumentException,
+			UsageParameterSetNameAlreadyExistsException, ManagementException {
+		_createUsageParameterSet(sbbId, null, false);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ServiceUsageMBean#createUsageParameterSet(javax.slee.SbbID,
+	 *      java.lang.String)
+	 */
+	private synchronized void _createUsageParameterSet(SbbID sbbId,
+			String name, boolean failIfSbbHasNoUsageParamSet)
+			throws NullPointerException, UnrecognizedSbbException,
+			InvalidArgumentException,
+			UsageParameterSetNameAlreadyExistsException, ManagementException {
+
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
-		if (usageParameterSetName.length() == 0)
-			throw new InvalidArgumentException(
-					"The lenght of the Usage Parameter Set Name is zero!");
-		if (!isValidUsageParameterName(usageParameterSetName))
-			throw new InvalidArgumentException(
-					"The lenght of the Usage Parameter Set Name is zero!");
 
-		SleeTransactionManager txmgr = SleeContainer.lookupFromJndi().getTransactionManager();
-		boolean rb = true;
-		try {
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
-			txmgr.begin();
-
-			checkSbbUsageParams(sbbId);
-
-			service.installUsageParameter(sbbId, usageParameterSetName);
-			rb = false;
-		} catch (UnrecognizedSbbException ex) {
-			throw ex;
-		} catch (InvalidArgumentException ex) {
-			throw ex;
-		} catch (InstanceAlreadyExistsException ex) {
-			throw new UsageParameterSetNameAlreadyExistsException(
-					"Duplicate usage parameter set name "
-							+ usageParameterSetName);
-		} catch (NullPointerException ex) {
-			throw ex;
-		} catch (UsageParameterSetNameAlreadyExistsException ex) {
-			throw ex;
-		} catch (Exception e) {
-			throw new ManagementException("Unexpected exception!", e);
-		} finally {
-			try {
-				if (rb)
-					txmgr.setRollbackOnly();
-				txmgr.commit();
-			} catch (Exception ex) {
-				throw new RuntimeException("Unexpected exception ", ex);
+		// get the sbb component
+		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
+				.getComponentByID(sbbId);
+		if (sbbComponent == null) {
+			throw new UnrecognizedSbbException(sbbId.toString());
+		}
+		// get service component and check if the sbb belongs to the service
+		ServiceComponent serviceComponent = sleeContainer
+				.getComponentRepositoryImpl().getComponentByID(getService());
+		if (serviceComponent.getSbbIDs(
+				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
+			throw new UnrecognizedSbbException(sbbId.toString()
+					+ " is not part of " + getService());
+		}
+		// get sbb usage parameter class
+		Class usageParameterClass = sbbComponent
+				.getUsageParametersInterfaceConcreteClass();
+		if (usageParameterClass == null) {
+			if (failIfSbbHasNoUsageParamSet) {
+				throw new InvalidArgumentException(sbbId.toString()
+						+ " does not define a usage parameters interface");
+			} else {
+				return;
 			}
 		}
+		// check if the usage parameter name set already exists
+		String pathName = generateUsageParametersPathName(sbbId, name);
+		if (this.sbbUsageMBeans.containsKey(pathName)) {
+			throw new UsageParameterSetNameAlreadyExistsException("name "
+					+ name + " already exists for service " + serviceComponent
+					+ " and sbb " + sbbComponent);
+		}
 
+		SbbUsageMBeanImpl usageMbean = null;
+		Thread currentThread = Thread.currentThread();
+		ClassLoader currentThreadClassLoader = currentThread
+				.getContextClassLoader();
+		try {
+			// change class loader
+			currentThread.setContextClassLoader(sbbComponent.getClassLoader());
+			// create the actual usage parameter instance and map it in the
+			// mbean
+			Constructor cons = usageParameterClass.getConstructor(new Class[] {
+					ServiceID.class, SbbID.class });
+			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) cons
+					.newInstance(new Object[] { serviceID, sbbId });
+			// create and register the sbb usage mbean
+			String usageParameterInterfaceClassName = sbbComponent
+					.getUsageParametersInterface().getName();
+			String usageParameterMBeanClassName = usageParameterInterfaceClassName
+					+ "MBeanImpl";
+			Class[] args = { ServiceID.class, SbbID.class, String.class,
+					String.class, usageParameterClass };
+			Class usageParameterMBeanClass = sbbComponent.getClassLoader()
+					.loadClass(usageParameterMBeanClassName);
+			Constructor constructor = usageParameterMBeanClass
+					.getConstructor(args);
+			Object[] objs = { this.serviceID, sbbId, name,
+					usageParameterInterfaceClassName + "MBean",
+					installedUsageParameterSet };
+			ObjectName objectName = new ObjectName("slee:SbbUsageMBean="
+					+ pathName);
+			usageMbean = (SbbUsageMBeanImpl) constructor.newInstance(objs);
+			usageMbean.setObjectName(objectName);
+			sleeContainer.getMBeanServer()
+					.registerMBean(usageMbean, objectName);
+			installedUsageParameterSet.setName(name);
+			installedUsageParameterSet.setSbbUsageMBean(usageMbean);
+			usageMbean.setUsageParameter(installedUsageParameterSet);
+			this.sbbUsageMBeans.put(pathName, usageMbean);
+
+		} catch (Throwable e) {
+			if (pathName != null && usageMbean != null) {
+				this.sbbUsageMBeans.remove(pathName);
+				try {
+					sleeContainer.getMBeanServer().unregisterMBean(
+							usageMbean.getObjectName());
+				} catch (Throwable f) {
+					logger.error("failed to unregister usage parameter mbean "
+							+ usageMbean.getObjectName());
+				}
+			}
+			throw new ManagementException(e.getMessage(), e);
+		} finally {
+			currentThread.setContextClassLoader(currentThreadClassLoader);
+		}
 	}
 
 	private boolean isValidUsageParameterName(String str) {
@@ -162,44 +250,89 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException,
 			UnrecognizedUsageParameterSetNameException, ManagementException {
+
 		if (name == null)
 			throw new NullPointerException("Sbb usage param set is null");
+		if (name.length() == 0)
+			throw new InvalidArgumentException(
+					"The lenght of the Usage Parameter Set Name is zero!");
+		if (!isValidUsageParameterName(name))
+			throw new InvalidArgumentException(
+					"The lenght of the Usage Parameter Set Name is zero!");
+
+		_removeUsageParameterSet(sbbId, name);
+	}
+
+	public void removeAllUsageParameterSet() {
+		MBeanServer mBeanServer = SleeContainer.lookupFromJndi().getMBeanServer();		
+		for (String pathName : sbbUsageMBeans.keySet()) {
+			SbbUsageMBeanImpl usageMbean = sbbUsageMBeans.remove(pathName);
+			try {
+				mBeanServer.unregisterMBean(
+						usageMbean.getObjectName());				
+			} catch (Throwable e) {
+				logger.error("failed to unregister usage parameter mbean "
+							+ usageMbean.getObjectName(),e);				
+			}
+		}		
+	}
+
+	private synchronized void _removeUsageParameterSet(SbbID sbbId, String name)
+			throws NullPointerException, UnrecognizedSbbException,
+			InvalidArgumentException,
+			UnrecognizedUsageParameterSetNameException, ManagementException {
+
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
+
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		boolean rb = true;
-		try {
-			sleeContainer.getTransactionManager().begin();
-			
-			if (!sleeContainer.getComponentManagement().isInstalled(sbbId))
-				throw new UnrecognizedSbbException("Sbb not installed " + sbbId);
 
-			// checkSbbUsageParams(sbbId);
-			this.service = sleeContainer.getServiceManagement()
-					.getServiceComponent(serviceID);
-
-			service.removeUsageParameter(sbbId, name);
-		} catch (UnrecognizedUsageParameterSetNameException ex) {
-			throw ex;
-		} catch (InvalidArgumentException ex) {
-			throw ex;
-		} catch (UnrecognizedSbbException ex) {
-			throw ex;
-		} catch (Exception ex) {
-			throw new ManagementException(
-					"Could not uninstall usage parameter", ex);
-		} finally {
-			try {
-				if (rb)
-					sleeContainer.getTransactionManager().setRollbackOnly();
-				sleeContainer.getTransactionManager().commit();
-			} catch (SystemException ex) {
-				logger.fatal("Unexpected exception !", ex);
-				throw new RuntimeException("Unexpected exception !", ex);
-			}
-
+		// get the sbb component
+		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
+				.getComponentByID(sbbId);
+		if (sbbComponent == null) {
+			throw new UnrecognizedSbbException(sbbId.toString());
+		}
+		// get service component and check if the sbb belongs to the service
+		ServiceComponent serviceComponent = sleeContainer
+				.getComponentRepositoryImpl().getComponentByID(getService());
+		if (serviceComponent.getSbbIDs(
+				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
+			throw new UnrecognizedSbbException(sbbId.toString()
+					+ " is not part of " + getService());
+		}
+		// get sbb usage parameter class
+		Class usageParameterClass = sbbComponent
+				.getUsageParametersInterfaceConcreteClass();
+		if (usageParameterClass == null) {
+			throw new InvalidArgumentException(sbbId.toString()
+					+ " does not define a usage parameters interface");
 		}
 
+		String pathName = generateUsageParametersPathName(sbbId, name);
+		SbbUsageMBeanImpl usageMbean = null;
+		try {
+			// remove from this mbean map
+			usageMbean = this.sbbUsageMBeans.remove(pathName);
+			if (usageMbean == null) {
+				throw new UnrecognizedUsageParameterSetNameException(name);
+			}
+			sleeContainer.getMBeanServer().unregisterMBean(
+					usageMbean.getObjectName());
+		} catch (Throwable e) {
+			// rollback changes
+			if (pathName != null && usageMbean != null) {
+				this.sbbUsageMBeans.put(pathName, usageMbean);
+			}
+			try {
+				sleeContainer.getMBeanServer().registerMBean(usageMbean,
+						usageMbean.getObjectName());
+			} catch (Throwable f) {
+				logger.error("failed to re-register usage parameter mbean "
+						+ usageMbean.getObjectName());
+			}
+			throw new ManagementException(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -209,45 +342,44 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * 
 	 * @see javax.slee.management.ServiceUsageMBean#getUsageParameterSets(javax.slee.SbbID)
 	 */
-	public String[] getUsageParameterSets(SbbID sbbId)
+	public synchronized String[] getUsageParameterSets(SbbID sbbId)
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException, ManagementException {
 
 		if (sbbId == null)
-			throw new NullPointerException("null sbb id specificed");
+			throw new NullPointerException("Sbb ID is null!");
 
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
-		String[] usageParameterSets = null;
-		boolean rb = true;
-		try {
-			sleeContainer.getTransactionManager().begin();
-			checkSbbUsageParams(sbbId);
-
-			usageParameterSets = service.getNamedUsageParameterSets(sbbId);
-			if (usageParameterSets == null)
-				throw new InvalidArgumentException("No usage parameters found ");
-
-			rb = false;
-		} catch (UnrecognizedSbbException ex) {
-			throw ex;
-		} catch (InvalidArgumentException ex) {
-			throw ex;
-
-		} catch (Exception ex) {
-			logger.error("unexpected exception ", ex);
-			throw new ManagementException("Something bad happened ! ", ex);
-		} finally {
-			try {
-				if (rb)
-					sleeContainer.getTransactionManager().setRollbackOnly();
-				sleeContainer.getTransactionManager().commit();
-			} catch (SystemException ex) {
-				logger.error("Txmgr failed", ex);
-				throw new RuntimeException("Txmgr failed", ex);
+		// get the sbb component
+		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
+				.getComponentByID(sbbId);
+		if (sbbComponent == null) {
+			throw new UnrecognizedSbbException(sbbId.toString());
+		} else {
+			if (sbbComponent.getUsageParametersInterface() == null) {
+				throw new InvalidArgumentException(
+						"no usage parameter interface for " + sbbId);
 			}
 		}
-		return usageParameterSets;
+		// get service component and check if the sbb belongs to the service
+		ServiceComponent serviceComponent = sleeContainer
+				.getComponentRepositoryImpl().getComponentByID(getService());
+		if (serviceComponent.getSbbIDs(
+				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
+			throw new UnrecognizedSbbException(sbbId.toString()
+					+ " is not part of " + getService());
+		}
+		Set<String> resultSet = new HashSet<String>();
+		for (SbbUsageMBeanImpl sbbUsageMBeanImpl : sbbUsageMBeans.values()) {
+			if (sbbUsageMBeanImpl.getSbb().equals(sbbId)) {
+				String name = sbbUsageMBeanImpl.getUsageParameterSet();
+				if (name != null) {
+					resultSet.add(name);
+				}
+			}
+		}
+		return resultSet.toArray(new String[resultSet.size()]);
 	}
 
 	/*
@@ -258,42 +390,12 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	public ObjectName getSbbUsageMBean(SbbID sbbId)
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException, ManagementException {
-		if (sbbId == null)
-			throw new NullPointerException("Sbb ID is null!");
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		boolean rb = true;
-
 		try {
-			sleeContainer.getTransactionManager().begin();
-
-			checkSbbUsageParams(sbbId);
-			ObjectName on = (ObjectName) service
-					.getUsageParameterObjectName(sbbId);
-			if (on == null)
-				throw new InvalidArgumentException(
-						"No usage mbean for this sbb ");
-			rb = false;
-			return on;
-		} catch (UnrecognizedSbbException ex) {
-			throw ex;
-		} catch (InvalidArgumentException ex) {
-			throw ex;
-
-		} catch (Exception ex) {
-			logger.error("Unexpected exception ", ex);
-			throw new ManagementException("cannot getUsageMBean " + sbbId);
-		} finally {
-			try {
-				if (rb)
-					sleeContainer.getTransactionManager().setRollbackOnly();
-				sleeContainer.getTransactionManager().commit();
-			} catch (Exception e) {
-				throw new RuntimeException("Unexpected error with tx manager",
-						e);
-			}
-
+			return _getSbbUsageMBean(sbbId, null);
+		} catch (UnrecognizedUsageParameterSetNameException e) {
+			throw new ManagementException(
+					"default usage parameter name not found", e);
 		}
-
 	}
 
 	/*
@@ -306,45 +408,58 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException,
 			UnrecognizedUsageParameterSetNameException, ManagementException {
-		if (sbbId == null)
-			throw new NullPointerException("Sbb ID is null!");
 		if (name == null)
 			throw new NullPointerException("Sbb usage param set is null");
+		if (name.length() == 0)
+			throw new InvalidArgumentException(
+					"The lenght of the Usage Parameter Set Name is zero!");
+		if (!isValidUsageParameterName(name))
+			throw new InvalidArgumentException(
+					"The lenght of the Usage Parameter Set Name is zero!");
+		return _getSbbUsageMBean(sbbId, name);
+	}
+
+	private synchronized ObjectName _getSbbUsageMBean(SbbID sbbId, String name)
+			throws UnrecognizedSbbException, InvalidArgumentException,
+			ManagementException, UnrecognizedUsageParameterSetNameException {
+
+		if (sbbId == null)
+			throw new NullPointerException("Sbb ID is null!");
+
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		boolean rb = true;
 
-		try {
-			sleeContainer.getTransactionManager().begin();
-
-			checkSbbUsageParams(sbbId);
-			ObjectName on = (ObjectName) service.getUsageParameterObjectName(
-					sbbId, name);
-
-			rb = false;
-			return on;
-		} catch (UnrecognizedSbbException ex) {
-			throw ex;
-
-		} catch (UnrecognizedUsageParameterSetNameException ex) {
-			throw ex;
-
-		} catch (InvalidArgumentException ex) {
-			throw ex;
-
-		} catch (Exception ex) {
-			logger.error("unexpected exception getting usage mbean name = "
-					+ name + " sbbid = " + sbbId, ex);
-			throw new ManagementException("cannot getUsageMBean " + name, ex);
-		} finally {
-			try {
-				if (rb)
-					sleeContainer.getTransactionManager().setRollbackOnly();
-				sleeContainer.getTransactionManager().commit();
-			} catch (Exception e) {
-				throw new RuntimeException("Unexpected error with tx manager",
-						e);
+		// get the sbb component
+		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
+				.getComponentByID(sbbId);
+		if (sbbComponent == null) {
+			throw new UnrecognizedSbbException(sbbId.toString());
+		} else {
+			if (sbbComponent.getUsageParametersInterface() == null) {
+				throw new InvalidArgumentException(
+						"no usage parameter interface for " + sbbId);
 			}
+		}
+		// get service component and check if the sbb belongs to the service
+		ServiceComponent serviceComponent = sleeContainer
+				.getComponentRepositoryImpl().getComponentByID(getService());
+		if (serviceComponent.getSbbIDs(
+				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
+			throw new UnrecognizedSbbException(sbbId.toString()
+					+ " is not part of " + getService());
+		}
 
+		ObjectName oName = null;
+		try {
+			String pathName = generateUsageParametersPathName(sbbId, name);
+			oName = sbbUsageMBeans.get(pathName).getObjectName();
+		} catch (Throwable e) {
+			throw new ManagementException(e.getMessage(), e);
+		}
+
+		if (oName == null) {
+			throw new UnrecognizedUsageParameterSetNameException(name);
+		} else {
+			return oName;
 		}
 	}
 
@@ -355,60 +470,43 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * 
 	 * @see javax.slee.management.ServiceUsageMBean#resetAllUsageParameters(javax.slee.SbbID)
 	 */
-	public void resetAllUsageParameters(SbbID sbbId)
+	public synchronized void resetAllUsageParameters(SbbID sbbId)
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException, ManagementException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("resetAllUsageParameters: " + sbbId);
 		}
+
 		if (sbbId == null)
-			throw new NullPointerException("Sbb ID is null");
+			throw new NullPointerException("Sbb ID is null!");
+
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		boolean rb = true;
-		try {
-			sleeContainer.getTransactionManager().begin();
-			checkSbbUsageParams(sbbId);
 
-			InstalledUsageParameterSet usageParam = Service
-					.getDefaultUsageParameterSet(this.serviceID, sbbId);
-			// note that the usage parameter may not yet be instantiated so this
-			// may be null.
-
-			if (usageParam != null)
-				usageParam.reset();
-
-			String[] paramNames = service.getNamedUsageParameterSets(sbbId);
-
-			for (int i = 0; paramNames != null && i < paramNames.length; i++) {
-				String name = paramNames[i];
-
-				InstalledUsageParameterSet ups = Service
-						.getNamedUsageParameter(serviceID, sbbId, name);
-				if (ups != null)
-					ups.reset();
+		// get the sbb component
+		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
+				.getComponentByID(sbbId);
+		if (sbbComponent == null) {
+			throw new UnrecognizedSbbException(sbbId.toString());
+		} else {
+			if (sbbComponent.getUsageParametersInterface() == null) {
+				throw new InvalidArgumentException(
+						"no usage parameter interface for " + sbbId);
 			}
+		}
+		// get service component and check if the sbb belongs to the service
+		ServiceComponent serviceComponent = sleeContainer
+				.getComponentRepositoryImpl().getComponentByID(getService());
+		if (serviceComponent.getSbbIDs(
+				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
+			throw new UnrecognizedSbbException(sbbId.toString()
+					+ " is not part of " + getService());
+		}
 
-			rb = false;
-		} catch (InvalidArgumentException ex) {
-			throw ex;
-		} catch (UnrecognizedSbbException ex) {
-			throw ex;
-		} catch (Exception ex) {
-			String s = "unexpected exception in resetAllUsageParameters";
-			logger.error(s, ex);
-			throw new ManagementException(s);
-
-		} finally {
-			try {
-				if (rb)
-					sleeContainer.getTransactionManager().setRollbackOnly();
-				sleeContainer.getTransactionManager().commit();
-			} catch (Exception e) {
-				throw new RuntimeException("Unexpected error with tx manager",
-						e);
+		for (SbbUsageMBeanImpl sbbUsageMBeanImpl : sbbUsageMBeans.values()) {
+			if (sbbUsageMBeanImpl.getSbb().equals(sbbId)) {
+				sbbUsageMBeanImpl.resetAllUsageParameters();
 			}
-
 		}
 	}
 
@@ -419,34 +517,16 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * 
 	 * @see javax.slee.management.ServiceUsageMBean#resetAllUsageParameters()
 	 */
-	public void resetAllUsageParameters() throws ManagementException {
-
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		boolean rb = true;
-
+	public synchronized void resetAllUsageParameters()
+			throws ManagementException {
 		try {
-			sleeContainer.getTransactionManager().begin();
-			Service service = sleeContainer.getServiceManagement().getService(
-					this.serviceID);
-			for (Iterator it = Service.getAllUsageParameters(this.serviceID); it
-					.hasNext();) {
-				InstalledUsageParameterSet ups = (InstalledUsageParameterSet) it
-						.next();
-				ups.reset();
+			for (SbbUsageMBeanImpl sbbUsageMBeanImpl : sbbUsageMBeans
+					.values()) {
+				sbbUsageMBeanImpl.resetAllUsageParameters();
 			}
-			rb = false;
-		} catch (Exception ex) {
-			throw new ManagementException("Could not reset!", ex);
-		} finally {
-			try {
-				if (rb)
-					sleeContainer.getTransactionManager().setRollbackOnly();
-				sleeContainer.getTransactionManager().commit();
-			} catch (Exception ex) {
-				throw new RuntimeException("unexpected system exception ", ex);
-			}
+		} catch (Throwable e) {
+			throw new ManagementException(e.getMessage(), e);
 		}
-
 	}
 
 	/*
@@ -455,30 +535,24 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.ServiceUsageMBean#close()
 	 */
 	public void close() throws ManagementException {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void checkSbbUsageParams(SbbID sbbId)
-			throws UnrecognizedSbbException, InvalidArgumentException,
-			UnrecognizedSbbException, SystemException,
-			UnrecognizedServiceException {
-
-		if (sbbId == null)
-			throw new NullPointerException("SbbId is null!");
-
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
-		this.service = sleeContainer.getServiceManagement()
-				.getServiceComponent(serviceID);
-
-		if (!sleeContainer.getComponentManagement().isInstalled(sbbId))
-			throw new UnrecognizedSbbException("Sbb not installed " + sbbId);
-
-		if (!this.service.isComponent(sbbId))
-			throw new UnrecognizedSbbException(
-					"This sbb is not part of this service serviceID = "
-							+ this.serviceID + " sbb id = " + sbbId);
+		// FIXME the removal of service usage and usage param mbeans should be restored on a rollback
+		if (logger.isDebugEnabled()) {
+			logger.debug("Unregistring Usage MBean of service "
+					+ getService());
+		}
+		final MBeanServer mbeanServer = SleeContainer.lookupFromJndi().getMBeanServer();
+		try {
+			mbeanServer.unregisterMBean(getObjectName());
+		}
+		catch (Exception e) {
+			logger.error("failed to remove service usage mbean "+getObjectName(),e);
+		}
+		// remove all service usage param
+		if (logger.isDebugEnabled()) {
+			logger.debug("Removing all usage parameters of service "
+					+ getService());
+		}
+		removeAllUsageParameterSet();
 
 	}
 
@@ -486,7 +560,63 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException, ManagementException {
 		// TODO Auto-generated method stub
-		return null;
+
 	}
 
+	public ObjectName getSbbUsageNotificationManagerMBean(SbbID arg0)
+			throws NullPointerException, UnrecognizedSbbException,
+			InvalidArgumentException, ManagementException {
+		// TODO Auto-generated method stub
+
+	}
+
+	public ConcurrentHashMap<String, SbbUsageMBeanImpl> getUsageParameterSets() {
+		return this.sbbUsageMBeans;
+	}
+
+	public ObjectName getObjectName() {
+		return objectName;
+	}
+
+	public void setObjectName(ObjectName objectName) {
+		this.objectName = objectName;
+	}
+
+	private String generateUsageParametersPathName(SbbID sbbID, String name) {
+
+		String pathName = this.serviceID.toString() + "/" + sbbID;
+		if (name != null) {
+			pathName += "/" + SleeContainerUtils.toHex(name);
+		}
+		return pathName;
+	}
+	
+	/**
+	 * Convenience method to retrieve the default {@link InstalledUsageParameterSet} for the specified sbb
+	 * @param sbbID
+	 * @return
+	 */
+	public InstalledUsageParameterSet getDefaultInstalledUsageParameterSet(SbbID sbbID) {
+		return getInstalledUsageParameterSet(sbbID, null);
+	}
+	
+	/**
+	 * Convenience method to retrieve the {@link InstalledUsageParameterSet} for the specified sbb and name
+	 * @param sbbID
+	 * @param name
+	 * @return
+	 */
+	public InstalledUsageParameterSet getInstalledUsageParameterSet(SbbID sbbID, String name) {
+		if (sbbID == null) {
+			throw new NullPointerException(sbbID.toString());
+		}
+		String pathName = generateUsageParametersPathName(sbbID, name);
+		SbbUsageMBeanImpl sbbUsageMBean = sbbUsageMBeans.get(pathName);
+		if (sbbUsageMBean == null) {
+			return null;
+		}
+		else {
+			return sbbUsageMBean.getUsageParameter();
+		}
+	}
 }

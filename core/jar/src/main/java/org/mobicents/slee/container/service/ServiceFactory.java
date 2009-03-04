@@ -2,12 +2,11 @@ package org.mobicents.slee.container.service;
 
 import java.util.Map;
 
-import javax.slee.ComponentID;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ServiceDescriptorImpl;
+import org.mobicents.slee.container.component.ServiceComponent;
 
 public class ServiceFactory {
 
@@ -15,12 +14,12 @@ public class ServiceFactory {
 	
 	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
-	public static Service createService(ServiceDescriptorImpl serviceDescriptorImpl) {
+	public static Service createService(ServiceComponent serviceComponent) {
 		// create service
-		Service service = new Service(serviceDescriptorImpl,true);
+		Service service = new Service(serviceComponent,true);
 		// store in tx context data
 		try {
-			sleeContainer.getTransactionManager().getTransactionContext().getData().put(serviceDescriptorImpl.getID(),service);
+			sleeContainer.getTransactionManager().getTransactionContext().getData().put(serviceComponent.getServiceID(),service);
 		} catch (SystemException e) {
 			if (logger.isInfoEnabled()) {
 				logger.warn("unable to obtain transaction context", e);
@@ -29,7 +28,7 @@ public class ServiceFactory {
 		return service;
 	}
 
-	public static Service getService(ServiceDescriptorImpl serviceDescriptorImpl) {
+	public static Service getService(ServiceComponent serviceComponent) {
 		
 		Map transactionContextData = null;
 		try {
@@ -40,14 +39,12 @@ public class ServiceFactory {
 			}
 		}
 		
-		ComponentID serviceID = serviceDescriptorImpl.getID();
-		
-		Service service = (Service) transactionContextData.get(serviceID);
+		Service service = (Service) transactionContextData.get(serviceComponent.getServiceID());
 		if (service == null) {
 			// not in tx local data so recreate the service and store in tx 
-			service = new Service(serviceDescriptorImpl,false);
+			service = new Service(serviceComponent,false);
 			if (transactionContextData != null) {
-				transactionContextData.put(serviceID, service);
+				transactionContextData.put(serviceComponent.getServiceID(), service);
 			}
 		}
 

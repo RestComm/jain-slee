@@ -16,8 +16,6 @@ import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileUpdatedEvent;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
@@ -29,14 +27,7 @@ import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
  */
 public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent {
     
-	private static EventTypeIDImpl eventTypeID;
-	private static EventTypeID lookupEventTypeID() {
-		if (eventTypeID == null) {
-			eventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(new ComponentKey(
-					"javax.slee.profile.ProfileUpdatedEvent","javax.slee","1.0"));
-		}
-		return eventTypeID;
-	}
+	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileUpdatedEvent","javax.slee","1.0");
 	
     private ProfileID profile;
     private Address profileAddress;
@@ -87,7 +78,7 @@ public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent {
     }
 
     public EventTypeID getEventTypeID() {
-        return lookupEventTypeID();
+        return EVENT_TYPE_ID;
     }
 
     public Object getEventObject() {

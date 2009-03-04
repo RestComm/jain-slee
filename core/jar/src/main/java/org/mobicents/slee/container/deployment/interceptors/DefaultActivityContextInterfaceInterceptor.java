@@ -20,7 +20,8 @@ import java.util.HashMap;
 import javax.slee.ActivityContextInterface;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MActivityContextAttributeAlias;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
@@ -31,18 +32,27 @@ import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
  */
 public class DefaultActivityContextInterfaceInterceptor implements
         ActivityContextInterfaceInterceptor {
-    private MobicentsSbbDescriptor descriptor;
-    private HashMap aliases;
+	    
+    /**
+     * maps aci attr alias names to sbb ac attr names
+     */
+    private HashMap<String,String> aliases;
+    
     private ActivityContextInterface activityContextInterface=null;
+    
     private static Logger logger = Logger.getLogger(DefaultActivityContextInterfaceInterceptor.class);
     /**
      * 
      */
     public DefaultActivityContextInterfaceInterceptor
-    		(MobicentsSbbDescriptor descriptor) {
-        //data = new HashMap();
-        this.descriptor = descriptor;
-        this.aliases = this.descriptor.getActivityContextInterfaceAttributeAliases();
+    		(SbbComponent sbbComponent) {
+        aliases = new HashMap<String, String>();
+        for (MActivityContextAttributeAlias alias : sbbComponent.getDescriptor().getActivityContextAttributeAliases()) {
+        	for (String sbbActivityContextAttributeName : alias.getSbbActivityContextAttributeName()) {
+        		aliases.put(sbbActivityContextAttributeName, alias.getAttributeAliasName());
+        	}
+        }
+        
         
     }
 

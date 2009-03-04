@@ -24,7 +24,7 @@ import javax.transaction.TransactionRequiredException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.GetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -51,7 +51,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
 	
 	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
-	private GetChildRelationMethod getChildRelationMethod;    
+	private MGetChildRelationMethod getChildRelationMethod;    
     private SbbEntity sbbEntity;
     
     private HashSet<SbbLocalObject> getLocalObjects() {
@@ -68,7 +68,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * @param getChildRelationMethod the child relation method
      * @param sbbEntity the sbb entity that owns this child relation
      */
-    public ChildRelationImpl(GetChildRelationMethod getChildRelationMethod,
+    public ChildRelationImpl(MGetChildRelationMethod getChildRelationMethod,
              SbbEntity sbbEntity) {
     	
         if (getChildRelationMethod == null)
@@ -108,13 +108,14 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
             TransactionRequiredLocalException, SLEEException {
         
     	SleeTransactionManager sleeTransactionManager = SleeContainer.lookupFromJndi().getTransactionManager();
+    	
     	sleeTransactionManager.mandateTransaction();
 
         SbbEntity childSbbEntity = SbbEntityFactory.createSbbEntity(
 						this.getChildRelationMethod.getSbbID(),
 						this.sbbEntity.getServiceId(),
 						this.sbbEntity.getSbbEntityId(),
-						this.getChildRelationMethod.getMethodName(),
+						this.getChildRelationMethod.getChildRelationMethodName(),
 						this.sbbEntity.getRootSbbId(),
 						this.sbbEntity.getServiceConvergenceName());
       

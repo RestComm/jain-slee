@@ -109,7 +109,7 @@ public class ActivityEventQueueManager {
 		if (pendingEvents.remove(dE) != null) {
 			// confirmed it was a pending event
 			if (dE.getEventTypeId().equals(
-					ActivityEndEventImpl.getEventTypeID())) {
+					ActivityEndEventImpl.EVENT_TYPE_ID)) {
 				// store it
 				activityEndEvent = dE;
 				// check we can route it

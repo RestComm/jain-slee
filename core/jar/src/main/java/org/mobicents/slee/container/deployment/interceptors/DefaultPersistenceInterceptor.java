@@ -17,8 +17,6 @@ package org.mobicents.slee.container.deployment.interceptors;
 import java.lang.reflect.Method;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.component.CMPField;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 /**
@@ -61,33 +59,21 @@ public class DefaultPersistenceInterceptor implements PersistenceInterceptor {
         } else
             newChar = Character.toLowerCase(firstChar);
 
-        StringBuffer sbuf = new StringBuffer(accessorName);
+        StringBuilder sbuf = new StringBuilder(accessorName);
         sbuf.setCharAt(0, newChar);
         accessorName = sbuf.toString();
         if (logger.isDebugEnabled()) {
             logger.debug("sbbEntity:" + sbbEntity);
             logger.debug("sbbEntity.getSbbDescriptor():"
-                    + sbbEntity.getSbbDescriptor());
+                    + sbbEntity.getSbbComponent());
             logger.debug("sbbEntity.getSbbDescriptor()).getCMPFields():"
-                    + sbbEntity.getSbbDescriptor().getCMPFields());
+                    + sbbEntity.getSbbComponent().getDescriptor().getSbbClasses().getSbbAbstractClass().getCmpFields());
         }
 
-        CMPField[] cmpFields = ((MobicentsSbbDescriptor) sbbEntity
-                .getSbbDescriptor()).getCMPFields();
-        int i = 0;
-        for (; i < cmpFields.length; i++) {
-            if (cmpFields[i].getFieldName().equals(accessorName))
-                break;
-        }
-        // CMP fields are in the deployment descriptor.
-        //logger.debug(accessorType+accessorName+" has been invoked on
-        // class: "+proxy.getClass().getName());
-        if (i == cmpFields.length)
-            throw new Exception("CMP Field not found");
         if (accessorType.equalsIgnoreCase("get")) {
             //logger.debug("get called");
             try {
-                returnObject = sbbEntity.getCMPField(cmpFields[i]);
+                returnObject = sbbEntity.getCMPField(accessorName);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(" error accessing cmp field ", e);
@@ -96,7 +82,7 @@ public class DefaultPersistenceInterceptor implements PersistenceInterceptor {
 
         } else if (accessorType.equalsIgnoreCase("set")) {
             //logger.debug("set called");
-            sbbEntity.setCMPField(cmpFields[i], args[0]);
+            sbbEntity.setCMPField(accessorName, args[0]);
         } else
             throw new Exception(
                     "wrong accessor method, it's neither a getter nor a setter");

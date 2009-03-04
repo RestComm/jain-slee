@@ -15,13 +15,14 @@
  */
 package org.mobicents.slee.container.management;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -34,10 +35,7 @@ import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
-import javax.slee.management.DeployableUnitID;
-import javax.slee.management.DeploymentException;
 import javax.slee.management.ManagementException;
-import javax.slee.management.SbbDescriptor;
 import javax.slee.management.ServiceState;
 import javax.slee.management.SleeState;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
@@ -45,15 +43,16 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.component.SbbEventEntry;
-import org.mobicents.slee.container.component.ServiceDescriptorImpl;
-import org.mobicents.slee.container.component.ServiceIDImpl;
+import org.mobicents.slee.container.component.ComponentRepositoryImpl;
+import org.mobicents.slee.container.component.EventTypeComponent;
+import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
+import org.mobicents.slee.container.deployment.ConcreteUsageParameterMBeanInterfaceGenerator;
+import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
+import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.service.Service;
-import org.mobicents.slee.container.service.ServiceComponent;
 import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.ResourceAdaptorType;
@@ -75,16 +74,12 @@ public class ServiceManagement {
 
 	private final SleeContainer sleeContainer;
 	private final SleeTransactionManager transactionManager;
-	private final ComponentManagement componentManagement;
-
-	// stores sbb descriptors
-	private ConcurrentHashMap<ServiceID, ServiceComponent> serviceComponents;
+	private final ComponentRepositoryImpl componentRepositoryImpl;
 
 	public ServiceManagement(SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
 		this.transactionManager = sleeContainer.getTransactionManager();
-		this.componentManagement = sleeContainer.getComponentManagement();
-		this.serviceComponents = new ConcurrentHashMap<ServiceID, ServiceComponent>();
+		this.componentRepositoryImpl = sleeContainer.getComponentRepositoryImpl();
 	}
 
 	/*
@@ -125,7 +120,7 @@ public class ServiceManagement {
 			if (b)
 				try {
 					transactionManager.commit();
-				} catch (SystemException e) {
+				} catch (Exception e) {
 					logger.error("Failed getState for serviceID " + serviceID);
 					throw new ManagementException(
 							"Unexpected system exception while committing transaction after getState for serviceID: "
@@ -150,10 +145,10 @@ public class ServiceManagement {
 		try {
 			b = transactionManager.requireTransaction();
 			ArrayList<ServiceID> retval = new ArrayList<ServiceID>();
-			for (ServiceComponent serviceComponent : serviceComponents.values()) {
-				Service service = getServiceFromServiceComponent(serviceComponent);
+			for (ServiceID serviceID : componentRepositoryImpl.getServiceIDs()) {
+				Service service = getServiceFromServiceComponent(componentRepositoryImpl.getComponentByID(serviceID));
 				if (service.getState().equals(serviceState)) {
-					retval.add(serviceComponent.getServiceID());
+					retval.add(serviceID);
 				}
 			}
 			return retval.toArray(new ServiceID[retval.size()]);
@@ -194,8 +189,7 @@ public class ServiceManagement {
 
 			try {
 
-				final ServiceComponent serviceComponent = serviceComponents
-						.get(serviceID);
+				final ServiceComponent serviceComponent = componentRepositoryImpl.getComponentByID(serviceID);
 				if (serviceComponent == null) {
 					throw new UnrecognizedServiceException(
 							"Unrecognized service " + serviceID);
@@ -230,9 +224,6 @@ public class ServiceManagement {
 							.serviceActivated(serviceID.toString());
 				}
 				
-				// lets cache some info
-				initServiceRuntimeCache(serviceComponent);
-				
 				// change service state
 				service.setState(ServiceState.ACTIVE);
 				
@@ -241,10 +232,32 @@ public class ServiceManagement {
 				if (sleeContainer.getSleeState() == SleeState.RUNNING) {
 					service.startActivity();
 				}
-				serviceComponent.lock();			
+				
+				// lets cache some info in the event components this service refer
+				for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
+					if (mEventEntry.isInitialEvent()) {
+						EventTypeComponent eventTypeComponent = componentRepositoryImpl.getComponentByID(mEventEntry.getEventReference().getComponentID());
+						eventTypeComponent.activatedServiceWhichDefineEventAsInitial(serviceComponent);
+					}
+				}
+								
+				// add rollback tx action to removed state added
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						// remove references created
+						for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
+							if (mEventEntry.isInitialEvent()) {
+								EventTypeComponent eventTypeComponent = componentRepositoryImpl.getComponentByID(mEventEntry.getEventReference().getComponentID());
+								eventTypeComponent.deactivatedServiceWhichDefineEventAsInitial(serviceComponent);
+							}
+						}					
+					}
+				};
+				transactionManager.addAfterRollbackAction(action);
 				
 				rb = false;
 				logger.info("Activated " + serviceID);
+								
 			} catch (InvalidStateException ise) {
 				throw ise;
 			} catch (UnrecognizedServiceException use) {
@@ -324,8 +337,8 @@ public class ServiceManagement {
 			boolean newTx = transactionManager.requireTransaction();
 			try {
 
-				final ServiceComponent serviceComponent = serviceComponents
-						.get(serviceID);
+				final ServiceComponent serviceComponent = componentRepositoryImpl.getComponentByID(serviceID);
+
 				if (serviceComponent == null)
 					throw new UnrecognizedServiceException(
 							"Service not found for " + serviceID);
@@ -364,10 +377,27 @@ public class ServiceManagement {
 				else {
 					service.setState(ServiceState.INACTIVE);
 				}
-				serviceComponent.unlock();
 
 				// remove runtime cache related wih this service
-				removeServiceRuntimeCache(serviceComponent);
+				for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
+					if (mEventEntry.isInitialEvent()) {
+						EventTypeComponent eventTypeComponent = componentRepositoryImpl.getComponentByID(mEventEntry.getEventReference().getComponentID());
+						eventTypeComponent.deactivatedServiceWhichDefineEventAsInitial(serviceComponent);
+					}
+				}
+				// add rollback tx action to add state removed
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						// re-add references created
+						for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
+							if (mEventEntry.isInitialEvent()) {
+								EventTypeComponent eventTypeComponent = componentRepositoryImpl.getComponentByID(mEventEntry.getEventReference().getComponentID());
+								eventTypeComponent.activatedServiceWhichDefineEventAsInitial(serviceComponent);
+							}
+						}					
+					}
+				};
+				transactionManager.addAfterRollbackAction(action);
 				
 				rb = false;
 
@@ -393,7 +423,7 @@ public class ServiceManagement {
 						if (rb)
 							transactionManager.setRollbackOnly();
 					}
-				} catch (SystemException e2) {
+				} catch (Exception e2) {
 					logger.error(e2);
 				}
 			}
@@ -530,7 +560,7 @@ public class ServiceManagement {
 		if (serviceID == null)
 			throw new NullPointerException("Null service ID ");
 
-		if (serviceComponents.containsKey(serviceID)) {
+		if (componentRepositoryImpl.getComponentByID(serviceID) != null) {
 			try {
 				return new ObjectName("slee:ServiceUsageMBean="
 						+ serviceID.toString());
@@ -548,13 +578,6 @@ public class ServiceManagement {
 	// --- non JMX
 
 	/**
-	 * Retrieves the service component for the specified {@link ServiceID}.
-	 */
-	public ServiceComponent getServiceComponent(ServiceID serviceID) {
-		return serviceComponents.get(serviceID);
-	}
-
-	/**
 	 * 
 	 * Retrieves {@link Service} with the specified {@link ServiceID}.
 	 * 
@@ -565,8 +588,7 @@ public class ServiceManagement {
 	public Service getService(ServiceID serviceID)
 			throws UnrecognizedServiceException {
 
-		final ServiceComponent serviceComponent = serviceComponents
-				.get(serviceID);
+		final ServiceComponent serviceComponent = componentRepositoryImpl.getComponentByID(serviceID);
 		if (serviceComponent == null)
 			throw new UnrecognizedServiceException("Service not found for "
 					+ serviceID);
@@ -575,82 +597,49 @@ public class ServiceManagement {
 
 	private Service getServiceFromServiceComponent(
 			ServiceComponent serviceComponent) {
-		return ServiceFactory.getService(serviceComponent.getServiceDescriptor());
+		return ServiceFactory.getService(serviceComponent);
 	}
 
 	/**
 	 * Install a service into SLEE
 	 * 
-	 * @param serviceDescriptorImpl
+	 * @param serviceComponent
 	 * @throws Exception
 	 */
-	public void installService(ServiceDescriptorImpl serviceDescriptorImpl)
+	public void installService(ServiceComponent serviceComponent)
 			throws Exception {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Installing Service " + serviceDescriptorImpl.getID());
+			logger.debug("Installing Service " + serviceComponent);
 		}
 
 		final ResourceManagement resourceManagement = sleeContainer
 				.getResourceManagement();
 
-		final ServiceComponent serviceComponent = new ServiceComponent(
-				serviceDescriptorImpl);
-
-		final MobicentsSbbDescriptor sbbDesc = serviceComponent
-				.getRootSbbComponent();
-		if (sbbDesc == null) {
-			throw new DeploymentException(
-					"cannot find root SbbID component ! cannot install service ");
-		}
-
-		ServiceFactory.createService(serviceDescriptorImpl);
+		ServiceFactory.createService(serviceComponent);
 		
-		serviceComponents.putIfAbsent(serviceComponent.getServiceID(),
-				serviceComponent);
-
-		TransactionalAction action1 = new TransactionalAction() {
-			public void execute() {
-				serviceComponents.remove(serviceComponent.getServiceID(),
-						serviceComponent);
-				logger.info("Removed service "
-						+ serviceComponent.getServiceID()
-						+ " due to transaction rollback");
-			}
-		};
-		transactionManager.addAfterRollbackAction(action1);
-
-		componentManagement.addComponentDependency(sbbDesc.getID(),
-				serviceComponent.getServiceID());
-
 		// creates and registers the service usage mbean
-		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(
-				serviceComponent.getServiceID());
+		// TODO in a cluster env a unique mbean will be used
+		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(serviceComponent.getServiceID());
 		final ObjectName usageMBeanName = getServiceUsageMBean(serviceComponent
 				.getServiceID());
-		serviceComponent.setUsageMBeanName(usageMBeanName);
 		sleeContainer.getMBeanServer().registerMBean(serviceUsageMBean,
 				usageMBeanName);
-
-		// Recursively install all the usage parameters for this and all his
-		// children.
-		serviceComponent.installDefaultUsageParameters(sbbDesc, new HashSet());
-
+		serviceUsageMBean.setObjectName(usageMBeanName);
+		serviceComponent.setServiceUsageMBean(serviceUsageMBean);
+				
 		// SBBIDS FOR THIS SERVICE
-		HashSet sbbIDs = serviceComponent.getSbbComponents();
+		Set<SbbID> sbbIDs = serviceComponent.getSbbIDs(componentRepositoryImpl);
 
+		// install all the  default usage parameters
+		for (SbbID sbbID : sbbIDs) {
+			serviceUsageMBean.createUsageParameterSet(sbbID);
+		}
+				
 		if (logger.isDebugEnabled()) {
-			Iterator sbbIdsIterator = sbbIDs.iterator();
-			StringBuffer sb = new StringBuffer(300);
-			while (sbbIdsIterator.hasNext()) {
-				SbbDescriptor sbbdesc = sleeContainer.getSbbManagement()
-						.getSbbComponent((SbbID) sbbIdsIterator.next());
-				sb.append("NAME=" + sbbdesc.getName() + " COMPONENTID="
-						+ sbbdesc.getID() + "\n");
-			}
 			logger
 					.debug("\n==================SERVICE SBBS=======================\n"
-							+ sb.toString()
+							+ sbbIDs
 							+ "\n"
 							+ "=====================================================");
 		}
@@ -669,46 +658,35 @@ public class ServiceManagement {
 
 		// WE HAVE TO ITERATE THROUGH ALL SBBS IN SERVICE AND BUILD DATA
 		// STRUCTURES
-		Iterator sbbIdsIterator = sbbIDs.iterator();
+		Iterator<SbbID> sbbIdsIterator = sbbIDs.iterator();
 		while (sbbIdsIterator.hasNext()) {
 
-			MobicentsSbbDescriptor sbbdesc = (MobicentsSbbDescriptor) sleeContainer
-					.getSbbManagement().getSbbComponent(
-							(SbbID) sbbIdsIterator.next());
-			if (sbbdesc == null)
+			SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbIdsIterator.next());
+			if (sbbComponent == null)
 				continue;
 
 			// maps EventTypeID to coresponding SbbEventEntry
 			// IT CONTAINS MAPPING FOR ALL EVENTS THAT ARE OF INTEREST IF
 			// THIS
 			// SBB
-			HashMap eventTypeIdToEventEntriesMappings = sbbdesc
-					.getEventTypesMappings();
+			Map<EventTypeID,MEventEntry> eventTypeIdToEventEntriesMappings = sbbComponent.getDescriptor().getEventEntries();
 			// SIMPLY SET OF EventTypeIDs that are of interest of this SBB
-			Set sbbEventsOfInterest = eventTypeIdToEventEntriesMappings
+			Set<EventTypeID> sbbEventsOfInterest = eventTypeIdToEventEntriesMappings
 					.keySet();
 			if (logger.isDebugEnabled()) {
 				logger.debug("\n"
 						+ "=============SBB==============================\n"
-						+ "" + sbbdesc.getName() + ", " + sbbdesc.getVendor()
-						+ ", " + sbbdesc.getVersion() + "\n"
+						+ "" + sbbComponent + "\n"
 						+ "==============================================");
-				Iterator eventEntryItarator = eventTypeIdToEventEntriesMappings
-						.values().iterator();
-
-				StringBuffer sb = new StringBuffer(300);
-
-				while (eventEntryItarator.hasNext()) {
-					SbbEventEntry eventEntry = (SbbEventEntry) eventEntryItarator
-							.next();
-					sb.append("EVENT :" + eventEntry + "\n");
+				StringBuilder sb = new StringBuilder(300);
+				for(EventTypeID eventTypeID : sbbEventsOfInterest) {
+					sb.append(eventTypeID + "\n");
 				}
 				logger
 						.debug("\n==================EVENTS OF SBB INTEREST=======================\n"
 								+ sb.toString()
 								+ "\n"
 								+ "=================================================================");
-				sb = new StringBuffer(300);
 			}
 
 			// warn ra entities about service being installed
@@ -775,7 +753,7 @@ public class ServiceManagement {
 						// eventsOfSbbinterest.remove();
 						eventsOfInterest.add(eventIdOfSbbItenrest);
 						// GET RESOURCE OPTION?
-						SbbEventEntry eventEntry = (SbbEventEntry) eventTypeIdToEventEntriesMappings
+						MEventEntry eventEntry = eventTypeIdToEventEntriesMappings
 								.get(eventIdOfSbbItenrest);
 						String resourceOption = eventEntry.getResourceOption();
 						// STORE RESOURCE OPTION FOR THIS EventTypeID
@@ -897,11 +875,11 @@ public class ServiceManagement {
 
 		logger.info("Installed Service " + serviceComponent.getServiceID()
 				+ ". Root SBB is "
-				+ serviceComponent.getRootSbbComponent().getID());
+				+ serviceComponent.getRootSbbComponent());
 	}
 
 	/**
-	 * unistall a service.
+	 * uninstall a service.
 	 * 
 	 * @throws SystemException
 	 * @throws UnrecognizedServiceException
@@ -911,10 +889,10 @@ public class ServiceManagement {
 	 * @throws NullPointerException
 	 * 
 	 */
-	private void uninstallService(final ServiceComponent serviceComponent)
+	public void uninstallService(final ServiceComponent serviceComponent)
 			throws SystemException, UnrecognizedServiceException,
 			InstanceNotFoundException, MBeanRegistrationException,
-			NullPointerException, UnrecognizedResourceAdaptorEntityException {
+			NullPointerException, UnrecognizedResourceAdaptorEntityException,ManagementException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Uninstalling service with id "
@@ -950,24 +928,15 @@ public class ServiceManagement {
 			}
 		}
 
+		// FIXME the removal of service usage and usage param mbeans should be restored on a rollback
 		if (logger.isDebugEnabled()) {
-			logger.debug("Unregistring Usage MBean of service "
+			logger.debug("Closing Usage MBean of service "
 					+ serviceComponent.getServiceID());
 		}
-
-		// unregister related mbeans
-		final MBeanServer mbeanServer = sleeContainer.getMBeanServer();
-		mbeanServer.unregisterMBean(serviceComponent.getUsageMBean());
-		for (Iterator itr = serviceComponent.getSbbUsageMBeans(); itr.hasNext();) {
-			ObjectName usageMbeanName = (ObjectName) itr.next();
-			mbeanServer.unregisterMBean(usageMbeanName);
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing all usage parameters of service "
-					+ serviceComponent.getServiceID());
-		}
-		service.removeAllUsageParameters();
-
+		ServiceUsageMBeanImpl serviceUsageMBean = (ServiceUsageMBeanImpl) serviceComponent.getServiceUsageMBean();
+		serviceUsageMBean.close();		
+		serviceComponent.setServiceUsageMBean(null);
+		
 		// notifying the resource adaptor entities about service
 		for (String raEntityName : resourceManagement
 				.getResourceAdaptorEntities()) {
@@ -981,201 +950,10 @@ public class ServiceManagement {
 			logger.debug("Removing Service " + serviceComponent.getServiceID()
 					+ " from cache and active services set");
 		}
-		// remove the service from the list of deployed services
-		serviceComponents.remove(serviceComponent.getServiceID());
-		TransactionalAction action1 = new TransactionalAction() {
-			public void execute() {
-				serviceComponents.putIfAbsent(serviceComponent.getServiceID(),
-						serviceComponent);
-				logger.info("Reinstalled service "
-						+ serviceComponent.getServiceID()
-						+ " due to transaction rollback");
-			}
-		};
-		transactionManager.addAfterRollbackAction(action1);
+		
 		service.removeFromCache();
 
 		logger.info("Uninstalled service " + serviceComponent.getServiceID());
-	}
-
-	/**
-	 * Get a list of services known to me
-	 * 
-	 * @return A list of services that are registered with me.
-	 */
-	public ServiceID[] getServiceIDs() {
-		return serviceComponents.keySet().toArray(
-				new ServiceIDImpl[this.serviceComponents.size()]);
-	}
-
-	/**
-	 * uninstall all services in a DU.
-	 * 
-	 * @param deployableUnitID --
-	 *            deployable unit to uninstall
-	 */
-	public void uninstallServices(DeployableUnitIDImpl deployableUnitID)
-			throws Exception {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Uninstalling services on " + deployableUnitID);
-		}
-		for (ServiceComponent serviceComponent : serviceComponents.values()) {
-			if (serviceComponent.getDeployableUnit().equals(deployableUnitID)) {
-				this.uninstallService(serviceComponent);
-			}
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Uninstalled services on " + deployableUnitID);
-		}
-	}
-
-	/**
-	 * Verifies that all services in a DU are deactivated.
-	 * 
-	 * @param deployableUnitID
-	 */
-	public void checkAllDUServicesAreDeactivated(
-			DeployableUnitID deployableUnitID) throws InvalidStateException {
-		for (ServiceComponent serviceComponent : serviceComponents.values()) {
-			if (serviceComponent.getDeployableUnit().equals(deployableUnitID)
-					&& serviceComponent.isLocked())
-				throw new InvalidStateException("Service state is not stopped");
-		}
-	}
-
-	@Override
-	public String toString() {
-		return "Service Management: " 
-		+ "\n+-- Services: " + serviceComponents.keySet()
-		+ "\n+-- EventTypeIDs with Active Services: " + eventID2ActiveServices.keySet();
-	}
-	
-	// --- active services info caching
-	
-	private final ConcurrentHashMap<EventTypeID, Set<RuntimeService>> eventID2ActiveServices = new ConcurrentHashMap<EventTypeID, Set<RuntimeService>>();
-	
-	private void initServiceRuntimeCache(final ServiceComponent serviceComponent) {
-		
-		MobicentsSbbDescriptor rootSbbDescriptor = serviceComponent.getRootSbbComponent();
-		
-		RuntimeService runtimeService = new RuntimeService(serviceComponent,rootSbbDescriptor);
-		
-		Set<EventTypeID> initialEvents = rootSbbDescriptor.getInitialEventTypes();
-		
-		for (EventTypeID eventTypeID : rootSbbDescriptor.getEventTypes()) {
-			if (initialEvents.contains(eventTypeID)) {
-				synchronized (eventTypeID) {
-					Set<RuntimeService> eventActiveServices = eventID2ActiveServices.get(eventTypeID);
-					if (eventActiveServices == null) {
-						eventActiveServices = new HashSet<RuntimeService>();
-						Set<RuntimeService> otherEventActiveServices = eventID2ActiveServices.putIfAbsent(eventTypeID, eventActiveServices);
-						if (otherEventActiveServices != null) {
-							eventActiveServices = otherEventActiveServices;
-						}
-					}
-					eventActiveServices.add(runtimeService);
-				}				
-			}
-		}
-		
-		// add rollback tx action to remove state created
-		TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				removeServiceRuntimeCache(serviceComponent);					
-			}
-		};
-		transactionManager.addAfterRollbackAction(action);		
-	}
-	
-	private static final Set<RuntimeService> EMPTY_SET = new HashSet<RuntimeService>(0);
-	
-	/**
-	 * Retrieves all active services that declare the event as initial.
-	 * @param eventTypeID
-	 * @return
-	 */
-	public Set<RuntimeService> getActiveServices(EventTypeID eventTypeID) {
-		Set<RuntimeService> result = eventID2ActiveServices.get(eventTypeID);
-		return (result == null) ? EMPTY_SET : result;
-	}
-	
-	/**
-	 * The service is now inactive, close related runtime resources 
-	 * @param serviceID
-	 */
-	private void removeServiceRuntimeCache(final ServiceComponent serviceComponent) {
-		
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		
-		MobicentsSbbDescriptor rootSbbDescriptor = serviceComponent.getRootSbbComponent();
-		
-		RuntimeService runtimeService = new RuntimeService(serviceComponent,rootSbbDescriptor);
-		
-		Set<EventTypeID> initialEvents = rootSbbDescriptor.getInitialEventTypes();
-		
-		for (EventTypeID eventTypeID : rootSbbDescriptor.getEventTypes()) {
-			if (initialEvents.contains(eventTypeID)) {
-				synchronized (eventTypeID) {
-					Set<RuntimeService> eventActiveServices = eventID2ActiveServices.get(eventTypeID);
-					if (eventActiveServices != null) {
-						eventActiveServices.remove(runtimeService);
-						if (eventActiveServices.isEmpty()) {
-							eventID2ActiveServices.remove(eventTypeID);
-						}
-					}
-					
-				}				
-			}
-		}
-		
-		// add rollback tx action to add state removed
-		TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				initServiceRuntimeCache(serviceComponent);					
-			}
-		};
-		transactionManager.addAfterRollbackAction(action);		
-	}
-	
-	public class RuntimeService {
-		
-		private final ServiceComponent serviceComponent;
-		private final MobicentsSbbDescriptor rootSbbDescriptor;
-		
-		public RuntimeService(ServiceComponent serviceComponent,
-				MobicentsSbbDescriptor rootSbbDescriptor) {
-			this.serviceComponent = serviceComponent;
-			this.rootSbbDescriptor = rootSbbDescriptor;
-		}
-		
-		public MobicentsSbbDescriptor getRootSbbDescriptor() {
-			return rootSbbDescriptor;
-		}
-		
-		public ServiceComponent getServiceComponent() {
-			return serviceComponent;
-		}	
-		
-		@Override
-		public int hashCode() {
-			return serviceComponent.getServiceID().hashCode();
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (obj != null && obj.getClass() == this.getClass()) {
-				return ((RuntimeService)obj).serviceComponent.getServiceID().equals(this.serviceComponent.getServiceID());
-			}
-			else {
-				return false;
-			}
-		}
-		
-		@Override
-		public String toString() {
-			return serviceComponent.getServiceID().toString();
-		}
 	}
 
 	public void endActiveServicesActivities() throws NullPointerException, ManagementException, UnrecognizedServiceException {

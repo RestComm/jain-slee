@@ -7,6 +7,7 @@ import javax.slee.EventTypeID;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
@@ -61,8 +62,8 @@ public class NextSbbEntityFinder {
 			try {
 				sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
 				// check event is allowed to be handled by the sbb
-				if (sbbEntity.getSbbDescriptor().getReceivedEvents().contains(
-						eventTypeID)) {
+				MEventEntry mEventEntry = sbbEntity.getSbbComponent().getDescriptor().getEventEntries().get(eventTypeID);
+				if (mEventEntry != null && mEventEntry.isReceived()) {
 					return sbbEntity;
 				} else {
 					if (logger.isDebugEnabled()) {

@@ -33,14 +33,6 @@ import org.jboss.jmx.adaptor.rmi.RMIAdaptor;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
-import org.mobicents.slee.container.component.ComponentIDImpl;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
-import org.mobicents.slee.container.component.ProfileSpecificationIDImpl;
-import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
-import org.mobicents.slee.container.component.SbbIDImpl;
-import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
 
 public class SleeCommandInterface {
@@ -207,31 +199,9 @@ public class SleeCommandInterface {
 		}
 		// Deployment Management
 		else if (command.equals("-uninstall")) {
-			if (data1.startsWith("file:")) {
-				data1 = (new URL(data1)).toString();
-				DeployableUnitID deployableUnitID = (DeployableUnitID) this
-						.invokeOperation("-getDeploymentId", data1, null, null);
-				opArg1 = deployableUnitID;
-			} else {
-				int id = 0;
-
-				StringTokenizer st = new StringTokenizer(data1, "[", true);
-				String token = st.nextToken();
-				if (!token.equalsIgnoreCase("DeployableUnitID")) {
-					logger
-							.warn("-uninstall. Bad result: DeployableUnitID[number]"
-									+ " or " + "URL File: file://...\n");
-					throw new Exception(
-							"-uninstall. Bad result: DeployableUnitID[number]"
-									+ " or " + "URL File: file://...\n");
-				}
-
-				st.nextToken();
-				String idStr = st.nextToken("]");
-				id = Integer.parseInt(idStr);
-
-				opArg1 = new DeployableUnitIDImpl(id);
-			}
+			data1 = (new URL(data1)).toString();
+			DeployableUnitID deployableUnitID = new DeployableUnitID(data1);
+			opArg1 = deployableUnitID;			
 			commandBean = "slee:name=DeploymentMBean";
 			commandString = "uninstall";
 			sig1 = "javax.slee.management.DeployableUnitID";
@@ -248,23 +218,9 @@ public class SleeCommandInterface {
 			commandBean = "slee:name=DeploymentMBean";
 			commandString = "getDescriptor";
 			sig1 = "javax.slee.management.DeployableUnitID";
-
-			int id = 0;
-
-			StringTokenizer st = new StringTokenizer(data1, "[", true);
-			String token = st.nextToken();
-			if (!token.equalsIgnoreCase("DeployableUnitID")) {
-				logger
-						.warn("-getDescriptor. Bad result: DeployableUnitID[number]\n");
-				throw new Exception(
-						"-getDescriptor. Bad result: DeployableUnitID[number]\n");
-
-			}
-			st.nextToken();
-			String idStr = st.nextToken("]");
-			id = Integer.parseInt(idStr);
-
-			opArg1 = new DeployableUnitIDImpl(id);
+			data1 = (new URL(data1)).toString();
+			DeployableUnitID deployableUnitID = new DeployableUnitID(data1);
+			opArg1 = deployableUnitID;			
 		}
 		// Service Management
 		else if (command.equals("-activateService")) {

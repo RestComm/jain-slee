@@ -24,8 +24,7 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.component.ProfileCMPMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
 import org.mobicents.slee.container.profile.SleeProfileManager;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
@@ -45,19 +44,17 @@ public class DefaultSBBProfileCMPInterceptor implements SBBProfileCMPInterceptor
      */
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
-        ProfileCMPMethod[] profileCMPMethods= ((MobicentsSbbDescriptor)sbbEntity.getSbbDescriptor()).getProfileCMPMethods();
-        int i = 0;
-        for (; i < profileCMPMethods.length; i++) {
-            if (profileCMPMethods[i].getProfileCMPMethod().equals(method.getName())) break;
-        }
-        if (i == profileCMPMethods.length ) throw new AbstractMethodError ("Profile CMP Method not found");
+        
+    	
+    	MGetProfileCMPMethod mGetProfileCMPMethod = sbbEntity.getSbbComponent().getDescriptor().getGetProfileCMPMethods().get(method.getName());
+        if (mGetProfileCMPMethod == null) throw new AbstractMethodError ("Profile CMP Method not found");
         SbbObject sbbObject = sbbEntity.getSbbObject();
         
         if ( sbbObject.getState() != SbbObjectState.READY) {
             logger.error("InvalidState ! " + sbbObject.getState());
             throw new IllegalStateException("InvalidState! " + sbbObject.getState());
         }
-        return callGetProfileMethod(profileCMPMethods[i],(ProfileID)args[0]);                
+        return callGetProfileMethod(mGetProfileCMPMethod,(ProfileID)args[0]);                
     }
 
     /* (non-Javadoc)
@@ -83,7 +80,7 @@ public class DefaultSBBProfileCMPInterceptor implements SBBProfileCMPInterceptor
      * @return
      * @throws SystemException
      */
-    private Object callGetProfileMethod(ProfileCMPMethod method, ProfileID profileID) 
+    private Object callGetProfileMethod(MGetProfileCMPMethod mGetProfileCMPMethod, ProfileID profileID) 
     	throws UnrecognizedProfileTableNameException, UnrecognizedProfileNameException, SystemException{
 
         SleeProfileManager sleeProfileManager=SleeContainer.lookupFromJndi().getSleeProfileManager();

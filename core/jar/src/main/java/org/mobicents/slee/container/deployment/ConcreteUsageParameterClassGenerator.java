@@ -22,7 +22,6 @@
 
 package org.mobicents.slee.container.deployment;
 
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -34,29 +33,26 @@ import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.Modifier;
 
+import javax.slee.SbbID;
+import javax.slee.ServiceID;
 import javax.slee.management.DeploymentException;
 import javax.slee.usage.SampleStatistics;
 
 import org.apache.log4j.Logger;
 import org.jboss.util.Strings;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.InstalledUsageParameterSet;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
-import org.mobicents.slee.container.component.SbbIDImpl;
-import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.container.component.deployment.ClassPool;
+import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
 import org.mobicents.slee.container.management.jmx.SampleStatisticsImpl;
 import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
 
 /**
  * @author M.Ranganathan
+ * @author martins
  *  
  */
 public class ConcreteUsageParameterClassGenerator {
 
-    private static Logger logger;
-
-    private ClassPool classPool;
+    private static Logger logger = Logger.getLogger(ConcreteUsageParameterClassGenerator.class);
 
     private static final String NAME_FIELD = "name";
 
@@ -69,143 +65,38 @@ public class ConcreteUsageParameterClassGenerator {
     public static final String SET_USAGE_PARAMETER_MBEAN = "setSbbUsageMBean";
 
     public static final String GET_USAGE_PARAMETER_MBEAN = "getSbbUsageMBean";
+    
+    private final ClassPool classPool;
 
-    private HashSet generatedFields;
+    private final String usageParameterInterfaceName;
+    
+    private final String deploymentDir;
+    
+    private final HashSet generatedFields = new HashSet();
 
-    static {
-        logger = Logger.getLogger(ConcreteUsageParameterClassGenerator.class);
+    public ConcreteUsageParameterClassGenerator(String usageParameterInterfaceName, String deploymentDir, ClassPool classPool) {
+        this.usageParameterInterfaceName = usageParameterInterfaceName;
+        this.deploymentDir = deploymentDir;
+    	this.classPool = classPool;
     }
 
-    public ConcreteUsageParameterClassGenerator(MobicentsSbbDescriptor sbbDescriptor) {
-        this.classPool = ((DeployableUnitIDImpl) sbbDescriptor
-                .getDeployableUnit()).getDUDeployer().getClassPool();
-        this.generatedFields = new HashSet();
-    }
+    public Class generateConcreteUsageParameterClass() throws Exception {
+        
+    	CtClass usageParamInterface = classPool.get(usageParameterInterfaceName);
 
-    /**
-     * Check if the usage parameter inteface conforms to the restrictions that
-     * are present in Chapter 11 of the SLEE specification.
-     * 
-     * @param sbbDescriptor --
-     *            the sbb descriptor
-     * @return true if all checks pass correctly and false if not.
-     * @throws DeploymentException 
-     */
-    public static boolean checkUsageParameterInterface(
-            MobicentsSbbDescriptor sbbDescriptor) throws DeploymentException {
-        try {
-            Class clazz = Thread.currentThread().getContextClassLoader()
-                    .loadClass(sbbDescriptor.getUsageParametersInterface());
-            if (!clazz.isInterface())
-                return false;
-            Method[] methods = clazz.getMethods();
-            HashSet incrementMethods = new HashSet();
-            HashSet sampleMethods = new HashSet();
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                // The method name must start with incremment or sample
-                if (!method.getName().startsWith("increment")
-                        && !method.getName().startsWith("sample")) {
-                    logger.debug("method name " + method.getName()
-                            + " is invalid! ");
-                    return false;
-                }
-                if (method.getExceptionTypes() != null
-                        && method.getExceptionTypes().length != 0) {
-                    // See page 163 of Slee 1.0 spec.
-                    logger.debug("Signature of usage parameter is invalid -- "
-                            + " should not throw an exception : "
-                            + method.getName());
-                    return false;
-                }
-                if (method.getParameterTypes() == null
-                        || method.getParameterTypes().length > 1) {
-                    logger.error("Signature of usage parameter is invalid -- "
-                            + "should have a single long parameter type "
-                            + method.getName());
-                    return false;
-                }
-                Class[] paramTypes = method.getParameterTypes();
-                if (paramTypes[0] != Long.TYPE) {
-                    logger.error("the parameter type should be long! ");
-                    return false;
-                }
-
-                /*
-                 * A single usage parameter name can only be associated with a
-                 * single usage parameter type. The SLEE must check and reject
-                 * an SBB Usage Parameters interface that declares both an
-                 * increment method and a sample method for the same usage
-                 * parameter name. (Spec page 162 )
-                 */
-                if (method.getName().startsWith("increment")) {
-                    String p = method.getName().substring("increment".length());
-                    if (sampleMethods.contains(p)) {
-                        logger.error("already saw method in sample method set "
-                                + p);
-                        return false;
-                    }
-
-                    //Also first character of parameter name must be
-                    // capitalized
-                    if (!Character.isUpperCase(p.charAt(0))) {
-                        logger
-                                .error("First character of usage parameter name must be upper case : "
-                                        + p);
-                        return false;
-                    }
-
-                    incrementMethods.add(p);
-                }
-                if (method.getName().startsWith("sample")) {
-                    String p = method.getName().substring("sample".length());
-                    if (incrementMethods.contains(p)) {
-                        logger
-                                .error("usage parameter is already an increment parameter "
-                                        + method.getName());
-                        return false;
-                    }
-
-                    //Also first character of parameter name must be
-                    // capitalized
-                    if (!Character.isUpperCase(p.charAt(0))) {
-                        logger
-                                .error("First character of usage parameter name must be upper case : "
-                                        + p);
-                        return false;
-                    }
-
-                    sampleMethods.add(p);
-                }
-
-            }
-            return true;
-        } catch (Exception ex) {
-            throw new DeploymentException("Exception while checking sbb usage parameter interface",ex);
-        }
-    }
-
-    public Class generateConcreteUsageParameterClass(
-            MobicentsSbbDescriptor sbbDescriptor) throws Exception {
-        String usageParamInterfaceName = sbbDescriptor
-                .getUsageParametersInterface();
-        if (usageParamInterfaceName == null)
-            return null;
-        String concreteClassName = usageParamInterfaceName + "Impl";
-        CtClass usageParamInterface = classPool.get(usageParamInterfaceName);
-
-        CtClass implClassInterface = classPool
-                .get(InstalledUsageParameterSet.class.getName());
+        String concreteClassName = usageParameterInterfaceName + "Impl";       
+        
+        CtClass implClassInterface = classPool.get(InstalledUsageParameterSet.class.getName());
+        
         CtMethod[] methods = usageParamInterface.getMethods();
         
         CtClass ctClass = classPool.makeClass(concreteClassName);
 		
         try {
-            // createDefaultConstructor(ctClass);
+            
             this.generateFields(ctClass,new CtClass[] {
-                    classPool.get(ServiceIDImpl.class.getName()),
-                    classPool.get(SbbIDImpl.class.getName()) });
-
+                    classPool.get(ServiceID.class.getName()),
+                    classPool.get(SbbID.class.getName()) });
             
             //Generates the implements link
             ConcreteClassGeneratorUtils.createInterfaceLinks(ctClass,
@@ -238,13 +129,13 @@ public class ConcreteUsageParameterClassGenerator {
 
             generateResetMethod(ctClass);
             createConstructor(ctClass, new CtClass[] {
-                    classPool.get(ServiceIDImpl.class.getName()),
-                    classPool.get(SbbIDImpl.class.getName()) });
+                    classPool.get(ServiceID.class.getName()),
+                    classPool.get(SbbID.class.getName()) });
             
             this.createDefaultConstructor(ctClass);
 
-            String sbbDeploymentPathStr = sbbDescriptor.getDeploymentPath();
-            ctClass.writeFile(sbbDeploymentPathStr);
+            ctClass.writeFile(deploymentDir);
+            
             if (logger.isDebugEnabled())
                 logger.debug("UsageParameterGenerator Writing file "
                         + concreteClassName);
@@ -277,7 +168,6 @@ public class ConcreteUsageParameterClassGenerator {
         concreteClass.addMethod(ctMethod);
 
     }
-
    
     private void generateNameGetter(CtClass concreteClass) throws Exception {
         String body = "public " + String.class.getName()
@@ -296,15 +186,15 @@ public class ConcreteUsageParameterClassGenerator {
 
     private void generateServiceIDGetter(CtClass concreteClass)
             throws Exception {
-        String body = "public " + ServiceIDImpl.class.getName()
-                + " getServiceID() { return this.serviceIDImpl; }";
+        String body = "public " + ServiceID.class.getName()
+                + " getServiceID() { return this.serviceID; }";
         CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
         concreteClass.addMethod(ctMethod);
     }
 
     private void generateSbbIDGetter(CtClass concreteClass) throws Exception {
-        String body = "public " + SbbIDImpl.class.getName()
-                + " getSbbID() { return this.sbbIDImpl; }";
+        String body = "public " + SbbID.class.getName()
+                + " getSbbID() { return this.sbbID; }";
         CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
         concreteClass.addMethod(ctMethod);
     }

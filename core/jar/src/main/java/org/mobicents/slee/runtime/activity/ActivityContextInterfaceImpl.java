@@ -231,4 +231,33 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			return false;
 		}
 	}
+
+	/**
+	 * @see javax.slee.ActivityContextInterface#isAttached(SbbLocalObject)
+	 */
+	public boolean isAttached(SbbLocalObject sbbLocalObject) throws NullPointerException,
+			TransactionRequiredLocalException,
+			TransactionRolledbackLocalException, SLEEException {
+		
+		if (sbbLocalObject == null) {
+			throw new NullPointerException("null sbbLocalObject");
+		}
+		
+		sleeContainer.getTransactionManager().mandateTransaction();
+		
+		if (sbbLocalObject instanceof SbbLocalObjectImpl) {
+			SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
+			SbbEntity sbbEntity = sbbLocalObjectImpl.getSbbEntity();
+			if (sbbEntity != null && !sbbEntity.isRemoved()) {				
+				return sbbEntity.isAttached(activityContext.getActivityContextId());
+			}
+		}
+		
+		try {
+			sleeContainer.getTransactionManager().setRollbackOnly();
+		} catch (Exception e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
+		throw new TransactionRolledbackLocalException("the sbbLocalObject argument must represent a valid SBB entity");
+	}
 }

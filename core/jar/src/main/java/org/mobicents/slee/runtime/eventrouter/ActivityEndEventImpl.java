@@ -5,9 +5,6 @@ import java.io.ObjectStreamException;
 import javax.slee.ActivityEndEvent;
 import javax.slee.EventTypeID;
 
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-
 /**
  * 
  * Activity End Event implementation, as a singleton, also useful to retrieve
@@ -19,24 +16,11 @@ import org.mobicents.slee.container.component.ComponentKey;
 public class ActivityEndEventImpl implements ActivityEndEvent {
 	
 	/**
-	 *	the component key for this event
+	 *	the event type id for this event
 	 */
-	public static final ComponentKey COMPONENT_KEY = new ComponentKey("javax.slee.ActivityEndEvent",
+	public static final EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.ActivityEndEvent",
 			"javax.slee", "1.0");
-	
-	private static EventTypeID activityEndEventTypeID = null;
-	
-	/**
-	 * 
-	 * @return the event type id for the activity end event
-	 */
-	public static EventTypeID getEventTypeID() {
-		if (activityEndEventTypeID == null) {
-			activityEndEventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(ActivityEndEventImpl.COMPONENT_KEY);
-		}
-		return activityEndEventTypeID;
-	}
-	
+		
 	/**
 	 * singleton for this class
 	 */

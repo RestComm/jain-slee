@@ -23,10 +23,6 @@ import javax.slee.management.LibraryID;
 import javax.slee.resource.ResourceAdaptorDescriptor;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.DeployedComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
-
 /**
  * Descriptor for a ResourceAdaptor.
  * 
@@ -34,7 +30,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
  * @author F.Moggia
  */
 public class ResourceAdaptorDescriptorImpl implements ResourceAdaptorDescriptor , 
-										DeployedComponent, Serializable {
+										 Serializable {
 
 	private static final long serialVersionUID = -6932034951470181468L;
 	private String description;

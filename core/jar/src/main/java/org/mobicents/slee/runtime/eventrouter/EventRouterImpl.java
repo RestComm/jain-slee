@@ -10,7 +10,6 @@ import javax.slee.resource.FailureReason;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTask;
@@ -81,7 +80,7 @@ public class EventRouterImpl implements EventRouter {
 											.getActivitySource());
 					raEntity.getResourceAdaptor().eventProcessingFailed(
 							de.getActivityContextHandle().getActivityHandle(),
-							de.getEvent(), ((EventTypeIDImpl)de.getEventTypeId()).getEventID(), de.getAddress(), 0,
+							de.getEvent(), de.getEventTypeId(), de.getAddress(), 0,
 							failureReason);
 				} catch (Exception e) {
 					logger.error("failed to notify ra of event routing failure", e);
@@ -103,8 +102,7 @@ public class EventRouterImpl implements EventRouter {
 					raEntity.getResourceAdaptor().eventProcessingSuccessful(
 							de.getActivityContextHandle().getActivityHandle(),
 							de.getEvent(),
-							((EventTypeIDImpl) de.getEventTypeId())
-									.getEventID(), de.getAddress(), 0);
+							de.getEventTypeId(), de.getAddress(), 0);
 				} catch (Exception e) {
 					logger.error(
 							"failed to notify ra of event routing failure", e);

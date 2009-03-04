@@ -20,8 +20,6 @@ import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileRemovedEvent;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /** Profile removed event implementation.
@@ -31,15 +29,8 @@ import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
  */
 public class ProfileRemovedEventImpl implements ProfileRemovedEvent {
     
-	private static EventTypeIDImpl eventTypeID;
-	private static EventTypeID lookupEventTypeID() {
-		if (eventTypeID == null) {
-			eventTypeID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(new ComponentKey(
-					"javax.slee.profile.ProfileRemovedEvent","javax.slee","1.0"));
-		}
-		return eventTypeID;
-	}
-    
+	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileRemovedEvent","javax.slee","1.0");
+	    
     private Address profileAddress;
     
     private ProfileID profile;
@@ -70,7 +61,7 @@ public class ProfileRemovedEventImpl implements ProfileRemovedEvent {
     }    
 
     public EventTypeID getEventTypeID() {
-        return lookupEventTypeID();
+        return EVENT_TYPE_ID;
     }
 
     public Object getEventObject() {

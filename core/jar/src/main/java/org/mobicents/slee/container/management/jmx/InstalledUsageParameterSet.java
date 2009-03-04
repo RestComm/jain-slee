@@ -20,9 +20,11 @@
  * usefulness of the software.
  */
 
-package org.mobicents.slee.container.component;
+package org.mobicents.slee.container.management.jmx;
 
-import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
+import javax.slee.SbbID;
+import javax.slee.ServiceID;
+
 
 /**
  *@author M. Ranganathan
@@ -30,8 +32,8 @@ import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
  */
 public interface InstalledUsageParameterSet {
 
-    	public SbbIDImpl getSbbID();
-    	public ServiceIDImpl getServiceID();
+    	public SbbID getSbbID();
+    	public ServiceID getServiceID();
     	public String getName();
     	public void reset();
     	public void setName( String name );

@@ -45,13 +45,6 @@ public class DeferredEvent {
 	 * the aci loaded for event routing, to be used in event handling rollbacks
 	 */
 	private ActivityContextInterface loadedAci;
-	
-	public DeferredEvent(int eventId, Object event,
-			ActivityContext ac, Address address)
-			throws SystemException {
-		this(sleeContainer.getEventManagement()
-				.getEventTypeID(eventId), event, ac, address);
-	}
 
 	public DeferredEvent(EventTypeID eventTypeId, Object event,
 			ActivityContext ac, Address address)

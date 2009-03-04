@@ -28,8 +28,7 @@ import javassist.NotFoundException;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.DeployableUnitIDImpl;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
+import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.interceptors.ActivityContextInterfaceInterceptor;
 import org.mobicents.slee.container.deployment.interceptors.DefaultActivityContextInterfaceInterceptor;
@@ -46,7 +45,7 @@ import org.mobicents.slee.runtime.activity.SbbActivityContextInterface;
  */
 public class ConcreteActivityContextInterfaceGenerator {
 
-    private MobicentsSbbDescriptor descriptor;
+    
 
     /**
      * Logger to logg information
@@ -56,8 +55,18 @@ public class ConcreteActivityContextInterfaceGenerator {
     /**
      * Pool to generate or read classes with javassist
      */
-    private  ClassPool pool = null;
+    private final ClassPool pool;
 
+    /**
+     * The path where classes will reside
+     */
+    private final String deployDir;
+    
+    /**
+     * the sbb activity context interface name
+     */
+    private final String activityContextInterfaceName;
+    
     /**
      * The interface from which to generate the concrete interface
      */
@@ -77,9 +86,10 @@ public class ConcreteActivityContextInterfaceGenerator {
      *  
      */
     public ConcreteActivityContextInterfaceGenerator(
-            MobicentsSbbDescriptor descriptor) {
-        this.pool =  ((DeployableUnitIDImpl)descriptor.getDeployableUnit()).getDUDeployer().getClassPool();       
-        this.descriptor = descriptor;
+    		 String activityContextInterfaceName, String deployDir, ClassPool classPool) {
+        this.pool =  classPool;       
+        this.deployDir = deployDir;
+        this.activityContextInterfaceName = activityContextInterfaceName;
     }
 
     /**
@@ -90,10 +100,8 @@ public class ConcreteActivityContextInterfaceGenerator {
      * @return the concrete Activity Context Interface class implementing the
      *         Activity Context Interface
      */
-    public Class generateActivityContextInterfaceConcreteClass(
-            String activityContextInterfaceName) throws DeploymentException {
+    public Class generateActivityContextInterfaceConcreteClass() throws DeploymentException {
            
-
     		String tmpClassName=ConcreteClassGeneratorUtils.CONCRETE_ACTIVITY_INTERFACE_CLASS_NAME_PREFIX
             + activityContextInterfaceName
             + ConcreteClassGeneratorUtils.CONCRETE_ACTIVITY_INTERFACE_CLASS_NAME_SUFFIX;
@@ -126,7 +134,7 @@ public class ConcreteActivityContextInterfaceGenerator {
                 		pool
                         .get(ActivityContextInterfaceImpl.class.getName()),
                         pool
-                                .get(MobicentsSbbDescriptor.class.getName()) };
+                                .get(SbbComponent.class.getName()) };
                 createConstructorWithParameter(parameters);
             } catch (NotFoundException nfe) {
                 logger.error("Could not find class. Constructor With Parameter not created");
@@ -139,7 +147,7 @@ public class ConcreteActivityContextInterfaceGenerator {
                     .getInterfaceMethodsFromInterface(activityContextInterface);
             generateConcreteMethods(interfaceMethods);
             //generates the class
-            String sbbDeploymentPathStr = descriptor.getDeploymentPath();
+            String sbbDeploymentPathStr = deployDir;
 
             try {
             	concreteActivityContextInterface.writeFile(sbbDeploymentPathStr);           	

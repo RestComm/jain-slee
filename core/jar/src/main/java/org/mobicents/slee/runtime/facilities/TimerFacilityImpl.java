@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
+import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.TimerFacility;
@@ -615,5 +616,26 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	public String toString() {
 		return 	"Timer Facility: " +
 				"\n+-- Timer tasks: " + cacheData.getTasks().size();
+	}
+
+	public ActivityContextInterface getActivityContextInterface(TimerID timerID)
+			throws NullPointerException, TransactionRequiredLocalException,
+			FacilityException {
+		if (timerID == null) {
+			throw new NullPointerException("null timerID");
+		}
+		
+		sleeContainer.getTransactionManager().mandateTransaction();
+		
+		TimerFacilityTimerTask task = (TimerFacilityTimerTask) cacheData.getTask(timerID);
+		
+		if (task != null) {
+			try {
+				return new ActivityContextInterfaceImpl(sleeContainer.getActivityContextFactory().getActivityContext(task.getActivityContextId(), true));
+			} catch (Exception e) {
+				throw new FacilityException(e.getMessage(),e);
+			}
+		}
+		return null;		
 	}
 }

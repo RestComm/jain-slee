@@ -6,7 +6,8 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.management.ServiceManagement.RuntimeService;
+import org.mobicents.slee.container.component.EventTypeComponent;
+import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.eventrouter.ActivityEndEventImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
@@ -68,14 +69,12 @@ public class EventRoutingTask implements Runnable {
 		try {
 
 			// INITIAL EVENT PROCESSING
-			final Set<RuntimeService> activeServices = container.getServiceManagement().getActiveServices(de.getEventTypeId());
+			EventTypeComponent eventTypeComponent = container.getComponentRepositoryImpl().getComponentByID(de.getEventTypeId());
 			if (logger.isDebugEnabled()) {
-				logger.debug("Active services for event "+de.getEventTypeId()+": "+activeServices);
+				logger.debug("Active services for event "+de.getEventTypeId()+": "+eventTypeComponent.getActiveServicesWhichDefineEventAsInitial());
 			}
-			for (RuntimeService runtimeService : activeServices) {
-				initialEventProcessor.processInitialEvents(runtimeService
-						.getServiceComponent(), runtimeService
-						.getRootSbbDescriptor(), de, txMgr, this.container.getActivityContextFactory());
+			for (ServiceComponent serviceComponent : eventTypeComponent.getActiveServicesWhichDefineEventAsInitial()) {
+				initialEventProcessor.processInitialEvents(serviceComponent, de, txMgr, this.container.getActivityContextFactory());
 			}
 			
 			// For each SBB that is attached to this activity context.
@@ -151,7 +150,7 @@ public class EventRoutingTask implements Runnable {
 							}
 
 							// CHANGE CLASS LOADER
-							invokerClassLoader = highestPrioritySbbEntity.getSbbDescriptor().getClassLoader();
+							invokerClassLoader = highestPrioritySbbEntity.getSbbComponent().getClassLoader();
 							Thread.currentThread().setContextClassLoader(invokerClassLoader);
 
 							sbbEntity = highestPrioritySbbEntity;
@@ -201,7 +200,7 @@ public class EventRoutingTask implements Runnable {
 							}
 
 							// IF IT'S AN ACTIVITY END EVENT DETACH SBB ENTITY HERE
-							if (de.getEventTypeId().equals(ActivityEndEventImpl.getEventTypeID())) {
+							if (de.getEventTypeId().equals(ActivityEndEventImpl.EVENT_TYPE_ID)) {
 								if (logger.isDebugEnabled()) {
 									logger
 											.debug("The event is an activity end event, detaching ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId());
@@ -300,7 +299,7 @@ public class EventRoutingTask implements Runnable {
 						try {
 							rootSbbEntity = SbbEntityFactory.getSbbEntity(rootSbbEntityId);
 
-							rootInvokerClassLoader = rootSbbEntity.getSbbDescriptor().getClassLoader();
+							rootInvokerClassLoader = rootSbbEntity.getSbbComponent().getClassLoader();
 							Thread.currentThread().setContextClassLoader(rootInvokerClassLoader);
 
 							SbbEntityFactory.removeSbbEntity(rootSbbEntity,true);
@@ -439,9 +438,9 @@ public class EventRoutingTask implements Runnable {
 			 * 
 			 */
 
-			if (de.getEventTypeId().equals(ActivityEndEventImpl.getEventTypeID())) {
+			if (de.getEventTypeId().equals(ActivityEndEventImpl.EVENT_TYPE_ID)) {
 				activityEndEventPostProcessor.process(de.getActivityContextId(), txMgr, this.container.getActivityContextFactory());
-			} else if (de.getEventTypeId().equals(TimerEventImpl.getEventTypeID())) {
+			} else if (de.getEventTypeId().equals(TimerEventImpl.EVENT_TYPE_ID)) {
 				timerEventPostProcessor.process(de,this.container.getTimerFacility());
 			}
 

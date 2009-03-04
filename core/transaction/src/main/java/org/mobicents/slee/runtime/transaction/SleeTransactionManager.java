@@ -52,11 +52,9 @@ public interface SleeTransactionManager extends javax.slee.transaction.SleeTrans
     
 	/** Verifies if we are in the context of a transaction.
 	 * 
-	 *@throws  TransactionRequiredLocalException if we are not in the context of a transaction.
-	 * @throws SystemException 
-	 *
+	 * @throws  TransactionRequiredLocalException if we are not in the context of a transaction.
 	 */
-	public void mandateTransaction() throws TransactionRequiredLocalException, SystemException;
+	public void mandateTransaction() throws TransactionRequiredLocalException;
 	
 	/**
 	 * Ensures a transaction exists, i.e., if there is no transaction one is created

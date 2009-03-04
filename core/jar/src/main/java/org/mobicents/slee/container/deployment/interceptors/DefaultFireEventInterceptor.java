@@ -22,8 +22,6 @@ import javax.slee.SLEEException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.MobicentsSbbDescriptor;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
@@ -99,23 +97,16 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
     	SleeTransactionManager tm = sleeContainer.getTransactionManager();
         tm.mandateTransaction();
     	    	
-        // get the event type name from the method name without the "fire" prefix               
-        String eventTypeName=method.getName().substring("fire".length());
+        // get the event name from the method name without the "fire" prefix               
+        String eventName=method.getName().substring("fire".length());
         if ( logger.isDebugEnabled() ) {            	
-        	logger.debug("invoke(): firing event with type name "+ eventTypeName);            	
+        	logger.debug("invoke(): firing event with type name "+ eventName);            	
         }
         
-        // get the sbb descriptor & the container
-        MobicentsSbbDescriptor mobicentsSbbDescriptor = (MobicentsSbbDescriptor) sbbEntity.getSbbDescriptor(); 
+        // get it's id from the sbb component's descriptor
+        EventTypeID eventID = sbbEntity.getSbbComponent().getDescriptor().getEventTypeID(eventName);
         
-        
-        // build the event key
-        ComponentKey eventKey = mobicentsSbbDescriptor.getEventType(eventTypeName).getEventTypeRefKey();
-        
-        // get it's id
-        EventTypeID eventID = SleeContainer.lookupFromJndi().getEventManagement().getEventType(eventKey);
-        
-        // if we are firing an event on a null activity we need to warn the activity context due to implict end checks
+        // if we are firing an event on a null activity we need to warn the activity context due to implicit end checks
         if (ac instanceof NullActivityContext) {
         	((NullActivityContext)ac).firingEvent();
         }

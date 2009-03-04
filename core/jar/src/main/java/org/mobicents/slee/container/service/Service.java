@@ -1,10 +1,6 @@
 package org.mobicents.slee.container.service;
 
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.CreateException;
 import javax.slee.SbbID;
@@ -15,10 +11,7 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.InstalledUsageParameterSet;
-import org.mobicents.slee.container.component.ServiceDescriptorImpl;
-import org.mobicents.slee.container.component.ServiceIDImpl;
+import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -39,63 +32,17 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
  *  
  */
 
-public class Service implements Serializable {
+public class Service {
 
-	/**
-	 * unique vid is required for safe serialization
-	 */
-	private static final long serialVersionUID = 1L;
-
-	private static final transient Logger logger = Logger.getLogger(Service.class);
+	private static final Logger logger = Logger.getLogger(Service.class);
 	
-	private static final transient SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	private static final  SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
-	//  The named usage parameters.
-	// Index is serviceID+ssbbID + name
-	// Do these need to be replicated?
-
-	private static ConcurrentHashMap<ServiceID, HashMap> _usageParameters;
-
-	public static String getUsageParametersPathName(ServiceID serviceId,
-			SbbID sbbId) {
-		return serviceId.toString() + "/" + sbbId.toString();
-	}
-
-	private static ConcurrentHashMap<ServiceID, HashMap> getUsageParameters() {
-		if (_usageParameters == null) {
-			_usageParameters = new ConcurrentHashMap<ServiceID, HashMap>();
-		}
-		return _usageParameters;
-	}
-	
-	private static HashMap getUsageParameters(ServiceID serviceId) {
-		ConcurrentHashMap<ServiceID, HashMap> usageParameters = getUsageParameters();
-		HashMap hashMap = (HashMap) usageParameters.get(serviceId);
-		if (hashMap == null) {
-			hashMap = new HashMap();
-			HashMap anotherHashMap = usageParameters.putIfAbsent(serviceId,
-					hashMap);
-			if (anotherHashMap != null) {
-				hashMap = anotherHashMap;
-			}
-		}
-		return hashMap;
-	}
-
-	public static String getUsageParametersPathName(ServiceID serviceID,
-			SbbID sbbId, String name) {
-
-		return getUsageParametersPathName(serviceID, sbbId) + "/"
-				+ SleeContainerUtils.toHex(name);
-	}
-
 	// --- service
 	
 	private byte defaultPriority;
 
-	private final ServiceIDImpl serviceID;
-
-	private final SbbID rootSbbID;
+	private final ServiceComponent serviceComponent;
 
 	private final ServiceCacheData cacheData;
 	
@@ -103,34 +50,26 @@ public class Service implements Serializable {
 	 * The Public constructor. This is used to create a runtime representation
 	 * of the service.
 	 * 
-	 * @param serviceDescriptor --
+	 * @param serviceComponent --
 	 *            the svc descriptor corresponding to this Service.
 	 * 
 	 * @throws RuntimeException
 	 */
 
-	protected Service(ServiceDescriptorImpl serviceDescriptor, boolean initCachedData) throws RuntimeException {
+	protected Service(ServiceComponent serviceComponent, boolean initCachedData) throws RuntimeException {
 		
-		if (serviceDescriptor == null)
+		if (serviceComponent == null)
 			throw new NullPointerException("null descriptor or container");
 		
 		try {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Service.Service(): creating service"
-						+ serviceDescriptor.getID());
+				logger.debug("Service.Service(): creating service "
+						+ serviceComponent);
 			}
 
-			this.serviceID = (ServiceIDImpl) serviceDescriptor.getID();
-			this.defaultPriority = serviceDescriptor.getDefaultPriority();	
-			this.rootSbbID = serviceDescriptor.getRootSbb();
-			
-			ConcurrentHashMap<ServiceID, HashMap> usageParameters = getUsageParameters();
-			if (usageParameters.get(serviceID) == null) {
-				HashMap hmap = new HashMap();
-				usageParameters.put(serviceID, hmap);
-			}
-			
-			this.cacheData = sleeContainer.getCache().getServiceCacheData(this.serviceID);
+			this.serviceComponent = serviceComponent;
+			this.defaultPriority = serviceComponent.getDescriptor().getMService().getDefaultPriority();	
+			this.cacheData = sleeContainer.getCache().getServiceCacheData(serviceComponent.getServiceID());
 			if (initCachedData && !cacheData.exists()) {
 				cacheData.create();
 			}
@@ -150,11 +89,19 @@ public class Service implements Serializable {
 	}
 	
 	/**
+	 * Retrieves the service component
+	 * @return
+	 */
+	public ServiceComponent getServiceComponent() {
+		return serviceComponent;
+	}
+	
+	/**
 	 * get the component key for the service component from which this service
 	 * was created.
 	 */
 	public ServiceID getServiceID() {
-		return this.serviceID;
+		return this.serviceComponent.getServiceID();
 	}
 
 	/**
@@ -162,7 +109,7 @@ public class Service implements Serializable {
 	 * @return
 	 */
 	public SbbID getRootSbbID() {
-		return rootSbbID;
+		return this.serviceComponent.getRootSbbComponent().getSbbID();
 	}
 
 	/**
@@ -176,7 +123,7 @@ public class Service implements Serializable {
 				ServiceState oldServiceState = cacheData.getState();
 				logger
 						.debug("ServiceComponent.setState(): State service ID =  "
-								+ this.serviceID
+								+ getServiceID()
 								+ " current State = "
 								+ oldServiceState
 								+ " new State = "
@@ -246,7 +193,7 @@ public class Service implements Serializable {
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		// create root sbb entity
-		SbbEntity sbbEntity = SbbEntityFactory.createRootSbbEntity(rootSbbID,
+		SbbEntity sbbEntity = SbbEntityFactory.createRootSbbEntity(getRootSbbID(),
 				this.getServiceID(), convergenceName);
 		// set default priority
 		sbbEntity.setPriority(getDefaultPriority());
@@ -275,94 +222,6 @@ public class Service implements Serializable {
 	}
 
 	/**
-	 * Get the table that maps usage parameter name to usage parameter class
-	 * instance.
-	 * 
-	 * @return
-	 */
-	public static HashMap getUsageParameterTable(ServiceID serviceID) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Service.getUsageParameterTable() " + serviceID);
-		}
-		return getUsageParameters().get(serviceID);
-	}
-
-	/**
-	 * Return the default usage parameter set for the given sbb id.
-	 * 
-	 * @param sbbId
-	 * @return
-	 */
-	public static InstalledUsageParameterSet getDefaultUsageParameterSet(
-			ServiceID serviceId, SbbID sbbId) {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Service.getDefaultUsageParameterSet(): " + serviceId
-					+ " sbbID = " + sbbId);
-		}
-		String key = Service.getUsageParametersPathName(serviceId, sbbId);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Service.getDefaultUsageParameterSet: "
-					+ getUsageParameters() + " key = " + key);
-		}
-		return (InstalledUsageParameterSet) getUsageParameters(serviceId).get(
-				key);
-	}
-
-	/**
-	 * Return the named usage parameter set given the sbb id and name of the
-	 * set.
-	 * 
-	 * @param sbbId --
-	 *            sbb id for which to retrieve the set.
-	 * @param name --
-	 *            name of the set to retrieve.
-	 * 
-	 * @return the named usage parameters given the sbbid.
-	 */
-	public static InstalledUsageParameterSet getNamedUsageParameter(
-			ServiceID serviceId, SbbID sbbId, String name) {
-		String key = Service.getUsageParametersPathName(serviceId, sbbId, name);
-		return (InstalledUsageParameterSet) getUsageParameters(serviceId).get(
-				key);
-	}
-
-	/**
-	 * Return an iterator containing the InstalledUsageParameterSet s for this
-	 * service.
-	 * 
-	 * @return all the usage parameters.
-	 */
-	public static Iterator getAllUsageParameters(ServiceID serviceId) {
-		return getUsageParameters(serviceId).values().iterator();
-	}
-
-	/**
-	 * @param pathName
-	 */
-	protected static void removeUsageParameter(ServiceID serviceID,
-			String pathName) {
-		getUsageParameters(serviceID).remove(pathName);
-	}
-
-	/**
-	 * @param pathName
-	 * @param usageParam
-	 */
-	protected static void addUsageParameter(ServiceID serviceID,
-			String pathName, Object usageParam) {
-		getUsageParameters(serviceID).put(pathName, usageParam);
-	}
-
-	/**
-	 * @param serviceID --
-	 *            service id for which we want to remove all usage mbeans
-	 */
-	public void removeAllUsageParameters() {
-		getUsageParameters().remove(this.serviceID);
-	}
-
-	/**
 	 * Activate the Service and send out ServiceStartedEvent on the Service
 	 * Activity associated with the Service.
 	 * 
@@ -380,7 +239,7 @@ public class Service implements Serializable {
 	public void startActivity() throws SystemException {
 
 		// create ac for the activity
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(getServiceID()));
 		ActivityContext ac = null;
 		try {
 			ac = sleeContainer.getActivityContextFactory().createActivityContext(ach);
@@ -393,9 +252,9 @@ public class Service implements Serializable {
 		if (logger.isDebugEnabled()) {
 			logger
 					.debug("starting service activity for "
-							+ serviceID);
+							+ serviceComponent);
 		}
-		new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(serviceID));
+		new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(getServiceID()));
 	}
 
 	/**
@@ -425,7 +284,7 @@ public class Service implements Serializable {
 	 */
 	public void endActivity() {
 
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID));
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(getServiceID()));
 		if (logger.isDebugEnabled()) {
 			logger.debug("ending service activity "+ach);
 		}
@@ -449,7 +308,7 @@ public class Service implements Serializable {
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Service.printNode() { serviceID = " + this.serviceID + "\n");
+		sb.append("Service.printNode() { serviceID = " + getServiceID() + "\n");
 		if (logger.isDebugEnabled()) {
 			// very expensive operation.  Use w/ care
 			sb.append("childObj = " + cacheData.getChildSbbEntities() + "/n");
