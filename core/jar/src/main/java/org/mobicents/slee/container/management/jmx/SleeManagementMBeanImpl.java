@@ -33,7 +33,6 @@ import javax.slee.management.SleeManagementMBean;
 import javax.slee.management.SleeState;
 import javax.slee.management.SleeStateChangeNotification;
 import javax.slee.resource.ActivityAlreadyExistsException;
-import javax.slee.resource.ResourceException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
@@ -42,6 +41,7 @@ import org.mobicents.slee.container.Version;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.resource.SleeEndpointImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.cache.MobicentsCache;
@@ -499,9 +499,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			if (entity != null) {
 				try {
 					entity.activate();
-				} catch (ResourceException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (InvalidStateException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -584,7 +581,21 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 					//endAllActiveServiceActivities();
 					stopAllResourceAdaptors();
 					// end remaining activities
-					SleeEndpointImpl.allActivitiesEnding();
+					for (String acId : sleeContainer.getActivityContextFactory().getAllActivityContextsIds()) {
+		            	try {
+		            		if (logger.isDebugEnabled()) {
+		                		logger.debug("Ending activity "+acId);
+		            		}
+		                	ActivityContext ac =sleeContainer.getActivityContextFactory().getActivityContext(acId,false);
+		    				if (ac != null) {
+		    					ac.end();
+		        	    	}		    				
+						} catch (Exception e) {
+							if (logger.isDebugEnabled()) {
+		                		logger.debug("Failed to end activity "+acId,e);
+		            		}
+						}            	
+		            }
 					rb = false;
 				} catch (Exception e) {
 					logger.error("Exception while stopping SLEE", e);
