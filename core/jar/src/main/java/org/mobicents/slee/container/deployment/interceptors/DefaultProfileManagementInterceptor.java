@@ -42,6 +42,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
@@ -812,17 +813,13 @@ public class DefaultProfileManagementInterceptor implements
                         profileAddress, new ProfileID(profileAddress), profile,
                         activityContextInterface,
                         profileTableActivityContextInterfaceFactory);
-                try {
-                       new DeferredEvent(
+                ActivityContext ac = activityContextInterface.getActivityContext();
+                ac.fireEvent(new DeferredEvent(
                         profileAddedEvent.getEventTypeID(),
                         profileAddedEvent,
-                        activityContextInterface.getActivityContext(),
-                        profileAddress);
-                } catch (SystemException e2) {
-                    throw new ManagementException("Failed committing profile",
-                            e2);
-                }
-               
+                        ac,
+                        profileAddress));
+                               
                 if (logger.isDebugEnabled()) {
                     logger.debug("Queued following profile added event:"
                             + profileAddedEvent.getEventTypeID()
@@ -838,17 +835,12 @@ public class DefaultProfileManagementInterceptor implements
                         profileAddress, new ProfileID(profileAddress),
                         profileBeforeUpdate, profile, activityContextInterface,
                         profileTableActivityContextInterfaceFactory);
-                try {
-                      new DeferredEvent(
-                        profileUpdatedEvent.getEventTypeID(),
-                        profileUpdatedEvent,
-                        activityContextInterface.getActivityContext(),
-                        profileAddress);
-                } catch (SystemException e2) {
-                    throw new ManagementException("Failed committing profile",
-                            e2);
-                }
-                
+                ActivityContext ac = activityContextInterface.getActivityContext();
+                ac.fireEvent(new DeferredEvent(
+                		profileUpdatedEvent.getEventTypeID(),
+                		profileUpdatedEvent,
+                        ac,
+                        profileAddress));             
                 if(logger.isDebugEnabled()) {
                 	logger.debug("Queued following updated event: "
                 

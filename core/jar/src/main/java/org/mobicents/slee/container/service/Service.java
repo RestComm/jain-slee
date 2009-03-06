@@ -15,9 +15,7 @@ import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.ServiceCacheData;
-import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 
@@ -254,7 +252,7 @@ public class Service {
 					.debug("starting service activity for "
 							+ serviceComponent);
 		}
-		new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(getServiceID()));
+		ac.fireEvent(new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(getServiceID())));
 	}
 
 	/**
@@ -289,13 +287,11 @@ public class Service {
 			logger.debug("ending service activity "+ach);
 		}
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
-		if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
-			ac.setState(ActivityContextState.ENDING);
-			try {
-				new DeferredActivityEndEvent(ac,null);
-			} catch (SystemException e) {
-				logger.error("failed to create deferred activity end event", e);
-			}
+		if (ac != null) {
+			ac.end();
+		}
+		else {
+			logger.error("unable tofind and end ac "+ach);
 		}
 	}
 	

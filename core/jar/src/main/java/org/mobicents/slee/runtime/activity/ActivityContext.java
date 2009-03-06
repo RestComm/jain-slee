@@ -9,13 +9,24 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.slee.Address;
+import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
 import javax.slee.facilities.TimerID;
+import javax.slee.resource.ActivityFlags;
+import javax.slee.resource.ActivityIsEndingException;
+import javax.slee.resource.ReceivableService;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.cache.ActivityContextCacheData;
+import org.mobicents.slee.runtime.eventrouter.ActivityEventQueueManager;
+import org.mobicents.slee.runtime.eventrouter.CommitDeferredEventAction;
+import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
+import org.mobicents.slee.runtime.eventrouter.RollbackDeferredEventAction;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -42,7 +53,7 @@ public class ActivityContext {
 
 	// --- map keys for attributes cached
 	private static final transient String NODE_MAP_KEY_STATE = "state";
-	
+	private static final transient String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags"; 
 	/**
 	 * This map contains mappings between acId and Long Objects. Long object represnt  timestamp of last access time to ac. 
 	 * Cash is not a good place to hold this data - it is modified frequently  across tx causing rollbacks because of version errors. Values are first inserted when ac is created.
@@ -86,7 +97,7 @@ public class ActivityContext {
 		}
 	}
 
-	public ActivityContext(ActivityContextHandle activityContextHandle, String id, boolean updateAccessTime) {
+	public ActivityContext(ActivityContextHandle activityContextHandle, String id, boolean updateAccessTime, Integer activityFlags) {
 
 		assert (activityContextHandle != null) : "activityContextHandle cannot be null";
 
@@ -95,8 +106,10 @@ public class ActivityContext {
 		this.sbbEntityComparator = new SbbEntityComparator(sbbEntityFactory);
 		// init cache data
 		cacheData = sleeContainer.getCache().getActivityContextCacheData(id);
-		if (!cacheData.exists()) {
+		if (activityFlags != null) {
+			// ac creation, create cache data and set activity flags
 			cacheData.create();
+			cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
 		}
 		// update last acess time if needed	
 		if (updateAccessTime) {
@@ -104,7 +117,7 @@ public class ActivityContext {
 		}
 		printNode();		
 	}
-
+	
 	/**
 	 * Retrieves the string id of this ac
 	 * @return
@@ -144,6 +157,20 @@ public class ActivityContext {
 		}
 	}
 
+	/**
+	 * Retrieve the {@link ActivityFlags} for this activity context
+	 * @return
+	 */
+	public int getActivityFlags() {
+		Integer flags = (Integer) cacheData.getObject(NODE_MAP_KEY_ACTIVITY_FLAGS);
+		if (flags != null) {
+			return flags.intValue();
+		}
+		else {
+			return ActivityFlags.NO_FLAGS;
+		}
+	}
+	
 	/**
 	 * test if the activity context is ending.
 	 * 
@@ -620,4 +647,57 @@ public class ActivityContext {
 		return "\n+-- AC Timestamps Map size: "+timeStamps.size();
 	}
 	
+	/**
+	 * Fires an event on this AC
+	 * 
+	 * @param eventTypeID
+	 * @param event
+	 * @param address
+	 * @param receivableService
+	 * @param eventFlags
+	 * @throws ActivityIsEndingException
+	 * @throws SystemException
+	 */
+	public void fireEvent(DeferredEvent dE) throws ActivityIsEndingException, SLEEException {
+		if (getState() == ActivityContextState.ENDING) {
+			throw new ActivityIsEndingException(getActivityContextHandle().toString());           		
+		} 
+		else {
+			fireDeferredEvent(dE);			
+		}      
+	}
+	
+	/**
+	 * Ends the activity context.
+	 */
+	public void end() {
+		if (getState() == ActivityContextState.ACTIVE) {
+			setState(ActivityContextState.ENDING);
+			fireDeferredEvent(new DeferredActivityEndEvent(this));	
+		}	
+	}
+	
+	private void fireDeferredEvent(DeferredEvent dE) {
+		// put event as pending in ac event queue manager
+		ActivityEventQueueManager aeqm = sleeContainer.getEventRouter()
+				.getEventRouterActivity(this.activityContextId)
+				.getEventQueueManager();
+		if (aeqm != null) {
+			aeqm.pending(dE);
+			// add tx actions to commit or rollback
+			try {
+				sleeContainer.getTransactionManager().addAfterCommitPriorityAction(
+						new CommitDeferredEventAction(dE, aeqm));
+				sleeContainer.getTransactionManager()
+					.addAfterRollbackAction(
+						new RollbackDeferredEventAction(dE,
+								this.activityContextId));
+			} catch (SystemException e) {
+				aeqm.rollback(dE);
+				throw new SLEEException("failed to add tx actions to commit and rollback event firing",e);
+			}			
+		} else {
+			throw new SLEEException("unable to find ACs event queue manager");
+		}		
+	}
 }

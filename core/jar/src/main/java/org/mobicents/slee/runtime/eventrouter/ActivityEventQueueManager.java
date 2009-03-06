@@ -1,9 +1,11 @@
 package org.mobicents.slee.runtime.eventrouter;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.slee.resource.FailureReason;
+import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -42,6 +44,15 @@ public class ActivityEventQueueManager {
 	 */
 	private ConcurrentHashMap<DeferredEvent, Object> pendingEvents = new ConcurrentHashMap<DeferredEvent, Object>();
 
+	/**
+	 * the events hold due to barriers set
+	 */
+	private ConcurrentLinkedQueue<DeferredEvent> eventsBarriered = new ConcurrentLinkedQueue<DeferredEvent>();
+	
+	/**
+	 * the transactions that hold barriers to the activity event queue
+	 */
+	private ConcurrentHashMap<Transaction, Object> eventBarriers = new ConcurrentHashMap<Transaction, Object>();
 	/**
 	 * the slee container
 	 */
@@ -93,12 +104,8 @@ public class ActivityEventQueueManager {
 		}
 	}
 
-	/**
-	 * Signals the manager that the event was committed, and thus can be routed.
-	 * 
-	 * @param dE
-	 */
-	public void commit(DeferredEvent dE) {
+	
+	public void commitAndNotSuspended(DeferredEvent dE) {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("committing event of type " + dE.getEventTypeId()
@@ -134,6 +141,31 @@ public class ActivityEventQueueManager {
 		}
 	}
 
+	/**
+	 * Signals the manager that the event was committed, and thus can be routed.
+	 * 
+	 * @param dE
+	 */
+	public void commit(DeferredEvent dE) {
+		if (eventBarriers.isEmpty()) {
+			// barriers are not set, proceed with commit of event
+			commitAndNotSuspended(dE);
+		}
+		else {
+			// barriers are set
+			synchronized (eventBarriers) {
+				if (eventBarriers.isEmpty()) {
+					// barriers are still set, add the event to the frozen queue
+					eventsBarriered.add(dE);
+				}
+				else {
+					// barriers were removed, proceed with commit of event
+					commitAndNotSuspended(dE);
+				}
+			}
+		}
+	}
+	
 	private void routeActivityEndEventIfNeeded() {
 		if (pendingEvents.isEmpty()) {
 			// no pending events
@@ -170,6 +202,31 @@ public class ActivityEventQueueManager {
 		}
 	}
 
+	/**
+	 * create a barrier for the specified transaction for this activity event
+	 * queue, events committed are frozen till all barriers are removed
+	 */
+	public void createBarrier(Transaction transaction) {
+		// raise barrier
+		eventBarriers.put(transaction, MAP_VALUE);
+	}
+	
+	/**
+	 * remove a barrier for the specified transaction for this activity event
+	 * queue, if there are no more barriers then delivering of events frozen proceed
+	 */
+	public void removeBarrier(Transaction transaction) {
+		synchronized (eventBarriers) {
+			eventBarriers.remove(transaction);
+			if (eventBarriers.isEmpty()) {
+				// no barriers, proceed with commit of all events stored
+				for (DeferredEvent dE : eventsBarriered) {
+					commitAndNotSuspended(dE);
+				}
+			}
+		}
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {

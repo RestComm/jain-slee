@@ -12,11 +12,10 @@ package org.mobicents.slee.runtime.eventrouter;
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
-import javax.slee.SLEEException;
-import javax.transaction.SystemException;
+import javax.slee.resource.EventFlags;
+import javax.slee.resource.ReceivableService;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
@@ -32,14 +31,15 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 public class DeferredEvent {
 
 	private static Logger log = Logger.getLogger(DeferredEvent.class);
-
-	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 	private final EventTypeID eventTypeId;
 	private final String acId;
 	private final ActivityContextHandle ach;
 	private final Object event;
 	private final Address address;
+	private final ReceivableService receivableService;
+	private final int eventFlags;
+	
 	
 	/**
 	 * the aci loaded for event routing, to be used in event handling rollbacks
@@ -47,8 +47,12 @@ public class DeferredEvent {
 	private ActivityContextInterface loadedAci;
 
 	public DeferredEvent(EventTypeID eventTypeId, Object event,
-			ActivityContext ac, Address address)
-			throws SystemException {
+			ActivityContext ac, Address address) {
+		this(eventTypeId,event,ac,address,null,EventFlags.NO_FLAGS);		
+	}
+	
+	public DeferredEvent(EventTypeID eventTypeId, Object event,
+			ActivityContext ac, Address address, ReceivableService receivableService, int eventFlags) {
 		if (log.isDebugEnabled()) {
 			log.debug("DeferredEvent() " + eventTypeId + "\n"
 					+ "Activity Context:" + ac.getActivityContextId());
@@ -59,23 +63,8 @@ public class DeferredEvent {
 		this.acId = ac.getActivityContextId();
 		this.ach = ac.getActivityContextHandle();
 		this.address = address;
-
-		// put event as pending in ac event queue manager
-		ActivityEventQueueManager aeqm = sleeContainer.getEventRouter()
-				.getEventRouterActivity(acId)
-				.getEventQueueManager();
-		if (aeqm != null) {
-			aeqm.pending(this);
-			// add tx actions to commit or rollback
-			sleeContainer.getTransactionManager().addAfterCommitPriorityAction(
-					new CommitDeferredEventAction(this, aeqm));
-			sleeContainer.getTransactionManager()
-					.addAfterRollbackAction(
-							new RollbackDeferredEventAction(this,
-									acId));
-		} else {
-			throw new SLEEException("unable to find ACs event queue manager");
-		}		
+		this.receivableService = receivableService;
+		this.eventFlags = eventFlags;		
 	}
 
 	/**
@@ -110,6 +99,14 @@ public class DeferredEvent {
 		return eventTypeId;
 	}
 
+	public int getEventFlags() {
+		return eventFlags;
+	}
+	
+	public ReceivableService getReceivableService() {
+		return receivableService;
+	}
+	
 	public ActivityContextInterface getLoadedAci() {
 		return loadedAci;
 	}

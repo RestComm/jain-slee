@@ -341,16 +341,8 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		getTransactionContext().getAfterCommitPriorityActions().add(action);
 	}
 	
-	public void addAfterRollbackAction(TransactionalAction action) {
-		try {
-			Transaction tx = getTransaction();
-			if (tx != null) {
-				getTransactionContext().getAfterRollbackActions().add(action);
-			}
-		}
-		catch (Exception e) {
-			logger.error(e.getMessage(),e);
-		}
+	public void addAfterRollbackAction(TransactionalAction action) throws SystemException {
+		getTransactionContext().getAfterRollbackActions().add(action);
 	}
 	
 	public void addBeforeCommitAction(TransactionalAction action)

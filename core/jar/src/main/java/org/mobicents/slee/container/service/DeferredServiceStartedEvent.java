@@ -14,7 +14,7 @@ import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
  */
 public class DeferredServiceStartedEvent extends DeferredEvent {
 
-	public DeferredServiceStartedEvent(ActivityContext ac, ServiceStartedEventImpl event) throws SystemException {
+	public DeferredServiceStartedEvent(ActivityContext ac, ServiceStartedEventImpl event) {
 		super(ServiceStartedEventImpl.EVENT_TYPE_ID,event,ac,null);
 	}
 	

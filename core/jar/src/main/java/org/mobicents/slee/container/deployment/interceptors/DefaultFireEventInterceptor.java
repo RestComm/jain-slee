@@ -88,10 +88,6 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         			ac.getActivityContextId());
         }
         
-        if (ac.getState() != ActivityContextState.ACTIVE) {
-        	throw new IllegalStateException ("activity is ending/ended!");
-        }
-        
         // JAIN SLEE (TM) specs - Section 8.4.1 
     	// It is a mandatory transactional method (see Section 9.6.1).    	 
     	SleeTransactionManager tm = sleeContainer.getTransactionManager();
@@ -106,13 +102,8 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         // get it's id from the sbb component's descriptor
         EventTypeID eventID = sbbEntity.getSbbComponent().getDescriptor().getEventTypeID(eventName);
         
-        // if we are firing an event on a null activity we need to warn the activity context due to implicit end checks
-        if (ac instanceof NullActivityContext) {
-        	((NullActivityContext)ac).firingEvent();
-        }
-        
-        // build the deferred event 
-        new DeferredEvent(eventID,args[0],ac,(Address)args[2]);                                       
+        // fire the event 
+        ac.fireEvent(new DeferredEvent(eventID,args[0],ac,(Address)args[2]));                                       
         
         return null;
     }

@@ -152,14 +152,7 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 				activity = naf.createNullActivityImpl(nah,true);
 				ac = acf.getActivityContext(ach,false);
 			}
-			
-			// we are firing an event on a null activity thus we need to warn the activity context due to implict end checks
-	       	((NullActivityContext)ac).firingEvent();
-	        
-			if (log.isDebugEnabled())
-				log.debug("creating deferred event");
-			
-			new DeferredEvent(eventType,event,ac,address);
+			ac.fireEvent(new DeferredEvent(eventType,event,ac,address));
 			rollback = false;
 		} catch (Exception ex) {
 			log.error("Exception in fireEvent!", ex);

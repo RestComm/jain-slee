@@ -24,9 +24,7 @@ import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.cache.NullActivityFactoryCacheData;
-import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
 
 /**
  * Implementation of the null activity factory.
@@ -116,9 +114,11 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 	protected void endNullActivity(ActivityContextHandle ach) throws SystemException {		
 		final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
 		if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
-			ac.setState(ActivityContextState.ENDING);
-			new DeferredActivityEndEvent(ac,null);	
+			ac.end();
 		}	
+		else {
+			logger.error("unable tofind and end ac "+ach);
+		}
 	}
 
 	public void activityEnded(NullActivityHandle nullActivityHandle) {

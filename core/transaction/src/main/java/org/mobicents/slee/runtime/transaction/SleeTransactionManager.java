@@ -89,8 +89,9 @@ public interface SleeTransactionManager extends javax.slee.transaction.SleeTrans
 	 * method will ignore the action if there is no valid transaction, instead of failing.
 	 * 
 	 * @param action
+	 * @throws SystemException 
 	 */
-	public void addAfterRollbackAction(TransactionalAction action); 
+	public void addAfterRollbackAction(TransactionalAction action) throws SystemException; 
 	
 	/**
 	 * adds a new {@link TransactionalAction} that will be executed before the transaction is committed

@@ -12,7 +12,10 @@ package org.mobicents.slee.runtime.activity;
 
 import java.util.Set;
 
+import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.slee.resource.ActivityFlags;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -56,12 +59,12 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	/*
 	 * creates an instance of the activity context for specified ac handle and id
 	 */
-	private ActivityContext createActivityContextInstance(ActivityContextHandle ach, String acId, boolean updateAccessTime) {
+	private ActivityContext createActivityContextInstance(ActivityContextHandle ach, String acId, boolean updateAccessTime, Integer activityFlags) {
 		if (ach.getActivityType() == ActivityType.nullActivity) {
-			return new NullActivityContext(ach,acId,updateAccessTime);
+			return new NullActivityContext(ach,acId,updateAccessTime, activityFlags);
 		}
 		else {
-			return new ActivityContext(ach,acId,updateAccessTime);
+			return new ActivityContext(ach,acId,updateAccessTime,activityFlags);
 		}
 	}
 	
@@ -78,13 +81,17 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	}
 	
 	public ActivityContext createActivityContext(final ActivityContextHandle ach) throws ActivityAlreadyExistsException {
+		return createActivityContext(ach,ActivityFlags.NO_FLAGS);
+	}
+
+	public ActivityContext createActivityContext(final ActivityContextHandle ach, int activityFlags) throws ActivityAlreadyExistsException {
 		
 		// create id
 		final String acId = createActivityContextId(ach);
 		
 		if (cacheData.addActivityContext(ach, acId)) {
 			// create ac
-			ActivityContext ac = createActivityContextInstance(ach,acId,true);
+			ActivityContext ac = createActivityContextInstance(ach,acId,true, Integer.valueOf(activityFlags));
 			// warn event router about it
 			sleeContainer.getEventRouter().activityStarted(acId);
 			// add rollback tx action to remove state created
@@ -93,7 +100,11 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 					sleeContainer.getEventRouter().activityEnded(acId);				
 				}
 			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+			try {
+				sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+			} catch (SystemException e) {
+				throw new SLEEException("failed to add rollback action to remove activity runtime resources",e);
+			}
 			return ac;
 		}
 		else {
@@ -104,7 +115,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	public ActivityContext getActivityContext(ActivityContextHandle ach, boolean updateAccessTime) {
 		String acId = cacheData.getActivityContextId(ach);
 		if (acId != null) {
-			return createActivityContextInstance(ach,acId,updateAccessTime);
+			return createActivityContextInstance(ach,acId,updateAccessTime,null);
 		}
 		else {
 			return null; 
@@ -114,7 +125,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	public ActivityContext getActivityContext(String acId, boolean updateAccessTime) {
 		ActivityContextHandle ach = (ActivityContextHandle) cacheData.getActivityContextHandle(acId);
 		if (ach != null) {
-			return createActivityContextInstance(ach,acId,updateAccessTime);
+			return createActivityContextInstance(ach,acId,updateAccessTime,null);
 		}
 		else {
 			return null; 
@@ -141,13 +152,17 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		
 		sleeContainer.getEventRouter().activityEnded(ac.getActivityContextId());
 		
-		// add rollback tx action to remove state created
+		// add rollback tx action to recreate state removed
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
 				sleeContainer.getEventRouter().activityStarted(ac.getActivityContextId());				
 			}
-		};
-		sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		};	
+		try {
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		} catch (SystemException e) {
+			throw new SLEEException("failed to add rollback action to readd aruntime activity resources",e);
+		}
 		
 		// since the ac ended we may need to warn the activity source that it has ended
 		ac.getActivityContextHandle().activityEnded();
@@ -155,7 +170,6 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activity context with handle "+ac.getActivityContextHandle()+" removed");
 		}
-		
 	}
 	
 	public int getActivityContextCount() {		

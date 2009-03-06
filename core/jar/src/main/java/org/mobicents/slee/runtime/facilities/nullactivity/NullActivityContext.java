@@ -4,6 +4,7 @@ import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.TimerID;
 import javax.slee.nullactivity.NullActivity;
+import javax.slee.resource.ActivityIsEndingException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -11,6 +12,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -38,8 +40,8 @@ public class NullActivityContext extends ActivityContext {
 	
 	private static final Object MAP_VALUE = new Object();
 	
-	public NullActivityContext(ActivityContextHandle ach, String acId, boolean updateAccessTime) {
-		super(ach,acId,updateAccessTime);
+	public NullActivityContext(ActivityContextHandle ach, String acId, boolean updateAccessTime, Integer activityFlags) {
+		super(ach,acId,updateAccessTime,activityFlags);
 		if (cacheData.getObject(NODE_MAP_KEY_NullACCreatedKey) == null) {
 			// ac creation, put flag in cache and schedule check for implicit end
 			cacheData.putObject(NODE_MAP_KEY_NullACCreatedKey, MAP_VALUE);
@@ -232,14 +234,21 @@ public class NullActivityContext extends ActivityContext {
 			}
 		}
 	}
-	
-	public void firingEvent() throws SystemException {
+		
+	@Override
+	public void fireEvent(DeferredEvent de) throws ActivityIsEndingException,
+			SLEEException {
 		if (cacheData.getObject(NODE_MAP_KEY_NullACEnd2ndCheckKey) != null) {
 			// we are firing an event thus we need to cancel a possible implict end
 			cacheData.removeObject(NODE_MAP_KEY_NullACEnd2ndCheckKey);
 			// but this event may not be adding new attach, timer or name, so schedule the implict end 1st check again
-			scheduleCheckForNullActivityImplicitEnd();
+			try {
+				scheduleCheckForNullActivityImplicitEnd();
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
 		}
+		super.fireEvent(de);
 	}
 	
 	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();

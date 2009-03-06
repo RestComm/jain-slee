@@ -55,11 +55,19 @@ public interface ActivityContextFactory {
     public void removeActivityContext(ActivityContext ac);
    
     /**
-     * 
+     * Convenience method which results in invoking createActivityContext(ach,ActivityFlags.NO_FLAGS)
      * @param activityContext
      * @throws ActivityAlreadyExistsException 
      */
     public ActivityContext createActivityContext(ActivityContextHandle ach) throws ActivityAlreadyExistsException;
+    
+    /**
+     * 
+     * @param activityContext
+     * @param activityFlags
+     * @throws ActivityAlreadyExistsException 
+     */
+    public ActivityContext createActivityContext(ActivityContextHandle ach, int activityFlags) throws ActivityAlreadyExistsException;
     
     /**
      * @return Set of all registered SLEE activity context handles

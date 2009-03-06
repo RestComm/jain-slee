@@ -19,6 +19,7 @@ import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.ServiceDescriptor;
 import javax.slee.management.ServiceUsageMBean;
+import javax.slee.resource.ReceivableService;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
 
@@ -51,6 +52,12 @@ public class ServiceComponent extends SleeComponent {
 	 * the usage mbean for this service
 	 */
 	private ServiceUsageMBean serviceUsageMBean;
+	
+	/**
+	 * holder for an instance of an receivable service, to avoid multiple
+	 * creation of this expensive object at runtime
+	 */
+	private ReceivableService receivableSevice;
 	
 	/**
 	 * 
@@ -180,5 +187,21 @@ public class ServiceComponent extends SleeComponent {
 	 */
 	public void setServiceUsageMBean(ServiceUsageMBean serviceUsageMBean) {
 		this.serviceUsageMBean = serviceUsageMBean;
+	}
+	
+	/**
+	 * Retrieves the stored receivable service object
+	 * @return
+	 */
+	public ReceivableService getReceivableSevice() {
+		return receivableSevice;
+	}
+	
+	/**
+	 * Stores a receivable service object instance in the component
+	 * @param receivableSevice
+	 */
+	public void setReceivableSevice(ReceivableService receivableSevice) {
+		this.receivableSevice = receivableSevice;
 	}
 }
