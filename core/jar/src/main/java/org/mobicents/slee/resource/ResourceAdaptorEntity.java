@@ -12,31 +12,22 @@
  */
 package org.mobicents.slee.resource;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.naming.StringRefAddr;
-import javax.slee.CreateException;
+import javax.resource.ResourceException;
 import javax.slee.InvalidStateException;
 import javax.slee.management.ResourceAdaptorEntityState;
-import javax.slee.resource.BootstrapContext;
+import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptor;
-import javax.slee.resource.ResourceException;
 
 import org.apache.commons.jxpath.util.TypeUtils;
 import org.jboss.logging.Logger;
-import org.jboss.util.naming.NonSerializableFactory;
-import org.jboss.util.naming.Util;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 
 /**
  *
@@ -47,163 +38,105 @@ import org.mobicents.slee.container.SleeContainer;
  * @author M. Ranganathan ( hacks )
  * @author Ivelin Ivanov
  */
-public class ResourceAdaptorEntity  implements Serializable {
+public class ResourceAdaptorEntity {
     
-    private static final long serialVersionUID = 6314789586609488087L;
-    
-    private InstalledResourceAdaptor installedResourceAdaptor;
-    // This does not need to be serialized.
-    private transient BootstrapContext raContext;
-    private String raInterfaceJNDIName;
-    private String raFactoryInterfaceJNDIName;
-    // The resource adaptor object from which this entity was created.
-    private transient ResourceAdaptor resourceAdaptor;
-    private ResourceAdaptorEntityState state;
-    private String name;
-    private SleeContainer serviceContainer;
+	/**
+	 * the ra entity name
+	 */
+	private final String name;
+	
+	/**
+	 * the ra component related to this entity
+	 */
+	private final ResourceAdaptorComponent component;
+	
+	/**
+	 * the ra entity state
+	 */
+	private ResourceAdaptorEntityState state;
+	
+	/**
+	 * the ra object
+	 */
+	private final ResourceAdaptorObject object;
+	
+	/**
+	 * the slee container
+	 */
+	private SleeContainer sleeContainer;
 
-    private static Logger log = Logger.getLogger(ResourceAdaptorEntity.class);
+    private static final Logger log = Logger.getLogger(ResourceAdaptorEntity.class);
     
-    public ResourceAdaptorEntity(String name, InstalledResourceAdaptor ra, BootstrapContext context,
-            SleeContainer serviceContainer )
-            throws CreateException {
-    	if(name != null) {
-    		this.name = name;
-    		this.installedResourceAdaptor = ra;
-    		this.raContext = context;
-    		state = ResourceAdaptorEntityState.INACTIVE;
-    		this.serviceContainer = serviceContainer;
-
-    		this.create();
-		}
-		else {
-			throw new IllegalArgumentException("name is null");
-		}
-        
-    }
-    
-    public ResourceAdaptor getResourceAdaptor() {
-        return this.resourceAdaptor;
-    }
-    
-    public InstalledResourceAdaptor getInstalledResourceAdaptor() {
-        return this.installedResourceAdaptor;
-    }
-    
-    public String getInterfaceJNDIName(){
-        return this.raInterfaceJNDIName;
-    }
-    
-    public String getFactoryInterfaceJNDIName(){
-        return this.raFactoryInterfaceJNDIName;
-    }
-    
-    private void setupNamingContext() {
-        try {
-            String prefix = "slee/resources/" +
-                    installedResourceAdaptor.getDescriptor().getName() + "/" +
-                    installedResourceAdaptor.getDescriptor().getVendor() + "/" +
-                    installedResourceAdaptor.getDescriptor().getVersion() ;
-            
-            
-            Object object = resourceAdaptor.getSBBResourceAdaptorInterface(null);
-            if ( log.isDebugEnabled())
-                log.debug("Resource Adaptor Object: " + object);
-            String GLOBAL_ENV = "java:";
-            Context ctx = new InitialContext();
-            ctx = (Context) ctx.lookup(GLOBAL_ENV + prefix);
-            
-            try {
-                ctx=ctx.createSubcontext(this.name);
-            } catch (NameAlreadyBoundException e) {
-                log.warn("Context, " + this.name + " is already bounded");
-                log.warn(e);
-                ctx = (Context) ctx.lookup(this.name);
-            }
-            prefix += "/"+this.name;
-            
-            String factoryProvider = "factoryprovider";
-            NonSerializableFactory.rebind(GLOBAL_ENV + prefix + "/" + factoryProvider,
-                    object);
-            
-            StringRefAddr addr = new StringRefAddr("nns", GLOBAL_ENV
-                    + prefix + "/" + factoryProvider);
-            log.debug("=============== object:"+object+" addr:"+addr+" ===================");
-            Reference ref = new Reference(object.getClass().getName(), addr,
-                    NonSerializableFactory.class.getName(), null);
-            ctx.rebind(factoryProvider, ref);
-            ctx.close();
-            raInterfaceJNDIName = "java:slee/resources/" +
-                    installedResourceAdaptor.getDescriptor().getName() + "/" +
-                    installedResourceAdaptor.getDescriptor().getVendor() + "/" +
-                    installedResourceAdaptor.getDescriptor().getVersion() + "/" +
-                    this.name;
-            
-            raFactoryInterfaceJNDIName = raInterfaceJNDIName + "/" + factoryProvider;
-            
-        } catch (Exception e) {
-            log.warn("Failed setting up Naming Context", e);
-        }
-        
-        
-    }
-    
-    private void cleanNamingContext() throws NamingException {
-        Context ctx = new InitialContext();
-        Util.unbind(ctx, getFactoryInterfaceJNDIName());
-        Util.unbind(ctx, getInterfaceJNDIName());
-        
-        if (log.isDebugEnabled()) {
-            log.debug("Context " + getFactoryInterfaceJNDIName() + " unbound from Naming Service");
-        }
-        
-    }
-    
-    public void create() throws CreateException {
-        try {
-
-            Constructor cons = this.installedResourceAdaptor.getResourceAdaptorClass().getConstructor(null);
- 
-            this.resourceAdaptor = (ResourceAdaptor) cons.newInstance(null);
-            resourceAdaptor.entityCreated((BootstrapContext) raContext);
-
-        } catch (Exception ex ) {
-        	ex.printStackTrace();
-            throw new CreateException("Could not create ", ex);
-        }catch(Error er)
-        {
-        	er.printStackTrace();
-        	throw er;
-        }
-    }
-    
-    public BootstrapContext getBootstrapContext() {
-        return raContext;
-    }
-    
-    public void activate() throws ResourceException, InvalidStateException {
-        if(this.state != ResourceAdaptorEntityState.INACTIVE){
-            throw new InvalidStateException("Resource Adaptor Entity wrong state: " + this.state);
-        }
-        this.resourceAdaptor.entityActivated();
-        this.setupNamingContext();
-        this.state = ResourceAdaptorEntityState.ACTIVE;
-    }
-    
-    public void deactivate() throws InvalidStateException{
-        if(this.state != ResourceAdaptorEntityState.ACTIVE){
-            throw new InvalidStateException("Resource Adaptor Entity wrong state: " + this.state);
-        }
-        this.resourceAdaptor.entityDeactivating();
-        this.resourceAdaptor.entityDeactivated();
-        
-        try {
-            cleanNamingContext();
-        } catch (NamingException e) {
-            log.debug(e);
-        }
-        
+    public ResourceAdaptorEntity(String name, ResourceAdaptorComponent component, ConfigProperties properties, SleeContainer sleeContainer ) {
+    	this.name = name;
+    	this.component = component;    	
+    	this.sleeContainer = sleeContainer;
+    	// create ra object
+    	Constructor cons = this.component.getResourceAdaptorClass().getConstructor(null);
+    	ResourceAdaptor ra = (ResourceAdaptor) cons.newInstance(null);            
+        object = new ResourceAdaptorObject(ra);
+        // set ra context and configure it
+        object.setResourceAdaptorContext(new ResourceAdaptorContextImpl(this,sleeContainer));
+        object.raConfigure(properties);
+        // process to inactive state
         this.state = ResourceAdaptorEntityState.INACTIVE;
+    }
+    
+    public ResourceAdaptorComponent getComponent() {
+		return component;
+	}
+    
+    public ResourceAdaptorObject getObject() {
+		return object;
+	}
+    
+    public void sleeIsRunning() {
+    	// if entity is active then activate the ra object
+    	if (this.state == ResourceAdaptorEntityState.ACTIVE) {
+    		object.raActive();
+    	}
+    }
+    
+    public void sleeIsStopping() {    	
+    	if (this.state == ResourceAdaptorEntityState.ACTIVE) {
+    		object.raStopping();
+    	}
+    }
+    
+    public void activate() throws InvalidStateException {
+        if(this.state != ResourceAdaptorEntityState.INACTIVE){
+            throw new InvalidStateException("entity "+name+" is in state: " + this.state);
+        }
+        this.state = ResourceAdaptorEntityState.ACTIVE;
+    	// if slee is running then activate ra object
+        if (sleeContainer.getSleeState().isRunning()) {
+        	object.raActive();
+        }
+    }
+    
+    public void deactivate() throws InvalidStateException {
+        if(this.state != ResourceAdaptorEntityState.ACTIVE){
+        	throw new InvalidStateException("entity "+name+" is in state: " + this.state);
+        }
+        object.raStopping();
+        this.state = ResourceAdaptorEntityState.STOPPING;
+    }
+    
+    public void deactivated() throws InvalidStateException {
+        if(this.state != ResourceAdaptorEntityState.STOPPING){
+        	throw new InvalidStateException("entity "+name+" is in state: " + this.state);
+        }
+        object.raInactive();
+        this.state = ResourceAdaptorEntityState.INACTIVE;
+    }
+    
+    public void remove() throws InvalidStateException {
+        if(this.state != ResourceAdaptorEntityState.INACTIVE){
+        	throw new InvalidStateException("entity "+name+" is in state: " + this.state);
+        }
+        object.raUnconfigure();
+        object.unsetResourceAdaptorContext();
+        state = null;
     }
     
     public void serviceInstalled(String serviceID, int[] eventIDs, String[] resourceOptions) {
@@ -221,23 +154,9 @@ public class ResourceAdaptorEntity  implements Serializable {
     public void serviceDeactivated(String serviceID) {
         this.resourceAdaptor.serviceDeactivated(serviceID);
     }
-    public void remove() throws InvalidStateException{
-        if(this.state != ResourceAdaptorEntityState.INACTIVE){
-            throw new InvalidStateException("Resource Adaptor Entity wrong state: " + this.state);
-        }
-        this.resourceAdaptor.entityRemoved();
-    }
     
-    /**
-     * Builds method for property accessors using JavaBeans property accessor's rules.
-     *
-     * @param prefix get/set
-     * @param name the name of the property.
-     * @param the name of the accessor method.
-     */
-    public String accessorName(String prefix, String name) {
-        return prefix + name.substring(0,1).toUpperCase() + name.substring(1);
-    }
+    
+   
     
     /**
      * Modify the value of the configuration property.
@@ -335,7 +254,7 @@ public class ResourceAdaptorEntity  implements Serializable {
     }
     
     public SleeContainer getServiceContainer() {
-        return this.serviceContainer;
+        return this.sleeContainer;
     }
     
     public boolean equals(Object obj) {

@@ -51,11 +51,11 @@ public class SleeEndpointImpl implements SleeEndpoint {
     private static Logger logger = Logger
             .getLogger(SleeEndpointImpl.class);
 
-    private final String raEntityName;
+    private final ResourceAdaptorEntity raEntity;
     
-    public SleeEndpointImpl(SleeContainer container, String raEntityName) {
+    public SleeEndpointImpl(ResourceAdaptorEntity raEntity,SleeContainer container) {
         this.sleeContainer = container;
-        this.raEntityName = raEntityName;
+        this.raEntity = raEntity;
     }
 
     // --- ACTIVITY START 
@@ -72,19 +72,13 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			IllegalStateException, ActivityAlreadyExistsException,
 			StartActivityException, SLEEException {
 		
-		if (handle == null) {
-    		throw new NullPointerException("null handle");
-    	}
-    	if (activity == null) {
-    		throw new NullPointerException("null activity");
-    	}
-    	// TODO check RA state
+		checkStartActivityParameters(handle,activity);
     	
     	SleeTransactionManager tm = sleeContainer.getTransactionManager();
 		boolean newTx = tm.requireTransaction();
 		boolean rollback = true;
 		try {
-			_startActivity(handle,activityFlags);	            	
+			startActivity(handle,activityFlags);	            	
 	        rollback = false;            	
         }
         finally {
@@ -137,6 +131,20 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			IllegalStateException, TransactionRequiredLocalException,
 			ActivityAlreadyExistsException, StartActivityException,
 			SLEEException {
+		checkStartActivityParameters(handle,activity);
+    	// check tx state
+    	sleeContainer.getTransactionManager().mandateTransaction();
+    	startActivity(handle,activityFlags);
+	}
+
+	/**
+	 * Checks the parameters of startActivity* methods
+	 * @param handle
+	 * @param activity
+	 * @throws NullPointerException
+	 * @throws IllegalStateException
+	 */
+	private void checkStartActivityParameters(ActivityHandle handle, Object activity) throws NullPointerException,IllegalStateException {
 		// check args
 		if (handle == null) {
     		throw new NullPointerException("null handle");
@@ -144,21 +152,21 @@ public class SleeEndpointImpl implements SleeEndpoint {
     	if (activity == null) {
     		throw new NullPointerException("null activity");
     	}
-    	// TODO check RA state
-    	// check tx state
-    	sleeContainer.getTransactionManager().mandateTransaction();
-    	_startActivity(handle,activityFlags);
+    	// check ra state
+    	if(raEntity.getObject().getState() != ResourceAdaptorObjectState.ACTIVE) {
+    		throw new IllegalStateException("ra is not in state "+raEntity.getObject().getState());
+    	}
 	}
-
+	
 	/**
 	 * Start activity logic, independent of transaction management.
 	 * 
 	 * @param handle
 	 * @param activityFlags
 	 */
-	private void _startActivity(ActivityHandle handle, int activityFlags) {
+	private void startActivity(ActivityHandle handle, int activityFlags) {
 		// create activity context
-    	ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntityName,handle);        
+    	ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntity.getName(),handle);        
     	sleeContainer.getActivityContextFactory().createActivityContext(ach,activityFlags);
     	if (logger.isDebugEnabled()) {
     		logger.debug("Activity started: "+ ach);
@@ -221,7 +229,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 */
 	private void _endActivity(ActivityHandle handle) {
 		ActivityContextHandle ach = ActivityContextHandlerFactory
-		.createExternalActivityContextHandle(raEntityName, handle);
+		.createExternalActivityContextHandle(raEntity.getName(), handle);
 		// get ac
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
 		if (ac != null) {
@@ -246,25 +254,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			throws NullPointerException, UnrecognizedActivityHandleException,
 			IllegalEventException, ActivityIsEndingException,
 			FireEventException, SLEEException {
-    	
-    	if (event == null) 
-    		throw new NullPointerException("event is null");
-    	
-    	if (handle == null) 
-    		throw new NullPointerException("handle is null");
-    	
-    	if (eventType == null) {
-    		throw new NullPointerException("eventType is null");
-    	}
-    	EventTypeComponent eventTypeComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(eventType.getEventType());
-    	if (eventTypeComponent == null) {
-    		throw new IllegalEventException("event type not installed (more on SLEE 1.1 specs 15.14.8)");
-    	}
-    	if (!event.getClass().isAssignableFrom(eventTypeComponent.getEventTypeClass())) {
-    		throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
-    	}
-    	// TODO throw IllegalEventException if event can not be fired by this RA (if such option is not disabled)
-    	
+		checkFireEventPreconditions(handle,eventType,event);
     	SleeTransactionManager tm = sleeContainer.getTransactionManager();
 		boolean newTx = tm.requireTransaction();
 		boolean rollback = true;
@@ -307,7 +297,22 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			UnrecognizedActivityHandleException, IllegalEventException,
 			TransactionRequiredLocalException, ActivityIsEndingException,
 			FireEventException, SLEEException {
+		checkFireEventPreconditions(handle,eventType,event);
+		sleeContainer.getTransactionManager().mandateTransaction();
+        _fireEvent(handle,eventType,event,address,receivableService,eventFlags);
+	}
 
+	/**
+	 * Checks that fire event methods can be invoked
+	 * @param handle
+	 * @param eventType
+	 * @param event
+	 * @throws NullPointerException
+	 * @throws IllegalEventException
+	 * @throws IllegalStateException
+	 */
+	private void checkFireEventPreconditions(ActivityHandle handle, FireableEventType eventType,
+			Object event) throws NullPointerException,IllegalEventException,IllegalStateException {
 		if (event == null) 
     		throw new NullPointerException("event is null");
     	
@@ -325,12 +330,15 @@ public class SleeEndpointImpl implements SleeEndpoint {
     		throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
     	}
     	// TODO throw IllegalEventException if event can not be fired by this RA (if such option is not disabled)
-
-        sleeContainer.getTransactionManager().mandateTransaction();
-
-        _fireEvent(handle,eventType,event,address,receivableService,eventFlags);
+    	// uncomment if tck enforces ra object state 
+    	/*
+    	ResourceAdaptorObjectState raObjectState = raEntity.getObject().getState();
+    	if (raObjectState != ResourceAdaptorObjectState.ACTIVE && raObjectState != ResourceAdaptorObjectState.STOPPING) {
+    		throw new IllegalStateException("ra object is in state "+raObjectState);			
+		}
+		*/
 	}
-
+	
 	/**
 	 * Event firing logic independent of transaction management.
 	 * 
@@ -343,7 +351,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 */
 	private void _fireEvent(ActivityHandle handle, FireableEventType eventType,
 			Object event, Address address, ReceivableService receivableService, int eventFlags) {
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntityName,handle);        
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntity.getName(),handle);        
 		// get ac
     	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,true);
     	if (ac == null) {
@@ -367,7 +375,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		tm.mandateTransaction();
 
 		ActivityContextHandle ach = ActivityContextHandlerFactory
-				.createExternalActivityContextHandle(raEntityName, handle);
+				.createExternalActivityContextHandle(raEntity.getName(), handle);
 
 		// get ac
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
@@ -391,7 +399,5 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		} else {
 			throw new UnrecognizedActivityException(handle);
 		}
-		
 	} 
-	
 }

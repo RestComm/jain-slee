@@ -30,13 +30,12 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	private final SleeEndpointImpl sleeEndpointImpl;
 	private final SleeContainer sleeContainer;
 		
-	public ResourceAdaptorContextImpl(String entityName, ResourceAdaptorID resourceAdaptor, ResourceAdaptorTypeID[] resourceAdaptorTypes, SleeContainer sleeContainer) {
-		this.entityName = entityName;
-		this.resourceAdaptor = resourceAdaptor;
-		this.resourceAdaptorTypes = resourceAdaptorTypes;
+	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer) {
+		this.entityName = raEntity.getName();
+		this.resourceAdaptor = raEntity.getComponent().getResourceAdaptorID();
+		this.resourceAdaptorTypes = raEntity.getComponent().getSpecsDescriptor().getResourceAdaptorTypes();
 		this.sleeContainer = sleeContainer;
-		// FIXME
-		this.sleeEndpointImpl = null;
+		this.sleeEndpointImpl = new SleeEndpointImpl(raEntity,sleeContainer);
 	}
 	
 	public AlarmFacility getAlarmFacility() {
