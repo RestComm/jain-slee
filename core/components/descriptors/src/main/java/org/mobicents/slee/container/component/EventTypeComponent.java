@@ -10,7 +10,6 @@ package org.mobicents.slee.container.component;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
@@ -22,6 +21,7 @@ import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
  * Start time:00:44:47 2009-02-04<br>
@@ -51,9 +51,8 @@ public class EventTypeComponent extends SleeComponent {
 	/**
 	 * the set of active {@link ServiceComponent} which define this event as initial 
 	 */
-	private ConcurrentHashMap<ServiceComponent,Object> activeServicesWhichDefineEventAsInitial = new ConcurrentHashMap<ServiceComponent, Object>();
-	private final static Object MAP_VALUE = new Object();
-	
+	private ConcurrentHashSet<ServiceComponent> activeServicesWhichDefineEventAsInitial = new ConcurrentHashSet<ServiceComponent>();
+		
 	/**
 	 * 
 	 * @param descriptor
@@ -146,7 +145,7 @@ public class EventTypeComponent extends SleeComponent {
 	 * @return
 	 */
 	public Set<ServiceComponent> getActiveServicesWhichDefineEventAsInitial() {
-		return activeServicesWhichDefineEventAsInitial.keySet();
+		return activeServicesWhichDefineEventAsInitial;
 	}
 	
 	/**
@@ -154,7 +153,7 @@ public class EventTypeComponent extends SleeComponent {
 	 * @param serviceComponent
 	 */
 	public void activatedServiceWhichDefineEventAsInitial(ServiceComponent serviceComponent) {
-		activeServicesWhichDefineEventAsInitial.put(serviceComponent, MAP_VALUE);
+		activeServicesWhichDefineEventAsInitial.add(serviceComponent);
 	}
 	
 	/**

@@ -1,6 +1,5 @@
 package org.mobicents.slee.runtime.eventrouter;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -9,6 +8,7 @@ import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
  * 
@@ -24,11 +24,6 @@ public class ActivityEventQueueManager {
 			.getLogger(ActivityEventQueueManager.class);
 
 	/**
-	 * a dummy value to use as map entry value
-	 */
-	private static final Object MAP_VALUE = new Object();
-
-	/**
 	 * stores the activity end event when set
 	 */
 	private DeferredEvent activityEndEvent;
@@ -42,7 +37,7 @@ public class ActivityEventQueueManager {
 	 * the set of pending events, i.e., events not committed yet, for this
 	 * activity
 	 */
-	private ConcurrentHashMap<DeferredEvent, Object> pendingEvents = new ConcurrentHashMap<DeferredEvent, Object>();
+	private ConcurrentHashSet<DeferredEvent> pendingEvents = new ConcurrentHashSet<DeferredEvent>();
 
 	/**
 	 * the events hold due to barriers set
@@ -52,7 +47,7 @@ public class ActivityEventQueueManager {
 	/**
 	 * the transactions that hold barriers to the activity event queue
 	 */
-	private ConcurrentHashMap<Transaction, Object> eventBarriers = new ConcurrentHashMap<Transaction, Object>();
+	private ConcurrentHashSet<Transaction> eventBarriers = new ConcurrentHashSet<Transaction>();
 	/**
 	 * the slee container
 	 */
@@ -95,7 +90,7 @@ public class ActivityEventQueueManager {
 
 		if (activityEndEvent == null) {
 			// activity end event not set, we accept pending events
-			pendingEvents.put(dE, MAP_VALUE);
+			pendingEvents.add(dE);
 
 		} else {
 			// signal event router that processing of the event failed
@@ -113,7 +108,7 @@ public class ActivityEventQueueManager {
 					+ dE.getActivityContextId());
 		}
 
-		if (pendingEvents.remove(dE) != null) {
+		if (pendingEvents.remove(dE)) {
 			// confirmed it was a pending event
 			if (dE.getEventTypeId().equals(
 					ActivityEndEventImpl.EVENT_TYPE_ID)) {
@@ -196,7 +191,7 @@ public class ActivityEventQueueManager {
 					+ dE.getActivityContextId());
 		}
 
-		if (pendingEvents.remove(dE) != null) {
+		if (pendingEvents.remove(dE)) {
 			// confirmed the event was pending
 			routeActivityEndEventIfNeeded();
 		}
@@ -208,7 +203,7 @@ public class ActivityEventQueueManager {
 	 */
 	public void createBarrier(Transaction transaction) {
 		// raise barrier
-		eventBarriers.put(transaction, MAP_VALUE);
+		eventBarriers.add(transaction);
 	}
 	
 	/**

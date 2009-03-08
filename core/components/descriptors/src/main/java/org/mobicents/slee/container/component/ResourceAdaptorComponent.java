@@ -17,6 +17,7 @@ import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorDescriptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
@@ -25,6 +26,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Resour
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
+import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
  * Start time:00:45:25 2009-02-04<br>
@@ -55,6 +58,11 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	 * the JAIN SLEE specs descriptor
 	 */
 	private ResourceAdaptorDescriptor specsDescriptor = null;
+	
+	/**
+	 * the set containing all ra entity names that exist for this component
+	 */
+	private final ConcurrentHashSet<String> raEntities = new ConcurrentHashSet<String>(); 
 	
 	/**
 	 * 
@@ -173,5 +181,26 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	@Override
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
+	}
+	
+	/**
+	 * Retrieves the set containing all ra entity names that exist for this component
+	 * @return
+	 */
+	public Set<String> getResourceAdaptorEntities() {
+		return raEntities;
+	}
+	
+	/**
+	 * Creates an instance of the {@link ConfigProperties} for this component
+	 * @return
+	 */
+	public ConfigProperties getDefaultConfigPropertiesInstance() {
+		ConfigProperties defaultProperties = new ConfigProperties();
+		for (MConfigProperty mConfigProperty : getDescriptor().getConfigProperties()) {
+			Object configPropertyValue = mConfigProperty.getConfigPropertyValue() == null ? null : ConfigProperties.Property.toObject(mConfigProperty.getConfigPropertyType(), mConfigProperty.getConfigPropertyValue());
+			defaultProperties.addProperty(new ConfigProperties.Property(mConfigProperty.getConfigPropertyName(),mConfigProperty.getConfigPropertyType(),configPropertyValue));
+		}
+		return defaultProperties;
 	}
 }

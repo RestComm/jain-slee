@@ -2,49 +2,33 @@ package org.mobicents.slee.container.management;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.BootstrapContext;
-import javax.slee.ComponentID;
-import javax.slee.CreateException;
-import javax.slee.EventTypeID;
+import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
+import javax.slee.SbbID;
 import javax.slee.management.DependencyException;
-import javax.slee.management.DeploymentException;
 import javax.slee.management.LinkNameAlreadyBoundException;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.ResourceManagementMBean;
-import javax.slee.management.SbbDescriptor;
 import javax.slee.management.UnrecognizedLinkNameException;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.slee.management.UnrecognizedResourceAdaptorException;
+import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.ResourceAdaptorID;
-import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
-import org.mobicents.slee.resource.ConfigPropertyDescriptor;
-import org.mobicents.slee.resource.EventLookupFacilityImpl;
-import org.mobicents.slee.resource.InstalledResourceAdaptor;
-import org.mobicents.slee.resource.ResourceAdaptorActivityContextInterfaceFactory;
-import org.mobicents.slee.resource.ResourceAdaptorBoostrapContext;
-import org.mobicents.slee.resource.ResourceAdaptorDescriptorImpl;
+import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.resource.ResourceAdaptorType;
-import org.mobicents.slee.resource.ResourceAdaptorTypeDescriptorImpl;
-import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
-import org.mobicents.slee.resource.SleeEndpointImpl;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * 
@@ -82,97 +66,89 @@ public class ResourceManagement {
 
 	/**
 	 * @see ResourceManagementMBean#createResourceAdaptorEntity(ResourceAdaptorID,
-	 *      String, Properties)
-	 * 
-	 * @param id
-	 * @param entityName
-	 * @param properties
-	 * @throws UnrecognizedResourceAdaptorException
-	 * @throws ResourceAdaptorEntityAlreadyExistsException
-	 * @throws ResourceException
+	 *      String, ConfigProperties)
 	 */
-
 	public void createResourceAdaptorEntity(ResourceAdaptorID id,
-			String entityName, Properties properties)
-	throws NullPointerException, InvalidArgumentException,
-	UnrecognizedResourceAdaptorException,
-	ResourceAdaptorEntityAlreadyExistsException, ResourceException {
+			String entityName, ConfigProperties properties)
+			throws NullPointerException, InvalidArgumentException,
+			UnrecognizedResourceAdaptorException,
+			ResourceAdaptorEntityAlreadyExistsException,
+			InvalidConfigurationException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Creating RA Entity. Id: " + id + ", name: "
 					+ entityName + ", properties: " + properties);
 		}
 
-		// TODO tx aware operation
 		synchronized (sleeContainer.getManagementMonitor()) {
-			final InstalledResourceAdaptor installedRA = resourceAdaptors.get(id);
-			if (installedRA == null) {
-				String msg = "Failed to create RA Entity. RA ID: " + id
-				+ " not found.";
-				logger.error(msg);
-				throw new UnrecognizedResourceAdaptorException(msg);
+
+			if (id == null) {
+				throw new NullPointerException("null ra id");
+			}
+
+			if (properties == null) {
+				throw new NullPointerException("null config properties");
+			}
+
+			/*
+			 * javax.slee.InvalidArgumentExceptionThis exception is thrown if
+			 * the resource adaptor entity name argument is not a valid. A
+			 * resource adaptor entity name cannot be null or zero-length, and
+			 * may only contain letter or digit characters as defined by
+			 * java.lang.Character.isLetterOrDigit. Additionally, any other
+			 * character in the Unicode range 0x0020-0x007e may be included in a
+			 * resource adaptor entity name.
+			 */
+			if (entityName == null) {
+				throw new InvalidArgumentException("entityName is null");
+			}
+			if (entityName.length() == 0) {
+				throw new InvalidArgumentException("entityName is zero length");
+			}
+			validateNewEntityOrLinkName(entityName);
+
+			ResourceAdaptorComponent component = getResourceAdaptorComponent(id);
+			if (component == null) {
+				throw new UnrecognizedResourceAdaptorException(
+						"Failed to create RA Entity. RA ID: " + id
+								+ " not found.");
 			}
 
 			if (this.resourceAdaptorEntities.get(entityName) != null) {
-				String msg = "Failed to create RA Entity. Resource Adpator Entity Name: "
-					+ entityName + " already exists! RA ID: " + id;
-				logger.error(msg);
-				throw new ResourceAdaptorEntityAlreadyExistsException(msg);
+				throw new ResourceAdaptorEntityAlreadyExistsException(
+						"Failed to create RA Entity. Resource Adpator Entity Name: "
+								+ entityName + " already exists! RA ID: " + id);
 			}
 
-			final BootstrapContext bootStrap = new ResourceAdaptorBoostrapContext(
-					entityName, new SleeEndpointImpl(sleeContainer
-							.getActivityContextFactory(), sleeContainer
-							.getEventRouter(), sleeContainer, entityName),
-							new EventLookupFacilityImpl(sleeContainer), sleeContainer
-							.getAlarmFacility(), sleeContainer
-							.getTransactionManager(), sleeContainer
-							.getProfileFacility());
+			ResourceAdaptorEntity raEntity = new ResourceAdaptorEntity(
+					entityName, component, properties, sleeContainer);
 
-			ResourceAdaptorEntity raEntity = null;
-			try {
-				raEntity = new ResourceAdaptorEntity(entityName, installedRA,
-						bootStrap, sleeContainer);
-			} catch (CreateException e) {
-				throw new ResourceException("failed to create ra entity", e);
-			}
 			this.resourceAdaptorEntities.put(entityName, raEntity);
-			installedRA.getResourceAdaptorEntities().add(raEntity);
+			component.getResourceAdaptorEntities().add(entityName);
 
-			// configure properties
-			if (logger.isDebugEnabled()) {
-				logger.debug(id + "RA PROPERTIES: " + properties);
-			}
-			try {
-				raEntity.configure(properties);
-			} catch (InvalidStateException e) {
-				throw new ResourceException("failed to configure ra entity", e);
-			}
-
-			logger.info("Created RA Entity. Id: " + id + ", name: " + entityName
-					+ ", properties: " + properties);
+			logger.info("Created RA Entity. Id: " + id + ", name: "
+					+ entityName + ", properties: " + properties);
 		}
 	}
 
 	/**
 	 * @see ResourceManagementMBean#activateResourceAdaptorEntity(String)
-	 * @param entityName
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws InvalidStateException
-	 * @throws javax.slee.resource.ResourceException
 	 */
 	public void activateResourceAdaptorEntity(String entityName)
-			throws UnrecognizedResourceAdaptorEntityException,
-			InvalidStateException, javax.slee.resource.ResourceException {
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException, InvalidStateException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activating RA Entity " + entityName);
 		}
 
-		// TODO tx aware operation
+		if (entityName == null) {
+			throw new NullPointerException("null entity name");
+		}
+
 		synchronized (sleeContainer.getManagementMonitor()) {
 			final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
-			.get(entityName);
+					.get(entityName);
 			if (raEntity == null) {
 				throw new UnrecognizedResourceAdaptorEntityException(
 						"Resource Adaptor Entity " + entityName + " not found.");
@@ -185,11 +161,6 @@ public class ResourceManagement {
 
 	/**
 	 * @see ResourceManagementMBean#deactivateResourceAdaptorEntity(String)
-	 * 
-	 * @param name
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws InvalidStateException
 	 */
 	public void deactivateResourceAdaptorEntity(String entityName)
 			throws NullPointerException,
@@ -199,10 +170,13 @@ public class ResourceManagement {
 			logger.debug("Deactivating RA Entity " + entityName);
 		}
 
-		// TODO tx aware operation
+		if (entityName == null) {
+			throw new NullPointerException("null entity name");
+		}
+
 		synchronized (sleeContainer.getManagementMonitor()) {
 			final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
-			.get(entityName);
+					.get(entityName);
 			if (raEntity == null) {
 				throw new UnrecognizedResourceAdaptorEntityException(
 						"Resource Adaptor Entity " + entityName + " not found.");
@@ -215,12 +189,6 @@ public class ResourceManagement {
 
 	/**
 	 * @see ResourceManagementMBean#removeResourceAdaptorEntity(String)
-	 * 
-	 * @param entityName
-	 * @throws java.lang.NullPointerException
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws InvalidStateException
-	 * @throws DependencyException
 	 */
 	public void removeResourceAdaptorEntity(String entityName)
 			throws java.lang.NullPointerException,
@@ -231,9 +199,13 @@ public class ResourceManagement {
 			logger.debug("Removing RA Entity " + entityName);
 		}
 
+		if (entityName == null) {
+			throw new NullPointerException("null entity name");
+		}
+
 		synchronized (sleeContainer.getManagementMonitor()) {
 			final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
-			.get(entityName);
+					.get(entityName);
 			if (raEntity == null) {
 				throw new UnrecognizedResourceAdaptorEntityException(
 						"Resource Adaptor Entity " + entityName + " not found.");
@@ -244,8 +216,8 @@ public class ResourceManagement {
 			}
 
 			raEntity.remove();
-			raEntity.getInstalledResourceAdaptor().getResourceAdaptorEntities()
-			.remove(raEntity);
+			raEntity.getComponent().getResourceAdaptorEntities().remove(
+					raEntity);
 			this.resourceAdaptorEntities.remove(entityName);
 			logger.info("Removed RA Entity " + entityName);
 		}
@@ -254,45 +226,38 @@ public class ResourceManagement {
 	/**
 	 * 
 	 * @see ResourceManagementMBean#updateConfigurationProperties(String,
-	 *      Properties)
-	 * 
-	 * @param name
-	 * @param properties
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws InvalidStateException
-	 * @throws ResourceException
+	 *      ConfigProperties)
 	 */
-	public void updateConfigurationProperties(String name, Properties properties)
-			throws NullPointerException,
+	public void updateConfigurationProperties(String entityName,
+			ConfigProperties properties) throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
-			InvalidArgumentException, ResourceException {
+			InvalidConfigurationException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Updating RA Entity with properties: " + properties);
 		}
 
+		if (entityName == null) {
+			throw new NullPointerException("null entity name");
+		}
+
+		if (properties == null) {
+			throw new NullPointerException("null config properties");
+		}
+
 		final ResourceAdaptorEntity raEntity = this.resourceAdaptorEntities
-				.get(name);
+				.get(entityName);
 		if (raEntity == null) {
 			throw new UnrecognizedResourceAdaptorEntityException(
-					"Resource Adaptor Entity " + name + " not found.");
+					"Resource Adaptor Entity " + entityName + " not found.");
 		} else {
-			raEntity.configure(properties);
+			raEntity.updateConfigurationProperties(properties);
 			logger.info("Updated RA Entity with properties: " + properties);
 		}
 	}
 
 	/**
-	 * 
 	 * @see ResourceManagementMBean#bindLinkName(String, String)
-	 * 
-	 * @param linkName
-	 * @param entityName
-	 * @throws NullPointerException
-	 * @throws InvalidArgumentException
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws LinkNameAlreadyBoundException
 	 */
 	public void bindLinkName(String linkName, String entityName)
 			throws NullPointerException, InvalidArgumentException,
@@ -303,94 +268,53 @@ public class ResourceManagement {
 			logger.debug("Binding link between RA Entity " + entityName
 					+ " and Name " + linkName);
 		}
+		if (linkName == null) {
+			throw new NullPointerException("null link name");
+		}
+		if (entityName == null) {
+			throw new NullPointerException("null entity name");
+		}
 
-		// TODO tx aware operation
 		synchronized (sleeContainer.getManagementMonitor()) {
-			if (linkName == null) {
-				throw new NullPointerException("null link name");
-			}
-			if (entityName == null) {
-				throw new NullPointerException("null entity name");
-			}
 			if (this.resourceAdaptorEntityLinks.containsKey(linkName)) {
 				throw new LinkNameAlreadyBoundException(linkName);
 			}
 			if (!this.resourceAdaptorEntities.containsKey(entityName)) {
 				throw new UnrecognizedResourceAdaptorEntityException(entityName);
 			}
-
+			validateNewEntityOrLinkName(linkName);
 			this.resourceAdaptorEntityLinks.put(linkName, entityName);
-
-			logger.info("Bound link between RA Entity " + entityName + " and Name "
-					+ linkName);
+			logger.info("Bound link between RA Entity " + entityName
+					+ " and Name " + linkName);
 		}
-
 	}
 
 	/**
 	 * @see ResourceManagementMBean#unbindLinkName(String)
-	 * @param linkName
-	 * @throws NullPointerException
-	 * @throws UnrecognizedLinkNameException
-	 * @throws DependencyException
-	 * @throws UnrecognizedResourceAdaptorEntityException
 	 */
 	public void unbindLinkName(String linkName) throws NullPointerException,
-			UnrecognizedLinkNameException, DependencyException,
-			UnrecognizedResourceAdaptorEntityException {
+			UnrecognizedLinkNameException, DependencyException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Unbinding RA Entity Link " + linkName);
 		}
 
-		// TODO tx aware operation
 		synchronized (sleeContainer.getManagementMonitor()) {
-			if (linkName == null) {
-				throw new NullPointerException("null link name");
+			SbbID[] boundSbbs = getBoundSbbs(linkName);
+			if (boundSbbs.length > 0) {
+				throw new DependencyException(linkName
+						+ " link name is still referenced by sbbs "
+						+ Arrays.asList(boundSbbs));
+			} else {
+				this.resourceAdaptorEntityLinks.remove(linkName);
+				logger.info("Unbound RA Entity Link " + linkName);
 			}
-
-			final String entityName = this.resourceAdaptorEntityLinks.get(linkName);
-			if (entityName == null) {
-				throw new UnrecognizedLinkNameException(linkName);
-			}
-
-			final ResourceAdaptorEntity resourceAdaptorEntity = this.resourceAdaptorEntities
-			.get(entityName);
-			if (resourceAdaptorEntity == null) {
-				throw new UnrecognizedResourceAdaptorEntityException(entityName);
-			}
-
-			final ResourceAdaptorID raID = resourceAdaptorEntity
-			.getInstalledResourceAdaptor().getKey();
-			ComponentManagement componentManagement = sleeContainer
-			.getComponentManagement();
-			ComponentID[] refComps = componentManagement
-			.getReferringComponents(raID);
-			for (int i = 0; i < refComps.length; i++) {
-				if (componentManagement.getComponentDescriptor(refComps[i]) instanceof SbbDescriptor) {
-					SbbDescriptor sbbDesc = (SbbDescriptor) componentManagement
-					.getComponentDescriptor(refComps[i]);
-					String[] sbbRALinks = sbbDesc.getResourceAdaptorEntityLinks();
-					for (int j = 0; j < sbbRALinks.length; j++) {
-						if (linkName.equals(sbbRALinks[j]))
-							throw new DependencyException(sbbDesc.getID()
-									+ " is referencing this RA link"
-									+ " -- cannot remove it!");
-					}
-				}
-			}
-
-			this.resourceAdaptorEntityLinks.remove(linkName);
-			logger.info("Unbound RA Entity Link " + linkName);
 		}
 	}
 
 	/**
 	 * 
 	 * @see ResourceManagementMBean#getResourceAdaptorEntities(ResourceAdaptorEntityState)
-	 * @param state
-	 * @return
-	 * @throws NullPointerException
 	 */
 	public String[] getResourceAdaptorEntities(ResourceAdaptorEntityState state)
 			throws NullPointerException {
@@ -398,55 +322,44 @@ public class ResourceManagement {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting RA Entities with state " + state);
 		}
-
-		if (state == null)
+		if (state == null) {
 			throw new NullPointerException("null entity state");
-
+		}
 		HashSet<String> resultEntityNames = new HashSet<String>();
 		for (ResourceAdaptorEntity resourceAdaptorEntity : resourceAdaptorEntities
 				.values()) {
-			if (resourceAdaptorEntity.getState().equals(state))
+			if (resourceAdaptorEntity.getState() == state) {
 				resultEntityNames.add(resourceAdaptorEntity.getName());
+			}
 		}
-
 		String[] resultEntityNamesArray = new String[resultEntityNames.size()];
 		resultEntityNamesArray = resultEntityNames
 				.toArray(resultEntityNamesArray);
-
 		if (logger.isDebugEnabled()) {
 			logger.debug("Got RA Entities with state " + state + " : "
 					+ resultEntityNames);
 		}
-
 		return resultEntityNamesArray;
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getLinkNames()
-	 * @return
 	 */
 	public String[] getLinkNames() {
-
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting RA link names");
 		}
-
-		Set entityLinksSet = resourceAdaptorEntityLinks.keySet();
-		String[] entityLinksArray = new String[entityLinksSet.size()];
-		entityLinksArray = (String[]) entityLinksSet.toArray(entityLinksArray);
+		String[] linkNames = resourceAdaptorEntityLinks.keySet().toArray(
+				new String[0]);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA link names : " + entityLinksSet);
+			logger.debug("Got RA link names : " + Arrays.asList(linkNames));
 		}
-		return entityLinksArray;
+		return linkNames;
 
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getLinkNames(String)
-	 * @param entityName
-	 * @return
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorEntityException
 	 */
 	public String[] getLinkNames(String entityName)
 			throws NullPointerException,
@@ -482,13 +395,54 @@ public class ResourceManagement {
 	}
 
 	/**
-	 * @see ResourceManagementMBean#getConfigurationProperties(ResourceAdaptorID)
-	 * @param id
-	 * @return
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorException
+	 * @see ResourceManagementMBean#getBoundSbbs(String)
 	 */
-	public Properties getConfigurationProperties(ResourceAdaptorID id)
+	public SbbID[] getBoundSbbs(String linkName) throws NullPointerException,
+			UnrecognizedLinkNameException {
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Getting sbbs bound to link name " + linkName);
+		}
+
+		if (linkName == null) {
+			throw new NullPointerException("null link name");
+		}
+
+		synchronized (sleeContainer.getManagementMonitor()) {
+			if (!this.resourceAdaptorEntityLinks.containsKey(linkName)) {
+				throw new UnrecognizedLinkNameException(linkName);
+			}
+			final Set<SbbID> boundSbbsSet = new HashSet<SbbID>();
+			final ComponentRepositoryImpl componentRepository = sleeContainer
+					.getComponentRepositoryImpl();
+			for (SbbID sbbID : componentRepository.getSbbIDs()) {
+				SbbComponent sbbComponent = componentRepository
+						.getComponentByID(sbbID);
+				for (MResourceAdaptorTypeBinding raTypeBinding : sbbComponent
+						.getDescriptor().getResourceAdaptorTypeBindings()) {
+					for (MResourceAdaptorEntityBinding raEntityBinding : raTypeBinding
+							.getResourceAdaptorEntityBinding()) {
+						if (raEntityBinding.getResourceAdaptorEntityLink()
+								.equals(linkName)) {
+							boundSbbsSet.add(sbbID);
+						}
+					}
+				}
+			}
+			SbbID[] result = boundSbbsSet
+					.toArray(new SbbID[boundSbbsSet.size()]);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Got sbbs bound to link name " + linkName + " : "
+						+ boundSbbsSet);
+			}
+			return result;
+		}
+	}
+
+	/**
+	 * @see ResourceManagementMBean#getConfigurationProperties(ResourceAdaptorID)
+	 */
+	public ConfigProperties getConfigurationProperties(ResourceAdaptorID id)
 			throws NullPointerException, UnrecognizedResourceAdaptorException {
 
 		if (logger.isDebugEnabled()) {
@@ -499,39 +453,21 @@ public class ResourceManagement {
 		if (id == null)
 			throw new NullPointerException("null resource adaptor id");
 
-		final InstalledResourceAdaptor installedResourceAdaptor = this.resourceAdaptors
-				.get(id);
-		if (installedResourceAdaptor == null)
+		ResourceAdaptorComponent component = getResourceAdaptorComponent(id);
+		if (component == null) {
 			throw new UnrecognizedResourceAdaptorException(
 					"unrecognized resource adaptor " + id.toString());
-
-		Properties properties = new Properties();
-		Iterator configPropertyDescriptors = installedResourceAdaptor
-				.getDescriptor().getConfigPropertyDescriptors().iterator();
-		while (configPropertyDescriptors.hasNext()) {
-			ConfigPropertyDescriptor configPropertyDescriptor = (ConfigPropertyDescriptor) configPropertyDescriptors
-					.next();
-			String value = configPropertyDescriptor.getValue().toString();
-			properties.setProperty(configPropertyDescriptor.getName(), value);
+		} else {
+			return component.getDefaultConfigPropertiesInstance();
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got configuration properties for RA with id");
-		}
-		return properties;
-
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getConfigurationProperties(String)
-	 * @param entityName
-	 * @return
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 * @throws ResourceException
 	 */
-	public Properties getConfigurationProperties(String entityName)
+	public ConfigProperties getConfigurationProperties(String entityName)
 			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException, ResourceException {
+			UnrecognizedResourceAdaptorEntityException {
 
 		if (logger.isDebugEnabled()) {
 			logger
@@ -542,37 +478,17 @@ public class ResourceManagement {
 		if (entityName == null)
 			throw new NullPointerException("null entity name");
 
-		final ResourceAdaptorEntity resourceAdaptorEntity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
+		final ResourceAdaptorEntity resourceAdaptorEntity = this.resourceAdaptorEntities
 				.get(entityName);
-		if (resourceAdaptorEntity == null)
+		if (resourceAdaptorEntity == null) {
 			throw new UnrecognizedResourceAdaptorEntityException(entityName);
-
-		Properties properties = new Properties();
-		Iterator configPropertyDescriptors = resourceAdaptorEntity
-				.getInstalledResourceAdaptor().getDescriptor()
-				.getConfigPropertyDescriptors().iterator();
-		while (configPropertyDescriptors.hasNext()) {
-			ConfigPropertyDescriptor configPropertyDescriptor = (ConfigPropertyDescriptor) configPropertyDescriptors
-					.next();
-			String value = resourceAdaptorEntity.getConfigProperty(
-					configPropertyDescriptor).toString();
-			properties.setProperty(configPropertyDescriptor.getName(), value);
+		} else {
+			return resourceAdaptorEntity.getConfigurationProperties();
 		}
-		if (logger.isDebugEnabled()) {
-			logger
-					.debug("Got configuration properties for RA entity with name "
-							+ entityName);
-		}
-		return properties;
-
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getResourceAdaptor(String)
-	 * @param entityName
-	 * @return
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorEntityException
 	 */
 	public ResourceAdaptorID getResourceAdaptor(String entityName)
 			throws NullPointerException,
@@ -587,22 +503,16 @@ public class ResourceManagement {
 
 		ResourceAdaptorEntity resourceAdaptorEntity = (ResourceAdaptorEntity) resourceAdaptorEntities
 				.get(entityName);
-		if (resourceAdaptorEntity == null)
+		if (resourceAdaptorEntity == null) {
 			throw new UnrecognizedResourceAdaptorEntityException("Entity "
 					+ entityName + " not found");
-
-		final ResourceAdaptorID id = resourceAdaptorEntity
-				.getInstalledResourceAdaptor().getKey();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA ID " + id + " for RA entity with name "
-					+ entityName);
+		} else {
+			return resourceAdaptorEntity.getResourceAdaptor();
 		}
-		return id;
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getResourceAdaptorEntities()
-	 * @return
 	 */
 	public String[] getResourceAdaptorEntities() {
 
@@ -610,21 +520,13 @@ public class ResourceManagement {
 			logger.debug("Getting RA entity names");
 		}
 
-		final Set<String> entityNamesSet = resourceAdaptorEntities.keySet();
-		String[] entityNames = new String[entityNamesSet.size()];
-		entityNames = entityNamesSet.toArray(entityNames);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA entity names : " + entityNamesSet);
+		synchronized (sleeContainer.getManagementMonitor()) {
+			return resourceAdaptorEntities.keySet().toArray(new String[0]);
 		}
-		return entityNames;
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getResourceAdaptorEntities(ResourceAdaptorID)
-	 * @param resourceAdaptorID
-	 * @return
-	 * @throws NullPointerException
-	 * @throws UnrecognizedResourceAdaptorException
 	 */
 	public String[] getResourceAdaptorEntities(
 			ResourceAdaptorID resourceAdaptorID) throws NullPointerException,
@@ -634,35 +536,28 @@ public class ResourceManagement {
 			logger.debug("Getting RA entity names for ra with ID "
 					+ resourceAdaptorID);
 		}
-
-		if (resourceAdaptorID == null)
+		if (resourceAdaptorID == null) {
 			throw new NullPointerException("null resource adaptor");
-
-		final InstalledResourceAdaptor installedRA = (InstalledResourceAdaptor) this.resourceAdaptors
-				.get(resourceAdaptorID);
-		if (installedRA == null)
-			throw new UnrecognizedResourceAdaptorException(resourceAdaptorID
-					.toString());
-
-		final HashSet<ResourceAdaptorEntity> resourceAdaptorEntitiesSet = installedRA
-				.getResourceAdaptorEntities();
-		String[] entityNames = new String[resourceAdaptorEntitiesSet.size()];
-		Iterator<ResourceAdaptorEntity> it = resourceAdaptorEntitiesSet
-				.iterator();
-		for (int i = 0; i < entityNames.length; i++) {
-			entityNames[i] = it.next().getName();
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA entity names : " + Arrays.asList(entityNames));
+		synchronized (sleeContainer.getManagementMonitor()) {
+			ResourceAdaptorComponent component = getResourceAdaptorComponent(resourceAdaptorID);
+			if (component == null) {
+				throw new UnrecognizedResourceAdaptorException(
+						resourceAdaptorID.toString());
+			} else {
+				String[] entityNames = component.getResourceAdaptorEntities()
+						.toArray(new String[0]);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Got RA entity names : "
+							+ Arrays.asList(entityNames));
+				}
+				return entityNames;
+			}
 		}
-		return entityNames;
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getResourceAdaptorEntities(String[])
-	 * @param linkNames
-	 * @return
-	 * @throws NullPointerException
 	 */
 	public String[] getResourceAdaptorEntities(String[] linkNames)
 			throws NullPointerException {
@@ -675,26 +570,25 @@ public class ResourceManagement {
 		if (linkNames == null)
 			throw new NullPointerException("null link names");
 
-		String[] resultEntityNames = new String[linkNames.length];
-		for (int i = 0; i < linkNames.length; i++) {
-			String entityName = resourceAdaptorEntityLinks.get(linkNames[i]);
-			resultEntityNames[i] = entityName;
-		}
+		synchronized (sleeContainer.getManagementMonitor()) {
+			String[] resultEntityNames = new String[linkNames.length];
+			for (int i = 0; i < linkNames.length; i++) {
+				String entityName = resourceAdaptorEntityLinks
+						.get(linkNames[i]);
+				resultEntityNames[i] = entityName;
+			}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Got RA entity names : "
-					+ Arrays.asList(resultEntityNames));
-		}
+			if (logger.isDebugEnabled()) {
+				logger.debug("Got RA entity names : "
+						+ Arrays.asList(resultEntityNames));
+			}
 
-		return resultEntityNames;
+			return resultEntityNames;
+		}
 	}
 
 	/**
 	 * @see ResourceManagementMBean#getResourceAdaptorEntity(String linkName)
-	 * @param linkName
-	 * @return
-	 * @throws NullPointerException
-	 * @throws UnrecognizedLinkNameException
 	 */
 	public String getResourceAdaptorEntityName(String linkName)
 			throws NullPointerException, UnrecognizedLinkNameException {
@@ -716,6 +610,39 @@ public class ResourceManagement {
 		}
 
 		return entityName;
+	}
+
+	/**
+	 * @see ResourceManagementMBean#getState(String)
+	 */
+	public ResourceAdaptorEntityState getState(String entityName)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException {
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Getting state for RA entity with name " + entityName);
+		}
+
+		if (entityName == null)
+			throw new NullPointerException("null entity name");
+
+		final ResourceAdaptorEntity resourceAdaptorEntity = this.resourceAdaptorEntities
+				.get(entityName);
+		if (resourceAdaptorEntity == null) {
+			throw new UnrecognizedResourceAdaptorEntityException(entityName);
+		} else {
+			return resourceAdaptorEntity.getState();
+		}
+	}
+
+	/**
+	 * @see ResourceManagementMBean#getResourceUsageMBean(String)
+	 */
+	public ObjectName getResourceUsageMBean(String entityName)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException,
+			InvalidArgumentException {
+		// TODO
 	}
 
 	// --- additonal operations
@@ -743,17 +670,35 @@ public class ResourceManagement {
 		return entity;
 	}
 
+	private ResourceAdaptorComponent getResourceAdaptorComponent(
+			ResourceAdaptorID id) {
+		return sleeContainer.getComponentRepositoryImpl().getComponentByID(id);
+	}
+
+	private void validateNewEntityOrLinkName(String name)
+			throws InvalidArgumentException {
+		for (int i = 0; i < name.length(); i++) {
+			char c = name.charAt(i);
+			if (!Character.isLetterOrDigit(c)) {
+				Character character = Character.valueOf(c);
+				if (Character.valueOf('\u0020').compareTo(character) < 0
+						|| Character.valueOf('\u007e').compareTo(character) > 0) {
+					throw new InvalidArgumentException(
+							name
+									+ " includes char "
+									+ c
+									+ " ,which is not a letter or digit or in unicode range 0x0020-0x007e");
+				}
+			}
+		}
+	}
+
 	@Override
 	public String toString() {
-		return "Resource Management: " + "\n+-- Resource Adaptor Types: "
-				+ resourceAdaptorTypes.keySet() + "\n+-- Resource Adaptor: "
-				+ resourceAdaptors.keySet()
-				+ "\n+-- Resource Adaptor Entities: "
+		return "Resource Management: " + "\n+-- Resource Adaptor Entities: "
 				+ resourceAdaptorEntities.keySet()
 				+ "\n+-- Resource Adaptor Entitiy Links: "
-				+ resourceAdaptorEntities.keySet()
-				+ "\n+-- Resource Adaptor ACI Factories: "
-				+ activityContextInterfaceFactories.keySet();
+				+ resourceAdaptorEntities.keySet();
 	}
 
 }

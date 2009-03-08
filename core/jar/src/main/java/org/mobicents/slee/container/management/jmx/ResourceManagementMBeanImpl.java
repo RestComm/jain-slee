@@ -9,13 +9,13 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.Arrays;
-import java.util.Properties;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
+import javax.slee.SbbID;
 import javax.slee.management.DependencyException;
 import javax.slee.management.LinkNameAlreadyBoundException;
 import javax.slee.management.ManagementException;
@@ -25,8 +25,9 @@ import javax.slee.management.ResourceManagementMBean;
 import javax.slee.management.UnrecognizedLinkNameException;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.slee.management.UnrecognizedResourceAdaptorException;
+import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.ResourceAdaptorID;
-import javax.slee.resource.ResourceException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -64,19 +65,14 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 	// ------- MANAGEMENT OPERATIONS
 
 	public void createResourceAdaptorEntity(ResourceAdaptorID id,
-			String entityName, Properties properties)
+			String entityName, ConfigProperties properties)
 			throws NullPointerException, InvalidArgumentException,
 			UnrecognizedResourceAdaptorException,
-			ResourceAdaptorEntityAlreadyExistsException, ResourceException,
-			ManagementException {
-
+			ResourceAdaptorEntityAlreadyExistsException,
+			InvalidConfigurationException, ManagementException {
 		try {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			synchronized (sleeContainer.getManagementMonitor()) {
-				sleeContainer
-						.getResourceManagement()
-						.createResourceAdaptorEntity(id, entityName, properties);
-			}
+			SleeContainer.lookupFromJndi().getResourceManagement()
+					.createResourceAdaptorEntity(id, entityName, properties);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (InvalidArgumentException e) {
@@ -85,9 +81,9 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throw e;
 		} catch (ResourceAdaptorEntityAlreadyExistsException e) {
 			throw e;
-		} catch (ResourceException e) {
+		} catch (InvalidConfigurationException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to create RA entity with name " + entityName;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -97,23 +93,17 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 	public void activateResourceAdaptorEntity(String entityName)
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
-			ResourceException, ManagementException {
-
+			ManagementException {
 		try {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			synchronized (sleeContainer.getManagementMonitor()) {
-				sleeContainer.getResourceManagement()
-						.activateResourceAdaptorEntity(entityName);
-			}
+			SleeContainer.lookupFromJndi().getResourceManagement()
+					.activateResourceAdaptorEntity(entityName);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedResourceAdaptorEntityException e) {
 			throw e;
 		} catch (InvalidStateException e) {
 			throw e;
-		} catch (ResourceException e) {
-			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to activate RA entity with name " + entityName;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -125,18 +115,15 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
 			ManagementException {
 		try {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			synchronized (sleeContainer.getManagementMonitor()) {
-				sleeContainer.getResourceManagement()
-						.deactivateResourceAdaptorEntity(entityName);
-			}
+			SleeContainer.lookupFromJndi().getResourceManagement()
+					.deactivateResourceAdaptorEntity(entityName);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedResourceAdaptorEntityException e) {
 			throw e;
 		} catch (InvalidStateException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to deactivate RA entity with name " + entityName;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -161,7 +148,7 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throw e;
 		} catch (DependencyException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to remove RA entity with name " + entityName;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -169,9 +156,9 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 	}
 
 	public void updateConfigurationProperties(String entityName,
-			Properties properties) throws NullPointerException,
+			ConfigProperties properties) throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, InvalidStateException,
-			InvalidArgumentException, ResourceException, ManagementException {
+			InvalidConfigurationException, ManagementException {
 		try {
 			SleeContainer.lookupFromJndi().getResourceManagement()
 					.updateConfigurationProperties(entityName, properties);
@@ -181,11 +168,9 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throw e;
 		} catch (InvalidStateException e) {
 			throw e;
-		} catch (InvalidArgumentException e) {
+		} catch (InvalidConfigurationException e) {
 			throw e;
-		} catch (ResourceException e) {
-			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to update configuration properties for RA entity with name "
 					+ entityName;
 			logger.error(s, e);
@@ -198,11 +183,8 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			UnrecognizedResourceAdaptorEntityException,
 			LinkNameAlreadyBoundException, ManagementException {
 		try {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			synchronized (sleeContainer.getManagementMonitor()) {
-				sleeContainer.getResourceManagement().bindLinkName(linkName,
+			SleeContainer.lookupFromJndi().getResourceManagement().bindLinkName(linkName,
 						entityName);
-			}
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedResourceAdaptorEntityException e) {
@@ -211,7 +193,7 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throw e;
 		} catch (InvalidArgumentException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to bind link name " + linkName
 					+ " to RA entity with name " + entityName;
 			logger.error(s, e);
@@ -223,17 +205,14 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			UnrecognizedLinkNameException, DependencyException,
 			ManagementException {
 		try {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			synchronized (sleeContainer.getManagementMonitor()) {
-				sleeContainer.getResourceManagement().unbindLinkName(linkName);
-			}
+			SleeContainer.lookupFromJndi().getResourceManagement().unbindLinkName(linkName);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedLinkNameException e) {
 			throw e;
 		} catch (DependencyException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to unbind link name " + linkName;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -244,10 +223,10 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throws NullPointerException, ManagementException {
 		try {
 			return SleeContainer.lookupFromJndi().getResourceManagement()
-						.getResourceAdaptorEntities(state);
+					.getResourceAdaptorEntities(state);
 		} catch (NullPointerException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get RA entities with state " + state;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -256,8 +235,9 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 
 	public String[] getLinkNames() throws ManagementException {
 		try {
-			return SleeContainer.lookupFromJndi().getResourceManagement().getLinkNames();
-		} catch (Exception e) {
+			return SleeContainer.lookupFromJndi().getResourceManagement()
+					.getLinkNames();
+		} catch (Throwable e) {
 			String s = "failed to get link names";
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -268,13 +248,13 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, ManagementException {
 		try {
-			return SleeContainer.lookupFromJndi().getResourceManagement().getLinkNames(
-					entityName);
+			return SleeContainer.lookupFromJndi().getResourceManagement()
+					.getLinkNames(entityName);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedResourceAdaptorEntityException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get link names for RA entity with name "
 					+ entityName;
 			logger.error(s, e);
@@ -282,7 +262,7 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 		}
 	}
 
-	public Properties getConfigurationProperties(ResourceAdaptorID raID)
+	public ConfigProperties getConfigurationProperties(ResourceAdaptorID raID)
 			throws NullPointerException, UnrecognizedResourceAdaptorException,
 			ManagementException {
 		try {
@@ -292,7 +272,7 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throw e;
 		} catch (UnrecognizedResourceAdaptorException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get configuration propertiess for RA with id "
 					+ raID;
 			logger.error(s, e);
@@ -300,7 +280,7 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 		}
 	}
 
-	public Properties getConfigurationProperties(String entityName)
+	public ConfigProperties getConfigurationProperties(String entityName)
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException, ManagementException {
 		try {
@@ -310,7 +290,7 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			throw e;
 		} catch (UnrecognizedResourceAdaptorEntityException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get configuration properties for RA entity with name "
 					+ entityName;
 			logger.error(s, e);
@@ -323,12 +303,12 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			UnrecognizedResourceAdaptorEntityException, ManagementException {
 		try {
 			return SleeContainer.lookupFromJndi().getResourceManagement()
-						.getResourceAdaptor(entityName);			
+					.getResourceAdaptor(entityName);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedResourceAdaptorEntityException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get RA ID for RA entity with name "
 					+ entityName;
 			logger.error(s, e);
@@ -340,7 +320,7 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 		try {
 			return SleeContainer.lookupFromJndi().getResourceManagement()
 					.getResourceAdaptorEntities();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get RA entities";
 			logger.error(s, e);
 			throw new ManagementException(s, e);
@@ -352,45 +332,45 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			ManagementException {
 		try {
 			return SleeContainer.lookupFromJndi().getResourceManagement()
-						.getResourceAdaptorEntities(id);
+					.getResourceAdaptorEntities(id);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedResourceAdaptorException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get RA entities for RA with id " + id;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
 		}
 	}
 
-	public String[] getResourceAdaptorEntities(String[] arg0)
+	public String[] getResourceAdaptorEntities(String[] linkNames)
 			throws NullPointerException, ManagementException {
 		try {
 			return SleeContainer.lookupFromJndi().getResourceManagement()
-					.getResourceAdaptorEntities(arg0);
+					.getResourceAdaptorEntities(linkNames);
 		} catch (NullPointerException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get RA entities for link names "
-					+ Arrays.asList(arg0);
+					+ Arrays.asList(linkNames);
 			logger.error(s, e);
 			throw new ManagementException(s, e);
 		}
 	}
 
-	public String getResourceAdaptorEntity(String arg0)
+	public String getResourceAdaptorEntity(String linkName)
 			throws NullPointerException, UnrecognizedLinkNameException,
 			ManagementException {
 		try {
 			return SleeContainer.lookupFromJndi().getResourceManagement()
-						.getResourceAdaptorEntityName(arg0);
+					.getResourceAdaptorEntityName(linkName);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedLinkNameException e) {
 			throw e;
-		} catch (Exception e) {
-			String s = "failed to get RA entities for link name " + arg0;
+		} catch (Throwable e) {
+			String s = "failed to get RA entities for link name " + linkName;
 			logger.error(s, e);
 			throw new ManagementException(s, e);
 		}
@@ -401,13 +381,51 @@ public class ResourceManagementMBeanImpl extends StandardMBean implements
 			UnrecognizedResourceAdaptorEntityException, ManagementException {
 		try {
 			return SleeContainer.lookupFromJndi().getResourceManagement()
-					.getResourceAdaptorEntity(entityName).getState();
+					.getState(entityName);
 		} catch (NullPointerException e) {
 			throw e;
 		} catch (UnrecognizedResourceAdaptorEntityException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			String s = "failed to get state for RA entity with name "
+					+ entityName;
+			logger.error(s, e);
+			throw new ManagementException(s, e);
+		}
+	}
+
+	public SbbID[] getBoundSbbs(String linkName) throws NullPointerException,
+			UnrecognizedLinkNameException, ManagementException {
+		try {
+			return SleeContainer.lookupFromJndi().getResourceManagement()
+					.getBoundSbbs(linkName);
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedLinkNameException e) {
+			throw e;
+		} catch (Throwable e) {
+			String s = "failed to get bound sbbs to link name "
+					+ linkName;
+			logger.error(s, e);
+			throw new ManagementException(s, e);
+		}
+	}
+
+	public ObjectName getResourceUsageMBean(String entityName)
+			throws NullPointerException,
+			UnrecognizedResourceAdaptorEntityException,
+			InvalidArgumentException, ManagementException {
+		try {
+			return SleeContainer.lookupFromJndi().getResourceManagement()
+					.getResourceUsageMBean(entityName);
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedResourceAdaptorEntityException e) {
+			throw e;
+		} catch (InvalidArgumentException e) {
+			throw e;
+		} catch (Throwable e) {
+			String s = "failed to get resource usage mbean for RA entity with name "
 					+ entityName;
 			logger.error(s, e);
 			throw new ManagementException(s, e);

@@ -196,7 +196,11 @@ public class SbbDescriptorImpl {
 		for (MLibraryRef libraryRef : libraryRefs) {
 			this.dependenciesSet.add(libraryRef.getComponentID());
 		}
-
+		for (MResourceAdaptorTypeBinding binding : resourceAdaptorTypeBindings) {
+			this.dependenciesSet.add(binding.getResourceAdaptorTypeRef());
+		}
+		
+		
 		// FIXME: EJB's do not have component ID... what gives?
 		// for(MEjbRef ejbRef : ejbRefs)
 		// {

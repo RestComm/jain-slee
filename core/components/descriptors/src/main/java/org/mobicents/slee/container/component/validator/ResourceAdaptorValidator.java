@@ -2,9 +2,7 @@ package org.mobicents.slee.container.component.validator;
 
 import java.lang.reflect.Constructor;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import javassist.Modifier;
@@ -12,8 +10,6 @@ import javassist.Modifier;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
 
 public class ResourceAdaptorValidator implements Validator {
@@ -158,15 +154,7 @@ public class ResourceAdaptorValidator implements Validator {
 							"15.4.1", errorBuffer);
 					continue;
 
-				} else if (prop.getConfigPropertyValue() == null
-						|| prop.getConfigPropertyValue().compareTo("") == 0) {
-					passed = false;
-					errorBuffer = appendToBuffer(
-							"Resource adaptor descriptor declares config property with empty value.",
-							"15.4.1", errorBuffer);
-					continue;
-
-				}if (prop.getConfigPropertyType() == null
+				} else if (prop.getConfigPropertyType() == null
 						|| prop.getConfigPropertyType().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -184,16 +172,23 @@ public class ResourceAdaptorValidator implements Validator {
 				} else {
 					declaredConfigProperty.add(prop.getConfigPropertyName());
 					
-					if(!_VALID_CONF_PROPERTIES.contains(prop.getConfigPropertyValue()))
+					if(!_VALID_CONF_PROPERTIES.contains(prop.getConfigPropertyType()))
 					{
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Resource adaptor descriptor declares config property of wrong type, type: "+prop.getConfigPropertyType(), "15.4.1",errorBuffer);
-					}
-					
-					
+					}					
 				}
-
+				
+				// confirm config properties can be built
+				try {
+					component.getDefaultConfigPropertiesInstance();
+				}
+				catch (Throwable e) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Resource adaptor descriptor config property validation passed but creation of ConfigProperties object failed:\n"+e.getStackTrace()+"\n", "15.4.1",errorBuffer);
+				}
 			}
 
 		} finally {
