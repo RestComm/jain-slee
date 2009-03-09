@@ -153,8 +153,8 @@ public class SleeEndpointImpl implements SleeEndpoint {
     		throw new NullPointerException("null activity");
     	}
     	// check ra state
-    	if(raEntity.getObject().getState() != ResourceAdaptorObjectState.ACTIVE) {
-    		throw new IllegalStateException("ra is not in state "+raEntity.getObject().getState());
+    	if(raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.ACTIVE) {
+    		throw new IllegalStateException("ra is not in state "+raEntity.getResourceAdaptorObject().getState());
     	}
 	}
 	

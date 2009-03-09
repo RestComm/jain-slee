@@ -27,7 +27,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
-import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
  * Start time:00:45:25 2009-02-04<br>
@@ -57,12 +56,7 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	/**
 	 * the JAIN SLEE specs descriptor
 	 */
-	private ResourceAdaptorDescriptor specsDescriptor = null;
-	
-	/**
-	 * the set containing all ra entity names that exist for this component
-	 */
-	private final ConcurrentHashSet<String> raEntities = new ConcurrentHashSet<String>(); 
+	private ResourceAdaptorDescriptor specsDescriptor = null; 
 	
 	/**
 	 * 
@@ -181,14 +175,6 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	@Override
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
-	}
-	
-	/**
-	 * Retrieves the set containing all ra entity names that exist for this component
-	 * @return
-	 */
-	public Set<String> getResourceAdaptorEntities() {
-		return raEntities;
 	}
 	
 	/**

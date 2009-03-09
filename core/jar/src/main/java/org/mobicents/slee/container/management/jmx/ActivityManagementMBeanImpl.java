@@ -783,7 +783,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 					container.getResourceManagement()
 							.getResourceAdaptorEntity(
 									ach.getActivitySource())
-							.getResourceAdaptor().queryLiveness(
+							.getResourceAdaptorID().queryLiveness(
 									ach.getActivityHandle());
 				}
 			}

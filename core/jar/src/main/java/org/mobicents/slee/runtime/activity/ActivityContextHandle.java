@@ -3,9 +3,7 @@ package org.mobicents.slee.runtime.activity;
 import javax.slee.SLEEException;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ServiceState;
-import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.ResourceAdaptor;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -16,7 +14,6 @@ import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.service.ServiceActivityImpl;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityImpl;
@@ -113,10 +110,8 @@ public class ActivityContextHandle {
 		switch (activityType) {
 		case externalActivity:
 			try {
-				final ResourceAdaptorEntity raEntity = getResourceManagement()
-						.getResourceAdaptorEntity(activitySource);
-				final ResourceAdaptor ra = raEntity.getResourceAdaptor();
-				activity = ra.getActivity(getActivityHandle());
+				activity = getResourceManagement()
+						.getResourceAdaptorEntity(activitySource).getResourceAdaptorObject().getActivity(getActivityHandle());
 			} catch (Exception e) {
 				throw new SLEEException(e.getMessage(), e);
 			}
@@ -147,18 +142,7 @@ public class ActivityContextHandle {
 		
 		case externalActivity:
 			// external activity, notify RA that the activity has ended
-			try {
-				ResourceAdaptorEntity raEntity = getResourceManagement().getResourceAdaptorEntity(activitySource);
-				ResourceAdaptor ra = raEntity.getResourceAdaptor();
-				if (ra != null) {
-					ra.activityEnded(getActivityHandle());
-				}
-				else {
-					logger.warn("Unable to find RA for notifaction that activity "+this+" has ended");
-				}
-			} catch (UnrecognizedResourceAdaptorEntityException e) {
-				logger.warn("Unable to find RA Entity for notifaction that activity "+this+" has ended",e);
-			}
+			getResourceManagement().getResourceAdaptorEntity(activitySource).getResourceAdaptorObject().activityEnded(getActivityHandle());		
 			break;
 		
 		case nullActivity:

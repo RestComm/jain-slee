@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
+import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.management.DependencyException;
 import javax.slee.management.LinkNameAlreadyBoundException;
@@ -20,6 +21,7 @@ import javax.slee.management.UnrecognizedResourceAdaptorException;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.ResourceAdaptorID;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -42,10 +44,15 @@ public class ResourceManagement {
 	private Logger logger = Logger.getLogger(ResourceManagement.class);
 
 	/**
-	 * the resource adaptor entities
+	 * the resource adaptor entities mapped by name
 	 */
 	private ConcurrentHashMap<String, ResourceAdaptorEntity> resourceAdaptorEntities;
 
+	/**
+	 * the set of resource adaptor entities aggregated per ra type, this is a runtime cache for optimal performance on ra type activity context factories
+	 */
+	private ConcurrentHashMap<ResourceAdaptorTypeID, Set<ResourceAdaptorEntity>> entitiesPerType = new ConcurrentHashMap<ResourceAdaptorTypeID, Set<ResourceAdaptorEntity>>();
+	
 	/**
 	 * the resource adaptor entity name links
 	 */
@@ -114,7 +121,7 @@ public class ResourceManagement {
 								+ " not found.");
 			}
 
-			if (this.resourceAdaptorEntities.get(entityName) != null) {
+			if (this.resourceAdaptorEntities.containsKey(entityName)) {
 				throw new ResourceAdaptorEntityAlreadyExistsException(
 						"Failed to create RA Entity. Resource Adpator Entity Name: "
 								+ entityName + " already exists! RA ID: " + id);
@@ -124,8 +131,17 @@ public class ResourceManagement {
 					entityName, component, properties, sleeContainer);
 
 			this.resourceAdaptorEntities.put(entityName, raEntity);
-			component.getResourceAdaptorEntities().add(entityName);
 
+			for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
+				Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
+				if (set == null) {
+					throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
+				}
+				else {
+					set.add(raEntity);
+				}
+			}
+			
 			logger.info("Created RA Entity. Id: " + id + ", name: "
 					+ entityName + ", properties: " + properties);
 		}
@@ -216,9 +232,19 @@ public class ResourceManagement {
 			}
 
 			raEntity.remove();
-			raEntity.getComponent().getResourceAdaptorEntities().remove(
-					raEntity);
+
 			this.resourceAdaptorEntities.remove(entityName);
+			
+			for (ResourceAdaptorTypeID resourceAdaptorTypeID : raEntity.getComponent().getSpecsDescriptor().getResourceAdaptorTypes()) {
+				Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
+				if (set == null) {
+					throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
+				}
+				else {
+					set.remove(raEntity);
+				}
+			}
+			
 			logger.info("Removed RA Entity " + entityName);
 		}
 	}
@@ -507,7 +533,7 @@ public class ResourceManagement {
 			throw new UnrecognizedResourceAdaptorEntityException("Entity "
 					+ entityName + " not found");
 		} else {
-			return resourceAdaptorEntity.getResourceAdaptor();
+			return resourceAdaptorEntity.getResourceAdaptorID();
 		}
 	}
 
@@ -545,8 +571,14 @@ public class ResourceManagement {
 				throw new UnrecognizedResourceAdaptorException(
 						resourceAdaptorID.toString());
 			} else {
-				String[] entityNames = component.getResourceAdaptorEntities()
-						.toArray(new String[0]);
+				Set<String> entityNameSet = new HashSet<String>();
+				for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
+					if (raEntity.getResourceAdaptorID().equals(resourceAdaptorID)) {
+						entityNameSet.add(raEntity.getName());
+					}
+				}
+				String[] entityNames = entityNameSet
+						.toArray(new String[entityNameSet.size()]);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Got RA entity names : "
 							+ Arrays.asList(entityNames));
@@ -651,25 +683,20 @@ public class ResourceManagement {
 	 * Retrieves the {@link ResourceAdaptorEntity} with the specified entity
 	 * name.
 	 * 
-	 * @throws UnrecognizedResourceAdaptorEntityException
-	 *             if no such entity exists
 	 */
-	public ResourceAdaptorEntity getResourceAdaptorEntity(String entityName)
-			throws NullPointerException,
-			UnrecognizedResourceAdaptorEntityException {
-
-		if (entityName == null)
-			throw new NullPointerException("null entity name");
-
-		final ResourceAdaptorEntity entity = (ResourceAdaptorEntity) this.resourceAdaptorEntities
+	public ResourceAdaptorEntity getResourceAdaptorEntity(String entityName) {
+		return this.resourceAdaptorEntities
 				.get(entityName);
-		if (entity == null)
-			throw new UnrecognizedResourceAdaptorEntityException("Entity "
-					+ entityName + " not found");
-
-		return entity;
 	}
 
+	/**
+	 * Retrieves the set of resource adaptor entities aggregated per ra type, this is a runtime cache for optimal performance on ra type activity context factories
+	 * @return
+	 */
+	public ConcurrentHashMap<ResourceAdaptorTypeID, Set<ResourceAdaptorEntity>> getResourceAdaptorEntitiesPerType() {
+		return entitiesPerType;
+	}
+	
 	private ResourceAdaptorComponent getResourceAdaptorComponent(
 			ResourceAdaptorID id) {
 		return sleeContainer.getComponentRepositoryImpl().getComponentByID(id);

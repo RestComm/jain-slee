@@ -57,6 +57,7 @@ import org.mobicents.slee.container.component.management.DeployableUnitManagemen
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.profile.ProfileDeployer;
+import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -165,6 +166,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					}
 					for (ResourceAdaptorTypeComponent component : deployableUnit.getResourceAdaptorTypeComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
+						sleeContainer.getResourceManagement().getResourceAdaptorEntitiesPerType().put(component.getResourceAdaptorTypeID(), new HashSet<ResourceAdaptorEntity>());
 						logger.info("Installed "+component);
 					}
 					for (SbbComponent component : deployableUnit.getSbbComponents().values()) {

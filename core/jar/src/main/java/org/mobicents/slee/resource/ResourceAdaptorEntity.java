@@ -262,10 +262,18 @@ public class ResourceAdaptorEntity {
 	 * 
 	 * @return
 	 */
-	public ResourceAdaptorID getResourceAdaptor() {
+	public ResourceAdaptorID getResourceAdaptorID() {
 		return component.getResourceAdaptorID();
 	}
 
+	/**
+	 * Retrieves the ra object
+	 * @return
+	 */
+	public ResourceAdaptorObject getResourceAdaptorObject() {
+		return object;
+	}
+	
 	/**
 	 * Retrieves the ra interface for this entity and the specified ra type
 	 * 

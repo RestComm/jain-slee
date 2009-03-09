@@ -1,6 +1,7 @@
 package org.mobicents.slee.resource;
 
 import javax.slee.InvalidStateException;
+import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
@@ -274,5 +275,30 @@ public class ResourceAdaptorObject {
 	 */
 	public void serviceInactive(ReceivableService serviceInfo) {
 		object.serviceInactive(serviceInfo);
+	}
+
+	/**
+	 * Retrieves the activity context handle for the specified activity object
+	 * @param activity
+	 * @return null if the activity does not belongs to this ra object
+	 */
+	public ActivityHandle getActivityHandle(Object activity) {
+		return object.getActivityHandle(activity);
+	}
+	
+	/**
+	 * Retrieves the activity object for the specified handle
+	 * @param handle
+	 */
+	public Object getActivity(ActivityHandle handle) {
+		return object.getActivity(handle);
+	}
+	
+	/**
+	 * Informs the ra object the activity for the specified handle ended
+	 * @param handle
+	 */
+	public void activityEnded(ActivityHandle handle) {
+		object.activityEnded(handle);
 	}
 }

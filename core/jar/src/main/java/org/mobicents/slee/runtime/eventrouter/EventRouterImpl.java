@@ -78,7 +78,7 @@ public class EventRouterImpl implements EventRouter {
 							.getResourceManagement().getResourceAdaptorEntity(
 									de.getActivityContextHandle()
 											.getActivitySource());
-					raEntity.getResourceAdaptor().eventProcessingFailed(
+					raEntity.getResourceAdaptorID().eventProcessingFailed(
 							de.getActivityContextHandle().getActivityHandle(),
 							de.getEvent(), de.getEventTypeId(), de.getAddress(), 0,
 							failureReason);
@@ -99,7 +99,7 @@ public class EventRouterImpl implements EventRouter {
 							.getResourceAdaptorEntity(
 									de.getActivityContextHandle()
 											.getActivitySource());
-					raEntity.getResourceAdaptor().eventProcessingSuccessful(
+					raEntity.getResourceAdaptorID().eventProcessingSuccessful(
 							de.getActivityContextHandle().getActivityHandle(),
 							de.getEvent(),
 							de.getEventTypeId(), de.getAddress(), 0);
