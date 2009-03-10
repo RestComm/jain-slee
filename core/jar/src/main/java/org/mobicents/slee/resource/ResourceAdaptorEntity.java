@@ -2,7 +2,6 @@ package org.mobicents.slee.resource;
 
 import java.lang.reflect.Constructor;
 
-import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
@@ -104,7 +103,7 @@ public class ResourceAdaptorEntity {
 		// set ra context and configure it
 		try {
 			object.setResourceAdaptorContext(new ResourceAdaptorContextImpl(
-					this, sleeContainer,this.notificationSource));
+					this, sleeContainer));
 		} catch (InvalidStateException e) {
 			logger
 					.error(

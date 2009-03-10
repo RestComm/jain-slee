@@ -9,6 +9,7 @@ import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.ServiceLookupFacility;
 import javax.slee.facilities.Tracer;
 import javax.slee.management.ManagementException;
+import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.profile.ProfileTable;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
@@ -21,26 +22,21 @@ import javax.slee.usage.NoUsageParametersInterfaceDefinedException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 
 public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 
 	private static final ResourceAdaptorContextTimer timer = new ResourceAdaptorContextTimer();
 	
-	private final String entityName;
-	private final ResourceAdaptorID resourceAdaptor;
-	private final ResourceAdaptorTypeID[] resourceAdaptorTypes;
+	private final ResourceAdaptorEntity raEntity;
 	private final SleeEndpointImpl sleeEndpointImpl;
 	private final SleeContainer sleeContainer;
-	private final ResourceAdaptorEntityNotification notificationSource;
 		
-	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer,ResourceAdaptorEntityNotification notificationSource) {
-		this.entityName = raEntity.getName();
-		this.resourceAdaptor = raEntity.getComponent().getResourceAdaptorID();
-		this.resourceAdaptorTypes = raEntity.getComponent().getSpecsDescriptor().getResourceAdaptorTypes();
+	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer) {
+		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
 		this.sleeEndpointImpl = new SleeEndpointImpl(raEntity,sleeContainer);
-		this.notificationSource = notificationSource;
 	}
 	
 	public AlarmFacility getAlarmFacility() {
@@ -49,10 +45,17 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 
 	public Object getDefaultUsageParameterSet()
 			throws NoUsageParametersInterfaceDefinedException, SLEEException {
+		ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
+		if (resourceUsageMBeanImpl == null) {
+			throw new NoUsageParametersInterfaceDefinedException("the entity "+raEntity.getName()+" doesn't define usage param");
+		}
+		else {
+			return raEntity.getResourceUsageMBean().getDefaultInstalledUsageParameterSet();
+		}
 	}
 
 	public String getEntityName() {
-		return entityName;
+		return raEntity.getName();
 	}
 
 	public EventLookupFacility getEventLookupFacility() {
@@ -69,11 +72,11 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	}
 
 	public ResourceAdaptorID getResourceAdaptor() {
-		return resourceAdaptor;
+		return raEntity.getResourceAdaptorID();
 	}
 
 	public ResourceAdaptorTypeID[] getResourceAdaptorTypes() {
-		return resourceAdaptorTypes;
+		return raEntity.getComponent().getSpecsDescriptor().getResourceAdaptorTypes();
 	}
 
 	public ServiceLookupFacility getServiceLookupFacility() {
@@ -100,9 +103,9 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 			
 		}
 		
-		TraceFacilityImpl.checkTracerName(tracerName.split("\\."), this.notificationSource);
+		TraceFacilityImpl.checkTracerName(tracerName.split("\\."), raEntity.getNotificationSource());
 		try {
-			return this.sleeContainer.getTraceFacility().createTracer(this.notificationSource, tracerName, true);
+			return this.sleeContainer.getTraceFacility().createTracer(raEntity.getNotificationSource(), tracerName, true);
 		} catch (ManagementException e) {
 
 			//e.printStackTrace();
@@ -110,10 +113,24 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 		}
 	}
 
-	public Object getUsageParameterSet(String arg0)
+	public Object getUsageParameterSet(String paramSetName)
 			throws NullPointerException,
 			NoUsageParametersInterfaceDefinedException,
 			UnrecognizedUsageParameterSetNameException, SLEEException {
+		if (paramSetName == null) {
+			throw new NullPointerException("null param set name");
+		}
+		ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
+		if (resourceUsageMBeanImpl == null) {
+			throw new NoUsageParametersInterfaceDefinedException("the entity "+raEntity.getName()+" doesn't define usage param");
+		}
+		else {
+			Object result = raEntity.getResourceUsageMBean().getInstalledUsageParameterSet(paramSetName);
+			if (result == null) {
+				throw new UnrecognizedUsageParameterSetNameException(paramSetName);
+			}
+			return result;
+		}
 	}
 
 }

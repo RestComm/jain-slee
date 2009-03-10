@@ -10,6 +10,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.slee.InvalidArgumentException;
+import javax.slee.SbbID;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
@@ -22,6 +23,7 @@ import javax.slee.usage.UsageNotificationManagerMBean;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
+import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl.SbbUsageMBeanMapKey;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 
 public class ResourceUsageMBeanImpl extends StandardMBean implements ResourceUsageMBean,UsageMBeanImplParent, UsageNotificationManagerMBeanImplParent, Serializable {
@@ -391,5 +393,39 @@ public class ResourceUsageMBeanImpl extends StandardMBean implements ResourceUsa
 	public UsageNotificationManagerMBeanImpl getUsageNotificationManagerMBean(
 			NotificationSource notificationSource) {
 		return notificationManager;
+	}
+	
+	/**
+	 * Convenience method to retrieve the default {@link InstalledUsageParameterSet}
+	 * @return
+	 */
+	public InstalledUsageParameterSet getDefaultInstalledUsageParameterSet() {
+		if (defaultUsageMBean!= null) {
+			return defaultUsageMBean.getUsageParameter();
+		}
+		else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Convenience method to retrieve the {@link InstalledUsageParameterSet} for the specified param set name.
+	 * @param name 
+	 * @return
+	 */
+	public InstalledUsageParameterSet getInstalledUsageParameterSet(String name) {
+		
+		if (name == null) {
+			return getDefaultInstalledUsageParameterSet();
+		}
+		else {
+			UsageMBeanImpl usageMBean = usageMBeans.get(name);
+			if (usageMBean == null) {
+				return null;
+			}
+			else {
+				return usageMBean.getUsageParameter();
+			}
+		}
 	}
 }
