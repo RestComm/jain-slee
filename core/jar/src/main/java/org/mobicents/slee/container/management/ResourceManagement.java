@@ -13,6 +13,7 @@ import javax.slee.SbbID;
 import javax.slee.management.DependencyException;
 import javax.slee.management.LinkNameAlreadyBoundException;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
+import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.management.UnrecognizedLinkNameException;
@@ -126,12 +127,14 @@ public class ResourceManagement {
 						"Failed to create RA Entity. Resource Adpator Entity Name: "
 								+ entityName + " already exists! RA ID: " + id);
 			}
-
+			ResourceAdaptorEntityNotification notifiationSource = new ResourceAdaptorEntityNotification(entityName);
 			ResourceAdaptorEntity raEntity = new ResourceAdaptorEntity(
-					entityName, component, properties, sleeContainer);
+					entityName, component, properties, sleeContainer,notifiationSource);
 
 			this.resourceAdaptorEntities.put(entityName, raEntity);
 
+			raEntity.installed();
+			
 			for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
 				Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
 				if (set == null) {

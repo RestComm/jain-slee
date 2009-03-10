@@ -5,6 +5,8 @@ import java.lang.reflect.Constructor;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
+import javax.slee.management.NotificationSource;
+import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.SleeState;
 import javax.slee.resource.ConfigProperties;
@@ -56,6 +58,11 @@ public class ResourceAdaptorEntity {
 	private SleeContainer sleeContainer;
 
 	/**
+	 * Notification source of this RA Entity
+	 */
+	private ResourceAdaptorEntityNotification notificationSource;
+
+	/**
 	 * Creates a new entity with the specified name, for the specified ra
 	 * component and with the provided entity config properties. The entity
 	 * creation is complete after instantianting the ra object, and then setting
@@ -70,11 +77,12 @@ public class ResourceAdaptorEntity {
 	 */
 	public ResourceAdaptorEntity(String name,
 			ResourceAdaptorComponent component,
-			ConfigProperties entityProperties, SleeContainer sleeContainer)
+			ConfigProperties entityProperties, SleeContainer sleeContainer,ResourceAdaptorEntityNotification notificationSource)
 			throws InvalidConfigurationException, InvalidArgumentException {
 		this.name = name;
 		this.component = component;
 		this.sleeContainer = sleeContainer;
+		this.notificationSource = notificationSource;
 		// create ra object
 		try {
 			Constructor cons = this.component.getResourceAdaptorClass()
@@ -89,7 +97,7 @@ public class ResourceAdaptorEntity {
 		// set ra context and configure it
 		try {
 			object.setResourceAdaptorContext(new ResourceAdaptorContextImpl(
-					this, sleeContainer));
+					this, sleeContainer,this.notificationSource));
 		} catch (InvalidStateException e) {
 			logger
 					.error(
@@ -245,9 +253,17 @@ public class ResourceAdaptorEntity {
 		}
 		object.raUnconfigure();
 		object.unsetResourceAdaptorContext();
+		this.sleeContainer.getTraceFacility().deregisterNotificationSource(this.getNotificationSource());
 		state = null;
 	}
-
+	/**
+	 * Method which performs some mgmt once RA Entity is installed
+	 */
+	public void installed() {
+		this.sleeContainer.getTraceFacility().registerNotificationSource(this.getNotificationSource());
+		
+	}
+	
 	/**
 	 * Retrieves the active config properties for the entity
 	 * 
@@ -336,4 +352,15 @@ public class ResourceAdaptorEntity {
 			logger.warn("invocation resulted in unchecked exception", e);
 		}
 	}
+	
+	/**
+	 * Return Notification source representing this RA Entity
+	 * @return
+	 */
+	public NotificationSource getNotificationSource()
+	{
+		return this.notificationSource;
+	}
+
+	
 }

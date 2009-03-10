@@ -99,6 +99,9 @@ public class SbbManagement {
 				sbbComponent.getSbbID(), Level.OFF);
 		sleeContainer.getAlarmFacility().registerComponent(
 				sbbComponent.getSbbID());
+		
+		//1.1
+		sleeContainer.getTraceFacility().registerNotificationSource(sbbComponent.getNotificationSource());
 
 		logger.info("Installed SBB " + sbbComponent);
 	}
@@ -539,6 +542,10 @@ public class SbbManagement {
 				sbbComponent.getSbbID());
 		sleeContainer.getAlarmFacility().unRegisterComponent(
 				sbbComponent.getSbbID());
+		
+		//1.1
+		sleeContainer.getTraceFacility().deregisterNotificationSource(sbbComponent.getNotificationSource());
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removed SBB " + sbbComponent.getSbbID()
 					+ " from trace and alarm facilities");

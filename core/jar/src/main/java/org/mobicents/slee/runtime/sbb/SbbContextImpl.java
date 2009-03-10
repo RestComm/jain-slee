@@ -26,6 +26,8 @@ import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.Tracer;
+import javax.slee.management.ManagementException;
+import javax.slee.management.NotificationSource;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
@@ -33,6 +35,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -88,10 +91,16 @@ public class SbbContextImpl implements SbbContext, Serializable {
 	
     /** The SBB entity to which I am assigned. */
     private SbbObject sbbObject;
+    /**
+     * Notification source for this Sbb
+     */
+    private NotificationSource notificationSource = null; 
 
-    /** Creates a new instance of SbbContextImpl */
-    public SbbContextImpl(SbbObject sbbObject) {
+    /** Creates a new instance of SbbContextImpl 
+     * @param notificationSource */
+    public SbbContextImpl(SbbObject sbbObject, NotificationSource notificationSource) {
         this.sbbObject = sbbObject;
+        this.notificationSource = notificationSource;
     }
 
     public ActivityContextInterface[] getActivities()
@@ -230,9 +239,21 @@ public class SbbContextImpl implements SbbContext, Serializable {
         }
     }
 
-	public Tracer getTracer(String arg0) throws NullPointerException, IllegalArgumentException, SLEEException {
-		// TODO Auto-generated method stub
-		return null;
+	public Tracer getTracer(String tracerName) throws NullPointerException, IllegalArgumentException, SLEEException {
+		if(tracerName == null)
+		{
+			throw new NullPointerException("Tracer name must not be null!");
+			
+		}
+		
+		TraceFacilityImpl.checkTracerName(tracerName.split("\\."), this.notificationSource);
+		try {
+			return this.sleeContainer.getTraceFacility().createTracer(this.notificationSource, tracerName, true);
+		} catch (ManagementException e) {
+
+			//e.printStackTrace();
+			throw new SLEEException("Failed to crate tracer: "+tracerName,e);
+		}
 	}
 
 }

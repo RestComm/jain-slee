@@ -86,7 +86,7 @@ public class SbbObject implements Serializable {
 		this.createConcreteClass();
 				
 		// set sbb context
-		this.sbbContext = new SbbContextImpl(this);
+		this.sbbContext = new SbbContextImpl(this,this.sbbComponent.getNotificationSource());
 		if (log.isDebugEnabled()) {
 			log.debug("---> invoking setSbbContext() for "+sbbComponent);
 		}
