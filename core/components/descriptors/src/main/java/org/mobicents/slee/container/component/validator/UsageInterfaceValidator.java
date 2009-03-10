@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.slee.ComponentID;
-import javax.slee.SbbID;
-import javax.slee.profile.ProfileID;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
@@ -595,7 +593,7 @@ public class UsageInterfaceValidator {
 
 		boolean passed = true;
 		if (!validateUsageParameterInterface(component.getResourceAdaptorID(), component
-				.isSlee11(), component.getResourceAdaptorUsageParametersInterfaceClass(), component
+				.isSlee11(), component.getUsageParametersInterface(), component
 				.getDescriptor().getResourceAdaptorUsageParametersInterface().getUsageParameter()
 				)) {
 			passed = false;
@@ -625,7 +623,7 @@ public class UsageInterfaceValidator {
 		if (m != null) {
 			foundAtleastOne = true;
 			if (!validateGetUsageMethodSignature(component.getProfileSpecificationID(), m, component
-					.getProfileUsageInterfaceClass(), new Class[] {}, "11.4.2")){
+					.getUsageParametersInterface(), new Class[] {}, "11.4.2")){
 				passed = false;
 
 			}
@@ -646,7 +644,7 @@ public class UsageInterfaceValidator {
 			if (!validateGetUsageMethodSignature(
 					component.getProfileSpecificationID(),
 					m,
-					component.getProfileUsageInterfaceClass(),
+					component.getUsageParametersInterface(),
 					new Class[] { UnrecognizedUsageParameterSetNameException.class },
 					"11.4.2")) {
 				passed = false;
@@ -658,7 +656,7 @@ public class UsageInterfaceValidator {
 		}
 
 		if (!validateUsageParameterInterface(component.getProfileSpecificationID(), component
-				.isSlee11(), component.getProfileUsageInterfaceClass(), component
+				.isSlee11(), component.getUsageParametersInterface(), component
 				.getDescriptor().getProfileClasses().getProfileUsageParameterInterface().getUsageParameter()
 				)) {
 			passed = false;

@@ -12,42 +12,40 @@
  */
 package org.mobicents.slee.container.deployment;
 
-import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtConstructor;
-import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import javassist.Modifier;
 
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
+import javax.slee.management.DeploymentException;
 import javax.slee.management.ManagementException;
+import javax.slee.management.NotificationSource;
+import javax.slee.management.SbbNotification;
 import javax.slee.usage.SampleStatistics;
 import javax.slee.usage.SbbUsageMBean;
+import javax.slee.usage.UsageMBean;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.ClassPool;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
-import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
 import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
+import org.mobicents.slee.container.management.jmx.UsageMBeanImpl;
 
 /**
  * Generator for the concrete usage usage parameter mbean.
  * @author F.Moggia
  * @author <a href="mailto:michele.laporta@gmail.com">Michele La Porta</a>
+ * @author martins
  */
-public class ConcreteUsageParameterMBeanInterfaceGenerator {
+public class ConcreteUsageParameterMBeanGenerator {
 
-    private static Logger logger= Logger.getLogger(ConcreteUsageParameterMBeanInterfaceGenerator.class);
-
-    private String usageParameterFieldName;
+    private static Logger logger= Logger.getLogger(ConcreteUsageParameterMBeanGenerator.class);
     
-    private final SbbComponent sbbComponent;
+    private final SleeComponentWithUsageParametersInterface component;
 
-    public ConcreteUsageParameterMBeanInterfaceGenerator(SbbComponent sbbComponent) {
-    	this.sbbComponent = sbbComponent;        
+    public ConcreteUsageParameterMBeanGenerator(SleeComponentWithUsageParametersInterface component) {
+    	this.component = component;        
     }
     
     /**
@@ -57,94 +55,68 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
 	 * @param
 	 * @param classes
 	 */
-    private void createConstructor(CtClass concreteClass, CtClass[] parameters)
+    private void createConstructor(CtClass concreteClass, CtClass usageMBeanInterface, CtClass notificationSource)
             throws Exception {
 
-        CtConstructor ctCons = new CtConstructor(parameters, concreteClass);
-        String constructorBody = "{";
-        constructorBody += "super($1, $2, $3, $4);";
-        for (int i = 0; i < parameters.length; i++) {
-            String parameterName = paramNameFromClassName(parameters[i]);
-            //(ranga) FIXME -- this is fragile. Dont rely on the integers 4 and 3!
-            if(i==4) this.usageParameterFieldName = parameterName ;
-            if(i!= 3 ){
-            try {
-                CtField ctField = new CtField(parameters[i], parameterName,
-                        concreteClass);
-                ctField.setModifiers(Modifier.PRIVATE);
-                concreteClass.addField(ctField);
-            } catch (CannotCompileException cce) {
-                cce.printStackTrace();
-            }
-            int paramNumber = i + 1;
-            constructorBody += parameterName + "=$" + paramNumber + ";";
-            }
-
-        }
-        constructorBody += "}";
-        ctCons.setBody(constructorBody);
+        CtConstructor ctCons = new CtConstructor(new CtClass[]{usageMBeanInterface,notificationSource}, concreteClass);
+        ctCons.setBody("{ super($1,$2); }");
         concreteClass.addConstructor(ctCons);
 
     }
     
-    private static String paramNameFromClassName(CtClass parameter) {
-
-        String parameterName = parameter.getName();
-        parameterName = parameterName
-                .substring(parameterName.lastIndexOf(".") + 1);
-        if (parameterName.indexOf('[') != -1) {
-            parameterName = parameterName.substring(0, parameterName
-                    .indexOf('['));
-        }
-        String firstCharLowerCase = parameterName.substring(0, 1).toLowerCase();
-        parameterName = firstCharLowerCase.concat(parameterName.substring(1));
-        return parameterName;
-    }
-
-    public Class generateConcreteUsageParameterMBeanInterface(
+    public void generateConcreteUsageParameterMBean(
             ) throws Exception {
-        MUsageParametersInterface mUsageParametersInterface = sbbComponent.getDescriptor().getSbbClasses().getSbbUsageParametersInterface();
-        if (mUsageParametersInterface == null)
-            return null;
-        String usageParamInterfaceName = mUsageParametersInterface.getUsageParametersInterfaceName();
+    	
+    	Class usageParamInterfaceClass = component.getUsageParametersInterface();
+        if (usageParamInterfaceClass == null)
+            return;
         
+        ClassPool classPool = component.getClassPool();
+       
+        String usageParamInterfaceName = usageParamInterfaceClass.getName();
+        CtClass usageParamInterface = classPool.get(usageParamInterfaceName);
+        
+        CtClass usageMBeanInterface = null;
+        CtClass usageMBeanImplClass = null;
+        CtClass constructorSecondParameterCtClass = null;
+        if (component.isSlee11()) {
+        	usageMBeanInterface = classPool.get(UsageMBean.class
+                    .getName());
+        	usageMBeanImplClass = classPool.get(UsageMBeanImpl.class
+                    .getName());
+        	constructorSecondParameterCtClass = classPool.get(NotificationSource.class
+                    .getName());        	
+        }
+        else {
+        	if (component instanceof SbbComponent) {
+        		usageMBeanInterface = classPool.get(SbbUsageMBean.class
+                        .getName());
+        		usageMBeanImplClass = classPool.get(SbbUsageMBeanImpl.class
+                        .getName());
+        		constructorSecondParameterCtClass = classPool.get(SbbNotification.class.getName());
+        	}
+        	else {
+        		throw new DeploymentException("only sbb components can have usage param mbeans in slee 1.0, how did this pass validation?!? component = "+component);
+        	}
+        }
+        	
+        // generate the mbean interface
         String concreteMBeanInterfaceName = usageParamInterfaceName + "MBean";
-        String concreteMBeanClassName = usageParamInterfaceName + "MBeanImpl";
+        CtClass ctInterface = classPool.makeInterface(concreteMBeanInterfaceName);
+		ctInterface.addInterface(usageMBeanInterface);
+        // generate the mbean class
+		String concreteMBeanClassName = usageParamInterfaceName + "MBeanImpl";
+        CtClass ctClass = classPool.makeClass(concreteMBeanClassName);
+        ctClass.setSuperclass(usageMBeanImplClass);
+        ConcreteClassGeneratorUtils.createInterfaceLinks(ctClass,new CtClass[]{ctInterface});
         
         if (logger.isDebugEnabled()) {
         	logger.debug("generating "+concreteMBeanInterfaceName+" and "+concreteMBeanClassName);
         }
         
-        ClassPool classPool = sbbComponent.getClassPool();
-        
-        CtClass usageParamInterface = classPool.get(usageParamInterfaceName);
-        CtClass usageMBeanInterface = classPool.get(SbbUsageMBean.class
-                .getName());
-        
-        CtClass[] parameter = {
-                classPool.get(ServiceID.class.getName()), 
-                classPool.get(SbbID.class.getName()), 
-                classPool.get(String.class.getName()),
-                classPool.get(String.class.getName()),
-                classPool.get(sbbComponent.getUsageParametersInterfaceConcreteClass().getName())};
-        
-        CtClass ctInterface = classPool.makeInterface(concreteMBeanInterfaceName);
-		       
-        ctInterface.addInterface(usageMBeanInterface);
-        /*ConcreteClassGeneratorUtils.createInheritanceLink(ctInterface,
-                this.classPool.get("java.lang.Object"));*/
-        
-        CtClass ctClass = classPool.makeClass(concreteMBeanClassName);
-		
-        ConcreteClassGeneratorUtils.createInheritanceLink(ctClass,
-                classPool.get(SbbUsageMBeanImpl.class.getName()));
-        
-        ConcreteClassGeneratorUtils.createInterfaceLinks(ctClass,new CtClass[]{ctInterface});
-        this.createConstructor(ctClass, parameter);
-        
-        
-        CtClass implClassInterface = classPool
-                .get(InstalledUsageParameterSet.class.getName());
+        // create constructor
+        this.createConstructor(ctClass, classPool.get(Class.class.getName()),constructorSecondParameterCtClass);
+                
         CtMethod[] methods = usageParamInterface.getMethods();
 
         for (int i = 0; i < methods.length; i++) {
@@ -153,17 +125,22 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
             generateConcreteMethod(ctClass, methods[i]);
         }
 
-        String sbbDeploymentPathStr = sbbComponent.getDeploymentDir().toExternalForm();
-        ctInterface.writeFile(sbbDeploymentPathStr);
+        String deploymentPathStr = component.getDeploymentDir().toExternalForm();
+        ctInterface.writeFile(deploymentPathStr);
         logger.debug("Writing file " + concreteMBeanInterfaceName);
-        ctClass.writeFile(sbbDeploymentPathStr);
+        ctClass.writeFile(deploymentPathStr);
         logger.debug("Writing file " + concreteMBeanClassName);
                 
-        Class retval = Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanInterfaceName);
+        component.setUsageParametersMBeanConcreteInterface(Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanInterfaceName));
+        component.setUsageParametersMBeanImplConcreteClass(Thread.currentThread().getContextClassLoader().loadClass(concreteMBeanClassName));
        
         ctInterface.defrost();
         ctClass.defrost();
-        return retval;
+        
+        // slee 1.1. components also need a notification manager
+        if (component.isSlee11()) {
+        	new ConcreteUsageNotificationManagerMBeanGenerator(component).generateConcreteUsageNotificationManagerMBean();
+        }
     }
 
     private void generateConcreteMethod(CtClass ctClass, CtMethod method) throws Exception{
@@ -173,7 +150,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
         if (methodName.startsWith("increment")) {
             body += "public long get" + methodName.substring("increment".length())
                     + "( boolean  reset ) throws " + ManagementException.class.getName() + " {"
-                    + "return this."+this.usageParameterFieldName+".get" + methodName.substring("increment".length()
+                    + "return getUsageParameter().get" + methodName.substring("increment".length()
                             ) + "(reset);"
                     + "}";
             if ( logger.isDebugEnabled())
@@ -183,7 +160,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
         } else if (methodName.startsWith("sample")) {
             body += "public " + SampleStatistics.class.getName() + " get" + methodName.substring("sample".length())
             + "( boolean  reset ) throws " + ManagementException.class.getName()+ " {"
-            + "return this."+this.usageParameterFieldName+".get" + methodName.substring("sample".length()) + "(reset);"
+            + "return getUsageParameter().get" + methodName.substring("sample".length()) + "(reset);"
             + "}";
             logger.debug("METHOD BODY " + body);
             CtMethod newmethod = CtNewMethod.make(body, ctClass);
@@ -192,12 +169,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
         } else {
             return;
         }
-        
-
     }
-    
-    
-    
     
     private void generateAbstractMethod(CtClass ctClass, CtMethod method)
             throws Exception {
@@ -205,7 +177,7 @@ public class ConcreteUsageParameterMBeanInterfaceGenerator {
         String methodName = method.getName();
         String body = "";
         
-        ClassPool classPool = sbbComponent.getClassPool();
+        ClassPool classPool = component.getClassPool();
         CtClass managementExceptionClass = classPool.get(ManagementException.class.getName());
         CtClass sampleStatisticsClass = classPool.get(SampleStatistics.class.getName());
         CtMethod newMethod = null;

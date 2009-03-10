@@ -37,6 +37,7 @@ import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
+import javax.slee.management.ServiceUsageMBean;
 import javax.slee.management.SleeState;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.transaction.SystemException;
@@ -48,7 +49,7 @@ import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
-import org.mobicents.slee.container.deployment.ConcreteUsageParameterMBeanInterfaceGenerator;
+import org.mobicents.slee.container.deployment.ConcreteUsageParameterMBeanGenerator;
 import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
 import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
@@ -562,8 +563,10 @@ public class ServiceManagement {
 
 		if (componentRepositoryImpl.getComponentByID(serviceID) != null) {
 			try {
-				return new ObjectName("slee:ServiceUsageMBean="
-						+ serviceID.toString());
+				return new ObjectName(ServiceUsageMBean.BASE_OBJECT_NAME 
+						+ ',' + ServiceUsageMBean.SERVICE_NAME_KEY + '=' + ObjectName.quote(serviceID.getName())
+						+ ',' + ServiceUsageMBean.SERVICE_VENDOR_KEY + '=' + ObjectName.quote(serviceID.getVendor())
+						+ ',' + ServiceUsageMBean.SERVICE_VERSION_KEY + '=' + ObjectName.quote(serviceID.getVersion()));
 			} catch (Exception e) {
 				throw new ManagementException(
 						"Exception while getting service usage mbean for service with id "

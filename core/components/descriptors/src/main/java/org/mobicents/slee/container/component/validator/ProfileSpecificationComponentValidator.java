@@ -1487,7 +1487,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		}
 
 		try {
-			if (this.component.getProfileUsageInterfaceClass() == null) {
+			if (this.component.getUsageParametersInterface() == null) {
 				if (this.component.getDescriptor().getProfileClasses()
 						.getProfileUsageParameterInterface() != null) {
 					passed = false;

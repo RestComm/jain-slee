@@ -380,8 +380,7 @@ public class DeployableUnitBuilder {
 							.getDescriptor().getProfileClasses()
 							.getProfileUsageParameterInterface();
 					if (mUsageParametersInterface != null) {
-						component
-								.setProfileUsageInterfaceClass(componentClassLoader
+						component.setUsageParametersInterface(componentClassLoader
 										.loadClass(mUsageParametersInterface
 												.getUsageParametersInterfaceName()));
 					}
@@ -396,7 +395,7 @@ public class DeployableUnitBuilder {
 							.getResourceAdaptorUsageParametersInterface();
 					if (mUsageParametersInterface != null) {
 						component
-								.setResourceAdaptorUsageParametersInterfaceClass(componentClassLoader
+								.setUsageParametersInterface(componentClassLoader
 										.loadClass(mUsageParametersInterface
 												.getUsageParametersInterfaceName()));
 					}

@@ -9,7 +9,6 @@
 
 package org.mobicents.slee.container.deployment;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -151,7 +150,7 @@ public class ConcreteSbbGenerator {
      * 
      * @return the concrete sbb class
      */
-    public Class generateConcreteSbb() throws DeploymentException {
+    public void generateConcreteSbb() throws DeploymentException {
         String sbbAbstractClassName = sbbComponent.getAbstractSbbClass().getName();
         String sbbConcreteClassName = ConcreteClassGeneratorUtils
                 .getSbbConcreteClassName(sbbAbstractClassName);
@@ -163,22 +162,19 @@ public class ConcreteSbbGenerator {
             try {
                 sbbAbstractClass = pool.get(sbbAbstractClassName);
             } catch (NotFoundException nfe) {
-                nfe.printStackTrace();
-                return null;
+                throw new DeploymentException(nfe.getMessage(),nfe);
             }
             try {
                 ConcreteClassGeneratorUtils.createInterfaceLinks(
                         sbbConcreteClass, new CtClass[] { pool
                                 .get(SbbConcrete.class.getName()) });
             } catch (NotFoundException nfe) {
-                nfe.printStackTrace();
-                return null;
+            	throw new DeploymentException(nfe.getMessage(),nfe);
             }
 
             ConcreteClassGeneratorUtils.createInheritanceLink(sbbConcreteClass,
                     sbbAbstractClass);
             
-
             try {
                 createFields(new CtClass[] {
                         pool.get(SbbEntity.class.getName()),
@@ -347,7 +343,7 @@ public class ConcreteSbbGenerator {
                 	logger
                 	.error("Narrow Activity context interface method and "
                 			+ "activity context interface concrete class not created");
-                	nfe.printStackTrace();
+                	throw new DeploymentException(nfe.getMessage(),nfe);
                 } finally {
                 	/*if (activityContextInterface != null) {
                 		activityContextInterface.detach();
@@ -390,9 +386,7 @@ public class ConcreteSbbGenerator {
                     } catch (NotFoundException nfe) {
                         String s = "sbb Local Object concrete class not created for interface "
                                 + sbbLocalInterfaceClass.getName();
-                        logger.error(s, nfe);
-                        throw new RuntimeException(s, nfe);
-
+                        throw new DeploymentException(s,nfe);                        
                     }
                 } else {
                     if (logger.isDebugEnabled()) {
@@ -411,7 +405,7 @@ public class ConcreteSbbGenerator {
                 	sbbComponent.setSbbLocalInterfaceClass(SbbLocalObject.class);
                     sbbComponent.setSbbLocalInterfaceConcreteClass(SbbLocalObjectImpl.class);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                	throw new DeploymentException(e.getMessage(),e);
                 }
             }
             try {
@@ -424,8 +418,7 @@ public class ConcreteSbbGenerator {
                 }
             } catch (Exception e) {
                 String s = "Error generating concrete class";
-                logger.error(s, e);
-                throw new RuntimeException(s, e);
+                throw new DeploymentException(s,e);
             }
 
             Class clazz = null;
@@ -433,18 +426,21 @@ public class ConcreteSbbGenerator {
                 clazz = Thread.currentThread().getContextClassLoader().loadClass(sbbConcreteClassName);
             } catch (ClassNotFoundException e1) {
                 String s = "What the heck?! Could not find generated class. Is it under the chair?";
-                logger.error(s, e1);
-                throw new RuntimeException(s, e1);
+                throw new DeploymentException(s,e1);
             }
             //set the concrete class in the descriptor
             sbbComponent.setConcreteSbbClass(clazz);
                         
-            return clazz;
 		 } finally {
 			 if(sbbConcreteClass != null) {
 				 sbbConcreteClass.defrost();
 
 			 }
+		 }
+		 
+		 // uh uh
+		 if (sbbComponent.getConcreteSbbClass() == null) {
+			 throw new DeploymentException("concrete sbb class generation failed and I don't know why, bug bug ?!? :)");
 		 }
     }
 
@@ -472,8 +468,9 @@ public class ConcreteSbbGenerator {
      * 
      * @param parameters
      *            the parameters of the constructor to add
+     * @throws DeploymentException 
      */
-    protected void createConstructorWithParameter(CtClass[] parameters) {
+    protected void createConstructorWithParameter(CtClass[] parameters) throws DeploymentException {
         CtConstructor constructorWithParameter = new CtConstructor(parameters,
                 sbbConcreteClass);
         String constructorBody = "{" + "this();";
@@ -498,12 +495,11 @@ public class ConcreteSbbGenerator {
                 logger.debug("ConstructorWithParameter created");
             }
         } catch (CannotCompileException e) {
-            //Auto-generated catch block
-            e.printStackTrace();
+        	throw new DeploymentException(e.getMessage(),e);
         }
     }
 
-    private void createFields(CtClass[] parameters) {
+    private void createFields(CtClass[] parameters) throws DeploymentException {
         for (int i = 0; i < parameters.length; i++) {
             String parameterName = parameters[i].getName();
             parameterName = parameterName.substring(parameterName
@@ -517,16 +513,17 @@ public class ConcreteSbbGenerator {
                         sbbConcreteClass);
                 ctField.setModifiers(Modifier.PRIVATE);
                 sbbConcreteClass.addField(ctField);
-            } catch (CannotCompileException cce) {
-                cce.printStackTrace();
+            } catch (CannotCompileException e) {
+            	throw new DeploymentException(e.getMessage(),e);
             }
         }
     }
 
     /**
      * Create a default constructor on the Sbb Concrete Class
+     * @throws DeploymentException 
      */
-    protected void createDefaultConstructor() {
+    protected void createDefaultConstructor() throws DeploymentException {
 
         CtConstructor defaultConstructor = new CtConstructor(null,
                 sbbConcreteClass);
@@ -542,8 +539,7 @@ public class ConcreteSbbGenerator {
             sbbConcreteClass.addConstructor(defaultConstructor);
             logger.debug("DefaultConstructor created");
         } catch (CannotCompileException e) {
-            //Auto-generated catch block
-            e.printStackTrace();
+        	throw new DeploymentException(e.getMessage(),e);
         }
     }
 
@@ -552,8 +548,9 @@ public class ConcreteSbbGenerator {
      * for the different method calls:
      * persistenceInterceptor,FireEventInterceptor,ChildRelationInterceptor and
      * UsageParameterInterceptor
+     * @throws DeploymentException 
      */
-    protected void createInterceptorFields() {
+    protected void createInterceptorFields() throws DeploymentException {
         //TODO Get the interceptors from a xml file
         //Add the persistence Manager
         CtField persistenceInterceptor = null;
@@ -566,9 +563,9 @@ public class ConcreteSbbGenerator {
             persistenceInterceptor.setModifiers(Modifier.PRIVATE);
             sbbConcreteClass.addField(persistenceInterceptor);
         } catch (CannotCompileException cce) {
-            cce.printStackTrace();
+        	throw new DeploymentException(cce.getMessage(),cce);
         } catch (NotFoundException nfe) {
-            nfe.printStackTrace();
+        	throw new DeploymentException(nfe.getMessage(),nfe);
         }
         //Add the fire event Interceptor
         CtField fireEventInterceptor = null;
@@ -580,9 +577,9 @@ public class ConcreteSbbGenerator {
             fireEventInterceptor.setModifiers(Modifier.PRIVATE);
             sbbConcreteClass.addField(fireEventInterceptor);
         } catch (CannotCompileException cce) {
-            cce.printStackTrace();
+        	throw new DeploymentException(cce.getMessage(),cce);
         } catch (NotFoundException nfe) {
-            nfe.printStackTrace();
+        	throw new DeploymentException(nfe.getMessage(),nfe);
         }
         //Add the child relation Interceptor
         CtField childRelationInterceptor = null;
@@ -594,9 +591,9 @@ public class ConcreteSbbGenerator {
             childRelationInterceptor.setModifiers(Modifier.PRIVATE);
             sbbConcreteClass.addField(childRelationInterceptor);
         } catch (CannotCompileException cce) {
-            cce.printStackTrace();
+        	throw new DeploymentException(cce.getMessage(),cce);
         } catch (NotFoundException nfe) {
-            nfe.printStackTrace();
+        	throw new DeploymentException(nfe.getMessage(),nfe);
         }
         //Add the Usage parameter Interceptor
         CtField usageParameterInterceptor = null;
@@ -608,9 +605,9 @@ public class ConcreteSbbGenerator {
             usageParameterInterceptor.setModifiers(Modifier.PRIVATE);
             sbbConcreteClass.addField(usageParameterInterceptor);
         } catch (CannotCompileException cce) {
-            cce.printStackTrace();
+        	throw new DeploymentException(cce.getMessage(),cce);
         } catch (NotFoundException nfe) {
-            nfe.printStackTrace();
+        	throw new DeploymentException(nfe.getMessage(),nfe);
         }
         //Add the Usage parameter Interceptor
         CtField profileCMPInterceptor = null;
@@ -621,9 +618,9 @@ public class ConcreteSbbGenerator {
             profileCMPInterceptor.setModifiers(Modifier.PRIVATE);
             sbbConcreteClass.addField(profileCMPInterceptor);
         } catch (CannotCompileException cce) {
-            cce.printStackTrace();
+        	throw new DeploymentException(cce.getMessage(),cce);
         } catch (NotFoundException nfe) {
-            nfe.printStackTrace();
+        	throw new DeploymentException(nfe.getMessage(),nfe);
         }
     }
 
@@ -632,8 +629,9 @@ public class ConcreteSbbGenerator {
      * 
      * @param cmpAccessors
      *            the description of the cmp fields
+     * @throws DeploymentException 
      */
-    protected void createCMPAccessors(List<MSbbCMPField> cmps) {
+    protected void createCMPAccessors(List<MSbbCMPField> cmps) throws DeploymentException {
         if (cmps == null)
             return;
         //Create the concrete implemntation of the accessors
@@ -673,9 +671,10 @@ public class ConcreteSbbGenerator {
      * writing the sbb out to disk, its current state needs to be saved also. It
      * will be handy to keep it here. Note that there can be no CMP fields that
      * start with Sbb Or EJB so we are ok.
+     * @throws DeploymentException 
      *  
      */
-    private void createStateGetterAndSetter(CtClass sbbConcrete) {
+    private void createStateGetterAndSetter(CtClass sbbConcrete) throws DeploymentException {
         try {
 
             CtMethod getSbbState = CtNewMethod.make("public "
@@ -688,8 +687,8 @@ public class ConcreteSbbGenerator {
                     + " state ) { this.sbbObjectState = state; }", sbbConcrete);
             getSbbState.setModifiers(Modifier.PUBLIC);
             sbbConcrete.addMethod(setSbbState);
-        } catch (Exception ex) {
-            logger.fatal("unexpected exception ", ex);
+        } catch (Exception e) {
+        	throw new DeploymentException(e.getMessage(),e);
         }
     }
 
@@ -697,8 +696,9 @@ public class ConcreteSbbGenerator {
      * Create a default usage parameter getter and setter.
      * 
      * @param sbbConcrete
+     * @throws DeploymentException 
      */
-    private void createDefaultUsageParameterGetter(CtClass sbbConcrete) {
+    private void createDefaultUsageParameterGetter(CtClass sbbConcrete) throws DeploymentException {
     	MUsageParametersInterface mUsageParametersInterface = this.sbbComponent.getDescriptor().getSbbClasses().getSbbUsageParametersInterface();
     	if (mUsageParametersInterface == null)
             return;
@@ -714,8 +714,8 @@ public class ConcreteSbbGenerator {
                     "}", sbbConcrete);
             getDefaultUsageParameter.setModifiers(Modifier.PUBLIC);
             sbbConcrete.addMethod(getDefaultUsageParameter);
-        } catch (Exception ex) {
-            logger.fatal("Unexpected exception ", ex);
+        } catch (Exception e) {
+        	throw new DeploymentException(e.getMessage(),e);
         }
 
     }
@@ -724,9 +724,10 @@ public class ConcreteSbbGenerator {
      * Create a named usage parameter getter.
      * 
      * @param sbbConcrete
+     * @throws DeploymentException 
      */
     
-    private void createNamedUsageParameterGetter(CtClass sbbConcrete) {
+    private void createNamedUsageParameterGetter(CtClass sbbConcrete) throws DeploymentException {
     	MUsageParametersInterface mUsageParametersInterface = this.sbbComponent.getDescriptor().getSbbClasses().getSbbUsageParametersInterface();
     	if (mUsageParametersInterface == null)
             return;
@@ -750,10 +751,9 @@ public class ConcreteSbbGenerator {
                     sbbConcrete);
             getDefaultUsageParameter.setModifiers(Modifier.PUBLIC);
             sbbConcrete.addMethod(getDefaultUsageParameter);
-        } catch (Exception ex) {
+        } catch (Exception e) {
             String s = "Unexpected exception in createNamedUsageParameterGetter";
-            logger.fatal(s, ex);
-            throw new RuntimeException(s, ex);
+            throw new DeploymentException(s,e);
         }
     }
     
@@ -763,8 +763,9 @@ public class ConcreteSbbGenerator {
      * 
      * @param sbbConcrete
      * @param methodToWrap
+     * @throws DeploymentException 
      */
-    private void createMethodWrapper(CtClass sbbConcrete, CtMethod methodToWrap) {
+    private void createMethodWrapper(CtClass sbbConcrete, CtMethod methodToWrap) throws DeploymentException {
         try {
             String methodName = methodToWrap.getName();
             CtClass[] params = methodToWrap.getParameterTypes();
@@ -820,15 +821,14 @@ public class ConcreteSbbGenerator {
 
             CtMethod method = CtNewMethod.make(wrapper, sbbConcrete);
             sbbConcrete.addMethod(method);
-        } catch (Exception ex) {
+        } catch (Exception e) {
             String s = "Unexpected error in createMethodWrapper";
-            logger.fatal(s, ex);
-            throw new RuntimeException(s, ex); // naughty boy! tut tut!!
+            throw new DeploymentException(s,e);
         }
 
     }
 
-    private void createInterceptors(CtClass sbbConcrete) {
+    private void createInterceptors(CtClass sbbConcrete) throws DeploymentException {
         try {
             String body = "public void createInterceptors ( ) { ";
             body += SBB_PERSISTENCE_INTERCEPTOR_FIELD +" = new "
@@ -842,10 +842,9 @@ public class ConcreteSbbGenerator {
             body += "}";
             CtMethod createInterceptors = CtNewMethod.make(body, sbbConcrete);
             sbbConcrete.addMethod(createInterceptors);
-        } catch (Exception ex) {
+        } catch (Exception e) {
             String s = "Unexpected error createInterceptors";
-            logger.fatal(s, ex);
-            throw new RuntimeException(s, ex);
+            throw new DeploymentException(s,e);
         }
     }
 
@@ -853,8 +852,9 @@ public class ConcreteSbbGenerator {
      * Create a method to retrive the entity from the SbbObject.
      * 
      * @param cmpAccessors
+     * @throws DeploymentException 
      */
-    private void createSbbEntityGetterAndSetter(CtClass sbbConcrete) {
+    private void createSbbEntityGetterAndSetter(CtClass sbbConcrete) throws DeploymentException {
         try {
             CtClass sbbEntityClass = pool.get(SbbEntity.class.getName());
 
@@ -879,8 +879,8 @@ public class ConcreteSbbGenerator {
 
             setSbbEntity.setModifiers(Modifier.PUBLIC);
             sbbConcrete.addMethod(setSbbEntity);
-        } catch (Exception ex) {
-            logger.fatal("unexpected exception ", ex);
+        } catch (Exception e) {
+        	throw new DeploymentException(e.getMessage(),e);
         }
     }
 
@@ -890,8 +890,9 @@ public class ConcreteSbbGenerator {
      * 
      * @param cmpAccessors
      *            the description of the cmp fields
+     * @throws DeploymentException 
      */
-    protected void createPersistentStateHolderClass(List<MSbbCMPField> cmps) {
+    protected void createPersistentStateHolderClass(List<MSbbCMPField> cmps) throws DeploymentException {
         //Create the class of the persistent state of the sbb
     	
         CtClass sbbPersisentStateClass=pool.makeClass(sbbAbstractClass.getName() + "PersistentState");
@@ -906,9 +907,8 @@ public class ConcreteSbbGenerator {
                 ConcreteClassGeneratorUtils.createInterfaceLinks(
                         sbbPersisentStateClass, new CtClass[] { pool
                                 .get("java.io.Serializable") });
-            } catch (NotFoundException e1) {
-                // Auto-generated catch block
-                e1.printStackTrace();
+            } catch (NotFoundException e) {
+            	throw new DeploymentException(e.getMessage(),e);
             }
             //Create the fields of the sbb persistent state class
             for (MSbbCMPField cmp : cmps) {
@@ -935,10 +935,8 @@ public class ConcreteSbbGenerator {
                             sbbPersisentStateClass);
                     persistentField.setModifiers(Modifier.PUBLIC);
                     sbbPersisentStateClass.addField(persistentField);
-                } catch (CannotCompileException cce) {
-                    cce.printStackTrace();
-                } catch (NotFoundException nfe) {
-                    nfe.printStackTrace();
+                } catch (Exception e) {
+                	throw new DeploymentException(e.getMessage(),e);
                 }
             }
             //generate the persistent state class of the sbb
@@ -951,12 +949,8 @@ public class ConcreteSbbGenerator {
                         + "PersistentState"
                         + " generated in the following path " + deployDir);
                 }            
-            } catch (CannotCompileException e) {
-                // Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // Auto-generated catch block
-                e.printStackTrace();
+            } catch (Exception e) {
+            	throw new DeploymentException(e.getMessage(),e);
             }
         } finally {
             // release from javassist pool to allow consequent manipulation
@@ -1044,7 +1038,7 @@ public class ConcreteSbbGenerator {
     }
 
     protected void createSetActivityContextInterfaceMethod(
-            CtClass activityContextInterface) {
+            CtClass activityContextInterface) throws DeploymentException {
         String methodToAdd = "public void sbbSetActivityContextInterface( Object aci ) {"
                 + "this.sbbActivityContextInterface = ("
                 + activityContextInterface.getName() + ") aci ; } ";
@@ -1053,8 +1047,8 @@ public class ConcreteSbbGenerator {
             methodTest = CtNewMethod.make(methodToAdd, sbbConcreteClass);
             sbbConcreteClass.addMethod(methodTest);
             logger.debug("Method " + methodToAdd + " added");
-        } catch (CannotCompileException cce) {
-            cce.printStackTrace();
+        } catch (CannotCompileException e) {
+        	throw new DeploymentException(e.getMessage(),e);
         }
     }
 
@@ -1065,10 +1059,11 @@ public class ConcreteSbbGenerator {
      *            the activity context interface return type of the narrow
      *            method
      * @param concreteActivityContextInterfaceClass
+     * @throws DeploymentException 
      */
     protected void createGetSbbActivityContextInterfaceMethod(
             CtClass activityContextInterface,
-            Class concreteActivityContextInterfaceClass) {
+            Class concreteActivityContextInterfaceClass) throws DeploymentException {
         String methodToAdd = "public "
                 + activityContextInterface.getName()
                 + " asSbbActivityContextInterface(javax.slee.ActivityContextInterface aci) {"
@@ -1091,8 +1086,8 @@ public class ConcreteSbbGenerator {
             if (logger.isDebugEnabled()) {
                 logger.debug("Method " + methodToAdd + " added");
             }
-        } catch (CannotCompileException cce) {
-            cce.printStackTrace();
+        } catch (CannotCompileException e) {
+        	throw new DeploymentException(e.getMessage(),e);
         }
     }
 

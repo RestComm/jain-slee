@@ -32,7 +32,7 @@ import org.mobicents.slee.container.component.validator.ProfileSpecificationComp
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecificationComponent extends SleeComponent {
+public class ProfileSpecificationComponent extends SleeComponentWithUsageParametersInterface {
 
 	/**
 	 * the profile specification descriptor
@@ -63,11 +63,6 @@ public class ProfileSpecificationComponent extends SleeComponent {
 	 * the profile table interface
 	 */
 	private Class profileTableInterfaceClass = null;
-	
-	/**
-	 * the profile usage interface
-	 */
-	private Class profileUsageInterfaceClass = null;
 	
 	/**
 	 * the JAIN SLEE specs descriptor
@@ -178,22 +173,6 @@ public class ProfileSpecificationComponent extends SleeComponent {
 	 */
 	public void setProfileTableInterfaceClass(Class profileTableInterfaceClass) {
 		this.profileTableInterfaceClass = profileTableInterfaceClass;
-	}
-
-	/**
-	 * Sets the profile usage interface
-	 * @param profileUsageInterfaceClass
-	 */
-	public void setProfileUsageInterfaceClass(Class profileUsageInterfaceClass) {
-		this.profileUsageInterfaceClass = profileUsageInterfaceClass;
-	}
-
-	/**
-	 * Retrieves the profile usage interface
-	 * @return
-	 */
-	public Class getProfileUsageInterfaceClass() {
-		return profileUsageInterfaceClass;
 	}
 
 	@Override

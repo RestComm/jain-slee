@@ -1,300 +1,57 @@
-/*
- * SbbUsageMBeanImpl.java
- * 
- * Created on Jan 12, 2005
- * 
- * Created by: M. Ranganathan
- *
- * The Mobicents Open SLEE project
- * 
- * A SLEE for the people!
- *
- * The source code contained in this file is in in the public domain.          
- * It can be used in any project or product without prior permission, 	      
- * license or royalty payments. There is  NO WARRANTY OF ANY KIND,
- * EXPRESS, IMPLIED OR STATUTORY, INCLUDING, WITHOUT LIMITATION,
- * THE IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
- * AND DATA ACCURACY.  We do not warrant or make any representations 
- * regarding the use of the software or the  results thereof, including 
- * but not limited to the correctness, accuracy, reliability or 
- * usefulness of the software.
- */
-
 package org.mobicents.slee.container.management.jmx;
 
-import java.util.Iterator;
-import java.util.List;
-
-import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
-import javax.management.NotificationBroadcaster;
-import javax.management.NotificationFilter;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.StandardMBean;
-import javax.slee.InvalidStateException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
+import javax.slee.management.SbbNotification;
 import javax.slee.usage.SbbUsageMBean;
 import javax.slee.usage.UsageNotification;
 
-import org.mobicents.slee.container.SleeContainerUtils;
-
-import EDU.oswego.cs.dl.util.concurrent.CopyOnWriteArrayList;
-
 /**
- * SbbUsageMBeanImpl -- implementation of the SbbUsageMBean
+ * Implementation of the SbbUsageMBean, extending {@link UsageMBeanImpl}
  * 
- * @author M. Ranganathan
+ * @author Eduardo Martins
  * 
  */
-public class SbbUsageMBeanImpl extends StandardMBean implements SbbUsageMBean,
-		NotificationBroadcaster {
+public class SbbUsageMBeanImpl extends UsageMBeanImpl implements SbbUsageMBean {
 
-	private SbbID sbbId;
-
-	private String name;
-
-	private List listeners;
-
-	private InstalledUsageParameterSet usageParameterSet;
-
-	private ServiceID serviceId;
-
-	private ObjectName objectName; 
+	private final ServiceID service;
+	private final SbbID sbb;
 	
-	private ServiceUsageMBeanImpl serviceUsageMBeanImpl;
-	
-	/*
-	 * static { logger = Logger.getLogger(SbbUsageMBeanImpl.class); }
-	 */
-	public SbbUsageMBeanImpl(String interfaceName)
-			throws NotCompliantMBeanException, ClassNotFoundException {
-		super(SleeContainerUtils.getCurrentThreadClassLoader().loadClass(
-				interfaceName));
-		listeners = new CopyOnWriteArrayList();
-
-	}
-
-	class ListenerFilterHandbackTriplet {
-		NotificationListener notificationListener;
-
-		NotificationFilter notificationFilter;
-
-		Object handbackObject;
-
-		public ListenerFilterHandbackTriplet(NotificationListener listener,
-				NotificationFilter notificationFilter, Object handbackObject) {
-			this.notificationListener = listener;
-			this.notificationFilter = notificationFilter;
-			this.handbackObject = handbackObject;
-		}
-	}
-
-	public SbbUsageMBeanImpl(ServiceID serviceID, SbbID sbbId, String name,
-			String interfaceName) throws NotCompliantMBeanException,
+	public SbbUsageMBeanImpl(Class mbeanInterface, SbbNotification notificationSource) throws NotCompliantMBeanException,
 			ClassNotFoundException {
-		this(interfaceName);
-		this.serviceId = serviceID;
-		this.sbbId = sbbId;
-		this.name = name;
-
+		super(mbeanInterface,notificationSource);
+		this.service = notificationSource.getService();
+		this.sbb = notificationSource.getSbb();		
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.usage.SbbUsageMBean#getService()
-	 */
-	public ServiceID getService() throws ManagementException {
-
-		return this.serviceId;
-
+	@Override
+	protected UsageNotification createUsageNotification(long value, long seqno,
+			String usageParameterSetName, String usageParameterName,
+			boolean isCounter) {
+		return new UsageNotification(this,service,sbb,usageParameterSetName,
+				usageParameterName, isCounter, value, seqno, System
+						.currentTimeMillis());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.usage.SbbUsageMBean#getSbb()
-	 */
-	public SbbID getSbb() throws ManagementException {
-		return this.sbbId;
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.usage.SbbUsageMBean#getUsageParameterSet()
-	 */
-	public String getUsageParameterSet() throws ManagementException {
-		return name;
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.usage.SbbUsageMBean#close()
-	 */
-	public void close() throws InvalidStateException, ManagementException {
-		if (listeners.size() != 0) {
-			throw new InvalidStateException(
-					"Could not close Usage MBean listeners still attached!");
-		}
-		try {
-			serviceUsageMBeanImpl.removeUsageParameterSet(sbbId, name);
-		} catch (Throwable e) {
-			throw new ManagementException(e.getMessage(),e);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.usage.SbbUsageMBean#resetAllUsageParameters()
-	 */
-	public void resetAllUsageParameters() throws ManagementException {
-		try {
-			usageParameterSet.reset();
-		} catch (Throwable e) {
-			throw new ManagementException(e.getMessage(),e);
-		}
-	}
-
-	/*
-	 * Add a notification listener Created from equivalent method in
-	 * TraceMBeanImpl.
-	 * 
-	 * @see javax.management.NotificationBroadcaster#addNotificationListener(javax.management.NotificationListener,
-	 *      javax.management.NotificationFilter, java.lang.Object)
-	 */
-	public void addNotificationListener(NotificationListener listener,
-			NotificationFilter filter, Object handback)
-			throws IllegalArgumentException {
-		// logger.debug("addNotificationListener");
-		this.listeners.add(new ListenerFilterHandbackTriplet(listener, filter,
-				handback));
-	}
-
-	/*
-	 * Remove the listener from the list. Created from equivalent method in
-	 * TraceMBeanImpl.
-	 * 
-	 * @see javax.management.NotificationBroadcaster#removeNotificationListener(javax.management.NotificationListener)
-	 */
-	public void removeNotificationListener(NotificationListener listener)
-			throws ListenerNotFoundException {
-		// logger.debug("removeNotificationListener");
-		boolean found = false;
-		Iterator iter = listeners.iterator();
-		while (iter.hasNext()) {
-			ListenerFilterHandbackTriplet triplet = (ListenerFilterHandbackTriplet) iter
-					.next();
-			if (triplet.notificationListener == listener) {
-				found = true;
-				break;
-			}
-		}
-		if (found)
-			listeners.remove(listener);
-		else
-			throw new ListenerNotFoundException();
-	}
-
-	/*
-	 * @see javax.management.NotificationBroadcaster#getNotificationInfo()
-	 */
+	@Override
 	public MBeanNotificationInfo[] getNotificationInfo() {
-		// logger.debug("getNotificationInfo");
-		String[] notificationTypes = new String[] { USAGE_NOTIFICATION_TYPE };
+		String[] notificationTypes = new String[] { SbbUsageMBean.USAGE_NOTIFICATION_TYPE };
 		MBeanNotificationInfo[] mbeanNotificationInfo = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
-				notificationTypes, "UsageNotifications",
-				"Notification of SBB usage") };
+				notificationTypes, UsageNotification.class.getName(),
+				"JAIN SLEE 1.0 Usage MBean notification") };
 
 		return mbeanNotificationInfo;
 	}
-
-	/**
-	 * Send the notification.
-	 * 
-	 * @param value
-	 * @param seqno
-	 * @param usageParameterSetName
-	 * @param usageParameterName
-	 * @param isCounter
-	 */
-	public void sendUsageNotification(long value, long seqno,
-			String usageParameterSetName, String usageParameterName,
-			boolean isCounter) {
-		UsageNotification notification = new UsageNotification(this,
-				this.serviceId, this.sbbId, usageParameterSetName,
-				usageParameterName, isCounter, value, seqno, System
-						.currentTimeMillis());
-		// logger.debug("sendNotification nListeners = " + listeners.size() );
-		Iterator iter = listeners.iterator();
-		while (iter.hasNext()) {
-			ListenerFilterHandbackTriplet triplet = (ListenerFilterHandbackTriplet) iter
-					.next();
-			if (triplet.notificationFilter == null
-					|| triplet.notificationFilter
-							.isNotificationEnabled(notification)) {
-				triplet.notificationListener.handleNotification(notification,
-						triplet.handbackObject);
-			}
-		}
-
-	}
-
-	/**
-	 * Retrieves the installed usage paramater set
-	 * @return
-	 */
-	public InstalledUsageParameterSet getUsageParameter() {
-		return this.usageParameterSet;
-	}
 	
-	/**
-	 * Sets the installed usage paramater set
-	 * @param usageParam
-	 */
-	public void setUsageParameter(InstalledUsageParameterSet usageParam) {
-		this.usageParameterSet = usageParam;
+	public SbbID getSbb() throws ManagementException {
+		return sbb;
 	}
 
-	/**
-	 * Retrieves the object name of this mbean
-	 * @return
-	 */
-	public ObjectName getObjectName() {
-		return objectName;
-	}
-	
-	/**
-	 * Sets the object name of this mbean
-	 * @param objectName
-	 */
-	public void setObjectName(ObjectName objectName) {
-		this.objectName = objectName;
-	}
-
-	/**
-	 * Retrieves the parent service usage mbean
-	 * @return
-	 */
-	public ServiceUsageMBeanImpl getServiceUsageMBeanImpl() {
-		return serviceUsageMBeanImpl;
-	}
-	
-	/**
-	 * Sets the parent service usage mbean
-	 * @param serviceUsageMBeanImpl
-	 */
-	public void setServiceUsageMBeanImpl(
-			ServiceUsageMBeanImpl serviceUsageMBeanImpl) {
-		this.serviceUsageMBeanImpl = serviceUsageMBeanImpl;
+	public ServiceID getService() throws ManagementException {
+		return service;
 	}
 	
 }

@@ -33,17 +33,12 @@ import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.Modifier;
 
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
-import javax.slee.management.DeploymentException;
 import javax.slee.usage.SampleStatistics;
 
 import org.apache.log4j.Logger;
-import org.jboss.util.Strings;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
-import org.mobicents.slee.container.management.jmx.SampleStatisticsImpl;
-import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
+import org.mobicents.slee.container.management.jmx.UsageMBeanImpl;
 
 /**
  * @author M.Ranganathan
@@ -60,11 +55,11 @@ public class ConcreteUsageParameterClassGenerator {
 
     public static final String GET_NAME = "getName";
 
-    private static final String USAGE_PARAMETER_MBEAN_FIELD = "sbbUsageParameterMBean";
+    private static final String USAGE_PARAMETER_MBEAN_FIELD = "usageMBean";
 
-    public static final String SET_USAGE_PARAMETER_MBEAN = "setSbbUsageMBean";
+    public static final String SET_USAGE_PARAMETER_MBEAN = "setUsageMBean";
 
-    public static final String GET_USAGE_PARAMETER_MBEAN = "getSbbUsageMBean";
+    public static final String GET_USAGE_PARAMETER_MBEAN = "getUsageMBean";
     
     private final ClassPool classPool;
 
@@ -93,49 +88,34 @@ public class ConcreteUsageParameterClassGenerator {
         CtClass ctClass = classPool.makeClass(concreteClassName);
 		
         try {
-            
-            this.generateFields(ctClass,new CtClass[] {
-                    classPool.get(ServiceID.class.getName()),
-                    classPool.get(SbbID.class.getName()) });
-            
+                   
             //Generates the implements link
             ConcreteClassGeneratorUtils.createInterfaceLinks(ctClass,
                     new CtClass[] { usageParamInterface, implClassInterface });
-            CtField ctField = new CtField(classPool.get(SbbUsageMBeanImpl.class
+            // generate the "usage mbean" field, getter and setter
+            CtField ctField = new CtField(classPool.get(UsageMBeanImpl.class
                     .getName()), USAGE_PARAMETER_MBEAN_FIELD, ctClass);
             ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-
-            generateSbbUsageMBeanSetter(ctClass);
-            generateSbbUsageMBeanGetter(ctClass);
-
-            generateSbbIDGetter(ctClass);
-            generateServiceIDGetter(ctClass);
+            ctClass.addField(ctField);            
+            generateUsageMBeanSetter(ctClass);
+            generateUsageMBeanGetter(ctClass);
+            // generate the "name" field, getter and setter
             ctField = new CtField(classPool.get(String.class.getName()),
                     NAME_FIELD, ctClass);
-
             ctField.setModifiers(Modifier.PRIVATE);
             ctClass.addField(ctField);
-
             generateNameSetter(ctClass);
             generateNameGetter(ctClass);
-
+            // generate concrete methods for each usage param
             for (int i = 0; i < methods.length; i++) {
-                // Generate the concrete method.
-
                 generateConcreteMethod(ctClass, methods[i]);
-
             }
-
+            // generate reset method
             generateResetMethod(ctClass);
-            createConstructor(ctClass, new CtClass[] {
-                    classPool.get(ServiceID.class.getName()),
-                    classPool.get(SbbID.class.getName()) });
-            
-            this.createDefaultConstructor(ctClass);
-
+            // generate constructor
+            createDefaultConstructor(ctClass);
+            // write file
             ctClass.writeFile(deploymentDir);
-            
             if (logger.isDebugEnabled())
                 logger.debug("UsageParameterGenerator Writing file "
                         + concreteClassName);
@@ -146,22 +126,21 @@ public class ConcreteUsageParameterClassGenerator {
             
             ctClass.defrost();
         }
-
     }
 
-    private void generateSbbUsageMBeanSetter(CtClass concreteClass)
+    private void generateUsageMBeanSetter(CtClass concreteClass)
             throws Exception {
 
         String body = "public void " + SET_USAGE_PARAMETER_MBEAN + " ( "
-                + SbbUsageMBeanImpl.class.getName() + " usageMbean ) { this."
+                + UsageMBeanImpl.class.getName() + " usageMbean ) { this."
                 + USAGE_PARAMETER_MBEAN_FIELD + "= usageMbean; }";
         CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
         concreteClass.addMethod(ctMethod);
     }
 
-    private void generateSbbUsageMBeanGetter(CtClass concreteClass)
+    private void generateUsageMBeanGetter(CtClass concreteClass)
             throws Exception {
-        String body = "public " + SbbUsageMBeanImpl.class.getName() + " "
+        String body = "public " + UsageMBeanImpl.class.getName() + " "
                 + GET_USAGE_PARAMETER_MBEAN + "() {";
         body += "return " + USAGE_PARAMETER_MBEAN_FIELD + "; }";
         CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
@@ -180,21 +159,6 @@ public class ConcreteUsageParameterClassGenerator {
         String body = "public void " + SET_NAME + "( "
                 + java.lang.String.class.getName() + " n) { " + NAME_FIELD
                 + " = n   ; } ";
-        CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
-        concreteClass.addMethod(ctMethod);
-    }
-
-    private void generateServiceIDGetter(CtClass concreteClass)
-            throws Exception {
-        String body = "public " + ServiceID.class.getName()
-                + " getServiceID() { return this.serviceID; }";
-        CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
-        concreteClass.addMethod(ctMethod);
-    }
-
-    private void generateSbbIDGetter(CtClass concreteClass) throws Exception {
-        String body = "public " + SbbID.class.getName()
-                + " getSbbID() { return this.sbbID; }";
         CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
         concreteClass.addMethod(ctMethod);
     }
@@ -299,18 +263,6 @@ public class ConcreteUsageParameterClassGenerator {
         ctClass.addMethod(newMethod);
     }
 
-    private void generateSampleMethod(CtClass ctClass,
-            String sampleParameterName) throws Exception {
-        String body = "public " + SampleStatisticsImpl.class.getName() + " "
-                + sampleParameterName + "SampleStatistics ( ) { ";
-        body += " return new " + SampleStatisticsImpl.class.getName() + "("
-                + sampleParameterName + "Mean," + sampleParameterName + "Max , "
-                + sampleParameterName + "Min, " + sampleParameterName
-                + "Count ); " + " } ";
-        CtMethod newMethod = CtNewMethod.make(body, ctClass);
-        ctClass.addMethod(newMethod);
-    }
-
     /**
      * @param method
      * @return
@@ -404,15 +356,6 @@ public class ConcreteUsageParameterClassGenerator {
         if ( logger.isDebugEnabled() )
             logger.debug("generateConcreteMethod(): USAGEPARAM variable is " + paramName);
         
-        //	checks if the parameter is a valid java identifier
-        if (Strings.isJavaKeyword(paramName))
-            throw new DeploymentException(
-                    "Usage parameter concrete class generator is a Java keyword!");
-
-        if (!Strings.isValidJavaIdentifier(paramName))
-            throw new DeploymentException(
-                    "Usage parameter concrete class generator, invalid Java identifier!");
-
         if (logger.isDebugEnabled())
             logger.debug("Generating usage method = " + methodName);
         
@@ -490,10 +433,10 @@ public class ConcreteUsageParameterClassGenerator {
             getterBody += "public synchronized " + SampleStatistics.class.getName() + " get"
                     + methodName.substring("sample".length()) + "( boolean reset) { ";
             getterBody += SampleStatistics.class.getName() + " tempValue"
-                    + "= new " + SampleStatisticsImpl.class.getName()
-                    + "(this." + paramName + "Mean, " + "this." + paramName
+                    + "= new " + SampleStatistics.class.getName()
+                    + "(this." + paramName + "Count, " + "this." + paramName
                     + "Min, " + "this." + paramName + "Max, " + "this."
-                    + paramName + "Count);";
+                    + paramName + "Mean);";
             getterBody += "if (reset == true) {this." + paramName + "Count=0;";
             getterBody += "this." + paramName + "Sum = 0;";
             getterBody += "this." + paramName + "Mean = 0;";
@@ -513,11 +456,6 @@ public class ConcreteUsageParameterClassGenerator {
         logger.debug("body = " + body);
         CtMethod newmethod = CtNewMethod.make(body, ctClass);
         ctClass.addMethod(newmethod);
-
-        if (methodName.startsWith("sample")) {
-            this.generateSampleMethod(ctClass, paramName);
-        }
-
     }
 
 }

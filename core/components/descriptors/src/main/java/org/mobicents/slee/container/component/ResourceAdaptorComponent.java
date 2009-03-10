@@ -36,7 +36,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MCo
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ResourceAdaptorComponent extends SleeComponent {
+public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersInterface {
 
 	/**
 	 * the ra descriptor
@@ -48,11 +48,6 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	 */
 	private Class resourceAdaptorClass = null;
 	
-	/**
-	 * the ra usage parameters interface
-	 */
-	private Class resourceAdaptorUsageParametersInterfaceClass = null;
-
 	/**
 	 * the JAIN SLEE specs descriptor
 	 */
@@ -96,23 +91,6 @@ public class ResourceAdaptorComponent extends SleeComponent {
 	 */
 	public void setResourceAdaptorClass(Class resourceAdaptorClass) {
 		this.resourceAdaptorClass = resourceAdaptorClass;
-	}
-
-	/**
-	 * Retrieves the ra usage parameters interface
-	 * @return
-	 */
-	public Class getResourceAdaptorUsageParametersInterfaceClass() {
-		return resourceAdaptorUsageParametersInterfaceClass;
-	}
-
-	/**
-	 * Sets the ra usage parameters interface
-	 * @param resourceAdaptorUsageParametersInterfaceClass
-	 */
-	public void setResourceAdaptorUsageParametersInterfaceClass(
-			Class resourceAdaptorUsageParametersInterfaceClass) {
-		this.resourceAdaptorUsageParametersInterfaceClass = resourceAdaptorUsageParametersInterfaceClass;
 	}
 
 	@Override

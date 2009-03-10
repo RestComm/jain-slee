@@ -2,6 +2,7 @@ package org.mobicents.slee.resource;
 
 import java.lang.reflect.Constructor;
 
+import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
@@ -20,6 +21,7 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
+import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 
 /**
  * 
@@ -62,6 +64,11 @@ public class ResourceAdaptorEntity {
 	 */
 	private ResourceAdaptorEntityNotification notificationSource;
 
+	/**
+	 * the resource usage mbean for this ra, may be null
+	 */
+	private ResourceUsageMBeanImpl usageMbean;
+	
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
 	 * component and with the provided entity config properties. The entity
@@ -108,6 +115,8 @@ public class ResourceAdaptorEntity {
 		object.raConfigure(entityProperties);
 		// process to inactive state
 		this.state = ResourceAdaptorEntityState.INACTIVE;
+		// register the ra entity notification source in the trace facility
+		this.sleeContainer.getTraceFacility().registerNotificationSource(this.getNotificationSource());
 	}
 
 	/**
@@ -256,13 +265,6 @@ public class ResourceAdaptorEntity {
 		this.sleeContainer.getTraceFacility().deregisterNotificationSource(this.getNotificationSource());
 		state = null;
 	}
-	/**
-	 * Method which performs some mgmt once RA Entity is installed
-	 */
-	public void installed() {
-		this.sleeContainer.getTraceFacility().registerNotificationSource(this.getNotificationSource());
-		
-	}
 	
 	/**
 	 * Retrieves the active config properties for the entity
@@ -362,5 +364,18 @@ public class ResourceAdaptorEntity {
 		return this.notificationSource;
 	}
 
+	/**
+	 * Retrieves the resource usage mbean for this ra, may be null
+	 * @return
+	 */
+	public ResourceUsageMBeanImpl getResourceUsageMBean() {
+		return usageMbean;
+	}
 	
+	/**
+	 * Sets the resource usage mbean for this ra, may be null
+	 */
+	public void setResourceUsageMBean(ResourceUsageMBeanImpl usageMbean) {
+		this.usageMbean = usageMbean;
+	}
 }

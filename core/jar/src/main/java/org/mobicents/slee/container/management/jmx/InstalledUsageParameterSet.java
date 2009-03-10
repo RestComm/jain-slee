@@ -22,22 +22,16 @@
 
 package org.mobicents.slee.container.management.jmx;
 
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
-
-
 /**
  *@author M. Ranganathan
  *
  */
 public interface InstalledUsageParameterSet {
 
-    	public SbbID getSbbID();
-    	public ServiceID getServiceID();
     	public String getName();
     	public void reset();
     	public void setName( String name );
-    	public void setSbbUsageMBean (SbbUsageMBeanImpl usageParameterMBean );
-    	public SbbUsageMBeanImpl getSbbUsageMBean();
+    	public void setUsageMBean (UsageMBeanImpl usageParameterMBean );
+    	public UsageMBeanImpl getUsageMBean();
 }
 

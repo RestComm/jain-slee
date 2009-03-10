@@ -12,10 +12,12 @@ import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.management.DependencyException;
 import javax.slee.management.LinkNameAlreadyBoundException;
+import javax.slee.management.ManagementException;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.ResourceManagementMBean;
+import javax.slee.management.ResourceUsageMBean;
 import javax.slee.management.UnrecognizedLinkNameException;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.slee.management.UnrecognizedResourceAdaptorException;
@@ -31,6 +33,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
+import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 
 /**
@@ -127,14 +130,10 @@ public class ResourceManagement {
 						"Failed to create RA Entity. Resource Adpator Entity Name: "
 								+ entityName + " already exists! RA ID: " + id);
 			}
+			
 			ResourceAdaptorEntityNotification notifiationSource = new ResourceAdaptorEntityNotification(entityName);
 			ResourceAdaptorEntity raEntity = new ResourceAdaptorEntity(
 					entityName, component, properties, sleeContainer,notifiationSource);
-
-			this.resourceAdaptorEntities.put(entityName, raEntity);
-
-			raEntity.installed();
-			
 			for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
 				Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
 				if (set == null) {
@@ -144,9 +143,41 @@ public class ResourceManagement {
 					set.add(raEntity);
 				}
 			}
+			this.resourceAdaptorEntities.put(entityName, raEntity);
 			
-			logger.info("Created RA Entity. Id: " + id + ", name: "
-					+ entityName + ", properties: " + properties);
+			if (component.getUsageParametersInterface() != null) {
+				// create resource usage mbean
+				ResourceUsageMBeanImpl resourceUsageMBeanImpl = null;
+				try {
+					ObjectName objectName = new ObjectName(ResourceUsageMBean.BASE_OBJECT_NAME+','+ResourceUsageMBean.RESOURCE_ADAPTOR_ENTITY_NAME_KEY+'='+entityName);
+					resourceUsageMBeanImpl = new ResourceUsageMBeanImpl(entityName);
+					resourceUsageMBeanImpl.setObjectName(objectName);
+					sleeContainer.getMBeanServer().registerMBean(resourceUsageMBeanImpl, objectName);
+					raEntity.setResourceUsageMBean(resourceUsageMBeanImpl);
+					// create default usage param set
+					resourceUsageMBeanImpl.createUsageParameterSet();					
+				} catch (Throwable e) {
+					if (resourceUsageMBeanImpl != null) {
+						try {
+							resourceUsageMBeanImpl.close();
+						} catch (ManagementException e1) {
+							logger.error(e.getMessage(),e);
+						}
+					}
+					for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
+						entitiesPerType.get(resourceAdaptorTypeID).remove(raEntity);						
+					}
+					this.resourceAdaptorEntities.remove(raEntity);
+					try {
+						raEntity.remove();
+					} catch (InvalidStateException e1) {
+						logger.error(e.getMessage(),e);
+					}
+					throw new SLEEException("failed to create and register entity resource usage mbean",e);
+				}
+			}
+						
+			logger.info("Created Resource Adaptor Entity "+entityName+" for " + id+" Config Properties: " + properties);
 		}
 	}
 
@@ -677,7 +708,24 @@ public class ResourceManagement {
 			throws NullPointerException,
 			UnrecognizedResourceAdaptorEntityException,
 			InvalidArgumentException {
-		// TODO
+		
+		if (entityName == null)
+			throw new NullPointerException("null entity name");
+
+		final ResourceAdaptorEntity resourceAdaptorEntity = this.resourceAdaptorEntities
+				.get(entityName);
+		
+		if (resourceAdaptorEntity == null) {
+			throw new UnrecognizedResourceAdaptorEntityException(entityName);
+		} else {
+			ResourceUsageMBeanImpl mbean = resourceAdaptorEntity.getResourceUsageMBean();
+			if (mbean == null) {
+				throw new InvalidArgumentException(" Resource Adaptor entity "+entityName+" related resource adaptor does not defines a usage paramters interface. See section 14.2 in SLEE 1.1 specs for more info");
+			}
+			else {
+				return mbean.getObjectName();
+			}			
+		}
 	}
 
 	// --- additonal operations
@@ -710,9 +758,7 @@ public class ResourceManagement {
 		for (int i = 0; i < name.length(); i++) {
 			char c = name.charAt(i);
 			if (!Character.isLetterOrDigit(c)) {
-				Character character = Character.valueOf(c);
-				if (Character.valueOf('\u0020').compareTo(character) < 0
-						|| Character.valueOf('\u007e').compareTo(character) > 0) {
+				if (c < '\u0020' || c > '\u007e') {
 					throw new InvalidArgumentException(
 							name
 									+ " includes char "

@@ -8,34 +8,23 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceCollatorOnNonString;
-import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceLackBoolean;
-import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceToManyCMPs;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceForbbidenMethods;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceGetterThrows;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceSetterThrows;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceTypeMissMatch;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceWrongFieldType;
-import org.mobicents.slee.container.component.validator.profile.ProfileSuperCMPInterface;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClass10LackLifeCycle;
+import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassConcreteUsageParametersAccess;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassDeclareConcreteCMP;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassDefaultConstructorThrows;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassImplementingProfileLocalObject;
+import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassLackLifeCycle;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassNoDefaultConstructor;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassNoUsageParametersAccess;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassNotImplementingCMP;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassNotImplementingManagementInterface;
 import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassNotImplementingProfileLocalMethod;
-import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassConcreteUsageParametersAccess;
-import org.mobicents.slee.container.component.validator.profile.abstrakt.ProfileAbstractClassLackLifeCycle;
 
 /**
  * Start time:17:07:31 2009-01-31<br>
@@ -79,7 +68,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -122,7 +111,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -161,7 +150,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -200,7 +189,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -239,7 +228,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -278,7 +267,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -316,7 +305,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -355,7 +344,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -394,7 +383,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -433,7 +422,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
@@ -473,7 +462,7 @@ public class ProfileComponentValidatorAbstractClassTest extends TCUtilityClass {
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileLocalInterface()
 								.getProfileLocalInterfaceName()));
-		component.setProfileUsageInterfaceClass(Thread.currentThread()
+		component.setUsageParametersInterface(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getProfileClasses().getProfileUsageParameterInterface()
 								.getUsageParametersInterfaceName()));
