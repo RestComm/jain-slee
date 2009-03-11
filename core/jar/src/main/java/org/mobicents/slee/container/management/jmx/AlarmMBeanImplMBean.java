@@ -12,10 +12,11 @@ import javax.management.NotificationBroadcaster;
 import javax.slee.management.AlarmMBean;
 
 import org.jboss.system.Service;
+import org.jboss.system.ServiceMBean;
 
 /**
  * @author Ivelin Ivanov
  */
-public interface AlarmMBeanImplMBean extends AlarmMBean, Service, NotificationBroadcaster {
+public interface AlarmMBeanImplMBean extends AlarmMBean, ServiceMBean, NotificationBroadcaster {
 
 }

@@ -9,31 +9,22 @@
 
 package org.mobicents.slee.container.management.jmx;
 
-import java.util.ArrayList;
-
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
-import javax.management.NotificationBroadcaster;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
-import javax.management.StandardMBean;
 import javax.slee.ComponentID;
 import javax.slee.InvalidArgumentException;
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
 import javax.slee.UnrecognizedComponentException;
-import javax.slee.UnrecognizedSbbException;
-import javax.slee.UnrecognizedServiceException;
 import javax.slee.facilities.Level;
 import javax.slee.facilities.TraceLevel;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.TraceMBean;
 import javax.slee.management.UnrecognizedNotificationSourceException;
-import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 
 import org.jboss.logging.Logger;
 import org.jboss.system.ServiceMBeanSupport;
@@ -44,7 +35,7 @@ import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
  * Implementation of the Trace MBean.
  * 
  * @author M. Ranganathan
- * 
+ * @author baranowb
  */
 public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImplMBean {
 
@@ -96,28 +87,7 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 		return level;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.management.NotificationBroadcaster#addNotificationListener(javax
-	 * .management.NotificationListener, javax.management.NotificationFilter,
-	 * java.lang.Object)
-	 */
-	public void addNotificationListener(NotificationListener notificationListener, NotificationFilter notificationFilter, Object handbackObject) throws IllegalArgumentException {
-		notifSupport.addNotificationListener(notificationListener, notificationFilter, handbackObject);
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.management.NotificationBroadcaster#removeNotificationListener(javax
-	 * .management.NotificationListener)
-	 */
-	public void removeNotificationListener(NotificationListener notificationListener) throws ListenerNotFoundException {
-		notifSupport.removeNotificationListener(notificationListener);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -134,10 +104,6 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 				"SLEE Spec 1.0, #13.4. SBBs use the Trace Facility to generate trace messages intended for "
 						+ "consumption by external management clients, such as a network management console or a management policy engine.") };
 		return mbeanNotificationInfo;
-	}
-
-	public void sendNotification(Notification notification) {
-		notifSupport.sendNotification(notification);
 	}
 
 	/**

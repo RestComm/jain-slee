@@ -9,8 +9,6 @@ import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.ServiceLookupFacility;
 import javax.slee.facilities.Tracer;
 import javax.slee.management.ManagementException;
-import javax.slee.management.NotificationSource;
-import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.profile.ProfileTable;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.resource.ResourceAdaptorContext;
@@ -32,30 +30,26 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	private final ResourceAdaptorEntity raEntity;
 	private final SleeEndpointImpl sleeEndpointImpl;
 	private final SleeContainer sleeContainer;
-		
+	
+	
+	
 	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
 		this.sleeEndpointImpl = new SleeEndpointImpl(raEntity,sleeContainer);
+		
 	}
 	
 	public AlarmFacility getAlarmFacility() {
-		return sleeContainer.getAlarmFacility();
+		return this.raEntity.getAlarmFacility();
 	}
 
 	public Object getDefaultUsageParameterSet()
 			throws NoUsageParametersInterfaceDefinedException, SLEEException {
-		ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
-		if (resourceUsageMBeanImpl == null) {
-			throw new NoUsageParametersInterfaceDefinedException("the entity "+raEntity.getName()+" doesn't define usage param");
-		}
-		else {
-			return raEntity.getResourceUsageMBean().getDefaultInstalledUsageParameterSet();
-		}
 	}
 
 	public String getEntityName() {
-		return raEntity.getName();
+		return this.raEntity.getName();
 	}
 
 	public EventLookupFacility getEventLookupFacility() {
@@ -72,7 +66,7 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	}
 
 	public ResourceAdaptorID getResourceAdaptor() {
-		return raEntity.getResourceAdaptorID();
+		return this.raEntity.getResourceAdaptorID();
 	}
 
 	public ResourceAdaptorTypeID[] getResourceAdaptorTypes() {
@@ -103,7 +97,7 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 			
 		}
 		
-		TraceFacilityImpl.checkTracerName(tracerName.split("\\."), raEntity.getNotificationSource());
+		TraceFacilityImpl.checkTracerName(tracerName, raEntity.getNotificationSource());
 		try {
 			return this.sleeContainer.getTraceFacility().createTracer(raEntity.getNotificationSource(), tracerName, true);
 		} catch (ManagementException e) {

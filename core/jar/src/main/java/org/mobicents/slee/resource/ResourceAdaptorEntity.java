@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
+import javax.slee.facilities.AlarmFacility;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
@@ -20,8 +21,8 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
+import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
-
 /**
  * 
  * Implementation of the logical Resource Adaptor Entity and its life cycle.
@@ -64,10 +65,14 @@ public class ResourceAdaptorEntity {
 	private ResourceAdaptorEntityNotification notificationSource;
 
 	/**
+	 * Alarm facility serving this RA entity(notification source)
+	 */
+	private AlarmFacility alarmFacility;
+	
+	/**
 	 * the resource usage mbean for this ra, may be null
 	 */
 	private ResourceUsageMBeanImpl usageMbean;
-	
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
 	 * component and with the provided entity config properties. The entity
@@ -89,6 +94,7 @@ public class ResourceAdaptorEntity {
 		this.component = component;
 		this.sleeContainer = sleeContainer;
 		this.notificationSource = notificationSource;
+		this.alarmFacility = new AlarmFacilityImpl(this.sleeContainer.getAlarmFacility(),this.notificationSource);
 		// create ra object
 		try {
 			Constructor cons = this.component.getResourceAdaptorClass()
@@ -114,8 +120,6 @@ public class ResourceAdaptorEntity {
 		object.raConfigure(entityProperties);
 		// process to inactive state
 		this.state = ResourceAdaptorEntityState.INACTIVE;
-		// register the ra entity notification source in the trace facility
-		this.sleeContainer.getTraceFacility().registerNotificationSource(this.getNotificationSource());
 	}
 
 	/**
@@ -264,6 +268,13 @@ public class ResourceAdaptorEntity {
 		this.sleeContainer.getTraceFacility().deregisterNotificationSource(this.getNotificationSource());
 		state = null;
 	}
+	/**
+	 * Method which performs some mgmt once RA Entity is installed
+	 */
+	public void installed() {
+		this.sleeContainer.getTraceFacility().registerNotificationSource(this.getNotificationSource());
+		
+	}
 	
 	/**
 	 * Retrieves the active config properties for the entity
@@ -363,6 +374,10 @@ public class ResourceAdaptorEntity {
 		return this.notificationSource;
 	}
 
+	public AlarmFacility getAlarmFacility() {
+		return alarmFacility;
+	}
+
 	/**
 	 * Retrieves the resource usage mbean for this ra, may be null
 	 * @return
@@ -370,7 +385,6 @@ public class ResourceAdaptorEntity {
 	public ResourceUsageMBeanImpl getResourceUsageMBean() {
 		return usageMbean;
 	}
-	
 	/**
 	 * Sets the resource usage mbean for this ra, may be null
 	 */

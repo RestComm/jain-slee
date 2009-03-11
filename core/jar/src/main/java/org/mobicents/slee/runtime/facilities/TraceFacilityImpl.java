@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.management.NotCompliantMBeanException;
@@ -33,7 +32,6 @@ import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.SbbNotification;
 import javax.slee.management.SubsystemNotification;
 import javax.slee.management.TraceNotification;
-import javax.slee.management.UnrecognizedNotificationSourceException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
@@ -45,13 +43,14 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  *Implementation of the trace facility.
  * 
  *@author M. Ranganathan
+ *@author baranowb
  * 
  */
 public class TraceFacilityImpl implements TraceFacility {
 
-	private Hashtable traceLevelTable;
+	private Hashtable<ComponentID, MTraceLevel> traceLevelTable;
 	private TraceMBeanImpl traceMBeanImpl; // The MBean for this trace facility.
-	private HashSet notificationTypes;
+	private HashSet<String> notificationTypes;
 
 	private static Logger log;
 
@@ -84,9 +83,9 @@ public class TraceFacilityImpl implements TraceFacility {
 	}
 
 	public TraceFacilityImpl(TraceMBeanImpl traceMB) throws NotCompliantMBeanException {
-		this.notificationTypes = new HashSet();
+		this.notificationTypes = new HashSet<String>();
 		
-		this.traceLevelTable = new Hashtable();
+		this.traceLevelTable = new Hashtable<ComponentID, MTraceLevel>();
 		this.traceMBeanImpl = traceMB;
 		
 		//FIXME: default:
@@ -232,12 +231,7 @@ public class TraceFacilityImpl implements TraceFacility {
 
 	public String[] getNotificationTypes() {
 		String ntypes[] = new String[this.notificationTypes.size()];
-		Iterator it = this.notificationTypes.iterator();
-		int i = 0;
-		while (it.hasNext()) {
-			ntypes[i++] = (String) it.next();
-
-		}
+		ntypes = this.notificationTypes.toArray(ntypes);
 		return ntypes;
 	}
 
@@ -330,13 +324,34 @@ public class TraceFacilityImpl implements TraceFacility {
 
 	}
 
-	public void registerNotificationSource(NotificationSource src) {
+	public void registerNotificationSource(final NotificationSource src) {
 		if (this.tracerStorage.containsKey(src)) {
 
 		} else {
 			TracerStorage ts = new TracerStorage(src, this);
 			this.tracerStorage.put(src, ts);
+			
 		}
+		
+		
+		try {
+			if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
+			{
+				TransactionalAction action = new TransactionalAction() {
+					NotificationSource notiSrc = src;
+					public void execute() {
+						tracerStorage.remove(notiSrc);
+					}
+				};
+				SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+			}
+		} catch (SystemException e) {
+			
+			e.printStackTrace();
+		}
+		
+		
+		
 	}
 
 	/**
@@ -345,9 +360,26 @@ public class TraceFacilityImpl implements TraceFacility {
 	 * 
 	 * @param src
 	 */
-	public void deregisterNotificationSource(NotificationSource src) {
-		// FIXME: should we remove change levels to off ?
-		this.tracerStorage.remove(src);
+	public void deregisterNotificationSource(final NotificationSource src) {
+		
+		final TracerStorage st=this.tracerStorage.remove(src);
+		
+		try {
+			if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
+			{
+				TransactionalAction action = new TransactionalAction() {
+					NotificationSource notiSrc = src;
+					TracerStorage storage = st;
+					public void execute() {
+						tracerStorage.put(src,storage);
+					}
+				};
+				SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+			}
+		} catch (SystemException e) {
+			
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isNotificationSourceDefined(NotificationSource src) {
@@ -409,25 +441,84 @@ public class TraceFacilityImpl implements TraceFacility {
 		return ts.getRequestedTracerNames();
 	}
 
-	public void setTraceLevel(NotificationSource src, String tracerName, TraceLevel lvl) throws ManagementException {
-		TracerStorage ts = this.tracerStorage.get(src);
+	public void setTraceLevel(NotificationSource src, final String tracerName, TraceLevel lvl) throws ManagementException {
+		final TracerStorage ts = this.tracerStorage.get(src);
 		if (ts == null) {
 			throw new ManagementException("NotificationSource has been uninstalled from SLEE. Can not create tracer.");
 		}
 		try {
+			
+			
+			try {
+				if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
+				{
+					final TraceLevel _oldLevel=ts.getTracerLevel(tracerName);
+					TransactionalAction action = new TransactionalAction() {
+						TraceLevel oldLevel = _oldLevel;
+				
+						String name = tracerName;
+						public void execute() {
+							try {
+								ts.setTracerLevel(oldLevel, tracerName);
+							} catch (InvalidArgumentException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					};
+					SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+				}
+			} catch (SystemException e) {
+				
+				e.printStackTrace();
+			}
+			
 			ts.setTracerLevel(lvl, tracerName);
+			
+			
 		} catch (Exception e) {
 			throw new ManagementException("Failed to set trace level due to: ", e);
 		}
 
 	}
 
-	public void unsetTraceLevel(NotificationSource src, String tracerName) throws ManagementException {
-		TracerStorage ts = this.tracerStorage.get(src);
+	public void unsetTraceLevel(NotificationSource src, final String tracerName) throws ManagementException {
+		final TracerStorage ts = this.tracerStorage.get(src);
 		if (ts == null) {
 			throw new ManagementException("NotificationSource has been uninstalled from SLEE. Can not create tracer.");
 		}
 		try {
+			
+			
+			
+			try {
+				if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
+				{
+					final TraceLevel _oldLevel=ts.getTracerLevel(tracerName);
+					TransactionalAction action = new TransactionalAction() {
+						TraceLevel oldLevel = _oldLevel;
+				
+						String name = tracerName;
+						public void execute() {
+							try {
+								ts.setTracerLevel(oldLevel, tracerName);
+							} catch (InvalidArgumentException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					};
+					SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+				}
+			} catch (SystemException e) {
+				
+				e.printStackTrace();
+			}
+			
+			
+			
+			
+			
 			ts.unsetTracerLevel(tracerName);
 		} catch (Exception e) {
 			throw new ManagementException("Failed to unset trace level due to: ", e);

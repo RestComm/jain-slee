@@ -8,6 +8,7 @@ import javax.naming.NameAlreadyBoundException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
+import javax.slee.facilities.AlarmFacility;
 import javax.slee.facilities.Level;
 import javax.slee.management.DeploymentException;
 import javax.transaction.SystemException;
@@ -25,6 +26,7 @@ import org.mobicents.slee.container.deployment.SbbClassCodeGenerator;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -102,7 +104,7 @@ public class SbbManagement {
 		
 		//1.1
 		sleeContainer.getTraceFacility().registerNotificationSource(sbbComponent.getNotificationSource());
-
+		
 		logger.info("Installed SBB " + sbbComponent);
 	}
 
@@ -227,7 +229,9 @@ public class SbbManagement {
 
 		String alarm = "java:slee/facilities/alarm";
 		try {
-			newCtx.bind("alarm", new LinkRef(alarm));
+			//This hase to be checked, to be sure sbb have it under correct jndi binding
+			AlarmFacility sbbAlarmFacility = new AlarmFacilityImpl(this.sleeContainer.getAlarmFacility(),sbbComponent.getNotificationSource());
+			newCtx.bind("alarm", sbbAlarmFacility);
 		} catch (NameAlreadyBoundException ex) {
 		}
 

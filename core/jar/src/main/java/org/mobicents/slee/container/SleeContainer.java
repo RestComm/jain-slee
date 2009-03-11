@@ -197,7 +197,7 @@ public class SleeContainer {
 	private ServiceActivityFactoryImpl serviceActivityFactory;
 	// slee facilities
 	private ActivityContextNamingFacilityImpl activityContextNamingFacility;
-	private AlarmFacilityImpl alarmFacility;
+	private AlarmMBeanImpl alarmFacility;
 	private ProfileFacilityImpl profileFacility;
 	private TimerFacilityImpl timerFacility;
 	private TraceFacilityImpl traceFacility;
@@ -452,12 +452,16 @@ public class SleeContainer {
 	public javax.slee.facilities.ActivityContextNamingFacility getActivityContextNamingFacility() {
 		return activityContextNamingFacility;
 	}
-
-	public AlarmFacilityImpl getAlarmFacility() {
+	
+	/**
+	 * Return AlarmMBean impl object, which encapsualtes all AlarmFacitlity object
+	 * @return
+	 */
+	public AlarmMBeanImpl getAlarmFacility() {
 		if (alarmFacility == null) {
 			// lookup from jndi
 			try {
-				alarmFacility = (AlarmFacilityImpl) lookupFacilityInJndi(AlarmMBeanImpl.JNDI_NAME);
+				alarmFacility = (AlarmMBeanImpl) lookupFacilityInJndi(AlarmMBeanImpl.JNDI_NAME);
 			} catch (NamingException e) {
 				logger.error("failed to lookup alarm facility", e);
 			}

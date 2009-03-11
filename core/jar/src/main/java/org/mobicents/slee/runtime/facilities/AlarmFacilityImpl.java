@@ -16,8 +16,8 @@ package org.mobicents.slee.runtime.facilities;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.slee.AlarmID;
 import javax.slee.ComponentID;
 import javax.slee.UnrecognizedAlarmException;
 import javax.slee.UnrecognizedComponentException;
@@ -26,6 +26,7 @@ import javax.slee.facilities.AlarmLevel;
 import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.Level;
 import javax.slee.management.AlarmNotification;
+import javax.slee.management.NotificationSource;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
@@ -35,187 +36,162 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
-
 /**
- * Implementation of the SLEE Alarm facility
+ * Implementation of the SLEE Alarm facility. This is statefull part of
+ * TraceFacility framework. Its has assigned source. All no statefull alarm are
+ * delegated to MBean impl. Since those are common for ALL components. MBean is
+ * responsible for maintainng life cycle of alarms.
  * 
- * @author Tim
- *
+ * @author baranowb
  * @see javax.slee.facilities.AlarmFacility
- *
+ * 
  */
 public class AlarmFacilityImpl implements AlarmFacility {
-	
+
 	private AlarmMBeanImpl mBean;
-		
-	private Map registeredComps;
-	
-	private Map notificationTypes;
-	
+
+	private MNotificationSource notificationSource = null;
+
+	private AtomicInteger sequenceNumber = new AtomicInteger();
 	private Logger log = Logger.getLogger(AlarmFacilityImpl.class);
-	
-	public AlarmFacilityImpl(AlarmMBeanImpl aMBean) {
-	    
-	    mBean = aMBean;
-	    /* We use a ConcurrentReaderHashMap to ensure thread safety but to avoid
-	     * synchronizong all methods. Reads outnumber writes.
-	     */
-	    registeredComps = new ConcurrentReaderHashMap();
-	    
-	    /* We also use a ConcurrentReaderHashMap on the notification types.
-	     * The concurrency library does not have ConcurrentReaderHashSet so we
-	     * can just use the map instead and insert same reference in key and value.
-	     */
-	    notificationTypes = new ConcurrentReaderHashMap();
-	  }    
-    
-	/*
-	 * Represents a component registered with the alarm facility.
-	 * Basically just stores notification sequence number
-	 * @author Tim
-	 */
-	class RegisteredComp {
-	    public long seqNo;
-	    public long getSeqNo() { return seqNo++; }
+
+	public AlarmFacilityImpl(AlarmMBeanImpl aMBean, NotificationSource notificationSource) {
+
+		if(aMBean == null || notificationSource == null)
+		{
+			throw new NullPointerException("Parameters must not be null.");
+		}
+		this.mBean = aMBean;
+		this.notificationSource = new MNotificationSource(notificationSource);
+
 	}
-	
-	/* (non-Javadoc)
-	 * @see javax.slee.facilities.AlarmFacility#createAlarm(javax.slee.ComponentID, javax.slee.facilities.Level, java.lang.String, java.lang.String, long)
-	 */
-	public void createAlarm(ComponentID alarmSource, Level alarmLevel,
-			String alarmType, String message, long timeStamp)
-			throws NullPointerException, IllegalArgumentException,
-			UnrecognizedComponentException, FacilityException {	    
-	    if (log.isDebugEnabled()) {
-	        log.debug("createAlarm1");
-	    }
-	    createAlarmInternal(alarmSource, alarmLevel, alarmType, message, null, timeStamp);			        		
+
+	public boolean clearAlarm(String alarmID) throws NullPointerException, FacilityException {
+		if (alarmID == null) {
+			throw new NullPointerException("AllarmID must not be null.");
+		}
+
+		if (this.mBean.isSourceOwnerOfAlarm(this.notificationSource, alarmID)) {
+			//FIXME: not specified
+			throw new FacilityException("Source: "+this.notificationSource+", is not owner of alarm with id: "+alarmID);
+		}
+		
+		try {
+			
+
+			return this.mBean.clearAlarm(alarmID);
+
+		} catch (Exception e) {
+			throw new FacilityException("Failed to clear alarm: " + alarmID + ", for source: " + this.notificationSource, e);
+		}
+		
 	}
-	
-	/* (non-Javadoc)
-	 * @see javax.slee.facilities.AlarmFacility#createAlarm(javax.slee.ComponentID, javax.slee.facilities.Level, java.lang.String, java.lang.String, java.lang.Throwable, long)
-	 */
-	public void createAlarm(ComponentID alarmSource, Level alarmLevel,
-			String alarmType, String message, Throwable cause, long timeStamp)
-			throws NullPointerException, IllegalArgumentException,
+
+	public int clearAlarms() throws FacilityException {
+		try {
+			return this.mBean.clearAlarms(this.notificationSource.getNotificationSource());
+		} catch (Exception e) {
+			throw new FacilityException("Failed to clear alarms for source: " + this.notificationSource, e);
+		}
+	}
+
+	public int clearAlarms(String alarmType) throws NullPointerException, FacilityException {
+		if (alarmType == null) {
+			throw new NullPointerException("AlarmType must not be null.");
+		}
+		try {
+			return this.mBean.clearAlarms(this.notificationSource.getNotificationSource(), alarmType);
+		} catch (Exception e) {
+			throw new FacilityException("Failed to clear alarms for source: " + this.notificationSource, e);
+		}
+	}
+
+	public String raiseAlarm(java.lang.String alarmType, java.lang.String instanceID, AlarmLevel level, String message) throws NullPointerException, IllegalArgumentException, FacilityException {
+
+		return this.raiseAlarm(alarmType, instanceID, level, message, null);
+	}
+
+	public String raiseAlarm(java.lang.String alarmType, java.lang.String instanceID, AlarmLevel level, String message, Throwable cause) throws NullPointerException, IllegalArgumentException,
+			FacilityException {
+		if (alarmType == null) {
+			throw new NullPointerException("AlarmType must not be null");
+		}
+
+		if (instanceID == null) {
+			throw new NullPointerException("InstanceID must not be null");
+		}
+
+		if (level == null) {
+			throw new NullPointerException("AlarmLevel must not be null");
+		}
+		if (message == null) {
+			throw new NullPointerException("Message must not be null");
+		}
+
+		if (level.isClear()) {
+			throw new IllegalArgumentException("Raised alarm must not have level equal to AlarmLevel.CLEAR");
+		}
+
+		try {
+			if (this.mBean.isAlarmAlive(this.notificationSource, alarmType, instanceID)) {
+				return this.mBean.getAlarmId(this.notificationSource, alarmType, instanceID);
+			} else {
+				return this.mBean.raiseAlarm(this.notificationSource, alarmType, instanceID, level, message, cause);
+			}
+		} catch (Exception e) {
+			throw new FacilityException("Failed to raise alarm for source: " + this.notificationSource, e);
+		}
+	}
+
+	public void createAlarm(ComponentID alarmSource, Level alarmLevel, java.lang.String alarmType, java.lang.String message, long timestamp) throws NullPointerException, IllegalArgumentException,
 			UnrecognizedComponentException, FacilityException {
-	    if (log.isDebugEnabled()) {
-	        log.debug("createAlarm2");
-	    }
-	    if (cause == null) throw new NullPointerException("Null parameter");
-	    createAlarmInternal(alarmSource, alarmLevel, alarmType, message, cause, timeStamp);			        		
+		this.createAlarm(alarmSource, alarmLevel, alarmType, message, null, timestamp,true);
+
 	}
-	
-	private void createAlarmInternal(ComponentID alarmSource, Level alarmLevel,
-			String alarmType, String message, Throwable cause, long timeStamp)
-			throws NullPointerException, IllegalArgumentException,
-			UnrecognizedComponentException, FacilityException {
-	    if (log.isDebugEnabled()) {
-	        log.debug("alarmSource:" + alarmSource + " alarmLevel:" + alarmLevel +
-	            " alarmType:" + alarmType + " message:" + message + " cause:" + cause +
-	            " timeStamp:" + timeStamp);
-	    }
-		if (alarmSource == null || alarmLevel == null || alarmType == null || message == null)
-			throw new NullPointerException("Null parameter");
-		if (alarmLevel.isOff()) throw new IllegalArgumentException("Invalid alarm level");
-		RegisteredComp comp = (RegisteredComp)registeredComps.get(alarmSource);
-		if (comp == null) throw new UnrecognizedComponentException("Component not registered");
+
+	public void createAlarm(ComponentID alarmSource, Level alarmLevel, java.lang.String alarmType, java.lang.String message, java.lang.Throwable cause, long timestamp) throws NullPointerException,
+			IllegalArgumentException, UnrecognizedComponentException, FacilityException {
+		this.createAlarm(alarmSource, alarmLevel, alarmType, message, null, timestamp,false);
+	}
+
+	public void createAlarm(ComponentID alarmSource, Level alarmLevel, java.lang.String alarmType, java.lang.String message, java.lang.Throwable cause, long timestamp, boolean allowCauseNull) throws NullPointerException,
+			IllegalArgumentException, UnrecognizedComponentException, FacilityException {
+		if(alarmSource == null)
+		{
+			throw new NullPointerException("AlarmSource must not be null");
+		}
 		
-		//TODO I'm not sure if we should log the alarm too 
+		if(alarmLevel == null)
+		{
+			throw new NullPointerException("AlarmLevel must not be null");
+		}
 		
-		//Add the notication type if not already in set. See note in declaration about why we are using a map, not a set
-		if (!this.notificationTypes.containsKey(alarmType)) this.notificationTypes.put(alarmType, alarmType);
-
-		//Create the alarm notification and propagate to the Alarm MBean
-		AlarmNotification notification =
-			new AlarmNotification(mBean, alarmType, alarmSource,
-			        			  alarmLevel, message, cause, comp.getSeqNo(), timeStamp);
+		if(alarmType == null)
+		{
+			throw new NullPointerException("AlarmType must not be null");
+		}
 		
-		mBean.sendNotification(notification);		
-	}
-	
-	/**
-	 * Register a component with the alarm facility. Called by the SleeContainer
-	 * when the component is deployed.
-	 * @param sbbid
-	 */
-	public void registerComponent(final ComponentID sbbid) throws SystemException {
-	    if (log.isDebugEnabled()) {
-	        log.debug("Registering component with alarm facility: " + sbbid);
-	    }
-	    
-	    registeredComps.put(sbbid, new RegisteredComp());
-	    
-	    TransactionalAction action = new TransactionalAction() {
-	    	public void execute() {
-	    		registeredComps.remove(sbbid);    
-	    	}
-	    };
-	    SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
-	}
-	
-	/**
-	 * Unregister a component.
-	 * 
-	 * @param sbbId
-	 */
-	public void unRegisterComponent(final ComponentID sbbId) throws SystemException {
-	    final RegisteredComp registeredComp = (RegisteredComp) this.registeredComps.remove(sbbId);
-	    if (registeredComp != null) {
-	    	TransactionalAction action = new TransactionalAction() {
-		    	public void execute() {
-		    		registeredComps.put(sbbId,registeredComp);    
-		    	}
-		    };
-		    SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
-	    }
-	}
-	
-	/* 
-	 * Return a string array of the alarm notification types
-	*/
-	public String[] getNotificationTypes() {
-	    if (log.isDebugEnabled()) {
-	        log.debug("Getting notification types");
-	    }
-	    String[] types = new String[this.notificationTypes.size()];
-	    Iterator iter = this.notificationTypes.values().iterator();
-	    for (int i = 0; i < types.length; i++) while (iter.hasNext()) types[i] = (String)iter.next();
-	    return types;
-	}
-
-	public void clearAlarm(AlarmID arg0) throws NullPointerException, FacilityException {
-		// TODO Auto-generated method stub
+		if(message == null)
+		{
+			throw new NullPointerException("Message must not be null");
+		}
 		
-	}
-
-	public void clearAlarms(String arg0) throws NullPointerException, FacilityException {
-		// TODO Auto-generated method stub
+		if(!allowCauseNull && cause == null)
+		{
+			throw new NullPointerException("Cause must nto be null");
+		}
 		
-	}
-
-	public AlarmLevel getAlarmLevel(AlarmID arg0) throws NullPointerException, UnrecognizedAlarmException, FacilityException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public AlarmID raiseAlarm(String arg0, AlarmLevel arg1, String arg2) throws NullPointerException, IllegalArgumentException, FacilityException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public AlarmID raiseAlarm(String arg0, AlarmLevel arg1, String arg2, Throwable arg3) throws NullPointerException, IllegalArgumentException, FacilityException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void updateAlarm(AlarmID arg0, AlarmLevel arg1, String arg2) throws NullPointerException, UnrecognizedAlarmException, IllegalArgumentException, FacilityException {
-		// TODO Auto-generated method stub
+		if(!this.mBean.isRegisteredAlarmComponent(alarmSource))
+		{
+			throw new UnrecognizedComponentException("Declared alarm source is not valid compoenent. Either it is nto able to create alarms or has been uninstalled");
+		}
 		
-	}
-
-	public void updateAlarm(AlarmID arg0, AlarmLevel arg1, String arg2, Throwable arg3) throws NullPointerException, UnrecognizedAlarmException, IllegalArgumentException, FacilityException {
-		// TODO Auto-generated method stub
+		try{
+			this.mBean.createAlarm( alarmSource,  alarmLevel, alarmType,  message, cause,  timestamp);
+		}catch(Exception e)
+		{
+			
+		}
 		
 	}
 
