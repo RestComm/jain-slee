@@ -265,14 +265,14 @@ public class ResourceAdaptorEntity {
 		}
 		object.raUnconfigure();
 		object.unsetResourceAdaptorContext();
-		this.sleeContainer.getTraceFacility().deregisterNotificationSource(this.getNotificationSource());
+		this.sleeContainer.getTraceFacility().getTraceMBeanImpl().deregisterNotificationSource(this.getNotificationSource());
 		state = null;
 	}
 	/**
 	 * Method which performs some mgmt once RA Entity is installed
 	 */
 	public void installed() {
-		this.sleeContainer.getTraceFacility().registerNotificationSource(this.getNotificationSource());
+		this.sleeContainer.getTraceFacility().getTraceMBeanImpl().registerNotificationSource(this.getNotificationSource());
 		
 	}
 	

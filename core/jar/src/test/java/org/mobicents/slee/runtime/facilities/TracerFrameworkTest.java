@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 
 public class TracerFrameworkTest extends TestCase {
 
-	protected TraceFacilityImpl traceFacility = null;
+	//protected TraceFacilityImpl traceFacility = null;
 	protected FakeTraceMBeanImpl traceMBean = null;
 	protected TracerStorage ts = null;
 	protected NotificationSource notificationSource = null;
@@ -28,9 +28,9 @@ public class TracerFrameworkTest extends TestCase {
 		// akward, this will create mbean with regular trace facility, but we
 		// need to check some things, in trace facility
 		traceMBean = new FakeTraceMBeanImpl();
-		traceFacility = new TraceFacilityImpl(traceMBean);
+		//traceFacility = new TraceFacilityImpl(traceMBean);
 		this.notificationSource = new ResourceAdaptorEntityNotification("XxX");
-		ts = new TracerStorage(this.notificationSource, this.traceFacility);
+		ts = new TracerStorage(this.notificationSource, this.traceMBean);
 	}
 
 	@Override

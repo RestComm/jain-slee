@@ -10,6 +10,8 @@ import javax.slee.facilities.TraceLevel;
 import javax.slee.facilities.Tracer;
 import javax.slee.management.NotificationSource;
 
+import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
+
 /**
  * This class holds tracers for sources. By default it create root tracer. It
  * implicitly creates ancestor tracers for requested name. It holds reference
@@ -21,12 +23,12 @@ import javax.slee.management.NotificationSource;
  *         </a>
  * 
  */
-class TracerStorage {
+public class TracerStorage {
 	private Map<String, TracerImpl> tracers = new HashMap<String, TracerImpl>();
 	private MNotificationSource notificationSource = null;
-	private TraceFacilityImpl traceFacility = null;
+	private TraceMBeanImpl traceFacility = null;
 
-	public TracerStorage(NotificationSource notificationSource, TraceFacilityImpl traceFacility) {
+	public TracerStorage(NotificationSource notificationSource, TraceMBeanImpl traceFacility) {
 		super();
 		this.notificationSource = new MNotificationSource(notificationSource);
 		this.traceFacility = traceFacility;
@@ -118,7 +120,7 @@ class TracerStorage {
 	
 
 		// FIXME: this is double check, in some cases.
-		TraceFacilityImpl.checkTracerName(tracerName, this.notificationSource.getNotificationSource());
+		TracerImpl.checkTracerName(tracerName, this.notificationSource.getNotificationSource());
 		
 		//Biut more efficient for cases we do hold tracers
 		if (!tracers.containsKey(tracerName)) {

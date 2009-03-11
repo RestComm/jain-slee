@@ -22,6 +22,7 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
+import org.mobicents.slee.runtime.facilities.TracerImpl;
 
 public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 
@@ -97,9 +98,9 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 			
 		}
 		
-		TraceFacilityImpl.checkTracerName(tracerName, raEntity.getNotificationSource());
+		TracerImpl.checkTracerName(tracerName, raEntity.getNotificationSource());
 		try {
-			return this.sleeContainer.getTraceFacility().createTracer(raEntity.getNotificationSource(), tracerName, true);
+			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(raEntity.getNotificationSource(), tracerName, true);
 		} catch (ManagementException e) {
 
 			//e.printStackTrace();

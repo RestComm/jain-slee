@@ -36,6 +36,7 @@ import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
+import org.mobicents.slee.runtime.facilities.TracerImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -246,9 +247,9 @@ public class SbbContextImpl implements SbbContext, Serializable {
 			
 		}
 		
-		TraceFacilityImpl.checkTracerName(tracerName.split("\\."), this.notificationSource);
+		TracerImpl.checkTracerName(tracerName, this.notificationSource);
 		try {
-			return this.sleeContainer.getTraceFacility().createTracer(this.notificationSource, tracerName, true);
+			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(this.notificationSource, tracerName, true);
 		} catch (ManagementException e) {
 
 			//e.printStackTrace();

@@ -1,10 +1,15 @@
 package org.mobicents.slee.runtime.facilities;
 
+import java.util.StringTokenizer;
+
 import javax.slee.InvalidArgumentException;
 import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.TraceLevel;
 import javax.slee.facilities.Tracer;
 import javax.slee.management.NotificationSource;
+import javax.slee.management.TraceNotification;
+
+import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 
 /**
  * 
@@ -16,7 +21,7 @@ import javax.slee.management.NotificationSource;
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
  */
-class TracerImpl implements Tracer {
+public class TracerImpl implements Tracer {
 	private String tracerName = null;
 	private boolean isRoot = false;
 	private boolean requestedBySource = false;
@@ -31,7 +36,7 @@ class TracerImpl implements Tracer {
 	 * null in case of root tracer
 	 */
 	private TracerImpl parentTracer = null;
-	private TraceFacilityImpl traceFacility = null;
+	private TraceMBeanImpl traceFacility = null;
 
 	/**
 	 * 
@@ -44,7 +49,7 @@ class TracerImpl implements Tracer {
 	 * @param parentTracer
 	 *            - parent, we need it to get
 	 */
-	public TracerImpl(String tracerName, MNotificationSource notificationSource, TracerImpl parentTracer, TraceFacilityImpl traceFacility) {
+	public TracerImpl(String tracerName, MNotificationSource notificationSource, TracerImpl parentTracer, TraceMBeanImpl traceFacility) {
 		super();
 		this.tracerName = tracerName;
 		this.notificationSource = notificationSource;
@@ -58,7 +63,7 @@ class TracerImpl implements Tracer {
 	 * 
 	 * @param notficationSource
 	 */
-	public TracerImpl(MNotificationSource notficationSource, TraceFacilityImpl traceFacility) {
+	public TracerImpl(MNotificationSource notficationSource, TraceMBeanImpl traceFacility) {
 		super();
 		this.tracerName = "";
 		this.isRoot = true;
@@ -108,7 +113,7 @@ class TracerImpl implements Tracer {
 		if (!isConfigEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(),TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(),TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
@@ -116,7 +121,7 @@ class TracerImpl implements Tracer {
 		if (!isConfigEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -125,7 +130,7 @@ class TracerImpl implements Tracer {
 		if (!isFineEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(),TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(),TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
@@ -133,7 +138,7 @@ class TracerImpl implements Tracer {
 		if (!isFineEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -142,7 +147,7 @@ class TracerImpl implements Tracer {
 		if (!isFinerEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
@@ -151,7 +156,7 @@ class TracerImpl implements Tracer {
 			return;
 		}
 
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -160,7 +165,7 @@ class TracerImpl implements Tracer {
 		if (!isFinestEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -169,7 +174,7 @@ class TracerImpl implements Tracer {
 		if (!isFinestEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -178,7 +183,7 @@ class TracerImpl implements Tracer {
 		if (!isInfoEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
@@ -186,7 +191,7 @@ class TracerImpl implements Tracer {
 		if (!isInfoEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
@@ -194,7 +199,7 @@ class TracerImpl implements Tracer {
 		if (!isSevereEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
@@ -202,7 +207,7 @@ class TracerImpl implements Tracer {
 		if (!isSevereEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -211,7 +216,7 @@ class TracerImpl implements Tracer {
 		if (!isTraceable(level)) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), level, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
+		this.createTrace(this.notificationSource.getNotificationSource(), level, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
 				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
@@ -220,7 +225,7 @@ class TracerImpl implements Tracer {
 			return;
 		}
 
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), level, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
+		this.createTrace(this.notificationSource.getNotificationSource(), level, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
 				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -229,7 +234,7 @@ class TracerImpl implements Tracer {
 		if (!isWarningEnabled()) {
 			return;
 		}
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), this.getTraceLevel(), this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), this.getTraceLevel(), this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
@@ -240,10 +245,12 @@ class TracerImpl implements Tracer {
 			return;
 		}
 
-		traceFacility.createTrace(this.notificationSource.getNotificationSource(), this.getTraceLevel(), this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
+		this.createTrace(this.notificationSource.getNotificationSource(), this.getTraceLevel(), this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
+
+	
 
 	public boolean isConfigEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.CONFIG);
@@ -304,4 +311,78 @@ class TracerImpl implements Tracer {
 		return this.tracerName;
 	}
 
+	/**
+	 * THis is internaly called, by 1.1 tracers
+	 * 
+	 * @param src
+	 */
+	void createTrace(NotificationSource src, javax.slee.facilities.TraceLevel lvl, String traceType, String tracerName, String msg, Throwable cause, long seq, long timeStamp) {
+
+		TraceNotification traceNotification = new TraceNotification(traceType, this.traceFacility, src, tracerName, lvl, msg, cause, seq, timeStamp);
+		this.traceFacility.sendNotification(traceNotification);
+	}
+
+	/**
+	 * This checks if tracer name is ok. It must not be null;
+	 * 
+	 * @param split
+	 * @throws IllegalArgumentException
+	 */
+	public static void checkTracerName(String tracerName, NotificationSource notificationSource) throws IllegalArgumentException {
+
+		if (tracerName.compareTo("") == 0) {
+			// This is root
+			return;
+		}
+
+		// String[] splitName = tracerName.split("\\.");
+		StringTokenizer stringTokenizer = new StringTokenizer(tracerName, ".", true);
+
+		int fqdnPartIndex = 0;
+
+		// if(splitName.length==0)
+		// {
+		// throw new IllegalArgumentException("Passed tracer:" + tracerName +
+		// ", name for source: " + notificationSource + ", is illegal");
+		// }
+
+		String lastToken = null;
+
+		while (stringTokenizer.hasMoreTokens()) {
+			String token = stringTokenizer.nextToken();
+			if (lastToken == null) {
+				// this is start
+				lastToken = token;
+			}
+
+			if (lastToken.compareTo(token) == 0 && token.compareTo(".") == 0) {
+				throw new IllegalArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
+			}
+
+			if (token.compareTo(".") != 0) {
+				for (int charIndex = 0; charIndex < token.length(); charIndex++) {
+					Character c = token.charAt(charIndex);
+					if (c.isLetter(c) || c.isDigit(c)) {
+						// Its ok?
+					} else {
+						throw new IllegalArgumentException("Passed tracer:" + tracerName + " Token[" + token + "], name for source: " + notificationSource
+								+ ", is illegal, contains illegal character: " + charIndex);
+					}
+
+				}
+
+				fqdnPartIndex++;
+			}
+			lastToken = token;
+
+		}
+
+		if (lastToken.compareTo(".") == 0) {
+			throw new IllegalArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
+		}
+
+
+
+	}
+	
 }

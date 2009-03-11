@@ -103,7 +103,7 @@ public class SbbManagement {
 				sbbComponent.getSbbID());
 		
 		//1.1
-		sleeContainer.getTraceFacility().registerNotificationSource(sbbComponent.getNotificationSource());
+		sleeContainer.getTraceFacility().getTraceMBeanImpl().registerNotificationSource(sbbComponent.getNotificationSource());
 		
 		logger.info("Installed SBB " + sbbComponent);
 	}
@@ -548,7 +548,7 @@ public class SbbManagement {
 				sbbComponent.getSbbID());
 		
 		//1.1
-		sleeContainer.getTraceFacility().deregisterNotificationSource(sbbComponent.getNotificationSource());
+		sleeContainer.getTraceFacility().getTraceMBeanImpl().deregisterNotificationSource(sbbComponent.getNotificationSource());
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removed SBB " + sbbComponent.getSbbID()

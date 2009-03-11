@@ -4,7 +4,7 @@ import javax.slee.management.ResourceAdaptorEntityNotification;
 
 import junit.framework.TestCase;
 
-public class TraceFacilityImplTest extends TestCase {
+public class TracerImplTest extends TestCase {
 
 	private ResourceAdaptorEntityNotification notificationSource = new ResourceAdaptorEntityNotification("XXX");
 
@@ -24,7 +24,7 @@ public class TraceFacilityImplTest extends TestCase {
 		String tracerName = "";
 
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 
 		} catch (Exception e) {
 			assertTrue("Failed, tracer name["+tracerName+"] was valid, yet we got exception: " + e, false);
@@ -32,7 +32,7 @@ public class TraceFacilityImplTest extends TestCase {
 		
 		tracerName = "olo";
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 
 		} catch (Exception e) {
 			assertTrue("Failed, tracer name["+tracerName+"] was valid, yet we got exception: " + e, false);
@@ -40,7 +40,7 @@ public class TraceFacilityImplTest extends TestCase {
 		
 		tracerName = "olo9";
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 
 		} catch (Exception e) {
 			assertTrue("Failed, tracer name["+tracerName+"] was valid, yet we got exception: " + e, false);
@@ -48,7 +48,7 @@ public class TraceFacilityImplTest extends TestCase {
 		
 		tracerName = "olo9.adsf";
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 
 		} catch (Exception e) {
 			assertTrue("Failed, tracer name["+tracerName+"] was valid, yet we got exception: " + e, false);
@@ -62,7 +62,7 @@ public class TraceFacilityImplTest extends TestCase {
 		String tracerName = ".";
 
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
 		} catch (Exception e) {
 			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
@@ -71,7 +71,7 @@ public class TraceFacilityImplTest extends TestCase {
 		tracerName = "asd.";
 
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
 		} catch (Exception e) {
 			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
@@ -79,7 +79,7 @@ public class TraceFacilityImplTest extends TestCase {
 		tracerName = "asd..asfaf";
 
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
 		} catch (Exception e) {
 			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
@@ -87,7 +87,7 @@ public class TraceFacilityImplTest extends TestCase {
 		tracerName = "asd. .asfaf";
 
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
 		} catch (Exception e) {
 			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
@@ -96,7 +96,7 @@ public class TraceFacilityImplTest extends TestCase {
 		tracerName = "asd.a a.asfaf";
 
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
 		} catch (Exception e) {
 			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
@@ -105,7 +105,7 @@ public class TraceFacilityImplTest extends TestCase {
 		tracerName = "asd.a_a.asfaf";
 
 		try {
-			TraceFacilityImpl.checkTracerName(tracerName, notificationSource);
+			TracerImpl.checkTracerName(tracerName, notificationSource);
 			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
 		} catch (Exception e) {
 			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
