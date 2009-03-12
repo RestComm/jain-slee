@@ -53,8 +53,6 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 
 	private static Logger logger;
 
-	private NotificationBroadcasterSupport notifSupport = new NotificationBroadcasterSupport();
-
 	static {
 		logger = Logger.getLogger(TraceMBeanImpl.class);
 	}
@@ -79,7 +77,7 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 	public void setTraceLevel(ComponentID componentId, Level level) throws NullPointerException, UnrecognizedComponentException, ManagementException {
 		if (componentId == null)
 			throw new NullPointerException("null component Id");
-		// this.traceFacility.checkComponentID(componentId);
+		this.traceFacility.checkComponentID(componentId);
 		this.traceFacility.setTraceLevel(componentId, level);
 
 	}

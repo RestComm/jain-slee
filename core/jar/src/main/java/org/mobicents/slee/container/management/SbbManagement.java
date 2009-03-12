@@ -86,8 +86,10 @@ public class SbbManagement {
 			setupSbbEnvironment(sbbComponent);
 			// generate class code for the sbb
 			new SbbClassCodeGenerator().process(sbbComponent);
-		} catch (Exception ex) {
-			throw ex;
+			
+		//FIXME: this will erase stack trace.	
+		//} catch (Exception ex) {
+		//	throw ex;
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
@@ -346,7 +348,9 @@ public class SbbManagement {
 					}
 				}
 				if (logger.isDebugEnabled()) {
-					logger.debug("setupSbbEnvironment: Binding a JNDI reference to aci factory of "+raTypeBinding.getResourceAdaptorTypeRef());
+					logger.debug("ACI factory reference binding: "
+							+ local.get(nameSize - 1) + " to "
+							+ globalFactoryName);
 				}
 				String factoryRefName = local.get(nameSize - 1);
 				try {

@@ -25,7 +25,7 @@ import javax.transaction.SystemException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
-import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;

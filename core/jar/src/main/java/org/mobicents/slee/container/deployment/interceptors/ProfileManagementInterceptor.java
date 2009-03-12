@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 
 import javax.slee.management.ManagementException;
 
-import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileManager;
 
 /**
  * @author DERUELLE Jean <a href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com</a>

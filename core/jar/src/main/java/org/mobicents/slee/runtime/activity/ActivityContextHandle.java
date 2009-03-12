@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
-import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityHandle;

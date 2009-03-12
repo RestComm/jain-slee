@@ -155,9 +155,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					}
 					for (ProfileSpecificationComponent component : deployableUnit.getProfileSpecificationComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						new ProfileDeployer(duPath)
-						.deployProfile(profileSpecificationDescriptorImpl);
-						logger.info("Installed "+component);
+						sleeContainer.getSleeProfileManager().installProfile(component);
+				    	logger.info("Installed "+component);
 					}
 					for (LibraryComponent component : deployableUnit.getLibraryComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
@@ -215,7 +214,9 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		} catch (AlreadyDeployedException e) {
 			throw e;
 		} catch (DeploymentException e) {
-			throw e;
+			//This will remove stack trace;
+			//throw e;
+			throw new DeploymentException("Failur encountered during deploy process.",e);
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(), e);
 		}
@@ -303,10 +304,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					for (ProfileSpecificationComponent component : deployableUnit.getProfileSpecificationComponents().values()) {
 						// TODO uninstall profile specs
 						/* before it was
-						  sleeContainer
-							.getSleeProfileManager()
-							.getProfileSpecificationManagement()
-							.uninstallProfileSpecification(deployableUnitIDImpl);
+						  sleeContainer.getSleeProfileManager().uninstallProfile(component);
 						 */ 
 					}
 

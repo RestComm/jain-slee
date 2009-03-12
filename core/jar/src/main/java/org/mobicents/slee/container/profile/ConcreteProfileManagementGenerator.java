@@ -30,17 +30,19 @@ import javax.slee.profile.ProfileSpecificationDescriptor;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.DeployableUnitIDImpl;
+import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor;
+import org.mobicents.slee.container.management.SleeProfileManager;
 
 /**
  * Class generating a concrete profile implementation class from the Sbb
  * Developer's provided Profile Specification.
  * 
- * 
+ * @deprecated
  * @author DERUELLE Jean <a
  *         href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com</a>
  * 
@@ -802,4 +804,6 @@ public class ConcreteProfileManagementGenerator {
 						interfaceMethod, interceptor, false);
 		}
 	}
+
+	
 }

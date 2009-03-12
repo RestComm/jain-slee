@@ -12,7 +12,7 @@ import org.mobicents.slee.container.component.SbbComponent;
  */
 public class SbbClassCodeGenerator {
 
-	private static Logger logger = Logger
+	private final static Logger logger = Logger
 			.getLogger(SbbClassCodeGenerator.class);
 
 	public void process(SbbComponent sbbComponent) throws DeploymentException {

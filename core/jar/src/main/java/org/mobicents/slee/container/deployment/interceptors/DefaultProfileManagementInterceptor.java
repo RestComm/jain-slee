@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;

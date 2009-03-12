@@ -13,7 +13,7 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
-import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.runtime.activity.ActivityContext;

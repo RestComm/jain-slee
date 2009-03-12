@@ -32,7 +32,7 @@ import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 
 /**
  * Class verifying a profile
- * 
+ * @deprecated
  * @author DERUELLE Jean <a
  *         href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com </a>
  *  

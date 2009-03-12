@@ -24,7 +24,7 @@ import org.jboss.logging.Logger;
 
 /**
  * Class deploying a profile
- * 
+ * @depracated
  * @author DERUELLE Jean <a href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com</a>
  *
  */
