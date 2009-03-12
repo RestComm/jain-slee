@@ -19,6 +19,7 @@ import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 import javax.slee.management.SbbDescriptor;
+import javax.slee.management.SbbNotification;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
@@ -80,6 +81,10 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 * the JAIN SLEE specs descriptor
 	 */
 	private SbbDescriptor specsDescriptor = null;
+	
+	
+	private SbbNotification notificationSource = null;
+	
 	
 	/**
 	 * 
@@ -318,4 +323,14 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
 	}
+
+	public SbbNotification getNotificationSource() {
+		return notificationSource;
+	}
+
+	public void setNotificationSource(SbbNotification notificationSource) {
+		this.notificationSource = notificationSource;
+	}
+	
+	
 }
