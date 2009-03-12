@@ -165,14 +165,6 @@ public class SleeContainer {
 	private MBeanServer mbeanServer;
 	/** The lifecycle state of the SLEE */
 	private SleeState sleeState;
-	/**
-	 * An interface for the resource adaptor to retrieve the event info
-	 */
-	private EventLookupFacilityImpl eventLookupFacility;
-	/**
-	 * An interface for the resource adaptor to retrieve the service info
-	 */
-	private ServiceLookupFacilityImpl serviceLookupFacility;
 	// the class that actually posts events to the SBBs.
 	// This should be made into a facility and registered with jmx and jndi
 	// so it can be independently controlled.
@@ -249,8 +241,6 @@ public class SleeContainer {
 
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
-		this.eventLookupFacility = new EventLookupFacilityImpl(this);
-		this.serviceLookupFacility = new ServiceLookupFacilityImpl(this);
 		this.sleeProfileManager = new SleeProfileManager(this);
 		this.sbbManagement = new SbbManagement(this);
 		this.resourceManagement = new ResourceManagement(this);
@@ -487,14 +477,6 @@ public class SleeContainer {
 			}
 		}
 		return traceFacility;
-	}
-
-	public EventLookupFacilityImpl getEventLookupFacility() {
-		return eventLookupFacility;
-	}
-
-	public ServiceLookupFacilityImpl getServiceLookupFacility() {
-		return serviceLookupFacility;
 	}
 	
 	// GETTERS -- slee runtime

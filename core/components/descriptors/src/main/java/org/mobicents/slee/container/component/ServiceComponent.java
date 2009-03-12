@@ -47,18 +47,12 @@ public class ServiceComponent extends SleeComponent {
 	 * the {@link SbbComponent} the service defines as root
 	 */
 	private SbbComponent rootSbbComponent = null;
-	
+
 	/**
 	 * the usage mbean for this service
 	 */
 	private ServiceUsageMBean serviceUsageMBean;
-	
-	/**
-	 * holder for an instance of an receivable service, to avoid multiple
-	 * creation of this expensive object at runtime
-	 */
-	private ReceivableService receivableSevice;
-	
+
 	/**
 	 * 
 	 * @param descriptor
@@ -122,8 +116,7 @@ public class ServiceComponent extends SleeComponent {
 					getDeployableUnit().getDeployableUnitID(),
 					getDeploymentUnitSource(), getDescriptor().getRootSbbID(),
 					getDescriptor().getMService().getAddressProfileTable(),
-					getDescriptor().getMService()
-							.getResourceInfoProfileTable());
+					getDescriptor().getMService().getResourceInfoProfileTable());
 		}
 		return specsDescriptor;
 	}
@@ -132,76 +125,68 @@ public class ServiceComponent extends SleeComponent {
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
 	}
-	
+
 	/**
 	 * Retrieves the set of sbbs used by this service
+	 * 
 	 * @param componentRepository
 	 * @return
 	 */
 	public Set<SbbID> getSbbIDs(ComponentRepository componentRepository) {
 		Set<SbbID> result = new HashSet<SbbID>();
-		buildSbbTree(getDescriptor().getRootSbbID(),result,componentRepository);
+		buildSbbTree(getDescriptor().getRootSbbID(), result,
+				componentRepository);
 		return result;
 	}
-	
-	private void buildSbbTree(SbbID sbbID, Set<SbbID> result,ComponentRepository componentRepository) {
+
+	private void buildSbbTree(SbbID sbbID, Set<SbbID> result,
+			ComponentRepository componentRepository) {
 		result.add(sbbID);
 		SbbComponent sbbComponent = componentRepository.getComponentByID(sbbID);
 		for (ComponentID componentID : sbbComponent.getDependenciesSet()) {
 			if (componentID instanceof SbbID) {
-				SbbID anotherSbbID = (SbbID)componentID;
+				SbbID anotherSbbID = (SbbID) componentID;
 				if (!result.contains(anotherSbbID)) {
 					buildSbbTree(anotherSbbID, result, componentRepository);
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Retrieves the {@link SbbComponent} the service defines as root
+	 * 
 	 * @return
 	 */
 	public SbbComponent getRootSbbComponent() {
 		return rootSbbComponent;
 	}
-	
+
 	/**
 	 * Sets the {@link SbbComponent} the service defines as root
+	 * 
 	 * @param rootSbbComponent
 	 */
 	public void setRootSbbComponent(SbbComponent rootSbbComponent) {
 		this.rootSbbComponent = rootSbbComponent;
 	}
-	
+
 	/**
 	 * Retrieves the usage mbean for this service
+	 * 
 	 * @return
 	 */
 	public ServiceUsageMBean getServiceUsageMBean() {
 		return serviceUsageMBean;
 	}
-	
+
 	/**
 	 * Sets the usage mbean for this service
+	 * 
 	 * @param serviceUsageMBean
 	 */
 	public void setServiceUsageMBean(ServiceUsageMBean serviceUsageMBean) {
 		this.serviceUsageMBean = serviceUsageMBean;
 	}
-	
-	/**
-	 * Retrieves the stored receivable service object
-	 * @return
-	 */
-	public ReceivableService getReceivableSevice() {
-		return receivableSevice;
-	}
-	
-	/**
-	 * Stores a receivable service object instance in the component
-	 * @param receivableSevice
-	 */
-	public void setReceivableSevice(ReceivableService receivableSevice) {
-		this.receivableSevice = receivableSevice;
-	}
+
 }

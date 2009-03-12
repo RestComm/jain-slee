@@ -39,12 +39,12 @@ public class ResourceAdaptorDescriptorImpl {
 	private List<MResourceAdaptorTypeRef> resourceAdaptorTypeRefs;
 
 	private List<MConfigProperty> configProperties;
-	private Boolean ignoreRaTypeEventTypeCheck;
+	private boolean ignoreRaTypeEventTypeCheck;
 
 	private MUsageParametersInterface resourceAdaptorUsageParametersInterface;
 	private String resourceAdaptorClassName;
 
-	private Boolean supportsActiveReconfiguration;
+	private boolean supportsActiveReconfiguration;
 	
   private MSecurityPermissions securityPermissions;
 
@@ -119,7 +119,7 @@ public class ResourceAdaptorDescriptorImpl {
 		return configProperties;
 	}
 
-	public Boolean getIgnoreRaTypeEventTypeCheck() {
+	public boolean getIgnoreRaTypeEventTypeCheck() {
 		return ignoreRaTypeEventTypeCheck;
 	}
 
@@ -131,7 +131,7 @@ public class ResourceAdaptorDescriptorImpl {
 		return resourceAdaptorClassName;
 	}
 
-	public Boolean getSupportsActiveReconfiguration() {
+	public boolean getSupportsActiveReconfiguration() {
 		return supportsActiveReconfiguration;
 	}
 

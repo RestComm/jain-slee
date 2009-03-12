@@ -10,6 +10,7 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -169,7 +170,14 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					}
 					for (ResourceAdaptorTypeComponent component : deployableUnit.getResourceAdaptorTypeComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
+						// generate code for aci factory
 						new ResourceAdaptorTypeClassCodeGenerator().process(component);
+						// create instance of aci factory and store it in the component
+						if (component.getActivityContextInterfaceFactoryConcreteClass() != null) {
+							Constructor constructor = component.getActivityContextInterfaceFactoryConcreteClass().getConstructor(new Class[] {SleeContainer.class,ResourceAdaptorTypeID.class});
+							Object aciFactory = constructor.newInstance(new Object[]{sleeContainer,component.getResourceAdaptorTypeID()});
+							component.setActivityContextInterfaceFactory(aciFactory);
+						}
 						sleeContainer.getResourceManagement().getResourceAdaptorEntitiesPerType().put(component.getResourceAdaptorTypeID(), new HashSet<ResourceAdaptorEntity>());
 						logger.info("Installed "+component);
 					}

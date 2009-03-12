@@ -15,15 +15,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.slee.InvalidArgumentException;
+import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedSbbException;
+import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.SbbNotification;
@@ -81,11 +85,27 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 */
 	private ConcurrentHashMap<SbbID,UsageNotificationManagerMBeanImpl> notificationManagers = new ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl>();
 		
-	public ServiceUsageMBeanImpl(ServiceID serviceID)
+	public ServiceUsageMBeanImpl(ServiceComponent serviceComponent)
 			throws NotCompliantMBeanException, MalformedObjectNameException,
 			NullPointerException {
 		super(ServiceUsageMBean.class);
-		this.serviceID = serviceID;
+		this.serviceID = serviceComponent.getServiceID();
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		try {
+			sleeContainer.getMBeanServer().registerMBean(this,
+					getObjectName());
+		} catch (Throwable e) {
+			throw new SLEEException("unable to register service usage mbean for "+serviceID,e);
+		}
+		try {
+			// install all the  default usage parameters
+			for (SbbID sbbID : serviceComponent.getSbbIDs(sleeContainer.getComponentRepositoryImpl())) {
+				createUsageParameterSet(sbbID);
+			}
+		} catch (Throwable e) {
+			throw new SLEEException("unable to create default usage param sets for "+serviceID,e);
+		}
+		serviceComponent.setServiceUsageMBean(this);
 	}
 
 	/*
@@ -557,12 +577,12 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.ServiceUsageMBean#close()
 	 */
 	public void close() throws ManagementException {
-		// FIXME the removal of service usage and usage param mbeans should be restored on a rollback
 		if (logger.isDebugEnabled()) {
 			logger.debug("Unregistring Usage MBean of service "
 					+ getService());
 		}
-		final MBeanServer mbeanServer = SleeContainer.lookupFromJndi().getMBeanServer();
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		final MBeanServer mbeanServer = sleeContainer.getMBeanServer();
 		try {
 			mbeanServer.unregisterMBean(getObjectName());
 		}
@@ -575,7 +595,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					+ getService());
 		}
 		removeAllUsageParameterSet();
-
+		// remove usage mbean from service component
+		sleeContainer.getComponentRepositoryImpl().getComponentByID(serviceID).setServiceUsageMBean(null);
 	}
 
 	public ObjectName getSbbUsageNotificationManagerMBean(SbbID sbbId)
@@ -771,6 +792,30 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			else {
 				return false;
 			}
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ServiceManagementMBean#getServiceUsageMBean(javax.slee.ServiceID)
+	 */
+	public static ObjectName getObjectName(ServiceID serviceID)
+			throws NullPointerException, UnrecognizedServiceException,
+			ManagementException {
+
+		if (serviceID == null)
+			throw new NullPointerException("Null service ID ");
+
+		try {
+			return new ObjectName(ServiceUsageMBean.BASE_OBJECT_NAME 
+					+ ',' + ServiceUsageMBean.SERVICE_NAME_KEY + '=' + ObjectName.quote(serviceID.getName())
+					+ ',' + ServiceUsageMBean.SERVICE_VENDOR_KEY + '=' + ObjectName.quote(serviceID.getVendor())
+					+ ',' + ServiceUsageMBean.SERVICE_VERSION_KEY + '=' + ObjectName.quote(serviceID.getVersion()));
+		} catch (Exception e) {
+			throw new ManagementException(
+					"Exception while getting service usage mbean for service with id "
+					+ serviceID, e);
 		}
 	}
 }

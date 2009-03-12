@@ -30,7 +30,7 @@ public class MResourceAdaptor {
   private MResourceAdaptorClasses resourceAdaptorClasses;
 
   // For JAIN SLEE 1.1 Only
-  protected Boolean ignoreRaTypeEventTypeCheck;
+  protected boolean ignoreRaTypeEventTypeCheck = false;
   protected List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();
   protected List<MProfileSpecRef> profileSpecRef = new ArrayList<MProfileSpecRef>();
   protected List<MConfigProperty> configProperty = new ArrayList<MConfigProperty>();
@@ -65,7 +65,9 @@ public class MResourceAdaptor {
       this.resourceAdaptorTypeRef.add( new MResourceAdaptorTypeRef(resourceAdaptorTypeRef11) );
     }
     
-    this.ignoreRaTypeEventTypeCheck = Boolean.parseBoolean( resourceAdaptor11.getIgnoreRaTypeEventTypeCheck() );
+    if (resourceAdaptor11.getIgnoreRaTypeEventTypeCheck() != null) {
+    	this.ignoreRaTypeEventTypeCheck = Boolean.parseBoolean( resourceAdaptor11.getIgnoreRaTypeEventTypeCheck() );
+    }
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.LibraryRef libraryRef11 : resourceAdaptor11.getLibraryRef())
     {
@@ -113,7 +115,7 @@ public class MResourceAdaptor {
     return resourceAdaptorClasses;
   }
   
-  public Boolean getIgnoreRaTypeEventTypeCheck()
+  public boolean getIgnoreRaTypeEventTypeCheck()
   {
     return ignoreRaTypeEventTypeCheck;
   }

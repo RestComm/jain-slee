@@ -15,29 +15,18 @@
  */
 package org.mobicents.slee.container.management;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.slee.EventTypeID;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
-import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
-import javax.slee.management.ServiceUsageMBean;
 import javax.slee.management.SleeState;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
 import javax.transaction.SystemException;
@@ -46,18 +35,11 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.EventTypeComponent;
-import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
-import org.mobicents.slee.container.deployment.ConcreteUsageParameterMBeanGenerator;
-import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
-import org.mobicents.slee.container.management.jmx.SbbUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceFactory;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.resource.ResourceAdaptorType;
-import org.mobicents.slee.resource.ResourceAdaptorTypeDescriptorImpl;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -216,15 +198,6 @@ public class ServiceManagement {
 					}
 				}
 
-				// notifying the resource adaptors about service activation
-				final ResourceManagement resourceManagement = sleeContainer
-						.getResourceManagement();
-				for (String raEntityName : resourceManagement
-						.getResourceAdaptorEntities()) {
-					resourceManagement.getResourceAdaptorEntity(raEntityName)
-							.serviceActivated(serviceID.toString());
-				}
-				
 				// change service state
 				service.setState(ServiceState.ACTIVE);
 				
@@ -321,7 +294,7 @@ public class ServiceManagement {
 	 * 
 	 * @see javax.slee.management.ServiceManagementMBean#deactivate(javax.slee.ServiceID)
 	 */
-	public void deactivate(ServiceID serviceID) throws NullPointerException,
+	public void deactivate(final ServiceID serviceID) throws NullPointerException,
 			UnrecognizedServiceException, InvalidStateException,
 			ManagementException {
 
@@ -359,15 +332,6 @@ public class ServiceManagement {
 							"Service already deactivated");
 				}
 
-				// notifying the resource adaptors about service deactivation
-				final ResourceManagement resourceManagement = sleeContainer
-						.getResourceManagement();
-				for (String raEntityName : resourceManagement
-						.getResourceAdaptorEntities()) {
-					resourceManagement.getResourceAdaptorEntity(raEntityName)
-							.serviceDeactivated(serviceID.toString());
-				}
-
 				service.setState(ServiceState.STOPPING);
 				
 				// only end activity if slee is running, otherwise
@@ -376,7 +340,7 @@ public class ServiceManagement {
 					service.endActivity();
 				}
 				else {
-					service.setState(ServiceState.INACTIVE);
+					service.setState(ServiceState.INACTIVE);					
 				}
 
 				// remove runtime cache related wih this service
@@ -557,25 +521,13 @@ public class ServiceManagement {
 		if (logger.isDebugEnabled()) {
 			logger.debug("getServiceUsageMBean " + serviceID);
 		}
-
-		if (serviceID == null)
-			throw new NullPointerException("Null service ID ");
-
+		
 		if (componentRepositoryImpl.getComponentByID(serviceID) != null) {
-			try {
-				return new ObjectName(ServiceUsageMBean.BASE_OBJECT_NAME 
-						+ ',' + ServiceUsageMBean.SERVICE_NAME_KEY + '=' + ObjectName.quote(serviceID.getName())
-						+ ',' + ServiceUsageMBean.SERVICE_VENDOR_KEY + '=' + ObjectName.quote(serviceID.getVendor())
-						+ ',' + ServiceUsageMBean.SERVICE_VERSION_KEY + '=' + ObjectName.quote(serviceID.getVersion()));
-			} catch (Exception e) {
-				throw new ManagementException(
-						"Exception while getting service usage mbean for service with id "
-								+ serviceID, e);
-			}
+			return ServiceUsageMBeanImpl.getObjectName(serviceID);
 		} else {
-			throw new UnrecognizedServiceException("bad service id "
-					+ serviceID);
+			throw new UnrecognizedServiceException(serviceID.toString());
 		}
+
 	}
 
 	// --- non JMX
@@ -616,266 +568,23 @@ public class ServiceManagement {
 			logger.debug("Installing Service " + serviceComponent);
 		}
 
-		final ResourceManagement resourceManagement = sleeContainer
-				.getResourceManagement();
-
 		ServiceFactory.createService(serviceComponent);
 		
 		// creates and registers the service usage mbean
-		// TODO in a cluster env a unique mbean will be used
-		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(serviceComponent.getServiceID());
-		final ObjectName usageMBeanName = getServiceUsageMBean(serviceComponent
-				.getServiceID());
-		sleeContainer.getMBeanServer().registerMBean(serviceUsageMBean,
-				usageMBeanName);
-		serviceUsageMBean.setObjectName(usageMBeanName);
-		serviceComponent.setServiceUsageMBean(serviceUsageMBean);
-				
-		// SBBIDS FOR THIS SERVICE
-		Set<SbbID> sbbIDs = serviceComponent.getSbbIDs(componentRepositoryImpl);
-
-		// install all the  default usage parameters
-		for (SbbID sbbID : sbbIDs) {
-			serviceUsageMBean.createUsageParameterSet(sbbID);
-		}
-				
-		if (logger.isDebugEnabled()) {
-			logger
-					.debug("\n==================SERVICE SBBS=======================\n"
-							+ sbbIDs
-							+ "\n"
-							+ "=====================================================");
-		}
-
-		// CONTAINS MAPPING RAENTITY TO Events that are of interest of this
-		// service, which are storeded in Set( of EventTypeIDs)
-		HashMap raEntitiesToEventTypeIDsOfInterest = new HashMap(5);
-		// CONTAINS MAPPING OF EVENTID TO resource options FOR THIS EVENT
-		// WHICH
-		// ARE STORED IN String
-		HashMap eventTypeIDsToResourceOptions = new HashMap(30);
-		// MAPS RA ENTITY TO EVENTS IT CAN FIRE, EVENTS ARE STORED IN Set(
-		// of
-		// EventTypeIDs)
-		HashMap raEntitiesToEventsFired = new HashMap(5);
-
-		// WE HAVE TO ITERATE THROUGH ALL SBBS IN SERVICE AND BUILD DATA
-		// STRUCTURES
-		Iterator<SbbID> sbbIdsIterator = sbbIDs.iterator();
-		while (sbbIdsIterator.hasNext()) {
-
-			SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbIdsIterator.next());
-			if (sbbComponent == null)
-				continue;
-
-			// maps EventTypeID to coresponding SbbEventEntry
-			// IT CONTAINS MAPPING FOR ALL EVENTS THAT ARE OF INTEREST IF
-			// THIS
-			// SBB
-			Map<EventTypeID,MEventEntry> eventTypeIdToEventEntriesMappings = sbbComponent.getDescriptor().getEventEntries();
-			// SIMPLY SET OF EventTypeIDs that are of interest of this SBB
-			Set<EventTypeID> sbbEventsOfInterest = eventTypeIdToEventEntriesMappings
-					.keySet();
-			if (logger.isDebugEnabled()) {
-				logger.debug("\n"
-						+ "=============SBB==============================\n"
-						+ "" + sbbComponent + "\n"
-						+ "==============================================");
-				StringBuilder sb = new StringBuilder(300);
-				for(EventTypeID eventTypeID : sbbEventsOfInterest) {
-					sb.append(eventTypeID + "\n");
+		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(serviceComponent);
+		// add rollback action to close the mbean
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				try {
+					serviceUsageMBean.close();				
 				}
-				logger
-						.debug("\n==================EVENTS OF SBB INTEREST=======================\n"
-								+ sb.toString()
-								+ "\n"
-								+ "=================================================================");
-			}
-
-			// warn ra entities about service being installed
-			for (String raEntityName : resourceManagement
-					.getResourceAdaptorEntities()) {
-
-				ResourceAdaptorEntity raEntity = resourceManagement
-						.getResourceAdaptorEntity(raEntityName);
-				ResourceAdaptorType raType = raEntity
-						.getInstalledResourceAdaptor().getRaType();
-
-				// IF WE HAVE PROCESSED THIS RA FOR OTHER SBB IN THIS
-				// SERVICE WE
-				// SHOULD HAVE A SET OF EventyTypeIDs of EVENTS
-				// IT CAN FIRE, OTHERWISE WE HAVE TO CREATE IT.
-				if (!raEntitiesToEventsFired.containsKey(raEntity)) {
-					// SET OF EVENTS THAT THIS RA CAN FIRE
-					HashSet setOfFiredEventIds = new HashSet();
-					// ComponentKey
-					// eventsK[]=raType.getRaTypeDescr().getEventTypeRefEntries();
-
-					EventTypeID[] events = raType.getRaTypeDescr()
-							.getEventTypes();
-					if (events == null)
-						continue; // IN ORDER TO PASS TCKS... TCK RA
-					// RETURNS
-					// NULL...
-					for (int j = 0; j < events.length; j++)
-						setOfFiredEventIds.add(events[j]);
-					// LETS STORE EventTypeIDs Set THAT ARE FIRED BY THIS RA
-					raEntitiesToEventsFired.put(raEntity, setOfFiredEventIds);
-
-					// LETS CREATE FOR THIS RA SET THAT WILL BE FILLED WITH
-					// EVENTS THAT ARE OF INTEREST BY THIS SERVICE
-					// AND STORE IT, IT WILL BE FILLED LATER
-					raEntitiesToEventTypeIDsOfInterest.put(raEntity,
-							new HashSet(20));
-					// raEntitiesToEventTypeIDsOfInterest.put(raEntity,new
-					// TreeSet());
-				}
-
-				// EVENTS THAT ARE FIRED BY THIS RA ENTITY AND ARE OF
-				// ITNEREST
-				// OF THIS SERVICE
-				// IT CONTAINS EventyTypeIDs
-				Set eventsOfInterest = (Set) raEntitiesToEventTypeIDsOfInterest
-						.get(raEntity);
-				// SET OF EventTypeIDs FIRED BYT THIS RA ENTITY
-				Set eventsFiredByRAEntity = (Set) raEntitiesToEventsFired
-						.get(raEntity);
-				Iterator eventsOfSbbinterest = sbbEventsOfInterest.iterator();
-
-				// LETS FILL IN eventsOfInterest
-				while (eventsOfSbbinterest.hasNext()) {
-					// IT SHOUDL BE EventTypeID
-					Object eventIdOfSbbItenrest = eventsOfSbbinterest.next();
-
-					// IF THIS RA FIRES EVENT THAT IS OF ITNEREST OF SBB
-					if (eventsFiredByRAEntity.contains(eventIdOfSbbItenrest)) {
-						// TODO: - CAN WE REMOVE IT? IT SEEMS LIKE GOOD
-						// IDEA, IT
-						// WILL REDUCE OVERHEAD OF PROCESSING
-						// THOSE LOOPS FOR OTHER RAs
-						// eventsOfSbbinterest.remove();
-						eventsOfInterest.add(eventIdOfSbbItenrest);
-						// GET RESOURCE OPTION?
-						MEventEntry eventEntry = eventTypeIdToEventEntriesMappings
-								.get(eventIdOfSbbItenrest);
-						String resourceOption = eventEntry.getResourceOption();
-						// STORE RESOURCE OPTION FOR THIS EventTypeID
-						if (resourceOption != null)
-							if (eventTypeIDsToResourceOptions
-									.containsKey(eventIdOfSbbItenrest)) {
-								String value = (String) eventTypeIDsToResourceOptions
-										.remove(eventIdOfSbbItenrest);
-								// WE DONT NEED MORE THAN ONE OPTION KIND
-								// HERE.
-								if (value.indexOf(resourceOption) == -1) {
-									value += "," + resourceOption;
-									eventTypeIDsToResourceOptions.put(
-											eventIdOfSbbItenrest, value);
-								}
-							} else {
-								eventTypeIDsToResourceOptions.put(
-										eventIdOfSbbItenrest, resourceOption);
-							}
-					}
-				}
-
-				if (logger.isDebugEnabled()) {
-
-					StringBuffer sb = new StringBuffer(300);
-					Iterator it = eventsOfInterest.iterator();
-					while (it.hasNext()) {
-						sb.append(it.next() + "\n");
-					}
-					logger
-							.debug("\n=========================== EVENTIDS OF INTEREST FROM RA===========================\n"
-									+ ""
-									+ sb
-									+ "\n"
-									+ "=====================================================================================");
+				catch (Throwable e) {
+					logger.error(e.getMessage(),e);
 				}
 			}
-
-		}
-
-		// NOW WE HAVE TO BUILD ARRAYS OF eventIDs and corresponding
-		// resource
-		// options for each RA ENTITY
-
-		Iterator raEntities = raEntitiesToEventTypeIDsOfInterest.keySet()
-				.iterator();
-		Iterator eventTypeIdIterator = null;
-		String resourceOption = null;
-		int eventID = -1;
-		// IF WE HAVE SOME RAs, WE NEED TO LET THEM KNOW THAT SOMEONE IS
-		// GOING
-		// TO BE INSTALLED
-		// AND THAT HE IS INTERESTED IN SOME EVENTS WITH SOME ResoureOptions
-		while (raEntities.hasNext()) {
-			ResourceAdaptorEntity raEntity = (ResourceAdaptorEntity) raEntities
-					.next();
-			Set eventsOfServiceInterest = (Set) raEntitiesToEventTypeIDsOfInterest
-					.get(raEntity);
-			// eventIDs and resourceOptions ARE GOING TO BE PASSED AS ARGS
-			// TO RA
-			// eventIDs[i]=int# , resourceOptions[i]=optionsFor-int#
-			int[] eventIDs = new int[eventsOfServiceInterest.size()];
-			String[] resourceOptions = new String[eventsOfServiceInterest
-					.size()];
-
-			eventsOfServiceInterest = new TreeSet(eventsOfServiceInterest);
-
-			int i = 0;
-
-			eventTypeIdIterator = eventsOfServiceInterest.iterator();
-
-			while (eventTypeIdIterator.hasNext()) {
-				EventTypeIDImpl ETID = (EventTypeIDImpl) eventTypeIdIterator
-						.next();
-				eventID = ETID.getEventID();
-				resourceOption = (String) eventTypeIDsToResourceOptions
-						.get(ETID);
-				eventIDs[i] = eventID;
-				resourceOptions[i++] = resourceOption;
-
-			}
-
-			if (logger.isDebugEnabled()) {
-
-				StringBuffer sb = new StringBuffer(300);
-				sb.append("INDEX[ eventID | resourceOptions ]\n");
-				for (int k = 0; k < eventIDs.length; k++) {
-
-					sb.append("#" + k + "[ " + eventIDs[k] + " | "
-							+ resourceOptions[k] + " ]\n");
-				}
-				ResourceAdaptorTypeDescriptorImpl raDesc = raEntity
-						.getInstalledResourceAdaptor().getRaType()
-						.getRaTypeDescr();
-				logger
-						.debug("\n============= PASSING INSTALL SERVCICE ARGS TO RA =============\n"
-								+ "| RA DESC: "
-								+ raDesc.getName()
-								+ ", "
-								+ raDesc.getVendor()
-								+ ", "
-								+ raDesc.getVersion()
-								+ "\n"
-								+ "===============================================================\n"
-								+ "| EVENTS : |\n"
-								+ "============\n"
-								+ ""
-								+ sb
-								+ "\n"
-								+ "===============================================================");
-			}
-
-			raEntity.serviceInstalled(serviceComponent.getServiceID()
-					.toString(), eventIDs, resourceOptions);
-			// ZERO VARS
-			resourceOption = null;
-			eventID = -1;
-		}
-
+		};
+		sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+						
 		logger.info("Installed Service " + serviceComponent.getServiceID()
 				+ ". Root SBB is "
 				+ serviceComponent.getRootSbbComponent());
@@ -901,9 +610,6 @@ public class ServiceManagement {
 			logger.debug("Uninstalling service with id "
 					+ serviceComponent.getServiceID());
 		}
-
-		final ResourceManagement resourceManagement = sleeContainer
-				.getResourceManagement();
 
 		// get service
 		final Service service = this
@@ -937,18 +643,22 @@ public class ServiceManagement {
 					+ serviceComponent.getServiceID());
 		}
 		ServiceUsageMBeanImpl serviceUsageMBean = (ServiceUsageMBeanImpl) serviceComponent.getServiceUsageMBean();
-		serviceUsageMBean.close();		
-		serviceComponent.setServiceUsageMBean(null);
-		
-		// notifying the resource adaptor entities about service
-		for (String raEntityName : resourceManagement
-				.getResourceAdaptorEntities()) {
-			ResourceAdaptorEntity raEntity = resourceManagement
-					.getResourceAdaptorEntity(raEntityName);
-			raEntity.serviceUninstalled(serviceComponent.getServiceID()
-					.toString());
+		if (serviceUsageMBean != null) {
+			serviceUsageMBean.close();
+			// add rollback action to re-create the mbean
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					try {
+						new ServiceUsageMBeanImpl(serviceComponent);									
+					}
+					catch (Throwable e) {
+						logger.error(e.getMessage(),e);
+					}
+				}
+			};
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 		}
-
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removing Service " + serviceComponent.getServiceID()
 					+ " from cache and active services set");

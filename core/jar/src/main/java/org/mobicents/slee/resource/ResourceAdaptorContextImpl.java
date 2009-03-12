@@ -21,7 +21,7 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
-import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
+import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 
 public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
@@ -31,14 +31,15 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	private final ResourceAdaptorEntity raEntity;
 	private final SleeEndpointImpl sleeEndpointImpl;
 	private final SleeContainer sleeContainer;
-	
-	
-	
+	private final ServiceLookupFacility serviceLookupFacility;
+	private final EventLookupFacility eventLookupFacility;
+		
 	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
 		this.sleeEndpointImpl = new SleeEndpointImpl(raEntity,sleeContainer);
-		
+		this.eventLookupFacility = new EventLookupFacilityImpl(sleeContainer,raEntity.getAllowedEventTypes());
+		this.serviceLookupFacility = new ServiceLookupFacilityImpl(sleeContainer,raEntity.getAllowedEventTypes());
 	}
 	
 	public AlarmFacility getAlarmFacility() {
@@ -47,6 +48,14 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 
 	public Object getDefaultUsageParameterSet()
 			throws NoUsageParametersInterfaceDefinedException, SLEEException {
+		
+		ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
+		if (resourceUsageMBeanImpl == null) {
+			throw new NoUsageParametersInterfaceDefinedException("the entity "+raEntity.getName()+" doesn't define usage param");
+		}
+		else {
+			return raEntity.getResourceUsageMBean().getDefaultInstalledUsageParameterSet();
+		}
 	}
 
 	public String getEntityName() {
@@ -54,10 +63,11 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	}
 
 	public EventLookupFacility getEventLookupFacility() {
-		return sleeContainer.getEventLookupFacility();
+		return eventLookupFacility;
 	}
 
 	public ServiceID getInvokingService() {
+		return Service.getInvokingService();
 	}
 
 	public ProfileTable getProfileTable(String profileTableName)
@@ -75,7 +85,7 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	}
 
 	public ServiceLookupFacility getServiceLookupFacility() {
-		return sleeContainer.getServiceLookupFacility();
+		return serviceLookupFacility;
 	}
 
 	public SleeEndpoint getSleeEndpoint() {

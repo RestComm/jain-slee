@@ -56,6 +56,10 @@ public class ConcreteActivityContextInterfaceFactoryGenerator {
     
     public void generateClass() throws Exception {
     	
+    	if(component.getActivityContextInterfaceFactoryInterface() == null) {
+    		return;
+    	}
+    	
     	ClassPool classPool = component.getClassPool();
        
         String interfaceName = component.getActivityContextInterfaceFactoryInterface().getName();

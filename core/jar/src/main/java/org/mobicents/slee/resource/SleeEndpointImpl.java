@@ -9,7 +9,11 @@
 
 package org.mobicents.slee.resource;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.slee.Address;
+import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
@@ -22,6 +26,7 @@ import javax.slee.resource.FireEventException;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.IllegalEventException;
 import javax.slee.resource.ReceivableService;
+import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
@@ -30,6 +35,8 @@ import javax.transaction.Transaction;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.EventTypeComponent;
+import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -53,9 +60,12 @@ public class SleeEndpointImpl implements SleeEndpoint {
 
     private final ResourceAdaptorEntity raEntity;
     
+    
+    
     public SleeEndpointImpl(ResourceAdaptorEntity raEntity,SleeContainer container) {
         this.sleeContainer = container;
         this.raEntity = raEntity;
+        
     }
 
     // --- ACTIVITY START 
@@ -329,7 +339,9 @@ public class SleeEndpointImpl implements SleeEndpoint {
     	if (!event.getClass().isAssignableFrom(eventTypeComponent.getEventTypeClass())) {
     		throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
     	}
-    	// TODO throw IllegalEventException if event can not be fired by this RA (if such option is not disabled)
+    	if (raEntity.getAllowedEventTypes() != null && !raEntity.getAllowedEventTypes().contains(eventType.getEventType())) {
+    		throw new IllegalEventException("Resource Adaptor configured to not ignore ra type event checking and the event "+eventType.getEventType()+" does not belongs to any of the ra types implemented by the resource adaptor");
+    	}
     	// uncomment if tck enforces ra object state 
     	/*
     	ResourceAdaptorObjectState raObjectState = raEntity.getObject().getState();

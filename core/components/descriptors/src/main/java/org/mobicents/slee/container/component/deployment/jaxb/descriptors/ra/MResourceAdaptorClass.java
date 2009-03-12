@@ -14,7 +14,7 @@ public class MResourceAdaptorClass {
 
   private org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorClass resourceAdaptorClass11;
   
-  protected Boolean supportsActiveReconfiguration;
+  protected boolean supportsActiveReconfiguration = false;
   protected String description;
   protected String resourceAdaptorClassName;
 
@@ -22,12 +22,14 @@ public class MResourceAdaptorClass {
   {
     this.resourceAdaptorClass11 = resourceAdaptorClass11;
     
-    this.supportsActiveReconfiguration = Boolean.parseBoolean(resourceAdaptorClass11.getSupportsActiveReconfiguration());
+    if (resourceAdaptorClass11.getSupportsActiveReconfiguration() != null) {
+    	this.supportsActiveReconfiguration = Boolean.parseBoolean(resourceAdaptorClass11.getSupportsActiveReconfiguration());
+    }
     
     this.resourceAdaptorClassName = resourceAdaptorClass11.getResourceAdaptorClassName().getvalue();
   }
   
-  public Boolean getSupportsActiveReconfiguration()
+  public boolean getSupportsActiveReconfiguration()
   {
     return supportsActiveReconfiguration;
   }

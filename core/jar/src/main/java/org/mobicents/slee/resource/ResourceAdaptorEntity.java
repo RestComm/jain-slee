@@ -1,10 +1,14 @@
 package org.mobicents.slee.resource;
 
 import java.lang.reflect.Constructor;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.slee.EventTypeID;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
+import javax.slee.ServiceID;
 import javax.slee.facilities.AlarmFacility;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
@@ -21,8 +25,11 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
+
 /**
  * 
  * Implementation of the logical Resource Adaptor Entity and its life cycle.
@@ -68,11 +75,22 @@ public class ResourceAdaptorEntity {
 	 * Alarm facility serving this RA entity(notification source)
 	 */
 	private AlarmFacility alarmFacility;
-	
+
 	/**
 	 * the resource usage mbean for this ra, may be null
 	 */
 	private ResourceUsageMBeanImpl usageMbean;
+
+	/**
+	 * the ra context for this entity
+	 */
+	private final ResourceAdaptorContextImpl resourceAdaptorContext;
+
+	/**
+	 * the ra allowed event types, cached here for optimal runtime performance
+	 */
+	private final Set<EventTypeID> allowedEventTypes;
+
 	/**
 	 * Creates a new entity with the specified name, for the specified ra
 	 * component and with the provided entity config properties. The entity
@@ -88,13 +106,15 @@ public class ResourceAdaptorEntity {
 	 */
 	public ResourceAdaptorEntity(String name,
 			ResourceAdaptorComponent component,
-			ConfigProperties entityProperties, SleeContainer sleeContainer,ResourceAdaptorEntityNotification notificationSource)
+			ConfigProperties entityProperties, SleeContainer sleeContainer,
+			ResourceAdaptorEntityNotification notificationSource)
 			throws InvalidConfigurationException, InvalidArgumentException {
 		this.name = name;
 		this.component = component;
 		this.sleeContainer = sleeContainer;
 		this.notificationSource = notificationSource;
-		this.alarmFacility = new AlarmFacilityImpl(this.sleeContainer.getAlarmFacility(),this.notificationSource);
+		this.alarmFacility = new AlarmFacilityImpl(this.sleeContainer
+				.getAlarmFacility(), this.notificationSource);
 		// create ra object
 		try {
 			Constructor cons = this.component.getResourceAdaptorClass()
@@ -106,10 +126,30 @@ public class ResourceAdaptorEntity {
 			throw new SLEEException(
 					"unable to create instance of ra object for " + component);
 		}
+		// create ra context
+		resourceAdaptorContext = new ResourceAdaptorContextImpl(this,
+				sleeContainer);
+		// cache runtime data
+		if (!component.getDescriptor().getIgnoreRaTypeEventTypeCheck()) {
+			// the slee endpoint will filter events fired, build a set with the
+			// event types allowed
+			allowedEventTypes = new HashSet<EventTypeID>();
+			for (ResourceAdaptorTypeID raTypeID : resourceAdaptorContext
+					.getResourceAdaptorTypes()) {
+				ResourceAdaptorTypeComponent raTypeComponent = sleeContainer
+						.getComponentRepositoryImpl()
+						.getComponentByID(raTypeID);
+				for (MEventTypeRef eventTypeRef : raTypeComponent
+						.getDescriptor().getEventTypeRefs()) {
+					allowedEventTypes.add(eventTypeRef.getComponentID());
+				}
+			}
+		} else {
+			allowedEventTypes = null;
+		}
 		// set ra context and configure it
 		try {
-			object.setResourceAdaptorContext(new ResourceAdaptorContextImpl(
-					this, sleeContainer));
+			object.setResourceAdaptorContext(resourceAdaptorContext);
 		} catch (InvalidStateException e) {
 			logger
 					.error(
@@ -171,7 +211,6 @@ public class ResourceAdaptorEntity {
 	public void updateConfigurationProperties(ConfigProperties properties)
 			throws InvalidConfigurationException, InvalidStateException {
 		if (!component.getDescriptor().getSupportsActiveReconfiguration()
-				.booleanValue()
 				&& (sleeContainer.getSleeState() == SleeState.RUNNING
 						&& sleeContainer.getSleeState() == SleeState.STOPPING && sleeContainer
 						.getSleeState() == SleeState.STARTING)
@@ -265,17 +304,20 @@ public class ResourceAdaptorEntity {
 		}
 		object.raUnconfigure();
 		object.unsetResourceAdaptorContext();
-		this.sleeContainer.getTraceFacility().getTraceMBeanImpl().deregisterNotificationSource(this.getNotificationSource());
+		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
+				.deregisterNotificationSource(this.getNotificationSource());
 		state = null;
 	}
+
 	/**
 	 * Method which performs some mgmt once RA Entity is installed
 	 */
 	public void installed() {
-		this.sleeContainer.getTraceFacility().getTraceMBeanImpl().registerNotificationSource(this.getNotificationSource());
-		
+		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
+				.registerNotificationSource(this.getNotificationSource());
+
 	}
-	
+
 	/**
 	 * Retrieves the active config properties for the entity
 	 * 
@@ -296,12 +338,13 @@ public class ResourceAdaptorEntity {
 
 	/**
 	 * Retrieves the ra object
+	 * 
 	 * @return
 	 */
 	public ResourceAdaptorObject getResourceAdaptorObject() {
 		return object;
 	}
-	
+
 	/**
 	 * Retrieves the ra interface for this entity and the specified ra type
 	 * 
@@ -317,21 +360,26 @@ public class ResourceAdaptorEntity {
 
 	/**
 	 * Retrieves the marshaller from the ra object, if exists
+	 * 
 	 * @return
 	 */
 	public Marshaler getMarshaler() {
 		return object.getMarshaler();
 	}
-	
+
 	/**
 	 * Indicates a service was activated, the entity will forward this
 	 * notification to the ra object.
 	 * 
 	 * @param serviceInfo
 	 */
-	public void serviceActive(ReceivableService serviceInfo) {
+	public void serviceActive(ServiceID serviceID) {
 		try {
-			object.serviceActive(serviceInfo);
+			ReceivableService receivableService = resourceAdaptorContext
+					.getServiceLookupFacility().getReceivableService(serviceID);
+			if (receivableService.getReceivableEvents().length > 0) {
+				object.serviceActive(receivableService);
+			}
 		} catch (Throwable e) {
 			logger.warn("invocation resulted in unchecked exception", e);
 		}
@@ -343,9 +391,13 @@ public class ResourceAdaptorEntity {
 	 * 
 	 * @param serviceInfo
 	 */
-	public void serviceStopping(ReceivableService serviceInfo) {
+	public void serviceStopping(ServiceID serviceID) {
 		try {
-			object.serviceStopping(serviceInfo);
+			ReceivableService receivableService = resourceAdaptorContext
+					.getServiceLookupFacility().getReceivableService(serviceID);
+			if (receivableService.getReceivableEvents().length > 0) {
+				object.serviceStopping(receivableService);
+			}
 		} catch (Throwable e) {
 			logger.warn("invocation resulted in unchecked exception", e);
 		}
@@ -357,20 +409,24 @@ public class ResourceAdaptorEntity {
 	 * 
 	 * @param serviceInfo
 	 */
-	public void serviceInactive(ReceivableService serviceInfo) {
+	public void serviceInactive(ServiceID serviceID) {
 		try {
-			object.serviceInactive(serviceInfo);
+			ReceivableService receivableService = resourceAdaptorContext
+					.getServiceLookupFacility().getReceivableService(serviceID);
+			if (receivableService.getReceivableEvents().length > 0) {
+				object.serviceInactive(receivableService);
+			}
 		} catch (Throwable e) {
 			logger.warn("invocation resulted in unchecked exception", e);
 		}
 	}
-	
+
 	/**
 	 * Return Notification source representing this RA Entity
+	 * 
 	 * @return
 	 */
-	public NotificationSource getNotificationSource()
-	{
+	public NotificationSource getNotificationSource() {
 		return this.notificationSource;
 	}
 
@@ -380,15 +436,26 @@ public class ResourceAdaptorEntity {
 
 	/**
 	 * Retrieves the resource usage mbean for this ra, may be null
+	 * 
 	 * @return
 	 */
 	public ResourceUsageMBeanImpl getResourceUsageMBean() {
 		return usageMbean;
 	}
+
 	/**
 	 * Sets the resource usage mbean for this ra, may be null
 	 */
 	public void setResourceUsageMBean(ResourceUsageMBeanImpl usageMbean) {
 		this.usageMbean = usageMbean;
+	}
+
+	/**
+	 * Retrieves a set containing event types allowed to be fire by this entity
+	 * 
+	 * @return null if the ra ignores event type checking
+	 */
+	public Set<EventTypeID> getAllowedEventTypes() {
+		return allowedEventTypes;
 	}
 }

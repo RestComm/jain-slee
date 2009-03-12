@@ -1,7 +1,9 @@
 package org.mobicents.slee.resource;
 
 import java.util.HashSet;
+import java.util.Set;
 
+import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
@@ -18,62 +20,88 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.ME
 
 /**
  * Implementation of the SLEE 1.1 specs {@link ServiceLookupFacility} class.
+ * 
  * @author martins
- *
+ * 
  */
 public class ServiceLookupFacilityImpl implements ServiceLookupFacility {
 
 	/**
 	 * the container
 	 */
-	private final SleeContainer container;  
-    
-	public ServiceLookupFacilityImpl(SleeContainer container) {
-        this.container = container;
-    }
-	
+	private final SleeContainer container;
+
+	/**
+	 * the ra allowed event types
+	 */
+	private final Set<EventTypeID> allowedEventTypes;
+
+	public ServiceLookupFacilityImpl(SleeContainer container,
+			Set<EventTypeID> allowedEventTypes) {
+		this.container = container;
+		this.allowedEventTypes = allowedEventTypes;
+	}
+
 	public ReceivableService getReceivableService(ServiceID serviceID)
 			throws NullPointerException, UnrecognizedServiceException,
 			FacilityException {
-		
-		if(serviceID == null) {
+
+		if (serviceID == null) {
 			throw new NullPointerException("null ServiceID");
 		}
-		
-		ServiceComponent serviceComponent = container.getComponentRepositoryImpl().getComponentByID(serviceID);
+
+		ServiceComponent serviceComponent = container
+				.getComponentRepositoryImpl().getComponentByID(serviceID);
 		if (serviceComponent == null) {
 			throw new UnrecognizedServiceException(serviceID.toString());
 		}
-		
-		ReceivableService receivableService = serviceComponent.getReceivableSevice();
-		if (receivableService == null) {
-			// bad luck, create the object and store it in the service component
-			receivableService = createReceivableService(serviceComponent);
-			serviceComponent.setReceivableSevice(receivableService);
-		}
-		return receivableService;
+
+		return createReceivableService(serviceComponent);
+
 	}
 
 	/**
-	 * Creates a {@link ReceivableServiceImpl} instance from the specified service component 
+	 * Creates a {@link ReceivableServiceImpl} instance from the specified
+	 * service component
+	 * 
 	 * @param serviceComponent
 	 * @return
 	 */
 	private ReceivableService createReceivableService(
 			ServiceComponent serviceComponent) {
-		ComponentRepositoryImpl componentRepository = container.getComponentRepositoryImpl();
+		ComponentRepositoryImpl componentRepository = container
+				.getComponentRepositoryImpl();
 		HashSet<ReceivableEvent> resultSet = new HashSet<ReceivableEvent>();
 		for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepository)) {
-			SbbComponent sbbComponent = componentRepository.getComponentByID(sbbID);
-			for (MEventEntry eventEntry : sbbComponent.getDescriptor().getEventEntries().values()) {
-				ReceivableEventImpl receivableEventImpl = new ReceivableEventImpl(eventEntry.getEventReference().getComponentID(),eventEntry.getResourceOption(),eventEntry.isInitialEvent());
-				// add it if it's not in the set or if it is but initial event is set (this way if there is a conflict the one with initial as true wins)
-				if (!resultSet.contains(receivableEventImpl) || receivableEventImpl.isInitialEvent()) {
-					resultSet.add(receivableEventImpl);
+			SbbComponent sbbComponent = componentRepository
+					.getComponentByID(sbbID);
+			for (MEventEntry eventEntry : sbbComponent.getDescriptor()
+					.getEventEntries().values()) {
+				EventTypeID eventTypeID = eventEntry.getEventReference()
+						.getComponentID();
+				if (allowedEventTypes == null
+						|| allowedEventTypes.contains(eventTypeID)) {
+					/*
+					 * The Service Lookup Facility will only return Service
+					 * event type information forthe event types referenced by
+					 * the resource adaptor types implemented by the Resource
+					 * Adaptor.
+					 */
+					ReceivableEventImpl receivableEventImpl = new ReceivableEventImpl(
+							eventTypeID, eventEntry.getResourceOption(),
+							eventEntry.isInitialEvent());
+					// add it if it's not in the set or if it is but initial
+					// event is set (this way if there is a conflict the one
+					// with initial as true wins)
+					if (!resultSet.contains(receivableEventImpl)
+							|| receivableEventImpl.isInitialEvent()) {
+						resultSet.add(receivableEventImpl);
+					}
 				}
 			}
 		}
-		return new ReceivableServiceImpl(serviceComponent.getServiceID(),resultSet.toArray(new ReceivableEventImpl[resultSet.size()]));
+		return new ReceivableServiceImpl(serviceComponent.getServiceID(),
+				resultSet.toArray(new ReceivableEventImpl[resultSet.size()]));
 	}
 
 }

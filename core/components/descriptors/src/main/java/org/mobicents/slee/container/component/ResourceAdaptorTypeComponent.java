@@ -24,6 +24,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Resour
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityType;
+import org.mobicents.slee.resource.AbstractActivityContextInterfaceFactory;
 
 /**
  * Start time:00:45:05 2009-02-04<br>
@@ -58,6 +59,11 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 	 * the JAIN SLEE specs descriptor
 	 */
 	private ResourceAdaptorTypeDescriptor specsDescriptor = null;
+	
+	/**
+	 * the instance of the aci factory for this ra type
+	 */
+	private Object activityContextInterfaceFactory;
 	
 	/**
 	 * 
@@ -150,6 +156,23 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 
 	public void setResourceAdaptorSBBInterface(Class resourceAdaptorSBBInterface) {
 		this.resourceAdaptorSBBInterface = resourceAdaptorSBBInterface;
+	}
+	
+	/**
+	 * Retrieves the instance of the aci factory for this ra type
+	 * @return
+	 */
+	public Object getActivityContextInterfaceFactory() {
+		return activityContextInterfaceFactory;
+	}
+	
+	/**
+	 * Sets the instance of the aci factory for this ra type
+	 * @param activityContextInterfaceFactory
+	 */
+	public void setActivityContextInterfaceFactory(
+			Object activityContextInterfaceFactory) {
+		this.activityContextInterfaceFactory = activityContextInterfaceFactory;
 	}
 	
 	/**

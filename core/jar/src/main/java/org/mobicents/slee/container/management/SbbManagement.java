@@ -317,32 +317,18 @@ public class SbbManagement {
 				// to find it.
 				if (logger.isDebugEnabled()) {
 					logger
-							.debug("setupSbbEnvironment: Binding a JNDI reference to resource adaptor instance ["
-									+ raEntity.getFactoryInterfaceJNDIName()
-									+ "] to where the Sbb expects to find it ["
-									+ lastTok + "]");
+							.debug("setupSbbEnvironment: Binding a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef());
 				}
-				// subContext.bind(lastTok, raEntity.getResourceAdaptor());
 				try {
-					subContext.bind(lastTok, new LinkRef(raEntity
-							.getFactoryInterfaceJNDIName()));
+					subContext.bind(lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
 				} catch (NameAlreadyBoundException e) {
 					logger.warn(
-							"setupSbbEnvironment: Failed to bind JNDI reference ["
-									+ lastTok
-									+ "] to resource adaptor instance ["
-									+ raEntity.getFactoryInterfaceJNDIName()
-									+ "] due to NameAlreadyBoundException", e);
+							"setupSbbEnvironment: Unable to bind a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);
 				}
 			}
 
 			String localFactoryName = raTypeBinding.getActivityContextInterfaceFactoryName();
 			if (localFactoryName != null) {
-				String globalFactoryName = SleeContainer.lookupFromJndi()
-						.getResourceManagement()
-						.getActivityContextInterfaceFactories().get(
-								raTypeComponent.getResourceAdaptorTypeID())
-						.getJndiName();
 				NameParser parser = ctx.getNameParser("");
 				Name local = parser.parse(localFactoryName);
 				int nameSize = local.size();
@@ -360,22 +346,15 @@ public class SbbManagement {
 					}
 				}
 				if (logger.isDebugEnabled()) {
-					logger.debug("ACI factory reference binding: "
-							+ local.get(nameSize - 1) + " to "
-							+ globalFactoryName);
+					logger.debug("setupSbbEnvironment: Binding a JNDI reference to aci factory of "+raTypeBinding.getResourceAdaptorTypeRef());
 				}
 				String factoryRefName = local.get(nameSize - 1);
 				try {
 					tempCtx
-							.bind(factoryRefName,
-									new LinkRef(globalFactoryName));
+							.bind(factoryRefName,raTypeComponent.getActivityContextInterfaceFactory());
 				} catch (NameAlreadyBoundException e) {
 					logger.warn(
-							"setupSbbEnvironment: Failed to bind ACI factory JNDI reference ["
-									+ factoryRefName
-									+ "] to global factory name ["
-									+ globalFactoryName
-									+ "] due to NameAlreadyBoundException", e);
+							"setupSbbEnvironment: Unable to bind a JNDI reference to aci factory interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);
 				}
 			}
 
