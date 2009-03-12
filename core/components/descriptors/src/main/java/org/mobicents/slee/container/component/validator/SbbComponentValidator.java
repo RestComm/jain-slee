@@ -27,6 +27,7 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
@@ -150,21 +151,13 @@ public class SbbComponentValidator implements Validator {
 			// now?
 			if (abstractMehotds.size() > 0 || superClassesAbstractMethod.size() > 0) {
 				valid = false;
-
+				if(logger.isEnabledFor(Level.ERROR))
 				logger
 						.error(this.component.getDescriptor().getSbbID()
 								+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
 								+ Arrays.toString(abstractMehotds.keySet().toArray()) + ", methods from super classes: "
 								+ Arrays.toString(superClassesAbstractMethod.keySet().toArray()));
-				// //System.err.println(this.component.getDescriptor()
-				// .getSbbComponentKey()
-				// +
-				// " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
-				// + Arrays.toString(abstractMehotds.keySet()
-				// .toArray())
-				// +
-				// ", methods from super classes: "+Arrays.toString(superClassesAbstractMethod.keySet()
-				// .toArray()));
+				
 
 			}
 
@@ -281,7 +274,7 @@ public class SbbComponentValidator implements Validator {
 		// Check if we implement javax.slee.Sbb - either directly or from super
 		// class
 		Class javaxSleeSbbInterface = ClassUtils.checkInterfaces(sbbAbstractClass, "javax.slee.Sbb");
-		;
+		
 		// sbbAbstractClass.getI
 		if (javaxSleeSbbInterface == null) {
 
@@ -367,9 +360,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-
-			logger.error(errorBuffer);
-			System.err.println(errorBuffer);
+			if(logger.isEnabledFor(Level.ERROR))
+				logger.error(errorBuffer);
+			
 		}
 
 		return passed;
@@ -516,8 +509,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer);
-			System.err.println(errorBuffer);
+			if(logger.isEnabledFor(Level.ERROR))
+				logger.error(errorBuffer);
+			
 		}
 
 		return passed;
@@ -678,8 +672,9 @@ public class SbbComponentValidator implements Validator {
 			// FIXME: add check against components get aci fields ?
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
+				
 			}
 		}
 
@@ -759,9 +754,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer);
-			System.err.println(errorBuffer);
-
+			if(logger.isEnabledFor(Level.ERROR))
+				logger.error(errorBuffer);
+			
 		}
 
 		return passed;
@@ -872,8 +867,9 @@ public class SbbComponentValidator implements Validator {
 			// those implemented or defined as abstract.
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
+				
 
 			}
 		}
@@ -1028,6 +1024,7 @@ public class SbbComponentValidator implements Validator {
 						else {
 							referencedComponent = this.repository.getComponentByID(referencedSbb);
 							if (referencedComponent == null) {
+								//FIXME: throw or fail?
 								throw new SLEEException("Referenced (in cmp field) "+referencedSbb+" was not found in component repository, this should not happen since dependencies were already verified");
 							}
 						}
@@ -1148,8 +1145,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer);
-			System.err.println(errorBuffer);
+			if(logger.isEnabledFor(Level.ERROR))
+				logger.error(errorBuffer);
+		
 		}
 
 		return passed;
@@ -1323,8 +1321,9 @@ public class SbbComponentValidator implements Validator {
 			}
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
+				
 			}
 		}
 		return passed;
@@ -1395,8 +1394,9 @@ public class SbbComponentValidator implements Validator {
 			}
 		} finally {
 			if (!passed) {
-				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
+				
 			}
 		}
 		return passed;
@@ -1449,9 +1449,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer);
-			System.err.println(errorBuffer);
-
+			if(logger.isEnabledFor(Level.ERROR))
+				logger.error(errorBuffer);
+			
 		}
 
 		return passed;
@@ -1539,8 +1539,9 @@ public class SbbComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
-				System.err.println(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
+				
 
 			}
 		}
@@ -1590,8 +1591,9 @@ public class SbbComponentValidator implements Validator {
 		}
 
 		if (!passed) {
-			logger.error(errorBuffer);
-			System.err.println(errorBuffer);
+			if(logger.isEnabledFor(Level.ERROR))
+				logger.error(errorBuffer);
+			
 		}
 
 		return passed;
@@ -1726,8 +1728,8 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}
@@ -1756,8 +1758,8 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}
@@ -1904,8 +1906,8 @@ public class SbbComponentValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}
@@ -1913,6 +1915,52 @@ public class SbbComponentValidator implements Validator {
 		return passed;
 	}
 
+	/**
+	 * See section 1.3 of jslee 1.1 specs
+	 * 
+	 * @return
+	 */
+	boolean validateCompatibilityReferenceConstraints() {
+
+		boolean passed = true;
+		String errorBuffer = new String("");
+
+		try {
+			if (!this.component.isSlee11()) {
+				// A 1.0 SBB must not reference or use a 1.1 Profile
+				// Specification. This must be enforced by a 1.1
+				// JAIN SLEE.
+
+				for (MProfileSpecRef profileReference : this.component.getDescriptor().getProfileSpecRefs()) {
+					ProfileSpecificationComponent specComponent = this.repository.getComponentByID(profileReference.getComponentID());
+					if (specComponent == null) {
+						// should not happen
+						passed = false;
+						errorBuffer = appendToBuffer("Referenced "+profileReference.getComponentID()+" was not found in component repository, this should not happen since dependencies were already verified","1.3", errorBuffer);
+						
+					} else {
+						if (specComponent.isSlee11()) {
+							passed = false;
+							errorBuffer = appendToBuffer("Sbb is following 1.0 JSLEE contract, it must not reference 1.1 profile specification: " + profileReference.getComponentID(), "1.3", errorBuffer);
+						}
+					}
+				}
+
+			}
+		} finally {
+			if (!passed) {
+				if (logger.isEnabledFor(Level.ERROR)) {
+					logger.error(errorBuffer);
+				}
+			}
+
+		}
+
+		return passed;
+	}
+	
+	
+	
 	protected String appendToBuffer(String message, String section, String buffer) {
 		buffer += (this.component.getDescriptor().getSbbID() + " : violates section " + section + " of jSLEE 1.1 specification : " + message + "\n");
 		return buffer;

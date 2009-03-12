@@ -3,6 +3,7 @@ package org.mobicents.slee.container.component.validator;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
@@ -88,8 +89,8 @@ public class ResourceAdaptorTypeValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				// System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}
@@ -134,8 +135,8 @@ public class ResourceAdaptorTypeValidator implements Validator {
 				
 			}
 			if (!passed) {
-				// System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}

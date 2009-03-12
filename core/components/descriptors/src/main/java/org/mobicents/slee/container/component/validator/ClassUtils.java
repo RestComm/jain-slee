@@ -45,12 +45,10 @@ public class ClassUtils {
 	 * @param interfaceSearched
 	 * @return
 	 */
-	public static Class checkInterfaces(Class classOrInterfaceWithInterfaces,
-			String interfaceSearched) {
+	public static Class checkInterfaces(Class classOrInterfaceWithInterfaces, String interfaceSearched) {
 		Class returnValue = null;
 
-		if (classOrInterfaceWithInterfaces.getName().compareTo(
-				interfaceSearched) == 0) {
+		if (classOrInterfaceWithInterfaces.getName().compareTo(interfaceSearched) == 0) {
 			return classOrInterfaceWithInterfaces;
 
 		}
@@ -67,8 +65,7 @@ public class ClassUtils {
 				break;
 		}
 
-		if (!classOrInterfaceWithInterfaces.isInterface()
-				&& returnValue == null) {
+		if (!classOrInterfaceWithInterfaces.isInterface() && returnValue == null) {
 			Class superClass = classOrInterfaceWithInterfaces.getSuperclass();
 			if (superClass != null) {
 				returnValue = checkInterfaces(superClass, interfaceSearched);
@@ -79,8 +76,7 @@ public class ClassUtils {
 	}
 
 	public static String getMethodKey(Method method) {
-		String ret = method.getName()
-				+ Arrays.toString(method.getParameterTypes());
+		String ret = method.getName() + Arrays.toString(method.getParameterTypes());
 		// //System.err.println("KEY: "+ret);
 
 		return ret;
@@ -100,8 +96,7 @@ public class ClassUtils {
 		return concreteMethods;
 	}
 
-	public static Map<String, Method> getConcreteMethodsFromSuperClasses(
-			Class xClass) {
+	public static Map<String, Method> getConcreteMethodsFromSuperClasses(Class xClass) {
 		HashMap<String, Method> concreteMethods = new HashMap<String, Method>();
 
 		// We could; use CtClass.getMethods() which:
@@ -117,8 +112,7 @@ public class ClassUtils {
 		while (superClass.getName().compareTo("java.lang.Object") != 0) {
 			methods = superClass.getDeclaredMethods();
 			for (int i = 0; i < methods.length; i++) {
-				if (!Modifier.isAbstract(methods[i].getModifiers())
-						&& !Modifier.isNative(methods[i].getModifiers())) {
+				if (!Modifier.isAbstract(methods[i].getModifiers()) && !Modifier.isNative(methods[i].getModifiers())) {
 					concreteMethods.put(getMethodKey(methods[i]), methods[i]);
 				}
 			}
@@ -134,8 +128,7 @@ public class ClassUtils {
 	 * @param ctInterfaceClass
 	 * @return
 	 */
-	public static Map<String, Method> getAllInterfacesMethods(
-			Class xInterfaceClass, Set<String> ignore) {
+	public static Map<String, Method> getAllInterfacesMethods(Class xInterfaceClass, Set<String> ignore) {
 		HashMap<String, Method> abstractMethods = new HashMap<String, Method>();
 		Method[] methods = null;
 		Class[] superInterfaces;
@@ -144,8 +137,7 @@ public class ClassUtils {
 
 		for (Class superInterface : superInterfaces) {
 			if (!ignore.contains(superInterface.getName()))
-				abstractMethods.putAll(getAllInterfacesMethods(superInterface,
-						ignore));
+				abstractMethods.putAll(getAllInterfacesMethods(superInterface, ignore));
 		}
 
 		methods = xInterfaceClass.getDeclaredMethods();
@@ -171,12 +163,10 @@ public class ClassUtils {
 		// now here comes methods from interfaces
 		Set<String> ignore = new HashSet<String>();
 		ignore.add("java.lang.Object");
-		Map<String, Method> interfaceMethods = getAllInterfacesMethods(xClass,
-				ignore);
+		Map<String, Method> interfaceMethods = getAllInterfacesMethods(xClass, ignore);
 		for (Method im : interfaceMethods.values()) {
 			try {
-				Method m = xClass.getMethod(im.getName(), im
-						.getParameterTypes());
+				Method m = xClass.getMethod(im.getName(), im.getParameterTypes());
 				if (Modifier.isAbstract(m.getModifiers())) {
 					abstractMethods.put(getMethodKey(m), m);
 				}
@@ -193,8 +183,7 @@ public class ClassUtils {
 		return abstractMethods;
 	}
 
-	public static Map<String, Method> getAbstractMethodsFromSuperClasses(
-			Class xClass) {
+	public static Map<String, Method> getAbstractMethodsFromSuperClasses(Class xClass) {
 		HashMap<String, Method> abstractMethods = new HashMap<String, Method>();
 		Method[] methods = null;
 		Class superClass;
@@ -210,13 +199,11 @@ public class ClassUtils {
 
 			Set<String> ignore = new HashSet<String>();
 			ignore.add("java.lang.Object");
-			Map<String, Method> interfaceMethods = getAllInterfacesMethods(
-					superClass, ignore);
+			Map<String, Method> interfaceMethods = getAllInterfacesMethods(superClass, ignore);
 			for (Method im : interfaceMethods.values()) {
 				try {
 					// yes, xClass
-					Method m = xClass.getMethod(im.getName(), im
-							.getParameterTypes());
+					Method m = xClass.getMethod(im.getName(), im.getParameterTypes());
 					if (Modifier.isAbstract(m.getModifiers())) {
 						abstractMethods.put(getMethodKey(m), m);
 					}
@@ -253,8 +240,7 @@ public class ClassUtils {
 	//		
 	// }
 
-	public static Method getMethodFromMap(String name, Class[] parameters,
-			Map<String, Method>... methods) {
+	public static Method getMethodFromMap(String name, Class[] parameters, Map<String, Method>... methods) {
 		String key = name + Arrays.toString(parameters);
 		for (Map<String, Method> m : methods) {
 			if (m.containsKey(key)) {
@@ -267,29 +253,26 @@ public class ClassUtils {
 	}
 
 	public static Class checkClasses(Class xClass, String classToSearch) {
-;
 
-			if (xClass.getName().compareTo(
-					classToSearch) == 0) {
+		if (xClass.getName().compareTo(classToSearch) == 0) {
+			return xClass;
+
+		}
+		Class superClass;
+
+		superClass = xClass.getSuperclass();
+
+		while (superClass.getName().compareTo("java.lang.Object") != 0) {
+
+			if (xClass.getName().compareTo(classToSearch) == 0) {
 				return xClass;
 
 			}
-			Class superClass;
 
-			superClass = xClass.getSuperclass();
+			superClass = superClass.getSuperclass();
+		}
 
-			while (superClass.getName().compareTo("java.lang.Object") != 0) {
-				
-				if (xClass.getName().compareTo(
-						classToSearch) == 0) {
-					return xClass;
-
-				}
-				
-				superClass = superClass.getSuperclass();
-			}
-			
-			return null;
+		return null;
 	}
 
 }

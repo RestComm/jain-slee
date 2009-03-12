@@ -27,6 +27,7 @@ import javax.slee.management.LibraryID;
 
 import javassist.Modifier;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -460,7 +461,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -517,7 +519,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -574,7 +577,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -632,7 +636,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -785,7 +790,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -966,7 +972,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -1465,7 +1472,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -1512,7 +1520,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -1787,7 +1796,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -2195,7 +2205,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -2227,7 +2238,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 			if (!passed) {
 				// //System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}
@@ -2374,7 +2386,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 
@@ -2556,7 +2569,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		} finally {
 
 			if (!passed) {
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 				//System.err.println(errorBuffer);
 			}
 

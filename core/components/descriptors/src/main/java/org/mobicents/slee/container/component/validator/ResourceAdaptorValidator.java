@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javassist.Modifier;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
@@ -110,7 +111,7 @@ public class ResourceAdaptorValidator implements Validator {
 	boolean validateDescriptor() {
 
 		boolean passed = true;
-		String errorBuffer = new String("");
+		//String errorBuffer = new String("");
 
 		try {
 
@@ -193,8 +194,8 @@ public class ResourceAdaptorValidator implements Validator {
 
 		} finally {
 			if (!passed) {
-				// System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}
@@ -273,8 +274,8 @@ public class ResourceAdaptorValidator implements Validator {
 			
 		} finally {
 			if (!passed) {
-				// System.err.println(errorBuffer);
-				logger.error(errorBuffer);
+				if(logger.isEnabledFor(Level.ERROR))
+					logger.error(errorBuffer);
 			}
 
 		}
