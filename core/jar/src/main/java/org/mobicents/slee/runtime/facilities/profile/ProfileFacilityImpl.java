@@ -27,6 +27,7 @@ import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileFacility;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.profile.ProfileTable;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
@@ -35,7 +36,7 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -301,5 +302,10 @@ public class ProfileFacilityImpl implements ProfileFacility {
 		}
 		return 	"Profile Facility: " +
 				"\n+-- Tables: " + tableNames;
+	}
+
+	public ProfileTable getProfileTable(String arg0) throws NullPointerException, UnrecognizedProfileTableNameException, FacilityException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
