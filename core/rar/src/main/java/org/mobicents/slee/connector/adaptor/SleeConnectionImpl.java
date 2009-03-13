@@ -1,15 +1,3 @@
-/*
- * ***************************************************
- *                                                 *
- *  Mobicents: The Open Source JSLEE Platform      *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************
- *
- * Created on Dec 5, 2004 SleeConnectionImpl.java
- */
 package org.mobicents.slee.connector.adaptor;
 
 import javax.resource.ResourceException;
@@ -46,7 +34,9 @@ public class SleeConnectionImpl implements SleeConnection {
      */
     public ExternalActivityHandle createActivityHandle()
             throws ResourceException {
-        log.debug("createActivityHandle() called");
+    	if (log.isDebugEnabled()) {
+    		log.debug("createActivityHandle() called");
+    	}
         if (managedConnection == null)
             throw new IllegalStateException("Connection handle is invalid!");        
         return managedConnection.createActivityHandle();        
@@ -61,7 +51,9 @@ public class SleeConnectionImpl implements SleeConnection {
      */
     public EventTypeID getEventTypeID(String name, String vendor, String version)
             throws UnrecognizedEventException, ResourceException {
-        log.debug("getEventTypeId() called");
+    	if (log.isDebugEnabled()) {
+    		log.debug("getEventTypeId() called");
+    	}
         if (managedConnection == null)
             throw new IllegalStateException("Connection handle is invalid!");
         return managedConnection.getEventTypeID(name, vendor, version);
@@ -79,7 +71,9 @@ public class SleeConnectionImpl implements SleeConnection {
             ExternalActivityHandle activityHandle, Address address)
             throws NullPointerException, UnrecognizedActivityException,
             UnrecognizedEventException, ResourceException {
-        log.debug("fireEvent() called");
+    	if (log.isDebugEnabled()) {
+    		log.debug("fireEvent() called");
+    	}
         if (managedConnection == null)
             throw new IllegalStateException("Connection handle is invalid!");
         managedConnection.fireEvent(event, eventType, activityHandle, address);
@@ -91,7 +85,9 @@ public class SleeConnectionImpl implements SleeConnection {
      * @see javax.slee.connection.SleeConnection#close()
      */
     public void close() throws ResourceException {
-        log.debug("close() called");
+    	if (log.isDebugEnabled()) {
+    		log.debug("close() called");
+    	}
         if (managedConnection == null)
             throw new IllegalStateException("Connection handle is invalid!");
                        
@@ -109,7 +105,9 @@ public class SleeConnectionImpl implements SleeConnection {
      */
     
     void invalidate() {
-        log.debug("invalidate() called");
+    	if (log.isDebugEnabled()) {
+    		log.debug("invalidate() called");
+    	}
         managedConnection = null;
     }
 

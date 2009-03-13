@@ -109,13 +109,17 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 					}
 					try {
 						removeObjectPool(sbbComponent.getSbbID());
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						logger.error("Failed to remove SBB "
 								+ sbbComponent + " object pool", e);
 					}
 				}
 			};
-			sleeTransactionManager.addAfterRollbackAction(action);
+			try {
+				sleeTransactionManager.addAfterRollbackAction(action);
+			} catch (Throwable e) {
+				logger.error(e.getMessage(),e);
+			}
 		}
 	}
 

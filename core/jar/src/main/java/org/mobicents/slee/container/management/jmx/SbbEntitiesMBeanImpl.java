@@ -147,7 +147,8 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 			info[3] = entity.getSbbId().toString();
 			info[4] = Byte.toString(entity.getPriority());
 			info[5] = entity.getServiceConvergenceName();
-			info[6] = entity.getUsageParameterPathName();
+			// FIXME to remove in mmc
+			info[6] = null;
 			if (entity.getServiceId() != null)
 				info[7] = entity.getServiceId().toString();
 			if (entity.getCurrentEvent() != null)

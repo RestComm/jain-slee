@@ -1,15 +1,3 @@
-/*
- * ***************************************************
- *                                                 *
- *  Mobicents: The Open Source JSLEE Platform      *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************
- *
- * Created on Dec 5, 2004 SleeConnectionFactoryImpl.java
- */
 package org.mobicents.slee.connector.adaptor;
 
 import java.io.Serializable;
@@ -29,7 +17,13 @@ import org.jboss.logging.Logger;
  */
 public class SleeConnectionFactoryImpl implements SleeConnectionFactory,
         Serializable, Referenceable {
-    private Reference reference;
+	
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private Reference reference;
     private ConnectionManager connectionMgr;
     private ManagedConnectionFactoryImpl mcf;
     private static Logger log = Logger
