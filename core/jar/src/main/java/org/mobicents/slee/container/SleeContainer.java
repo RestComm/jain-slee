@@ -65,7 +65,6 @@ import org.mobicents.slee.container.management.xml.DefaultSleeEntityResolver;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
-import org.mobicents.slee.resource.EventLookupFacilityImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.cache.MobicentsCache;
 import org.mobicents.slee.runtime.eventrouter.EventRouter;
@@ -260,7 +259,7 @@ public class SleeContainer {
 
 		registerWithJndi();
 		
-		startRMIServer(this.nullActivityFactory,this.eventLookupFacility, rmiServerInterfaceMBean);
+		startRMIServer(rmiServerInterfaceMBean);
 
 		// Register property editors for the composite SLEE types so that the
 		// jboss jmx console can pass it as an argument.
@@ -486,16 +485,14 @@ public class SleeContainer {
 	 * Start the HA RMI Server, used by JCA resource adaptors to communicate
 	 * with the SLEE
 	 */
-	private void startRMIServer(NullActivityFactoryImpl naf,
-			EventLookupFacilityImpl eventLookupFacility,
-			ObjectName rmiServerInterfaceMBean) {
+	private void startRMIServer(ObjectName rmiServerInterfaceMBean) {
 		try {
 			logger.debug("creating RmiServerInterface using MBeanProxy");
 			rmiServerInterfaceMBeanImpl = (RmiServerInterfaceMBean) MBeanProxy
 					.get(RmiServerInterfaceMBean.class,
 							rmiServerInterfaceMBean, mbeanServer);
-			rmiServerInterfaceMBeanImpl.startRMIServer(naf,eventLookupFacility, activityContextFactory);
-		} catch (Exception e) {
+			rmiServerInterfaceMBeanImpl.startRMIServer();
+		} catch (Throwable e) {
 			logger.error(
 					"Failed to start HA RMI server for Remote slee service", e);
 		}

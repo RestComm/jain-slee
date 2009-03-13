@@ -301,4 +301,12 @@ public class ResourceAdaptorObject {
 	public void activityEnded(ActivityHandle handle) {
 		object.activityEnded(handle);
 	}
+
+	/**
+	 * Queries the liveness of the specified activity
+	 * @param activityHandle
+	 */
+	public void queryLiveness(ActivityHandle activityHandle) {
+		object.queryLiveness(activityHandle);		
+	}
 }

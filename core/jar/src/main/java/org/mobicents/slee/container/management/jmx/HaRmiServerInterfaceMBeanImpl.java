@@ -11,9 +11,6 @@ import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.util.naming.Util;
 import org.mobicents.slee.connector.server.RemoteSleeService;
 import org.mobicents.slee.connector.server.RemoteSleeServiceImpl;
-import org.mobicents.slee.resource.EventLookup;
-import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 
 public class HaRmiServerInterfaceMBeanImpl extends ServiceMBeanSupport
 		implements HaRmiServerInterfaceMBeanImplMBean {
@@ -35,8 +32,7 @@ public class HaRmiServerInterfaceMBeanImpl extends ServiceMBeanSupport
 		}
 	}
 
-	public void startRMIServer(NullActivityFactoryImpl naf,EventLookup eventLookup,
-			ActivityContextFactoryImpl activityContextFactory) {
+	public void startRMIServer() {
 		RemoteSleeService stub = null;
 		try {
 			if (logger.isDebugEnabled()) {
@@ -52,8 +48,7 @@ public class HaRmiServerInterfaceMBeanImpl extends ServiceMBeanSupport
 					.lookup("/HAPartition/DefaultPartition");
 
 			rmiServer = new HARMIServerImpl(myPartition, "RemoteSleeService",
-					RemoteSleeService.class, new RemoteSleeServiceImpl(naf,
-							eventLookup, activityContextFactory));
+					RemoteSleeService.class, new RemoteSleeServiceImpl());
 
 			stub = (RemoteSleeService) rmiServer
 					.createHAStub(new FirstAvailable());

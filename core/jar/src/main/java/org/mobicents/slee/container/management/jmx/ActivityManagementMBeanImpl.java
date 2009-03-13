@@ -14,15 +14,14 @@ import java.util.TimerTask;
 import javax.management.NotCompliantMBeanException;
 import javax.slee.SbbID;
 import javax.slee.facilities.TimerID;
+import javax.slee.management.ManagementException;
 import javax.slee.nullactivity.NullActivity;
-import javax.slee.resource.ResourceException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.SbbIDImpl;
+import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
@@ -32,7 +31,7 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 
 /**
- * This class provides minimum inforamtion for management console. It also tries
+ * This class provides minimum information for management console. It also tries
  * to clean container of dead activities
  * 
  * @author Bartosz Baranowski
@@ -135,22 +134,19 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 	// --- OPERATIONS
 
-	public void endActivity(String nullACID) throws ResourceException {
+	public void endActivity(String nullACID) throws ManagementException {
 
 		// Again this is tx method
 		logger.info("Trying to stop null activity[" + nullACID + "]!!");
 		// prepareBean();
 		boolean createdTx = false;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 			ActivityContext ac = acFactory.getActivityContext(nullACID,false);
 			if (ac == null) {
 				logger.debug("There is no ac associated with given acID["
 						+ nullACID + "]!!");
-				throw new ResourceException("Can not find AC for given ID["
+				throw new ManagementException("Can not find AC for given ID["
 						+ nullACID + "], try again!!!");
 			}
 			if (ac.getActivityContextHandle().getActivityType() == ActivityType.nullActivity) {
@@ -167,17 +163,15 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 						+ "] does not point to NullActivity");
 			}
 			
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
 		} finally {
 
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
 				}
 			}
 		}
@@ -203,10 +197,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		boolean createdTx = false;
 		String[] ret = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 
 			// Now we need to sort acs per factory type, raentity ?
 			Set factoriesSet = new HashSet();
@@ -228,17 +219,15 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 			ret = new String[factoriesSet.size()];
 			ret = (String[]) factoriesSet.toArray(ret);
 
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
 		} finally {
 
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
 				}
 			}
 		}
@@ -253,22 +242,16 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		boolean createdTx = false;
 		Object[] ret = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 			ret = listWithCriteria(false, inDetails, LIST_BY_NO_CRITERIA, null);
-		} catch (SystemException e) {
-
-			e.printStackTrace();
-
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
 		} finally {
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
 				}
 			}
 		}
@@ -277,38 +260,30 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	}
 
 	public Object[] retrieveActivityContextDetails(String AC_ID)
-			throws ResourceException {
+			throws ManagementException {
 		logger.info("Retrieving AC details for acID[" + AC_ID + "]");
 		// prepareBean();
 		boolean createdTx = false;
 		Object[] o = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
-
+			createdTx = txMgr.requireTransaction();
 			ActivityContext ac = this.acFactory.getActivityContext(AC_ID,false);
 			if (ac == null) {
 				logger.debug("Ac retrieval failed, no such ac[" + AC_ID
 						+ "]!!!");
-				throw new ResourceException(
+				throw new ManagementException(
 						"Activity Context does not exist (ACID[" + AC_ID
 						+ "]), try another one!!");
 			}
 			o = getDetails(ac);
-
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(),e);
 		} finally {
 			if (createdTx) {
 				try {
 					txMgr.commit();
-
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
 				}
 			}
 
@@ -322,16 +297,16 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	 */
 
 	/**
-	 * This is main place where SLEE is accessed. This functions lists ac in
+	 * This is main place where SLEE is accessed. This functions lists AC in
 	 * various different ways. It can either return Object[] of arrays
-	 * representing AC of simple Object[] that in fact contains Stirgn objects
-	 * representing IDs of Actvity Contexts
+	 * representing AC of simple Object[] that in fact contains String objects
+	 * representing IDs of Activity Contexts
 	 * 
 	 * @param listIDsOnly -
 	 *            tells to list only its, if this is true, second boolean flag
-	 *            is ignored. Return value is Object[]{Stirng,String,....}
+	 *            is ignored. Return value is Object[]{String,String,....}
 	 * @param inDetails -
-	 *            Tells wheather subbarays containing name bindings, attached
+	 *            Tells whether sub-arrays containing name bindings, attached
 	 *            sbb entities should be passed, or only value representing
 	 *            their length. If true arrays are passed, if false, only
 	 *            values.
@@ -399,9 +374,9 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 					break;
 
 				case LIST_BY_SBBID:
-
-					SbbID idBeingLookedUp = new SbbIDImpl(new ComponentKey(
-							comparisonCriteria));
+					ComponentIDPropertyEditor propertyEditor = new ComponentIDPropertyEditor();
+					propertyEditor.setAsText(comparisonCriteria);
+					SbbID idBeingLookedUp = (SbbID) propertyEditor.getValue();
 					boolean match = false;
 					SbbID implSbbID = null;
 					List list = ac.getSortedCopyOfSbbAttachmentSet();
@@ -568,23 +543,18 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		boolean createdTx = false;
 		Object[] ret = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 
 			ret = listWithCriteria(true, true, LIST_BY_ACTIVITY_CLASS,
 					fullQualifiedActivityClassName);
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 
@@ -601,22 +571,17 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		boolean createdTx = false;
 		Object[] ret = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 			ret = listWithCriteria(true, true, LIST_BY_RAENTITY, entityName);
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
 		} finally {
 
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -631,22 +596,17 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		boolean createdTx = false;
 		Object[] ret = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 			ret = listWithCriteria(true, true, LIST_BY_SBBENTITY, sbbEID);
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
 		} finally {
 
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 
@@ -662,22 +622,16 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		boolean createdTx = false;
 		Object[] ret = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 			ret = listWithCriteria(true, true, LIST_BY_SBBID, sbbID);
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
 		} finally {
-
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 
@@ -693,22 +647,16 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		boolean createdTx = false;
 		Map ret = null;
 		try {
-			if (!txMgr.isInTx()) {
-				txMgr.begin();
-				createdTx = true;
-			}
+			createdTx = txMgr.requireTransaction();
 			ret = naming.getBindings();
-		} catch (SystemException e) {
-
-			e.printStackTrace();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
 		} finally {
-
 			if (createdTx) {
 				try {
 					txMgr.commit();
-				} catch (SystemException e) {
-
-					e.printStackTrace();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(), e);
 				}
 			}
 
@@ -783,7 +731,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 					container.getResourceManagement()
 							.getResourceAdaptorEntity(
 									ach.getActivitySource())
-							.getResourceAdaptorID().queryLiveness(
+							.getResourceAdaptorObject().queryLiveness(
 									ach.getActivityHandle());
 				}
 			}

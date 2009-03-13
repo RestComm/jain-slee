@@ -9,9 +9,6 @@ import org.jboss.util.naming.Util;
 import org.mobicents.slee.connector.server.RemoteSleeService;
 import org.mobicents.slee.connector.server.RemoteSleeServiceImpl;
 import org.mobicents.slee.container.rmi.RMIServerImpl;
-import org.mobicents.slee.resource.EventLookup;
-import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 
 public class RmiServerInterfaceMBeanImpl extends ServiceMBeanSupport implements
 		RmiServerInterfaceMBeanImplMBean {
@@ -32,20 +29,8 @@ public class RmiServerInterfaceMBeanImpl extends ServiceMBeanSupport implements
 			logger.debug("RmiServerInterfaceMBeanImpl stopped......");
 		}
 	}
-	
-//	public ObjectName getRmiServerInterfaceImplMBean(){
-//		ObjectName objName = null;
-//		try{
-//		objName = new ObjectName(OBJECT_NAME);
-//		}
-//		catch(MalformedObjectNameException e){
-//			log.error("Could not create ObjectName for "+OBJECT_NAME, e);
-//		}
-//		return objName;
-//	}
 
-	public void startRMIServer(NullActivityFactoryImpl naf, EventLookup eventLookup,
-			ActivityContextFactoryImpl activityContextFactory) {
+	public void startRMIServer() {
 		RemoteSleeService stub = null;
 		try {
 			if (logger.isDebugEnabled()) {
@@ -55,8 +40,7 @@ public class RmiServerInterfaceMBeanImpl extends ServiceMBeanSupport implements
 			InitialContext ctx = new InitialContext();
 
 			rmiServer = new RMIServerImpl("RemoteSleeService",
-					RemoteSleeService.class, new RemoteSleeServiceImpl(naf,
-							eventLookup, activityContextFactory));
+					RemoteSleeService.class, new RemoteSleeServiceImpl());
 
 			stub = (RemoteSleeService) rmiServer.createStub();
 

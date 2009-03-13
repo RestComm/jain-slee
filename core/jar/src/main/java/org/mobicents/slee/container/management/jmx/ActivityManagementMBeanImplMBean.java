@@ -2,9 +2,8 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.util.Map;
 
-import javax.slee.resource.ResourceException;
+import javax.slee.management.ManagementException;
 
-import org.jboss.system.ListenerServiceMBean;
 import org.jboss.system.ServiceMBean;
 
 /**
@@ -212,12 +211,12 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * @param nullACID -
 	 *            activity context id of null activity to end.
 	 * 
-	 * @throws ResourceException -
+	 * @throws ManagementException -
 	 *             when passed ID does not exist or AC that it identifies is not
 	 *             null AC.
 	 * 
 	 */
-	public void endActivity(String nullACID) throws ResourceException;
+	public void endActivity(String nullACID) throws ManagementException;
 
 	/**
 	 * 
@@ -298,11 +297,11 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * that String with tree.
 	 * 
 	 * @return Object[] - its structure has been defined here <b>http://groups.google.com/group/mobicents-public/web/mobicents-activity-context-mbean?version=8</b>, also You can read static fields descritpiotn in MBean interface for this MbeanImpl
-	 * @throws ResourceException
+	 * @throws ManagementException
 	 *             if ac is not found
 	 */
 	public Object[] retrieveActivityContextDetails(String AC_ID)
-			throws ResourceException;
+			throws ManagementException;
 
 	
 	/**
