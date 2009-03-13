@@ -11,19 +11,17 @@ package org.mobicents.ant.tasks;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.slee.EventTypeID;
 import javax.slee.InvalidArgumentException;
+import javax.slee.SbbID;
+import javax.slee.ServiceID;
+import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.resource.ResourceAdaptorID;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.tools.ant.BuildException;
 import org.mobicents.ant.SubTask;
-
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.EventTypeIDImpl;
-import org.mobicents.slee.container.component.ProfileSpecificationIDImpl;
-import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
-import org.mobicents.slee.container.component.SbbIDImpl;
-import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
-import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
 
 public class SetTraceLevelTask implements SubTask {
 	// Obtain a suitable logger.
@@ -35,32 +33,26 @@ public class SetTraceLevelTask implements SubTask {
 
 		try {
 			String component = null;
-
+			// FIXME normalize those string values with the ones used in jmx property editors
 			if (type.equalsIgnoreCase("event")) {
-				ComponentKey componentKey = new ComponentKey(componentID);
-				component = new EventTypeIDImpl(componentKey).toString();
+				component = new EventTypeID(componentName,componentVendor,componentVersion).toString();
 
 			} else if (type.equalsIgnoreCase("ra")) {
-				ComponentKey componentKey = new ComponentKey(componentID);
-				component = new ResourceAdaptorIDImpl(componentKey).toString();
+				component = new ResourceAdaptorID(componentName,componentVendor,componentVersion).toString();
 
 			} else if (type.equalsIgnoreCase("ratype")) {
-				ComponentKey componentKey = new ComponentKey(componentID);
-				component = new ResourceAdaptorTypeIDImpl(componentKey)
+				component = new ResourceAdaptorTypeID(componentName,componentVendor,componentVersion)
 						.toString();
 
 			} else if (type.equalsIgnoreCase("pspec")) {
-				ComponentKey componentKey = new ComponentKey(componentID);
-				component = new ProfileSpecificationIDImpl(componentKey)
+				component = new ProfileSpecificationID(componentName,componentVendor,componentVersion)
 						.toString();
 
 			} else if (type.equalsIgnoreCase("service")) {
-				ComponentKey componentKey = new ComponentKey(componentID);
-				component = new ServiceIDImpl(componentKey).toString();
+				component = new ServiceID(componentName,componentVendor,componentVersion).toString();
 
 			} else if (type.equalsIgnoreCase("sbb")) {
-				ComponentKey componentKey = new ComponentKey(componentID);
-				component = new SbbIDImpl(componentKey).toString();
+				component = new SbbID(componentName,componentVendor,componentVersion).toString();
 			}
 
 			else {
@@ -93,11 +85,6 @@ public class SetTraceLevelTask implements SubTask {
 		}
 	}
 
-	// The setter for the "componentID" attribute
-	public void setComponentID(String componentID) {
-		this.componentID = componentID;
-	}
-
 	// The setter for the "type" attribute
 	public void setType(String type) {
 		this.type = type;
@@ -108,8 +95,22 @@ public class SetTraceLevelTask implements SubTask {
 		this.level = level;
 	}
 
-	private String componentID = null;
+	public void setComponentName(String s) {
+		this.componentName = s;
+	}
+	
+	public void setComponentVendor(String s) {
+		this.componentVendor = s;
+	}
+	
+	public void setComponentVersion(String s) {
+		this.componentVersion = s;
+	}
 
+	private String componentName = null;
+	private String componentVendor = null;
+	private String componentVersion = null;
+	
 	private String type = null;
 
 	private String level = null;

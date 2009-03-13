@@ -1,21 +1,12 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant.tasks;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.slee.ServiceID;
+
 import org.apache.tools.ant.BuildException;
 import org.mobicents.ant.SubTask;
-
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
 
 public class DeactivateServiceTask implements SubTask {
@@ -27,8 +18,7 @@ public class DeactivateServiceTask implements SubTask {
 	public void run(SleeCommandInterface slee)  {
 
 		try {
-			ComponentKey id = new ComponentKey(this.id);
-			ServiceIDImpl service = new ServiceIDImpl(id);
+			ServiceID service = new ServiceID(componentName,componentVendor,componentVersion);
 
 			// Invoke the operation
 			Object result = slee.invokeOperation("-deactivateService", service
@@ -49,10 +39,20 @@ public class DeactivateServiceTask implements SubTask {
 		}
 	}
 
-	// The setter for the "id" attribute
-	public void setServiceID(String id) {
-		this.id = id;
+	public void setComponentName(String s) {
+		this.componentName = s;
+	}
+	
+	public void setComponentVendor(String s) {
+		this.componentVendor = s;
+	}
+	
+	public void setComponentVersion(String s) {
+		this.componentVersion = s;
 	}
 
-	private String id = null;
+	private String componentName = null;
+	private String componentVendor = null;
+	private String componentVersion = null;
+	
 }

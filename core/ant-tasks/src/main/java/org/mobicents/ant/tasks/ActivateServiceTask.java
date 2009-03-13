@@ -1,21 +1,13 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant.tasks;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.slee.ServiceID;
+
 import org.apache.tools.ant.BuildException;
 import org.mobicents.ant.SubTask;
 
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.ServiceIDImpl;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
 
 public class ActivateServiceTask implements SubTask {
@@ -27,12 +19,10 @@ public class ActivateServiceTask implements SubTask {
 	public void run(SleeCommandInterface slee) {
 
 		try {
-			ComponentKey id = new ComponentKey(this.id);
-			ServiceIDImpl service = new ServiceIDImpl(id);
+			ServiceID service = new ServiceID(componentName,componentVendor,componentVersion);
 
 			// Invoke the operation
-			Object result = slee.invokeOperation("-activateService", service
-					.toString(), null, null);
+			Object result = slee.invokeOperation("-activateService", service.toString(), null, null);
 
 			if (result == null) {
 				logger.info("No response");
@@ -47,11 +37,21 @@ public class ActivateServiceTask implements SubTask {
 					+ slee.commandString + "\n" + ex.getCause().toString());
 		}
 	}
-
-	// The setter for the "id" attribute
-	public void setServiceID(String id) {
-		this.id = id;
+	
+	public void setComponentName(String s) {
+		this.componentName = s;
+	}
+	
+	public void setComponentVendor(String s) {
+		this.componentVendor = s;
+	}
+	
+	public void setComponentVersion(String s) {
+		this.componentVersion = s;
 	}
 
-	private String id = null;
+	private String componentName = null;
+	private String componentVendor = null;
+	private String componentVersion = null;
+	
 }

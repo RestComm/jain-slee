@@ -1,21 +1,12 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant.tasks;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.slee.resource.ResourceAdaptorID;
+
 import org.apache.tools.ant.BuildException;
 import org.mobicents.ant.SubTask;
-
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
 
 public class CreateRaEntityTask implements SubTask {
@@ -27,8 +18,7 @@ public class CreateRaEntityTask implements SubTask {
 	public void run(SleeCommandInterface slee) {
 
 		try {
-			ComponentKey raId = new ComponentKey(this.raId);
-			ResourceAdaptorIDImpl ra = new ResourceAdaptorIDImpl(raId);
+			ResourceAdaptorID ra = new ResourceAdaptorID(componentName,componentVendor,componentVersion);
 
 			// Invoke the operation
 			Object result = slee.invokeOperation("-createRaEntity", ra
@@ -48,11 +38,6 @@ public class CreateRaEntityTask implements SubTask {
 		}
 	}
 
-	// The setter for the "id" attribute
-	public void setResourceAdaptorID(String id) {
-		this.raId = id;
-	}
-
 	// The setter for the "entityName" attribute
 	public void setEntityName(String entityName) {
 		this.entityName = entityName;
@@ -63,8 +48,22 @@ public class CreateRaEntityTask implements SubTask {
 		this.props = props;
 	}
 
-	private String raId = null;
+	public void setComponentName(String s) {
+		this.componentName = s;
+	}
+	
+	public void setComponentVendor(String s) {
+		this.componentVendor = s;
+	}
+	
+	public void setComponentVersion(String s) {
+		this.componentVersion = s;
+	}
 
+	private String componentName = null;
+	private String componentVendor = null;
+	private String componentVersion = null;
+	
 	private String entityName = null;
 
 	private String props = null;
