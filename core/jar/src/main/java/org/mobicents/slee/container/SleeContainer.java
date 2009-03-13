@@ -33,9 +33,7 @@
 
 package org.mobicents.slee.container;
 
-import java.beans.PropertyEditorManager;
 import java.io.File;
-import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 
@@ -44,16 +42,9 @@ import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.slee.ComponentID;
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
-import javax.slee.facilities.Level;
-import javax.slee.management.DeployableUnitID;
 import javax.slee.management.SleeManagementMBean;
 import javax.slee.management.SleeState;
 import javax.slee.profile.ProfileFacility;
-import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.resource.ResourceAdaptorID;
 
 import org.apache.log4j.Logger;
 import org.jboss.mx.util.MBeanProxy;
@@ -67,28 +58,19 @@ import org.mobicents.slee.container.management.SbbManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
-import org.mobicents.slee.container.management.jmx.ComponentIDArrayPropertyEditor;
-import org.mobicents.slee.container.management.jmx.ComponentIDPropertyEditor;
-import org.mobicents.slee.container.management.jmx.DeployableUnitIDPropertyEditor;
-import org.mobicents.slee.container.management.jmx.LevelPropertyEditor;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
-import org.mobicents.slee.container.management.jmx.ObjectPropertyEditor;
-import org.mobicents.slee.container.management.jmx.PropertiesPropertyEditor;
-import org.mobicents.slee.container.management.jmx.ServiceStatePropertyEditor;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
+import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorRegistrator;
 import org.mobicents.slee.container.management.xml.DefaultSleeEntityResolver;
-import org.mobicents.slee.container.profile.ProfileSpecificationIDPropertyEditor;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.resource.EventLookupFacilityImpl;
-import org.mobicents.slee.resource.ServiceLookupFacilityImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.cache.MobicentsCache;
 import org.mobicents.slee.runtime.eventrouter.EventRouter;
 import org.mobicents.slee.runtime.eventrouter.EventRouterImpl;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
-import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInterfaceFactoryImpl;
@@ -281,30 +263,8 @@ public class SleeContainer {
 		startRMIServer(this.nullActivityFactory,this.eventLookupFacility, rmiServerInterfaceMBean);
 
 		// Register property editors for the composite SLEE types so that the
-		// jboss
-		// jmx console can pass it as an argument.
-		PropertyEditorManager.registerEditor(ComponentID.class,
-				ComponentIDPropertyEditor.class);
-		PropertyEditorManager.registerEditor(Level.class,
-				LevelPropertyEditor.class);
-		PropertyEditorManager.registerEditor(Properties.class,
-				PropertiesPropertyEditor.class);
-		PropertyEditorManager.registerEditor(ProfileSpecificationID.class,
-				ProfileSpecificationIDPropertyEditor.class);
-		PropertyEditorManager.registerEditor(ComponentID[].class,
-				ComponentIDArrayPropertyEditor.class);
-		PropertyEditorManager.registerEditor(SbbID[].class,
-				ComponentIDArrayPropertyEditor.class);
-		PropertyEditorManager.registerEditor(DeployableUnitID.class,
-				DeployableUnitIDPropertyEditor.class);
-		PropertyEditorManager.registerEditor(Object.class,
-				ObjectPropertyEditor.class);
-		PropertyEditorManager.registerEditor(ServiceID.class,
-				ComponentIDPropertyEditor.class);
-		PropertyEditorManager.registerEditor(Object.class,
-				ServiceStatePropertyEditor.class);
-		PropertyEditorManager.registerEditor(ResourceAdaptorID.class,
-				ComponentIDPropertyEditor.class);	
+		// jboss jmx console can pass it as an argument.
+		new SleePropertyEditorRegistrator().register();	
 	}
 
 	/**

@@ -25,6 +25,18 @@
            	<version>${pom.version}</version>           	
 		</dependency>
 		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+           	<artifactId>descriptors</artifactId>
+           	<version>${pom.version}</version>           	
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+           	<artifactId>jmx-property-editors</artifactId>
+           	<version>${pom.version}</version>           	
+		</dependency>
+		
 		<!-- jboss -->
 				
 		<dependency>
