@@ -26,30 +26,30 @@ import org.mobicents.slee.container.management.SleeProfileManager;
 public class ConcreteProfileManagementGenerator {
 
 	private static final Logger logger = Logger.getLogger(ConcreteProfileManagementGenerator.class);
-	public static final String _INTERCEPTOR_MANAGEMENT= "profileManagementInterceptor";
-	
+	public static final String _INTERCEPTOR_MANAGEMENT = "profileManagementInterceptor";
+
 	private ProfileSpecificationComponent component = null;
-	private String cmpProfileInterfaceName =null;
+	private String cmpProfileInterfaceName = null;
 	private String managementAbstractClassName = null;
 	private String profileManagementInterfaceName = null;
-	
+
 	private ClassPool pool = component.getClassPool();
-	private CtClass cmpProfileConcreteClass =null;
+	private CtClass cmpProfileConcreteClass = null;
 	private CtClass cmpProfileInterface = null;
 	private CtClass sleeProfileManagementInterface = null;
 	private CtClass profileManagementAbstractClass = null;
 	private CtClass profileManagementInterface = null;
+
 	public ConcreteProfileManagementGenerator(ProfileSpecificationComponent component) {
 		super();
 		this.component = component;
 		ProfileSpecificationDescriptorImpl descriptor = component.getDescriptor();
-		 cmpProfileInterfaceName = descriptor.getProfileClasses().getProfileCMPInterface().getProfileCmpInterfaceName();
-		 managementAbstractClassName = descriptor.getProfileAbstractClass() == null ? null : descriptor.getProfileAbstractClass().getProfileAbstractClassName();
-		 profileManagementInterfaceName = descriptor.getProfileManagementInterface() == null ? null : descriptor.getProfileManagementInterface().getProfileManagementInterfaceName();
-		 
-		 pool = component.getClassPool();
-	}
+		cmpProfileInterfaceName = descriptor.getProfileClasses().getProfileCMPInterface().getProfileCmpInterfaceName();
+		managementAbstractClassName = descriptor.getProfileAbstractClass() == null ? null : descriptor.getProfileAbstractClass().getProfileAbstractClassName();
+		profileManagementInterfaceName = descriptor.getProfileManagementInterface() == null ? null : descriptor.getProfileManagementInterface().getProfileManagementInterfaceName();
 
+		pool = component.getClassPool();
+	}
 
 	public void generateProfileCmpConcreteClass() throws Exception {
 
@@ -60,13 +60,13 @@ public class ConcreteProfileManagementGenerator {
 
 		}
 		// pool.childFirstLookup=true;
-		
-		String tmpClassName =tmpClassName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpProfileInterfaceName + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
+
+		String tmpClassName = tmpClassName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpProfileInterfaceName + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
 		cmpProfileConcreteClass = pool.makeClass(tmpClassName);
 
 		// Implementation of the both ProfileCMP interface and the
 		// javax.slee.profile.ProfileManagement Interface.
-		
+
 		try {
 			cmpProfileInterface = pool.get(cmpProfileInterfaceName);
 
@@ -74,8 +74,6 @@ public class ConcreteProfileManagementGenerator {
 			// nfe.printStackTrace();
 			throw new DeploymentException("Failed to locate cmp interface class for " + component, nfe);
 		}
-
-		
 
 		try {
 			sleeProfileManagementInterface = pool.get("javax.slee.profile.ProfileManagement");
@@ -86,7 +84,7 @@ public class ConcreteProfileManagementGenerator {
 
 		}
 		CtClass[] interfaces = null;
-		
+
 		// if this is combination 1 or 2,
 		// the concrete class implements the CMP Profile interface
 		if (combination == 1 || combination == 2) {
@@ -115,7 +113,7 @@ public class ConcreteProfileManagementGenerator {
 				try {
 					profileManagementInterface = pool.get(profileManagementInterfaceName);
 				} catch (NotFoundException nfe) {
-					//nfe.printStackTrace();
+					// nfe.printStackTrace();
 					throw new DeploymentException("Profile management interface could not be found for " + component);
 				}
 				interfaces[2] = profileManagementInterface;
@@ -132,12 +130,12 @@ public class ConcreteProfileManagementGenerator {
 		// createDefaultConstructor();
 		// Creates the constructor with parameters
 		try {
-			String[] parameterNames = { "profileManagementInterceptor", "sleeProfileManager", "profileTable", "profileName" };
+			String[] parameterNames = { _INTERCEPTOR_MANAGEMENT, "sleeProfileManager", "profileTable", "profileName" };
 
 			CtClass[] parameters = new CtClass[] { pool.get(ProfileManagementInterceptor.class.getName()), pool.get(SleeProfileManager.class.getName()),
 
 			pool.get(String.class.getName()), pool.get(String.class.getName()) };
-			createConstructorWithParameter(parameterNames, parameters, cmpProfileConcreteClass, false,null);
+			createConstructorWithParameter(parameterNames, parameters, cmpProfileConcreteClass, false, null);
 		} catch (NotFoundException nfe) {
 
 			String s = "Unexpected Exception - could not find class. Constructor with parameters not created";
@@ -146,12 +144,12 @@ public class ConcreteProfileManagementGenerator {
 		}
 		// Generates the methods to implement from the CMPProfile interface
 		Map cmpProfileInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(cmpProfileInterface);
-		generateConcreteMethods(cmpProfileConcreteClass,profileManagementAbstractClass , cmpProfileInterfaceMethods,_INTERCEPTOR_MANAGEMENT );
+		generateConcreteMethods(cmpProfileConcreteClass, profileManagementAbstractClass, cmpProfileInterfaceMethods, _INTERCEPTOR_MANAGEMENT);
 
 		// Generates the methods to implement from the
 		// javax.slee.profile.ProfileManagement interface
 		Map profileManagementInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(sleeProfileManagementInterface);
-		generateConcreteMethods(cmpProfileConcreteClass,profileManagementAbstractClass,profileManagementInterfaceMethods, _INTERCEPTOR_MANAGEMENT);
+		generateConcreteMethods(cmpProfileConcreteClass, profileManagementAbstractClass, profileManagementInterfaceMethods, _INTERCEPTOR_MANAGEMENT);
 
 		try {
 			// @@2.4+ -> 3.4+
@@ -172,7 +170,7 @@ public class ConcreteProfileManagementGenerator {
 			// but there is instead a hierarchy mimicing the classloader
 			// hierarchy. This also makes
 			// our deployer essentially single threaded.
-			
+
 			cmpProfileConcreteClass.defrost();
 
 		}
@@ -187,15 +185,13 @@ public class ConcreteProfileManagementGenerator {
 			// Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		if(component.getProfileCmpConcreteClass()==null)
-		{
-			throw new DeploymentException("Concrete cmp itnerface class is null, could we possibly fail and not throw exception yet?, "+component);
+
+		if (component.getProfileCmpConcreteClass() == null) {
+			throw new DeploymentException("Concrete cmp itnerface class is null, could we possibly fail and not throw exception yet?, " + component);
 		}
 
 	}
-	
-	
+
 	/**
 	 * Creates a constructor with parameters<BR>
 	 * For every parameter a field of the same class is created in the concrete
@@ -209,25 +205,20 @@ public class ConcreteProfileManagementGenerator {
 	 * @param mbean
 	 *            tells if it the constructor for the mbean class
 	 */
-	 static void createConstructorWithParameter(String[] parameterNames, CtClass[] parameters,
-			CtClass concreteClass, boolean mbean,String cmpProfileInterfaceName) {
+	static void createConstructorWithParameter(String[] parameterNames, CtClass[] parameters, CtClass concreteClass, boolean mbean, String cmpProfileInterfaceName) {
 
-		CtConstructor constructorWithParameter = new CtConstructor(parameters,
-				concreteClass);
+		CtConstructor constructorWithParameter = new CtConstructor(parameters, concreteClass);
 		String constructorBody = "{";
 		if (mbean) {
-			constructorBody += "super(" + SleeContainerUtils.class.getName()
-					+ ".getCurrentThreadClassLoader().loadClass(\""
-					+ cmpProfileInterfaceName + "MBean" + "\"));";// {logger.debug(\"constructor
-																	// called\");";//
-																	// +
+			constructorBody += "super(" + SleeContainerUtils.class.getName() + ".getCurrentThreadClassLoader().loadClass(\"" + cmpProfileInterfaceName + "MBean" + "\"));";// {logger.debug(\"constructor
+			// called\");";//
+			// +
 		}
 		// "this();";
 		for (int i = 0; i < parameters.length; i++) {
-			
+
 			try {
-				CtField ctField = new CtField(parameters[i], parameterNames[i],
-						concreteClass);
+				CtField ctField = new CtField(parameters[i], parameterNames[i], concreteClass);
 				if (ctField.getName().equals("java.lang.Object"))
 					ctField.setModifiers(Modifier.PUBLIC);
 				else
@@ -246,10 +237,7 @@ public class ConcreteProfileManagementGenerator {
 			boolean isProfileManagementInterceptor = false;
 			while (j < parameters.length && !isProfileManagementInterceptor) {
 				try {
-					if (ctFields[i]
-							.getType()
-							.getName()
-							.equals(ProfileManagementInterceptor.class.getName()))
+					if (ctFields[i].getType().getName().equals(ProfileManagementInterceptor.class.getName()))
 						isProfileManagementInterceptor = true;
 				} catch (NotFoundException e1) {
 					e1.printStackTrace();
@@ -258,12 +246,9 @@ public class ConcreteProfileManagementGenerator {
 			}
 			if (isProfileManagementInterceptor) {
 				if (!mbean) {
-					constructorBody += ctFields[i].getName()
-							+ ".setProfileManager(sleeProfileManager); ";
-					constructorBody += ctFields[i].getName()
-							+ ".setProfileTableName(profileTable); ";
-					constructorBody += ctFields[i].getName()
-							+ ".setProfileName(profileName); ";
+					constructorBody += ctFields[i].getName() + ".setProfileManager(sleeProfileManager); ";
+					constructorBody += ctFields[i].getName() + ".setProfileTableName(profileTable); ";
+					constructorBody += ctFields[i].getName() + ".setProfileName(profileName); ";
 				} else {
 					constructorBody += ctFields[i].getName() + ".setProfile(profile); ";
 				}
@@ -274,7 +259,7 @@ public class ConcreteProfileManagementGenerator {
 		try {
 			concreteClass.addConstructor(constructorWithParameter);
 			constructorWithParameter.setBody(constructorBody);
-			if(logger.isDebugEnabled()) {
+			if (logger.isDebugEnabled()) {
 				logger.debug("ConstructorWithParameter created");
 			}
 		} catch (CannotCompileException e) {
@@ -282,7 +267,7 @@ public class ConcreteProfileManagementGenerator {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Generates the concrete methods of the class
 	 * 
@@ -295,26 +280,23 @@ public class ConcreteProfileManagementGenerator {
 	 *            invoke
 	 * 
 	 */
-	static void generateConcreteMethods(CtClass source,CtClass profileManagementAbstractClass, Map interfaceMethods,
-			String interceptor) {
+	static void generateConcreteMethods(CtClass source, CtClass profileManagementAbstractClass, Map interfaceMethods, String interceptor) {
 		if (interfaceMethods == null)
 			return;
 		Iterator it = interfaceMethods.values().iterator();
 		while (it.hasNext()) {
 			CtMethod interfaceMethod = (CtMethod) it.next();
-			if (interfaceMethod.getName().equals("profileInitialize")
-					|| interfaceMethod.getName().equals("profileLoad")
-					|| interfaceMethod.getName().equals("profileStore")
-					|| interfaceMethod.getName().equals("profileVerify"))
-				if (profileManagementAbstractClass == null)
-					ConcreteClassGeneratorUtils.addInterceptedMethod(source,
-							interfaceMethod, interceptor, false);
-				else
-					ConcreteClassGeneratorUtils.addInterceptedMethod(source,
-							interfaceMethod, interceptor, true);
-			else
-				ConcreteClassGeneratorUtils.addInterceptedMethod(source,
-						interfaceMethod, interceptor, false);
+			if (interfaceMethod.getName().equals("profileInitialize") || interfaceMethod.getName().equals("profileLoad") || interfaceMethod.getName().equals("profileStore")
+					|| interfaceMethod.getName().equals("profileVerify")) {
+				if (profileManagementAbstractClass == null) {
+					ConcreteClassGeneratorUtils.addInterceptedMethod(source, interfaceMethod, interceptor, false);
+				} else {
+					ConcreteClassGeneratorUtils.addInterceptedMethod(source, interfaceMethod, interceptor, true);
+				}
+			} else {
+
+				ConcreteClassGeneratorUtils.addInterceptedMethod(source, interfaceMethod, interceptor, false);
+			}
 		}
 	}
 
@@ -322,12 +304,11 @@ public class ConcreteProfileManagementGenerator {
 	 * Create the persistent object that will hold the transient state of the
 	 * profile
 	 */
-	protected void createPersistentStateHolderClass(ProfileSpecificationComponent component) throws Exception{
+	protected void createPersistentStateHolderClass(ProfileSpecificationComponent component) throws Exception {
 		// Create the class of the persistent state of the sbb
-		
+
 		ProfileSpecificationDescriptorImpl descriptor = component.getDescriptor();
-		
-	
+
 		String tmpClassName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpProfileInterfaceName + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
 		ClassPool pool = component.getClassPool();
 		String deployPath = component.getDeploymentDir().toExternalForm();
@@ -339,17 +320,13 @@ public class ConcreteProfileManagementGenerator {
 			// nfe.printStackTrace();
 			throw new DeploymentException("Failed to locate cmp interface class for " + component, nfe);
 		}
-		
-		
-		
+
 		CtClass profilePersisentStateClass = pool.makeClass(tmpClassName);
-		
+
 		try {
 			// Make the persistent state serializable : this is mandatory by the
 			// slee spec
-			ConcreteClassGeneratorUtils.createInterfaceLinks(
-					profilePersisentStateClass, new CtClass[] { pool
-							.get("java.io.Serializable") });
+			ConcreteClassGeneratorUtils.createInterfaceLinks(profilePersisentStateClass, new CtClass[] { pool.get("java.io.Serializable") });
 		} catch (NotFoundException e1) {
 			// Auto-generated catch block
 			e1.printStackTrace();
@@ -367,23 +344,17 @@ public class ConcreteProfileManagementGenerator {
 				String methodName = methods[i].getName();
 				if (methodName.startsWith("get")) {
 					if (!methodName.equals("getClass")) {
-						if(logger.isDebugEnabled()) {
-							logger
-							.debug("ConcreteProfileManagementGenerator MethodName = "
-									+ methodName);
+						if (logger.isDebugEnabled()) {
+							logger.debug("ConcreteProfileManagementGenerator MethodName = " + methodName);
 						}
 						// the lowerstring cure below is necessary to comply
 						// with JavaBean property naming conventions
-						String fieldName = methodName.substring("get".length(),
-								"get".length() + 1).toLowerCase()
-								+ methodName.substring("get".length() + 1);
+						String fieldName = methodName.substring("get".length(), "get".length() + 1).toLowerCase() + methodName.substring("get".length() + 1);
 						try {
 							CtClass fieldType = methods[i].getReturnType();
-							CtField persistentField = new CtField(fieldType,
-									fieldName, profilePersisentStateClass);
+							CtField persistentField = new CtField(fieldType, fieldName, profilePersisentStateClass);
 							persistentField.setModifiers(Modifier.PUBLIC);
-							profilePersisentStateClass
-									.addField(persistentField);
+							profilePersisentStateClass.addField(persistentField);
 						} catch (Exception e) {
 							String s = " Error generating profile";
 							logger.error(s, e);
@@ -396,40 +367,31 @@ public class ConcreteProfileManagementGenerator {
 
 		// generate the persistent state class of the sbb
 		try {
-			
+
 			profilePersisentStateClass.writeFile(deployPath);
-			
-			if(logger.isDebugEnabled()) {
-				logger
-				.debug("Concrete Class "
-						+ tmpClassName
-						+ " generated in the following path " + deployPath);
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("Concrete Class " + tmpClassName + " generated in the following path " + deployPath);
 			}
 		} catch (Exception e) {
 			logger.error("Bad error generating profile !", e);
-			throw new RuntimeException(
-					"Unrecoverable  error genrating profile", e);
-		}
-		finally {
+			throw new RuntimeException("Unrecoverable  error genrating profile", e);
+		} finally {
 			profilePersisentStateClass.defrost();
 		}
-		
+
 		try {
-			Class clazz = Thread.currentThread().getContextClassLoader().loadClass(
-					tmpClassName);
-			
-			//FIXME: ??
+			Class clazz = Thread.currentThread().getContextClassLoader().loadClass(tmpClassName);
+
+			// FIXME: ??
 			component.setProfilePersistanceTransientStateConcreteClass(clazz);
 		} catch (ClassNotFoundException e1) {
-			throw new DeploymentException("Failed to load transient class",e1);
+			throw new DeploymentException("Failed to load transient class", e1);
 		}
 	}
-
 
 	public CtClass getProfileManagementAbstractClass() {
 		return profileManagementAbstractClass;
 	}
-	
-	
-	
+
 }

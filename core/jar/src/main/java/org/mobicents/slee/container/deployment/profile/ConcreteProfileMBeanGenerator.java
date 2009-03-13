@@ -168,7 +168,7 @@ public class ConcreteProfileMBeanGenerator {
 		// createDefaultConstructor();
 		// Creates the constructor with parameters
 		try {
-			String [] parameterNames = { "profileManagementInterceptor", "profile" };
+			String [] parameterNames = { _INTERCEPTOR_MANAGEMENT, "profile" };
 			CtClass[] parametersClasses = new CtClass[] {
 					pool
 							.get("org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor"),
@@ -179,29 +179,17 @@ public class ConcreteProfileMBeanGenerator {
 			logger.error("Constructor With Parameter not created");
 			nfe.printStackTrace();
 		}
-		// JEAN not needed anymore since Buddy added superclasses method
-		// generation
-		// implements methods defined in the
-		// javax.slee.profile.ProfileManagement
-		/*
-		 * Map sleeProfileMBeanInterfaceMethods=ConcreteClassGeneratorUtils.
-		 * getInterfaceMethodsFromInterface(sleeProfileMBean);
-		 * generateConcreteMethods( profileMBeanConcreteClass,
-		 * sleeProfileMBeanInterfaceMethods, "profileManagementInterceptor");
-		 */
+	
 
 		// implements methods defined in the profileMBean interface previously
 		// generated
 		Map profileMBeanInterfaceMethods = ClassUtils
 				.getInterfaceMethodsFromInterface(profileMBeanConcreteInterface);
 
-		// Buddy
-		// Map profileMBeanInterfaceMethods=ConcreteClassGeneratorUtils.
-		// getInterfaceMethodsFromInterface(profileMBeanConcreteInterface,
-		// sleeProfileMBeanInterfaceMethods);
+
 
 		ConcreteProfileManagementGenerator.generateConcreteMethods(profileMBeanConcreteClass,profileManagementAbstractClass,
-				profileMBeanInterfaceMethods, "profileManagementInterceptor");
+				profileMBeanInterfaceMethods, _INTERCEPTOR_MANAGEMENT);
 
 		try {
 			// @@2.4+ -> 3.4+
