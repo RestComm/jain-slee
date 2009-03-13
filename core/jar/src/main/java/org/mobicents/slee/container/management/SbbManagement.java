@@ -347,11 +347,8 @@ public class SbbManagement {
 						tempCtx = (Context) tempCtx.lookup(temp);
 					}
 				}
-				if (logger.isDebugEnabled()) {
-					logger.debug("ACI factory reference binding: "
-							+ local.get(nameSize - 1) + " to "
-							+ globalFactoryName);
-				}
+				logger.warn(
+						"setupSbbEnvironment: Binding a JNDI reference to aci factory interface of "+raTypeBinding.getResourceAdaptorTypeRef());
 				String factoryRefName = local.get(nameSize - 1);
 				try {
 					tempCtx

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
 import javax.slee.SbbID;
@@ -115,58 +116,40 @@ public class DeploymentManager {
 			ConcurrentLinkedQueue<String> newDeployedComponents = new ConcurrentLinkedQueue<String>();
 
 			// Get the deployed Profile Specifications
-			ProfileSpecificationID[] sleeProfileSpecifications = sleeContainer
-					.getSleeProfileManager()
-					.getProfileSpecificationManagement()
-					.getProfileSpecificationIDs();
-
-			for (int i = 0; i < sleeProfileSpecifications.length; i++) {
-				newDeployedComponents.add(sleeProfileSpecifications[i]
-						.toString());
+			for (ComponentID componentID: sleeContainer.getComponentRepositoryImpl().getProfileSpecificationIDs()) {
+				newDeployedComponents.add(componentID.toString());
 			}
 
 			// Get the deployed Event Types
-			EventTypeID[] sleeEventTypes = sleeContainer.getEventManagement()
-					.getEventTypes();
-
-			for (int i = 0; i < sleeEventTypes.length; i++) {
-				String eventTypeIDwithDUnit = sleeEventTypes[i].toString();
-
-				newDeployedComponents.add(eventTypeIDwithDUnit.substring(0,
-						eventTypeIDwithDUnit.indexOf(",")));
+			for (ComponentID componentID: sleeContainer.getComponentRepositoryImpl().getEventComponentIDs()) {
+				newDeployedComponents.add(componentID.toString());
 			}
 
 			// Get the deployed Resource Adaptor Types
-			ResourceAdaptorTypeID[] sleeRATypes = sleeContainer
-					.getResourceManagement().getResourceAdaptorTypeIDs();
-
-			for (int i = 0; i < sleeRATypes.length; i++) {
-				newDeployedComponents.add(sleeRATypes[i].toString());
+			for (ComponentID componentID: sleeContainer.getComponentRepositoryImpl().getResourceAdaptorTypeIDs()) {
+				newDeployedComponents.add(componentID.toString());
 			}
 
 			// Get the deployed Resource Adaptors
-			ResourceAdaptorID[] sleeResourceAdaptors = sleeContainer
-					.getResourceManagement().getResourceAdaptorIDs();
-
-			for (int i = 0; i < sleeResourceAdaptors.length; i++) {
-				newDeployedComponents.add(sleeResourceAdaptors[i].toString());
+			for (ComponentID componentID: sleeContainer.getComponentRepositoryImpl().getResourceAdaptorIDs()) {
+				newDeployedComponents.add(componentID.toString());
 			}
 
 			// Get the deployed Service Building Blocks (SBBs)
-			SbbID[] sleeSBBs = sleeContainer.getSbbManagement().getSbbIDs();
-
-			for (int i = 0; i < sleeSBBs.length; i++) {
-				newDeployedComponents.add(sleeSBBs[i].toString());
+			for (ComponentID componentID: sleeContainer.getComponentRepositoryImpl().getSbbIDs()) {
+				newDeployedComponents.add(componentID.toString());
 			}
 
 			// Get the deployed Services
-			ServiceID[] sleeServices = sleeContainer.getServiceManagement()
-					.getServiceIDs();
-
-			for (int i = 0; i < sleeServices.length; i++) {
-				newDeployedComponents.add(sleeServices[i].toString());
+			for (ComponentID componentID: sleeContainer.getComponentRepositoryImpl().getServiceIDs()) {
+				newDeployedComponents.add(componentID.toString());
 			}
 
+			// Get the deployed Libraries
+			for (ComponentID componentID: sleeContainer.getComponentRepositoryImpl().getLibraryIDs()) {
+				newDeployedComponents.add(componentID.toString());
+			}
+			
 			// Get the existing Resource Adaptor Entity links
 			String[] entityNames = sleeContainer.getResourceManagement()
 					.getResourceAdaptorEntities();
