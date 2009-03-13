@@ -11,6 +11,7 @@ import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.eventrouter.ActivityEndEventImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.eventrouter.SbbInvocationState;
 import org.mobicents.slee.runtime.facilities.TimerEventImpl;
@@ -22,17 +23,40 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 public class EventRoutingTask implements Runnable {
 
 	private final static Logger logger = Logger.getLogger(EventRoutingTask.class);
-		
+	
+	/**
+	 * processing logic after an activity end event has been routed 
+	 */
+	private static final ActivityEndEventPostProcessor activityEndEventPostProcessor = new ActivityEndEventPostProcessor();
+	
+	/**
+	 * processing logic to handle a tx rollback
+	 */
+	private static final HandleRollback handleRollback = new HandleRollback();
+	
+	/**
+	 * processing logic to handle a sbb tx rollback
+	 */
+	private static final HandleSbbRollback handleSbbRollback = new HandleSbbRollback();
+	
+	/**
+	 * processing logic to handle an event as initial
+	 */
+	private static final InitialEventProcessor initialEventProcessor = new InitialEventProcessor();
+	
+	/**
+	 * processing logic to find the next sbb entity to route an event
+	 */
+	private static final NextSbbEntityFinder nextSbbEntityFinder = new NextSbbEntityFinder();
+	
+	/**
+	 * processing logic after a timer event has been routed
+	 */
+	private static final TimerEventPostProcessor timerEventPostProcessor = new TimerEventPostProcessor();
+	
 	private final SleeContainer container;
 	private final DeferredEvent de;
 	private PendingAttachementsMonitor pendingAttachementsMonitor;
-	
-	private static final ActivityEndEventPostProcessor activityEndEventPostProcessor = new ActivityEndEventPostProcessor();
-	private static final HandleRollback handleRollback = new HandleRollback();
-	private static final HandleSbbRollback handleSbbRollback = new HandleSbbRollback();
-	private static final InitialEventProcessor initialEventProcessor = new InitialEventProcessor();
-	private static final NextSbbEntityFinder nextSbbEntityFinder = new NextSbbEntityFinder();
-	private static final TimerEventPostProcessor timerEventPostProcessor = new TimerEventPostProcessor();
 	
 	public EventRoutingTask(SleeContainer container, DeferredEvent de, PendingAttachementsMonitor pendingAttachementsMonitor) {
 		super(); 
@@ -46,7 +70,7 @@ public class EventRoutingTask implements Runnable {
 			pendingAttachementsMonitor.waitTillNoTxModifyingAttachs();
 		}
 		if (routeQueuedEvent()) {
-			container.getEventRouter().processSucessfulEventRouting(de);
+			de.eventProcessingSucceed();
 		}
 	}
 
@@ -55,6 +79,7 @@ public class EventRoutingTask implements Runnable {
 	 * context
 	 * 
 	 * @param de
+	 * @return true if the event processing suceeds
 	 */
 	private boolean routeQueuedEvent() {
 		
@@ -138,7 +163,7 @@ public class EventRoutingTask implements Runnable {
 							sbbEntitiesThatHandledCurrentEvent.clear();						
 						} else {
 							gotSbb = true;
-							sbbEntitiesThatHandledCurrentEvent.add(highestPrioritySbbEntity.getSbbEntityId());
+							sbbEntitiesThatHandledCurrentEvent.add(highestPrioritySbbEntity.getSbbEntityId());							
 						}
 
 						if (gotSbb) {
@@ -148,6 +173,9 @@ public class EventRoutingTask implements Runnable {
 										.debug("Highest priority SBB entity, which is attached to the ac "+de.getActivityContextId()+" , to deliver the event: "
 												+ highestPrioritySbbEntity.getSbbEntityId());
 							}
+
+							// set the current sbb entity service id association to the thread 
+							EventRouterThreadLocals.setInvokingService(sbbEntity.getServiceId());
 
 							// CHANGE CLASS LOADER
 							invokerClassLoader = highestPrioritySbbEntity.getSbbComponent().getClassLoader();
@@ -243,6 +271,9 @@ public class EventRoutingTask implements Runnable {
 						caught = e;
 					} 
 
+					// remove the current sbb entity service id association to the thread
+					EventRouterThreadLocals.setInvokingService(null);
+					
 					// TODO emmartins review
 					
 					// do a final check to see if there is another SBB to

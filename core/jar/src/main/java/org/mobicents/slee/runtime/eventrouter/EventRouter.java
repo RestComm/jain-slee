@@ -1,9 +1,6 @@
 package org.mobicents.slee.runtime.eventrouter;
 
-import javax.slee.resource.FailureReason;
-
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
  * Interface for the container's Event Router
@@ -26,19 +23,6 @@ public interface EventRouter {
 	 * @param dE
 	 */
 	public void routeEvent(DeferredEvent dE);
-
-	/**
-	 * The procedure of an event routing completed with success.
-	 * @param dE
-	 */
-	public void processSucessfulEventRouting(DeferredEvent dE);
-
-	/**
-	 * The procedure of an event routing failed with the specified reason.
-	 * @param dE
-	 * @param reason
-	 */
-	public void processEventRoutingFailure(DeferredEvent dE,int i);
 
 	/**
 	 * The activity has started so the event router may init related runtime resources

@@ -313,7 +313,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 							+ remainingRepetitions);
 				}
 				
-				ac.fireEvent(new DeferredEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,ac,this.address));
+				ac.fireEvent(new DeferredEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,ac,this.address,sleeContainer));
 				
 				rb = false;
 			}            

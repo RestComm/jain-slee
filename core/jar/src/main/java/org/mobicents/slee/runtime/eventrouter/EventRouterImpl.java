@@ -6,12 +6,9 @@ import java.util.concurrent.Executors;
 
 import javax.slee.SLEEException;
 import javax.slee.management.SleeState;
-import javax.slee.resource.FailureReason;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTask;
 
 /**
@@ -66,49 +63,6 @@ public class EventRouterImpl implements EventRouter {
 		final EventRouterActivity era = activities.get(de.getActivityContextId());
 		era.getExecutorService().execute(new EventRoutingTask(container,de,era.getPendingAttachementsMonitor()));
 
-	}
-
-	public void processEventRoutingFailure(DeferredEvent de,
-		int failureReason) {
-		if (container.getSleeState() != SleeState.STOPPED) {
-			if (de.getActivityContextHandle().getActivityType() == ActivityType.externalActivity) {
-				ResourceAdaptorEntity raEntity;
-				try {
-					raEntity = container
-							.getResourceManagement().getResourceAdaptorEntity(
-									de.getActivityContextHandle()
-											.getActivitySource());
-					raEntity.getResourceAdaptorID().eventProcessingFailed(
-							de.getActivityContextHandle().getActivityHandle(),
-							de.getEvent(), de.getEventTypeId(), de.getAddress(), 0,
-							failureReason);
-				} catch (Exception e) {
-					logger.error("failed to notify ra of event routing failure", e);
-				}
-				
-			}			
-		}
-	}
-
-	public void processSucessfulEventRouting(DeferredEvent de) {
-		if (container.getSleeState() != SleeState.STOPPED) {
-			if (de.getActivityContextHandle().getActivityType() == ActivityType.externalActivity) {
-				ResourceAdaptorEntity raEntity;
-				try {
-					raEntity = container.getResourceManagement()
-							.getResourceAdaptorEntity(
-									de.getActivityContextHandle()
-											.getActivitySource());
-					raEntity.getResourceAdaptorID().eventProcessingSuccessful(
-							de.getActivityContextHandle().getActivityHandle(),
-							de.getEvent(),
-							de.getEventTypeId(), de.getAddress(), 0);
-				} catch (Exception e) {
-					logger.error(
-							"failed to notify ra of event routing failure", e);
-				}				
-			}			
-		}
 	}
 
 	public void activityEnded(String acId) {

@@ -9,12 +9,16 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
+import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.AlarmFacility;
+import javax.slee.facilities.FacilityException;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.SleeState;
 import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.FailureReason;
+import javax.slee.resource.FireableEventType;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
@@ -27,6 +31,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 
@@ -457,5 +462,40 @@ public class ResourceAdaptorEntity {
 	 */
 	public Set<EventTypeID> getAllowedEventTypes() {
 		return allowedEventTypes;
+	}
+
+	/**
+	 * Callback to notify the ra object that the processing for specified event succeed
+	 * @see ResourceAdaptorObject#eventProcessingSuccessful(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, Object, javax.slee.Address, ReceivableService, int)
+	 * 
+	 * @param deferredEvent
+	 */
+	public void eventProcessingSucceed(DeferredEvent deferredEvent) {
+		FireableEventType eventType = null;
+		try {
+			eventType = resourceAdaptorContext.getEventLookupFacility().getFireableEventType(deferredEvent.getEventTypeId());
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		object.eventProcessingSuccessful(deferredEvent.getActivityContextHandle().getActivityHandle(), eventType, deferredEvent.getEvent(), deferredEvent.getAddress(), deferredEvent.getReceivableService(), deferredEvent.getEventFlags());
+		
+	}
+
+	/**
+	 * Callback to notify the ra object that the processing for specified event failed.
+	 * @see ResourceAdaptorObject#eventProcessingFailed(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, Object, javax.slee.Address, ReceivableService, int, FailureReason)
+	 *  
+	 * @param deferredEvent
+	 * @param failureReason
+	 */
+	public void eventProcessingFailed(DeferredEvent deferredEvent,
+			FailureReason failureReason) {
+		FireableEventType eventType = null;
+		try {
+			eventType = resourceAdaptorContext.getEventLookupFacility().getFireableEventType(deferredEvent.getEventTypeId());
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		object.eventProcessingFailed(deferredEvent.getActivityContextHandle().getActivityHandle(), eventType, deferredEvent.getEvent(), deferredEvent.getAddress(), deferredEvent.getReceivableService(), deferredEvent.getEventFlags(),failureReason);		
 	}
 }

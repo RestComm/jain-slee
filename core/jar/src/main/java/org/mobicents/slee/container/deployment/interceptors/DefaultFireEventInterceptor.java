@@ -103,7 +103,7 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         EventTypeID eventID = sbbEntity.getSbbComponent().getDescriptor().getEventTypeID(eventName);
         
         // fire the event 
-        ac.fireEvent(new DeferredEvent(eventID,args[0],ac,(Address)args[2]));                                       
+        ac.fireEvent(new DeferredEvent(eventID,args[0],ac,(Address)args[2],sleeContainer));                                       
         
         return null;
     }

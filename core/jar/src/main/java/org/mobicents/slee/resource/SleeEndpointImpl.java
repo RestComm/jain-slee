@@ -352,7 +352,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
     		throw new UnrecognizedActivityException(handle);
     	}
     	else {        		
-    		ac.fireEvent(new DeferredEvent(eventType.getEventType(),event,ac,address,receivableService,eventFlags));
+    		ac.fireEvent(new DeferredEvent(eventType.getEventType(),event,ac,address,receivableService,eventFlags,sleeContainer));
     	} 
 	}
 	

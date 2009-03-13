@@ -21,7 +21,7 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
-import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 
 public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
@@ -33,7 +33,8 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	private final SleeContainer sleeContainer;
 	private final ServiceLookupFacility serviceLookupFacility;
 	private final EventLookupFacility eventLookupFacility;
-		
+	
+	
 	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
@@ -67,9 +68,9 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	}
 
 	public ServiceID getInvokingService() {
-		return Service.getInvokingService();
+		return EventRouterThreadLocals.getInvokingService();
 	}
-
+	
 	public ProfileTable getProfileTable(String profileTableName)
 			throws NullPointerException, UnrecognizedProfileTableNameException,
 			SLEEException {
@@ -138,4 +139,5 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 		}
 	}
 
+	
 }

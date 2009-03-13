@@ -280,7 +280,7 @@ public class Service {
 					.debug("starting service activity for "
 							+ serviceComponent);
 		}
-		ac.fireEvent(new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(getServiceID())));
+		ac.fireEvent(new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(getServiceID()),sleeContainer));
 	}
 
 	/**
@@ -349,9 +349,4 @@ public class Service {
 		return sb.toString();
 	}
 
-	public static ServiceID getInvokingService() {
-		
-	}
-
-	
 }

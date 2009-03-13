@@ -9,13 +9,10 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.slee.Address;
-import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.facilities.TimerID;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
-import javax.slee.resource.ReceivableService;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
@@ -673,7 +670,7 @@ public class ActivityContext {
 	public void end() {
 		if (getState() == ActivityContextState.ACTIVE) {
 			setState(ActivityContextState.ENDING);
-			fireDeferredEvent(new DeferredActivityEndEvent(this));	
+			fireDeferredEvent(new DeferredActivityEndEvent(this,sleeContainer));	
 		}	
 	}
 	

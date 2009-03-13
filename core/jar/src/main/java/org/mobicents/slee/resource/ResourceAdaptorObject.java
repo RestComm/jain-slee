@@ -1,8 +1,12 @@
 package org.mobicents.slee.resource;
 
+import javax.slee.Address;
+import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.FailureReason;
+import javax.slee.resource.FireableEventType;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
@@ -240,21 +244,21 @@ public class ResourceAdaptorObject {
 	}
 
 	/**
-	 * @see ResourceAdaptorEntity#getResourceAdaptorInterface(ResourceAdaptorTypeID)
+	 * @see ResourceAdaptor#getResourceAdaptorInterface(ResourceAdaptorTypeID)
 	 */
 	public Object getResourceAdaptorInterface(String className) {
 		return object.getResourceAdaptorInterface(className);
 	}
 
 	/**
-	 * @see ResourceAdaptorEntity#getMarshaller()
+	 * @see ResourceAdaptor#getMarshaller()
 	 */
 	public Marshaler getMarshaler() {
 		return object.getMarshaler();
 	}
 
 	/**
-	 * @see ResourceAdaptorEntity#serviceActive(ReceivableService)
+	 * @see ResourceAdaptor#serviceActive(ReceivableService)
 	 * @param serviceInfo
 	 */
 	public void serviceActive(ReceivableService serviceInfo) {
@@ -262,7 +266,7 @@ public class ResourceAdaptorObject {
 	}
 
 	/**
-	 * @see ResourceAdaptorEntity#serviceStopping(ReceivableService)
+	 * @see ResourceAdaptor#serviceStopping(ReceivableService)
 	 * @param serviceInfo
 	 */
 	public void serviceStopping(ReceivableService serviceInfo) {
@@ -270,7 +274,7 @@ public class ResourceAdaptorObject {
 	}
 
 	/**
-	 * @see ResourceAdaptorEntity#serviceInactive(ReceivableService)
+	 * @see ResourceAdaptor#serviceInactive(ReceivableService)
 	 * @param serviceInfo
 	 */
 	public void serviceInactive(ReceivableService serviceInfo) {
@@ -278,7 +282,7 @@ public class ResourceAdaptorObject {
 	}
 
 	/**
-	 * Retrieves the activity context handle for the specified activity object
+	 * @see ResourceAdaptor#getActivityHandle(Object)
 	 * @param activity
 	 * @return null if the activity does not belongs to this ra object
 	 */
@@ -287,7 +291,7 @@ public class ResourceAdaptorObject {
 	}
 	
 	/**
-	 * Retrieves the activity object for the specified handle
+	 * @see ResourceAdaptor#getActivity(ActivityHandle)
 	 * @param handle
 	 */
 	public Object getActivity(ActivityHandle handle) {
@@ -295,7 +299,7 @@ public class ResourceAdaptorObject {
 	}
 	
 	/**
-	 * Informs the ra object the activity for the specified handle ended
+	 * @see ResourceAdaptor#activityEnded(ActivityHandle)
 	 * @param handle
 	 */
 	public void activityEnded(ActivityHandle handle) {
@@ -303,10 +307,71 @@ public class ResourceAdaptorObject {
 	}
 
 	/**
-	 * Queries the liveness of the specified activity
+	 * @see ResourceAdaptor#administrativeRemove(ActivityHandle)
+	 * @param handle
+	 */
+    public void administrativeRemove(ActivityHandle handle) {
+    	object.administrativeRemove(handle);
+    }
+    
+    /**
+     * @see ResourceAdaptor#activityUnreferenced(ActivityHandle)
+     * @param handle
+     */
+	public void activityUnreferenced(ActivityHandle handle) {
+		object.activityUnreferenced(handle);
+	}
+	
+	/**
+	 * @see ResourceAdaptor#queryLiveness(ActivityHandle)
 	 * @param activityHandle
 	 */
 	public void queryLiveness(ActivityHandle activityHandle) {
 		object.queryLiveness(activityHandle);		
 	}
+	
+	/**
+	 * @see ResourceAdaptor#eventProcessingFailed(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int, FailureReason)
+	 * @param handle
+	 * @param eventType
+	 * @param event
+	 * @param address
+	 * @param service
+	 * @param flags
+	 * @param reason
+	 */
+    public void eventProcessingFailed(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags, FailureReason reason) {
+		object.eventProcessingFailed(handle, eventType, event, address, service, flags, reason);
+	}
+    
+    /**
+     * @see ResourceAdaptor#eventProcessingSuccessful(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
+     * @param handle
+     * @param eventType
+     * @param event
+     * @param address
+     * @param service
+     * @param flags
+     */
+    public void eventProcessingSuccessful(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
+    	if (this.state == ResourceAdaptorObjectState.ACTIVE || this.state == ResourceAdaptorObjectState.STOPPING) {
+    		object.eventProcessingSuccessful(handle, eventType, event, address, service, flags);
+    	}
+    }
+
+    /**
+     * @see ResourceAdaptor#eventUnreferenced(ActivityHandle, FireableEventType, Object, Address, ReceivableService, int)
+     * @param handle
+     * @param eventType
+     * @param event
+     * @param address
+     * @param service
+     * @param flags
+     */
+    public void eventUnreferenced(ActivityHandle handle, FireableEventType eventType, Object event, Address address, ReceivableService service, int flags) {
+    	if (this.state == ResourceAdaptorObjectState.ACTIVE || this.state == ResourceAdaptorObjectState.STOPPING) {
+    		object.eventUnreferenced(handle, eventType, event, address, service, flags);
+    	}
+    }
+
 }

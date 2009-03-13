@@ -1,23 +1,16 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
-
 package org.mobicents.slee.runtime.eventrouter;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.resource.EventFlags;
+import javax.slee.resource.FailureReason;
 import javax.slee.resource.ReceivableService;
 
-import org.jboss.logging.Logger;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityType;
 
 /**
  * A differed event. When an SBB posts an event, it winds up as one of these. When the tx commits, it actually makes it
@@ -29,9 +22,8 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandle;
  *
  */
 public class DeferredEvent {
-
-	private static Logger log = Logger.getLogger(DeferredEvent.class);
 	
+	private final SleeContainer sleeContainer;
 	private final EventTypeID eventTypeId;
 	private final String acId;
 	private final ActivityContextHandle ach;
@@ -39,25 +31,20 @@ public class DeferredEvent {
 	private final Address address;
 	private final ReceivableService receivableService;
 	private final int eventFlags;
-	
-	
+		
 	/**
 	 * the aci loaded for event routing, to be used in event handling rollbacks
 	 */
 	private ActivityContextInterface loadedAci;
 
 	public DeferredEvent(EventTypeID eventTypeId, Object event,
-			ActivityContext ac, Address address) {
-		this(eventTypeId,event,ac,address,null,EventFlags.NO_FLAGS);		
+			ActivityContext ac, Address address, SleeContainer sleeContainer) {
+		this(eventTypeId,event,ac,address,null,EventFlags.NO_FLAGS,sleeContainer);		
 	}
 	
 	public DeferredEvent(EventTypeID eventTypeId, Object event,
-			ActivityContext ac, Address address, ReceivableService receivableService, int eventFlags) {
-		if (log.isDebugEnabled()) {
-			log.debug("DeferredEvent() " + eventTypeId + "\n"
-					+ "Activity Context:" + ac.getActivityContextId());
-		}
-
+			ActivityContext ac, Address address, ReceivableService receivableService, int eventFlags,SleeContainer sleeContainer) {
+		this.sleeContainer = sleeContainer;
 		this.eventTypeId = eventTypeId;
 		this.event = event;
 		this.acId = ac.getActivityContextId();
@@ -113,5 +100,19 @@ public class DeferredEvent {
 	
 	public void setLoadedAci(ActivityContextInterface aci) {
 		this.loadedAci = aci;
+	}
+	
+	// call backs
+	
+	public void eventProcessingSucceed() {
+		if (EventFlags.hasRequestProcessingSuccessfulCallback(eventFlags) && ach.getActivityType() == ActivityType.externalActivity) {
+			sleeContainer.getResourceManagement().getResourceAdaptorEntity(ach.getActivitySource()).eventProcessingSucceed(this);
+		}
+	}
+	
+	public void eventProcessingFailed(FailureReason failureReason) {
+		if (EventFlags.hasRequestProcessingFailedCallback(eventFlags) && ach.getActivityType() == ActivityType.externalActivity) {
+			sleeContainer.getResourceManagement().getResourceAdaptorEntity(ach.getActivitySource()).eventProcessingFailed(this, failureReason);
+		}
 	}
 }

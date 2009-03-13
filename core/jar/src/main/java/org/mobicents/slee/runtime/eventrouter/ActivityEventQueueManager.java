@@ -93,9 +93,8 @@ public class ActivityEventQueueManager {
 			pendingEvents.add(dE);
 
 		} else {
-			// signal event router that processing of the event failed
-			sleeContainer.getEventRouter().processEventRoutingFailure(dE,
-					FailureReason.REASON_OTHER_REASON);
+			// processing of the event failed
+			dE.eventProcessingFailed(FailureReason.OTHER_REASON);
 		}
 	}
 
@@ -131,8 +130,8 @@ public class ActivityEventQueueManager {
 				routeActivityEndEventIfNeeded();
 			}
 		} else {
-			sleeContainer.getEventRouter().processEventRoutingFailure(dE,
-					FailureReason.REASON_OTHER_REASON);
+			// processing of the event failed
+			dE.eventProcessingFailed(FailureReason.OTHER_REASON);
 		}
 	}
 

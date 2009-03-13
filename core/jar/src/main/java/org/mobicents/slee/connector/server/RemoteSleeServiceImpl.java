@@ -104,7 +104,7 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 				if(ac == null) {
 					throw new UnrecognizedActivityException(activityHandle);
 				}
-				ac.fireEvent(new DeferredEvent(eventType,event,ac,address));
+				ac.fireEvent(new DeferredEvent(eventType,event,ac,address,sleeContainer));
 				rollback = false;
 			} catch (Throwable ex) {
 				log.error("Exception in fireEvent!", ex);
