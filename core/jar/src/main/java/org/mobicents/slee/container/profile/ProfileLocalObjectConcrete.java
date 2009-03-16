@@ -13,4 +13,13 @@ import javax.slee.profile.ProfileLocalObject;
  */
 public interface ProfileLocalObjectConcrete extends ProfileLocalObject{
 
+	/**
+	 * Set flag indicating wheather this PLO is just a snapshot.
+	 * @param isSnapshot
+	 */
+	void setSnapshot(boolean isSnapshot);
+	boolean isSnapshot();
+	
+
+
 }

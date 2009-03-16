@@ -1,16 +1,10 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source JSLEE Platform      *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
-/*
- * DefaultProfileManagementInterceptor.java
+/**
+ * Start time:09:19:21 2009-03-16<br>
+ * Project: mobicents-jainslee-server-core<br>
  * 
- * Created on Oct 4, 2004
- *
+ * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
+ *         </a>
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 package org.mobicents.slee.container.deployment.interceptors;
 
@@ -20,11 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import javax.slee.Address;
 import javax.slee.AddressPlan;
@@ -33,15 +25,19 @@ import javax.slee.SLEEException;
 import javax.slee.management.ManagementException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileImplementationException;
-import javax.slee.profile.ProfileManagement;
+
 import javax.slee.profile.ProfileVerificationException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.ClassUtils;
-import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.profile.ProfileConcrete;
+import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
+import org.mobicents.slee.container.profile.ProfileObject;
+import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
+import org.mobicents.slee.container.profile.SleeProfileManagement;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
@@ -53,1224 +49,980 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
- * @author DERUELLE Jean <a
- *         href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com </a>
- *  
+ * Start time:07:19:21 2009-03-16<br>
+ * Project: mobicents-jainslee-server-core<br>
+ * 
+ * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
+ *         </a>
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class DefaultProfileManagementInterceptor implements
-        ProfileManagementInterceptor {
-    
-	private boolean dirtyFlag = false;
-
-    private boolean profileWriteable = true;
-
-    private boolean isSbbProfile = false;
-
-    private SleeProfileManager sleeProfileManager;
-
-    private static Logger logger = Logger
-            .getLogger(DefaultProfileManagementInterceptor.class);
-
-    private Object profileTransientState = null;
-
-    private Map fieldsMap = null;
-
-    private Object profile;
-
-    private boolean profileInitialized;
-
-    private boolean profileInBackEndStorage;
-
-    private String profileTableName;
-
-    private String profileName;
-
-    /**
-     *  
-     */
-    public DefaultProfileManagementInterceptor() {
-
-    }
-
-    /**
-     * @param isSbbProfile
-     */
-    public DefaultProfileManagementInterceptor(boolean isSbbProfile) {
-        this.isSbbProfile = isSbbProfile;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#invoke(java.lang.Object,
-     *      java.lang.reflect.Method, java.lang.Object[])
-     */
-    public Object invoke(Object proxy, Method method, Object[] args)
-            throws Throwable {
-    	    	
-        SleeTransactionManager txManager = sleeProfileManager
-                .getTransactionManager();
-        
-        boolean createdTransaction = false;
-        boolean rollback = true;        
-        try {        	
-            createdTransaction = txManager.requireTransaction();            
-            Object result = processInvoke(proxy, method, args);
-            rollback = false;
-            return result;             
-        } finally {
-           if (createdTransaction) {        	   
-        	   if(rollback) {
-        		   txManager.rollback();
-        	   }
-        	   else {
-        		   txManager.commit();
-        	   }
-           }
-        }
-    }
-    
-    /**
-     * @param proxy
-     * @param method
-     * @param args
-     * @return Object result of the invocation
-     * @throws Throwable
-     */
-    private Object processInvoke(Object proxy, Method method, Object[] args)
-            throws Throwable {
-        if (profileTransientState == null) {
-            String name = proxy.getClass().getName();
-            String profileCMPInterfaceName = name
-                    .substring(
-                            ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX
-                                    .length(),
-                            name.length()
-                                    - ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX
-                                            .length());
-            String profileTransientStateClassName = ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX
-                    + profileCMPInterfaceName
-					+ ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX;
-			
-			Class profileTransientStateClass = proxy.getClass().getClassLoader().loadClass(profileTransientStateClassName);
-			profileTransientState = profileTransientStateClass.newInstance();
-            //Put all the fields into a hashmap for easier retrieval
-            populateFieldsMap();
-        }
-
-        SleeTransactionManager txManager = sleeProfileManager
-                .getTransactionManager();
-
-        /*
-         * if(removeException){ removeException=false;
-         * profileVerificationException=null; }
-         */
-        String methodName = method.getName();
-
-        //javax.slee.profile.ProfileMBean interface Methods
-        /*
-         * 10.15.3.6 isProfileDirty method
-         */
-        if (method.getName().equals("isProfileDirty")) {
-            /*
-             * The isProfileDirty method returns true if the Profile MBean
-             * object is in the read-write state and the dirty flag of the
-             * Profile Management object that caches the persistent state of the
-             * Profile returns true. This method returns false under any other
-             * situation.
-             */
-            if (logger.isDebugEnabled())
-                logger.debug("isProfileDirty called (profile=" + profileTableName + "/" + profileName
-                        + ")");
-            if (profileWriteable && dirtyFlag)
-                return new Boolean(true);
-            else
-                return new Boolean(false);
-        }
-        /*
-         * 10.15.3.5 isProfileWriteable method
-         */
-        if (method.getName().equals("isProfileWriteable")) {
-            /*
-             * The isProfileWriteable method returns true if the Profile MBean
-             * object is in the read-write state, or false if in the read-only
-             * state.
-             */
-            if (logger.isDebugEnabled())
-                logger.debug("isProfileWriteable called (profile ="
-                        + profileTableName + "/" + profileName + ")");
-            return new Boolean(profileWriteable);
-        }
-        /*
-         * 10.15.3.2 commitProfile method
-         */
-        if (method.getName().equals("commitProfile")) {
-            commitProfile();
-            // commit profile does not return a value
-            return null;
-        }
-        /*
-         * 10.15.3.3 restoreProfile method
-         */
-        if (method.getName().equals("restoreProfile")) {
-            /*
-             * The Administrator invokes the restoreProfile method if the
-             * Administrator wishes to discard changes made to the Profile
-             * Management object that caches the persistent state of a Profile.
-             * The implementation of this method rolls back any changes that
-             * have been made to the Profile Management object since the Profile
-             * MBean object entered the read-write state and moves the Profile
-             * MBean object to the read-only state. If the Profile MBean object
-             * was returned by the createProfile method (see Section 14.11),
-             * then no new Profile is created since the transaction will not
-             * commit The execution of this method must begin in the same
-             * transaction context as that begun by the createProfile or
-             * editProfile invocation that initiated the editing session, but
-             * must roll back the transaction before returning.
-             */
-            if (logger.isDebugEnabled()) {
-                logger.debug("restoreProfile called (profile =" + profileTableName + "/" + profileName
-                        + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-            /*
-             * The restoreProfile method must throw a
-             * javax.slee.InvalidStateException if the Profile MBean object is
-             * not in the read-write state.
-             */
-            if (!profileWriteable)
-                throw new InvalidStateException();
-            //rollback everything
-            //sleeProfileManager.rollbackTransaction(profileKey);
-            txManager.rollback();
-            txManager.begin();
-            //and then restore the values that were last comitted into the
-            // transient state class
-            profileLoad();
-            profileWriteable = false;
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("restoreProfile call ended");
-            }
-            return null;
-        }
-        /*
-         * SLEE 1.0 spec, 10.15.3.4 closeProfile method
-         */
-        if (method.getName().equals("closeProfile")) {
-            /*
-             * The Administrator invokes the closeProfile method when the
-             * Administrator no longer requires access to the Profile MBean
-             * object. The implementation of this method is free to deregister
-             * the Profile MBean object from the MBean Server. ( but if you do
-             * this then test # 4386 will fail! )
-             */
-            if (logger.isDebugEnabled()) {
-                logger.debug("closeProfile called (profile =" + profileTableName + "/" + profileName
-                        + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-            /*
-             * The closeProfile method must throw a
-             * javax.slee.InvalidStateException if the Profile MBean object is
-             * in the read-write state.
-             */
-            if (profileWriteable)
-                throw new InvalidStateException();
-
-            // Jean -- Should close imply unregister ? I think not.
-            //sleeProfileManager.unregisterProfileMBean(profileKey);
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("closeProfile call ended");
-            }
-            return null;
-        }
-        //Check the Profile MBean Life Cycle in the JAIN SLEE spec 1.0, section
-        // 10.16.2
-        /*
-         * 10.15.3.1 editProfile method
-         */
-        if (method.getName().equals("editProfile")) {
-            /*
-             * The Administrator invokes the editProfile method to obtain
-             * read-write access to the Profile MBean object (if the
-             * Administrator currently has read-only access to the Profile MBean
-             * object).
-             */
-            if (logger.isDebugEnabled()) {
-                logger.debug("editProfile called (profile =" + profileTableName + "/" + profileName
-                        + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            if (!profileWriteable) {
-                if (logger.isDebugEnabled())
-                    logger
-                            .debug("starting new Transaction and editing profile");
-                /*
-                 * The implementation of this method should start a new
-                 * transaction for the editing session, or perform the
-                 * equivalent function.
-                 */
-                //sleeProfileManager.startTransaction(profileKey);
-                //sleeProfileManager.startTransaction();
-                // boolean b = txManager.requireTransaction();
-                profileWriteable = true;
-                ((ProfileManagement) profile).profileLoad();
-                //if ( b ) txManager.commit();
-            }
-            /*
-             * If the Profile MBean object is already in the read-write state
-             * when this method is invoked, this method has no further effect
-             * and returns silently.
-             */
-            else {
-                logger.debug("profile already in the read/write state");
-            }
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("editProfile call ended");
-            }
-            return null;
-        }
-        //ProfileManagement Methods
-        if (method.getName().equals("markProfileDirty")) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("markProfileDirty called (profile ="
-                        + profileTableName + "/" + profileName + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            dirtyFlag = true;
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("markProfileDirty call ended");
-            }
-
-            return null;
-        }
-        if (method.getName().equals("profileInitialize")) {
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileInitialize called (profile ="
-                        + profileTableName + "/" + profileName + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            profileInitialize(proxy, method, args);
-            dirtyFlag = true;
-            profileInitialized = true;
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("profileInitialize call ended");
-            }
-            return null;
-        }
-        if (method.getName().equals("profileStore")) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileStore called (profile =" + profileTableName + "/" + profileName
-                        + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            try {
-                profileStore();
-            }
-            /*
-             * catch(ProfileVerificationException pve){
-             * profileVerificationException=pve;
-             * sleeProfileManager.rollbackTransaction(); dirtyFlag=false; throw
-             * pve; }
-             */
-            catch (Exception e) {
-                txManager.setRollbackOnly();
-                dirtyFlag = false;
-                throw e;
-            }
-            dirtyFlag = false;
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("profileStore call ended");
-            }
-
-            return null;
-        }
-        if (method.getName().equals("profileLoad")) {
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileLoad called (profile =" + profileTableName + "/" + profileName
-                        + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            profileLoad();
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("profileLoad call ended");
-            }
-
-            return null;
-        }
-        if (method.getName().equals("profileVerify")) {
-            profileVerify();
-            return null;
-        }
-        if (method.getName().equals("isProfileValid")) {
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("isProfileValid called (profile = " + profileTableName + "/" + profileName
-                        + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            if (args[0] == null) {
-                throw new NullPointerException();
-            }
-            ProfileID profileID = (ProfileID) args[0];
-            try {
-                boolean profileExist = sleeProfileManager
-                        .profileExist(profileID);
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("profileWriteable " + profileWriteable);
-                    logger.debug("dirtyFlag " + dirtyFlag);
-                    logger.debug("isProfileValid call ended");
-                }
-
-                return new Boolean(profileExist);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new SLEEException(
-                        "Profile cannot be found due to a system-level failure");
-            }
-        }
-
-        if (logger.isDebugEnabled())
-            logger.debug("before accessor " + method.getName().substring(3)
-                    + " called");
-
-        if (isAccessor(proxy, method, args)) {
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("accessor " + method.getName().substring(3)
-                        + " called");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            if (method.getName().startsWith(ClassUtils.GET_PREFIX)) {
-                if (isSbbProfile) {
-                    String attributeName = Introspector.decapitalize(method
-                            .getName().substring(3));
-                    return sleeProfileManager.getProfileAttributeValue(profileTableName, profileName, attributeName);
-                } else {
-                    final String fieldName = Introspector.decapitalize(method
-                            .getName().substring(3));
-                    Field field;
-                    if (SleeContainer.isSecurityEnabled())
-                        field = (Field) AccessController
-                                .doPrivileged(new PrivilegedAction() {
-                                    public Object run() {
-                                        try {
-                                            return profileTransientState
-                                                    .getClass()
-                                                    .getDeclaredField(fieldName);
-                                        } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                });
-                    else
-                        field = profileTransientState.getClass()
-                                .getDeclaredField(fieldName);
-
-                    if (logger.isDebugEnabled())
-                        logger.debug("accessor "
-                                + method.getName().substring(3)
-                                + " called, value="
-                                + field.get(profileTransientState));
-
-                    return field.get(profileTransientState);
-                }
-            } else {
-                if (!profileWriteable)
-                    throw new InvalidStateException();
-                //if a sbb tries to set a value, it is not authorized
-                if (isSbbProfile)
-                    throw new UnsupportedOperationException();
-                if(logger.isDebugEnabled()) {
-                	logger.debug(methodName + " value " + args[0]);
-                }
-                final String fieldName = Introspector.decapitalize(method
-                        .getName().substring(3));
-                Field field;
-                if (SleeContainer.isSecurityEnabled())
-                    field = (Field) AccessController
-                            .doPrivileged(new PrivilegedAction() {
-                                public Object run() {
-                                    try {
-                                        return profileTransientState.getClass()
-                                                .getDeclaredField(fieldName);
-                                    } catch (Exception e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                            });
-                else
-                    field = profileTransientState.getClass().getDeclaredField(
-                            fieldName);
-
-                if(logger.isDebugEnabled()) {
-                	logger.debug("setValue" + args[0]);
-                }
-                field.set(profileTransientState, args[0]);
-                dirtyFlag = true;
-                return null;
-            }
-        }
-        //logger.info(profile.getClass().getName());
-        //if none of the methods above can only be a super class
-        Class[] parameters = new Class[args.length];
-        for (int i = 0; i < args.length; i++)
-            parameters[i] = args[i].getClass();
-        if (method.getName().startsWith("set")) {
-            if (!profileWriteable)
-                throw new InvalidStateException();
-            //if a sbb tries to set a value, it is not authorized
-            if (isSbbProfile)
-                throw new UnsupportedOperationException();
-        }
-        try {
-            return callSuperMethod(profile, methodName, args);
-        } catch (Exception e) {
-            throw new ProfileImplementationException(e);
-        }
-    }
-
-    /**
-     * Default implementation for profileVerify(). See SLEE 1.0 Spec #10.9.6 and
-     * #10.15.3.2
-     * 
-     * @throws ProfileVerificationException
-     *             if the verification fails
-     * @throws SystemException
-     */
-    protected void profileVerify() throws ProfileVerificationException,
-            SystemException {
-
-        if (logger.isDebugEnabled()) {
-            logger
-                    .debug("profileVerify called (profile =" + profileTableName + "/" + profileName
-                            + ")");
-            logger.debug("profileWriteable " + profileWriteable);
-            logger.debug("dirtyFlag " + dirtyFlag);
-        }
-
-        // Verify uniqueness constraint
-        Map indexes = sleeProfileManager
-                .getProfileIndexesSpec(profileTableName);
-        Iterator iter = indexes.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            Boolean isUnisuqAttribute = (Boolean) entry.getValue();
-            if (isUnisuqAttribute.booleanValue()) {
-                // this attribute has to be verified for uniqueness
-                String attributeName = (String) entry.getKey();
-                verifyAttributeForUniqueness(attributeName);
-            }
-        }
-
-        if (profileInitialized) {
-            profileWriteable = false;
-            profileInitialized = false;
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("profileWriteable " + profileWriteable);
-            logger.debug("dirtyFlag " + dirtyFlag);
-            logger.debug("profileVerify call ended");
-        }
-    }
-
-    /**
-     * Verify if the given profile attribute is unique as described in SLEE 1.0
-     * Spec #3.3.4. An indexed attribute can only appear at most once in the
-     * Profile Table. If the Java type of the indexed attribute is an array and
-     * the unique attribute is “True”, a particular value stored in an array
-     * element can also only appear once in the Profile Table, i.e. no two array
-     * elements of the same indexed attribute stored in the same Profile or
-     * different Profiles within the same Profile Table can have the same value.
-     * If not specified, the default value is “False”. The null value is exempt
-     * from these uniqueness constraints and may appear multiple times as a
-     * value of this attribute in multiple Profiles within the Profile Table.
-     * 
-     * @throws ProfileVerificationException
-     */
-    private void verifyAttributeForUniqueness(String attributeName)
-            throws ProfileVerificationException {
-        Field field = (Field) fieldsMap.get(attributeName);
-
-        try {
-            Object value = field.get(profileTransientState);
-            if (value == null)
-                return;
-            // verify uniqueness of values within an array attribute
-            if (field.getType().isArray()) {
-                Set valueSet = new HashSet();
-                Object[] values = (Object[]) value;
-                for (int i = 0; i < values.length; i++) {
-                    if (!valueSet.add(values[i]))
-                        throw new ProfileVerificationException(
-                                "Non-unique value ("
-                                        + values[i]
-                                        + ") for unique indexed profile attribute ("
-                                        + attributeName + ")");
-                }
-            }
-
-            // verify uniqueness of attribute value among all profiles
-            /*
-             * (Ivelin) FIXME: the following check does not behave well.
-             * tests/profiles/profileverification shows the issue Collection
-             * profiles =
-             * sleeProfileManager.getProfilesByIndexedAttribute(profileTableName,
-             * attributeName, value, true); if (!profiles.isEmpty()) throw new
-             * ProfileVerificationException("Non-unique value (" + value + ")
-             * for unique indexed profile attribute (" + attributeName + "). The
-             * given profile value matches an existing profile attribute
-             * value");
-             */
-
-        } catch (Exception e) {
-            if (e instanceof ProfileVerificationException)
-                throw (ProfileVerificationException) e;
-            String err = "Failed verifyAttributeForUniqueness(" + attributeName
-                    + ")";
-            logger.warn(err, e);
-            throw new ProfileVerificationException(err, e);
-        }
-
-    }
-
-    /**
-     * The execution of the commitProfile method (and profileVerify callback
-     * methods of the Profile Management object) must run in the same
-     * transaction context as that begun by the edit- Profile invocation that
-     * initiated the editing session. The transaction should only be committed
-     * if the commitProfile method returns successfully, i.e. without throwing
-     * an exception.
-     * 
-     * The commitProfile method must throw a javax.slee.InvalidStateException if
-     * the Profile MBean object is not in the read-write state.
-     * 
-     * @throws InvalidStateException
-     *  
-     */
-    private void commitProfile() throws InvalidStateException,
-            ProfileVerificationException, ManagementException {
-        SleeTransactionManager txManager = sleeProfileManager
-                .getTransactionManager();
-        boolean b = false;
-
-        b = txManager.requireTransaction();
-
-        try {
-            if (!profileWriteable)
-                throw new InvalidStateException();
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("commitProfile called (profile =" + profileTableName + "/" + profileName
-                        + ")");
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-            }
-
-            //not storing default profile
-            if (profileName != null) {
-                ProfileID profileID = new ProfileID(profileTableName,
-                        profileName);
-                try {
-                    sleeProfileManager.commitProfile(profileID);
-                } catch (Exception e4) {
-                    logger.error(
-                            "Failed profile commit, createNode() exception. Profile : "
-                                    + profileTableName + "/" + profileName, e4);
-                    throw new ManagementException(e4.getMessage());
-                }
-            }
-            //getting last commited profile in case of update
-            ProfileManagement profileBeforeUpdate = null;
-            if (profileInBackEndStorage) {
-                try {
-                    profileBeforeUpdate = sleeProfileManager
-                            .instantiateLastCommittedProfile(profileTableName,
-                                    profileName);
-                } catch (Exception e1) {
-                    throw new ManagementException(
-                            "Failed instantiateLastCommittedProfile ", e1);
-                }
-            }
-            /*
-             * The implementation of this method must also verify that the
-             * constraints specified by the Profile Specification?s deployment
-             * descriptor, such as the uniqueness constraints placed on indexed
-             * attributes. The SLEE verifies these constraints after it invokes
-             * the profileVerify method of the Profile Management object. If any
-             * constraint is violated, then this method throws a javax.slee.
-             * profile.ProfileVerificationException, the commit attempt fails,
-             * and the Profile MBean object must remain in the read-write state.
-             */
-
-            try {
-                ((ProfileManagement) profile).profileStore();
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (e instanceof ProfileVerificationException)
-                    throw (ProfileVerificationException) e;
-                throw new ManagementException(e.getMessage());
-            }
-
-            /*
-             * The implementation of this method must invoke the profileVerify
-             * method of the Profile Management object that caches the
-             * persistent state of the Profile, and only commit the changes if
-             * the profileVerify method returns without throwing an exception.
-             * If the profileVerify method throws a
-             * javax.slee.profile.ProfileVerificationException, the commit
-             * attempt should fail, the exception is forwarded back to the
-             * management client, and the Profile MBean object must remain in
-             * the read-write state.
-             */
-            try {
-                ((ProfileManagement) profile).profileVerify();
-            } catch (Exception e) {
-                throw new ProfileVerificationException(e.getMessage());
-            }
-            /*
-             * if(profileVerificationException!=null){ removeException=true;
-             * throw profileVerificationException; }
-             */
-
-            try {
-                // persist transient state
-                persistProfile();
-            } catch (Exception e3) {
-                logger.error("Failed commitProfile, profileStore()", e3);
-                if (e3 instanceof ProfileVerificationException)
-                    throw (ProfileVerificationException) e3;
-                else
-                    throw new ManagementException(
-                            "Failed commitProfile, profileStore()", e3);
-            }
-
-            //Fire a Profile Added or Updated Event
-            SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
-
-            Address profileAddress = new Address(AddressPlan.SLEE_PROFILE,
-                    profileTableName + "/" + profileName);
-            ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
-
-            profileTableActivityContextInterfaceFactory = serviceContainer
-                	.getProfileTableActivityContextInterfaceFactory();
-            if (profileTableActivityContextInterfaceFactory == null) {
-            	final String s = "got NULL ProfileTable ACI Factory";
-            	logger.error(s);
-                throw new ManagementException(s);
-            } 
-            
-            ProfileTableActivityImpl profileTableActivity = new ProfileTableActivityImpl(
-                    new ProfileTableActivityHandle(profileTableName));
-            ActivityContextInterfaceImpl activityContextInterface;
-            try {
-                activityContextInterface = (ActivityContextInterfaceImpl) profileTableActivityContextInterfaceFactory
-                        .getActivityContextInterface(profileTableActivity);
-            } catch (Exception e1) {
-                throw new ManagementException("Failed committing profile", e1);
-            }
-            if (!profileInBackEndStorage) {
-                //Fire the added event only when the transaction commits
-                ProfileAddedEventImpl profileAddedEvent = new ProfileAddedEventImpl(
-                        profileAddress, new ProfileID(profileAddress), profile,
-                        activityContextInterface,
-                        profileTableActivityContextInterfaceFactory);
-                ActivityContext ac = activityContextInterface.getActivityContext();
-                ac.fireEvent(new DeferredEvent(
-                        profileAddedEvent.getEventTypeID(),
-                        profileAddedEvent,
-                        ac,
-                        profileAddress));
-                               
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Queued following profile added event:"
-                            + profileAddedEvent.getEventTypeID()
-                            + ",:"
-                            + activityContextInterface
-                                    .getActivityContext().getActivityContextId());
-                }
-
-                profileInBackEndStorage = true;
-            } else {
-                //Fire the updated event only when the transaction commits
-                ProfileUpdatedEventImpl profileUpdatedEvent = new ProfileUpdatedEventImpl(
-                        profileAddress, new ProfileID(profileAddress),
-                        profileBeforeUpdate, profile, activityContextInterface,
-                        profileTableActivityContextInterfaceFactory);
-                ActivityContext ac = activityContextInterface.getActivityContext();
-                ac.fireEvent(new DeferredEvent(
-                		profileUpdatedEvent.getEventTypeID(),
-                		profileUpdatedEvent,
-                        ac,
-                        profileAddress));             
-                if(logger.isDebugEnabled()) {
-                	logger.debug("Queued following updated event: "
-                
-                        + profileUpdatedEvent.getEventTypeID() + ",:"
-                        + activityContextInterface.getActivityContext().getActivityContextId());
-                }
-                profileInBackEndStorage = true;
-            }
-
-            // so far so good, time to commit the tx so that the profile is
-            // visible in the SLEE
-            try {
-                if (b)
-                    txManager.commit();
-            }
-            /*
-             * If a commit fails due to a system-level failure, the
-             * implementation of this method should throw a
-             * javax.slee.management.ManagementException to report the
-             * exceptional situation to the management client. The Profile MBean
-             * object should continue to remain in the read-write state.
-             */
-            catch (Exception e) {
-                logger.error("Failed committing profile", e);
-                try {
-                    txManager.rollback();
-                } catch (SystemException e2) {
-                    logger.error("Failed rolling back profile: "
-                            + profileTableName + "/" + profileName, e2);
-                    throw new ManagementException(e.getMessage());
-                }
-                throw new ManagementException(e.getMessage());
-            }
-            /*
-             * If a commit succeeds, the Profile MBean object should move to the
-             * read-only state. The SLEE must also fire a Profile Updated Event
-             * if a Profile has been updated (see Section 1.1). The dirty flag
-             * in the Profile Management object must also be set to false upon a
-             * successful commit.
-             */
-            profileWriteable = false;
-            dirtyFlag = false;
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("profileWriteable " + profileWriteable);
-                logger.debug("dirtyFlag " + dirtyFlag);
-                logger.debug("commitProfile call ended");
-
-            }
-
-        } finally {
-            try {
-                // if the tx was not completed by now, then there was an
-                // exception and it should roll back
-                if (b && txManager.getTransaction() != null) {
-                    txManager.rollback();
-                }
-            } catch (SystemException se) {
-                logger.error(
-                        "Failed completing profile commit due to TX access problem. Profile : "
-                                + profileTableName + "/" + profileName, se);
-                throw new ManagementException(se.getMessage());
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param object
-     * @param methodName
-     * @param args
-     * @return @throws
-     *         SecurityException
-     * @throws NoSuchMethodException
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws ProfileImplementationException
-     */
-    protected Object callSuperMethod(Object object, String methodName,
-            Object[] args) throws SecurityException, NoSuchMethodException,
-            IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException, ProfileImplementationException {
-
-        Class[] parameters = new Class[args.length];
-        for (int i = 0; i < args.length; i++)
-            if (!args[i].getClass().isPrimitive())
-                parameters[i] = getPrimitiveTypeFromClass(args[i].getClass());
-            else
-                parameters[i] = getPrimitiveTypeFromClass(args[i].getClass());
-        Method superMethod = object.getClass().getSuperclass().getMethod(
-                methodName, parameters);
-        Object result = superMethod.invoke(object, args);
-        return result;
-    }
-
-    /**
-     * 
-     * @param argumentType
-     * @return
-     */
-    public static Class getPrimitiveTypeFromClass(Class argumentType) {
-        if (argumentType.equals(Integer.class))
-            return int.class;
-        if (argumentType.equals(Boolean.class))
-            return boolean.class;
-        if (argumentType.equals(Byte.class))
-            return byte.class;
-        if (argumentType.equals(Character.class))
-            return char.class;
-        if (argumentType.equals(Double.class))
-            return double.class;
-        if (argumentType.equals(Float.class))
-            return float.class;
-        if (argumentType.equals(Long.class))
-            return long.class;
-        if (argumentType.equals(Short.class))
-            return short.class;
-        return argumentType;
-    }
-
-    /**
-     * @param proxy
-     * @param method
-     * @param args
-     * @return
-     */
-    private boolean isAccessor(Object proxy, Method method, Object[] args) {
-        String accessorName = method.getName().substring(3, 4).toLowerCase()
-                + method.getName().substring(4);
-
-        //logger.debug("isAccessor "+accessorName);
-        Field[] fields;
-        if (SleeContainer.isSecurityEnabled())
-            fields = (Field[]) AccessController
-                    .doPrivileged(new PrivilegedAction() {
-                        public Object run() {
-                            return profileTransientState.getClass()
-                                    .getDeclaredFields();
-                        }
-                    });
-        else
-            fields = profileTransientState.getClass().getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i].getName().equals(accessorName))
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Handle the call to the method profileLoad made on the proxy class
-     * generated by the SLEE. This method will look through the profile
-     * transient state class generated by the slee and load, from the the jboss
-     * cache that will look into the DB, the persistent state into the transient
-     * fields of the transient class
-     * 
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
-     * @throws SystemException
-     */
-    private void profileLoad() throws IllegalArgumentException,
-            IllegalAccessException, SystemException {
-
-        Field[] fields;
-        if (SleeContainer.isSecurityEnabled())
-            fields = (Field[]) AccessController
-                    .doPrivileged(new PrivilegedAction() {
-                        public Object run() {
-                            return profileTransientState.getClass()
-                                    .getDeclaredFields();
-                        }
-                    });
-        else
-            fields = profileTransientState.getClass().getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-
-            Object fieldValue = sleeProfileManager.getProfileAttributeValue(
-                    profileTableName, profileName, fields[i].getName());
-            String debugString = "set " + fields[i].getName() + " to value "
-                    + fieldValue;
-            if (fieldValue != null)
-                debugString += "type:" + fieldValue.getClass().getName();
-            if(logger.isDebugEnabled()) {
-            	logger.debug(debugString);
-            }
-            if (fieldValue == null && fields[i].getType().isPrimitive())
-                fields[i].set(profileTransientState, getDefautValue(fields[i]
-                        .getType()));
-            else
-                fields[i].set(profileTransientState, fieldValue);
-        }
-    }
-
-    /**
-     * Handle the call to the method profileStore made on the proxy class
-     * generated by the SLEE.
-     * 
-     * By default it does nothing. A custom implementation should update all
-     * profile CMP fields from any transient data
-     */
-    private void profileStore() {
-        // NOP
-    }
-
-    /**
-     * Handle the call to the method profileInitialize made on the proxy class
-     * generated by the SLEE. This method will look through the profile
-     * transient state class generated by the slee and initialize the fields of
-     * this class.
-     * 
-     * @param proxy
-     *            the proxy class on which has been called the method
-     * @param method
-     *            the method that has been called on the proxy class
-     * @param args
-     *            the args values of the method call
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
-     */
-    private void profileInitialize(Object proxy, Method method, Object[] args)
-            throws IllegalArgumentException, IllegalAccessException {
-
-        Field[] fields;
-        if (SleeContainer.isSecurityEnabled())
-            fields = (Field[]) AccessController
-                    .doPrivileged(new PrivilegedAction() {
-                        public Object run() {
-                            return profileTransientState.getClass()
-                                    .getDeclaredFields();
-                        }
-                    });
-        else
-            fields = profileTransientState.getClass().getDeclaredFields();
-        if (fields != null) {
-            for (int i = 0; i < fields.length; i++) {
-                fields[i].set(profileTransientState, getDefautValue(fields[i]
-                        .getType()));
-            }
-        }
-    }
-
-    /**
-     * Get the default value set for a profile attribute depending of his type
-     * 
-     * @param fieldType
-     *            the profile attribute type
-     * @return the default valu
-     */
-    private Object getDefautValue(Class fieldType) {
-        // Handle all primitives types
-        if (fieldType.equals(int.class))
-            return new Integer(0);
-        if (fieldType.equals(long.class))
-            return new Long(0);
-        if (fieldType.equals(double.class))
-            return new Double(0);
-        if (fieldType.equals(short.class))
-            return new Short(new Integer(0).shortValue());
-        if (fieldType.equals(float.class))
-            return new Float(0);
-        if (fieldType.equals(char.class))
-            return new Character(' ');
-        if (fieldType.equals(boolean.class))
-            return new Boolean(false);
-        if (fieldType.equals(byte.class))
-            return new Byte(new Integer(0).byteValue());
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#setProfileManager(gov.nist.slee.container.profile.SleeProfileManager)
-     */
-    public void setProfileManager(SleeProfileManager sleeProfileManager) {
-        this.sleeProfileManager = sleeProfileManager;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#getProfileManager()
-     */
-    public SleeProfileManager getProfileManager() {
-        return sleeProfileManager;
-    }
-
-    public void copyStateFromDefaultProfile(String profileCMPInterfaceName, ClassLoader profileSpecClassLoader) throws ManagementException {
-        if (profileTransientState == null) {
-            String profileTransientStateClassName = profileCMPInterfaceName
-                    + "TransientState";
-            try {
-                
-                Class profileTransientStateClass = profileSpecClassLoader
-                        .loadClass(profileTransientStateClassName);
-                profileTransientState = profileTransientStateClass
-                        .newInstance();
-                //copy state from default profile
-                Field[] fields;
-                if (SleeContainer.isSecurityEnabled())
-                    fields = (Field[]) AccessController
-                            .doPrivileged(new PrivilegedAction() {
-                                public Object run() {
-                                    return profileTransientState.getClass()
-                                            .getDeclaredFields();
-                                }
-                            });
-                else
-                    fields = profileTransientState.getClass()
-                            .getDeclaredFields();
-                for (int i = 0; i < fields.length; i++) {
-                    Object fieldValue = sleeProfileManager
-                            .getProfileAttributeValue(profileTableName,null,
-                                    fields[i].getName());
-                    fields[i].set(profileTransientState, fieldValue);
-                }
-                populateFieldsMap();
-            } catch (Exception e) {
-                logger.error(e.getMessage(),e);
-                throw new ManagementException(
-                        "State cannot be copied from the default Profile.");
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#setProfile(java.lang.Object)
-     */
-    public void setProfile(Object profile) {
-        this.profile = profile;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#getProfile()
-     */
-    public Object getProfile() {
-        return this.profile;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor#loadStateFromBackendStorage()
-     */
-    public void loadStateFromBackendStorage(String profileCMPInterfaceName, ClassLoader profileSpecClassLoader)
-            throws Exception {
-    	if(logger.isDebugEnabled()) {
-    		logger.debug("loading profile data from backend storage");
-    	}
-        if (profileTransientState == null) {
-            String profileTransientStateClassName = ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX
-                    + profileCMPInterfaceName
-                    + ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX;
-            
-            Class profileTransientStateClass = profileSpecClassLoader
-                    .loadClass(profileTransientStateClassName);
-            profileTransientState = profileTransientStateClass.newInstance();
-
-            populateFieldsMap();
-        }
-        profileLoad();
-        profileWriteable = false;
-        profileInBackEndStorage = true;
-    }
-
-    /**
-     *  
-     */
-    private void populateFieldsMap() {
-        //Put all Profile attributes into a hashmap for easier retrieval
-        fieldsMap = new HashMap();
-        Field[] fields = (Field[]) AccessController
-                .doPrivileged(new PrivilegedAction() {
-                    public Object run() {
-                        return profileTransientState.getClass()
-                                .getDeclaredFields();
-                    }
-                });
-        for (int i = 0; i < fields.length; i++) {
-            fieldsMap.put(fields[i].getName(), fields[i]);
-        }
-    }
-
-    public void setProfileTableName(String newProfileTableName) {
-        profileTableName = newProfileTableName;
-    }
-
-    public String getProfileTableName() {
-        return profileTableName;
-    }
-
-    public void setProfileName(String newProfileName) {
-        profileName = newProfileName;
-    }
-
-    public String getProfileName() {
-        return profileName;
-    }
-
-    /**
-     * Persist CMP attributes of a profile. This method will look through the
-     * CMP fields in the transient state class generated by the slee and store
-     * the fields of this class into the persistent storage.
-     * 
-     * @param profileTransientState
-     * @throws Exception
-     */
-    public void persistProfile() throws Exception {
-        Field[] fields;
-        if (SleeContainer.isSecurityEnabled())
-            fields = (Field[]) AccessController
-                    .doPrivileged(new PrivilegedAction() {
-                        public Object run() {
-                            return profileTransientState.getClass()
-                                    .getDeclaredFields();
-                        }
-                    });
-        else
-            fields = profileTransientState.getClass().getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            Object fieldValue = fields[i].get(profileTransientState);
-            sleeProfileManager.setProfileAttributeValue(profileTableName, profileName, fields[i]
-                    .getName(), fieldValue);
-        }
-    }
+public class DefaultProfileManagementInterceptor implements ProfileManagementInterceptor {
+
+	private static final Logger logger = Logger.getLogger(ProfileManagementInterceptor.class);
+	public static final String COMMIT_METHOD_NAME = "commitChanges";
+	/**
+	 * Object for which we intercept - concrete impl of CMP interface
+	 */
+	private Object profile = null;
+	/**
+	 * Profile Object for which this interceptor works.
+	 */
+	private ProfileObject profileObject = null;
+	private Object profileTransientState = null;
+	private Object profileContext = null;
+	private SleeProfileManagement sleeProfileManagement = null;
+	private String profileName = null;
+	private String profileTableName = null;
+	private ProfileSpecificationComponent profileSpecificationComponent = null;
+
+	private Map<String, Field> fieldsMap = null;
+
+	/**
+	 * Flag indicating that profile has been modified, if so, we should store.
+	 */
+	private boolean modified = false;
+
+	/**
+	 * This flag points to ProfileMBean. it is used to determine if profiel has
+	 * been edited.
+	 */
+	private boolean writeable = false;
+
+	private boolean profileInBackEndStorage = false;
+
+	public void setProfileInBackEndStorage(boolean profileInBackEndStorage) {
+		this.profileInBackEndStorage = profileInBackEndStorage;
+	}
+
+	public Object getProfile() {
+		return this.profile;
+	}
+
+	public ProfileObject getProfileObject() {
+		return profileObject;
+	}
+
+	public void setProfileObject(ProfileObject profileObject) {
+		this.profileObject = profileObject;
+	}
+
+	public SleeProfileManagement getProfileManagement() {
+		return this.sleeProfileManagement;
+	}
+
+	public String getProfileName() {
+		return this.profileName;
+	}
+
+	public String getProfileTableName() {
+		return this.profileTableName;
+	}
+
+	public void setProfile(Object profile) {
+		this.profile = profile;
+	}
+
+	public void setProfileManager(SleeProfileManagement profileManagement) {
+		this.sleeProfileManagement = profileManagement;
+
+	}
+
+	public void setProfileName(String profileName) {
+		this.profileName = profileName;
+
+	}
+
+	public void setProfileSpecificationComponent(ProfileSpecificationComponent profileSpecificationComponent) {
+		this.profileSpecificationComponent = profileSpecificationComponent;
+
+	}
+
+	public ProfileSpecificationComponent getProfileSpecificationComponent() {
+		return this.profileSpecificationComponent;
+	}
+
+	public void setProfileTableName(String profileTableName) {
+		this.profileTableName = profileTableName;
+
+	}
+
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		SleeTransactionManager txManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
+
+		boolean createdTransaction = false;
+		boolean rollback = true;
+		try {
+			createdTransaction = txManager.requireTransaction();
+			Object result = processInvoke(proxy, method, args);
+			rollback = false;
+			return result;
+		} finally {
+			if (createdTransaction) {
+				if (rollback) {
+					txManager.rollback();
+				} else {
+					txManager.commit();
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param proxy
+	 * @param method
+	 * @param args
+	 * @return Object result of the invocation
+	 * @throws Throwable
+	 */
+	private Object processInvoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+		// FIXME: should we change CL here? in case of call from MBean we
+		// propably wont have to. however if its from Sbb ?
+		Thread runningThread = Thread.currentThread();
+		ClassLoader oldClassLoader = runningThread.getContextClassLoader();
+		runningThread.setContextClassLoader(this.profileSpecificationComponent.getClassLoader());
+		SleeTransactionManager transactionManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
+		try {
+			if (profileTransientState == null) {
+
+				// This should be legal?
+				Class profileTransientStateClass = this.profileSpecificationComponent.getProfilePersistanceTransientStateConcreteClass();
+				profileTransientState = profileTransientStateClass.newInstance();
+				// Put all the fields into a hashmap for easier retrieval
+				populateFieldsMap();
+
+			}
+
+			String methodName = method.getName();
+			// lets run through methods
+			if (logger.isDebugEnabled()) {
+				logger.debug("Profile Management. Method: " + methodName + " args:" + (args == null ? null : Arrays.toString(args)) + ", state: " + this);
+			}
+
+			/*
+			 * 10.26.3.6 isProfileDirty method
+			 */
+			if (method.getName().equals("isProfileDirty")) {
+				/*
+				 * The isProfileDirty method returns true if the Profile MBean
+				 * object is in the read-write state and the dirty flag of the
+				 * Profile Management object that caches the persistent state of
+				 * the Profile returns true. This method returns false under any
+				 * other situation.
+				 */
+				if (logger.isDebugEnabled())
+					logger.debug("isProfileDirty called (profile=" + profileTableName + "/" + profileName + ")");
+				if (this.writeable && this.modified)
+					return new Boolean(true);
+				else
+					return new Boolean(false);
+			}
+			/*
+			 * 10.26.3.5 isProfileWriteable method
+			 */
+			if (method.getName().equals("isProfileWriteable")) {
+				/*
+				 * The isProfileWriteable method returns true if the Profile
+				 * MBean object is in the read-write state, or false if in the
+				 * read-only state.
+				 */
+				if (logger.isDebugEnabled())
+					logger.debug("isProfileWriteable called (profile =" + profileTableName + "/" + profileName + ")");
+				return new Boolean(this.writeable);
+			}
+			/*
+			 * 10.26.3.2 commitProfile method
+			 */
+			if (method.getName().equals("commitProfile")) {
+				commitProfile();
+				// commit profile does not return a value
+				return null;
+			}
+			/*
+			 * 10.26.3.3 restoreProfile method
+			 */
+			if (method.getName().equals("restoreProfile")) {
+				/*
+				 * The Administrator invokes the restoreProfile method if the
+				 * Administrator wishes to discard changes made to the Profile
+				 * Management object that caches the persistent state of a
+				 * Profile. The implementation of this method rolls back any
+				 * changes that have been made to the Profile Management object
+				 * since the Profile MBean object entered the read-write state
+				 * and moves the Profile MBean object to the read-only state. If
+				 * the Profile MBean object was returned by the createProfile
+				 * method (see Section 14.11), then no new Profile is created
+				 * since the transaction will not commit The execution of this
+				 * method must begin in the same transaction context as that
+				 * begun by the createProfile or editProfile invocation that
+				 * initiated the editing session, but must roll back the
+				 * transaction before returning.
+				 */
+				if (logger.isDebugEnabled()) {
+					logger.debug("restoreProfile called (profile =" + profileTableName + "/" + profileName + ")");
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+				}
+				/*
+				 * The restoreProfile method must throw a
+				 * javax.slee.InvalidStateException if the Profile MBean object
+				 * is not in the read-write state.
+				 */
+				if (!this.writeable)
+					throw new InvalidStateException();
+				// rollback everything
+				// sleeProfileManager.rollbackTransaction(profileKey);
+				transactionManager.rollback();
+				transactionManager.begin();
+				// and then restore the values that were last comitted into the
+				// transient state class
+				profileLoad();
+				this.writeable = false;
+				if (logger.isDebugEnabled()) {
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+					logger.debug("restoreProfile call ended");
+				}
+				return null;
+			}
+			/*
+			 * SLEE 1.1 spec, 10.26.3.4 closeProfile method
+			 */
+			if (method.getName().equals("closeProfile")) {
+				/*
+				 * The Administrator invokes the closeProfile method when the
+				 * Administrator no longer requires access to the Profile MBean
+				 * object. The implementation of this method is free to
+				 * deregister the Profile MBean object from the MBean Server. (
+				 * but if you do this then test # 4386 will fail! )
+				 */
+				if (logger.isDebugEnabled()) {
+					logger.debug("closeProfile called (profile =" + profileTableName + "/" + profileName + ")");
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+				}
+				/*
+				 * The closeProfile method must throw a
+				 * javax.slee.InvalidStateException if the Profile MBean object
+				 * is in the read-write state.
+				 */
+				if (this.writeable)
+					throw new InvalidStateException();
+
+				// Jean -- Should close imply unregister ? I think not.
+				// sleeProfileManager.unregisterProfileMBean(profileKey);
+				if (logger.isDebugEnabled()) {
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+					logger.debug("closeProfile call ended");
+				}
+				return null;
+			}
+			// Check the Profile MBean Life Cycle in the JAIN SLEE spec 1.1
+			/*
+			 * 10.26.3.1 editProfile method
+			 */
+			if (method.getName().equals("editProfile")) {
+				/*
+				 * The Administrator invokes the editProfile method to obtain
+				 * read-write access to the Profile MBean object (if the
+				 * Administrator currently has read-only access to the Profile
+				 * MBean object).
+				 */
+				if (logger.isDebugEnabled()) {
+					logger.debug("editProfile called (profile =" + profileTableName + "/" + profileName + ")");
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+				}
+
+				if (!this.writeable) {
+					if (logger.isDebugEnabled())
+						logger.debug("starting new Transaction and editing profile");
+					/*
+					 * The implementation of this method should start a new
+					 * transaction for the editing session, or perform the
+					 * equivalent function.
+					 */
+					// sleeProfileManager.startTransaction(profileKey);
+					// sleeProfileManager.startTransaction();
+					// boolean b = txManager.requireTransaction();
+					this.writeable = true;
+					this.profileObject.profileLoad();
+					// if ( b ) txManager.commit();
+				}
+				/*
+				 * If the Profile MBean object is already in the read-write
+				 * state when this method is invoked, this method has no further
+				 * effect and returns silently.
+				 */
+				else {
+					logger.debug("profile already in the read/write state");
+				}
+				if (logger.isDebugEnabled()) {
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+					logger.debug("editProfile call ended");
+				}
+				return null;
+			}
+			// ProfileManagement Methods
+			if (method.getName().equals("markProfileDirty")) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("markProfileDirty called (profile =" + profileTableName + "/" + profileName + ")");
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+				}
+
+				this.modified = true;
+
+				if (logger.isDebugEnabled()) {
+					logger.debug("profileWriteable " + this.writeable);
+					logger.debug("dirtyFlag " + this.modified);
+					logger.debug("markProfileDirty call ended");
+				}
+
+				return null;
+			}
+
+			if (methodName.compareTo("setProfileContext") == 0) {
+				// XXX: npe check is done when ProfileObject is created.
+
+				this.profileContext = args[0];
+				return null;
+			}
+			if (methodName.compareTo("getProfileContext") == 0) {
+				return this.profileContext;
+
+			}
+			if (methodName.compareTo("profileInitialize") == 0) {
+				profileInitialize(proxy, method, args);
+				this.modified = true;
+
+				return null;
+
+			}
+
+			if (methodName.compareTo("profilePostCreate") == 0) {
+				// FIXME: is there anything we should do? this is called once
+				// state is copied from default profile for newwly created
+				// profile. for now we do nothing, but just in case lets clear
+				return null;
+			}
+
+			// This is called when ProfileObject changes its "affinity", meaning
+			// it possibly can change profile for which it , we need to load,
+			// load MUST run in transaction so.
+			if (methodName.compareTo("profileActivate") == 0) {
+				// This method is invoked with an unspecified transaction
+				// context. The Profile object cannot access its persistent CMP
+				// state or invoke mandatory transactional methods during this
+				// method invocation. FIXME: how can we ensure that no TX
+				// methods are called ?
+
+				// FIXME: should we call load here from PO?
+				this.modified = false;
+				this.profileStore();
+				return null;
+			}
+
+			if (methodName.compareTo("profilePassivate") == 0) {
+				// This method is invoked with an unspecified transaction
+				// context. The Profile object cannot access its persistent CMP
+				// state or invoke mandatory transactional methods during this
+				// method invocation. FIXME: how can we ensure that no TX
+				// methods are called ?
+
+				if (this.modified) {
+					this.modified = false;
+					this.profileStore();
+				}
+				return null;
+			}
+
+			if (methodName.compareTo("profileLoad") == 0) {
+
+				// FIXME: mandate transaction
+				try {
+					transactionManager.mandateTransaction();
+				} catch (Exception e) {
+					throw new SLEEException("There is no runnign transaction", e);
+				}
+
+				profileLoad();
+
+				return null;
+			}
+
+			if (methodName.compareTo("profileStore") == 0) {
+
+				// FIXME: mandate transaction
+				try {
+					transactionManager.mandateTransaction();
+				} catch (Exception e) {
+					throw new SLEEException("There is no runnign transaction", e);
+				}
+
+				profileStore();
+
+				return null;
+			}
+
+			if (methodName.compareTo("profileRemove") == 0) {
+
+				// FIXME: mandate transaction
+				try {
+					transactionManager.mandateTransaction();
+				} catch (Exception e) {
+					throw new SLEEException("There is no runnign transaction", e);
+				}
+				this.modified = false;
+				profileRemove();
+
+				return null;
+			}
+
+			if (methodName.compareTo("profileVerify") == 0) {
+
+				// FIXME: mandate transaction
+				try {
+					transactionManager.mandateTransaction();
+				} catch (Exception e) {
+					throw new SLEEException("There is no runnign transaction", e);
+				}
+				// FIXME: profileStore() must be invoked withing the same
+				// transaction??
+				this.profileObject.profileStore();
+				profileVerify();
+
+				return null;
+			}
+
+			if (methodName.compareTo(this.COMMIT_METHOD_NAME) == 0) {
+				try {
+					transactionManager.mandateTransaction();
+					commitChanges();
+				} catch (Exception e) {
+					throw new SLEEException("There is no runnign transaction", e);
+				}
+
+				return null;
+
+			}
+
+			if (isAccessor(proxy, method, args)) {
+
+				if (this.profileObject.isCanAccessCMP()) {
+					throw new IllegalStateException("Can not access CMP state at this time.");
+				}
+
+				if (method.getName().startsWith(ClassUtils.GET_PREFIX)) {
+
+					final String fieldName = Introspector.decapitalize(method.getName().substring(3));
+					Field field;
+					if (SleeContainer.isSecurityEnabled())
+						field = (Field) AccessController.doPrivileged(new PrivilegedAction() {
+							public Object run() {
+								try {
+									return profileTransientState.getClass().getDeclaredField(fieldName);
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+						});
+					else
+						field = profileTransientState.getClass().getDeclaredField(fieldName);
+
+					if (logger.isDebugEnabled())
+						logger.debug("accessor " + method.getName().substring(3) + " called, value=" + field.get(profileTransientState));
+
+					return field.get(profileTransientState);
+
+				} else {
+
+					//
+					if (!this.writeable && this.profileObject.isManagementView())
+						throw new InvalidStateException();
+					// if a sbb tries to set a value, it is not authorized
+					if (!this.profileObject.isManagementView() && this.profileObject.isProfileWriteable())
+						throw new UnsupportedOperationException();
+					if (logger.isDebugEnabled()) {
+						logger.debug(methodName + " value " + args[0]);
+					}
+					final String fieldName = Introspector.decapitalize(method.getName().substring(3));
+					Field field;
+					if (SleeContainer.isSecurityEnabled())
+						field = (Field) AccessController.doPrivileged(new PrivilegedAction() {
+							public Object run() {
+								try {
+									return profileTransientState.getClass().getDeclaredField(fieldName);
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+						});
+					else
+						field = profileTransientState.getClass().getDeclaredField(fieldName);
+
+					if (logger.isDebugEnabled()) {
+						logger.debug("setValue" + args[0]);
+					}
+					field.set(profileTransientState, args[0]);
+					this.modified = true;
+					return null;
+				}
+			}
+
+			// FIXME: is this even allowed ?
+			Class[] parameters = new Class[args.length];
+			for (int i = 0; i < args.length; i++)
+				parameters[i] = args[i].getClass();
+			if (method.getName().startsWith("set")) {
+				if (this.profileObject.isCanAccessCMP()) {
+					throw new IllegalStateException("Can not access CMP state at this time.");
+				}
+				if (!this.writeable && this.profileObject.isManagementView())
+					throw new InvalidStateException();
+				// if a sbb tries to set a value, it is not authorized
+				if (!this.profileObject.isManagementView() && this.profileObject.isProfileWriteable())
+					throw new UnsupportedOperationException();
+				this.modified = true;
+			}
+			try {
+				return callSuperMethod(profile, methodName, args);
+			} catch (Exception e) {
+				throw new ProfileImplementationException(e);
+			}
+
+		} finally {
+			runningThread.setContextClassLoader(oldClassLoader);
+		}
+	}
+
+	// ##################
+	// # Helper methods #
+	// ##################
+	private void profileVerify() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void profileRemove() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void profileStore() {
+
+	}
+
+	/**
+	 * This method loads profile transient state from backend storage
+	 */
+	private void profileLoad() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void commitChanges() {
+		// TODO Auto-generated method stub
+		if(this.modified)
+		{
+			//FIXME: add update DB
+		}
+		this.modified = false;
+
+	}
+
+	
+	
+	/**
+	 * 
+	 * @param object
+	 * @param methodName
+	 * @param args
+	 * @return @throws SecurityException
+	 * @throws NoSuchMethodException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws ProfileImplementationException
+	 */
+	protected Object callSuperMethod(Object object, String methodName, Object[] args) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
+			InvocationTargetException, ProfileImplementationException {
+
+		Class[] parameters = new Class[args.length];
+		for (int i = 0; i < args.length; i++)
+			if (!args[i].getClass().isPrimitive())
+				parameters[i] = getPrimitiveTypeFromClass(args[i].getClass());
+			else
+				parameters[i] = getPrimitiveTypeFromClass(args[i].getClass());
+		Method superMethod = object.getClass().getSuperclass().getMethod(methodName, parameters);
+		Object result = superMethod.invoke(object, args);
+		return result;
+	}
+
+	/**
+	 * 
+	 * @param argumentType
+	 * @return
+	 */
+	public static Class getPrimitiveTypeFromClass(Class argumentType) {
+		if (argumentType.equals(Integer.class))
+			return int.class;
+		if (argumentType.equals(Boolean.class))
+			return boolean.class;
+		if (argumentType.equals(Byte.class))
+			return byte.class;
+		if (argumentType.equals(Character.class))
+			return char.class;
+		if (argumentType.equals(Double.class))
+			return double.class;
+		if (argumentType.equals(Float.class))
+			return float.class;
+		if (argumentType.equals(Long.class))
+			return long.class;
+		if (argumentType.equals(Short.class))
+			return short.class;
+		return argumentType;
+	}
+
+	/**
+	 * @param proxy
+	 * @param method
+	 * @param args
+	 * @return
+	 */
+	private boolean isAccessor(Object proxy, Method method, Object[] args) {
+		String fieldName = method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Looking up field for method: " + method.getName() + ", deducted field name: " + fieldName + ", field map: " + this.fieldsMap);
+		}
+
+		return this.fieldsMap.containsKey(fieldName);
+	}
+
+	/**
+	 * The execution of the commitProfile method (and profileVerify callback
+	 * methods of the Profile Management object) must run in the same
+	 * transaction context as that begun by the edit- Profile invocation that
+	 * initiated the editing session. The transaction should only be committed
+	 * if the commitProfile method returns successfully, i.e. without throwing
+	 * an exception.
+	 * 
+	 * The commitProfile method must throw a javax.slee.InvalidStateException if
+	 * the Profile MBean object is not in the read-write state.
+	 * 
+	 * @throws InvalidStateException
+	 * 
+	 */
+	private void commitProfile() throws InvalidStateException, ProfileVerificationException, ManagementException {
+		SleeTransactionManager txManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
+		boolean b = false;
+
+		b = txManager.requireTransaction();
+
+		try {
+			if (!this.writeable)
+				throw new InvalidStateException();
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("commitProfile called (profile =" + profileTableName + "/" + profileName + ")");
+				logger.debug("profileWriteable " + this.writeable);
+				logger.debug("dirtyFlag " + this.modified);
+			}
+
+			// not storing default profile
+			// getting last commited profile in case of update
+			ProfileLocalObjectConcrete profileBeforeUpdate = null;
+			if (this.isProfileInBackEndStorage()) {
+				try {
+					ProfileTableConcreteImpl profileTable = (ProfileTableConcreteImpl) this.sleeProfileManagement.getProfileTable(this.getProfileTableName(), this.getProfileSpecificationComponent()
+							.getProfileSpecificationID());
+					profileBeforeUpdate = (ProfileLocalObjectConcrete) profileTable.find(this.getProfileName(), true);
+					profileBeforeUpdate.setSnapshot(true);
+
+				} catch (Exception e1) {
+					throw new ManagementException("Failed instantiateLastCommittedProfile ", e1);
+				}
+			}
+			/*
+			 * The implementation of this method must also verify that the
+			 * constraints specified by the Profile Specification?s deployment
+			 * descriptor, such as the uniqueness constraints placed on indexed
+			 * attributes. The SLEE verifies these constraints after it invokes
+			 * the profileVerify method of the Profile Management object. If any
+			 * constraint is violated, then this method throws a javax.slee.
+			 * profile.ProfileVerificationException, the commit attempt fails,
+			 * and the Profile MBean object must remain in the read-write state.
+			 */
+
+			try {
+				this.profileObject.profileStore();
+			} catch (Exception e) {
+				e.printStackTrace();
+				if (e instanceof ProfileVerificationException)
+					throw (ProfileVerificationException) e;
+				throw new ManagementException(e.getMessage());
+			}
+
+			/*
+			 * The implementation of this method must invoke the profileVerify
+			 * method of the Profile Management object that caches the
+			 * persistent state of the Profile, and only commit the changes if
+			 * the profileVerify method returns without throwing an exception.
+			 * If the profileVerify method throws a
+			 * javax.slee.profile.ProfileVerificationException, the commit
+			 * attempt should fail, the exception is forwarded back to the
+			 * management client, and the Profile MBean object must remain in
+			 * the read-write state.
+			 */
+			// FIXME: add different check?
+			if (this.getProfileName() != null || this.profileObject.isSbbInvoked())
+				try {
+					this.profileObject.profileVerify();
+				} catch (Exception e) {
+					throw new ProfileVerificationException(e.getMessage());
+				}
+			/*
+			 * if(profileVerificationException!=null){ removeException=true;
+			 * throw profileVerificationException; }
+			 */
+
+			try {
+				// persist transient state
+				commitChanges();
+			} catch (Exception e3) {
+				logger.error("Failed commitProfile, profileStore()", e3);
+				if (e3 instanceof ProfileVerificationException)
+					throw (ProfileVerificationException) e3;
+				else
+					throw new ManagementException("Failed commitProfile, profileStore()", e3);
+			}
+
+			// Fire a Profile Added or Updated Event
+			SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
+
+			Address profileAddress = new Address(AddressPlan.SLEE_PROFILE, profileTableName + "/" + profileName);
+			ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
+
+			profileTableActivityContextInterfaceFactory = serviceContainer.getProfileTableActivityContextInterfaceFactory();
+			if (profileTableActivityContextInterfaceFactory == null) {
+				final String s = "got NULL ProfileTable ACI Factory";
+				logger.error(s);
+				throw new ManagementException(s);
+			}
+
+			ProfileTableActivityImpl profileTableActivity = new ProfileTableActivityImpl(new ProfileTableActivityHandle(profileTableName));
+			ActivityContextInterfaceImpl activityContextInterface;
+			try {
+				activityContextInterface = (ActivityContextInterfaceImpl) profileTableActivityContextInterfaceFactory.getActivityContextInterface(profileTableActivity);
+			} catch (Exception e1) {
+				throw new ManagementException("Failed committing profile", e1);
+			}
+			if (!this.isProfileInBackEndStorage()) {
+				// Fire the added event only when the transaction commits
+				ProfileAddedEventImpl profileAddedEvent = new ProfileAddedEventImpl(profileAddress, new ProfileID(profileAddress), profile, activityContextInterface,
+						profileTableActivityContextInterfaceFactory);
+				ActivityContext ac = activityContextInterface.getActivityContext();
+				ac.fireEvent(new DeferredEvent(profileAddedEvent.getEventTypeID(), profileAddedEvent, ac, profileAddress));
+
+				if (logger.isDebugEnabled()) {
+					logger.debug("Queued following profile added event:" + profileAddedEvent.getEventTypeID() + ",:" + activityContextInterface.getActivityContext().getActivityContextId());
+				}
+
+				this.setProfileInBackEndStorage(true);
+			} else {
+				// Fire the updated event only when the transaction commits
+				ProfileUpdatedEventImpl profileUpdatedEvent = new ProfileUpdatedEventImpl(profileAddress, new ProfileID(profileAddress), profileBeforeUpdate, profile, activityContextInterface,
+						profileTableActivityContextInterfaceFactory);
+				ActivityContext ac = activityContextInterface.getActivityContext();
+				ac.fireEvent(new DeferredEvent(profileUpdatedEvent.getEventTypeID(), profileUpdatedEvent, ac, profileAddress));
+				if (logger.isDebugEnabled()) {
+					logger.debug("Queued following updated event: "
+
+					+ profileUpdatedEvent.getEventTypeID() + ",:" + activityContextInterface.getActivityContext().getActivityContextId());
+				}
+				this.setProfileInBackEndStorage(true);
+			}
+
+			// so far so good, time to commit the tx so that the profile is
+			// visible in the SLEE
+			try {
+				if (b)
+					txManager.commit();
+			}
+			/*
+			 * If a commit fails due to a system-level failure, the
+			 * implementation of this method should throw a
+			 * javax.slee.management.ManagementException to report the
+			 * exceptional situation to the management client. The Profile MBean
+			 * object should continue to remain in the read-write state.
+			 */
+			catch (Exception e) {
+				logger.error("Failed committing profile", e);
+				try {
+					txManager.rollback();
+				} catch (SystemException e2) {
+					logger.error("Failed rolling back profile: " + profileTableName + "/" + profileName, e2);
+					throw new ManagementException(e.getMessage());
+				}
+				throw new ManagementException(e.getMessage());
+			}
+			/*
+			 * If a commit succeeds, the Profile MBean object should move to the
+			 * read-only state. The SLEE must also fire a Profile Updated Event
+			 * if a Profile has been updated (see Section 1.1). The dirty flag
+			 * in the Profile Management object must also be set to false upon a
+			 * successful commit.
+			 */
+			this.writeable = false;
+			this.modified = false;
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("profileWriteable " + this.writeable);
+				logger.debug("dirtyFlag " + this.modified);
+				logger.debug("commitProfile call ended");
+
+			}
+
+		} finally {
+			try {
+				// if the tx was not completed by now, then there was an
+				// exception and it should roll back
+				if (b && txManager.getTransaction() != null) {
+					txManager.rollback();
+				}
+			} catch (SystemException se) {
+				logger.error("Failed completing profile commit due to TX access problem. Profile : " + profileTableName + "/" + profileName, se);
+				throw new ManagementException(se.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * This mehod must be called within context of profile spec loader. It
+	 * copies default profile state via reflrection. FIXME: consider direct JPA
+	 * access, would save few CPU cycles.
+	 * 
+	 * @param defaultProfileObject
+	 *            = profile object which is serving default profile.
+	 */
+	public void copyStateFromDefaultProfile(ProfileObject defaultProfileObject) throws ManagementException {
+
+		// FIXME: or should we use JPA directly here?
+		if (profileTransientState == null) {
+
+			try {
+
+				this.profileTransientState = this.profileSpecificationComponent.getProfilePersistanceTransientStateConcreteClass().newInstance();
+				// copy state from default profile
+				populateFieldsMap();
+				ProfileConcrete defaultConcrete = defaultProfileObject.getProfileConcrete();
+				for (String name : this.fieldsMap.keySet()) {
+					String methodName = ClassUtils.GET_PREFIX + name.replaceFirst(name.charAt(0) + "", Character.toUpperCase(name.charAt(0)) + "");
+					Method m = defaultConcrete.getClass().getMethod(methodName, null);
+					Object fieldValue = m.invoke(defaultConcrete, null);
+					this.fieldsMap.get(name).set(profileTransientState, fieldValue);
+				}
+				populateFieldsMap();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ManagementException("State cannot be copied from the default Profile.");
+			}
+		}
+	}
+
+	/**
+	 * Determine if profile is in back end storage, for now it returns local
+	 * flag, as Im not sure how to determine that for profiles that use
+	 * something other than JPA
+	 * 
+	 * @return
+	 */
+	private boolean isProfileInBackEndStorage() {
+		return this.profileInBackEndStorage;
+	}
+
+	/**
+	 * Creates fields map - cmp field name ---> java.lang.Field
+	 */
+	private void populateFieldsMap() {
+		// Put all Profile attributes into a hashmap for easier retrieval
+		if (fieldsMap == null) {
+			fieldsMap = new HashMap<String, Field>();
+		}
+		fieldsMap = new HashMap();
+		Field[] fields = (Field[]) AccessController.doPrivileged(new PrivilegedAction() {
+			public Object run() {
+				return profileTransientState.getClass().getDeclaredFields();
+			}
+		});
+		for (int i = 0; i < fields.length; i++) {
+			fieldsMap.put(fields[i].getName(), fields[i]);
+		}
+	}
+
+	/**
+	 * Handle the call to the method profileInitialize made on the proxy class
+	 * generated by the SLEE. This method will look through the profile
+	 * transient state class generated by the slee and initialize the fields of
+	 * this class.
+	 * 
+	 * @param proxy
+	 *            the proxy class on which has been called the method
+	 * @param method
+	 *            the method that has been called on the proxy class
+	 * @param args
+	 *            the args values of the method call
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 */
+	private void profileInitialize(Object proxy, Method method, Object[] args) throws IllegalArgumentException, IllegalAccessException {
+
+		Field[] fields;
+		if (SleeContainer.isSecurityEnabled())
+			fields = (Field[]) AccessController.doPrivileged(new PrivilegedAction() {
+				public Object run() {
+					return profileTransientState.getClass().getDeclaredFields();
+				}
+			});
+		else
+			fields = profileTransientState.getClass().getDeclaredFields();
+		if (fields != null) {
+			for (int i = 0; i < fields.length; i++) {
+				fields[i].set(profileTransientState, getDefautValue(fields[i].getType()));
+			}
+		}
+	}
+
+	/**
+	 * Get the default value set for a profile attribute depending of his type
+	 * 
+	 * @param fieldType
+	 *            the profile attribute type
+	 * @return the default valu
+	 */
+	private Object getDefautValue(Class fieldType) {
+		// Handle all primitives types
+		if (fieldType.equals(int.class))
+			return new Integer(0);
+		if (fieldType.equals(long.class))
+			return new Long(0);
+		if (fieldType.equals(double.class))
+			return new Double(0);
+		if (fieldType.equals(short.class))
+			return new Short(new Integer(0).shortValue());
+		if (fieldType.equals(float.class))
+			return new Float(0);
+		if (fieldType.equals(char.class))
+			return new Character(' ');
+		if (fieldType.equals(boolean.class))
+			return new Boolean(false);
+		if (fieldType.equals(byte.class))
+			return new Byte(new Integer(0).byteValue());
+
+		return null;
+	}
 
 }

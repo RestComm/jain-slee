@@ -43,6 +43,13 @@ public class ProfileObject {
 	private ProfileContextImpl profileContext = null;
 	private String profileName = null;
 	private SleeContainer sleeContainer;
+	private boolean managementView = false;
+	private boolean sbbInvoked = false;
+	/**
+	 * this flag indicates wheather profile CMP state can be accessed - see
+	 * profileActivate method.
+	 */
+	private boolean canAccessCMP = true;
 	private ProfileSpecificationComponent profileSpecificationComponent = null;
 
 	public ProfileObject(ProfileTableConcrete profileTableConcrete, ProfileSpecificationID profileSpecificationId) throws NullPointerException {
@@ -77,6 +84,55 @@ public class ProfileObject {
 					+ " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), ex);
 		}
 
+	}
+
+	/**
+	 * if this return true changes to CMPs must be allowed, even if profile is
+	 * marked read only, this is true ONLY when management side accesses
+	 * profile.
+	 * 
+	 * @return
+	 */
+	public boolean isManagementView() {
+		return managementView;
+	}
+
+	public void setManagementView(boolean managementView) {
+		this.managementView = managementView;
+	}
+
+	public boolean isSbbInvoked() {
+		return sbbInvoked;
+	}
+
+	public void setSbbInvoked(boolean sbbInvoked) {
+		this.sbbInvoked = sbbInvoked;
+	}
+
+	/**
+	 * In some cases when Profile method is invoked CMP state MUST not be
+	 * accessed, this flag indicates by it value if this is taht kind of
+	 * situation - for instance see profileActivate
+	 * 
+	 * @return <ul>
+	 *         <li><b>true</b> - if CMP can be accessed</li>
+	 *         <li><b>false</b> - if CMP must not be accessed</li>
+	 *         </ul>
+	 */
+	public boolean isCanAccessCMP() {
+		return canAccessCMP;
+	}
+
+	public boolean isProfileWriteable() {
+		return !this.profileSpecificationComponent.getDescriptor().getReadOnly();
+	}
+
+	public boolean isProfileReentrant() {
+		return !this.profileSpecificationComponent.getDescriptor().getProfileAbstractClass().getReentrant();
+	}
+
+	public void setCanAccessCMP(boolean canAccessCMP) {
+		this.canAccessCMP = canAccessCMP;
 	}
 
 	public ProfileObjectState getState() {
@@ -115,7 +171,8 @@ public class ProfileObject {
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
 		}
 
-		this.profileConcrete.profileInitialize();
+		this.profileConcrete.profileActivate();
+		this.state = ProfileObjectState.READY;
 
 	}
 
@@ -128,6 +185,7 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileInitialize();
+		this.state = ProfileObjectState.READY;
 
 	}
 
@@ -142,12 +200,14 @@ public class ProfileObject {
 	}
 
 	public void profilePassivate() {
+		//This must be called 
 		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile passivate, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
 		}
-
+		this.profileConcrete.commitChanges();
 		this.profileConcrete.profilePassivate();
+		this.state = ProfileObjectState.POOLED;
 
 	}
 
@@ -168,6 +228,7 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileRemove();
+		this.state = ProfileObjectState.POOLED;
 	}
 
 	public void profileStore() {

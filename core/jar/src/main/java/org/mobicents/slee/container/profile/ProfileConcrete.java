@@ -29,6 +29,11 @@ public interface ProfileConcrete extends Profile {
 	public ProfileObject getProfileObject();
 
 	public void setProfileName(String profileName);
+	
+	/**
+	 * This method is invoked at the end of transaction to commit profile data into backend storage
+	 */
+	public void commitChanges();
 
 	// /**
 	// * Assigns to this ProfileEntity to a profile object, and then invoke

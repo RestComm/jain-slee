@@ -106,11 +106,24 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		return null;
 	}
 
-	public ProfileLocalObject find(String arg0) throws NullPointerException, TransactionRequiredLocalException, SLEEException {
+	public ProfileLocalObject find(String profielName) throws NullPointerException, TransactionRequiredLocalException, SLEEException {
+		return this.find(profielName, false);
+	}
+
+	/**
+	 * 
+	 * @param profielName
+	 * @param allowNull - this is used only for default profile.
+	 * @return
+	 * @throws NullPointerException
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 */
+	public ProfileLocalObject find(String profielName, boolean allowNull) throws NullPointerException, TransactionRequiredLocalException, SLEEException {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	public Collection findAll() throws TransactionRequiredLocalException, SLEEException {
 		// TODO Auto-generated method stub
 		return null;
