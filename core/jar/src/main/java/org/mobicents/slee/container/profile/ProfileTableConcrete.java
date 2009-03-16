@@ -2,6 +2,7 @@ package org.mobicents.slee.container.profile;
 
 import javax.slee.management.ProfileTableNotification;
 import javax.slee.profile.ProfileTable;
+import javax.slee.profile.UnrecognizedProfileNameException;
 
 /**
  * 
@@ -20,5 +21,15 @@ public interface ProfileTableConcrete extends ProfileTable {
 	public ProfileTableNotification getProfileTableNotification();
 
 	public String getProfileTableName();
+	
+	/**
+	 * This method assigns PO to existing profile, otherwise it throws exception
+	 * @param profileName - valid, existing profile profile name
+	 * @return
+	 * @throws UnrecognizedProfileNameException
+	 */
+	public ProfileObject assignProfileObject(String profileName) throws UnrecognizedProfileNameException;
+
+	public void deassignProfileObject(ProfileObject profileObject);
 
 }

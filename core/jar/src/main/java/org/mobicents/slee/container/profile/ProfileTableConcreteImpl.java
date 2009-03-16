@@ -10,6 +10,7 @@ import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ReadOnlyProfileException;
+import javax.slee.profile.UnrecognizedProfileNameException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -230,8 +231,19 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	
 	
 	
+	// ##################
+	// # Helper methods #
+	// ##################
 	
-	
+	public ProfileObject assignProfileObject(String profileName) throws UnrecognizedProfileNameException
+	{
+		return null;
+	}
+
+	public void deassignProfileObject(ProfileObject profileObject) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

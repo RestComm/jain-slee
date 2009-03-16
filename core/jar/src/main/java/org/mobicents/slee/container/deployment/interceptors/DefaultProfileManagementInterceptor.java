@@ -68,6 +68,7 @@ public class DefaultProfileManagementInterceptor implements ProfileManagementInt
 	 * Profile Object for which this interceptor works.
 	 */
 	private ProfileObject profileObject = null;
+	//Commit this to seee hwere JPA need to be plugged
 	private Object profileTransientState = null;
 	private Object profileContext = null;
 	private SleeProfileManagement sleeProfileManagement = null;
@@ -740,7 +741,7 @@ public class DefaultProfileManagementInterceptor implements ProfileManagementInt
 					ProfileTableConcreteImpl profileTable = (ProfileTableConcreteImpl) this.sleeProfileManagement.getProfileTable(this.getProfileTableName(), this.getProfileSpecificationComponent()
 							.getProfileSpecificationID());
 					profileBeforeUpdate = (ProfileLocalObjectConcrete) profileTable.find(this.getProfileName(), true);
-					profileBeforeUpdate.setSnapshot(true);
+					profileBeforeUpdate.setSnapshot();
 
 				} catch (Exception e1) {
 					throw new ManagementException("Failed instantiateLastCommittedProfile ", e1);
