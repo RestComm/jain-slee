@@ -31,9 +31,9 @@ public class MProfileSpec {
   // JAIN SLEE 1.0 Only
   private List<MProfileIndex> profileIndex = new ArrayList<MProfileIndex>();
 
-  // JAIN SLEE 1.1 Only
-  private Boolean profileReadOnly;
-  private Boolean profileEventsEnabled;
+  // JAIN SLEE 1.1 Only, defaults for 1.0
+  private Boolean profileReadOnly = new Boolean(true);
+  private Boolean profileEventsEnabled = new Boolean(true);
   
   private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();
   private List<MProfileSpecRef> profileSpecRef = new ArrayList<MProfileSpecRef>();

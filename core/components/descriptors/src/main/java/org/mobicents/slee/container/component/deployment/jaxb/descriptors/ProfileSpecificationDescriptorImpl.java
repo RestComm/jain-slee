@@ -24,7 +24,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpec;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileTableInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
-import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileManagementInterface;
+
 
 /**
  * Start time:13:41:11 2009-01-18<br>
@@ -52,8 +52,8 @@ public class ProfileSpecificationDescriptorImpl {
   private List<MEnvEntry> envEntries;
   private List<MQuery> queryElements;
   private boolean profileHints = false;
-  private String readOnly;
-  private String eventsEnabled;
+  private boolean readOnly = true;
+  private boolean eventsEnabled = true;
 
   private MSecurityPermissions securityPremissions;
 
@@ -86,6 +86,8 @@ public class ProfileSpecificationDescriptorImpl {
 
     this.isSlee11 = isSlee11;
 
+    this.readOnly = profileSpec.getProfileReadOnly().booleanValue();
+    this.eventsEnabled = profileSpec.getProfileEventsEnabled().booleanValue();
     buildDependenciesSet();
   }
 
@@ -145,11 +147,11 @@ public class ProfileSpecificationDescriptorImpl {
     return profileHints;
   }
 
-  public String getReadOnly() {
+  public boolean getReadOnly() {
     return readOnly;
   }
 
-  public String getEventsEnabled() {
+  public boolean getEventsEnabled() {
     return eventsEnabled;
   }
 
