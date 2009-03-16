@@ -36,6 +36,9 @@ import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -71,7 +74,7 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * 
  * @author DERUELLE Jean <a
  *         href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com </a>
- * 
+ * @depraceted
  * @author Ivelin Ivanov
  * @author M. Ranganathan
  * @author martins
@@ -170,10 +173,11 @@ public class SleeProfileManager {
 			Set<MProfileIndex> indexes = profileSpecificationDescriptorImpl.getIndexedAttributes();
 			for (MProfileIndex index : indexes) {
 				String attributeName = index.getName();
-				Class profileTransientClass = Thread.currentThread().getContextClassLoader().loadClass(
-						ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX + component.getDescriptor().getProfileCMPInterface().getProfileCmpInterfaceName()
-								+ ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX);
-				Field profileIndexedField = profileTransientClass.getField(attributeName);
+//				Class profileTransientClass = Thread.currentThread().getContextClassLoader().loadClass(
+//						ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_PREFIX + component.getDescriptor().getProfileCMPInterface().getProfileCmpInterfaceName()
+//								+ ConcreteClassGeneratorUtils.PROFILE_TRANSIENT_CLASS_NAME_SUFFIX);
+				
+				Field profileIndexedField = component.getProfilePersistanceTransientStateConcreteClass().getField(attributeName);
 				Class classType = profileIndexedField.getType();
 				String classTypeString = null;
 				Boolean isArray = null;
@@ -278,7 +282,11 @@ public class SleeProfileManager {
 		} finally {
 			displayAllProfilePersistentInformation();
 			if (b)
-				transactionManager.commit();
+				try {
+					transactionManager.commit();
+				} catch (Exception e) {
+					throw new SLEEException("Failure.",e);
+				} 
 		}
 	}
 
@@ -348,7 +356,11 @@ public class SleeProfileManager {
 		} finally {
 			displayAllProfilePersistentInformation();
 			if (b)
-				transactionManager.commit();
+				try {
+					transactionManager.commit();
+				} catch (Exception e) {
+					throw new SLEEException("Failure.",e);
+				} 
 		}
 
 		return objectName;
@@ -379,7 +391,7 @@ public class SleeProfileManager {
 		// FIXME: remove this
 		// Instantiates the profile and initializes it
 		String cmpInterfaceName = profileTableCacheData.getCmpInterfaceName();
-		String cmpConcreteName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpInterfaceName + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
+		
 
 		ProfileManagementInterceptor profileManagementInterceptor = new DefaultProfileManagementInterceptor();
 
@@ -465,7 +477,7 @@ public class SleeProfileManager {
 		String cmpInterfaceName = profileTableCacheNode.getCmpInterfaceName();
 
 		// Instantiates the profile and initializes it
-		String cmpConcreteName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpInterfaceName + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
+		//String cmpConcreteName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpInterfaceName + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
 		ProfileSpecificationID profileSpecificationID = findProfileSpecId(profileTableName);
 		ProfileSpecificationComponent component = this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationID);
 		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -476,7 +488,7 @@ public class SleeProfileManager {
 			Class concreteProfileClass = component.getProfileCmpConcreteClass();
 			Constructor constructor = concreteProfileClass.getConstructor(new Class[] { ProfileManagementInterceptor.class, SleeProfileManager.class, String.class, String.class });
 			ProfileManagement profileManagement = (ProfileManagement) constructor.newInstance(new Object[] { profileManagementInterceptor, this, profileTableName, profileName });
-			profileManagementInterceptor.loadStateFromBackendStorage(cmpConcreteName, component.getClassLoader());
+			profileManagementInterceptor.loadStateFromBackendStorage(component.getProfileCmpConcreteClass().getName(), component.getClassLoader());
 			/* Profile created from backend storage */
 			if (logger.isDebugEnabled()) {
 				logger.debug("Added profile class: " + profileManagement.getClass());
@@ -571,7 +583,11 @@ public class SleeProfileManager {
 		} finally {
 			displayAllProfilePersistentInformation();
 			if (b)
-				transactionManager.commit();
+				try {
+					transactionManager.commit();
+				} catch (Exception e) {
+					throw new SLEEException("Failure.",e);
+				} 
 		}
 	}
 
@@ -602,7 +618,11 @@ public class SleeProfileManager {
 			throw e;
 		} finally {
 			if (b)
-				sleeContainer.getTransactionManager().commit();
+				try {
+					sleeContainer.getTransactionManager().commit();
+				} catch (Exception e) {
+					throw new SLEEException("Failure.",e);
+				} 
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("findProfileSpecId: found profile spec id " + profileSpecificationID + " for profile table = " + profileTableName);
@@ -633,7 +653,11 @@ public class SleeProfileManager {
 					sleeContainer.getTransactionManager().setRollbackOnly();
 				}
 				if (b)
-					sleeContainer.getTransactionManager().commit();
+					try {
+						sleeContainer.getTransactionManager().commit();
+					} catch (Exception e) {
+						throw new SLEEException("Failure.",e);
+					} 
 			} catch (SystemException ex) {
 				throw new RuntimeException("Unexpected tx manager failure ", ex);
 			}
@@ -738,10 +762,10 @@ public class SleeProfileManager {
 	public Set<String> getProfilesByIndexedAttribute(String profileTableName, String attributeName, Object attributeValue, boolean stopAtFirstMatch) throws UnrecognizedAttributeException,
 			AttributeNotIndexedException, AttributeTypeMismatchException, SystemException {
 
-		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
+		//SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
 
 		ProfileTableCacheData profileTableCacheData = sleeContainer.getCache().getProfileTableCacheData(profileTableName);
-		String cmpInterfaceName = profileTableCacheData.getCmpInterfaceName();
+		
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(" getProfilesByIndexedAttribute ( profileTableName = " + profileTableName + " attributeName = " + attributeName + " attributeValue = " + attributeValue + " )");
@@ -836,16 +860,16 @@ public class SleeProfileManager {
 		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
 
 		ProfileTableCacheData profileTableCacheData = sleeContainer.getCache().getProfileTableCacheData(profileID.getProfileTableName());
-		String cmpInterfaceName = profileTableCacheData.getCmpInterfaceName();
+		
 
 		// Instantiates the profile and initializes it
-		String cmpConcreteName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpInterfaceName + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
+		
 
 		ProfileManagementInterceptor profileManagementInterceptor = new DefaultProfileManagementInterceptor(true);
 
 		Thread currentThread = Thread.currentThread();
 		ClassLoader oldClassLoader = currentThread.getContextClassLoader();
-		ClassLoader currentClassLoader = currentThread.getContextClassLoader();
+		//ClassLoader currentClassLoader = currentThread.getContextClassLoader();
 		try {
 			ProfileSpecificationComponent componenet = this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileTableCacheData.getProfileSpecId());
 			currentThread.setContextClassLoader(componenet.getClassLoader());

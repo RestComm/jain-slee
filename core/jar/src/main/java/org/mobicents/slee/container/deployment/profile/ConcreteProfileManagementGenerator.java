@@ -132,9 +132,8 @@ public class ConcreteProfileManagementGenerator {
 		try {
 			String[] parameterNames = { _INTERCEPTOR_MANAGEMENT, "sleeProfileManager", "profileTable", "profileName" };
 
-			CtClass[] parameters = new CtClass[] { pool.get(ProfileManagementInterceptor.class.getName()), pool.get(SleeProfileManager.class.getName()),
-
-			pool.get(String.class.getName()), pool.get(String.class.getName()) };
+			CtClass[] parameters = new CtClass[] { pool.get(ProfileManagementInterceptor.class.getName()), pool.get(SleeProfileManager.class.getName()), pool.get(String.class.getName()),
+					pool.get(String.class.getName()) };
 			createConstructorWithParameter(parameterNames, parameters, cmpProfileConcreteClass, false, null);
 		} catch (NotFoundException nfe) {
 

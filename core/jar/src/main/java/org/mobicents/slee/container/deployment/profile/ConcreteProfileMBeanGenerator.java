@@ -30,8 +30,9 @@ public class ConcreteProfileMBeanGenerator {
 	private CtClass profileManagementInterface = null;
 	private CtClass profileMBeanConcreteClass = null;
 	private CtClass profileMBeanConcreteInterface = null;
-	private CtClass sleeProfileMBean = null; 
+	private CtClass sleeProfileMBean = null;
 	private CtClass profileManagementAbstractClass = null;
+
 	public ConcreteProfileMBeanGenerator(ProfileSpecificationComponent component, CtClass profileManagementAbstractClass) {
 		super();
 		this.component = component;
@@ -39,8 +40,8 @@ public class ConcreteProfileMBeanGenerator {
 		this.cmpProfileInterfaceName = descriptor.getProfileClasses().getProfileCMPInterface().getProfileCmpInterfaceName();
 		this.profileManagementInterfaceName = descriptor.getProfileManagementInterface() == null ? null : descriptor.getProfileManagementInterface().getProfileManagementInterfaceName();
 		this.pool = component.getClassPool();
-		this.profileManagementAbstractClass= profileManagementAbstractClass;
-		
+		this.profileManagementAbstractClass = profileManagementAbstractClass;
+
 	}
 
 	/**
@@ -58,7 +59,7 @@ public class ConcreteProfileMBeanGenerator {
 		// Extends the javax.slee.profile.ProfileMBean
 
 		profileMBeanConcreteInterface = pool.makeInterface(cmpProfileInterfaceName + "MBean");
-		
+
 		try {
 			sleeProfileMBean = pool.get("javax.slee.profile.ProfileMBean");
 		} catch (NotFoundException nfe) {
@@ -115,11 +116,10 @@ public class ConcreteProfileMBeanGenerator {
 			throw new DeploymentException("Encountered exception while generating class.", e);
 		}
 
-		if(this.component.getProfileMBeanConcreteInterfaceClass() == null)
-		{
+		if (this.component.getProfileMBeanConcreteInterfaceClass() == null) {
 			throw new DeploymentException("Failed to generate MBean interface, some sort of bug?");
 		}
-		
+
 	}
 
 	/**
@@ -131,17 +131,17 @@ public class ConcreteProfileMBeanGenerator {
 			throw new DeploymentException("Profile Specification doesn't match any combination " + "from the JSLEE spec 1.0 section 10.5.2");
 
 		}
-		
-		String tmpClassName=ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_PREFIX + cmpProfileInterfaceName + ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX;
-							
+
+		String tmpClassName = ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_PREFIX + cmpProfileInterfaceName + ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX;
+
 		profileMBeanConcreteClass = pool.makeClass(tmpClassName);
-		
+
 		// Implements the javax.management.StandardMBean
 		CtClass jmxMBean = null;
 		try {
 			jmxMBean = pool.get("javax.management.StandardMBean");
 		} catch (NotFoundException nfe) {
-			throw new DeploymentException("Failed to locate requried class.",nfe);
+			throw new DeploymentException("Failed to locate requried class.", nfe);
 		}
 		// Implements the javax.slee.profile.ProfileMBean
 		/*
@@ -150,46 +150,35 @@ public class ConcreteProfileMBeanGenerator {
 		 */
 		// Implements the ProfileMBean previously generated
 		try {
-			profileMBeanConcreteInterface = pool.get(cmpProfileInterfaceName
-					+ "MBean");
+			profileMBeanConcreteInterface = pool.get(cmpProfileInterfaceName + "MBean");
 		} catch (NotFoundException nfe) {
-			throw new DeploymentException("Failed to locate requried class.",nfe);
+			throw new DeploymentException("Failed to locate requried class.", nfe);
 		}
 		CtClass[] interfaces = new CtClass[2];
 		interfaces[0] = sleeProfileMBean;
 		interfaces[1] = profileMBeanConcreteInterface;
-		ConcreteClassGeneratorUtils.createInterfaceLinks(
-				profileMBeanConcreteClass, interfaces);
-		ConcreteClassGeneratorUtils.createInheritanceLink(
-				profileMBeanConcreteClass, jmxMBean);
+		ConcreteClassGeneratorUtils.createInterfaceLinks(profileMBeanConcreteClass, interfaces);
+		ConcreteClassGeneratorUtils.createInheritanceLink(profileMBeanConcreteClass, jmxMBean);
 		// createMBeanInterceptorFields();
 		// createDefaultMBeanConstructor();
 		// createInterceptorFields();
 		// createDefaultConstructor();
 		// Creates the constructor with parameters
 		try {
-			String [] parameterNames = { _INTERCEPTOR_MANAGEMENT, "profile" };
-			CtClass[] parametersClasses = new CtClass[] {
-					pool
-							.get("org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor"),
-					pool.get("java.lang.Object") };
-			ConcreteProfileManagementGenerator.createConstructorWithParameter(parameterNames,parametersClasses,
-					profileMBeanConcreteClass, true,this.component.getDescriptor().getProfileCMPInterface().getProfileCmpInterfaceName());
+			String[] parameterNames = { _INTERCEPTOR_MANAGEMENT, "profile" };
+			CtClass[] parametersClasses = new CtClass[] { pool.get("org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor"), pool.get("java.lang.Object") };
+			ConcreteProfileManagementGenerator.createConstructorWithParameter(parameterNames, parametersClasses, profileMBeanConcreteClass, true, this.component.getDescriptor()
+					.getProfileCMPInterface().getProfileCmpInterfaceName());
 		} catch (NotFoundException nfe) {
 			logger.error("Constructor With Parameter not created");
 			nfe.printStackTrace();
 		}
-	
 
 		// implements methods defined in the profileMBean interface previously
 		// generated
-		Map profileMBeanInterfaceMethods = ClassUtils
-				.getInterfaceMethodsFromInterface(profileMBeanConcreteInterface);
+		Map profileMBeanInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(profileMBeanConcreteInterface);
 
-
-
-		ConcreteProfileManagementGenerator.generateConcreteMethods(profileMBeanConcreteClass,profileManagementAbstractClass,
-				profileMBeanInterfaceMethods, _INTERCEPTOR_MANAGEMENT);
+		ConcreteProfileManagementGenerator.generateConcreteMethods(profileMBeanConcreteClass, profileManagementAbstractClass, profileMBeanInterfaceMethods, _INTERCEPTOR_MANAGEMENT);
 
 		try {
 			// @@2.4+ -> 3.4+
@@ -199,11 +188,8 @@ public class ConcreteProfileMBeanGenerator {
 			// ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX,
 			// deployPath);
 			pool.get(tmpClassName).writeFile(this.component.getDeploymentDir().toExternalForm());
-			if(logger.isDebugEnabled()) {
-				logger
-				.debug("Concrete Class "
-						+ tmpClassName
-						+ " generated in the following path " + this.component.getDeploymentDir().toExternalForm());
+			if (logger.isDebugEnabled()) {
+				logger.debug("Concrete Class " + tmpClassName + " generated in the following path " + this.component.getDeploymentDir().toExternalForm());
 			}
 		} catch (NotFoundException e) {
 			// Auto-generated catch block
@@ -220,22 +206,16 @@ public class ConcreteProfileMBeanGenerator {
 
 		Class clazz = null;
 		try {
-			clazz = Thread
-					.currentThread()
-					.getContextClassLoader()
-					.loadClass(
-							tmpClassName);
+			clazz = Thread.currentThread().getContextClassLoader().loadClass(tmpClassName);
 			this.component.setProfileMBeanConcreteImplClass(clazz);
 		} catch (ClassNotFoundException e1) {
-			throw new DeploymentException("Failed to load concrete MBean impl class",e1);
+			throw new DeploymentException("Failed to load concrete MBean impl class", e1);
 		}
-		
-		if(this.component.getProfileMBeanConcreteImplClass()==null)
-		{
+
+		if (this.component.getProfileMBeanConcreteImplClass() == null) {
 			throw new DeploymentException("Failed to obtain concrete MBean impl class, bug?");
 		}
-		
-		
+
 	}
 
 }
