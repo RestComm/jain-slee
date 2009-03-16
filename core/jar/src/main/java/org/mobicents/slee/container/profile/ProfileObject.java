@@ -46,6 +46,12 @@ public class ProfileObject {
 	private boolean managementView = false;
 	private boolean sbbInvoked = false;
 	/**
+	 * This indicates wheather we are service as snapshot, in that case we are
+	 * out of sync, and we can not commit. This is used in update, remove
+	 * events.
+	 */
+	private boolean snapshot = false;
+	/**
 	 * this flag indicates wheather profile CMP state can be accessed - see
 	 * profileActivate method.
 	 */
@@ -84,6 +90,14 @@ public class ProfileObject {
 					+ " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), ex);
 		}
 
+	}
+
+	public boolean isSnapshot() {
+		return this.snapshot;
+	}
+
+	public void setSnapshot() {
+		this.snapshot = true;
 	}
 
 	/**
@@ -200,7 +214,7 @@ public class ProfileObject {
 	}
 
 	public void profilePassivate() {
-		//This must be called 
+		// This must be called
 		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile passivate, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
