@@ -15,13 +15,10 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentIDImpl;
-import org.mobicents.slee.container.component.ComponentKey;
-import org.mobicents.slee.container.component.ResourceAdaptorIDImpl;
-import org.mobicents.slee.container.component.deployment.DeployableUnitDescriptorImpl;
-import org.mobicents.slee.container.management.ResourceManagement;
+import org.mobicents.slee.container.component.ComponentRepositoryImpl;
+import org.mobicents.slee.container.component.ResourceAdaptorComponent;
+import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.mobicents.slee.container.management.xml.XMLUtils;
-import org.mobicents.slee.resource.ResourceAdaptorType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -335,13 +332,33 @@ public class DeployableUnit {
 	 */
 	private boolean hasReferringDU() throws Exception {
 		
+    // Check if its safe to remove the deployable unit.
+
 		// Get SleeContainer instance from JNDI
 		SleeContainer sC = SleeContainer.lookupFromJndi();
 
-		// Get this DU Descriptor
-		DeployableUnitDescriptorImpl dudesc = sC.getDeployableUnitManagement().getDeployableUnitDescriptor(this.diURL.toString());
+    for (String componentIdString : this.getComponents())
+    {
+      ComponentIDPropertyEditor cidpe = new ComponentIDPropertyEditor();
+      cidpe.setAsText( componentIdString );
+      
+      ComponentID componentId = (ComponentID) cidpe.getValue();
+      
+      for (ComponentID referringComponentId : sC.getComponentRepositoryImpl().getReferringComponents(componentId))
+      {
+        ComponentIDPropertyEditor rcidpe = new ComponentIDPropertyEditor();
+        rcidpe.setValue( referringComponentId );
+        
+        String referringComponentIdString = rcidpe.getAsText();
 
-		return sC.getDeployableUnitManagement().hasReferringDU(dudesc);
+        if (!this.getComponents().contains( referringComponentIdString ))
+        {
+          return true;
+        }
+      }
+    }
+
+    return false;
 	}
 
 	/**
@@ -410,16 +427,13 @@ public class DeployableUnit {
 					Element raEntity = (Element) raEntities.item(i);
 
 					// Get the component ID
-					raId = ComponentIDImpl.RESOURCE_ADAPTOR_ID + "["
-							+ raEntity.getAttribute("resource-adaptor-id")
-							+ "]";
+					raId = "ResourceAdaptorID[" + raEntity.getAttribute("resource-adaptor-id") + "]";
 
 					// The RA Entity Name
 					String entityName = raEntity.getAttribute("entity-name");
 
 					// Select the properties node
-					NodeList propsNodeList = raEntity
-							.getElementsByTagName("properties");
+					NodeList propsNodeList = raEntity.getElementsByTagName("properties");
 
 					if (propsNodeList.getLength() > 1)
 						logger
@@ -461,10 +475,11 @@ public class DeployableUnit {
 						}
 					}
 
-					// Create the Resource Adaptor ID
-					ResourceAdaptorID componentID = new ResourceAdaptorIDImpl(
-							new ComponentKey(raEntity
-									.getAttribute("resource-adaptor-id")));
+          // Create the Resource Adaptor ID
+					ComponentIDPropertyEditor cidpe = new ComponentIDPropertyEditor();
+					cidpe.setAsText( "ResourceAdaptorID[" + raEntity.getAttribute("resource-adaptor-id") + "]" );
+					
+					ResourceAdaptorID componentID = (ResourceAdaptorID) cidpe.getValue();
 
 					// Add the Create and Activate RA Entity actions to the Post-Install Actions
 					cPostInstallActions.add(new Object[] {
@@ -486,27 +501,17 @@ public class DeployableUnit {
 						cPreUninstallActions.add(new Object[] {
 								"unbindLinkName", linkName });
 
-						final ResourceManagement resourceManagement = SleeContainer
-								.lookupFromJndi().getResourceManagement();
-						ResourceAdaptorTypeID[] existingRATypeIDs = resourceManagement
-								.getResourceAdaptorTypeIDs();
+						// FIXME: Not tested! Make sure it works...
+						ComponentRepositoryImpl componentRepository = SleeContainer.lookupFromJndi().getComponentRepositoryImpl();
+						ResourceAdaptorComponent raComponent = componentRepository.getComponentByID(componentID);
 
-						String raTypeFromRa = null;
-
-						for (ResourceAdaptorTypeID resourceAdaptorTypeID : existingRATypeIDs) {
-							ResourceAdaptorType raType = resourceManagement
-									.getResourceAdaptorType(resourceAdaptorTypeID);
-
-							if (raType != null
-									&& raType.getResourceAdaptorIDs().contains(
-											componentID))
-								raTypeFromRa = raType
-										.getResourceAdaptorTypeID().toString();
+						if( raComponent != null)
+						{
+    					for (ResourceAdaptorTypeID resourceAdaptorTypeID : raComponent.getSpecsDescriptor().getResourceAdaptorTypes())
+    					{
+                this.componentIDs.add(linkName + "_@_" + resourceAdaptorTypeID);
+    					}
 						}
-
-						if (raTypeFromRa != null)
-							this.componentIDs.add(linkName + "_@_"
-									+ raTypeFromRa);
 					}
 
 					// Add the Deactivate and Remove RA Entity actions to the Pre-Uninstall Actions

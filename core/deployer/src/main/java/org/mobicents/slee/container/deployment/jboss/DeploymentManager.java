@@ -10,16 +10,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.slee.ComponentID;
-import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.UnrecognizedLinkNameException;
-import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.deployment.DeploymentException;
@@ -159,18 +154,18 @@ public class DeploymentManager {
 						.getResourceManagement().getResourceAdaptorEntity(
 								entityNames[i]);
 
-				if (rae != null
-						&& rae.getState() == ResourceAdaptorEntityState.ACTIVE) {
-					String raTypeId = rae.getInstalledResourceAdaptor()
-							.getRaType().getResourceAdaptorTypeID().toString();
+				if (rae != null && rae.getState() == ResourceAdaptorEntityState.ACTIVE)
+				{
+					ResourceAdaptorTypeID[] raTypeIds = rae.getComponent().getSpecsDescriptor().getResourceAdaptorTypes();
 
-					String[] entityLinks = sleeContainer
-							.getResourceManagement()
-							.getLinkNames(rae.getName());
+					for(ResourceAdaptorTypeID raTypeId : raTypeIds )
+					{
+					  String[] entityLinks = sleeContainer.getResourceManagement().getLinkNames(rae.getName());
 
-					for (String entityLink : entityLinks) {
-						newDeployedComponents
-								.add(entityLink + "_@_" + raTypeId);
+					  for (String entityLink : entityLinks)
+					  {
+						  newDeployedComponents.add(entityLink + "_@_" + raTypeId);
+					  }
 					}
 				}
 			}

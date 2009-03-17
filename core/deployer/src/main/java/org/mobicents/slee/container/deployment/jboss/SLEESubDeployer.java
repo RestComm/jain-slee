@@ -1,11 +1,7 @@
 package org.mobicents.slee.container.deployment.jboss;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,12 +15,9 @@ import javax.management.ObjectName;
 import org.jboss.deployment.DeploymentException;
 import org.jboss.deployment.SubDeployerSupport;
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.component.deployment.DeployableUnitDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactory;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
-import org.mobicents.slee.container.management.xml.XMLConstants;
-import org.mobicents.slee.container.management.xml.XMLUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * This is the Deployer main class where the AS will invoke the lifecycle methods
@@ -248,17 +241,15 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
             DeployableUnit deployerDU = new DeployableUnit( du );
             
             // Let's parse the descriptor to see what we've got...
-            DeployableUnitDescriptorImpl duDesc = parseDUDescriptor( duJarFile );
+            DeployableUnitDescriptorFactory dudf = new DeployableUnitDescriptorFactory();
+            DeployableUnitDescriptorImpl duDesc = dudf.parse( duJarFile.getInputStream( duXmlEntry ) );
   
             // Add it to the deployable units map.
             deployableUnits.put( fileName, deployerDU );
   
             // Go through each jar entry in the DU descriptor
-            for( Element elem : (Collection<Element>)duDesc.getJarNodes() )
+            for( String componentJarName : duDesc.getJarEntries() )
             {
-              // Get the name of the jar
-              String componentJarName = elem.getTextContent().trim();
-  
               // Might have path... strip it!
               int beginIndex;
   
@@ -275,11 +266,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
             }
             
             // Do the same as above... but for services
-            for( Element elem : (Collection<Element>)duDesc.getServiceNodes() )
+            for( String serviceXMLName : duDesc.getServiceEndtries() )
             {
-              // Get the name of the service XML
-              String serviceXMLName = elem.getTextContent().trim();
-              
               // Might have path... strip it!
               int beginIndex;
   
@@ -514,88 +502,88 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
   
   // Aux Functions ------------------------------------------------------------
 
-  /**
-   * Method for parsing a Deployable Unit descriptor. Gotten from DeployableUnitDeployer.
-   */
-  private DeployableUnitDescriptorImpl parseDUDescriptor( JarFile unitJarFile ) throws DeploymentException
-  {
-    // Get the deployable unit descriptor entry
-    JarEntry duXmlEntry = unitJarFile.getJarEntry( "META-INF/deployable-unit.xml" );
-    
-    // Don't have one? Go away!
-    if( duXmlEntry == null )
-      throw new DeploymentException( "No DeployableUnitDeploymentDescriptor descriptor (META-INF/deployable-unit.xml) was found in deployable unit" + unitJarFile.getName() );
-
-    // The Document
-    Document doc = null;
-
-    InputStream is = null;
-    
-    try
-    {
-      // Get the InputStream
-      is = unitJarFile.getInputStream( duXmlEntry );
-      
-      // Parse the descriptor
-      doc = XMLUtils.parseDocument( is, false );
-    }
-    catch ( IOException ex )
-    {
-      throw new DeploymentException( "Failed to extract the DU depl " + "descriptor from " + unitJarFile.getName() );
-    }
-    finally
-    {
-      // Clean up!
-      if( is != null )
-      {
-        try
-        {
-          is.close();
-        }
-        catch ( IOException ignore )
-        {
-        }
-        finally
-        {
-          is = null;
-        }
-      }
-    }
-
-    Element duNode = doc.getDocumentElement();
-    DeployableUnitDescriptorImpl deployableUnitDescriptor = new DeployableUnitDescriptorImpl( unitJarFile.getName(), new Date() ); // getDescriptor();
-
-    try
-    {
-      // Get the description, if any.
-      String description = XMLUtils.getElementTextValue( duNode, XMLConstants.DESCRIPTION_ND );
-      
-      // Store it.
-      if( description != null )
-        deployableUnitDescriptor.setDescription( description );
-    }
-    catch ( Exception ex )
-    {
-      throw new DeploymentException( ex.getMessage() );
-    }
-
-    // Get a list of the jars in the deployable unit.
-    List<Element> jarNodes = XMLUtils.getAllChildElements( duNode, XMLConstants.JAR_ND );
-    deployableUnitDescriptor.setJarNodes( jarNodes );
-    
-    // Same for the services 
-    List<Element> serviceNodes = XMLUtils.getAllChildElements( duNode, XMLConstants.SERVICE_XML_ND );
-    deployableUnitDescriptor.setServiceNodes( serviceNodes );
-    
-    // Got nothing on this DU?
-    if( jarNodes.size() == 0 && serviceNodes.size() == 0 )
-    {
-      throw new DeploymentException( "The " + unitJarFile.getName() + " deployable unit contains no jars or services" );
-    }
-
-    // All good. Return the parsed descriptor.
-    return deployableUnitDescriptor;
-  }
+//  /**
+//   * Method for parsing a Deployable Unit descriptor. Gotten from DeployableUnitDeployer.
+//   */
+//  private DeployableUnitDescriptorImpl parseDUDescriptor( JarFile unitJarFile ) throws DeploymentException
+//  {
+//    // Get the deployable unit descriptor entry
+//    JarEntry duXmlEntry = unitJarFile.getJarEntry( "META-INF/deployable-unit.xml" );
+//    
+//    // Don't have one? Go away!
+//    if( duXmlEntry == null )
+//      throw new DeploymentException( "No DeployableUnitDeploymentDescriptor descriptor (META-INF/deployable-unit.xml) was found in deployable unit" + unitJarFile.getName() );
+//
+//    // The Document
+//    Document doc = null;
+//
+//    InputStream is = null;
+//    
+//    try
+//    {
+//      // Get the InputStream
+//      is = unitJarFile.getInputStream( duXmlEntry );
+//      
+//      // Parse the descriptor
+//      doc = XMLUtils.parseDocument( is, false );
+//    }
+//    catch ( IOException ex )
+//    {
+//      throw new DeploymentException( "Failed to extract the DU depl " + "descriptor from " + unitJarFile.getName() );
+//    }
+//    finally
+//    {
+//      // Clean up!
+//      if( is != null )
+//      {
+//        try
+//        {
+//          is.close();
+//        }
+//        catch ( IOException ignore )
+//        {
+//        }
+//        finally
+//        {
+//          is = null;
+//        }
+//      }
+//    }
+//
+//    Element duNode = doc.getDocumentElement();
+//    DeployableUnitDescriptorImpl deployableUnitDescriptor = new DeployableUnitDescriptorImpl( unitJarFile.getName(), new Date() ); // getDescriptor();
+//
+//    try
+//    {
+//      // Get the description, if any.
+//      String description = XMLUtils.getElementTextValue( duNode, XMLConstants.DESCRIPTION_ND );
+//      
+//      // Store it.
+//      if( description != null )
+//        deployableUnitDescriptor.setDescription( description );
+//    }
+//    catch ( Exception ex )
+//    {
+//      throw new DeploymentException( ex.getMessage() );
+//    }
+//
+//    // Get a list of the jars in the deployable unit.
+//    List<Element> jarNodes = XMLUtils.getAllChildElements( duNode, XMLConstants.JAR_ND );
+//    deployableUnitDescriptor.setJarNodes( jarNodes );
+//    
+//    // Same for the services 
+//    List<Element> serviceNodes = XMLUtils.getAllChildElements( duNode, XMLConstants.SERVICE_XML_ND );
+//    deployableUnitDescriptor.setServiceNodes( serviceNodes );
+//    
+//    // Got nothing on this DU?
+//    if( jarNodes.size() == 0 && serviceNodes.size() == 0 )
+//    {
+//      throw new DeploymentException( "The " + unitJarFile.getName() + " deployable unit contains no jars or services" );
+//    }
+//
+//    // All good. Return the parsed descriptor.
+//    return deployableUnitDescriptor;
+//  }
 
   private class UndeploymentTask extends TimerTask
   {

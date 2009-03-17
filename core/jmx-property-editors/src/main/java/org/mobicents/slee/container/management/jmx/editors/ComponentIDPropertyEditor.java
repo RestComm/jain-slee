@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.management.jmx.editors;
 
+import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
@@ -58,5 +59,25 @@ public class ComponentIDPropertyEditor extends TextPropertyEditorSupport {
         } catch (Throwable ex) {
             throw new IllegalArgumentException(ex.getMessage(),ex);
         }
+    }
+
+    public String getAsText()
+    {
+      String sep = "#";
+      
+      Object o = getValue();
+      if(o instanceof ComponentID)
+      {
+        ComponentID componentId = (ComponentID)o;
+        
+        String className = o.getClass().getName();
+        String componentType = className.substring(className.lastIndexOf('.') + 1);
+
+        return componentType + "[" + componentId.getName() + sep + componentId.getVendor() + sep + componentId.getVersion() + "]";
+      }
+      else
+      {
+        return ("" + getValue());        
+      }
     }
 }

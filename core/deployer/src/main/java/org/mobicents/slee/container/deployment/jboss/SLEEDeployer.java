@@ -1,13 +1,10 @@
 package org.mobicents.slee.container.deployment.jboss;
 
-import java.net.URL;
-
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.vfs.spi.deployer.AbstractSimpleVFSRealDeployer;
 import org.jboss.deployers.vfs.spi.structure.VFSDeploymentUnit;
 import org.jboss.logging.Logger;
 import org.jboss.system.ServiceController;
-import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
 
 public class SLEEDeployer extends AbstractSimpleVFSRealDeployer<SLEEDeploymentMetaData>
