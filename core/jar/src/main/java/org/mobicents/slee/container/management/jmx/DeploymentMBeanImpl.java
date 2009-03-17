@@ -12,7 +12,6 @@ package org.mobicents.slee.container.management.jmx;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,7 +58,6 @@ import org.mobicents.slee.container.deployment.ResourceAdaptorClassCodeGenerator
 import org.mobicents.slee.container.deployment.ResourceAdaptorTypeClassCodeGenerator;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
-import org.mobicents.slee.container.profile.ProfileDeployer;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -74,16 +72,11 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 public class DeploymentMBeanImpl extends StandardMBean implements
 		DeploymentMBean {
 
-	
 	private File tempDUJarsDeploymentRoot;
 
-	private final static Logger logger = Logger.getLogger(DeploymentMBeanImpl.class);
-	
-	/**
-	 * where DUs are stored
-	 */
-	private final DeployableUnitManagement deployableUnitManagement = new DeployableUnitManagement();
-	
+	private final static Logger logger = Logger
+			.getLogger(DeploymentMBeanImpl.class);
+
 	/**
 	 * builds DUs
 	 */
@@ -102,8 +95,9 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	 * 
 	 */
 	private File createTempDUJarsDeploymentRoot() {
-		
-		File tempDeploymentRootDir = ServerConfigLocator.locate().getServerTempDeployDir();
+
+		File tempDeploymentRootDir = ServerConfigLocator.locate()
+				.getServerTempDeployDir();
 		if (!tempDeploymentRootDir.exists()) {
 			boolean dirCreated = tempDeploymentRootDir.mkdirs();
 			if (!dirCreated)
@@ -119,76 +113,106 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	 * 
 	 * @see javax.slee.management.DeploymentMBean#install(java.lang.String)
 	 */
-	public DeployableUnitID install(String url)
-			throws NullPointerException, MalformedURLException,
-			AlreadyDeployedException, DeploymentException, ManagementException {
+	public DeployableUnitID install(String url) throws NullPointerException,
+			MalformedURLException, AlreadyDeployedException,
+			DeploymentException, ManagementException {
 
 		logger.info("Installing DU with URL " + url);
-		
+
 		try {
 			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 			final SleeTransactionManager sleeTransactionManager = sleeContainer
 					.getTransactionManager();
-			final ComponentRepositoryImpl componentRepositoryImpl = sleeContainer.getComponentRepositoryImpl();
+			final ComponentRepositoryImpl componentRepositoryImpl = sleeContainer
+					.getComponentRepositoryImpl();
+			final DeployableUnitManagement deployableUnitManagement = sleeContainer
+					.getDeployableUnitManagement();
 
 			synchronized (sleeContainer.getManagementMonitor()) {
 
 				DeployableUnitID deployableUnitID = new DeployableUnitID(url);
-				
-				if (deployableUnitManagement.getDeployableUnit(deployableUnitID) != null) {
+
+				if (deployableUnitManagement
+						.getDeployableUnit(deployableUnitID) != null) {
 					throw new AlreadyDeployedException(
 							"there is already a DU deployed for url " + url);
 				}
 
 				DeployableUnit deployableUnit = null;
-				
+
 				boolean rollback = true;
 				try {
 					// start transaction
 					sleeTransactionManager.begin();
 					// build du
-					deployableUnit = deployableUnitBuilder.build(url, tempDUJarsDeploymentRoot, componentRepositoryImpl);
+					deployableUnit = deployableUnitBuilder.build(url,
+							tempDUJarsDeploymentRoot, componentRepositoryImpl);
 					// install each component built
-					for (EventTypeComponent component : deployableUnit.getEventTypeComponents().values()) {
+					for (EventTypeComponent component : deployableUnit
+							.getEventTypeComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						logger.info("Installed "+component);
+						logger.info("Installed " + component);
 					}
-					for (ProfileSpecificationComponent component : deployableUnit.getProfileSpecificationComponents().values()) {
+					for (ProfileSpecificationComponent component : deployableUnit
+							.getProfileSpecificationComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						sleeContainer.getSleeProfileManager().installProfile(component);
-				    	logger.info("Installed "+component);
+						sleeContainer.getSleeProfileManager().installProfile(
+								component);
+						logger.info("Installed " + component);
 					}
-					for (LibraryComponent component : deployableUnit.getLibraryComponents().values()) {
+					for (LibraryComponent component : deployableUnit
+							.getLibraryComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						logger.info("Installed "+component);
+						logger.info("Installed " + component);
 					}
-					for (ResourceAdaptorComponent component : deployableUnit.getResourceAdaptorComponents().values()) {
+					for (ResourceAdaptorComponent component : deployableUnit
+							.getResourceAdaptorComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						new ResourceAdaptorClassCodeGenerator().process(component);
-						logger.info("Installed "+component);
+						new ResourceAdaptorClassCodeGenerator()
+								.process(component);
+						logger.info("Installed " + component);
 					}
-					for (ResourceAdaptorTypeComponent component : deployableUnit.getResourceAdaptorTypeComponents().values()) {
+					for (ResourceAdaptorTypeComponent component : deployableUnit
+							.getResourceAdaptorTypeComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
 						// generate code for aci factory
-						new ResourceAdaptorTypeClassCodeGenerator().process(component);
-						// create instance of aci factory and store it in the component
-						if (component.getActivityContextInterfaceFactoryConcreteClass() != null) {
-							Constructor constructor = component.getActivityContextInterfaceFactoryConcreteClass().getConstructor(new Class[] {SleeContainer.class,ResourceAdaptorTypeID.class});
-							Object aciFactory = constructor.newInstance(new Object[]{sleeContainer,component.getResourceAdaptorTypeID()});
-							component.setActivityContextInterfaceFactory(aciFactory);
+						new ResourceAdaptorTypeClassCodeGenerator()
+								.process(component);
+						// create instance of aci factory and store it in the
+						// component
+						if (component
+								.getActivityContextInterfaceFactoryConcreteClass() != null) {
+							Constructor constructor = component
+									.getActivityContextInterfaceFactoryConcreteClass()
+									.getConstructor(
+											new Class[] { SleeContainer.class,
+													ResourceAdaptorTypeID.class });
+							Object aciFactory = constructor
+									.newInstance(new Object[] {
+											sleeContainer,
+											component
+													.getResourceAdaptorTypeID() });
+							component
+									.setActivityContextInterfaceFactory(aciFactory);
 						}
-						sleeContainer.getResourceManagement().getResourceAdaptorEntitiesPerType().put(component.getResourceAdaptorTypeID(), new HashSet<ResourceAdaptorEntity>());
-						logger.info("Installed "+component);
+						sleeContainer.getResourceManagement()
+								.getResourceAdaptorEntitiesPerType().put(
+										component.getResourceAdaptorTypeID(),
+										new HashSet<ResourceAdaptorEntity>());
+						logger.info("Installed " + component);
 					}
-					for (SbbComponent component : deployableUnit.getSbbComponents().values()) {
+					for (SbbComponent component : deployableUnit
+							.getSbbComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
 						sleeContainer.getSbbManagement().installSbb(component);
-						logger.info("Installed "+component);
+						logger.info("Installed " + component);
 					}
-					for (ServiceComponent component : deployableUnit.getServiceComponents().values()) {
+					for (ServiceComponent component : deployableUnit
+							.getServiceComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						sleeContainer.getServiceManagement().installService(component);
-						logger.info("Installed "+component);
+						sleeContainer.getServiceManagement().installService(
+								component);
+						logger.info("Installed " + component);
 					}
 					deployableUnitManagement.addDeployableUnit(deployableUnit);
 					logger.info("Deployable unit with URL " + url
@@ -214,9 +238,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		} catch (AlreadyDeployedException e) {
 			throw e;
 		} catch (DeploymentException e) {
-			//This will remove stack trace;
-			//throw e;
-			throw new DeploymentException("Failur encountered during deploy process.",e);
+			// This will remove stack trace;
+			// throw e;
+			throw new DeploymentException(
+					"Failur encountered during deploy process.", e);
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(), e);
 		}
@@ -240,10 +265,12 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 				.getServiceManagement();
 		final ResourceManagement resourceManagement = sleeContainer
 				.getResourceManagement();
-		
+		final DeployableUnitManagement deployableUnitManagement = sleeContainer
+				.getDeployableUnitManagement();
+
 		Thread currentThread = Thread.currentThread();
 		ClassLoader currentClassLoader = null;
-		
+
 		// we sync on the container's monitor object
 		synchronized (sleeContainer.getManagementMonitor()) {
 
@@ -255,82 +282,105 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					// get du
 					DeployableUnit deployableUnit = deployableUnitManagement
 							.getDeployableUnit(deployableUnitID);
-					
+
 					// Check if its safe to remove the deployable unit.
-					for (SleeComponent sleeComponent : deployableUnit.getDeployableUnitComponents()) {
-						for (SleeComponent referringComponent : sleeContainer.getComponentRepositoryImpl().getReferringComponents(sleeComponent)) {
-							if (!referringComponent.getDeployableUnit().getDeployableUnitID().equals(deployableUnitID)) {
-								throw new DependencyException("Component "+referringComponent+" refers DU component "+sleeComponent);
+					for (SleeComponent sleeComponent : deployableUnit
+							.getDeployableUnitComponents()) {
+						for (SleeComponent referringComponent : sleeContainer
+								.getComponentRepositoryImpl()
+								.getReferringComponents(sleeComponent)) {
+							if (!referringComponent.getDeployableUnit()
+									.getDeployableUnitID().equals(
+											deployableUnitID)) {
+								throw new DependencyException("Component "
+										+ referringComponent
+										+ " refers DU component "
+										+ sleeComponent);
 							}
 						}
 					}
 
-					for (ServiceComponent component : deployableUnit.getServiceComponents().values()) {
+					for (ServiceComponent component : deployableUnit
+							.getServiceComponents().values()) {
 						// TODO check service is inactive
-						/* before it was
-						  serviceManagement.checkAllDUServicesAreDeactivated(deployableUnitIDImpl);
-						 */ 
-					}
-					
-					for (ResourceAdaptorComponent component : deployableUnit.getResourceAdaptorComponents().values()) {
-						// TODO uninstall RA with its own class loader
-						/* before it was
-						  resourceManagement.uninstallRA(deployableUnitIDImpl);
-						 */ 
-					}
-					
-					for (ResourceAdaptorTypeComponent component : deployableUnit.getResourceAdaptorTypeComponents().values()) {
-						// TODO uninstall RA type with its own class loader
-						/* before it was
-						  resourceManagement.uninstallRAType(deployableUnitIDImpl);
-						 */ 
-					}
-					
-					for (EventTypeComponent component : deployableUnit.getEventTypeComponents().values()) {
-						// TODO uninstall events
-						/* before it was
-						  sleeContainer.getEventManagement().removeEventType(
-							deployableUnitIDImpl);
-						 */ 
-					}
-					
-					for (ServiceComponent component : deployableUnit.getServiceComponents().values()) {
-						// TODO uninstall services
-						/* before it was
-						  serviceManagement.uninstallServices(deployableUnitIDImpl);
-						 */ 
-					}
-					
-					for (ProfileSpecificationComponent component : deployableUnit.getProfileSpecificationComponents().values()) {
-						// TODO uninstall profile specs
-						/* before it was
-						  sleeContainer.getSleeProfileManager().uninstallProfile(component);
-						 */ 
+						/*
+						 * before it was
+						 * serviceManagement.checkAllDUServicesAreDeactivated(deployableUnitIDImpl);
+						 */
 					}
 
-					for (SbbComponent component : deployableUnit.getSbbComponents().values()) {
+					for (ResourceAdaptorComponent component : deployableUnit
+							.getResourceAdaptorComponents().values()) {
+						// TODO uninstall RA with its own class loader
+						/*
+						 * before it was
+						 * resourceManagement.uninstallRA(deployableUnitIDImpl);
+						 */
+					}
+
+					for (ResourceAdaptorTypeComponent component : deployableUnit
+							.getResourceAdaptorTypeComponents().values()) {
+						// TODO uninstall RA type with its own class loader
+						/*
+						 * before it was
+						 * resourceManagement.uninstallRAType(deployableUnitIDImpl);
+						 */
+					}
+
+					for (EventTypeComponent component : deployableUnit
+							.getEventTypeComponents().values()) {
+						// TODO uninstall events
+						/*
+						 * before it was
+						 * sleeContainer.getEventManagement().removeEventType(
+						 * deployableUnitIDImpl);
+						 */
+					}
+
+					for (ServiceComponent component : deployableUnit
+							.getServiceComponents().values()) {
+						// TODO uninstall services
+						/*
+						 * before it was
+						 * serviceManagement.uninstallServices(deployableUnitIDImpl);
+						 */
+					}
+
+					for (ProfileSpecificationComponent component : deployableUnit
+							.getProfileSpecificationComponents().values()) {
+						// TODO uninstall profile specs
+						/*
+						 * before it was
+						 * sleeContainer.getSleeProfileManager().uninstallProfile(component);
+						 */
+					}
+
+					for (SbbComponent component : deployableUnit
+							.getSbbComponents().values()) {
 						// TODO uninstall sbbs
-						/* before
-						   sleeContainer.getSbbManagement().uninstallSbbs(
-							deployableUnitIDImpl);
-						 */ 
+						/*
+						 * before
+						 * sleeContainer.getSbbManagement().uninstallSbbs(
+						 * deployableUnitIDImpl);
+						 */
 					}
-					
-					for (LibraryComponent component : deployableUnit.getLibraryComponents().values()) {
-						// TODO uninstall libraries						 
+
+					for (LibraryComponent component : deployableUnit
+							.getLibraryComponents().values()) {
+						// TODO uninstall libraries
 					}
-					
+
 					// remove du
 					deployableUnitManagement
 							.removeDeployableUnit(deployableUnitID);
 
 					// Clean up all the class files.
 					deployableUnit.undeploy();
-					
+
 					rollback = false;
-					
+
 					logger.info("Uninstalled DU with id " + deployableUnitID);
-					
+
 				} catch (InvalidStateException ex) {
 					logger.error(ex);
 					throw ex;
@@ -343,7 +393,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					throw new ManagementException(
 							"Exception removing deployable Unit ", ex);
 				} finally {
-					try {						
+					try {
 						if (rollback) {
 							sleeTransactionManager.rollback();
 						} else {
@@ -375,17 +425,16 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 		boolean duExists = true;
 		try {
-			if (deployableUnitManagement.getDeployableUnit(deployableUnitID) == null) {
+			if (SleeContainer.lookupFromJndi().getDeployableUnitManagement()
+					.getDeployableUnit(deployableUnitID) == null) {
 				duExists = false;
 			}
-		}
-		catch (Throwable e) {
-			throw new ManagementException(e.getMessage(),e);
+		} catch (Throwable e) {
+			throw new ManagementException(e.getMessage(), e);
 		}
 		if (duExists) {
 			return deployableUnitID;
-		}
-		else {
+		} else {
 			throw new UnrecognizedDeployableUnitException(deploymentUrl);
 		}
 	}
@@ -397,7 +446,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	 */
 	public DeployableUnitID[] getDeployableUnits() throws ManagementException {
 		try {
-			return deployableUnitManagement.getDeployableUnits();
+			return SleeContainer.lookupFromJndi().getDeployableUnitManagement()
+					.getDeployableUnits();
 		} catch (Throwable e) {
 			throw new ManagementException("failed to get deployable units", e);
 		}
@@ -413,8 +463,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getSbbs()");
 			}
-			return SleeContainer.lookupFromJndi()
-					.getComponentRepositoryImpl().getSbbIDs().toArray(new SbbID[0]);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.getSbbIDs().toArray(new SbbID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -430,8 +480,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getEventTypes()");
 			}
-			return SleeContainer.lookupFromJndi()
-					.getComponentRepositoryImpl().getEventComponentIDs().toArray(new EventTypeID[0]);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.getEventComponentIDs().toArray(new EventTypeID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -448,8 +498,9 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getProfileSpecifications()");
 			}
-			return SleeContainer.lookupFromJndi()
-					.getComponentRepositoryImpl().getProfileSpecificationIDs().toArray(new ProfileSpecificationID[0]);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.getProfileSpecificationIDs().toArray(
+							new ProfileSpecificationID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -460,13 +511,13 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	 * 
 	 * @see javax.slee.management.DeploymentMBean#getServices()
 	 */
-	public ServiceID[] getServices() throws ManagementException {		
+	public ServiceID[] getServices() throws ManagementException {
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("getServices()");
 			}
-			return SleeContainer.lookupFromJndi()
-					.getComponentRepositoryImpl().getServiceIDs().toArray(new ServiceID[0]);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.getServiceIDs().toArray(new ServiceID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -483,8 +534,9 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getResourceAdaptorTypes()");
 			}
-			return SleeContainer.lookupFromJndi()
-					.getComponentRepositoryImpl().getResourceAdaptorTypeIDs().toArray(new ResourceAdaptorTypeID[0]);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.getResourceAdaptorTypeIDs().toArray(
+							new ResourceAdaptorTypeID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -500,8 +552,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getResourceAdaptors()");
 			}
-			return SleeContainer.lookupFromJndi()
-					.getComponentRepositoryImpl().getResourceAdaptorIDs().toArray(new ResourceAdaptorID[0]);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.getResourceAdaptorIDs().toArray(new ResourceAdaptorID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -522,7 +574,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		} catch (NullPointerException ex) {
 			throw ex;
 		} catch (UnrecognizedComponentException ex) {
-			throw ex;		
+			throw ex;
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -540,26 +592,26 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		if (deployableUnitID == null)
 			throw new NullPointerException(
 					"deployableUnitID should not be null");
-		
+
 		DeployableUnitDescriptor dud = null;
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("getDescriptor " + deployableUnitID);
 			}
-			DeployableUnit du = deployableUnitManagement
-					.getDeployableUnit(deployableUnitID);
+			DeployableUnit du = SleeContainer.lookupFromJndi()
+					.getDeployableUnitManagement().getDeployableUnit(
+							deployableUnitID);
 			if (du != null) {
 				dud = du.getSpecsDeployableUnitDescriptor();
 			}
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
-		
+
 		if (dud == null) {
 			throw new UnrecognizedDeployableUnitException(
 					"unrecognized deployable unit " + deployableUnitID);
-		}
-		else {
+		} else {
 			return dud;
 		}
 	}
@@ -573,19 +625,24 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			throws NullPointerException, ManagementException {
 		if (duIds == null)
 			throw new NullPointerException("Null arg!");
+
+		final DeployableUnitManagement deployableUnitManagement = SleeContainer
+				.lookupFromJndi().getDeployableUnitManagement();
 		try {
 			Set<DeployableUnitDescriptor> result = new HashSet<DeployableUnitDescriptor>();
-			for (DeployableUnitID deployableUnitID : deployableUnitManagement.getDeployableUnits()) {
-				DeployableUnit deployableUnit = deployableUnitManagement.getDeployableUnit(deployableUnitID);
+			for (DeployableUnitID deployableUnitID : deployableUnitManagement
+					.getDeployableUnits()) {
+				DeployableUnit deployableUnit = deployableUnitManagement
+						.getDeployableUnit(deployableUnitID);
 				result.add(deployableUnit.getSpecsDeployableUnitDescriptor());
 			}
-			return result.toArray(new DeployableUnitDescriptor[0]);			
+			return result.toArray(new DeployableUnitDescriptor[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException("Error in tx manager ", ex);
 		}
-		
+
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -600,28 +657,36 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		if (logger.isDebugEnabled()) {
 			logger.debug("getDescriptor: componentID " + componentID);
 		}
-		
+
 		ComponentDescriptor componentDescriptor = null;
 		try {
-			ComponentRepositoryImpl componentRepositoryImpl = SleeContainer.lookupFromJndi().getComponentRepositoryImpl();
+			ComponentRepositoryImpl componentRepositoryImpl = SleeContainer
+					.lookupFromJndi().getComponentRepositoryImpl();
 			SleeComponent component = null;
 			if (componentID instanceof EventTypeID) {
-				component = componentRepositoryImpl.getComponentByID((EventTypeID) componentID);
+				component = componentRepositoryImpl
+						.getComponentByID((EventTypeID) componentID);
 			} else if (componentID instanceof LibraryID) {
-				component = componentRepositoryImpl.getComponentByID((LibraryID) componentID);
+				component = componentRepositoryImpl
+						.getComponentByID((LibraryID) componentID);
 			} else if (componentID instanceof ProfileSpecificationID) {
-				component = componentRepositoryImpl.getComponentByID((ProfileSpecificationID) componentID);
+				component = componentRepositoryImpl
+						.getComponentByID((ProfileSpecificationID) componentID);
 			} else if (componentID instanceof ResourceAdaptorID) {
-				component = componentRepositoryImpl.getComponentByID((ResourceAdaptorID) componentID);
+				component = componentRepositoryImpl
+						.getComponentByID((ResourceAdaptorID) componentID);
 			} else if (componentID instanceof ResourceAdaptorTypeID) {
-				component = componentRepositoryImpl.getComponentByID((ResourceAdaptorTypeID) componentID);
+				component = componentRepositoryImpl
+						.getComponentByID((ResourceAdaptorTypeID) componentID);
 			} else if (componentID instanceof SbbID) {
-				component = componentRepositoryImpl.getComponentByID((SbbID) componentID);
+				component = componentRepositoryImpl
+						.getComponentByID((SbbID) componentID);
 			} else if (componentID instanceof ServiceID) {
-				component = componentRepositoryImpl.getComponentByID((ServiceID) componentID);
+				component = componentRepositoryImpl
+						.getComponentByID((ServiceID) componentID);
 			}
 			if (component != null)
-				componentDescriptor = component.getComponentDescriptor();				
+				componentDescriptor = component.getComponentDescriptor();
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -630,7 +695,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			return componentDescriptor;
 		else
 			throw new UnrecognizedComponentException(componentID.toString());
-		
+
 	}
 
 	/*
@@ -650,7 +715,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			}
 			return descriptors;
 		} catch (ManagementException ex) {
-			throw ex;		
+			throw ex;
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -666,7 +731,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		if (deployableUnitID == null)
 			throw new NullPointerException("null deployableUnitID");
 		try {
-			return deployableUnitManagement
+			return SleeContainer.lookupFromJndi().getDeployableUnitManagement()
 					.getDeployableUnit(deployableUnitID) != null;
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -683,7 +748,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		if (componentID == null)
 			throw new NullPointerException("null componentID");
 		try {
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl().isInstalled(componentID);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.isInstalled(componentID);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -694,8 +760,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getLibraries()");
 			}
-			return SleeContainer.lookupFromJndi()
-					.getComponentRepositoryImpl().getLibraryIDs().toArray(new LibraryID[0]);
+			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+					.getLibraryIDs().toArray(new LibraryID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
@@ -703,32 +769,32 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 	public SbbID[] getSbbs(ServiceID serviceID) throws NullPointerException,
 			UnrecognizedServiceException, ManagementException {
-		
+
 		if (serviceID == null) {
 			throw new NullPointerException("null serviceID");
 		}
-		
+
 		Set<SbbID> result = null;
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("getSbbs(serviceID)");
 			}
-			ComponentRepository componentRepository = SleeContainer.lookupFromJndi()
-			.getComponentRepositoryImpl();
-			ServiceComponent serviceComponent = componentRepository.getComponentByID(serviceID);
+			ComponentRepository componentRepository = SleeContainer
+					.lookupFromJndi().getComponentRepositoryImpl();
+			ServiceComponent serviceComponent = componentRepository
+					.getComponentByID(serviceID);
 			if (serviceComponent != null) {
-				result = serviceComponent.getSbbIDs(componentRepository);				
+				result = serviceComponent.getSbbIDs(componentRepository);
 			}
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
-		
+
 		if (result != null) {
 			return result.toArray(new SbbID[0]);
-		}
-		else {
+		} else {
 			throw new UnrecognizedServiceException(serviceID.toString());
-		}		
+		}
 	}
 
 }

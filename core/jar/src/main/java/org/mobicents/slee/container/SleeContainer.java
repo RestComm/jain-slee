@@ -52,6 +52,7 @@ import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
+import org.mobicents.slee.container.component.management.DeployableUnitManagement;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.SbbManagement;
@@ -161,6 +162,12 @@ public class SleeContainer {
 	private SleeProfileManager sleeProfileManager;
 	private ResourceManagement resourceManagement;
 	private SbbManagement sbbManagement;
+	
+	/**
+	 * where DUs are stored
+	 */
+	private final DeployableUnitManagement deployableUnitManagement = new DeployableUnitManagement();
+	
 	// slee factories
 	private ActivityContextFactoryImpl activityContextFactory;
 	private NullActivityContextInterfaceFactoryImpl nullActivityContextInterfaceFactory;
@@ -365,6 +372,14 @@ public class SleeContainer {
 	 */
 	public SleeProfileManager getSleeProfileManager() {
 		return sleeProfileManager;
+	}
+	
+	/**
+	 * Retrieves the deployable unit manager
+	 * @return
+	 */
+	public DeployableUnitManagement getDeployableUnitManagement() {
+		return deployableUnitManagement;
 	}
 	
 	// GETTERS -- slee factories
