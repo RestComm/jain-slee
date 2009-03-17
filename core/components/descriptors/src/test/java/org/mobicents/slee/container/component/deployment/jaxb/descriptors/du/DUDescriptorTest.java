@@ -79,10 +79,10 @@ public class DUDescriptorTest extends TCUtilityClass {
 		
 		
 		
-		assertNotNull("Services entries list is null", du.getServiceEndtries());
-		assertTrue("Services entries list size is not 2",du.getServiceEndtries().size()==2);
-		for(int i=0;i<du.getServiceEndtries().size();i++)
-			validateValue(du.getServiceEndtries().get(i), "service entry", "service-xml"+(i+1));
+		assertNotNull("Services entries list is null", du.getServiceEntries());
+		assertTrue("Services entries list size is not 2",du.getServiceEntries().size()==2);
+		for(int i=0;i<du.getServiceEntries().size();i++)
+			validateValue(du.getServiceEntries().get(i), "service entry", "service-xml"+(i+1));
 		
 		
 	}

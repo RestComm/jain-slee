@@ -15,7 +15,7 @@ public class DeployableUnitDescriptorImpl {
 	private final boolean isSlee11;
 	
 	private final List<String> jarEntries = new ArrayList<String>();
-	private final List<String> serviceEndtries = new ArrayList<String>();
+	private final List<String> serviceEntries = new ArrayList<String>();
 
 	public DeployableUnitDescriptorImpl(org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit duDescriptor11)
 	throws DeploymentException {		
@@ -77,7 +77,7 @@ public class DeployableUnitDescriptorImpl {
 						org.mobicents.slee.container.component.deployment.jaxb.slee.du.ServiceXml j = (org.mobicents.slee.container.component.deployment.jaxb.slee.du.ServiceXml) o;
 						v = j.getvalue();
 					}
-					this.serviceEndtries.add(v);
+					this.serviceEntries.add(v);
 				} else {
 					throw new DeploymentException("Unknown jaxb du element: " + o.getClass());
 				}
@@ -89,8 +89,8 @@ public class DeployableUnitDescriptorImpl {
 		return jarEntries;
 	}
 
-	public List<String> getServiceEndtries() {
-		return serviceEndtries;
+	public List<String> getServiceEntries() {
+		return serviceEntries;
 	}
 
 	public boolean isSlee11() {

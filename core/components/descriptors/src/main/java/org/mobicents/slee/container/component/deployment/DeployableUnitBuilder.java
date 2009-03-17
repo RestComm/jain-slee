@@ -157,7 +157,7 @@ public class DeployableUnitBuilder {
 
 			// build each du service component
 			for (String serviceDescriptorFileName : deployableUnitDescriptor
-					.getServiceEndtries()) {
+					.getServiceEntries()) {
 				for (ServiceComponent serviceComponent : duServiceComponentBuilder
 						.buildComponents(serviceDescriptorFileName,
 								deployableUnitJar)) {

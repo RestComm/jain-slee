@@ -266,7 +266,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
             }
             
             // Do the same as above... but for services
-            for( String serviceXMLName : duDesc.getServiceEndtries() )
+            for( String serviceXMLName : duDesc.getServiceEntries() )
             {
               // Might have path... strip it!
               int beginIndex;
