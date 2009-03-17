@@ -23,6 +23,15 @@ public interface EventRouter {
 	 * @param dE
 	 */
 	public void routeEvent(DeferredEvent dE);
+	
+	/**
+	 * Requests the routing of a {@link DeferredEvent} to be resumed, after it's
+	 * suspension finished. This operation will be run in the same thread, which
+	 * means it must be invoked from the activity executor service
+	 * 
+	 * @param eventContextImpl
+	 */
+	public void resumeEventContext(EventContextImpl eventContextImpl);
 
 	/**
 	 * The activity has started so the event router may init related runtime resources
@@ -46,5 +55,7 @@ public interface EventRouter {
 	 */
 	public void config(int eventRouterExecutors,
 			boolean monitoringUncommittedAcAttachs);
+
+	
 
 }

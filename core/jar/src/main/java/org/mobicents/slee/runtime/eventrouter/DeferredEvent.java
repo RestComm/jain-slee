@@ -3,9 +3,9 @@ package org.mobicents.slee.runtime.eventrouter;
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
+import javax.slee.ServiceID;
 import javax.slee.resource.EventFlags;
 import javax.slee.resource.FailureReason;
-import javax.slee.resource.ReceivableService;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -24,12 +24,13 @@ import org.mobicents.slee.runtime.activity.ActivityType;
 public class DeferredEvent {
 	
 	private final SleeContainer sleeContainer;
+	private final EventRouterActivity era;
 	private final EventTypeID eventTypeId;
 	private final String acId;
 	private final ActivityContextHandle ach;
 	private final Object event;
 	private final Address address;
-	private final ReceivableService receivableService;
+	private final ServiceID serviceID;
 	private final int eventFlags;
 		
 	/**
@@ -38,19 +39,15 @@ public class DeferredEvent {
 	private ActivityContextInterface loadedAci;
 
 	public DeferredEvent(EventTypeID eventTypeId, Object event,
-			ActivityContext ac, Address address, SleeContainer sleeContainer) {
-		this(eventTypeId,event,ac,address,null,EventFlags.NO_FLAGS,sleeContainer);		
-	}
-	
-	public DeferredEvent(EventTypeID eventTypeId, Object event,
-			ActivityContext ac, Address address, ReceivableService receivableService, int eventFlags,SleeContainer sleeContainer) {
+			ActivityContext ac, Address address, ServiceID serviceID, int eventFlags, EventRouterActivity era, SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
+		this.era = era;
 		this.eventTypeId = eventTypeId;
 		this.event = event;
 		this.acId = ac.getActivityContextId();
 		this.ach = ac.getActivityContextHandle();
 		this.address = address;
-		this.receivableService = receivableService;
+		this.serviceID = serviceID;
 		this.eventFlags = eventFlags;		
 	}
 
@@ -90,8 +87,12 @@ public class DeferredEvent {
 		return eventFlags;
 	}
 	
-	public ReceivableService getReceivableService() {
-		return receivableService;
+	public ServiceID getService() {
+		return serviceID;
+	}
+	
+	public EventRouterActivity getEventRouterActivity() {
+		return era;
 	}
 	
 	public ActivityContextInterface getLoadedAci() {

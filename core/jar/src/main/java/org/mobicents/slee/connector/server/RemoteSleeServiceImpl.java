@@ -8,6 +8,7 @@ import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
 import javax.slee.management.SleeState;
+import javax.slee.resource.EventFlags;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -15,7 +16,6 @@ import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -104,7 +104,7 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 				if(ac == null) {
 					throw new UnrecognizedActivityException(activityHandle);
 				}
-				ac.fireEvent(new DeferredEvent(eventType,event,ac,address,sleeContainer));
+				ac.fireEvent(eventType,event,address,null,EventFlags.NO_FLAGS);
 				rollback = false;
 			} catch (Throwable ex) {
 				log.error("Exception in fireEvent!", ex);

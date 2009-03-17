@@ -11,6 +11,7 @@ import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.eventrouter.ActivityEndEventImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
 import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.eventrouter.SbbInvocationState;
@@ -56,16 +57,21 @@ public class EventRoutingTask implements Runnable {
 	
 	private final SleeContainer container;
 	private final DeferredEvent de;
-	private PendingAttachementsMonitor pendingAttachementsMonitor;
+	private EventContextImpl eventContextImpl;
 	
-	public EventRoutingTask(SleeContainer container, DeferredEvent de, PendingAttachementsMonitor pendingAttachementsMonitor) {
+	public EventRoutingTask(SleeContainer container, DeferredEvent de) {
 		super(); 
 		this.de = de;
 		this.container = container;
-		this.pendingAttachementsMonitor = pendingAttachementsMonitor;
 	}
 
+	public EventRoutingTask(SleeContainer container, EventContextImpl eventContextImpl) {
+		this(container,eventContextImpl.getDeferredEvent());
+		this.eventContextImpl = eventContextImpl;
+	}
+	
 	public void run() {
+		PendingAttachementsMonitor pendingAttachementsMonitor = de.getEventRouterActivity().getPendingAttachementsMonitor();
 		if (pendingAttachementsMonitor != null) {
 			pendingAttachementsMonitor.waitTillNoTxModifyingAttachs();
 		}
@@ -93,17 +99,23 @@ public class EventRoutingTask implements Runnable {
 		
 		try {
 
-			// INITIAL EVENT PROCESSING
-			EventTypeComponent eventTypeComponent = container.getComponentRepositoryImpl().getComponentByID(de.getEventTypeId());
-			if (logger.isDebugEnabled()) {
-				logger.debug("Active services for event "+de.getEventTypeId()+": "+eventTypeComponent.getActiveServicesWhichDefineEventAsInitial());
-			}
-			for (ServiceComponent serviceComponent : eventTypeComponent.getActiveServicesWhichDefineEventAsInitial()) {
-				initialEventProcessor.processInitialEvents(serviceComponent, de, txMgr, this.container.getActivityContextFactory());
+			if (eventContextImpl != null) {
+				// event context not set, create it 
+				eventContextImpl = new EventContextImpl(de,container);
+				de.getEventRouterActivity().setCurrentEventContext(eventContextImpl);
+				// do initial event processing
+				EventTypeComponent eventTypeComponent = container.getComponentRepositoryImpl().getComponentByID(de.getEventTypeId());
+				if (logger.isDebugEnabled()) {
+					logger.debug("Active services for event "+de.getEventTypeId()+": "+eventTypeComponent.getActiveServicesWhichDefineEventAsInitial());
+				}
+				for (ServiceComponent serviceComponent : eventTypeComponent.getActiveServicesWhichDefineEventAsInitial()) {
+					initialEventProcessor.processInitialEvents(serviceComponent, de, txMgr, this.container.getActivityContextFactory());
+				}
 			}
 			
 			// For each SBB that is attached to this activity context.
 			boolean gotSbb = false;
+			boolean eventContextSuspended = false;
 			do {
 				
 				String rootSbbEntityId = null;
@@ -142,17 +154,14 @@ public class EventRoutingTask implements Runnable {
 					SbbEntity highestPrioritySbbEntity = null;
 					ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 					
-					Set<String> sbbEntitiesThatHandledCurrentEvent = container
-							.getEventRouter().getEventRouterActivity(
-									de.getActivityContextId())
-							.getSbbEntitiesThatHandledCurrentEvent();
+					Set<String> sbbEntitiesThatHandledCurrentEvent = eventContextImpl.getSbbEntitiesThatHandledEvent();
 					
 					try {
 					
 						ac = container.getActivityContextFactory().getActivityContext(de.getActivityContextId(),true);
 
 						try {
-							highestPrioritySbbEntity = nextSbbEntityFinder.next(ac, de.getEventTypeId());
+							highestPrioritySbbEntity = nextSbbEntityFinder.next(ac, de.getEventTypeId(), sbbEntitiesThatHandledCurrentEvent);
 						} catch (Exception e) {
 							logger.warn("Failed to find next sbb entity to deliver the event "+de+" in "+ac.getActivityContextId(), e);
 							highestPrioritySbbEntity = null;
@@ -203,7 +212,7 @@ public class EventRoutingTask implements Runnable {
 											.debug("---> Invoking event handler: ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
 								}
 								
-								sbbEntity.invokeEventHandler(de,ac);
+								sbbEntity.invokeEventHandler(de,ac,eventContextImpl);
 
 								if (logger.isDebugEnabled()) {
 									logger
@@ -213,13 +222,12 @@ public class EventRoutingTask implements Runnable {
 								// check to see if the transaction is marked for
 								// rollback if it is then we need to get out of
 								// here soon as we can.
-								
 								if (txMgr.getRollbackOnly()) {
 									throw new Exception("The transaction is marked for rollback");
 								}
 
 								sbbObject.setSbbInvocationState(SbbInvocationState.NOT_INVOKING);
-
+								
 							} else {
 								if (logger.isDebugEnabled()) {
 									logger
@@ -284,17 +292,23 @@ public class EventRoutingTask implements Runnable {
 					// ac.DeliveredSet
 					// is not in the cache.
 					if (gotSbb) {
-						boolean skipAnotherLoop = false;
-						try {
-							if (nextSbbEntityFinder.next(ac, de.getEventTypeId()) == null) {
+						if (eventContextImpl.isSuspended()) {
+							gotSbb = false;
+						}
+						else {
+							boolean skipAnotherLoop = false;
+							try {
+								if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),sbbEntitiesThatHandledCurrentEvent) == null) {
+									skipAnotherLoop = true;
+								}
+							} catch (Exception e) {
 								skipAnotherLoop = true;
-							}
-						} catch (Exception e) {
-							skipAnotherLoop = true;
-						} finally {
-							if (skipAnotherLoop) {
-								gotSbb = false;
-								sbbEntitiesThatHandledCurrentEvent.clear();
+							} finally {
+								if (skipAnotherLoop) {
+									gotSbb = false;
+									// we got to the end of the event routing, remove the event context
+									de.getEventRouterActivity().setCurrentEventContext(null);
+								}
 							}
 						}
 					}

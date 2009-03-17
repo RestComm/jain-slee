@@ -28,11 +28,11 @@ import javax.slee.Address;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
+import javax.slee.resource.EventFlags;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class TimerFacilityTimerTask extends TimerTask implements Serializable {
@@ -313,7 +313,7 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
 							+ remainingRepetitions);
 				}
 				
-				ac.fireEvent(new DeferredEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,ac,this.address,sleeContainer));
+				ac.fireEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,this.address,null,EventFlags.NO_FLAGS);
 				
 				rb = false;
 			}            

@@ -25,7 +25,6 @@ import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.eventrouter.ActivityEventQueueManager;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -352,7 +351,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
     		throw new UnrecognizedActivityException(handle);
     	}
     	else {        		
-    		ac.fireEvent(new DeferredEvent(eventType.getEventType(),event,ac,address,receivableService,eventFlags,sleeContainer));
+    		ac.fireEvent(eventType.getEventType(),event,address,receivableService.getService(),eventFlags);
     	} 
 	}
 	

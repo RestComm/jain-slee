@@ -19,13 +19,11 @@ import java.lang.reflect.Method;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
+import javax.slee.resource.EventFlags;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
-import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContext;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -103,7 +101,7 @@ public class DefaultFireEventInterceptor implements FireEventInterceptor {
         EventTypeID eventID = sbbEntity.getSbbComponent().getDescriptor().getEventTypeID(eventName);
         
         // fire the event 
-        ac.fireEvent(new DeferredEvent(eventID,args[0],ac,(Address)args[2],sleeContainer));                                       
+        ac.fireEvent(eventID,args[0],(Address)args[2],null,EventFlags.NO_FLAGS);                                       
         
         return null;
     }

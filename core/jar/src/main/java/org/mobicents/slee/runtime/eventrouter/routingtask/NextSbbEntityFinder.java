@@ -41,12 +41,11 @@ public class NextSbbEntityFinder {
 	 * @return
 	 */
 	public SbbEntity next(ActivityContext ac,
-			EventTypeID eventTypeID) {
+			EventTypeID eventTypeID,Set<String> sbbEntitiesThatHandledCurrentEvent) {
 
 		String sbbEntityId = null;
 		SbbEntity sbbEntity = null;
 
-		Set<String> sbbEntitiesThatHandledCurrentEvent = sleeContainer.getEventRouter().getEventRouterActivity(ac.getActivityContextId()).getSbbEntitiesThatHandledCurrentEvent();
 		// get the highest priority sbb from sbb entities attached to AC
 		for (Iterator iter = ac.getSortedCopyOfSbbAttachmentSet().iterator(); iter
 				.hasNext();) {

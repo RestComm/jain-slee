@@ -1,7 +1,5 @@
 package org.mobicents.slee.runtime.eventrouter;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.mobicents.slee.container.SleeContainer;
@@ -29,15 +27,14 @@ public class EventRouterActivity {
 	private final PendingAttachementsMonitor pendingAttachementsMonitor;
 	
 	/**
-	 * the set containing all sbb entities that handled the current event being routed
+	 * the event context for the event currently being routed
 	 */
-	private final Set<String> sbbEntitiesThatHandledCurrentEvent;
+	private EventContextImpl currentEventContext;
 	
 	public EventRouterActivity(String acId, PendingAttachementsMonitor pendingAttachementsMonitor, SleeContainer sleeContainer) {
 		this.acId = acId;
 		this.eventQueueManager = new ActivityEventQueueManager(acId,sleeContainer);
 		this.pendingAttachementsMonitor = pendingAttachementsMonitor;
-		this.sbbEntitiesThatHandledCurrentEvent = new HashSet<String>();
 	}
 	
 	public ActivityEventQueueManager getEventQueueManager() {
@@ -60,8 +57,12 @@ public class EventRouterActivity {
 		return acId;
 	}
 	
-	public Set<String> getSbbEntitiesThatHandledCurrentEvent() {
-		return sbbEntitiesThatHandledCurrentEvent;
+	public EventContextImpl getCurrentEventContext() {
+		return currentEventContext;
+	}
+	
+	public void setCurrentEventContext(EventContextImpl currentEventContext) {
+		this.currentEventContext = currentEventContext;
 	}
 	
 	@Override

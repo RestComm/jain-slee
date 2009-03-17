@@ -8,6 +8,7 @@ import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
 import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.slee.resource.EventFlags;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -45,6 +46,8 @@ public class Service {
 
 	private final ServiceComponent serviceComponent;
 
+	private final ServiceID serviceID; 
+	
 	private final ServiceCacheData cacheData;
 	
 	/**
@@ -69,6 +72,7 @@ public class Service {
 			}
 
 			this.serviceComponent = serviceComponent;
+			this.serviceID = serviceComponent.getServiceID();
 			this.defaultPriority = serviceComponent.getDescriptor().getMService().getDefaultPriority();	
 			this.cacheData = sleeContainer.getCache().getServiceCacheData(serviceComponent.getServiceID());
 			if (initCachedData && !cacheData.exists()) {
@@ -102,7 +106,7 @@ public class Service {
 	 * was created.
 	 */
 	public ServiceID getServiceID() {
-		return this.serviceComponent.getServiceID();
+		return this.serviceID;
 	}
 
 	/**
@@ -280,7 +284,7 @@ public class Service {
 					.debug("starting service activity for "
 							+ serviceComponent);
 		}
-		ac.fireEvent(new DeferredServiceStartedEvent(ac, new ServiceStartedEventImpl(getServiceID()),sleeContainer));
+		ac.fireEvent(ServiceStartedEventImpl.EVENT_TYPE_ID,new ServiceStartedEventImpl(getServiceID()),null,serviceID,EventFlags.NO_FLAGS);
 	}
 
 	/**

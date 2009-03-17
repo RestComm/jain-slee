@@ -9,7 +9,10 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.slee.Address;
+import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
+import javax.slee.ServiceID;
 import javax.slee.facilities.TimerID;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
@@ -22,6 +25,7 @@ import org.mobicents.slee.runtime.eventrouter.ActivityEventQueueManager;
 import org.mobicents.slee.runtime.eventrouter.CommitDeferredEventAction;
 import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.eventrouter.EventRouterActivity;
 import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.eventrouter.RollbackDeferredEventAction;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
@@ -334,50 +338,6 @@ public class ActivityContext {
 	}
 
 	/**
-	 * Add the sbb entity id to our delivered set
-	 * 
-	 * @param sbbEid --
-	 *            sbb entity id to add to the set.
-	 * 
-	 */
-/*
-	public void addToDeliveredSet(String sbbEid) {
-		Set ds = (Set) cacheData.getObject(NODE_MAP_KEY_DELIVERED_SBB_SET);
-		if (ds == null) {
-			ds = new HashSet();
-			cacheData.putObject(NODE_MAP_KEY_DELIVERED_SBB_SET,ds);
-		}
-		ds.add(sbbEid);
-	}
-	*/
-	/**
-	 * return true if the delviered set contains a given SbbEntity ID.
-	 * 
-	 * @param sbbEntityId
-	 * @return
-	 */
-	/*
-	public Set getDeliveredSet() {
-		Set ds = (Set) cacheData.getObject(NODE_MAP_KEY_DELIVERED_SBB_SET);
-		return ds == null ? emptySet : ds; 
-	}
-	private static final Set emptySet = new HashSet(0);
-	
-	public void clearDeliveredSet() {
-		Set ds = (Set) cacheData.removeObject(NODE_MAP_KEY_DELIVERED_SBB_SET);
-	}
-
-	public boolean removeFromDeliveredSet(String sbbEntityId) {
-		Set ds = (Set) cacheData.getObject(NODE_MAP_KEY_DELIVERED_SBB_SET);
-		if (ds != null) {
-			return ds.remove(sbbEntityId);
-		}
-		else {
-			return false;
-		}
-	}	
-*/
-	/**
 	 * attach an sbb entity to this AC.
 	 * 
 	 * @param sbbEntity --
@@ -396,7 +356,7 @@ public class ActivityContext {
 
 		boolean attached = cacheData.attachSbbEntity(sbbEntityId);
 		if (attached) {
-			PendingAttachementsMonitor pendingAttachementsMonitor = sleeContainer.getEventRouter().getEventRouterActivity(activityContextId).getPendingAttachementsMonitor();
+			PendingAttachementsMonitor pendingAttachementsMonitor = getEventRouterActivity().getPendingAttachementsMonitor();
 			if (pendingAttachementsMonitor != null) {
 				try {
 					pendingAttachementsMonitor.txAttaching();
@@ -421,7 +381,7 @@ public class ActivityContext {
 
 		cacheData.detachSbbEntity(sbbEntityId);
 		
-		PendingAttachementsMonitor pendingAttachementsMonitor = sleeContainer.getEventRouter().getEventRouterActivity(activityContextId).getPendingAttachementsMonitor();
+		PendingAttachementsMonitor pendingAttachementsMonitor = getEventRouterActivity().getPendingAttachementsMonitor();
 		if (pendingAttachementsMonitor != null) {
 			try {
 				pendingAttachementsMonitor.txDetaching();
@@ -643,24 +603,23 @@ public class ActivityContext {
 	public static String dumpState() {
 		return "\n+-- AC Timestamps Map size: "+timeStamps.size();
 	}
-	
+		
 	/**
 	 * Fires an event on this AC
-	 * 
-	 * @param eventTypeID
+	 * @param eventTypeId
 	 * @param event
 	 * @param address
-	 * @param receivableService
+	 * @param serviceID
 	 * @param eventFlags
 	 * @throws ActivityIsEndingException
-	 * @throws SystemException
+	 * @throws SLEEException
 	 */
-	public void fireEvent(DeferredEvent dE) throws ActivityIsEndingException, SLEEException {
+	public void fireEvent(EventTypeID eventTypeId, Object event, Address address, ServiceID serviceID, int eventFlags) throws ActivityIsEndingException, SLEEException {
 		if (getState() == ActivityContextState.ENDING) {
 			throw new ActivityIsEndingException(getActivityContextHandle().toString());           		
 		} 
 		else {
-			fireDeferredEvent(dE);			
+			fireDeferredEvent(new DeferredEvent(eventTypeId,event,this,address,serviceID,eventFlags,getEventRouterActivity(),sleeContainer));			
 		}      
 	}
 	
@@ -670,15 +629,13 @@ public class ActivityContext {
 	public void end() {
 		if (getState() == ActivityContextState.ACTIVE) {
 			setState(ActivityContextState.ENDING);
-			fireDeferredEvent(new DeferredActivityEndEvent(this,sleeContainer));	
+			fireDeferredEvent(new DeferredActivityEndEvent(this,getEventRouterActivity(),sleeContainer));	
 		}	
 	}
 	
 	private void fireDeferredEvent(DeferredEvent dE) {
 		// put event as pending in ac event queue manager
-		ActivityEventQueueManager aeqm = sleeContainer.getEventRouter()
-				.getEventRouterActivity(this.activityContextId)
-				.getEventQueueManager();
+		ActivityEventQueueManager aeqm = dE.getEventRouterActivity().getEventQueueManager();
 		if (aeqm != null) {
 			aeqm.pending(dE);
 			// add tx actions to commit or rollback
@@ -696,5 +653,9 @@ public class ActivityContext {
 		} else {
 			throw new SLEEException("unable to find ACs event queue manager");
 		}		
+	}
+	
+	private EventRouterActivity getEventRouterActivity() {
+		return sleeContainer.getEventRouter().getEventRouterActivity(this.activityContextId);
 	}
 }

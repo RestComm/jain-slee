@@ -1,6 +1,9 @@
 package org.mobicents.slee.runtime.facilities.nullactivity;
 
+import javax.slee.Address;
+import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
+import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.TimerID;
 import javax.slee.nullactivity.NullActivity;
@@ -12,7 +15,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -234,10 +236,11 @@ public class NullActivityContext extends ActivityContext {
 			}
 		}
 	}
-		
+	
 	@Override
-	public void fireEvent(DeferredEvent de) throws ActivityIsEndingException,
-			SLEEException {
+	public void fireEvent(EventTypeID eventTypeId, Object event,
+			Address address, ServiceID serviceID, int eventFlags)
+			throws ActivityIsEndingException, SLEEException {
 		if (cacheData.getObject(NODE_MAP_KEY_NullACEnd2ndCheckKey) != null) {
 			// we are firing an event thus we need to cancel a possible implict end
 			cacheData.removeObject(NODE_MAP_KEY_NullACEnd2ndCheckKey);
@@ -248,7 +251,7 @@ public class NullActivityContext extends ActivityContext {
 				throw new SLEEException(e.getMessage(),e);
 			}
 		}
-		super.fireEvent(de);
+		super.fireEvent(eventTypeId,event,address,serviceID,eventFlags);
 	}
 	
 	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();

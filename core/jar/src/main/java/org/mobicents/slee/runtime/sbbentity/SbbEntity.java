@@ -73,6 +73,7 @@ import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.SbbEntityCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
@@ -734,8 +735,11 @@ public class SbbEntity {
 	 * Actually invoke the event handler.
 	 * 
 	 */
-	public void invokeEventHandler(DeferredEvent sleeEvent, ActivityContext ac) throws Exception {
+	public void invokeEventHandler(DeferredEvent sleeEvent, ActivityContext ac, EventContextImpl eventContextImpl) throws Exception {
 
+		// FIXME event context
+		.
+		
 		// Actually invoke the event handler.
 		Method method = getEventHandlerMethod(sleeEvent);
 		setServiceActivityFactory();

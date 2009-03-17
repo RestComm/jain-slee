@@ -135,8 +135,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			//        		The SLEE delivers the event to an SBB entity that stays attached once. The SLEE may deliver the
 			//        		event to the same SBB entity more than once if it has been detached and then re -attached. 
 			if (sleeContainer.getEventRouter().getEventRouterActivity(
-					getActivityContext().getActivityContextId())
-					.getSbbEntitiesThatHandledCurrentEvent().remove(sbbeId)) {
+					getActivityContext().getActivityContextId()).getCurrentEventContext().getSbbEntitiesThatHandledEvent().remove(sbbeId)) {
 				if (logger.isDebugEnabled()) {
 					logger
 							.debug("Removed the SBB Entity ["

@@ -60,8 +60,7 @@ public class EventRouterImpl implements EventRouter {
 		}
 
 		// execute routing of event
-		final EventRouterActivity era = activities.get(de.getActivityContextId());
-		era.getExecutorService().execute(new EventRoutingTask(container,de,era.getPendingAttachementsMonitor()));
+		de.getEventRouterActivity().getExecutorService().execute(new EventRoutingTask(container,de));
 
 	}
 
@@ -120,5 +119,9 @@ public class EventRouterImpl implements EventRouter {
 	
 	public EventRouterActivity getEventRouterActivity(String acId) {		
 		return activities.get(acId);
+	}
+
+	public void resumeEventContext(EventContextImpl eventContextImpl) {
+		new EventRoutingTask(container,eventContextImpl).run();		
 	}
 }
