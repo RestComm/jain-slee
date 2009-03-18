@@ -1088,7 +1088,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor,
 		try {
 
 			if (log.isInfoEnabled()) {
-				if (!arg0.isServerTransaction()) {
+				if (arg0.isServerTransaction()) {
 					log.info("Server transaction "
 							+ arg0.getServerTransaction().getBranchId()
 							+ " timer expired");
