@@ -40,7 +40,7 @@ public class ServerTransactionWrapper extends SuperTransactionWrapper implements
 		int statusCode = arg0.getStatusCode();
 		if (method.equals(Request.CANCEL) && (statusCode < 300 && statusCode > 199)) {
 			Dialog dialog = getDialog();
-			if (dialog.getState() == null)
+			if (dialog!=null && dialog.getState() == null)
 				dialog.delete();
 		}
 	}
