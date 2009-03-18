@@ -24,10 +24,15 @@ public class ServiceStartedEventImpl implements ServiceStartedEvent {
     }
 
     /**
-	 *	the event type id for this event
+	 *	the event type id for this event that is compliant with JAIN SLEE 1.0
 	 */
-	public static final EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.serviceactivity.ServiceStartedEvent", "javax.slee",
+	public static final EventTypeID SLEE_10_EVENT_TYPE_ID = new EventTypeID("javax.slee.serviceactivity.ServiceStartedEvent", "javax.slee",
 	"1.0");
-		
+	
+	/**
+	 *	the event type id for this event that is compliant with JAIN SLEE 1.1
+	 */
+	public static final EventTypeID SLEE_11_EVENT_TYPE_ID = new EventTypeID("javax.slee.serviceactivity.ServiceStartedEvent", "javax.slee",
+	"1.1");
 }
 

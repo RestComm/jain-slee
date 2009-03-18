@@ -284,7 +284,11 @@ public class Service {
 					.debug("starting service activity for "
 							+ serviceComponent);
 		}
-		ac.fireEvent(ServiceStartedEventImpl.EVENT_TYPE_ID,new ServiceStartedEventImpl(getServiceID()),null,serviceID,EventFlags.NO_FLAGS);
+		
+		// fire slee 1.0 and 1.1 service started events
+		ServiceStartedEventImpl event = new ServiceStartedEventImpl(getServiceID());
+		ac.fireEvent(ServiceStartedEventImpl.SLEE_10_EVENT_TYPE_ID,event,null,null,EventFlags.NO_FLAGS);
+		ac.fireEvent(ServiceStartedEventImpl.SLEE_11_EVENT_TYPE_ID,event,null,event.getService(),EventFlags.NO_FLAGS);
 	}
 
 	/**
