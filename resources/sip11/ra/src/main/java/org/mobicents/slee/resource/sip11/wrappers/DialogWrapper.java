@@ -1514,10 +1514,12 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			forkRouteSet.clear();
 		}
 		ContactHeader contact = ((ContactHeader) response.getHeader(ContactHeader.NAME));
-
-		if (reqeustURI == null || (contact != null && !reqeustURI.equals(contact.getAddress().getURI()))) {
-			reqeustURI = (SipURI) contact.getAddress().getURI();
-		}
+		
+		//issue 623.
+		if(contact != null)
+			if (reqeustURI == null || !reqeustURI.equals(contact.getAddress().getURI())) {
+				reqeustURI = (SipURI) contact.getAddress().getURI();
+			}
 
 		if (forkRouteSet.size() == 0) {
 			forkRouteSet.addAll(getRouteList(response));
