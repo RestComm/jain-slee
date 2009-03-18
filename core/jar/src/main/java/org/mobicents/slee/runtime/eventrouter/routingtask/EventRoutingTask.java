@@ -89,10 +89,6 @@ public class EventRoutingTask implements Runnable {
 	 */
 	private boolean routeQueuedEvent() {
 		
-		if (logger.isDebugEnabled())
-			logger.debug("\n\n\nrouteTheEvent : [[[ eventId "
-					+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
-
 		final SleeTransactionManager txMgr = this.container.getTransactionManager();
 				
 		boolean rollbackTx = true;
@@ -100,6 +96,11 @@ public class EventRoutingTask implements Runnable {
 		try {
 
 			if (eventContextImpl != null) {
+				
+				if (logger.isDebugEnabled())
+					logger.debug("\n\n\nDelivering event : [[[ eventId "
+							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+				
 				// event context not set, create it 
 				eventContextImpl = new EventContextImpl(de,container);
 				de.getEventRouterActivity().setCurrentEventContext(eventContextImpl);
@@ -112,10 +113,13 @@ public class EventRoutingTask implements Runnable {
 					initialEventProcessor.processInitialEvents(serviceComponent, de, txMgr, this.container.getActivityContextFactory());
 				}
 			}
-			
+			else {
+				if (logger.isDebugEnabled())
+					logger.debug("\n\n\nResuming event delivery : [[[ eventId "
+							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+			}
 			// For each SBB that is attached to this activity context.
 			boolean gotSbb = false;
-			boolean eventContextSuspended = false;
 			do {
 				
 				String rootSbbEntityId = null;
@@ -281,9 +285,7 @@ public class EventRoutingTask implements Runnable {
 
 					// remove the current sbb entity service id association to the thread
 					EventRouterThreadLocals.setInvokingService(null);
-					
-					// TODO emmartins review
-					
+										
 					// do a final check to see if there is another SBB to
 					// deliver.
 					// We don't want to waste another loop. Note that
