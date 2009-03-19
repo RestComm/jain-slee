@@ -10,6 +10,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -233,12 +234,12 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Event initial select variable is equal Address",mISelect.getVariable() == InitialEventSelectVariable.Address);
 		
 	
-		List<MActivityContextAttributeAlias> aciAliasses=sbb.getActivityContextAttributeAliases();
+		Collection<MActivityContextAttributeAlias> aciAliasses=sbb.getActivityContextAttributeAliases().values();
 		
 		assertNotNull("Activity context inteface attribute aliasses list is null",aciAliasses);
 		assertTrue("Activity context inteface attribute aliasses list size is not 1",aciAliasses.size()==1);
 		
-		MActivityContextAttributeAlias aciAlias=aciAliasses.get(0);
+		MActivityContextAttributeAlias aciAlias=aciAliasses.iterator().next();
 		assertNotNull("Activity context inteface attribute aliass is null",aciAlias);
 		
 		
