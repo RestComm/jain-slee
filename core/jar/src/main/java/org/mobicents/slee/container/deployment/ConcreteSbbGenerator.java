@@ -686,7 +686,7 @@ public class ConcreteSbbGenerator {
 				String concreteGetterMethodBody = "{ return ($r) "
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".getCMPField(sbbEntity,\"" + cmp.getCmpFieldName()
-						+ "\",$r); }";
+						+ "\",$r.class); }";
 				if (logger.isDebugEnabled()) {
 					logger.debug("Generated method " + getterMethodName
 							+ " , body = " + concreteGetterMethodBody);
@@ -920,9 +920,8 @@ public class ConcreteSbbGenerator {
 				+ "else if ( aci instanceof "
 				+ concreteActivityContextInterfaceClass.getName()
 				+ ") return aci;" + "else return  new "
-				+ concreteActivityContextInterfaceClass.getName() + " ( ( "
-				+ ActivityContextInterfaceImpl.class.getName() + ")$1, "
-				+ "sbbEntity.getSbbDescriptor());" + "}";
+				+ concreteActivityContextInterfaceClass.getName() + " ( $1, "
+				+ "sbbEntity.getSbbComponent());" + "}";
 		CtMethod methodTest;
 		try {
 			methodTest = CtNewMethod.make(methodToAdd, sbbConcreteClass);
