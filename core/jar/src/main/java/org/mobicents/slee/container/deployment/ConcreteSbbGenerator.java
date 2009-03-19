@@ -24,6 +24,7 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
+import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
 import javax.slee.management.DeploymentException;
@@ -48,6 +49,7 @@ import org.mobicents.slee.container.deployment.interceptors.SBBProfileCMPInterce
 import org.mobicents.slee.container.deployment.interceptors.UsageParameterInterceptor;
 import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.sbb.SbbAbstractMethodHandler;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
@@ -625,47 +627,6 @@ public class ConcreteSbbGenerator {
     }
 
     /**
-     * Create the cmp fields and their accessors (getter and setter)
-     * 
-     * @param cmpAccessors
-     *            the description of the cmp fields
-     * @throws DeploymentException 
-     */
-    protected void createCMPAccessors(List<MSbbCMPField> cmps) throws DeploymentException {
-        if (cmps == null)
-            return;
-        //Create the concrete implemntation of the accessors
-        for (MSbbCMPField cmp : cmps) {
-            String fieldName = cmp.getCmpFieldName();
-            //Set the first char of the accessor to UpperCase to follow the
-            // javabean requirements
-            fieldName = fieldName.substring(0, 1).toUpperCase()
-                    + fieldName.substring(1);
-
-            CtMethod setterAccessor = (CtMethod) abstractMethods.get("set"
-                    + fieldName);
-            CtMethod getterAccessor = (CtMethod) abstractMethods.get("get"
-                    + fieldName);
-            if (setterAccessor == null)
-                setterAccessor = (CtMethod) this.superClassesAbstractMethods.get("set"
-                        + fieldName);
-            if (getterAccessor == null)
-                getterAccessor = (CtMethod) this.superClassesAbstractMethods.get("get"
-                        + fieldName);
-            if (setterAccessor != null)
-                ConcreteClassGeneratorUtils.addInterceptedMethod(
-                        sbbConcreteClass, setterAccessor,
-                        SBB_PERSISTENCE_INTERCEPTOR_FIELD, false);
-            if (getterAccessor != null)
-                ConcreteClassGeneratorUtils.addInterceptedMethod(
-                        sbbConcreteClass, getterAccessor,
-                        SBB_PERSISTENCE_INTERCEPTOR_FIELD, false);
-        }
-        //Create the persistent state of the sbb
-        createPersistentStateHolderClass(cmps);
-    }
-
-    /**
      * Create methods to set and get the Sbb Object state. This avoids the need
      * for another wrapper object If we think of doing something fancy like
      * writing the sbb out to disk, its current state needs to be saved also. It
@@ -756,87 +717,10 @@ public class ConcreteSbbGenerator {
             throw new DeploymentException(s,e);
         }
     }
-    
-    /**
-     * Create a method wrapper. This sets the classloader before invoking the
-     * method in the parent class.
-     * 
-     * @param sbbConcrete
-     * @param methodToWrap
-     * @throws DeploymentException 
-     */
-    private void createMethodWrapper(CtClass sbbConcrete, CtMethod methodToWrap) throws DeploymentException {
-        try {
-            String methodName = methodToWrap.getName();
-            CtClass[] params = methodToWrap.getParameterTypes();
-            String returnType = null;
-            if (methodToWrap.getReturnType().equals(CtClass.voidType)) {
-                returnType = "void";
-            } else {
-                returnType = methodToWrap.getReturnType().getName();
-            }
-
-            String args = "";
-            for (int i = 0; i < params.length; i++) {
-                args += params[i].getName() + " " + "param" + i;
-                if (i < params.length - 1)
-                    args += ",";
-            }
-            CtClass[] exceptions = methodToWrap.getExceptionTypes();
-
-            String wrapper = "public " + returnType + " " + methodName + "("
-                    + args + ") ";
-
-            if (exceptions.length > 0)
-                wrapper += SLEEException.class.getName() + " , ";
-
-            for (int i = 0; i < exceptions.length; i++) {
-                wrapper += exceptions[i].getName();
-                if (i < exceptions.length - 1)
-                    wrapper += ",";
-            }
-
-            wrapper += "   {  "
-                	+ "sbbEntity.checkReEntrant();"
-                	+ SbbComponent.class.getName()
-                	+ "sbbComponent  =  sbbEntity.getSbbComponent();"
-                    + ClassLoader.class.getName()
-                    + " oldClassLoader =  Thread.currentThread().setContextClassLoader(sbbComponent.getClassLoader());";
-            wrapper += " try { ";
-            if (!returnType.equals("void")) {
-                wrapper += "return ";
-            }
-            wrapper += "super." + methodName + "(";
-            for (int i = 0; i < params.length; i++) {
-                wrapper += "param" + i;
-                if (i < params.length - 1)
-                    wrapper += ",";
-            }
-
-            wrapper += "); "
-                    + "} finally { Thread.currentThread().setContextClassLoader(oldClassLoader);  }"
-                    + "}";
-
-            logger.debug("wrapper generated = " + wrapper);
-
-            CtMethod method = CtNewMethod.make(wrapper, sbbConcrete);
-            sbbConcrete.addMethod(method);
-        } catch (Exception e) {
-            String s = "Unexpected error in createMethodWrapper";
-            throw new DeploymentException(s,e);
-        }
-
-    }
 
     private void createInterceptors(CtClass sbbConcrete) throws DeploymentException {
         try {
-            String body = "public void createInterceptors ( ) { ";
-            body += SBB_PERSISTENCE_INTERCEPTOR_FIELD +" = new "
-                    + DefaultPersistenceInterceptor.class.getName() + "();";
-            body += SBB_FIREEVENT_INTERCEPTOR + " = new "
-                    + DefaultFireEventInterceptor.class.getName() + "();";
-            body += SBB_CHILDRELATION_INTERCEPTOR + " =new "
-                    + DefaultChildRelationInterceptor.class.getName() + "();";
+            String body = "public void createInterceptors ( ) { ";      
             body += SBB_PROFILE_CMP_INTERCEPTOR_FIELD + " = new "
                 + DefaultSBBProfileCMPInterceptor.class.getName() + "();";
             body += "}";
@@ -871,10 +755,6 @@ public class ConcreteSbbGenerator {
                                     + " sbbEntity )"
                                     + "{"                                   
                                     + "this.sbbEntity = sbbEntity;"
-                                    + SBB_PERSISTENCE_INTERCEPTOR_FIELD + ".setSbbEntity(sbbEntity);"
-                                    + SBB_FIREEVENT_INTERCEPTOR + ".setSbbEntity(sbbEntity);"
-                                    + SBB_CHILDRELATION_INTERCEPTOR + ".setSbbEntity(sbbEntity);"
-                                    + SBB_PROFILE_CMP_INTERCEPTOR_FIELD + ".setSbbEntity(sbbEntity);"
                                     + "}", sbbConcrete);
 
             setSbbEntity.setModifiers(Modifier.PUBLIC);
@@ -885,79 +765,77 @@ public class ConcreteSbbGenerator {
     }
 
     /**
-     * Create the persistent object that will hold the persistent state of the
-     * sbb
+     * Create the cmp field setters and getters
      * 
-     * @param cmpAccessors
+     * @param cmps
      *            the description of the cmp fields
      * @throws DeploymentException 
      */
-    protected void createPersistentStateHolderClass(List<MSbbCMPField> cmps) throws DeploymentException {
-        //Create the class of the persistent state of the sbb
-    	
-        CtClass sbbPersisentStateClass=pool.makeClass(sbbAbstractClass.getName() + "PersistentState");
+    protected void createCMPAccessors(List<MSbbCMPField> cmps) throws DeploymentException {
         
-        
-		try {
-		
-            try {
-                //Make the persistent state serializable : this is mandatory by
-                // the
-                // slee spec
-                ConcreteClassGeneratorUtils.createInterfaceLinks(
-                        sbbPersisentStateClass, new CtClass[] { pool
-                                .get("java.io.Serializable") });
-            } catch (NotFoundException e) {
-            	throw new DeploymentException(e.getMessage(),e);
-            }
-            //Create the fields of the sbb persistent state class
-            for (MSbbCMPField cmp : cmps) {
-                String fieldName = cmp.getCmpFieldName();
-                //Set the first char of the accessor to UpperCase to follow the
-                // javabean requirements
-                fieldName = fieldName.substring(0, 1).toUpperCase()
-                        + fieldName.substring(1);
+    	for (MSbbCMPField cmp : cmps) {
+    		String fieldName = cmp.getCmpFieldName();
+    		//Set the first char of the accessor to UpperCase to follow the
+    		// javabean requirements
+    		fieldName = fieldName.substring(0, 1).toUpperCase()
+    		+ fieldName.substring(1);
 
-                CtMethod accessor = (CtMethod) abstractMethods.get("get"
-                        + fieldName);
-                if (accessor == null)
-                    accessor = (CtMethod) abstractMethods
-                            .get("set" + fieldName);
-                if (accessor == null)
-                    accessor = (CtMethod) this.superClassesAbstractMethods
-                    .get("set" + fieldName);
-                // FIXME if the abstract method is not define the following code will 
-                // throw a NullPointerException
-                CtField persistentField = null;
-                try {
-                    persistentField = new CtField(accessor.getReturnType(),
-                            "persistentState" + fieldName,
-                            sbbPersisentStateClass);
-                    persistentField.setModifiers(Modifier.PUBLIC);
-                    sbbPersisentStateClass.addField(persistentField);
-                } catch (Exception e) {
-                	throw new DeploymentException(e.getMessage(),e);
-                }
-            }
-            //generate the persistent state class of the sbb
-            try {
-            	sbbPersisentStateClass.writeFile(deployDir);            	
-            	//@@2.4+ -> 3.4+
-                //pool.writeFile(sbbAbstractClass.getName() + "PersistentState",deployPath);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Concrete Class " + sbbAbstractClass.getName()
-                        + "PersistentState"
-                        + " generated in the following path " + deployDir);
-                }            
-            } catch (Exception e) {
-            	throw new DeploymentException(e.getMessage(),e);
-            }
-        } finally {
-            // release from javassist pool to allow consequent manipulation
-            sbbPersisentStateClass.defrost();
-        }
+    		String getterMethodName = "get"+ fieldName;
+    		CtMethod getterMethod = (CtMethod) abstractMethods.get(getterMethodName);
+    		if (getterMethod == null) {
+    			getterMethod = (CtMethod) this.superClassesAbstractMethods
+    			.get(getterMethodName);
+    		}
+    		if (getterMethod == null) {
+    			throw new SLEEException("can't find abstract method "+getterMethodName);
+    		}
+    		
+    		try {
+    			// copy method from abstract to concrete class
+    			CtMethod concreteGetterMethod = CtNewMethod.copy(getterMethod, sbbConcreteClass, null);
+    			// create the method body
+    			String concreteGetterMethodBody = "{ return ($r) "+SbbAbstractMethodHandler.class.getName()+".getCMPField(sbbEntity,\""+cmp.getCmpFieldName()+"\",$r); }";
+    			if (logger.isDebugEnabled()) {
+    				logger.debug("Generated method "+getterMethodName+" , body = "+concreteGetterMethodBody);
+    			}
+    			concreteGetterMethod.setBody(concreteGetterMethodBody);
+    			sbbConcreteClass.addMethod(concreteGetterMethod);
+    		} catch (CannotCompileException cce) {
+    			throw new SLEEException("Cannot compile method " + getterMethod.getName(), cce);
+    		}	
+    		
+    		String setterMethodName = "set"+ fieldName;
+    		CtMethod setterMethod = (CtMethod) abstractMethods.get(setterMethodName);
+    		if (setterMethod == null) {
+    			setterMethod = (CtMethod) this.superClassesAbstractMethods
+    			.get(setterMethodName);
+    		}
+    		if (setterMethod == null) {
+    			throw new SLEEException("can't find abstract method "+setterMethodName);
+     		}
+    		
+    		try {
+    			// copy method from abstract to concrete class
+    			CtMethod concreteSetterMethod = CtNewMethod.copy(setterMethod, sbbConcreteClass, null);
+    			// create the method body
+    			String concreteSetterMethodBody = "{ "+SbbAbstractMethodHandler.class.getName()+".setCMPField(sbbEntity,\""+cmp.getCmpFieldName()+"\",$1); }";
+    			if (logger.isDebugEnabled()) {
+    				logger.debug("Generated method "+setterMethodName+" , body = "+concreteSetterMethodBody);
+    			}
+    			concreteSetterMethod.setBody(concreteSetterMethodBody);
+    			sbbConcreteClass.addMethod(concreteSetterMethod);
+    		} catch (CannotCompileException cce) {
+    			throw new SLEEException("Cannot compile method " + getterMethod.getName(), cce);
+    		}	         
+    	}
+            
     }
 
+    private String getEventTypeIDInstantionString(MEventEntry mEventEntry) {
+    	String eventTypeIDClassName = EventTypeID.class.getName();
+    	return eventTypeIDClassName+" eventTypeID = new "+eventTypeIDClassName+"(\""+mEventEntry.getEventReference().getEventTypeName()+"\",\""+mEventEntry.getEventReference().getEventTypeVendor()+"\",\""+mEventEntry.getEventReference().getEventTypeVersion()+"\");";
+    }
+    
     /**
      * Create the implementation of the fire event methods
      * 
@@ -975,9 +853,26 @@ public class ConcreteSbbGenerator {
 	            	method = (CtMethod) superClassesAbstractMethods.get(methodName);
 	            }
 	            if ( method != null ) {
-	                ConcreteClassGeneratorUtils.addInterceptedMethod(
-	                        sbbConcreteClass, method, SBB_FIREEVENT_INTERCEPTOR,
-	                        false);
+	            	try {
+	            		// copy method from abstract to concrete class
+	        			CtMethod concreteMethod = CtNewMethod.copy(method, sbbConcreteClass, null);
+	        			String eventTypeIDClassName = EventTypeID.class.getName();
+	        			// create the method body
+	        			String concreteMethodBody = "{";
+	        			concreteMethodBody += getEventTypeIDInstantionString(mEventEntry);
+	        			concreteMethodBody += SbbAbstractMethodHandler.class.getName()+".fireEvent(sbbEntity,eventTypeID";
+	        			for (int i=0; i< method.getParameterTypes().length; i++) {
+	        				concreteMethodBody += ",$"+(i+1);
+	        			}
+	        			concreteMethodBody += ");}";
+	        			if (logger.isDebugEnabled()) {
+	        				logger.debug("Generated method "+methodName+" , body = "+concreteMethodBody);
+	        			}
+	        			concreteMethod.setBody(concreteMethodBody);
+	        			sbbConcreteClass.addMethod(concreteMethod);
+	        		} catch (CannotCompileException cce) {
+	        			throw new SLEEException("Cannot compile method " + method.getName(), cce);
+	        		}	                
 	            }
             }
         }        
@@ -997,16 +892,23 @@ public class ConcreteSbbGenerator {
         for (MGetChildRelationMethod childRelation : childRelations) {
             String methodName = childRelation.getChildRelationMethodName();
             CtMethod method = (CtMethod) abstractMethods.get(methodName);
-            CtMethod superClassMethod = (CtMethod) this.superClassesAbstractMethods
-                    .get(methodName);
-            if (method != null)
-                ConcreteClassGeneratorUtils.addInterceptedMethod(
-                        sbbConcreteClass, method,
-                        SBB_CHILDRELATION_INTERCEPTOR, false);
-            else if (superClassMethod != null) {
-                ConcreteClassGeneratorUtils.addInterceptedMethod(
-                        sbbConcreteClass, superClassMethod,
-                        SBB_CHILDRELATION_INTERCEPTOR, false);
+            if(method == null) {
+            	method = (CtMethod) superClassesAbstractMethods.get(methodName);
+            }
+            if (method != null) {
+            	try {
+            		// copy method from abstract to concrete class
+        			CtMethod concreteMethod = CtNewMethod.copy(method, sbbConcreteClass, null);
+        			// create the method body
+        			String concreteMethodBody = "{ return "+SbbAbstractMethodHandler.class.getName()+".getChildRelation(sbbEntity,\""+methodName+"\"); }";
+        			if (logger.isDebugEnabled()) {
+        				logger.debug("Generated method "+methodName+" , body = "+concreteMethodBody);
+        			}
+        			concreteMethod.setBody(concreteMethodBody);
+        			sbbConcreteClass.addMethod(concreteMethod);
+        		} catch (CannotCompileException cce) {
+        			throw new SLEEException("Cannot compile method " + method.getName(), cce);
+        		}	       
             }
         }
     }

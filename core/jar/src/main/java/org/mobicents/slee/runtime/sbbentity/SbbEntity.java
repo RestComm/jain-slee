@@ -233,7 +233,7 @@ public class SbbEntity {
 	 * @throws SystemException
 	 */
 	public Object getCMPField(String cmpFieldName)
-			throws TransactionRequiredLocalException, SystemException {
+			throws TransactionRequiredLocalException {
 
 		if (log.isDebugEnabled()) {
 			log.debug("getCMPField() " + cmpFieldName);
@@ -277,7 +277,7 @@ public class SbbEntity {
 	}
 
 	public void setCMPField(String cmpFieldName, Object object)
-			throws TransactionRequiredLocalException, SystemException {
+			throws TransactionRequiredLocalException {
 
 		if (log.isDebugEnabled()) {
 			log

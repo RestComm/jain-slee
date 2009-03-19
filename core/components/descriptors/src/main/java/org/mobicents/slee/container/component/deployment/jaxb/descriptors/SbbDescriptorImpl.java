@@ -62,7 +62,7 @@ public class SbbDescriptorImpl {
 	 */
 	private Map<String, EventTypeID> eventTypesPerName;
 	
-	private List<MActivityContextAttributeAlias> activityContextAttributeAliases;
+	private Map<String,MActivityContextAttributeAlias> activityContextAttributeAliases;
 	private List<MEnvEntry> envEntries;
 	private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBindings;
 
@@ -135,8 +135,13 @@ public class SbbDescriptorImpl {
 				eventTypesPerName.put(mEventEntry.getEventName(), eventTypeID);
 			}
 
-			this.activityContextAttributeAliases = sbb
-					.getActivityContextAttributeAlias();
+			activityContextAttributeAliases = new HashMap<String, MActivityContextAttributeAlias>();
+			for (MActivityContextAttributeAlias alias : sbb.getActivityContextAttributeAlias()) {
+				for (String sbbActivityContextAttributeName : alias.getSbbActivityContextAttributeName()) {
+					activityContextAttributeAliases.put(sbbActivityContextAttributeName, alias);
+	        	}
+			}
+			
 			this.envEntries = sbb.getEnvEntry();
 
 			this.resourceAdaptorTypeBindings = sbb
@@ -254,7 +259,7 @@ public class SbbDescriptorImpl {
 		return eventTypesPerName.get(eventName);
 	}
 	
-	public List<MActivityContextAttributeAlias> getActivityContextAttributeAliases() {
+	public Map<String,MActivityContextAttributeAlias> getActivityContextAttributeAliases() {
 		return activityContextAttributeAliases;
 	}
 
