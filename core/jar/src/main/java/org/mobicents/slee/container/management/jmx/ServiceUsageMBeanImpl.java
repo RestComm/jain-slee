@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
@@ -57,7 +55,8 @@ import org.mobicents.slee.container.component.ServiceComponent;
  * @author martins
  */
 public class ServiceUsageMBeanImpl extends StandardMBean implements
-		ServiceUsageMBean, UsageMBeanImplParent, UsageNotificationManagerMBeanImplParent, Serializable {
+		ServiceUsageMBean, UsageMBeanImplParent,
+		UsageNotificationManagerMBeanImplParent, Serializable {
 
 	private static final long serialVersionUID = 2670146310843436229L;
 
@@ -83,8 +82,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	/**
 	 * the usage notification manager mbeans per sbb id
 	 */
-	private ConcurrentHashMap<SbbID,UsageNotificationManagerMBeanImpl> notificationManagers = new ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl>();
-		
+	private ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl> notificationManagers = new ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl>();
+
 	public ServiceUsageMBeanImpl(ServiceComponent serviceComponent)
 			throws NotCompliantMBeanException, MalformedObjectNameException,
 			NullPointerException {
@@ -92,18 +91,22 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		this.serviceID = serviceComponent.getServiceID();
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		try {
-			sleeContainer.getMBeanServer().registerMBean(this,
-					getObjectName());
+			sleeContainer.getMBeanServer().registerMBean(this, getObjectName());
 		} catch (Throwable e) {
-			throw new SLEEException("unable to register service usage mbean for "+serviceID,e);
+			throw new SLEEException(
+					"unable to register service usage mbean for " + serviceID,
+					e);
 		}
 		try {
-			// install all the  default usage parameters
-			for (SbbID sbbID : serviceComponent.getSbbIDs(sleeContainer.getComponentRepositoryImpl())) {
+			// install all the default usage parameters
+			for (SbbID sbbID : serviceComponent.getSbbIDs(sleeContainer
+					.getComponentRepositoryImpl())) {
 				createUsageParameterSet(sbbID);
 			}
 		} catch (Throwable e) {
-			throw new SLEEException("unable to create default usage param sets for "+serviceID,e);
+			throw new SLEEException(
+					"unable to create default usage param sets for "
+							+ serviceID, e);
 		}
 		serviceComponent.setServiceUsageMBean(this);
 	}
@@ -148,7 +151,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
-		_createUsageParameterSet(sbbId, null, false);		
+		_createUsageParameterSet(sbbId, null, false);
 	}
 
 	/*
@@ -183,7 +186,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					+ " is not part of " + getService());
 		}
 		// get sbb usage parameter class
-		Class usageParameterClass = sbbComponent.getUsageParametersConcreteClass();
+		Class usageParameterClass = sbbComponent
+				.getUsageParametersConcreteClass();
 		if (usageParameterClass == null) {
 			if (failIfSbbHasNoUsageParamSet) {
 				throw new InvalidArgumentException(sbbId.toString()
@@ -210,39 +214,60 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			currentThread.setContextClassLoader(sbbComponent.getClassLoader());
 			// create the actual usage parameter instance and map it in the
 			// mbean
-			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass.getConstructor(null)
-					.newInstance(new Object[0]);
+			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass
+					.getConstructor(null).newInstance(new Object[0]);
 			// create and register the usage mbean
-			Class usageParameterMBeanClass = sbbComponent.getUsageParametersMBeanImplConcreteClass();
-			SbbNotification sbbNotification = new SbbNotification(serviceID,sbbId);
+			Class usageParameterMBeanClass = sbbComponent
+					.getUsageParametersMBeanImplConcreteClass();
+			SbbNotification sbbNotification = new SbbNotification(serviceID,
+					sbbId);
 			Constructor constructor = null;
 			if (sbbComponent.isSlee11()) {
-				constructor = usageParameterMBeanClass.getConstructor(new Class[] { Class.class, NotificationSource.class });				 
+				constructor = usageParameterMBeanClass
+						.getConstructor(new Class[] { Class.class,
+								NotificationSource.class });
+			} else {
+				constructor = usageParameterMBeanClass
+						.getConstructor(new Class[] { Class.class,
+								SbbNotification.class });
 			}
-			else {
-				constructor = usageParameterMBeanClass.getConstructor(new Class[] { Class.class, SbbNotification.class });				
-			}
-			ObjectName usageParameterMBeanObjectName = generateUsageParametersMBeanObjectName(name, sbbId,sbbComponent.isSlee11());
-			usageMbean = (UsageMBeanImpl) constructor.newInstance(new Object[] {sbbComponent.getUsageParametersMBeanConcreteInterface(), sbbNotification});
+			ObjectName usageParameterMBeanObjectName = generateUsageParametersMBeanObjectName(
+					name, sbbId, sbbComponent.isSlee11());
+			usageMbean = (UsageMBeanImpl) constructor.newInstance(new Object[] {
+					sbbComponent.getUsageParametersMBeanConcreteInterface(),
+					sbbNotification });
 			usageMbean.setObjectName(usageParameterMBeanObjectName);
 			usageMbean.setParent(this);
-			sleeContainer.getMBeanServer().registerMBean(usageMbean, usageParameterMBeanObjectName);
+			sleeContainer.getMBeanServer().registerMBean(usageMbean,
+					usageParameterMBeanObjectName);
 			// set the usage param data related with the mbean
 			installedUsageParameterSet.setName(name);
 			installedUsageParameterSet.setUsageMBean(usageMbean);
 			usageMbean.setUsageParameter(installedUsageParameterSet);
 			// store the mbean
 			this.usageMBeans.put(mapKey, usageMbean);
-			// if it's the default usage param set and it's an slee 1.1. sbb then we have to create the notification manager too
+			// if it's the default usage param set and it's an slee 1.1. sbb
+			// then we have to create the notification manager too
 			if (sbbComponent.isSlee11() && name == null) {
-				Class usageNotificationManagerMBeanClass = sbbComponent.getUsageNotificationManagerMBeanImplConcreteClass();
-				constructor = usageNotificationManagerMBeanClass.getConstructor(new Class[] { Class.class, NotificationSource.class });				
-				usageNotificationManagerMBean = (UsageNotificationManagerMBeanImpl) constructor.newInstance(new Object[] {sbbComponent.getUsageNotificationManagerMBeanConcreteInterface(), sbbNotification});
+				Class usageNotificationManagerMBeanClass = sbbComponent
+						.getUsageNotificationManagerMBeanImplConcreteClass();
+				constructor = usageNotificationManagerMBeanClass
+						.getConstructor(new Class[] { Class.class,
+								NotificationSource.class });
+				usageNotificationManagerMBean = (UsageNotificationManagerMBeanImpl) constructor
+						.newInstance(new Object[] {
+								sbbComponent
+										.getUsageNotificationManagerMBeanConcreteInterface(),
+								sbbNotification });
 				ObjectName usageNotificationManagerMBeanObjectName = generateUsageNotificationManagerMBeanObjectName(sbbId);
-				usageNotificationManagerMBean.setObjectName(usageNotificationManagerMBeanObjectName);
+				usageNotificationManagerMBean
+						.setObjectName(usageNotificationManagerMBeanObjectName);
 				usageNotificationManagerMBean.setParent(this);
-				sleeContainer.getMBeanServer().registerMBean(usageNotificationManagerMBean, usageNotificationManagerMBeanObjectName);
-				this.notificationManagers.put(sbbId, usageNotificationManagerMBean);
+				sleeContainer.getMBeanServer().registerMBean(
+						usageNotificationManagerMBean,
+						usageNotificationManagerMBeanObjectName);
+				this.notificationManagers.put(sbbId,
+						usageNotificationManagerMBean);
 			}
 
 		} catch (Throwable e) {
@@ -262,8 +287,10 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					sleeContainer.getMBeanServer().unregisterMBean(
 							usageNotificationManagerMBean.getObjectName());
 				} catch (Throwable f) {
-					logger.error("failed to unregister usage notification manager mbean "
-							+ usageNotificationManagerMBean.getObjectName());
+					logger
+							.error("failed to unregister usage notification manager mbean "
+									+ usageNotificationManagerMBean
+											.getObjectName());
 				}
 			}
 			throw new ManagementException(e.getMessage(), e);
@@ -271,7 +298,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			currentThread.setContextClassLoader(currentThreadClassLoader);
 		}
 	}
-	
+
 	private boolean isValidUsageParameterName(String str) {
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
@@ -310,9 +337,9 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			try {
 				removeUsageParameterSet(mapKey.sbbID, mapKey.paramName);
 			} catch (Throwable e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 			}
-		}		
+		}
 	}
 
 	private synchronized void _removeUsageParameterSet(SbbID sbbId, String name)
@@ -340,7 +367,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					+ " is not part of " + getService());
 		}
 		// get sbb usage parameter class
-		Class usageParameterClass = sbbComponent.getUsageParametersConcreteClass();
+		Class usageParameterClass = sbbComponent
+				.getUsageParametersConcreteClass();
 		if (usageParameterClass == null) {
 			throw new InvalidArgumentException(sbbId.toString()
 					+ " does not define a usage parameters interface");
@@ -371,7 +399,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 				logger.error("failed to re-register usage parameter mbean "
 						+ usageMbean.getObjectName());
 			}
-			// note: removal rollback of notification manager is done by the removeNotificationManager() method 
+			// note: removal rollback of notification manager is done by the
+			// removeNotificationManager() method
 			throw new ManagementException(e.getMessage(), e);
 		}
 	}
@@ -413,7 +442,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		}
 		Set<String> resultSet = new HashSet<String>();
 		for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
-			if (((SbbNotification)usageMBeanImpl.getNotificationSource()).getSbb().equals(sbbId)) {
+			if (((SbbNotification) usageMBeanImpl.getNotificationSource())
+					.getSbb().equals(sbbId)) {
 				String name = usageMBeanImpl.getUsageParameterSet();
 				if (name != null) {
 					resultSet.add(name);
@@ -545,7 +575,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		}
 
 		for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
-			SbbNotification sbbNotification = (SbbNotification) usageMBeanImpl.getNotificationSource();
+			SbbNotification sbbNotification = (SbbNotification) usageMBeanImpl
+					.getNotificationSource();
 			if (sbbNotification.getSbb().equals(sbbId)) {
 				usageMBeanImpl.resetAllUsageParameters();
 			}
@@ -562,8 +593,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	public synchronized void resetAllUsageParameters()
 			throws ManagementException {
 		try {
-			for (UsageMBeanImpl usageMBeanImpl : usageMBeans
-					.values()) {
+			for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
 				usageMBeanImpl.resetAllUsageParameters();
 			}
 		} catch (Throwable e) {
@@ -578,16 +608,15 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 */
 	public void close() throws ManagementException {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Unregistring Usage MBean of service "
-					+ getService());
+			logger.debug("Unregistring Usage MBean of service " + getService());
 		}
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final MBeanServer mbeanServer = sleeContainer.getMBeanServer();
 		try {
 			mbeanServer.unregisterMBean(getObjectName());
-		}
-		catch (Exception e) {
-			logger.error("failed to remove service usage mbean "+getObjectName(),e);
+		} catch (Exception e) {
+			logger.error("failed to remove service usage mbean "
+					+ getObjectName(), e);
 		}
 		// remove all service usage param
 		if (logger.isDebugEnabled()) {
@@ -596,13 +625,14 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		}
 		removeAllUsageParameterSet();
 		// remove usage mbean from service component
-		sleeContainer.getComponentRepositoryImpl().getComponentByID(serviceID).setServiceUsageMBean(null);
+		sleeContainer.getComponentRepositoryImpl().getComponentByID(serviceID)
+				.setServiceUsageMBean(null);
 	}
 
 	public ObjectName getSbbUsageNotificationManagerMBean(SbbID sbbId)
 			throws NullPointerException, UnrecognizedSbbException,
 			InvalidArgumentException, ManagementException {
-		
+
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
 
@@ -614,7 +644,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (sbbComponent == null) {
 			throw new UnrecognizedSbbException(sbbId.toString());
 		} else {
-			if (sbbComponent.getUsageNotificationManagerMBeanConcreteInterface() == null) {
+			if (sbbComponent
+					.getUsageNotificationManagerMBeanConcreteInterface() == null) {
 				throw new InvalidArgumentException(
 						"no notification manager defined for " + sbbId);
 			}
@@ -631,7 +662,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		try {
 			return generateUsageNotificationManagerMBeanObjectName(sbbId);
 		} catch (Throwable e) {
-			throw new ManagementException(e.getMessage(),e);
+			throw new ManagementException(e.getMessage(), e);
 		}
 	}
 
@@ -647,95 +678,158 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		this.serviceUsageMBeanObjectName = objectName;
 	}
 
-	private ObjectName generateUsageParametersMBeanObjectName(String name, SbbID sbbID, boolean isSlee11) throws MalformedObjectNameException, NullPointerException {
-		String objectNameAsString = UsageMBean.BASE_OBJECT_NAME + 
-		(name != null ? "," + UsageMBean.USAGE_PARAMETER_SET_NAME_KEY + '=' + ObjectName.quote(name) : "") + 
-		',' + UsageMBean.NOTIFICATION_SOURCE_KEY + '=' + (isSlee11 ? SbbNotification.USAGE_NOTIFICATION_TYPE : SbbUsageMBean.USAGE_NOTIFICATION_TYPE) +
-		',' + SbbNotification.SERVICE_NAME_KEY + '=' +  ObjectName.quote(serviceID.getName()) +
-		',' + SbbNotification.SERVICE_VENDOR_KEY + '=' + ObjectName.quote(serviceID.getVendor()) +
-		',' + SbbNotification.SERVICE_VERSION_KEY + '=' + ObjectName.quote(serviceID.getVersion()) +
-		',' + SbbNotification.SBB_NAME_KEY + '=' + ObjectName.quote(sbbID.getName()) +
-		',' + SbbNotification.SBB_VENDOR_KEY + '=' + ObjectName.quote(sbbID.getVendor()) +
-		',' + SbbNotification.SBB_VERSION_KEY + '=' + ObjectName.quote(sbbID.getVersion());
+	private ObjectName generateUsageParametersMBeanObjectName(String name,
+			SbbID sbbID, boolean isSlee11) throws MalformedObjectNameException,
+			NullPointerException {
+		String objectNameAsString = UsageMBean.BASE_OBJECT_NAME
+				+ (name != null ? "," + UsageMBean.USAGE_PARAMETER_SET_NAME_KEY
+						+ '=' + ObjectName.quote(name) : "")
+				+ ','
+				+ UsageMBean.NOTIFICATION_SOURCE_KEY
+				+ '='
+				+ (isSlee11 ? SbbNotification.USAGE_NOTIFICATION_TYPE
+						: SbbUsageMBean.USAGE_NOTIFICATION_TYPE) + ','
+				+ SbbNotification.SERVICE_NAME_KEY + '='
+				+ ObjectName.quote(serviceID.getName()) + ','
+				+ SbbNotification.SERVICE_VENDOR_KEY + '='
+				+ ObjectName.quote(serviceID.getVendor()) + ','
+				+ SbbNotification.SERVICE_VERSION_KEY + '='
+				+ ObjectName.quote(serviceID.getVersion()) + ','
+				+ SbbNotification.SBB_NAME_KEY + '='
+				+ ObjectName.quote(sbbID.getName()) + ','
+				+ SbbNotification.SBB_VENDOR_KEY + '='
+				+ ObjectName.quote(sbbID.getVendor()) + ','
+				+ SbbNotification.SBB_VERSION_KEY + '='
+				+ ObjectName.quote(sbbID.getVersion());
 		return new ObjectName(objectNameAsString);
 	}
-	
-	private ObjectName generateUsageNotificationManagerMBeanObjectName(SbbID sbbID) throws MalformedObjectNameException, NullPointerException {
-		String objectNameAsString = UsageNotificationManagerMBean.BASE_OBJECT_NAME + 		 
-		',' + UsageMBean.NOTIFICATION_SOURCE_KEY + '=' + SbbNotification.USAGE_NOTIFICATION_TYPE +
-		',' + SbbNotification.SERVICE_NAME_KEY + '=' +  ObjectName.quote(serviceID.getName()) +
-		',' + SbbNotification.SERVICE_VENDOR_KEY + '=' + ObjectName.quote(serviceID.getVendor()) +
-		',' + SbbNotification.SERVICE_VERSION_KEY + '=' + ObjectName.quote(serviceID.getVersion()) +
-		',' + SbbNotification.SBB_NAME_KEY + '=' + ObjectName.quote(sbbID.getName()) +
-		',' + SbbNotification.SBB_VENDOR_KEY + '=' + ObjectName.quote(sbbID.getVendor()) +
-		',' + SbbNotification.SBB_VERSION_KEY + '=' + ObjectName.quote(sbbID.getVersion());
+
+	private ObjectName generateUsageNotificationManagerMBeanObjectName(
+			SbbID sbbID) throws MalformedObjectNameException,
+			NullPointerException {
+		String objectNameAsString = UsageNotificationManagerMBean.BASE_OBJECT_NAME
+				+ ','
+				+ UsageMBean.NOTIFICATION_SOURCE_KEY
+				+ '='
+				+ SbbNotification.USAGE_NOTIFICATION_TYPE
+				+ ','
+				+ SbbNotification.SERVICE_NAME_KEY
+				+ '='
+				+ ObjectName.quote(serviceID.getName())
+				+ ','
+				+ SbbNotification.SERVICE_VENDOR_KEY
+				+ '='
+				+ ObjectName.quote(serviceID.getVendor())
+				+ ','
+				+ SbbNotification.SERVICE_VERSION_KEY
+				+ '='
+				+ ObjectName.quote(serviceID.getVersion())
+				+ ','
+				+ SbbNotification.SBB_NAME_KEY
+				+ '='
+				+ ObjectName.quote(sbbID.getName())
+				+ ','
+				+ SbbNotification.SBB_VENDOR_KEY
+				+ '='
+				+ ObjectName.quote(sbbID.getVendor())
+				+ ','
+				+ SbbNotification.SBB_VERSION_KEY
+				+ '='
+				+ ObjectName.quote(sbbID.getVersion());
 		return new ObjectName(objectNameAsString);
 	}
-	
+
 	/**
-	 * Convenience method to retrieve the default {@link InstalledUsageParameterSet} for the specified sbb
+	 * Convenience method to retrieve the default
+	 * {@link InstalledUsageParameterSet} for the specified sbb
+	 * 
 	 * @param sbbID
 	 * @return
+	 * @throws UnrecognizedUsageParameterSetNameException
 	 */
-	public InstalledUsageParameterSet getDefaultInstalledUsageParameterSet(SbbID sbbID) {
-		return getInstalledUsageParameterSet(sbbID, null);
+	public InstalledUsageParameterSet getDefaultInstalledUsageParameterSet(
+			SbbID sbbID) {
+		return _getInstalledUsageParameterSet(sbbID, null);
 	}
-	
+
 	/**
-	 * Convenience method to retrieve the {@link InstalledUsageParameterSet} for the specified sbb and name
+	 * Convenience method to retrieve the {@link InstalledUsageParameterSet} for
+	 * the specified sbb and name
+	 * 
 	 * @param sbbID
 	 * @param name
 	 * @return
+	 * @throws UnrecognizedUsageParameterSetNameException
 	 */
-	public InstalledUsageParameterSet getInstalledUsageParameterSet(SbbID sbbID, String name) {
+	public InstalledUsageParameterSet getInstalledUsageParameterSet(
+			SbbID sbbID, String name)
+			throws UnrecognizedUsageParameterSetNameException {
+		if (name == null) {
+			throw new NullPointerException("null name");
+		}
+		InstalledUsageParameterSet installedUsageParameterSet = _getInstalledUsageParameterSet(
+				sbbID, name);
+		if (installedUsageParameterSet == null) {
+			throw new UnrecognizedUsageParameterSetNameException(name);
+		}
+		return installedUsageParameterSet;
+	}
+
+	private InstalledUsageParameterSet _getInstalledUsageParameterSet(
+			SbbID sbbID, String name) {
 		if (sbbID == null) {
-			throw new NullPointerException(sbbID.toString());
+			throw new NullPointerException("null sbb id");
 		}
 		SbbUsageMBeanMapKey mapKey = new SbbUsageMBeanMapKey(sbbID, name);
 		UsageMBeanImpl usageMBean = usageMBeans.get(mapKey);
 		if (usageMBean == null) {
 			return null;
-		}
-		else {
+		} else {
 			return usageMBean.getUsageParameter();
 		}
 	}
-	
-	public UsageNotificationManagerMBeanImpl getUsageNotificationManagerMBean(NotificationSource notificationSource) {
-		return notificationManagers.get(((SbbNotification)notificationSource).getSbb());
+
+	public UsageNotificationManagerMBeanImpl getUsageNotificationManagerMBean(
+			NotificationSource notificationSource) {
+		return notificationManagers.get(((SbbNotification) notificationSource)
+				.getSbb());
 	}
-	
+
 	public void removeChild(UsageMBeanImpl usageMBeanImpl) {
 		try {
-			removeUsageParameterSet(((SbbNotification)usageMBeanImpl.getNotificationSource()).getSbb(), usageMBeanImpl.getUsageParameterSet());
+			removeUsageParameterSet(((SbbNotification) usageMBeanImpl
+					.getNotificationSource()).getSbb(), usageMBeanImpl
+					.getUsageParameterSet());
 		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	public void removeChild(UsageNotificationManagerMBeanImpl child) {
 		try {
-			removeNotificationManager(((SbbNotification)child.getNotificationSource()).getSbb());
+			removeNotificationManager(((SbbNotification) child
+					.getNotificationSource()).getSbb());
 		} catch (Throwable e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 	}
-	
-	private void removeNotificationManager(SbbID sbbId) throws ManagementException {
-		
+
+	private void removeNotificationManager(SbbID sbbId)
+			throws ManagementException {
+
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
 				.getComponentByID(sbbId);
-				
+
 		UsageNotificationManagerMBeanImpl usageMbean = null;
 		try {
 			// remove from this mbean map
 			usageMbean = this.notificationManagers.remove(sbbId);
 			if (usageMbean != null) {
 				sleeContainer.getMBeanServer().unregisterMBean(
-					usageMbean.getObjectName());
+						usageMbean.getObjectName());
 			}
 		} catch (Throwable e) {
 			// rollback changes
@@ -750,28 +844,29 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 						+ usageMbean.getObjectName());
 			}
 			throw new ManagementException(e.getMessage(), e);
-		}		
+		}
 	}
 
 	public class SbbUsageMBeanMapKey {
-		
+
 		private final SbbID sbbID;
 		private final String paramName;
-		
+
 		public SbbUsageMBeanMapKey(SbbID sbbID, String paramName) {
 			this.sbbID = sbbID;
 			this.paramName = paramName;
 		}
-		
+
 		@Override
 		public int hashCode() {
-			return sbbID.hashCode()*31 + (paramName != null ? paramName.hashCode() : 0);
+			return sbbID.hashCode() * 31
+					+ (paramName != null ? paramName.hashCode() : 0);
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			if (obj != null && obj.getClass() == this.getClass()) {
-				SbbUsageMBeanMapKey other = (SbbUsageMBeanMapKey)obj;
+				SbbUsageMBeanMapKey other = (SbbUsageMBeanMapKey) obj;
 				// check sbb id
 				if (!this.sbbID.equals(other.sbbID)) {
 					return false;
@@ -781,20 +876,18 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					if (this.paramName != null) {
 						return false;
 					}
-				} 
-				else {
+				} else {
 					if (!other.paramName.equals(this.paramName)) {
 						return false;
 					}
-				}				
+				}
 				return true;
-			}
-			else {
+			} else {
 				return false;
 			}
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -808,14 +901,17 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throw new NullPointerException("Null service ID ");
 
 		try {
-			return new ObjectName(ServiceUsageMBean.BASE_OBJECT_NAME 
-					+ ',' + ServiceUsageMBean.SERVICE_NAME_KEY + '=' + ObjectName.quote(serviceID.getName())
-					+ ',' + ServiceUsageMBean.SERVICE_VENDOR_KEY + '=' + ObjectName.quote(serviceID.getVendor())
-					+ ',' + ServiceUsageMBean.SERVICE_VERSION_KEY + '=' + ObjectName.quote(serviceID.getVersion()));
+			return new ObjectName(ServiceUsageMBean.BASE_OBJECT_NAME + ','
+					+ ServiceUsageMBean.SERVICE_NAME_KEY + '='
+					+ ObjectName.quote(serviceID.getName()) + ','
+					+ ServiceUsageMBean.SERVICE_VENDOR_KEY + '='
+					+ ObjectName.quote(serviceID.getVendor()) + ','
+					+ ServiceUsageMBean.SERVICE_VERSION_KEY + '='
+					+ ObjectName.quote(serviceID.getVersion()));
 		} catch (Exception e) {
 			throw new ManagementException(
 					"Exception while getting service usage mbean for service with id "
-					+ serviceID, e);
+							+ serviceID, e);
 		}
 	}
 }

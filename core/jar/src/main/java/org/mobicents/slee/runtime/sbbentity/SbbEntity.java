@@ -51,6 +51,7 @@ import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
+import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionRequiredException;
@@ -867,28 +868,6 @@ public class SbbEntity {
 
 	public boolean isAttached(String acId) {
 		return this.getActivityContexts().contains(acId);
-	}
-
-	public InstalledUsageParameterSet getDefaultSbbUsageParameterSet() {
-		if (log.isDebugEnabled()) {
-			log.debug("getDefaultSbbUsageParameterSet(): " + getServiceId()
-					+ " sbbID = " + getSbbId());
-		}
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		ServiceComponent serviceComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getServiceId());
-		ServiceUsageMBeanImpl serviceUsageMbean = (ServiceUsageMBeanImpl) serviceComponent.getServiceUsageMBean();
-		return serviceUsageMbean.getDefaultInstalledUsageParameterSet(getSbbId());
-	}
-
-	public Object getSbbUsageParameterSet(String name) {
-		if (log.isDebugEnabled()) {
-			log.debug("getSbbUsageParameterSet(): serviceId = " + getServiceId()
-					+ " , sbbID = " + getSbbId()+" , name = "+name);
-		}
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		ServiceComponent serviceComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getServiceId());
-		ServiceUsageMBeanImpl serviceUsageMbean = (ServiceUsageMBeanImpl) serviceComponent.getServiceUsageMBean();
-		return serviceUsageMbean.getInstalledUsageParameterSet(getSbbId(),name);
 	}
 
 	public SbbComponent getSbbComponent() {
