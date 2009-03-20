@@ -44,7 +44,8 @@ public class ProfileObject {
 	private String profileName = null;
 	private SleeContainer sleeContainer;
 	private boolean managementView = false;
-	private boolean sbbInvoked = false;
+	private boolean writeable = false;
+
 	/**
 	 * This indicates wheather we are service as snapshot, in that case we are
 	 * out of sync, and we can not commit. This is used in update, remove
@@ -82,6 +83,7 @@ public class ProfileObject {
 			this.profileConcrete = (ProfileConcrete) this.profileSpecificationComponent.getProfileCmpConcreteClass().newInstance();
 			this.profileConcrete.setProfileObject(this);
 			this.profileConcrete.setProfileTableConcrete(this.profileTableConcrete);
+
 		} catch (Exception ex) {
 
 			ex.printStackTrace();
@@ -115,12 +117,12 @@ public class ProfileObject {
 		this.managementView = managementView;
 	}
 
-	public boolean isSbbInvoked() {
-		return sbbInvoked;
+	public boolean isWriteable() {
+		return writeable;
 	}
 
-	public void setSbbInvoked(boolean sbbInvoked) {
-		this.sbbInvoked = sbbInvoked;
+	public void setWriteable(boolean writeable) {
+		this.writeable = writeable;
 	}
 
 	/**
@@ -178,6 +180,10 @@ public class ProfileObject {
 
 	}
 
+	public ProfileContextImpl getProfileContext() {
+		return profileContext;
+	}
+
 	// FIXME: determine if there is something more to do here
 	public void profileActivate() {
 		if (this.getState() != ProfileObjectState.POOLED) {
@@ -219,7 +225,7 @@ public class ProfileObject {
 			logger.error("Profile passivate, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
 		}
-		this.profileConcrete.commitChanges();
+
 		this.profileConcrete.profilePassivate();
 		this.state = ProfileObjectState.POOLED;
 

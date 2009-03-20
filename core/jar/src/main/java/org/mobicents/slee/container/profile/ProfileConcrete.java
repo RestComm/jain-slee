@@ -1,6 +1,7 @@
 package org.mobicents.slee.container.profile;
 
 import javax.slee.profile.Profile;
+import javax.slee.profile.ProfileManagement;
 
 /**
  * 
@@ -18,7 +19,7 @@ import javax.slee.profile.Profile;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public interface ProfileConcrete extends Profile {
+public interface ProfileConcrete extends Profile ,ProfileManagement{
 
 	public void setProfileTableConcrete(ProfileTableConcrete profileTableConcrete);
 
@@ -29,11 +30,18 @@ public interface ProfileConcrete extends Profile {
 	public ProfileObject getProfileObject();
 
 	public void setProfileName(String profileName);
+	public String getProfileName();
 	
 	/**
-	 * This method is invoked at the end of transaction to commit profile data into backend storage
+	 * This method is used by management client
+	 * @return
 	 */
+	public Boolean getProfileDirty();
+	public void setProfileDirty(Boolean b);
 	public void commitChanges();
+
+	public Boolean getProfileInBackEndStorage();
+	public void setProfileInBackEndStorage(Boolean b);
 
 	// /**
 	// * Assigns to this ProfileEntity to a profile object, and then invoke

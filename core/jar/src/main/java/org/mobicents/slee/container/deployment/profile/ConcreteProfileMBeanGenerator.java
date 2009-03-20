@@ -1,12 +1,17 @@
 package org.mobicents.slee.container.deployment.profile;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.slee.management.DeploymentException;
+import javax.slee.management.ManagementException;
+import javax.slee.profile.ProfileImplementationException;
 
 import javassist.CannotCompileException;
 import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.Modifier;
 import javassist.NotFoundException;
 
 import org.apache.log4j.Logger;
@@ -15,12 +20,13 @@ import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
+import org.mobicents.slee.container.profile.ProfileMBeanConcrete;
 
 public class ConcreteProfileMBeanGenerator {
 
 	private static final Logger logger = Logger.getLogger(ConcreteProfileManagementGenerator.class);
-	public static final String _INTERCEPTOR_MANAGEMENT = "profileManagementInterceptor";
-
+	public static final String _MBEAN_CMP_INTERCEPTOR = "super.profileObject.getProfileConcrete()";
+	public static final String _MBEAN_MGMT_INTERCEPTOR = "super.profileObject.getProfileConcrete()";
 	private ProfileSpecificationComponent component = null;
 	private String cmpProfileInterfaceName = null;
 
@@ -31,16 +37,16 @@ public class ConcreteProfileMBeanGenerator {
 	private CtClass profileMBeanConcreteClass = null;
 	private CtClass profileMBeanConcreteInterface = null;
 	private CtClass sleeProfileMBean = null;
-	private CtClass profileManagementAbstractClass = null;
+	private CtClass mobicentsProfileMBean = null;
 
-	public ConcreteProfileMBeanGenerator(ProfileSpecificationComponent component, CtClass profileManagementAbstractClass) {
+	public ConcreteProfileMBeanGenerator(ProfileSpecificationComponent component) {
 		super();
 		this.component = component;
 		ProfileSpecificationDescriptorImpl descriptor = component.getDescriptor();
 		this.cmpProfileInterfaceName = descriptor.getProfileClasses().getProfileCMPInterface().getProfileCmpInterfaceName();
 		this.profileManagementInterfaceName = descriptor.getProfileManagementInterface() == null ? null : descriptor.getProfileManagementInterface().getProfileManagementInterfaceName();
 		this.pool = component.getClassPool();
-		this.profileManagementAbstractClass = profileManagementAbstractClass;
+		
 
 	}
 
@@ -110,7 +116,7 @@ public class ConcreteProfileMBeanGenerator {
 
 		Class clazz = null;
 		try {
-			clazz = Thread.currentThread().getContextClassLoader().loadClass(cmpProfileInterfaceName + "MBean");
+			clazz = component.getClassLoader().loadClass(cmpProfileInterfaceName + "MBean");
 			this.component.setProfileMBeanConcreteInterfaceClass(clazz);
 		} catch (ClassNotFoundException e) {
 			throw new DeploymentException("Encountered exception while generating class.", e);
@@ -135,51 +141,37 @@ public class ConcreteProfileMBeanGenerator {
 		String tmpClassName = ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_PREFIX + cmpProfileInterfaceName + ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX;
 
 		profileMBeanConcreteClass = pool.makeClass(tmpClassName);
-
-		// Implements the javax.management.StandardMBean
-		CtClass jmxMBean = null;
+		
+		
+		
 		try {
-			jmxMBean = pool.get("javax.management.StandardMBean");
+			mobicentsProfileMBean = pool.get(ProfileMBeanConcrete.class.getName());
 		} catch (NotFoundException nfe) {
 			throw new DeploymentException("Failed to locate requried class.", nfe);
 		}
-		// Implements the javax.slee.profile.ProfileMBean
-		/*
-		 * try{ sleeProfileMBean=pool.get("javax.slee.profile.ProfileMBean"); }
-		 * catch(NotFoundException nfe){ nfe.printStackTrace(); return null; }
-		 */
-		// Implements the ProfileMBean previously generated
-		try {
-			profileMBeanConcreteInterface = pool.get(cmpProfileInterfaceName + "MBean");
-		} catch (NotFoundException nfe) {
-			throw new DeploymentException("Failed to locate requried class.", nfe);
-		}
-		CtClass[] interfaces = new CtClass[2];
-		interfaces[0] = sleeProfileMBean;
-		interfaces[1] = profileMBeanConcreteInterface;
+		
+		
+		
+		
+		CtClass[] interfaces = new CtClass[1];
+		//interfaces[0] = sleeProfileMBean;
+		interfaces[0] = profileMBeanConcreteInterface;
 		ConcreteClassGeneratorUtils.createInterfaceLinks(profileMBeanConcreteClass, interfaces);
-		ConcreteClassGeneratorUtils.createInheritanceLink(profileMBeanConcreteClass, jmxMBean);
-		// createMBeanInterceptorFields();
-		// createDefaultMBeanConstructor();
-		// createInterceptorFields();
-		// createDefaultConstructor();
-		// Creates the constructor with parameters
-		try {
-			String[] parameterNames = { _INTERCEPTOR_MANAGEMENT, "profile" };
-			CtClass[] parametersClasses = new CtClass[] { pool.get("org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor"), pool.get("java.lang.Object") };
-			ConcreteProfileManagementGenerator.createConstructorWithParameter(parameterNames, parametersClasses, profileMBeanConcreteClass, true, this.component.getDescriptor()
-					.getProfileCMPInterface().getProfileCmpInterfaceName());
-		} catch (NotFoundException nfe) {
-			logger.error("Constructor With Parameter not created");
-			nfe.printStackTrace();
-		}
-
+		ConcreteClassGeneratorUtils.createInheritanceLink(profileMBeanConcreteClass, mobicentsProfileMBean);
+		
 		// implements methods defined in the profileMBean interface previously
 		// generated
-		Map profileMBeanInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(profileMBeanConcreteInterface);
+		
+		
+		
+		Map<String,CtMethod> profileCmpMethods = ClassUtils.getInterfaceMethodsFromInterface(cmpProfileInterface);
+		//if there is no management interface management interface == CMP interface
+		Map<String,CtMethod> managementInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(profileManagementInterfaceName==null?cmpProfileInterface:cmpProfileInterface);
 
-		ConcreteProfileManagementGenerator.generateConcreteMethods(profileMBeanConcreteClass, profileManagementAbstractClass, profileMBeanInterfaceMethods, _INTERCEPTOR_MANAGEMENT);
-
+		generateCmpAccessors(profileMBeanConcreteClass,managementInterfaceMethods,profileCmpMethods);
+		generateBussinesMethods(profileMBeanConcreteClass,managementInterfaceMethods);
+		
+		
 		try {
 			// @@2.4+ -> 3.4+
 			// pool.writeFile(
@@ -206,7 +198,7 @@ public class ConcreteProfileMBeanGenerator {
 
 		Class clazz = null;
 		try {
-			clazz = Thread.currentThread().getContextClassLoader().loadClass(tmpClassName);
+			clazz = component.getClassLoader().loadClass(tmpClassName);
 			this.component.setProfileMBeanConcreteImplClass(clazz);
 		} catch (ClassNotFoundException e1) {
 			throw new DeploymentException("Failed to load concrete MBean impl class", e1);
@@ -216,6 +208,212 @@ public class ConcreteProfileMBeanGenerator {
 			throw new DeploymentException("Failed to obtain concrete MBean impl class, bug?");
 		}
 
+	}
+
+	
+	/**
+	 * Delegates all methods to proper interceptor. Takes care of section 10.26.2
+	 * @param profileMBeanConcreteClass
+	 * @param profileManagementMethods
+	 * @throws Exception
+	 */
+	private void generateBussinesMethods(CtClass profileMBeanConcreteClass, Map<String, CtMethod> profileManagementMethods) throws Exception{
+	
+		Iterator<Map.Entry<String, CtMethod>> it= profileManagementMethods.entrySet().iterator();
+		
+		while(it.hasNext())
+		{
+			Map.Entry<String, CtMethod> entry = it.next();
+		
+			instrumentBussinesMethod(profileMBeanConcreteClass,entry.getValue(),_MBEAN_MGMT_INTERCEPTOR);		
+		}
+		
+		
+	}
+
+	private void instrumentBussinesMethod(CtClass profileMBeanConcreteClass, CtMethod method,  String interceptorAccess) throws Exception{
+
+
+		method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
+		String returnStatement = "";
+		boolean hasReturnValue = false;
+		if(method.getReturnType().toString().compareTo("void")==0)
+		{
+			returnStatement="return";
+		}else
+		{
+			hasReturnValue = true;
+			returnStatement ="return ($r)";
+		}
+		
+		
+		
+		//Slee 1.1 specs section 10.26.2
+		String body="{ "+
+		"boolean createdTransaction = false;"+
+		"boolean rollback = true;"+
+		"try {"+
+		"	createdTransaction = this.sleeTransactionManager.requireTransaction();";
+		if(hasReturnValue)
+			body+="Object result = "+interceptorAccess+"."+method.getName()+"($$);";
+		else
+			body+=" = "+interceptorAccess+"."+method.getName()+"($$);";
+		
+		body+="rollback = false;";
+		if(hasReturnValue)
+			body+=returnStatement+"result;";
+		else	
+			body+=returnStatement+";";		
+		
+		body+="} catch (javax.slee.profile.ReadOnlyProfileException e) {"+
+		"	throw new "+javax.slee.InvalidStateException.class.getName()+"(\"Profile is read only.\");"+
+		"} catch("+java.lang.RuntimeException.class.getName()+" re)"+
+		"{"+
+		"	throw new "+ProfileImplementationException.class.getName()+"(re);"+
+		"} catch("+java.lang.Exception.class.getName()+" checked)"+
+		"{"+
+		"	throw new "+ProfileImplementationException.class.getName()+"(checked);"+
+		"}"+
+		"finally {"+
+			
+		"	if (rollback) {"+
+		"		try {"+
+		"			this.sleeTransactionManager.rollback();"+
+		"		} catch ("+java.lang.Exception.class.getName()+" e) {"+
+
+		"			e.printStackTrace();"+
+		"			throw new "+ManagementException.class.getName()+"(\"Failed to rollback\", e);"+
+		"		}"+
+		"	} else if (createdTransaction) {"+
+		"		 {"+
+		"			try {"+
+		"				this.sleeTransactionManager.commit();"+
+		"			} catch ("+java.lang.Exception.class.getName()+" e) {"+
+
+		"				e.printStackTrace();"+
+		"				throw new "+ManagementException.class.getName()+"(\"Failed to commit\", e);"+
+		"			}"+
+		"		}"+
+		"	}"+
+		"}" +
+	"}";
+		
+		
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);
+		}
+		
+		method.setBody(body);
+		profileMBeanConcreteClass.addMethod(method);
+	}
+
+	private void instrumentCmpMethod(CtClass concreteClass,CtMethod method, boolean isGet, String interceptorAccess) throws Exception
+	{
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("Instrumenting method, name:"+method.getName());
+		}
+		
+		method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
+		String returnStatement = "return";
+		if(isGet)
+		{
+			returnStatement="return ($r)";
+		}
+		String body="{"+
+		"boolean createdTransaction = false;"+
+		"boolean rollback = true;"+
+		"try {"+
+		"	createdTransaction = this.sleeTransactionManager.requireTransaction();";
+			if(isGet)
+				body+="Object result = "+interceptorAccess+"."+method.getName()+"($$);";
+			else
+				body+=" = "+interceptorAccess+"."+method.getName()+"($$);";
+			
+			body+="rollback = false;";
+			if(isGet)
+				body+=returnStatement+"result;";
+			else	
+				body+=returnStatement+";";
+		body+="} catch ("+javax.slee.profile.ReadOnlyProfileException.class.getName()+" e) {"+
+		"	throw new "+javax.slee.InvalidStateException.class.getName()+"(\"Profile is read only.\");"+
+		"} finally {"+
+			
+		"	if (rollback) {"+
+		"		try {"+
+		"			this.sleeTransactionManager.rollback();"+
+		"		} catch ("+java.lang.Exception.class.getName()+" e) {"+
+
+		"			e.printStackTrace();"+
+		"			throw new "+ManagementException.class.getName()+"(\"Failed to rollback\", e);"+
+		"		}"+
+		"	} else if (createdTransaction) {"+
+		"		 {"+
+		"			try {"+
+		"				this.sleeTransactionManager.commit();"+
+		"			} catch ("+java.lang.Exception.class.getName()+" e) {"+
+
+		"				e.printStackTrace();"+
+		"				throw new "+ManagementException.class.getName()+"(\"Failed to commit\", e);"+
+		"			}"+
+		"		}"+
+		"	}"+
+		"}" +
+	"}";
+		
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);
+		}
+		
+		method.setBody(body);
+		concreteClass.addMethod(method);
+		
+	
+	}
+
+	/**
+	 * This method generates cmp accessors methods passed in firs map arg.
+	 * second contains management methods that will be instrumented. See
+	 * description of params.
+	 * 
+	 * @param profileMBeanConcreteClass
+	 *            - concrete class to add concrete methods.
+	 * @param profileManagementMethods
+	 *            - management methods. This is full list of management methods
+	 *            - including methods from management interface. In case there
+	 *            is no management interface, this contains full cmp list. As
+	 *            methods are instrumented, cmp methods are removed from here.
+	 *            At the end of execution only management methods will remain
+	 * @param profileCmpMethods
+	 *            - cmp itnerface methods, this is used to determine if method
+	 *            is cmp or management || management cmp hidding method
+	 * @throws Exception
+	 */
+	private void generateCmpAccessors(CtClass profileMBeanConcreteClass, Map<String, CtMethod> profileManagementMethods, Map<String, CtMethod> profileCmpMethods) throws  Exception{
+		Iterator<Map.Entry<String, CtMethod>> it= profileManagementMethods.entrySet().iterator();
+		
+		while(it.hasNext())
+		{
+			Map.Entry<String, CtMethod> entry = it.next();
+			if(profileCmpMethods.containsKey(ClassUtils.getMethodKey(entry.getValue())))
+			{
+				instrumentCmpMethod(profileMBeanConcreteClass, entry.getValue(), entry.getKey().startsWith(ClassUtils.GET_PREFIX), _MBEAN_CMP_INTERCEPTOR);
+				
+				it.remove();
+			}else
+			{
+				//its management method, interceptedelsewhere
+				if(logger.isDebugEnabled())
+				{
+					logger.debug("Not instrumenting CMP like method as it is management method,name: "+entry.getValue().getName());
+				}
+			}
+			
+		}
+		
+		
 	}
 
 }
