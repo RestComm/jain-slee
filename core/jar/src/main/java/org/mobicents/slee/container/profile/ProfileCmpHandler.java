@@ -48,32 +48,39 @@ public class ProfileCmpHandler {
 	public void setCmpField(String fieldName, Object value) throws UnsupportedOperationException, IllegalStateException {
 
 		profileObject.getProfileTableConcrete().getProfileManagement().getSleeContainer().getTransactionManager().mandateTransaction();
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// this operation is allowed ONLY
+			// 1. for 1.1 profiles - if profile is write able
+			// 2. for management clients
+			// if a sbb tries to set a value, it is not authorized
 
-		// this operation is allowed ONLY
-		// 1. for 1.1 profiles - if profile is write able
-		// 2. for management clients
-		// if a sbb tries to set a value, it is not authorized
-
-		// This covers Management client
-		if (this.profileObject.isManagementView()) {
-			// write check is a double check to MBean, but lets be clear here
-			if (this.profileObject.isWriteable())
-				throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + this.profileObject.getProfileTableConcrete().getProfileTableName()
-						+ " ,is not writeable.");
-		} else {
-			// this gets
-			if (!this.profileObject.isProfileWriteable()) {
-				throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + this.profileObject.getProfileTableConcrete().getProfileTableName()
-						+ " ,is not writeable.");
+			// This covers Management client
+			if (this.profileObject.isManagementView()) {
+				// write check is a double check to MBean, but lets be clear
+				// here
+				if (this.profileObject.isWriteable())
+					throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + this.profileObject.getProfileTableConcrete().getProfileTableName()
+							+ " ,is not writeable.");
+			} else {
+				// this gets
+				if (!this.profileObject.isProfileWriteable()) {
+					throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + this.profileObject.getProfileTableConcrete().getProfileTableName()
+							+ " ,is not writeable.");
+				}
 			}
-		}
 
-		if (!this.profileObject.isCanAccessCMP()) {
-			throw new IllegalStateException("Can not access CMP field at this moment.");
-		}
+			if (!this.profileObject.isCanAccessCMP()) {
+				throw new IllegalStateException("Can not access CMP field at this moment.");
+			}
 
-		// FIXME: set
-		this.profileObject.getProfileConcrete().setProfileDirty(true);
+			// FIXME: set
+			this.profileObject.getProfileConcrete().setProfileDirty(true);
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
 
 	}
 
@@ -86,15 +93,31 @@ public class ProfileCmpHandler {
 	public Object getCmpField(String fieldName) {
 
 		profileObject.getProfileTableConcrete().getProfileManagement().getSleeContainer().getTransactionManager().mandateTransaction();
-
-		if (!this.profileObject.isCanAccessCMP()) {
-			throw new IllegalStateException("Can not access CMP field at this moment.");
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			if (!this.profileObject.isCanAccessCMP()) {
+				throw new IllegalStateException("Can not access CMP field at this moment.");
+			}
+			return null;
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
 		}
-		return null;
+
 	}
 
 	public void commitChanges() {
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
 
+			// FIXME: put something here
+
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
 	}
 
 	/**

@@ -252,6 +252,9 @@ public class ConcreteProfileMBeanGenerator {
 		String body="{ "+
 		"boolean createdTransaction = false;"+
 		"boolean rollback = true;"+
+		"Thread t = Thread.currentThread();"+
+		"ClassLoader oldClassLoader = t.getContextClassLoader();"+
+		"t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());"+
 		"try {"+
 		"	createdTransaction = this.sleeTransactionManager.requireTransaction();";
 		if(hasReturnValue)
@@ -275,7 +278,7 @@ public class ConcreteProfileMBeanGenerator {
 		"	throw new "+ProfileImplementationException.class.getName()+"(checked);"+
 		"}"+
 		"finally {"+
-			
+		"t.setContextClassLoader(oldClassLoader);"+	
 		"	if (rollback) {"+
 		"		try {"+
 		"			this.sleeTransactionManager.rollback();"+

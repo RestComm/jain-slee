@@ -180,6 +180,10 @@ public class ProfileObject {
 
 	}
 
+	public ProfileSpecificationComponent getProfileSpecificationComponent() {
+		return profileSpecificationComponent;
+	}
+
 	public ProfileContextImpl getProfileContext() {
 		return profileContext;
 	}

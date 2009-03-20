@@ -185,6 +185,9 @@ public class ConcreteProfileLocalObjectGenerator {
 		}
 		String body="{ "+
 		_PLO_PO_ALLOCATION+
+		"Thread t = Thread.currentThread();"+
+		"ClassLoader oldClassLoader = t.getContextClassLoader();"+
+		"t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());"+
 		"try{";
 		if(hasReturnValue)
 			body+="Object result = "+interceptorAccess+"."+method.getName()+"($$);";
@@ -207,6 +210,10 @@ public class ConcreteProfileLocalObjectGenerator {
 		"		throw new "+SLEEException.class.getName()+"(\"System level failure.,\",e);"+ 
 		"	}"+ 
 		"}" +
+		"finally"+
+		"{"+
+		"	t.setContextClassLoader(oldClassLoader);"+
+		"}"+
 	"}";
 		
 		if(logger.isDebugEnabled())

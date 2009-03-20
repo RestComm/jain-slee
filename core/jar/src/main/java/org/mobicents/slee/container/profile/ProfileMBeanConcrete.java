@@ -62,39 +62,52 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	// #################
 
 	public void closeProfile() throws InvalidStateException, ManagementException {
-		/*
-		 * SLEE 1.1 spec, 10.26.3.4 closeProfile method
-		 */
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			/*
+			 * SLEE 1.1 spec, 10.26.3.4 closeProfile method
+			 */
 
-		/*
-		 * The Administrator invokes the closeProfile method when the
-		 * Administrator no longer requires access to the Profile MBean object.
-		 * The implementation of this method is free to deregister the Profile
-		 * MBean object from the MBean Server. ( but if you do this then test #
-		 * 4386 will fail! )
-		 */
-		if (logger.isDebugEnabled()) {
-			logger.debug("closeProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
-			logger.debug("profileWriteable " + this.profileObject.isWriteable());
-			logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
-		}
-		/*
-		 * The closeProfile method must throw a javax.slee.InvalidStateException
-		 * if the Profile MBean object is in the read-write state.
-		 */
-		if (this.profileObject.isWriteable() && this.profileObject.getProfileConcrete().isProfileDirty())
-			throw new InvalidStateException();
+			/*
+			 * The Administrator invokes the closeProfile method when the
+			 * Administrator no longer requires access to the Profile MBean
+			 * object. The implementation of this method is free to deregister
+			 * the Profile MBean object from the MBean Server. ( but if you do
+			 * this then test # 4386 will fail! )
+			 */
+			if (logger.isDebugEnabled()) {
+				logger.debug("closeProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
+				logger.debug("profileWriteable " + this.profileObject.isWriteable());
+				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+			}
+			/*
+			 * The closeProfile method must throw a
+			 * javax.slee.InvalidStateException if the Profile MBean object is
+			 * in the read-write state.
+			 */
+			if (this.profileObject.isWriteable() && this.profileObject.getProfileConcrete().isProfileDirty())
+				throw new InvalidStateException();
 
-		// Jean -- Should close imply unregister ? I think not.
-		// sleeProfileManager.unregisterProfileMBean(profileKey);
-		if (logger.isDebugEnabled()) {
-			logger.debug("profileWriteable " + this.profileObject.isWriteable());
-			logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
-			logger.debug("closeProfile call ended");
+			// Jean -- Should close imply unregister ? I think not.
+			// sleeProfileManager.unregisterProfileMBean(profileKey);
+			if (logger.isDebugEnabled()) {
+				logger.debug("profileWriteable " + this.profileObject.isWriteable());
+				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("closeProfile call ended");
+			}
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
 		}
 	}
 
 	public void commitProfile() throws InvalidStateException, ProfileVerificationException, ManagementException {
+
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+
 		/*
 		 * 10.26.3.2 commitProfile method
 		 */
@@ -296,6 +309,8 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			}
 
 		} finally {
+			// FIXME: is this ok to set it befiore rollback?
+			t.setContextClassLoader(oldClassLoader);
 			try {
 				// if the tx was not completed by now, then there was an
 				// exception and it should roll back
@@ -310,43 +325,53 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	public void editProfile() throws ManagementException {
-		/*
-		 * The Administrator invokes the editProfile method to obtain read-write
-		 * access to the Profile MBean object (if the Administrator currently
-		 * has read-only access to the Profile MBean object).
-		 */
-		if (logger.isDebugEnabled()) {
-			logger.debug("editProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
-			logger.debug("profileWriteable " + this.profileObject.isWriteable());
-			logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
-		}
 
-		if (!this.profileObject.isWriteable()) {
-			if (logger.isDebugEnabled())
-				logger.debug("starting new Transaction and editing profile");
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
 			/*
-			 * The implementation of this method should start a new transaction
-			 * for the editing session, or perform the equivalent function.
+			 * The Administrator invokes the editProfile method to obtain
+			 * read-write access to the Profile MBean object (if the
+			 * Administrator currently has read-only access to the Profile MBean
+			 * object).
 			 */
-			// sleeProfileManager.startTransaction(profileKey);
-			// sleeProfileManager.startTransaction();
-			// boolean b = txManager.requireTransaction();
-			this.profileObject.setWriteable(true);
-			this.profileObject.profileLoad();
-			// if ( b ) txManager.commit();
-		}
-		/*
-		 * If the Profile MBean object is already in the read-write state when
-		 * this method is invoked, this method has no further effect and returns
-		 * silently.
-		 */
-		else {
-			logger.debug("profile already in the read/write state");
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("profileWriteable " + this.profileObject.isWriteable());
-			logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
-			logger.debug("editProfile call ended");
+			if (logger.isDebugEnabled()) {
+				logger.debug("editProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
+				logger.debug("profileWriteable " + this.profileObject.isWriteable());
+				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+			}
+
+			if (!this.profileObject.isWriteable()) {
+				if (logger.isDebugEnabled())
+					logger.debug("starting new Transaction and editing profile");
+				/*
+				 * The implementation of this method should start a new
+				 * transaction for the editing session, or perform the
+				 * equivalent function.
+				 */
+				// sleeProfileManager.startTransaction(profileKey);
+				// sleeProfileManager.startTransaction();
+				// boolean b = txManager.requireTransaction();
+				this.profileObject.setWriteable(true);
+				this.profileObject.profileLoad();
+				// if ( b ) txManager.commit();
+			}
+			/*
+			 * If the Profile MBean object is already in the read-write state
+			 * when this method is invoked, this method has no further effect
+			 * and returns silently.
+			 */
+			else {
+				logger.debug("profile already in the read/write state");
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("profileWriteable " + this.profileObject.isWriteable());
+				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("editProfile call ended");
+			}
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
 		}
 
 	}
@@ -378,39 +403,47 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	public void restoreProfile() throws InvalidStateException, ManagementException {
-		/*
-		 * The Administrator invokes the restoreProfile method if the
-		 * Administrator wishes to discard changes made to the Profile
-		 * Management object that caches the persistent state of a Profile. The
-		 * implementation of this method rolls back any changes that have been
-		 * made to the Profile Management object since the Profile MBean object
-		 * entered the read-write state and moves the Profile MBean object to
-		 * the read-only state. If the Profile MBean object was returned by the
-		 * createProfile method (see Section 14.11), then no new Profile is
-		 * created since the transaction will not commit The execution of this
-		 * method must begin in the same transaction context as that begun by
-		 * the createProfile or editProfile invocation that initiated the
-		 * editing session, but must roll back the transaction before returning.
-		 */
-		if (logger.isDebugEnabled()) {
-			logger.debug("restoreProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
-			logger.debug("profileWriteable " + this.profileObject.isWriteable());
-			logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
-		}
-		/*
-		 * The restoreProfile method must throw a
-		 * javax.slee.InvalidStateException if the Profile MBean object is not
-		 * in the read-write state.
-		 */
-		if (!this.profileObject.isWriteable())
-			throw new InvalidStateException();
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			/*
+			 * The Administrator invokes the restoreProfile method if the
+			 * Administrator wishes to discard changes made to the Profile
+			 * Management object that caches the persistent state of a Profile.
+			 * The implementation of this method rolls back any changes that
+			 * have been made to the Profile Management object since the Profile
+			 * MBean object entered the read-write state and moves the Profile
+			 * MBean object to the read-only state. If the Profile MBean object
+			 * was returned by the createProfile method (see Section 14.11),
+			 * then no new Profile is created since the transaction will not
+			 * commit The execution of this method must begin in the same
+			 * transaction context as that begun by the createProfile or
+			 * editProfile invocation that initiated the editing session, but
+			 * must roll back the transaction before returning.
+			 */
+			if (logger.isDebugEnabled()) {
+				logger.debug("restoreProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
+				logger.debug("profileWriteable " + this.profileObject.isWriteable());
+				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+			}
+			/*
+			 * The restoreProfile method must throw a
+			 * javax.slee.InvalidStateException if the Profile MBean object is
+			 * not in the read-write state.
+			 */
+			if (!this.profileObject.isWriteable())
+				throw new InvalidStateException();
 
-		this.profileObject.profileLoad();
-		this.profileObject.setWriteable(false);
-		if (logger.isDebugEnabled()) {
-			logger.debug("profileWriteable " + this.profileObject.isWriteable());
-			logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
-			logger.debug("restoreProfile call ended");
+			this.profileObject.profileLoad();
+			this.profileObject.setWriteable(false);
+			if (logger.isDebugEnabled()) {
+				logger.debug("profileWriteable " + this.profileObject.isWriteable());
+				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("restoreProfile call ended");
+			}
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
 		}
 
 	}
@@ -425,7 +458,6 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	protected String getProfileTableName() {
-		
 
 		return this.profileObject.getProfileTableConcrete().getProfileTableName();
 	}

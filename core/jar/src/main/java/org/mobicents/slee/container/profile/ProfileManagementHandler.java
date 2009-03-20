@@ -6,13 +6,11 @@ import javax.slee.profile.ProfileContext;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileVerificationException;
 
-
-public class ProfileManagementHandler{
+public class ProfileManagementHandler {
 
 	private ProfileCmpHandler profileCmpHandler = null;
 	private ProfileObject profileObject = null;
-	
-	
+
 	public void setProfileCmpHandler(ProfileCmpHandler profileCmpHandler) {
 		this.profileCmpHandler = profileCmpHandler;
 	}
@@ -32,60 +30,126 @@ public class ProfileManagementHandler{
 
 	public void markProfileDirty() {
 		profileObject.getProfileConcrete().setProfileDirty(true);
-		
+
 	}
 
 	public void profileInitialize() {
-		//FIXME: ??
-		
+
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
+
 	}
 
 	public void profileLoad() {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
+
 	}
 
 	public void profileStore() {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
+
 	}
 
 	public void profileVerify() throws ProfileVerificationException {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
+
 	}
 
 	public void profileActivate() {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
+
 	}
 
 	public void profilePassivate() {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
 	}
 
 	public void profilePostCreate() throws CreateException {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
+
 	}
 
 	public void profileRemove() {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
 	}
 
 	public void setProfileContext(ProfileContext arg0) {
-		// TODO Auto-generated method stub
-		
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
+
 	}
 
 	public void unsetProfileContext() {
-		// TODO Auto-generated method stub
-		
-	}
-	
+		Thread t = Thread.currentThread();
+		ClassLoader oldClassLoader = t.getContextClassLoader();
+		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try {
+			// FIXME: ??
+		} finally {
+			t.setContextClassLoader(oldClassLoader);
+		}
 
-	
+	}
 
 }
