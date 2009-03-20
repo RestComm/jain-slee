@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import javax.slee.ServiceID;
 
 /**
- * Storage of data in event router {@link ExecutorService}'s threads, always related with the events being routed.
+ * Storage of data in event router {@link ExecutorService}'s threads
  * 
  * @author martins
  *

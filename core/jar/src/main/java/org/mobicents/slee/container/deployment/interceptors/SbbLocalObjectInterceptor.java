@@ -13,12 +13,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.LinkedList;
 
+import javax.slee.SLEEException;
 import javax.slee.TransactionRolledbackLocalException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
+import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
 
@@ -69,9 +72,11 @@ public class SbbLocalObjectInterceptor {
             Thread.currentThread().setContextClassLoader(myClassLoader);
 
         SbbConcrete sbbConcrete = (SbbConcrete) proxy;
+        String sbbEntityId = sbbConcrete.getSbbEntity().getSbbEntityId();
+        LinkedList<String> invokedsbbEntities = EventRoutingTransactionData.getFromTransactionContext().getInvokedSbbEntities();
         try {
-
             Method meth = proxy.getClass().getMethod(methodName, types);
+            invokedsbbEntities.add(sbbEntityId);
             return meth.invoke(proxy, args);
         } catch (InvocationTargetException ex) {           
             if (logger.isDebugEnabled())
@@ -92,9 +97,13 @@ public class SbbLocalObjectInterceptor {
             }
         } catch (Exception ex) {
             if (logger.isDebugEnabled())
-                ex.printStackTrace();
+                logger.error(ex.getMessage(), ex);
             throw ex;
         } finally {
+        	// FIXME remove the equals test once this model is bug proof
+        	if (!invokedsbbEntities.removeLast().equals(sbbEntityId)) {
+        		logger.error("last sbb entity id removed from event routing tx data was not the expected");
+        	}
             if (SleeContainer.isSecurityEnabled())
                 AccessController.doPrivileged(new PrivilegedAction() {
                     public Object run() {

@@ -34,6 +34,7 @@ import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
+import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
 
 /**
@@ -131,9 +132,31 @@ public class ResourceManagement {
 								+ entityName + " already exists! RA ID: " + id);
 			}
 			
-			ResourceAdaptorEntityNotification notifiationSource = new ResourceAdaptorEntityNotification(entityName);
-			ResourceAdaptorEntity raEntity = new ResourceAdaptorEntity(
-					entityName, component, properties, sleeContainer,notifiationSource);
+			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			ResourceAdaptorEntityNotification notificationSource = new ResourceAdaptorEntityNotification(entityName);
+			traceMBeanImpl.registerNotificationSource(notificationSource);
+			ResourceAdaptorEntity raEntity =null;
+			try { 
+				raEntity = new ResourceAdaptorEntity(
+						entityName, component, properties, sleeContainer,notificationSource);
+			}
+			catch (InvalidConfigurationException e) {
+				traceMBeanImpl.deregisterNotificationSource(notificationSource);
+				throw e;
+			}
+			catch (InvalidArgumentException e) {
+				traceMBeanImpl.deregisterNotificationSource(notificationSource);
+				throw e;
+			}
+			catch (SLEEException e) {
+				traceMBeanImpl.deregisterNotificationSource(notificationSource);
+				throw e;
+			}
+			catch (Throwable e) {
+				traceMBeanImpl.deregisterNotificationSource(notificationSource);
+				throw new SLEEException(e.getMessage(),e);
+			}
+			
 			for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
 				Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
 				if (set == null) {

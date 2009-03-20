@@ -1,41 +1,7 @@
-/*
- * Mobicents: The Open Source SLEE Platform      
- *
- * Copyright 2003-2005, CocoonHive, LLC., 
- * and individual contributors as indicated
- * by the @authors tag. See the copyright.txt 
- * in the distribution for a full listing of   
- * individual contributors.
- *
- * This is free software; you can redistribute it
- * and/or modify it under the terms of the 
- * GNU General Public License (GPL) as
- * published by the Free Software Foundation; 
- * either version 2 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that 
- * it will be useful, but WITHOUT ANY WARRANTY; 
- * without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR 
- * PURPOSE. See the GNU Lesser General Public License
- * for more details.
- *
- * You should have received a copy of the 
- * GNU General Public
- * License along with this software; 
- * if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, 
- * Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site:
- * http://www.fsf.org.
- */
-
 package org.mobicents.slee.runtime.sbbentity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -51,30 +17,24 @@ import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
-import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionRequiredException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.SleeContainerUtils;
-import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
-import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
-import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.service.Service;
-import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.SbbEntityCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
+import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
+import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
@@ -98,9 +58,6 @@ public class SbbEntity {
 
 	static private final Logger log = Logger.getLogger(SbbEntity.class);
 	static private final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-	
-	private Transaction transaction;
-	private DeferredEvent currentEvent;
 
 	private final String sbbeId; // This is the primary key of the SbbEntity.
 	
@@ -142,8 +99,8 @@ public class SbbEntity {
 		setServiceId(svcId);
 		setServiceConvergenceName(convergenceName);
 		
-		this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
-				.getObjectPool(getSbbId());
+		this.pool = sleeContainer.getSbbPoolManagement()
+				.getObjectPool(getServiceId(),getSbbId());
 		this.sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getSbbId());
 		if (this.sbbComponent == null) {
 			String s = "Sbb component/descriptor not found for sbbID["
@@ -177,8 +134,8 @@ public class SbbEntity {
 		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
 		if (cacheData.exists()) {
 					
-			this.pool = sleeContainer.getSbbManagement().getSbbPoolManagement()
-					.getObjectPool(getSbbId());
+			this.pool = sleeContainer.getSbbPoolManagement()
+					.getObjectPool(getServiceId(),getSbbId());
 			this.sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getSbbId());
 			if (this.sbbComponent == null) {
 				String s = "Sbb component/descriptor not found for sbbID["
@@ -512,6 +469,10 @@ public class SbbEntity {
 
 		// It invokes the appropriate life cycle methods (see Section 6.3) of an
 		// SBB object that caches the SBB entity state.
+		boolean invokingServiceSet = EventRouterThreadLocals.getInvokingService() != null;
+		if (!invokingServiceSet) {
+			EventRouterThreadLocals.setInvokingService(getServiceId());
+		}
 		try {
 			if (this.sbbObject == null) {
 				this.assignAndActivateSbbObject();
@@ -524,6 +485,11 @@ public class SbbEntity {
 				this.trashObject();
 			} catch (Exception e2) {
 				throw new RuntimeException("Transaction Failure.", e2);
+			}
+		}
+		finally {
+			if(!invokingServiceSet) {
+				EventRouterThreadLocals.setInvokingService(null);
 			}
 		}
 
@@ -573,185 +539,52 @@ public class SbbEntity {
 		cacheData.setSbbId(sbbId);
 	}
 
-	private static final String TRANSACTION_CONTEXT_DATA_KEY_CURRENT_EVENT = "ce";
-	
-	public DeferredEvent getCurrentEvent() {
-		return this.currentEvent;
-	}
-
-	public void setCurrentEvent(DeferredEvent sleeEvent) {
-		this.currentEvent = sleeEvent;
-	}
-
-	/**
-	 * 
-	 * see JSLEE 1.0 spec, section 8.4.2 "SBB abstract class event handler
-	 * methods"
-	 * 
-	 */
-	private Method getEventHandlerMethod(DeferredEvent sleeEvent) {
-
-		EventTypeID eventType = sleeEvent.getEventTypeId();
-		// Note -- this naming convention is part of the slee specification.
-		String methodName = "on" + sbbComponent.getDescriptor().getEventEntries().get(eventType).getEventName();
-
-		Class concreteClass = sbbComponent.getConcreteSbbClass();
-
-		if (log.isDebugEnabled()) {
-			log.debug("invoking event handler " + methodName + " on "
-					+ concreteClass.getName() + " ID " + sbbComponent.getSbbID()
-					+ " sbbEntity " + this + " currentEvent " + sleeEvent);
-		}
-
-		Class[] args = new Class[2];
-		EventTypeComponent eventComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(sleeEvent.getEventTypeId());
-		
-		// Once an error has been seen, we fire no more event handler
-		// methods.
-
-		ClassLoader ccl = SleeContainerUtils.getCurrentThreadClassLoader();
-		try {
-			args[0] = ccl.loadClass(eventComponent.getDescriptor().getEventClassName());
-		} catch (ClassNotFoundException e) {
-			String s = "Caught ClassNotFoundException in loading class";
-			log.error(s, e);
-			throw new RuntimeException(s, e);
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("event className is "
-					+ eventComponent.getDescriptor().getEventClassName());
-			log
-					.debug("event class is ARGS[0] of the event handler: args[0] == "
-							+ args[0]);
-		}
-
-		// Signature has to match correctly with the invoked method.
-
-		Method method = null;
-		boolean isCustomAciMethod = false;
-		// Is there a custom SBB activity context interface.
-		args[1] = sbbComponent.getActivityContextInterface();
-		if (args[1] != null) {			
-			try {
-				method = concreteClass.getMethod(methodName, args);
-				isCustomAciMethod = true;
-			} catch (NoSuchMethodException e) {
-				String s = "Caught NoSuchMethodException in loading class. There is no event handler with custom SBB ACI argument";
-				if (log.isDebugEnabled()) {
-					log.debug(s, e);
-				}				
-			}
-		}
-		if (!isCustomAciMethod) {
-			// since there is no event handler with custom SBB ACI, let's look
-			// for a handler with generic ACI argument
-			try {
-				// since there is no event handler with custom SBB ACI, let's
-				// look for a handler with generic ACI argument
-				args[1] = ActivityContextInterface.class;
-				method = concreteClass.getMethod(methodName, args);
-			} catch (NoSuchMethodException e) {
-				String s = "Caught NoSuchMethodException while loading event handler method.";
-				log.error(s, e);
-				throw new RuntimeException(s, e);
-			}
-		}
-
-		return method;
-	}
-
-	/**
-	 * Implementing SLEE 8.4.2
-	 * 
-	 * @param sleeEvent
-	 *            to be delivered to the SBB
-	 * @param ac 
-	 * @return arguments that will be passed to the SBB event handler method
-	 */
-	private Object[] getEventHandlerParameters(DeferredEvent sleeEvent, ActivityContext ac) {
-
-		Object[] parameters = new Object[2];
-		if (log.isDebugEnabled()) {
-			log.debug("parameter [0] "
-					+ sleeEvent.getEvent().getClass().getName());
-		}
-		parameters[0] = sleeEvent.getEvent();
-
-		if (log.isDebugEnabled()) {
-			log.debug("**PARAMETER 0 IS:" + parameters[0]);
-			log.debug("**PARAM 0 class is:"
-					+ parameters[0].getClass().getName());
-		}
-		ActivityContextInterface activityContextInterface = null;
-
-		if (this.getSbbComponent().getActivityContextInterface() != null) {
-			ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(ac);
-			Class aciClass = this.getSbbComponent()
-					.getActivityContextInterfaceConcreteClass();
-			try {
-				// activityContextInterface = (ActivityContextInterface)
-				// aciClass.getConstructor(new Class[] {
-				// aciImpl.getClass(),this.getSbbDescriptor().getClass()
-				// }).newInstance(new Object[] { aciImpl,
-				// this.getSbbDescriptor() });
-				activityContextInterface = (ActivityContextInterface) aciClass
-						.getConstructor(
-								new Class[] {
-										aciImpl.getClass(),
-										SbbComponent.class })
-						.newInstance(
-								new Object[] { aciImpl, this.getSbbComponent() });
-			} catch (Exception e) {
-				String s = "Could Not create ACI!";
-				// log.error(s, e);
-				throw new RuntimeException(s, e);
-			}
-
-		} else {
-			activityContextInterface = new ActivityContextInterfaceImpl(ac);
-		}
-
-		// Stow this information away in case we have to call sbbExceptionThrown
-		sleeEvent.setLoadedAci(activityContextInterface);
-
-		parameters[1] = (ActivityContextInterface) activityContextInterface;
-		if (log.isDebugEnabled()) {
-			log.debug("**PARAMETER 1 IS:" + parameters[1]);
-			log.debug("**PARAM 1 class is:"
-					+ parameters[1].getClass().getName());
-		}
-
-		return parameters;
-	}
-
-	private void setServiceActivityFactory() throws Exception {
-		// store the serviceID in tx local data so shared service
-		// activity factory can use it
-		sleeContainer.getTransactionManager().getTransactionContext().getData().put(
-				ServiceActivityFactoryImpl.TXLOCALDATA_SERVICEID_KEY,
-				getServiceId());
-	}
-
 	/**
 	 * Actually invoke the event handler.
 	 * 
 	 */
 	public void invokeEventHandler(DeferredEvent sleeEvent, ActivityContext ac, EventContextImpl eventContextImpl) throws Exception {
-
-		// FIXME event context
-		.
 		
-		// Actually invoke the event handler.
-		Method method = getEventHandlerMethod(sleeEvent);
-		setServiceActivityFactory();
-		Object[] parameters = getEventHandlerParameters(sleeEvent,ac);
-
+		// get event handler method
+		EventHandlerMethod eventHandlerMethod = sbbComponent.getEventHandlerMethods().get(sleeEvent.getEventTypeId());			
+		// build aci
+		ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(ac);
+		ActivityContextInterface activityContextInterface = null;
+		if (eventHandlerMethod.getHasCustomACIParam()) {
+			try {
+				activityContextInterface = (ActivityContextInterface) this.getSbbComponent()
+				.getActivityContextInterfaceConcreteClass()
+						.getConstructor(
+								new Class[] {
+										aciImpl.getClass(),
+										SbbComponent.class })
+						.newInstance(
+								new Object[] { aciImpl, sbbComponent });
+			} catch (Exception e) {
+				String s = "Could not create Custom ACI!";
+				// log.error(s, e);
+				throw new SLEEException(s, e);
+			}
+		}
+		else {
+			activityContextInterface = aciImpl;
+		}
+		// now build the param array
+		Object[] parameters = null;
+		if (eventHandlerMethod.getHasEventContextParam()) {
+			parameters = new Object[]{sleeEvent.getEvent(),activityContextInterface,eventContextImpl};
+		}
+		else {
+			parameters = new Object[]{sleeEvent.getEvent(),activityContextInterface};
+		}
+		
+		// store some info about the invocation in the tx context
+		EventRoutingTransactionData data = new EventRoutingTransactionData(sleeEvent,activityContextInterface);
+		data.getInvokedSbbEntities().add(sbbeId);
+		data.putInTransactionContext();
+		// invoke method
 		try {
-			this.transaction = sleeContainer.getTransactionManager()
-					.getTransaction();
-
-			method.invoke(this.sbbObject.getSbbConcrete(), parameters);
-
+			eventHandlerMethod.getEventHandlerMethod().invoke(this.sbbObject.getSbbConcrete(), parameters);			
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (InvocationTargetException e) {
@@ -769,6 +602,8 @@ public class SbbEntity {
 				throw re;
 			}
 		}
+		// remove data from tx context
+		data.removeFromTransactionContext();
 	}
 
 	/**
@@ -783,7 +618,6 @@ public class SbbEntity {
 			// invoke the appropriate sbb life-cycle methods
 			this.sbbObject.sbbActivate();
 			this.sbbObject.setSbbEntity(this);
-			this.sbbObject.setServiceID(this.getServiceId());
 			this.sbbObject.setState(SbbObjectState.READY);
 		} catch (Exception e) {
 			log.error("Failed to assign and activate sbb object", e);
@@ -803,7 +637,6 @@ public class SbbEntity {
 			this.sbbObject = (SbbObject) this.pool.borrowObject();
 			// invoke the appropriate sbb life-cycle methods
 			this.sbbObject.setSbbEntity(this);
-			this.sbbObject.setServiceID(this.getServiceId());
 			this.sbbObject.sbbCreate();
 			this.sbbObject.setState(SbbObjectState.READY);
 			this.sbbObject.sbbPostCreate();
@@ -823,7 +656,6 @@ public class SbbEntity {
 		this.sbbObject.sbbPassivate();
 		this.sbbObject.setState(SbbObjectState.POOLED);
 		this.sbbObject.setSbbEntity(null);
-		this.sbbObject.setServiceID(null);
 		this.pool.returnObject(this.sbbObject);
 		this.sbbObject = null;
 		for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
@@ -845,7 +677,6 @@ public class SbbEntity {
 		this.sbbObject.sbbRemove();
 		this.sbbObject.setState(SbbObjectState.POOLED);
 		this.sbbObject.setSbbEntity(null);
-		this.sbbObject.setServiceID(null);
 		this.pool.returnObject(this.sbbObject);
 		this.sbbObject = null;
 		for (Iterator<SbbEntity> i = childsWithSbbObjects.iterator(); i
@@ -938,14 +769,9 @@ public class SbbEntity {
 	}
 
 	public void checkReEntrant() throws SLEEException {
-		try {
-			if ((!this.getSbbComponent().getDescriptor().getSbbAbstractClass().isReentrant())
-					&& this.transaction == sleeContainer.getTransactionManager().getTransaction())
-				throw new SLEEException(" re-entrancy not allowed ");
-		} catch (SystemException ex) {
-			throw new RuntimeException(
-					"Transaction Manager exception while checkReEntrant!", ex);
-		}
+		if ((!this.getSbbComponent().getDescriptor().getSbbAbstractClass().isReentrant())
+				&& EventRoutingTransactionData.getFromTransactionContext().getInvokedSbbEntities().contains(sbbeId))
+			throw new SLEEException(" re-entrancy not allowed ");
 	}
 
 	public SbbLocalObjectImpl createSbbLocalObject() {

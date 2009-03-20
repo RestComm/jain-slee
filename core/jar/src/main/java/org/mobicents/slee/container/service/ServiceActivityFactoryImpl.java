@@ -29,9 +29,9 @@ import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityFactory;
-import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -48,7 +48,6 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 	private static final long serialVersionUID = 1L;
 
 	public static final String JNDI_NAME = "factory";
-	public static final String TXLOCALDATA_SERVICEID_KEY = "serviceactivityfactory.serviceid";
 
 	/* (non-Javadoc)
 	 * @see javax.slee.serviceactivity.ServiceActivityFactory#getActivity()
@@ -58,11 +57,11 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 
 		SleeTransactionManager stm = SleeContainer.lookupFromJndi().getTransactionManager();
 		stm.mandateTransaction();
-		ServiceID serviceID = null;
-		try {
-			serviceID = (ServiceID) stm.getTransactionContext().getData().get(TXLOCALDATA_SERVICEID_KEY);
-		} catch (SystemException e) {
-			throw new FactoryException(e.getMessage(),e);
+		
+		ServiceID serviceID = EventRouterThreadLocals.getInvokingService();
+		
+		if (serviceID == null) {
+			throw new FactoryException("unable to find out the invoking service id");
 		}
 		return getActivity(serviceID);
 	}

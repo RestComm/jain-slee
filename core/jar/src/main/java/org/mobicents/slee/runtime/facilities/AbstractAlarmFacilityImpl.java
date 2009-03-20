@@ -14,27 +14,17 @@
  */
 package org.mobicents.slee.runtime.facilities;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.slee.ComponentID;
-import javax.slee.UnrecognizedAlarmException;
 import javax.slee.UnrecognizedComponentException;
 import javax.slee.facilities.AlarmFacility;
 import javax.slee.facilities.AlarmLevel;
 import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.Level;
-import javax.slee.management.AlarmNotification;
-import javax.slee.management.NotificationSource;
-import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
 /**
  * Implementation of the SLEE Alarm facility. This is statefull part of
@@ -46,34 +36,32 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
  * @see javax.slee.facilities.AlarmFacility
  * 
  */
-public class AlarmFacilityImpl implements AlarmFacility {
+public abstract class AbstractAlarmFacilityImpl implements AlarmFacility {
 
 	private AlarmMBeanImpl mBean;
 
-	private MNotificationSource notificationSource = null;
-
 	private AtomicInteger sequenceNumber = new AtomicInteger();
-	private Logger log = Logger.getLogger(AlarmFacilityImpl.class);
+	private Logger log = Logger.getLogger(AbstractAlarmFacilityImpl.class);
 
-	public AlarmFacilityImpl(AlarmMBeanImpl aMBean, NotificationSource notificationSource) {
+	public AbstractAlarmFacilityImpl(AlarmMBeanImpl aMBean) {
 
-		if(aMBean == null || notificationSource == null)
+		if(aMBean == null)
 		{
 			throw new NullPointerException("Parameters must not be null.");
 		}
 		this.mBean = aMBean;
-		this.notificationSource = new MNotificationSource(notificationSource);
-
 	}
 
+	public abstract MNotificationSource getNotificationSource();
+	
 	public boolean clearAlarm(String alarmID) throws NullPointerException, FacilityException {
 		if (alarmID == null) {
 			throw new NullPointerException("AllarmID must not be null.");
 		}
 
-		if (this.mBean.isSourceOwnerOfAlarm(this.notificationSource, alarmID)) {
+		if (this.mBean.isSourceOwnerOfAlarm(getNotificationSource(), alarmID)) {
 			//FIXME: not specified
-			throw new FacilityException("Source: "+this.notificationSource+", is not owner of alarm with id: "+alarmID);
+			throw new FacilityException("Source: "+getNotificationSource()+", is not owner of alarm with id: "+alarmID);
 		}
 		
 		try {
@@ -82,16 +70,16 @@ public class AlarmFacilityImpl implements AlarmFacility {
 			return this.mBean.clearAlarm(alarmID);
 
 		} catch (Exception e) {
-			throw new FacilityException("Failed to clear alarm: " + alarmID + ", for source: " + this.notificationSource, e);
+			throw new FacilityException("Failed to clear alarm: " + alarmID + ", for source: " + getNotificationSource(), e);
 		}
 		
 	}
 
 	public int clearAlarms() throws FacilityException {
 		try {
-			return this.mBean.clearAlarms(this.notificationSource.getNotificationSource());
+			return this.mBean.clearAlarms(getNotificationSource().getNotificationSource());
 		} catch (Exception e) {
-			throw new FacilityException("Failed to clear alarms for source: " + this.notificationSource, e);
+			throw new FacilityException("Failed to clear alarms for source: " + getNotificationSource(), e);
 		}
 	}
 
@@ -100,9 +88,9 @@ public class AlarmFacilityImpl implements AlarmFacility {
 			throw new NullPointerException("AlarmType must not be null.");
 		}
 		try {
-			return this.mBean.clearAlarms(this.notificationSource.getNotificationSource(), alarmType);
+			return this.mBean.clearAlarms(getNotificationSource().getNotificationSource(), alarmType);
 		} catch (Exception e) {
-			throw new FacilityException("Failed to clear alarms for source: " + this.notificationSource, e);
+			throw new FacilityException("Failed to clear alarms for source: " + getNotificationSource(), e);
 		}
 	}
 
@@ -133,13 +121,13 @@ public class AlarmFacilityImpl implements AlarmFacility {
 		}
 
 		try {
-			if (this.mBean.isAlarmAlive(this.notificationSource, alarmType, instanceID)) {
-				return this.mBean.getAlarmId(this.notificationSource, alarmType, instanceID);
+			if (this.mBean.isAlarmAlive(getNotificationSource(), alarmType, instanceID)) {
+				return this.mBean.getAlarmId(getNotificationSource(), alarmType, instanceID);
 			} else {
-				return this.mBean.raiseAlarm(this.notificationSource, alarmType, instanceID, level, message, cause);
+				return this.mBean.raiseAlarm(getNotificationSource(), alarmType, instanceID, level, message, cause);
 			}
 		} catch (Exception e) {
-			throw new FacilityException("Failed to raise alarm for source: " + this.notificationSource, e);
+			throw new FacilityException("Failed to raise alarm for source: " + getNotificationSource(), e);
 		}
 	}
 

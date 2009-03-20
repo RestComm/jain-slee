@@ -19,6 +19,7 @@ import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectPool;
@@ -32,7 +33,7 @@ public class InitialEventProcessor {
 	
 	private static final HandleRollback handleRollback = new HandleRollback();
 	private static final HandleSbbRollback handleSbbRollback = new HandleSbbRollback();
-	
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	/**
 	 * Process the initial events of a service. This method possibly creates new
 	 * Sbbs. The container keeps a factory that creates new Sbbs keyed on the
@@ -51,6 +52,8 @@ public class InitialEventProcessor {
 		ClassLoader invokerClassLoader = null;
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
+		
+		EventRouterThreadLocals.setInvokingService(serviceComponent.getServiceID());
 		
 		try {
 		
@@ -161,13 +164,13 @@ public class InitialEventProcessor {
 				
 			}
 
-			boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject, null, null, caught, invokerClassLoader, txMgr);
+			boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject, caught, invokerClassLoader, txMgr);
 			
 			if (sbbEntity == null && invokeSbbRolledBack) {
 				// If there is no entity associated then the invokeSbbRolledBack is
 				// handle in
 				// the same tx, otherwise in a new tx (6.10.1)
-				handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
+				handleSbbRollback.handleSbbRolledBack(null, sbbObject, invokerClassLoader, false, txMgr);
 				/* original code was, confirm in specs that at this time we should not send event object and aci
 				 * 
 					handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
@@ -189,7 +192,7 @@ public class InitialEventProcessor {
 			
 			// We may need to run sbbRolledBack for invocation sequence 1 in another tx
 			if (sbbEntity != null && invokeSbbRolledBack) {
-				handleSbbRollback.handleSbbRolledBack(sbbEntity, sbbObject, null, null, invokerClassLoader, false, txMgr);
+				handleSbbRollback.handleSbbRolledBack(sbbEntity, sbbObject, invokerClassLoader, false, txMgr);
 				/* original code was, confirm in specs that at this time we should not send event object and aci
 				 * 
 				handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
@@ -201,6 +204,8 @@ public class InitialEventProcessor {
 			logger.error("Failed to process initial event for "
 					+ serviceComponent.getServiceID(), e);
 		}
+		
+		EventRouterThreadLocals.setInvokingService(null);
 		
 		if (invokerClassLoader != null) {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -246,11 +251,9 @@ public class InitialEventProcessor {
 			selector.setCustomName(null);
 			selector.setInitialEvent(true);
 
-			SbbObjectPool pool = SleeContainer.lookupFromJndi().getSbbManagement()
-					.getSbbPoolManagement().getObjectPool(
+			SbbObjectPool pool = sleeContainer.getSbbPoolManagement().getObjectPool(serviceComponent.getServiceID(),
 							sbbComponent.getSbbID());
 			SbbObject sbbObject = (SbbObject) pool.borrowObject();
-			sbbObject.setServiceID(serviceComponent.getServiceID());
 			SbbConcrete concreteSbb = (SbbConcrete) sbbObject.getSbbConcrete();
 
 			Class[] argtypes = new Class[] { InitialEventSelector.class };
@@ -277,7 +280,6 @@ public class InitialEventProcessor {
 
 			} finally {
 				Thread.currentThread().setContextClassLoader(oldCl);
-				sbbObject.setServiceID(null);
 				pool.returnObject(sbbObject);
 			}
 		}

@@ -26,9 +26,8 @@ import org.mobicents.slee.container.deployment.SbbClassCodeGenerator;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
-import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
+import org.mobicents.slee.runtime.facilities.SbbAlarmFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
-import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -43,17 +42,9 @@ public class SbbManagement {
 
 	private final SleeContainer sleeContainer;
 	
-	// object pool management
-	private final SbbObjectPoolManagement sbbPoolManagement;
-	
 	public SbbManagement(SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
-		this.sbbPoolManagement = new SbbObjectPoolManagement(sleeContainer);
-		this.sbbPoolManagement.register();
-	}
-
-	public SbbObjectPoolManagement getSbbPoolManagement() {
-		return sbbPoolManagement;
+		
 	}
 
 	/**
@@ -94,18 +85,11 @@ public class SbbManagement {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
 				
-		// create the pool for the given SbbID
-		sbbPoolManagement.createObjectPool(sbbComponent,
-				sleeTransactionManager);
-
-		// Set Trace to off
+		// Set 1.0 Trace to off
 		sleeContainer.getTraceFacility().setTraceLevelOnTransaction(
 				sbbComponent.getSbbID(), Level.OFF);
 		sleeContainer.getAlarmFacility().registerComponent(
 				sbbComponent.getSbbID());
-		
-		//1.1
-		sleeContainer.getTraceFacility().getTraceMBeanImpl().registerNotificationSource(sbbComponent.getNotificationSource());
 		
 		logger.info("Installed SBB " + sbbComponent);
 	}
@@ -232,7 +216,7 @@ public class SbbManagement {
 		String alarm = "java:slee/facilities/alarm";
 		try {
 			//This hase to be checked, to be sure sbb have it under correct jndi binding
-			AlarmFacility sbbAlarmFacility = new AlarmFacilityImpl(this.sleeContainer.getAlarmFacility(),sbbComponent.getNotificationSource());
+			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),this.sleeContainer.getAlarmFacility());
 			newCtx.bind("alarm", sbbAlarmFacility);
 		} catch (NameAlreadyBoundException ex) {
 		}
@@ -504,7 +488,6 @@ public class SbbManagement {
 				logger.error("Name already bound ! ", ex);
 			}
 		}
-
 	}
 	
 	public void uninstallSbb(SbbComponent sbbComponent)
@@ -517,18 +500,11 @@ public class SbbManagement {
 		if (logger.isDebugEnabled())
 			logger.debug("Uninstalling "+sbbComponent);
 
-		// removes the sbb object pool
-		sbbPoolManagement.removeObjectPool(sbbComponent,
-				sleeTransactionManager);
-
 		// remove sbb from trace and alarm facilities
 		sleeContainer.getTraceFacility().unSetTraceLevel(
 				sbbComponent.getSbbID());
 		sleeContainer.getAlarmFacility().unRegisterComponent(
 				sbbComponent.getSbbID());
-		
-		//1.1
-		sleeContainer.getTraceFacility().getTraceMBeanImpl().deregisterNotificationSource(sbbComponent.getNotificationSource());
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removed SBB " + sbbComponent.getSbbID()

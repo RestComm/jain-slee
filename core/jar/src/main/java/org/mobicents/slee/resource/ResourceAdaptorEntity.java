@@ -31,7 +31,8 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
-import org.mobicents.slee.runtime.facilities.AlarmFacilityImpl;
+import org.mobicents.slee.runtime.facilities.AbstractAlarmFacilityImpl;
+import org.mobicents.slee.runtime.facilities.DefaultAlarmFacilityImpl;
 
 /**
  * 
@@ -77,7 +78,7 @@ public class ResourceAdaptorEntity {
 	/**
 	 * Alarm facility serving this RA entity(notification source)
 	 */
-	private AlarmFacility alarmFacility;
+	private AbstractAlarmFacilityImpl alarmFacility;
 
 	/**
 	 * the resource usage mbean for this ra, may be null
@@ -116,8 +117,8 @@ public class ResourceAdaptorEntity {
 		this.component = component;
 		this.sleeContainer = sleeContainer;
 		this.notificationSource = notificationSource;
-		this.alarmFacility = new AlarmFacilityImpl(this.sleeContainer
-				.getAlarmFacility(), this.notificationSource);
+		this.alarmFacility = new DefaultAlarmFacilityImpl(notificationSource,this.sleeContainer
+				.getAlarmFacility());
 		// create ra object
 		try {
 			Constructor cons = this.component.getResourceAdaptorClass()
@@ -310,15 +311,6 @@ public class ResourceAdaptorEntity {
 		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
 				.deregisterNotificationSource(this.getNotificationSource());
 		state = null;
-	}
-
-	/**
-	 * Method which performs some mgmt once RA Entity is installed
-	 */
-	public void installed() {
-		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
-				.registerNotificationSource(this.getNotificationSource());
-
 	}
 
 	/**

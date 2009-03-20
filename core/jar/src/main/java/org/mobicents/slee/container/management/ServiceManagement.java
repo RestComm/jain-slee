@@ -23,9 +23,11 @@ import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
+import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ManagementException;
+import javax.slee.management.SbbNotification;
 import javax.slee.management.ServiceState;
 import javax.slee.management.SleeState;
 import javax.slee.management.UnrecognizedResourceAdaptorEntityException;
@@ -38,8 +40,10 @@ import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
+import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceFactory;
+import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -561,7 +565,7 @@ public class ServiceManagement {
 	 * @param serviceComponent
 	 * @throws Exception
 	 */
-	public void installService(ServiceComponent serviceComponent)
+	public void installService(final ServiceComponent serviceComponent)
 			throws Exception {
 
 		if (logger.isDebugEnabled()) {
@@ -572,7 +576,7 @@ public class ServiceManagement {
 		
 		// creates and registers the service usage mbean
 		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(serviceComponent);
-		// add rollback action to close the mbean
+		// add rollback action to remove state created
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
 				try {
@@ -584,7 +588,33 @@ public class ServiceManagement {
 			}
 		};
 		sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-						
+		if (serviceComponent.isSlee11()) {
+			// register notification sources for all sbbs
+			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+				traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+			}
+			// add rollback action to remove state created
+			action = new TransactionalAction() {
+				public void execute() {
+					// remove notification sources for all sbbs
+					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+					for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+						traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+					}
+				}
+			};
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		}
+		
+		// create object pools
+		SbbObjectPoolManagement sbbObjectPoolManagement = sleeContainer.getSbbPoolManagement();
+		for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+			// create the pool for the given SbbID
+			sbbObjectPoolManagement.createObjectPool(serviceComponent.getServiceID(), componentRepositoryImpl.getComponentByID(sbbID),
+					sleeContainer.getTransactionManager());
+		}
+		
 		logger.info("Installed Service " + serviceComponent.getServiceID()
 				+ ". Root SBB is "
 				+ serviceComponent.getRootSbbComponent());
@@ -637,7 +667,6 @@ public class ServiceManagement {
 			}
 		}
 
-		// FIXME the removal of service usage and usage param mbeans should be restored on a rollback
 		if (logger.isDebugEnabled()) {
 			logger.debug("Closing Usage MBean of service "
 					+ serviceComponent.getServiceID());
@@ -657,6 +686,33 @@ public class ServiceManagement {
 				}
 			};
 			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		}
+		
+		if (serviceComponent.isSlee11()) {
+			// register notification sources for all sbbs
+			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+				traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+			}
+			// add rollback action to re-add state removed
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					// remove notification sources for all sbbs
+					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+					for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+						traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+					}
+				}
+			};
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		}
+		
+		// remove sbb object pools
+		SbbObjectPoolManagement sbbObjectPoolManagement = sleeContainer.getSbbPoolManagement();
+		for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+			// remove the pool for the given SbbID
+			sbbObjectPoolManagement.removeObjectPool(serviceComponent.getServiceID(), componentRepositoryImpl.getComponentByID(sbbID),
+					sleeContainer.getTransactionManager());
 		}
 		
 		if (logger.isDebugEnabled()) {

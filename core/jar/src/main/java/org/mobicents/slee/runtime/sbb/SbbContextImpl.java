@@ -28,6 +28,7 @@ import javax.slee.UnrecognizedEventException;
 import javax.slee.facilities.Tracer;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
+import javax.slee.management.SbbNotification;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
@@ -35,7 +36,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -102,9 +102,9 @@ public class SbbContextImpl implements SbbContext, Serializable {
 	 * 
 	 * @param notificationSource
 	 */
-	public SbbContextImpl(SbbObject sbbObject, NotificationSource notificationSource) {
+	public SbbContextImpl(SbbObject sbbObject) {
 		this.sbbObject = sbbObject;
-		this.notificationSource = notificationSource;
+		this.notificationSource = new SbbNotification(getService(),getSbb());
 	}
 
 	public ActivityContextInterface[] getActivities() throws TransactionRequiredLocalException, IllegalStateException, SLEEException {

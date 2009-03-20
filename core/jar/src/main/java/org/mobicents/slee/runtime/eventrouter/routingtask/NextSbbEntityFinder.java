@@ -4,9 +4,9 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.slee.EventTypeID;
+import javax.slee.ServiceID;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -24,8 +24,6 @@ public class NextSbbEntityFinder {
 
 	private static final Logger logger = Logger
 			.getLogger(NextSbbEntityFinder.class);
-
-	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 	/**
 	 * 
@@ -41,7 +39,7 @@ public class NextSbbEntityFinder {
 	 * @return
 	 */
 	public SbbEntity next(ActivityContext ac,
-			EventTypeID eventTypeID,Set<String> sbbEntitiesThatHandledCurrentEvent) {
+			EventTypeID eventTypeID, ServiceID service, Set<String> sbbEntitiesThatHandledCurrentEvent) {
 
 		String sbbEntityId = null;
 		SbbEntity sbbEntity = null;
@@ -60,6 +58,9 @@ public class NextSbbEntityFinder {
 			}
 			try {
 				sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
+				if (service != null && !service.equals(sbbEntity.getServiceId())) {
+					continue;
+				}
 				// check event is allowed to be handled by the sbb
 				MEventEntry mEventEntry = sbbEntity.getSbbComponent().getDescriptor().getEventEntries().get(eventTypeID);
 				if (mEventEntry != null && mEventEntry.isReceived()) {

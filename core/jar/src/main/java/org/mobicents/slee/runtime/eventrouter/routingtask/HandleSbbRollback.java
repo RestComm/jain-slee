@@ -4,9 +4,7 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.RolledBackContext;
 import javax.transaction.SystemException;
 
-import org.apache.commons.pool.ObjectPool;
 import org.apache.log4j.Logger;
-import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectPool;
@@ -39,7 +37,7 @@ public class HandleSbbRollback {
 	 * 
 	 */
 	public void handleSbbRolledBack(SbbEntity sbbEntity, SbbObject sbbObject,
-			Object eventObject, ActivityContextInterface aci, ClassLoader contextClassLoader,
+			ClassLoader contextClassLoader,
 			boolean removeRolledBack,SleeTransactionManager txMgr) {
 		// Sanity checks
 		if ((sbbEntity == null && sbbObject == null)
@@ -85,6 +83,13 @@ public class HandleSbbRollback {
 				}
 			}
 
+			Object eventObject = null;
+			ActivityContextInterface aci = null;
+			EventRoutingTransactionData data = EventRoutingTransactionData.getFromTransactionContext();
+			if (data != null) {
+				eventObject = data.getEventBeingDelivered().getEvent();
+				aci = data.getAciReceivingEvent();
+			}
 			RolledBackContext rollbackContext = new RolledBackContextImpl(
 					eventObject,
 					aci, removeRolledBack);
@@ -150,7 +155,7 @@ public class HandleSbbRollback {
 					.error(
 							"Exception thrown in attempting to invoke sbbRolledBack",
 							e);
-			sbbObject.sbbExceptionThrown(e, eventObject, aci);
+			sbbObject.sbbExceptionThrown(e);
 		} finally {
 			try {
 				if (txMgr.getTransaction() != null) {

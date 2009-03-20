@@ -1,6 +1,5 @@
 package org.mobicents.slee.runtime.eventrouter;
 
-import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.ServiceID;
@@ -13,16 +12,16 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityType;
 
 /**
- * A differed event. When an SBB posts an event, it winds up as one of these. When the tx commits, it actually makes it
- * into the event queue.
+ * A differed event. When an SBB posts an event, it winds up as one of these.
+ * When the tx commits, it actually makes it into the event queue.
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov (refactoring)
  * @author eduardomartins
- *
+ * 
  */
 public class DeferredEvent {
-	
+
 	private final SleeContainer sleeContainer;
 	private final EventRouterActivity era;
 	private final EventTypeID eventTypeId;
@@ -32,14 +31,10 @@ public class DeferredEvent {
 	private final Address address;
 	private final ServiceID serviceID;
 	private final int eventFlags;
-		
-	/**
-	 * the aci loaded for event routing, to be used in event handling rollbacks
-	 */
-	private ActivityContextInterface loadedAci;
 
 	public DeferredEvent(EventTypeID eventTypeId, Object event,
-			ActivityContext ac, Address address, ServiceID serviceID, int eventFlags, EventRouterActivity era, SleeContainer sleeContainer) {
+			ActivityContext ac, Address address, ServiceID serviceID,
+			int eventFlags, EventRouterActivity era, SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
 		this.era = era;
 		this.eventTypeId = eventTypeId;
@@ -48,7 +43,7 @@ public class DeferredEvent {
 		this.ach = ac.getActivityContextHandle();
 		this.address = address;
 		this.serviceID = serviceID;
-		this.eventFlags = eventFlags;		
+		this.eventFlags = eventFlags;
 	}
 
 	/**
@@ -61,7 +56,7 @@ public class DeferredEvent {
 	public ActivityContextHandle getActivityContextHandle() {
 		return ach;
 	}
-	
+
 	/**
 	 * @return Returns the address.
 	 */
@@ -86,34 +81,31 @@ public class DeferredEvent {
 	public int getEventFlags() {
 		return eventFlags;
 	}
-	
+
 	public ServiceID getService() {
 		return serviceID;
 	}
-	
+
 	public EventRouterActivity getEventRouterActivity() {
 		return era;
 	}
-	
-	public ActivityContextInterface getLoadedAci() {
-		return loadedAci;
-	}
-	
-	public void setLoadedAci(ActivityContextInterface aci) {
-		this.loadedAci = aci;
-	}
-	
+
 	// call backs
-	
+
 	public void eventProcessingSucceed() {
-		if (EventFlags.hasRequestProcessingSuccessfulCallback(eventFlags) && ach.getActivityType() == ActivityType.externalActivity) {
-			sleeContainer.getResourceManagement().getResourceAdaptorEntity(ach.getActivitySource()).eventProcessingSucceed(this);
+		if (EventFlags.hasRequestProcessingSuccessfulCallback(eventFlags)
+				&& ach.getActivityType() == ActivityType.externalActivity) {
+			sleeContainer.getResourceManagement().getResourceAdaptorEntity(
+					ach.getActivitySource()).eventProcessingSucceed(this);
 		}
 	}
-	
+
 	public void eventProcessingFailed(FailureReason failureReason) {
-		if (EventFlags.hasRequestProcessingFailedCallback(eventFlags) && ach.getActivityType() == ActivityType.externalActivity) {
-			sleeContainer.getResourceManagement().getResourceAdaptorEntity(ach.getActivitySource()).eventProcessingFailed(this, failureReason);
+		if (EventFlags.hasRequestProcessingFailedCallback(eventFlags)
+				&& ach.getActivityType() == ActivityType.externalActivity) {
+			sleeContainer.getResourceManagement().getResourceAdaptorEntity(
+					ach.getActivitySource()).eventProcessingFailed(this,
+					failureReason);
 		}
 	}
 }

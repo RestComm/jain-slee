@@ -19,13 +19,17 @@ import javax.slee.transaction.SleeTransactionManager;
 import javax.slee.usage.NoUsageParametersInterfaceDefinedException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
+import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 
 public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 
+	private static final Logger logger = Logger.getLogger(ResourceAdaptorContextImpl.class);
+	
 	private static final ResourceAdaptorContextTimer timer = new ResourceAdaptorContextTimer();
 	
 	private final ResourceAdaptorEntity raEntity;

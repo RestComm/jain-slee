@@ -1,6 +1,5 @@
 package org.mobicents.slee.runtime.facilities;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.slee.management.NotificationSource;
@@ -9,12 +8,6 @@ public class MNotificationSource {
 
 	private NotificationSource notificationSource = null;
 	private AtomicLong sequence = new AtomicLong(0);
-	
-	
-	
-	
-	
-	
 	
 	public MNotificationSource(NotificationSource notificationSource) {
 		super();

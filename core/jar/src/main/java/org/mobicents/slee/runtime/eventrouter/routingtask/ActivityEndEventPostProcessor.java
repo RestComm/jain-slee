@@ -113,7 +113,7 @@ public class ActivityEndEventPostProcessor {
 			} finally {
 				
 				if (rootSbbEntity != null) {
-					invokeSbbRolledBack = handleRollback.handleRollback(null,null,null,caught,rootSbbEntity.getSbbComponent().getClassLoader(),txMgr);
+					invokeSbbRolledBack = handleRollback.handleRollback(null,caught,rootSbbEntity.getSbbComponent().getClassLoader(),txMgr);
 				}
 				
 				try {
@@ -122,7 +122,7 @@ public class ActivityEndEventPostProcessor {
 					if (invokeSbbRolledBack) {
 						try {
 							if (rootSbbEntity != null) {
-								handleSbbRollback.handleSbbRolledBack(rootSbbEntity, null, null, null, rootSbbEntity.getSbbComponent().getClassLoader(), true, txMgr);
+								handleSbbRollback.handleSbbRolledBack(rootSbbEntity, null, rootSbbEntity.getSbbComponent().getClassLoader(), true, txMgr);
 							}
 						} catch (Exception ex) {
 							logger.error("problem in handleSbbRolledBack processing! ",ex);

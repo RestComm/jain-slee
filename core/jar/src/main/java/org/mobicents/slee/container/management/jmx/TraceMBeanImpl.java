@@ -403,33 +403,10 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 	}
 
 	public void registerNotificationSource(final NotificationSource src) {
-		if (this.tracerStorage.containsKey(src)) {
-
-		} else {
+		if (!this.tracerStorage.containsKey(src)) {
 			TracerStorage ts = new TracerStorage(src, this);
 			this.tracerStorage.put(src, ts);
-			
 		}
-		
-		
-		try {
-			if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
-			{
-				TransactionalAction action = new TransactionalAction() {
-					NotificationSource notiSrc = src;
-					public void execute() {
-						tracerStorage.remove(notiSrc);
-					}
-				};
-				SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
-			}
-		} catch (SystemException e) {
-			
-			e.printStackTrace();
-		}
-		
-		
-		
 	}
 
 	/**
@@ -440,24 +417,8 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 	 */
 	public void deregisterNotificationSource(final NotificationSource src) {
 		
-		final TracerStorage st=this.tracerStorage.remove(src);
+		this.tracerStorage.remove(src);
 		
-		try {
-			if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
-			{
-				TransactionalAction action = new TransactionalAction() {
-					NotificationSource notiSrc = src;
-					TracerStorage storage = st;
-					public void execute() {
-						tracerStorage.put(src,storage);
-					}
-				};
-				SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
-			}
-		} catch (SystemException e) {
-			
-			e.printStackTrace();
-		}
 	}
 
 	public boolean isNotificationSourceDefined(NotificationSource src) {

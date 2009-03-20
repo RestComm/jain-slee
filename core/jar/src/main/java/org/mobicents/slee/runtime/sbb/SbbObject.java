@@ -15,7 +15,9 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.eventrouter.SbbInvocationState;
+import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
 /*
@@ -45,15 +47,19 @@ public class SbbObject implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-	
+	private final static SleeContainer sleeContainer = SleeContainer
+			.lookupFromJndi();
+
 	transient private SbbObjectState state;
 
 	transient private SbbInvocationState invocationState = SbbInvocationState.NOT_INVOKING;
 
 	transient static private Logger log = Logger.getLogger(SbbEntity.class);
 
-	private ServiceID serviceID = null;
+	/**
+	 * the service id assigned to this object
+	 */
+	private final ServiceID serviceID;
 
 	private transient SbbEntity sbbEntity;
 
@@ -63,7 +69,7 @@ public class SbbObject implements Serializable {
 	/**
 	 * the sbb component
 	 */
-	private SbbComponent sbbComponent;
+	private final SbbComponent sbbComponent;
 
 	/**
 	 * The Sbb context is the object through which the Sbb interacts with the
@@ -74,36 +80,38 @@ public class SbbObject implements Serializable {
 	/**
 	 * Creates a new instance of SbbObject.
 	 * 
-	 * @param sbbComponent
-	 *            .
+	 * @param sbbComponent .
 	 * 
 	 * 
 	 */
-	public SbbObject(SbbComponent sbbComponent) {
+	public SbbObject(ServiceID serviceID, SbbComponent sbbComponent) {
 
+		this.serviceID = serviceID;
 		this.sbbComponent = sbbComponent;
 
 		this.createConcreteClass();
-				
+
 		// set sbb context
-		this.sbbContext = new SbbContextImpl(this,this.sbbComponent.getNotificationSource());
+		this.sbbContext = new SbbContextImpl(this);
 		if (log.isDebugEnabled()) {
-			log.debug("---> invoking setSbbContext() for "+sbbComponent);
+			log.debug("---> invoking setSbbContext() for " + sbbComponent);
 		}
-		this.sbbConcrete.setSbbContext(this.sbbContext);
+		// before invoking setSbbContext we need to save the service id in the
+		// thread, so the alarm facility can retreive it
+		EventRouterThreadLocals.setInvokingService(serviceID);
+		try {
+			this.sbbConcrete.setSbbContext(this.sbbContext);
+		} finally {
+			EventRouterThreadLocals.setInvokingService(null);
+		}
 		if (log.isDebugEnabled()) {
-			log.debug("<--- invoked setSbbContext() for "+sbbComponent);
+			log.debug("<--- invoked setSbbContext() for " + sbbComponent);
 		}
 	}
 
 	public void setSbbEntity(SbbEntity sbbe) {
 		this.sbbEntity = sbbe;
 		this.sbbConcrete.setSbbEntity(sbbe);
-	}
-
-	public void setServiceID(ServiceID serviceId) {
-		this.serviceID = serviceId;
-
 	}
 
 	public ServiceID getServiceID() {
@@ -277,14 +285,14 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbActivate()
 	 */
 	public void sbbActivate() {
-		
+
 		if (log.isDebugEnabled()) {
 			log.debug(this.toString() + ".sbbActivate()");
 		}
-		
+
 		if (this.getState() != SbbObjectState.POOLED) {
 			log.warn("wrong state -- expected POOLED  was " + this.getState());
-		}		
+		}
 		this.sbbConcrete.sbbActivate();
 	}
 
@@ -292,11 +300,11 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbPassivate()
 	 */
 	public void sbbPassivate() {
-		
+
 		if (log.isDebugEnabled()) {
 			log.debug(this.toString() + ".sbbPassivate()");
 		}
-		
+
 		this.sbbConcrete.sbbPassivate();
 	}
 
@@ -305,16 +313,16 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbLoad()
 	 */
 	public void sbbLoad() throws TransactionRequiredLocalException {
-		
+
 		if (log.isDebugEnabled()) {
 			log.debug(this.toString() + ".sbbLoad()");
 		}
-		
+
 		sleeContainer.getTransactionManager().mandateTransaction();
 		if (this.getState() != SbbObjectState.READY) {
 			log.warn("sbbLoad called from wrong state should be READY was "
 					+ this.getState());
-		}		
+		}
 		this.invocationState = SbbInvocationState.INVOKING_SBB_LOAD;
 		this.sbbConcrete.sbbLoad();
 		this.invocationState = SbbInvocationState.NOT_INVOKING;
@@ -327,11 +335,11 @@ public class SbbObject implements Serializable {
 	 * @see javax.slee.Sbb#sbbStore()
 	 */
 	public void sbbStore() {
-		
+
 		if (log.isDebugEnabled()) {
 			log.debug(this.toString() + ".sbbStore()");
 		}
-		
+
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		if (this.getState() != SbbObjectState.READY) {
@@ -356,7 +364,7 @@ public class SbbObject implements Serializable {
 					Thread.currentThread().setContextClassLoader(cl);
 
 				if (this.sbbConcrete != null) {
-					this.invocationState = SbbInvocationState.INVOKING_SBB_STORE;					
+					this.invocationState = SbbInvocationState.INVOKING_SBB_STORE;
 					this.sbbConcrete.sbbStore();
 					this.invocationState = SbbInvocationState.NOT_INVOKING;
 					if (log.isDebugEnabled()) {
@@ -384,35 +392,37 @@ public class SbbObject implements Serializable {
 		}
 	}
 
-	public void sbbExceptionThrown(Exception exception, Object eventObject,
-			ActivityContextInterface activityContextInterface) {
-		
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbExceptionThrown() : exception="+exception+" , eventObject="+eventObject+" , aci="+activityContextInterface);
+	public void sbbExceptionThrown(Exception exception) {
+
+		Object eventObject = null;
+		ActivityContextInterface aci = null;
+
+		EventRoutingTransactionData ertd = EventRoutingTransactionData
+				.getFromTransactionContext();
+		if (ertd != null) {
+			eventObject = ertd.getEventBeingDelivered().getEvent();
+			aci = ertd.getAciReceivingEvent();
 		}
-		
+
+		if (log.isDebugEnabled()) {
+			log.debug(this.toString() + ".sbbExceptionThrown() : exception="
+					+ exception + " , eventObject=" + eventObject + " , aci="
+					+ aci);
+		}
+
 		getSbbContext().setRollbackOnly();
 
-		ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(
-					this.sbbComponent.getClassLoader());
-
-			this.sbbConcrete.sbbExceptionThrown(exception, eventObject,
-					activityContextInterface);
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
+		this.sbbConcrete.sbbExceptionThrown(exception, eventObject, aci);
 
 	}
 
 	public void sbbRolledBack(RolledBackContext sbbRolledBackContext) {
-		
+
 		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbRolledBack() : rolledBackContext="+sbbRolledBackContext);
+			log.debug(this.toString() + ".sbbRolledBack() : rolledBackContext="
+					+ sbbRolledBackContext);
 		}
-		
+
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		try {
@@ -427,11 +437,11 @@ public class SbbObject implements Serializable {
 	}
 
 	public void sbbRemove() {
-		
+
 		if (log.isDebugEnabled()) {
 			log.debug(this.toString() + ".sbbRemove()");
 		}
-		
+
 		final ClassLoader oldClassLoader = SleeContainerUtils
 				.getCurrentThreadClassLoader();
 		try {
@@ -448,10 +458,11 @@ public class SbbObject implements Serializable {
 				Thread.currentThread().setContextClassLoader(cl);
 
 			if (this.sbbConcrete != null) {
-				this.sbbConcrete.sbbRemove();				
+				this.sbbConcrete.sbbRemove();
 			} else {
 				if (log.isDebugEnabled())
-					log.debug("sbbRemove on the concrete sbb not called: concrete sbb is null");
+					log
+							.debug("sbbRemove on the concrete sbb not called: concrete sbb is null");
 			}
 
 		} finally {
@@ -477,8 +488,8 @@ public class SbbObject implements Serializable {
 			// Concrete class of the Sbb. the concrete sbb class is the
 			// class that implements the Sbb methods. This is obtained
 			// from the deployment descriptor and the abstract sbb class.
-			this.sbbConcrete = (SbbConcrete) sbbComponent
-					.getConcreteSbbClass().newInstance();
+			this.sbbConcrete = (SbbConcrete) sbbComponent.getConcreteSbbClass()
+					.newInstance();
 
 		} catch (Exception ex) {
 
@@ -490,5 +501,5 @@ public class SbbObject implements Serializable {
 		}
 
 	}
-	
+
 }

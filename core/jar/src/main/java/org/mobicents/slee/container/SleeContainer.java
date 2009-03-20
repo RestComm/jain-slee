@@ -77,6 +77,7 @@ import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInt
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileFacilityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.util.JndiRegistrationManager;
 
@@ -162,6 +163,8 @@ public class SleeContainer {
 	private SleeProfileManager sleeProfileManager;
 	private ResourceManagement resourceManagement;
 	private SbbManagement sbbManagement;
+	// object pool management
+	private SbbObjectPoolManagement sbbPoolManagement;
 	
 	/**
 	 * where DUs are stored
@@ -271,6 +274,9 @@ public class SleeContainer {
 		// Register property editors for the composite SLEE types so that the
 		// jboss jmx console can pass it as an argument.
 		new SleePropertyEditorRegistrator().register();	
+		
+		this.sbbPoolManagement = new SbbObjectPoolManagement(sleeContainer);
+		this.sbbPoolManagement.register();
 	}
 
 	/**
@@ -354,6 +360,14 @@ public class SleeContainer {
 	 */
 	public SbbManagement getSbbManagement() {
 		return sbbManagement;
+	}
+
+	/**
+	 * Retrieves the manager of sbb object pools
+	 * @return
+	 */
+	public SbbObjectPoolManagement getSbbPoolManagement() {
+		return sbbPoolManagement;
 	}
 
 	/**

@@ -110,7 +110,9 @@ public class EventRoutingTask implements Runnable {
 					logger.debug("Active services for event "+de.getEventTypeId()+": "+eventTypeComponent.getActiveServicesWhichDefineEventAsInitial());
 				}
 				for (ServiceComponent serviceComponent : eventTypeComponent.getActiveServicesWhichDefineEventAsInitial()) {
-					initialEventProcessor.processInitialEvents(serviceComponent, de, txMgr, this.container.getActivityContextFactory());
+					if (de.getService() == null || de.getService().equals(serviceComponent.getServiceID())) {
+						initialEventProcessor.processInitialEvents(serviceComponent, de, txMgr, this.container.getActivityContextFactory());
+					}
 				}
 			}
 			else {
@@ -165,7 +167,7 @@ public class EventRoutingTask implements Runnable {
 						ac = container.getActivityContextFactory().getActivityContext(de.getActivityContextId(),true);
 
 						try {
-							highestPrioritySbbEntity = nextSbbEntityFinder.next(ac, de.getEventTypeId(), sbbEntitiesThatHandledCurrentEvent);
+							highestPrioritySbbEntity = nextSbbEntityFinder.next(ac, de.getEventTypeId(), de.getService(), sbbEntitiesThatHandledCurrentEvent);
 						} catch (Exception e) {
 							logger.warn("Failed to find next sbb entity to deliver the event "+de+" in "+ac.getActivityContextId(), e);
 							highestPrioritySbbEntity = null;
@@ -176,7 +178,7 @@ public class EventRoutingTask implements Runnable {
 							sbbEntitiesThatHandledCurrentEvent.clear();						
 						} else {
 							gotSbb = true;
-							sbbEntitiesThatHandledCurrentEvent.add(highestPrioritySbbEntity.getSbbEntityId());							
+							sbbEntitiesThatHandledCurrentEvent.add(highestPrioritySbbEntity.getSbbEntityId());	
 						}
 
 						if (gotSbb) {
@@ -187,9 +189,6 @@ public class EventRoutingTask implements Runnable {
 												+ highestPrioritySbbEntity.getSbbEntityId());
 							}
 
-							// set the current sbb entity service id association to the thread 
-							EventRouterThreadLocals.setInvokingService(sbbEntity.getServiceId());
-
 							// CHANGE CLASS LOADER
 							invokerClassLoader = highestPrioritySbbEntity.getSbbComponent().getClassLoader();
 							Thread.currentThread().setContextClassLoader(invokerClassLoader);
@@ -197,8 +196,8 @@ public class EventRoutingTask implements Runnable {
 							sbbEntity = highestPrioritySbbEntity;
 							rootSbbEntityId = sbbEntity.getRootSbbId();
 
-							sbbEntity.setCurrentEvent(de);
-
+							EventRouterThreadLocals.setInvokingService(sbbEntity.getServiceId());
+							
 							// Assign an sbb from the pool
 							sbbEntity.assignAndActivateSbbObject();
 							sbbObject = sbbEntity.getSbbObject();
@@ -282,9 +281,6 @@ public class EventRoutingTask implements Runnable {
 						}
 						caught = e;
 					} 
-
-					// remove the current sbb entity service id association to the thread
-					EventRouterThreadLocals.setInvokingService(null);
 										
 					// do a final check to see if there is another SBB to
 					// deliver.
@@ -300,7 +296,7 @@ public class EventRoutingTask implements Runnable {
 						else {
 							boolean skipAnotherLoop = false;
 							try {
-								if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),sbbEntitiesThatHandledCurrentEvent) == null) {
+								if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),de.getService(),sbbEntitiesThatHandledCurrentEvent) == null) {
 									skipAnotherLoop = true;
 								}
 							} catch (Exception e) {
@@ -318,7 +314,7 @@ public class EventRoutingTask implements Runnable {
 					Thread.currentThread().setContextClassLoader(
 							oldClassLoader);
 
-					boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject,de.getEvent(),de.getLoadedAci(), caught, invokerClassLoader,txMgr);
+					boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject, caught, invokerClassLoader,txMgr);
 
 					boolean invokeSbbRolledBackRemove = false;
 					ClassLoader rootInvokerClassLoader = null;
@@ -362,7 +358,7 @@ public class EventRoutingTask implements Runnable {
 						// We have no target sbb object in a Remove Only SLEE
 						// originated invocation
 						// FIXME emmartins review
-						invokeSbbRolledBackRemove = handleRollback.handleRollback(null,de.getEvent(),de.getLoadedAci(), caught, rootInvokerClassLoader,txMgr);
+						invokeSbbRolledBackRemove = handleRollback.handleRollback(null, caught, rootInvokerClassLoader,txMgr);
 					}
 
 					/*
@@ -380,7 +376,7 @@ public class EventRoutingTask implements Runnable {
 					 */
 					if (invokeSbbRolledBack && sbbEntity == null) {
 						// We do it in this tx
-						handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
+						handleSbbRollback.handleSbbRolledBack(null, sbbObject, invokerClassLoader, false, txMgr);
 					} else if (sbbEntity != null && !txMgr.getRollbackOnly()
 							&& sbbEntity.getSbbObject() != null) {
 
@@ -417,11 +413,11 @@ public class EventRoutingTask implements Runnable {
 									.debug("Invoking sbbRolledBack for Op Only or Op and Remove");
 
 						}
-						handleSbbRollback.handleSbbRolledBack(sbbEntity, null, de.getEvent(), de.getLoadedAci(), invokerClassLoader, false, txMgr);
+						handleSbbRollback.handleSbbRolledBack(sbbEntity, null, invokerClassLoader, false, txMgr);
 					}
 					if (invokeSbbRolledBackRemove) {
 						// Now for the "Remove Only" if appropriate
-						handleSbbRollback.handleSbbRolledBack(rootSbbEntity, null, null, null, rootInvokerClassLoader, true, txMgr);						
+						handleSbbRollback.handleSbbRolledBack(rootSbbEntity, null, rootInvokerClassLoader, true, txMgr);						
 					}
 
 					/*
@@ -475,6 +471,9 @@ public class EventRoutingTask implements Runnable {
 						}
 					}
 				}
+				
+				EventRouterThreadLocals.setInvokingService(null);
+				
 				// need to ensure gotSbb = false if and only if iter.hasNext()
 				// == false
 			} while (gotSbb);

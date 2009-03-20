@@ -14,6 +14,8 @@ package org.mobicents.slee.runtime.sbb;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import javax.slee.ServiceID;
+
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -32,9 +34,11 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
 	private static Logger logger = Logger.getLogger(SbbObjectPoolFactory.class);
 	   
 	private final SbbComponent sbbComponent; 
-
+	private final ServiceID serviceID;
+	
     /** Creates a new instance of SbbObjectPoolFactory */
-    public SbbObjectPoolFactory(SbbComponent sbbComponent) {
+    public SbbObjectPoolFactory(ServiceID serviceID, SbbComponent sbbComponent) {
+    	this.serviceID = serviceID;
         this.sbbComponent = sbbComponent;
     }
 
@@ -95,7 +99,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
         
         SbbObject retval;
         if (logger.isDebugEnabled()) {
-            logger.debug("makeObject() for "+sbbComponent);
+            logger.debug("makeObject() for "+serviceID+" and "+sbbComponent);
         }
 
         final ClassLoader oldClassLoader = SleeContainerUtils
@@ -114,7 +118,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
             else
                 Thread.currentThread().setContextClassLoader(cl);
             
-            retval = new SbbObject(sbbComponent);
+            retval = new SbbObject(serviceID,sbbComponent);
         
         } finally {
             if (SleeContainer.isSecurityEnabled())

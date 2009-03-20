@@ -34,7 +34,7 @@ public class HandleRollback {
 	 * @throws SystemException 
 	 * @throws TransactionRequiredLocalException 
 	 */
-	public boolean handleRollback(SbbObject sbbObject, Object eventObject, ActivityContextInterface aci,
+	public boolean handleRollback(SbbObject sbbObject,
 			Exception e, ClassLoader contextClassLoader,SleeTransactionManager txMgr) throws TransactionRequiredLocalException, SystemException {
 		
 		txMgr.mandateTransaction();
@@ -59,20 +59,12 @@ public class HandleRollback {
 				try {
 					Thread.currentThread().setContextClassLoader(
 							contextClassLoader);
-
-					try {
-						txMgr.setRollbackOnly();
-					} catch (SystemException ex) {
-						throw new RuntimeException("Unexpected exception ! ",
-								ex);
-					}
 					
-					// Spec. 6.9. event and activity are null if exception was not thrown at event handler
 					if (logger.isDebugEnabled()) {
 						logger.debug("Calling sbbExceptionThrown");
 					}
 					try {
-						sbbObject.sbbExceptionThrown(e, eventObject, aci);
+						sbbObject.sbbExceptionThrown(e);
 					} catch (Exception ex) {
 
 						// If method throws an exception , just log it.

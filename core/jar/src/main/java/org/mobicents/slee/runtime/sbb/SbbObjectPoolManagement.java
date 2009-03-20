@@ -4,8 +4,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.slee.ComponentID;
 import javax.slee.SbbID;
+import javax.slee.ServiceID;
 
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -28,7 +28,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	private final static Logger logger = Logger
 			.getLogger(SbbObjectPoolManagement.class);
 
-	private final ConcurrentHashMap<SbbID, SbbObjectPool> pools;
+	private final ConcurrentHashMap<ObjectPoolMapKey, SbbObjectPool> pools;
 	private final SleeContainer sleeContainer;
 
 	private GenericObjectPool.Config config;
@@ -49,7 +49,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 		config.timeBetweenEvictionRunsMillis = 300000;
 		config.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_FAIL;
 		// create pools map
-		pools = new ConcurrentHashMap<SbbID, SbbObjectPool>();
+		pools = new ConcurrentHashMap<ObjectPoolMapKey, SbbObjectPool>();
 	}
 
 	/**
@@ -69,34 +69,31 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	}
 
 	/**
-	 * get the ObjectPool for this Sbb. Each Sbb component has its own object
-	 * pool. Each sbb component is identified by an SbbId.
-	 * 
-	 * @param sbbId -
-	 *            sbb id for which object pool is required.
-	 * @return the object pool for the sbb id.
-	 * 
+	 * Retrieves the object pool for the specified sbb and service.
+	 * @param serviceID
+	 * @param sbbID
+	 * @return
 	 */
-	public SbbObjectPool getObjectPool(ComponentID sbbID) {
-		return pools.get(sbbID);
+	public SbbObjectPool getObjectPool(ServiceID serviceID, SbbID sbbID) {
+		return pools.get(new ObjectPoolMapKey(serviceID,sbbID));
 	}
 
 	/**
-	 * Creates an object pool for the sbb with the specified descriptor. If a
+	 * Creates an object pool for the specified service and sbb. If a
 	 * transaction manager is used then, and if the tx rollbacks, the pool will
 	 * be removed.
 	 * 
-	 * @param sbbDescriptor
+	 * @param 
 	 * @param sleeTransactionManager
 	 */
-	public void createObjectPool(final SbbComponent sbbComponent,
+	public void createObjectPool(final ServiceID serviceID, final SbbComponent sbbComponent,
 			final SleeTransactionManager sleeTransactionManager) {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Creating Pool for SBB " + sbbComponent);
+			logger.debug("Creating Pool for  " + serviceID +" and "+ sbbComponent);
 		}
 
-		createObjectPool(sbbComponent);
+		createObjectPool(serviceID,sbbComponent);
 
 		if (sleeTransactionManager != null) {
 			// add a rollback action to remove sbb object pool
@@ -104,14 +101,12 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 				public void execute() {
 					if (logger.isDebugEnabled()) {
 						logger
-								.debug("Due to tx rollback, removing pool for sbb "
-										+ sbbComponent);
+								.debug("Due to tx rollback, removing pool for " + serviceID +" and "+ sbbComponent);
 					}
 					try {
-						removeObjectPool(sbbComponent.getSbbID());
+						removeObjectPool(serviceID,sbbComponent.getSbbID());
 					} catch (Throwable e) {
-						logger.error("Failed to remove SBB "
-								+ sbbComponent + " object pool", e);
+						logger.error("Failed to remove " + serviceID +" and "+ sbbComponent + " object pool", e);
 					}
 				}
 			};
@@ -124,16 +119,16 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	}
 
 	/**
-	 * create the pool for the given SbbID
 	 * 
-	 * @param sbbDescriptor
+	 * @param serviceID
+	 * @param sbbID
 	 */
-	private void createObjectPool(final SbbComponent sbbComponent) {
+	private void createObjectPool(final ServiceID serviceID, final SbbComponent sbbComponent) {
 		// create the pool for the given SbbID
 		GenericObjectPoolFactory poolFactory = new GenericObjectPoolFactory(
-				new SbbObjectPoolFactory(sbbComponent), config);
+				new SbbObjectPoolFactory(serviceID,sbbComponent), config);
 		final ObjectPool objectPool = poolFactory.createPool();
-		final SbbObjectPool oldObjectPool = pools.put(sbbComponent.getSbbID(),
+		final SbbObjectPool oldObjectPool = pools.put(new ObjectPoolMapKey(serviceID,sbbComponent.getSbbID()),
 				new SbbObjectPool(objectPool));
 		if (oldObjectPool != null) {
 			// there was an old pool, close it
@@ -141,18 +136,17 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 				oldObjectPool.close();
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
-					logger.debug("Failed to close old pool for SBB "
-							+ sbbComponent);
+					logger.debug("Failed to close old pool for " + serviceID + "and " + sbbComponent);
 				}
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Created Pool for SBB " + sbbComponent);
+			logger.debug("Created Pool for " + serviceID + "and " + sbbComponent);
 		}
 	}
 
 	/**
-	 * Removes the object pool for the sbb with the specified descriptor. If a
+	 * Removes the object pool for the sbb with the specified component and the specified service. If a
 	 * transaction manager is used then, and if the tx rollbacks, the pool will
 	 * be restored.
 	 * 
@@ -160,15 +154,14 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	 * @param sleeTransactionManager
 	 * @throws Exception
 	 */
-	public void removeObjectPool(final SbbComponent sbbComponent,
-			final SleeTransactionManager sleeTransactionManager)
-			throws Exception {
+	public void removeObjectPool(final ServiceID serviceID, final SbbComponent sbbComponent,
+			final SleeTransactionManager sleeTransactionManager) {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Removing Pool for SBB " + sbbComponent);
+			logger.debug("Removing Pool for " + serviceID + "and " + sbbComponent);
 		}
 
-		removeObjectPool(sbbComponent.getSbbID());
+		removeObjectPool(serviceID,sbbComponent.getSbbID());
 
 		if (sleeTransactionManager != null) {
 			// restore object pool if tx rollbacks
@@ -176,29 +169,38 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 				public void execute() {
 					if (logger.isDebugEnabled()) {
 						logger
-								.debug("Due to tx rollback, restoring pool for sbb "
-										+ sbbComponent);
+								.debug("Due to tx rollback, restoring pool for " + serviceID + "and " + sbbComponent);
 					}
-					createObjectPool(sbbComponent);
+					createObjectPool(serviceID,sbbComponent);
 				}
 			};
-			sleeTransactionManager.addAfterRollbackAction(action);
+			try {
+				sleeTransactionManager.addAfterRollbackAction(action);
+			} catch (Throwable e) {
+				logger.error(e.getMessage(),e);
+			}
 		}
 	}
 
 	/**
-	 * Removes the pool for the specified id
+	 * Removes the pool for the specified ids
 	 * 
-	 * @param id
+	 * @param serviceID
+	 * @param sbbID
 	 * @throws Exception
 	 */
-	private void removeObjectPool(ComponentID id) throws Exception {
-		final SbbObjectPool objectPool = pools.remove(id);
+	private void removeObjectPool(final ServiceID serviceID, final SbbID sbbID) {
+		ObjectPoolMapKey key = new ObjectPoolMapKey(serviceID,sbbID);
+		final SbbObjectPool objectPool = pools.remove(key);
 		if (objectPool != null) {
-			objectPool.close();
+			try {
+				objectPool.close();
+			} catch (Exception e) {
+				logger.error("failed to close pool",e);
+			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Removed Pool for SBB " + id);
+			logger.debug("Removed Pool for " + key);
 		}
 	}
 
@@ -312,9 +314,9 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 	}
 
 	public void reconfig() {
-		for (Object key : pools.keySet().toArray()) {
-			final SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID((SbbID)key);
-			createObjectPool(sbbComponent);
+		for (ObjectPoolMapKey key : pools.keySet()) {
+			final SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(key.sbbID);
+			createObjectPool(key.serviceID,sbbComponent);
 		}
 	}
 
@@ -323,4 +325,35 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 		return "SbbObject Pool Management: " + "\n+-- Pools: " + pools.keySet();
 	}
 
+	private class ObjectPoolMapKey {
+		
+		private final ServiceID serviceID;
+		private final SbbID sbbID;
+		
+		public ObjectPoolMapKey(ServiceID serviceID, SbbID sbbID) {
+			this.serviceID = serviceID;
+			this.sbbID = sbbID;
+		}
+		
+		@Override
+		public int hashCode() {
+			return serviceID.hashCode()*31+sbbID.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj != null && obj.getClass() == this.getClass()) {
+				ObjectPoolMapKey other = (ObjectPoolMapKey) obj;
+				return this.serviceID.equals(other.serviceID) && this.sbbID.equals(other.sbbID);
+			}
+			else {
+				return false;
+			}
+		}
+		
+		@Override
+		public String toString() {
+			return serviceID.toString() + " & "+sbbID.toString();
+		}
+	}
 }

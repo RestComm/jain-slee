@@ -28,6 +28,7 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
+import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -262,14 +263,9 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
         
         try {
             if (sleeContainer.getTransactionManager().getRollbackOnly()) {
+            	EventRoutingTransactionData ertd = EventRoutingTransactionData.getFromTransactionContext();
             	RolledBackContext sbbRolledBackContext = new RolledBackContextImpl(
-						sbbEntity.getCurrentEvent().getEvent(),
-						new ActivityContextInterfaceImpl(sleeContainer
-								.getActivityContextFactory()
-								.getActivityContext(
-										sbbEntity.getCurrentEvent()
-												.getActivityContextId(),
-										true)), true);
+            			ertd.getEventBeingDelivered().getEvent(),ertd.getAciReceivingEvent(), true);
 				sleeContainer.getTransactionManager()
 						.addAfterRollbackAction(
 								new RolledBackAction(sbbEntityId,

@@ -151,9 +151,8 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 			info[6] = null;
 			if (entity.getServiceId() != null)
 				info[7] = entity.getServiceId().toString();
-			if (entity.getCurrentEvent() != null)
-				info[8] = entity.getCurrentEvent().getEventTypeId().toString();
-
+			// FIXME to remove in mmc
+			info[8] = null;
 			Set acsSet = entity.getActivityContexts();
 			if (acsSet != null && acsSet.size() > 0) {
 				Object[] acsArray = acsSet.toArray();

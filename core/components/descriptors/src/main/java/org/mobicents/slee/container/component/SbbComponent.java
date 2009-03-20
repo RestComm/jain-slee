@@ -8,9 +8,13 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import javax.slee.ActivityContextInterface;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
@@ -19,7 +23,6 @@ import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 import javax.slee.management.SbbDescriptor;
-import javax.slee.management.SbbNotification;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
@@ -81,11 +84,12 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 * the JAIN SLEE specs descriptor
 	 */
 	private SbbDescriptor specsDescriptor = null;
-	
-	
-	private SbbNotification notificationSource = null;
-	
-	
+
+	/**
+	 * the event handler methods for this sbb component
+	 */
+	private Map<EventTypeID, EventHandlerMethod> eventHandlerMethods = null;
+
 	/**
 	 * 
 	 * @param descriptor
@@ -185,6 +189,31 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 */
 	public void setConcreteSbbClass(Class concreteSbbClass) {
 		this.concreteSbbClass = concreteSbbClass;
+		// build the map of event handler methods
+		eventHandlerMethods = new HashMap<EventTypeID, EventHandlerMethod>();
+		for (MEventEntry eventEntry : getDescriptor().getEventEntries()
+				.values()) {
+			if (eventEntry.isReceived()) {
+				String eventHandlerMethodName = "on"
+						+ eventEntry.getEventName();
+				for (Method method : concreteSbbClass.getMethods()) {
+					if (method.getName().equals(eventHandlerMethodName)) {
+						EventHandlerMethod eventHandlerMethod = new EventHandlerMethod(
+								method);
+						if (method.getParameterTypes().length == 3) {
+							eventHandlerMethod.setHasEventContextParam(true);
+						}
+						if (method.getParameterTypes()[1]
+								.equals(ActivityContextInterface.class)) {
+							eventHandlerMethod.setHasCustomACIParam(false);
+						}
+						eventHandlerMethods.put(eventEntry.getEventReference()
+								.getComponentID(), eventHandlerMethod);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -230,9 +259,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	public boolean isSlee11() {
 		return this.descriptor.isSlee11();
 	}
-	
-	
-	
+
 	@Override
 	void addToDeployableUnit() {
 		getDeployableUnit().getSbbComponents().put(getSbbID(), this);
@@ -286,7 +313,8 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 					.toArray(new ProfileSpecificationID[profileSpecSet.size()]);
 
 			Set<EventTypeID> eventTypeSet = new HashSet<EventTypeID>();
-			for (MEventEntry mEventEntry : getDescriptor().getEventEntries().values()) {
+			for (MEventEntry mEventEntry : getDescriptor().getEventEntries()
+					.values()) {
 				eventTypeSet.add(mEventEntry.getEventReference()
 						.getComponentID());
 			}
@@ -324,13 +352,51 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 		return getSpecsDescriptor();
 	}
 
-	public SbbNotification getNotificationSource() {
-		return notificationSource;
+	/**
+	 * Retrieves the evetn handler methods for this sbb component, mapped by
+	 * event type id
+	 * 
+	 * @return
+	 */
+	public Map<EventTypeID, EventHandlerMethod> getEventHandlerMethods() {
+		return eventHandlerMethods;
 	}
 
-	public void setNotificationSource(SbbNotification notificationSource) {
-		this.notificationSource = notificationSource;
+	/**
+	 * Sbb event handler method wrapper to deliver an event to the sbb
+	 * component.
+	 * 
+	 * @author martins
+	 * 
+	 */
+	public class EventHandlerMethod {
+
+		private final Method eventHandlerMethod;
+		private boolean hasCustomACIParam;
+		private boolean hasEventContextParam;
+
+		public EventHandlerMethod(Method eventHandlerMethod) {
+			this.eventHandlerMethod = eventHandlerMethod;
+		}
+
+		public Method getEventHandlerMethod() {
+			return eventHandlerMethod;
+		}
+
+		public boolean getHasCustomACIParam() {
+			return hasCustomACIParam;
+		}
+
+		public void setHasCustomACIParam(boolean hasCustomACIParam) {
+			this.hasCustomACIParam = hasCustomACIParam;
+		}
+
+		public boolean getHasEventContextParam() {
+			return hasEventContextParam;
+		}
+
+		public void setHasEventContextParam(boolean hasEventContextParam) {
+			this.hasEventContextParam = hasEventContextParam;
+		}
 	}
-	
-	
 }
