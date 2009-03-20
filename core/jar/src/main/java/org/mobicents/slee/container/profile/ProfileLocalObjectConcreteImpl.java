@@ -46,7 +46,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	protected SleeProfileManagement sleeProfileManagement = null;
 	protected boolean isDefault = true;
 	protected ProfileObject profileObject = null;
-
+	protected SleeTransactionManager sleeTransactionManager = null;
 	// FIXME add this.
 	private ProfileLocalObjectInterceptor interceptor = null;
 
@@ -61,6 +61,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 		this.profileSpecificationId = profileSpecificationId;
 		this.sleeProfileManagement = sleeProfileManagement;
 		this.interceptor = new DefaultProfileLocalObjectInterceptorImpl(this.sleeProfileManagement);
+		this.sleeTransactionManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
 
 	}
 
@@ -169,34 +170,66 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 
 	public void setSnapshot() {
 		this.profileObject.setSnapshot();
-
 	}
 
 	/**
-	 * This method allocates ProfileObject to serve calls
+	 * This method allocates ProfileObject to serve calls. If this is snapshot, this method does nothing as we ha
 	 */
 	public void allocateProfileObject() throws UnrecognizedProfileNameException, UnrecognizedProfileTableNameException, SLEEException {
 		
-		SleeTransactionManager sleeTransactionManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
-		try{
-		sleeTransactionManager.mandateTransaction();
-		}catch(TransactionRequiredLocalException trle)
-		{
-			throw new SLEEException("No transaction present.",trle);
+		//FIXME: mayeb we should be protected ?
+				try {
+			sleeTransactionManager.mandateTransaction();
+		} catch (TransactionRequiredLocalException trle) {
+			throw new SLEEException("No transaction present.", trle);
 		}
+		
+		try{
 		ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName, this.profileSpecificationId);
 		this.profileObject = profileTable.assignProfileObject(profileName);
 		// Set flag that SLEE component interacts with it. this is false only in
 		// case of JMX client
-		this.profileObject.setSbbInvoked(true);
+		this.profileObject.setManagementView(false);
 		this.interceptor.setProfile(this.profileObject);
+		}catch(UnrecognizedProfileTableNameException e)
+		{
+			try {
+				sleeTransactionManager.rollback();
+				throw new TransactionRolledbackLocalException("No such profile table: "+profileTableName,e);
+			} catch (IllegalStateException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SecurityException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SystemException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}catch(UnrecognizedProfileNameException e)
+		{
+			//FIXME: WE NEED TO ENSUE THAT SNAPSHOTS WILL WORK!!!!!
+			try {
+				sleeTransactionManager.rollback();
+				throw new TransactionRolledbackLocalException("No such profile: "+profileName,e);
+			} catch (IllegalStateException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SecurityException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SystemException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		
 		try {
 			sleeTransactionManager.addBeforeCommitAction(new BeforeCommitTransctAction());
 			sleeTransactionManager.addAfterRollbackAction(new RollbackTransctAction());
-			
+
 		} catch (SystemException e) {
-			//FIXME: what should we do here? 
-			e.printStackTrace();
+			throw new SLEEException("Failed to add management task",e);
 		}
 
 	}
@@ -219,9 +252,9 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 				removeProfileObject();
 
 			} catch (Exception e) {
-			
+
 				logger.error("Failed to deallocate ProfileObject, please report this to dev team.");
-				
+
 			}
 		}
 	}
