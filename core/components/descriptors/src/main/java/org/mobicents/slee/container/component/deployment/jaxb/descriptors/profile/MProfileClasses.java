@@ -29,8 +29,12 @@ public class MProfileClasses {
     this.description = profileClasses10.getDescription() == null ? null : profileClasses10.getDescription().getvalue();
 
     this.profileCMPInterface = new MProfileCMPInterface(profileClasses10.getProfileCmpInterfaceName());
-    this.profileManagementInterface = new MProfileManagementInterface(profileClasses10.getProfileManagementInterfaceName());
-    this.profileAbstractClass = new MProfileAbstractClass(profileClasses10.getProfileManagementAbstractClassName()); 
+    
+    if(profileClasses10.getProfileManagementInterfaceName() != null)
+      this.profileManagementInterface = new MProfileManagementInterface(profileClasses10.getProfileManagementInterfaceName());
+    
+    if(profileClasses10.getProfileManagementAbstractClassName() != null)
+      this.profileAbstractClass = new MProfileAbstractClass(profileClasses10.getProfileManagementAbstractClassName()); 
   }
 
   public MProfileClasses(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileClasses profileClasses11)
