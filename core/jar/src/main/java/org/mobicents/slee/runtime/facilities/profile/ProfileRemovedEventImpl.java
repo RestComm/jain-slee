@@ -22,6 +22,7 @@ import javax.slee.profile.ProfileRemovedEvent;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
@@ -35,10 +36,9 @@ public class ProfileRemovedEventImpl extends SuperProfileEvent implements Profil
 
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileRemovedEvent", "javax.slee", "1.0");
 
-	public ProfileRemovedEventImpl(Address profileAddress, ProfileID profile, Object profileCmpInterfaceConcrete, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif,
-			ActivityContextInterfaceImpl activityContextInterface, ProfileLocalObjectConcrete profileLocalObject) {
-		super(profileAddress, profile, profileCmpInterfaceConcrete, ptableAcif, activityContextInterface, profileLocalObject);
-		// TODO Auto-generated constructor stub
+	public ProfileRemovedEventImpl(Address profileAddress, ProfileID profile, ProfileLocalObjectConcrete profileLocalObject, ActivityContext activityContext) {
+		super(profileAddress, profile, profileLocalObject, activityContext);
+
 	}
 
 	/*
@@ -81,7 +81,7 @@ public class ProfileRemovedEventImpl extends SuperProfileEvent implements Profil
 	 * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfile()
 	 */
 	public Object getRemovedProfile() {
-		return super.profileCmpInterfaceConcreteAfterAction;
+		return super.profileLocalObjectAfterAction.getProfileConcrete();
 	}
 
 	public ProfileLocalObject getRemovedProfileLocal() {

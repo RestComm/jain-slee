@@ -17,6 +17,7 @@ import javax.slee.profile.ProfileUpdatedEvent;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
@@ -31,15 +32,14 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileUpdatedEvent", "javax.slee", "1.0");
 
-	private Object profileCmpInterfaceConcreteBeforeAction;
-	private ProfileLocalObject profileLocalObjectBeforeAction = null;
+	private ProfileLocalObjectConcrete profileLocalObjectBeforeAction = null;
 
-	public ProfileUpdatedEventImpl(Address profileAddress, ProfileID profile, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif, ActivityContextInterfaceImpl activityContextInterface,
-			ProfileLocalObject profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction, Object profileCmpInterfaceConcreteBeforeAction,
-			Object profileCmpInterfaceConcreteAfterAction) {
-		super(profileAddress, profile, profileCmpInterfaceConcreteAfterAction, ptableAcif, activityContextInterface, profileLocalObjectAfterAction);
-		this.profileCmpInterfaceConcreteBeforeAction = profileCmpInterfaceConcreteBeforeAction;
+	public ProfileUpdatedEventImpl(Address profileAddress, ProfileID profile, ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction,
+			ActivityContext activityContext) {
+		super(profileAddress, profile, profileLocalObjectAfterAction, activityContext);
+
 		this.profileLocalObjectBeforeAction = profileLocalObjectBeforeAction;
+		this.profileLocalObjectBeforeAction.setSnapshot();
 	}
 
 	/*
@@ -68,7 +68,7 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 	 */
 	public Object getBeforeUpdateProfile() {
 
-		return this.profileCmpInterfaceConcreteBeforeAction;
+		return this.profileLocalObjectBeforeAction.getProfileConcrete();
 	}
 
 	/*
@@ -78,7 +78,7 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 	 */
 	public Object getAfterUpdateProfile() {
 		// TODO Auto-generated method stub
-		return super.profileCmpInterfaceConcreteAfterAction;
+		return super.profileLocalObjectAfterAction.getProfileConcrete();
 	}
 
 	public EventTypeID getEventTypeID() {
@@ -93,14 +93,6 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 
 	public Address getAddress() {
 		return super.profileAddress;
-	}
-
-	public ActivityContextInterfaceImpl getActivityContextInterface() {
-		return super.activityContextInterface;
-	}
-
-	public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
-		super.activityContextInterface = activityContextInterface;
 	}
 
 	public ProfileLocalObject getAfterUpdateProfileLocal() {

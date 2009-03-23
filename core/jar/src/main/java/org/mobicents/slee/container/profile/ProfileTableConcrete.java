@@ -3,6 +3,8 @@ package org.mobicents.slee.container.profile;
 import java.util.Collection;
 
 import javax.management.ObjectName;
+import javax.slee.Address;
+import javax.slee.CreateException;
 import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
@@ -11,15 +13,22 @@ import javax.slee.profile.AttributeNotIndexedException;
 import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileID;
+import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTable;
 import javax.slee.profile.ProfileTableActivity;
+import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileNameException;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 
 /**
  * 
@@ -53,7 +62,7 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 */
 	public ProfileObject assignProfileObject(String profileName, boolean create) throws UnrecognizedProfileNameException, ProfileAlreadyExistsException;
 
-	public void deassignProfileObject(ProfileObject profileObject);
+	public void deassignProfileObject(ProfileObject profileObject, boolean remove);
 
 	public ProfileTableActivity getActivity();
 
@@ -65,13 +74,12 @@ public interface ProfileTableConcrete extends ProfileTable {
 	public Collection<ProfileID> getProfilesByIndexedAttribute(String attributeName, Object attributeValue) throws UnrecognizedAttributeException, AttributeNotIndexedException,
 			AttributeTypeMismatchException, SLEEException;
 
-	public Object findProfileMBean(String newProfileName);
-
 	public boolean isProfileCommitted(String newProfileName) throws Exception;
 
-	public ObjectName addProfile(String newProfileName, boolean isDefault) throws TransactionRequiredLocalException, NullPointerException, SingleProfileException, InvalidArgumentException, ProfileAlreadyExistsException;
+	public ObjectName addProfile(String newProfileName, boolean isDefault) throws TransactionRequiredLocalException, SingleProfileException, ProfileAlreadyExistsException, SLEEException,
+			CreateException, ProfileVerificationException;
 
-	public ObjectName getProfileMBean(String profileName, boolean isDefault);
+	public ObjectName getProfileMBean(String profileName, boolean isDefault) throws UnrecognizedProfileNameException;
 
 	/**
 	 * Returns JMX MBean name of usage mbean
@@ -83,10 +91,65 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 */
 	public ObjectName getUsageMBeanName() throws InvalidArgumentException;
 
+	/**
+	 * Return collection of Strings. Each string represent profile name in this
+	 * profile table.
+	 * 
+	 * @return
+	 */
 	public Collection<String> getProfileNames();
 
-	public void removeProfileTable();
+	public void removeProfileTable() throws TransactionRequiredLocalException, SLEEException;
 
-	public void rename(String newProfileTableName);
+	// public void rename(String newProfileTableName);
+	/**
+	 * Method for old style?
+	 * 
+	 * @param profileID
+	 * @return
+	 */
+	public Object getSbbCMPProfile(String profileName) throws SLEEException, UnrecognizedProfileNameException;
+
+	/**
+	 * Method to start activity for this table.
+	 */
+	public void register();
+
+	/**
+	 * Fire profile Added event for this profile table activity.
+	 * 
+	 * @param profileName
+	 * @param profileLocalObject
+	 *            - snapshot view of profile objct.
+	 * @throws SLEEException
+	 *             - thrown in case of any error
+	 */
+	public void fireProfileAddedEvent(String profileName, ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
+
+	/**
+	 * Fire profile remove event on this profile table activity.
+	 * 
+	 * @param profileName
+	 * @param profileLocalObject
+	 *            - snapshot view of the profile
+	 * @throws SLEEException
+	 *             - thrown in case of any error
+	 */
+	public void fireProfileRemovedEvent(String profileName, ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
+
+	/**
+	 * Fire profiel updated event on this profile table activty
+	 * 
+	 * @param profileName
+	 * @param profileLocalObjectBeforeAction
+	 *            - snapshot profile local object with CMPs set to profile
+	 *            before commit.
+	 * @param profileLocalObjectAfterAction
+	 *            - snapshot profile local obejct with CMPs set to current
+	 *            values (current in term of commit.)
+	 * @throws SLEEException
+	 *             - thrown in case of any error
+	 */
+	public void fireProfileUpdatedEvent(String profileName, ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction) throws SLEEException;
 
 }

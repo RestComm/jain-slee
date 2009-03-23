@@ -11,6 +11,7 @@ package org.mobicents.slee.runtime.facilities.profile;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 import javax.slee.ActivityContextInterface;
@@ -34,15 +35,15 @@ public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileA
 
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileAddedEvent", "javax.slee", "1.0");
 
-	public ProfileAddedEventImpl(Address profileAddress, ProfileID profile, Object profileCmpInterfaceConcrete, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif,
-			ActivityContextInterfaceImpl activityContextInterface, ProfileLocalObjectConcrete profileLocalObject) {
-		super(profileAddress, profile, profileCmpInterfaceConcrete, ptableAcif, activityContextInterface, profileLocalObject);
 
-		super.profileLocalObjectAfterAction.setSnapshot();
+
+	public ProfileAddedEventImpl(Address profileAddress, ProfileID profile, ProfileLocalObjectConcrete profileLocalObject, ActivityContext activityContext) {
+		super(profileAddress, profile, profileLocalObject, activityContext);
+		
 	}
 
 	public Object getActivity() {
-		return super.activityContextInterface.getActivity();
+		return super.activityContext.getActivityContextHandle().getActivity();
 	}
 
 	/*
@@ -72,7 +73,7 @@ public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileA
 	 */
 	public Object getAddedProfile() {
 
-		return super.profileCmpInterfaceConcreteAfterAction;
+		return super.profileLocalObjectAfterAction.getProfileConcrete();
 	}
 
 	public EventTypeID getEventTypeID() {
@@ -89,13 +90,7 @@ public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileA
 		return profileAddress;
 	}
 
-	public ActivityContextInterfaceImpl getActivityContextInterface() {
-		return this.activityContextInterface;
-	}
-
-	public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
-		this.activityContextInterface = activityContextInterface;
-	}
+	
 
 	public ProfileLocalObject getAddedProfileLocal() {
 		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {

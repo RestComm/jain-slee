@@ -43,10 +43,12 @@ public class SleeProfileManagement {
 	private SleeContainer sleeContainer = null;
 	private SleeTransactionManager sleeTransactionManager = null;
 
+	
+	//FIXME: Alex this has to be moved into cache structure
 	/**
 	 * This map contains mapping - profieltable name ---> profile table concrete
 	 * object. see 10.2.4 section of JSLEE 1.1 specs - there can be only single
-	 * profile profile table in SLEE container
+	 * profile profile table in SLEE container 
 	 * 
 	 */
 	private ConcurrentHashMap nameToProfileTableMap = new ConcurrentHashMap();
@@ -165,6 +167,11 @@ public class SleeProfileManagement {
 		}
 
 		return names;
+	}
+
+	public void removeProfileTable(ProfileTableConcreteImpl profileTableConcreteImpl) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -27,4 +27,6 @@ public interface ProfileLocalObjectConcrete extends ProfileLocalObject {
 
 	public void allocateProfileObject() throws UnrecognizedProfileNameException, UnrecognizedProfileTableNameException;
 
+	public ProfileConcrete getProfileConcrete();
+
 }

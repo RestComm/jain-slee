@@ -131,9 +131,15 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 
 			// not storing default profile
 			// getting last commited profile in case of update
+			// FIXME: Alex?
 			ProfileLocalObjectConcrete profileBeforeUpdate = null;
-			// FIXME:XXXX
+
 			boolean wasProfileInBackEndStorage = false;
+			try {
+				wasProfileInBackEndStorage = this.profileObject.getProfileTableConcrete().isProfileCommitted(this.profileObject.getProfileName());
+			} catch (Exception e4) {
+				throw new ManagementException("Report this, its a bug, this should not happen.", e4);
+			}
 			//
 			// if
 			// (this.profileObject.getProfileConcrete().isProfileInBackEndStorage())
@@ -231,44 +237,14 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 				throw new ManagementException("Failed committing profile", e1);
 			}
 			if (!wasProfileInBackEndStorage) {
-				// FIXME:XXXX
-				// Fire the added event only when the transaction commits
-				// ProfileAddedEventImpl profileAddedEvent = new
-				// ProfileAddedEventImpl(profileAddress, new
-				// ProfileID(profileAddress), profile, activityContextInterface,
-				// profileTableActivityContextInterfaceFactory);
-				// ActivityContext ac =
-				// activityContextInterface.getActivityContext();
-				// ac.fireEvent(new
-				// DeferredEvent(profileAddedEvent.getEventTypeID(),
-				// profileAddedEvent, ac, profileAddress));
-				//
-				// if (logger.isDebugEnabled()) {
-				// logger.debug("Queued following profile added event:" +
-				// profileAddedEvent.getEventTypeID() + ",:" +
-				// activityContextInterface.getActivityContext().getActivityContextId());
-				// }
+				// FIXME: Alex allocate PLO
+				ProfileLocalObjectConcrete ploc = null;
+				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(profileObject.getProfileName(), ploc);
 
 			} else {
-				// FIXME:XXXX
-				// Fire the updated event only when the transaction commits
-				// ProfileUpdatedEventImpl profileUpdatedEvent = new
-				// ProfileUpdatedEventImpl(profileAddress, new
-				// ProfileID(profileAddress), profileBeforeUpdate, profile,
-				// activityContextInterface,
-				// profileTableActivityContextInterfaceFactory);
-				// ActivityContext ac =
-				// activityContextInterface.getActivityContext();
-				// ac.fireEvent(new
-				// DeferredEvent(profileUpdatedEvent.getEventTypeID(),
-				// profileUpdatedEvent, ac, profileAddress));
-				// if (logger.isDebugEnabled()) {
-				// logger.debug("Queued following updated event: "
-				//
-				// + profileUpdatedEvent.getEventTypeID() + ",:" +
-				// activityContextInterface.getActivityContext().getActivityContextId());
-				// }
-
+				// FIXME: Alex allocate PLO
+				ProfileLocalObjectConcrete plocAfterUpate = null;
+				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent(profileObject.getProfileName(), profileBeforeUpdate, plocAfterUpate);
 			}
 
 			// so far so good, time to commit the tx so that the profile is
@@ -439,13 +415,12 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			if (!this.profileObject.isWriteable())
 				throw new InvalidStateException();
 
-			//FIXME:
-//			if(!commited)
-//			{
-//				REMOVE
-//			}
-			
-			
+			// FIXME:
+			// if(!commited)
+			// {
+			// REMOVE
+			// }
+
 			this.profileObject.profileLoad();
 			this.profileObject.setWriteable(false);
 			if (logger.isDebugEnabled()) {

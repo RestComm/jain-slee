@@ -11,6 +11,7 @@ package org.mobicents.slee.container.profile;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
+import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTable;
@@ -47,20 +48,19 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	protected boolean isDefault = true;
 	protected ProfileObject profileObject = null;
 	protected SleeTransactionManager sleeTransactionManager = null;
-	
 
 	public ProfileLocalObjectConcreteImpl(String profileTableName, ProfileSpecificationID profileSpecificationId, String profileName, SleeProfileManagement sleeProfileManagement, boolean isDefault) {
 		super();
 		if (profileTableName == null || profileName == null || profileSpecificationId == null) {
 			throw new NullPointerException("Parameters must not be null");
 		}
-		//FIXME: does any of below methods require CL change?
+		// FIXME: does any of below methods require CL change?
 		this.profileName = profileName;
 		this.profileTableName = profileTableName;
 		this.profileSpecificationId = profileSpecificationId;
 		this.sleeProfileManagement = sleeProfileManagement;
 		this.sleeTransactionManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
-		
+
 	}
 
 	/*
@@ -185,8 +185,8 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 
 		try {
 			ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName);
-			this.profileObject = profileTable.assignProfileObject(profileName,false);
-			// Set flag that SLEE component interacts with it. this is false
+			this.profileObject = profileTable.assignProfileObject(profileName, false);
+			// Set flag that SLEE component interacts with it. this is true
 			// only in
 			// case of JMX client
 			this.profileObject.setManagementView(false);
@@ -219,6 +219,10 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		} catch (ProfileAlreadyExistsException e) {
+
+			// Should nto happen
+			throw new SLEEException("Please report me, Im a huge bug.", e);
 		}
 
 		try {
@@ -257,6 +261,11 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 
 	// for now its the same
 	private class RollbackTransctAction extends BeforeCommitTransctAction {
+	}
+
+	public ProfileConcrete getProfileConcrete() {
+		//FIXME: alex  :)
+		return null;
 	}
 
 }
