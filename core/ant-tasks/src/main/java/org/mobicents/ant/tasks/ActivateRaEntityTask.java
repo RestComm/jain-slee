@@ -26,7 +26,8 @@ public class ActivateRaEntityTask implements SubTask {
 
 		try {
 			// Invoke the operation
-			Object result = slee.invokeOperation("-activateRaEntity",
+			Object result = slee.invokeOperation(
+					SleeCommandInterface.ACTIVATE_RA_ENTITY_OPERATION,
 					entityName, null, null);
 
 			if (result == null) {

@@ -1,11 +1,3 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant.tasks;
 
 import java.util.logging.Level;
@@ -25,7 +17,9 @@ public class UninstallTask implements SubTask {
 
 		try {
 			// Invoke the getDeployableUnit operation
-			Object result = slee.invokeOperation("-uninstall", url, null, null);
+			Object result = slee.invokeOperation(
+					SleeCommandInterface.UNINSTALL_DU_OPERATION,
+					deployableUnitID, null, null);
 
 			if (result == null) {
 				logger.info("No response");
@@ -41,10 +35,9 @@ public class UninstallTask implements SubTask {
 		}
 	}
 
-	// The setter for the "url" attribute
-	public void setUrl(String url) {
-		this.url = url;
+	public void setDeployableUnitID(String s) {
+		this.deployableUnitID = s;
 	}
 
-	private String url = null;
+	private String deployableUnitID = null;
 }

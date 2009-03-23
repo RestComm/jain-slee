@@ -1,11 +1,3 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant.tasks;
 
 import java.util.logging.Level;
@@ -24,7 +16,7 @@ public class RemoveRaEntityTask implements SubTask {
 		
     	try {
     		// Invoke the operation
-			Object result = slee.invokeOperation("-removeRaEntity", entityName, null, null);
+			Object result = slee.invokeOperation(SleeCommandInterface.REMOVE_RA_ENTITY_OPERATION, entityName, null, null);
 			
     		if (result == null)
     		{

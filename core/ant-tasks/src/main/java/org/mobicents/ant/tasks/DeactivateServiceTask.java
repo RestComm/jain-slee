@@ -3,8 +3,6 @@ package org.mobicents.ant.tasks;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.slee.ServiceID;
-
 import org.apache.tools.ant.BuildException;
 import org.mobicents.ant.SubTask;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
@@ -15,14 +13,13 @@ public class DeactivateServiceTask implements SubTask {
 			.getLogger(org.mobicents.ant.tasks.DeactivateServiceTask.class
 					.getName());
 
-	public void run(SleeCommandInterface slee)  {
+	public void run(SleeCommandInterface slee) {
 
 		try {
-			ServiceID service = new ServiceID(componentName,componentVendor,componentVersion);
-
 			// Invoke the operation
-			Object result = slee.invokeOperation("-deactivateService", service
-					.toString(), null, null);
+			Object result = slee.invokeOperation(
+					SleeCommandInterface.DEACTIVATE_SERVICE_OPERATION,
+					componentID, null, null);
 
 			if (result == null) {
 				logger.info("No response");
@@ -39,20 +36,10 @@ public class DeactivateServiceTask implements SubTask {
 		}
 	}
 
-	public void setComponentName(String s) {
-		this.componentName = s;
-	}
-	
-	public void setComponentVendor(String s) {
-		this.componentVendor = s;
-	}
-	
-	public void setComponentVersion(String s) {
-		this.componentVersion = s;
+	public void setComponentID(String s) {
+		this.componentID = s;
 	}
 
-	private String componentName = null;
-	private String componentVendor = null;
-	private String componentVersion = null;
-	
+	private String componentID = null;
+
 }

@@ -1,11 +1,3 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant.tasks;
 
 import java.util.logging.Level;
@@ -21,11 +13,12 @@ public class InstallTask implements SubTask {
 	private static Logger logger = Logger
 			.getLogger(org.mobicents.ant.tasks.InstallTask.class.getName());
 
-	public void run(SleeCommandInterface slee)  {
+	public void run(SleeCommandInterface slee) {
 
 		try {
 			// Invoke the operation
-			Object result = slee.invokeOperation("-install", url, null, null);
+			Object result = slee.invokeOperation(
+					SleeCommandInterface.INSTALL_DU_OPERATION, url, null, null);
 
 			if (result == null) {
 				logger.info("No response");
@@ -35,8 +28,7 @@ public class InstallTask implements SubTask {
 
 		} catch (java.lang.SecurityException seEx) {
 			throw new BuildException(seEx);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			// Log the error
 			logger.log(Level.WARNING, "Bad result: " + slee.commandBean + "."
 					+ slee.commandString + "\n" + ex.getCause().toString());

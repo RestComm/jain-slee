@@ -1,11 +1,3 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant.tasks;
 
 import java.util.logging.Level;
@@ -26,13 +18,13 @@ public class ChangeSleeStateTask implements SubTask {
 		String command = null;
 
 		if (state.equals(START)) {
-			command = "-startSlee";
+			command = SleeCommandInterface.START_SLEE_OPERATION;
 		} else if (state.equals(STOP)) {
-			command = "-stopSlee";
+			command = SleeCommandInterface.STOP_SLEE_OPERATION;
 		}
 
 		if (state.equals(NO_CHANGE)) {
-			logger.warning("Bad result: state=start or state=stop");
+			logger.warning("Bad result: state=" + START + " or state=" + STOP);
 		} else {
 			try {
 				// Invoke the operation
@@ -43,15 +35,13 @@ public class ChangeSleeStateTask implements SubTask {
 				} else {
 					logger.info(result.toString());
 				}
-			}
-			catch (java.lang.SecurityException seEx) {
+			} catch (java.lang.SecurityException seEx) {
 				throw new BuildException(seEx);
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				// Log the error
 				logger.log(Level.WARNING, "Bad result: " + slee.commandBean
 						+ "." + slee.commandString + "\n"
-						+ ex.getCause().toString());				
+						+ ex.getCause().toString());
 			}
 		}
 	}

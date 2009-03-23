@@ -128,6 +128,27 @@ public class SleeCommandInterface {
 		return rmiserver.getAttribute(oname, AttributeName).toString();
 	}
 
+	public static final String START_SLEE_OPERATION = "-startSlee";
+	public static final String STOP_SLEE_OPERATION = "-stopSlee";
+	public static final String GET_SLEE_STATE_OPERATION = "-getSleeState";
+	public static final String INSTALL_DU_OPERATION = "-install";
+	public static final String UNINSTALL_DU_OPERATION = "-uninstall";
+	public static final String ACTIVATE_SERVICE_OPERATION = "-activateService";
+	public static final String DEACTIVATE_SERVICE_OPERATION = "-deactivateService";
+	public static final String GET_SERVICE_STATE_OPERATION = "-getServiceState";
+	
+	public static final String CREATE_RA_ENTITY_OPERATION = "-createRaEntity";
+	public static final String ACTIVATE_RA_ENTITY_OPERATION = "-activateRaEntity";
+	public static final String DEACTIVATE_RA_ENTITY_OPERATION = "-deactivateRaEntity";
+	public static final String REMOVE_RA_ENTITY_OPERATION = "-removeRaEntity";
+	public static final String CREATE_RA_LINK_OPERATION = "-createRaLink";
+	public static final String REMOVE_RA_LINK_OPERATION = "-removeRaLink";
+	
+	public static final String CREATE_PROFILE_TABLE_OPERATION = "-createProfileTable";
+	public static final String REMOVE_PROFILE_TABLE_OPERATION = "-removeProfileTable";
+	public static final String CREATE_PROFILE_OPERATION = "-createProfile";
+	public static final String REMOVE_PROFILE_OPERATION = "-removeProfile";
+	
 	/**
 	 * Invoking operations
 	 * 
@@ -146,42 +167,42 @@ public class SleeCommandInterface {
 		Object opArg3 = null;
 
 		// Slee Management
-		if (command.equals("-startSlee")) {
+		if (command.equals(START_SLEE_OPERATION)) {
 			commandBean = SleeManagementMBean.OBJECT_NAME;
 			commandString = "start";
-		} else if (command.equals("-stopSlee")) {
+		} else if (command.equals(STOP_SLEE_OPERATION)) {
 			commandBean = SleeManagementMBean.OBJECT_NAME;
 			commandString = "stop";
-		} else if (command.equals("-getSleeState")) {
+		} else if (command.equals(GET_SLEE_STATE_OPERATION)) {
 			commandBean = SleeManagementMBean.OBJECT_NAME;
 			commandString = "getState";
 		}
 
 		// Deployment Management
-		else if (command.equals("-install")) {
+		else if (command.equals(INSTALL_DU_OPERATION)) {
 			commandBean = DeploymentMBean.OBJECT_NAME;
 			commandString = "install";
 			opArg1 = (new URL(data1)).toString();
-		} else if (command.equals("-uninstall")) {
+		} else if (command.equals(UNINSTALL_DU_OPERATION)) {
 			commandBean = DeploymentMBean.OBJECT_NAME;
 			commandString = "uninstall";
 			opArg1 = new DeployableUnitID(data1);
 		}
 
 		// Service Management
-		else if (command.equals("-activateService")) {
+		else if (command.equals(ACTIVATE_SERVICE_OPERATION)) {
 			commandBean = ServiceManagementMBeanImpl.OBJECT_NAME;
 			commandString = "activate";
 			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
 			editor.setAsText(data1);
 			opArg1 = editor.getValue();
-		} else if (command.equals("-deactivateService")) {
+		} else if (command.equals(DEACTIVATE_SERVICE_OPERATION)) {
 			commandBean = ServiceManagementMBeanImpl.OBJECT_NAME;
 			commandString = "deactivate";
 			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
 			editor.setAsText(data1);
 			opArg1 = editor.getValue();
-		} else if (command.equals("-getServiceState")) {
+		} else if (command.equals(GET_SERVICE_STATE_OPERATION)) {
 			commandBean = ServiceManagementMBeanImpl.OBJECT_NAME;
 			commandString = "getState";
 			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
@@ -190,7 +211,7 @@ public class SleeCommandInterface {
 		}
 
 		// Resource Management
-		else if (command.equals("-createRaEntity")) {
+		else if (command.equals(CREATE_RA_ENTITY_OPERATION)) {
 			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "createResourceAdaptorEntity";
 			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
@@ -202,31 +223,31 @@ public class SleeCommandInterface {
 				logger.warn("SLEE 1.1 config properties not supported yet");
 
 			}
-		} else if (command.equals("-activateRaEntity")) {
+		} else if (command.equals(ACTIVATE_RA_ENTITY_OPERATION)) {
 			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "activateResourceAdaptorEntity";
 			opArg1 = data1;
-		} else if (command.equals("-deactivateRaEntity")) {
+		} else if (command.equals(DEACTIVATE_RA_ENTITY_OPERATION)) {
 			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "deactivateResourceAdaptorEntity";
 			opArg1 = data1;
-		} else if (command.equals("-removeRaEntity")) {
+		} else if (command.equals(REMOVE_RA_ENTITY_OPERATION)) {
 			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "removeResourceAdaptorEntity";
 			opArg1 = data1;
-		} else if (command.equals("-createRaLink")) {
+		} else if (command.equals(CREATE_RA_LINK_OPERATION)) {
 			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "bindLinkName";
 			opArg1 = data1;
 			opArg2 = data2;
-		} else if (command.equals("-removeRaLink")) {
+		} else if (command.equals(REMOVE_RA_LINK_OPERATION)) {
 			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "unbindLinkName";
 			opArg1 = data1;
 		}
 
 		// Profile Provisioning
-		else if (command.equals("-createProfileTable")) {
+		else if (command.equals(CREATE_PROFILE_TABLE_OPERATION)) {
 			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "createProfileTable";
 			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
@@ -235,20 +256,20 @@ public class SleeCommandInterface {
 			opArg2 = data2;
 		}
 		// Profile Provisioning
-		else if (command.equals("-removeProfileTable")) {
+		else if (command.equals(REMOVE_PROFILE_TABLE_OPERATION)) {
 			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "removeProfileTable";
 			opArg1 = data1;
 		}
 		// Profile Provisioning
-		else if (command.equals("-createProfile")) {
+		else if (command.equals(CREATE_PROFILE_OPERATION)) {
 			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "createProfile";
 			opArg1 = data1;
 			opArg2 = data2;
 		}
 		// Profile Provisioning
-		else if (command.equals("-removeProfile")) {
+		else if (command.equals(REMOVE_PROFILE_OPERATION)) {
 			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "removeProfile";
 			opArg1 = data1;

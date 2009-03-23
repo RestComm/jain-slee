@@ -1,11 +1,3 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform       *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
 package org.mobicents.ant;
 
 import java.util.Vector;
@@ -26,7 +18,6 @@ import org.mobicents.ant.tasks.RemoveProfileTableTask;
 import org.mobicents.ant.tasks.RemoveProfileTask;
 import org.mobicents.ant.tasks.RemoveRaEntityTask;
 import org.mobicents.ant.tasks.RemoveRaLinkTask;
-import org.mobicents.ant.tasks.SetTraceLevelTask;
 import org.mobicents.ant.tasks.UninstallTask;
 import org.mobicents.slee.container.management.jmx.SleeCommandInterface;
 
@@ -84,10 +75,6 @@ public class MobicentsManagementAntTask extends Task {
 	}
 
 	public void addDeactivateService(DeactivateServiceTask task) {
-		subTasks.add(task);
-	}
-
-	public void addSetTraceLevel(SetTraceLevelTask task) {
 		subTasks.add(task);
 	}
 
