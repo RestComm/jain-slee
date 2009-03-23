@@ -102,6 +102,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 		}
 	}
 
+	/**
+	 * This method commits profile. See descritpion - profile becomes visible
+	 * for slee ONLY when its commited.
+	 */
 	public void commitProfile() throws InvalidStateException, ProfileVerificationException, ManagementException {
 
 		Thread t = Thread.currentThread();
@@ -435,6 +439,13 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			if (!this.profileObject.isWriteable())
 				throw new InvalidStateException();
 
+			//FIXME:
+//			if(!commited)
+//			{
+//				REMOVE
+//			}
+			
+			
 			this.profileObject.profileLoad();
 			this.profileObject.setWriteable(false);
 			if (logger.isDebugEnabled()) {

@@ -83,7 +83,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	public ProfileTable getProfileTable() throws SLEEException {
 		ProfileTable pt = null;
 		try {
-			pt = this.sleeProfileManagement.getProfileTable(profileTableName, this.profileSpecificationId);
+			pt = this.sleeProfileManagement.getProfileTable(profileTableName);
 		} catch (Exception e) {
 			throw new SLEEException("Failed to obtain ProfileTable interface.", e);
 		}
@@ -184,8 +184,8 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 		}
 
 		try {
-			ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName, this.profileSpecificationId);
-			this.profileObject = profileTable.assignProfileObject(profileName);
+			ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName);
+			this.profileObject = profileTable.assignProfileObject(profileName,false);
 			// Set flag that SLEE component interacts with it. this is false
 			// only in
 			// case of JMX client
@@ -244,8 +244,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 
 		public void execute() {
 			try {
-				ProfileTableConcrete profileTable = (ProfileTableConcrete) sleeProfileManagement.getProfileTable(profileTableName, profileSpecificationId);
-				profileTable.deassignProfileObject(getProfileObject());
+				ProfileTableConcrete profileTable = (ProfileTableConcrete) sleeProfileManagement.getProfileTable(profileTableName);
 				removeProfileObject();
 
 			} catch (Exception e) {

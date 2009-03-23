@@ -87,7 +87,7 @@ public class ProfileContextImpl implements ProfileContext {
 
 		doGeneralChecks();
 		try {
-			ProfileTable pt = this.profileTable.getProfileManagement().getProfileTable(profileTableName, null);
+			ProfileTable pt = this.profileTable.getProfileManagement().getProfileTable(profileTableName);
 			return pt;
 		} catch (Exception e) {
 			throw new SLEEException("Failed to obtain profile table.", e);
