@@ -36,6 +36,9 @@
 	</modules>
 
 	<properties>
+		<slee.name>Mobicents JAIN SLEE Server</slee.name>
+		<slee.vendor>JBoss, a Red Hat division</slee.vendor>
+		<slee.version>${pom.version}</slee.version>
 		<!--jboss.version>5.0.0.GA</jboss.version-->
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2</mobicents.tools.mavenplugin.du.version>

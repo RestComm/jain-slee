@@ -30,9 +30,13 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.AbstractAlarmFacilityImpl;
 import org.mobicents.slee.runtime.facilities.DefaultAlarmFacilityImpl;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * 
@@ -242,6 +246,8 @@ public class ResourceAdaptorEntity {
 	public void sleeStopping() throws InvalidStateException {
 		if (this.state.isActive()) {
 			object.raStopping();
+			endAllActivities();
+			object.raInactive();			
 		}
 	}
 
@@ -276,22 +282,52 @@ public class ResourceAdaptorEntity {
 		}
 		object.raStopping();
 		this.state = ResourceAdaptorEntityState.STOPPING;
+		endAllActivities();		
+		object.raInactive();
+		this.state = ResourceAdaptorEntityState.INACTIVE;				
 	}
 
-	/**
-	 * Signals that all activities, belonging to ra objects of the entity, have
-	 * ended. If the entity is in STOPPING state it will change state to
-	 * INACTIVE
-	 */
-	public void allActivitiesEnded() {
-		if (this.state.isStopping()) {
+	private void endAllActivities() {
+		
+		// end all activities
+		SleeTransactionManager txManager = sleeContainer.getTransactionManager();
+		boolean rb = true;
+		try {
+			txManager.begin();
+			for (ActivityContextHandle handle : sleeContainer.getActivityContextFactory().getAllActivityContextsHandles()) {
+				if (handle.getActivityType() == ActivityType.externalActivity && handle.getActivitySource().equals(name)) {
+					try {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Ending activity "+handle);
+						}
+						ActivityContext ac =sleeContainer.getActivityContextFactory().getActivityContext(handle,false);
+						if (ac != null) {
+							ac.end();
+						}		    				
+					} catch (Exception e) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Failed to end activity "+handle,e);
+						}
+					}            	
+				}
+            }
+			rb = false;
+		} catch (Exception e) {
+			logger.error("Exception while ending all activities for ra entity "+name, e);
+
+		} finally {
 			try {
-				object.raInactive();
-			} catch (InvalidStateException e) {
-				logger.error("bug? failed to complete ra entity " + name
-						+ " deactivation, the ra object is in wrong state", e);
+				if (rb) {
+					txManager.rollback();
+				} else {
+					txManager.commit();
+				}
+			} catch (Exception e) {
+				logger
+						.error(
+								"Error in tx management while ending all activities for ra entity "+name,
+								e);
 			}
-			this.state = ResourceAdaptorEntityState.INACTIVE;
 		}
 	}
 

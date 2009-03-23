@@ -49,15 +49,15 @@ public final class Version {
 	 * @return Basic information as a string.
 	 */
 	public String toString() {		
-		StringBuilder sb = new StringBuilder("MOBICENTS JAIN-SLEE SERVER: ");
+		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for (Object key : props.keySet()) {
 			if (first) {
 				first = false;
 			} else {
-				sb.append(",");
+				sb.append(" , ");
 			}
-			sb.append(key).append('=').append(props.get(key));
+			sb.append(key).append(" = ").append(props.get(key));
 		}
 		return sb.toString();		
 	}
