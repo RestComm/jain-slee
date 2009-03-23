@@ -74,6 +74,14 @@ public class ConcreteClassGeneratorUtils {
 
 	public static final String SBB_USAGE_PARAMETERS_INTERFACE_SUFFIX = "Impl";
 	
+	public static final String PROFILE_LOCAL_CLASS_NAME_PREFIX = "";
+
+	public static final String PROFILE_LOCAL_CLASS_NAME_SUFFIX = "LocalImpl";
+	
+	public static final String PROFILE_TABLE_CLASS_NAME_PREFIX = "";
+
+	public static final String PROFILE_TABLE_CLASS_NAME_SUFFIX = "TableImpl";
+	
 	// The root class pool
 	
 	

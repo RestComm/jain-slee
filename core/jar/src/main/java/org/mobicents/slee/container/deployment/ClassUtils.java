@@ -487,7 +487,7 @@ public class ClassUtils {
      * @param CtMethod to store in the Map
      * @return a String key unique for the method. 
      */
-    private static String getMethodKey(CtMethod method) {
+    public static String getMethodKey(CtMethod method) {
     	String ret=method.getName() + method.getSignature();
    		return ret;
     }
