@@ -1,46 +1,30 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source JSLEE Platform      *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
-/*
- * SleeCommandInterface.java
- *
- * This new SleeCommandInterface class is prepared to do
- * management operations using the CLI (mobicents-cli.jar),
- * Ant Tasks from a .xml file or an auto-deploy script (.bsh file)
- *
- */
 package org.mobicents.slee.container.management.jmx;
 
-import java.net.URI;
 import java.net.URL;
 import java.util.Hashtable;
-import java.util.Properties;
-import java.util.StringTokenizer;
 
 import javax.management.MBeanInfo;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.slee.facilities.Level;
 import javax.slee.management.DeployableUnitID;
+import javax.slee.management.DeploymentMBean;
+import javax.slee.management.ProfileProvisioningMBean;
+import javax.slee.management.ResourceManagementMBean;
+import javax.slee.management.SleeManagementMBean;
+import javax.slee.resource.ConfigProperties;
 
 import org.jboss.jmx.adaptor.rmi.RMIAdaptor;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
-import org.mobicents.slee.resource.ResourceAdaptorTypeIDImpl;
+import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 
 public class SleeCommandInterface {
+
 	private static Logger logger = Logger
 			.getLogger(org.mobicents.slee.container.management.jmx.SleeCommandInterface.class
 					.getName());
-
-	private Object result = null;
 
 	protected RMIAdaptor rmiserver = null;
 
@@ -125,9 +109,7 @@ public class SleeCommandInterface {
 	public Object invokeCommand(ObjectName oname, String methodname,
 			Object[] pParams, String[] pSignature) throws Exception {
 
-		result = rmiserver.invoke(oname, methodname, pParams, pSignature);
-
-		return result;
+		return rmiserver.invoke(oname, methodname, pParams, pSignature);
 	}
 
 	/**
@@ -143,11 +125,7 @@ public class SleeCommandInterface {
 	 */
 	public String getAttribute(ObjectName oname, String AttributeName)
 			throws Exception {
-		Object result = null;
-
-		result = rmiserver.getAttribute(oname, AttributeName);
-		return result.toString();
-
+		return rmiserver.getAttribute(oname, AttributeName).toString();
 	}
 
 	/**
@@ -163,384 +141,116 @@ public class SleeCommandInterface {
 			String data3) throws Exception {
 		ObjectName name = null;
 
-		String sig1 = null;
-		String sig2 = null;
-		String sig3 = null;
-
 		Object opArg1 = null;
 		Object opArg2 = null;
 		Object opArg3 = null;
 
-		// Start SLEE
+		// Slee Management
 		if (command.equals("-startSlee")) {
-			commandBean = "slee:service=SleeManagement";
+			commandBean = SleeManagementMBean.OBJECT_NAME;
 			commandString = "start";
-		}
-		// Stop SLEE
-		else if (command.equals("-stopSlee")) {
-			commandBean = "slee:service=SleeManagement";
+		} else if (command.equals("-stopSlee")) {
+			commandBean = SleeManagementMBean.OBJECT_NAME;
 			commandString = "stop";
+		} else if (command.equals("-getSleeState")) {
+			commandBean = SleeManagementMBean.OBJECT_NAME;
+			commandString = "getState";
 		}
-		// Get SLEE State
-		else if (command.equals("-getSleeState")) {
-			commandBean = "slee:service=SleeManagement";
 
-			name = new ObjectName(commandBean);
-
-			logger.info("SLEE State = " + this.getAttribute(name, "State"));
-			// System.exit(0); // Operation only called by the CLI
-		}
 		// Deployment Management
 		else if (command.equals("-install")) {
-			commandBean = "slee:name=DeploymentMBean";
+			commandBean = DeploymentMBean.OBJECT_NAME;
 			commandString = "install";
-			sig1 = "java.lang.String";
 			opArg1 = (new URL(data1)).toString();
-		}
-		// Deployment Management
-		else if (command.equals("-uninstall")) {
-			data1 = (new URL(data1)).toString();
-			DeployableUnitID deployableUnitID = new DeployableUnitID(data1);
-			opArg1 = deployableUnitID;			
-			commandBean = "slee:name=DeploymentMBean";
+		} else if (command.equals("-uninstall")) {
+			commandBean = DeploymentMBean.OBJECT_NAME;
 			commandString = "uninstall";
-			sig1 = "javax.slee.management.DeployableUnitID";
+			opArg1 = new DeployableUnitID(data1);
 		}
-		// Deployment Management
-		else if (command.equals("-getDeploymentId")) {
-			commandBean = "slee:name=DeploymentMBean";
-			commandString = "getDeployableUnit";
-			sig1 = "java.lang.String";
-			opArg1 = data1;
-		}
-		// Deployment Management
-		else if (command.equals("-getDescriptor")) {
-			commandBean = "slee:name=DeploymentMBean";
-			commandString = "getDescriptor";
-			sig1 = "javax.slee.management.DeployableUnitID";
-			data1 = (new URL(data1)).toString();
-			DeployableUnitID deployableUnitID = new DeployableUnitID(data1);
-			opArg1 = deployableUnitID;			
-		}
+
 		// Service Management
 		else if (command.equals("-activateService")) {
-			commandBean = "slee:name=ServiceManagementMBean";
+			commandBean = ServiceManagementMBeanImpl.OBJECT_NAME;
 			commandString = "activate";
-			sig1 = "javax.slee.ServiceID";
-
-			StringTokenizer stringTokenizer = new StringTokenizer(data1, "[",
-					true);
-			String componentType = stringTokenizer.nextToken();
-			stringTokenizer.nextToken();
-			String ckeyStr = stringTokenizer.nextToken("]");
-
-			if (componentType.equalsIgnoreCase(ComponentIDImpl.SERVICE_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ServiceIDImpl(componentKey);
-			} else {
-				logger
-						.warn("-activateService. Bad Result: ServiceID[service]\n");
-				throw new Exception(
-						"-activateService. Bad Result: ServiceID[service]\n");
-			}
-		}
-		// Service Management
-		else if (command.equals("-deactivateService")) {
-			commandBean = "slee:name=ServiceManagementMBean";
+			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
+			editor.setAsText(data1);
+			opArg1 = editor.getValue();
+		} else if (command.equals("-deactivateService")) {
+			commandBean = ServiceManagementMBeanImpl.OBJECT_NAME;
 			commandString = "deactivate";
-			sig1 = "javax.slee.ServiceID";
-
-			StringTokenizer stringTokenizer = new StringTokenizer(data1, "[",
-					true);
-			String componentType = stringTokenizer.nextToken();
-			stringTokenizer.nextToken();
-			String ckeyStr = stringTokenizer.nextToken("]");
-
-			if (componentType.equalsIgnoreCase(ComponentIDImpl.SERVICE_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ServiceIDImpl(componentKey);
-			} else {
-				logger
-						.warn("-deactivateService. Bad Result: ServiceID[service]\n");
-				throw new Exception(
-						"-deactivateService. Bad Result: ServiceID[service]\n");
-			}
-
-		}
-		// Service Management
-		else if (command.equals("-getServiceState")) {
-			commandBean = "slee:name=ServiceManagementMBean";
+			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
+			editor.setAsText(data1);
+			opArg1 = editor.getValue();
+		} else if (command.equals("-getServiceState")) {
+			commandBean = ServiceManagementMBeanImpl.OBJECT_NAME;
 			commandString = "getState";
-			sig1 = "javax.slee.ServiceID";
-
-			StringTokenizer stringTokenizer = new StringTokenizer(data1, "[",
-					true);
-			String componentType = stringTokenizer.nextToken();
-			stringTokenizer.nextToken();
-			String ckeyStr = stringTokenizer.nextToken("]");
-
-			if (componentType.equalsIgnoreCase(ComponentIDImpl.SERVICE_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ServiceIDImpl(componentKey);
-			} else {
-				logger
-						.warn("-getServiceState. Bad Result: ServiceID[service]\n");
-				throw new Exception(
-						"-getServiceState. Bad Result: ServiceID[service]\n");
-			}
-
+			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
+			editor.setAsText(data1);
+			opArg1 = editor.getValue();
 		}
-		// Trace management
-		else if (command.equals("-setTraceLevel")) {
-			String level = data2;
 
-			commandBean = "slee:name=TraceMBean";
-			commandString = "setTraceLevel";
-			sig1 = "javax.slee.ComponentID";
-			sig2 = "javax.slee.facilities.Level";
-
-			StringTokenizer stringTokenizer = new StringTokenizer(data1, "[",
-					true);
-			String componentType = stringTokenizer.nextToken();
-			stringTokenizer.nextToken();
-			String ckeyStr = stringTokenizer.nextToken("]");
-
-			if (componentType.equalsIgnoreCase(ComponentIDImpl.SERVICE_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ServiceIDImpl(componentKey);
-
-			} else if (componentType.equalsIgnoreCase(ComponentIDImpl.SBB_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new SbbIDImpl(componentKey);
-
-			} else if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.PROFILE_SPECIFICATION_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ProfileSpecificationIDImpl(componentKey);
-
-			} else if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.RESOURCE_ADAPTOR_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ResourceAdaptorIDImpl(componentKey);
-
-			} else if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.RESOURCE_ADAPTOR_TYPE_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ResourceAdaptorTypeIDImpl(componentKey);
-
-			} else if (componentType
-					.equalsIgnoreCase((ComponentIDImpl.EVENT_TYPE_ID))) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new EventTypeIDImpl(componentKey);
-
-			} else {
-				logger
-						.warn("-setTraceLevel. Bad Result: Unknown Component ID Type\n");
-				logger
-						.warn("-setTraceLevel. It has to be: ServiceID, SbbID, ProfileSpecificationID, "
-								+ "ResourceAdaptorID, ResourceAdaptorTypeID or EventTypeID\n");
-
-				throw new Exception(
-						"-setTraceLevel. Bad Result: Unknown Component ID Type\n");
-
-			}
-
-			if (level.equalsIgnoreCase(Level.SEVERE.toString()))
-				opArg2 = Level.SEVERE;
-			else if (level.equalsIgnoreCase(Level.WARNING.toString()))
-				opArg2 = Level.WARNING;
-			else if (level.equalsIgnoreCase(Level.INFO.toString()))
-				opArg2 = Level.INFO;
-			else if (level.equalsIgnoreCase(Level.CONFIG.toString()))
-				opArg2 = Level.CONFIG;
-			else if (level.equalsIgnoreCase(Level.FINE.toString()))
-				opArg2 = Level.FINE;
-			else if (level.equalsIgnoreCase(Level.FINER.toString()))
-				opArg2 = Level.FINER;
-			else if (level.equalsIgnoreCase(Level.FINEST.toString()))
-				opArg2 = Level.FINEST;
-			else if (level.equalsIgnoreCase(Level.OFF.toString()))
-				opArg2 = Level.OFF;
-			else
-				throw new IllegalArgumentException("-setTraceLevel. Bad level "
-						+ level);
-
-		}
-		// Trace management
-		else if (command.equals("-getTraceLevel")) {
-			commandBean = "slee:name=TraceMBean";
-			commandString = "getTraceLevel";
-			sig1 = "javax.slee.ComponentID";
-
-			StringTokenizer stringTokenizer = new StringTokenizer(data1, "[",
-					true);
-			String componentType = stringTokenizer.nextToken();
-			stringTokenizer.nextToken();
-			String ckeyStr = stringTokenizer.nextToken("]");
-
-			if (componentType.equalsIgnoreCase(ComponentIDImpl.SERVICE_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ServiceIDImpl(componentKey);
-
-			} else if (componentType.equalsIgnoreCase(ComponentIDImpl.SBB_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new SbbIDImpl(componentKey);
-
-			} else if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.PROFILE_SPECIFICATION_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ProfileSpecificationIDImpl(componentKey);
-
-			} else if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.RESOURCE_ADAPTOR_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ResourceAdaptorIDImpl(componentKey);
-
-			} else if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.RESOURCE_ADAPTOR_TYPE_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ResourceAdaptorTypeIDImpl(componentKey);
-
-			} else {
-				logger
-						.warn("-getTraceLevel. Bad Result: Unknown Component ID Type\n");
-				logger
-						.warn("-getTraceLevel. It has to be: ServiceID, SbbID, ProfileSpecificationID, "
-								+ "ResourceAdaptorID or ResourceAdaptorTypeID\n");
-				throw new Exception(
-						"-getTraceLevel. Bad Result: Unknown Component ID Type\n");
-			}
-
-		}
 		// Resource Management
 		else if (command.equals("-createRaEntity")) {
-			// FIXME Use ResourceManagementMBean
-			commandBean = "slee:name=ResourceManagementMBean";
+			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "createResourceAdaptorEntity";
-			sig1 = "javax.slee.resource.ResourceAdaptorID";
-			sig2 = "java.lang.String"; // entity name
+			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
+			editor.setAsText(data1);
+			opArg1 = editor.getValue();
 			opArg2 = data2;
-			sig3 = "java.util.Properties"; // RA properties
-
-			logger.info("Loading properties: " + data3);
-
+			opArg3 = new ConfigProperties();
 			if (data3 != null) {
-				Properties props = new Properties();
-				URL url = new URI(data3).toURL();
-				props.load(url.openStream());
-				opArg3 = props;
-			} else {
-				opArg3 = null;
+				logger.warn("SLEE 1.1 config properties not supported yet");
+
 			}
-
-			StringTokenizer stringTokenizer = new StringTokenizer(data1, "[",
-					true);
-			String componentType = stringTokenizer.nextToken();
-			stringTokenizer.nextToken();
-			String ckeyStr = stringTokenizer.nextToken("]");
-
-			if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.RESOURCE_ADAPTOR_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ResourceAdaptorIDImpl(componentKey);
-			} else {
-				logger
-						.warn("-createRaEntity. Bad Result: ResourceAdaptor[resourceID]\n");
-				throw new Exception(
-						"-createRaEntity. Bad Result: ResourceAdaptor[resourceID]\n");
-			}
-
-		}
-		// Resource Management
-		else if (command.equals("-activateRaEntity")) {
-			// FIXME Use ResourceManagementMBean
-			commandBean = "slee:name=ResourceManagementMBean";
+		} else if (command.equals("-activateRaEntity")) {
+			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "activateResourceAdaptorEntity";
-			sig1 = "java.lang.String"; // entity name
 			opArg1 = data1;
-		}
-		// Resource Management
-		else if (command.equals("-deactivateRaEntity")) {
-			// FIXME Use ResourceManagementMBean
-			commandBean = "slee:name=ResourceManagementMBean";
+		} else if (command.equals("-deactivateRaEntity")) {
+			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "deactivateResourceAdaptorEntity";
-			sig1 = "java.lang.String"; // entity name
 			opArg1 = data1;
-		}
-		// Resource Management
-		else if (command.equals("-removeRaEntity")) {
-			// FIXME Use ResourceManagementMBean
-			commandBean = "slee:name=ResourceManagementMBean";
+		} else if (command.equals("-removeRaEntity")) {
+			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "removeResourceAdaptorEntity";
-			sig1 = "java.lang.String"; // entity name
 			opArg1 = data1;
-		}
-		// Resource Management
-		else if (command.equals("-createRaLink")) {
-			// FIXME Use ResourceManagementMBean
-			commandBean = "slee:name=ResourceManagementMBean";
+		} else if (command.equals("-createRaLink")) {
+			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "bindLinkName";
-			sig1 = "java.lang.String"; // link name
-			sig2 = "java.lang.String"; // entity name
 			opArg1 = data1;
 			opArg2 = data2;
-		}
-		// Resource Management
-		else if (command.equals("-removeRaLink")) {
-			// FIXME Use ResourceManagementMBean
-			commandBean = "slee:name=ResourceManagementMBean";
+		} else if (command.equals("-removeRaLink")) {
+			commandBean = ResourceManagementMBean.OBJECT_NAME;
 			commandString = "unbindLinkName";
-			sig1 = "java.lang.String"; // link name
 			opArg1 = data1;
 		}
+
 		// Profile Provisioning
 		else if (command.equals("-createProfileTable")) {
-			commandBean = "slee:name=ProfileProvisoningMBean";
+			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "createProfileTable";
-			sig1 = "javax.slee.profile.ProfileSpecificationID";
-			sig2 = "java.lang.String"; // profileTableName
-
+			ComponentIDPropertyEditor editor = new ComponentIDPropertyEditor();
+			editor.setAsText(data1);
+			opArg1 = editor.getValue();
 			opArg2 = data2;
-
-			StringTokenizer stringTokenizer = new StringTokenizer(data1, "[",
-					true);
-			String componentType = stringTokenizer.nextToken();
-			stringTokenizer.nextToken();
-			String ckeyStr = stringTokenizer.nextToken("]");
-			if (componentType
-					.equalsIgnoreCase(ComponentIDImpl.PROFILE_SPECIFICATION_ID)) {
-				ComponentKey componentKey = new ComponentKey(ckeyStr);
-				opArg1 = new ProfileSpecificationIDImpl(componentKey);
-			} else {
-				logger
-						.warn("-createProfileTable Bad Result: ProfileSpecificationID[profile_specification]\n");
-				throw new Exception(
-						"-createProfileTable Bad Result: ProfileSpecificationID[profile_specification]\n");
-			}
-
 		}
 		// Profile Provisioning
 		else if (command.equals("-removeProfileTable")) {
-			commandBean = "slee:name=ProfileProvisoningMBean";
+			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "removeProfileTable";
-			sig1 = "java.lang.String"; // profileTableName
 			opArg1 = data1;
 		}
 		// Profile Provisioning
 		else if (command.equals("-createProfile")) {
-			commandBean = "slee:name=ProfileProvisoningMBean";
+			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "createProfile";
-			sig1 = "java.lang.String"; // profileTableName
-			sig2 = "java.lang.String"; // newProfileName
 			opArg1 = data1;
 			opArg2 = data2;
 		}
 		// Profile Provisioning
 		else if (command.equals("-removeProfile")) {
-			commandBean = "slee:name=ProfileProvisoningMBean";
+			commandBean = ProfileProvisioningMBean.OBJECT_NAME;
 			commandString = "removeProfile";
-			sig1 = "java.lang.String"; // profileTableName
-			sig2 = "java.lang.String"; // newProfileName
 			opArg1 = data1;
 			opArg2 = data2;
 		}
@@ -549,8 +259,8 @@ public class SleeCommandInterface {
 		else {
 			logger
 					.warn("invokeOperation called with unknown command. Accepted commands are -startSlee, "
-							+ "-stopSlee, -getSleeState, -install, -uninstall, -getDeploymentId, -getDescriptor, "
-							+ "-activateService, -deactivateService, -getServiceState, -setTraceLevel, -getTraceLevel, "
+							+ "-stopSlee, -getSleeState, -install, -uninstall, "
+							+ "-activateService, -deactivateService, -getServiceState, "
 							+ "-createRaEntity, -activateRaEntity, -deactivateRaEntity, -removeRaEntity, -createRaLink, "
 							+ "-removeRaLink, -createProfileTable, -removeProfileTable, -createProfile, -removeProfile");
 			throw new Exception("invokeOperation called with unknown command.");
@@ -558,29 +268,29 @@ public class SleeCommandInterface {
 
 		name = new ObjectName(commandBean);
 
+		String[] sigs = null;
+		Object[] args = null;
+
 		// Passing in 3 args
-		if (sig3 != null) {
-			String sigs[] = { sig1, sig2, sig3 };
-			Object[] opArgs = { opArg1, opArg2, opArg3 };
-			this.invokeCommand(name, commandString, opArgs, sigs);
+		if (opArg3 != null) {
+			sigs = new String[] { opArg1.getClass().getName(),
+					opArg2.getClass().getName(), opArg3.getClass().getName() };
+			args = new Object[] { opArg1, opArg2, opArg3 };
+
 		}
 		// Passing in 2 args
-		else if (sig2 != null) {
-			String sigs[] = { sig1, sig2 };
-			Object[] opArgs = { opArg1, opArg2 };
-			this.invokeCommand(name, commandString, opArgs, sigs);
+		else if (opArg2 != null) {
+			sigs = new String[] { opArg1.getClass().getName(),
+					opArg2.getClass().getName() };
+			args = new Object[] { opArg1, opArg2 };
 		}
 		// Passing in one argument
-		else if (sig1 != null) {
-			String sigs[] = { sig1 };
-			Object[] opArgs = { opArg1 };
-			this.invokeCommand(name, commandString, opArgs, sigs);
-		}
-		// No args
-		else {
-			this.invokeCommand(name, commandString, null, null);
+		else if (opArg1 != null) {
+			sigs = new String[] { opArg1.getClass().getName() };
+			args = new Object[] { opArg1 };
 		}
 
-		return result;
+		return this.invokeCommand(name, commandString, args, sigs);
+
 	}
 }
