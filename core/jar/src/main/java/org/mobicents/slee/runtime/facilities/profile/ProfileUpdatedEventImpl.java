@@ -7,15 +7,16 @@
  *                                                 *
  ***************************************************/
 
-
 package org.mobicents.slee.runtime.facilities.profile;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileID;
+import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileUpdatedEvent;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
@@ -23,80 +24,99 @@ import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov
- *
+ *@author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
+ *         </a>
  */
-public class ProfileUpdatedEventImpl implements ProfileUpdatedEvent {
-    
-	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileUpdatedEvent","javax.slee","1.0");
-	
-    private ProfileID profile;
-    private Address profileAddress;
-    private Object beforeUpdateProfile;
-    private Object afterUpdateProfile;
-    private ActivityContextInterfaceImpl activityContextInterface;
-      
-    public ProfileUpdatedEventImpl( Address profileAddress,ProfileID profile,                          
-            Object beforeUpdateProfile, Object afterUpdateProfile,
-            ActivityContextInterfaceImpl activityContext,
-            ProfileTableActivityContextInterfaceFactoryImpl  pACIFactory ) {
-        this.profile = profile;
-        this.profileAddress = profileAddress;
-        this.beforeUpdateProfile = beforeUpdateProfile;
-        this.afterUpdateProfile = afterUpdateProfile;
-        this.activityContextInterface = activityContext;
-    }
+public class ProfileUpdatedEventImpl extends SuperProfileEvent implements ProfileUpdatedEvent {
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileUpdatedEvent#getProfile()
-     */
-    public ProfileID getProfile() {
-        return this.profile;
-    }
+	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileUpdatedEvent", "javax.slee", "1.0");
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileUpdatedEvent#getProfileAddress()
-     */
-    public Address getProfileAddress() {
-    
-        return this.profileAddress;
-    }
+	private Object profileCmpInterfaceConcreteBeforeAction;
+	private ProfileLocalObject profileLocalObjectBeforeAction = null;
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileUpdatedEvent#getBeforeUpdateProfile()
-     */
-    public Object getBeforeUpdateProfile() {
-     
-        return this.beforeUpdateProfile;
-    }
+	public ProfileUpdatedEventImpl(Address profileAddress, ProfileID profile, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif, ActivityContextInterfaceImpl activityContextInterface,
+			ProfileLocalObject profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction, Object profileCmpInterfaceConcreteBeforeAction,
+			Object profileCmpInterfaceConcreteAfterAction) {
+		super(profileAddress, profile, profileCmpInterfaceConcreteAfterAction, ptableAcif, activityContextInterface, profileLocalObjectAfterAction);
+		this.profileCmpInterfaceConcreteBeforeAction = profileCmpInterfaceConcreteBeforeAction;
+		this.profileLocalObjectBeforeAction = profileLocalObjectBeforeAction;
+	}
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileUpdatedEvent#getAfterUpdateProfile()
-     */
-    public Object getAfterUpdateProfile() {
-        // TODO Auto-generated method stub
-        return this.afterUpdateProfile;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileUpdatedEvent#getProfile()
+	 */
+	public ProfileID getProfile() {
+		return super.profile;
+	}
 
-    public EventTypeID getEventTypeID() {
-        return EVENT_TYPE_ID;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileUpdatedEvent#getProfileAddress()
+	 */
+	public Address getProfileAddress() {
 
-    public Object getEventObject() {
-        //return  ((ProfileTableActivityImpl) this.activityContextInterface.getActivity()).getProfileEvent();
-        return  (ProfileUpdatedEvent) this;
-    }
+		return super.profileAddress;
+	}
 
-    public Address getAddress() { 
-        return profileAddress;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileUpdatedEvent#getBeforeUpdateProfile()
+	 */
+	public Object getBeforeUpdateProfile() {
 
-    public ActivityContextInterfaceImpl getActivityContextInterface() {
-        return this.activityContextInterface;
-    }
+		return this.profileCmpInterfaceConcreteBeforeAction;
+	}
 
-    public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
-        this.activityContextInterface = activityContextInterface;   
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileUpdatedEvent#getAfterUpdateProfile()
+	 */
+	public Object getAfterUpdateProfile() {
+		// TODO Auto-generated method stub
+		return super.profileCmpInterfaceConcreteAfterAction;
+	}
+
+	public EventTypeID getEventTypeID() {
+		return EVENT_TYPE_ID;
+	}
+
+	public Object getEventObject() {
+		// return ((ProfileTableActivityImpl)
+		// this.activityContextInterface.getActivity()).getProfileEvent();
+		return (ProfileUpdatedEvent) this;
+	}
+
+	public Address getAddress() {
+		return super.profileAddress;
+	}
+
+	public ActivityContextInterfaceImpl getActivityContextInterface() {
+		return super.activityContextInterface;
+	}
+
+	public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
+		super.activityContextInterface = activityContextInterface;
+	}
+
+	public ProfileLocalObject getAfterUpdateProfileLocal() {
+		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
+			return super.profileLocalObjectAfterAction;
+		} else {
+			return null;
+		}
+	}
+
+	public ProfileLocalObject getBeforeUpdateProfileLocal() {
+		if (super.isClassLoaded(this.profileLocalObjectBeforeAction.getClass())) {
+			return this.profileLocalObjectBeforeAction;
+		} else {
+			return null;
+		}
+	}
 
 }
-

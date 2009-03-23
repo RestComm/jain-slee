@@ -17,68 +17,79 @@ package org.mobicents.slee.runtime.facilities.profile;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileID;
+import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileRemovedEvent;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
-/** Profile removed event implementation.
+/**
+ * Profile removed event implementation.
  * 
- * @author DERUELLE Jean <a href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com</a> 
- *
+ * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
+ *         </a>
+ * 
  */
-public class ProfileRemovedEventImpl implements ProfileRemovedEvent {
-    
-	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileRemovedEvent","javax.slee","1.0");
-	    
-    private Address profileAddress;
-    
-    private ProfileID profile;
-    
-    private Object  removedProfile;
-    
-    public ProfileRemovedEventImpl ( Address profileAddress, ProfileID profileId, 
-            Object removedProfile, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif ) {
-        this.profileAddress = profileAddress;
-        this.profile = profileId;
-        this.removedProfile = removedProfile;        
-    }
-    
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileAddedEvent#getProfile()
-     */
-    public ProfileID getProfile() {
-       
-        return profile;
-    }
+public class ProfileRemovedEventImpl extends SuperProfileEvent implements ProfileRemovedEvent {
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileAddedEvent#getProfileAddress()
-     */
-    public Address getProfileAddress() {
-       
-        return profileAddress;
-    }    
+	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileRemovedEvent", "javax.slee", "1.0");
 
-    public EventTypeID getEventTypeID() {
-        return EVENT_TYPE_ID;
-    }
+	public ProfileRemovedEventImpl(Address profileAddress, ProfileID profile, Object profileCmpInterfaceConcrete, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif,
+			ActivityContextInterfaceImpl activityContextInterface, ProfileLocalObjectConcrete profileLocalObject) {
+		super(profileAddress, profile, profileCmpInterfaceConcrete, ptableAcif, activityContextInterface, profileLocalObject);
+		// TODO Auto-generated constructor stub
+	}
 
-    public Object getEventObject() {
-        //return  ((ProfileTableActivityImpl) this.activityContextInterface.getActivity()).getProfileEvent();
-        return  (ProfileRemovedEvent) this;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileAddedEvent#getProfile()
+	 */
+	public ProfileID getProfile() {
 
-    public Address getAddress() {
-        return this.profileAddress;
-    }
+		return super.profile;
+	}
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfile()
-     */
-    public Object getRemovedProfile() {
-        return this.removedProfile;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileAddedEvent#getProfileAddress()
+	 */
+	public Address getProfileAddress() {
+
+		return super.profileAddress;
+	}
+
+	public EventTypeID getEventTypeID() {
+		return EVENT_TYPE_ID;
+	}
+
+	public Object getEventObject() {
+		// return ((ProfileTableActivityImpl)
+		// this.activityContextInterface.getActivity()).getProfileEvent();
+		return (ProfileRemovedEvent) this;
+	}
+
+	public Address getAddress() {
+		return super.profileAddress;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfile()
+	 */
+	public Object getRemovedProfile() {
+		return super.profileCmpInterfaceConcreteAfterAction;
+	}
+
+	public ProfileLocalObject getRemovedProfileLocal() {
+		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
+			return super.profileLocalObjectAfterAction;
+		} else {
+			return null;
+		}
+	}
 
 }
-

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.slee.profile.ProfileTableActivity;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.profile.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileManager;
 
 /**
  *Implementation of the profile table activity object.

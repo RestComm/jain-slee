@@ -10,6 +10,7 @@
 package org.mobicents.slee.runtime.facilities.profile;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 import javax.slee.ActivityContextInterface;
@@ -17,84 +18,91 @@ import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileAddedEvent;
 import javax.slee.profile.ProfileID;
+import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
 
-/** Profile added event implementation.
+/**
+ * Profile added event implementation.
  * 
  * @author M. Ranganathan
  * @author Ivelin Ivanov
- *
+ * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
+ *         </a>
+ * 
  */
-public class ProfileAddedEventImpl implements ProfileAddedEvent {
-    
-	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileAddedEvent","javax.slee","1.0");
-    
-    private Address profileAddress;
-    
-    private ProfileID profile;
-    
-    private Object  addedProfile;
-    
-    private ProfileTableActivityContextInterfaceFactoryImpl ptableAcif;
-    
-    private ActivityContextInterfaceImpl activityContextInterface;
-    
-    public ProfileAddedEventImpl ( Address profileAddress, ProfileID profileId, 
-            Object addedProfile, ActivityContextInterface acii,
-            ProfileTableActivityContextInterfaceFactory ptableAcif ) {
-        this.profileAddress = profileAddress;
-        this.profile = profileId;
-        this.addedProfile = addedProfile;
-        this.activityContextInterface = (ActivityContextInterfaceImpl)acii;
-    }
-    
-    public Object getActivity() {
-        return this.activityContextInterface.getActivity();
-    }
+public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileAddedEvent {
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileAddedEvent#getProfile()
-     */
-    public ProfileID getProfile() {
-       
-        return profile;
-    }
+	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileAddedEvent", "javax.slee", "1.0");
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileAddedEvent#getProfileAddress()
-     */
-    public Address getProfileAddress() {
-       
-        return profileAddress;
-    }
+	public ProfileAddedEventImpl(Address profileAddress, ProfileID profile, Object profileCmpInterfaceConcrete, ProfileTableActivityContextInterfaceFactoryImpl ptableAcif,
+			ActivityContextInterfaceImpl activityContextInterface, ProfileLocalObjectConcrete profileLocalObject) {
+		super(profileAddress, profile, profileCmpInterfaceConcrete, ptableAcif, activityContextInterface, profileLocalObject);
 
-    /* (non-Javadoc)
-     * @see javax.slee.profile.ProfileAddedEvent#getAddedProfile()
-     */
-    public Object getAddedProfile() {
-       
-        return this.addedProfile;
-    }
+		super.profileLocalObjectAfterAction.setSnapshot();
+	}
 
-    public EventTypeID getEventTypeID() {
-        return EVENT_TYPE_ID;
-    }
+	public Object getActivity() {
+		return super.activityContextInterface.getActivity();
+	}
 
-    public Object getEventObject() {
-        //return  ((ProfileTableActivityImpl) this.activityContextInterface.getActivity()).getProfileEvent();
-        return  (ProfileAddedEvent) this;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileAddedEvent#getProfile()
+	 */
+	public ProfileID getProfile() {
 
-    public Address getAddress() {
-        return profileAddress;
-    }
+		return super.profile;
+	}
 
-    public ActivityContextInterfaceImpl getActivityContextInterface() {
-        return this.activityContextInterface;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileAddedEvent#getProfileAddress()
+	 */
+	public Address getProfileAddress() {
 
-    public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
-        this.activityContextInterface = activityContextInterface;   
-    }
+		return super.profileAddress;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileAddedEvent#getAddedProfile()
+	 */
+	public Object getAddedProfile() {
+
+		return super.profileCmpInterfaceConcreteAfterAction;
+	}
+
+	public EventTypeID getEventTypeID() {
+		return EVENT_TYPE_ID;
+	}
+
+	public Object getEventObject() {
+		// return ((ProfileTableActivityImpl)
+		// this.activityContextInterface.getActivity()).getProfileEvent();
+		return (ProfileAddedEvent) this;
+	}
+
+	public Address getAddress() {
+		return profileAddress;
+	}
+
+	public ActivityContextInterfaceImpl getActivityContextInterface() {
+		return this.activityContextInterface;
+	}
+
+	public void setActivityContextInterfaceImpl(ActivityContextInterfaceImpl activityContextInterface) {
+		this.activityContextInterface = activityContextInterface;
+	}
+
+	public ProfileLocalObject getAddedProfileLocal() {
+		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
+			return super.profileLocalObjectAfterAction;
+		} else {
+			return null;
+		}
+
+	}
 }
-

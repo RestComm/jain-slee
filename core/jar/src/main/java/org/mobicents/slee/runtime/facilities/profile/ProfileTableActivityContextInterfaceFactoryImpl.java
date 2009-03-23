@@ -15,6 +15,7 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
@@ -60,9 +61,8 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 		try {
 			// check if this is an assigned profile table
 			// name.
-			serviceContainer.getSleeProfileManager().profileTableExists(
-					profileTableActivity.getProfileTableName());
-		} catch (SystemException e) {
+			serviceContainer.getSleeProfileManagement().getProfileTable(profileTableActivity.getProfileTableName());
+		} catch (UnrecognizedProfileTableNameException e) {
 			throw new FactoryException(e.getMessage());
 		}
 
