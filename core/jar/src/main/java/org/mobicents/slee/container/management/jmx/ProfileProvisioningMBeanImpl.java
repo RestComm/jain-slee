@@ -14,13 +14,16 @@
  */
 package org.mobicents.slee.container.management.jmx;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
+import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.SleeState;
@@ -42,14 +45,16 @@ import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
 import org.mobicents.slee.container.profile.SingleProfileException;
+import org.mobicents.slee.container.profile.SleeProfileManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * MBean class for profile provisioning through jmx
  * 
- * @author DERUELLE Jean <a
- *         href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com </a>
+ * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  * 
  */
 public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements ProfileProvisioningMBeanImplMBean {
@@ -57,7 +62,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	private static Logger logger;
 
 	// private SleeProfileManager profileManager;
-
+	private SleeProfileManagement sleeProfileManagement = null;
+	private SleeContainer sleeContainer = null;
+	private SleeTransactionManager sleeTransactionManagement = null;
 	static {
 		try {
 			logger = Logger.getLogger(ProfileProvisioningMBeanImpl.class);
@@ -69,20 +76,153 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 	public ProfileProvisioningMBeanImpl() throws NotCompliantMBeanException {
 		super(ProfileProvisioningMBeanImplMBean.class);
+		this.sleeContainer = SleeContainer.lookupFromJndi();
+		this.sleeTransactionManagement = this.sleeContainer.getTransactionManager();
+		this.sleeProfileManagement = this.sleeContainer.getSleeProfileManagement();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Create a new profile with the specified name in the specified profile
+	 * table. The ObjectName returned by this method provides the management
+	 * client with the name of a Profile MBean for the created profile. This
+	 * Profile MBean is in the read-write state allowing the management client a
+	 * chance to configure the initial values for the profile attributes before
+	 * it is added to the profile table. The new profile is not visible in the
+	 * profile table until the Profile MBean state is committed using the
+	 * ProfileMBean.commitProfile() method. If the ProfileMBean.restoreProfile()
+	 * method is invoked on the Profile MBean before its state is committed,
+	 * creation of the profile is rolled back and the profile is considered
+	 * never to have been created successfully.
 	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#createProfileTable(javax
-	 * .slee.profile.ProfileSpecificationID, java.lang.String)
+	 * The JMX Object name of the Profile MBean for the created profile is
+	 * composed of at least:
+	 * 
+	 * <br>*
+	 * a base name specifying the domain and type of the MBean <br>*
+	 * the profile table name property, with a value equal to profileTableName <br>*
+	 * the profile name property, with a value equal to newProfileName.
+	 * 
+	 * @param profileTableName
+	 *            - the name of the profile table to create the profile in.
+	 * @param newProfileName
+	 *            - the name of the new profile. The name must be unique within
+	 *            the scope of the profile table.
+	 * @return the Object Name of the new profile.
+	 * @throws java.lang.NullPointerException
+	 *             - if either argument is null.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if a profile table with the specified name does not exist.
+	 * @throws InvalidArgumentException
+	 *             - if newProfileName is zero-length or contains illegal
+	 *             characters.
+	 * @throws ProfileAlreadyExistsException
+	 *             - if a profile with the same name already exists in the
+	 *             profile table.
+	 * @throws ManagementException
+	 *             - if the profile could not be created due to a system-level
+	 *             failure.
 	 */
-	public void createProfileTable(ProfileSpecificationID profileSpecificationID, String newProfileTableName) throws NullPointerException, UnrecognizedProfileSpecificationException,
-			InvalidArgumentException, ProfileTableAlreadyExistsException, ManagementException {
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	public ObjectName createProfile(java.lang.String profileTableName, java.lang.String newProfileName) throws java.lang.NullPointerException, UnrecognizedProfileTableNameException,
+			InvalidArgumentException, ProfileAlreadyExistsException, ManagementException {
 
-		// check mandated by SLEE TCK test CreateActivityWhileStoppingTest
+		if (profileTableName == null)
+			throw new NullPointerException();
+		if (newProfileName == null)
+			throw new NullPointerException();
+
+		ProfileTableConcreteImpl.validateProfileName(newProfileName);
+		ProfileTableConcreteImpl.validateProfileTableName(profileTableName);
+
+		boolean b = false;
+		boolean rb = true;
+
+		ObjectName objectName = null;
+		String infoStr = "Creating new Profile " + newProfileName + " in profile table " + profileTableName;
+		String errorStr = "Failed " + infoStr;
+		try {
+
+			b = this.sleeTransactionManagement.requireTransaction();
+			// This checks if profile table exists - throws SLEEException in
+			// case of system level and UnrecognizedProfileTableNameException in
+			// case of no such table
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			ProfileSpecificationID profileSpecificationID = null;
+			ProfileSpecificationComponent component = null;
+
+			objectName = null;
+
+			// store class loader
+			// Thread currentThread = Thread.currentThread();
+			// ClassLoader currentClassLoader =
+			// currentThread.getContextClassLoader();
+			try {
+				// change class loader
+				// currentThread.setContextClassLoader(component.getClassLoader());
+				// since all validation checks pass, lets try to create the
+				// profile
+				objectName = profileTable.addProfile(newProfileName, false);
+				rb = false;
+			} catch (TransactionRequiredLocalException e) {
+				throw new ManagementException(errorStr, e);
+				// } catch (SystemException e) {
+				// throw new ManagementException(errorStr, e);
+			} catch (SingleProfileException e) {
+				throw new ManagementException("This profile specification defines " + "that it can exists only a single profile for it and " + "there is already a profile for this specification."
+						+ errorStr, e);
+			} catch (ProfileAlreadyExistsException e1) {
+				throw e1;
+			} catch (Exception e1) {
+				throw new ManagementException(errorStr, e1);
+			} finally {
+				// restore class loader
+				// currentThread.setContextClassLoader(currentClassLoader);
+			}
+			logger.debug(infoStr + "DONE. The profile has the following JMX Object Name " + objectName);
+
+		} catch (Exception e) {
+			throw new ManagementException("Failed to create profile due to some system level failure.", e);
+		} finally {
+			try {
+				if (rb)
+					this.sleeTransactionManagement.setRollbackOnly();
+				if (b)
+					this.sleeTransactionManagement.commit();
+			} catch (Exception e) {
+				logger.error("Failed getProfiles.", e);
+				throw new ManagementException("Failed getProfiles.", e);
+			}
+
+		}
+
+		return objectName;
+	}
+
+	/**
+	 * Create a new profile table from a profile specification.
+	 * 
+	 * @param id
+	 *            - the component identifier of the profile specification that
+	 *            the profile table should be created from.
+	 * @param newProfileTableName
+	 *            - the name of the profile table to create. The name cannot
+	 *            include the '/' character.
+	 * @throws java.lang.NullPointerException
+	 *             - if newProfileTableName is null.
+	 * @throws UnrecognizedProfileSpecificationException
+	 *             - if id is not a recognizable ProfileSpecificationID for the
+	 *             SLEE or it does not correspond with a profile specification
+	 *             installed in the SLEE.
+	 * @throws InvalidArgumentException
+	 *             - if newProfileTableName is zero-length or contains a '/'
+	 *             character.
+	 * @throws ProfileTableAlreadyExistsException
+	 *             - if a profile table with the same name already exists.
+	 * @throws ManagementException
+	 *             - if the profile table could not be created due to a
+	 *             system-level failure.
+	 */
+	public void createProfileTable(ProfileSpecificationID specificationID, String profileTableName) throws NullPointerException, UnrecognizedProfileSpecificationException, InvalidArgumentException,
+			ProfileTableAlreadyExistsException, ManagementException {
 		if (sleeContainer.getSleeState() != SleeState.RUNNING)
 			return;
 
@@ -96,51 +236,41 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		boolean b = false;
 		try {
 			b = transactionManager.requireTransaction();
-			logger.debug("creating new Profile Table " + newProfileTableName + " ...");
-			logger.debug("profile specification ID :" + profileSpecificationID.toString());
-			if (newProfileTableName == null)
-				throw new NullPointerException();
-			if (newProfileTableName.length() < 1) {
-				log.error("InvaidArgument: " + newProfileTableName);
-				throw new InvalidArgumentException();
-			}
-			if (newProfileTableName.indexOf('/') != -1) {
-				log.error("InvaidArgument: " + newProfileTableName);
-				throw new InvalidArgumentException();
-			}
-			if (profileTableHasInvalidCharacters(newProfileTableName)) {
-				log.error("InvaidArgument: " + newProfileTableName);
-				throw new InvalidArgumentException();
-			}
+			logger.debug("creating new Profile Table " + profileTableName + " ...");
+			logger.debug("profile specification ID :" + specificationID.toString());
 
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-			ProfileSpecificationID profileSpecification;
+			ProfileTableConcreteImpl.validateProfileTableName(profileTableName);
+
+			ProfileTableConcrete profileTable = null;
 			try {
-				profileSpecification = profileManager.findProfileSpecId(newProfileTableName);
-				if (profileSpecification != null)
-					throw new ProfileTableAlreadyExistsException("Failed creating Profile Table " + newProfileTableName + " in " + profileSpecificationID);
-			} catch (SystemException e1) {
-				String err = "Failed to create profile table, because of failure in findProfuleTable(" + newProfileTableName + "). System Exception.";
+				profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+				if (profileTable != null)
+					throw new ProfileTableAlreadyExistsException("Failed creating Profile Table " + profileTableName + " in " + specificationID);
+			} catch (SLEEException e1) {
+				String err = "Failed to create profile table, because of failure in findProfuleTable(" + profileTableName + "). System Exception.";
 				logger.error(err, e1);
 				throw new ManagementException(err, e1);
+			} catch (UnrecognizedProfileTableNameException e) {
+				// we ignore :)
 			}
 
-			logger.debug("Profile table does not exist -- creating one  " + profileSpecificationID.toString());
+			logger.debug("Profile table does not exist -- creating one  " + specificationID.toString());
 
 			// get the profile specification descriptor from the deployment
 			// manager class
-			ProfileSpecificationComponent component = sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationID);
+			ProfileSpecificationComponent component = sleeContainer.getComponentRepositoryImpl().getComponentByID(specificationID);
 
 			if (component == null)
 				throw new UnrecognizedProfileSpecificationException();
 
-			// switch the context classloader to the DU cl
-			ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-
 			try {
 				Thread.currentThread().setContextClassLoader(component.getClassLoader());
 
-				profileManager.addProfileTable(newProfileTableName, component);
+				profileTable = this.sleeProfileManagement.addProfileTable(profileTable, component);
+				profileTable.register();
+				// FIXME: ??
+
+				profileTable.addProfile(null, true);
 			} catch (TransactionRequiredLocalException e) {
 				throw new ManagementException("Transaction Manager Failure", e);
 			} catch (SystemException e) {
@@ -150,9 +280,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			} catch (Exception e) {
 				throw new ManagementException(e.getMessage(), e);
 			} finally {
-				Thread.currentThread().setContextClassLoader(oldClassLoader);
+				//
 			}
-			logger.debug("new Profile Table " + newProfileTableName + " created");
+			logger.debug("new Profile Table " + profileTableName + " created");
 		} catch (Exception x) {
 			try {
 				transactionManager.setRollbackOnly();
@@ -181,524 +311,271 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					throw new ManagementException("System Exception", e);
 				}
 		}
+
+	}
+
+	public ObjectName getDefaultProfile(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
+		try {
+			return this.getProfile(profileTableName, null, true);
+		} catch (UnrecognizedProfileNameException e) {
+			// This must not happen.
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public ObjectName getProfile(java.lang.String profileTableName, java.lang.String profileName) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedProfileNameException,
+			ManagementException {
+
+		return this.getProfile(profileTableName, profileName, false);
 	}
 
 	/**
-	 * Check if some invalid characters exists in the profile table name
+	 * 
+	 Get the JMX Object Name of the Profile MBean for an existing profile.
+	 * 
+	 * The JMX Object name of the Profile MBean is composed of at least:
+	 * 
+	 * a base name specifying the domain and type of the MBean the profile table
+	 * name property, with a value equal to profileTableName the profile name
+	 * property, with a value equal to profileName.
 	 * 
 	 * @param profileTableName
-	 *            the profile table name to check
-	 * @return true if an invalid character is found in the profile table name
+	 *            - the name of the profile table to obtain the profile from.
+	 * @param profileName
+	 *            - the name of the profile.
+	 * @param isDefault
+	 *            - indicates that we want default profile
+	 * @return the Object Name of the profile.
+	 * @throws java.lang.NullPointerException
+	 *             - if either argument is null.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if a profile table with the specified name does not exist.
+	 * @throws UnrecognizedProfileNameException
+	 *             - if a profile with the specified name does not exist in the
+	 *             profile table.
+	 * @throws ManagementException
+	 *             - if the ObjectName of the profile MBean could not be
+	 *             obtained due to a system-level failure.
 	 */
-	private boolean profileTableHasInvalidCharacters(String profileTableName) {
-		for (char invalidChar = 0x0000; invalidChar < 0x001f; invalidChar++) {
-			if (profileTableName.indexOf(invalidChar) != -1) {
-				logger.debug("Profile Table Name " + profileTableName + " " + "contains the following invalid character " + invalidChar);
-				return true;
-			}
+	private ObjectName getProfile(java.lang.String profileTableName, java.lang.String profileName, boolean isDefault) throws NullPointerException, UnrecognizedProfileTableNameException,
+			ManagementException, UnrecognizedProfileNameException, ManagementException {
+
+		if (profileTableName == null) {
+			throw new NullPointerException("Argument[ProfileTableName] must not be null.");
 		}
-		if (profileTableName.indexOf('/') != -1) {
-			logger.debug("Profile Table Name " + profileTableName + "" + " contains the following invalid character /");
-			return true;
+
+		if (!isDefault && profileName == null) {
+			throw new NullPointerException("Argument[ProfileName] must not be null.");
 		}
-		if (profileTableName.indexOf('\u007f') != -1) {
-			logger.debug("Profile Table Name " + profileTableName + " " + "contains the following invalid character \u007f");
-			return true;
+
+		boolean b = false;
+		try {
+			b = this.sleeTransactionManagement.requireTransaction();
+
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+
+			return profileTable.getProfileMBean(profileName, isDefault);
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ManagementException("Failed to obtain MBean name for ProfileTable: " + profileTableName + ", profile: " + profileName + ", default: " + isDefault, e);
+		} finally {
+			if (b)
+				try {
+					this.sleeTransactionManagement.commit();
+				} catch (Exception e) {
+					logger.error("System Exception", e);
+					throw new ManagementException("System Exception", e);
+				}
 		}
-		return false;
+
 	}
 
 	/**
-	 * Check if some invalid characters exists in the profile name
+	 * Get the component identifier of the profile specification that a profile
+	 * table was created with.
 	 * 
-	 * @param profileName
-	 *            the profile name to check
-	 * @return true if an invalid character is found in the profile name
-	 */
-	private boolean profileHasInvalidCharacters(String profileName) {
-		for (char invalidChar = 0x0000; invalidChar < 0x001f; invalidChar++) {
-			if (profileName.indexOf(invalidChar) != -1) {
-				logger.debug("Profile Name " + profileName + " " + "contains the following invalid character " + invalidChar);
-				return true;
-			}
-		}
-		if (profileName.indexOf('\u007f') != -1) {
-			logger.debug("Profile Name " + profileName + " " + "contains the following invalid character \u007f");
-			return true;
-		}
-		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#removeProfileTable(java
-	 * .lang.String)
-	 */
-	public void removeProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
-		logger.debug("removing Profile Table " + profileTableName + " ...");
-		if (profileTableName == null) {
-			logger.error("Cannot remove profile table when passed name equals null!!!");
-			throw new NullPointerException();
-		}
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-		boolean b = false;
-		boolean rb = true;
-		try {
-			b = transactionManager.requireTransaction();
-
-			// check mandated by SLEE TCK test CreateActivityWhileStoppingTest
-			if (sleeContainer.getSleeState() != SleeState.RUNNING)
-				return;
-
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-			;
-			ProfileSpecificationID profileSpecificationID;
-			try {
-				profileSpecificationID = profileManager.findProfileSpecId(profileTableName);
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure", e);
-			}
-			if (profileSpecificationID == null)
-				throw new UnrecognizedProfileTableNameException("Failed removing Profile Table " + profileTableName);
-
-			try {
-				profileManager.removeProfileTable(profileTableName);
-			} catch (TransactionRequiredLocalException e) {
-				throw new ManagementException("Transaction Manager Failure", e);
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure", e);
-			}
-			logger.debug("Removed Profile Table " + profileTableName);
-
-			rb = false;
-		} finally {
-			try {
-				if (rb)
-					transactionManager.setRollbackOnly();
-				if (b)
-					transactionManager.commit();
-			} catch (Exception e) {
-				throw new ManagementException("Failed removeProfileTable( " + profileTableName + ") due to tx commit error", e);
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#getProfileSpecification
-	 * (java.lang.String)
+	 * @param profileTableName
+	 *            - the name of the profile table.
+	 * @return the component identifier of the profile specification that the
+	 *         profile table was created with.
+	 * @throws java.lang.NullPointerException
+	 *             - if profileTableName is null.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if a profile table with the specified name does not exist.
+	 * @throws ManagementException
+	 *             - if the component identifier could not be obtained due to a
+	 *             system-level failure.
 	 */
 	public ProfileSpecificationID getProfileSpecification(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
 		logger.debug("trying to get the profile specification for " + profileTableName + " ...");
 		if (profileTableName == null)
-			throw new NullPointerException();
-		SleeProfileManager profileManager = SleeContainer.lookupFromJndi().getSleeProfileManager();
-		ProfileSpecificationID profileSpecificationID;
+			throw new NullPointerException("Argument[ProfileTableName] must not be null");
+
+		boolean b = false;
 		try {
-			profileSpecificationID = profileManager.findProfileSpecId(profileTableName);
-		} catch (SystemException e) {
-			throw new ManagementException("System-level failure", e);
-		}
-		if (profileSpecificationID == null)
-			throw new UnrecognizedProfileTableNameException();
-		logger.debug("profile specification for " + profileTableName + " found :" + profileSpecificationID);
+			b = this.sleeTransactionManagement.requireTransaction();
 
-		return profileSpecificationID;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#renameProfileTable(java
-	 * .lang.String, java.lang.String)
-	 */
-	public void renameProfileTable(String oldProfileTableName, String newProfileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, InvalidArgumentException,
-			ProfileTableAlreadyExistsException, ManagementException {
-		logger.debug("Profile Table " + oldProfileTableName + " to be renamed to " + newProfileTableName);
-		if (newProfileTableName == null)
-			throw new NullPointerException();
-		if (newProfileTableName.length() < 1)
-			throw new InvalidArgumentException();
-		if (newProfileTableName.indexOf('/') != -1)
-			throw new InvalidArgumentException();
-
-		ProfileSpecificationID profileSpecificationID = getProfileSpecification(oldProfileTableName);
-		// get the profile specification descriptor from the deployment manager
-		// class
-
-		SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
-		ProfileSpecificationComponent component = serviceContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationID);
-
-		if (component == null)
-			throw new UnrecognizedProfileTableNameException();
-
-		ProfileSpecificationID profileSpecification;
-
-		profileSpecification = getProfileSpecification(newProfileTableName);
-		if (profileSpecification != null)
-			throw new ProfileTableAlreadyExistsException();
-
-		SleeProfileManager profileManager = SleeContainer.lookupFromJndi().getSleeProfileManager();
-		try {
-			profileManager.renameProfileTable(oldProfileTableName, newProfileTableName, component);
-		} catch (TransactionRequiredLocalException e) {
-			throw new ManagementException("System-level failure", e);
-		} catch (SystemException e) {
-			throw new ManagementException("System-level failure", e);
-		} catch (ClassNotFoundException e) {
-			throw new ManagementException("System-level failure", e);
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			return profileTable.getProfileSpecificationComponent().getProfileSpecificationID();
+		} catch (SLEEException e) {
+			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new ManagementException(e.getMessage(), e);
-		}
-		/*
-		 * removeProfileTable(oldProfileTableName); try {
-		 * profileManager.addProfileTable( newProfileTableName,
-		 * profileSpecificationDescriptor); } catch
-		 * (TransactionRequiredLocalException e) { throw new
-		 * ManagementException("Transaction Manager Failure"); } catch
-		 * (SystemException e) { throw new ManagementException("System-level
-		 * failure"); }
-		 */
-		logger.debug("Profile Table " + oldProfileTableName + " renamed to " + newProfileTableName);
-	}
-
-	/**
-	 * @return ObjectName - The default profile MBean object name if the profile
-	 *         table has been created. Otherwise null.
-	 * 
-	 * @see javax.slee.management.ProfileProvisioningMBean#getDefaultProfile(java.lang.String)
-	 */
-	public ObjectName getDefaultProfile(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
-
-		if (profileTableName == null)
-			throw new NullPointerException();
-
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-		boolean b = false;
-		boolean rb = true;
-		try {
-			b = transactionManager.requireTransaction();
-
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-
-			try {
-				if (!profileManager.profileTableExists(profileTableName))
-					throw new UnrecognizedProfileTableNameException();
-				rb = false;
-				ObjectName on = getDefaultProfileObjectName(profileTableName);
-				return on;
-			} catch (MalformedObjectNameException e) {
-				throw new ManagementException("System-level failure", e);
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure", e);
-			}
-
+			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
 		} finally {
-			try {
-				if (rb)
-					transactionManager.setRollbackOnly();
-				if (b)
-					transactionManager.commit();
-			} catch (Exception e) {
-				throw new ManagementException("Failed removeProfileTable( " + profileTableName + ") due to tx commit error", e);
-			}
-		}
-
-	}
-
-	/**
-	 * SLEE 1.0 spec, section 14.11: This method gets the JMX Object Name of a
-	 * modifiable Profile MBean object. When the Profile MBean object commits
-	 * successfully, the SLEE creates and adds a Profile with the name specified
-	 * by the newProfileName argument to the Profile Table specified by the
-	 * profileTableName argument. Before the Profile MBean object commits, the
-	 * Profile name specifed by the newProfileName argument does not exist and
-	 * cannot be accessed by SBBs or through the ProfileProvisioningMBean
-	 * interface.
-	 * 
-	 * @see javax.slee.management.ProfileProvisioningMBean#createProfile(java.lang.String,
-	 *      java.lang.String)
-	 */
-	public ObjectName createProfile(String profileTableName, String newProfileName) throws NullPointerException, UnrecognizedProfileTableNameException, InvalidArgumentException,
-			ProfileAlreadyExistsException, ManagementException {
-
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-		boolean b = false;
-		boolean rb = true;
-
-		ObjectName objectName;
-		try {
-
-			b = transactionManager.requireTransaction();
-
-			String infoStr = "Creating new Profile " + newProfileName + " in profile table " + profileTableName;
-			String errorStr = "Failed " + infoStr;
-			logger.debug(infoStr);
-			if (profileTableName == null)
-				throw new NullPointerException();
-			if (newProfileName == null)
-				throw new NullPointerException();
-			if (newProfileName.length() < 1)
-				throw new InvalidArgumentException();
-			if (profileHasInvalidCharacters(newProfileName))
-				throw new InvalidArgumentException();
-
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-			ProfileSpecificationID profileSpecificationID;
-			ProfileSpecificationComponent component;
-			try {
-				profileSpecificationID = profileManager.findProfileSpecId(profileTableName);
-				if (profileSpecificationID == null)
-					throw new UnrecognizedProfileTableNameException(errorStr);
-				component = sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationID);
-			} catch (SystemException e) {
-				throw new ManagementException(errorStr, e);
-			}
-
-			Object profile;
-			try {
-				// see if the profile MBean was created, but not committed
-				profile = profileManager.findProfileMBean(profileTableName, newProfileName);
-				if (profile != null)
-					throw new ProfileAlreadyExistsException(errorStr);
-				// see if the profile MBean was closed/removed, but the profile
-				// itself is still visible in SLEE
-				if (profileManager.isProfileCommitted(profileTableName, newProfileName)) {
-					throw new ProfileAlreadyExistsException(errorStr);
+			if (b)
+				try {
+					this.sleeTransactionManagement.commit();
+				} catch (Exception e) {
+					logger.error("System Exception", e);
+					throw new ManagementException("System Exception", e);
 				}
-			} catch (ProfileAlreadyExistsException e1) {
-				throw e1;
-			} catch (Exception e1) {
-				throw new ManagementException(errorStr, e1);
-			}
-			objectName = null;
-
-			// store class loader
-			Thread currentThread = Thread.currentThread();
-			ClassLoader currentClassLoader = currentThread.getContextClassLoader();
-			try {
-				// change class loader
-				currentThread.setContextClassLoader(component.getClassLoader());
-				// since all validation checks pass, lets try to create the
-				// profile
-				objectName = profileManager.addProfileToProfileTable(profileTableName, newProfileName);
-			} catch (TransactionRequiredLocalException e) {
-				throw new ManagementException(errorStr, e);
-			} catch (SystemException e) {
-				throw new ManagementException(errorStr, e);
-			} catch (SingleProfileException e) {
-				throw new ManagementException("This profile specification defines " + "that it can exists only a single profile for it and " + "there is already a profile for this specification."
-						+ errorStr, e);
-			} finally {
-				// restore class loader
-				currentThread.setContextClassLoader(currentClassLoader);
-			}
-			logger.debug(infoStr + "DONE. The profile has the following JMX Object Name " + objectName);
-			rb = false;
-		} finally {
-			try {
-				if (rb)
-					transactionManager.setRollbackOnly();
-				if (b)
-					transactionManager.commit();
-			} catch (Exception e) {
-				logger.error("Failed getProfiles.", e);
-				throw new ManagementException("Failed getProfiles.", e);
-			}
-		}
-		return objectName;
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#removeProfile(java.lang
-	 * .String, java.lang.String)
-	 */
-	public void removeProfile(String profileTableName, String profileName) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedProfileNameException, ManagementException {
-
-		logger.debug("Removing Profile " + profileName + " from profile table " + profileTableName);
-		if (profileTableName == null)
-			throw new NullPointerException();
-		if (profileName == null)
-			throw new NullPointerException();
-
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		final SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-		boolean b = false;
-		boolean rb = true;
-		try {
-			b = transactionManager.requireTransaction();
-
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-			ProfileSpecificationID profileSpecificationID;
-			try {
-				profileSpecificationID = profileManager.findProfileSpecId(profileTableName);
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure");
-			}
-			if (profileSpecificationID == null)
-				throw new UnrecognizedProfileTableNameException("Failed removing Profile " + profileName + " from Profile Table " + profileTableName);
-			Object profileMBeanName;
-			profileMBeanName = profileManager.findProfileMBean(profileTableName, profileName);
-			if (profileMBeanName == null)
-				throw new UnrecognizedProfileNameException("Failed removing Profile " + profileName + " from Profile Table " + profileTableName);
-
-			try {
-				profileManager.removeProfile(profileTableName, profileName);
-			} catch (TransactionRequiredLocalException e) {
-				throw new ManagementException("Transaction Manager Failure", e);
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure", e);
-			}
-			logger.debug("Profile " + profileName + " removed from profile table " + profileTableName);
-
-			rb = false;
-
-		} finally {
-			try {
-				if (rb)
-					transactionManager.setRollbackOnly();
-				if (b)
-					transactionManager.commit();
-			} catch (Exception e) {
-				throw new ManagementException("Failed removeProfileTable( " + profileTableName + ") due to tx commit error", e);
-			}
-		}
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#getProfile(java.lang.String
-	 * , java.lang.String)
-	 */
-	public ObjectName getProfile(String profileTableName, String profileName) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedProfileNameException, ManagementException {
-
-		logger.debug("Getting Profile " + profileName + " from profile table " + profileTableName);
-		if (profileTableName == null)
-			throw new NullPointerException();
-		if (profileName == null)
-			throw new NullPointerException();
-
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		final SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-		boolean b = false;
-		boolean rb = true;
-		try {
-			b = transactionManager.requireTransaction();
-
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-
-			ProfileSpecificationID profileSpecificationID;
-			try {
-				profileSpecificationID = profileManager.findProfileSpecId(profileTableName);
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure", e);
-			}
-			if (profileSpecificationID == null)
-				throw new UnrecognizedProfileTableNameException();
-
-			Object profile;
-			try {
-				profile = profileManager.findProfileMBean(profileTableName, profileName);
-				if (profile == null)
-					throw new UnrecognizedProfileNameException("Profile MBean does not exist.");
-
-				if (!profileManager.isProfileCommitted(profileTableName, profileName)) {
-					throw new UnrecognizedProfileNameException("Profile has been created but not committed.");
-				}
-			} catch (UnrecognizedProfileNameException e1) {
-				throw e1;
-			} catch (Exception e1) {
-				throw new ManagementException("System-level failure", e1);
-			}
-
-			ObjectName objectName = null;
-			try {
-				objectName = getProfileObjectName(profileTableName, profileName);
-			} catch (MalformedObjectNameException e2) {
-				throw new ManagementException("System-level failure", e2);
-			} catch (NullPointerException e2) {
-				// should never be caught
-				throw new ManagementException("System-level failure", e2);
-			}
-			logger.debug("Profile " + profileName + " from profile table " + profileTableName + " has the following JMX Object Name " + objectName);
-
-			rb = false;
-
-			return objectName;
-
-		} finally {
-			try {
-				if (rb)
-					transactionManager.setRollbackOnly();
-				if (b)
-					transactionManager.commit();
-			} catch (Exception e) {
-				throw new ManagementException("Failed removeProfileTable( " + profileTableName + ") due to tx commit error", e);
-			}
 		}
 
 	}
 
 	/**
+	 * Get the JMX Object Name of a ProfileTableUsageMBean object for a profile
+	 * table.
 	 * 
-	 * Creates a JMX ObjectName for a profile, given its profile name and
-	 * profile table name
+	 * The JMX Object name of the Profile Table Usage MBean is composed of at
+	 * least:
+	 * 
+	 * <br>  *
+	 * the base name which specifies the domain and type of the MBean <br>  *
+	 * the ProfileTableUsageMBean.PROFILE_TABLE_NAME_KEY property, with a value
+	 * equal to profileTableName
 	 * 
 	 * @param profileTableName
-	 * @param profileName
-	 * @return
-	 * @throws MalformedObjectNameException
+	 *            - the name of the profile table.
+	 * @return the Object Name of a ProfileTableUsageMBean object for the
+	 *         specified profile table.
+	 * @throws java.lang.NullPointerException
+	 *             - if profileTableName is null.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if a profile table with the specified name does not exist.
+	 * @throws InvalidArgumentException
+	 *             - if the profile specification component that the specified
+	 *             profile table was created from does not define a usage
+	 *             parameters interface.
+	 * @throws ManagementException
+	 *             - if the Object Name could not be obtained due to a
+	 *             system-level failure.
+	 * @since SLEE 1.1
 	 */
-	public static ObjectName getProfileObjectName(String profileTableName, String profileName) throws MalformedObjectNameException {
-		ObjectName objectName;
-		String jmxProfileTableObjectName = SleeProfileManager.toValidJmxName(profileTableName);
-		String jmxProfileObjectName = SleeProfileManager.toValidJmxName(profileName);
-		objectName = new ObjectName("slee:" + "profileTableName=" + jmxProfileTableObjectName + "," + "type=profile," + "profile=" + jmxProfileObjectName);
-		return objectName;
+	public ObjectName getProfileTableUsageMBean(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, InvalidArgumentException, ManagementException {
+		if (profileTableName == null)
+			throw new NullPointerException("Argument[ProfileTableName] must not be null");
+		// FIXME: maybe this does not requrie TX
+		boolean b = false;
+		try {
+			b = this.sleeTransactionManagement.requireTransaction();
+
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			return profileTable.getUsageMBeanName();
+		} catch (SLEEException e) {
+			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+
+		} catch (InvalidArgumentException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
+		} finally {
+			// FIXME: rollback?
+			if (b)
+				try {
+					this.sleeTransactionManagement.commit();
+				} catch (Exception e) {
+					logger.error("System Exception", e);
+					throw new ManagementException("System Exception", e);
+				}
+		}
+
 	}
 
-	public static ObjectName getDefaultProfileObjectName(String profileTableName) throws MalformedObjectNameException {
-		return getProfileObjectName(profileTableName, "defaultProfile");
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Get a collection of java.lang.String objects that identify the names of
+	 * all the profile tables that have been created in the SLEE.
 	 * 
-	 * @see javax.slee.management.ProfileProvisioningMBean#getProfileTables()
+	 * @return a collection of java.lang.String objects identifying the names of
+	 *         all the profile tables that have been created in the SLEE.
+	 * @throws ManagementException
+	 *             - if the profile table names could not be obtained due to a
+	 *             system-level failure.
 	 */
 	public Collection getProfileTables() throws ManagementException {
 
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		final SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-
+		Collection<String> tablesName = new ArrayList<String>();
 		boolean b = false;
+		boolean rb = true;
 		try {
-			b = transactionManager.requireTransaction();
+			b = this.sleeTransactionManagement.requireTransaction();
 
-			return Collections.unmodifiableCollection(sleeContainer.getSleeProfileManager().getProfileTables());
-
+			tablesName = this.sleeProfileManagement.getDeclaredProfileTableNames();
+			rb = false;
 		} catch (Exception x) {
+
+			if (x instanceof ManagementException)
+				throw (ManagementException) x;
+			else
+				throw new ManagementException("Failed getProfileTable", x);
+		} finally {
+
 			try {
-				transactionManager.setRollbackOnly();
-			} catch (SystemException e) {
+				if (rb)
+					this.sleeTransactionManagement.setRollbackOnly();
+				if (b)
+					this.sleeTransactionManagement.commit();
+			} catch (Exception e) {
 				logger.error("System Exception", e);
 				throw new ManagementException("System Exception", e);
 			}
+		}
+
+		return tablesName;
+
+	}
+
+	/**
+	 * Get a collection of java.lang.String objects that identify the names of
+	 * the profile tables that have been created from the specified profile
+	 * specification.
+	 * 
+	 * @param id
+	 *            - the component identifier of the profile specification.
+	 * @return a collection of java.lang.String objects identifying the names of
+	 *         the profile profile tables that have been created from the
+	 *         specified profile specification.
+	 * @throws java.lang.NullPointerException
+	 *             - if id is null.
+	 * @throws UnrecognizedProfileSpecificationException
+	 *             - if id is not a recognizable ProfileSpecificationID for the
+	 *             SLEE or it does not correspond with a profile specification
+	 *             installed in the SLEE.
+	 * @throws ManagementException
+	 *             - if the profile table names could not be obtained due to a
+	 *             system-level failure.
+	 * @since SLEE 1.1
+	 */
+	public Collection getProfileTables(ProfileSpecificationID id) throws java.lang.NullPointerException, UnrecognizedProfileSpecificationException, ManagementException {
+		Collection<String> tablesName = new ArrayList<String>();
+		boolean b = false;
+		boolean rb = true;
+		try {
+			b = this.sleeTransactionManagement.requireTransaction();
+
+			tablesName = this.sleeProfileManagement.getDeclaredProfileTableNames(id);
+			rb = false;
+		} catch (UnrecognizedProfileSpecificationException x) {
+
+			throw x;
+		} catch (Exception x) {
+
 			if (x instanceof ManagementException)
 				throw (ManagementException) x;
 			else
@@ -706,118 +583,312 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} finally {
 			if (b)
 				try {
-					transactionManager.commit();
+					if (rb) {
+						this.sleeTransactionManagement.setRollbackOnly();
+					} else {
+						this.sleeTransactionManagement.commit();
+					}
 				} catch (Exception e) {
 					logger.error("System Exception", e);
 					throw new ManagementException("System Exception", e);
 				}
 		}
+
+		return tablesName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#getProfiles(java.lang.
-	 * String)
-	 */
 	public Collection getProfiles(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
-
-		Collection profiles = null;
-
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		final SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-
 		boolean b = false;
 		boolean rb = true;
+		Collection names = null;
+		if (profileTableName == null)
+			throw new NullPointerException("Argument[] must not be null");
 		try {
-			b = transactionManager.requireTransaction();
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-			if (profileTableName == null)
-				throw new NullPointerException();
-			ProfileSpecificationID profileSpecificationID;
-			try {
-				profileSpecificationID = profileManager.findProfileSpecId(profileTableName);
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure");
-			}
-			if (profileSpecificationID == null)
-				throw new UnrecognizedProfileTableNameException();
-			profiles = profileManager.getProfiles(profileTableName);
+			b = this.sleeTransactionManagement.requireTransaction();
 
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			names = profileTable.getProfileNames();
 			rb = false;
+		} catch (UnrecognizedProfileTableNameException e) {
+
+			throw e;
+
+		} catch (Exception e) {
+			if (e instanceof ManagementException)
+				throw (ManagementException) e;
+			throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
 		} finally {
 			try {
 				if (rb)
-					transactionManager.setRollbackOnly();
+					this.sleeTransactionManagement.setRollbackOnly();
 				if (b)
-					transactionManager.commit();
+					this.sleeTransactionManagement.commit();
 			} catch (Exception e) {
 				logger.error("Failed getProfiles.", e);
 				throw new ManagementException("Failed getProfiles.", e);
 			}
 		}
-		return profiles;
+
+		return names;
 	}
 
-	/*
-	 * (non-Javadoc)
+	public Collection getProfilesByAttribute(String arg0, String arg1, Object arg2) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedAttributeException,
+			InvalidArgumentException, AttributeTypeMismatchException, ManagementException {
+		// XXX: alex?
+		return null;
+	}
+
+	public Collection getProfilesByDynamicQuery(String arg0, QueryExpression query) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedAttributeException,
+			AttributeTypeMismatchException, ManagementException {
+		// XXX: alex?
+		return null;
+	}
+
+	public Collection getProfilesByIndexedAttribute(String arg0, String arg1, Object arg2) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedAttributeException,
+			AttributeNotIndexedException, AttributeTypeMismatchException, ManagementException {
+		// XXX: alex?
+		return null;
+	}
+
+	/**
+	 * Get a collection of ProfileID objects that identify the profiles
+	 * contained in the specified profile table where the profiles satisfy a
+	 * particular search criteria. The queryName argument identifies the search
+	 * criteria by naming a static query predefined in the deployment descriptor
+	 * of the profile specification from which the profile table was created.
 	 * 
-	 * @see
-	 * javax.slee.management.ProfileProvisioningMBean#getProfilesByIndexedAttribute
-	 * (java.lang.String, java.lang.String, java.lang.Object)
+	 * Note: The profile table's default profile is not considered when
+	 * determining matching profiles as it has no profile identifier that can be
+	 * included in the collection returned by this method.
+	 * 
+	 * @param profileTableName
+	 *            - the name of the profile table.
+	 * @param queryName
+	 *            - the name of a static query defined in the profile table's
+	 *            profile specification deployment descriptor.
+	 * @param parameters
+	 *            - an array of parameter values to apply to parameters in the
+	 *            query. May only be null if the static query takes no
+	 *            arguments.
+	 * @return a collection of ProfileID objects identifying the profiles
+	 *         contained in the specified profile table, where the profiles
+	 *         match the search criteria defined in the named query.
+	 * @throws java.lang.NullPointerException
+	 *             - if either profileTable or queryName is null, if parameters
+	 *             is null and the query requires parameters, or if any of the
+	 *             provided parameter values are null.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if a profile table with the specified name does not exist.
+	 * @throws UnrecognizedQueryNameException
+	 *             - if the profile specification deployment descriptor of the
+	 *             profile table does not declare a static query of the
+	 *             specified query name
+	 * @throws InvalidArgumentException
+	 *             - if parameters is not null and its length does not match the
+	 *             number of parameters defined by the query.
+	 * @throws AttributeTypeMismatchException
+	 *             - if the type of an attribute value included in the query
+	 *             does not match the type of the attribute.
+	 * @throws ManagementException
+	 *             - if the profile identifiers could not be obtained due to a
+	 *             system-level failure. Since: SLEE 1.1
 	 */
-	public Collection getProfilesByIndexedAttribute(String profileTableName, String attributeName, Object attributeValue) throws NullPointerException, UnrecognizedProfileTableNameException,
-			UnrecognizedAttributeException, AttributeNotIndexedException, AttributeTypeMismatchException, ManagementException {
-
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-		final SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-
-		Collection profiles = null;
-
+	public Collection getProfilesByStaticQuery(java.lang.String profileTableName, java.lang.String queryName, java.lang.Object[] parameters) throws java.lang.NullPointerException,
+			UnrecognizedProfileTableNameException, UnrecognizedQueryNameException, InvalidArgumentException, AttributeTypeMismatchException, ManagementException {
 		boolean b = false;
 		boolean rb = true;
+		Collection profileIDs = null;
+		if (profileTableName == null)
+			throw new NullPointerException("Argument[ProfileTableName] must not be null");
+		if (queryName == null)
+			throw new NullPointerException("Argument[QueryName] must not be null");
+
+		// Other NPE checks are done in handlers ?
+
 		try {
-			b = transactionManager.requireTransaction();
+			b = this.sleeTransactionManagement.requireTransaction();
 
-			if (profileTableName == null)
-				throw new NullPointerException();
-			if (attributeName == null)
-				throw new NullPointerException();
-			if (attributeValue == null)
-				throw new NullPointerException();
-
-			SleeProfileManager profileManager = sleeContainer.getSleeProfileManager();
-			ProfileSpecificationID profileSpecification;
-			try {
-				profileSpecification = profileManager.findProfileSpecId(profileTableName);
-				if (profileSpecification == null)
-					throw new UnrecognizedProfileTableNameException();
-			} catch (SystemException e) {
-				throw new ManagementException("System-level failure");
-			}
-
-			try {
-				profiles = profileManager.getProfilesByIndexedAttribute(profileTableName, attributeName, attributeValue, false);
-			} catch (SystemException e1) {
-				throw new ManagementException("System-level failure");
-			}
-			;
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
 
 			rb = false;
+		} catch (UnrecognizedProfileTableNameException e) {
+
+			throw e;
+
+		} catch (Exception e) {
+			if (e instanceof ManagementException)
+				throw (ManagementException) e;
+			throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
 		} finally {
 			try {
 				if (rb)
-					transactionManager.setRollbackOnly();
+					this.sleeTransactionManagement.setRollbackOnly();
 				if (b)
-					transactionManager.commit();
+					this.sleeTransactionManagement.commit();
 			} catch (Exception e) {
 				logger.error("Failed getProfiles.", e);
 				throw new ManagementException("Failed getProfiles.", e);
 			}
 		}
-		return profiles;
+
+		return profileIDs;
 	}
+
+	/**
+	 * Remove a profile from a profile table.
+	 * 
+	 * @param profileTableName
+	 *            - the name of the profile table to remove the profile from.
+	 * @param profileName
+	 *            - the name of the profile to remove.
+	 * @throws java.lang.NullPointerException
+	 *             - if either argument is null.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if a profile table with the specified name does not exist.
+	 * @throws UnrecognizedProfileNameException
+	 *             - if a profile with the specified name does not exist in the
+	 *             profile table.
+	 * @throws ManagementException
+	 *             - if the profile could not be removed due to a system-level
+	 *             failure.
+	 */
+	public void removeProfile(java.lang.String profileTableName, java.lang.String profileName) throws java.lang.NullPointerException, UnrecognizedProfileTableNameException,
+			UnrecognizedProfileNameException, ManagementException {
+
+		if (profileTableName == null)
+			throw new NullPointerException("Argument[ProfileTableName] must nto be null");
+		if (profileName == null)
+			throw new NullPointerException("Argument[ProfileName] must nto be null");
+
+		boolean b = false;
+		boolean rb = true;
+		try {
+			b = this.sleeTransactionManagement.requireTransaction();
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			if (profileTable.isProfileCommitted(profileName)) {
+				throw new UnrecognizedProfileNameException("There is no such profile: " + profileName + ", in profile table: " + profileTableName);
+			}
+
+			profileTable.remove(profileName);
+			rb = false;
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+		} catch (UnrecognizedProfileNameException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ManagementException("Failed to remove due to system level failure.", e);
+		} finally {
+			try {
+				if (rb)
+					this.sleeTransactionManagement.setRollbackOnly();
+				if (b)
+					this.sleeTransactionManagement.commit();
+			} catch (Exception e) {
+				logger.error("Failed getProfiles.", e);
+				throw new ManagementException("Failed getProfiles.", e);
+			}
+		}
+
+	}
+
+	public void removeProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
+		if (profileTableName == null)
+			throw new NullPointerException("Argument[ProfileTableName] must nto be null");
+
+		boolean b = false;
+		boolean rb = true;
+		try {
+			b = this.sleeTransactionManagement.requireTransaction();
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+
+			profileTable.removeProfileTable();
+			rb = false;
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ManagementException("Failed to remove due to system level failure.", e);
+		} finally {
+			try {
+				if (rb)
+					this.sleeTransactionManagement.setRollbackOnly();
+				if (b)
+					this.sleeTransactionManagement.commit();
+			} catch (Exception e) {
+				logger.error("Failed getProfiles.", e);
+				throw new ManagementException("Failed getProfiles.", e);
+			}
+		}
+
+	}
+
+	/**
+	 * Rename a profile table.
+	 * 
+	 * @param oldProfileTableName
+	 *            - the name of the profile table to rename.
+	 * @param newProfileTableName
+	 *            - the new name for the profile table.
+	 * @throws java.lang.NullPointerException
+	 *             - if either argument is null.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if a profile table with the name oldProfileTableName does
+	 *             not exist.
+	 * @throws InvalidArgumentException
+	 *             - if newProfileTableName is zero-length or contains a '/'
+	 *             character.
+	 * @throws ProfileTableAlreadyExistsException
+	 *             - if a profile table with the same name as
+	 *             newProfileTableName already exists.
+	 * @throws ManagementException
+	 *             - if the profile table could not be renamed due to a
+	 *             system-level failure.
+	 */
+	public void renameProfileTable(java.lang.String oldProfileTableName, java.lang.String newProfileTableName) throws java.lang.NullPointerException, UnrecognizedProfileTableNameException,
+			InvalidArgumentException, ProfileTableAlreadyExistsException, ManagementException {
+
+		if (oldProfileTableName == null)
+			throw new NullPointerException("Argument[OldProfileTableName] must nto be null");
+		if (newProfileTableName == null)
+			throw new NullPointerException("Argument[NewProfileTableName] must nto be null");
+
+		// Double check for null, also it will propably be done inside methods
+		// invoked lower in this method.
+		ProfileTableConcreteImpl.validateProfileTableName(newProfileTableName);
+
+		boolean b = false;
+		boolean rb = true;
+		try {
+			b = this.sleeTransactionManagement.requireTransaction();
+			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(oldProfileTableName);
+			try {
+				this.sleeProfileManagement.getProfileTable(newProfileTableName);
+				if (true)
+					throw new ProfileTableAlreadyExistsException("ProfileTable with name: " + newProfileTableName);
+			} catch (UnrecognizedProfileTableNameException e) {
+				// its ok :)
+			}
+			profileTable.removeProfileTable();
+			createProfileTable(profileTable.getProfileSpecificationComponent().getProfileSpecificationID(), newProfileTableName);
+			rb = false;
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ManagementException("Failed to remove due to system level failure.", e);
+		} finally {
+			try {
+				if (rb)
+					this.sleeTransactionManagement.setRollbackOnly();
+				if (b)
+					this.sleeTransactionManagement.commit();
+			} catch (Exception e) {
+				logger.error("Failed getProfiles.", e);
+				throw new ManagementException("Failed getProfiles.", e);
+			}
+		}
+
+	}
+
+	
 
 	/**
 	 * 
@@ -844,34 +915,6 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		// SleeContainer.unregisterFacilityWithJndi(SleeProfileManager.JNDI_NAME);
 
 		// this.profileManager = null;
-	}
-
-	public ObjectName getProfileTableUsageMBean(String profielTableName) throws NullPointerException, UnrecognizedProfileTableNameException, InvalidArgumentException, ManagementException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Collection getProfileTables(ProfileSpecificationID profileSpecificationID) throws NullPointerException, UnrecognizedProfileSpecificationException, ManagementException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Collection getProfilesByAttribute(java.lang.String profileTableName, java.lang.String attributeName, java.lang.Object attributeValue) throws NullPointerException,
-			UnrecognizedProfileTableNameException, UnrecognizedAttributeException, InvalidArgumentException, AttributeTypeMismatchException, ManagementException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Collection getProfilesByDynamicQuery(java.lang.String profileTableName, QueryExpression expr) throws NullPointerException, UnrecognizedProfileTableNameException,
-			UnrecognizedAttributeException, AttributeTypeMismatchException, ManagementException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Collection getProfilesByStaticQuery(java.lang.String profileTableName, java.lang.String queryName, java.lang.Object[] parameters) throws NullPointerException,
-			UnrecognizedProfileTableNameException, UnrecognizedQueryNameException, InvalidArgumentException, AttributeTypeMismatchException, ManagementException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

@@ -63,6 +63,7 @@ import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorRegistrator;
 import org.mobicents.slee.container.management.xml.DefaultSleeEntityResolver;
+import org.mobicents.slee.container.profile.SleeProfileManagement;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
@@ -160,7 +161,8 @@ public class SleeContainer {
 	private ComponentRepositoryImpl componentRepositoryImpl;
 	private ServiceManagement serviceManagement;
 	
-	private SleeProfileManager sleeProfileManager;
+	//private SleeProfileManager sleeProfileManager;
+	private SleeProfileManagement sleeProfileManagement;
 	private ResourceManagement resourceManagement;
 	private SbbManagement sbbManagement;
 	// object pool management
@@ -232,7 +234,8 @@ public class SleeContainer {
 
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
-		this.sleeProfileManager = new SleeProfileManager(this);
+		//this.sleeProfileManager = new SleeProfileManager(this);
+		this.sleeProfileManagement = new SleeProfileManagement(this);
 		this.sbbManagement = new SbbManagement(this);
 		this.resourceManagement = new ResourceManagement(this);
 		this.activityContextFactory = new ActivityContextFactoryImpl(this);
@@ -320,7 +323,7 @@ public class SleeContainer {
 	public String dumpState() {
 		return resourceManagement + "\n"
 				+ sbbManagement + "\n" + timerFacility + "\n"
-				+ sleeProfileManager + "\n"
+				+ sleeProfileManagement + "\n"
 				+ activityContextFactory + "\n" + activityContextNamingFacility
 				+ "\n" + nullActivityFactory + "\n" + serviceManagement + "\n"
 				+ profileFacility + "\n" + getEventRouter() + "\n" + getTransactionManager();
@@ -379,13 +382,8 @@ public class SleeContainer {
 		return this.serviceManagement;
 	}
 
-	/**
-	 * manages profile and profile tables
-	 * (including activities)
-	 * @return
-	 */
-	public SleeProfileManager getSleeProfileManager() {
-		return sleeProfileManager;
+	public SleeProfileManagement getSleeProfileManagement() {
+		return this.sleeProfileManagement;
 	}
 	
 	/**
