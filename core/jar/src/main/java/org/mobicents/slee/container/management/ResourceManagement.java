@@ -173,7 +173,7 @@ public class ResourceManagement {
 				ResourceUsageMBeanImpl resourceUsageMBeanImpl = null;
 				try {
 					ObjectName objectName = new ObjectName(ResourceUsageMBean.BASE_OBJECT_NAME+','+ResourceUsageMBean.RESOURCE_ADAPTOR_ENTITY_NAME_KEY+'='+entityName);
-					resourceUsageMBeanImpl = new ResourceUsageMBeanImpl(entityName);
+					resourceUsageMBeanImpl = new ResourceUsageMBeanImpl(entityName,component,sleeContainer);
 					resourceUsageMBeanImpl.setObjectName(objectName);
 					sleeContainer.getMBeanServer().registerMBean(resourceUsageMBeanImpl, objectName);
 					raEntity.setResourceUsageMBean(resourceUsageMBeanImpl);

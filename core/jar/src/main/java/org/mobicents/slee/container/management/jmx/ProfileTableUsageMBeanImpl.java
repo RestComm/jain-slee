@@ -4,15 +4,14 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.management.ManagementException;
+import javax.slee.management.ProfileTableNotification;
 import javax.slee.management.ProfileTableUsageMBean;
-import javax.slee.management.ResourceAdaptorEntityNotification;
-import javax.slee.management.ResourceUsageMBean;
 import javax.slee.usage.UsageMBean;
 import javax.slee.usage.UsageNotificationManagerMBean;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 
 /**
  * Implementation of the {@link ProfileTableUsageMBean} from SLEE 1.1 specs.
@@ -20,27 +19,33 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
  * @author martins
  * 
  */
-public class ResourceUsageMBeanImpl extends AbstractUsageMBeanImplParent
-		implements ResourceUsageMBean {
-
-	private static final long serialVersionUID = 2670146310843436229L;
-
-	private static final transient Logger logger = Logger
-			.getLogger(ResourceUsageMBeanImpl.class);
+public class ProfileTableUsageMBeanImpl extends AbstractUsageMBeanImplParent
+		implements ProfileTableUsageMBean {
 
 	/**
-	 * the ra entity name for this mbean
+	 * 
 	 */
-	private String entityName;
+	private static final long serialVersionUID = 1L;
 
-	public ResourceUsageMBeanImpl(String entityName,
-			ResourceAdaptorComponent component, SleeContainer sleeContainer)
+	/**
+	 * 
+	 */
+	private static transient final Logger logger = Logger
+			.getLogger(ProfileTableUsageMBeanImpl.class);
+
+	/**
+	 * the profile table name
+	 */
+	private final String profileTableName;
+
+	public ProfileTableUsageMBeanImpl(String profileTableName,
+			ProfileSpecificationComponent component, SleeContainer sleeContainer)
 			throws NotCompliantMBeanException, MalformedObjectNameException,
 			NullPointerException {
-		super(ResourceUsageMBean.class, component,
-				new ResourceAdaptorEntityNotification(entityName),
-				sleeContainer);
-		this.entityName = entityName;
+
+		super(ProfileTableUsageMBean.class, component,
+				new ProfileTableNotification(profileTableName), sleeContainer);
+		this.profileTableName = profileTableName;
 	}
 
 	@Override
@@ -51,10 +56,11 @@ public class ResourceUsageMBeanImpl extends AbstractUsageMBeanImplParent
 				+ ','
 				+ UsageMBean.NOTIFICATION_SOURCE_KEY
 				+ '='
-				+ ResourceAdaptorEntityNotification.USAGE_NOTIFICATION_TYPE
+				+ ProfileTableNotification.USAGE_NOTIFICATION_TYPE
 				+ ','
-				+ ResourceAdaptorEntityNotification.RESOURCE_ADAPTOR_ENTITY_NAME_KEY
-				+ '=' + ObjectName.quote(entityName);
+				+ ProfileTableNotification.PROFILE_TABLE_NAME_KEY
+				+ '='
+				+ ObjectName.quote(profileTableName);
 		return new ObjectName(objectNameAsString);
 	}
 
@@ -64,14 +70,11 @@ public class ResourceUsageMBeanImpl extends AbstractUsageMBeanImplParent
 
 		String objectNameAsString = UsageMBean.BASE_OBJECT_NAME
 				+ (name != null ? "," + UsageMBean.USAGE_PARAMETER_SET_NAME_KEY
-						+ '=' + ObjectName.quote(name) : "")
-				+ ','
-				+ UsageMBean.NOTIFICATION_SOURCE_KEY
-				+ '='
-				+ ResourceAdaptorEntityNotification.USAGE_NOTIFICATION_TYPE
-				+ ','
-				+ ResourceAdaptorEntityNotification.RESOURCE_ADAPTOR_ENTITY_NAME_KEY
-				+ '=' + ObjectName.quote(entityName);
+						+ '=' + ObjectName.quote(name) : "") + ','
+				+ UsageMBean.NOTIFICATION_SOURCE_KEY + '='
+				+ ProfileTableNotification.USAGE_NOTIFICATION_TYPE + ','
+				+ ProfileTableNotification.PROFILE_TABLE_NAME_KEY + '='
+				+ ObjectName.quote(profileTableName);
 		return new ObjectName(objectNameAsString);
 	}
 
@@ -82,10 +85,11 @@ public class ResourceUsageMBeanImpl extends AbstractUsageMBeanImplParent
 
 	@Override
 	public String toString() {
-		return "ResourceUsageMBean( entityName = " + entityName + " )";
+		return "ProfileTableUsageMBean( profileTableName = " + profileTableName
+				+ " )";
 	}
 
-	public String getEntityName() throws ManagementException {
-		return entityName;
+	public String getProfileTableName() throws ManagementException {
+		return profileTableName;
 	}
 }
