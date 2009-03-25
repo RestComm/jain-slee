@@ -64,28 +64,6 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			.getLogger(ProfileSpecificationComponentValidator.class);
 	// this does not include serializables
 	private final static Set<String> _ALLOWED_CMPS_TYPES;
-	static {
-		Set<String> tmp = new HashSet<String>();
-		tmp.add("int");
-		tmp.add("boolean");
-		tmp.add("byte");
-		tmp.add("char");
-		tmp.add("double");
-		tmp.add("float");
-		tmp.add("long");
-		tmp.add("short");
-		tmp.add(int[].class.toString());
-		tmp.add(boolean[].class.toString());
-		tmp.add(byte[].class.toString());
-		tmp.add(char[].class.toString());
-		tmp.add(double[].class.toString());
-		tmp.add(float[].class.toString());
-		tmp.add(long[].class.toString());
-		tmp.add(short[].class.toString());
-		_ALLOWED_CMPS_TYPES = Collections.unmodifiableSet(tmp);
-
-	}
-
 	private final static Set<String> _ALLOWED_MANAGEMENT_TYPES;
 	static {
 		Set<String> tmp = new HashSet<String>();
@@ -125,11 +103,58 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		tmp.add(Serializable.class.toString());
 		tmp.add(Serializable[].class.toString());
+		//Its serializable.
 		// tmp.add(String[].class.toString());
 		// tmp.add(String.class.toString());
 		_ALLOWED_MANAGEMENT_TYPES = Collections.unmodifiableSet(tmp);
-
+		_ALLOWED_CMPS_TYPES = Collections.unmodifiableSet(tmp);
 	}
+	
+	//See section
+	private final static Set<String> _TYPES_WITH_ALLOWED_INDEX_HINTS;
+	static{
+		
+		Set<String> tmp = new HashSet<String>();
+
+		tmp.add(java.lang.String.class.toString());
+		tmp.add(javax.slee.Address.class.toString());
+		tmp.add("int");
+		tmp.add("boolean");
+		tmp.add("byte");
+		tmp.add("char");
+		tmp.add("double");
+		tmp.add("float");
+		tmp.add("long");
+		tmp.add("short");
+		tmp.add(int[].class.toString());
+		tmp.add(boolean[].class.toString());
+		tmp.add(byte[].class.toString());
+		tmp.add(char[].class.toString());
+		tmp.add(double[].class.toString());
+		tmp.add(float[].class.toString());
+		tmp.add(long[].class.toString());
+		tmp.add(short[].class.toString());
+		tmp.add(Integer.class.toString());
+		tmp.add(Boolean.class.toString());
+		tmp.add(Byte.class.toString());
+		tmp.add(Character.class.toString());
+		tmp.add(Double.class.toString());
+		tmp.add(Float.class.toString());
+		tmp.add(Long.class.toString());
+		tmp.add(Short.class.toString());
+		tmp.add(Integer[].class.toString());
+		tmp.add(Boolean[].class.toString());
+		tmp.add(Byte[].class.toString());
+		tmp.add(Character[].class.toString());
+		tmp.add(Double[].class.toString());
+		tmp.add(Float[].class.toString());
+		tmp.add(Long[].class.toString());
+		tmp.add(Short[].class.toString());
+
+		
+		_TYPES_WITH_ALLOWED_INDEX_HINTS=Collections.unmodifiableSet(tmp);;
+	}
+	
 
 	private final static Set<String> _FORBIDEN_METHODS;
 	static {
@@ -443,6 +468,16 @@ public class ProfileSpecificationComponentValidator implements Validator {
 						}
 
 						for (MIndexHint indexHint : f.getIndexHints()) {
+							
+							//See section 10.22 of JSLEE 1.1
+							if(!_TYPES_WITH_ALLOWED_INDEX_HINTS.contains(type.toString()))
+							{
+								passed = false;
+								errorBuffer = appendToBuffer(
+										"Profile specification profile cmp field declares index hint, but field type is:"+type+". Cmpfield: "
+												+ f.getCmpFieldName(), "10.22",
+										errorBuffer);
+							}
 							if (indexHint.getCollatorRef() != null
 									&& type.getName().compareTo(
 											"java.lang.String") != 0) {
