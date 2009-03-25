@@ -37,6 +37,11 @@ public class EventRouterImpl implements EventRouter {
 	
 	private boolean monitorPendingACAttachements;
 	
+	/**
+	 * the object used to manage event references
+	 */
+	private final DeferredEventReferencesManagement eventReferencesManagement = new DeferredEventReferencesManagement();
+	
 	public EventRouterImpl(SleeContainer container, int executors, boolean monitorPendingAcAttachments) {
 		this.container = container;		
 		config(executors, monitorPendingAcAttachments);
@@ -123,5 +128,9 @@ public class EventRouterImpl implements EventRouter {
 
 	public void resumeEventContext(EventContextImpl eventContextImpl) {
 		new EventRoutingTask(container,eventContextImpl).run();		
+	}
+	
+	public DeferredEventReferencesManagement getDeferredEventReferencesManagement() {
+		return eventReferencesManagement;
 	}
 }

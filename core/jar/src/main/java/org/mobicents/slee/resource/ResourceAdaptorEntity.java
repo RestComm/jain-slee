@@ -121,8 +121,8 @@ public class ResourceAdaptorEntity {
 		this.component = component;
 		this.sleeContainer = sleeContainer;
 		this.notificationSource = notificationSource;
-		this.alarmFacility = new DefaultAlarmFacilityImpl(notificationSource,this.sleeContainer
-				.getAlarmFacility());
+		this.alarmFacility = new DefaultAlarmFacilityImpl(notificationSource,
+				this.sleeContainer.getAlarmFacility());
 		// create ra object
 		try {
 			Constructor cons = this.component.getResourceAdaptorClass()
@@ -247,7 +247,7 @@ public class ResourceAdaptorEntity {
 		if (this.state.isActive()) {
 			object.raStopping();
 			endAllActivities();
-			object.raInactive();			
+			object.raInactive();
 		}
 	}
 
@@ -282,38 +282,45 @@ public class ResourceAdaptorEntity {
 		}
 		object.raStopping();
 		this.state = ResourceAdaptorEntityState.STOPPING;
-		endAllActivities();		
+		endAllActivities();
 		object.raInactive();
-		this.state = ResourceAdaptorEntityState.INACTIVE;				
+		this.state = ResourceAdaptorEntityState.INACTIVE;
 	}
 
 	private void endAllActivities() {
-		
+
 		// end all activities
-		SleeTransactionManager txManager = sleeContainer.getTransactionManager();
+		SleeTransactionManager txManager = sleeContainer
+				.getTransactionManager();
 		boolean rb = true;
 		try {
 			txManager.begin();
-			for (ActivityContextHandle handle : sleeContainer.getActivityContextFactory().getAllActivityContextsHandles()) {
-				if (handle.getActivityType() == ActivityType.externalActivity && handle.getActivitySource().equals(name)) {
+			for (ActivityContextHandle handle : sleeContainer
+					.getActivityContextFactory()
+					.getAllActivityContextsHandles()) {
+				if (handle.getActivityType() == ActivityType.externalActivity
+						&& handle.getActivitySource().equals(name)) {
 					try {
 						if (logger.isDebugEnabled()) {
-							logger.debug("Ending activity "+handle);
+							logger.debug("Ending activity " + handle);
 						}
-						ActivityContext ac =sleeContainer.getActivityContextFactory().getActivityContext(handle,false);
+						ActivityContext ac = sleeContainer
+								.getActivityContextFactory()
+								.getActivityContext(handle, false);
 						if (ac != null) {
 							ac.endActivity();
-						}		    				
+						}
 					} catch (Exception e) {
 						if (logger.isDebugEnabled()) {
-							logger.debug("Failed to end activity "+handle,e);
+							logger.debug("Failed to end activity " + handle, e);
 						}
-					}            	
+					}
 				}
-            }
+			}
 			rb = false;
 		} catch (Exception e) {
-			logger.error("Exception while ending all activities for ra entity "+name, e);
+			logger.error("Exception while ending all activities for ra entity "
+					+ name, e);
 
 		} finally {
 			try {
@@ -323,10 +330,9 @@ public class ResourceAdaptorEntity {
 					txManager.commit();
 				}
 			} catch (Exception e) {
-				logger
-						.error(
-								"Error in tx management while ending all activities for ra entity "+name,
-								e);
+				logger.error(
+						"Error in tx management while ending all activities for ra entity "
+								+ name, e);
 			}
 		}
 	}
@@ -491,44 +497,78 @@ public class ResourceAdaptorEntity {
 	}
 
 	/**
-	 * Callback to notify the ra object that the processing for specified event succeed
-	 * @see ResourceAdaptorObject#eventProcessingSuccessful(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, Object, javax.slee.Address, ReceivableService, int)
+	 * Callback to notify the ra object that the processing for specified event
+	 * succeed
+	 * 
+	 * @see ResourceAdaptorObject#eventProcessingSuccessful(javax.slee.resource.ActivityHandle,
+	 *      javax.slee.resource.FireableEventType, Object, javax.slee.Address,
+	 *      ReceivableService, int)
 	 * 
 	 * @param deferredEvent
 	 */
 	public void eventProcessingSucceed(DeferredEvent deferredEvent) {
-		object.eventProcessingSuccessful(deferredEvent.getActivityContextHandle().getActivityHandle(), getFireableEventType(deferredEvent), deferredEvent.getEvent(), deferredEvent.getAddress(), getReceivableService(deferredEvent), deferredEvent.getEventFlags());
+		object.eventProcessingSuccessful(deferredEvent
+				.getActivityContextHandle().getActivityHandle(),
+				getFireableEventType(deferredEvent), deferredEvent.getEvent(),
+				deferredEvent.getAddress(),
+				getReceivableService(deferredEvent), deferredEvent
+						.getEventFlags());
 	}
 
 	/**
-	 * Callback to notify the ra object that the processing for specified event failed.
-	 * @see ResourceAdaptorObject#eventProcessingFailed(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, Object, javax.slee.Address, ReceivableService, int, FailureReason)
-	 *  
+	 * Callback to notify the ra object that the processing for specified event
+	 * failed.
+	 * 
+	 * @see ResourceAdaptorObject#eventProcessingFailed(javax.slee.resource.ActivityHandle,
+	 *      javax.slee.resource.FireableEventType, Object, javax.slee.Address,
+	 *      ReceivableService, int, FailureReason)
+	 * 
 	 * @param deferredEvent
 	 * @param failureReason
 	 */
 	public void eventProcessingFailed(DeferredEvent deferredEvent,
 			FailureReason failureReason) {
-		object.eventProcessingFailed(deferredEvent.getActivityContextHandle().getActivityHandle(), getFireableEventType(deferredEvent), deferredEvent.getEvent(), deferredEvent.getAddress(), getReceivableService(deferredEvent), deferredEvent.getEventFlags(),failureReason);		
+		object.eventProcessingFailed(deferredEvent.getActivityContextHandle()
+				.getActivityHandle(), getFireableEventType(deferredEvent),
+				deferredEvent.getEvent(), deferredEvent.getAddress(),
+				getReceivableService(deferredEvent), deferredEvent
+						.getEventFlags(), failureReason);
 	}
-	
+
 	private FireableEventType getFireableEventType(DeferredEvent deferredEvent) {
 		FireableEventType eventType = null;
 		try {
-			eventType = resourceAdaptorContext.getEventLookupFacility().getFireableEventType(deferredEvent.getEventTypeId());
+			eventType = resourceAdaptorContext.getEventLookupFacility()
+					.getFireableEventType(deferredEvent.getEventTypeId());
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
 		return eventType;
 	}
-	
+
 	private ReceivableService getReceivableService(DeferredEvent deferredEvent) {
 		ReceivableService receivableService = null;
 		try {
-			receivableService = resourceAdaptorContext.getServiceLookupFacility().getReceivableService(deferredEvent.getService());
+			receivableService = resourceAdaptorContext
+					.getServiceLookupFacility().getReceivableService(
+							deferredEvent.getService());
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
 		return receivableService;
+	}
+
+	/**
+	 * Callback to notify the ra object that the specified event is now
+	 * unreferenced
+	 * 
+	 * @param deferredEvent
+	 */
+	public void eventUnreferenced(DeferredEvent deferredEvent) {
+		object.eventUnreferenced(deferredEvent.getActivityContextHandle()
+				.getActivityHandle(), getFireableEventType(deferredEvent),
+				deferredEvent.getEvent(), deferredEvent.getAddress(),
+				getReceivableService(deferredEvent), deferredEvent
+						.getEventFlags());
 	}
 }

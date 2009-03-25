@@ -3,6 +3,7 @@ package org.mobicents.slee.runtime.eventrouter;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.slee.resource.EventFlags;
 import javax.slee.resource.FailureReason;
 import javax.transaction.Transaction;
 
@@ -91,7 +92,14 @@ public class ActivityEventQueueManager {
 		if (activityEndEvent == null) {
 			// activity end event not set, we accept pending events
 			pendingEvents.add(dE);
-
+			// manage event references
+			DeferredEventReferencesManagement eventReferencesManagement = sleeContainer.getEventRouter().getDeferredEventReferencesManagement();
+			if (EventFlags.hasRequestEventReferenceReleasedCallback(dE.getEventFlags())) {
+				eventReferencesManagement.manageReferencesForEvent(dE);
+			}
+			else {
+				eventReferencesManagement.eventReferencedByActivity(dE.getEvent(), dE.getActivityContextId());
+			}
 		} else {
 			// processing of the event failed
 			dE.eventProcessingFailed(FailureReason.OTHER_REASON);
@@ -193,6 +201,14 @@ public class ActivityEventQueueManager {
 		if (pendingEvents.remove(dE)) {
 			// confirmed the event was pending
 			routeActivityEndEventIfNeeded();
+			// manage event references
+			DeferredEventReferencesManagement eventReferencesManagement = sleeContainer.getEventRouter().getDeferredEventReferencesManagement();
+			if (EventFlags.hasRequestEventReferenceReleasedCallback(dE.getEventFlags())) {
+				eventReferencesManagement.unmanageReferencesForEvent(dE);
+			}
+			else {
+				eventReferencesManagement.eventUnreferencedByActivity(dE.getEvent(), dE.getActivityContextId());
+			}
 		}
 	}
 

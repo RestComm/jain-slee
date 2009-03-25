@@ -108,4 +108,10 @@ public class DeferredEvent {
 					failureReason);
 		}
 	}
+
+	public void eventUnreferenced() {
+		sleeContainer.getResourceManagement().getResourceAdaptorEntity(
+				ach.getActivitySource()).eventUnreferenced(this);
+		
+	}
 }

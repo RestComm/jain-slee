@@ -56,6 +56,10 @@ public interface EventRouter {
 	public void config(int eventRouterExecutors,
 			boolean monitoringUncommittedAcAttachs);
 
-	
+	/**
+	 * Retrieves the object used to manage event references
+	 * @return
+	 */
+	public DeferredEventReferencesManagement getDeferredEventReferencesManagement();
 
 }

@@ -11,6 +11,7 @@ import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.eventrouter.ActivityEndEventImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.eventrouter.DeferredEventReferencesManagement;
 import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
 import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
@@ -75,9 +76,7 @@ public class EventRoutingTask implements Runnable {
 		if (pendingAttachementsMonitor != null) {
 			pendingAttachementsMonitor.waitTillNoTxModifyingAttachs();
 		}
-		if (routeQueuedEvent()) {
-			de.eventProcessingSucceed();
-		}
+		routeQueuedEvent();
 	}
 
 	/**
@@ -87,7 +86,7 @@ public class EventRoutingTask implements Runnable {
 	 * @param de
 	 * @return true if the event processing suceeds
 	 */
-	private boolean routeQueuedEvent() {
+	private void routeQueuedEvent() {
 		
 		final SleeTransactionManager txMgr = this.container.getTransactionManager();
 				
@@ -304,8 +303,12 @@ public class EventRoutingTask implements Runnable {
 							} finally {
 								if (skipAnotherLoop) {
 									gotSbb = false;
+									de.eventProcessingSucceed();
 									// we got to the end of the event routing, remove the event context
 									de.getEventRouterActivity().setCurrentEventContext(null);
+									// manage event references
+									DeferredEventReferencesManagement eventReferencesManagement = container.getEventRouter().getDeferredEventReferencesManagement();
+									eventReferencesManagement.eventUnreferencedByActivity(de.getEvent(), de.getActivityContextId());
 								}
 							}
 						}
@@ -493,8 +496,6 @@ public class EventRoutingTask implements Runnable {
 		} catch (Exception e) {
 			logger.error("Unhandled Exception in event router top try", e);
 		}
-
-		return true;
 	}
 
 }
