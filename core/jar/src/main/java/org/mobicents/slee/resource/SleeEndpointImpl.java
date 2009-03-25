@@ -224,7 +224,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		// get ac
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
 		if (ac != null) {
-			ac.end();
+			ac.endActivity();
 		} else {
 			throw new UnrecognizedActivityException(handle);
 		}

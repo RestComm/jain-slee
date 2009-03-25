@@ -17,7 +17,6 @@ import javax.resource.spi.ManagedConnectionMetaData;
 import javax.security.auth.Subject;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
-import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
 import javax.transaction.xa.XAResource;
@@ -267,7 +266,7 @@ public class ManagedConnectionImpl implements ManagedConnection,
 	private void sendNotification(ConnectionEvent event) {
 		if (log.isDebugEnabled()) {
 			log.debug("sendNotification() called with " + event + " eventID = "
-				+ event.getId());
+					+ event.getId());
 		}
 		Iterator iter = listeners.iterator();
 		while (iter.hasNext()) {
@@ -347,8 +346,8 @@ public class ManagedConnectionImpl implements ManagedConnection,
 			throws ResourceException, UnrecognizedEventException {
 		if (log.isDebugEnabled()) {
 			log.debug("getEventTypeID called:" + name + "," + vendor + ","
-				+ version);
-		}			
+					+ version);
+		}
 		if (destroyed)
 			throw new IllegalStateException("Connection is destroyed!");
 		try {
@@ -373,11 +372,11 @@ public class ManagedConnectionImpl implements ManagedConnection,
 	 */
 	void fireEvent(Object event, EventTypeID eventType,
 			ExternalActivityHandle activityHandle, Address address)
-			throws ResourceException, UnrecognizedActivityException,
-			NullPointerException, UnrecognizedEventException {
+			throws ResourceException, NullPointerException,
+			UnrecognizedEventException {
 		if (log.isDebugEnabled()) {
 			log.debug("fireEvent() called:" + event + "," + eventType + ","
-				+ activityHandle + "," + address);
+					+ activityHandle + "," + address);
 		}
 		if (destroyed)
 			throw new IllegalStateException("Connection is destroyed!");
@@ -390,8 +389,8 @@ public class ManagedConnectionImpl implements ManagedConnection,
 
 	private void fireEventNow(Object event, EventTypeID eventType,
 			ExternalActivityHandle activityHandle, Address address)
-			throws ResourceException, UnrecognizedActivityException,
-			NullPointerException, UnrecognizedEventException {
+			throws ResourceException, NullPointerException,
+			UnrecognizedEventException {
 		if (log.isDebugEnabled()) {
 			log.debug("Firing single event on SLEE:" + event);
 		}
@@ -422,15 +421,14 @@ public class ManagedConnectionImpl implements ManagedConnection,
 	 */
 	private void sendQueuedEvents() throws ResourceException {
 		if (log.isDebugEnabled()) {
-			log.debug("Firing queue of events on SLEE: " + this.eventQueue.size());
+			log.debug("Firing queue of events on SLEE: "
+					+ this.eventQueue.size());
 		}
 		try {
 			for (EventInvocation ei : eventQueue) {
 				fireEventNow(ei.event, ei.eventTypeId,
 						ei.externalActivityHandle, ei.address);
 			}
-		} catch (UnrecognizedActivityException e) {
-			throw new ResourceException(e.getMessage(), e);
 		} catch (NullPointerException e) {
 			throw new ResourceException(e.getMessage(), e);
 		} catch (UnrecognizedEventException e) {

@@ -302,7 +302,7 @@ public class ResourceAdaptorEntity {
 						}
 						ActivityContext ac =sleeContainer.getActivityContextFactory().getActivityContext(handle,false);
 						if (ac != null) {
-							ac.end();
+							ac.endActivity();
 						}		    				
 					} catch (Exception e) {
 						if (logger.isDebugEnabled()) {

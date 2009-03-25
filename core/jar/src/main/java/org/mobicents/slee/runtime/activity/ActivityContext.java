@@ -13,13 +13,18 @@ import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
+import javax.slee.UnrecognizedServiceException;
 import javax.slee.facilities.TimerID;
+import javax.slee.management.ServiceState;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.ServiceManagement;
+import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.service.ServiceActivityImpl;
 import org.mobicents.slee.runtime.cache.ActivityContextCacheData;
 import org.mobicents.slee.runtime.eventrouter.ActivityEventQueueManager;
 import org.mobicents.slee.runtime.eventrouter.CommitDeferredEventAction;
@@ -30,6 +35,8 @@ import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.eventrouter.RollbackDeferredEventAction;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
+import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
+import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -55,6 +62,7 @@ public class ActivityContext {
 	// --- map keys for attributes cached
 	private static final transient String NODE_MAP_KEY_STATE = "state";
 	private static final transient String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags"; 
+	
 	/**
 	 * This map contains mappings between acId and Long Objects. Long object represnt  timestamp of last access time to ac. 
 	 * Cash is not a good place to hold this data - it is modified frequently  across tx causing rollbacks because of version errors. Values are first inserted when ac is created.
@@ -111,6 +119,15 @@ public class ActivityContext {
 			// ac creation, create cache data and set activity flags
 			cacheData.create();
 			cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
+			// if activity flags require notification for unreferenced activity
+			// then we need to schedule check for it
+			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags)) {
+				try {
+					scheduleCheckForUnreferencedActivity();
+				} catch (SystemException e) {
+					throw new SLEEException(e.getMessage(),e);
+				}	
+			}
 		}
 		// update last acess time if needed	
 		if (updateAccessTime) {
@@ -231,14 +248,17 @@ public class ActivityContext {
 	 */
 	public void addNameBinding(String aciName) {
 		cacheData.nameBound(aciName);
+		// cancel a possible check for unreferenced activity, no need to
+		// waste time in checkingif the flags requested such process 
+		cancelUnreferencedActivityCheck();
 	}
 
 	/**
-	 * This is called by the event router to release all the name bindings after
+	 * This is called to release all the name bindings after
 	 * the activity end event is delivered to the sbb.
 	 * 
 	 */
-	public void removeNamingBindings() {
+	private void removeNamingBindings() {
 		ActivityContextNamingFacilityImpl acf = (ActivityContextNamingFacilityImpl) sleeContainer
 				.getActivityContextNamingFacility();
 		for (Object obj : cacheData.getNamesBoundCopy()) {	
@@ -271,7 +291,15 @@ public class ActivityContext {
 	 * 
 	 */
 	public boolean removeNameBinding(String aciName) {
-		return cacheData.nameUnbound(aciName);		
+		boolean removed = cacheData.nameUnbound(aciName);
+		if (removed && ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
+			try {
+				scheduleCheckForUnreferencedActivity();
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
+		return removed;
 	}
 
 	/**
@@ -283,6 +311,9 @@ public class ActivityContext {
 	 */
 	public void attachTimer(TimerID timerID) {
 		cacheData.attachTimer(timerID);		
+		// cancel a possible check for unreferenced activity, no need to
+		// waste time in checkingif the flags requested such process 
+		cancelUnreferencedActivityCheck();
 	}
 
 	/**
@@ -292,7 +323,15 @@ public class ActivityContext {
 	 * 
 	 */
 	public boolean detachTimer(TimerID timerID) {
-		return cacheData.detachTimer(timerID);
+		boolean detached = cacheData.detachTimer(timerID);
+		if (detached && ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
+			try {
+				scheduleCheckForUnreferencedActivity();
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
+		return detached;
 	}
 	
 	/**
@@ -308,7 +347,7 @@ public class ActivityContext {
 	// Spec Sec 7.3.4.1 Step 10. "The SLEE notifies the SLEE Facilities that
 	// have references to the Activity Context that the Activ-ity
 	// End Event has been delivered on the Activity Context.
-	public void removeFromTimers() {
+	private void removeFromTimers() {
 		TimerFacilityImpl timerFacility = sleeContainer.getTimerFacility();
 		// Iterate through the attached timers, telling the timer facility to
 		// remove them
@@ -322,7 +361,7 @@ public class ActivityContext {
 	 * point.
 	 * 
 	 */
-	public void removeFromCache() {
+	private void removeFromCache() {
 		cacheData.remove();
 		// Beyond here we dont stamp this one
 		TransactionalAction action = new TransactionalAction() {
@@ -364,6 +403,9 @@ public class ActivityContext {
 					logger.error(e.getMessage(),e);
 				}
 			}	
+			// cancel a possible check for unreferenced activity, no need to
+			// waste time in checkingif the flags requested such process 
+			cancelUnreferencedActivityCheck();
 		}
 		if (logger.isDebugEnabled()) {
 			logger
@@ -379,21 +421,29 @@ public class ActivityContext {
 	 */
 	public void detachSbbEntity(String sbbEntityId) throws javax.slee.TransactionRequiredLocalException {
 
-		cacheData.detachSbbEntity(sbbEntityId);
+		boolean detached = cacheData.detachSbbEntity(sbbEntityId);
 		
-		PendingAttachementsMonitor pendingAttachementsMonitor = getEventRouterActivity().getPendingAttachementsMonitor();
-		if (pendingAttachementsMonitor != null) {
-			try {
-				pendingAttachementsMonitor.txDetaching();
-			} catch (SystemException e) {
-				logger.error(e.getMessage(),e);
+		if (detached) {
+			if (ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
+				try {
+					scheduleCheckForUnreferencedActivity();
+				} catch (SystemException e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
 			}
-		}
-				
-		if (logger.isDebugEnabled()) {
-			logger
-					.debug("detached sbb entity "+sbbEntityId+" from ac "+getActivityContextId());
-		}
+			PendingAttachementsMonitor pendingAttachementsMonitor = getEventRouterActivity().getPendingAttachementsMonitor();
+			if (pendingAttachementsMonitor != null) {
+				try {
+					pendingAttachementsMonitor.txDetaching();
+				} catch (SystemException e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
+			if (logger.isDebugEnabled()) {
+				logger
+						.debug("detached sbb entity "+sbbEntityId+" from ac "+getActivityContextId());
+			}
+		}	
 	}
 
 	/**
@@ -619,6 +669,16 @@ public class ActivityContext {
 			throw new ActivityIsEndingException(getActivityContextHandle().toString());           		
 		} 
 		else {
+			// cancel a possible check for unreferenced activity, no need to
+			// waste time in checking if the flags requested such process 
+			if (cancelUnreferencedActivityCheck()) {
+				try {
+					scheduleCheckForUnreferencedActivity();
+				} catch (SystemException e) {
+					throw new SLEEException(e.getMessage(),e);
+				}	
+			}
+			// fire event
 			fireDeferredEvent(new DeferredEvent(eventTypeId,event,this,address,serviceID,eventFlags,getEventRouterActivity(),sleeContainer));			
 		}      
 	}
@@ -626,11 +686,62 @@ public class ActivityContext {
 	/**
 	 * Ends the activity context.
 	 */
-	public void end() {
+	public void endActivity() {
 		if (getState() == ActivityContextState.ACTIVE) {
 			setState(ActivityContextState.ENDING);
 			fireDeferredEvent(new DeferredActivityEndEvent(this,getEventRouterActivity(),sleeContainer));	
 		}	
+	}
+	
+	public void activityEnded() {
+		
+		// remove references to this AC in timer and ac naming facility
+		removeNamingBindings();
+		removeFromTimers(); // Spec 7.3.4.1 Step 10
+		
+		// check activity type
+		switch (activityContextHandle.getActivityType()) {
+		
+		case externalActivity:
+			// external activity, notify RA that the activity has ended
+			if (ActivityFlags.hasRequestEndedCallback(getActivityFlags())) {
+				sleeContainer.getResourceManagement().getResourceAdaptorEntity(activityContextHandle.getActivitySource()).getResourceAdaptorObject().activityEnded(activityContextHandle.getActivityHandle());
+			}
+			break;
+		
+		case nullActivity:
+			// null activity, warn the factory
+			sleeContainer.getNullActivityFactory().activityEnded((NullActivityHandle)activityContextHandle.getActivityHandle());
+			break;
+			
+		case profileTableActivity:
+			// do nothing
+			break;
+			
+		case serviceActivity:
+			ServiceActivityImpl serviceActivity = (ServiceActivityImpl) activityContextHandle.getActivity();			
+			
+			try {
+				// change service state to inactive if it is stopping
+				Service service = sleeContainer.getServiceManagement().getService(serviceActivity.getService());
+				if (service.getState().isStopping()) {
+					service.setState(ServiceState.INACTIVE);
+					// schedule task to remove outstanding root sbb entities of the service
+					new RootSbbEntitiesRemovalTask(serviceActivity.getService());
+					Logger.getLogger(ServiceManagement.class).info("Deactivated "+ serviceActivity.getService());
+				}
+			} catch (UnrecognizedServiceException e) {
+				logger.error("Unable to find "+serviceActivity.getService()+" to deactivate",e);
+			}
+			
+			break;
+
+		default:
+			throw new SLEEException("Unknown activity type " + activityContextHandle.getActivityType());
+		}
+		
+		removeFromCache();
+		
 	}
 	
 	private void fireDeferredEvent(DeferredEvent dE) {
@@ -657,5 +768,119 @@ public class ActivityContext {
 	
 	private EventRouterActivity getEventRouterActivity() {
 		return sleeContainer.getEventRouter().getEventRouterActivity(this.activityContextId);
+	}
+	
+	// UNREF CHECK PROCESS
+	
+	/*
+	 * There are 3 &quot;rounds&quot; to check if an activity is unreferenced:
+	 * 
+	 * 1st) in event handling if there is a sbb detach, cancel timer or name
+	 * unbound and the activity flags require callback to activityUnreferenced then we add a tx action to check if the rules (except outstanding
+	 * events) for an activity being unreferenced are satisfied.
+	 * 
+	 * 2nd) When the action is executed and if the rules are satisfied a
+	 * runnable task to do another rules check is enqueued in the activity event
+	 * executor service, thus serialized with events
+	 * 
+	 * 3rd a) If an event handling for this activity fires an event on it, attaches an sbb, sets a
+	 * timer or binds a name then the whole process is canceled
+	 * 
+	 * 3rd b) When the runnable is executed, if the process was not
+	 * canceled then the activity unreferenced callback is invoked
+	 */
+	
+	// keys related with the procedure to check of the ac is unreferenced
+	private static final String NODE_MAP_KEY_ActivityUnreferenced1stCheck = "unref-check-1";
+	private static final String NODE_MAP_KEY_ActivityUnreferenced2ndCheck = "unref-check-2";
+	
+	private void scheduleCheckForUnreferencedActivity() throws SystemException {
+		
+		if (this.getState() != ActivityContextState.ENDING) {
+			
+			// schedule check only once at time
+			if (cacheData.getObject(NODE_MAP_KEY_ActivityUnreferenced1stCheck) != null && cacheData.getObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck) != null) {
+				return;
+			}
+			else {
+				// raise the 1st check flag to ensure that the check is not scheduled more than once
+				cacheData.putObject(NODE_MAP_KEY_ActivityUnreferenced1stCheck, MAP_VALUE);		
+			}
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug("schedule checking for unreferenced activity on ac "+this.getActivityContextId());
+			}
+			
+			TransactionalAction implicitEndCheck = new TransactionalAction() {
+				public void execute() {
+					unreferencedActivity1stCheck();
+				}
+			};
+			
+			sleeContainer.getTransactionManager().addBeforeCommitAction(implicitEndCheck);
+		}	
+	}
+	
+	private void unreferencedActivity1stCheck() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("1st check for unreferenced activity on ac "+this.getActivityContextId());
+		}
+		
+		if (cacheData.getObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck) == null) {
+			if (this.getState() == ActivityContextState.ACTIVE) {
+				if (this.isSbbAttachmentSetEmpty()
+						&& this.isAttachedTimersEmpty()
+						&& this.isNamingBindingEmpty()) {
+
+					// raise the 2nd check flag
+					cacheData.putObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck, MAP_VALUE);
+					// remove 1st level check flag
+					cacheData.removeObject(NODE_MAP_KEY_ActivityUnreferenced1stCheck);
+					
+					// lets submit final check task to activity event executor after commit
+					TransactionalAction action = new TransactionalAction() {
+						public void execute() {
+							getEventRouterActivity().getExecutorService()
+							.submit(new UnreferencedActivity2ndCheckTask(getActivityContextId()));
+						}
+					};
+					try {
+						sleeContainer.getTransactionManager().addAfterCommitAction(action);
+					} catch (SystemException e) {
+						logger.error(e.getMessage(),e);
+					}
+				}
+			}
+		}
+	}
+	
+	protected void unreferencedActivity2ndCheck() {
+		// final verification
+		if (cacheData.getObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck) != null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(toString() + " is unreferenced");
+			}
+			switch (activityContextHandle.getActivityType()) {
+			case externalActivity:
+				// external activity, notify RA that the activity is
+				// unreferenced
+				sleeContainer.getResourceManagement().getResourceAdaptorEntity(
+						activityContextHandle.getActivitySource())
+						.getResourceAdaptorObject().activityUnreferenced(
+								activityContextHandle.getActivityHandle());
+				break;
+			case nullActivity:
+				// null activity unreferenced, end it
+				endActivity();
+				break;
+			default:
+				// do nothing
+				break;
+			}
+		}
+	}
+	
+	private boolean cancelUnreferencedActivityCheck() {
+		return cacheData.removeObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck) != null;
 	}
 }

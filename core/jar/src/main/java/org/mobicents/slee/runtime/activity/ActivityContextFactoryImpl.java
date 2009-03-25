@@ -20,7 +20,6 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.cache.ActivityContextFactoryCacheData;
-import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContext;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -55,18 +54,6 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 			cacheData.create();
 		}
 	}
-
-	/*
-	 * creates an instance of the activity context for specified ac handle and id
-	 */
-	private ActivityContext createActivityContextInstance(ActivityContextHandle ach, String acId, boolean updateAccessTime, Integer activityFlags) {
-		if (ach.getActivityType() == ActivityType.nullActivity) {
-			return new NullActivityContext(ach,acId,updateAccessTime, activityFlags);
-		}
-		else {
-			return new ActivityContext(ach,acId,updateAccessTime,activityFlags);
-		}
-	}
 	
 	private String createActivityContextId(ActivityContextHandle ach) {
 		String acId = null;
@@ -91,7 +78,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		
 		if (cacheData.addActivityContext(ach, acId)) {
 			// create ac
-			ActivityContext ac = createActivityContextInstance(ach,acId,true, Integer.valueOf(activityFlags));
+			ActivityContext ac = new ActivityContext(ach,acId,true,Integer.valueOf(activityFlags));
 			// warn event router about it
 			sleeContainer.getEventRouter().activityStarted(acId);
 			// add rollback tx action to remove state created
@@ -115,7 +102,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	public ActivityContext getActivityContext(ActivityContextHandle ach, boolean updateAccessTime) {
 		String acId = cacheData.getActivityContextId(ach);
 		if (acId != null) {
-			return createActivityContextInstance(ach,acId,updateAccessTime,null);
+			return new ActivityContext(ach,acId,updateAccessTime,null);
 		}
 		else {
 			return null; 
@@ -125,7 +112,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	public ActivityContext getActivityContext(String acId, boolean updateAccessTime) {
 		ActivityContextHandle ach = (ActivityContextHandle) cacheData.getActivityContextHandle(acId);
 		if (ach != null) {
-			return createActivityContextInstance(ach,acId,updateAccessTime,null);
+			return new ActivityContext(ach,acId,updateAccessTime,null);
 		}
 		else {
 			return null; 
@@ -142,11 +129,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	
 	public void removeActivityContext(final ActivityContext ac) {
 
-		// remove references to this AC in timer and ac naming facility
-		ac.removeNamingBindings();
-		ac.removeFromTimers(); // Spec 7.3.4.1 Step 10
-		
-		ac.removeFromCache();
+		ac.activityEnded();
 		
 		cacheData.removeActivityContext(ac.getActivityContextHandle(),ac.getActivityContextId());
 		
@@ -163,9 +146,6 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		} catch (SystemException e) {
 			throw new SLEEException("failed to add rollback action to readd aruntime activity resources",e);
 		}
-		
-		// since the ac ended we may need to warn the activity source that it has ended
-		ac.getActivityContextHandle().activityEnded();
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activity context with handle "+ac.getActivityContextHandle()+" removed");

@@ -27,72 +27,71 @@ import java.io.Serializable;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.nullactivity.NullActivity;
-import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 
-
-/** Implementation of the null activity.
+/**
+ * Implementation of the null activity.
  * 
  * @author M. Ranganathan
  * @author Eduardo Martins
- *
+ * 
  */
 public class NullActivityImpl implements NullActivity, Serializable {
-    
-   
-    /**
+
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	private final NullActivityHandle handle;
-    
-    private static Logger logger = Logger.getLogger( NullActivityImpl.class);
-    
-    private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-    
-    public NullActivityImpl(NullActivityHandle handle) {
-        this.handle = handle;
-    }
 
-    /* (non-Javadoc)
-     * @see javax.slee.nullactivity.NullActivity#endActivity()
-     */
-    
-    public void endActivity() throws TransactionRequiredLocalException,
-            SLEEException {
-        // Check if in valid context.
-        
-        if ( logger.isDebugEnabled()) {
-            logger.debug("NullActivity.endActivity()");
-        }
-        sleeContainer.getTransactionManager().mandateTransaction();
-        try {
-			sleeContainer.getNullActivityFactory().endNullActivity(ActivityContextHandlerFactory.createNullActivityContextHandle(handle));
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
+	private static Logger logger = Logger.getLogger(NullActivityImpl.class);
+
+	private static final SleeContainer sleeContainer = SleeContainer
+			.lookupFromJndi();
+
+	public NullActivityImpl(NullActivityHandle handle) {
+		this.handle = handle;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.nullactivity.NullActivity#endActivity()
+	 */
+
+	public void endActivity() throws TransactionRequiredLocalException,
+			SLEEException {
+		// Check if in valid context.
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("NullActivity.endActivity()");
 		}
-    }
-    
-    protected NullActivityHandle getHandle() {
+		sleeContainer.getTransactionManager().mandateTransaction();
+
+		sleeContainer.getActivityContextFactory().getActivityContext(
+				ActivityContextHandlerFactory
+						.createNullActivityContextHandle(handle), false)
+				.endActivity();
+	}
+
+	protected NullActivityHandle getHandle() {
 		return handle;
 	}
-        
-    public int hashCode() {    	
-    	return handle.hashCode();
-    }
-    
-    public boolean equals(Object object) {
-    	if ((object != null) && (object.getClass() == this.getClass())) {
-    		NullActivityImpl other = (NullActivityImpl)object;
-    		return this.handle.equals(other.handle);   		
-    	}
-    	else {
-    		return false;
-    	}
-    }
-}
 
+	public int hashCode() {
+		return handle.hashCode();
+	}
+
+	public boolean equals(Object object) {
+		if ((object != null) && (object.getClass() == this.getClass())) {
+			NullActivityImpl other = (NullActivityImpl) object;
+			return this.handle.equals(other.handle);
+		} else {
+			return false;
+		}
+	}
+}

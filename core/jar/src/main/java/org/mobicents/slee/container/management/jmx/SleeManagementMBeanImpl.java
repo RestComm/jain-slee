@@ -560,7 +560,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 									.getActivityContextFactory()
 									.getActivityContext(acId, false);
 							if (ac != null) {
-								ac.end();
+								ac.endActivity();
 							}
 						} catch (Exception e) {
 							if (logger.isDebugEnabled()) {

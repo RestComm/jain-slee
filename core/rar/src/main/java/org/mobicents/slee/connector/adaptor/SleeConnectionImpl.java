@@ -119,7 +119,4 @@ public class SleeConnectionImpl implements SleeConnection {
         return managedConnection;
     }
 
-	public void endExternalActivity(ExternalActivityHandle handle) throws ResourceException {
-		throw new UnsupportedOperationException();
-	}	
 }

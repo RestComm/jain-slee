@@ -324,7 +324,7 @@ public class Service {
 		}
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
 		if (ac != null) {
-			ac.end();
+			ac.endActivity();
 		}
 		else {
 			logger.error("unable tofind and end ac "+ach);

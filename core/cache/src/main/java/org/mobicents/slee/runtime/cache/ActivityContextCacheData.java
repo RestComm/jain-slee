@@ -104,10 +104,13 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @param sbbEntityId
 	 */
-	public void detachSbbEntity(String sbbEntityId) {
+	public boolean detachSbbEntity(String sbbEntityId) {
 		Node childNode = getNode().getChild(ATTACHED_SBBs_FQN);
 		if (childNode != null) {
-			childNode.removeChild(Fqn.fromElements(sbbEntityId));
+			return childNode.removeChild(Fqn.fromElements(sbbEntityId));
+		}
+		else {
+			return false;
 		}
 	}
 

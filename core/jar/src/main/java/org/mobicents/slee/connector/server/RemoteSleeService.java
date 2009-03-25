@@ -16,7 +16,6 @@ import java.rmi.RemoteException;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
-import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
 import javax.slee.connection.SleeConnection;
@@ -40,20 +39,20 @@ public interface RemoteSleeService {
 	public ExternalActivityHandle createActivityHandle() throws RemoteException;
 
 	/**
-	 * @see SleeConnection#fireEvent(Object, EventTypeID, ExternalActivityHandle, Address)
+	 * @see SleeConnection#fireEvent(Object, EventTypeID,
+	 *      ExternalActivityHandle, Address)
 	 * @param event
 	 * @param eventType
 	 * @param activityHandle
 	 * @param address
 	 * @throws NullPointerException
-	 * @throws UnrecognizedActivityException
 	 * @throws UnrecognizedEventException
 	 * @throws RemoteException
 	 */
 	public void fireEvent(Object event, EventTypeID eventType,
 			ExternalActivityHandle activityHandle, Address address)
-			throws NullPointerException, UnrecognizedActivityException,
-			UnrecognizedEventException, RemoteException;
+			throws NullPointerException, UnrecognizedEventException,
+			RemoteException;
 
 	/**
 	 * @see SleeConnection#getEventTypeID(String, String, String)

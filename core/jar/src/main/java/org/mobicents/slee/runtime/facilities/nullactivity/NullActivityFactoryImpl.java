@@ -15,6 +15,7 @@ import javax.slee.management.SleeState;
 import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityFactory;
 import javax.slee.resource.ActivityAlreadyExistsException;
+import javax.slee.resource.ActivityFlags;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -93,7 +94,7 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 		NullActivityImpl nullActivity = new NullActivityImpl(nullActivityHandle);
 		// get an activity context for it
 		try {
-			sleeContainer.getActivityContextFactory().createActivityContext(ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityHandle));
+			sleeContainer.getActivityContextFactory().createActivityContext(ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityHandle),ActivityFlags.REQUEST_ACTIVITY_UNREFERENCED_CALLBACK);
 		} catch (ActivityAlreadyExistsException e) {
 			throw new FactoryException(e.getMessage(),e);
 		}
@@ -109,16 +110,6 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 		
 		return nullActivity;
 
-	}
-
-	protected void endNullActivity(ActivityContextHandle ach) throws SystemException {		
-		final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
-		if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
-			ac.end();
-		}	
-		else {
-			logger.error("unable tofind and end ac "+ach);
-		}
 	}
 
 	public void activityEnded(NullActivityHandle nullActivityHandle) {

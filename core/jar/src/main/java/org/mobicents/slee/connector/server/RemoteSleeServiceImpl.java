@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
@@ -30,10 +31,11 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * @author eduardomartins
  */
 public class RemoteSleeServiceImpl implements RemoteSleeService {
-	
+
 	private SleeContainer sleeContainer;
 
-	private static final Logger log = Logger.getLogger(RemoteSleeServiceImpl.class);
+	private static final Logger log = Logger
+			.getLogger(RemoteSleeServiceImpl.class);
 
 	public RemoteSleeServiceImpl() {
 		if (log.isDebugEnabled())
@@ -51,98 +53,115 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		// creates a new instance of activity handle it with a safe unique id
 		// for a it's null activity (and related activity context) if this
 		// handle is used to fire events
-		return sleeContainer.getNullActivityFactory().createNullActivityHandle();
+		return sleeContainer.getNullActivityFactory()
+				.createNullActivityHandle();
 	}
 
 	/**
-	 * @see RemoteSleeService#fireEvent(Object, EventTypeID, ExternalActivityHandle, Address)
+	 * @see RemoteSleeService#fireEvent(Object, EventTypeID,
+	 *      ExternalActivityHandle, Address)
 	 */
 	public void fireEvent(Object event, EventTypeID eventType,
 			ExternalActivityHandle activityHandle, Address address)
-			throws NullPointerException, UnrecognizedActivityException,
-			UnrecognizedEventException, RemoteException {
-			
-			if (log.isDebugEnabled()) {
-				log.debug("fireEvent(event="+event+",eventType="+eventType+",activityHandle="+activityHandle+",address="+address+")");
-			}
-			
-			if (event == null) {
-				throw new NullPointerException("event is null");
-			}
-			if (eventType == null) {
-				throw new NullPointerException("event type is null");
-			}
-			if (activityHandle == null) {
-				throw new NullPointerException("activity handle is null");
-			}
-			
-			EventTypeComponent eventTypeComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(eventType);
-	    	if (eventTypeComponent == null) {
-	    		throw new UnrecognizedEventException("event type not installed");
-	    	}
-	    	if (!event.getClass().isAssignableFrom(eventTypeComponent.getEventTypeClass())) {
-	    		throw new UnrecognizedEventException("the class of the event object fired is not assignable to the event class of the event type");
-	    	}
-	    	
-	    	if (!(activityHandle instanceof NullActivityHandle)) {
-	    		throw new UnrecognizedActivityException(activityHandle);
-	    	}
-	    	
-			// check container state is running
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			if (sleeContainer.getSleeState() != SleeState.RUNNING) {
-				throw new IllegalStateException("Container is not running");
-			}
-			
-			SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
-			boolean newTx = txMgr.requireTransaction();
-			boolean rollback = true;
-			
-			try {
-				ActivityContextHandle ach = ActivityContextHandlerFactory.createNullActivityContextHandle((NullActivityHandle) activityHandle);
-				ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
-				if(ac == null) {
-					throw new UnrecognizedActivityException(activityHandle);
-				}
-				ac.fireEvent(eventType,event,address,null,EventFlags.NO_FLAGS);
-				rollback = false;
-			} catch (Throwable ex) {
-				log.error("Exception in fireEvent!", ex);
-			}
-			finally {
-				if(newTx) {
-					if(rollback) {
-						try {
-							txMgr.rollback();
-						} catch (Throwable e) {
-							log.error("failed to rollback implicit tx",e);
-						}
-					}
-					else {
-						try {
-							txMgr.commit();
-						} catch (Throwable e) {
-							log.error("failed to commit implicit tx", e);
-						}
-					}
-				}
-				// else ignore, specs say there is no need to rollback a tx if event
-				// queuing failed
-			}
+			throws NullPointerException, UnrecognizedEventException,
+			RemoteException {
+
+		if (log.isDebugEnabled()) {
+			log.debug("fireEvent(event=" + event + ",eventType=" + eventType
+					+ ",activityHandle=" + activityHandle + ",address="
+					+ address + ")");
 		}
-	
+
+		if (event == null) {
+			throw new NullPointerException("event is null");
+		}
+		if (eventType == null) {
+			throw new NullPointerException("event type is null");
+		}
+		if (activityHandle == null) {
+			throw new NullPointerException("activity handle is null");
+		}
+
+		EventTypeComponent eventTypeComponent = sleeContainer
+				.getComponentRepositoryImpl().getComponentByID(eventType);
+		if (eventTypeComponent == null) {
+			throw new UnrecognizedEventException("event type not installed");
+		}
+		if (!event.getClass().isAssignableFrom(
+				eventTypeComponent.getEventTypeClass())) {
+			throw new UnrecognizedEventException(
+					"the class of the event object fired is not assignable to the event class of the event type");
+		}
+
+		if (!(activityHandle instanceof NullActivityHandle)) {
+			throw new UnrecognizedActivityException(activityHandle);
+		}
+
+		// check container state is running
+		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		if (sleeContainer.getSleeState() != SleeState.RUNNING) {
+			throw new IllegalStateException("Container is not running");
+		}
+
+		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
+		boolean newTx = txMgr.requireTransaction();
+		boolean rollback = true;
+
+		try {
+			NullActivityHandle nullActivityHandle = (NullActivityHandle) activityHandle;
+			ActivityContextHandle ach = ActivityContextHandlerFactory
+					.createNullActivityContextHandle(nullActivityHandle);
+			ActivityContext ac = sleeContainer.getActivityContextFactory()
+					.getActivityContext(ach, false);
+			if (ac == null) {
+				sleeContainer.getNullActivityFactory().createNullActivityImpl(
+						nullActivityHandle, false);
+				ac = sleeContainer.getActivityContextFactory()
+						.getActivityContext(ach, false);
+				if (ac == null) {
+					throw new SLEEException(
+							"unable to create null ac for external activity handle "
+									+ activityHandle);
+				}
+			}
+			ac.fireEvent(eventType, event, address, null, EventFlags.NO_FLAGS);
+			rollback = false;
+		} catch (Throwable ex) {
+			log.error("Exception in fireEvent!", ex);
+		} finally {
+			if (newTx) {
+				if (rollback) {
+					try {
+						txMgr.rollback();
+					} catch (Throwable e) {
+						log.error("failed to rollback implicit tx", e);
+					}
+				} else {
+					try {
+						txMgr.commit();
+					} catch (Throwable e) {
+						log.error("failed to commit implicit tx", e);
+					}
+				}
+			}
+			// else ignore, specs say there is no need to rollback a tx if event
+			// queuing failed
+		}
+	}
+
 	/**
 	 * @see RemoteSleeService#getEventTypeID(String, String, String)
 	 */
-	public EventTypeID getEventTypeID(String name, String vendor, String version) throws UnrecognizedEventException {
-		
-		EventTypeID eventTypeID = new EventTypeID(name,vendor,version);
-		EventTypeComponent eventTypeComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(eventTypeID);
-    	if (eventTypeComponent == null) {
-    		throw new UnrecognizedEventException("event type not installed");
-    	}
-    	else {
-    		return eventTypeID;
-    	}
+	public EventTypeID getEventTypeID(String name, String vendor, String version)
+			throws UnrecognizedEventException {
+
+		EventTypeID eventTypeID = new EventTypeID(name, vendor, version);
+		EventTypeComponent eventTypeComponent = sleeContainer
+				.getComponentRepositoryImpl().getComponentByID(eventTypeID);
+		if (eventTypeComponent == null) {
+			throw new UnrecognizedEventException("event type not installed");
+		} else {
+			return eventTypeID;
+		}
 	}
 }
