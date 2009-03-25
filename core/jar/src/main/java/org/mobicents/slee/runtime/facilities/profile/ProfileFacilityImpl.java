@@ -25,8 +25,8 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
-import org.mobicents.slee.container.profile.SleeProfileManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -44,13 +44,13 @@ public class ProfileFacilityImpl implements ProfileFacility {
 
 	public static final String JNDI_NAME = "profile";
 
-	private SleeProfileManagement sleeProfileManagement = null;
+	private SleeProfileTableManager sleeProfileManagement = null;
 	private SleeTransactionManager sleeTransactionManager = null;
 
 	/**
      *  
      */
-	public ProfileFacilityImpl(SleeProfileManagement sleeProfileManagement) {
+	public ProfileFacilityImpl(SleeProfileTableManager sleeProfileManagement) {
 		if (sleeProfileManagement == null) {
 			throw new NullPointerException("Argument must not be null.");
 		}

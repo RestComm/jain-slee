@@ -61,7 +61,7 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 		try {
 			// check if this is an assigned profile table
 			// name.
-			serviceContainer.getSleeProfileManagement().getProfileTable(profileTableActivity.getProfileTableName());
+			serviceContainer.getSleeProfileTableManager().getProfileTable(profileTableActivity.getProfileTableName());
 		} catch (UnrecognizedProfileTableNameException e) {
 			throw new FactoryException(e.getMessage());
 		}

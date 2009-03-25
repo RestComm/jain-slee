@@ -36,6 +36,7 @@ import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ProfileProvisioningMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
@@ -71,7 +72,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 
 	private static Logger logger = Logger.getLogger(ProfileTableConcreteImpl.class);
 
-	private SleeProfileManagement sleeProfileManagement = null;
+	private SleeProfileTableManager sleeProfileManagement = null;
 	private String profileTableName = null;
 	private ProfileTableNotification profileTableNotification = null;
 	private SleeContainer sleeContainer = null;
@@ -81,7 +82,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 
 	// private ActivityContext profileTableActivityContext = null;
 
-	public ProfileTableConcreteImpl(SleeProfileManagement sleeProfileManagement, String profileTableName, ProfileSpecificationID profileSpecificationId) {
+	public ProfileTableConcreteImpl(SleeProfileTableManager sleeProfileManagement, String profileTableName, ProfileSpecificationID profileSpecificationId) {
 		super();
 
 		if (sleeProfileManagement == null || profileTableName == null || profileSpecificationId == null) {
@@ -105,7 +106,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 				.end();
 	}
 
-	public SleeProfileManagement getProfileManagement() {
+	public SleeProfileTableManager getProfileManagement() {
 
 		return sleeProfileManagement;
 	}
@@ -582,7 +583,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 			// FIXME: Alex is there anything else to do?
 			// FIXME: do we care about MBean?
 			if (!isProfileCommitted(profileName)) {
-				throw new UnrecognizedProfileNameException("Profile with name: " + profileName + ", does not exist in profile table: " + this.profileTableName);
+				throw new UnrecognizedProfileNameException("Profile with name: " + profileName + ", does not exist in profile table(not commited): " + this.profileTableName);
 			}
 			profileObject.profileActivate();
 			profileObject.setState(ProfileObjectState.READY);

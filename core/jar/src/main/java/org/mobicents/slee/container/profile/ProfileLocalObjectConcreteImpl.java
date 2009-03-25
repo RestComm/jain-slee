@@ -22,8 +22,7 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.interceptors.ProfileLocalObjectInterceptor;
-import org.mobicents.slee.container.deployment.interceptors.DefaultProfileLocalObjectInterceptorImpl;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -44,12 +43,12 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	protected String profileName = null;
 	protected String profileTableName = null;
 	protected ProfileSpecificationID profileSpecificationId = null;
-	protected SleeProfileManagement sleeProfileManagement = null;
+	protected SleeProfileTableManager sleeProfileManagement = null;
 	protected boolean isDefault = true;
 	protected ProfileObject profileObject = null;
 	protected SleeTransactionManager sleeTransactionManager = null;
 
-	public ProfileLocalObjectConcreteImpl(String profileTableName, ProfileSpecificationID profileSpecificationId, String profileName, SleeProfileManagement sleeProfileManagement, boolean isDefault) {
+	public ProfileLocalObjectConcreteImpl(String profileTableName, ProfileSpecificationID profileSpecificationId, String profileName, SleeProfileTableManager sleeProfileManagement, boolean isDefault) {
 		super();
 		if (profileTableName == null || profileName == null || profileSpecificationId == null) {
 			throw new NullPointerException("Parameters must not be null");
@@ -244,6 +243,14 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 
 	}
 
+	
+
+	public ProfileConcrete getProfileConcrete() {
+		//FIXME: alex  :)
+		return null;
+	}
+
+	
 	private class BeforeCommitTransctAction implements TransactionalAction {
 
 		public void execute() {
@@ -262,10 +269,4 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	// for now its the same
 	private class RollbackTransctAction extends BeforeCommitTransctAction {
 	}
-
-	public ProfileConcrete getProfileConcrete() {
-		//FIXME: alex  :)
-		return null;
-	}
-
 }

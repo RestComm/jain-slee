@@ -20,6 +20,7 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
@@ -47,7 +48,7 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	// dirty check ?
 
 	protected ProfileObject profileObject = null;
-	protected SleeProfileManagement sleeProfileManagement = null;
+	protected SleeProfileTableManager sleeProfileManagement = null;
 	protected SleeTransactionManager sleeTransactionManager = null;
 
 	public ProfileMBeanConcrete(ProfileObject profileObject) {

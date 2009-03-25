@@ -49,8 +49,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.deployment.SbbClassCodeGenerator;
-import org.mobicents.slee.container.deployment.interceptors.DefaultProfileManagementInterceptor;
-import org.mobicents.slee.container.deployment.interceptors.ProfileManagementInterceptor;
+
+import org.mobicents.slee.container.deployment.interceptors.OldProfileManagementInterceptor;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.management.jmx.ProfileProvisioningMBeanImpl;
 import org.mobicents.slee.container.profile.SingleProfileException;
@@ -102,37 +102,7 @@ public class SleeProfileManager {
 		cacheData.create();
 	}
 
-	public void installProfile(ProfileSpecificationComponent component) throws Exception {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Installing " + component);
-		}
-
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		sleeTransactionManager.mandateTransaction();
-
-		// change classloader
-		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(component.getClassLoader());
-			// Set up the comp/env naming context for the Sbb.
-
-			// generate class code for the sbb
-			this.sleeProfileClassCodeGenerator.process(component);
-
-			// FIXME: deploy
-			// FIXME:
-			// initializePersistedProfiles(profileSpecificationDescriptor.getCMPInterfaceName());
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
-
-	}
-
-	public void uninstallProfile(ProfileSpecificationComponent component) {
-		// TODO Auto-generated method stub
-
-	}
+	
 
 	/**
 	 * Adds a profile table for a specific ProfileSpecification It also creates
@@ -164,7 +134,7 @@ public class SleeProfileManager {
 			ProfileSpecificationDescriptorImpl profileSpecificationDescriptorImpl =  component.getDescriptor();
 			//profile hints == single profile?
 			profileTableCacheData.setProfileTableData(profileSpecificationDescriptorImpl.getProfileSpecificationID(), profileSpecificationDescriptorImpl.getProfileCMPInterface().getProfileCmpInterfaceName(),
-					profileSpecificationDescriptorImpl.getProfileHints(), profileSpecificationDescriptorImpl.getIndexedAttributes());
+					profileSpecificationDescriptorImpl.isSingleProfile(), profileSpecificationDescriptorImpl.getIndexedAttributes());
 			if (logger.isDebugEnabled()) {
 				logger.debug("created cache data for profile table " + profileTableName);
 			}
@@ -219,7 +189,7 @@ public class SleeProfileManager {
 	 *             if the profile table cannot be found
 	 */
 	public void removeProfileTable(String profileTableName) throws TransactionRequiredLocalException, SystemException, UnrecognizedProfileTableNameException {
-
+		TransactionRequiredLocalException, 
 		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
 
 		boolean b = transactionManager.requireTransaction();
@@ -393,7 +363,7 @@ public class SleeProfileManager {
 		String cmpInterfaceName = profileTableCacheData.getCmpInterfaceName();
 		
 
-		ProfileManagementInterceptor profileManagementInterceptor = new DefaultProfileManagementInterceptor();
+		OldProfileManagementInterceptor profileManagementInterceptor = new OldDefaultProfileManagementInterceptor();
 
 		profileManagementInterceptor.setProfileTableName(profileTableName);
 		profileManagementInterceptor.setProfileName(profileName);
@@ -407,7 +377,7 @@ public class SleeProfileManager {
 
 			Thread.currentThread().setContextClassLoader(component.getClassLoader());
 			Class concreteProfileClass = component.getProfileCmpConcreteClass();
-			Constructor constructor = concreteProfileClass.getConstructor(new Class[] { ProfileManagementInterceptor.class, SleeProfileManager.class, String.class, String.class });
+			Constructor constructor = concreteProfileClass.getConstructor(new Class[] { OldProfileManagementInterceptor.class, SleeProfileManager.class, String.class, String.class });
 			ProfileManagement profileManagement = (ProfileManagement) constructor.newInstance(new Object[] { profileManagementInterceptor, this, profileTableName, profileName });
 			if (loadDataFromBackendStorage) {
 				profileManagementInterceptor.loadStateFromBackendStorage(cmpInterfaceName, component.getClassLoader());
@@ -427,7 +397,7 @@ public class SleeProfileManager {
 			String mbeanConcreteName = ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_PREFIX + cmpInterfaceName + ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX;
 
 			Class concreteProfileMBeanClass = component.getProfileMBeanConcreteImplClass();
-			Constructor profileMBeanConstructor = concreteProfileMBeanClass.getConstructor(new Class[] { ProfileManagementInterceptor.class, Object.class });
+			Constructor profileMBeanConstructor = concreteProfileMBeanClass.getConstructor(new Class[] { OldProfileManagementInterceptor.class, Object.class });
 			ProfileMBean profileMBean = (ProfileMBean) profileMBeanConstructor.newInstance(new Object[] { profileManagementInterceptor, profileManagement });
 			ObjectName objectName = null;
 			if (isDefaultProfile) {
@@ -482,11 +452,11 @@ public class SleeProfileManager {
 		ProfileSpecificationComponent component = this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationID);
 		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
-			ProfileManagementInterceptor profileManagementInterceptor = new DefaultProfileManagementInterceptor();
+			OldProfileManagementInterceptor profileManagementInterceptor = new OldDefaultProfileManagementInterceptor();
 			Thread.currentThread().setContextClassLoader(component.getClassLoader());
 
 			Class concreteProfileClass = component.getProfileCmpConcreteClass();
-			Constructor constructor = concreteProfileClass.getConstructor(new Class[] { ProfileManagementInterceptor.class, SleeProfileManager.class, String.class, String.class });
+			Constructor constructor = concreteProfileClass.getConstructor(new Class[] { OldProfileManagementInterceptor.class, SleeProfileManager.class, String.class, String.class });
 			ProfileManagement profileManagement = (ProfileManagement) constructor.newInstance(new Object[] { profileManagementInterceptor, this, profileTableName, profileName });
 			profileManagementInterceptor.loadStateFromBackendStorage(component.getProfileCmpConcreteClass().getName(), component.getClassLoader());
 			/* Profile created from backend storage */
@@ -865,7 +835,7 @@ public class SleeProfileManager {
 		// Instantiates the profile and initializes it
 		
 
-		ProfileManagementInterceptor profileManagementInterceptor = new DefaultProfileManagementInterceptor(true);
+		OldProfileManagementInterceptor profileManagementInterceptor = new OldDefaultProfileManagementInterceptor(true);
 
 		Thread currentThread = Thread.currentThread();
 		ClassLoader oldClassLoader = currentThread.getContextClassLoader();
@@ -874,7 +844,7 @@ public class SleeProfileManager {
 			ProfileSpecificationComponent componenet = this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileTableCacheData.getProfileSpecId());
 			currentThread.setContextClassLoader(componenet.getClassLoader());
 			Class concreteProfileClass = componenet.getProfileCmpConcreteClass();
-			Constructor constructor = concreteProfileClass.getConstructor(new Class[] { ProfileManagementInterceptor.class, SleeProfileManager.class, String.class, String.class });
+			Constructor constructor = concreteProfileClass.getConstructor(new Class[] { OldProfileManagementInterceptor.class, SleeProfileManager.class, String.class, String.class });
 
 			return constructor.newInstance(new Object[] { profileManagementInterceptor, this, profileID.getProfileTableName(), profileID.getProfileName() });
 		} catch (Exception e) {

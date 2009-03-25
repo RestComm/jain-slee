@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import javax.slee.Address;
 import javax.slee.InitialEventSelector;
+import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.apache.log4j.Logger;
@@ -14,6 +15,8 @@ import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
+import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -375,7 +378,7 @@ public class InitialEventProcessor {
 					throw new Exception("Could not find address profile ! "
 							+ addressProfileId);
 				}
-				SleeProfileManager sleeProfileManager = sleeContainer.getSleeProfileManager();
+				SleeProfileTableManager sleeProfileManager = sleeContainer.getSleeProfileTableManager();
 				String addressProfileTable = serviceComponent.getDescriptor().getMService().getAddressProfileTable();
 				// Cannot find an address profile table spec. ( is this the same
 				// as
@@ -389,15 +392,15 @@ public class InitialEventProcessor {
 					throw new Exception(
 							"null address profile table in service !");
 				}
-				
-				Collection profileNames = sleeProfileManager
-						.getProfilesByIndexedAttribute(addressProfileTable,
-								"addresses", selector.getAddress(), true);
-				if (profileNames == null || profileNames.isEmpty())
+				ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(addressProfileTable);
+				ProfileID profileID = profileTable
+						.getProfileByIndexedAttribute(
+								"addresses", selector.getAddress());
+				if (profileID == null )
 					throw new Exception("Could not find the specified profile");
 				// Check -- JEAN - is this how you retrieve an address profile?
 
-				buff.append(profileNames.iterator().next().toString());
+				buff.append(profileID.toString());
 
 			}
 

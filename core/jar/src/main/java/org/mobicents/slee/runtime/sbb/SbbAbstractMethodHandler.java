@@ -6,6 +6,7 @@ import javax.slee.ChildRelation;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
+import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
@@ -16,10 +17,13 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
-import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
+import org.mobicents.slee.container.profile.ProfileObject;
+import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * The logic to implement sbb abstract methods.
@@ -201,17 +205,30 @@ public class SbbAbstractMethodHandler {
 					"Could not invoke getProfileCMP Method, Sbb Object is not in the READY state!");
 		}
 
-		SleeProfileManager sleeProfileManager = sleeContainer
-				.getSleeProfileManager();
+		SleeProfileTableManager sleeProfileManager = sleeContainer
+				.getSleeProfileTableManager();
 
 		try {
-			if (sleeProfileManager.findProfileSpecId(profileID
-					.getProfileTableName()) == null)
-				throw new UnrecognizedProfileTableNameException();
-			if (sleeProfileManager.findProfileMBean(profileID
-					.getProfileTableName(), profileID.getProfileName()) == null)
-				throw new UnrecognizedProfileNameException();
-			return sleeProfileManager.getSbbCMPProfile(profileID);
+			
+			ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(profileID.getProfileName());
+			//FIXME: what was doing that ?
+//			if (sleeProfileManager.findProfileSpecId(profileID
+//					.getProfileTableName()) == null)
+//				throw new UnrecognizedProfileTableNameException();
+			
+			//This will throw UnrecognizedProfile when there is no such profile.
+			ProfileObject po=null;
+			try {
+				po = profileTable.assignProfileObject(profileID.getProfileName(), false);
+			} catch (ProfileAlreadyExistsException e) {
+				//This wont happen
+		
+				throw new SLEEException("Please report bug. This should not happen.",e);
+			}
+			po.setManagementView(false);
+			sleeContainer.getTransactionManager().addBeforeCommitAction(new BeforeCommitTransctAction(po));
+			sleeContainer.getTransactionManager().addAfterRollbackAction(new RollbackTransctAction(po));
+			return po.getProfileConcrete();
 		} catch (SystemException e) {
 			throw new SLEEException("low-level failure", e);
 		}
@@ -247,4 +264,43 @@ public class SbbAbstractMethodHandler {
 				.getComponentRepositoryImpl().getComponentByID(serviceID)
 				.getServiceUsageMBean();
 	}
+	
+	
+	private static class BeforeCommitTransctAction implements TransactionalAction {
+
+	
+		private ProfileObject po = null;
+		
+		
+		
+		public BeforeCommitTransctAction(ProfileObject po) {
+			super();
+	
+			this.po = po;
+		}
+
+
+
+		public void execute() {
+			try {
+				po.getProfileTableConcrete().deassignProfileObject(po, false);
+				
+
+			} catch (Exception e) {
+
+				logger.error("Failed to deallocate ProfileObject, please report this to dev team.");
+
+			}
+		}
+	}
+
+	// for now its the same
+	private static  class RollbackTransctAction extends BeforeCommitTransctAction {
+
+		public RollbackTransctAction(ProfileObject po) {
+			super(po);
+		
+		}
+	}
+	
 }

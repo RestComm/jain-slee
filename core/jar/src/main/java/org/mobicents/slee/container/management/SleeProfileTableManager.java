@@ -1,4 +1,4 @@
-package org.mobicents.slee.container.profile;
+package org.mobicents.slee.container.management;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +20,8 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
+import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
 import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -36,9 +38,9 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class SleeProfileManagement {
+public class SleeProfileTableManager {
 
-	private static final Logger logger = Logger.getLogger(SleeProfileManagement.class);
+	private static final Logger logger = Logger.getLogger(SleeProfileTableManager.class);
 	private final static SleeProfileClassCodeGenerator sleeProfileClassCodeGenerator = new SleeProfileClassCodeGenerator();
 	private SleeContainer sleeContainer = null;
 	private SleeTransactionManager sleeTransactionManager = null;
@@ -53,7 +55,7 @@ public class SleeProfileManagement {
 	 */
 	private ConcurrentHashMap nameToProfileTableMap = new ConcurrentHashMap();
 
-	public SleeProfileManagement(SleeContainer sleeContainer) {
+	public SleeProfileTableManager(SleeContainer sleeContainer) {
 		super();
 		if (sleeContainer == null)
 			throw new NullPointerException("Parameter must not be null");
@@ -172,6 +174,11 @@ public class SleeProfileManagement {
 	public void removeProfileTable(ProfileTableConcreteImpl profileTableConcreteImpl) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void startAllProfileTableActivities() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

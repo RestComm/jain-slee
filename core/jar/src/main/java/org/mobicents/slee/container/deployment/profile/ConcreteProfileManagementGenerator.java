@@ -26,7 +26,6 @@ import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.validator.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.deployment.interceptors.OldProfileManagementInterceptor;
 import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.profile.ProfileCmpHandler;
 import org.mobicents.slee.container.profile.ProfileConcrete;

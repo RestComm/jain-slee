@@ -58,12 +58,12 @@ import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.SbbManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorRegistrator;
 import org.mobicents.slee.container.management.xml.DefaultSleeEntityResolver;
-import org.mobicents.slee.container.profile.SleeProfileManagement;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
@@ -162,7 +162,7 @@ public class SleeContainer {
 	private ServiceManagement serviceManagement;
 	
 	//private SleeProfileManager sleeProfileManager;
-	private SleeProfileManagement sleeProfileManagement;
+	private SleeProfileTableManager sleeProfileManagement;
 	private ResourceManagement resourceManagement;
 	private SbbManagement sbbManagement;
 	// object pool management
@@ -235,7 +235,7 @@ public class SleeContainer {
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
 		//this.sleeProfileManager = new SleeProfileManager(this);
-		this.sleeProfileManagement = new SleeProfileManagement(this);
+		this.sleeProfileManagement = new SleeProfileTableManager(this);
 		this.sbbManagement = new SbbManagement(this);
 		this.resourceManagement = new ResourceManagement(this);
 		this.activityContextFactory = new ActivityContextFactoryImpl(this);
@@ -382,7 +382,7 @@ public class SleeContainer {
 		return this.serviceManagement;
 	}
 
-	public SleeProfileManagement getSleeProfileManagement() {
+	public SleeProfileTableManager getSleeProfileTableManager() {
 		return this.sleeProfileManagement;
 	}
 	

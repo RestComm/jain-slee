@@ -651,7 +651,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		if (logger.isDebugEnabled()) {
 			logger.debug("starting all profile table activities");
 		}
-		sleeContainer.getSleeProfileManager().startAllProfileTableActivities();
+		sleeContainer.getSleeProfileTableManager().startAllProfileTableActivities();
 	}
 
 	/**

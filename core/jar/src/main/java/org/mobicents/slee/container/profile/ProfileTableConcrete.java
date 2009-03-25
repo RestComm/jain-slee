@@ -24,6 +24,7 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
@@ -43,7 +44,7 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
  */
 public interface ProfileTableConcrete extends ProfileTable {
 
-	public SleeProfileManagement getProfileManagement();
+	public SleeProfileTableManager getProfileManagement();
 
 	public ProfileTableNotification getProfileTableNotification();
 

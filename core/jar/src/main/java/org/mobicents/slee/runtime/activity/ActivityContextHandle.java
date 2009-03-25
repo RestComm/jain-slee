@@ -10,6 +10,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
@@ -42,8 +43,8 @@ public class ActivityContextHandle {
 		return sleeContainer.getServiceManagement();
 	}
 	
-	private static SleeProfileManager getSleeProfileManager() {		
-		return sleeContainer.getSleeProfileManager();
+	private static SleeProfileTableManager getSleeProfileManager() {		
+		return sleeContainer.getSleeProfileTableManager();
 	}
 		
 	private static NullActivityFactoryImpl getNullActivityFactoryImpl() {		

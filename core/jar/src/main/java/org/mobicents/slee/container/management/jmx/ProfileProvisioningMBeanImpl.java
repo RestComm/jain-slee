@@ -45,10 +45,10 @@ import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
 import org.mobicents.slee.container.profile.SingleProfileException;
-import org.mobicents.slee.container.profile.SleeProfileManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -62,7 +62,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	private static Logger logger;
 
 	// private SleeProfileManager profileManager;
-	private SleeProfileManagement sleeProfileManagement = null;
+	private SleeProfileTableManager sleeProfileManagement = null;
 	private SleeContainer sleeContainer = null;
 	private SleeTransactionManager sleeTransactionManagement = null;
 	static {
@@ -78,7 +78,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		super(ProfileProvisioningMBeanImplMBean.class);
 		this.sleeContainer = SleeContainer.lookupFromJndi();
 		this.sleeTransactionManagement = this.sleeContainer.getTransactionManager();
-		this.sleeProfileManagement = this.sleeContainer.getSleeProfileManagement();
+		this.sleeProfileManagement = this.sleeContainer.getSleeProfileTableManager();
 	}
 
 	/**
