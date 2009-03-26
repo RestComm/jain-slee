@@ -57,7 +57,7 @@ public class ProfileContextImpl implements ProfileContext {
 	// #################################
 
 	public ProfileLocalObject getProfileLocalObject() throws IllegalStateException, SLEEException {
-		// TODO Auto-generated method stub
+		//FIXME: Alex?
 		return null;
 	}
 
@@ -170,10 +170,10 @@ public class ProfileContextImpl implements ProfileContext {
 			throw new NullPointerException("TracerName must nto be null");
 		}
 		doGeneralChecks();
-		TracerImpl.checkTracerName(tracerName, this.profileTable.getProfileTableNotification());
+		TracerImpl.checkTracerName(tracerName, this.profileTable.getProfileTableNotification().getNotificationSource());
 
 		try {
-			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(this.profileTable.getProfileTableNotification(), tracerName, true);
+			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(this.profileTable.getProfileTableNotification().getNotificationSource(), tracerName, true);
 		} catch (Exception e) {
 			throw new SLEEException("Failed to obtain tracer due to ");
 		}

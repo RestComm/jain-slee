@@ -156,7 +156,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					for (ProfileSpecificationComponent component : deployableUnit
 							.getProfileSpecificationComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						sleeContainer.getSleeProfileManager().installProfile(
+						sleeContainer.getSleeProfileTableManager().installProfile(
 								component);
 						logger.info("Installed " + component);
 					}

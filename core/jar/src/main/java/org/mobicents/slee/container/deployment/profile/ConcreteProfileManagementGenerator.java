@@ -24,9 +24,9 @@ import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.validator.ClassUtils;
+
+import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
 import org.mobicents.slee.container.profile.ProfileCmpHandler;
 import org.mobicents.slee.container.profile.ProfileConcrete;
@@ -184,19 +184,19 @@ public class ConcreteProfileManagementGenerator {
 		createField(Boolean.class, _PROFILE_INBACK_FIELD, cmpProfileConcreteClass, this.pool);
 
 		// Those methods come from
-		Map<String, CtMethod> cmpProfileInterfaceMethods = org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(cmpProfileInterface);
+		Map<String, CtMethod> cmpProfileInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(cmpProfileInterface);
 
 		generateCmps(cmpProfileInterfaceMethods, cmpProfileConcreteClass);
 
-		Map<String, CtMethod> profileManagementMethods = org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(sleeProfileManagementInterface);
-		profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(sleeProfileInterface));
+		Map<String, CtMethod> profileManagementMethods = ClassUtils.getInterfaceMethodsFromInterface(sleeProfileManagementInterface);
+		profileManagementMethods.putAll(ClassUtils.getInterfaceMethodsFromInterface(sleeProfileInterface));
 		// We need to intercept those calls, to throw proper exceptions
 
 		if (profileManagementInterface != null) {
 			profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(profileManagementInterface));
 		}
 		if (profileManagementAbstractClass != null) {
-			profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getConcreteMethodsFromClass(profileManagementAbstractClass));
+			profileManagementMethods.putAll(ClassUtils.getConcreteMethodsFromClass(profileManagementAbstractClass));
 		}
 		generateManagementMethods(profileManagementMethods, cmpProfileInterfaceMethods, cmpProfileConcreteClass, profileManagementAbstractClass);
 

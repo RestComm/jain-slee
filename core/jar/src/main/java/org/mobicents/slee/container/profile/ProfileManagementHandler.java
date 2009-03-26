@@ -6,8 +6,10 @@ import javax.slee.profile.ProfileContext;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileVerificationException;
 
-public class ProfileManagementHandler {
+import org.apache.log4j.Logger;
 
+public class ProfileManagementHandler {
+	private static Logger logger = Logger.getLogger(ProfileManagementHandler.class);
 	private ProfileCmpHandler profileCmpHandler = null;
 	private ProfileObject profileObject = null;
 
@@ -36,6 +38,10 @@ public class ProfileManagementHandler {
 
 	public void profileInitialize() {
 
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profileInitialize] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -50,6 +56,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void profileLoad() {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profileLoad] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -64,6 +74,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void profileStore() {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profileStore] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -78,6 +92,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void profileVerify() throws ProfileVerificationException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profileVerify] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -92,6 +110,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void profileActivate() {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profileActivate] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -106,6 +128,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void profilePassivate() {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profilePassivate] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -119,6 +145,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void profilePostCreate() throws CreateException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profilePostCreate] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -133,6 +163,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void profileRemove() {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[profileRemove] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -146,6 +180,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void setProfileContext(ProfileContext arg0) {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[setProfileContext] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -160,6 +198,10 @@ public class ProfileManagementHandler {
 	}
 
 	public void unsetProfileContext() {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[unsetProfileContext] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());

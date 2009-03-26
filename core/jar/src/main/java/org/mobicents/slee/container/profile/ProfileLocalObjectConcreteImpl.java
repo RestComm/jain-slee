@@ -68,6 +68,10 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileName()
 	 */
 	public String getProfileName() throws SLEEException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("Getting profile name for: "+this.profileName);
+		}
 		if (!this.isDefault)
 			return this.profileName;
 		else
@@ -80,6 +84,10 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileTable()
 	 */
 	public ProfileTable getProfileTable() throws SLEEException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[getProfileTable], table: "+this.profileTableName+", for profile: "+this.profileName);
+		}
 		ProfileTable pt = null;
 		try {
 			pt = this.sleeProfileManagement.getProfileTable(profileTableName);
@@ -109,6 +117,12 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * ProfileLocalObject)
 	 */
 	public boolean isIdentical(ProfileLocalObject other) throws SLEEException {
+		
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[isIdentical] on: "+this.profileName+", from table:"+this.profileTableName+", this: "+this+", other: "+other);
+		}
+
 		if (other == null)
 			throw new SLEEException("Other profile local object must not be null");
 
@@ -148,6 +162,10 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 */
 	public void remove() throws TransactionRequiredLocalException, TransactionRolledbackLocalException, SLEEException {
 
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[remove] on: "+this.profileName+", from table:"+this.profileTableName);
+		}
 		SleeContainer sleeContainer = this.sleeProfileManagement.getSleeContainer();
 		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
 		txMgr.mandateTransaction();
@@ -175,6 +193,10 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 */
 	public void allocateProfileObject() throws UnrecognizedProfileNameException, UnrecognizedProfileTableNameException, SLEEException {
 
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[allocateProfileObject] on: "+this.profileName+", from table:"+this.profileTableName);
+		}
 		// FIXME: mayeb we should be protected ?
 		try {
 			sleeTransactionManager.mandateTransaction();
@@ -246,6 +268,10 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	
 
 	public ProfileConcrete getProfileConcrete() {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[getProfileConcrete] on: "+this.profileName+", from table:"+this.profileTableName);
+		}
 		//FIXME: alex?
 		return null;
 	}

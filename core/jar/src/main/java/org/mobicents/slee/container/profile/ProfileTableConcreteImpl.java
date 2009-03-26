@@ -35,22 +35,14 @@ import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
-import org.mobicents.slee.container.management.jmx.ProfileProvisioningMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
-import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.activity.ActivityType;
-import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
-import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileRemovedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
-import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -87,7 +79,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		super();
 
 		ProfileTableConcreteImpl.validateProfileTableName(profileTableName);
-		if (sleeProfileManagement == null ||  profileSpecificationId == null) {
+		if (sleeProfileManagement == null || profileSpecificationId == null) {
 			throw new NullPointerException("Parameters must not be null");
 		}
 		this.sleeProfileManagement = sleeProfileManagement;
@@ -131,7 +123,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	}
 
 	public Collection<ProfileID> getProfilesIDs() {
-		//FIXME: Alex
+		// FIXME: Alex
 		return null;
 	}
 
@@ -224,21 +216,27 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	 * @throws SLEEException
 	 */
 	public ProfileLocalObject find(String profielName, boolean allowNull) throws NullPointerException, TransactionRequiredLocalException, SLEEException {
-		//FIXME: Alex
+		// FIXME: Alex
 		return null;
 	}
 
 	public Collection findAll() throws TransactionRequiredLocalException, SLEEException {
-		//FIXME: Alex
+		// FIXME: Alex
 		return null;
 	}
 
 	public boolean remove(String profileName) throws NullPointerException, ReadOnlyProfileException, TransactionRequiredLocalException, SLEEException {
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("[remove] on: " + this+" Profile["+profileName+"]");
+		}
 		return this.remove(profileName, false);
 	}
 
 	public boolean remove(String profileName, boolean isDefault) throws NullPointerException, ReadOnlyProfileException, TransactionRequiredLocalException, SLEEException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("[remove] on: " + this+" Profile["+profileName+"] isDefault["+isDefault+"]");
+		}
+		
 		if (profileName == null && !isDefault) {
 			throw new NullPointerException("Profile name must not be null");
 		}
@@ -443,7 +441,9 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	 */
 	public ObjectName addProfile(String newProfileName, boolean isDefault) throws TransactionRequiredLocalException, NullPointerException, SingleProfileException, SLEEException,
 			ProfileAlreadyExistsException, CreateException, ProfileVerificationException, ReadOnlyProfileException {
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("[addProfile] on: " + this+" Profile["+newProfileName+"] isDefault["+isDefault+"]");
+		}
 		// Monster throws....
 		// switch the context classloader to the component cl
 		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -563,7 +563,9 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	}
 
 	public ProfileObject assignProfileObject(String profileName, boolean create) throws UnrecognizedProfileNameException, ProfileAlreadyExistsException {
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("[assignProfileObject] on: " + this+" Profile["+profileName+"] Create["+create+"]");
+		}
 		ProfileObject profileObject = null;
 		profileObject = new ProfileObject(this, this.profileSpecificationId);
 		ProfileContextImpl context = new ProfileContextImpl(this);
@@ -602,7 +604,9 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	 * Returns object into pooled state
 	 */
 	public void deassignProfileObject(ProfileObject profileObject, boolean removed) {
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("[deassignProfileObject] on: " + this+" ProfileObject["+profileObject+"]");
+		}
 		// FIXME: add pool :)
 		if (!removed) {
 			profileObject.getProfileConcrete().profilePassivate();
@@ -613,7 +617,9 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	}
 
 	public ObjectName getProfileMBean(String profileName, boolean isDefault) throws UnrecognizedProfileNameException {
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("[getProfileMBean] on: " + this);
+		}
 		// FIXME: Alex add check here?
 		if (!isProfileCommitted(profileName)) {
 			throw new UnrecognizedProfileNameException("Profile: " + profileName + ", does not exist in profile table: " + profileTableName);
@@ -652,6 +658,10 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	 * any other than defualt?
 	 */
 	public boolean isProfileCommitted(String profileName) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("[isProfileCommitted] on: " + this+" Profile["+profileName+"]");
+			
+		}
 		// FIXME: Alex ?
 		return false;
 	}
@@ -662,6 +672,9 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	 * @throws UnrecognizedProfileTableNameException
 	 */
 	public void removeProfileTable() throws TransactionRequiredLocalException, SLEEException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("[removeProfileTable] on: " + this);
+		}
 		boolean b = this.sleeContainer.getTransactionManager().requireTransaction();
 		try {
 
@@ -729,10 +742,14 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	}
 
 	public Object getSbbCMPProfile(String profileName) throws SLEEException, UnrecognizedProfileNameException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("[getSbbCMPProfile] on: " + this+" Profile["+profileName+"]");
+		}
 		// FIXME: add check for name?
 		try {
 			ProfileObject po = assignProfileObject(profileName, false);
 			// FIXME: is this ok ?
+			//FIXME: Alex ?
 			return po.getProfileConcrete();
 		} catch (ProfileAlreadyExistsException e) {
 
@@ -740,10 +757,17 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		}
 	}
 
-	public void fireProfileAddedEvent( ProfileLocalObjectConcrete profileLocaObject) throws SLEEException {
-		if (!checkFireCondition() && logger.isDebugEnabled()) {
-			logger.debug("Events are not enabled for specification: " + this.profileSpecificationId + ", not firinig ProfileAddedEvent on: " + profileTableName + "/"
-					+ profileLocaObject.getProfileName());
+	public void fireProfileAddedEvent(ProfileLocalObjectConcrete profileLocaObject) throws SLEEException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("[fireProfileAddedEvent][" + checkFireCondition() + "] on: " + this + " ProfileLocalObject:" + profileLocaObject);
+		}
+		if (!checkFireCondition()) {
+			if (logger.isDebugEnabled()) {
+
+				logger.debug("Events are not enabled for specification: " + this.profileSpecificationId + ", not firinig ProfileAddedEvent on: " + profileTableName + "/"
+						+ profileLocaObject.getProfileName());
+			}
+			return;
 		}
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(
 				ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableName)), false);
@@ -758,10 +782,15 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	}
 
 	public void fireProfileRemovedEvent(ProfileLocalObjectConcrete profileLocalObject) throws SLEEException {
-
-		if (!checkFireCondition() && logger.isDebugEnabled()) {
-			logger.debug("Events are not enabled for specification: " + this.profileSpecificationId + ", not firinig ProfileRemovedEvent on: " + profileTableName + "/"
-					+ profileLocalObject.getProfileName());
+		if (logger.isDebugEnabled()) {
+			logger.debug("[fireProfileRemovedEvent][" + checkFireCondition() + "] on: " + this + " ProfileLocalObject:" + profileLocalObject);
+		}
+		if (!checkFireCondition()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Events are not enabled for specification: " + this.profileSpecificationId + ", not firinig ProfileRemovedEvent on: " + profileTableName + "/"
+						+ profileLocalObject.getProfileName());
+			}
+			return;
 		}
 
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(
@@ -777,9 +806,17 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 
 	public void fireProfileUpdatedEvent(ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction) throws SLEEException {
 
-		if (!checkFireCondition() && logger.isDebugEnabled()) {
-			logger.debug("Events are not enabled for specification: " + this.profileSpecificationId + ", not firinig ProfileUpdatedEvent on: " + profileTableName + "/"
-					+ profileLocalObjectBeforeAction.getProfileName());
+		if (logger.isDebugEnabled()) {
+			logger.debug("[fireProfileUpdatedEvent][" + checkFireCondition() + "] on: " + this + " ProfileLocalObject before:" + profileLocalObjectBeforeAction + ", ProfileLocalObject after:"
+					+ profileLocalObjectAfterAction);
+		}
+
+		if (!checkFireCondition()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Events are not enabled for specification: " + this.profileSpecificationId + ", not firinig ProfileUpdatedEvent on: " + profileTableName + "/"
+						+ profileLocalObjectBeforeAction.getProfileName());
+			}
+			return;
 		}
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(
 				ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableName)), false);
@@ -808,4 +845,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 
 	}
 
+	public String toString() {
+		return this.getClass().getSimpleName() + " Table[" + this.profileTableName + "] Specification[" + this.profileSpecificationId + "]";
+	}
 }

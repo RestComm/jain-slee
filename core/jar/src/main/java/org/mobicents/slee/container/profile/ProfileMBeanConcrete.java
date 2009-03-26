@@ -63,6 +63,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	// #################
 
 	public void closeProfile() throws InvalidStateException, ManagementException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[closeProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -108,7 +112,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	 * for slee ONLY when its commited.
 	 */
 	public void commitProfile() throws InvalidStateException, ProfileVerificationException, ManagementException {
-
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[commitProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -306,7 +313,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	public void editProfile() throws ManagementException {
-
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[editProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -358,6 +368,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	public boolean isProfileDirty() throws ManagementException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[isProfileDirty] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		/*
 		 * The isProfileDirty method returns true if the Profile MBean object is
 		 * in the read-write state and the dirty flag of the Profile Management
@@ -373,6 +387,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	public boolean isProfileWriteable() throws ManagementException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[isProfileWriteable] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		/*
 		 * The isProfileWriteable method returns true if the Profile MBean
 		 * object is in the read-write state, or false if in the read-only
@@ -384,6 +402,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	public void restoreProfile() throws InvalidStateException, ManagementException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("[restoreProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -416,7 +438,7 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			if (!this.profileObject.isWriteable())
 				throw new InvalidStateException();
 
-			// FIXME:
+			// FIXME Alex:
 			// if(!commited)
 			// {
 			// REMOVE
