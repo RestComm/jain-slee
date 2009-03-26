@@ -51,7 +51,7 @@ public class ProfileSpecificationDescriptorImpl {
 
   private List<MEnvEntry> envEntries;
   private List<MQuery> queryElements;
-  private boolean profileHints = false;
+  private boolean singleProfile = false;
   private boolean readOnly = true;
   private boolean eventsEnabled = true;
 
@@ -143,8 +143,8 @@ public class ProfileSpecificationDescriptorImpl {
     return queryElements;
   }
 
-  public boolean getProfileHints() {
-    return profileHints;
+  public boolean isSingleProfile() {
+    return this.singleProfile;
   }
 
   public boolean getReadOnly() {
