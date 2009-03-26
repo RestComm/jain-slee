@@ -1,5 +1,5 @@
 package org.mobicents.slee.runtime.sbbentity;
 
 public enum CmpType {
-	aci, sbblo, normal
+	aci, eventctx, sbblo, profilelo, normal
 }

@@ -29,6 +29,14 @@ public class EventContextID implements Serializable {
 		this.eventObject = eventObject;
 	}
 	
+	public String getActivityContextID() {
+		return activityContextID;
+	}
+	
+	public Object getEventObject() {
+		return eventObject;
+	}
+	
 	@Override
 	public int hashCode() {
 		return activityContextID.hashCode()*31+ eventObject.hashCode();

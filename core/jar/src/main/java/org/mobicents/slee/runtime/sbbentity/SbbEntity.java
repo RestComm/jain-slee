@@ -26,13 +26,16 @@ import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
+import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.SbbEntityCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.eventrouter.EventContextID;
 import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
+import org.mobicents.slee.runtime.eventrouter.EventRouterActivity;
 import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
@@ -201,8 +204,9 @@ public class SbbEntity {
 
 		CmpWrapper cmpWrapper = (CmpWrapper) cacheData.getCmpField(cmpFieldName);
 		if (cmpWrapper != null) {
-			if (cmpWrapper.getType() == CmpType.sbblo) {
-
+			switch (cmpWrapper.getType()) {
+			
+			case sbblo:
 				// it's a sbbLocalObject cmp
 				String sbbEntityId = (String) cmpWrapper.getValue();
 				SbbEntity sbbEntity = null;
@@ -218,15 +222,51 @@ public class SbbEntity {
 				else {
 					return sbbEntity.createSbbLocalObject();
 				}
-			} else {
-				// May return null here. The DefaultPersistenceInterceptor takes
-				// care of
-				// returning the right default value.
+			
+			case aci:
+				final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext((String) cmpWrapper.getValue(), true);
+				if (ac != null) {
+					return new ActivityContextInterfaceImpl(ac);
+				}
+				else {
+					return null;
+				}
+			
+			case eventctx:
+				final EventContextID eventContextID = (EventContextID)cmpWrapper.getValue();
+				final EventRouterActivity eventRouterActivity = sleeContainer.getEventRouter().getEventRouterActivity(eventContextID.getActivityContextID());
+				if (eventRouterActivity != null) {
+					EventContextImpl eventContextImpl = eventRouterActivity.getCurrentEventContext();
+					if (eventContextImpl != null) {
+						if (eventContextID.getEventObject().equals(eventContextImpl.getEventContextID().getEventObject())) {
+							return eventContextImpl;
+						}
+						else {
+							return null;
+						}
+					}
+					else {
+						return null;
+					}
+				}
+				else {
+					return null;
+				}
+			
+			case profilelo:
+				// TODO Bartosz
+				throw new SLEEException("Bartosz is the oen who knows how to build a profile local object :)");
+				
+			case normal:
 				if (log.isDebugEnabled()) {
 					log.debug("getCMPField() value = "
 							+ cmpWrapper.getValue());
 				}
 				return cmpWrapper.getValue();
+				
+			default:
+				throw new SLEEException("invalid cmp type retrieved from cache "+cmpWrapper.getType());
+				
 			}
 		}
 		else {
@@ -248,9 +288,24 @@ public class SbbEntity {
 
 		CmpType cmpType = null;
 		Object cmpValue = null;
+		
+		// TODO optimize by adding the cmp type to the generated setter method?
 		if (object instanceof SbbLocalObject) {
 			cmpType = CmpType.sbblo;
 			cmpValue = ((SbbLocalObjectImpl) object).getSbbEntityId();
+		}
+		else if (object instanceof ActivityContextInterfaceImpl) {
+			cmpType = CmpType.aci;
+			cmpValue = ((ActivityContextInterfaceImpl) object).getActivityContext().getActivityContextId();
+		}
+		else if (object instanceof EventContextImpl) {
+			cmpType = CmpType.eventctx;
+			cmpValue = ((EventContextImpl) object).getEventContextID();
+		}
+		else if (object instanceof ProfileLocalObjectConcreteImpl) {
+			cmpType = CmpType.sbblo;
+			final ProfileLocalObjectConcreteImpl profileLocalObject = (ProfileLocalObjectConcreteImpl) object;
+			cmpValue = new ProfileLocalObjectCmpValue(profileLocalObject.getProfileTableName(),profileLocalObject.getProfileName());
 		}
 		else {
 			cmpType = CmpType.normal;
@@ -271,7 +326,7 @@ public class SbbEntity {
 				if (mEventEntry.isMaskOnAttach()) {
 					maskedEvents.add(mEventEntry.getEventReference().getComponentID());
 				}
-			}			
+			}						
 		}
 		// add to cache
 		cacheData.attachActivityContext(acId);
