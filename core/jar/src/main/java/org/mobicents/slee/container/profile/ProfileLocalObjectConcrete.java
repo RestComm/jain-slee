@@ -25,8 +25,22 @@ public interface ProfileLocalObjectConcrete extends ProfileLocalObject {
 
 	boolean isSnapshot();
 
+	/**
+	 * Causes this PLO to get ProfileObject.
+	 * 
+	 * @throws UnrecognizedProfileNameException
+	 *             - if profile does not exist.
+	 * @throws UnrecognizedProfileTableNameException
+	 *             - if profile table does not exist.
+	 */
 	public void allocateProfileObject() throws UnrecognizedProfileNameException, UnrecognizedProfileTableNameException;
 
+	/**
+	 * This methods should return snapshost view, it is used in methods of
+	 * profile events.
+	 * 
+	 * @return
+	 */
 	public ProfileConcrete getProfileConcrete();
 
 }

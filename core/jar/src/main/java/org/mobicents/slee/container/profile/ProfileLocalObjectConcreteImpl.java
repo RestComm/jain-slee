@@ -246,7 +246,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	
 
 	public ProfileConcrete getProfileConcrete() {
-		//FIXME: alex  :)
+		//FIXME: alex?
 		return null;
 	}
 
