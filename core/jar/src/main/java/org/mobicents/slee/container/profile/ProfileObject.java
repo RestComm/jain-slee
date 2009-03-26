@@ -139,7 +139,7 @@ public class ProfileObject {
 		return canAccessCMP;
 	}
 
-	public boolean isProfileWriteable() {
+	public boolean isProfileSpecificationWriteable() {
 		return !this.profileSpecificationComponent.getDescriptor().getReadOnly();
 	}
 

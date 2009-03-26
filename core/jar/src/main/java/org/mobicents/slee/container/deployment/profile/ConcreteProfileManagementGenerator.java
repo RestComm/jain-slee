@@ -27,6 +27,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
 import org.mobicents.slee.container.component.validator.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.management.SleeProfileManager;
+import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
 import org.mobicents.slee.container.profile.ProfileCmpHandler;
 import org.mobicents.slee.container.profile.ProfileConcrete;
 import org.mobicents.slee.container.profile.ProfileManagementHandler;
@@ -187,12 +188,17 @@ public class ConcreteProfileManagementGenerator {
 
 		generateCmps(cmpProfileInterfaceMethods, cmpProfileConcreteClass);
 
-		Map<String, CtMethod> cmpProfileManagementMethods = org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(sleeProfileManagementInterface);
-		cmpProfileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(sleeProfileInterface));
-		if (profileManagementInterface != null)
-			cmpProfileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(profileManagementInterface));
+		Map<String, CtMethod> profileManagementMethods = org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(sleeProfileManagementInterface);
+		profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(sleeProfileInterface));
+		// We need to intercept those calls, to throw proper exceptions
 
-		generateManagementMethods(cmpProfileManagementMethods, cmpProfileInterfaceMethods, cmpProfileConcreteClass, profileManagementAbstractClass);
+		if (profileManagementInterface != null) {
+			profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(profileManagementInterface));
+		}
+		if (profileManagementAbstractClass != null) {
+			profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getConcreteMethodsFromClass(profileManagementAbstractClass));
+		}
+		generateManagementMethods(profileManagementMethods, cmpProfileInterfaceMethods, cmpProfileConcreteClass, profileManagementAbstractClass);
 
 		try {
 			// @@2.4+ -> 3.4+
@@ -252,9 +258,8 @@ public class ConcreteProfileManagementGenerator {
 
 	void generateDelegateCmpMethod(String fieldIntercepting, CtMethod method, CtClass classToBeInstrumented) throws Exception {
 
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("About to instrument: "+method.getName()+", into: "+classToBeInstrumented.getName());
+		if (logger.isDebugEnabled()) {
+			logger.debug("About to instrument: " + method.getName() + ", into: " + classToBeInstrumented.getName());
 		}
 		// so we are not abstract
 		method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
@@ -285,11 +290,9 @@ public class ConcreteProfileManagementGenerator {
 		}
 
 		body += retStatement + "  this." + fieldIntercepting + "." + cmpMethod + " }";
-		
-		
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("About to instrumented: "+method.getName()+", body: "+body);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("About to instrumented: " + method.getName() + ", body: " + body);
 		}
 		method.setBody(body);
 		classToBeInstrumented.addMethod(method);
@@ -302,18 +305,16 @@ public class ConcreteProfileManagementGenerator {
 
 		while (mm.hasNext()) {
 			Map.Entry<String, CtMethod> entry = mm.next();
-			if (cmpInterfaceMethods.containsKey(entry.getKey())){
-				if(logger.isDebugEnabled())
-				{
-					logger.debug("Not instrumenting method as it is CMP method: "+entry.getKey());
+			if (cmpInterfaceMethods.containsKey(entry.getKey())) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Not instrumenting method as it is CMP method: " + entry.getKey());
 				}
 			} else if (entry.getKey().contains("commitChanges")) {
 				generateDelegateCmpMethod(_HANDLER_NAME_CMP, entry.getValue(), classToBeInstrumented);
 			} else if (!cmpInterfaceMethods.containsKey(org.mobicents.slee.container.deployment.ClassUtils.getMethodKey(entry.getValue()))) {
 				generateDelegateMethod(_HANDLER_NAME_MANAGEMENT, entry.getValue(), classToBeInstrumented, profileManagementAbstractClass);
-			}else
-			{
-				logger.error("Found weird method: "+entry.getKey());
+			} else {
+				logger.error("Found weird method: " + entry.getKey());
 			}
 		}
 
@@ -321,10 +322,11 @@ public class ConcreteProfileManagementGenerator {
 
 	void generateDelegateMethod(String fieldIntercepting, CtMethod method, CtClass classToBeInstrumented, CtClass profileManagementAbstractClass) throws Exception {
 
-		
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("About to instrument: "+method.getName()+", into: "+classToBeInstrumented.getName());
+		// FIXME: should we add check for concrete methods from
+		// profileManagementAbstractClass and do clone?
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("About to instrument: " + method.getName() + ", into: " + classToBeInstrumented.getName());
 		}
 		// Set it not abstract
 		method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
@@ -339,20 +341,27 @@ public class ConcreteProfileManagementGenerator {
 			// this should nto happen
 			throw e;
 		}
-		String body = "{  " + retStatement;
+		String body = "{  " +
+				"try{" +
+				ProfileCallRecorderTransactionData.class.getName()+".addProfileCall(this);" +
+				"" + retStatement;
 
 		if (profileManagementAbstractClass != null) {
 			if (!mustInterceptMethods.contains(method.getName())) {
 				body += "super." + method.getName() + "($$);        }";
 			} else {
-				body += "this." + fieldIntercepting + "." + method.getName() + "($$);        }";
+				body += "this." + fieldIntercepting + "." + method.getName() + "($$);        ";
 			}
 		} else {
-			body += "this." + fieldIntercepting + "." + method.getName() + "($$);        }";
+			body += "this." + fieldIntercepting + "." + method.getName() + "($$);        ";
 		}
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("About to instrumented: "+method.getName()+", body: "+body);
+		
+		body+="}finally{" +
+			ProfileCallRecorderTransactionData.class.getName()+".removeProfileCall(this);" + 
+				"" +
+				"}";
+		if (logger.isDebugEnabled()) {
+			logger.debug("About to instrumented: " + method.getName() + ", body: " + body);
 		}
 		method.setBody(body);
 		classToBeInstrumented.addMethod(method);
@@ -385,10 +394,9 @@ public class ConcreteProfileManagementGenerator {
 		CtMethod setMethod = new CtMethod(ctFieldType, org.mobicents.slee.container.component.validator.ClassUtils.GET_PREFIX + fieldName, null, fieldOwner);
 		setMethod.setBody(setBody);
 		fieldOwner.addMethod(setMethod);
-		
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("Instrumented class: "+fieldOwner.getName()+", with field: "+_fieldName+", along with setter: "+setBody+", and getter: "+getBody);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("Instrumented class: " + fieldOwner.getName() + ", with field: " + _fieldName + ", along with setter: " + setBody + ", and getter: " + getBody);
 		}
 
 	}
@@ -406,7 +414,7 @@ public class ConcreteProfileManagementGenerator {
 	 * @param mbean
 	 *            tells if it the constructor for the mbean class
 	 */
-	static void createConstructorWithParameter(String[] parameterNames, CtClass[] parameters, CtClass concreteClass) throws Exception{
+	static void createConstructorWithParameter(String[] parameterNames, CtClass[] parameters, CtClass concreteClass) throws Exception {
 
 		CtConstructor constructorWithParameter = new CtConstructor(parameters, concreteClass);
 		String constructorBody = "{";
@@ -433,11 +441,11 @@ public class ConcreteProfileManagementGenerator {
 			concreteClass.addConstructor(constructorWithParameter);
 			constructorWithParameter.setBody(constructorBody);
 			if (logger.isDebugEnabled()) {
-				logger.debug("ConstructorWithParameter created: "+constructorBody);
+				logger.debug("ConstructorWithParameter created: " + constructorBody);
 			}
 		} catch (CannotCompileException e) {
 
-			throw new DeploymentException("Failed to instrument constructor.",e);
+			throw new DeploymentException("Failed to instrument constructor.", e);
 		}
 	}
 

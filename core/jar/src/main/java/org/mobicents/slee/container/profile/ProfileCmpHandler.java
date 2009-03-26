@@ -48,10 +48,13 @@ public class ProfileCmpHandler {
 	public void setCmpField(String fieldName, Object value) throws UnsupportedOperationException, IllegalStateException {
 
 		profileObject.getProfileTableConcrete().getProfileManagement().getSleeContainer().getTransactionManager().mandateTransaction();
+		
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// this operation is allowed ONLY
 			// 1. for 1.1 profiles - if profile is write able
 			// 2. for management clients
@@ -66,7 +69,7 @@ public class ProfileCmpHandler {
 							+ " ,is not writeable.");
 			} else {
 				// this gets
-				if (!this.profileObject.isProfileWriteable()) {
+				if (!this.profileObject.isProfileSpecificationWriteable()) {
 					throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + this.profileObject.getProfileTableConcrete().getProfileTableName()
 							+ " ,is not writeable.");
 				}
@@ -80,6 +83,7 @@ public class ProfileCmpHandler {
 			this.profileObject.getProfileConcrete().setProfileDirty(true);
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -97,12 +101,14 @@ public class ProfileCmpHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			if (!this.profileObject.isCanAccessCMP()) {
 				throw new IllegalStateException("Can not access CMP field at this moment.");
 			}
 			return null;
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}

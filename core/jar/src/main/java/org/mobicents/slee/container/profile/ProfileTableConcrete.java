@@ -117,31 +117,31 @@ public interface ProfileTableConcrete extends ProfileTable {
 	public void register();
 
 	/**
-	 * Fire profile Added event for this profile table activity.
+	 * Fire profile Added event for this profile table activity. It does check
+	 * if event shoudl be fired before doing so.
 	 * 
-	 * @param profileName
 	 * @param profileLocalObject
 	 *            - snapshot view of profile objct.
 	 * @throws SLEEException
 	 *             - thrown in case of any error
 	 */
-	public void fireProfileAddedEvent(String profileName, ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
+	public void fireProfileAddedEvent(ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
 
 	/**
-	 * Fire profile remove event on this profile table activity.
+	 * Fire profile remove event on this profile table activity. It does check
+	 * if event shoudl be fired before doing so.
 	 * 
-	 * @param profileName
 	 * @param profileLocalObject
 	 *            - snapshot view of the profile
 	 * @throws SLEEException
 	 *             - thrown in case of any error
 	 */
-	public void fireProfileRemovedEvent(String profileName, ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
+	public void fireProfileRemovedEvent(ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
 
 	/**
-	 * Fire profiel updated event on this profile table activty
+	 * Fire profiel updated event on this profile table activty. It does check
+	 * if event shoudl be fired before doing so.
 	 * 
-	 * @param profileName
 	 * @param profileLocalObjectBeforeAction
 	 *            - snapshot profile local object with CMPs set to profile
 	 *            before commit.
@@ -151,6 +151,6 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 * @throws SLEEException
 	 *             - thrown in case of any error
 	 */
-	public void fireProfileUpdatedEvent(String profileName, ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction) throws SLEEException;
+	public void fireProfileUpdatedEvent(ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction) throws SLEEException;
 
 }

@@ -240,12 +240,12 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			if (!wasProfileInBackEndStorage) {
 				// FIXME: Alex allocate PLO
 				ProfileLocalObjectConcrete ploc = null;
-				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(profileObject.getProfileName(), ploc);
+				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(ploc);
 
 			} else {
 				// FIXME: Alex allocate PLO
 				ProfileLocalObjectConcrete plocAfterUpate = null;
-				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent(profileObject.getProfileName(), profileBeforeUpdate, plocAfterUpate);
+				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpate);
 			}
 
 			// so far so good, time to commit the tx so that the profile is

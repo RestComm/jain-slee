@@ -29,6 +29,7 @@ public class ProfileManagementHandler {
 	}
 
 	public void markProfileDirty() {
+
 		profileObject.getProfileConcrete().setProfileDirty(true);
 
 	}
@@ -39,9 +40,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -51,9 +54,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -63,9 +68,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -75,9 +82,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -87,9 +96,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -99,9 +110,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 	}
 
@@ -110,9 +123,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -122,9 +137,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 	}
 
@@ -133,9 +150,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
@@ -145,9 +164,11 @@ public class ProfileManagementHandler {
 		ClassLoader oldClassLoader = t.getContextClassLoader();
 		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try {
+			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
 			// FIXME: ??
 		} finally {
 			t.setContextClassLoader(oldClassLoader);
+			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
 		}
 
 	}
