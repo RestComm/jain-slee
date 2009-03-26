@@ -78,16 +78,23 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	 * Holds refence to concrete MBean Impl for mgmt mbean for this profiel spec
 	 */
 	private Class profileMBeanConcreteImplClass = null;
-	
+
 	/**
 	 * the JAIN SLEE specs descriptor
 	 */
 	private ProfileSpecificationDescriptor specsDescriptor = null;
-	
+
 	/**
 	 * Dont know yet what it is? ;[
 	 */
 	private Class profilePersistanceTransientStateConcreteClass;
+
+	/**
+	 * Class object for profiel table.
+	 */
+	private Class profileTableConcreteClass;
+
+	private Class profileLocalObjectConcreteClass;
 
 	/**
 	 * 
@@ -204,47 +211,57 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	public void setProfileTableInterfaceClass(Class profileTableInterfaceClass) {
 		this.profileTableInterfaceClass = profileTableInterfaceClass;
 	}
+
 	/**
-	 * Returns class object representing concrete impl of cmp interface - it implements all required
+	 * Returns class object representing concrete impl of cmp interface - it
+	 * implements all required
+	 * 
 	 * @return
 	 */
 	public Class getProfileCmpConcreteClass() {
 		return profileCmpConcreteClass;
 	}
+
 	/**
-	 * Set class object representing concrete impl of cmp interface - it implements all required
+	 * Set class object representing concrete impl of cmp interface - it
+	 * implements all required
+	 * 
 	 * @param profileCmpConcreteClass
 	 */
 	public void setProfileCmpConcreteClass(Class profileCmpConcreteClass) {
 		this.profileCmpConcreteClass = profileCmpConcreteClass;
 	}
 
-	
 	/**
 	 * Returns concrete/generated mbean interface for this profile specs
+	 * 
 	 * @return
 	 */
 	public Class getProfileMBeanConcreteInterfaceClass() {
 		return profileMBeanConcreteInterfaceClass;
 	}
+
 	/**
 	 * Sets concrete/generated mbean interface for this profile specs
+	 * 
 	 * @param profileMBeanConcreteInterfaceClass
 	 */
 	public void setProfileMBeanConcreteInterfaceClass(Class profileMBeanConcreteInterfaceClass) {
 		this.profileMBeanConcreteInterfaceClass = profileMBeanConcreteInterfaceClass;
 	}
 
-	
 	/**
 	 * returns concrete MBean impl that manages this profile spec
+	 * 
 	 * @return
 	 */
 	public Class getProfileMBeanConcreteImplClass() {
 		return profileMBeanConcreteImplClass;
 	}
+
 	/**
 	 * sets concrete MBean impl that manages this profile spec
+	 * 
 	 * @param profileMBeanConcreteImplClass
 	 */
 	public void setProfileMBeanConcreteImplClass(Class profileMBeanConcreteImplClass) {
@@ -253,11 +270,57 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 
 	public void setProfilePersistanceTransientStateConcreteClass(Class profilePersistanceTransientStateConcreteClass) {
 		this.profilePersistanceTransientStateConcreteClass = profilePersistanceTransientStateConcreteClass;
-		
+
 	}
 
 	public Class getProfilePersistanceTransientStateConcreteClass() {
 		return profilePersistanceTransientStateConcreteClass;
+	}
+
+	/**
+	 * set profile table concrete class - its impl of profile table interface -
+	 * either default or provided by dev - this is instrumented class that
+	 * handles runtime calls
+	 * 
+	 * @param clazz
+	 */
+	public void setProfileTableConcreteClass(Class clazz) {
+
+		this.profileTableConcreteClass = clazz;
+	}
+
+	/**
+	 * get profile table concrete class - its impl of profile table interface -
+	 * either default or provided by dev - this is instrumented class that
+	 * handles runtime calls
+	 * 
+	 * @return
+	 */
+	public Class getProfileTableConcreteClass() {
+		return this.profileTableConcreteClass;
+
+	}
+
+	/**
+	 * set profile local object concrete class - this is instrumented class that
+	 * handles runtime calls
+	 * 
+	 * @param clazz
+	 */
+	public void setProfileLocalObjectConcreteClass(Class clazz) {
+		this.profileLocalObjectConcreteClass = clazz;
+
+	}
+
+	/**
+	 * sget profile local object concrete class - this is instrumented class
+	 * that handles runtime calls
+	 * 
+	 * @return
+	 */
+	public Class getProfileLocalObjectConcreteClass() {
+		return this.profileLocalObjectConcreteClass;
+
 	}
 
 	@Override
@@ -316,5 +379,4 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 		return getSpecsDescriptor();
 	}
 
-	
 }
