@@ -57,7 +57,6 @@ import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.SbbManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
-import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
@@ -259,7 +258,7 @@ public class SleeContainer {
 		this.timerFacility = new TimerFacilityImpl(this);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,
 				timerFacility);
-		this.profileFacility = new ProfileFacilityImpl();
+		this.profileFacility = new ProfileFacilityImpl(sleeProfileManagement);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
 				profileFacility);
 		this.serviceActivityFactory = new ServiceActivityFactoryImpl();
