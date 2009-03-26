@@ -30,6 +30,7 @@ import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
 import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
 import org.mobicents.slee.runtime.facilities.DefaultAlarmFacilityImpl;
+import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
@@ -112,7 +113,7 @@ public class SleeProfileTableManager {
 
 	public void uninstallProfile(ProfileSpecificationComponent component) {
 		// hmm, nothing to do yet ?
-
+		
 	}
 
 	/**
@@ -147,10 +148,12 @@ public class SleeProfileTableManager {
 		} catch (NameAlreadyBoundException ex) {
 			facilitiesCtx = (Context) sleeCtx.lookup("facilities");
 		}
-		// This requries the same trick as SbbEntities, but its worse -
-		// DefaultAlarmFacilityImpl alarmFacility = new
-		// DefaultAlarmFacilityImpl(,this.sleeContainer.getAlarmFacility());
-
+		
+		ProfileAlarmFacilityImpl alarmFacility = new ProfileAlarmFacilityImpl(this.sleeContainer.getAlarmFacility());
+		//This should be AlarmFacility.JNDI_NAME
+		facilitiesCtx.bind("alarm", alarmFacility);
+		
+		
 		for (MEnvEntry mEnvEntry : component.getDescriptor().getEnvEntries()) {
 			Class type = null;
 

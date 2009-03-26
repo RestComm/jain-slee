@@ -45,6 +45,7 @@ import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
+import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileRemovedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
@@ -74,7 +75,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 
 	private SleeProfileTableManager sleeProfileManagement = null;
 	private String profileTableName = null;
-	private ProfileTableNotification profileTableNotification = null;
+	private MNotificationSource profileTableNotification = null;
 	private SleeContainer sleeContainer = null;
 	private ProfileSpecificationID profileSpecificationId;
 
@@ -91,7 +92,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		}
 		this.sleeProfileManagement = sleeProfileManagement;
 		this.profileTableName = profileTableName;
-		this.profileTableNotification = new ProfileTableNotification(this.profileTableName);
+		this.profileTableNotification = new MNotificationSource(new ProfileTableNotification(this.profileTableName));
 		this.sleeContainer = this.sleeProfileManagement.getSleeContainer();
 		this.profileSpecificationId = profileSpecificationId;
 
@@ -120,7 +121,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		return this.sleeProfileManagement.getProfileSpecificationComponent(this.profileSpecificationId);
 	}
 
-	public ProfileTableNotification getProfileTableNotification() {
+	public MNotificationSource getProfileTableNotification() {
 		return this.profileTableNotification;
 	}
 
