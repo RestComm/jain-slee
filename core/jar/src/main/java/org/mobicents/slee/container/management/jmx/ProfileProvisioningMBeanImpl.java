@@ -16,10 +16,7 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.slee.InvalidArgumentException;
@@ -44,7 +41,6 @@ import org.jboss.logging.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.management.SleeProfileManager;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
@@ -239,6 +235,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			logger.debug("creating new Profile Table " + profileTableName + " ...");
 			logger.debug("profile specification ID :" + specificationID.toString());
 
+			//FIXME: Its easier to handle this here + plus it hadnles NPE
 			ProfileTableConcreteImpl.validateProfileTableName(profileTableName);
 
 			ProfileTableConcrete profileTable = null;
@@ -266,10 +263,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			try {
 				Thread.currentThread().setContextClassLoader(component.getClassLoader());
 
-				profileTable = this.sleeProfileManagement.addProfileTable(profileTable, component);
-				profileTable.register();
-				// FIXME: ??
-
+				profileTable = this.sleeProfileManagement.addProfileTable(profileTableName,component);
 				profileTable.addProfile(null, true);
 			} catch (TransactionRequiredLocalException e) {
 				throw new ManagementException("Transaction Manager Failure", e);
