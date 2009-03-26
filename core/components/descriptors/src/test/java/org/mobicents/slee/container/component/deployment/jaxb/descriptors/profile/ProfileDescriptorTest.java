@@ -236,7 +236,7 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 			assertTrue("Profile specs env entry value not equal: "+_DEFAULT_VALUE, entry.getEnvEntryValue().compareTo(_DEFAULT_VALUE+"3")==0);
 		}
 		
-		assertFalse("Profile specs single profile hint should be false",specs.getProfileHints());
+		assertFalse("Profile specs single profile hint should be false",specs.isSingleProfile());
 		
 		if(specs.isSlee11()){
 			assertNotNull("Profile specs security permissions are null",specs.getSecurityPremissions());
