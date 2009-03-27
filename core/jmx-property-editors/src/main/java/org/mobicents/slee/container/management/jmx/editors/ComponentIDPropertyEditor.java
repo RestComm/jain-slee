@@ -1,6 +1,5 @@
 package org.mobicents.slee.container.management.jmx.editors;
 
-import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
