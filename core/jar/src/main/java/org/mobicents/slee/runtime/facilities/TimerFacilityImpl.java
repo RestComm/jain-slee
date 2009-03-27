@@ -64,7 +64,7 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	
 	private static final long serialVersionUID = 5281276761487630957L;
 
-	private static final int DEFAULT_TIMEOUT = 100;
+	private static final int DEFAULT_TIMEOUT = 1000;
 
 	public static final String JNDI_NAME = "timer";
     	

@@ -30,6 +30,12 @@
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
+			<artifactId>components-jaxb-jar</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
            	<artifactId>descriptors</artifactId>
            	<version>${pom.version}</version>           	
 		</dependency>
