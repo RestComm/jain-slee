@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.management;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.management.DependencyException;
+import javax.slee.management.DeploymentException;
 import javax.slee.management.LinkNameAlreadyBoundException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
@@ -25,17 +27,22 @@ import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
+import org.mobicents.slee.container.deployment.ResourceAdaptorClassCodeGenerator;
+import org.mobicents.slee.container.deployment.ResourceAdaptorTypeClassCodeGenerator;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * 
@@ -798,6 +805,97 @@ public class ResourceManagement {
 				+ resourceAdaptorEntities.keySet()
 				+ "\n+-- Resource Adaptor Entitiy Links: "
 				+ resourceAdaptorEntities.keySet();
+	}
+
+	/**
+	 * Installs the specified {@link ResourceAdaptorTypeComponent} in the container
+	 * @param component
+	 * @throws DeploymentException 
+	 */
+	public void installResourceAdaptorType(
+			ResourceAdaptorTypeComponent component) throws DeploymentException {
+
+		// generate code for aci factory
+		new ResourceAdaptorTypeClassCodeGenerator().process(component);
+		// create instance of aci factory and store it in the
+		// component
+		if (component.getActivityContextInterfaceFactoryConcreteClass() != null) {
+			try {
+				Constructor constructor = component
+						.getActivityContextInterfaceFactoryConcreteClass()
+						.getConstructor(
+								new Class[] { SleeContainer.class,
+										ResourceAdaptorTypeID.class });
+				Object aciFactory = constructor.newInstance(new Object[] {
+						sleeContainer, component.getResourceAdaptorTypeID() });
+				component.setActivityContextInterfaceFactory(aciFactory);
+			} catch (Throwable e) {
+				throw new SLEEException(
+						"unable to create ra type aci factory instance", e);
+			}
+		}
+		final ResourceAdaptorTypeID resourceAdaptorTypeID = component.getResourceAdaptorTypeID();
+		getResourceAdaptorEntitiesPerType().put(
+				resourceAdaptorTypeID,
+				new HashSet<ResourceAdaptorEntity>());
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				getResourceAdaptorEntitiesPerType().remove(resourceAdaptorTypeID);
+				
+			}
+		};
+		try {
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
+		
+	}
+
+	/**
+	 * Installs the specified {@link ResourceAdaptorComponent} in the container
+	 * @param component
+	 * @throws DeploymentException 
+	 */
+	public void installResourceAdaptor(ResourceAdaptorComponent component) throws DeploymentException {
+		new ResourceAdaptorClassCodeGenerator().process(component);
+	}
+
+	/**
+	 * Uninstalls the specified {@link ResourceAdaptorTypeComponent} from the container
+	 * @param component
+	 */
+	public void uninstallResourceAdaptorType(
+			ResourceAdaptorTypeComponent component) {
+		
+		final ResourceAdaptorTypeID resourceAdaptorTypeID = component.getResourceAdaptorTypeID();
+		final Set<ResourceAdaptorEntity> raEntities = getResourceAdaptorEntitiesPerType().remove(resourceAdaptorTypeID);
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				getResourceAdaptorEntitiesPerType().put(
+						resourceAdaptorTypeID,
+						raEntities);				
+			}
+		};
+		try {
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
+		
+	}
+
+	/**
+	 * Uninstalls the specified {@link ResourceAdaptorComponent} from the container
+	 * @param component
+	 * @throws DependencyException 
+	 */
+	public void uninstallResourceAdaptor(ResourceAdaptorComponent component) throws DependencyException {
+		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
+			if (raEntity.getResourceAdaptorID().equals(component.getResourceAdaptorID())) {
+				throw new DependencyException("can't uninstall "+component.getResourceAdaptorID()+" since ra entity "+raEntity.getName()+" refers it");
+			}
+		}
 	}
 
 }

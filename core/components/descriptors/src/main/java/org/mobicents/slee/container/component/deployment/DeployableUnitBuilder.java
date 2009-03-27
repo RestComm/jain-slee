@@ -166,7 +166,7 @@ public class DeployableUnitBuilder {
 						throw new AlreadyDeployedException("Component "+serviceComponent.getComponentID()+" already deployed");
 					}
 					// set the direct reference to the sbb component
-					serviceComponent.setRootSbbComponent(componentRepository.getComponentByID(serviceComponent.getDescriptor().getRootSbbID()));
+					serviceComponent.setRootSbbComponent(deployableUnit.getDeployableUnitRepository().getComponentByID(serviceComponent.getDescriptor().getRootSbbID()));
 				}
 			}
 

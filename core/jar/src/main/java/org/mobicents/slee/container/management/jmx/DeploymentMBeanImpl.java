@@ -10,7 +10,6 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,11 +53,8 @@ import org.mobicents.slee.container.component.SleeComponent;
 import org.mobicents.slee.container.component.deployment.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.DeployableUnitBuilder;
 import org.mobicents.slee.container.component.management.DeployableUnitManagement;
-import org.mobicents.slee.container.deployment.ResourceAdaptorClassCodeGenerator;
-import org.mobicents.slee.container.deployment.ResourceAdaptorTypeClassCodeGenerator;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -140,6 +136,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 				DeployableUnit deployableUnit = null;
 
+				Thread currentThread = Thread.currentThread();
+				ClassLoader currentClassLoader = currentThread
+						.getContextClassLoader();
+
 				boolean rollback = true;
 				try {
 					// start transaction
@@ -148,65 +148,67 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					deployableUnit = deployableUnitBuilder.build(url,
 							tempDUJarsDeploymentRoot, componentRepositoryImpl);
 					// install each component built
-					for (EventTypeComponent component : deployableUnit
-							.getEventTypeComponents().values()) {
-						componentRepositoryImpl.putComponent(component);
-						logger.info("Installed " + component);
-					}
-					for (ProfileSpecificationComponent component : deployableUnit
-							.getProfileSpecificationComponents().values()) {
-						componentRepositoryImpl.putComponent(component);
-						sleeContainer.getSleeProfileTableManager().installProfile(
-								component);
-						logger.info("Installed " + component);
-					}
 					for (LibraryComponent component : deployableUnit
 							.getLibraryComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
 						logger.info("Installed " + component);
 					}
-					for (ResourceAdaptorComponent component : deployableUnit
-							.getResourceAdaptorComponents().values()) {
+					for (EventTypeComponent component : deployableUnit
+							.getEventTypeComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						new ResourceAdaptorClassCodeGenerator()
-								.process(component);
 						logger.info("Installed " + component);
 					}
 					for (ResourceAdaptorTypeComponent component : deployableUnit
 							.getResourceAdaptorTypeComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
-						// generate code for aci factory
-						new ResourceAdaptorTypeClassCodeGenerator()
-								.process(component);
-						// create instance of aci factory and store it in the
-						// component
-						if (component
-								.getActivityContextInterfaceFactoryConcreteClass() != null) {
-							Constructor constructor = component
-									.getActivityContextInterfaceFactoryConcreteClass()
-									.getConstructor(
-											new Class[] { SleeContainer.class,
-													ResourceAdaptorTypeID.class });
-							Object aciFactory = constructor
-									.newInstance(new Object[] {
-											sleeContainer,
-											component
-													.getResourceAdaptorTypeID() });
-							component
-									.setActivityContextInterfaceFactory(aciFactory);
-						}
+						currentThread.setContextClassLoader(component
+								.getClassLoader());
 						sleeContainer.getResourceManagement()
-								.getResourceAdaptorEntitiesPerType().put(
-										component.getResourceAdaptorTypeID(),
-										new HashSet<ResourceAdaptorEntity>());
+								.installResourceAdaptorType(component);
 						logger.info("Installed " + component);
+					}
+					// before executing the logic to install an profile spec, ra
+					// or sbb insert the components in the repo, a component can
+					// require that another is already in repo
+					for (ProfileSpecificationComponent component : deployableUnit
+							.getProfileSpecificationComponents().values()) {
+						componentRepositoryImpl.putComponent(component);
+					}
+					for (ResourceAdaptorComponent component : deployableUnit
+							.getResourceAdaptorComponents().values()) {
+						componentRepositoryImpl.putComponent(component);
 					}
 					for (SbbComponent component : deployableUnit
 							.getSbbComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
+					}
+					// run the install logic to install an profile spec, ra or
+					// sbb
+					for (ProfileSpecificationComponent component : deployableUnit
+							.getProfileSpecificationComponents().values()) {
+						currentThread.setContextClassLoader(component
+								.getClassLoader());
+						sleeContainer.getSleeProfileTableManager()
+								.installProfile(component);
+						logger.info("Installed " + component);
+					}
+					for (ResourceAdaptorComponent component : deployableUnit
+							.getResourceAdaptorComponents().values()) {
+						currentThread.setContextClassLoader(component
+								.getClassLoader());
+						sleeContainer.getResourceManagement()
+								.installResourceAdaptor(component);
+						logger.info("Installed " + component);
+					}
+					for (SbbComponent component : deployableUnit
+							.getSbbComponents().values()) {
+						currentThread.setContextClassLoader(component
+								.getClassLoader());
 						sleeContainer.getSbbManagement().installSbb(component);
 						logger.info("Installed " + component);
 					}
+					// finally install the services
+					currentThread.setContextClassLoader(currentClassLoader);
 					for (ServiceComponent component : deployableUnit
 							.getServiceComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
@@ -220,6 +222,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					rollback = false;
 					return deployableUnitID;
 				} finally {
+					currentThread.setContextClassLoader(currentClassLoader);
 					try {
 						if (rollback) {
 							if (deployableUnit != null) {
@@ -267,20 +270,25 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 				.getResourceManagement();
 		final DeployableUnitManagement deployableUnitManagement = sleeContainer
 				.getDeployableUnitManagement();
-
-		Thread currentThread = Thread.currentThread();
-		ClassLoader currentClassLoader = null;
+		final ComponentRepositoryImpl componentRepositoryImpl = sleeContainer
+				.getComponentRepositoryImpl();
 
 		// we sync on the container's monitor object
 		synchronized (sleeContainer.getManagementMonitor()) {
 
 			if (this.isInstalled(deployableUnitID)) {
+
+				Thread currentThread = Thread.currentThread();
+				ClassLoader currentClassLoader = currentThread
+						.getContextClassLoader();
+
+				DeployableUnit deployableUnit = null;
 				boolean rollback = true;
 				try {
 					// start transaction
 					sleeTransactionManager.begin();
 					// get du
-					DeployableUnit deployableUnit = deployableUnitManagement
+					deployableUnit = deployableUnitManagement
 							.getDeployableUnit(deployableUnitID);
 
 					// Check if its safe to remove the deployable unit.
@@ -302,102 +310,135 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 					for (ServiceComponent component : deployableUnit
 							.getServiceComponents().values()) {
-						// TODO check service is inactive
-						/*
-						 * before it was
-						 * serviceManagement.checkAllDUServicesAreDeactivated(deployableUnitIDImpl);
-						 */
-					}
-
-					for (ResourceAdaptorComponent component : deployableUnit
-							.getResourceAdaptorComponents().values()) {
-						// TODO uninstall RA with its own class loader
-						/*
-						 * before it was
-						 * resourceManagement.uninstallRA(deployableUnitIDImpl);
-						 */
-					}
-
-					for (ResourceAdaptorTypeComponent component : deployableUnit
-							.getResourceAdaptorTypeComponents().values()) {
-						// TODO uninstall RA type with its own class loader
-						/*
-						 * before it was
-						 * resourceManagement.uninstallRAType(deployableUnitIDImpl);
-						 */
-					}
-
-					for (EventTypeComponent component : deployableUnit
-							.getEventTypeComponents().values()) {
-						// TODO uninstall events
-						/*
-						 * before it was
-						 * sleeContainer.getEventManagement().removeEventType(
-						 * deployableUnitIDImpl);
-						 */
-					}
-
-					for (ServiceComponent component : deployableUnit
-							.getServiceComponents().values()) {
-						// TODO uninstall services
-						/*
-						 * before it was
-						 * serviceManagement.uninstallServices(deployableUnitIDImpl);
-						 */
-					}
-
-					for (ProfileSpecificationComponent component : deployableUnit
-							.getProfileSpecificationComponents().values()) {
-						// TODO uninstall profile specs
-						/*
-						 * before it was
-						 * sleeContainer.getSleeProfileManager().uninstallProfile(component);
-						 */
+						serviceManagement.uninstallService(component);
+						componentRepositoryImpl.removeComponent(component
+								.getServiceID());
 					}
 
 					for (SbbComponent component : deployableUnit
 							.getSbbComponents().values()) {
-						// TODO uninstall sbbs
-						/*
-						 * before
-						 * sleeContainer.getSbbManagement().uninstallSbbs(
-						 * deployableUnitIDImpl);
-						 */
+						currentThread.setContextClassLoader(component
+								.getClassLoader());
+						sleeContainer.getSbbManagement()
+								.uninstallSbb(component);
+						componentRepositoryImpl.removeComponent(component
+								.getSbbID());
 					}
 
-					for (LibraryComponent component : deployableUnit
-							.getLibraryComponents().values()) {
-						// TODO uninstall libraries
+					for (ResourceAdaptorComponent component : deployableUnit
+							.getResourceAdaptorComponents().values()) {
+						resourceManagement.uninstallResourceAdaptor(component);
+						componentRepositoryImpl.removeComponent(component
+								.getResourceAdaptorID());
+					}
+
+					for (ProfileSpecificationComponent component : deployableUnit
+							.getProfileSpecificationComponents().values()) {
+						currentThread.setContextClassLoader(component
+								.getClassLoader());
+						sleeContainer.getSleeProfileTableManager()
+								.uninstallProfile(component);
+						componentRepositoryImpl.removeComponent(component
+								.getProfileSpecificationID());
+					}
+
+					for (ResourceAdaptorTypeComponent component : deployableUnit
+							.getResourceAdaptorTypeComponents().values()) {
+						resourceManagement
+								.uninstallResourceAdaptorType(component);
+						componentRepositoryImpl.removeComponent(component
+								.getResourceAdaptorTypeID());
+					}
+
+					for (EventTypeID componentID : deployableUnit
+							.getEventTypeComponents().keySet()) {
+						componentRepositoryImpl.removeComponent(componentID);
+					}
+
+					for (LibraryID componentID : deployableUnit
+							.getLibraryComponents().keySet()) {
+						componentRepositoryImpl.removeComponent(componentID);
 					}
 
 					// remove du
 					deployableUnitManagement
 							.removeDeployableUnit(deployableUnitID);
 
-					// Clean up all the class files.
-					deployableUnit.undeploy();
-
 					rollback = false;
 
 					logger.info("Uninstalled DU with id " + deployableUnitID);
 
 				} catch (InvalidStateException ex) {
-					logger.error(ex);
+					logger.error(ex.getMessage(), ex);
 					throw ex;
 				} catch (DependencyException ex) {
-					logger.error(ex);
+					logger.error(ex.getMessage(), ex);
 					throw ex;
 				} catch (Throwable ex) {
 					if (logger.isDebugEnabled())
-						logger.debug(ex);
+						logger.debug(ex.getMessage(),ex);
 					throw new ManagementException(
 							"Exception removing deployable Unit ", ex);
 				} finally {
+
+					currentThread.setContextClassLoader(currentClassLoader);
+
 					try {
 						if (rollback) {
+
+							// put all components in the repo again
+							for (LibraryComponent component : deployableUnit
+									.getLibraryComponents().values()) {
+								componentRepositoryImpl.putComponent(component);
+								logger.info("Reinstalled " + component
+										+ " due to tx rollback");
+							}
+							for (EventTypeComponent component : deployableUnit
+									.getEventTypeComponents().values()) {
+								componentRepositoryImpl.putComponent(component);
+								logger.info("Reinstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ResourceAdaptorTypeComponent component : deployableUnit
+									.getResourceAdaptorTypeComponents()
+									.values()) {
+								componentRepositoryImpl.putComponent(component);
+								logger.info("Reinstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ProfileSpecificationComponent component : deployableUnit
+									.getProfileSpecificationComponents()
+									.values()) {
+								componentRepositoryImpl.putComponent(component);
+								logger.info("Reinstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ResourceAdaptorComponent component : deployableUnit
+									.getResourceAdaptorComponents().values()) {
+								componentRepositoryImpl.putComponent(component);
+								logger.info("Reinstalled " + component
+										+ " due to tx rollback");
+							}
+							for (SbbComponent component : deployableUnit
+									.getSbbComponents().values()) {
+								componentRepositoryImpl.putComponent(component);
+								logger.info("Reinstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ServiceComponent component : deployableUnit
+									.getServiceComponents().values()) {
+								componentRepositoryImpl.putComponent(component);
+								logger.info("Reinstalled " + component
+										+ " due to tx rollback");
+							}
+							deployableUnitManagement
+									.addDeployableUnit(deployableUnit);
+
 							sleeTransactionManager.rollback();
 						} else {
 							sleeTransactionManager.commit();
+							// Clean up all the class files.
+							deployableUnit.undeploy();
 						}
 					} catch (Throwable ex) {
 						throw new ManagementException(

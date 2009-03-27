@@ -629,12 +629,13 @@ public class ServiceManagement {
 	 * @throws InstanceNotFoundException
 	 * @throws UnrecognizedResourceAdaptorEntityException
 	 * @throws NullPointerException
+	 * @throws InvalidStateException 
 	 * 
 	 */
 	public void uninstallService(final ServiceComponent serviceComponent)
 			throws SystemException, UnrecognizedServiceException,
 			InstanceNotFoundException, MBeanRegistrationException,
-			NullPointerException, UnrecognizedResourceAdaptorEntityException,ManagementException {
+			NullPointerException, UnrecognizedResourceAdaptorEntityException,ManagementException, InvalidStateException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Uninstalling service with id "
@@ -644,12 +645,10 @@ public class ServiceManagement {
 		// get service
 		final Service service = this
 				.getService(serviceComponent.getServiceID());
+		
 		if (!service.getState().isInactive()) {
-			throw new IllegalStateException("Service "
-					+ serviceComponent.getServiceID()
-					+ " state is not inactive");
+			throw new InvalidStateException(serviceComponent.toString()+" is not inactive");
 		}
-
 		// Remove and probably run task which will remove sbb entities
 		// if it hadnt done it already
 		RootSbbEntitiesRemovalTask task = RootSbbEntitiesRemovalTask
