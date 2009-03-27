@@ -189,7 +189,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 						currentThread.setContextClassLoader(component
 								.getClassLoader());
 						sleeContainer.getSleeProfileTableManager()
-								.installProfile(component);
+								.installProfileSpecification(component);
 						logger.info("Installed " + component);
 					}
 					for (ResourceAdaptorComponent component : deployableUnit
@@ -337,7 +337,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 						currentThread.setContextClassLoader(component
 								.getClassLoader());
 						sleeContainer.getSleeProfileTableManager()
-								.uninstallProfile(component);
+								.uninstallProfileSpecification(component);
 						componentRepositoryImpl.removeComponent(component
 								.getProfileSpecificationID());
 					}

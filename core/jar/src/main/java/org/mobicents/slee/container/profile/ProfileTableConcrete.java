@@ -3,35 +3,24 @@ package org.mobicents.slee.container.profile;
 import java.util.Collection;
 
 import javax.management.ObjectName;
-import javax.slee.Address;
 import javax.slee.CreateException;
 import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
-import javax.slee.management.ProfileTableNotification;
 import javax.slee.profile.AttributeNotIndexedException;
 import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileID;
-import javax.slee.profile.ProfileLocalObject;
-import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTable;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileNameException;
-import javax.slee.profile.UnrecognizedProfileTableNameException;
-import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
-import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
-import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
-import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
-import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 
 /**
  * 

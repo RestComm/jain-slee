@@ -68,26 +68,11 @@ public class MobicentsCache {
 		return new NullActivityFactoryCacheData(jBossCache);
 	}
 
-	/**
-	 * Retrieves an instance of an {@link ProfileManagerCacheData}, the cache
-	 * proxy for the SLEE Profile Manager
-	 * 
-	 * @return
-	 */
-	public ProfileManagerCacheData getProfileManagerCacheData() {
-		return new ProfileManagerCacheData(jBossCache);
-	}
-
-	/**
-	 * Retrieves an instance of an {@link ProfileTableCacheData}, the cache
-	 * proxy for the profile table with the specified name.
-	 * 
-	 * @param profileTableName
-	 * @return
-	 */
-	public ProfileTableCacheData getProfileTableCacheData(
-			String profileTableName) {
-		return new ProfileTableCacheData(profileTableName, jBossCache);
+	public ProfileManagementCacheData getProfileManagementCacheData()
+	{
+		ProfileManagementCacheData pmcd = new ProfileManagementCacheData(jBossCache);
+		pmcd.create();
+		return pmcd;
 	}
 
 	/**

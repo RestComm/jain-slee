@@ -28,8 +28,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
-import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
-import org.mobicents.slee.runtime.facilities.DefaultAlarmFacilityImpl;
+import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -60,7 +59,8 @@ public class SleeProfileTableManager {
 	 * profile profile table in SLEE container
 	 * 
 	 */
-	private ConcurrentHashMap nameToProfileTableMap = new ConcurrentHashMap();
+	//private ConcurrentHashMap nameToProfileTableMap = new ConcurrentHashMap();
+	private ProfileManagementCacheData nameToProfileTableMap;
 
 	public SleeProfileTableManager(SleeContainer sleeContainer) {
 		super();
@@ -68,6 +68,7 @@ public class SleeProfileTableManager {
 			throw new NullPointerException("Parameter must not be null");
 		this.sleeContainer = sleeContainer;
 		this.sleeTransactionManager = this.sleeContainer.getTransactionManager();
+		this.nameToProfileTableMap=this.sleeContainer.getCache().getProfileManagementCacheData();
 
 	}
 
@@ -82,7 +83,7 @@ public class SleeProfileTableManager {
 	 *             encounter another, what shoudl happen? is there auto init for
 	 *             all in back end memory?
 	 */
-	public void installProfile(ProfileSpecificationComponent component) throws DeploymentException {
+	public void installProfileSpecification(ProfileSpecificationComponent component) throws DeploymentException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Installing " + component);
@@ -111,8 +112,8 @@ public class SleeProfileTableManager {
 
 	}
 
-	public void uninstallProfile(ProfileSpecificationComponent component) {
-		// hmm, nothing to do yet ?
+	public void uninstallProfileSpecification(ProfileSpecificationComponent component) {
+		//FIXME: Alex ?
 		
 	}
 
@@ -238,10 +239,10 @@ public class SleeProfileTableManager {
 			NullPointerException, InvalidArgumentException {
 
 		this.sleeTransactionManager.mandateTransaction();
-		this.nameToProfileTableMap.put(profileTableName, null);
+		this.nameToProfileTableMap.add(profileTableName, null);
 
 		ProfileTableConcreteImpl profileTable = new ProfileTableConcreteImpl(this, profileTableName, component.getProfileSpecificationID());
-		this.nameToProfileTableMap.put(profileTableName, profileTable);
+		this.nameToProfileTableMap.add(profileTableName, profileTable);
 		profileTable.register();
 		// FIXME: mayeb here we shoudl add default profile?
 		return profileTable;
@@ -249,7 +250,7 @@ public class SleeProfileTableManager {
 	}
 
 	public Collection<String> getDeclaredProfileTableNames() {
-		return Collections.unmodifiableCollection(this.nameToProfileTableMap.keySet());
+		return Collections.unmodifiableCollection(this.nameToProfileTableMap.getProfileTables());
 	}
 
 	public Collection<String> getDeclaredProfileTableNames(ProfileSpecificationID id) throws UnrecognizedProfileSpecificationException {
@@ -260,7 +261,7 @@ public class SleeProfileTableManager {
 		ArrayList<String> names = new ArrayList<String>();
 
 		// FIXME: this will fail if done async to change, is this ok ?
-		Iterator<String> it = this.nameToProfileTableMap.keySet().iterator();
+		Iterator<String> it = this.getDeclaredProfileTableNames().iterator();
 		while (it.hasNext()) {
 			String name = it.next();
 			if (((ProfileTableConcrete) this.nameToProfileTableMap.get(name)).getProfileSpecificationComponent().getProfileSpecificationID().equals(id)) {
@@ -278,8 +279,8 @@ public class SleeProfileTableManager {
 	}
 
 	public void startAllProfileTableActivities() {
-		for (Object o : this.nameToProfileTableMap.values()) {
-			ProfileTableConcreteImpl pt = (ProfileTableConcreteImpl) o;
+		for (Object key : this.getDeclaredProfileTableNames()) {
+			ProfileTableConcreteImpl pt = (ProfileTableConcreteImpl) this.nameToProfileTableMap.get((String)key);
 			pt.register();
 		}
 

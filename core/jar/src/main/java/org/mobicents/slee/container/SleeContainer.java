@@ -161,7 +161,7 @@ public class SleeContainer {
 	private ServiceManagement serviceManagement;
 	
 	//private SleeProfileManager sleeProfileManager;
-	private SleeProfileTableManager sleeProfileManagement;
+	private SleeProfileTableManager sleeProfileTableManager;
 	private ResourceManagement resourceManagement;
 	private SbbManagement sbbManagement;
 	// object pool management
@@ -234,7 +234,7 @@ public class SleeContainer {
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
 		//this.sleeProfileManager = new SleeProfileManager(this);
-		this.sleeProfileManagement = new SleeProfileTableManager(this);
+		this.sleeProfileTableManager = new SleeProfileTableManager(this);
 		this.sbbManagement = new SbbManagement(this);
 		this.resourceManagement = new ResourceManagement(this);
 		this.activityContextFactory = new ActivityContextFactoryImpl(this);
@@ -258,7 +258,7 @@ public class SleeContainer {
 		this.timerFacility = new TimerFacilityImpl(this);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,
 				timerFacility);
-		this.profileFacility = new ProfileFacilityImpl(sleeProfileManagement);
+		this.profileFacility = new ProfileFacilityImpl(sleeProfileTableManager);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
 				profileFacility);
 		this.serviceActivityFactory = new ServiceActivityFactoryImpl();
@@ -322,7 +322,7 @@ public class SleeContainer {
 	public String dumpState() {
 		return resourceManagement + "\n"
 				+ sbbManagement + "\n" + timerFacility + "\n"
-				+ sleeProfileManagement + "\n"
+				+ sleeProfileTableManager + "\n"
 				+ activityContextFactory + "\n" + activityContextNamingFacility
 				+ "\n" + nullActivityFactory + "\n" + serviceManagement + "\n"
 				+ profileFacility + "\n" + getEventRouter() + "\n" + getTransactionManager();
@@ -382,7 +382,7 @@ public class SleeContainer {
 	}
 
 	public SleeProfileTableManager getSleeProfileTableManager() {
-		return this.sleeProfileManagement;
+		return this.sleeProfileTableManager;
 	}
 	
 	/**
