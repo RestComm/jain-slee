@@ -25,35 +25,35 @@
 	
 	<bean name="Mobicents.JAINSLEE.AlarmMBean"
 		class="org.mobicents.slee.container.management.jmx.AlarmMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=AlarmMBean",exposedInterface=javax.slee.management.AlarmMBean.class, registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=Alarm",exposedInterface=javax.slee.management.AlarmMBean.class, registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
 	</bean>
     
     <bean name="Mobicents.JAINSLEE.DeploymentMBean"
 		class="org.mobicents.slee.container.management.jmx.DeploymentMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=DeploymentMBean",exposedInterface=javax.slee.management.DeploymentMBean.class, registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=Deployment",exposedInterface=javax.slee.management.DeploymentMBean.class, registerDirectly=true)</annotation>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.ServiceManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.ServiceManagementMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=ServiceManagementMBean",exposedInterface=javax.slee.management.ServiceManagementMBean.class, registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=ServiceManagement",exposedInterface=javax.slee.management.ServiceManagementMBean.class, registerDirectly=true)</annotation>
 	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.TraceMBean"
 		class="org.mobicents.slee.container.management.jmx.TraceMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=TraceMBean",exposedInterface=javax.slee.management.TraceMBean.class, registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=Trace",exposedInterface=javax.slee.management.TraceMBean.class, registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
 	</bean>
-	
+	<!-- 
 	<bean name="Mobicents.JAINSLEE.ProfileProvisoningMBean"
 		class="org.mobicents.slee.container.management.jmx.ProfileProvisioningMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=ProfileProvisoningMBean",exposedInterface=javax.slee.management.ProfileProvisioningMBean.class, registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=ProfileProvisioning",exposedInterface=javax.slee.management.ProfileProvisioningMBean.class, registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
 	</bean>
-	
+	-->
 	<bean name="Mobicents.JAINSLEE.ResourceManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=ResourceManagementMBean",exposedInterface=javax.slee.management.ResourceManagementMBean.class, registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=ResourceManagement",exposedInterface=javax.slee.management.ResourceManagementMBean.class, registerDirectly=true)</annotation>
 	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.SbbEntitiesMBean"
@@ -64,15 +64,15 @@
 	
 	<bean name="Mobicents.JAINSLEE.SleeManagement"
 		class="org.mobicents.slee.container.management.jmx.SleeManagementMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:service=SleeManagement",exposedInterface=org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean.class, registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=SleeManagement",exposedInterface=org.mobicents.slee.container.management.jmx.SleeManagementMBeanImplMBean.class, registerDirectly=true)</annotation>
 		<property name="sleeTransactionManager"><inject bean="Mobicents.JAINSLEE.TransactionManagerMBean"/></property>
 		<property name="mobicentsCache"><inject bean="Mobicents.JAINSLEE.Cache"/></property>
-		<property name="alarmMBean">slee:name=AlarmMBean</property>
-		<property name="deploymentMBean">slee:name=DeploymentMBean</property>
-		<property name="serviceManagementMBean">slee:name=ServiceManagementMBean</property>
-		<property name="traceMBean">slee:name=TraceMBean</property>
-		<property name="profileProvisioningMBean">slee:name=ProfileProvisoningMBean</property>
-		<property name="resourceManagementMBean">slee:name=ResourceManagementMBean</property>
+		<property name="alarmMBean">javax.slee.management:name=Alarm</property>
+		<property name="deploymentMBean">javax.slee.management:name=Deployment</property>
+		<property name="serviceManagementMBean">javax.slee.management:name=ServiceManagement</property>
+		<property name="traceMBean">javax.slee.management:name=Trace</property>
+		<property name="profileProvisioningMBean">javax.slee.management:name=ProfileProvisioning</property>
+		<property name="resourceManagementMBean">javax.slee.management:name=ResourceManagement</property>
 		<property name="sbbEntitiesMBean">slee:name=SbbEntitiesMBean</property>
 		<property name="rmiServerInterfaceMBean">slee:service=RmiServerInterfaceMBean</property>
 		<property name="activityManagementMBean">slee:name=ActivityManagementMBean</property>
