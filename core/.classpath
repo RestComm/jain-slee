@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="ant-tasks/src/main/java"/>
 	<classpathentry kind="src" path="cache/src/test/java"/>
 	<classpathentry kind="src" path="cache/src/main/java"/>
-	<classpathentry kind="src" path="components/descriptors/src/test/resources"/>
 	<classpathentry kind="src" path="components/descriptors/src/test/java"/>
+	<classpathentry kind="src" path="components/descriptors/src/test/resources"/>
 	<classpathentry kind="src" path="components/descriptors/src/main/java"/>
 	<classpathentry kind="src" path="components/du/src/main/resources"/>
 	<classpathentry kind="src" path="components/du11/src/main/resources"/>
@@ -36,8 +36,8 @@
 	<classpathentry kind="src" path="components/test-du/du3/du/src/main/resources"/>
 	<classpathentry kind="src" path="components/test-du/du3/sbb/src/main/resources"/>
 	<classpathentry kind="src" path="components/test-du/du3/sbb/src/main/java"/>
-	<classpathentry kind="src" path="components/test-du/test/src/test/resources"/>
 	<classpathentry kind="src" path="components/test-du/test/src/test/java"/>
+	<classpathentry kind="src" path="components/test-du/test/src/test/resources"/>	
 	<classpathentry kind="src" path="deployer/src/main/java"/>
 	<classpathentry kind="src" path="deployer/src/main/resources"/>
 	<classpathentry kind="src" path="jar/src/main/java"/>
@@ -48,10 +48,11 @@
 	<classpathentry kind="src" path="rar/src/main/java"/>
 	<classpathentry kind="src" path="sar/src/main/resources"/>
 	<classpathentry kind="src" path="standard-events/jar/src/main/resources"/>
+	<classpathentry kind="src" path="standard-events11/jar/src/main/resources"/>
 	<classpathentry kind="src" path="standard-profiles/jar/src/main/resources"/>
-	<classpathentry kind="src" path="transaction/src/test/resources"/>
 	<classpathentry kind="src" path="transaction/src/test/java"/>
 	<classpathentry kind="src" path="transaction/src/main/java"/>
+	<classpathentry kind="src" path="transaction/src/test/resources"/>	
 	<classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
 	<classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6/antlr-2.7.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/apache-xerces/xml-apis/2.9.1/xml-apis-2.9.1.jar"/>
@@ -91,7 +92,7 @@
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-core/3.3.0.SP1/hibernate-core-3.3.0.SP1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate-entitymanager/3.4.0.GA/hibernate-entitymanager-3.4.0.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/aop/jboss-aop/2.0.0.SP1/jboss-aop-2.0.0.SP1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/jboss/cache/jbosscache-core/3.1.0-SNAPSHOT/jbosscache-core-3.1.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/cache/jbosscache-core/3.1.0.BETA2/jbosscache-core-3.1.0.BETA2.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/cl/jboss-classloader/2.0.1.GA/jboss-classloader-2.0.1.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/cl/jboss-classloading-vfs/2.0.1.GA/jboss-classloading-vfs-2.0.1.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/cl/jboss-classloading/2.0.1.GA/jboss-classloading-2.0.1.GA.jar"/>
