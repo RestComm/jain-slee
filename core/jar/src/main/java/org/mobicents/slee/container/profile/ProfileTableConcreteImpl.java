@@ -787,7 +787,9 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 			// SBB entities attached to Profile Table Activities to clean up in
 			// the usual way.
 			deregister();
-			this.sleeProfileManagement.removeProfileTable(this);
+			//FIXME: moved to onActivityEndEvent delvered
+			//this.sleeProfileManagement.removeProfileTable(this);
+			
 		} catch (MalformedObjectNameException e) {
 			throw new SLEEException("Failed to remove profile table", e);
 
@@ -914,5 +916,10 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 
 	public String toString() {
 		return this.getClass().getSimpleName() + " Table[" + this.profileTableName + "] Specification[" + this.profileSpecificationId + "]";
+	}
+
+	public void activityEnded() {
+		this.sleeProfileManagement.removeProfileTable(this);
+		
 	}
 }

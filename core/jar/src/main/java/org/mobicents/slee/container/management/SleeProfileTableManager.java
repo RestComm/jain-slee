@@ -112,8 +112,25 @@ public class SleeProfileTableManager {
 
 	}
 
-	public void uninstallProfileSpecification(ProfileSpecificationComponent component) {
+	public void uninstallProfileSpecification(ProfileSpecificationComponent component) throws UnrecognizedProfileSpecificationException {
 		//FIXME: Alex ?
+		Collection<String> profileTableNames = getDeclaredProfileTableNames(component.getProfileSpecificationID());
+		
+		for(String profileTableName:profileTableNames)
+		{
+			try {
+				this.getProfileTable(profileTableName).removeProfileTable();
+			} catch (TransactionRequiredLocalException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SLEEException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnrecognizedProfileTableNameException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 	}
 

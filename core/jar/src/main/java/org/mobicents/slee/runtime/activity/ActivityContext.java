@@ -16,6 +16,7 @@ import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.facilities.TimerID;
 import javax.slee.management.ServiceState;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
 import javax.transaction.SystemException;
@@ -715,7 +716,16 @@ public class ActivityContext {
 			break;
 			
 		case profileTableActivity:
-			// do nothing
+			try {
+					this.sleeContainer.getSleeProfileTableManager().getProfileTable(activityContextHandle.getActivitySource()).activityEnded();
+					//FIXME: Eduardo is this ok? Exception?
+				} catch (SLEEException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (UnrecognizedProfileTableNameException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			break;
 			
 		case serviceActivity:

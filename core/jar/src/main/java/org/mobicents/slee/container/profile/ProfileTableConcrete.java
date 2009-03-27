@@ -153,4 +153,6 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 */
 	public void fireProfileUpdatedEvent(ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction) throws SLEEException;
 
+	public void activityEnded();
+
 }
