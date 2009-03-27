@@ -12,8 +12,11 @@ import javax.management.ObjectName;
 import javax.slee.ComponentID;
 import javax.slee.InvalidStateException;
 import javax.slee.management.DeployableUnitID;
+import javax.slee.management.DeploymentMBean;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityState;
+import javax.slee.management.ResourceManagementMBean;
+import javax.slee.management.ServiceManagementMBean;
 import javax.slee.management.UnrecognizedLinkNameException;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
@@ -372,7 +375,7 @@ public class DeploymentManager {
 			// Get the correct object name for the action
 			if (deploymentActions.contains(action)) {
 				// Set the corresponding ObjectName
-				objectName = new ObjectName("slee:name=DeploymentMBean");
+				objectName = new ObjectName(DeploymentMBean.OBJECT_NAME);
 
 				if (action.equals("uninstall")) {
 					// Need to convert from file to DeployableUnitID
@@ -387,14 +390,14 @@ public class DeploymentManager {
 				}
 			} else if (resourceAdaptorActions.contains(action)) {
 				// Set the corresponding ObjectName
-				objectName = new ObjectName("slee:name=ResourceManagementMBean");
+				objectName = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
 
 				// Special case as arg is ResourceAdaptorIDImpl..
 				if (action.equals("createResourceAdaptorEntity"))
 					signature[0] = "javax.slee.resource.ResourceAdaptorID";
 			} else if (serviceActions.contains(action)) {
 				// Set the corresponding ObjectName
-				objectName = new ObjectName("slee:name=ServiceManagementMBean");
+				objectName = new ObjectName(ServiceManagementMBean.OBJECT_NAME);
 
 				// Special case as arg is ServiceIDImpl..
 				signature[0] = "javax.slee.ServiceID";
