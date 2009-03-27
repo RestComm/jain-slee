@@ -61,23 +61,4 @@ public class ComponentIDPropertyEditor extends TextPropertyEditorSupport {
         }
     }
 
-    public String getAsText()
-    {
-      String sep = "#";
-      
-      Object o = getValue();
-      if(o instanceof ComponentID)
-      {
-        ComponentID componentId = (ComponentID)o;
-        
-        String className = o.getClass().getName();
-        String componentType = className.substring(className.lastIndexOf('.') + 1);
-
-        return componentType + "[" + componentId.getName() + sep + componentId.getVendor() + sep + componentId.getVersion() + "]";
-      }
-      else
-      {
-        return ("" + getValue());        
-      }
-    }
 }
