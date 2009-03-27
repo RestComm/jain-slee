@@ -28,39 +28,40 @@ import org.mobicents.slee.container.profile.ProfileTableConcrete;
  */
 public class ProfileManagementCacheData extends CacheData {
 
-	
 	// FIXME: Alex do we need more ?
-	
-	/**
-	 * root fqn
-	 */
-	private final static Fqn parentNodeFqn = Fqn.fromElements("profile-management-root");
 	/**
 	 * the name of the cache node that holds all profile manager data
 	 */
 	public static final String CACHE_NODE_NAME = "profile-management";
+	/**
+	 * root fqn
+	 */
+	public final static Fqn parentNodeFqn = Fqn.fromElements("CACHE_NODE_NAME");
 
-	protected ProfileManagementCacheData( Cache bossCache) {
+	protected ProfileManagementCacheData(Cache bossCache) {
 		super(parentNodeFqn, bossCache);
 
 	}
 
 	public void add(String profileTableName, ProfileTableConcrete table) {
-		getNode().put(profileTableName, table);
+		getNode().addChild(Fqn.fromRelativeElements(parentNodeFqn, profileTableName)).put(profileTableName, table);
 	}
 
 	public void remove(String profileTableName) {
-		getNode().remove(profileTableName);
+		getNode().removeChild(profileTableName);
 	}
 
 	public ProfileTableConcrete get(String profileTableName) {
-
-		return (ProfileTableConcrete) getNode().get(profileTableName);
+		if (exists(profileTableName)) {
+			return (ProfileTableConcrete) getNode().getChild(profileTableName).get(profileTableName);
+		} else {
+			return null;
+		}
 
 	}
 
 	public boolean exists(String profileTableName) {
-		return getNode().getData().containsKey(profileTableName);
+		return getNode().getChild(profileTableName) != null;
 	}
 
 	/**
