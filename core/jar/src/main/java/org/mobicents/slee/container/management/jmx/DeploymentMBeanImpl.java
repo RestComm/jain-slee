@@ -111,9 +111,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	 */
 	public DeployableUnitID install(String url) throws NullPointerException,
 			MalformedURLException, AlreadyDeployedException,
-			DeploymentException, ManagementException {
-
-		logger.info("Installing DU with URL " + url);
+			DeploymentException, ManagementException {		
 
 		try {
 			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
@@ -128,6 +126,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 				DeployableUnitID deployableUnitID = new DeployableUnitID(url);
 
+				logger.info("Installing " +deployableUnitID);
+				
 				if (deployableUnitManagement
 						.getDeployableUnit(deployableUnitID) != null) {
 					throw new AlreadyDeployedException(
@@ -216,9 +216,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								component);
 						logger.info("Installed " + component+". Root sbb is "+component.getRootSbbComponent());
 					}
+					
 					deployableUnitManagement.addDeployableUnit(deployableUnit);
-					logger.info("Deployable unit with URL " + url
-							+ " installed ");
+					logger.info("Installed " +deployableUnitID);
+
 					rollback = false;
 					return deployableUnitID;
 				} finally {
@@ -259,7 +260,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			throws NullPointerException, UnrecognizedDeployableUnitException,
 			DependencyException, InvalidStateException, ManagementException {
 
-		logger.info("Uninstalling DU with id " + deployableUnitID);
+		logger.info("Uninstalling " +deployableUnitID);
 
 		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final SleeTransactionManager sleeTransactionManager = sleeContainer
@@ -373,7 +374,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 					rollback = false;
 
-					logger.info("Uninstalled DU with id " + deployableUnitID);
+					logger.info("Uninstalled " +deployableUnitID);
 
 				} catch (InvalidStateException ex) {
 					logger.error(ex.getMessage(), ex);
