@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-<!DOCTYPE event-jar SYSTEM "http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
--->
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN" "http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
 <event-jar>
 <event-definition>
 	<event-type-name> javax.slee.ActivityEndEvent </event-type-name>
