@@ -91,7 +91,6 @@ public class SbbManagement {
 		sleeContainer.getAlarmFacility().registerComponent(
 				sbbComponent.getSbbID());
 		
-		logger.info("Installed SBB " + sbbComponent);
 	}
 
 	private void setupSbbEnvironment(SbbComponent sbbComponent) throws Exception {
@@ -510,8 +509,6 @@ public class SbbManagement {
 			logger.debug("Removed SBB " + sbbComponent.getSbbID()
 					+ " from trace and alarm facilities");
 		}
-
-		logger.info("Uninstalled " + sbbComponent);
 
 	}
 	

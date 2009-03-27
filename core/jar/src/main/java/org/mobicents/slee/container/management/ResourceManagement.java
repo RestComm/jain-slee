@@ -814,7 +814,10 @@ public class ResourceManagement {
 	 */
 	public void installResourceAdaptorType(
 			ResourceAdaptorTypeComponent component) throws DeploymentException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Installing " + component);
 
+		}
 		// generate code for aci factory
 		new ResourceAdaptorTypeClassCodeGenerator().process(component);
 		// create instance of aci factory and store it in the
@@ -858,6 +861,10 @@ public class ResourceManagement {
 	 * @throws DeploymentException 
 	 */
 	public void installResourceAdaptor(ResourceAdaptorComponent component) throws DeploymentException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Installing " + component);
+
+		}
 		new ResourceAdaptorClassCodeGenerator().process(component);
 	}
 
@@ -867,7 +874,10 @@ public class ResourceManagement {
 	 */
 	public void uninstallResourceAdaptorType(
 			ResourceAdaptorTypeComponent component) {
-		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Uninstalling " + component);
+
+		}
 		final ResourceAdaptorTypeID resourceAdaptorTypeID = component.getResourceAdaptorTypeID();
 		final Set<ResourceAdaptorEntity> raEntities = getResourceAdaptorEntitiesPerType().remove(resourceAdaptorTypeID);
 		TransactionalAction action = new TransactionalAction() {
@@ -891,6 +901,10 @@ public class ResourceManagement {
 	 * @throws DependencyException 
 	 */
 	public void uninstallResourceAdaptor(ResourceAdaptorComponent component) throws DependencyException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Uninstalling " + component);
+
+		}
 		for (ResourceAdaptorEntity raEntity : resourceAdaptorEntities.values()) {
 			if (raEntity.getResourceAdaptorID().equals(component.getResourceAdaptorID())) {
 				throw new DependencyException("can't uninstall "+component.getResourceAdaptorID()+" since ra entity "+raEntity.getName()+" refers it");

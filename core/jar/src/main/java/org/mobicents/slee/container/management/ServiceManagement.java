@@ -615,9 +615,6 @@ public class ServiceManagement {
 					sleeContainer.getTransactionManager());
 		}
 		
-		logger.info("Installed Service " + serviceComponent.getServiceID()
-				+ ". Root SBB is "
-				+ serviceComponent.getRootSbbComponent());
 	}
 
 	/**
@@ -720,8 +717,6 @@ public class ServiceManagement {
 		}
 		
 		service.removeFromCache();
-
-		logger.info("Uninstalled service " + serviceComponent.getServiceID());
 	}
 
 	public void endActiveServicesActivities() throws NullPointerException, ManagementException, UnrecognizedServiceException {

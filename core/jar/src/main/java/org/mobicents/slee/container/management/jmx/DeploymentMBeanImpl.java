@@ -214,7 +214,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 						componentRepositoryImpl.putComponent(component);
 						sleeContainer.getServiceManagement().installService(
 								component);
-						logger.info("Installed " + component);
+						logger.info("Installed " + component+". Root sbb is "+component.getRootSbbComponent());
 					}
 					deployableUnitManagement.addDeployableUnit(deployableUnit);
 					logger.info("Deployable unit with URL " + url
@@ -313,6 +313,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 						serviceManagement.uninstallService(component);
 						componentRepositoryImpl.removeComponent(component
 								.getServiceID());
+						logger.info("Uninstalled " + component);
 					}
 
 					for (SbbComponent component : deployableUnit
@@ -323,6 +324,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								.uninstallSbb(component);
 						componentRepositoryImpl.removeComponent(component
 								.getSbbID());
+						logger.info("Uninstalled " + component);
 					}
 
 					for (ResourceAdaptorComponent component : deployableUnit
@@ -330,6 +332,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 						resourceManagement.uninstallResourceAdaptor(component);
 						componentRepositoryImpl.removeComponent(component
 								.getResourceAdaptorID());
+						logger.info("Uninstalled " + component);
 					}
 
 					for (ProfileSpecificationComponent component : deployableUnit
@@ -340,6 +343,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								.uninstallProfileSpecification(component);
 						componentRepositoryImpl.removeComponent(component
 								.getProfileSpecificationID());
+						logger.info("Uninstalled " + component);
 					}
 
 					for (ResourceAdaptorTypeComponent component : deployableUnit
@@ -348,16 +352,19 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								.uninstallResourceAdaptorType(component);
 						componentRepositoryImpl.removeComponent(component
 								.getResourceAdaptorTypeID());
+						logger.info("Uninstalled " + component);
 					}
 
 					for (EventTypeID componentID : deployableUnit
 							.getEventTypeComponents().keySet()) {
 						componentRepositoryImpl.removeComponent(componentID);
+						logger.info("Uninstalled " + componentID);
 					}
 
 					for (LibraryID componentID : deployableUnit
 							.getLibraryComponents().keySet()) {
 						componentRepositoryImpl.removeComponent(componentID);
+						logger.info("Uninstalled " + componentID);
 					}
 
 					// remove du
