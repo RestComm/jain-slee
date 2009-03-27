@@ -115,7 +115,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	public SleeManagementMBeanImpl() throws Exception {
 		super(SleeManagementMBeanImplMBean.class);
 		startupTime = System.currentTimeMillis();
-		logger.info(lLogo + Version.instance + " starting" + rLogo);
+		logger.info(generateMessageWithLogo("starting"));
 	}
 
 	/**
@@ -483,7 +483,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 		changeSleeState(SleeState.STOPPING);
 
-		logger.info(lLogo + Version.instance + " Stopping" + rLogo);
+		logger.info(generateMessageWithLogo("stopping"));
 
 		// (Ivelin)
 		// If the stop() is invoked externally, skip further effort to stop all
@@ -508,7 +508,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 			// Still, we want an indication that the container service concluded
 			// stopping cycle
-			logger.info(lLogo + Version.instance + " Stopped (HA)" + rLogo);
+			logger.info(generateMessageWithLogo("stopped (HA)"));
 		} else {
 			scheduleStopped();
 		}
@@ -675,11 +675,10 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 				timerSt = "in " + startupSec + "s:" + startupMillis + "ms ";
 			}
 			logger
-					.info(lLogo + Version.instance + " Started" + timerSt
-							+ rLogo);
+					.info(generateMessageWithLogo("started " + timerSt));
 
 		} else if (newState == SleeState.STOPPED) {
-			logger.info(lLogo + Version.instance + " Stopped" + rLogo);
+			logger.info(generateMessageWithLogo("stopped"));
 		}
 	}
 
@@ -743,6 +742,10 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	private static final String rLogo = " ><><><><><><><><>< ";
 	private static final String lLogo = rLogo;
 
+	private String generateMessageWithLogo(String message) {
+		return lLogo + getSleeName() + ' ' + getSleeVersion() + ' ' + message + rLogo;
+	}
+	
 	public String getSleeName() {
 		String name = Version.instance.getProperty("name");
 		if (name != null) {

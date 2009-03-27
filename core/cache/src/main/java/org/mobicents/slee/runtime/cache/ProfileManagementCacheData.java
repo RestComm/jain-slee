@@ -11,12 +11,9 @@ package org.mobicents.slee.runtime.cache;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.slee.profile.ProfileTable;
-
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
 
 /**
  * Start time:14:16:08 2009-03-23<br>
@@ -43,7 +40,7 @@ public class ProfileManagementCacheData extends CacheData {
 
 	}
 
-	public void add(String profileTableName, ProfileTableConcrete table) {
+	public void add(String profileTableName, Object table) {
 		getNode().addChild(Fqn.fromRelativeElements(parentNodeFqn, profileTableName)).put(profileTableName, table);
 	}
 
@@ -51,9 +48,9 @@ public class ProfileManagementCacheData extends CacheData {
 		getNode().removeChild(profileTableName);
 	}
 
-	public ProfileTableConcrete get(String profileTableName) {
+	public Object get(String profileTableName) {
 		if (exists(profileTableName)) {
-			return (ProfileTableConcrete) getNode().getChild(profileTableName).get(profileTableName);
+			return getNode().getChild(profileTableName).get(profileTableName);
 		} else {
 			return null;
 		}

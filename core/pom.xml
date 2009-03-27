@@ -32,7 +32,7 @@
 		<module>sar</module>
 		<module>deployer</module>
 		<module>standard-events</module>
-		<module>standard-profiles</module>
+		<!-- module>standard-profiles</module-->
 	</modules>
 
 	<properties>
