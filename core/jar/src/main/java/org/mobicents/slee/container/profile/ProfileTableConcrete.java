@@ -25,6 +25,7 @@ import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
+import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.cache.ProfileTableCacheData;
@@ -92,6 +93,15 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 *             tables specs does not define Usage parameters
 	 */
 	public ObjectName getUsageMBeanName() throws InvalidArgumentException;
+
+	/**
+	 * Return Usage MBean if profile specification declares UsageInterface.
+	 * 
+	 * @return
+	 */
+	public ProfileTableUsageMBeanImpl getProfileTableUsageMBean();
+
+	public void setProfileTableUsageMBean(ProfileTableUsageMBeanImpl profileTableUsageMBean);
 
 	/**
 	 * Return collection of Strings. Each string represent profile name in this

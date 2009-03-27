@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
 import javassist.CannotCompileException;
@@ -16,6 +17,7 @@ import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
+import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
@@ -33,6 +35,7 @@ import org.mobicents.slee.container.profile.ProfileConcrete;
 import org.mobicents.slee.container.profile.ProfileManagementHandler;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.runtime.sbb.SbbAbstractMethodHandler;
 
 public class ConcreteProfileManagementGenerator {
 
@@ -176,12 +179,6 @@ public class ConcreteProfileManagementGenerator {
 			logger.error(s, nfe);
 			throw new RuntimeException(s, nfe);
 		}
-		// now lets implement fields.
-		createField(ProfileObject.class, _PROFILE_OBJECT_FIELD, cmpProfileConcreteClass, this.pool);
-		createField(String.class, _PROFILE_NAME_FIELD, cmpProfileConcreteClass, this.pool);
-		createField(ProfileTableConcrete.class, _PROFILE_TABLE_FIELD, cmpProfileConcreteClass, this.pool);
-		createField(Boolean.class, _PROFILE_DIRTY_FIELD, cmpProfileConcreteClass, this.pool);
-		createField(Boolean.class, _PROFILE_INBACK_FIELD, cmpProfileConcreteClass, this.pool);
 
 		// Those methods come from
 		Map<String, CtMethod> cmpProfileInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(cmpProfileInterface);
@@ -196,9 +193,27 @@ public class ConcreteProfileManagementGenerator {
 			profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(profileManagementInterface));
 		}
 		if (profileManagementAbstractClass != null) {
+			// We do get concrete methods, so we can intercept calls before
+			// delegating them
 			profileManagementMethods.putAll(ClassUtils.getConcreteMethodsFromClass(profileManagementAbstractClass));
+			Map<String, CtMethod> abstractMethods = ClassUtils.getSuperClassesAbstractMethodsFromClass(profileManagementAbstractClass);
+			abstractMethods.putAll(ClassUtils.getAbstractMethodsFromClass(profileManagementAbstractClass));
+			// First we generate Usage methods and remove them from management
+			// methods map
+
+			createDefaultUsageParameterGetter(abstractMethods, cmpProfileConcreteClass);
+			createNamedUsageParameterGetter(abstractMethods, cmpProfileConcreteClass);
+
 		}
+
 		generateManagementMethods(profileManagementMethods, cmpProfileInterfaceMethods, cmpProfileConcreteClass, profileManagementAbstractClass);
+
+		// now lets implement fields.
+		createField(ProfileObject.class, _PROFILE_OBJECT_FIELD, cmpProfileConcreteClass, this.pool);
+		createField(String.class, _PROFILE_NAME_FIELD, cmpProfileConcreteClass, this.pool);
+		createField(ProfileTableConcrete.class, _PROFILE_TABLE_FIELD, cmpProfileConcreteClass, this.pool);
+		createField(Boolean.class, _PROFILE_DIRTY_FIELD, cmpProfileConcreteClass, this.pool);
+		createField(Boolean.class, _PROFILE_INBACK_FIELD, cmpProfileConcreteClass, this.pool);
 
 		try {
 			// @@2.4+ -> 3.4+
@@ -329,6 +344,8 @@ public class ConcreteProfileManagementGenerator {
 			logger.debug("About to instrument: " + method.getName() + ", into: " + classToBeInstrumented.getName());
 		}
 		// Set it not abstract
+		//method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
+		method = CtNewMethod.copy(method, classToBeInstrumented, null);
 		method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
 		String retStatement = "";
 		try {
@@ -341,10 +358,7 @@ public class ConcreteProfileManagementGenerator {
 			// this should nto happen
 			throw e;
 		}
-		String body = "{  " +
-				"try{" +
-				ProfileCallRecorderTransactionData.class.getName()+".addProfileCall(this);" +
-				"" + retStatement;
+		String body = "{  " + "try{" + ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" + "" + retStatement;
 
 		if (profileManagementAbstractClass != null) {
 			if (!mustInterceptMethods.contains(method.getName())) {
@@ -355,11 +369,8 @@ public class ConcreteProfileManagementGenerator {
 		} else {
 			body += "this." + fieldIntercepting + "." + method.getName() + "($$);        ";
 		}
-		
-		body+="}finally{" +
-			ProfileCallRecorderTransactionData.class.getName()+".removeProfileCall(this);" + 
-				"" +
-				"}";
+
+		body += "}finally{" + ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(this);" + "" + "}";
 		if (logger.isDebugEnabled()) {
 			logger.debug("About to instrumented: " + method.getName() + ", body: " + body);
 		}
@@ -451,6 +462,83 @@ public class ConcreteProfileManagementGenerator {
 
 	public CtClass getProfileManagementAbstractClass() {
 		return profileManagementAbstractClass;
+	}
+
+	/**
+	 * Create a default usage parameter getter and setter.
+	 * 
+	 * @param profileManagementMethods
+	 * 
+	 * @param profileManagementConcreteClass
+	 * @throws DeploymentException
+	 */
+	private void createDefaultUsageParameterGetter(Map<String, CtMethod> abstractMethods, CtClass profileManagementConcreteClass) throws DeploymentException {
+		// FIXME: shoudl we add in both checks for exceptions, return type and
+		// params?
+		String methodName = "getDefaultUsageParameterSet";
+		CtMethod method = null;
+		for (CtMethod m : abstractMethods.values()) {
+			if (m.getName().compareTo(methodName) == 0) {
+				method = m;
+				break;
+			}
+		}
+		
+		if (method != null) {
+			try {
+				method = CtNewMethod.copy(method, profileManagementConcreteClass, null);
+				method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
+				// copy method from abstract to concrete class
+				
+				// create the method body
+				String concreteMethodBody = "{ return ($r) " + ProfileManagementHandler.class.getName() + ".getProfileUsageParam(this); }";
+				if (logger.isDebugEnabled()) {
+					logger.debug("Generated method " + methodName + " , body = " + concreteMethodBody);
+				}
+				method.setBody(concreteMethodBody);
+				profileManagementConcreteClass.addMethod(method);
+			} catch (CannotCompileException cce) {
+				throw new SLEEException("Cannot compile method " + method.getName(), cce);
+			}
+		}
+	}
+
+	/**
+	 * Create a named usage parameter getter.
+	 * 
+	 * @param profileManagementMethods
+	 * 
+	 * @param profileManagementConcreteClass
+	 * @throws DeploymentException
+	 */
+
+	private void createNamedUsageParameterGetter(Map<String, CtMethod> abstractMethods, CtClass profileManagementConcreteClass) throws DeploymentException {
+		String methodName = "getUsageParameterSet";
+		CtMethod method = null;
+		for (CtMethod m : abstractMethods.values()) {
+			if (m.getName().compareTo(methodName) == 0) {
+				method = m;
+				break;
+			}
+		}
+		
+		if (method != null) {
+			try {
+				method = CtNewMethod.copy(method, profileManagementConcreteClass, null);
+				method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
+				// copy method from abstract to concrete class
+				
+				// create the method body
+				String concreteMethodBody = "{ return ($r) " + ProfileManagementHandler.class.getName() + ".getProfileUsageParam(this,$1); }";
+				if (logger.isDebugEnabled()) {
+					logger.debug("Generated method " + methodName + " , body = " + concreteMethodBody);
+				}
+				method.setBody(concreteMethodBody);
+				profileManagementConcreteClass.addMethod(method);
+			} catch (CannotCompileException cce) {
+				throw new SLEEException("Cannot compile method " + method.getName(), cce);
+			}
+		}
 	}
 
 }

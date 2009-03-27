@@ -3,6 +3,7 @@ package org.mobicents.slee.container.deployment.profile;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.SbbClassCodeGenerator;
+import org.mobicents.slee.container.deployment.SleeComponentWithUsageParametersClassCodeGenerator;
 
 /**
  * 
@@ -56,7 +57,16 @@ public class SleeProfileClassCodeGenerator {
 			logger.debug("Generated Profile Table Interface impl for " + component);
 			logger.debug("Generated Profile Table Interface concrete " + component.getProfileTableConcreteClass());
 		}
-
+		
+		new SleeComponentWithUsageParametersClassCodeGenerator().process(component);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Generated Profile Table Usage Interface impl for " + component);
+			logger.debug("Generated Profile Table Usage Interface concrete " + component.getUsageParametersConcreteClass());
+			logger.debug("Generated Profile Table Usage MBean impl for " + component);
+			logger.debug("Generated Profile Table Usage MBean concrete " + component.getUsageParametersMBeanImplConcreteClass());
+		}
+		
+		
 	}
 
 	/**
