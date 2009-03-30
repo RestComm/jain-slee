@@ -227,8 +227,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					try {
 						if (rollback) {
 							if (deployableUnit != null) {
-								// FIXME uncomment
-								//deployableUnit.undeploy();
+								deployableUnit.undeploy();
 							}
 							sleeTransactionManager.rollback();
 						} else {
