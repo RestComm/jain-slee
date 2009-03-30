@@ -94,7 +94,7 @@ public class EventRoutingTask implements Runnable {
 		
 		try {
 
-			if (eventContextImpl != null) {
+			if (eventContextImpl == null) {
 				
 				if (logger.isDebugEnabled())
 					logger.debug("\n\n\nDelivering event : [[[ eventId "

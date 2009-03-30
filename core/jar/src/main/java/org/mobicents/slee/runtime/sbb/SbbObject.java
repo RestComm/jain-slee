@@ -147,8 +147,6 @@ public class SbbObject implements Serializable {
 					+ " new state = " + state);
 
 		this.state = state;
-		if (this.sbbConcrete != null)
-			this.sbbConcrete.setState(state);
 	}
 
 	/**

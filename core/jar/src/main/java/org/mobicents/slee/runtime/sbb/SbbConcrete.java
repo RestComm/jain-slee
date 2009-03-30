@@ -31,10 +31,6 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntity;
  */
 public interface SbbConcrete extends Sbb {
     
-	public void setState( SbbObjectState sbbObjectState);
-    
-    public SbbObjectState getState();
-    
     public SbbEntity getSbbEntity();
     
     public void setSbbEntity(SbbEntity sbbEntity);

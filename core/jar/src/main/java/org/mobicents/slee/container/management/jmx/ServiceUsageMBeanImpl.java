@@ -75,11 +75,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	private ConcurrentHashMap<SbbUsageMBeanMapKey, UsageMBeanImpl> usageMBeans = new ConcurrentHashMap<SbbUsageMBeanMapKey, UsageMBeanImpl>();
 
 	/**
-	 * the object name used to register this mbean
-	 */
-	private ObjectName serviceUsageMBeanObjectName;
-
-	/**
 	 * the usage notification manager mbeans per sbb id
 	 */
 	private ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl> notificationManagers = new ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl>();
@@ -180,7 +175,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(getService());
-		if (serviceComponent.getSbbIDs(
+		if (!serviceComponent.getSbbIDs(
 				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
 			throw new UnrecognizedSbbException(sbbId.toString()
 					+ " is not part of " + getService());
@@ -361,7 +356,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(getService());
-		if (serviceComponent.getSbbIDs(
+		if (!serviceComponent.getSbbIDs(
 				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
 			throw new UnrecognizedSbbException(sbbId.toString()
 					+ " is not part of " + getService());
@@ -435,7 +430,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(getService());
-		if (serviceComponent.getSbbIDs(
+		if (!serviceComponent.getSbbIDs(
 				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
 			throw new UnrecognizedSbbException(sbbId.toString()
 					+ " is not part of " + getService());
@@ -513,7 +508,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(getService());
-		if (serviceComponent.getSbbIDs(
+		if (!serviceComponent.getSbbIDs(
 				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
 			throw new UnrecognizedSbbException(sbbId.toString()
 					+ " is not part of " + getService());
@@ -568,7 +563,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(getService());
-		if (serviceComponent.getSbbIDs(
+		if (!serviceComponent.getSbbIDs(
 				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
 			throw new UnrecognizedSbbException(sbbId.toString()
 					+ " is not part of " + getService());
@@ -653,7 +648,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(getService());
-		if (serviceComponent.getSbbIDs(
+		if (!serviceComponent.getSbbIDs(
 				sleeContainer.getComponentRepositoryImpl()).contains(sbbId)) {
 			throw new UnrecognizedSbbException(sbbId.toString()
 					+ " is not part of " + getService());
@@ -671,11 +666,11 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	}
 
 	public ObjectName getObjectName() {
-		return serviceUsageMBeanObjectName;
-	}
-
-	public void setObjectName(ObjectName objectName) {
-		this.serviceUsageMBeanObjectName = objectName;
+		try {
+			return getObjectName(serviceID);
+		} catch (Throwable e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 	}
 
 	private ObjectName generateUsageParametersMBeanObjectName(String name,
