@@ -1,20 +1,4 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source JSLEE Platform      *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************
- *
- * Created on Nov 18, 2004
- *
- * AlarmFacilityImpl.java
- * 
- */
 package org.mobicents.slee.runtime.facilities;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.slee.ComponentID;
 import javax.slee.UnrecognizedComponentException;
@@ -23,7 +7,6 @@ import javax.slee.facilities.AlarmLevel;
 import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.Level;
 
-import org.jboss.logging.Logger;
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
 
 /**
@@ -39,9 +22,6 @@ import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
 public abstract class AbstractAlarmFacilityImpl implements AlarmFacility {
 
 	private AlarmMBeanImpl mBean;
-
-	private AtomicInteger sequenceNumber = new AtomicInteger();
-	private Logger log = Logger.getLogger(AbstractAlarmFacilityImpl.class);
 
 	public AbstractAlarmFacilityImpl(AlarmMBeanImpl aMBean) {
 

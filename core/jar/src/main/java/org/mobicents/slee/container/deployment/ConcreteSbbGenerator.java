@@ -153,6 +153,11 @@ public class ConcreteSbbGenerator {
 			ConcreteClassGeneratorUtils.createInheritanceLink(sbbConcreteClass,
 					sbbAbstractClass);
 
+			abstractMethods = ClassUtils
+					.getAbstractMethodsFromClass(sbbAbstractClass);
+			superClassesAbstractMethods = ClassUtils
+					.getSuperClassesAbstractMethodsFromClass(sbbAbstractClass);
+	
 			try {
 				createFields(new CtClass[] {
 						pool.get(SbbEntity.class.getName()),
@@ -170,10 +175,7 @@ public class ConcreteSbbGenerator {
 				logger.error("Constructor With Parameter not created");
 				throw new DeploymentException("Constructor not created.", nfe);
 			}
-			abstractMethods = ClassUtils
-					.getAbstractMethodsFromClass(sbbAbstractClass);
-			superClassesAbstractMethods = ClassUtils
-					.getSuperClassesAbstractMethodsFromClass(sbbAbstractClass);
+			
 			MSbbAbstractClass mSbbAbstractClass = sbbComponent.getDescriptor()
 					.getSbbClasses().getSbbAbstractClass();
 			createCMPAccessors(mSbbAbstractClass.getCmpFields());
@@ -192,15 +194,15 @@ public class ConcreteSbbGenerator {
 			// then generates the concrete class of the activity context
 			// interface
 			// and implements the narrow method
-			String activityContextInterfaceName = sbbComponent.getDescriptor()
-					.getSbbActivityContextInterface().getInterfaceName();
-
-			if (activityContextInterfaceName != null) {
+			
+			if (sbbComponent.getDescriptor()
+					.getSbbActivityContextInterface() != null) {
 				Class activityContextInterfaceClass = null;
 				try {
 					activityContextInterfaceClass = Thread.currentThread()
 							.getContextClassLoader().loadClass(
-									activityContextInterfaceName);
+									sbbComponent.getDescriptor()
+									.getSbbActivityContextInterface().getInterfaceName());
 				} catch (ClassNotFoundException e2) {
 					String s = "Error creating constructor -  class not found";
 					logger.error(s, e2);
@@ -538,7 +540,7 @@ public class ConcreteSbbGenerator {
 		// create the object instance to run the method that
 		// creates the convergence name.
 
-		String constructorBody = "{ createInterceptors(); }";
+		String constructorBody = "{ }";
 
 		try {
 			defaultConstructor.setBody(constructorBody);
@@ -568,7 +570,7 @@ public class ConcreteSbbGenerator {
 				CtMethod concreteMethod = CtNewMethod.copy(method,
 						sbbConcreteClass, null);
 				// create the method body
-				String concreteMethodBody = "{ return ($r) "
+				String concreteMethodBody = "{ return ($r)"
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".getDefaultSbbUsageParameterSet(sbbEntity); }";
 				if (logger.isDebugEnabled()) {
@@ -604,7 +606,7 @@ public class ConcreteSbbGenerator {
 				CtMethod concreteMethod = CtNewMethod.copy(method,
 						sbbConcreteClass, null);
 				// create the method body
-				String concreteMethodBody = "{ return ($r) "
+				String concreteMethodBody = "{ return ($r)"
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".getSbbUsageParameterSet(sbbEntity,$1); }";
 				if (logger.isDebugEnabled()) {
@@ -683,17 +685,17 @@ public class ConcreteSbbGenerator {
 				CtMethod concreteGetterMethod = CtNewMethod.copy(getterMethod,
 						sbbConcreteClass, null);
 				// create the method body
-				String concreteGetterMethodBody = "{ return ($r) "
+				String concreteGetterMethodBody = "{ return ($r)"
 						+ SbbAbstractMethodHandler.class.getName()
 						+ ".getCMPField(sbbEntity,\"" + cmp.getCmpFieldName()
-						+ "\",$r.class); }";
+						+ "\","+concreteGetterMethod.getReturnType().getName()+".class); }";
 				if (logger.isDebugEnabled()) {
 					logger.debug("Generated method " + getterMethodName
 							+ " , body = " + concreteGetterMethodBody);
 				}
 				concreteGetterMethod.setBody(concreteGetterMethodBody);
 				sbbConcreteClass.addMethod(concreteGetterMethod);
-			} catch (CannotCompileException cce) {
+			} catch (Exception cce) {
 				throw new SLEEException("Cannot compile method "
 						+ getterMethod.getName(), cce);
 			}

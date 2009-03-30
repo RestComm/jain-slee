@@ -382,8 +382,8 @@ public class SbbComponentValidator implements Validator {
 		if (this.component.getDescriptor().getSbbClasses().getSbbActivityContextInterface() == null) {
 			// FIXME: add check for asSbbActivityContextInteface method ? This
 			// will be catched at the end of check anyway
-			if (logger.isInfoEnabled()) {
-				logger.info(this.component.getDescriptor().getSbbID() + " : No Sbb activity context interface defined");
+			if (logger.isDebugEnabled()) {
+				logger.debug(this.component.getDescriptor().getSbbID() + " : No Sbb activity context interface defined");
 			}
 			return true;
 		}

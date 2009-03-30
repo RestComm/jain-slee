@@ -107,9 +107,7 @@ public class ConcreteSbbLocalObjectGenerator {
 
         try {
         	
-        	String tmpClassName=ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_PREFIX + sbbLocalObjectName + ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_SUFFIX;
-        	
-        	concreteSbbLocalObject = pool.makeClass(tmpClassName);
+        	concreteSbbLocalObject = pool.makeClass(ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_PREFIX + sbbLocalObjectName + ConcreteClassGeneratorUtils.SBB_LOCAL_OBJECT_CLASS_NAME_SUFFIX);
     		
             try {
                 sleeSbbLocalObject = pool.get(SbbLocalObjectImpl.class
@@ -166,7 +164,7 @@ public class ConcreteSbbLocalObjectGenerator {
             	if (logger.isDebugEnabled()) {
                     logger
                         .debug("Concrete Class "
-                                + tmpClassName
+                                + concreteSbbLocalObject.getName()
                                 + " generated in the following path "
                                 + deployPath);
                 }            
@@ -184,7 +182,7 @@ public class ConcreteSbbLocalObjectGenerator {
             }
             //load the class
             try {
-				return Thread.currentThread().getContextClassLoader().loadClass(tmpClassName);
+				return Thread.currentThread().getContextClassLoader().loadClass(concreteSbbLocalObject.getName());
 			} catch (ClassNotFoundException e) {
 				logger.error("unable to load sbb local object impl class", e);
 				return null;
@@ -260,11 +258,6 @@ public class ConcreteSbbLocalObjectGenerator {
         try {
             concreteSbbLocalObject.addConstructor(constructorWithParameter);
             constructorWithParameter.setBody(constructorBody);
-            if (logger.isDebugEnabled()) {
-                logger
-                    .debug("ConstructorWithParameter created: "
-                            + constructorBody);
-            }
         } catch (CannotCompileException e) {
             //Auto-generated catch block
             e.printStackTrace();

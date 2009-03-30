@@ -217,8 +217,8 @@ public class ConcreteActivityContextInterfaceGenerator {
 						+ fieldName.substring(1);
 				String concreteMethodBody = null;
 				if (interfaceMethod.getName().startsWith("get")) {
-					concreteMethodBody = "{ return ($r) getFieldValue(\""
-							+ fieldName + "\",$r.class); }";
+					concreteMethodBody = "{ return ($r)getFieldValue(\""
+							+ fieldName + "\","+concreteMethod.getReturnType().getName()+".class); }";
 				} else if (interfaceMethod.getName().startsWith("set")) {
 					concreteMethodBody = "{ setFieldValue(\"" + fieldName
 							+ "\",$1); }";
@@ -235,7 +235,7 @@ public class ConcreteActivityContextInterfaceGenerator {
 				}
 				concreteMethod.setBody(concreteMethodBody);
 				concreteActivityContextInterface.addMethod(concreteMethod);
-			} catch (CannotCompileException cce) {
+			} catch (Exception cce) {
 				throw new SLEEException("Cannot compile method "
 						+ interfaceMethod.getName(), cce);
 			}

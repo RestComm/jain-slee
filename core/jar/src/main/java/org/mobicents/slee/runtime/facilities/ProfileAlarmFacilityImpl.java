@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.runtime.facilities;
 
+import java.io.Serializable;
+
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
 
@@ -22,8 +24,13 @@ import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
  */
-public class ProfileAlarmFacilityImpl extends AbstractAlarmFacilityImpl {
+public class ProfileAlarmFacilityImpl extends AbstractAlarmFacilityImpl implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	public ProfileAlarmFacilityImpl(AlarmMBeanImpl bean) {
 		super(bean);
 

@@ -1,5 +1,7 @@
 package org.mobicents.slee.runtime.facilities;
 
+import java.io.Serializable;
+
 import javax.slee.management.NotificationSource;
 
 import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
@@ -9,8 +11,13 @@ import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
  * @author martins
  *
  */
-public class DefaultAlarmFacilityImpl extends AbstractAlarmFacilityImpl {
+public class DefaultAlarmFacilityImpl extends AbstractAlarmFacilityImpl implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private final MNotificationSource mNotificationSource;
 	
 	public DefaultAlarmFacilityImpl(NotificationSource notificationSource, AlarmMBeanImpl alarmMBeanImpl) {

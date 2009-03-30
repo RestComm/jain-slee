@@ -60,11 +60,11 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 	private Map<String, AlarmPlaceHolder> alarmIdToAlarm = new HashMap<String, AlarmPlaceHolder>();
 
 	protected void startService() throws Exception {
-		// SleeContainer.registerFacilityWithJndi(JNDI_NAME,this.alarmFacility);
+		SleeContainer.registerFacilityWithJndi(JNDI_NAME,this);
 	}
 
 	protected void stopService() throws Exception {
-		// SleeContainer.unregisterFacilityWithJndi(JNDI_NAME);
+		SleeContainer.unregisterFacilityWithJndi(JNDI_NAME);
 	}
 
 	public boolean clearAlarm(String alarmID) throws NullPointerException, ManagementException {

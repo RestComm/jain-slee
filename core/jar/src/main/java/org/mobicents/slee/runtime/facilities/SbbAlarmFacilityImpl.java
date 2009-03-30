@@ -1,5 +1,7 @@
 package org.mobicents.slee.runtime.facilities;
 
+import java.io.Serializable;
+
 import javax.slee.SbbID;
 import javax.slee.management.SbbNotification;
 
@@ -13,8 +15,13 @@ import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
  * @author martins
  * 
  */
-public class SbbAlarmFacilityImpl extends AbstractAlarmFacilityImpl {
+public class SbbAlarmFacilityImpl extends AbstractAlarmFacilityImpl implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private final SbbID sbbID;
 
 	public SbbAlarmFacilityImpl(SbbID sbbID, AlarmMBeanImpl alarmMBeanImpl) {
