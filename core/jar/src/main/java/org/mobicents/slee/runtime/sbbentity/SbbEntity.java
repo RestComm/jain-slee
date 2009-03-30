@@ -876,7 +876,7 @@ public class SbbEntity {
 			Object[] objs = { this };
 			Class[] types = { SbbEntity.class };
 			try {
-				return (SbbLocalObjectImpl) sbbLocalClass.getConstructor(types)
+				return (SbbLocalObjectImpl) Thread.currentThread().getContextClassLoader().loadClass(sbbLocalClass.getName()).getConstructor(types)
 						.newInstance(objs);
 			} catch (Exception e) {
 				throw new RuntimeException(

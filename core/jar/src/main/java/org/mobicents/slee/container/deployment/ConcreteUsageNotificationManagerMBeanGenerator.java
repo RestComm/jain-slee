@@ -93,7 +93,7 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
         this.createConstructor(ctClass, classPool.get(Class.class.getName()),classPool.get(NotificationSource.class
                 .getName()));
                 
-        CtMethod[] methods = usageParamInterface.getMethods();
+        CtMethod[] methods = usageParamInterface.getDeclaredMethods();
 
         for (int i = 0; i < methods.length; i++) {
             // Generate the concrete method.
@@ -124,21 +124,21 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
         else if (methodName.startsWith("sample")) {
         	userParamName = methodName.substring("sample".length());
         }
-        String firstCharLowerCase = userParamName.substring(0, 1).toLowerCase();
-        userParamName = firstCharLowerCase.concat(userParamName.substring(1));
+        
+        String userParamNameLowerCase = userParamName.substring(0, 1).toLowerCase() + userParamName.substring(1);
         
         String getterBody = "public boolean get" + userParamName + "NotificationsEnabled"
                     + "() throws " + ManagementException.class.getName() + " {"
-                    + "return getNotificationsEnabled("+userParamName+");"
+                    + "return getNotificationsEnabled(\""+userParamNameLowerCase+"\");"
                     + "}";
         if ( logger.isDebugEnabled())
         	logger.debug("getNotificationsEnabled method for user param "+userParamName+" :\n" + getterBody);
         CtMethod getterMethod = CtNewMethod.make(getterBody, ctClass);
         ctClass.addMethod(getterMethod);
 
-        String setterBody = "public boolean set" + userParamName + "NotificationsEnabled"
+        String setterBody = "public void set" + userParamName + "NotificationsEnabled"
         + "(boolean enabled) throws " + ManagementException.class.getName() + " {"
-        + "return setNotificationsEnabled("+userParamName+",enabled);"
+        + " setNotificationsEnabled(\""+userParamNameLowerCase+"\",enabled);"
         + "}";
         if ( logger.isDebugEnabled())
         	logger.debug("setNotificationsEnabled method for user param "+userParamName+" :\n" + setterBody);

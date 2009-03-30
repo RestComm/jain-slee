@@ -150,7 +150,7 @@ public class ConcreteUsageParameterMBeanGenerator {
         if (methodName.startsWith("increment")) {
             body += "public long get" + methodName.substring("increment".length())
                     + "( boolean  reset ) throws " + ManagementException.class.getName() + " {"
-                    + "return getUsageParameter().get" + methodName.substring("increment".length()
+                    + "return (("+component.getUsageParametersConcreteClass().getName()+")getUsageParameter()).get" + methodName.substring("increment".length()
                             ) + "(reset);"
                     + "}";
             if ( logger.isDebugEnabled())
@@ -160,7 +160,7 @@ public class ConcreteUsageParameterMBeanGenerator {
         } else if (methodName.startsWith("sample")) {
             body += "public " + SampleStatistics.class.getName() + " get" + methodName.substring("sample".length())
             + "( boolean  reset ) throws " + ManagementException.class.getName()+ " {"
-            + "return getUsageParameter().get" + methodName.substring("sample".length()) + "(reset);"
+            + "return (("+component.getUsageParametersConcreteClass().getName()+")getUsageParameter()).get" + methodName.substring("sample".length()) + "(reset);"
             + "}";
             logger.debug("METHOD BODY " + body);
             CtMethod newmethod = CtNewMethod.make(body, ctClass);

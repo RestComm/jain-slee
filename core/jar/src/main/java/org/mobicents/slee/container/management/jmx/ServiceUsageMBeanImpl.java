@@ -209,8 +209,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			currentThread.setContextClassLoader(sbbComponent.getClassLoader());
 			// create the actual usage parameter instance and map it in the
 			// mbean
-			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass
-					.getConstructor(null).newInstance(new Object[0]);
+			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass.newInstance();
 			// create and register the usage mbean
 			Class usageParameterMBeanClass = sbbComponent
 					.getUsageParametersMBeanImplConcreteClass();

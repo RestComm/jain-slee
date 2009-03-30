@@ -922,7 +922,7 @@ public class ConcreteSbbGenerator {
 				+ "else if ( aci instanceof "
 				+ concreteActivityContextInterfaceClass.getName()
 				+ ") return aci;" + "else return  new "
-				+ concreteActivityContextInterfaceClass.getName() + " ( $1, "
+				+ concreteActivityContextInterfaceClass.getName() + " ( ("+ActivityContextInterfaceImpl.class.getName()+") $1, "
 				+ "sbbEntity.getSbbComponent());" + "}";
 		CtMethod methodTest;
 		try {
