@@ -310,8 +310,9 @@ public class UsageInterfaceValidator {
 				tmp.addAll(agregatedSample);
 				tmp.addAll(agregatedIncrement);
 
-				if (localParametersMap.size() != tmp.size()) {
-
+				//localParametersMap.size()!=0 - cause we can have zero of them - usage-parameter may not be present so its generation is turned off
+				if (localParametersMap.size() != tmp.size() && localParametersMap.size()!=0) {
+			
 					passed = false;
 
 					String errorPart = null;
