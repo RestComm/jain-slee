@@ -815,7 +815,7 @@ public class SbbComponentValidator implements Validator {
 			// their names do not start with sbb/ejb and if they are contained
 			// in
 			// collections with concrete methods from sbb
-			System.err.println(sbbAbstractClassConcreteMethods.keySet());
+			//System.err.println(sbbAbstractClassConcreteMethods.keySet());
 
 			for (Method methodToCheck : interfaceMethods.values()) {
 				if (methodToCheck.getName().startsWith("ejb") || methodToCheck.getName().startsWith("sbb")) {
