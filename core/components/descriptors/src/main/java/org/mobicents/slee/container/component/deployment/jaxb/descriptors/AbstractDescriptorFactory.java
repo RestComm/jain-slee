@@ -40,7 +40,7 @@ public abstract class AbstractDescriptorFactory {
                         + ":org.mobicents.slee.container.component.deployment.jaxb.slee.profile");
         	
         } catch (Exception e) {
-        	logger.error("failed to create jaxb context"+e);
+        	logger.error("Failed to create jaxb context", e);
         	//we cant throw exception
             return null;
         }
@@ -55,7 +55,7 @@ public abstract class AbstractDescriptorFactory {
 			builder.setErrorHandler(new PrivateErrorHandler());
 			return builder;
 		} catch (Exception e) {
-			logger.error("failed to create dom builder"+e);
+			logger.error("Failed to create DOM builder", e);
 			return null;
 		}		
 	}
@@ -144,12 +144,9 @@ public abstract class AbstractDescriptorFactory {
         	{
         		return jaxbContext11.createUnmarshaller();
         	}
-        }catch(NullPointerException npe)
-        {        	
-        	logger.error("failed to create unmarshaller: " +npe);
-        	throw new DeploymentException("Failed to create unmarshaler, propably context has not been create, see console for error.",npe);
+        }catch(NullPointerException npe) {        	
+        	throw new DeploymentException("Failed to create unmarshaler, probably context has not been create, see console for error.", npe);
         } catch (Exception e) {
-        	logger.error("failed to create unmarshaller: " +e);
         	throw new DeploymentException("Failed to create unmarshaler!",e);
         }
     } 
