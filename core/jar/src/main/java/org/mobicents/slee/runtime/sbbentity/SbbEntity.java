@@ -17,6 +17,7 @@ import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
+import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
@@ -274,6 +275,15 @@ public class SbbEntity {
 					{
 						//e.printStackTrace();
 						log.debug("Profile table does not exist anymore: "+profileLocalObjectCmpValue.getProfileTableName(), e);
+					}
+					return null;
+				}catch(UnrecognizedProfileNameException e)
+				{
+					//FIXME: ??
+					if(log.isDebugEnabled())
+					{
+						//e.printStackTrace();
+						log.debug("Profile  does not exist anymore, table: "+profileLocalObjectCmpValue.getProfileTableName() +", profile: "+profileLocalObjectCmpValue.getProfileName(), e);
 					}
 					return null;
 				}
