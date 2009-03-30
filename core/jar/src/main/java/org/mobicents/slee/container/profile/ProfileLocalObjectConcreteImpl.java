@@ -68,9 +68,8 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileName()
 	 */
 	public String getProfileName() throws SLEEException {
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("Getting profile name for: "+this.profileName);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Getting profile name for: " + this.profileName);
 		}
 		if (!this.isDefault)
 			return this.profileName;
@@ -84,9 +83,8 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileTable()
 	 */
 	public ProfileTable getProfileTable() throws SLEEException {
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("[getProfileTable], table: "+this.profileTableName+", for profile: "+this.profileName);
+		if (logger.isDebugEnabled()) {
+			logger.debug("[getProfileTable], table: " + this.profileTableName + ", for profile: " + this.profileName);
 		}
 		ProfileTable pt = null;
 		try {
@@ -117,10 +115,9 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * ProfileLocalObject)
 	 */
 	public boolean isIdentical(ProfileLocalObject other) throws SLEEException {
-		
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("[isIdentical] on: "+this.profileName+", from table:"+this.profileTableName+", this: "+this+", other: "+other);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("[isIdentical] on: " + this.profileName + ", from table:" + this.profileTableName + ", this: " + this + ", other: " + other);
 		}
 
 		if (other == null)
@@ -162,9 +159,8 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 */
 	public void remove() throws TransactionRequiredLocalException, TransactionRolledbackLocalException, SLEEException {
 
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("[remove] on: "+this.profileName+", from table:"+this.profileTableName);
+		if (logger.isDebugEnabled()) {
+			logger.debug("[remove] on: " + this.profileName + ", from table:" + this.profileTableName);
 		}
 		SleeContainer sleeContainer = this.sleeProfileManagement.getSleeContainer();
 		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
@@ -193,10 +189,10 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 */
 	public void allocateProfileObject() throws UnrecognizedProfileNameException, UnrecognizedProfileTableNameException, SLEEException {
 
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("[allocateProfileObject] on: "+this.profileName+", from table:"+this.profileTableName);
+		if (logger.isDebugEnabled()) {
+			logger.debug("[allocateProfileObject] on: " + this.profileName + ", from table:" + this.profileTableName);
 		}
+
 		// FIXME: mayeb we should be protected ?
 		try {
 			sleeTransactionManager.mandateTransaction();
@@ -205,6 +201,12 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 		}
 
 		try {
+			if (this.profileObject != null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("[allocateProfileObject] on: " + this.profileName + ", from table:" + this.profileTableName + " profile object is not null, returning.");
+					return;
+				}
+			}
 			ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName);
 			this.profileObject = profileTable.assignProfileObject(profileName, false);
 			// Set flag that SLEE component interacts with it. this is true
@@ -265,18 +267,14 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 
 	}
 
-	
-
 	public ProfileConcrete getProfileConcrete() {
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("[getProfileConcrete] on: "+this.profileName+", from table:"+this.profileTableName);
+		if (logger.isDebugEnabled()) {
+			logger.debug("[getProfileConcrete] on: " + this.profileName + ", from table:" + this.profileTableName);
 		}
-		//FIXME: alex?
+		// FIXME: alex?
 		return null;
 	}
 
-	
 	private class BeforeCommitTransctAction implements TransactionalAction {
 
 		public void execute() {
