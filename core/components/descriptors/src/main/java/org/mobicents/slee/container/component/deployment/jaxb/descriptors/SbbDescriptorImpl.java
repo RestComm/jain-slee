@@ -190,7 +190,10 @@ public class SbbDescriptorImpl {
 	}
 
 	private void buildDependenciesSet() {
-		for (MSbbRef sbbRef : sbbRefs) {
+
+    this.dependenciesSet.addAll(eventEntries.keySet());
+    
+	  for (MSbbRef sbbRef : sbbRefs) {
 			this.dependenciesSet.add(sbbRef.getComponentID());
 		}
 
@@ -201,6 +204,7 @@ public class SbbDescriptorImpl {
 		for (MLibraryRef libraryRef : libraryRefs) {
 			this.dependenciesSet.add(libraryRef.getComponentID());
 		}
+
 		for (MResourceAdaptorTypeBinding binding : resourceAdaptorTypeBindings) {
 			this.dependenciesSet.add(binding.getResourceAdaptorTypeRef());
 		}
