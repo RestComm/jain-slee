@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.component;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Set;
 
@@ -46,9 +47,9 @@ public abstract class SleeComponent {
 	private DeployableUnit deployableUnit;
 	
 	/**
-	 * the URL where this component is deployed
+	 * where this component is deployed
 	 */
-	private URL deploymentDir;
+	private File deploymentDir;
 	
 	/**
 	 * the source for this component (component jar/service descriptor) in the deployable unit
@@ -113,18 +114,18 @@ public abstract class SleeComponent {
 	}
 
 	/**
-	 * Retrieves the URL where this component is deployed
+	 * Retrieves the file pointing to where this component is deployed
 	 * @return
 	 */
-	public URL getDeploymentDir() {
+	public File getDeploymentDir() {
 		return deploymentDir;
 	}
 	
 	/**
-	 * Sets the URL where this component is deployed
+	 * Sets the the file pointing where this component is deployed
 	 * @param deploymentDir
 	 */
-	public void setDeploymentDir(URL deploymentDir) {
+	public void setDeploymentDir(File deploymentDir) {
 		this.deploymentDir = deploymentDir;
 	}
 

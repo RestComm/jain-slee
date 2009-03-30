@@ -217,10 +217,10 @@ public class ConcreteProfileManagementGenerator {
 
 		try {
 			// @@2.4+ -> 3.4+
-			cmpProfileConcreteClass.writeFile(component.getDeploymentDir().toExternalForm());
+			cmpProfileConcreteClass.writeFile(component.getDeploymentDir().getAbsolutePath());
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Class " + tmpClassName + " generated in the following path " + component.getDeploymentDir().toExternalForm());
+				logger.debug("Concrete Class " + tmpClassName + " generated in the following path " + component.getDeploymentDir().getAbsolutePath());
 			}
 		} catch (Exception e) {
 			String s = "Unexpected exception generating class ";

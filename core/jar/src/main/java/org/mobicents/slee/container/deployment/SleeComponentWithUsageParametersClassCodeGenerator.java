@@ -20,7 +20,7 @@ public class SleeComponentWithUsageParametersClassCodeGenerator {
 	public void process(SleeComponentWithUsageParametersInterface component) throws DeploymentException {
 		
 		ClassPool classPool = component.getClassPool();
-		String deploymentDir = component.getDeploymentDir().toExternalForm();
+		String deploymentDir = component.getDeploymentDir().getAbsolutePath();
 		Class usageParametersInterface = component
 				.getUsageParametersInterface();
 		if (usageParametersInterface != null) {

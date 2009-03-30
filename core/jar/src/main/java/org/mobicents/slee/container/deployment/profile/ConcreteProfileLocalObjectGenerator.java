@@ -118,10 +118,10 @@ public class ConcreteProfileLocalObjectGenerator {
 
 		try {
 			// @@2.4+ -> 3.4+
-			profileLocalConcreteClass.writeFile(component.getDeploymentDir().toExternalForm());
+			profileLocalConcreteClass.writeFile(component.getDeploymentDir().getAbsolutePath());
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Class " + profileLocalConcreteClassName + " generated in the following path " + component.getDeploymentDir().toExternalForm());
+				logger.debug("Concrete Class " + profileLocalConcreteClassName + " generated in the following path " + component.getDeploymentDir().getAbsolutePath());
 			}
 		} catch (Exception e) {
 			String s = "Unexpected exception generating class ";

@@ -116,7 +116,7 @@ public class ConcreteSbbGenerator {
 	 */
 	public ConcreteSbbGenerator(SbbComponent sbbComponent) {
 		this.sbbComponent = sbbComponent;
-		this.deployDir = sbbComponent.getDeploymentDir().toExternalForm();
+		this.deployDir = sbbComponent.getDeploymentDir().getAbsolutePath();
 		;
 		this.pool = sbbComponent.getClassPool();
 		this.mappingManager = new MappingManager();

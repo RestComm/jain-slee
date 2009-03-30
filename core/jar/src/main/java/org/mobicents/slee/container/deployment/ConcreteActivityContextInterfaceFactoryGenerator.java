@@ -85,7 +85,7 @@ public class ConcreteActivityContextInterfaceFactoryGenerator {
             method.setBody("{ return getACI($1); }");
         }
         // write file
-        String deploymentPathStr = component.getDeploymentDir().toExternalForm();
+        String deploymentPathStr = component.getDeploymentDir().getAbsolutePath();
         concreteCtClass.writeFile(deploymentPathStr);
         logger.debug("Writing file " + concreteClassName);
         // load class into component        

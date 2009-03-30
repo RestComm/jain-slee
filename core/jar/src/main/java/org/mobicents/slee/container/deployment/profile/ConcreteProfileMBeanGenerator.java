@@ -103,9 +103,9 @@ public class ConcreteProfileMBeanGenerator {
 		try {
 			// @@2.4+ -> 3.4+
 			// pool.writeFile(cmpProfileInterfaceName+"MBean", deployPath);
-			pool.get(cmpProfileInterfaceName + "MBean").writeFile(this.component.getDeploymentDir().toExternalForm());
+			pool.get(cmpProfileInterfaceName + "MBean").writeFile(this.component.getDeploymentDir().getAbsolutePath());
 			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Interface " + cmpProfileInterfaceName + "MBean" + " generated in the following path " + this.component.getDeploymentDir().toExternalForm());
+				logger.debug("Concrete Interface " + cmpProfileInterfaceName + "MBean" + " generated in the following path " + this.component.getDeploymentDir().getAbsolutePath());
 			}
 		} catch (Exception e) {
 			throw new DeploymentException("Encountered exception while generating class.", e);
@@ -179,9 +179,9 @@ public class ConcreteProfileMBeanGenerator {
 			// cmpProfileInterfaceName+
 			// ConcreteClassGeneratorUtils.PROFILE_MBEAN_CONCRETE_CLASS_NAME_SUFFIX,
 			// deployPath);
-			pool.get(tmpClassName).writeFile(this.component.getDeploymentDir().toExternalForm());
+			pool.get(tmpClassName).writeFile(this.component.getDeploymentDir().getAbsolutePath());
 			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Class " + tmpClassName + " generated in the following path " + this.component.getDeploymentDir().toExternalForm());
+				logger.debug("Concrete Class " + tmpClassName + " generated in the following path " + this.component.getDeploymentDir().getAbsolutePath());
 			}
 		} catch (NotFoundException e) {
 			// Auto-generated catch block

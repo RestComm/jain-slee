@@ -101,7 +101,7 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
             generateConcreteMethod(ctClass, methods[i]);
         }
 
-        String deploymentPathStr = component.getDeploymentDir().toExternalForm();
+        String deploymentPathStr = component.getDeploymentDir().getAbsolutePath();
         ctInterface.writeFile(deploymentPathStr);
         logger.debug("Writing file " + concreteMBeanInterfaceName);
         ctClass.writeFile(deploymentPathStr);

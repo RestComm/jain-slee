@@ -185,7 +185,7 @@ public class DeployableUnitBuilder {
 			ClassLoaderSystem classLoaderSystem = ClassLoaderSystem
 					.getInstance();
 			for (SleeComponent component : duComponentsSet) {
-				URL componentDeploymentDir = component.getDeploymentDir();
+				File componentDeploymentDir = component.getDeploymentDir();
 				if (componentDeploymentDir != null) {
 					if (logger.isDebugEnabled()) {
 						logger
@@ -201,7 +201,7 @@ public class DeployableUnitBuilder {
 							.registerClassLoaderPolicy(classLoaderDomain,
 									createClassLoaderPolicy(component
 											.getComponentID().toString(),
-											componentDeploymentDir));
+											componentDeploymentDir.toURL()));
 					component.setClassLoader(classLoader);
 				}
 			}
@@ -495,7 +495,7 @@ public class DeployableUnitBuilder {
 			if (component != null) {
 				if (componentsProcessed.add(component)) {
 					// register the component policy
-					URL componentDeploymentDir = component.getDeploymentDir();
+					File componentDeploymentDir = component.getDeploymentDir();
 					if (componentDeploymentDir != null) {
 						if (logger.isDebugEnabled()) {
 							logger
@@ -504,11 +504,15 @@ public class DeployableUnitBuilder {
 									+ " to class loading domain "
 									+ domainToAddPolicies);
 						}
-						classLoaderSystem.registerClassLoaderPolicy(
-								domainToAddPolicies, createClassLoaderPolicy(
-										domainToAddPolicies.getName() + " dep > "
-										+ component.getComponentID(),
-										componentDeploymentDir));
+						try {
+							classLoaderSystem.registerClassLoaderPolicy(
+									domainToAddPolicies, createClassLoaderPolicy(
+											domainToAddPolicies.getName() + " dep > "
+											+ component.getComponentID(),
+											componentDeploymentDir.toURL()));
+						} catch (MalformedURLException e) {
+							throw new SLEEException(e.getMessage(),e);
+						}
 					}				
 					// and add the component dependencies too
 					addDependenciesClassLoadingPolicies(component,

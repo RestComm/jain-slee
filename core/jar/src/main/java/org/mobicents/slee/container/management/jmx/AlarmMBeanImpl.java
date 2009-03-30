@@ -16,11 +16,10 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.MBeanNotificationInfo;
@@ -392,7 +391,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 		}
 	}
 
-	private Map registeredComps;
+	private Map<ComponentID,RegisteredComp> registeredComps = new ConcurrentHashMap<ComponentID, RegisteredComp>();
 
 	// 1.0 methods
 
@@ -409,7 +408,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 			throw new NullPointerException("Null parameter");
 		if (alarmLevel.isOff())
 			throw new IllegalArgumentException("Invalid alarm level");
-		RegisteredComp comp = (RegisteredComp) registeredComps.get(alarmSource);
+		RegisteredComp comp = registeredComps.get(alarmSource);
 		if (comp == null)
 			throw new UnrecognizedComponentException("Component not registered");
 
@@ -444,7 +443,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 	}
 
 	public void unRegisterComponent(final SbbID sbbID) throws SystemException {
-		final RegisteredComp registeredComp = (RegisteredComp) this.registeredComps.remove(sbbID);
+		final RegisteredComp registeredComp = this.registeredComps.remove(sbbID);
 		if (registeredComp != null) {
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {

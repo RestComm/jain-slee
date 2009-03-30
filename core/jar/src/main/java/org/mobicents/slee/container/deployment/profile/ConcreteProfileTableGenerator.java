@@ -128,10 +128,10 @@ public class ConcreteProfileTableGenerator {
 		//write and store
 		try {
 			// @@2.4+ -> 3.4+
-			profileTableConcreteClass.writeFile(component.getDeploymentDir().toExternalForm());
+			profileTableConcreteClass.writeFile(component.getDeploymentDir().getAbsolutePath());
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Concrete Class " + profileTableConcreteClass.getName() + " generated in the following path " + component.getDeploymentDir().toExternalForm());
+				logger.debug("Concrete Class " + profileTableConcreteClass.getName() + " generated in the following path " + component.getDeploymentDir().getAbsolutePath());
 			}
 		} catch (Exception e) {
 			String s = "Unexpected exception generating class ";

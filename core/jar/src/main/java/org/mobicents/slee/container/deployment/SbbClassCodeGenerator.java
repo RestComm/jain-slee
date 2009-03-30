@@ -21,7 +21,7 @@ public class SbbClassCodeGenerator {
 
 		// Enhancement code goes here...
 		SbbAbstractDecorator abstractSbbDecorator = new SbbAbstractDecorator(
-				sbbComponent.getAbstractSbbClass().getName(), sbbComponent.getDeploymentDir().toExternalForm(),
+				sbbComponent.getAbstractSbbClass().getName(), sbbComponent.getDeploymentDir().getAbsolutePath(),
 				sbbComponent.getClassPool());
 		abstractSbbDecorator.decorateAbstractSbb();
 		// generate concrete sbb class

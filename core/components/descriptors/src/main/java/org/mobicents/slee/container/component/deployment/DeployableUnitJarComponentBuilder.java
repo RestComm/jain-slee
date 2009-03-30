@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -97,7 +96,6 @@ public class DeployableUnitJarComponentBuilder {
 						+ " already exists in " + deploymentDir);
 			}
 			extractJar(componentJarFile, componentJarDeploymentDir);
-			URL componentJarDeploymentDirURL = componentJarDeploymentDir.toURL();
 			// create components from descriptor
 			JarEntry componentDescriptor = null;		
 			if ((componentDescriptor = componentJarFile
@@ -108,7 +106,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<SbbDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (SbbDescriptorImpl descriptor : descriptors) {
 					SbbComponent component = new SbbComponent(descriptor);
-					component.setDeploymentDir(componentJarDeploymentDirURL);
+					component.setDeploymentDir(componentJarDeploymentDir);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -119,7 +117,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<ProfileSpecificationDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (ProfileSpecificationDescriptorImpl descriptor : descriptors) {
 					ProfileSpecificationComponent component = new ProfileSpecificationComponent(descriptor);
-					component.setDeploymentDir(componentJarDeploymentDirURL);
+					component.setDeploymentDir(componentJarDeploymentDir);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -163,7 +161,7 @@ public class DeployableUnitJarComponentBuilder {
 							}
 						}
 					}
-					component.setDeploymentDir(tempLibraryDir.toURL());										
+					component.setDeploymentDir(tempLibraryDir);										
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -173,7 +171,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<EventTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (EventTypeDescriptorImpl descriptor : descriptors) {
 					EventTypeComponent component = new EventTypeComponent(descriptor);
-					component.setDeploymentDir(componentJarDeploymentDirURL);
+					component.setDeploymentDir(componentJarDeploymentDir);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -184,7 +182,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<ResourceAdaptorTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (ResourceAdaptorTypeDescriptorImpl descriptor : descriptors) {
 					ResourceAdaptorTypeComponent component = new ResourceAdaptorTypeComponent(descriptor);
-					component.setDeploymentDir(componentJarDeploymentDirURL);
+					component.setDeploymentDir(componentJarDeploymentDir);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -195,7 +193,7 @@ public class DeployableUnitJarComponentBuilder {
 				List<ResourceAdaptorDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
 				for (ResourceAdaptorDescriptorImpl descriptor : descriptors) {
 					ResourceAdaptorComponent component = new ResourceAdaptorComponent(descriptor);
-					component.setDeploymentDir(componentJarDeploymentDirURL);
+					component.setDeploymentDir(componentJarDeploymentDir);
 					components.add(component);
 				}
 			} else {
