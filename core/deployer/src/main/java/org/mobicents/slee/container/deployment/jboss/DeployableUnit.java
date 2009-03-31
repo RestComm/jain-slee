@@ -478,7 +478,7 @@ public class DeployableUnit {
 
           // Create the Resource Adaptor ID
 					ComponentIDPropertyEditor cidpe = new ComponentIDPropertyEditor();
-					cidpe.setAsText( "ResourceAdaptorID[" + raEntity.getAttribute("resource-adaptor-id") + "]" );
+					cidpe.setAsText(raEntity.getAttribute("resource-adaptor-id"));
 					
 					ResourceAdaptorID componentID = (ResourceAdaptorID) cidpe.getValue();
 
