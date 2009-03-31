@@ -67,8 +67,12 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 	 * @see javax.slee.profile.ProfileUpdatedEvent#getBeforeUpdateProfile()
 	 */
 	public Object getBeforeUpdateProfile() {
-
-		return this.profileLocalObjectBeforeAction.getProfileConcrete();
+		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
+			return this.profileLocalObjectBeforeAction.getProfileConcrete();
+		} else {
+			return null;
+		}
+		
 	}
 
 	/*
@@ -77,8 +81,12 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 	 * @see javax.slee.profile.ProfileUpdatedEvent#getAfterUpdateProfile()
 	 */
 	public Object getAfterUpdateProfile() {
-		// TODO Auto-generated method stub
-		return super.profileLocalObjectAfterAction.getProfileConcrete();
+		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
+			return super.profileLocalObjectAfterAction.getProfileConcrete();
+		} else {
+			return null;
+		}
+		
 	}
 
 	public EventTypeID getEventTypeID() {

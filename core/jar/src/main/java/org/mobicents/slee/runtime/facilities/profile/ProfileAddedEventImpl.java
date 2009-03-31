@@ -35,11 +35,9 @@ public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileA
 
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileAddedEvent", "javax.slee", "1.0");
 
-
-
 	public ProfileAddedEventImpl(Address profileAddress, ProfileID profile, ProfileLocalObjectConcrete profileLocalObject, ActivityContext activityContext) {
 		super(profileAddress, profile, profileLocalObject, activityContext);
-		
+
 	}
 
 	public Object getActivity() {
@@ -73,7 +71,12 @@ public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileA
 	 */
 	public Object getAddedProfile() {
 
-		return super.profileLocalObjectAfterAction.getProfileConcrete();
+		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
+			return super.profileLocalObjectAfterAction.getProfileConcrete();
+		} else {
+			return null;
+		}
+
 	}
 
 	public EventTypeID getEventTypeID() {
@@ -89,8 +92,6 @@ public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileA
 	public Address getAddress() {
 		return profileAddress;
 	}
-
-	
 
 	public ProfileLocalObject getAddedProfileLocal() {
 		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {

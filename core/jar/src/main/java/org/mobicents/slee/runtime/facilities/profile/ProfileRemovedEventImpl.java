@@ -81,7 +81,12 @@ public class ProfileRemovedEventImpl extends SuperProfileEvent implements Profil
 	 * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfile()
 	 */
 	public Object getRemovedProfile() {
-		return super.profileLocalObjectAfterAction.getProfileConcrete();
+		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
+			return super.profileLocalObjectAfterAction.getProfileConcrete();
+		} else {
+			return null;
+		}
+		
 	}
 
 	public ProfileLocalObject getRemovedProfileLocal() {
