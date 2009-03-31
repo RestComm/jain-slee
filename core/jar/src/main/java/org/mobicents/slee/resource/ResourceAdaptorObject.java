@@ -100,7 +100,7 @@ public class ResourceAdaptorObject {
 	public void raConfigure(ConfigProperties properties)
 			throws InvalidConfigurationException {
 		verifyConfigProperties(properties);
-		object.raConfigure(properties);
+		object.raConfigure(configProperties);
 		if (state == ResourceAdaptorObjectState.UNCONFIGURED) {
 			state = ResourceAdaptorObjectState.INACTIVE;
 		}
@@ -118,7 +118,7 @@ public class ResourceAdaptorObject {
 	public void raConfigurationUpdate(ConfigProperties properties)
 			throws InvalidConfigurationException {
 		verifyConfigProperties(properties);
-		object.raConfigurationUpdate(properties);
+		object.raConfigurationUpdate(configProperties);
 	}
 
 	/**
