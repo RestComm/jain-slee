@@ -28,6 +28,8 @@ public class MResourceAdaptorTypeRef {
     this.resourceAdaptorTypeName = resourceAdaptorTypeRef10.getResourceAdaptorTypeName().getvalue();
     this.resourceAdaptorTypeVendor = resourceAdaptorTypeRef10.getResourceAdaptorTypeVendor().getvalue();
     this.resourceAdaptorTypeVersion = resourceAdaptorTypeRef10.getResourceAdaptorTypeVersion().getvalue();
+    
+    this.resourceAdaptorTypeID = new ResourceAdaptorTypeID(this.resourceAdaptorTypeName, this.resourceAdaptorTypeVendor, this.resourceAdaptorTypeVersion);
   }
   
   public MResourceAdaptorTypeRef(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorTypeRef resourceAdaptorTypeRef11)
@@ -37,6 +39,8 @@ public class MResourceAdaptorTypeRef {
     this.resourceAdaptorTypeName = resourceAdaptorTypeRef11.getResourceAdaptorTypeName().getvalue();
     this.resourceAdaptorTypeVendor = resourceAdaptorTypeRef11.getResourceAdaptorTypeVendor().getvalue();
     this.resourceAdaptorTypeVersion = resourceAdaptorTypeRef11.getResourceAdaptorTypeVersion().getvalue();
+
+    this.resourceAdaptorTypeID = new ResourceAdaptorTypeID(this.resourceAdaptorTypeName, this.resourceAdaptorTypeVendor, this.resourceAdaptorTypeVersion);
   }
   
   public String getDescription()

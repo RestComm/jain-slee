@@ -5,11 +5,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.slee.ComponentID;
+import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
@@ -122,12 +122,11 @@ public class DeployableUnit {
 							+ " found. Using default values!"
 							+ "\r\n------------------------------------------------------------");
 
-			String raName = raID.substring(raID.indexOf('[') + 1, raID
-					.indexOf('#'));
+			String raName = cid.getName();
 
 			// Add the default Create and Activate RA Entity actions to the Install Actions
 			installActions.add(new Object[] { "createResourceAdaptorEntity",
-					cid, raName, new Properties() });
+					cid, raName, new ConfigProperties() });
 			installActions.add(new Object[] { "activateResourceAdaptorEntity",
 					raName });
 
@@ -439,10 +438,12 @@ public class DeployableUnit {
 						logger
 								.warn("Invalid ra-entity element, has more than one properties child. Reading only first.");
 
-					Element propsNode = (Element) propsNodeList.item(0);
+          // The properties for this RA
+          ConfigProperties props = new ConfigProperties();
 
-					// The properties for this RA
-					Properties props = new Properties();
+          // FIXME: Alexandre: Add properties handling.
+          
+          /*Element propsNode = (Element) propsNodeList.item(0);
 
 					// Do we have any properties at all?
 					if (propsNode != null) {
@@ -473,7 +474,7 @@ public class DeployableUnit {
 							props.put(property.getAttribute("name"), property
 									.getAttribute("value"));
 						}
-					}
+					}*/
 
           // Create the Resource Adaptor ID
 					ComponentIDPropertyEditor cidpe = new ComponentIDPropertyEditor();
