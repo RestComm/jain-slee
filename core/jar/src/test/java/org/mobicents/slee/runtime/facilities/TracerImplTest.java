@@ -88,27 +88,27 @@ public class TracerImplTest extends TestCase {
 
 		try {
 			TracerImpl.checkTracerName(tracerName, notificationSource);
-			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
+			assertTrue("Passed, tracer name["+tracerName+"]", true);
 		} catch (Exception e) {
-			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
+			assertTrue("Failed, tracer name["+tracerName+"] was valid, yet we got exception: " + e, false);
 		}
 		
 		tracerName = "asd.a a.asfaf";
 
 		try {
 			TracerImpl.checkTracerName(tracerName, notificationSource);
-			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
+			assertTrue("Passed, tracer name["+tracerName+"]", true);
 		} catch (Exception e) {
-			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
+			assertTrue("Failed, tracer name["+tracerName+"] was valid, yet we got exception: " + e, false);
 		}
 		
 		tracerName = "asd.a_a.asfaf";
 
 		try {
 			TracerImpl.checkTracerName(tracerName, notificationSource);
-			assertTrue("Failed, tracer name["+tracerName+"] was invalid, yet, test passed", false);
+			assertTrue("Passed, tracer name["+tracerName+"]", true);
 		} catch (Exception e) {
-			assertTrue("Passed, tracer name["+tracerName+"] was invalid, we got exception: " + e, true);
+			assertTrue("Failed, tracer name["+tracerName+"] was valid, yet we got exception: " + e, false);
 		}
 		
 	}

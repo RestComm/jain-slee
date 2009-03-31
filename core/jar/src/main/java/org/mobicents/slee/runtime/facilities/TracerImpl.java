@@ -390,20 +390,20 @@ public class TracerImpl implements Tracer {
 				throw new IllegalArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
 			}
 
-			if (token.compareTo(".") != 0) {
-				for (int charIndex = 0; charIndex < token.length(); charIndex++) {
-					Character c = token.charAt(charIndex);
-					if (c.isLetter(c) || c.isDigit(c)) {
-						// Its ok?
-					} else {
-						throw new IllegalArgumentException("Passed tracer:" + tracerName + " Token[" + token + "], name for source: " + notificationSource
-								+ ", is illegal, contains illegal character: " + charIndex);
-					}
-
-				}
-
-				fqdnPartIndex++;
-			}
+//			if (token.compareTo(".") != 0) {
+//				for (int charIndex = 0; charIndex < token.length(); charIndex++) {
+//					Character c = token.charAt(charIndex);
+//					if (c.isLetter(c) || c.isDigit(c)) {
+//						// Its ok?
+//					} else {
+//						throw new IllegalArgumentException("Passed tracer:" + tracerName + " Token[" + token + "], name for source: " + notificationSource
+//								+ ", is illegal, contains illegal character index: " + charIndex+", character: "+c+", character value: "+c.charValue());
+//					}
+//
+//				}
+//
+//				fqdnPartIndex++;
+//			}
 			lastToken = token;
 
 		}
