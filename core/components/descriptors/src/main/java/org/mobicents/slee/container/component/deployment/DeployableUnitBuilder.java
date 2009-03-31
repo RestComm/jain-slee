@@ -152,6 +152,7 @@ public class DeployableUnitBuilder {
 					if (componentRepository.isInstalled(sleeComponent.getComponentID())) {
 						throw new AlreadyDeployedException("Component "+sleeComponent.getComponentID()+" already deployed");
 					}
+					sleeComponent.setDeploymentUnitSource(jarFileName);
 				}
 			}
 
@@ -167,6 +168,7 @@ public class DeployableUnitBuilder {
 					}
 					// set the direct reference to the sbb component
 					serviceComponent.setRootSbbComponent(deployableUnit.getDeployableUnitRepository().getComponentByID(serviceComponent.getDescriptor().getRootSbbID()));
+					serviceComponent.setDeploymentUnitSource(serviceDescriptorFileName);
 				}
 			}
 
