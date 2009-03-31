@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.EventTypeComponent;
+import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
@@ -588,24 +589,31 @@ public class ServiceManagement {
 			}
 		};
 		sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		if (serviceComponent.isSlee11()) {
+
+		
 			// register notification sources for all sbbs
+			//
 			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-			for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
-				traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
-			}
-			// add rollback action to remove state created
-			action = new TransactionalAction() {
-				public void execute() {
-					// remove notification sources for all sbbs
-					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-					for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
-						traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
-					}
+			for (final SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+				
+				SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbID);
+				if(sbbComponent.isSlee11())
+				{
+					traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+			
+					// add rollback action to remove state created
+					action = new TransactionalAction() {
+						public void execute() {
+							// remove notification sources for all sbbs
+							TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+							traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+						
+						}
+					};
+					sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 				}
-			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		}
+			}
+		
 		
 		// create object pools
 		SbbObjectPoolManagement sbbObjectPoolManagement = sleeContainer.getSbbPoolManagement();
@@ -684,24 +692,29 @@ public class ServiceManagement {
 			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 		}
 		
-		if (serviceComponent.isSlee11()) {
+		
 			// register notification sources for all sbbs
 			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-			for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
-				traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
-			}
+			for (final SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
+				
+				
+				SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbID);
+				if(sbbComponent.isSlee11())
+				{
+					traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+			
 			// add rollback action to re-add state removed
-			TransactionalAction action = new TransactionalAction() {
-				public void execute() {
+					TransactionalAction action = new TransactionalAction() {
+						public void execute() {
 					// remove notification sources for all sbbs
-					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-					for (SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
-						traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
-					}
+							TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+							traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+						}
+					
+					};
+					sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 				}
-			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		}
+			}
 		
 		// remove sbb object pools
 		SbbObjectPoolManagement sbbObjectPoolManagement = sleeContainer.getSbbPoolManagement();
