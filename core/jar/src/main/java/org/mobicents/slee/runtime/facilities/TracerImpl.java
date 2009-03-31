@@ -1,7 +1,6 @@
 package org.mobicents.slee.runtime.facilities;
 
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 import javax.slee.InvalidArgumentException;
 import javax.slee.facilities.FacilityException;
@@ -10,6 +9,7 @@ import javax.slee.facilities.Tracer;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.TraceNotification;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 
 /**
@@ -23,7 +23,7 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
  *         </a>
  */
 public class TracerImpl implements Tracer {
-	private static final Logger logger = Logger.getLogger(Tracer.class.getSimpleName());
+	private static final Logger logger = Logger.getLogger(Tracer.class);
 	private String tracerName = null;
 	private boolean isRoot = false;
 	private boolean requestedBySource = false;
@@ -326,39 +326,30 @@ public class TracerImpl implements Tracer {
 	}
 
 	private void dumpMessage(TraceNotification traceNotification) {
-		String msg = "Tracer[" + traceNotification.getTracerName() + "] Seq[" + traceNotification.getSequenceNumber() + "] Source[" + traceNotification.getNotificationSource() + "] Message: \n"
-				+ traceNotification.getMessage() + "\nCause: " + makeStackTraceReadable(traceNotification.getCause());
-
+		String msg = "[" + traceNotification.getTracerName() + "] " + traceNotification.getMessage();
+		
 		TraceLevel lvl = traceNotification.getTraceLevel();
+		
 		if (lvl.isFinest()) {
-			logger.finest(msg);
+			logger.trace(msg,traceNotification.getCause());
+		
 		} else if (lvl.isFiner()) {
-			logger.finer(msg);
-
+			logger.trace(msg,traceNotification.getCause());
+	
 		} else if (lvl.isFine()) {
-			logger.fine(msg);
+			logger.debug(msg,traceNotification.getCause());
 
 		} else if (lvl.isConfig()) {
-			logger.config(msg);
+			logger.info(msg,traceNotification.getCause());
 
 		} else if (lvl.isInfo()) {
-			logger.info(msg);
-
-		} else if (lvl.isSevere()) {
-			logger.severe(msg);
+			logger.info(msg,traceNotification.getCause());
 
 		} else if (lvl.isWarning()) {
-			logger.warning(msg);
+			logger.warn(msg,traceNotification.getCause());
 
-		}
-
-	}
-
-	private String makeStackTraceReadable(Throwable t) {
-		if (t == null)
-			return null;
-		else {
-			return null;
+		} else if (lvl.isSevere()) {
+			logger.error(msg,traceNotification.getCause());
 		}
 	}
 
