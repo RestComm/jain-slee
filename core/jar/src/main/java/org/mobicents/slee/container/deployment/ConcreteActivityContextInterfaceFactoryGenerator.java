@@ -81,7 +81,7 @@ public class ConcreteActivityContextInterfaceFactoryGenerator {
                 .getName()),classPool.get(ResourceAdaptorTypeID.class
                         .getName()));
         // generate methods        
-        for (CtMethod method : concreteCtClass.getMethods()) {            
+        for (CtMethod method : concreteCtClass.getDeclaredMethods()) {            
             method.setBody("{ return getACI($1); }");
         }
         // write file

@@ -18,9 +18,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
  */
 public class MResourceAdaptorType {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorType resourceAdaptorType10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorType resourceAdaptorType11;
-  
   private String description;
   private String resourceAdaptorTypeName;
   private String resourceAdaptorTypeVendor;
@@ -31,16 +28,13 @@ public class MResourceAdaptorType {
   
   public MResourceAdaptorType(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorType resourceAdaptorType10)
   {
-    this.resourceAdaptorType10 = resourceAdaptorType10;
     
     this.description = resourceAdaptorType10.getDescription() == null ? null : resourceAdaptorType10.getDescription().getvalue();
     
     this.resourceAdaptorTypeName = resourceAdaptorType10.getResourceAdaptorTypeName().getvalue();
     this.resourceAdaptorTypeVendor = resourceAdaptorType10.getResourceAdaptorTypeVendor().getvalue();
     this.resourceAdaptorTypeVersion = resourceAdaptorType10.getResourceAdaptorTypeVersion().getvalue();
-    
-    this.libraryRef = null; // SLEE 1.1 Only!
-    
+        
     this.resourceAdaptorTypeClasses = new MResourceAdaptorTypeClasses(resourceAdaptorType10.getResourceAdaptorTypeClasses());
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.EventTypeRef eventTypeRef10 : resourceAdaptorType10.getEventTypeRef())
@@ -51,7 +45,6 @@ public class MResourceAdaptorType {
   
   public MResourceAdaptorType(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorType resourceAdaptorType11)
   {
-    this.resourceAdaptorType11 = resourceAdaptorType11;
     
     this.description = resourceAdaptorType11.getDescription() == null ? null : resourceAdaptorType11.getDescription().getvalue();
     

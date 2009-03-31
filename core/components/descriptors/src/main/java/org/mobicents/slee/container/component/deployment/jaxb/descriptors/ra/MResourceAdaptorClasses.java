@@ -38,7 +38,7 @@ public class MResourceAdaptorClasses {
 
     this.description = resourceAdaptorClasses11.getDescription() == null ? null : resourceAdaptorClasses11.getDescription().getvalue();
     this.resourceAdaptorClass = new MResourceAdaptorClass(resourceAdaptorClasses11.getResourceAdaptorClass());
-    this.resourceAdaptorUsageParametersInterface = new MUsageParametersInterface(resourceAdaptorClasses11.getResourceAdaptorUsageParametersInterface());
+    this.resourceAdaptorUsageParametersInterface = resourceAdaptorClasses11.getResourceAdaptorUsageParametersInterface() == null ? null : new MUsageParametersInterface(resourceAdaptorClasses11.getResourceAdaptorUsageParametersInterface());
   }
   
   public String getResourceAdaptorClasses()

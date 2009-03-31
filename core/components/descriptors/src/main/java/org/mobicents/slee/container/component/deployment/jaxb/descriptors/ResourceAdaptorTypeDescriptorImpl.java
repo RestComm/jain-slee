@@ -86,8 +86,6 @@ public class ResourceAdaptorTypeDescriptorImpl {
     {
       this.dependenciesSet.add( libraryRef.getComponentID() );
     }
-
-    buildDependenciesSet();
   }
 
 

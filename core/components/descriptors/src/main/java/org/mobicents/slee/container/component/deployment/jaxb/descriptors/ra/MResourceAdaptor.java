@@ -19,9 +19,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
  */
 public class MResourceAdaptor {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptor resourceAdaptor10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptor resourceAdaptor11;
-  
   private String description;
   private String resourceAdaptorName;
   private String resourceAdaptorVendor;
@@ -36,9 +33,7 @@ public class MResourceAdaptor {
   protected List<MConfigProperty> configProperty = new ArrayList<MConfigProperty>();
   
   public MResourceAdaptor(org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptor resourceAdaptor10)
-  {
-    this.resourceAdaptor10 = resourceAdaptor10;
-    
+  {    
     this.description = resourceAdaptor10.getDescription().getvalue();
     
     this.resourceAdaptorName = resourceAdaptor10.getResourceAdaptorName().getvalue();
@@ -51,9 +46,7 @@ public class MResourceAdaptor {
   }
   
   public MResourceAdaptor(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptor resourceAdaptor11)
-  {
-    this.resourceAdaptor11 = resourceAdaptor11;
-    
+  {    
     this.description = resourceAdaptor11.getDescription().getvalue();
     
     this.resourceAdaptorName = resourceAdaptor11.getResourceAdaptorName().getvalue();
@@ -78,6 +71,9 @@ public class MResourceAdaptor {
     {
       this.configProperty.add( new MConfigProperty(configProperty11) );
     }
+    
+    this.resourceAdaptorClasses = new MResourceAdaptorClasses(resourceAdaptor11.getResourceAdaptorClasses());
+
   }
   
   public String getDescription()

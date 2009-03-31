@@ -15,8 +15,6 @@ import java.util.List;
  */
 public class MResourceAdaptorTypeClasses
 {
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorTypeClasses resourceAdaptorTypeClasses10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorTypeClasses resourceAdaptorTypeClasses11;
   
   private String description;
   private List<MActivityType> activityType;
@@ -25,7 +23,6 @@ public class MResourceAdaptorTypeClasses
 
   public MResourceAdaptorTypeClasses(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ResourceAdaptorTypeClasses resourceAdaptorTypeClasses10)
   {
-    this.resourceAdaptorTypeClasses10 = resourceAdaptorTypeClasses10;
     
     this.description = resourceAdaptorTypeClasses10.getDescription() == null ? null : resourceAdaptorTypeClasses10.getDescription().getvalue();
     this.activityType = new ArrayList<MActivityType>();
@@ -35,12 +32,12 @@ public class MResourceAdaptorTypeClasses
       this.activityType.add( new MActivityType(aT) );
     }
     
-    this.resourceAdaptorInterface = resourceAdaptorTypeClasses10.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses10.getResourceAdaptorInterface()); 
+    this.resourceAdaptorInterface = resourceAdaptorTypeClasses10.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses10.getResourceAdaptorInterface());
+    this.activityContextInterfaceFactoryInterface = new MActivityContextInterfaceFactoryInterface(resourceAdaptorTypeClasses10.getActivityContextInterfaceFactoryInterface());
   }
 
   public MResourceAdaptorTypeClasses(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorTypeClasses resourceAdaptorTypeClasses11)
   {
-    this.resourceAdaptorTypeClasses11 = resourceAdaptorTypeClasses11;
     
     this.description = resourceAdaptorTypeClasses11.getDescription() == null ? null : resourceAdaptorTypeClasses11.getDescription().getvalue();
     this.activityType = new ArrayList<MActivityType>();
@@ -50,7 +47,8 @@ public class MResourceAdaptorTypeClasses
       this.activityType.add( new MActivityType(aT) );
     }
     
-    this.resourceAdaptorInterface = resourceAdaptorTypeClasses11.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses11.getResourceAdaptorInterface()); 
+    this.resourceAdaptorInterface = resourceAdaptorTypeClasses11.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses11.getResourceAdaptorInterface());
+    this.activityContextInterfaceFactoryInterface = new MActivityContextInterfaceFactoryInterface(resourceAdaptorTypeClasses11.getActivityContextInterfaceFactoryInterface());
   }
   
   public String getDescription()

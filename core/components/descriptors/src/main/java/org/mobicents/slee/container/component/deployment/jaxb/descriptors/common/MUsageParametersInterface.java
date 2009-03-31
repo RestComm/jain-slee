@@ -24,7 +24,7 @@ public class MUsageParametersInterface {
 
   public MUsageParametersInterface(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorUsageParametersInterface resourceAdaptorUsageParametersInterface11)
   {
-    this.description = resourceAdaptorUsageParametersInterface11.getDescription().getvalue();
+    this.description = resourceAdaptorUsageParametersInterface11.getDescription() == null ? null : resourceAdaptorUsageParametersInterface11.getDescription().getvalue();
     this.usageParametersInterfaceName = resourceAdaptorUsageParametersInterface11.getResourceAdaptorUsageParametersInterfaceName().getvalue();
 
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.UsageParameter usageParameter11 : resourceAdaptorUsageParametersInterface11.getUsageParameter())
