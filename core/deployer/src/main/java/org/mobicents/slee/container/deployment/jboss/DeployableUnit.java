@@ -426,7 +426,10 @@ public class DeployableUnit {
 					Element raEntity = (Element) raEntities.item(i);
 
 					// Get the component ID
-					raId = "ResourceAdaptorID[" + raEntity.getAttribute("resource-adaptor-id") + "]";
+          ComponentIDPropertyEditor cidpe = new ComponentIDPropertyEditor();
+          cidpe.setAsText(raEntity.getAttribute("resource-adaptor-id"));
+          
+          raId = cidpe.getValue().toString();
 
 					// The RA Entity Name
 					String entityName = raEntity.getAttribute("entity-name");
@@ -477,7 +480,7 @@ public class DeployableUnit {
 					}*/
 
           // Create the Resource Adaptor ID
-					ComponentIDPropertyEditor cidpe = new ComponentIDPropertyEditor();
+					// ComponentIDPropertyEditor cidpe = new ComponentIDPropertyEditor();
 					cidpe.setAsText(raEntity.getAttribute("resource-adaptor-id"));
 					
 					ResourceAdaptorID componentID = (ResourceAdaptorID) cidpe.getValue();
