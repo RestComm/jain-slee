@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+  <ra-entity resource-adaptor-id="ResourceAdaptorID[name=TCK_Resource_Adaptor,vendor=jain.slee.tck,version=1.1]" entity-name="tck">
+    <properties file="" />
+    <ra-link name="slee/resources/tck" />
+  </ra-entity>
+</deploy-config>
