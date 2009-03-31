@@ -1,6 +1,7 @@
 package org.mobicents.slee.runtime.facilities;
 
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import javax.slee.InvalidArgumentException;
 import javax.slee.facilities.FacilityException;
@@ -22,6 +23,7 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
  *         </a>
  */
 public class TracerImpl implements Tracer {
+	private static final Logger logger = Logger.getLogger(Tracer.class.getSimpleName());
 	private String tracerName = null;
 	private boolean isRoot = false;
 	private boolean requestedBySource = false;
@@ -113,16 +115,16 @@ public class TracerImpl implements Tracer {
 		if (!isConfigEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(),TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
 	public void config(String trace, Throwable cause) throws NullPointerException, FacilityException {
 		if (!isConfigEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
 
@@ -130,16 +132,16 @@ public class TracerImpl implements Tracer {
 		if (!isFineEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(),TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
 	public void fine(String trace, Throwable cause) throws NullPointerException, FacilityException {
 		if (!isFineEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
 
@@ -147,8 +149,8 @@ public class TracerImpl implements Tracer {
 		if (!isFinerEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
 	public void finer(String trace, Throwable cause) throws NullPointerException, FacilityException {
@@ -156,8 +158,8 @@ public class TracerImpl implements Tracer {
 			return;
 		}
 
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
 
@@ -165,8 +167,8 @@ public class TracerImpl implements Tracer {
 		if (!isFinestEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
 
@@ -174,8 +176,8 @@ public class TracerImpl implements Tracer {
 		if (!isFinestEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
 
@@ -183,32 +185,32 @@ public class TracerImpl implements Tracer {
 		if (!isInfoEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
 	public void info(String trace, Throwable cause) throws NullPointerException, FacilityException {
 		if (!isInfoEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
 	public void severe(String trace) throws NullPointerException, FacilityException {
 		if (!isSevereEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 	}
 
 	public void severe(String trace, Throwable cause) throws NullPointerException, FacilityException {
 		if (!isSevereEnabled()) {
 			return;
 		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
+		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
+				this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
 
@@ -249,8 +251,6 @@ public class TracerImpl implements Tracer {
 				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
 
 	}
-
-	
 
 	public boolean isConfigEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.CONFIG);
@@ -318,8 +318,48 @@ public class TracerImpl implements Tracer {
 	 */
 	void createTrace(NotificationSource src, javax.slee.facilities.TraceLevel lvl, String traceType, String tracerName, String msg, Throwable cause, long seq, long timeStamp) {
 
+		// Here we know that this trace level is logable;
+
 		TraceNotification traceNotification = new TraceNotification(traceType, this.traceFacility, src, tracerName, lvl, msg, cause, seq, timeStamp);
+		dumpMessage(traceNotification);
 		this.traceFacility.sendNotification(traceNotification);
+	}
+
+	private void dumpMessage(TraceNotification traceNotification) {
+		String msg = "Tracer[" + traceNotification.getTracerName() + "] Seq[" + traceNotification.getSequenceNumber() + "] Source[" + traceNotification.getNotificationSource() + "] Message: \n"
+				+ traceNotification.getMessage() + "\nCause: " + makeStackTraceReadable(traceNotification.getCause());
+
+		TraceLevel lvl = traceNotification.getTraceLevel();
+		if (lvl.isFinest()) {
+			logger.finest(msg);
+		} else if (lvl.isFiner()) {
+			logger.finer(msg);
+
+		} else if (lvl.isFine()) {
+			logger.fine(msg);
+
+		} else if (lvl.isConfig()) {
+			logger.config(msg);
+
+		} else if (lvl.isInfo()) {
+			logger.info(msg);
+
+		} else if (lvl.isSevere()) {
+			logger.severe(msg);
+
+		} else if (lvl.isWarning()) {
+			logger.warning(msg);
+
+		}
+
+	}
+
+	private String makeStackTraceReadable(Throwable t) {
+		if (t == null)
+			return null;
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -381,8 +421,6 @@ public class TracerImpl implements Tracer {
 			throw new IllegalArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
 		}
 
-
-
 	}
-	
+
 }
