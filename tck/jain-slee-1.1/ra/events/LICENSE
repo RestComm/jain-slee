@@ -1,0 +1,185 @@
+JAIN SLEE (JSLEE) V1.1 TECHNOLOGY COMPATIBILITY KIT
+LICENCE AGREEMENT
+IT IS IMPORTANT THAT YOU CAREFULLY READ THIS NOTICE BEFORE PROCEEDING 
+WITH THE DOWNLOAD, COMPILATION AND/OR USE OF THE SOFTWARE THAT 
+IMPLEMENTS THE JAIN SLEE (JSLEE) V1.1 TCK ("TCK"). BY DOWNLOADING, 
+COMPILING AND/OR USING THE TCK YOU AGREE ON BEHALF OF THE INDIVIDUAL, 
+CORPORATION OR ORGANISATION THAT WILL COMPILE AND/OR USE THE TCK 
+("LICENSEE") TO BE BOUND BY THE TERMS OF THIS LICENCE AGREEMENT WHICH 
+CONSTITUTES A LEGALLY BINDING CONTRACT BETWEEN OPEN CLOUD LIMITED 
+("LICENSOR") AND LICENSEE
+1	BACKGROUND
+1.1	Licensee has developed and/or seeks to distribute and/or seeks to test compatibility of one or more 
+implementations of the JAIN SLEE V1.1 Specification and Licensor is prepared to 
+license the TCK to Licensee to facilitate such activities subject to the terms and 
+conditions of this Agreement.
+2	DEFINITIONS
+2.1	"Affiliate" means, in relation to either party, any company which is for the time 
+being a holding company of that party or a subsidiary of that party or of any such 
+holding company.
+2.2	"Compatible Implementation" means an Implementation that fully implements the 
+JAIN SLEE V1.1 Specification; and passes the TCK.
+2.3	"Confidential Information" means any information or materials marked or 
+designated as confidential or proprietary by Licensor or Licensee or which ought 
+reasonably to be considered confidential given the nature of the information or 
+the circumstances of its disclosure.
+2.4	"Intellectual Property Rights" means worldwide rights arising under contract, 
+statute or common law, whether or not perfected, and associated with: (a) 
+patents and patent applications; (b) works of authorship, including copyrights, 
+mask works, and moral rights; (c) the protection of trade and industrial secrets 
+and confidential information; (d) any rights analogous to those set forth herein 
+and any other proprietary rights relating to intangible or intellectual property now 
+existing or later recognized in any jurisdiction (excluding trademarks, service 
+marks, trade names and trade dress); and (e) divisions, continuations, renewals, 
+reissuances, reexaminations, applications, registrations, and any extensions of 
+the foregoing (as applicable), now existing or hereafter filed, issued or acquired.
+2.5	"JAIN SLEE V1.1 Specification" means the written specification for JAIN SLEE 
+V1.1 technology.
+2.6	"Implementation" means any software implementation of the JAIN SLEE V1.1 
+Specification.
+2.7	"Technology Compatibility Kit" or "TCK" means the software and related 
+documentation made available to Licensee by Licensee as revised from time to 
+time by Licensor provided to enable Licensee to determine whether an 
+Implementation is a Compatible Implementation.
+3	LICENCE GRANTS
+3.1	Licensor hereby grants to Licensee, to the extent of Licensor's Intellectual 
+Property Rights in the TCK, a worldwide, fully paid, personal, non-exclusive, non-
+transferable, limited licence to use the TCK internally and solely for the purpose 
+of developing and/or testing Implementations. No licence is granted by Licensor 
+for any other purpose.
+3.2	Licensee may not:
+3.2.1	sublicense, distribute or otherwise make the TCK available to any third party, 
+except that Licensee may share comments, questions or particular results 
+concerning Licensee's use of the TCK (including excerpts of the TCK itself) with 
+other licensees subject to the provisions in this Agreement relating to the 
+disclosure of Confidential Information;
+3.2.2	create derivative works of the TCK;
+3.2.3	make claims of comparative compatibility (for example, a claim either that any 
+Implementation is "90% compatible" or that any Implementation is "more 
+compatible" than another Implementation).
+3.3	Licensee shall not remove any copyright notices, trade mark notices or other 
+proprietary legends of Licensor or its suppliers contained on or in the TCK, and 
+shall incorporate such notices in all copies of any TCK. Licensee shall comply 
+with all reasonable requests by Licensor to include additional copyright or other 
+proprietary rights notices of Licensor or third parties from time to time.
+3.4	No right, title, or interest in or to any trade marks, service marks, or trade names 
+of Licensor or Licensor's licensors is granted hereunder. Licensee authorises 
+Licensor to include Licensee in a published list of licensees of the TCK.
+3.5	This Agreement does not grant to Licensee any right or licence, under any 
+Intellectual Property Rights of Licensor or otherwise except as expressly provided 
+in Clause 3.1 above and no other right or licence is to be implied by or inferred 
+from any provision of this Agreement or by the conduct of the parties.
+4	DISCLAIMER OF WARRANTY 
+4.1	LICENSOR PROVIDES THE TCK TO LICENSEE ON AN "AS IS" BASIS. ALL 
+REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED 
+WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE OR NONINFRINGEMENT ARE HEREBY DISCLAIMED.
+5	LIMITATION OF LIABILITY 
+5.1	EXCEPT FOR VIOLATION OF LICENSOR'S INTELLECTUAL PROPERTY 
+RIGHTS, OR BREACH BY LICENSEE OF CLAUSE 3, EACH PARTY'S 
+LIABILITY TO THE OTHER FOR CLAIMS RELATING TO THIS AGREEMENT, 
+WHETHER FOR BREACH OF CONTRACT OR IN TORT, SHALL IN NO EVENT 
+EXCEED £1,000.
+5.2	IN NO EVENT WILL LICENSOR BE LIABLE FOR ANY LOSS OF PROFITS OR 
+ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE 
+DAMAGES IN CONNECTION WITH OR ARISING OUT OF THIS AGREEMENT 
+(INCLUDING LOSS OF USE, DATA OR OTHER ECONOMIC ADVANTAGE), 
+NO MATTER WHAT THEORY OF LIABILITY, EVEN IF IT HAS BEEN ADVISED 
+OF THE POSSIBILITY OR PROBABILITY OF SUCH DAMAGES AND 
+WHETHER OR NOT SUCH DAMAGES ARE FORESEEABLE.
+5.3	Nothing in this Agreement shall be construed as limiting or excluding liability for: 
+(a) death or personal injury caused by negligence; (b) fraud; or (c) any liability 
+that cannot be excluded or limited under applicable law.
+5.4	The provisions of this Clause 5 allocate the risks under this Agreement between 
+Licensor and Licensee and the parties have relied upon the limitations and 
+exclusions set forth herein in determining whether to enter into this Agreement.
+6	CONFIDENTIAL INFORMATION 
+6.1	Licensee will protect the TCK as Licensor Confidential Information protected 
+under this Clause 5. A party receiving Confidential Information may not: (a) 
+disclose Confidential Information to any third party; or (b) use Confidential 
+Information except for the purpose of developing and/or testing Implementations. 
+For the avoidance of doubt, comments, questions or particular results concerning 
+Licensee's use of the TCK shall not be considered Confidential Information. The 
+receiving party will protect the confidentiality of Confidential Information to the 
+same degree of care, but no less than reasonable care, as such party uses to 
+protect its own Confidential Information. Obligations regarding Confidential 
+Information will expire 5 years from the date of receipt of the Confidential 
+Information, except for Confidential Information consisting of source code, which 
+will be protected by Licensee in perpetuity.
+6.2	The obligations set forth in this Clause 5 will not apply to any portion of 
+Confidential Information which a receiving party can demonstrate: (a) through no 
+act or failure to act on the part of the receiving party, is now or hereafter 
+becomes, generally known in the software industry; (b) is hereafter rightfully 
+furnished to the receiving party by a third party without restriction on disclosure; 
+or (c) is independently developed by the receiving party without any use of 
+Confidential Information.
+7	TERM AND TERMINATION 
+7.1	In the event that Licensee fails to comply strictly with the terms and conditions of 
+this Agreement, this Agreement shall terminate forthwith without prejudice to any 
+other remedies which Licensor may have. Licensee may terminate this 
+Agreement at any time.
+7.2	Upon termination of this Agreement Licensee shall: (a) permanently ceasing to 
+use the TCK; (b) permanently destroy or disable all copies of the TCK remaining 
+in Licensee's possession or control; and (c) upon Licensor?s request, provide 
+Licensor with a written statement certifying that Licensee has complied with the 
+foregoing obligations. All rights and licenses granted to Licensee shall terminate 
+upon such termination.
+7.3	The parties? rights and obligations under Clauses 4, 5, 6, 7 and 8, shall survive 
+expiration or termination of this Agreement. Licensor's rights and Licensee?s 
+obligations under Clause 3 shall survive termination of this Agreement.
+8	GENERAL 
+8.1	Nothing in this Agreement shall obligate Licensor to provide any upgrades or 
+updates, technical support or other assistance concerning the TCK to Licensee or 
+to any distributor or customer of Licensee for any Implementation.
+8.2	The failure to exercise or delay in exercising a right or remedy provided by this 
+Agreement or by law does not constitute a waiver of the right or remedy or a 
+waiver of other rights or remedies. A waiver of a breach of any of the terms of this 
+Agreement or of a default under this Agreement does not constitute a waiver of 
+any other breach or default and shall not affect the other terms of this Agreement. 
+A waiver of a breach of any of the terms of this Agreement or of a default under 
+this Agreement will not prevent a party from subsequently requiring compliance 
+with the waived obligation. The rights and remedies provided by this Agreement 
+are cumulative and (subject as otherwise provided in this Agreement) are not 
+exclusive of any rights or remedies provided by law.
+8.3	If any provision of this Agreement is found by any court or administrative body of 
+competent jurisdiction to be invalid or unenforceable such invalidity or 
+unenforceability shall not affect the other provisions of this Agreement which shall 
+remain in full force and effect. However, if in either party's opinion deletion or 
+amendment of any provisions of the Agreement by operation of this Clause 
+unreasonably compromises the rights or increase the liabilities of such party, then 
+such party may terminate the Agreement. 
+8.4	Nothing in this Agreement is intended to or shall operate to create a partnership 
+or joint venture of any kind between the parties, or to authorise either party to act 
+as agent for the other and neither party shall have authority to act in the name or 
+on behalf of or otherwise to bind the other in any way including but not limited to 
+the making of any representation or warranty, the assumption of any obligation or 
+liability and the exercise of any right or power.
+8.5	Neither party may assign or otherwise transfer any of its rights or obligations 
+under this Agreement (whether by operation of law, merger, change of control, or 
+otherwise), without the prior written consent of the other party, except that 
+Licensor may assign this Agreement: (a) to any Affiliate of Licensor, or (b) in the 
+event of a merger, acquisition or sale of all or substantially all of the assets of 
+Licensor or a Licensor business unit. Any assignment or transfer in breach of this 
+Clause 8.5 shall be void.
+8.6	This Agreement constitutes the entire and only agreement between the parties in 
+relation to its subject matter and replaces and extinguishes all prior or 
+simultaneous agreements, undertakings, arrangements, understandings or 
+statements of any nature made by the parties or any of them whether oral or 
+written (and, if written, whether or not in draft form) with respect to such subject 
+matter. Each of the parties acknowledges that they are not relying on any 
+statements, warranties or representations given or made by any of them in 
+relation to the subject matter of this Agreement, save those expressly set out in 
+this Agreement, and that they shall have no rights or remedies with respect to 
+such subject matter otherwise than under this Agreement save to the extent that 
+they arise out of the fraud or fraudulent misrepresentation of another party.
+8.7	A person who is not a party to this Agreement has no right under the Contract 
+(Rights of Third Parties) Act 1999 to enforce any term of this Agreement. 
+Notwithstanding that any term of this agreement may be or become enforceable 
+by a person who is not a party to it, the terms of this Agreement or any of them 
+may be varied, amended or modified or this Agreement may be suspended, 
+cancelled or terminated by Agreement in writing between the parties or this 
+Agreement may be rescinded (in each case), without the consent of any such 
+third party.
+8.8	This Agreement shall be governed by and construed in accordance with the laws 
+of England and the parties submit to the non-exclusive jurisdiction of the courts of 
+England.
