@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
   <classpathentry kind="src" path="ra/du/src/main/resources"/>
-  <classpathentry kind="src" path="ra/events/src/main/resources"/>
-  <classpathentry kind="src" path="ra/events/src/main/java"/>
   <classpathentry kind="src" path="ra/mbean/src/main/resources"/>
   <classpathentry kind="src" path="ra/mbean/src/main/java"/>
-  <classpathentry kind="src" path="ra/ra/src/main/resources"/>
-  <classpathentry kind="src" path="ra/ra/src/main/java"/>
-  <classpathentry kind="src" path="ra/ratype/src/main/resources"/>
-  <classpathentry kind="src" path="ra/ratype/src/main/java"/>
   <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6/antlr-2.7.6.jar"/>
   <classpathentry kind="var" path="M2_REPO/apache-xerces/xml-apis/2.9.1/xml-apis-2.9.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/bcel/bcel/5.1/bcel-5.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/opencloud/sleetck-minimal/1.0/sleetck-minimal-1.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/com/opencloud/sleetck-ra-common/1.0/sleetck-ra-common-1.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/opencloud/sleetck-minimal/1.1/sleetck-minimal-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/opencloud/sleetck-ra-events/1.1/sleetck-ra-events-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/opencloud/sleetck-ra-type/1.1/sleetck-ra-type-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/opencloud/sleetck-ra/1.1/sleetck-ra-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/sun/javatest/3.1.2.b06/javatest-3.1.2.b06.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-jxpath/commons-jxpath/1.2/commons-jxpath-1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.0.jboss/commons-logging-1.1.0.jboss.jar"/>
@@ -25,7 +22,7 @@
   <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1.1/activation-1.1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/security/jaas/1.0.01/jaas-1.0.01.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.1/jaxb-api-2.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/jboss-serialization/1.0.3.GA/jboss-serialization-1.0.3.GA.jar"/>

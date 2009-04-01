@@ -15,19 +15,19 @@
 	<dependencies>
 		<!-- components -->
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>tck-ra-events</artifactId>
-			<version>${pom.version}</version>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-ra-events</artifactId>
+			<version>1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>tck-ra-ratype</artifactId>
-			<version>${pom.version}</version>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-ra-type</artifactId>
+			<version>1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>tck-ra-ra</artifactId>
-			<version>${pom.version}</version>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-ra</artifactId>
+			<version>1.1</version>
 		</dependency>
 	</dependencies>
 	

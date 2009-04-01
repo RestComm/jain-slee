@@ -13,18 +13,20 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>com.opencloud</groupId>
-			<artifactId>sleetck-minimal</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.opencloud</groupId>
-			<artifactId>sleetck-ra-common</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>jar</artifactId>
 			<version>${pom.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun</groupId>
+			<artifactId>javatest</artifactId>
+			<version>3.1.2.b06</version>
+		</dependency>
+		<dependency>
+			<groupId>com.opencloud</groupId>
+			<artifactId>sleetck-minimal</artifactId>
+			<version>1.1</version>
 		</dependency>
 	</dependencies>
 	
