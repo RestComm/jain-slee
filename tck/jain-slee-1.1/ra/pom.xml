@@ -14,7 +14,6 @@
 	<name>Mobicents :: JAIN SLEE Server :: TCK :: ${pom.artifactId}</name>
 	
 	<modules>
-		<module>mbean</module>
 		<module>du</module>
 	</modules>
 

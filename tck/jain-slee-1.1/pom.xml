@@ -16,6 +16,7 @@
 	<name>Mobicents :: JAIN SLEE Server :: TCK :: ${pom.artifactId}</name>
 	
 	<modules>
+		<module>plugin</module>
 		<module>ra</module>
 	</modules>
 
