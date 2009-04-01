@@ -329,7 +329,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	public void removeAllUsageParameterSet() {
 		for (SbbUsageMBeanMapKey mapKey : usageMBeans.keySet()) {
 			try {
-				removeUsageParameterSet(mapKey.sbbID, mapKey.paramName);
+				_removeUsageParameterSet(mapKey.sbbID, mapKey.paramName);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
