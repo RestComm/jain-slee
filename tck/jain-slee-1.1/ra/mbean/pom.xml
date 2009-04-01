@@ -7,17 +7,17 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 		
-	<artifactId>tck-ra-bean</artifactId>
+	<artifactId>tck-plugin-bean</artifactId>
 
 	<name>Mobicents :: JAIN SLEE Server :: TCK :: ${pom.artifactId}</name>
 	
 	<dependencies>
-		<dependency>
+		<!-- dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>jar</artifactId>
 			<version>${pom.version}</version>
 			<scope>provided</scope>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.sun</groupId>
 			<artifactId>javatest</artifactId>
@@ -57,7 +57,7 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>deploy-DU</id>
+						<id>deploy</id>
 						<phase>install</phase>
 						<goals>
 							<goal>run</goal>
@@ -69,7 +69,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>undeploy-DU</id>
+						<id>undeploy</id>
 						<phase>clean</phase>
 						<goals>
 							<goal>run</goal>
