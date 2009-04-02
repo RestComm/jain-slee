@@ -309,6 +309,15 @@ public class ResourceManagement {
 				}
 			}
 			
+			ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
+			if (resourceUsageMBeanImpl != null) {
+				try {
+					resourceUsageMBeanImpl.close();									
+				} catch (Throwable e) {
+					throw new SLEEException("failed to close entity resource usage mbean",e);
+				}
+			}
+			
 			logger.info("Removed RA Entity " + entityName);
 		}
 	}
