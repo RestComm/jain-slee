@@ -44,13 +44,14 @@
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=Trace",exposedInterface=javax.slee.management.TraceMBean.class, registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
 	</bean>
-	<!-- 
+	
 	<bean name="Mobicents.JAINSLEE.ProfileProvisoningMBean"
 		class="org.mobicents.slee.container.management.jmx.ProfileProvisioningMBeanImpl">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=ProfileProvisioning",exposedInterface=javax.slee.management.ProfileProvisioningMBean.class, registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
+		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
 	</bean>
-	-->
+	
 	<bean name="Mobicents.JAINSLEE.ResourceManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.ResourceManagementMBeanImpl">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=ResourceManagement",exposedInterface=javax.slee.management.ResourceManagementMBean.class, registerDirectly=true)</annotation>
@@ -76,6 +77,8 @@
 		<property name="sbbEntitiesMBean">slee:name=SbbEntitiesMBean</property>
 		<property name="rmiServerInterfaceMBean">slee:service=RmiServerInterfaceMBean</property>
 		<property name="activityManagementMBean">slee:name=ActivityManagementMBean</property>
+		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
+		<demand>Mobicents.JAINSLEE.Cache</demand>
 		<demand>Mobicents.JAINSLEE.RmiServerInterfaceMBean</demand>
 		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>						
 	</bean>
