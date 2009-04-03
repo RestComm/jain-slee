@@ -1,7 +1,6 @@
 package org.mobicents.slee.container.component;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Set;
 
 import javassist.LoaderClassPath;
@@ -11,7 +10,6 @@ import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 
-import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.DeployableUnit;
 
@@ -23,13 +21,6 @@ import org.mobicents.slee.container.component.deployment.DeployableUnit;
  * 
  */
 public abstract class SleeComponent {
-
-	/**
-	 * the class loader domain for the component, where no only its own class
-	 * loader policy is registred, but also the policies for all components it
-	 * depends.
-	 */
-	private ClassLoaderDomain classLoaderDomain;
 
 	/**
 	 * the component class loader
@@ -93,24 +84,6 @@ public abstract class SleeComponent {
 	 */
 	public ClassPool getClassPool() {
 		return classPool;
-	}
-	
-	/**
-	 * Retrieves the component class loader domain
-	 * 
-	 * @return
-	 */
-	public ClassLoaderDomain getClassLoaderDomain() {
-		return classLoaderDomain;
-	}
-
-	/**
-	 * Sets the component class loader domain
-	 * 
-	 * @param classLoaderDomain
-	 */
-	public void setClassLoaderDomain(ClassLoaderDomain classLoaderDomain) {
-		this.classLoaderDomain = classLoaderDomain;
 	}
 
 	/**

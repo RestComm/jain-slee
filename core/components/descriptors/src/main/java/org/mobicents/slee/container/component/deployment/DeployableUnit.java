@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,8 +28,7 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.jboss.classloader.spi.ClassLoaderDomain;
-import org.jboss.classloader.spi.ClassLoaderSystem;
+import org.mobicents.slee.container.component.ComponentJarClassLoaderDomain;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.LibraryComponent;
@@ -54,14 +54,15 @@ public class DeployableUnit {
 	 * the DU id
 	 */
 	private final DeployableUnitID id;
-	
+
 	/**
 	 * the DU descriptor
 	 */
 	private final DeployableUnitDescriptorImpl descriptor;
-	
+
 	/**
-	 * the DU repository, provides an extended view of the container's component repository
+	 * the DU repository, provides an extended view of the container's component
+	 * repository
 	 */
 	private final DeployableUnitRepository repository;
 
@@ -69,50 +70,52 @@ public class DeployableUnit {
 	 * the temp dir where the DU is installed
 	 */
 	private final File deploymentDir;
-	
+
 	/**
 	 * the DU event type components
 	 */
-	private final Map<EventTypeID,EventTypeComponent> eventTypeComponents = new HashMap<EventTypeID,EventTypeComponent>();
-	
+	private final Map<EventTypeID, EventTypeComponent> eventTypeComponents = new HashMap<EventTypeID, EventTypeComponent>();
+
 	/**
 	 * the DU library components
 	 */
-	private final Map<LibraryID,LibraryComponent> libraryComponents = new HashMap<LibraryID,LibraryComponent>();
-	
+	private final Map<LibraryID, LibraryComponent> libraryComponents = new HashMap<LibraryID, LibraryComponent>();
+
 	/**
 	 * the DU profile spec components
 	 */
-	private final Map<ProfileSpecificationID,ProfileSpecificationComponent> profileSpecificationComponents = new HashMap<ProfileSpecificationID,ProfileSpecificationComponent>();
-	
+	private final Map<ProfileSpecificationID, ProfileSpecificationComponent> profileSpecificationComponents = new HashMap<ProfileSpecificationID, ProfileSpecificationComponent>();
+
 	/**
 	 * the DU ra components
 	 */
-	private final Map<ResourceAdaptorID,ResourceAdaptorComponent> resourceAdaptorComponents = new HashMap<ResourceAdaptorID,ResourceAdaptorComponent>();
-	
+	private final Map<ResourceAdaptorID, ResourceAdaptorComponent> resourceAdaptorComponents = new HashMap<ResourceAdaptorID, ResourceAdaptorComponent>();
+
 	/**
 	 * the DU ratype components
 	 */
-	private final Map<ResourceAdaptorTypeID,ResourceAdaptorTypeComponent> resourceAdaptorTypeComponents = new HashMap<ResourceAdaptorTypeID,ResourceAdaptorTypeComponent>();
-	
+	private final Map<ResourceAdaptorTypeID, ResourceAdaptorTypeComponent> resourceAdaptorTypeComponents = new HashMap<ResourceAdaptorTypeID, ResourceAdaptorTypeComponent>();
+
 	/**
 	 * the DU sbb components
 	 */
-	private final Map<SbbID, SbbComponent> sbbComponents = new HashMap<SbbID,SbbComponent>();
-	
+	private final Map<SbbID, SbbComponent> sbbComponents = new HashMap<SbbID, SbbComponent>();
+
 	/**
 	 * the DU service components
 	 */
-	private final Map<ServiceID, ServiceComponent> serviceComponents = new HashMap<ServiceID,ServiceComponent>();
+	private final Map<ServiceID, ServiceComponent> serviceComponents = new HashMap<ServiceID, ServiceComponent>();
 
 	/**
 	 * the date this deployable unit was built
 	 */
 	private final Date date = new Date();
-	
+
+	private final Map<String, ComponentJarClassLoaderDomain> classLoaderDomains = new HashMap<String, ComponentJarClassLoaderDomain>();
+
 	public DeployableUnit(DeployableUnitID deployableUnitID,
 			DeployableUnitDescriptorImpl duDescriptor,
-			ComponentRepository componentRepository,File deploymentDir) {
+			ComponentRepository componentRepository, File deploymentDir) {
 		if (deployableUnitID == null) {
 			throw new NullPointerException("null deployableUnitID");
 		}
@@ -127,12 +130,14 @@ public class DeployableUnit {
 		}
 		this.id = deployableUnitID;
 		this.descriptor = duDescriptor;
-		this.repository = new DeployableUnitRepository(this,componentRepository);
+		this.repository = new DeployableUnitRepository(this,
+				componentRepository);
 		this.deploymentDir = deploymentDir;
 	}
 
 	/**
 	 * Retrieves the DU descriptor
+	 * 
 	 * @return
 	 */
 	public DeployableUnitDescriptorImpl getDeployableUnitDescriptor() {
@@ -141,6 +146,7 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU id
+	 * 
 	 * @return
 	 */
 	public DeployableUnitID getDeployableUnitID() {
@@ -149,6 +155,7 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU component repository
+	 * 
 	 * @return
 	 */
 	public DeployableUnitRepository getDeployableUnitRepository() {
@@ -157,14 +164,16 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the temp dir where the DU is installed
+	 * 
 	 * @return
 	 */
 	public File getDeploymentDir() {
 		return deploymentDir;
 	}
-	
+
 	/**
 	 * Retrieves the DU event type components
+	 * 
 	 * @return
 	 */
 	public Map<EventTypeID, EventTypeComponent> getEventTypeComponents() {
@@ -173,6 +182,7 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU library components
+	 * 
 	 * @return
 	 */
 	public Map<LibraryID, LibraryComponent> getLibraryComponents() {
@@ -181,6 +191,7 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU profile spec components
+	 * 
 	 * @return
 	 */
 	public Map<ProfileSpecificationID, ProfileSpecificationComponent> getProfileSpecificationComponents() {
@@ -189,6 +200,7 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU ra components
+	 * 
 	 * @return
 	 */
 	public Map<ResourceAdaptorID, ResourceAdaptorComponent> getResourceAdaptorComponents() {
@@ -197,6 +209,7 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU ratype components
+	 * 
 	 * @return
 	 */
 	public Map<ResourceAdaptorTypeID, ResourceAdaptorTypeComponent> getResourceAdaptorTypeComponents() {
@@ -205,6 +218,7 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU sbb components
+	 * 
 	 * @return
 	 */
 	public Map<SbbID, SbbComponent> getSbbComponents() {
@@ -213,15 +227,27 @@ public class DeployableUnit {
 
 	/**
 	 * Retrieves the DU service components
+	 * 
 	 * @return
 	 */
 	public Map<ServiceID, ServiceComponent> getServiceComponents() {
 		return serviceComponents;
 	}
-	
+
+	public void addClassLoaderDomain(
+			ComponentJarClassLoaderDomain domain) {
+		classLoaderDomains.put(domain.getName(), domain);
+	}
+
+	public ComponentJarClassLoaderDomain getClassLoaderDomain(
+			String domainName) {
+		return classLoaderDomains.get(domainName);
+	}
+
 	/**
-	 * Returns an unmodifiable set with all {@link SleeComponent}s of the deployable unit.
-	 *  
+	 * Returns an unmodifiable set with all {@link SleeComponent}s of the
+	 * deployable unit.
+	 * 
 	 * @return
 	 */
 	public Set<SleeComponent> getDeployableUnitComponents() {
@@ -235,7 +261,7 @@ public class DeployableUnit {
 		result.addAll(getServiceComponents().values());
 		return Collections.unmodifiableSet(result);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return id.hashCode();
@@ -244,55 +270,58 @@ public class DeployableUnit {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((DeployableUnit) obj).id
-					.equals(this.id);
+			return ((DeployableUnit) obj).id.equals(this.id);
 		} else {
 			return false;
 		}
 	}
-	
+
+	/**
+	 * Undeploys this unit
+	 */
 	public void undeploy() {
-		// remove all component class loader domains
-		ClassLoaderSystem classLoaderSystem = ClassLoaderSystem.getInstance();
+		// clean class pools
 		for (SleeComponent component : getDeployableUnitComponents()) {
 			ClassPool classPool = component.getClassPool();
 			if (classPool != null) {
 				classPool.clean();
 				component.setClassPool(null);
 			}
-			ClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
-			if (classLoaderDomain != null) {
-				classLoaderSystem.unregisterDomain(classLoaderDomain);
-				component.setClassLoaderDomain(null);
-				component.setClassLoader(null);
-			}						
+		}
+		// remove all component class loader domains
+		for (Iterator<ComponentJarClassLoaderDomain> i = classLoaderDomains.values().iterator(); i.hasNext();) {
+			i.next().unregister();
+			i.remove();
 		}
 		// now delete the deployment dir
 		deletePath(getDeploymentDir());
 	}
-	
-	/**
-     * deletes the whole path, going through directories
-     * @param path
-     */
-    private void deletePath(File path) {
-    	if (path.isDirectory()) {
-    		for(File file : path.listFiles()) {
-    			deletePath(file);
-    		}
-    	}
-    	path.delete();
-    }
 
-    /**
-     * Returns the {@link DeployableUnitDescriptor} for this deployable unit.
-     * @return
-     */
-    public javax.slee.management.DeployableUnitDescriptor getSpecsDeployableUnitDescriptor() {
-    	Set<ComponentID> componentIDs = new HashSet<ComponentID>();
-    	for (SleeComponent component : getDeployableUnitComponents()) {
-    		componentIDs.add(component.getComponentID());
-    	}
-		return new DeployableUnitDescriptor(getDeployableUnitID(),date,componentIDs.toArray(new ComponentID[0]));
+	/**
+	 * deletes the whole path, going through directories
+	 * 
+	 * @param path
+	 */
+	private void deletePath(File path) {
+		if (path.isDirectory()) {
+			for (File file : path.listFiles()) {
+				deletePath(file);
+			}
+		}
+		path.delete();
+	}
+
+	/**
+	 * Returns the {@link DeployableUnitDescriptor} for this deployable unit.
+	 * 
+	 * @return
+	 */
+	public javax.slee.management.DeployableUnitDescriptor getSpecsDeployableUnitDescriptor() {
+		Set<ComponentID> componentIDs = new HashSet<ComponentID>();
+		for (SleeComponent component : getDeployableUnitComponents()) {
+			componentIDs.add(component.getComponentID());
+		}
+		return new DeployableUnitDescriptor(getDeployableUnitID(), date,
+				componentIDs.toArray(new ComponentID[0]));
 	}
 }

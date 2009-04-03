@@ -30,7 +30,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.ME
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
-import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
@@ -876,8 +875,7 @@ public class SbbEntity {
 			Object[] objs = { this };
 			Class[] types = { SbbEntity.class };
 			try {
-				return (SbbLocalObjectImpl) Thread.currentThread().getContextClassLoader().loadClass(sbbLocalClass.getName()).getConstructor(types)
-						.newInstance(objs);
+				return (SbbLocalObjectImpl) sbbLocalClass.getConstructor(types).newInstance(objs);
 			} catch (Exception e) {
 				throw new RuntimeException(
 						"Failed to create Sbb Local Interface.", e);

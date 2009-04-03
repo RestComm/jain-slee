@@ -124,7 +124,9 @@ public class ResourceAdaptorEntity {
 		this.alarmFacility = new DefaultAlarmFacilityImpl(notificationSource,
 				this.sleeContainer.getAlarmFacility());
 		// create ra object
+		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
+			Thread.currentThread().setContextClassLoader(component.getClassLoader());
 			Constructor cons = this.component.getResourceAdaptorClass()
 					.getConstructor(null);
 			ResourceAdaptor ra = (ResourceAdaptor) cons.newInstance(null);
@@ -133,6 +135,9 @@ public class ResourceAdaptorEntity {
 		} catch (Exception e) {
 			throw new SLEEException(
 					"unable to create instance of ra object for " + component);
+		}
+		finally {
+			Thread.currentThread().setContextClassLoader(currentClassLoader);
 		}
 		// create ra context
 		resourceAdaptorContext = new ResourceAdaptorContextImpl(this,
@@ -548,12 +553,14 @@ public class ResourceAdaptorEntity {
 
 	private ReceivableService getReceivableService(DeferredEvent deferredEvent) {
 		ReceivableService receivableService = null;
-		try {
-			receivableService = resourceAdaptorContext
-					.getServiceLookupFacility().getReceivableService(
-							deferredEvent.getService());
-		} catch (Throwable e) {
-			logger.error(e.getMessage(), e);
+		if (deferredEvent.getService() != null) {
+			try {
+				receivableService = resourceAdaptorContext
+				.getServiceLookupFacility().getReceivableService(
+						deferredEvent.getService());
+			} catch (Throwable e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 		return receivableService;
 	}

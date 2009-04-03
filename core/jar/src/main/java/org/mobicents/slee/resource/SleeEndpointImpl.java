@@ -317,9 +317,14 @@ public class SleeEndpointImpl implements SleeEndpoint {
     	if (eventTypeComponent == null) {
     		throw new IllegalEventException("event type not installed (more on SLEE 1.1 specs 15.14.8)");
     	}
-    	if (!event.getClass().isAssignableFrom(eventTypeComponent.getEventTypeClass())) {
-    		throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
-    	}
+    	try {
+			if (!Thread.currentThread().getContextClassLoader().loadClass(eventTypeComponent.getEventTypeClass().getName()).isAssignableFrom(event.getClass())) {
+				throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
+			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	if (raEntity.getAllowedEventTypes() != null && !raEntity.getAllowedEventTypes().contains(eventType.getEventType())) {
     		throw new IllegalEventException("Resource Adaptor configured to not ignore ra type event checking and the event "+eventType.getEventType()+" does not belongs to any of the ra types implemented by the resource adaptor");
     	}
@@ -351,7 +356,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
     		throw new UnrecognizedActivityException(handle);
     	}
     	else {        		
-    		ac.fireEvent(eventType.getEventType(),event,address,receivableService.getService(),eventFlags);
+    		ac.fireEvent(eventType.getEventType(),event,address, (receivableService == null ? null : receivableService.getService()),eventFlags);
     	} 
 	}
 	
