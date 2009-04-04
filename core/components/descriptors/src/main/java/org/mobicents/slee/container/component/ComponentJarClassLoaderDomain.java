@@ -100,10 +100,12 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	public void unregister() {
 		ClassLoaderSystem classLoaderSystem = ClassLoaderSystem.getInstance();
 		classLoaderSystem.unregisterClassLoader(classLoader);
+		this.classLoader = null;
 		classLoaderSystem.unregisterDomain(this);
 		packageCache.clear();
 		loaderCache.clear();
 		classCache.clear();
+		refs.clear();
 	}
 
 	/**
