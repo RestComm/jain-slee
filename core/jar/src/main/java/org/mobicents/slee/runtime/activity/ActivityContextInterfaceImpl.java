@@ -20,6 +20,7 @@ import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
@@ -134,8 +135,9 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			//            	JSLEE 1.0 Spec, Section 8.5.8 excerpt:
 			//        		The SLEE delivers the event to an SBB entity that stays attached once. The SLEE may deliver the
 			//        		event to the same SBB entity more than once if it has been detached and then re -attached. 
-			if (sleeContainer.getEventRouter().getEventRouterActivity(
-					getActivityContext().getActivityContextId()).getCurrentEventContext().getSbbEntitiesThatHandledEvent().remove(sbbeId)) {
+			EventContextImpl eventContextImpl = sleeContainer.getEventRouter().getEventRouterActivity(
+					getActivityContext().getActivityContextId()).getCurrentEventContext();
+			if (eventContextImpl != null && eventContextImpl.getSbbEntitiesThatHandledEvent().remove(sbbeId)) {
 				if (logger.isDebugEnabled()) {
 					logger
 							.debug("Removed the SBB Entity ["
