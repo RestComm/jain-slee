@@ -69,6 +69,45 @@ public class SbbAbstractMethodHandler {
 		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
 	}
 
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			byte cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
+	
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			short cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
+	
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			int cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
+	
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			long cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
+	
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			float cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
+	
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			double cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
+	
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			boolean cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
+	
+	public static void setCMPField(SbbEntity sbbEntity, String cmpFieldName,
+			char cmpFieldValue) {
+		sbbEntity.setCMPField(cmpFieldName, cmpFieldValue);
+	}
 	// CHILD RELATION GETTER
 
 	/**

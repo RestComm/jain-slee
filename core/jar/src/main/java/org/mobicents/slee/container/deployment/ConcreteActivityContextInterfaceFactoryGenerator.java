@@ -15,6 +15,7 @@ package org.mobicents.slee.container.deployment;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
+import javassist.CtNewMethod;
 
 import javax.slee.resource.ResourceAdaptorTypeID;
 
@@ -71,18 +72,22 @@ public class ConcreteActivityContextInterfaceFactoryGenerator {
         	logger.debug("generating "+concreteClassName);
         }
 		CtClass concreteCtClass = classPool.makeClass(concreteClassName);
+        // set interface
+        ConcreteClassGeneratorUtils.createInterfaceLinks(concreteCtClass,new CtClass[]{interfaceCtClass});
         // set super class
         CtClass superCtClass = classPool.get(AbstractActivityContextInterfaceFactory.class.getName());
         concreteCtClass.setSuperclass(superCtClass);
-        // set interface
-        ConcreteClassGeneratorUtils.createInterfaceLinks(concreteCtClass,new CtClass[]{interfaceCtClass});
         // create constructor
         this.createConstructor(concreteCtClass, classPool.get(SleeContainer.class
                 .getName()),classPool.get(ResourceAdaptorTypeID.class
                         .getName()));
         // generate methods        
-        for (CtMethod method : concreteCtClass.getDeclaredMethods()) {            
-            method.setBody("{ return getACI($1); }");
+        for (CtMethod method : interfaceCtClass.getMethods()) {
+        	if (method.getName().equals("getActivityContextInterface")) {
+        		CtMethod concreteMethod = CtNewMethod.copy(method,concreteCtClass, null);
+            	concreteMethod.setBody("{ return super.getACI($1); }");
+            	concreteCtClass.addMethod(concreteMethod);
+        	}
         }
         // write file
         String deploymentPathStr = component.getDeploymentDir().getAbsolutePath();

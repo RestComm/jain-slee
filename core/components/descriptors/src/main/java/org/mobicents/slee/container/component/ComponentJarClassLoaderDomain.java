@@ -63,14 +63,16 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	public ComponentJarClassLoaderDomain(String name) {
 		super(name);
 	}
-	
+
 	/**
 	 * Retrieves the set of dependency domains
+	 * 
 	 * @return
 	 */
 	public Set<ComponentJarClassLoaderDomain> getDependencyDomains() {
 		return refs;
 	}
+
 	/**
 	 * Retrieves the class loader bound to this domain
 	 * 
@@ -139,37 +141,37 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	protected Package afterGetPackage(String name) {
 		// look in cache
 		Package result = packageCache.get(name);
-		if (result != null) {
-			if (isUseLoadClassForParent()) {
+		if (result == null && isUseLoadClassForParent()) {
+			// try to find it in a ref domain
+			for (ComponentJarClassLoaderDomain ref : refs) {
+				// the process to lookup in a ref domain needs to sync
+				// the object and disable the lookup in parent, to avoid
+				// loops
+				synchronized (ref) {
+					ref.setUseLoadClassForParent(false);
+					result = ref.getPackage(name);
+					ref.setUseLoadClassForParent(true);
+				}
+				if (result != null) {
+					break;
+				}
+			}
+			if (result == null) {
 				// look in parent
 				result = super.afterGetPackage(name);
-				if (result == null) {
-					// try to find it in a ref domain
-					for (ComponentJarClassLoaderDomain ref : refs) {
-						// the process to lookup in a ref domain needs to sync
-						// the object and disable the lookup in parent, to avoid
-						// loops
-						synchronized (ref) {
-							ref.setUseLoadClassForParent(false);
-							result = ref.getPackage(name);
-							ref.setUseLoadClassForParent(true);
-						}
-						if (result != null) {
-							break;
-						}
-					}
-				}
+			}
+			if (result != null) {
 				// store in cache
 				packageCache.put(name, result);
 			}
 		}
+
 		return result;
 	}
 
 	@Override
 	protected void afterGetPackages(Set<Package> packages) {
 		if (isUseLoadClassForParent()) {
-			super.afterGetPackages(packages);
 			for (ComponentJarClassLoaderDomain ref : refs) {
 				synchronized (ref) {
 					ref.setUseLoadClassForParent(false);
@@ -177,6 +179,7 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 					ref.setUseLoadClassForParent(true);
 				}
 			}
+			super.afterGetPackages(packages);
 		}
 	}
 
@@ -184,26 +187,28 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	protected Loader findAfterLoader(String name) {
 		// look in cache
 		Loader result = loaderCache.get(name);
-		if (isUseLoadClassForParent()) {
-			// look in parent
-			result = super.findAfterLoader(name);
-			if (result == null) {
-				// try to find it in a ref domain
-				for (ComponentJarClassLoaderDomain ref : refs) {
-					// the process to lookup in a ref domain needs to sync the
-					// object and disable the lookup in parent, to avoid loops
-					synchronized (ref) {
-						ref.setUseLoadClassForParent(false);
-						result = ref.findLoader(name);
-						ref.setUseLoadClassForParent(true);
-					}
-					if (result != null) {
-						break;
-					}
+		if (result == null && isUseLoadClassForParent()) {
+			// try to find it in a ref domain
+			for (ComponentJarClassLoaderDomain ref : refs) {
+				// the process to lookup in a ref domain needs to sync the
+				// object and disable the lookup in parent, to avoid loops
+				synchronized (ref) {
+					ref.setUseLoadClassForParent(false);
+					result = ref.findLoader(name);
+					ref.setUseLoadClassForParent(true);
+				}
+				if (result != null) {
+					break;
 				}
 			}
-			// put in cache
-			loaderCache.put(name, result);
+			if (result == null) {
+				// look in parent
+				result = super.findAfterLoader(name);
+			}
+			if (result != null) {
+				// put in cache
+				loaderCache.put(name, result);
+			}
 		}
 		return result;
 	}
@@ -212,24 +217,31 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	protected Class<?> loadClassAfter(String name) {
 		// look in cache
 		Class<?> result = classCache.get(name);
-		if (isUseLoadClassForParent()) {
-			// look in parent
-			result = super.loadClassAfter(name);
-			if (result == null) {
-				// try to find it in a ref domain
-				for (ComponentJarClassLoaderDomain ref : refs) {
-					synchronized (ref) {
-						// the process to lookup in a ref domain needs to sync
-						// the object and disable the lookup in parent, to avoid
-						// loops
-						ref.setUseLoadClassForParent(false);
+		if (result == null && isUseLoadClassForParent()) {
+			// try to find it in a ref domain
+			for (ComponentJarClassLoaderDomain ref : refs) {
+				synchronized (ref) {
+					// the process to lookup in a ref domain needs to sync
+					// the object and disable the lookup in parent, to avoid
+					// loops
+					ref.setUseLoadClassForParent(false);
+					try {
 						result = ref.loadClass(name);
-						ref.setUseLoadClassForParent(true);
+					} catch (NoClassDefFoundError e) {
+						// ignore
 					}
-					if (result != null) {
-						break;
-					}
+					ref.setUseLoadClassForParent(true);
 				}
+				if (result != null) {
+					break;
+				}
+			}
+			if (result == null) {
+				// look in parent
+				result = super.loadClassAfter(name);
+			}
+			if (result != null) {
+				classCache.put(name, result);
 			}
 		}
 		return result;

@@ -105,6 +105,79 @@ public class SbbActivityContextInterfaceImpl implements ActivityContextInterface
 	}
 	
 	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, byte value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, short value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, int value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, long value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, float value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, double value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, boolean value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	/**
+	 * Sets an sbb aci data field value
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setFieldValue(String fieldName, char value) {
+		String realFieldName = getRealFieldName(fieldName);
+		aciImpl.getActivityContext().setDataAttribute(realFieldName,value);
+	}
+	
+	/**
 	 * Retrieves an sbb aci data field value
 	 * @param fieldName
 	 * @param returnType
@@ -119,15 +192,15 @@ public class SbbActivityContextInterfaceImpl implements ActivityContextInterface
         if ( value == null ) {
             if ( returnType.isPrimitive()) {
                 if ( returnType.equals(Integer.TYPE)) {
-                    return new Integer(0);
+                    return Integer.valueOf(0);
                 } else if ( returnType.equals(Boolean.TYPE)) {
-                    return new Boolean("false");
+                    return Boolean.FALSE;
                 } else if ( returnType.equals( Long.TYPE ) ) {
-                    return new Long(0);
+                    return Long.valueOf(0);
                 } else if ( returnType.equals ( Double.TYPE )) {
-                    return new Double(0);
+                    return Double.valueOf(0);
                 } else if ( returnType.equals(Float.TYPE)) {
-                    return new Float(0);
+                    return Float.valueOf(0);
                 }
             }
         }

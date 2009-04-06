@@ -236,7 +236,7 @@ public class DeployableUnitBuilder {
 					HashSet<String> domainsProcessed = new HashSet<String>();
 					domainsProcessed.add(domain.getName());
 					addDependenciesClassLoadingDomains(component, domain,
-							classLoaderSystem, domainsProcessed, deployableUnit);
+							classLoaderSystem, domainsProcessed);
 					// add dependency laoders class paths to the component's javassist classpool
 					for (ComponentJarClassLoaderDomain refDomain : domain.getDependencyDomains()) {
 						component.getClassPool().appendClassPath(new LoaderClassPath(refDomain.getClassLoader()));
@@ -480,7 +480,7 @@ public class DeployableUnitBuilder {
 			SleeComponent sleeComponent,
 			ComponentJarClassLoaderDomain domainToAddDependencies,
 			ClassLoaderSystem classLoaderSystem,
-			Set<String> componentsProcessed, DeployableUnit deployableUnit) {
+			Set<String> componentsProcessed) {
 		for (ComponentID componentID : sleeComponent.getDependenciesSet()) {
 			SleeComponent component = null;
 			if (componentID instanceof EventTypeID) {
@@ -513,22 +513,19 @@ public class DeployableUnitBuilder {
 						.getAbsolutePath());
 				if (componentsProcessed.add(domainName)) {
 					// add the referenced component domain
-					ComponentJarClassLoaderDomain refDomain = deployableUnit
-							.getClassLoaderDomain(domainName);
-					if (refDomain != null) {
-						if (logger.isDebugEnabled()) {
-							logger
-									.debug("Adding class loading domain from component "
-											+ component
-											+ " to class loading domain "
-											+ domainToAddDependencies);
-						}
-						domainToAddDependencies.getDependencyDomains().add(refDomain);
+					ComponentJarClassLoaderDomain refDomain = component.getDeployableUnit().getClassLoaderDomain(domainName);
+					if (logger.isDebugEnabled()) {
+						logger
+						.debug("Adding class loading domain from component "
+								+ component
+								+ " to class loading domain "
+								+ domainToAddDependencies);
 					}
+					domainToAddDependencies.getDependencyDomains().add(refDomain);
 					// and add the component dependencies too
 					addDependenciesClassLoadingDomains(component,
 							domainToAddDependencies, classLoaderSystem,
-							componentsProcessed, deployableUnit);
+							componentsProcessed);
 				} else {
 					if (logger.isDebugEnabled()) {
 						logger.debug("Class loading domain for component "
