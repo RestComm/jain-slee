@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.management.ObjectName;
 import javax.slee.SLEEException;
 
 import org.jboss.classloader.spi.ClassLoaderDomain;
@@ -60,9 +61,19 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	 * @param name
 	 */
 	public ComponentJarClassLoaderDomain(String name) {
-		super(name);
+		super(getSafeDomainName(name));
 	}
 
+	/*
+	 * FIXME jboss ClassLoaderSystem has a bug in producing the objectname for the domain, till it is solved we must handle it here
+	 * @param name
+	 * @return
+	 */
+	private static String getSafeDomainName(String name) {
+		String domainName = ObjectName.quote(name);
+		return domainName.substring(1,domainName.length()-1);
+	}
+	
 	/**
 	 * Adds the specified domain this domain depends
 	 * 
