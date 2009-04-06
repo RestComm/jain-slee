@@ -1033,7 +1033,7 @@ public class SbbComponentValidator implements Validator {
 					// FIXME: field type must be equal to defined or must be
 					// javax.slee.SbbLocalObject = what about intermediate types
 					// X -> Y -> SbbLocalObject - and we have Y?
-					if (fieldType.getName().compareTo(referencedComponent.getSbbLocalInterfaceClass().getName()) == 0) {
+					if (referencedComponent.getDescriptor().getSbbLocalInterface()!=null && fieldType.getName().compareTo(referencedComponent.getDescriptor().getSbbLocalInterface().getSbbLocalInterfaceName()) == 0) {
 						// its ok
 					} else if (fieldType.getName().compareTo("javax.slee.SbbLocalObject") == 0) {
 						// its ok?
