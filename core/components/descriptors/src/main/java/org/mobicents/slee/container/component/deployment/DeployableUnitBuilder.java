@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.management.ObjectName;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
@@ -33,13 +34,7 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
-import org.jboss.classloader.spi.ClassLoaderDomain;
-import org.jboss.classloader.spi.ClassLoaderPolicy;
 import org.jboss.classloader.spi.ClassLoaderSystem;
-import org.jboss.classloading.spi.metadata.ExportAll;
-import org.jboss.classloading.spi.vfs.policy.VFSClassLoaderPolicy;
-import org.jboss.virtual.VFS;
-import org.jboss.virtual.VirtualFile;
 import org.mobicents.slee.container.component.ComponentJarClassLoaderDomain;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
@@ -201,8 +196,8 @@ public class DeployableUnitBuilder {
 			for (SleeComponent component : duComponentsSet) {
 				File componentDeploymentDir = component.getDeploymentDir();
 				if (componentDeploymentDir != null) {
-					String domainName = componentDeploymentDir
-							.getAbsolutePath();
+					String domainName = getSafeDomainName(componentDeploymentDir
+							.getAbsolutePath());
 					ComponentJarClassLoaderDomain classLoaderDomain = deployableUnit
 							.getClassLoaderDomain(domainName);
 					if (classLoaderDomain == null) {
@@ -310,6 +305,16 @@ public class DeployableUnitBuilder {
 		}
 	}
 
+	/*
+	 * FIXME jboss ClassLoaderSystem has a bug in producing the objectname for the domain, till it is solved we must handle it here
+	 * @param name
+	 * @return
+	 */
+	private String getSafeDomainName(String name) {
+		String domainName = ObjectName.quote(name);
+		return domainName.substring(1,domainName.length()-1);
+	}
+	
 	/**
 	 * Loads all non SLEE generated classes from the component class loader to
 	 * the component, those will be needed for validation or runtime purposes

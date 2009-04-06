@@ -61,17 +61,7 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	 * @param name
 	 */
 	public ComponentJarClassLoaderDomain(String name) {
-		super(getSafeDomainName(name));
-	}
-
-	/*
-	 * FIXME jboss ClassLoaderSystem has a bug in producing the objectname for the domain, till it is solved we must handle it here
-	 * @param name
-	 * @return
-	 */
-	private static String getSafeDomainName(String name) {
-		String domainName = ObjectName.quote(name);
-		return domainName.substring(1,domainName.length()-1);
+		super(name);
 	}
 	
 	/**
