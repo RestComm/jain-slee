@@ -90,8 +90,6 @@
 		<dependency>
 			<groupId>org.jboss.cache</groupId>
 			<artifactId>jbosscache-core</artifactId>
-			<version>3.1.0.BETA2</version>
-			<!--<version>3.0.2.GA</version>-->
 			<scope>compile</scope>
 		</dependency>
 		
