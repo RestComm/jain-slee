@@ -65,14 +65,12 @@ public class ComponentJarClassLoaderDomain extends ClassLoaderDomain {
 	}
 	
 	/**
-	 * Adds the specified domain this domain depends
-	 * 
-	 * @param domain
+	 * Retrieves the set of dependency domains
+	 * @return
 	 */
-	public void addDependencyDomain(ComponentJarClassLoaderDomain domain) {
-		refs.add(domain);
+	public Set<ComponentJarClassLoaderDomain> getDependencyDomains() {
+		return refs;
 	}
-
 	/**
 	 * Retrieves the class loader bound to this domain
 	 * 

@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javassist.LoaderClassPath;
+
 import javax.management.ObjectName;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
@@ -235,6 +237,10 @@ public class DeployableUnitBuilder {
 					domainsProcessed.add(domain.getName());
 					addDependenciesClassLoadingDomains(component, domain,
 							classLoaderSystem, domainsProcessed, deployableUnit);
+					// add dependency laoders class paths to the component's javassist classpool
+					for (ComponentJarClassLoaderDomain refDomain : domain.getDependencyDomains()) {
+						component.getClassPool().appendClassPath(new LoaderClassPath(refDomain.getClassLoader()));
+					}
 				}
 			}
 
@@ -517,7 +523,7 @@ public class DeployableUnitBuilder {
 											+ " to class loading domain "
 											+ domainToAddDependencies);
 						}
-						domainToAddDependencies.addDependencyDomain(refDomain);
+						domainToAddDependencies.getDependencyDomains().add(refDomain);
 					}
 					// and add the component dependencies too
 					addDependenciesClassLoadingDomains(component,
