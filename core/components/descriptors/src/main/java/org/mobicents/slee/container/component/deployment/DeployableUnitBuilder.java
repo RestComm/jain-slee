@@ -229,8 +229,8 @@ public class DeployableUnitBuilder {
 										+ component);
 					}
 					ComponentJarClassLoaderDomain domain = deployableUnit
-							.getClassLoaderDomain(component
-									.getDeploymentDir().getAbsolutePath());
+							.getClassLoaderDomain(getSafeDomainName(component
+									.getDeploymentDir().getAbsolutePath()));
 					HashSet<String> domainsProcessed = new HashSet<String>();
 					domainsProcessed.add(domain.getName());
 					addDependenciesClassLoadingDomains(component, domain,
@@ -503,8 +503,8 @@ public class DeployableUnitBuilder {
 								(SbbID) componentID);
 			}
 			if (component != null && component.getDeploymentDir() != null) {
-				String domainName = component.getDeploymentDir()
-						.getAbsolutePath();
+				String domainName = getSafeDomainName(component.getDeploymentDir()
+						.getAbsolutePath());
 				if (componentsProcessed.add(domainName)) {
 					// add the referenced component domain
 					ComponentJarClassLoaderDomain refDomain = deployableUnit
