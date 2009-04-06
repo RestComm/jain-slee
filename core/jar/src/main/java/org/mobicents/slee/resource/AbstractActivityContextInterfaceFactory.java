@@ -1,5 +1,7 @@
 package org.mobicents.slee.resource;
 
+import java.io.Serializable;
+
 import javax.slee.ActivityContextInterface;
 import javax.slee.FactoryException;
 import javax.slee.UnrecognizedActivityException;
@@ -18,8 +20,13 @@ import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
  * @author martins
  *
  */
-public class AbstractActivityContextInterfaceFactory {
+public class AbstractActivityContextInterfaceFactory implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private final SleeContainer sleeContainer;
 	private final ResourceAdaptorTypeID resourceAdaptorTypeID;
 	

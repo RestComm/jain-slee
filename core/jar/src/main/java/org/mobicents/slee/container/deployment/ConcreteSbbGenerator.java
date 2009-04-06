@@ -358,7 +358,7 @@ public class ConcreteSbbGenerator {
 					.getSbbLocalInterfaceClass();
 			if (logger.isDebugEnabled()) {
 				logger.debug("Sbb Local Object interface :"
-						+ sbbLocalInterfaceClass.getName());
+						+ sbbLocalInterfaceClass);
 			}
 			if (sbbLocalInterfaceClass != null
 					&& !sbbLocalInterfaceClass.getName().equals(
