@@ -213,14 +213,14 @@ public class ProfileSpecificationComponentValidator implements Validator {
 	private final static Set<String> _ENV_ENTRIES_TYPES;
 	static {
 		Set<String> tmp = new HashSet<String>();
-		tmp.add(Integer.TYPE.getName());
-		tmp.add(Boolean.TYPE.getName());
-		tmp.add(Byte.TYPE.getName());
-		tmp.add(Character.TYPE.getName());
-		tmp.add(Double.TYPE.getName());
-		tmp.add(Float.TYPE.getName());
-		tmp.add(Long.TYPE.getName());
-		tmp.add(Short.TYPE.getName());
+		tmp.add(Integer.class.getName());
+		tmp.add(Boolean.class.getName());
+		tmp.add(Byte.class.getName());
+		tmp.add(Character.class.getName());
+		tmp.add(Double.class.getName());
+		tmp.add(Float.class.getName());
+		tmp.add(Long.class.getName());
+		tmp.add(Short.class.getName());
 		tmp.add(String.class.getName());
 		_ENV_ENTRIES_TYPES = Collections.unmodifiableSet(tmp);
 
@@ -440,7 +440,25 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				List<MCMPField> cmpFields = this.component.getDescriptor()
 						.getProfileClasses().getProfileCMPInterface().getCmpFields();
 
-				if (cmpFields.size() != fieldToType.size()) {
+				for(MCMPField cmpField : cmpFields)
+				{
+				  if(!fieldOccurances.containsKey(cmpField.getCmpFieldName()))
+				  {
+	          passed = false;
+	          //System.err.println(fieldToType.keySet());
+	          errorBuffer = appendToBuffer("Profile Specification descriptor declares CMP Field which is not present in Profile CMP interface (" + cmpField.getCmpFieldName() + ").", "3.3.7", errorBuffer);
+				  }
+				}
+				
+				/*
+				 * FIXME: Alexandre: This is not needed, remove.
+				 * 
+				 * # Zero or more cmp-field elements.
+				 *   These elements are option. They must be specified for any Profile CMP fields
+				 *   that have characteristics differing from the deployment descriptor defaults. Each
+				 *   ... 
+				 *  
+				 if (cmpFields.size() != fieldToType.size()) {
 					passed = false;
 					//System.err.println(fieldToType.keySet());
 					errorBuffer = appendToBuffer(
@@ -450,7 +468,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// FIXME: should we fail here
 					methodsIterator.remove();
 				}
-
+        */
+				
 				for (MCMPField f : cmpFields) {
 					Class type = fieldToType.get(f.getCmpFieldName());
 
@@ -2265,7 +2284,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					passed = false;
 					errorBuffer = appendToBuffer("Env entry has wrong type: "
 							+ e.getEnvEntryType() + " , method: "
-							+ e.getEnvEntryName(), "6.13", errorBuffer);
+							+ e.getEnvEntryName(), "10.19.4", errorBuffer);
 				}
 
 			}

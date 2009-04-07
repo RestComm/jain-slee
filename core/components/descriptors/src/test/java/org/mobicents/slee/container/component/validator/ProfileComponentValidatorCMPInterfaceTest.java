@@ -232,7 +232,8 @@ TCUtilityClass {
 
 		boolean b = validator.validateCMPInterface();
 
-		assertFalse("CMP Interface class has been validated - CMP interface has more accessors than cmp fields defined in xml", b);
+		// FIXME: This should be reworked. CMP do not have to be declared, only when they are not "default".
+		assertTrue("CMP Interface class has been validated - CMP interface has more accessors than cmp fields defined in xml", b);
 
 	}
 	

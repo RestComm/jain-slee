@@ -359,6 +359,7 @@ public class DeployableUnitBuilder {
 									.getProfileCmpInterfaceName());
 					component
 							.setProfileCmpInterfaceClass(profileCmpInterfaceClass);
+					if(component.getDescriptor().getProfileClasses().getProfileLocalInterface() != null) {
 					Class profileLocalInterfaceClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getProfileClasses()
@@ -366,6 +367,8 @@ public class DeployableUnitBuilder {
 									.getProfileLocalInterfaceName());
 					component
 							.setProfileLocalInterfaceClass(profileLocalInterfaceClass);
+          }
+					if(component.getDescriptor().getProfileClasses().getProfileManagementInterface() != null) {
 					Class profileManagementInterfaceClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getProfileClasses()
@@ -373,12 +376,15 @@ public class DeployableUnitBuilder {
 									.getProfileManagementInterfaceName());
 					component
 							.setProfileManagementInterfaceClass(profileManagementInterfaceClass);
+					}
+					if(component.getDescriptor().getProfileClasses().getProfileAbstractClass() != null) {
 					Class profileAbstractClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getProfileClasses()
 									.getProfileAbstractClass()
 									.getProfileAbstractClassName());
 					component.setProfileAbstractClass(profileAbstractClass);
+					}
 					MProfileTableInterface mProfileTableInterface = component
 							.getDescriptor().getProfileClasses()
 							.getProfileTableInterface();
