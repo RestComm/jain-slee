@@ -9,6 +9,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.ActivityEndEventImpl;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.DeferredEventReferencesManagement;
@@ -379,7 +380,7 @@ public class EventRoutingTask implements Runnable {
 					 */
 					if (invokeSbbRolledBack && sbbEntity == null) {
 						// We do it in this tx
-						handleSbbRollback.handleSbbRolledBack(null, sbbObject, invokerClassLoader, false, txMgr);
+						handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
 					} else if (sbbEntity != null && !txMgr.getRollbackOnly()
 							&& sbbEntity.getSbbObject() != null) {
 
@@ -416,11 +417,11 @@ public class EventRoutingTask implements Runnable {
 									.debug("Invoking sbbRolledBack for Op Only or Op and Remove");
 
 						}
-						handleSbbRollback.handleSbbRolledBack(sbbEntity, null, invokerClassLoader, false, txMgr);
+						handleSbbRollback.handleSbbRolledBack(sbbEntity, null, de.getEvent(), new ActivityContextInterfaceImpl(ac), invokerClassLoader, false, txMgr);
 					}
 					if (invokeSbbRolledBackRemove) {
 						// Now for the "Remove Only" if appropriate
-						handleSbbRollback.handleSbbRolledBack(rootSbbEntity, null, rootInvokerClassLoader, true, txMgr);						
+						handleSbbRollback.handleSbbRolledBack(rootSbbEntity, null, null, null, rootInvokerClassLoader, true, txMgr);						
 					}
 
 					/*

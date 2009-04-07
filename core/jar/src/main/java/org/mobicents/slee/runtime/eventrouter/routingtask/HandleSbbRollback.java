@@ -36,7 +36,7 @@ public class HandleSbbRollback {
 	 * 
 	 * 
 	 */
-	public void handleSbbRolledBack(SbbEntity sbbEntity, SbbObject sbbObject,
+	public void handleSbbRolledBack(SbbEntity sbbEntity, SbbObject sbbObject, Object eventObject, ActivityContextInterface aci,
 			ClassLoader contextClassLoader,
 			boolean removeRolledBack,SleeTransactionManager txMgr) {
 		// Sanity checks
@@ -83,13 +83,6 @@ public class HandleSbbRollback {
 				}
 			}
 
-			Object eventObject = null;
-			ActivityContextInterface aci = null;
-			EventRoutingTransactionData data = EventRoutingTransactionData.getFromTransactionContext();
-			if (data != null) {
-				eventObject = data.getEventBeingDelivered().getEvent();
-				aci = data.getAciReceivingEvent();
-			}
 			RolledBackContext rollbackContext = new RolledBackContextImpl(
 					eventObject,
 					aci, removeRolledBack);

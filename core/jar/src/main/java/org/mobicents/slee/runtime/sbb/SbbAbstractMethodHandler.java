@@ -287,7 +287,7 @@ public class SbbAbstractMethodHandler {
 
 	// SBB USAGE PARAMS
 
-	public static Object getSbbUsageParam(SbbEntity sbbEntity, String name)
+	public static Object getSbbUsageParameterSet(SbbEntity sbbEntity, String name)
 			throws UnrecognizedUsageParameterSetNameException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("getSbbUsageParameterSet(): serviceId = "

@@ -82,14 +82,14 @@ public class SbbComponentValidator implements Validator {
 	private final static Set<String> _ENV_ENTRIES_TYPES;
 	static {
 		Set<String> tmp = new HashSet<String>();
-		tmp.add(Integer.TYPE.getName());
-		tmp.add(Boolean.TYPE.getName());
-		tmp.add(Byte.TYPE.getName());
-		tmp.add(Character.TYPE.getName());
-		tmp.add(Double.TYPE.getName());
-		tmp.add(Float.TYPE.getName());
-		tmp.add(Long.TYPE.getName());
-		tmp.add(Short.TYPE.getName());
+		tmp.add(Integer.class.getName());
+		tmp.add(Boolean.class.getName());
+		tmp.add(Byte.class.getName());
+		tmp.add(Character.class.getName());
+		tmp.add(Double.class.getName());
+		tmp.add(Float.class.getName());
+		tmp.add(Long.class.getName());
+		tmp.add(Short.class.getName());
 		tmp.add(String.class.getName());
 		_ENV_ENTRIES_TYPES = Collections.unmodifiableSet(tmp);
 

@@ -1,7 +1,6 @@
 package org.mobicents.slee.runtime.eventrouter.routingtask;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 import javax.slee.Address;
 import javax.slee.InitialEventSelector;
@@ -172,7 +171,7 @@ public class InitialEventProcessor {
 				// If there is no entity associated then the invokeSbbRolledBack is
 				// handle in
 				// the same tx, otherwise in a new tx (6.10.1)
-				handleSbbRollback.handleSbbRolledBack(null, sbbObject, invokerClassLoader, false, txMgr);
+				handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
 				/* original code was, confirm in specs that at this time we should not send event object and aci
 				 * 
 					handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
@@ -194,7 +193,7 @@ public class InitialEventProcessor {
 			
 			// We may need to run sbbRolledBack for invocation sequence 1 in another tx
 			if (sbbEntity != null && invokeSbbRolledBack) {
-				handleSbbRollback.handleSbbRolledBack(sbbEntity, sbbObject, invokerClassLoader, false, txMgr);
+				handleSbbRollback.handleSbbRolledBack(sbbEntity, sbbObject, null, null, invokerClassLoader, false, txMgr);
 				/* original code was, confirm in specs that at this time we should not send event object and aci
 				 * 
 				handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
