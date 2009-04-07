@@ -22,6 +22,7 @@ import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -215,7 +216,17 @@ public class SbbAbstractMethodHandler {
 			logger.debug("invoke(): firing event on "
 					+ ac.getActivityContextId());
 		}
-
+		
+		// exception not in specs by mandated by
+		// tests/activities/activitycontext/Test560Test.xml , it's preferable to
+		// do double check on here than have the aci fire method throwing it and
+		// the ra slee endpoint having to translate it to activity ending
+		// exception, it is not common to have custom event firing in sbbs
+		if (ac.getState() != ActivityContextState.ACTIVE) {
+			throw new IllegalStateException("activity context "
+					+ ac.getActivityContextHandle() + " is ending");
+		}
+		
 		// fire the event
 		ac.fireEvent(eventTypeID, eventObject, (Address) address, serviceID,
 				EventFlags.NO_FLAGS);
