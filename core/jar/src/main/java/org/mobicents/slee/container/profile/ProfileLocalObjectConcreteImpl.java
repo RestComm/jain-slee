@@ -1,11 +1,3 @@
-/**
- * Start time:14:20:46 2009-03-14<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.profile;
 
 import javax.slee.SLEEException;
@@ -32,8 +24,7 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  * This class implements profile local interface to provide all required
  * methods. It obtains on the fly ProfileObject to perform its tasks.
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcrete {
@@ -46,20 +37,27 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	protected SleeProfileTableManager sleeProfileManagement = null;
 	protected boolean isDefault = true;
 	protected ProfileObject profileObject = null;
-	protected SleeTransactionManager sleeTransactionManager = null;
 
-	public ProfileLocalObjectConcreteImpl(String profileTableName, ProfileSpecificationID profileSpecificationId, String profileName, SleeProfileTableManager sleeProfileManagement, boolean isDefault) {
+  private SleeContainer sleeContainer;
+  private SleeTransactionManager sleeTransactionManager;
+
+	public ProfileLocalObjectConcreteImpl(ProfileSpecificationID profileSpecificationId, String profileTableName, String profileName, SleeProfileTableManager sleeProfileManagement, boolean isDefault)
+	{
 		super();
-		if (profileTableName == null || profileName == null || profileSpecificationId == null) {
+		
+		if (profileSpecificationId == null || profileTableName == null || profileName == null)
+		{
 			throw new NullPointerException("Parameters must not be null");
 		}
+		
 		// FIXME: does any of below methods require CL change?
 		this.profileName = profileName;
 		this.profileTableName = profileTableName;
 		this.profileSpecificationId = profileSpecificationId;
 		this.sleeProfileManagement = sleeProfileManagement;
-		this.sleeTransactionManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
-
+		
+    this.sleeContainer = this.sleeProfileManagement.getSleeContainer();
+    this.sleeTransactionManager = this.sleeContainer.getTransactionManager();
 	}
 
 	/*
@@ -67,14 +65,12 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * 
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileName()
 	 */
-	public String getProfileName() throws SLEEException {
+	public String getProfileName() throws SLEEException
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting profile name for: " + this.profileName);
 		}
-		if (!this.isDefault)
-			return this.profileName;
-		else
-			return null;
+		return this.isDefault ? null : this.profileName;
 	}
 
 	/*
@@ -82,19 +78,25 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * 
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileTable()
 	 */
-	public ProfileTable getProfileTable() throws SLEEException {
+	public ProfileTable getProfileTable() throws SLEEException
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("[getProfileTable], table: " + this.profileTableName + ", for profile: " + this.profileName);
 		}
+		
 		ProfileTable pt = null;
 		try {
 			pt = this.sleeProfileManagement.getProfileTable(profileTableName);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new SLEEException("Failed to obtain ProfileTable interface.", e);
 		}
+		
+		// FIXME: Alexandre: Unnecessary check, if not found exception will be thrown.
 		if (pt == null) {
 			throw new SLEEException("Did not find profile table: " + this.profileTableName);
 		}
+		
 		return pt;
 	}
 
@@ -114,42 +116,38 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * javax.slee.profile.ProfileLocalObject#isIdentical(javax.slee.profile.
 	 * ProfileLocalObject)
 	 */
-	public boolean isIdentical(ProfileLocalObject other) throws SLEEException {
-
+	public boolean isIdentical(ProfileLocalObject other) throws SLEEException
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("[isIdentical] on: " + this.profileName + ", from table:" + this.profileTableName + ", this: " + this + ", other: " + other);
 		}
 
 		if (other == null)
-			throw new SLEEException("Other profile local object must not be null");
+			throw new SLEEException("Unable to perform operation: ProfileLocalObject 'other' cannot be null.");
 
 		ProfileLocalObjectConcreteImpl otherImpl = (ProfileLocalObjectConcreteImpl) other;
+		
+		// If one is default and the other isn't, fail
 		if (otherImpl.isDefault != this.isDefault) {
 			return false;
 		}
+		
+		// If they are the same object, they are identical too :)
+    if(this == other) {
+      return true;
+    }
 
-		if (this.isDefault) {
-			if (this.getProfileName() == null && otherImpl.getProfileName() == null) {
-
-			} else {
-				return false;
-			}
-		} else {
-			if (this.getProfileName().compareTo(otherImpl.getProfileName()) == 0) {
-
-			} else {
-				return false;
-			}
+    // Table name must be the same, and cannot be null
+		if(this.getProfileTableName().equals(otherImpl.getProfileTableName()))
+		{
+		  // Profile name can be null (default) or must be equal
+		  if(this.getProfileName() == null && other.getProfileName() == null || this.getProfileName().equals(otherImpl.getProfileName()))
+		  {
+		    return true;
+		  }
 		}
-
-		if (this.getProfileTableName().compareTo(otherImpl.getProfileTableName()) == 0) {
-
-		} else {
-			return false;
-		}
-
-		return true;
-
+		
+		return false;
 	}
 
 	/*
@@ -157,20 +155,22 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * 
 	 * @see javax.slee.profile.ProfileLocalObject#remove()
 	 */
-	public void remove() throws TransactionRequiredLocalException, TransactionRolledbackLocalException, SLEEException {
-
+	public void remove() throws TransactionRequiredLocalException, TransactionRolledbackLocalException, SLEEException
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("[remove] on: " + this.profileName + ", from table:" + this.profileTableName);
 		}
-		SleeContainer sleeContainer = this.sleeProfileManagement.getSleeContainer();
-		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
-		txMgr.mandateTransaction();
-		ProfileTableConcreteImpl pt = (ProfileTableConcreteImpl) getProfileTable();
-		try {
-			pt.remove(getProfileName());
-		} catch (ReadOnlyProfileException rope) {
+		
+		this.sleeTransactionManager.mandateTransaction();
+		
+		try
+		{
+		  this.getProfileTable().remove(this.getProfileName());
+		}
+		catch (ReadOnlyProfileException rope) {
 			throw new SLEEException("Referenced profile is read only profile.");
-		} catch (NullPointerException npe) {
+		}
+		catch (NullPointerException npe) {
 			throw new SLEEException("Refernced profile is default profile, can not remove it");
 		}
 	}
@@ -187,8 +187,8 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	 * This method allocates ProfileObject to serve calls. If this is snapshot,
 	 * this method does nothing as we ha
 	 */
-	public void allocateProfileObject() throws UnrecognizedProfileNameException, UnrecognizedProfileTableNameException, SLEEException {
-
+	public void allocateProfileObject() throws UnrecognizedProfileNameException, UnrecognizedProfileTableNameException, SLEEException
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("[allocateProfileObject] on: " + this.profileName + ", from table:" + this.profileTableName);
 		}
@@ -196,96 +196,105 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 		// FIXME: mayeb we should be protected ?
 		try {
 			sleeTransactionManager.mandateTransaction();
-		} catch (TransactionRequiredLocalException trle) {
+		}
+		catch (TransactionRequiredLocalException trle) {
 			throw new SLEEException("No transaction present.", trle);
 		}
 
-		try {
-			if (this.profileObject != null) {
+		try
+		{
+			if (this.profileObject != null)
+			{
 				if (logger.isDebugEnabled()) {
 					logger.debug("[allocateProfileObject] on: " + this.profileName + ", from table:" + this.profileTableName + " profile object is not null, returning.");
-					return;
 				}
+				
+        return;
 			}
+			
 			ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName);
 			this.profileObject = profileTable.assignProfileObject(profileName, false);
-			// Set flag that SLEE component interacts with it. this is true
-			// only in
-			// case of JMX client
+			
+			// Set flag that SLEE component interacts with it. this is true only in case of JMX client
 			this.profileObject.setManagementView(false);
-		} catch (UnrecognizedProfileTableNameException e) {
-			try {
+		}
+		catch (UnrecognizedProfileTableNameException uptne)
+		{
+			try
+			{
 				sleeTransactionManager.rollback();
-				throw new TransactionRolledbackLocalException("No such profile table: " + profileTableName, e);
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				throw new TransactionRolledbackLocalException("No such profile table: " + profileTableName, uptne);
 			}
-		} catch (UnrecognizedProfileNameException e) {
+			catch (IllegalStateException ise) {
+			  logger.error("", ise);
+			}
+			catch (SecurityException se) {
+        logger.error("", se);
+			}
+			catch (SystemException syse) {
+        logger.error("", syse);
+			}
+		}
+		catch (UnrecognizedProfileNameException upne)
+		{
 			// FIXME: WE NEED TO ENSUE THAT SNAPSHOTS WILL WORK!!!!!
-			try {
+			try
+			{
 				sleeTransactionManager.rollback();
-				throw new TransactionRolledbackLocalException("No such profile: " + profileName, e);
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				throw new TransactionRolledbackLocalException("No such profile: " + profileName, upne);
 			}
-		} catch (ProfileAlreadyExistsException e) {
-
-			// Should nto happen
+      catch (IllegalStateException ise) {
+        logger.error("", ise);
+      }
+      catch (SecurityException se) {
+        logger.error("", se);
+      }
+      catch (SystemException syse) {
+        logger.error("", syse);
+      }
+		}
+		catch (ProfileAlreadyExistsException e)
+		{
+			// Should not happen
 			throw new SLEEException("Please report me, Im a huge bug.", e);
 		}
 
-		try {
+		try
+		{
 			sleeTransactionManager.addBeforeCommitAction(new BeforeCommitTransctAction());
 			sleeTransactionManager.addAfterRollbackAction(new RollbackTransctAction());
-
-		} catch (SystemException e) {
+		}
+		catch (SystemException e) {
 			throw new SLEEException("Failed to add management task", e);
 		}
-
-	}
-
-	private ProfileObject getProfileObject() {
-		return this.profileObject;
 	}
 
 	private void removeProfileObject() {
 		this.profileObject = null;
-
 	}
 
-	public ProfileConcrete getProfileConcrete() {
+	public ProfileConcrete getProfileConcrete()
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("[getProfileConcrete] on: " + this.profileName + ", from table:" + this.profileTableName);
 		}
-		// FIXME: alex?
+		
+		// FIXME: Alexandre: Instantiate concrete profile.
 		return null;
 	}
 
-	private class BeforeCommitTransctAction implements TransactionalAction {
-
-		public void execute() {
-			try {
-				ProfileTableConcrete profileTable = (ProfileTableConcrete) sleeProfileManagement.getProfileTable(profileTableName);
+	private class BeforeCommitTransctAction implements TransactionalAction
+	{
+		public void execute()
+		{
+			try
+			{
+			  // FIXME: Alexandre: Shouldn't we do anything else here?
+				// ProfileTableConcrete profileTable = (ProfileTableConcrete) sleeProfileManagement.getProfileTable(profileTableName);
 				removeProfileObject();
-
-			} catch (Exception e) {
-
-				logger.error("Failed to deallocate ProfileObject, please report this to dev team.");
-
+			}
+			catch (Exception e) {
+				logger.error("Failed to deallocate ProfileObject, please report this to dev team.", e);
 			}
 		}
 	}

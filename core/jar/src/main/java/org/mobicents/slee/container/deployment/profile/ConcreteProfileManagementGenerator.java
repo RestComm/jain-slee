@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.slee.SLEEException;
-import javax.slee.management.DeploymentException;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -21,12 +18,13 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
+import javax.slee.SLEEException;
+import javax.slee.management.DeploymentException;
+
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
@@ -35,7 +33,6 @@ import org.mobicents.slee.container.profile.ProfileConcrete;
 import org.mobicents.slee.container.profile.ProfileManagementHandler;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
-import org.mobicents.slee.runtime.sbb.SbbAbstractMethodHandler;
 
 public class ConcreteProfileManagementGenerator {
 
@@ -47,7 +44,7 @@ public class ConcreteProfileManagementGenerator {
 	private String managementAbstractClassName = null;
 	private String profileManagementInterfaceName = null;
 
-	private ClassPool pool = component.getClassPool();
+	private ClassPool pool = null;
 	private CtClass cmpProfileConcreteClass = null;
 	private CtClass cmpProfileInterface = null;
 	private CtClass sleeProfileManagementInterface = null;
@@ -297,7 +294,7 @@ public class ConcreteProfileManagementGenerator {
 
 			} else {
 				// FIXME: will this work for
-				retStatement = "return (r$) ";
+				retStatement = "return ($r) ";
 			}
 		} catch (NotFoundException e) {
 			// this should nto happen

@@ -1,6 +1,5 @@
 package org.mobicents.slee.container.profile;
 
-import java.util.Collections;
 import java.util.LinkedList;
 
 import javax.slee.SLEEException;
@@ -41,12 +40,13 @@ public class ProfileCallRecorderTransactionData {
 	 * a linked list with the which contains string values representing profile
 	 * table - profile pairs that has been called within transaction.
 	 */
-	private final LinkedList<String> ivokedProfiles = new LinkedList<String>();
+	private final LinkedList<String> invokedProfiles = new LinkedList<String>();
+	
 	/**
-	 * Stores profile table name. This is required for alarma factility, as
+	 * Stores profile table name. This is required for alarm factility, as
 	 * source changes with call to different profile table+profile pair.
 	 */
-	private final LinkedList<String> ivokedProfileTablesNames = new LinkedList<String>();
+	private final LinkedList<String> invokedProfileTablesNames = new LinkedList<String>();
 
 	/**
 	 * Adds call to this profile.
@@ -54,105 +54,123 @@ public class ProfileCallRecorderTransactionData {
 	 * @param po
 	 * @throws SLEEException
 	 */
-	public static void addProfileCall(ProfileConcrete pc) throws TransactionRequiredLocalException, SLEEException {
+	public static void addProfileCall(ProfileConcrete pc) throws TransactionRequiredLocalException, SLEEException
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("Recording call to profile, stored key: " + makeKey(pc));
 		}
-		SleeTransactionManager sleeTransactionManaget = sleeContainer.getTransactionManager();
-		try {
-			sleeTransactionManaget.mandateTransaction();
+		
+		SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+		
+		try
+		{
+			sleeTransactionManager.mandateTransaction();
 
-			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManaget.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
+			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManager.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
+			
+			// If data does not exist, create it
 			if (data == null) {
 				data = new ProfileCallRecorderTransactionData();
-				sleeTransactionManaget.getTransactionContext().getData().put(TRANSACTION_CONTEXT_KEY, data);
+				sleeTransactionManager.getTransactionContext().getData().put(TRANSACTION_CONTEXT_KEY, data);
 			}
-			if (!pc.getProfileObject().isProfileReentrant()) {
+			
+			if (!pc.getProfileObject().isProfileReentrant())
+			{
 				String key = makeKey(pc);
 				// we need to check
-				if (data.ivokedProfiles.contains(key) && data.ivokedProfiles.getLast().compareTo(key) != 0) {
-					throw new SLEEException("Detected loopback call. Call sequence: " + data.ivokedProfiles);
+				if (data.invokedProfiles.contains(key) && data.invokedProfiles.getLast().compareTo(key) != 0) {
+					throw new SLEEException("Detected loopback call. Call sequence: " + data.invokedProfiles);
 				}
-				data.ivokedProfiles.add(key);
-				data.ivokedProfileTablesNames.add(pc.getProfileTableConcrete().getProfileTableName());
+				data.invokedProfiles.add(key);
+				data.invokedProfileTablesNames.add(pc.getProfileTableConcrete().getProfileTableName());
 			}
-
-		} catch (SystemException e) {
+		}
+		catch (SystemException e) {
 			throw new SLEEException("Failed to verify reentrancy due to some system level errror.", e);
 		}
-
 	}
 
-	public static void removeProfileCall(ProfileConcrete pc) throws TransactionRequiredLocalException, SLEEException {
+	public static void removeProfileCall(ProfileConcrete pc) throws TransactionRequiredLocalException, SLEEException
+	{
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removing call to profile, stored key: " + makeKey(pc));
 		}
+		
 		SleeTransactionManager sleeTransactionManaget = sleeContainer.getTransactionManager();
-		try {
+		
+		try
+		{
 			sleeTransactionManaget.mandateTransaction();
 
 			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManaget.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
+			
 			if (data == null) {
 				throw new SLEEException("No Profile call recorder in memory, this is a bug.");
-
 			}
 			if (logger.isDebugEnabled()) {
-				logger.debug("Removing call to profile, stored key: " + makeKey(pc) + ", last active table: " + data.ivokedProfileTablesNames.getLast());
+				logger.debug("Removing call to profile, stored key: " + makeKey(pc) + ", last active table: " + data.invokedProfileTablesNames.getLast());
 			}
-			if (!pc.getProfileObject().isProfileReentrant()) {
+			
+			if (!pc.getProfileObject().isProfileReentrant())
+			{
 				String key = makeKey(pc);
 				// we need to check
-				String lastKey = data.ivokedProfiles.getLast();
-				if (lastKey.compareTo(key) != 0) {
+				String lastKey = data.invokedProfiles.getLast();
+				if (lastKey.compareTo(key) != 0)
+				{
+					// logger.error("Last called profile does not match current: " + key + ", last call: " + lastKey + ". Please report this, it is a bug.");
+					throw new SLEEException("Last called profile does not match current: " + key + ", last call: " + lastKey);
+				}
+				else
+				{
+					data.invokedProfiles.removeLast();
+					data.invokedProfileTablesNames.removeLast();
+					if (data.invokedProfiles.isEmpty())
 					{
-						// logger.error("Last called profile does not match current: "
-						// + key + ", last call: " + lastKey +
-						// ". Please report this, it is a bug.");
-						throw new SLEEException("Last called profile does not match current: " + key + ", last call: " + lastKey);
-					}
-				} else {
-					data.ivokedProfiles.removeLast();
-					data.ivokedProfileTablesNames.removeLast();
-					if (data.ivokedProfiles.size() == 0) {
 						sleeTransactionManaget.getTransactionContext().getData().remove(TRANSACTION_CONTEXT_KEY);
 					}
 				}
 
 			}
-		} catch (SystemException e) {
+		}
+		catch (SystemException e) {
 			throw new SLEEException("Failed to verify reentrancy due to some system level errror.", e);
 		}
 	}
 
-	public static MNotificationSource getCurrentNotificationSource() throws TransactionRequiredLocalException, SLEEException{
-		if(logger.isDebugEnabled())
-		{
+	public static MNotificationSource getCurrentNotificationSource() throws TransactionRequiredLocalException, SLEEException
+	{
+		if(logger.isDebugEnabled()) {
 			logger.debug("Trying to get Notification source for profile table.");
 		}
+		
 		SleeTransactionManager sleeTransactionManaget = sleeContainer.getTransactionManager();
 		ProfileCallRecorderTransactionData data;
-		try {
+		
+		try
+		{
 			data = (ProfileCallRecorderTransactionData) sleeTransactionManaget.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
 			if (data == null) {
 				throw new SLEEException("No Profile call recorder in memory, this is a bug.");
-
 			}
 
 			//IF data is present, there is something in it.
-			String tableName = data.ivokedProfileTablesNames.getLast();
+			String tableName = data.invokedProfileTablesNames.getLast();
 			//FIXME: should we create new object? or lookup table? Lets do lookup
 			ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(tableName);
+			
 			return ptc.getProfileTableNotification();
-		} catch (SystemException e) {
-			throw new SLEEException("Failed to fetch notification source due to some system level errror.", e);
-		} catch (UnrecognizedProfileTableNameException e) {
-			throw new SLEEException("Failed to fetch notification source due to some system level errror.", e);
 		}
-		
+		catch (SystemException e) {
+			throw new SLEEException("Failed to fetch notification source due to some system level error.", e);
+		}
+		catch (UnrecognizedProfileTableNameException e) {
+			throw new SLEEException("Failed to fetch notification source due to some system level error.", e);
+		}
 	}
 
-	private static String makeKey(ProfileConcrete po) {
-		// FIXME: do we need ProfileConcrete.toString(); ??
-		return po.getProfileTableConcrete().getProfileTableName() + "-" + po.getProfileName() + "-" + po.toString();
+	private static String makeKey(ProfileConcrete pc) {
+		// FIXME: Alexandre: Removed toString() as it may cause it to identify as differente profile
+		return pc.getProfileTableConcrete().getProfileTableName() + "-" + pc.getProfileName();// + "-" + pc.toString();
 	}
 }

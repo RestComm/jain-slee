@@ -7,6 +7,7 @@ import javax.slee.profile.ProfileManagement;
  * 
  * Start time:16:51:13 2009-03-13<br>
  * Project: mobicents-jainslee-server-core<br>
+ * 
  * Profile object interface which declares extra management methods to store
  * some runtime properties. This interface represents actual object that has
  * local copy of profile data. Its logical counter part is
@@ -15,11 +16,10 @@ import javax.slee.profile.ProfileManagement;
  * of this classes as ProfileEntities, since they MUST act ass concrete impl
  * (see how SbbConcrete is used inside SbbObject)
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public interface ProfileConcrete extends Profile ,ProfileManagement{
+public interface ProfileConcrete extends Profile ,ProfileManagement {
 
 	public void setProfileTableConcrete(ProfileTableConcrete profileTableConcrete);
 
@@ -38,6 +38,7 @@ public interface ProfileConcrete extends Profile ,ProfileManagement{
 	 */
 	public Boolean getProfileDirty();
 	public void setProfileDirty(Boolean b);
+	
 	public void commitChanges();
 
 	public Boolean getProfileInBackEndStorage();

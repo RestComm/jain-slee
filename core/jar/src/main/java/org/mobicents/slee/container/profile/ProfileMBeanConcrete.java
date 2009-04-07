@@ -1,18 +1,9 @@
-/**
- * Start time:12:23:15 2009-03-18<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.profile;
 
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.InvalidStateException;
 import javax.slee.management.ManagementException;
-import javax.slee.profile.ProfileImplementationException;
 import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileVerificationException;
 import javax.transaction.SystemException;
@@ -20,6 +11,7 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
@@ -30,11 +22,11 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 /**
  * Start time:12:23:15 2009-03-18<br>
  * Project: mobicents-jainslee-server-core<br>
+ * 
  * This is stub class, that is extended and instrumented to allow access to
  * underlying Profile
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implements ProfileMBean {
@@ -42,40 +34,47 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	public static final String _PROFILE_OBJECT = "profileObject";
 	public static final String _CHECK_WRITE_ACCESS = "checkWriteAccess();";
 
-	protected final Logger logger = Logger.getLogger(this.getClass());
+	protected final Logger logger = Logger.getLogger(ProfileMBeanConcrete.class);
 	// FIXME: this logic possibly should go directly into MBean, but than we
 	// would have to handle cmp and other operations in different way - like
 	// dirty check ?
 
+  private SleeContainer sleeContainer = null;
+
 	protected ProfileObject profileObject = null;
 	protected SleeProfileTableManager sleeProfileManagement = null;
 	protected SleeTransactionManager sleeTransactionManager = null;
-
-	public ProfileMBeanConcrete(ProfileObject profileObject) {
+	
+	public ProfileMBeanConcrete(ProfileObject profileObject)
+	{
 		super();
 		this.profileObject = profileObject;
 		this.sleeProfileManagement = this.profileObject.getProfileTableConcrete().getProfileManagement();
-		this.sleeTransactionManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
+		this.sleeContainer = SleeContainer.lookupFromJndi();
+		this.sleeTransactionManager = sleeContainer.getTransactionManager();
 	}
 
-	// #################
-	// # MBean methods #
-	// #################
+  // #################
+  // # MBean methods #
+  // #################
 
-	public void closeProfile() throws InvalidStateException, ManagementException {
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.profile.ProfileMBean#closeProfile()
+	 */
+	public void closeProfile() throws InvalidStateException, ManagementException
+	{
 		if(logger.isDebugEnabled())
 		{
-			logger.debug("[closeProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+			logger.debug("[closeProfile] on: " + this.profileObject.getProfileName() + ", from table:"  +this.profileObject.getProfileTableConcrete().getProfileTableName());
 		}
-		Thread t = Thread.currentThread();
-		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
-		try {
+		
+		ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		try
+		{
 			/*
 			 * SLEE 1.1 spec, 10.26.3.4 closeProfile method
-			 */
-
-			/*
+       *
 			 * The Administrator invokes the closeProfile method when the
 			 * Administrator no longer requires access to the Profile MBean
 			 * object. The implementation of this method is free to deregister
@@ -87,11 +86,8 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
 				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
 			}
-			/*
-			 * The closeProfile method must throw a
-			 * javax.slee.InvalidStateException if the Profile MBean object is
-			 * in the read-write state.
-			 */
+			
+			// The closeProfile method must throw a javax.slee.InvalidStateException if the Profile MBean object is in the read-write state.
 			if (this.profileObject.isWriteable() && this.profileObject.getProfileConcrete().isProfileDirty())
 				throw new InvalidStateException();
 
@@ -102,33 +98,34 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
 				logger.debug("closeProfile call ended");
 			}
-		} finally {
-			t.setContextClassLoader(oldClassLoader);
+		}
+		finally {
+		  switchContextClassLoader(oldClassLoader);
 		}
 	}
 
-	/**
-	 * This method commits profile. See descritpion - profile becomes visible
-	 * for slee ONLY when its commited.
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.profile.ProfileMBean#commitProfile()
+	 * 
+	 * This method commits profile. See descritpion - profile becomes visible for slee ONLY when its commited.
 	 */
-	public void commitProfile() throws InvalidStateException, ProfileVerificationException, ManagementException {
+	public void commitProfile() throws InvalidStateException, ProfileVerificationException, ManagementException
+	{
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[commitProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
 		}
-		Thread t = Thread.currentThread();
-		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		
+		ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 
 		/*
 		 * 10.26.3.2 commitProfile method
 		 */
-		SleeTransactionManager txManager = this.sleeProfileManagement.getSleeContainer().getTransactionManager();
-		boolean b = false;
+		boolean txCreated = sleeTransactionManager.requireTransaction();
 
-		b = txManager.requireTransaction();
-
-		try {
+		try
+		{
 			checkWriteAccess();
 
 			if (logger.isDebugEnabled()) {
@@ -139,14 +136,16 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 
 			// not storing default profile
 			// getting last commited profile in case of update
-			// FIXME: Alex?
-			ProfileLocalObjectConcrete profileBeforeUpdate = null;
+			
+			// FIXME: Alexandre: [DONE] Get profile from backend storage?
+			ProfileLocalObjectConcrete profileBeforeUpdate = (ProfileLocalObjectConcrete) JPAUtils.find( this.getProfileTableName(), this.getProfileName() );
 
 			boolean wasProfileInBackEndStorage = false;
 			try {
 				wasProfileInBackEndStorage = this.profileObject.getProfileTableConcrete().isProfileCommitted(this.profileObject.getProfileName());
-			} catch (Exception e4) {
-				throw new ManagementException("Report this, its a bug, this should not happen.", e4);
+			}
+			catch (Exception e) {
+				throw new ManagementException("Unable to verify if profile is in Back-end storage.", e);
 			}
 			//
 			// if
@@ -182,8 +181,9 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 
 			try {
 				this.profileObject.profileStore();
-			} catch (Exception e) {
-				e.printStackTrace();
+			}
+			catch (Exception e) {
+				logger.error("Failure trying to store profile.", e);
 				if (e instanceof ProfileVerificationException)
 					throw (ProfileVerificationException) e;
 				throw new ManagementException(e.getMessage());
@@ -202,11 +202,15 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			 */
 			// FIXME: add different check?
 			if (this.profileObject.getProfileName() != null)
-				try {
+			{
+				try
+				{
 					this.profileObject.profileVerify();
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					throw new ProfileVerificationException(e.getMessage());
 				}
+			}
 			/*
 			 * if(profileVerificationException!=null){ removeException=true;
 			 * throw profileVerificationException; }
@@ -215,22 +219,22 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			try {
 				// persist transient state
 				this.profileObject.getProfileConcrete().commitChanges();
-			} catch (Exception e3) {
-				logger.error("Failed commitProfile, profileStore()", e3);
-				if (e3 instanceof ProfileVerificationException)
-					throw (ProfileVerificationException) e3;
+			}
+			catch (Exception e) {
+				logger.error("Failed commitProfile, profileStore()", e);
+				if (e instanceof ProfileVerificationException)
+					throw (ProfileVerificationException) e;
 				else
-					throw new ManagementException("Failed commitProfile, profileStore()", e3);
+					throw new ManagementException("Failed commitProfile, profileStore()", e);
 			}
 
 			// FIXME:THIS SHOULD NOT BE DONE LIKE THAT!!!
 			// Fire a Profile Added or Updated Event
-			SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
 
 			Address profileAddress = new Address(AddressPlan.SLEE_PROFILE, getProfileTableName() + "/" + getProfileName());
 			ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
 
-			profileTableActivityContextInterfaceFactory = serviceContainer.getProfileTableActivityContextInterfaceFactory();
+			profileTableActivityContextInterfaceFactory = sleeContainer.getProfileTableActivityContextInterfaceFactory();
 			if (profileTableActivityContextInterfaceFactory == null) {
 				final String s = "got NULL ProfileTable ACI Factory";
 				logger.error(s);
@@ -239,27 +243,32 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 
 			ProfileTableActivityImpl profileTableActivity = new ProfileTableActivityImpl(new ProfileTableActivityHandle(getProfileTableName()));
 			ActivityContextInterfaceImpl activityContextInterface;
-			try {
+			try
+			{
 				activityContextInterface = (ActivityContextInterfaceImpl) profileTableActivityContextInterfaceFactory.getActivityContextInterface(profileTableActivity);
-			} catch (Exception e1) {
-				throw new ManagementException("Failed committing profile", e1);
 			}
-			if (!wasProfileInBackEndStorage) {
-				// FIXME: Alex allocate PLO
-				ProfileLocalObjectConcrete ploc = null;
+			catch (Exception e) {
+				throw new ManagementException("Failed committing profile", e);
+			}
+			
+			if (!wasProfileInBackEndStorage)
+			{
+				// FIXME: Alexandre: [DONE] Allocate new instance of PLO
+				ProfileLocalObjectConcrete ploc = (ProfileLocalObjectConcrete) JPAUtils.find( this.getProfileTableName(), this.getProfileName() );
 				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(ploc);
-
-			} else {
-				// FIXME: Alex allocate PLO
-				ProfileLocalObjectConcrete plocAfterUpate = null;
-				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpate);
+			}
+			else
+			{
+				// FIXME: Alexandre: [DONE] Allocate PLO
+				ProfileLocalObjectConcrete plocAfterUpdate = (ProfileLocalObjectConcrete) JPAUtils.find( this.getProfileTableName(), this.getProfileName() );
+				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpdate);
 			}
 
 			// so far so good, time to commit the tx so that the profile is
 			// visible in the SLEE
 			try {
-				if (b)
-					txManager.commit();
+				if (txCreated)
+					sleeTransactionManager.commit();
 			}
 			/*
 			 * If a commit fails due to a system-level failure, the
@@ -270,12 +279,16 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			 */
 			catch (Exception e) {
 				logger.error("Failed committing profile", e);
-				try {
-					txManager.rollback();
-				} catch (SystemException e2) {
-					logger.error("Failed rolling back profile: " + getProfileTableName() + "/" + getProfileName(), e2);
+				
+				try
+				{
+				  sleeTransactionManager.rollback();
+				}
+				catch (SystemException se) {
+					logger.error("Failed rolling back profile: " + getProfileTableName() + "/" + getProfileName(), se);
 					throw new ManagementException(e.getMessage());
 				}
+				
 				throw new ManagementException(e.getMessage());
 			}
 			/*
@@ -293,34 +306,41 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
 				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
 				logger.debug("commitProfile call ended");
-
 			}
 
-		} finally {
+		}
+		finally
+		{
 			// FIXME: is this ok to set it befiore rollback?
-			t.setContextClassLoader(oldClassLoader);
-			try {
+			switchContextClassLoader(oldClassLoader);
+			
+			try
+			{
 				// if the tx was not completed by now, then there was an
 				// exception and it should roll back
-				if (b && txManager.getTransaction() != null) {
-					txManager.rollback();
+				if (txCreated && sleeTransactionManager.getTransaction() != null)
+				{
+				  sleeTransactionManager.rollback();
 				}
-			} catch (SystemException se) {
+			}
+			catch (SystemException se) {
 				logger.error("Failed completing profile commit due to TX access problem. Profile : " + getProfileTableName() + "/" + getProfileName(), se);
 				throw new ManagementException(se.getMessage());
 			}
 		}
 	}
 
-	public void editProfile() throws ManagementException {
+	public void editProfile() throws ManagementException
+	{
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[editProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
 		}
-		Thread t = Thread.currentThread();
-		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
-		try {
+		
+		ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		
+		try
+		{
 			/*
 			 * The Administrator invokes the editProfile method to obtain
 			 * read-write access to the Profile MBean object (if the
@@ -333,9 +353,12 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
 			}
 
-			if (!this.profileObject.isWriteable()) {
+			if (!this.profileObject.isWriteable())
+			{
 				if (logger.isDebugEnabled())
+				{
 					logger.debug("starting new Transaction and editing profile");
+				}
 				/*
 				 * The implementation of this method should start a new
 				 * transaction for the editing session, or perform the
@@ -353,21 +376,28 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			 * when this method is invoked, this method has no further effect
 			 * and returns silently.
 			 */
-			else {
-				logger.debug("profile already in the read/write state");
+			else
+			{
+        if (logger.isDebugEnabled())
+        {
+				  logger.debug("profile already in the read/write state");
+        }
 			}
-			if (logger.isDebugEnabled()) {
+			if (logger.isDebugEnabled())
+			{
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
 				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
 				logger.debug("editProfile call ended");
 			}
-		} finally {
-			t.setContextClassLoader(oldClassLoader);
 		}
-
+		finally
+		{
+			switchContextClassLoader(oldClassLoader);
+		}
 	}
 
-	public boolean isProfileDirty() throws ManagementException {
+	public boolean isProfileDirty() throws ManagementException
+	{
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[isProfileDirty] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
@@ -379,14 +409,15 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 		 * This method returns false under any other situation.
 		 */
 		if (logger.isDebugEnabled())
+		{
 			logger.debug("isProfileDirty called (profile=" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
-		if (this.profileObject.isWriteable() && this.profileObject.getProfileConcrete().isProfileDirty())
-			return true;
-		else
-			return false;
+		}
+		
+		return (this.profileObject.isWriteable() && this.profileObject.getProfileConcrete().isProfileDirty());
 	}
 
-	public boolean isProfileWriteable() throws ManagementException {
+	public boolean isProfileWriteable() throws ManagementException
+	{
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[isProfileWriteable] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
@@ -396,20 +427,20 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 		 * object is in the read-write state, or false if in the read-only
 		 * state.
 		 */
-		if (logger.isDebugEnabled())
-			logger.debug("isProfileWriteable called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
 		return this.profileObject.isWriteable();
 	}
 
-	public void restoreProfile() throws InvalidStateException, ManagementException {
+	public void restoreProfile() throws InvalidStateException, ManagementException
+	{
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[restoreProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
 		}
-		Thread t = Thread.currentThread();
-		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
-		try {
+
+		ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		
+		try
+		{
 			/*
 			 * The Administrator invokes the restoreProfile method if the
 			 * Administrator wishes to discard changes made to the Profile
@@ -436,9 +467,11 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			 * not in the read-write state.
 			 */
 			if (!this.profileObject.isWriteable())
-				throw new InvalidStateException();
+			{
+				throw new InvalidStateException("The restoreProfile method must throw a javax.slee.InvalidStateException if the Profile MBean object is not in the read-write state.");
+			}
 
-			// FIXME Alex:
+			// FIXME: Alexandre: What to do here?
 			// if(!commited)
 			// {
 			// REMOVE
@@ -446,15 +479,17 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 
 			this.profileObject.profileLoad();
 			this.profileObject.setWriteable(false);
+			
 			if (logger.isDebugEnabled()) {
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
 				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
 				logger.debug("restoreProfile call ended");
 			}
-		} finally {
-			t.setContextClassLoader(oldClassLoader);
 		}
-
+		finally
+		{
+			switchContextClassLoader(oldClassLoader);
+		}
 	}
 
 	protected void checkWriteAccess() throws IllegalStateException {
@@ -467,8 +502,15 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	}
 
 	protected String getProfileTableName() {
-
 		return this.profileObject.getProfileTableConcrete().getProfileTableName();
 	}
 
+  private ClassLoader switchContextClassLoader(ClassLoader newClassLoader)
+  {
+    Thread t = Thread.currentThread();
+    ClassLoader oldClassLoader = t.getContextClassLoader();
+    t.setContextClassLoader(newClassLoader);
+    
+    return oldClassLoader;
+  }
 }

@@ -1,11 +1,3 @@
-/**
- * Start time:16:46:52 2009-03-13<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.profile;
 
 import java.security.AccessController;
@@ -25,12 +17,12 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 /**
  * Start time:16:46:52 2009-03-13<br>
  * Project: mobicents-jainslee-server-core<br>
+ * 
  * Class representing Profile Object - this object servers as place holder for
  * selected profiles. ProfileObject can belong to only one profile table during
  * its lifecycle, ever.
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class ProfileObject {
@@ -59,43 +51,45 @@ public class ProfileObject {
 	private boolean canAccessCMP = true;
 	private ProfileSpecificationComponent profileSpecificationComponent = null;
 
-	public ProfileObject(ProfileTableConcrete profileTableConcrete, ProfileSpecificationID profileSpecificationId) throws NullPointerException {
-		super();
-		if (profileTableConcrete == null || sleeContainer == null || profileSpecificationComponent == null) {
+	public ProfileObject(ProfileTableConcrete profileTableConcrete, ProfileSpecificationID profileSpecificationId) throws NullPointerException
+	{
+		if (profileTableConcrete == null || profileSpecificationId == null)
+		{
 			throw new NullPointerException("Parameters must not be null");
 		}
+		
 		this.profileTableConcrete = profileTableConcrete;
 		this.sleeContainer = profileTableConcrete.getProfileManagement().getSleeContainer();
-		// this.profileContext = new
-		// ProfileContextImpl(this.profileTableConcrete,this.sleeContainer);
+		// this.profileContext = new ProfileContextImpl(this.profileTableConcrete,this.sleeContainer);
 		// this.profileContext.setProfileObject(this);
 		this.profileSpecificationComponent = this.profileTableConcrete.getProfileManagement().getProfileSpecificationComponent(profileSpecificationId);
+		
 		createConcrete();
 	}
 
-	private void createConcrete() {
+	private void createConcrete()
+	{
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[createConcrete] "+this);
 		}
-		try {
-
+		
+		try
+		{
 			// logger.debug(sbbDescriptor.getConcreteSbbClass());
-			// Concrete class of the Sbb. the concrete sbb class is the
-			// class that implements the Sbb methods. This is obtained
-			// from the deployment descriptor and the abstract sbb class.
+			// Concrete class of the Sbb. the concrete sbb class is the class that implements the Sbb methods.
+		  // This is obtained from the deployment descriptor and the abstract sbb class.
 			this.profileConcrete = (ProfileConcrete) this.profileSpecificationComponent.getProfileCmpConcreteClass().newInstance();
 			this.profileConcrete.setProfileObject(this);
 			this.profileConcrete.setProfileTableConcrete(this.profileTableConcrete);
-
-		} catch (Exception ex) {
-
-			ex.printStackTrace();
-			logger.error("unexpected exception creating concrete class!", ex);
-			throw new RuntimeException("Unexpected exception creating concrete class for profile: " + this.profileName + ", from profile table: " + this.profileTableConcrete.getProfileTableName()
-					+ " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), ex);
 		}
-
+		catch (Exception e) {
+			logger.error("unexpected exception creating concrete class!", e);
+			
+			// FIXME: Alexandre; RuntimeException does not seem appropriate here...
+			throw new RuntimeException("Unexpected exception creating concrete class for profile: " + this.profileName + ", from profile table: " + this.profileTableConcrete.getProfileTableName()
+					+ " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), e);
+		}
 	}
 
 	public boolean isSnapshot() {
@@ -198,14 +192,15 @@ public class ProfileObject {
 		{
 			logger.debug("[profileActivate] "+this);
 		}
-		if (this.getState() != ProfileObjectState.POOLED) {
+		
+		if (this.getState() != ProfileObjectState.POOLED)
+		{
 			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileActivate();
 		this.state = ProfileObjectState.READY;
-
 	}
 
 	public void profileInitialize() {
@@ -336,44 +331,59 @@ public class ProfileObject {
 		final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
 
 		// FIXME: is this needed ?
-		try {
+		try
+		{
 			final ClassLoader cl = this.profileSpecificationComponent.getClassLoader();
+			
 			if (SleeContainer.isSecurityEnabled())
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
+			{
+				AccessController.doPrivileged(new PrivilegedAction()
+				{
+					public Object run()
+					{
 						Thread.currentThread().setContextClassLoader(cl);
 						return null;
-
 					}
 				});
+			}
 			else
+			{
 				Thread.currentThread().setContextClassLoader(cl);
-			if (this.profileConcrete != null) {
-				try {
+			}
+			
+			if (this.profileConcrete != null)
+			{
+				try
+				{
 					this.profileContext = profileContext;
 					this.profileConcrete.setProfileContext(this.profileContext);
 					this.profileContext.setProfileObject(this);
-				} catch (Exception ex) {
+				}
+				catch (Exception e) {
 					if (logger.isDebugEnabled())
 						logger.debug("Exception encountered while setting profile context for profile: " + this.profileName + ", from profile table: "
-								+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), ex);
+								+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), e);
 				}
 			}
-
-		} finally {
+		}
+		finally
+		{
 			if (SleeContainer.isSecurityEnabled())
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
+			{
+				AccessController.doPrivileged(new PrivilegedAction()
+				{
+					public Object run()
+					{
 						Thread.currentThread().setContextClassLoader(oldClassLoader);
 						return null;
-
 					}
 				});
+			}
 			else
+			{
 				Thread.currentThread().setContextClassLoader(oldClassLoader);
-
+			}
 		}
-
 	}
 
 	/**
@@ -397,37 +407,47 @@ public class ProfileObject {
 		final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
 
 		// FIXME: is this needed ?
-		try {
+		try
+		{
 			final ClassLoader cl = this.profileSpecificationComponent.getClassLoader();
 			if (SleeContainer.isSecurityEnabled())
+			{
 				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
+					public Object run()
+					{
 						Thread.currentThread().setContextClassLoader(cl);
 						return null;
-
 					}
 				});
+			}
 			else
+			{
 				Thread.currentThread().setContextClassLoader(cl);
-			if (this.profileConcrete != null) {
+			}
+			
+			if (this.profileConcrete != null)
+			{
 				this.profileConcrete.unsetProfileContext();
 				this.profileContext.setProfileObject(null);
 			}
-
-		} finally {
+		}
+		finally
+		{
 			if (SleeContainer.isSecurityEnabled())
+			{
 				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
+					public Object run()
+					{
 						Thread.currentThread().setContextClassLoader(oldClassLoader);
 						return null;
-
 					}
 				});
+			}
 			else
+			{
 				Thread.currentThread().setContextClassLoader(oldClassLoader);
-
+			}
 		}
-
 	}
 	
 	public String toString()

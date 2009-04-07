@@ -22,9 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.slee.SLEEException;
-import javax.slee.management.LibraryID;
-
 import javassist.Modifier;
 
 import org.apache.log4j.Level;
@@ -41,12 +38,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MLongestPrefixMatch;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpression;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpressionType;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryParameter;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MRangeMatch;
-import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField;
-
-import com.sun.org.apache.xpath.internal.operations.Mod;
 
 /**
  * Start time:10:45:52 2009-02-09<br>
@@ -226,7 +219,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 	}
 
-	private boolean requriedProfileAbstractClass = false;
+	private boolean requiredProfileAbstractClass = false;
 
 	public void setComponentRepository(ComponentRepository repository) {
 		this.repository = repository;
@@ -802,7 +795,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// is this the right place? This tells validator
 					// wheather it should require profile abstract class in
 					// case of 1.1
-					requriedProfileAbstractClass = true;
+					requiredProfileAbstractClass = true;
 					// we know that name is ok.
 					// FIXME: SPECS Are weird - Management methods may not
 					// have the same name and arguments as a Profile CMP
@@ -968,7 +961,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// is this the right place? This tells validator
 					// wheather it should require profile abstract class in
 					// case of 1.1
-					requriedProfileAbstractClass = true;
+					requiredProfileAbstractClass = true;
 
 					// we know that name is ok.
 					// FIXME: SPECS Are weird - Management methods may not
@@ -1049,7 +1042,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			if (this.component.getDescriptor().getProfileClasses().getProfileAbstractClass() == null) {
 
-				if (this.requriedProfileAbstractClass) {
+				if (this.requiredProfileAbstractClass) {
 					errorBuffer = appendToBuffer(
 							"Profile specification profile management abstract class must be present",
 							"3.X", errorBuffer);
@@ -1068,9 +1061,14 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 			}
 
-			Class profileAbstractClass = this.component
-					.getProfileAbstractClass();
+			Class profileAbstractClass = this.component.getProfileAbstractClass();
 
+			// FIXME: Alexandre: Added this, was making some tests fail. Review!
+			if(profileAbstractClass == null)
+			{
+			  return passed;
+			}
+			
 			// if (profileAbstractClass.isInterface()
 			// || profileAbstractClass.isEnum()) {
 			// passed = false;
