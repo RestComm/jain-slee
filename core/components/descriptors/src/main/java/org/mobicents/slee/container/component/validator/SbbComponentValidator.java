@@ -1082,11 +1082,11 @@ public class SbbComponentValidator implements Validator {
 					// we can haev generic ACI or derived object defined in
 					// sbb,... uffff
 					Class definedAciType = this.component.getActivityContextInterface();
-					if (definedAciType.getName().compareTo(fieldType.getName()) == 0) {
+					if (definedAciType != null && definedAciType.getName().equals(fieldType.getName())) {
 						// do nothing
 					} else if (fieldType.getName().compareTo("javax.slee.ActivityContextInterface") == 0) {
 						// do nothing
-					} else if (ClassUtils.checkInterfaces(definedAciType, fieldType.getName()) != null) {
+					} else if (definedAciType != null && ClassUtils.checkInterfaces(definedAciType, fieldType.getName()) != null) {
 						// do anything
 					} else {
 						passed = false;

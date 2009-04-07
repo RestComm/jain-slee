@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
+import javax.slee.EventContext;
 import javax.slee.EventTypeID;
 import javax.slee.RolledBackContext;
 import javax.slee.SLEEException;
@@ -17,6 +18,7 @@ import javax.slee.SbbLocalObject;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
+import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
@@ -357,19 +359,41 @@ public class SbbEntity {
 						+ field.getSbbRef() + ")");
 			}
 			cmpType = CmpType.sbblo;
-			cmpValue = ((SbbLocalObjectImpl) object).getSbbEntityId();
-		} else if (object instanceof ActivityContextInterfaceImpl) {
+			cmpValue = sbbLocalObjectImpl.getSbbEntityId();
+		} else if (object instanceof ActivityContextInterface) {
+			org.mobicents.slee.runtime.activity.ActivityContextInterface activityContextInterfaceImpl = null;
+			try {
+				activityContextInterfaceImpl = (org.mobicents.slee.runtime.activity.ActivityContextInterface) object;
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException("CMP value being set ("
+						+ object
+						+ ") is an unknown ActivityContextInterface implementation");
+			}
 			cmpType = CmpType.aci;
-			cmpValue = ((ActivityContextInterfaceImpl) object)
-					.getActivityContext().getActivityContextId();
-		} else if (object instanceof EventContextImpl) {
+			cmpValue = activityContextInterfaceImpl.getActivityContext().getActivityContextId();
+		} else if (object instanceof EventContext) {
+			EventContextImpl eventContextImpl = null;
+			try {
+				eventContextImpl = (EventContextImpl) object;
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException("CMP value being set ("
+						+ object
+						+ ") is an unknown EventContext implementation");
+			}
 			cmpType = CmpType.eventctx;
-			cmpValue = ((EventContextImpl) object).getEventContextID();
-		} else if (object instanceof ProfileLocalObjectConcreteImpl) {
-			cmpType = CmpType.sbblo;
-			final ProfileLocalObjectConcreteImpl profileLocalObject = (ProfileLocalObjectConcreteImpl) object;
-			cmpValue = new ProfileLocalObjectCmpValue(profileLocalObject
-					.getProfileTableName(), profileLocalObject.getProfileName());
+			cmpValue = eventContextImpl.getEventContextID();
+		} else if (object instanceof ProfileLocalObject) {
+			ProfileLocalObjectConcreteImpl profileLocalObjectConcreteImpl = null;
+			try {
+				profileLocalObjectConcreteImpl = (ProfileLocalObjectConcreteImpl) object;
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException("CMP value being set ("
+						+ object
+						+ ") is an unknown ProfileLocalObject implementation");
+			}
+			cmpType = CmpType.profilelo;
+			cmpValue = new ProfileLocalObjectCmpValue(profileLocalObjectConcreteImpl
+					.getProfileTableName(), profileLocalObjectConcreteImpl.getProfileName());
 		} else {
 			cmpType = CmpType.normal;
 			cmpValue = object;
