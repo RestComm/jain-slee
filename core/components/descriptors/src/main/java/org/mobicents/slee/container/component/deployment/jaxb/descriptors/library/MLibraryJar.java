@@ -32,7 +32,7 @@ public class MLibraryJar {
       this.library.add( new MLibrary(library11) );
     }
     
-    this.securityPermissions = new MSecurityPermissions(libraryJar11.getSecurityPermissions());
+    this.securityPermissions = libraryJar11.getSecurityPermissions() == null ? null : new MSecurityPermissions(libraryJar11.getSecurityPermissions());
   }
   
   public String getDescription()

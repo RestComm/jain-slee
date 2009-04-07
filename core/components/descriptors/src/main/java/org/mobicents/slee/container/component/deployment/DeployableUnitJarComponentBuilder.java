@@ -129,17 +129,23 @@ public class DeployableUnitJarComponentBuilder {
 				for (LibraryDescriptorImpl descriptor : descriptors) {
 					LibraryComponent component = new LibraryComponent(descriptor);
 					// create temp dir to hold all classes of the jars that this library refers
-					File tempLibraryDir = createTempLibraryDeploymentDir(componentJarDeploymentDir,component.getLibraryID());
+					File tempLibraryDir = new File(componentJarDeploymentDir,"tmp");
+					if (!tempLibraryDir.exists()) {
+						tempLibraryDir.mkdirs();
+		            }
+		            else {
+		            	throw new SLEEException("Dir "+tempLibraryDir+" already exists, unable to create deployment dir for "+component);
+		            }
 					// for each referenced jar unpack all classes
 					for (MJar mJar : descriptor.getJars()) {
 						// for each library component we need to unpack each referenced jar in the library component jar
-						// similar process we did for component jars of the du
 						File extractedLibraryFile = extractFile(mJar.getJarName(),
 								componentJarFile, tempLibraryDir);
+						// now we unpack the lib jar content into the component dir
 						JarFile extractedLibraryJarFile = null;
 						try {
 							extractedLibraryJarFile = new JarFile(extractedLibraryFile);
-							extractJar(extractedLibraryJarFile, tempLibraryDir);
+							extractJar(extractedLibraryJarFile, componentJarDeploymentDir);
 
 						} catch (IOException e) {
 							throw new DeploymentException(
@@ -155,13 +161,17 @@ public class DeployableUnitJarComponentBuilder {
 									logger.error("failed to close component jar file", e);
 								}
 							}
-							// and delete the extracted library jar file, we don't need it anymore
+							// delete the extracted library jar file, we don't need it anymore
 							if (!extractedLibraryFile.delete()) {
 								logger.warn("failed to delete library " + extractedFile);
 							}
 						}
 					}
-					component.setDeploymentDir(tempLibraryDir);										
+					// delete the tmp dir where we extracted library jar files, we don't need it anymore
+					if (!tempLibraryDir.delete()) {
+						logger.warn("failed to delete tmp library dir " + tempLibraryDir);
+					}
+					component.setDeploymentDir(componentJarDeploymentDir);										
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
@@ -378,29 +388,4 @@ public class DeployableUnitJarComponentBuilder {
 		}
 	}
 	
-	/**
-	 * Creates the directory that will be used for unpacking the child jars for a given library.
-	 * @param rootDir
-	 * @param sourceUrl
-	 * @throws SLEEException if the dir can't be created
-	 * @return
-	 */
-    private File createTempLibraryDeploymentDir(File deploymentRoot, LibraryID libraryID) {
-        try {
-            // first create a dummy file to gurantee uniqueness. I would have been nice if the File class had a createTempDir() method
-            // IVELIN -- do not use jarName here because windows cannot see the path (exceeds system limit)
-            File tempFile = File.createTempFile("mobicents-slee-library-", "", deploymentRoot);
-            File tempDeploymentDir = new File(tempFile.getAbsolutePath() + "-contents");
-            if (!tempDeploymentDir.exists()) {
-            	tempDeploymentDir.mkdirs();
-            }
-            else {
-            	throw new SLEEException("Dir "+tempDeploymentDir+" already exists, unable to create deployment dir for library "+libraryID);
-            }
-            tempFile.delete();
-            return tempDeploymentDir;
-        } catch (IOException e) {            
-            throw new SLEEException("Failed to create deployment dir for library "+libraryID, e);
-        }
-    }
 }
