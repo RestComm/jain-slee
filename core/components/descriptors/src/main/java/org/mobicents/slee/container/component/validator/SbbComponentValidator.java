@@ -111,6 +111,10 @@ public class SbbComponentValidator implements Validator {
 			concreteMethods = ClassUtils.getConcreteMethodsFromClass(this.component.getAbstractSbbClass());
 			superClassesConcreteMethods = ClassUtils.getConcreteMethodsFromSuperClasses(this.component.getAbstractSbbClass());
 
+			//NOTE: wont this hide method exceptions or visibility change?
+			superClassesAbstractMethod.keySet().removeAll(abstractMehotds.keySet());
+			superClassesConcreteMethods.keySet().removeAll(concreteMethods.keySet());
+			
 			if (!validateAbstractClassConstraints(concreteMethods, superClassesConcreteMethods)) {
 				valid = false;
 			}
