@@ -213,7 +213,7 @@ public class TraceFacilityImpl implements TraceFacility {
 		if (lev.isOff())
 			return;
 		// Check if we should log this message.
-		if (level.isHigherLevel(lev)) {
+		if (level.isHigherLevel(lev) || level.toInt() == lev.toInt()) {
 			TraceNotification traceNotification = new TraceNotification(traceMBeanImpl, messageType, componentId, level, message, cause, seqno, timeStamp);
 			this.traceMBeanImpl.sendNotification(traceNotification);
 		}
