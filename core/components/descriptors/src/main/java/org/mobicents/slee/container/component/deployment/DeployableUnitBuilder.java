@@ -37,6 +37,7 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
 import org.jboss.classloader.spi.ClassLoaderSystem;
+import org.mobicents.slee.container.component.ComponentClassLoader;
 import org.mobicents.slee.container.component.ComponentJarClassLoaderDomain;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
@@ -216,7 +217,7 @@ public class DeployableUnitBuilder {
 								.addClassLoaderDomain(classLoaderDomain);
 					}
 					component
-							.setClassLoader(classLoaderDomain.getClassLoader());
+							.setClassLoader(new ComponentClassLoader(classLoaderDomain.getClassLoader(),component.getComponentID()));
 				}
 			}
 

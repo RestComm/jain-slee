@@ -25,7 +25,7 @@ public abstract class SleeComponent {
 	/**
 	 * the component class loader
 	 */
-	private ClassLoader classLoader;
+	private ComponentClassLoader classLoader;
 
 	/**
 	 * the javassist class pool
@@ -52,7 +52,7 @@ public abstract class SleeComponent {
 	 * 
 	 * @return
 	 */
-	public ClassLoader getClassLoader() {
+	public ComponentClassLoader getClassLoader() {
 		return classLoader;
 	}
 
@@ -61,7 +61,7 @@ public abstract class SleeComponent {
 	 * 
 	 * @param classLoader
 	 */
-	public void setClassLoader(ClassLoader classLoader) {
+	public void setClassLoader(ComponentClassLoader classLoader) {
 		this.classLoader = classLoader;
 		if (classPool != null) {
 			classPool.clean();
