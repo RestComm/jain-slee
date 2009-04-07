@@ -8,6 +8,8 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
+import javax.slee.SbbID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.CmpField;
 
 /**
@@ -20,48 +22,88 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.CmpField;
  */
 public class MSbbCMPField {
 
-	private CmpField cmpField = null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.CmpField llCmpField = null;
-
-	private String description = null;
-	private String cmpFieldName = null;
-	private String sbbAliasRef = null;
-
-	public MSbbCMPField(
-			
-			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.CmpField llCmpField) {
-		super();
+	/**
+	 * the description of the cmp field
+	 */
+	private final String description;
+	
+	/**
+	 * the cmp field name
+	 */
+	private final String cmpFieldName;
+	
+	/**
+	 * the sbb alias reference
+	 */
+	private final String sbbAliasRef;
+	
+	/**
+	 * the id of the sbb referenced through the alias
+	 */
+	private SbbID sbbRef = null;
+	
+	public MSbbCMPField(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.CmpField cmpField) {
 		
-		this.llCmpField = llCmpField;
-		this.description=this.llCmpField.getDescription()==null?null:this.llCmpField.getDescription().getvalue();
-		this.cmpFieldName=this.llCmpField.getCmpFieldName().getvalue();
-		if(this.llCmpField.getSbbAliasRef()!=null)
-			this.sbbAliasRef=this.llCmpField.getSbbAliasRef().getvalue();
+		this.description=cmpField.getDescription()==null?null:cmpField.getDescription().getvalue();
+		this.cmpFieldName=cmpField.getCmpFieldName().getvalue();
+		if (cmpField.getSbbAliasRef() == null) {
+			this.sbbAliasRef = null;
+		}
+		else {
+			this.sbbAliasRef=cmpField.getSbbAliasRef().getvalue();
+		}
 	}
 
 	public MSbbCMPField(
 			CmpField cmpField) {
-		super();
-		this.cmpField = cmpField;
-		this.description=this.cmpField.getDescription()==null?null:this.cmpField.getDescription().getvalue();
-		this.cmpFieldName=this.cmpField.getCmpFieldName().getvalue();
-		if(this.cmpField.getSbbAliasRef()!=null)
-			this.sbbAliasRef=this.cmpField.getSbbAliasRef().getvalue();
-		//FIXME: check this, THIS MUST BE PRESENT FOR SBB LOs, can be checked only at runtime
-		
-	
+		this.description=cmpField.getDescription()==null?null:cmpField.getDescription().getvalue();
+		this.cmpFieldName=cmpField.getCmpFieldName().getvalue();
+		if (cmpField.getSbbAliasRef() == null) {
+			this.sbbAliasRef = null;
+		}
+		else {
+			this.sbbAliasRef=cmpField.getSbbAliasRef().getvalue();
+		}
 	}
 
+	/**
+	 * Retrieves the description of the cmp field
+	 * @return
+	 */
 	public String getDescription() {
 		return description;
 	}
 
+	/**
+	 * Retrieves the cmp field name
+	 * @return
+	 */
 	public String getCmpFieldName() {
 		return cmpFieldName;
 	}
 
+	/**
+	 * Retrieves the sbb alias reference
+	 * @return
+	 */
 	public String getSbbAliasRef() {
 		return sbbAliasRef;
 	}
 
+	/**
+	 * Retrieves the id of the sbb referenced through the alias
+	 * @return
+	 */
+	public SbbID getSbbRef() {
+		return sbbRef;
+	}
+	
+	/**
+	 * Sets the id of the sbb referenced through the alias
+	 * @param sbbRef
+	 */
+	public void setSbbRef(SbbID sbbRef) {
+		this.sbbRef = sbbRef;
+	}
+	
 }

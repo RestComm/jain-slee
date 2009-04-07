@@ -344,8 +344,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 //		validateValue(cmpField.getSbbAliasRef(), "CMP Field sbba alias ref ", _SBB_ALIAS_REF);
 //		
 		
-		
-		List<MSbbCMPField> cmpFields=mSbbAbstractClass.getCmpFields();
+		Collection<MSbbCMPField> cmpFields=mSbbAbstractClass.getCmpFields();
 		
 		assertNotNull("Sbb cmp fields list is null",cmpFields);
 		assertTrue("Sbb cmp fields list size is not equal to 1",cmpFields.size()==1);

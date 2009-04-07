@@ -885,9 +885,7 @@ public class SbbComponentValidator implements Validator {
 		boolean passed = true;
 		String errorBuffer = new String("");
 
-		List<MSbbCMPField> cmpFields = this.component.getDescriptor().getSbbClasses().getSbbAbstractClass().getCmpFields();
-
-		for (MSbbCMPField entry : cmpFields) {
+		for (MSbbCMPField entry : this.component.getDescriptor().getSbbClasses().getSbbAbstractClass().getCmpFields()) {
 
 			String fieldName = entry.getCmpFieldName();
 

@@ -26,6 +26,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MR
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbb;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbActivityContextInterface;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbClasses;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbLocalInterface;
 
@@ -85,6 +86,11 @@ public class SbbDescriptorImpl {
 	 * references sbb abstract class map of get child relation methods
 	 */
 	private Map<String, MGetChildRelationMethod> getChildRelationMethods;
+
+	/**
+	 * cmp fields mapped by field name and with sbb alias dereferenced (for sbb local object cmps)
+	 */
+    private Map<String,MSbbCMPField> cmpFields;
 
 	public SbbDescriptorImpl(MSbb sbb,
 			MSecurityPermissions sbbJarSecurityPermissions, boolean isSlee11)
@@ -181,6 +187,21 @@ public class SbbDescriptorImpl {
 				}
 			}
 
+			// build cmp field map
+			this.cmpFields = new HashMap<String,MSbbCMPField>();
+		    for(MSbbCMPField field : sbbClasses.getSbbAbstractClass().getCmpFields()) {
+		      this.cmpFields.put(field.getCmpFieldName(),field);
+		      if (field.getSbbAliasRef() != null) {
+		    	  // dereference the alias
+		    	  for (MSbbRef ref : sbbRefs) {
+		    		  if (ref.getSbbAlias().equals(field.getSbbAliasRef())) {
+		    			  field.setSbbRef(ref.getComponentID());
+		    			  break;
+		    		  }
+		    	  }
+		      }
+		    }
+		    
 			buildDependenciesSet();
 		} catch (DeploymentException e) {
 			throw e;
@@ -324,4 +345,11 @@ public class SbbDescriptorImpl {
 		return getProfileCMPMethods;
 	}
 
+	/**
+	 * Retrieves cmp fields mapped by field name and with sbb alias dereferenced (for sbb local object cmps) 
+	 * @return
+	 */
+	public Map<String, MSbbCMPField> getCmpFields() {
+		return cmpFields;
+	}
 }

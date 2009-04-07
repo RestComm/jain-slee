@@ -12,7 +12,6 @@ package org.mobicents.slee.container.deployment;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import javassist.CannotCompileException;
@@ -75,11 +74,6 @@ public class ConcreteSbbGenerator {
 	private CtClass sbbConcreteClass = null;
 
 	/**
-	 * manager used to get the method call interceptors
-	 */
-	private MappingManager mappingManager = null;
-
-	/**
 	 * Logger to logg information
 	 */
 	private static Logger logger = null;
@@ -119,7 +113,6 @@ public class ConcreteSbbGenerator {
 		this.deployDir = sbbComponent.getDeploymentDir().getAbsolutePath();
 		;
 		this.pool = sbbComponent.getClassPool();
-		this.mappingManager = new MappingManager();
 	}
 
 	/**
@@ -658,7 +651,7 @@ public class ConcreteSbbGenerator {
 	 *            the description of the cmp fields
 	 * @throws DeploymentException
 	 */
-	protected void createCMPAccessors(List<MSbbCMPField> cmps)
+	protected void createCMPAccessors(Collection<MSbbCMPField> cmps)
 			throws DeploymentException {
 
 		for (MSbbCMPField cmp : cmps) {

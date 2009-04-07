@@ -28,6 +28,7 @@ import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.service.Service;
@@ -63,17 +64,18 @@ import org.mobicents.slee.runtime.sbb.SbbObjectState;
 public class SbbEntity {
 
 	static private final Logger log = Logger.getLogger(SbbEntity.class);
-	static private final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	static private final SleeContainer sleeContainer = SleeContainer
+			.lookupFromJndi();
 
 	private final String sbbeId; // This is the primary key of the SbbEntity.
-	
+
 	private final SbbComponent sbbComponent;
 	private SbbObject sbbObject;
 	private final SbbObjectPool pool;
-	
+
 	// cache data
 	protected SbbEntityCacheData cacheData;
-	
+
 	private boolean isRemoved;
 
 	/**
@@ -90,24 +92,25 @@ public class SbbEntity {
 			String parentChildRelationName, String rootSbbEntityId,
 			SbbID sbbID, String convergenceName, ServiceID svcId)
 			throws Exception {
-		
+
 		if (sbbID == null)
 			throw new NullPointerException("Null sbbID");
 
 		this.sbbeId = sbbEntityId;
 		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
 		cacheData.create();
-				
+
 		setParentSbbEntityId(parentSbbEntityId);
 		setParentChildRelation(parentChildRelationName);
 		setRootSbbId(rootSbbEntityId);
 		setSbbId(sbbID);
 		setServiceId(svcId);
 		setServiceConvergenceName(convergenceName);
-		
-		this.pool = sleeContainer.getSbbPoolManagement()
-				.getObjectPool(getServiceId(),getSbbId());
-		this.sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getSbbId());
+
+		this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
+				getServiceId(), getSbbId());
+		this.sbbComponent = sleeContainer.getComponentRepositoryImpl()
+				.getComponentByID(getSbbId());
 		if (this.sbbComponent == null) {
 			String s = "Sbb component/descriptor not found for sbbID["
 					+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "],\n"
@@ -136,28 +139,28 @@ public class SbbEntity {
 					"SbbEntity cannot be instantiated for sbbeId == null");
 
 		this.sbbeId = sbbEntityId;
-		
+
 		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
 		if (cacheData.exists()) {
-					
-			this.pool = sleeContainer.getSbbPoolManagement()
-					.getObjectPool(getServiceId(),getSbbId());
-			this.sbbComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(getSbbId());
+
+			this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
+					getServiceId(), getSbbId());
+			this.sbbComponent = sleeContainer.getComponentRepositoryImpl()
+					.getComponentByID(getSbbId());
 			if (this.sbbComponent == null) {
 				String s = "Sbb component/descriptor not found for sbbID["
 						+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "]";
 				log.warn(s);
 				throw new RuntimeException(s);
 			}
-		}
-		else {
-			throw new IllegalStateException(
-			"Sbb entity "+sbbEntityId+" not found");
+		} else {
+			throw new IllegalStateException("Sbb entity " + sbbEntityId
+					+ " not found");
 		}
 	}
 
 	public ServiceID getServiceId() {
-		return cacheData.getServiceId();		
+		return cacheData.getServiceId();
 	}
 
 	private void setServiceId(ServiceID svcId) {
@@ -183,8 +186,8 @@ public class SbbEntity {
 					+ "\nattachmentCount = " + getAttachmentCount()
 					+ "\nrootSbbId = " + this.getRootSbbId() + "\nserviceID = "
 					+ getServiceId() + "\nactivityContexts = "
-					+ this.getActivityContexts() + "\nconvergenceName = "					
-					+ getServiceConvergenceName() + "\n}");					
+					+ this.getActivityContexts() + "\nconvergenceName = "
+					+ getServiceConvergenceName() + "\n}");
 		}
 	}
 
@@ -205,10 +208,11 @@ public class SbbEntity {
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		CmpWrapper cmpWrapper = (CmpWrapper) cacheData.getCmpField(cmpFieldName);
+		CmpWrapper cmpWrapper = (CmpWrapper) cacheData
+				.getCmpField(cmpFieldName);
 		if (cmpWrapper != null) {
 			switch (cmpWrapper.getType()) {
-			
+
 			case sbblo:
 				// it's a sbbLocalObject cmp
 				String sbbEntityId = (String) cmpWrapper.getValue();
@@ -225,82 +229,94 @@ public class SbbEntity {
 				else {
 					return sbbEntity.createSbbLocalObject();
 				}
-			
+
 			case aci:
-				final ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext((String) cmpWrapper.getValue(), true);
+				final ActivityContext ac = sleeContainer
+						.getActivityContextFactory().getActivityContext(
+								(String) cmpWrapper.getValue(), true);
 				if (ac != null) {
 					return new ActivityContextInterfaceImpl(ac);
-				}
-				else {
-					return null;
-				}
-			
-			case eventctx:
-				final EventContextID eventContextID = (EventContextID)cmpWrapper.getValue();
-				final EventRouterActivity eventRouterActivity = sleeContainer.getEventRouter().getEventRouterActivity(eventContextID.getActivityContextID());
-				if (eventRouterActivity != null) {
-					EventContextImpl eventContextImpl = eventRouterActivity.getCurrentEventContext();
-					if (eventContextImpl != null) {
-						if (eventContextID.getEventObject().equals(eventContextImpl.getEventContextID().getEventObject())) {
-							return eventContextImpl;
-						}
-						else {
-							return null;
-						}
-					}
-					else {
-						return null;
-					}
-				}
-				else {
-					return null;
-				}
-			
-			case profilelo:
-				// FIXED: I do not know that.
-				//throw new SLEEException("Bartosz is the oen who knows how to build a profile local object :)");
-				ProfileLocalObjectCmpValue profileLocalObjectCmpValue = (ProfileLocalObjectCmpValue) cmpWrapper.getValue();
-				//See JSLEE Specs 6.5.1 , page 72. Should we check for SBB 1.1 vs 1.0 ?
-				try{
-					ProfileTableConcrete ptc = this.sleeContainer.getSleeProfileTableManager().getProfileTable(profileLocalObjectCmpValue.getProfileTableName());
-					ProfileLocalObjectConcreteImpl ploc=(ProfileLocalObjectConcreteImpl) ptc.find(profileLocalObjectCmpValue.getProfileName());
-					//its safe, this op should not allocate object twice
-					ploc.allocateProfileObject();
-					return ploc;
-				}catch(UnrecognizedProfileTableNameException e)
-				{
-					//FIXME: ??
-					if(log.isDebugEnabled())
-					{
-						//e.printStackTrace();
-						log.debug("Profile table does not exist anymore: "+profileLocalObjectCmpValue.getProfileTableName(), e);
-					}
-					return null;
-				}catch(UnrecognizedProfileNameException e)
-				{
-					//FIXME: ??
-					if(log.isDebugEnabled())
-					{
-						//e.printStackTrace();
-						log.debug("Profile  does not exist anymore, table: "+profileLocalObjectCmpValue.getProfileTableName() +", profile: "+profileLocalObjectCmpValue.getProfileName(), e);
-					}
+				} else {
 					return null;
 				}
 
+			case eventctx:
+				final EventContextID eventContextID = (EventContextID) cmpWrapper
+						.getValue();
+				final EventRouterActivity eventRouterActivity = sleeContainer
+						.getEventRouter().getEventRouterActivity(
+								eventContextID.getActivityContextID());
+				if (eventRouterActivity != null) {
+					EventContextImpl eventContextImpl = eventRouterActivity
+							.getCurrentEventContext();
+					if (eventContextImpl != null) {
+						if (eventContextID.getEventObject().equals(
+								eventContextImpl.getEventContextID()
+										.getEventObject())) {
+							return eventContextImpl;
+						} else {
+							return null;
+						}
+					} else {
+						return null;
+					}
+				} else {
+					return null;
+				}
+
+			case profilelo:
+				// FIXED: I do not know that.
+				// throw new
+				// SLEEException("Bartosz is the oen who knows how to build a profile local object :)");
+				ProfileLocalObjectCmpValue profileLocalObjectCmpValue = (ProfileLocalObjectCmpValue) cmpWrapper
+						.getValue();
+				// See JSLEE Specs 6.5.1 , page 72. Should we check for SBB 1.1
+				// vs 1.0 ?
+				try {
+					ProfileTableConcrete ptc = this.sleeContainer
+							.getSleeProfileTableManager().getProfileTable(
+									profileLocalObjectCmpValue
+											.getProfileTableName());
+					ProfileLocalObjectConcreteImpl ploc = (ProfileLocalObjectConcreteImpl) ptc
+							.find(profileLocalObjectCmpValue.getProfileName());
+					// its safe, this op should not allocate object twice
+					ploc.allocateProfileObject();
+					return ploc;
+				} catch (UnrecognizedProfileTableNameException e) {
+					// FIXME: ??
+					if (log.isDebugEnabled()) {
+						// e.printStackTrace();
+						log.debug("Profile table does not exist anymore: "
+								+ profileLocalObjectCmpValue
+										.getProfileTableName(), e);
+					}
+					return null;
+				} catch (UnrecognizedProfileNameException e) {
+					// FIXME: ??
+					if (log.isDebugEnabled()) {
+						// e.printStackTrace();
+						log.debug("Profile  does not exist anymore, table: "
+								+ profileLocalObjectCmpValue
+										.getProfileTableName() + ", profile: "
+								+ profileLocalObjectCmpValue.getProfileName(),
+								e);
+					}
+					return null;
+				}
 
 			case normal:
 				if (log.isDebugEnabled()) {
-					log.debug("getCMPField() value = "
-							+ cmpWrapper.getValue());
+					log.debug("getCMPField() value = " + cmpWrapper.getValue());
 				}
 				return cmpWrapper.getValue();
-				
+
 			default:
-				throw new SLEEException("invalid cmp type retrieved from cache "+cmpWrapper.getType());
-				
+				throw new SLEEException(
+						"invalid cmp type retrieved from cache "
+								+ cmpWrapper.getType());
+
 			}
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
@@ -309,62 +325,81 @@ public class SbbEntity {
 			throws TransactionRequiredLocalException {
 
 		if (log.isDebugEnabled()) {
-			log
-					.debug("putCMPField(): putting cmp field : "
-							+ cmpFieldName + "/" + " object = "
-							+ object);
+			log.debug("putCMPField(): putting cmp field : " + cmpFieldName
+					+ "/" + " object = " + object);
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		CmpType cmpType = null;
 		Object cmpValue = null;
-		
+
 		// TODO optimize by adding the cmp type to the generated setter method?
 		if (object instanceof SbbLocalObject) {
+			SbbLocalObjectImpl sbbLocalObjectImpl = null;
+			try {
+				sbbLocalObjectImpl = (SbbLocalObjectImpl) object;
+			} catch (ClassCastException e) {
+				throw new IllegalArgumentException("CMP value being set ("
+						+ object
+						+ ") is an unknown SbbLocalObject implementation");
+			}
+			MSbbCMPField field = sbbComponent.getDescriptor().getCmpFields()
+					.get(cmpFieldName);
+			if (field.getSbbRef() != null
+					&& !field.getSbbRef().equals(
+							sbbLocalObjectImpl.getSbbEntity().getSbbComponent()
+									.getSbbID())) {
+				throw new IllegalArgumentException("CMP value being set ("
+						+ sbbLocalObjectImpl.getSbbEntity().getSbbComponent()
+								.getSbbID()
+						+ ") is for a different sbb then the one expected ("
+						+ field.getSbbRef() + ")");
+			}
 			cmpType = CmpType.sbblo;
 			cmpValue = ((SbbLocalObjectImpl) object).getSbbEntityId();
-		}
-		else if (object instanceof ActivityContextInterfaceImpl) {
+		} else if (object instanceof ActivityContextInterfaceImpl) {
 			cmpType = CmpType.aci;
-			cmpValue = ((ActivityContextInterfaceImpl) object).getActivityContext().getActivityContextId();
-		}
-		else if (object instanceof EventContextImpl) {
+			cmpValue = ((ActivityContextInterfaceImpl) object)
+					.getActivityContext().getActivityContextId();
+		} else if (object instanceof EventContextImpl) {
 			cmpType = CmpType.eventctx;
 			cmpValue = ((EventContextImpl) object).getEventContextID();
-		}
-		else if (object instanceof ProfileLocalObjectConcreteImpl) {
+		} else if (object instanceof ProfileLocalObjectConcreteImpl) {
 			cmpType = CmpType.sbblo;
 			final ProfileLocalObjectConcreteImpl profileLocalObject = (ProfileLocalObjectConcreteImpl) object;
-			cmpValue = new ProfileLocalObjectCmpValue(profileLocalObject.getProfileTableName(),profileLocalObject.getProfileName());
-		}
-		else {
+			cmpValue = new ProfileLocalObjectCmpValue(profileLocalObject
+					.getProfileTableName(), profileLocalObject.getProfileName());
+		} else {
 			cmpType = CmpType.normal;
 			cmpValue = object;
 		}
-		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldName,cmpType,cmpValue);
-		cacheData.setCmpField(cmpFieldName,cmpWrapper);
+		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldName, cmpType, cmpValue);
+		cacheData.setCmpField(cmpFieldName, cmpWrapper);
 	}
-	
+
 	public void afterACAttach(String acId) {
 
 		// add event mask entry
-		Collection<MEventEntry> mEventEntries = sbbComponent.getDescriptor().getEventEntries().values();
+		Collection<MEventEntry> mEventEntries = sbbComponent.getDescriptor()
+				.getEventEntries().values();
 		HashSet<EventTypeID> maskedEvents = null;
 		if (mEventEntries != null) {
 			maskedEvents = new HashSet<EventTypeID>();
 			for (MEventEntry mEventEntry : mEventEntries) {
 				if (mEventEntry.isMaskOnAttach()) {
-					maskedEvents.add(mEventEntry.getEventReference().getComponentID());
+					maskedEvents.add(mEventEntry.getEventReference()
+							.getComponentID());
 				}
-			}						
+			}
 		}
 		// add to cache
 		cacheData.attachActivityContext(acId);
 		cacheData.updateEventMask(acId, maskedEvents);
-		
+
 		if (log.isDebugEnabled()) {
-			log.debug("attached sbb entity " + sbbeId + " to ac " + acId+" , events added to current mask "+maskedEvents);
+			log.debug("attached sbb entity " + sbbeId + " to ac " + acId
+					+ " , events added to current mask " + maskedEvents);
 		}
 	}
 
@@ -372,7 +407,7 @@ public class SbbEntity {
 
 		// remove from cache
 		cacheData.detachActivityContext(acId);
-		
+
 		if (log.isDebugEnabled()) {
 			log.debug("detached sbb entity " + sbbeId + " to ac " + acId);
 		}
@@ -383,13 +418,13 @@ public class SbbEntity {
 		Set eventMaskSet = cacheData.getMaskedEventTypes(acId);
 
 		if (log.isDebugEnabled()) {
-			log.debug("event mask for sbb entity " +sbbeId+" and ac "+ acId+" --> "+eventMaskSet);
+			log.debug("event mask for sbb entity " + sbbeId + " and ac " + acId
+					+ " --> " + eventMaskSet);
 		}
-		
+
 		if (eventMaskSet == null) {
 			return Collections.EMPTY_SET;
-		}
-		else {
+		} else {
 			return eventMaskSet;
 		}
 	}
@@ -402,12 +437,14 @@ public class SbbEntity {
 		if (eventMask != null && eventMask.length != 0) {
 
 			for (int i = 0; i < eventMask.length; i++) {
-				MEventEntry sbbEventEntry = sbbComponent.getDescriptor().getEventEntries().get(eventMask[i]);
+				MEventEntry sbbEventEntry = sbbComponent.getDescriptor()
+						.getEventEntries().get(eventMask[i]);
 				if (sbbEventEntry == null)
 					throw new UnrecognizedEventException(
 							"Event is not known by this SBB.");
 				if (sbbEventEntry.isReceived()) {
-					maskedEvents.add(sbbEventEntry.getEventReference().getComponentID());
+					maskedEvents.add(sbbEventEntry.getEventReference()
+							.getComponentID());
 				} else {
 					throw new UnrecognizedEventException("Event "
 							+ eventMask[i]
@@ -419,35 +456,37 @@ public class SbbEntity {
 		cacheData.setEventMask(acId, maskedEvents);
 
 		if (log.isDebugEnabled()) {
-			log.debug("set event mask "+maskedEvents+" for sbb entity " +sbbeId+" and ac "+ acId);
-		}		
+			log.debug("set event mask " + maskedEvents + " for sbb entity "
+					+ sbbeId + " and ac " + acId);
+		}
 	}
-	
+
 	public Set getActivityContexts() {
 		Set result = cacheData.getActivityContexts();
 		return result == null ? Collections.EMPTY_SET : result;
 	}
 
 	private static final String[] emptyStringArray = {};
-	
+
 	public String[] getEventMask(String acId) {
-		
+
 		Set maskedEvents = (Set) cacheData.getMaskedEventTypes(acId);
-		
+
 		if (log.isDebugEnabled()) {
-			log.debug("set event mask "+maskedEvents+" for sbb entity " +sbbeId+" and ac "+ acId);
-		}	
-		
-		if (maskedEvents == null || maskedEvents.isEmpty()) {			
-			return emptyStringArray;
+			log.debug("set event mask " + maskedEvents + " for sbb entity "
+					+ sbbeId + " and ac " + acId);
 		}
-		else {
+
+		if (maskedEvents == null || maskedEvents.isEmpty()) {
+			return emptyStringArray;
+		} else {
 			String[] events = new String[maskedEvents.size()];
 			Iterator evMaskIt = maskedEvents.iterator();
 			for (int i = 0; evMaskIt.hasNext(); i++) {
 				EventTypeID eventTypeId = (EventTypeID) evMaskIt.next();
-				events[i] = sbbComponent.getDescriptor().getEventEntries().get(eventTypeId).getEventName();				
-			}			
+				events[i] = sbbComponent.getDescriptor().getEventEntries().get(
+						eventTypeId).getEventName();
+			}
 			return events;
 		}
 	}
@@ -467,7 +506,8 @@ public class SbbEntity {
 	public int getAttachmentCount() {
 		int attachmentCount = getActivityContexts().size();
 		// needs to add all children attachement counts too
-		for (MGetChildRelationMethod getChildRelationMethod : this.sbbComponent.getDescriptor().getGetChildRelationMethods().values()) {
+		for (MGetChildRelationMethod getChildRelationMethod : this.sbbComponent
+				.getDescriptor().getGetChildRelationMethods().values()) {
 			// (re)create child relation obj
 			ChildRelationImpl childRelationImpl = new ChildRelationImpl(
 					getChildRelationMethod, this);
@@ -480,7 +520,7 @@ public class SbbEntity {
 						.getSbbEntity(childSbbEntityID);
 				attachmentCount += childSbbEntity.getAttachmentCount();
 			}
-		}		
+		}
 		return attachmentCount;
 	}
 
@@ -491,7 +531,7 @@ public class SbbEntity {
 	public void setPriority(byte priority) {
 		cacheData.setPriority(Byte.valueOf(priority));
 		if (log.isDebugEnabled()) {
-			log.debug("set sbb entity "+sbbeId+" priority to " + priority);
+			log.debug("set sbb entity " + sbbeId + " priority to " + priority);
 		}
 	}
 
@@ -544,7 +584,7 @@ public class SbbEntity {
 			String acId = (String) i.next();
 			// get ac
 			ActivityContext ac = SleeContainer.lookupFromJndi()
-					.getActivityContextFactory().getActivityContext(acId,true);
+					.getActivityContextFactory().getActivityContext(acId, true);
 			// remove the sbb entity from the attachment set.
 			if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
 				ac.detachSbbEntity(this.sbbeId);
@@ -555,7 +595,8 @@ public class SbbEntity {
 
 		// It invokes the appropriate life cycle methods (see Section 6.3) of an
 		// SBB object that caches the SBB entity state.
-		boolean invokingServiceSet = EventRouterThreadLocals.getInvokingService() != null;
+		boolean invokingServiceSet = EventRouterThreadLocals
+				.getInvokingService() != null;
 		if (!invokingServiceSet) {
 			EventRouterThreadLocals.setInvokingService(getServiceId());
 		}
@@ -572,9 +613,8 @@ public class SbbEntity {
 			} catch (Exception e2) {
 				throw new RuntimeException("Transaction Failure.", e2);
 			}
-		}
-		finally {
-			if(!invokingServiceSet) {
+		} finally {
+			if (!invokingServiceSet) {
 				EventRouterThreadLocals.setInvokingService(null);
 			}
 		}
@@ -584,11 +624,11 @@ public class SbbEntity {
 
 		// remove this entity data from cache
 		removeFromCache();
-		
+
 		// now remove children
 		for (Object childSbbEntityId : childSbbEntities) {
 			// recreated the sbb entity and remove it
-			SbbEntityFactory.removeSbbEntity((String)childSbbEntityId, false);
+			SbbEntityFactory.removeSbbEntity((String) childSbbEntityId, false);
 		}
 	}
 
@@ -629,48 +669,52 @@ public class SbbEntity {
 	 * Actually invoke the event handler.
 	 * 
 	 */
-	public void invokeEventHandler(DeferredEvent sleeEvent, ActivityContext ac, EventContextImpl eventContextImpl) throws Exception {
-		
+	public void invokeEventHandler(DeferredEvent sleeEvent, ActivityContext ac,
+			EventContextImpl eventContextImpl) throws Exception {
+
 		// get event handler method
-		EventHandlerMethod eventHandlerMethod = sbbComponent.getEventHandlerMethods().get(sleeEvent.getEventTypeId());			
+		EventHandlerMethod eventHandlerMethod = sbbComponent
+				.getEventHandlerMethods().get(sleeEvent.getEventTypeId());
 		// build aci
-		ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(ac);
+		ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(
+				ac);
 		ActivityContextInterface activityContextInterface = null;
 		if (eventHandlerMethod.getHasCustomACIParam()) {
 			try {
-				activityContextInterface = (ActivityContextInterface) this.getSbbComponent()
-				.getActivityContextInterfaceConcreteClass()
+				activityContextInterface = (ActivityContextInterface) this
+						.getSbbComponent()
+						.getActivityContextInterfaceConcreteClass()
 						.getConstructor(
-								new Class[] {
-										aciImpl.getClass(),
-										SbbComponent.class })
-						.newInstance(
+								new Class[] { aciImpl.getClass(),
+										SbbComponent.class }).newInstance(
 								new Object[] { aciImpl, sbbComponent });
 			} catch (Exception e) {
 				String s = "Could not create Custom ACI!";
 				// log.error(s, e);
 				throw new SLEEException(s, e);
 			}
-		}
-		else {
+		} else {
 			activityContextInterface = aciImpl;
 		}
 		// now build the param array
 		Object[] parameters = null;
 		if (eventHandlerMethod.getHasEventContextParam()) {
-			parameters = new Object[]{sleeEvent.getEvent(),activityContextInterface,eventContextImpl};
+			parameters = new Object[] { sleeEvent.getEvent(),
+					activityContextInterface, eventContextImpl };
+		} else {
+			parameters = new Object[] { sleeEvent.getEvent(),
+					activityContextInterface };
 		}
-		else {
-			parameters = new Object[]{sleeEvent.getEvent(),activityContextInterface};
-		}
-		
+
 		// store some info about the invocation in the tx context
-		EventRoutingTransactionData data = new EventRoutingTransactionData(sleeEvent,activityContextInterface);
+		EventRoutingTransactionData data = new EventRoutingTransactionData(
+				sleeEvent, activityContextInterface);
 		data.getInvokedSbbEntities().add(sbbeId);
 		data.putInTransactionContext();
 		// invoke method
 		try {
-			eventHandlerMethod.getEventHandlerMethod().invoke(this.sbbObject.getSbbConcrete(), parameters);			
+			eventHandlerMethod.getEventHandlerMethod().invoke(
+					this.sbbObject.getSbbConcrete(), parameters);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (InvocationTargetException e) {
@@ -751,7 +795,7 @@ public class SbbEntity {
 				childSbbEntity.passivateAndReleaseSbbObject();
 			}
 			i.remove();
-		}		
+		}
 	}
 
 	/**
@@ -772,7 +816,7 @@ public class SbbEntity {
 				childSbbEntity.removeAndReleaseSbbObject();
 			}
 			i.remove();
-		}		
+		}
 	}
 
 	public SbbObjectPool getObjectPool() {
@@ -802,8 +846,8 @@ public class SbbEntity {
 
 		MGetChildRelationMethod getChildRelationMethod = null;
 		// get the child relation metod from the sbb component
-		if ((getChildRelationMethod = this.sbbComponent
-				.getDescriptor().getGetChildRelationMethods().get(accessorName)) != null) {
+		if ((getChildRelationMethod = this.sbbComponent.getDescriptor()
+				.getGetChildRelationMethods().get(accessorName)) != null) {
 			// this is a valid name of a child relation for this entity
 			return new ChildRelationImpl(getChildRelationMethod, this);
 		} else {
@@ -855,17 +899,17 @@ public class SbbEntity {
 	}
 
 	public void checkReEntrant() throws SLEEException {
-		if ((!this.getSbbComponent().getDescriptor().getSbbAbstractClass().isReentrant())
-				&& EventRoutingTransactionData.getFromTransactionContext().getInvokedSbbEntities().contains(sbbeId))
+		if ((!this.getSbbComponent().getDescriptor().getSbbAbstractClass()
+				.isReentrant())
+				&& EventRoutingTransactionData.getFromTransactionContext()
+						.getInvokedSbbEntities().contains(sbbeId))
 			throw new SLEEException(" re-entrancy not allowed ");
 	}
 
 	public SbbLocalObjectImpl createSbbLocalObject() {
 		Class sbbLocalClass;
 		if (log.isDebugEnabled())
-			log
-					.debug("createSbbLocalObject "
-							+ this.getSbbComponent());
+			log.debug("createSbbLocalObject " + this.getSbbComponent());
 
 		// The concrete class generated in ConcreteLocalObjectGenerator
 		if ((sbbLocalClass = sbbComponent.getSbbLocalInterfaceConcreteClass()) != null) {
@@ -875,7 +919,8 @@ public class SbbEntity {
 			Object[] objs = { this };
 			Class[] types = { SbbEntity.class };
 			try {
-				return (SbbLocalObjectImpl) sbbLocalClass.getConstructor(types).newInstance(objs);
+				return (SbbLocalObjectImpl) sbbLocalClass.getConstructor(types)
+						.newInstance(objs);
 			} catch (Exception e) {
 				throw new RuntimeException(
 						"Failed to create Sbb Local Interface.", e);
@@ -958,13 +1003,14 @@ public class SbbEntity {
 
 		if (this.getParentSbbEntityId() != null) {
 			SbbEntityFactory.getSbbEntity(this.getParentSbbEntityId())
-					.getChildRelation(getParentChildRelation()).removeChild(this.getSbbEntityId());
+					.getChildRelation(getParentChildRelation()).removeChild(
+							this.getSbbEntityId());
 		} else {
 			// it's a root sbb entity, remove from service
 			try {
 				Service service = sleeContainer.getServiceManagement()
 						.getService(this.getServiceId());
-				service.removeConvergenceName(this.getServiceConvergenceName());								
+				service.removeConvergenceName(this.getServiceConvergenceName());
 			} catch (Exception e) {
 				log.info("Failed to remove the root sbb entity " + this.sbbeId
 						+ " with convergence name "
