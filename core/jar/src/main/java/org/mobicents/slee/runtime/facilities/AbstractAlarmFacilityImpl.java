@@ -39,7 +39,8 @@ public abstract class AbstractAlarmFacilityImpl implements AlarmFacility {
 			throw new NullPointerException("AllarmID must not be null.");
 		}
 
-		if (this.mBean.isSourceOwnerOfAlarm(getNotificationSource(), alarmID)) {
+		
+		if (!this.mBean.isSourceOwnerOfAlarm(getNotificationSource(), alarmID)) {
 			//FIXME: not specified
 			throw new FacilityException("Source: "+getNotificationSource()+", is not owner of alarm with id: "+alarmID);
 		}
