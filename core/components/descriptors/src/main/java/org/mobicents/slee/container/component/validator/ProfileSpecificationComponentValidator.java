@@ -1193,6 +1193,15 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			Map<String, Method> concreteMethodsFromSuperClasses = ClassUtils
 					.getConcreteMethodsFromSuperClasses(profileAbstractClass);
 
+			// FIXME: Alexandre: Verify if this is correct
+			// The isProfileDirty, markProfileDirty and  isProfileValid methods must not be 
+			// implemented as they are implemented by the SLEE. These three methods are implemented by the 
+			// SLEE at deployment time.  
+			Set<String> toBeImplementedBySlee = new HashSet<String>();
+      toBeImplementedBySlee.add("isProfileDirty");
+      toBeImplementedBySlee.add("markProfileDirty");
+      toBeImplementedBySlee.add("isProfileValid");
+			
 			for (Entry<String, Method> entry : requiredLifeCycleMethods
 					.entrySet()) {
 
@@ -1202,17 +1211,27 @@ public class ProfileSpecificationComponentValidator implements Validator {
 						.getName(), m.getParameterTypes(), concreteMethods,
 						concreteMethodsFromSuperClasses);
 
-				if (methodFromClass == null) {
-					passed = false;
-					errorBuffer = appendToBuffer(
-							"Profile specification profile abstract class must implement certain lifecycle methods. Method not found in concrete(non private) methods: "
-									+ m.getName(), "10.11", errorBuffer);
-					continue;
+        if (methodFromClass == null)
+        {
+          if(this.component.isSlee11() || (!this.component.isSlee11() && !toBeImplementedBySlee.contains(m.getName())))
+          {
+            passed = false;
+            errorBuffer = appendToBuffer(
+              "Profile specification profile abstract class must implement certain lifecycle methods. Method not found in concrete(non private) methods: "
+                  + m.getName(), "10.11", errorBuffer);
+          }
+          continue;
+        }
+				if ( methodFromClass != null && toBeImplementedBySlee.contains(m.getName()) )
+				{
+          passed = false;
+          errorBuffer = appendToBuffer(
+              "[JAIN SLEE 1.0] The " + m.getName() + " method must not be implemented as they are implemented by the SLEE.", "10.11", errorBuffer);
+          continue;				  
 				}
 
 				// it concrete - must check return type
-				if (m.getReturnType().getName().compareTo(
-						methodFromClass.getReturnType().getName()) != 0) {
+				if (!m.getReturnType().getName().equals(methodFromClass.getReturnType().getName())) {
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Profile specification profile abstract class must implement certain lifecycle methods. Method with name: "

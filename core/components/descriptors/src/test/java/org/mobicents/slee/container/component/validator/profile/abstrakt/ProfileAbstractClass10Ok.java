@@ -27,21 +27,27 @@ public abstract class ProfileAbstractClass10Ok implements
 		javax.slee.profile.ProfileManagement, ManagementInterfaceOk,
 		ProfileBaseCMPInterface {
 
-	public boolean isProfileDirty() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public boolean isProfileValid(ProfileID arg0) throws NullPointerException,
-			SLEEException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public void markProfileDirty() {
-		// TODO Auto-generated method stub
-
-	}
+  // FIXME: Alexandre: Removed due to Section 10.8 of JAIN SLEE 1.0 Specification:
+  //
+  // The isProfileDirty, markProfileDirty and  isProfileValid methods must not be 
+  // implemented as they are implemented by the SLEE. These three methods are implemented by the 
+  // SLEE at deployment time.
+  //
+	//public boolean isProfileDirty() {
+	//	// TODO Auto-generated method stub
+	//	return false;
+	//}
+  //
+	//public boolean isProfileValid(ProfileID arg0) throws NullPointerException,
+	//		SLEEException {
+	//	// TODO Auto-generated method stub
+	//	return false;
+	//}
+  //
+	//public void markProfileDirty() {
+	//	// TODO Auto-generated method stub
+  //
+	//}
 
 	public void profileInitialize() {
 		// TODO Auto-generated method stub

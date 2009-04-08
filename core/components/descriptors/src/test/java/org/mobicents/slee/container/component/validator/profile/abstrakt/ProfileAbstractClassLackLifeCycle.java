@@ -1,11 +1,3 @@
-/**
- * Start time:16:31:35 2009-02-14<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component.validator.profile.abstrakt;
 
 import javax.slee.CreateException;
@@ -18,25 +10,21 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
  * Start time:16:31:35 2009-02-14<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public abstract class ProfileAbstractClassLackLifeCycle implements javax.slee.profile.Profile,ManagementInterfaceOk, ProfileBaseCMPInterface
 {
-
-	
-
-
 	public void profileInitialize() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void profileLoad() {
-		// TODO Auto-generated method stub
-		
-	}
+	// FIXME: Alexandre: Commented this so it fails, other methods were not to be implemented! See 10.8 of JAIN SLEE 1.0 specs.
+	//public void profileLoad() {
+	//	// TODO Auto-generated method stub
+	//	
+	//}
 
 	public void profilePassivate() {
 		// TODO Auto-generated method stub
