@@ -42,6 +42,11 @@ public class MNotificationSource {
 	public long getNextSequence() {
 		return sequence.getAndIncrement();
 	}
+	@Override
+	public String toString() {
+		
+		return notificationSource+"@"+super.toString();
+	}
 
 	
 	
