@@ -29,37 +29,6 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
 public class EventContextImpl implements EventContext {
 
 	/**
-	 * the event related with this context
-	 */
-	private final DeferredEvent deferredEvent;
-
-	/**
-	 * the transaction being used to deliver this event
-	 */
-	private Transaction transaction;
-
-	/**
-	 * the container
-	 */
-	private final SleeContainer sleeContainer;
-
-	/**
-	 * indicates if the context is suspended or not
-	 */
-	private boolean suspended;
-
-	/**
-	 * a queue of {@link DeferredEvent}s barried due to this context become
-	 * suspended
-	 */
-	private LinkedList<DeferredEvent> barriedEvents;
-
-	/**
-	 * the set containing all sbb entities that handled the event so far
-	 */
-	private final Set<String> sbbEntitiesThatHandledEvent = new HashSet<String>();
-
-	/**
 	 * default timeout for a context suspension, 1 min seems appropriate since
 	 * this will block other events in the activity this could be configurable
 	 * but since the app can specify its own timeout value ...
@@ -72,15 +41,51 @@ public class EventContextImpl implements EventContext {
 	private static final Timer timer = new Timer();
 
 	/**
-	 * the timer task controlling the suspension timeout
+	 * the container
 	 */
-	private SuspensionTimerTask timerTask;
+	private final SleeContainer sleeContainer;
+
+	/**
+	 * the event related with this context
+	 */
+	private final DeferredEvent deferredEvent;
 
 	/**
 	 * the id of this event context, set to the time when this instance was created, this id will be used 
 	 */
 	private final EventContextID eventContextID;
 	
+	/**
+	 * the transaction being used to deliver this event
+	 */
+	private Transaction transaction;
+
+	/**
+	 * indicates if the context is suspended or not
+	 */
+	private boolean suspended;
+	
+	/**
+	 * a queue of {@link DeferredEvent}s barried due to this context become
+	 * suspended
+	 */
+	private LinkedList<DeferredEvent> barriedEvents;
+
+	/**
+	 * the set containing all sbb entities that handled the event so far
+	 */
+	private final Set<String> sbbEntitiesThatHandledEvent = new HashSet<String>();
+
+	/**
+	 * the timer task controlling the suspension timeout
+	 */
+	private SuspensionTimerTask timerTask;
+	
+	/**
+	 * transactional action action to change state
+	 */
+	private EventContextStateChange transactionalAction;
+		
 	public EventContextImpl(DeferredEvent deferredEvent,
 			SleeContainer sleeContainer) {
 		this.deferredEvent = deferredEvent;
@@ -110,24 +115,55 @@ public class EventContextImpl implements EventContext {
 	public boolean isSuspended() throws TransactionRequiredLocalException,
 			SLEEException {
 		sleeContainer.getTransactionManager().mandateTransaction();
-		return suspended;
+		if (isSuspendedNotTransacted()) {
+			// current committed state is suspended
+			if (transactionalAction != null
+					&& transactionalAction.op == EventContextStateChangeOp.resume) {
+				// resume is the op queued for tx commit
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			// current committed state is not suspended
+			if (transactionalAction != null
+					&& transactionalAction.op == EventContextStateChangeOp.suspend) {
+				// suspend is the op queued for tx commit
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 
+	public boolean isSuspendedNotTransacted() {
+		return suspended;
+	}
+	
 	public void resumeDelivery() throws IllegalStateException,
 			TransactionRequiredLocalException, SLEEException {
 		if (!isSuspended()) {
 			throw new IllegalStateException();
 		} else {
-			TransactionalAction action = new TransactionalAction() {
-				public void execute() {
-					resume();
+			if (transactionalAction == null) {
+				transactionalAction = new EventContextStateChange();
+				transactionalAction.op = EventContextStateChangeOp.resume;
+				try {
+					sleeContainer.getTransactionManager().addAfterCommitAction(transactionalAction);
+					TransactionalAction rollbackAction = new TransactionalAction() {
+						public void execute() {
+							transactionalAction = null;							
+						}
+					};
+					sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
+				} catch (SystemException e) {
+					transactionalAction = null;
+					throw new SLEEException(
+							"unable to add tx action to change event context state", e);
 				}
-			};
-			try {
-				sleeContainer.getTransactionManager().addAfterCommitAction(action);
-			} catch (SystemException e) {
-				throw new SLEEException(
-						"unable to add tx action to resume event context", e);
+			}
+			else {
+				throw new IllegalStateException();
 			}
 		}
 	}
@@ -140,54 +176,35 @@ public class EventContextImpl implements EventContext {
 	public void suspendDelivery(final int timeout)
 			throws IllegalArgumentException, IllegalStateException,
 			TransactionRequiredLocalException, SLEEException {
-		if (!isSuspended()) {
+		if (isSuspended()) {
 			throw new IllegalStateException();
-		} else {
-			try {
-				// get transaction
-				final Transaction transaction = sleeContainer.getTransactionManager()
-						.getTransaction();
-				// add action to suspend only after commit
-				TransactionalAction action = new TransactionalAction() {
-					public void execute() {
-						suspend(timeout,transaction);
-					}
-				};
-				sleeContainer.getTransactionManager().addAfterCommitAction(action);
-			} catch (SystemException e) {
-				throw new SLEEException(
-						"unable to suspend event context", e);
+		} else {			
+			if (transactionalAction == null) {
+				try {
+					transactionalAction = new EventContextStateChange();
+					transactionalAction.op = EventContextStateChangeOp.suspend;
+					transactionalAction.timeout = timeout;
+					transactionalAction.tx = sleeContainer.getTransactionManager().getTransaction();
+					sleeContainer.getTransactionManager().addAfterCommitAction(transactionalAction);
+					TransactionalAction rollbackAction = new TransactionalAction() {
+						public void execute() {
+							transactionalAction = null;							
+						}
+					};
+					sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
+				} catch (SystemException e) {
+					transactionalAction = null;
+					throw new SLEEException(
+							"unable to add tx action to change event context state", e);
+				}
+			}
+			else {
+				throw new IllegalStateException();
 			}
 		}
 	}
 
 	// ---
-
-	/**
-	 * the real logic to suspend the event context
-	 */
-	private void suspend(final int timeout, final Transaction transaction) {
-		
-		// create runnable to suspend the event context
-		Runnable runnable = new Runnable() {
-			public void run() {				
-				// put a barrier in the event queue manager for this activity, to
-				// freeze the event routing on this activity at that level
-				deferredEvent.getEventRouterActivity().getEventQueueManager().createBarrier(transaction);
-				// init queue to store events about to be routed (after this one),
-				// which may have passed the barrier
-				barriedEvents = new LinkedList<DeferredEvent>();
-				// set state as suspended
-				suspended = true;
-				// schedule timer task
-				timerTask = new SuspensionTimerTask();
-				// schedule task in timer
-				timer.schedule(timerTask, System.currentTimeMillis() + timeout);
-			}
-		};
-		// run it using the activity executor service to avoid thread concurrency
-		deferredEvent.getEventRouterActivity().getExecutorService().execute(runnable);
-	}
 	
 	/**
 	 * the real logic to resume the event context
@@ -242,4 +259,46 @@ public class EventContextImpl implements EventContext {
 		}
 	}
 	
+	// -------- TX ACTION TO SUSPEND/RESUME
+	
+	private enum EventContextStateChangeOp { suspend , resume }
+	
+	private class EventContextStateChange implements TransactionalAction {
+
+		private EventContextStateChangeOp op;
+		
+		private int timeout;
+		
+		private Transaction tx;
+		
+		public void execute() {
+			transactionalAction = null;
+			switch (op) {
+			case suspend:
+				suspended = true;		
+				transaction = tx;
+				// put a barrier in the event queue manager for this activity, to
+				// freeze the event routing on this activity at that level
+				deferredEvent.getEventRouterActivity().getEventQueueManager().createBarrier(tx);
+				// init queue to store events about to be routed (after this one),
+				// which may have passed the barrier
+				barriedEvents = new LinkedList<DeferredEvent>();
+				// set state as suspended
+				suspended = true;
+				// schedule timer task
+				timerTask = new SuspensionTimerTask();
+				// schedule task in timer
+				timer.schedule(timerTask, System.currentTimeMillis() + timeout);
+				break;
+			case resume:
+				resume();
+				break;
+				
+			default:
+				throw new SLEEException("unxpected op type when executing event context state change");
+			}
+			
+		}
+		
+	}
 }

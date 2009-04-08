@@ -59,17 +59,11 @@ public class EventRoutingTask implements Runnable {
 	
 	private final SleeContainer container;
 	private final DeferredEvent de;
-	private EventContextImpl eventContextImpl;
 	
 	public EventRoutingTask(SleeContainer container, DeferredEvent de) {
 		super(); 
 		this.de = de;
 		this.container = container;
-	}
-
-	public EventRoutingTask(SleeContainer container, EventContextImpl eventContextImpl) {
-		this(container,eventContextImpl.getDeferredEvent());
-		this.eventContextImpl = eventContextImpl;
 	}
 	
 	public void run() {
@@ -95,8 +89,8 @@ public class EventRoutingTask implements Runnable {
 		
 		try {
 
-			if (eventContextImpl == null) {
-				
+			EventContextImpl eventContextImpl = de.getEventRouterActivity().getCurrentEventContext();
+			if (eventContextImpl == null) {				
 				if (logger.isDebugEnabled())
 					logger.debug("\n\n\nDelivering event : [[[ eventId "
 							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
@@ -116,10 +110,20 @@ public class EventRoutingTask implements Runnable {
 				}
 			}
 			else {
-				if (logger.isDebugEnabled())
-					logger.debug("\n\n\nResuming event delivery : [[[ eventId "
+				if (eventContextImpl.isSuspendedNotTransacted()) {
+					if (logger.isDebugEnabled())
+						logger.debug("\n\n\nFreezing (due to suspended context) event delivery : [[[ eventId "
+								+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+					eventContextImpl.barrierEvent(de);
+					return;
+				}
+				else {
+					if (logger.isDebugEnabled())
+						logger.debug("\n\n\nResuming event delivery : [[[ eventId "
 							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+				}
 			}
+			
 			// For each SBB that is attached to this activity context.
 			boolean gotSbb = false;
 			do {
@@ -290,29 +294,13 @@ public class EventRoutingTask implements Runnable {
 					// ac.DeliveredSet
 					// is not in the cache.
 					if (gotSbb) {
-						if (eventContextImpl.isSuspended()) {
-							gotSbb = false;
-						}
-						else {
-							boolean skipAnotherLoop = false;
-							try {
-								if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),de.getService(),sbbEntitiesThatHandledCurrentEvent) == null) {
-									skipAnotherLoop = true;
-								}
-							} catch (Exception e) {
-								skipAnotherLoop = true;
-							} finally {
-								if (skipAnotherLoop) {
-									gotSbb = false;
-									de.eventProcessingSucceed();
-									// we got to the end of the event routing, remove the event context
-									de.getEventRouterActivity().setCurrentEventContext(null);
-									// manage event references
-									DeferredEventReferencesManagement eventReferencesManagement = container.getEventRouter().getDeferredEventReferencesManagement();
-									eventReferencesManagement.eventUnreferencedByActivity(de.getEvent(), de.getActivityContextId());
-								}
+						try {
+							if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),de.getService(),sbbEntitiesThatHandledCurrentEvent) == null) {
+								gotSbb = false;
 							}
-						}
+						} catch (Exception e) {
+							gotSbb = false;
+						} 
 					}
 
 					Thread.currentThread().setContextClassLoader(
@@ -478,10 +466,18 @@ public class EventRoutingTask implements Runnable {
 				
 				EventRouterThreadLocals.setInvokingService(null);
 				
+				if (eventContextImpl.isSuspendedNotTransacted()) {
+					if (logger.isDebugEnabled())
+						logger.debug("\n\n\nSuspended event delivery : [[[ eventId "
+							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+					return;
+				}
+				
 				// need to ensure gotSbb = false if and only if iter.hasNext()
 				// == false
 			} while (gotSbb);
 
+			
 			/*
 			 * End of SLEE Originated Invocation Sequence
 			 * ==========================================
@@ -494,6 +490,14 @@ public class EventRoutingTask implements Runnable {
 				timerEventPostProcessor.process(de,this.container.getTimerFacility());
 			}
 
+			de.eventProcessingSucceed();
+
+			// we got to the end of the event routing, remove the event context
+			de.getEventRouterActivity().setCurrentEventContext(null);
+			// manage event references
+			DeferredEventReferencesManagement eventReferencesManagement = container.getEventRouter().getDeferredEventReferencesManagement();
+			eventReferencesManagement.eventUnreferencedByActivity(de.getEvent(), de.getActivityContextId());
+			
 		} catch (Exception e) {
 			logger.error("Unhandled Exception in event router top try", e);
 		}

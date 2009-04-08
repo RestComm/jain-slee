@@ -156,7 +156,7 @@ public class ActivityEventQueueManager {
 		else {
 			// barriers are set
 			synchronized (eventBarriers) {
-				if (eventBarriers.isEmpty()) {
+				if (!eventBarriers.isEmpty()) {
 					// barriers are still set, add the event to the frozen queue
 					eventsBarriered.add(dE);
 				}

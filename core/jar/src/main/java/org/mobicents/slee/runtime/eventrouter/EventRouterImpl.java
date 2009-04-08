@@ -127,7 +127,7 @@ public class EventRouterImpl implements EventRouter {
 	}
 
 	public void resumeEventContext(EventContextImpl eventContextImpl) {
-		new EventRoutingTask(container,eventContextImpl).run();		
+		new EventRoutingTask(container,eventContextImpl.getDeferredEvent()).run();		
 	}
 	
 	public DeferredEventReferencesManagement getDeferredEventReferencesManagement() {
