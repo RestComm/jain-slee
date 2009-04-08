@@ -197,8 +197,8 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 				eventTypeSet.add(mEventTypeRef.getComponentID());
 			}
 			EventTypeID[] eventTypes = eventTypeSet.toArray(new EventTypeID[eventTypeSet.size()]);
-			
-			specsDescriptor = new ResourceAdaptorTypeDescriptor(getResourceAdaptorTypeID(),getDeployableUnit().getDeployableUnitID(),getDeploymentUnitSource(),libraryIDs,activityTypes,getDescriptor().getResourceAdaptorInterface().getResourceAdaptorInterfaceName(),eventTypes);
+			String raInterface = getDescriptor().getResourceAdaptorInterface() == null ? null : getDescriptor().getResourceAdaptorInterface().getResourceAdaptorInterfaceName();
+			specsDescriptor = new ResourceAdaptorTypeDescriptor(getResourceAdaptorTypeID(),getDeployableUnit().getDeployableUnitID(),getDeploymentUnitSource(),libraryIDs,activityTypes,raInterface,eventTypes);
 		}
 		return specsDescriptor;
 	}

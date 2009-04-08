@@ -420,13 +420,15 @@ public class DeployableUnitBuilder {
 					}
 				} else if (sleeComponent instanceof ResourceAdaptorTypeComponent) {
 					ResourceAdaptorTypeComponent component = (ResourceAdaptorTypeComponent) sleeComponent;
-					Class activityContextInterfaceFactoryInterface = componentClassLoader
-							.loadClass(component
-									.getDescriptor()
-									.getActivityContextInterfaceFactoryInterface()
-									.getActivityContextInterfaceFactoryInterfaceName());
-					component
-							.setActivityContextInterfaceFactoryInterface(activityContextInterfaceFactoryInterface);
+					if (component.getDescriptor().getActivityContextInterfaceFactoryInterface() != null) {
+						Class activityContextInterfaceFactoryInterface = componentClassLoader
+						.loadClass(component
+								.getDescriptor()
+								.getActivityContextInterfaceFactoryInterface()
+								.getActivityContextInterfaceFactoryInterfaceName());
+						component
+						.setActivityContextInterfaceFactoryInterface(activityContextInterfaceFactoryInterface);
+					}
 				} else if (sleeComponent instanceof SbbComponent) {
 					SbbComponent component = (SbbComponent) sleeComponent;
 					Class abstractSbbClass = componentClassLoader

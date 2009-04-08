@@ -33,7 +33,7 @@ public class MResourceAdaptorTypeClasses
     }
     
     this.resourceAdaptorInterface = resourceAdaptorTypeClasses10.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses10.getResourceAdaptorInterface());
-    this.activityContextInterfaceFactoryInterface = new MActivityContextInterfaceFactoryInterface(resourceAdaptorTypeClasses10.getActivityContextInterfaceFactoryInterface());
+    this.activityContextInterfaceFactoryInterface = resourceAdaptorTypeClasses10.getActivityContextInterfaceFactoryInterface() == null ? null : new MActivityContextInterfaceFactoryInterface(resourceAdaptorTypeClasses10.getActivityContextInterfaceFactoryInterface());
   }
 
   public MResourceAdaptorTypeClasses(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ResourceAdaptorTypeClasses resourceAdaptorTypeClasses11)
@@ -48,8 +48,8 @@ public class MResourceAdaptorTypeClasses
     }
     
     this.resourceAdaptorInterface = resourceAdaptorTypeClasses11.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses11.getResourceAdaptorInterface());
-    this.activityContextInterfaceFactoryInterface = new MActivityContextInterfaceFactoryInterface(resourceAdaptorTypeClasses11.getActivityContextInterfaceFactoryInterface());
-  }
+    this.activityContextInterfaceFactoryInterface = resourceAdaptorTypeClasses11.getActivityContextInterfaceFactoryInterface() == null ? null : new MActivityContextInterfaceFactoryInterface(resourceAdaptorTypeClasses11.getActivityContextInterfaceFactoryInterface());
+   }
   
   public String getDescription()
   {

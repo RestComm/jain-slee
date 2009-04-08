@@ -83,7 +83,7 @@ public class ResourceAdaptorTypeValidator implements Validator {
 							.getActivityContextInterfaceFactoryInterface() != null) {
 				passed = false;
 				errorBuffer = appendToBuffer(
-						"Ra Type descriptor declares  activity context interface but it does declare activity types.",
+						"Ra Type descriptor declares  activity context interface but it does not declare activity types.",
 						"15.3.2", errorBuffer);
 			}
 

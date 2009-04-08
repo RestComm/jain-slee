@@ -30,6 +30,7 @@ public class ServiceDescriptorImpl {
 			this.mService = mService;			
 			this.serviceID = new ServiceID(mService.getServiceName(),mService.getServiceVendor(),mService.getServiceVersion());
 			this.rootSbbID = new SbbID(mService.getRootSbb().getSbbName(),mService.getRootSbb().getSbbVendor(),mService.getRootSbb().getSbbVersion());
+			dependenciesSet.add(rootSbbID);
 		} catch (Exception e) {
 			throw new DeploymentException("failed to build service descriptor",e);
 		}
