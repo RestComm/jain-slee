@@ -25,35 +25,34 @@ public abstract class AbstractAlarmFacilityImpl implements AlarmFacility {
 
 	public AbstractAlarmFacilityImpl(AlarmMBeanImpl aMBean) {
 
-		if(aMBean == null)
-		{
+		if (aMBean == null) {
 			throw new NullPointerException("Parameters must not be null.");
 		}
 		this.mBean = aMBean;
 	}
 
 	public abstract MNotificationSource getNotificationSource();
-	
+
 	public boolean clearAlarm(String alarmID) throws NullPointerException, FacilityException {
+		
 		if (alarmID == null) {
 			throw new NullPointerException("AllarmID must not be null.");
 		}
-
-		
+		if(!this.mBean.isAlarmAlive(alarmID))
+			return false;
 		if (!this.mBean.isSourceOwnerOfAlarm(getNotificationSource(), alarmID)) {
-			//FIXME: not specified
-			throw new FacilityException("Source: "+getNotificationSource()+", is not owner of alarm with id: "+alarmID);
-		}
-		
-		try {
 			
+			throw new FacilityException("Source: " + getNotificationSource() + ", is not owner of alarm with id: " + alarmID);
+		}
+
+		try {
 
 			return this.mBean.clearAlarm(alarmID);
 
 		} catch (Exception e) {
 			throw new FacilityException("Failed to clear alarm: " + alarmID + ", for source: " + getNotificationSource(), e);
 		}
-		
+
 	}
 
 	public int clearAlarms() throws FacilityException {
@@ -102,11 +101,11 @@ public abstract class AbstractAlarmFacilityImpl implements AlarmFacility {
 		}
 
 		try {
-			if (this.mBean.isAlarmAlive(getNotificationSource(), alarmType, instanceID)) {
-				return this.mBean.getAlarmId(getNotificationSource(), alarmType, instanceID);
-			} else {
+			//if (this.mBean.isAlarmAlive(getNotificationSource(), alarmType, instanceID)) {
+			//	return this.mBean.getAlarmId(getNotificationSource(), alarmType, instanceID);
+			//} else {
 				return this.mBean.raiseAlarm(getNotificationSource(), alarmType, instanceID, level, message, cause);
-			}
+			//}
 		} catch (Exception e) {
 			throw new FacilityException("Failed to raise alarm for source: " + getNotificationSource(), e);
 		}
@@ -114,54 +113,48 @@ public abstract class AbstractAlarmFacilityImpl implements AlarmFacility {
 
 	public void createAlarm(ComponentID alarmSource, Level alarmLevel, java.lang.String alarmType, java.lang.String message, long timestamp) throws NullPointerException, IllegalArgumentException,
 			UnrecognizedComponentException, FacilityException {
-		this.createAlarm(alarmSource, alarmLevel, alarmType, message, null, timestamp,true);
+		this.createAlarm(alarmSource, alarmLevel, alarmType, message, null, timestamp, true);
 
 	}
 
 	public void createAlarm(ComponentID alarmSource, Level alarmLevel, java.lang.String alarmType, java.lang.String message, java.lang.Throwable cause, long timestamp) throws NullPointerException,
 			IllegalArgumentException, UnrecognizedComponentException, FacilityException {
-		this.createAlarm(alarmSource, alarmLevel, alarmType, message, null, timestamp,false);
+		this.createAlarm(alarmSource, alarmLevel, alarmType, message, null, timestamp, false);
 	}
 
-	public void createAlarm(ComponentID alarmSource, Level alarmLevel, java.lang.String alarmType, java.lang.String message, java.lang.Throwable cause, long timestamp, boolean allowCauseNull) throws NullPointerException,
-			IllegalArgumentException, UnrecognizedComponentException, FacilityException {
-		if(alarmSource == null)
-		{
+	public void createAlarm(ComponentID alarmSource, Level alarmLevel, java.lang.String alarmType, java.lang.String message, java.lang.Throwable cause, long timestamp, boolean allowCauseNull)
+			throws NullPointerException, IllegalArgumentException, UnrecognizedComponentException, FacilityException {
+		
+		if (alarmSource == null) {
 			throw new NullPointerException("AlarmSource must not be null");
 		}
-		
-		if(alarmLevel == null)
-		{
+
+		if (alarmLevel == null) {
 			throw new NullPointerException("AlarmLevel must not be null");
 		}
-		
-		if(alarmType == null)
-		{
+
+		if (alarmType == null) {
 			throw new NullPointerException("AlarmType must not be null");
 		}
-		
-		if(message == null)
-		{
+
+		if (message == null) {
 			throw new NullPointerException("Message must not be null");
 		}
-		
-		if(!allowCauseNull && cause == null)
-		{
+
+		if (!allowCauseNull && cause == null) {
 			throw new NullPointerException("Cause must nto be null");
 		}
-		
-		if(!this.mBean.isRegisteredAlarmComponent(alarmSource))
-		{
+
+		if (!this.mBean.isRegisteredAlarmComponent(alarmSource)) {
 			throw new UnrecognizedComponentException("Declared alarm source is not valid compoenent. Either it is nto able to create alarms or has been uninstalled");
 		}
 		
-		try{
-			this.mBean.createAlarm( alarmSource,  alarmLevel, alarmType,  message, cause,  timestamp);
-		}catch(Exception e)
-		{
-			
+		try {
+			this.mBean.createAlarm(alarmSource, alarmLevel, alarmType, message, cause, timestamp);
+		} catch (Exception e) {
+
 		}
-		
+
 	}
 
 }

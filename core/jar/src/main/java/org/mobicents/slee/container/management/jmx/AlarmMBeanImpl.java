@@ -15,6 +15,7 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 	private Map<String, AlarmPlaceHolder> alarmIdToAlarm = new HashMap<String, AlarmPlaceHolder>();
 
 	protected void startService() throws Exception {
-		SleeContainer.registerFacilityWithJndi(JNDI_NAME,this);
+		SleeContainer.registerFacilityWithJndi(JNDI_NAME, this);
 	}
 
 	protected void stopService() throws Exception {
@@ -222,15 +223,32 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 		return aph.getNotificationSource().getNotificationSource().equals(notificationSource.getNotificationSource());
 	}
 
+	public boolean isAlarmAlive(String alarmID) {
+		return this.alarmIdToAlarm.containsKey(alarmID);
+	}
+
 	public boolean isAlarmAlive(MNotificationSource notificationSource, String alarmType, String instanceID) {
+
 		AlarmPlaceHolder aph = new AlarmPlaceHolder(notificationSource, alarmType, instanceID);
 		// return this.placeHolderToAlarm.containsKey(aph);
+
 		return this.alarmIdToAlarm.containsValue(aph);
 	}
 
 	public String getAlarmId(MNotificationSource notificationSource, String alarmType, String instanceID) {
-		// TODO Auto-generated method stub
-		return null;
+		AlarmPlaceHolder localAPH = new AlarmPlaceHolder(notificationSource, alarmType, instanceID);
+		Alarm a = null;
+		for (Map.Entry<String, AlarmPlaceHolder> e : this.alarmIdToAlarm.entrySet()) {
+			if (e.getValue().equals(localAPH)) {
+				a = e.getValue().getAlarm();
+				break;
+			}
+
+		}
+		if (a != null)
+			return a.getAlarmID();
+		else
+			return null;
 	}
 
 	/**
@@ -251,6 +269,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 			if (isAlarmAlive(notificationSource, alarmType, instanceID)) {
 				// Alarm a = this.placeHolderToAlarm.get(new
 				// AlarmPlaceHolder(notificationSource, alarmType, instanceID));
+
 				Alarm a = null;
 				// unconveniant....
 				try {
@@ -264,7 +283,9 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 				} catch (Exception e) {
 					// ignore
 				}
+
 				if (a != null) {
+
 					return a.getAlarmID();
 				} else {
 					return this.raiseAlarm(notificationSource, alarmType, instanceID, level, message, cause);
@@ -384,14 +405,14 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 	 * @author Tim
 	 */
 	class RegisteredComp {
-		public AtomicLong seqNo;
+		public AtomicLong seqNo = new AtomicLong(0);
 
 		public long getSeqNo() {
 			return seqNo.getAndIncrement();
 		}
 	}
 
-	private Map<ComponentID,RegisteredComp> registeredComps = new ConcurrentHashMap<ComponentID, RegisteredComp>();
+	private Map<ComponentID, RegisteredComp> registeredComps = new ConcurrentHashMap<ComponentID, RegisteredComp>();
 
 	// 1.0 methods
 
@@ -408,6 +429,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 			throw new NullPointerException("Null parameter");
 		if (alarmLevel.isOff())
 			throw new IllegalArgumentException("Invalid alarm level");
+
 		RegisteredComp comp = registeredComps.get(alarmSource);
 		if (comp == null)
 			throw new UnrecognizedComponentException("Component not registered");
@@ -420,8 +442,8 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 		// this.notificationTypes.put(alarmType, alarmType);
 
 		// Create the alarm notification and propagate to the Alarm MBean
-		AlarmNotification notification = new AlarmNotification(this, alarmType, alarmSource, alarmLevel, message, cause, comp.getSeqNo(), timestamp);
 
+		AlarmNotification notification = new AlarmNotification(this, alarmType, alarmSource, alarmLevel, message, cause, comp.getSeqNo(), timestamp);
 		super.sendNotification(notification);
 
 	}
