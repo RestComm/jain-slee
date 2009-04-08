@@ -175,14 +175,6 @@ public class SbbAbstractMethodHandler {
 			ServiceID serviceID) {
 
 		// JAIN SLEE (TM) specs - Section 8.4.1
-		// It throws a javax.slee.SLEEException if the requested operation
-		// cannot be performed due
-		// to a system-level failure.
-		if (address != null)
-			throw new SLEEException(
-					"Address support when firing events is not implemented!");
-
-		// JAIN SLEE (TM) specs - Section 8.4.1
 		// The SBB object must have an assigned SBB entity when it invokes this
 		// method.
 		// Otherwise, this method throws a java.lang.IllegalStateException.

@@ -252,6 +252,14 @@ public class ResourceAdaptorEntity {
 		if (this.state.isActive()) {
 			object.raStopping();
 			endAllActivities();
+		}
+	}
+
+	/**
+	 * Signals that the container moved to STOPPED state
+	 */
+	public void sleeStopped() throws InvalidStateException {
+		if (this.state.isActive()) {
 			object.raInactive();
 		}
 	}

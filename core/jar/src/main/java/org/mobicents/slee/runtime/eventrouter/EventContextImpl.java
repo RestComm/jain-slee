@@ -15,6 +15,7 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -33,7 +34,7 @@ public class EventContextImpl implements EventContext {
 	 * this will block other events in the activity this could be configurable
 	 * but since the app can specify its own timeout value ...
 	 */
-	private static final int DEFAULT_TIMEOUT = 60000;
+	private static final int DEFAULT_TIMEOUT = 10000;
 
 	/**
 	 * the timer used to control timeouts for event context suspension
@@ -176,6 +177,11 @@ public class EventContextImpl implements EventContext {
 	public void suspendDelivery(final int timeout)
 			throws IllegalArgumentException, IllegalStateException,
 			TransactionRequiredLocalException, SLEEException {
+		
+		if (timeout < 1) {
+			throw new IllegalArgumentException();
+		}
+		
 		if (isSuspended()) {
 			throw new IllegalStateException();
 		} else {			
@@ -203,8 +209,6 @@ public class EventContextImpl implements EventContext {
 			}
 		}
 	}
-
-	// ---
 	
 	/**
 	 * the real logic to resume the event context
@@ -255,7 +259,12 @@ public class EventContextImpl implements EventContext {
 	private class SuspensionTimerTask extends TimerTask {
 		@Override
 		public void run() {
-			resume();
+			try {
+				resume();
+			}
+			catch(Throwable t) {
+				logger.error("failed to resume event context "+getEventContextID(),t);
+			}
 		}
 	}
 	
@@ -288,7 +297,7 @@ public class EventContextImpl implements EventContext {
 				// schedule timer task
 				timerTask = new SuspensionTimerTask();
 				// schedule task in timer
-				timer.schedule(timerTask, System.currentTimeMillis() + timeout);
+				timer.schedule(timerTask,timeout);
 				break;
 			case resume:
 				resume();
@@ -301,4 +310,7 @@ public class EventContextImpl implements EventContext {
 		}
 		
 	}
+	
+	private static final Logger logger = Logger.getLogger(EventContextImpl.class);
+	
 }

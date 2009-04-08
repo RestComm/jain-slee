@@ -625,6 +625,19 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 					}
 				} while (true);
 
+				// inform all ra entities that the container will now enter stopped state
+				for (String entityName : resourceManagement
+						.getResourceAdaptorEntities()) {
+					try {
+						resourceManagement.getResourceAdaptorEntity(entityName)
+								.sleeStopped();
+					} catch (Exception e) {
+						if (logger.isDebugEnabled()) {
+							logger.debug(e.getMessage(), e);
+						}
+					}
+				}
+				
 				changeSleeState(SleeState.STOPPED);
 			}
 		};
