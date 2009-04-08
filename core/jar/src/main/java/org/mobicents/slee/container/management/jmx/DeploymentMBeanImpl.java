@@ -226,6 +226,53 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					currentThread.setContextClassLoader(currentClassLoader);
 					try {
 						if (rollback) {
+							// remove all components added to repo
+							// put all components in the repo again
+							for (LibraryComponent component : deployableUnit
+									.getLibraryComponents().values()) {
+								componentRepositoryImpl.removeComponent(component.getLibraryID());
+								logger.info("Uninstalled " + component
+										+ " due to tx rollback");
+							}
+							for (EventTypeComponent component : deployableUnit
+									.getEventTypeComponents().values()) {
+								componentRepositoryImpl.removeComponent(component.getEventTypeID());
+								logger.info("Uninstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ResourceAdaptorTypeComponent component : deployableUnit
+									.getResourceAdaptorTypeComponents()
+									.values()) {
+								componentRepositoryImpl.removeComponent(component.getResourceAdaptorTypeID());
+								logger.info("Uninstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ProfileSpecificationComponent component : deployableUnit
+									.getProfileSpecificationComponents()
+									.values()) {
+								componentRepositoryImpl.removeComponent(component.getProfileSpecificationID());
+								logger.info("Uninstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ResourceAdaptorComponent component : deployableUnit
+									.getResourceAdaptorComponents().values()) {
+								componentRepositoryImpl.removeComponent(component.getResourceAdaptorID());
+								logger.info("Uninstalled " + component
+										+ " due to tx rollback");
+							}
+							for (SbbComponent component : deployableUnit
+									.getSbbComponents().values()) {
+								componentRepositoryImpl.removeComponent(component.getSbbID());
+								logger.info("Uninstalled " + component
+										+ " due to tx rollback");
+							}
+							for (ServiceComponent component : deployableUnit
+									.getServiceComponents().values()) {
+								componentRepositoryImpl.removeComponent(component.getServiceID());
+								logger.info("Uninstalled " + component
+										+ " due to tx rollback");
+							}
+							// undeploy the unit
 							if (deployableUnit != null) {
 								deployableUnit.undeploy();
 							}
