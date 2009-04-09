@@ -788,38 +788,81 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	// no subsystems defined
 
+	private static final String DUMMY_SUBSYSTEM = "FooSubsystem";
+	
 	public String[] getSubsystems() throws ManagementException {
-		return new String[0];
+		return new String[] { DUMMY_SUBSYSTEM };
 	}
 
 	public ObjectName getUsageMBean(String arg0) throws NullPointerException,
 			UnrecognizedSubsystemException, InvalidArgumentException,
 			ManagementException {
-		throw new UnrecognizedSubsystemException();
+		if (arg0 == null) {
+			throw new NullPointerException();
+		}
+		if (arg0.equals(DUMMY_SUBSYSTEM)) {
+			throw new InvalidArgumentException();
+		}
+		else {
+			throw new UnrecognizedSubsystemException();
+		}
 	}
 
 	public ObjectName getUsageMBean(String arg0, String arg1)
 			throws NullPointerException, UnrecognizedSubsystemException,
 			InvalidArgumentException,
 			UnrecognizedUsageParameterSetNameException, ManagementException {
-		throw new UnrecognizedSubsystemException();
+		if (arg0 == null) {
+			throw new NullPointerException();
+		}
+		if (arg0.equals(DUMMY_SUBSYSTEM)) {
+			throw new InvalidArgumentException();
+		}
+		else {
+			throw new UnrecognizedSubsystemException();
+		}
 	}
 
 	public ObjectName getUsageNotificationManagerMBean(String arg0)
 			throws NullPointerException, UnrecognizedSubsystemException,
 			InvalidArgumentException, ManagementException {
-		throw new UnrecognizedSubsystemException();
+		if (arg0 == null) {
+			throw new NullPointerException();
+		}
+		if (arg0.equals(DUMMY_SUBSYSTEM)) {
+			throw new InvalidArgumentException();
+		}
+		else {
+			throw new UnrecognizedSubsystemException();
+		}
 	}
 
 	public String[] getUsageParameterSets(String arg0)
 			throws NullPointerException, UnrecognizedSubsystemException,
 			InvalidArgumentException, ManagementException {
-		throw new UnrecognizedSubsystemException();
+		if (arg0 == null) {
+			throw new NullPointerException();
+		}
+		if (arg0.equals(DUMMY_SUBSYSTEM)) {
+			throw new InvalidArgumentException();
+		}
+		else {
+			throw new UnrecognizedSubsystemException();
+		}
 	}
 
 	public boolean hasUsage(String arg0) throws NullPointerException,
 			UnrecognizedSubsystemException, ManagementException {
-		throw new UnrecognizedSubsystemException();
+		
+		if (arg0 == null) {
+			throw new NullPointerException();
+		}
+		if (arg0.equals(DUMMY_SUBSYSTEM)) {
+			return false;
+		}
+		else {
+			throw new UnrecognizedSubsystemException();
+		}
 	}
 
 }
