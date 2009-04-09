@@ -819,7 +819,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 
 	public boolean hasUsage(String arg0) throws NullPointerException,
 			UnrecognizedSubsystemException, ManagementException {
-		return false;
+		throw new UnrecognizedSubsystemException();
 	}
 
 }

@@ -124,8 +124,8 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 	}
 	
 	@Override
-	void addToDeployableUnit() {
-		getDeployableUnit().getResourceAdaptorTypeComponents().put(getResourceAdaptorTypeID(), this);
+	boolean addToDeployableUnit() {
+		return getDeployableUnit().getResourceAdaptorTypeComponents().put(getResourceAdaptorTypeID(), this) == null;
 	}
 	
 	@Override

@@ -6,6 +6,7 @@ import java.util.Set;
 import javassist.LoaderClassPath;
 
 import javax.slee.ComponentID;
+import javax.slee.management.AlreadyDeployedException;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
@@ -133,23 +134,27 @@ public abstract class SleeComponent {
 	 * unit
 	 * 
 	 * @param deployableUnit
+	 * @throws AlreadyDeployedException if a component with same id already exists in the du
 	 * @throws IllegalStateException
 	 *             if this method is invoked and the deployable unit was already
 	 *             set before
 	 */
-	public void setDeployableUnit(DeployableUnit deployableUnit) {
+	public void setDeployableUnit(DeployableUnit deployableUnit) throws AlreadyDeployedException {
 		if (this.deployableUnit != null) {
 			throw new IllegalStateException(
 					"deployable unit already set. du = " + this.deployableUnit);
 		}
 		this.deployableUnit = deployableUnit;
-		addToDeployableUnit();
+		if (!addToDeployableUnit()) {
+			throw new AlreadyDeployedException("unable to install du having multiple components with id "+getComponentID());
+		}
 	}
 
 	/**
 	 * adds the component to the deployable unit
+	 * @return true if the component was added
 	 */
-	abstract void addToDeployableUnit(); 
+	abstract boolean addToDeployableUnit(); 
 	
 	/**
 	 * Retrieves the set of components IDs this component depends

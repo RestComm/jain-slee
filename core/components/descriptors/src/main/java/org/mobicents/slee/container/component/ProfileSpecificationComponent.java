@@ -324,10 +324,10 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	}
 
 	@Override
-	void addToDeployableUnit() {
-		getDeployableUnit().getProfileSpecificationComponents().put(getProfileSpecificationID(), this);
+	boolean addToDeployableUnit() {
+		return getDeployableUnit().getProfileSpecificationComponents().put(getProfileSpecificationID(), this) == null;
 	}
-
+	
 	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();

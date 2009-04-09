@@ -261,10 +261,10 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	}
 
 	@Override
-	void addToDeployableUnit() {
-		getDeployableUnit().getSbbComponents().put(getSbbID(), this);
+	boolean addToDeployableUnit() {
+		return getDeployableUnit().getSbbComponents().put(getSbbID(), this) == null;
 	}
-
+	
 	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
