@@ -717,15 +717,13 @@ public class ActivityContext {
 			
 		case profileTableActivity:
 			try {
-					this.sleeContainer.getSleeProfileTableManager().getProfileTable(activityContextHandle.getActivitySource()).activityEnded();
-					//FIXME: Eduardo is this ok? Exception?
-				} catch (SLEEException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (UnrecognizedProfileTableNameException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				this.sleeContainer.getSleeProfileTableManager()
+						.getProfileTable(
+								activityContextHandle.getActivitySource())
+						.activityEnded();
+			} catch (UnrecognizedProfileTableNameException e1) {
+				logger.warn(e1.getMessage(), e1);
+			}
 			break;
 			
 		case serviceActivity:
