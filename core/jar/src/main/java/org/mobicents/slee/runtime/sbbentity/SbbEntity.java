@@ -459,16 +459,20 @@ public class SbbEntity {
 		HashSet<EventTypeID> maskedEvents = new HashSet<EventTypeID>();
 
 		if (eventMask != null && eventMask.length != 0) {
-
+			
+			EventTypeID eventTypeID = null;
+			MEventEntry sbbEventEntry = null;
 			for (int i = 0; i < eventMask.length; i++) {
-				MEventEntry sbbEventEntry = sbbComponent.getDescriptor()
-						.getEventEntries().get(eventMask[i]);
-				if (sbbEventEntry == null)
+				
+				eventTypeID = sbbComponent.getDescriptor().getEventTypeID(eventMask[i]);
+				if (eventTypeID == null)
 					throw new UnrecognizedEventException(
 							"Event is not known by this SBB.");
+				
+				sbbEventEntry = sbbComponent.getDescriptor()
+						.getEventEntries().get(eventTypeID);
 				if (sbbEventEntry.isReceived()) {
-					maskedEvents.add(sbbEventEntry.getEventReference()
-							.getComponentID());
+					maskedEvents.add(eventTypeID);
 				} else {
 					throw new UnrecognizedEventException("Event "
 							+ eventMask[i]

@@ -267,7 +267,7 @@ public class SbbDescriptorImpl {
 	}
 
 	/**
-	 * Retrieves the map between event names and event entries, in descriptors
+	 * Retrieves the map between event type ids and event entries, in descriptors
 	 * 
 	 * @return
 	 */
