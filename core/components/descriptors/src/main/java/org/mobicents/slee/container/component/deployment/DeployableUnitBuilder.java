@@ -291,7 +291,7 @@ public class DeployableUnitBuilder {
 			if (deployableUnit != null) {
 				if (logger.isInfoEnabled()) {
 					logger
-							.info("Undeploying deployable unit due to building error");
+							.info("Undeploying deployable unit due to building error",e);
 				}
 				deployableUnit.undeploy();
 			} else {

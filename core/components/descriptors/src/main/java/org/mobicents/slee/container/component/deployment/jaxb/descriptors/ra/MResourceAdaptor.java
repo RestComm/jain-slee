@@ -34,7 +34,7 @@ public class MResourceAdaptor {
   
   public MResourceAdaptor(org.mobicents.slee.container.component.deployment.jaxb.slee.ra.ResourceAdaptor resourceAdaptor10)
   {    
-    this.description = resourceAdaptor10.getDescription().getvalue();
+    this.description = resourceAdaptor10.getDescription() == null ? null : resourceAdaptor10.getDescription().getvalue();
     
     this.resourceAdaptorName = resourceAdaptor10.getResourceAdaptorName().getvalue();
     this.resourceAdaptorVendor = resourceAdaptor10.getResourceAdaptorVendor().getvalue();
@@ -47,7 +47,7 @@ public class MResourceAdaptor {
   
   public MResourceAdaptor(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptor resourceAdaptor11)
   {    
-    this.description = resourceAdaptor11.getDescription().getvalue();
+    this.description = resourceAdaptor11.getDescription() == null ? null : resourceAdaptor11.getDescription().getvalue();
     
     this.resourceAdaptorName = resourceAdaptor11.getResourceAdaptorName().getvalue();
     this.resourceAdaptorVendor = resourceAdaptor11.getResourceAdaptorVendor().getvalue();
