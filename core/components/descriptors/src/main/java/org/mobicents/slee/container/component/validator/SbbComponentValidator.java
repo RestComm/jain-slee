@@ -123,7 +123,7 @@ public class SbbComponentValidator implements Validator {
 				valid = false;
 			}
 
-			if (!validateEventHandlers(abstractMehotds, superClassesAbstractMethod, concreteMethods, superClassesAbstractMethod)) {
+			if (!validateEventHandlers(abstractMehotds, superClassesAbstractMethod, concreteMethods, superClassesConcreteMethods)) {
 				valid = false;
 			}
 
@@ -1265,6 +1265,7 @@ public class SbbComponentValidator implements Validator {
 
 					receiveMethodCustomACI = null;
 				}
+
 			}
 
 			// this is for all
@@ -1273,7 +1274,6 @@ public class SbbComponentValidator implements Validator {
 					concreteMethods, concreteMethodsFromSuperClasses);
 
 			if (this.component.getActivityContextInterface() != null)
-
 				receiveMethodCustomACI = ClassUtils.getMethodFromMap(methodName, new Class[] { eventClass,
 						this.component.getActivityContextInterface() }, concreteMethods, concreteMethodsFromSuperClasses);
 			// is there any clever way to lookup those?
@@ -1650,6 +1650,8 @@ public class SbbComponentValidator implements Validator {
 					continue;
 				}
 
+				sbbAbstractClassMethods.values().remove(m);
+				sbbAbstractMethodsFromSuperClasses.values().remove(m);
 				int modifiers = m.getModifiers();
 
 				if (!Modifier.isPublic(modifiers)) {
