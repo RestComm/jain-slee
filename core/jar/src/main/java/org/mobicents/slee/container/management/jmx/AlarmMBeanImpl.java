@@ -59,8 +59,11 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 	private Map<AlarmPlaceHolder, NotificationSource> placeHolderToNotificationSource = new HashMap<AlarmPlaceHolder, NotificationSource>();
 	private Map<String, AlarmPlaceHolder> alarmIdToAlarm = new HashMap<String, AlarmPlaceHolder>();
 
+	private SleeContainer sleeContainer = null;
+	
 	protected void startService() throws Exception {
 		SleeContainer.registerFacilityWithJndi(JNDI_NAME, this);
+		this.sleeContainer = SleeContainer.lookupFromJndi();
 	}
 
 	protected void stopService() throws Exception {
@@ -93,7 +96,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 			throw new NullPointerException("NotificationSource must not be null");
 		}
 
-		// FIXME: UnrecognizedNotificationSourceException ??
+		mandateSource(notificationSource);
 
 		int count = 0;
 		try {
@@ -124,7 +127,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 			throw new NullPointerException("AlarmType must not be null");
 		}
 
-		// FIXME: UnrecognizedNotificationSourceException ??
+		mandateSource(notificationSource);
 
 		int count = 0;
 		try {
@@ -161,7 +164,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 			throw new NullPointerException("NotificationSource must not be null");
 		}
 
-		// FIXME: UnrecognizedNotificationSourceException ??
+		mandateSource(notificationSource);
 
 		try {
 			List<String> ids = new ArrayList<String>();
@@ -315,6 +318,19 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 		super.sendNotification(notification);
 	}
 
+	/**
+	 * This method is requried - in case component is removed on call to method with its noti source we must throw unknown notification source exception - even thought alarms MAY be present?
+	 * @throws UnrecognizedNotificationSourceException 
+	 */
+	private void mandateSource(NotificationSource src) throws UnrecognizedNotificationSourceException
+	{
+		if(!this.sleeContainer.getTraceFacility().getTraceMBeanImpl().isNotificationSourceDefined(src))
+		{
+			throw new UnrecognizedNotificationSourceException("Notification source is not present: "+src);
+		}
+	}
+	
+	
 	class AlarmPlaceHolder {
 		private MNotificationSource notificationSource;
 		private String alarmType;
@@ -488,4 +504,6 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 		return null;
 	}
 
+	
+	
 }
