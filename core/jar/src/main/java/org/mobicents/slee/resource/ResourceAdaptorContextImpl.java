@@ -2,6 +2,7 @@ package org.mobicents.slee.resource;
 
 import java.util.Timer;
 
+import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
 import javax.slee.facilities.AlarmFacility;
@@ -113,7 +114,11 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 			
 		}
 		
-		TracerImpl.checkTracerName(tracerName, raEntity.getNotificationSource());
+		try {
+			TracerImpl.checkTracerName(tracerName, raEntity.getNotificationSource());
+		} catch (InvalidArgumentException e1) {
+			throw new IllegalArgumentException(e1);
+		}
 		try {
 			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(raEntity.getNotificationSource(), tracerName, true);
 		} catch (ManagementException e) {

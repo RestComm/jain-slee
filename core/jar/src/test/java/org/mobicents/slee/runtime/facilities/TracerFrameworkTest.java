@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
+import javax.slee.InvalidArgumentException;
 import javax.slee.facilities.TraceLevel;
 import javax.slee.facilities.Tracer;
 import javax.slee.management.NotificationSource;
@@ -118,7 +119,7 @@ public class TracerFrameworkTest extends TestCase {
 
 	}
 
-	public void test2TestEqulesesOfTracerObjects() {
+	public void test2TestEqulesesOfTracerObjects() throws InvalidArgumentException {
 		Tracer org1 = this.ts.createTracer("org", true);
 		Tracer org2 = this.ts.createTracer("org", false);
 		Tracer org3 = this.ts.createTracer("org", true);

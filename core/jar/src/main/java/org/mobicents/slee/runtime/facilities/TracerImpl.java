@@ -359,7 +359,7 @@ public class TracerImpl implements Tracer {
 	 * @param split
 	 * @throws IllegalArgumentException
 	 */
-	public static void checkTracerName(String tracerName, NotificationSource notificationSource) throws IllegalArgumentException {
+	public static void checkTracerName(String tracerName, NotificationSource notificationSource) throws InvalidArgumentException {
 
 		if (tracerName.compareTo("") == 0) {
 			// This is root
@@ -369,7 +369,7 @@ public class TracerImpl implements Tracer {
 		// String[] splitName = tracerName.split("\\.");
 		StringTokenizer stringTokenizer = new StringTokenizer(tracerName, ".", true);
 
-		int fqdnPartIndex = 0;
+		//int fqdnPartIndex = 0;
 
 		// if(splitName.length==0)
 		// {
@@ -387,7 +387,7 @@ public class TracerImpl implements Tracer {
 			}
 
 			if (lastToken.compareTo(token) == 0 && token.compareTo(".") == 0) {
-				throw new IllegalArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
+				throw new InvalidArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
 			}
 
 //			if (token.compareTo(".") != 0) {

@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.profile;
 
+import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.Tracer;
@@ -170,7 +171,11 @@ public class ProfileContextImpl implements ProfileContext {
 			throw new NullPointerException("TracerName must nto be null");
 		}
 		doGeneralChecks();
-		TracerImpl.checkTracerName(tracerName, this.profileTable.getProfileTableNotification().getNotificationSource());
+		try {
+			TracerImpl.checkTracerName(tracerName, this.profileTable.getProfileTableNotification().getNotificationSource());
+		} catch (InvalidArgumentException e1) {
+			throw new IllegalArgumentException(e1);
+		}
 
 		try {
 			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(this.profileTable.getProfileTableNotification().getNotificationSource(), tracerName, true);

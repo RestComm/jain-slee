@@ -67,9 +67,7 @@ public class TracerStorage {
 			throw new InvalidArgumentException("No tracer definition with name: " + tracerName + ", for notification source: " + this.notificationSource + ". See section 13.3 of JSLEE 1.1 specs");
 		}
 		TracerImpl tracer = this.tracers.get(tracerName);
-		if (tracer.isRoot()) {
-			throw new InvalidArgumentException("Can not unset root tracer level for source: " + this.notificationSource + ". See section 13.3 of JSLEE 1.1 specs");
-		}
+		
 		return tracer.getTraceLevel();
 	}
 
@@ -116,7 +114,7 @@ public class TracerStorage {
 	 * @return
 	 * @throws IllegalArgumentException
 	 */
-	public Tracer createTracer(String tracerName, boolean requestedBySource) throws IllegalArgumentException {
+	public Tracer createTracer(String tracerName, boolean requestedBySource) throws InvalidArgumentException {
 	
 
 		// FIXME: this is double check, in some cases.

@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
+import javax.slee.InvalidArgumentException;
 import javax.slee.NotAttachedException;
 import javax.slee.SLEEException;
 import javax.slee.SbbContext;
@@ -233,7 +234,11 @@ public class SbbContextImpl implements SbbContext, Serializable {
 
 		}
 
-		TracerImpl.checkTracerName(tracerName, this.notificationSource);
+		try {
+			TracerImpl.checkTracerName(tracerName, this.notificationSource);
+		} catch (InvalidArgumentException e1) {
+			throw new IllegalArgumentException(e1);
+		}
 		try {
 			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(this.notificationSource, tracerName, true);
 		} catch (ManagementException e) {
