@@ -383,19 +383,28 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			}
 		} catch (Throwable e) {
 			// rollback changes
-			if (mapKey != null && usageMbean != null) {
-				this.usageMBeans.put(mapKey, usageMbean);
-			}
-			try {
-				sleeContainer.getMBeanServer().registerMBean(usageMbean,
-						usageMbean.getObjectName());
-			} catch (Throwable f) {
-				logger.error("failed to re-register usage parameter mbean "
-						+ usageMbean.getObjectName());
+			if(usageMbean!=null)
+			{
+				if (mapKey != null && usageMbean != null) {
+					this.usageMBeans.put(mapKey, usageMbean);
+				}
+				try {
+					sleeContainer.getMBeanServer().registerMBean(usageMbean,
+							usageMbean.getObjectName());
+				} catch (Throwable f) {
+					logger.error("failed to re-register usage parameter mbean "
+							+ usageMbean.getObjectName());
+				}
 			}
 			// note: removal rollback of notification manager is done by the
 			// removeNotificationManager() method
-			throw new ManagementException(e.getMessage(), e);
+			if(e instanceof UnrecognizedUsageParameterSetNameException)
+			{
+				throw (UnrecognizedUsageParameterSetNameException)e;
+			}else
+			{	
+				throw new ManagementException(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -513,18 +522,20 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					+ " is not part of " + getService());
 		}
 
-		ObjectName oName = null;
+		UsageMBeanImpl bean = null;
 		try {
 			SbbUsageMBeanMapKey mapKey = new SbbUsageMBeanMapKey(sbbId, name);
-			oName = usageMBeans.get(mapKey).getObjectName();
+			bean=  usageMBeans.get(mapKey);
+			
+			
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(), e);
 		}
-
-		if (oName == null) {
+		
+		if (bean == null || bean.getObjectName() == null) {
 			throw new UnrecognizedUsageParameterSetNameException(name);
 		} else {
-			return oName;
+			return bean.getObjectName();
 		}
 	}
 
