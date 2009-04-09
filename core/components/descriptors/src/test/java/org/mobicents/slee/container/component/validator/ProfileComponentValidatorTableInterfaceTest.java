@@ -64,7 +64,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validatePorfileTableInterface();
+		boolean b = validator.validateProfileTableInterface();
 
 		assertTrue("Table interface class class has not been validated", b);
 
@@ -89,7 +89,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validatePorfileTableInterface();
+		boolean b = validator.validateProfileTableInterface();
 
 		assertFalse("Table interface class has been validated - it should not since table interface method does not match declared parameter type", b);
 
@@ -115,7 +115,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validatePorfileTableInterface();
+		boolean b = validator.validateProfileTableInterface();
 
 		assertFalse("Table interface class has been validated - it should not since table interface method does not match declared parameter type", b);
 
@@ -143,7 +143,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validatePorfileTableInterface();
+		boolean b = validator.validateProfileTableInterface();
 
 		assertFalse("Table interface class has been validated - it should not since table interface does not decalre methods for all queries", b);
 
@@ -172,7 +172,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validatePorfileTableInterface();
+		boolean b = validator.validateProfileTableInterface();
 
 		assertFalse("Table interface class has been validated - it should not since table interface declares method which does not match any declared query", b);
 
@@ -200,7 +200,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validatePorfileTableInterface();
+		boolean b = validator.validateProfileTableInterface();
 
 		assertFalse("Table interface class has been validated - it should not since it decalres wrong operator for parameter of type boolean", b);
 
@@ -228,7 +228,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
 
-		boolean b = validator.validatePorfileTableInterface();
+		boolean b = validator.validateProfileTableInterface();
 
 		assertFalse("Table interface class has been validated - it should not since it declares collator for non string parameter", b);
 
@@ -261,7 +261,7 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 
 		assertTrue("Failed to validate descriptor for allowed type(conditionaly):javax.slee.Address",validator.validateDescriptor());
 		assertTrue("failed to validate cmp interface with address cmp",validator.validateCMPInterface());
-		assertTrue("Failed to validate profile table interface for allowed type(conditionaly): javax.slee.Address",validator.validatePorfileTableInterface());
+		assertTrue("Failed to validate profile table interface for allowed type(conditionaly): javax.slee.Address",validator.validateProfileTableInterface());
 		
 		//assertFalse("Table interface class has been validated - it should not since it declares collator for non string parameter", b);
 
