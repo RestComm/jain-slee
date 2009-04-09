@@ -8,6 +8,7 @@
  */
 package org.mobicents.slee.container.component.validator;
 
+import java.beans.Introspector;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -21,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.slee.SLEEException;
+import javax.slee.TransactionRequiredLocalException;
 
 import javassist.Modifier;
 
@@ -257,7 +261,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				passed = false;
 
 			} else {
-				if (!validatePorfileTableInterface()) {
+				if (!validateProfileTableInterface()) {
 					passed = false;
 				}
 
@@ -1601,7 +1605,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		return passed;
 	}
 
-	boolean validatePorfileTableInterface() {
+	boolean validateProfileTableInterface() {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
@@ -1759,21 +1763,22 @@ public class ProfileSpecificationComponentValidator implements Validator {
 										+ c.getName(), "10.8.2", errorBuffer);
 					}
 				}
-
-				if (foundSLEEException
-						&& foundTransactionRequiredLocalException) {
-					// do nothing
-				} else {
-					passed = false;
-					errorBuffer = appendToBuffer(
-							"Profile specification profile table interface declares method with wrong exception in throws method with name: "
-									+ methodName
-									+ ", it shoudl declare SLEEException["
-									+ foundSLEEException
-									+ "] and TransactionRequiredLocalException["
-									+ foundTransactionRequiredLocalException
-									+ "]", "10.8.2", errorBuffer);
-				}
+			
+				//Those are runtime,...., so why this is in throws clause in specs - like it has to be there , but methods in tck dont declare....
+//				if (foundSLEEException
+//						&& foundTransactionRequiredLocalException) {
+//					// do nothing
+//				} else {
+//					passed = false;
+//					errorBuffer = appendToBuffer(
+//							"Profile specification profile table interface declares method with wrong exception in throws method with name: "
+//									+ methodName
+//									+ ", it shoudl declare SLEEException["
+//									+ foundSLEEException
+//									+ "] and TransactionRequiredLocalException["
+//									+ foundTransactionRequiredLocalException
+//									+ "]", "10.8.2", errorBuffer);
+//				}
 
 				// lets see params - param type must match declared in MQuery,
 				// also type must match CMP field from interface (and there must
@@ -2601,13 +2606,17 @@ public class ProfileSpecificationComponentValidator implements Validator {
 									+ attributeName
 									+ ", query name: "
 									+ queryName, "10.20.2", errorBuffer);
-				} else if (!cmpFieldNames.contains(attributeName)) {
+				} else if (!cmpFieldNames.contains(attributeName) && !checkForCmpMethodFromFieldName(attributeName)) {
+					
+					//we have to check this. stupid specs for profile cmps are not so strict..... You can defined CMP methods but not define them in descriptor.....!!!!!!!
+					
 					passed = false;
 					errorBuffer = appendToBuffer(
-							"Profile specification declares in static query usage of cmp field that does not exist, declared cmp field: "
+							"Profile specification declares in static query usage of cmp field that does not exist(its not declared in descritpro and in cmp interface), declared cmp field: "
 									+ attributeName
 									+ ", query name: "
 									+ queryName, "10.20.2", errorBuffer);
+					
 				}
 				if (collatorRef != null
 						&& !collatorAliasses.contains(collatorRef)) {
@@ -2650,6 +2659,22 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		return passed;
 	}
 
+	private boolean checkForCmpMethodFromFieldName(String fieldName)
+	{
+		//This is required since we can have weird CMPs like getAHHCmp
+		Set<String> ignore=new HashSet<String>();
+		ignore.add("java.lang.Object");
+		Map<String, Method> allMethods = ClassUtils.getAllInterfacesMethods(this.component.getProfileCmpInterfaceClass(), ignore);
+		for(Method m:allMethods.values())
+		{
+			String methodName = Introspector.decapitalize(m.getName().replace(ClassUtils.GET_PREFIX, ""));
+			if(methodName.equals(fieldName))
+				return true;
+		}
+		
+		return false;
+	}
+	
 	boolean compareMethod(Method m1, Method m2) {
 
 		// those two are in key
