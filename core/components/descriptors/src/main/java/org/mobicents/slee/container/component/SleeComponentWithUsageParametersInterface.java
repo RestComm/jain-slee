@@ -1,5 +1,9 @@
 package org.mobicents.slee.container.component;
 
+import java.util.List;
+
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParameter;
+
 public abstract class SleeComponentWithUsageParametersInterface extends SleeComponent {
 
 	/**
@@ -133,5 +137,18 @@ public abstract class SleeComponentWithUsageParametersInterface extends SleeComp
 	public void setUsageNotificationManagerMBeanImplConcreteClass(
 			Class usageNotificationManagerMBeanImplConcreteClass) {
 		this.usageNotificationManagerMBeanImplConcreteClass = usageNotificationManagerMBeanImplConcreteClass;
+	}
+
+	public List<MUsageParameter> getUsageParametersList() {
+		if(this instanceof SbbComponent)
+		{
+			return ((SbbComponent)this).getDescriptor().getSbbClasses().getSbbUsageParametersInterface().getUsageParameter();
+		}else if(this instanceof ProfileSpecificationComponent)
+		{
+			return ((ProfileSpecificationComponent)this).getDescriptor().getProfileUsageParameterInterface().getUsageParameter();	
+		}else
+		{
+			return ((ResourceAdaptorComponent)this).getDescriptor().getResourceAdaptorUsageParametersInterface().getUsageParameter();
+		}
 	}
 }

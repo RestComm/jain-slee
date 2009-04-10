@@ -40,6 +40,7 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
 
 /**
  * 
@@ -247,12 +248,12 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 						.getUsageNotificationManagerMBeanImplConcreteClass();
 				constructor = usageNotificationManagerMBeanClass
 						.getConstructor(new Class[] { Class.class,
-								NotificationSource.class });
+								NotificationSource.class,SleeComponentWithUsageParametersInterface.class });
 				usageNotificationManagerMBean = (UsageNotificationManagerMBeanImpl) constructor
 						.newInstance(new Object[] {
 								sbbComponent
 										.getUsageNotificationManagerMBeanConcreteInterface(),
-								sbbNotification });
+								sbbNotification ,sbbComponent});
 				ObjectName usageNotificationManagerMBeanObjectName = generateUsageNotificationManagerMBeanObjectName(sbbId);
 				usageNotificationManagerMBean
 						.setObjectName(usageNotificationManagerMBeanObjectName);

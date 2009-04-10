@@ -49,11 +49,11 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
 	 * @param
 	 * @param classes
 	 */
-    private void createConstructor(CtClass concreteClass, CtClass usageMBeanInterface, CtClass notificationSource)
+    private void createConstructor(CtClass concreteClass, CtClass usageMBeanInterface, CtClass notificationSource,CtClass usageComponent)
             throws Exception {
 
-        CtConstructor ctCons = new CtConstructor(new CtClass[]{usageMBeanInterface,notificationSource}, concreteClass);
-        ctCons.setBody("{ super($1,$2); }");
+        CtConstructor ctCons = new CtConstructor(new CtClass[]{usageMBeanInterface,notificationSource,usageComponent}, concreteClass);
+        ctCons.setBody("{ super($1,$2,$3); }");
         concreteClass.addConstructor(ctCons);
 
     }
@@ -91,7 +91,8 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
         
         // create constructor
         this.createConstructor(ctClass, classPool.get(Class.class.getName()),classPool.get(NotificationSource.class
-                .getName()));
+                .getName()),classPool.get(SleeComponentWithUsageParametersInterface.class
+                        .getName()));
                 
         CtMethod[] methods = usageParamInterface.getDeclaredMethods();
 

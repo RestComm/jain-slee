@@ -22,6 +22,7 @@ import javax.slee.usage.UsageNotificationManagerMBean;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
+import org.mobicents.slee.container.deployment.SleeComponentWithUsageParametersClassCodeGenerator;
 
 /**
  * Abstract class code for a "parent" usage mbean, such as the
@@ -244,12 +245,12 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 						.getUsageNotificationManagerMBeanImplConcreteClass();
 				constructor = usageNotificationManagerMBeanClass
 						.getConstructor(new Class[] { Class.class,
-								NotificationSource.class });
+								NotificationSource.class,SleeComponentWithUsageParametersClassCodeGenerator.class });
 				usageNotificationManagerMBean = (UsageNotificationManagerMBeanImpl) constructor
 						.newInstance(new Object[] {
 								component
 										.getUsageNotificationManagerMBeanConcreteInterface(),
-								notificationSource });
+								notificationSource ,component});
 				ObjectName usageNotificationManagerMBeanObjectName = generateUsageNotificationManagerMBeanObjectName();
 				usageNotificationManagerMBean
 						.setObjectName(usageNotificationManagerMBeanObjectName);

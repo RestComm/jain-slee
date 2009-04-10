@@ -14,7 +14,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.commo
 public class MUsageParameter {
 
   private String name;
-  private Boolean notificationsEnabled;
+  private Boolean notificationsEnabled = new Boolean(false);
 
   public MUsageParameter(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.UsageParameter usageParameter11)
   {
