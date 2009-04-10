@@ -133,7 +133,7 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 	public TraceLevel getTraceLevel(NotificationSource src, String tracerName) throws NullPointerException, InvalidArgumentException, UnrecognizedNotificationSourceException, ManagementException {
 		if(src == null)
 		{
-			throw new NullPointerException("NotificationSource must nto be null!");
+			throw new NullPointerException("NotificationSource must not be null!");
 		}
 		
 		if(tracerName == null)
@@ -161,7 +161,7 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 		try {
 			return ts.getTracerLevel(tracerName);
 		} catch (Exception e) {
-			throw new ManagementException("Failed to unset trace level due to: ", e);
+			throw new ManagementException("Failed to get trace level due to: ", e);
 		}
 	}
 
@@ -460,7 +460,11 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 			throw new ManagementException("NotificationSource has been uninstalled from SLEE. Can not create tracer.");
 		}
 
-		return ts.createTracer(tracerName, createdBySource);
+		try {
+			return ts.createTracer(tracerName, createdBySource);
+		} catch (InvalidArgumentException e) {
+			throw new ManagementException("",e);
+		}
 
 	}
 }
