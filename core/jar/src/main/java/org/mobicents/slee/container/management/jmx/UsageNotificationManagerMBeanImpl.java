@@ -52,9 +52,10 @@ public class UsageNotificationManagerMBeanImpl extends StandardMBean implements
 	 * @return
 	 */
 	public boolean getNotificationsEnabled(String paramName) {
+		
 		Boolean areNotificationsEnabled = paramNames.get(paramName);
-		if (areNotificationsEnabled == null
-				|| areNotificationsEnabled.booleanValue()) {
+		if (areNotificationsEnabled != null
+				&& areNotificationsEnabled.booleanValue()) {
 			// considering that notifications are enabled, by default, for each
 			// param
 			return true;
@@ -64,6 +65,7 @@ public class UsageNotificationManagerMBeanImpl extends StandardMBean implements
 	}
 
 	public void setNotificationsEnabled(String paramName, boolean enabled) {
+		
 		paramNames.put(paramName, Boolean.valueOf(enabled));
 	}
 
