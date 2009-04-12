@@ -5,6 +5,7 @@
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ * @author martins
  */
 package org.mobicents.slee.container.component.deployment;
 
@@ -13,7 +14,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +28,6 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.mobicents.slee.container.component.ComponentJarClassLoaderDomain;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.LibraryComponent;
@@ -38,6 +37,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 
 /**
@@ -110,8 +110,6 @@ public class DeployableUnit {
 	 * the date this deployable unit was built
 	 */
 	private final Date date = new Date();
-
-	private final Map<String, ComponentJarClassLoaderDomain> classLoaderDomains = new HashMap<String, ComponentJarClassLoaderDomain>();
 
 	public DeployableUnit(DeployableUnitID deployableUnitID,
 			DeployableUnitDescriptorImpl duDescriptor,
@@ -234,16 +232,6 @@ public class DeployableUnit {
 		return serviceComponents;
 	}
 
-	public void addClassLoaderDomain(
-			ComponentJarClassLoaderDomain domain) {
-		classLoaderDomains.put(domain.getName(), domain);
-	}
-
-	public ComponentJarClassLoaderDomain getClassLoaderDomain(
-			String domainName) {
-		return classLoaderDomains.get(domainName);
-	}
-
 	/**
 	 * Returns an unmodifiable set with all {@link SleeComponent}s of the
 	 * deployable unit.
@@ -279,19 +267,20 @@ public class DeployableUnit {
 	/**
 	 * Undeploys this unit
 	 */
-	public void undeploy() {
-		// clean class pools
+	public void undeploy() {		
+		// clean component domains & class pools
 		for (SleeComponent component : getDeployableUnitComponents()) {
+			URLClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
+			if (classLoaderDomain != null) {				
+				component.setClassLoader(null);
+				classLoaderDomain.clean();
+				component.setClassLoaderDomain(null);				
+			}
 			ClassPool classPool = component.getClassPool();
 			if (classPool != null) {
 				classPool.clean();
 				component.setClassPool(null);
 			}
-		}
-		// remove all component class loader domains
-		for (Iterator<ComponentJarClassLoaderDomain> i = classLoaderDomains.values().iterator(); i.hasNext();) {
-			i.next().unregister();
-			i.remove();
 		}
 		// now delete the deployment dir
 		deletePath(getDeploymentDir());
@@ -324,4 +313,5 @@ public class DeployableUnit {
 		return new DeployableUnitDescriptor(getDeployableUnitID(), date,
 				componentIDs.toArray(new ComponentID[0]));
 	}
+	
 }

@@ -13,14 +13,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javassist.LoaderClassPath;
-
-import javax.management.ObjectName;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
@@ -36,9 +32,6 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
-import org.jboss.classloader.spi.ClassLoaderSystem;
-import org.mobicents.slee.container.component.ComponentClassLoader;
-import org.mobicents.slee.container.component.ComponentJarClassLoaderDomain;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -47,6 +40,8 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.deployment.classloading.ComponentClassLoader;
+import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
@@ -185,77 +180,23 @@ public class DeployableUnitBuilder {
 			Set<SleeComponent> duComponentsSet = deployableUnit
 					.getDeployableUnitComponents();
 
-			// now that all components are built we need to check if all
-			// dependencies are available
+			// now that all components are built we need to , if that's the case
 			for (SleeComponent sleeComponent : duComponentsSet) {
+				// check if all
+				// dependencies are available
 				checkDependencies(sleeComponent, deployableUnit);
-			}
-
-			// if component has a deployment dir and the du ha then create class
-			// loader
-			// domain and register the policy
-			ClassLoaderSystem classLoaderSystem = ClassLoaderSystem
-					.getInstance();
-			for (SleeComponent component : duComponentsSet) {
-				File componentDeploymentDir = component.getDeploymentDir();
-				if (componentDeploymentDir != null) {
-					String domainName = getSafeDomainName(componentDeploymentDir
-							.getAbsolutePath());
-					ComponentJarClassLoaderDomain classLoaderDomain = deployableUnit
-							.getClassLoaderDomain(domainName);
-					if (classLoaderDomain == null) {
-						if (logger.isDebugEnabled()) {
-							logger
-									.debug("Creating class loading domain for deploy dir "
-											+ domainName);
-						}
-						// create domain
-						classLoaderDomain = new ComponentJarClassLoaderDomain(
-								domainName);
-						classLoaderDomain.register();
-						deployableUnit
-								.addClassLoaderDomain(classLoaderDomain);
-					}
-					component
-							.setClassLoader(new ComponentClassLoader(classLoaderDomain.getClassLoader(),component.getComponentID()));
-				}
-			}
-
-			// now that all the components class loaders were created, let's add
-			// the
-			// class loader domains of the components dependencies
-			for (SleeComponent component : duComponentsSet) {
-				if (component.getDeploymentDir() != null) {
-					if (logger.isDebugEnabled()) {
-						logger
-								.debug("Adding class loading domains from dependencies to class loading domain of component "
-										+ component);
-					}
-					ComponentJarClassLoaderDomain domain = deployableUnit
-							.getClassLoaderDomain(getSafeDomainName(component
-									.getDeploymentDir().getAbsolutePath()));
-					HashSet<String> domainsProcessed = new HashSet<String>();
-					domainsProcessed.add(domain.getName());
-					addDependenciesClassLoadingDomains(component, domain,
-							classLoaderSystem, domainsProcessed);
-					// add dependency laoders class paths to the component's javassist classpool
-					for (ComponentJarClassLoaderDomain refDomain : domain.getDependencyDomains()) {
-						component.getClassPool().appendClassPath(new LoaderClassPath(refDomain.getClassLoader()));
-					}
-				}
-			}
-
-			// for each component load and set its non generated classes
-			for (SleeComponent sleeComponent : duComponentsSet) {
+				// build its class loader
+				createClassLoader(sleeComponent);
+				// load the provided classes for the component
 				loadAndSetNonGeneratedComponentClasses(sleeComponent);
 			}
-
+			
 			// validate each component
 			for (SleeComponent sleeComponent : duComponentsSet) {
 				ClassLoader componentClassLoader = sleeComponent
-						.getClassLoader();
+				.getClassLoader();
 				ClassLoader oldClassLoader = Thread.currentThread()
-						.getContextClassLoader();
+				.getContextClassLoader();
 				try {
 					if (componentClassLoader != null) {
 						Thread.currentThread().setContextClassLoader(
@@ -267,7 +208,7 @@ public class DeployableUnitBuilder {
 					if (!sleeComponent.validate()) {
 						throw new DeploymentException(
 								sleeComponent.toString()
-										+ " validation failed, check logs for errors found");
+								+ " validation failed, check logs for errors found");
 					}
 				} catch (Throwable e) {
 					throw new DeploymentException("failed to validate "
@@ -291,7 +232,9 @@ public class DeployableUnitBuilder {
 			if (deployableUnit != null) {
 				if (logger.isInfoEnabled()) {
 					logger
-							.info("Undeploying deployable unit due to building error",e);
+							.info(
+									"Undeploying deployable unit due to building error",
+									e);
 				}
 				deployableUnit.undeploy();
 			} else {
@@ -312,16 +255,53 @@ public class DeployableUnitBuilder {
 		}
 	}
 
-	/*
-	 * FIXME jboss ClassLoaderSystem has a bug in producing the objectname for the domain, till it is solved we must handle it here
-	 * @param name
-	 * @return
-	 */
-	private String getSafeDomainName(String name) {
-		String domainName = ObjectName.quote(name);
-		return domainName.substring(1,domainName.length()-1);
-	}
 	
+
+	private void createClassLoader(SleeComponent component) {
+
+		URLClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
+		if (classLoaderDomain != null) {
+			// add all dependency domains to the component domain
+			for (ComponentID componentID : component.getDependenciesSet()) {
+				SleeComponent dependency = null;
+				if (componentID instanceof EventTypeID) {
+					dependency = component.getDeployableUnit()
+							.getDeployableUnitRepository().getComponentByID(
+									(EventTypeID) componentID);
+				} else if (componentID instanceof LibraryID) {
+					dependency = component.getDeployableUnit()
+							.getDeployableUnitRepository().getComponentByID(
+									(LibraryID) componentID);
+				} else if (componentID instanceof ProfileSpecificationID) {
+					dependency = component.getDeployableUnit()
+							.getDeployableUnitRepository().getComponentByID(
+									(ProfileSpecificationID) componentID);
+				} else if (componentID instanceof ResourceAdaptorID) {
+					dependency = component.getDeployableUnit()
+							.getDeployableUnitRepository().getComponentByID(
+									(ResourceAdaptorID) componentID);
+				} else if (componentID instanceof ResourceAdaptorTypeID) {
+					dependency = component.getDeployableUnit()
+							.getDeployableUnitRepository().getComponentByID(
+									(ResourceAdaptorTypeID) componentID);
+				} else if (componentID instanceof SbbID) {
+					dependency = component.getDeployableUnit()
+							.getDeployableUnitRepository().getComponentByID(
+									(SbbID) componentID);
+				}
+				if (dependency != null && dependency.getClassLoaderDomain() != null) {					
+					classLoaderDomain.getDependencies().add(dependency.getClassLoaderDomain());					
+				}
+				else {
+					throw new SLEEException(component.toString()+" dependency "+componentID+" not found or doesn't have class loading domain");
+				}
+			}
+			// create class loader
+			component.setClassLoader(new ComponentClassLoader(component.getComponentID(),classLoaderDomain));			
+		}
+
+	}
+
 	/**
 	 * Loads all non SLEE generated classes from the component class loader to
 	 * the component, those will be needed for validation or runtime purposes
@@ -338,7 +318,8 @@ public class DeployableUnitBuilder {
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		try {
-			ClassLoader componentClassLoader = sleeComponent.getClassLoader();
+			ComponentClassLoader componentClassLoader = sleeComponent
+					.getClassLoader();
 			if (componentClassLoader != null) {
 				// change class loader
 				Thread.currentThread().setContextClassLoader(
@@ -346,44 +327,47 @@ public class DeployableUnitBuilder {
 				// load and set non generated component classes
 				if (sleeComponent instanceof EventTypeComponent) {
 					EventTypeComponent component = (EventTypeComponent) sleeComponent;
-					Class eventTypeClass = componentClassLoader
+					Class<?> eventTypeClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getEventClassName());
 					component.setEventTypeClass(eventTypeClass);
 				} else if (sleeComponent instanceof ProfileSpecificationComponent) {
 					ProfileSpecificationComponent component = (ProfileSpecificationComponent) sleeComponent;
-					Class profileCmpInterfaceClass = componentClassLoader
+					Class<?> profileCmpInterfaceClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getProfileClasses()
 									.getProfileCMPInterface()
 									.getProfileCmpInterfaceName());
 					component
 							.setProfileCmpInterfaceClass(profileCmpInterfaceClass);
-					if(component.getDescriptor().getProfileClasses().getProfileLocalInterface() != null) {
-					Class profileLocalInterfaceClass = componentClassLoader
-							.loadClass(component.getDescriptor()
-									.getProfileClasses()
-									.getProfileLocalInterface()
-									.getProfileLocalInterfaceName());
-					component
-							.setProfileLocalInterfaceClass(profileLocalInterfaceClass);
-          }
-					if(component.getDescriptor().getProfileClasses().getProfileManagementInterface() != null) {
-					Class profileManagementInterfaceClass = componentClassLoader
-							.loadClass(component.getDescriptor()
-									.getProfileClasses()
-									.getProfileManagementInterface()
-									.getProfileManagementInterfaceName());
-					component
-							.setProfileManagementInterfaceClass(profileManagementInterfaceClass);
+					if (component.getDescriptor().getProfileClasses()
+							.getProfileLocalInterface() != null) {
+						Class<?> profileLocalInterfaceClass = componentClassLoader
+								.loadClass(component.getDescriptor()
+										.getProfileClasses()
+										.getProfileLocalInterface()
+										.getProfileLocalInterfaceName());
+						component
+								.setProfileLocalInterfaceClass(profileLocalInterfaceClass);
 					}
-					if(component.getDescriptor().getProfileClasses().getProfileAbstractClass() != null) {
-					Class profileAbstractClass = componentClassLoader
-							.loadClass(component.getDescriptor()
-									.getProfileClasses()
-									.getProfileAbstractClass()
-									.getProfileAbstractClassName());
-					component.setProfileAbstractClass(profileAbstractClass);
+					if (component.getDescriptor().getProfileClasses()
+							.getProfileManagementInterface() != null) {
+						Class<?> profileManagementInterfaceClass = componentClassLoader
+								.loadClass(component.getDescriptor()
+										.getProfileClasses()
+										.getProfileManagementInterface()
+										.getProfileManagementInterfaceName());
+						component
+								.setProfileManagementInterfaceClass(profileManagementInterfaceClass);
+					}
+					if (component.getDescriptor().getProfileClasses()
+							.getProfileAbstractClass() != null) {
+						Class<?> profileAbstractClass = componentClassLoader
+								.loadClass(component.getDescriptor()
+										.getProfileClasses()
+										.getProfileAbstractClass()
+										.getProfileAbstractClassName());
+						component.setProfileAbstractClass(profileAbstractClass);
 					}
 					MProfileTableInterface mProfileTableInterface = component
 							.getDescriptor().getProfileClasses()
@@ -405,7 +389,7 @@ public class DeployableUnitBuilder {
 					}
 				} else if (sleeComponent instanceof ResourceAdaptorComponent) {
 					ResourceAdaptorComponent component = (ResourceAdaptorComponent) sleeComponent;
-					Class resourceAdaptorClass = componentClassLoader
+					Class<?> resourceAdaptorClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getResourceAdaptorClassName());
 					component.setResourceAdaptorClass(resourceAdaptorClass);
@@ -420,18 +404,19 @@ public class DeployableUnitBuilder {
 					}
 				} else if (sleeComponent instanceof ResourceAdaptorTypeComponent) {
 					ResourceAdaptorTypeComponent component = (ResourceAdaptorTypeComponent) sleeComponent;
-					if (component.getDescriptor().getActivityContextInterfaceFactoryInterface() != null) {
-						Class activityContextInterfaceFactoryInterface = componentClassLoader
-						.loadClass(component
-								.getDescriptor()
-								.getActivityContextInterfaceFactoryInterface()
-								.getActivityContextInterfaceFactoryInterfaceName());
+					if (component.getDescriptor()
+							.getActivityContextInterfaceFactoryInterface() != null) {
+						Class<?> activityContextInterfaceFactoryInterface = componentClassLoader
+								.loadClass(component
+										.getDescriptor()
+										.getActivityContextInterfaceFactoryInterface()
+										.getActivityContextInterfaceFactoryInterfaceName());
 						component
-						.setActivityContextInterfaceFactoryInterface(activityContextInterfaceFactoryInterface);
+								.setActivityContextInterfaceFactoryInterface(activityContextInterfaceFactoryInterface);
 					}
 				} else if (sleeComponent instanceof SbbComponent) {
 					SbbComponent component = (SbbComponent) sleeComponent;
-					Class abstractSbbClass = componentClassLoader
+					Class<?> abstractSbbClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getSbbClasses().getSbbAbstractClass()
 									.getSbbAbstractClassName());
@@ -471,85 +456,6 @@ public class DeployableUnitBuilder {
 					+ " requires a class that was not found", e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
-	}
-
-	/**
-	 * Adds all dependencies class loader domains to the specified component jar
-	 * class load domain domain
-	 * 
-	 * @param sleeComponent
-	 * @param domainToAddDependencies
-	 * @param classLoaderSystem
-	 * @param componentsProcessed
-	 *            the components already processed, to avoid loops on circular
-	 *            dependencies
-	 */
-	private void addDependenciesClassLoadingDomains(
-			SleeComponent sleeComponent,
-			ComponentJarClassLoaderDomain domainToAddDependencies,
-			ClassLoaderSystem classLoaderSystem,
-			Set<String> componentsProcessed) {
-		for (ComponentID componentID : sleeComponent.getDependenciesSet()) {
-			SleeComponent component = null;
-			if (componentID instanceof EventTypeID) {
-				component = sleeComponent.getDeployableUnit()
-						.getDeployableUnitRepository().getComponentByID(
-								(EventTypeID) componentID);
-			} else if (componentID instanceof LibraryID) {
-				component = sleeComponent.getDeployableUnit()
-						.getDeployableUnitRepository().getComponentByID(
-								(LibraryID) componentID);
-			} else if (componentID instanceof ProfileSpecificationID) {
-				component = sleeComponent.getDeployableUnit()
-						.getDeployableUnitRepository().getComponentByID(
-								(ProfileSpecificationID) componentID);
-			} else if (componentID instanceof ResourceAdaptorID) {
-				component = sleeComponent.getDeployableUnit()
-						.getDeployableUnitRepository().getComponentByID(
-								(ResourceAdaptorID) componentID);
-			} else if (componentID instanceof ResourceAdaptorTypeID) {
-				component = sleeComponent.getDeployableUnit()
-						.getDeployableUnitRepository().getComponentByID(
-								(ResourceAdaptorTypeID) componentID);
-			} else if (componentID instanceof SbbID) {
-				component = sleeComponent.getDeployableUnit()
-						.getDeployableUnitRepository().getComponentByID(
-								(SbbID) componentID);
-			}
-			if (component != null && component.getDeploymentDir() != null) {
-				String domainName = getSafeDomainName(component.getDeploymentDir()
-						.getAbsolutePath());
-				if (componentsProcessed.add(domainName)) {
-					// add the referenced component domain
-					ComponentJarClassLoaderDomain refDomain = component.getDeployableUnit().getClassLoaderDomain(domainName);
-					if (logger.isDebugEnabled()) {
-						logger
-						.debug("Adding class loading domain from component "
-								+ component
-								+ " to class loading domain "
-								+ domainToAddDependencies);
-					}
-					domainToAddDependencies.getDependencyDomains().add(refDomain);
-					// and add the component dependencies too
-					addDependenciesClassLoadingDomains(component,
-							domainToAddDependencies, classLoaderSystem,
-							componentsProcessed);
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Class loading domain for component "
-								+ component + " already in domain "
-								+ domainToAddDependencies);
-					}
-				}
-			} else {
-				logger
-						.warn("Unable to add domain for component "
-								+ component
-								+ " in domain "
-								+ domainToAddDependencies
-								+ ". Component not found in the deployable unit component repository");
-			}
 		}
 	}
 

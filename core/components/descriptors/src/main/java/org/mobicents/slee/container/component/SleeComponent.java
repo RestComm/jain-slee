@@ -13,6 +13,8 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.DeployableUnit;
+import org.mobicents.slee.container.component.deployment.classloading.ComponentClassLoader;
+import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomain;
 
 /**
  * Base class for a SLEE component, providing features related with class
@@ -29,25 +31,32 @@ public abstract class SleeComponent {
 	private ComponentClassLoader classLoader;
 
 	/**
+	 * the class loader domain for the component jar this component belongs,
+	 * components that depend on this component must add this in its domain
+	 */
+	private URLClassLoaderDomain classLoaderDomain;
+
+	/**
 	 * the javassist class pool
 	 */
 	private ClassPool classPool;
-	
+
 	/**
 	 * the DU the component belongs
 	 */
 	private DeployableUnit deployableUnit;
-	
+
 	/**
 	 * where this component is deployed
 	 */
 	private File deploymentDir;
-	
+
 	/**
-	 * the source for this component (component jar/service descriptor) in the deployable unit
+	 * the source for this component (component jar/service descriptor) in the
+	 * deployable unit
 	 */
 	private String deploymentUnitSource;
-	
+
 	/**
 	 * Retrieves the component class loader
 	 * 
@@ -68,19 +77,45 @@ public abstract class SleeComponent {
 			classPool.clean();
 		}
 		classPool = new ClassPool();
-    	classPool.appendClassPath(new LoaderClassPath(this.classLoader)); 
+		classPool.appendClassPath(new LoaderClassPath(this.classLoader));
+		// add dependency loaders class paths to the component's javassist classpool
+		for (ClassLoader refClassLoader : classLoaderDomain.getDependencies()) {
+			classPool.appendClassPath(new LoaderClassPath(refClassLoader));
+		}
+	}
+
+	/**
+	 * Retrieves the class loader domain for the component jar this component
+	 * belongs, components that depend on this component must add this in its
+	 * domain.
+	 * 
+	 * @return
+	 */
+	public URLClassLoaderDomain getClassLoaderDomain() {
+		return classLoaderDomain;
+	}
+
+	/**
+	 * Sets the class loader domain for the component jar this component belongs
+	 * 
+	 * @param classLoaderDomain
+	 */
+	public void setClassLoaderDomain(URLClassLoaderDomain classLoaderDomain) {
+		this.classLoaderDomain = classLoaderDomain;
 	}
 
 	/**
 	 * Sets the component javassist class pool
+	 * 
 	 * @param classPool
 	 */
 	public void setClassPool(ClassPool classPool) {
 		this.classPool = classPool;
 	}
-	
+
 	/**
 	 * Retrieves the component javassist class pool
+	 * 
 	 * @return
 	 */
 	public ClassPool getClassPool() {
@@ -89,14 +124,16 @@ public abstract class SleeComponent {
 
 	/**
 	 * Retrieves the file pointing to where this component is deployed
+	 * 
 	 * @return
 	 */
 	public File getDeploymentDir() {
 		return deploymentDir;
 	}
-	
+
 	/**
 	 * Sets the the file pointing where this component is deployed
+	 * 
 	 * @param deploymentDir
 	 */
 	public void setDeploymentDir(File deploymentDir) {
@@ -104,7 +141,9 @@ public abstract class SleeComponent {
 	}
 
 	/**
-	 * Retrieves the source for this component (component jar/service descriptor) in the deployable unit
+	 * Retrieves the source for this component (component jar/service
+	 * descriptor) in the deployable unit
+	 * 
 	 * @return
 	 */
 	public String getDeploymentUnitSource() {
@@ -112,7 +151,9 @@ public abstract class SleeComponent {
 	}
 
 	/**
-	 * Sets the source for this component (component jar/service descriptor) in the deployable unit
+	 * Sets the source for this component (component jar/service descriptor) in
+	 * the deployable unit
+	 * 
 	 * @param deploymentUnitSource
 	 */
 	public void setDeploymentUnitSource(String deploymentUnitSource) {
@@ -134,28 +175,33 @@ public abstract class SleeComponent {
 	 * unit
 	 * 
 	 * @param deployableUnit
-	 * @throws AlreadyDeployedException if a component with same id already exists in the du
+	 * @throws AlreadyDeployedException
+	 *             if a component with same id already exists in the du
 	 * @throws IllegalStateException
 	 *             if this method is invoked and the deployable unit was already
 	 *             set before
 	 */
-	public void setDeployableUnit(DeployableUnit deployableUnit) throws AlreadyDeployedException {
+	public void setDeployableUnit(DeployableUnit deployableUnit)
+			throws AlreadyDeployedException {
 		if (this.deployableUnit != null) {
 			throw new IllegalStateException(
 					"deployable unit already set. du = " + this.deployableUnit);
 		}
 		this.deployableUnit = deployableUnit;
 		if (!addToDeployableUnit()) {
-			throw new AlreadyDeployedException("unable to install du having multiple components with id "+getComponentID());
+			throw new AlreadyDeployedException(
+					"unable to install du having multiple components with id "
+							+ getComponentID());
 		}
 	}
 
 	/**
 	 * adds the component to the deployable unit
+	 * 
 	 * @return true if the component was added
 	 */
-	abstract boolean addToDeployableUnit(); 
-	
+	abstract boolean addToDeployableUnit();
+
 	/**
 	 * Retrieves the set of components IDs this component depends
 	 * 
@@ -184,8 +230,9 @@ public abstract class SleeComponent {
 	 * @throws DependencyException
 	 * @throws DeploymentException
 	 */
-	public abstract boolean validate() throws DependencyException, DeploymentException;
-	
+	public abstract boolean validate() throws DependencyException,
+			DeploymentException;
+
 	@Override
 	public int hashCode() {
 		return getComponentID().hashCode();
@@ -200,7 +247,7 @@ public abstract class SleeComponent {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return getComponentID().toString();
@@ -208,6 +255,7 @@ public abstract class SleeComponent {
 
 	/**
 	 * Retrieves the JAIN SLEE specs component descriptor
+	 * 
 	 * @return
 	 */
 	public abstract ComponentDescriptor getComponentDescriptor();

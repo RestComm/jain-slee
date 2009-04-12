@@ -8,8 +8,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -17,7 +20,6 @@ import java.util.zip.ZipEntry;
 
 import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.LibraryID;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.EventTypeComponent;
@@ -27,6 +29,7 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorFactory;
@@ -100,110 +103,123 @@ public class DeployableUnitJarComponentBuilder {
 			JarEntry componentDescriptor = null;		
 			if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/sbb-jar.xml")) != null) {
+				// create class loader domain shared by all components
+				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
+								.getContextClassLoader());
+				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
 				SbbDescriptorFactory descriptorFactory = new SbbDescriptorFactory();
 				List<SbbDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
-				for (SbbDescriptorImpl descriptor : descriptors) {
+				// create components
+				for (SbbDescriptorImpl descriptor : descriptors) {					
 					SbbComponent component = new SbbComponent(descriptor);
 					component.setDeploymentDir(componentJarDeploymentDir);
+					component.setClassLoaderDomain(classLoaderDomain);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/profile-spec-jar.xml")) != null) {
+				// create class loader domain shared by all components
+				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
+								.getContextClassLoader());
+				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
 				ProfileSpecificationDescriptorFactory descriptorFactory = new ProfileSpecificationDescriptorFactory();
 				List<ProfileSpecificationDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				// create components
 				for (ProfileSpecificationDescriptorImpl descriptor : descriptors) {
 					ProfileSpecificationComponent component = new ProfileSpecificationComponent(descriptor);
 					component.setDeploymentDir(componentJarDeploymentDir);
+					component.setClassLoaderDomain(classLoaderDomain);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/library-jar.xml")) != null) {
+				// create the class loader domain shared by all libs in this lib jar
+				URLClassLoaderDomain sharedClassLoaderDomain = new URLClassLoaderDomain(new URL[]{componentJarDeploymentDir.toURL()},Thread.currentThread().getContextClassLoader());
+				// create a map for temp storage of each jar class loader domain 
+				Map<String, URLClassLoaderDomain> jarClassLoaderDomains = new HashMap<String, URLClassLoaderDomain>();
+				// parse the descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
 				LibraryDescriptorFactory descriptorFactory = new LibraryDescriptorFactory();
 				List<LibraryDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				// create components
 				for (LibraryDescriptorImpl descriptor : descriptors) {
 					LibraryComponent component = new LibraryComponent(descriptor);
-					// create temp dir to hold all classes of the jars that this library refers
-					File tempLibraryDir = new File(componentJarDeploymentDir,"tmp");
-					if (!tempLibraryDir.exists()) {
-						tempLibraryDir.mkdirs();
-		            }
-		            else {
-		            	throw new SLEEException("Dir "+tempLibraryDir+" already exists, unable to create deployment dir for "+component);
-		            }
-					// for each referenced jar unpack all classes
+					// each lib component has a different class loader domain that depends on the shared domain and each jar it refers in the descriptor
+					URLClassLoaderDomain componentClassLoaderDomain = new URLClassLoaderDomain(new URL[]{},Thread.currentThread().getContextClassLoader());
+					componentClassLoaderDomain.getDependencies().add(sharedClassLoaderDomain);
+					// for each referenced jar create a class loader domain
 					for (MJar mJar : descriptor.getJars()) {
-						// for each library component we need to unpack each referenced jar in the library component jar
-						File extractedLibraryFile = extractFile(mJar.getJarName(),
-								componentJarFile, tempLibraryDir);
-						// now we unpack the lib jar content into the component dir
-						JarFile extractedLibraryJarFile = null;
-						try {
-							extractedLibraryJarFile = new JarFile(extractedLibraryFile);
-							extractJar(extractedLibraryJarFile, componentJarDeploymentDir);
-
-						} catch (IOException e) {
-							throw new DeploymentException(
-									"failed to create jar file for extracted file "
-									+ extractedFile);
+						// create the domain for that specific jar if does not exists yet
+						URLClassLoaderDomain jarClassLoaderDomain = jarClassLoaderDomains.get(mJar.getJarName());
+						if (jarClassLoaderDomain == null) {
+							jarClassLoaderDomain = new URLClassLoaderDomain(new URL[]{(new File(componentJarDeploymentDir,mJar.getJarName())).toURL()},Thread.currentThread().getContextClassLoader());
+							jarClassLoaderDomains.put(mJar.getJarName(), jarClassLoaderDomain);
 						}
-						finally {
-							// close library jar file
-							if (extractedLibraryJarFile != null) {
-								try {
-									extractedLibraryJarFile.close();
-								} catch (IOException e) {
-									logger.error("failed to close component jar file", e);
-								}
-							}
-							// delete the extracted library jar file, we don't need it anymore
-							if (!extractedLibraryFile.delete()) {
-								logger.warn("failed to delete library " + extractedFile);
-							}
-						}
-					}
-					// delete the tmp dir where we extracted library jar files, we don't need it anymore
-					if (!tempLibraryDir.delete()) {
-						logger.warn("failed to delete tmp library dir " + tempLibraryDir);
-					}
-					component.setDeploymentDir(componentJarDeploymentDir);										
-					components.add(component);
+						componentClassLoaderDomain.getDependencies().add(jarClassLoaderDomain);
+					}					
+					// set deploy dir and cl domain
+					component.setDeploymentDir(componentJarDeploymentDir);
+					component.setClassLoaderDomain(componentClassLoaderDomain);
+					components.add(component);					
 				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/event-jar.xml")) != null) {
+				// create class loader domain shared by all components
+				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
+								.getContextClassLoader());
+				// parse descriptor
 				componentDescriptorInputStream = componentJarFile.getInputStream(componentDescriptor);
 				EventTypeDescriptorFactory descriptorFactory = new EventTypeDescriptorFactory();
 				List<EventTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				// create components
 				for (EventTypeDescriptorImpl descriptor : descriptors) {
 					EventTypeComponent component = new EventTypeComponent(descriptor);
 					component.setDeploymentDir(componentJarDeploymentDir);
+					component.setClassLoaderDomain(classLoaderDomain);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/resource-adaptor-type-jar.xml")) != null) {
+				// create class loader domain shared by all components
+				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
+								.getContextClassLoader());
+				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
 				ResourceAdaptorTypeDescriptorFactory descriptorFactory = new ResourceAdaptorTypeDescriptorFactory();
 				List<ResourceAdaptorTypeDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				// create components
 				for (ResourceAdaptorTypeDescriptorImpl descriptor : descriptors) {
 					ResourceAdaptorTypeComponent component = new ResourceAdaptorTypeComponent(descriptor);
 					component.setDeploymentDir(componentJarDeploymentDir);
+					component.setClassLoaderDomain(classLoaderDomain);
 					components.add(component);
 				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/resource-adaptor-jar.xml")) != null) {
+				// create class loader domain shared by all components
+				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
+						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
+								.getContextClassLoader());
+				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
 				ResourceAdaptorDescriptorFactory descriptorFactory = new ResourceAdaptorDescriptorFactory();
 				List<ResourceAdaptorDescriptorImpl> descriptors = descriptorFactory.parse(componentDescriptorInputStream);
+				// create components
 				for (ResourceAdaptorDescriptorImpl descriptor : descriptors) {
 					ResourceAdaptorComponent component = new ResourceAdaptorComponent(descriptor);
 					component.setDeploymentDir(componentJarDeploymentDir);
+					component.setClassLoaderDomain(classLoaderDomain);
 					components.add(component);
 				}
 			} else {
@@ -241,7 +257,7 @@ public class DeployableUnitJarComponentBuilder {
 		
 		return components;
 	}
-
+	
 	/**
 	 * Extracts the file with name <code>fileName</code> out of the
 	 * <code>containingJar</code> archive and stores it in <code>dstDir</code>.
@@ -352,7 +368,7 @@ public class DeployableUnitJarComponentBuilder {
 		}
 
 	}
-
+	
 	private static byte buffer[] = new byte[8192];
 
 	/**

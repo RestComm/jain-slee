@@ -117,4 +117,5 @@ public class LibraryComponent extends SleeComponent {
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
 	}
+	
 }
