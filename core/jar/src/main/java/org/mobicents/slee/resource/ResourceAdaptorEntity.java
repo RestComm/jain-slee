@@ -387,7 +387,7 @@ public class ResourceAdaptorEntity {
 		}
 		object.raUnconfigure();
 		object.unsetResourceAdaptorContext();
-		resourceAdaptorContext.getTimer().cancel();
+		((ResourceAdaptorContextTimer)resourceAdaptorContext.getTimer()).realCancel();
 		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
 				.deregisterNotificationSource(this.getNotificationSource());
 		state = null;
