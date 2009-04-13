@@ -9,7 +9,6 @@ import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedComponentException;
-import javax.slee.management.AlreadyDeployedException;
 import javax.slee.management.DeploymentMBean;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
@@ -262,29 +261,22 @@ public class ComponentRepositoryImpl implements ComponentRepository {
 
 	// ----
 
-	public void putComponent(EventTypeComponent component)
-			throws AlreadyDeployedException {
-		if (eventTypeComponents.putIfAbsent(component.getEventTypeID(),
-				component) != null) {
-			throw new AlreadyDeployedException("the component "
-					+ component.getComponentID() + " is already deployed");
-		}
+	public boolean putComponent(EventTypeComponent component) {
+		return eventTypeComponents.putIfAbsent(component.getEventTypeID(),
+				component) == null;
 	}
 
-	public boolean putComponent(ProfileSpecificationComponent component)
-			throws AlreadyDeployedException {
+	public boolean putComponent(ProfileSpecificationComponent component) {
 		return profileSpecificationComponents.putIfAbsent(component
 				.getProfileSpecificationID(), component) == null;
 	}
 
-	public boolean putComponent(LibraryComponent component)
-			throws AlreadyDeployedException {
+	public boolean putComponent(LibraryComponent component) {
 		return libraryComponents.putIfAbsent(component.getLibraryID(),
 				component) == null;
 	}
 
-	public boolean putComponent(ResourceAdaptorComponent component)
-			throws AlreadyDeployedException {
+	public boolean putComponent(ResourceAdaptorComponent component) {
 		return resourceAdaptorComponents.putIfAbsent(component
 				.getResourceAdaptorID(), component) == null;
 	}

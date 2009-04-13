@@ -440,55 +440,62 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 					try {
 						if (rollback) {
-
-							// put all components in the repo again
-							for (LibraryComponent component : deployableUnit
-									.getLibraryComponents().values()) {
-								componentRepositoryImpl.putComponent(component);
-								logger.info("Reinstalled " + component
-										+ " due to tx rollback");
+							if (deployableUnit != null) {	
+								// put all components in the repo again
+								for (LibraryComponent component : deployableUnit
+										.getLibraryComponents().values()) {
+									if (componentRepositoryImpl.putComponent(component)) {
+										logger.info("Reinstalled " + component
+												+ " due to tx rollback");
+									}
+								}
+								for (EventTypeComponent component : deployableUnit
+										.getEventTypeComponents().values()) {
+									if (componentRepositoryImpl.putComponent(component)) {
+									logger.info("Reinstalled " + component
+											+ " due to tx rollback");
+									}
+								}
+								for (ResourceAdaptorTypeComponent component : deployableUnit
+										.getResourceAdaptorTypeComponents()
+										.values()) {
+									if (componentRepositoryImpl.putComponent(component)) {
+									logger.info("Reinstalled " + component
+											+ " due to tx rollback");
+									}
+								}
+								for (ProfileSpecificationComponent component : deployableUnit
+										.getProfileSpecificationComponents()
+										.values()) {
+									if (componentRepositoryImpl.putComponent(component)) {
+									logger.info("Reinstalled " + component
+											+ " due to tx rollback");
+									}
+								}
+								for (ResourceAdaptorComponent component : deployableUnit
+										.getResourceAdaptorComponents().values()) {
+									if (componentRepositoryImpl.putComponent(component)) {
+									logger.info("Reinstalled " + component
+											+ " due to tx rollback");
+									}
+								}
+								for (SbbComponent component : deployableUnit
+										.getSbbComponents().values()) {
+									if (componentRepositoryImpl.putComponent(component)) {
+									logger.info("Reinstalled " + component
+											+ " due to tx rollback");
+									}
+								}
+								for (ServiceComponent component : deployableUnit
+										.getServiceComponents().values()) {
+									if (componentRepositoryImpl.putComponent(component)) {
+									logger.info("Reinstalled " + component
+											+ " due to tx rollback");
+									}
+								}
+								deployableUnitManagement
+								.addDeployableUnit(deployableUnit);
 							}
-							for (EventTypeComponent component : deployableUnit
-									.getEventTypeComponents().values()) {
-								componentRepositoryImpl.putComponent(component);
-								logger.info("Reinstalled " + component
-										+ " due to tx rollback");
-							}
-							for (ResourceAdaptorTypeComponent component : deployableUnit
-									.getResourceAdaptorTypeComponents()
-									.values()) {
-								componentRepositoryImpl.putComponent(component);
-								logger.info("Reinstalled " + component
-										+ " due to tx rollback");
-							}
-							for (ProfileSpecificationComponent component : deployableUnit
-									.getProfileSpecificationComponents()
-									.values()) {
-								componentRepositoryImpl.putComponent(component);
-								logger.info("Reinstalled " + component
-										+ " due to tx rollback");
-							}
-							for (ResourceAdaptorComponent component : deployableUnit
-									.getResourceAdaptorComponents().values()) {
-								componentRepositoryImpl.putComponent(component);
-								logger.info("Reinstalled " + component
-										+ " due to tx rollback");
-							}
-							for (SbbComponent component : deployableUnit
-									.getSbbComponents().values()) {
-								componentRepositoryImpl.putComponent(component);
-								logger.info("Reinstalled " + component
-										+ " due to tx rollback");
-							}
-							for (ServiceComponent component : deployableUnit
-									.getServiceComponents().values()) {
-								componentRepositoryImpl.putComponent(component);
-								logger.info("Reinstalled " + component
-										+ " due to tx rollback");
-							}
-							deployableUnitManagement
-									.addDeployableUnit(deployableUnit);
-
 							sleeTransactionManager.rollback();
 						} else {
 							sleeTransactionManager.commit();

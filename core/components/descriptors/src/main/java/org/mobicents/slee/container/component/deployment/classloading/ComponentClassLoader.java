@@ -22,26 +22,6 @@ public class ComponentClassLoader extends ClassLoader {
 		super(parent);		
 		this.componentID = componentID;
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (obj == this) {
-			return true;
-		}
-		if (obj.getClass() == this.getClass()) {
-			return componentID.equals(((ComponentClassLoader) obj).componentID);
-		} else {
-			return false;
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		return componentID.hashCode();
-	}
 
 	@Override
 	public String toString() {
