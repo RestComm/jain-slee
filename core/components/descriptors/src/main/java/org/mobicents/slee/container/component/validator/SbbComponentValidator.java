@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -399,25 +400,34 @@ public class SbbComponentValidator implements Validator {
 		Method asACIMethod = null;
 
 		// lets go through methods of sbbAbstract class,
-
-		for (Method someMethod : sbbAbstractClassAbstraMethod.values()) {
-
+		Iterator<Method> it = sbbAbstractClassAbstraMethod.values().iterator();
+		while(it.hasNext())
+		{
+			Method someMethod = it.next();
+	
 			if (someMethod.getName().compareTo(_SBB_AS_SBB_ACTIVITY_CONTEXT_INTERFACE) == 0) {
 				// we have a winner, possibly - we have to check parameter
 				// list, cause someone can create abstract method(or crap,
 				// it can be concrete) with different parametrs, in case its
-				// abstract, it will fail later on
+				// abstract, it will fail later on	
+
 
 				if (someMethod.getParameterTypes().length == 1
 						&& someMethod.getParameterTypes()[0].getName().compareTo("javax.slee.ActivityContextInterface") == 0) {
 					asACIMethod = someMethod;
+
+					it.remove();
 					break;
 				}
 			}
 		}
+		
 
 		if (asACIMethod == null)
-			for (Method someMethod : sbbAbstractClassAbstraMethodFromSuperClasses.values()) {
+			it = sbbAbstractClassAbstraMethodFromSuperClasses.values().iterator();
+		while(it.hasNext())
+		{
+			Method someMethod = it.next();
 
 				if (someMethod.getName().compareTo(_SBB_AS_SBB_ACTIVITY_CONTEXT_INTERFACE) == 0) {
 					// we have a winner, possibly - we have to check
@@ -427,9 +437,12 @@ public class SbbComponentValidator implements Validator {
 					// it can be concrete) with different parametrs, in case
 					// its
 					// abstract, it will fail later on
+
 					if (someMethod.getParameterTypes().length == 1
-							&& someMethod.getParameterTypes()[0].getName().compareTo("javax/slee/ActivityContextInterface") == 0) {
+							&& someMethod.getParameterTypes()[0].getName().compareTo("javax.slee.ActivityContextInterface") == 0) {
 						asACIMethod = someMethod;
+	
+						it.remove();
 						break;
 					}
 				}
