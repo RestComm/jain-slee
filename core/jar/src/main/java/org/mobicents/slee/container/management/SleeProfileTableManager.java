@@ -254,7 +254,8 @@ public class SleeProfileTableManager {
 
 	public ProfileTableConcrete addProfileTable(String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException,
 			NullPointerException, InvalidArgumentException {
-
+		throw new UnsupportedOperationException();
+		/*
 		this.sleeTransactionManager.mandateTransaction();
 		this.nameToProfileTableMap.add(profileTableName, null);
 
@@ -262,7 +263,7 @@ public class SleeProfileTableManager {
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
 		profileTable.register();
 		// FIXME: mayeb here we shoudl add default profile?
-		return profileTable;
+		return profileTable;*/
 
 	}
 
