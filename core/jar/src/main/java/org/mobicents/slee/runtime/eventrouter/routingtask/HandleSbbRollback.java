@@ -5,6 +5,7 @@ import javax.slee.RolledBackContext;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectPool;
@@ -36,7 +37,7 @@ public class HandleSbbRollback {
 	 * 
 	 * 
 	 */
-	public void handleSbbRolledBack(SbbEntity sbbEntity, SbbObject sbbObject, Object eventObject, ActivityContextInterface aci,
+	public void handleSbbRolledBack(SbbEntity sbbEntity, SbbObject sbbObject, DeferredEvent de, ActivityContextInterface aci,
 			ClassLoader contextClassLoader,
 			boolean removeRolledBack,SleeTransactionManager txMgr) {
 		// Sanity checks
@@ -61,6 +62,7 @@ public class HandleSbbRollback {
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		
+		boolean createERTD = false;
 		try {
 
 			// Only start new tx if there's a target sbb entity (6.10.1)
@@ -71,6 +73,12 @@ public class HandleSbbRollback {
 				// cache
 				try {
 					sbbEntity = SbbEntityFactory.getSbbEntity(sbbId);
+					if(EventRoutingTransactionData.getFromTransactionContext()==null)
+					{
+						createERTD = true;
+						EventRoutingTransactionData ertd= new EventRoutingTransactionData(de,aci);
+						ertd.putInTransactionContext();
+					}
 				} catch (Exception e) {
 					// sbb entity does not exists, recreate it but set tx for a rollback
 					txMgr.setRollbackOnly();
@@ -84,7 +92,7 @@ public class HandleSbbRollback {
 			}
 
 			RolledBackContext rollbackContext = new RolledBackContextImpl(
-					eventObject,
+					de!=null?de.getEvent():null,
 					aci, removeRolledBack);
 
 			Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -132,6 +140,10 @@ public class HandleSbbRollback {
 						txMgr.rollback();
 					}
 					else {
+						if(createERTD)
+						{
+							EventRoutingTransactionData.getFromTransactionContext().removeFromTransactionContext();
+						}
 						txMgr.commit();
 					}
 				} catch (SystemException ex) {					

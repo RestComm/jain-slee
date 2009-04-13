@@ -405,7 +405,8 @@ public class EventRoutingTask implements Runnable {
 									.debug("Invoking sbbRolledBack for Op Only or Op and Remove");
 
 						}
-						handleSbbRollback.handleSbbRolledBack(sbbEntity, null, de.getEvent(), new ActivityContextInterfaceImpl(ac), invokerClassLoader, false, txMgr);
+						//FIXME: baranowb: de is passed for test: tests/sbb/abstractclass/SbbRolledBackNewTransaction.xml
+						handleSbbRollback.handleSbbRolledBack(sbbEntity, null, de, new ActivityContextInterfaceImpl(ac), invokerClassLoader, false, txMgr);
 					}
 					if (invokeSbbRolledBackRemove) {
 						// Now for the "Remove Only" if appropriate
