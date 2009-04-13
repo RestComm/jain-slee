@@ -14,6 +14,7 @@ import javax.slee.management.DeploymentException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
+import org.jboss.util.naming.NonSerializableFactory;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
@@ -305,7 +306,8 @@ public class SbbManagement {
 							.debug("setupSbbEnvironment: Binding a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef());
 				}
 				try {
-					subContext.bind(lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
+					NonSerializableFactory.rebind(subContext, lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
+					//subContext.bind(lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
 				} catch (NameAlreadyBoundException e) {
 					logger.warn(
 							"setupSbbEnvironment: Unable to bind a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);

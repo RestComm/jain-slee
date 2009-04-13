@@ -9,11 +9,13 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
+import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.AlarmFacility;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.SleeState;
+import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireableEventType;
@@ -32,11 +34,11 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.AbstractAlarmFacilityImpl;
 import org.mobicents.slee.runtime.facilities.DefaultAlarmFacilityImpl;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * 
@@ -124,10 +126,12 @@ public class ResourceAdaptorEntity {
 		this.alarmFacility = new DefaultAlarmFacilityImpl(notificationSource,
 				this.sleeContainer.getAlarmFacility());
 		// create ra object
-		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+		ClassLoader currentClassLoader = Thread.currentThread()
+				.getContextClassLoader();
 		try {
-			Thread.currentThread().setContextClassLoader(component.getClassLoader());
-			Constructor cons = this.component.getResourceAdaptorClass()
+			Thread.currentThread().setContextClassLoader(
+					component.getClassLoader());
+			Constructor<?> cons = this.component.getResourceAdaptorClass()
 					.getConstructor(null);
 			ResourceAdaptor ra = (ResourceAdaptor) cons.newInstance(null);
 			object = new ResourceAdaptorObject(ra, component
@@ -135,8 +139,7 @@ public class ResourceAdaptorEntity {
 		} catch (Exception e) {
 			throw new SLEEException(
 					"unable to create instance of ra object for " + component);
-		}
-		finally {
+		} finally {
 			Thread.currentThread().setContextClassLoader(currentClassLoader);
 		}
 		// create ra context
@@ -247,20 +250,33 @@ public class ResourceAdaptorEntity {
 
 	/**
 	 * Signals that the container is in STOPPING state
+	 * @throws TransactionRequiredLocalException 
 	 */
-	public void sleeStopping() throws InvalidStateException {
+	public void sleeStopping() throws InvalidStateException, TransactionRequiredLocalException {
 		if (this.state.isActive()) {
 			object.raStopping();
-			endAllActivities();
+			scheduleAllActivitiesEnd();
 		}
 	}
 
-	/**
-	 * Signals that the container moved to STOPPED state
-	 */
-	public void sleeStopped() throws InvalidStateException {
-		if (this.state.isActive()) {
-			object.raInactive();
+	public void allActivitiesEnded() {
+		if(logger.isDebugEnabled()) {
+			logger.debug("all activities ended for ra entity "+name);
+		}
+		if (timerTask != null) {
+			timerTask = null;
+		}
+		if (!this.state.isInactive()) {
+			if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
+				try {
+					object.raInactive();
+				} catch (InvalidStateException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+			if (state.isStopping()) {
+				state = ResourceAdaptorEntityState.INACTIVE;
+			}
 		}
 	}
 
@@ -272,8 +288,14 @@ public class ResourceAdaptorEntity {
 	 */
 	public void activate() throws InvalidStateException {
 		if (!this.state.isInactive()) {
-			throw new InvalidStateException("entity " + name + " is in state: "
-					+ this.state);
+			if (this.state.isStopping() && timerTask != null) {
+				// run the task now
+				timerTask.run();
+			}
+			else {
+				throw new InvalidStateException("entity " + name + " is in state: "
+						+ this.state);
+			}
 		}
 		this.state = ResourceAdaptorEntityState.ACTIVE;
 		// if slee is running then activate ra object
@@ -287,69 +309,65 @@ public class ResourceAdaptorEntity {
 	 * 
 	 * @throws InvalidStateException
 	 *             if the entity is not in ACTIVE state
+	 * @throws TransactionRequiredLocalException 
 	 */
-	public void deactivate() throws InvalidStateException {
+	public void deactivate() throws InvalidStateException, TransactionRequiredLocalException {
 		if (!this.state.isActive()) {
 			throw new InvalidStateException("entity " + name + " is in state: "
 					+ this.state);
 		}
 		object.raStopping();
 		this.state = ResourceAdaptorEntityState.STOPPING;
-		endAllActivities();
-		object.raInactive();
-		this.state = ResourceAdaptorEntityState.INACTIVE;
+		scheduleAllActivitiesEnd();
+	}	
+	
+	/**
+	 * schedules the ending of all the entity activities, this is needed on ra
+	 * entity deactivation or slee container stop, once the process ends it will
+	 * invoke allActivitiesEnded to complete those processes
+	 * @throws TransactionRequiredLocalException 
+	 */
+	private void scheduleAllActivitiesEnd() throws TransactionRequiredLocalException {
+
+		if (hasActiveActivites()) {
+			timerTask = new EndAllActivitiesRAEntityTimerTask(this,sleeContainer);
+		}
+		else {
+			allActivitiesEnded();
+		}
 	}
 
-	private void endAllActivities() {
+	private boolean hasActiveActivites() throws TransactionRequiredLocalException {
 
-		// end all activities
-		SleeTransactionManager txManager = sleeContainer
-				.getTransactionManager();
-		boolean rb = true;
-		try {
-			txManager.begin();
+		sleeContainer.getTransactionManager().mandateTransaction();
+		
+		try {	
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
 					.getAllActivityContextsHandles()) {
 				if (handle.getActivityType() == ActivityType.externalActivity
 						&& handle.getActivitySource().equals(name)) {
 					try {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Ending activity " + handle);
-						}
 						ActivityContext ac = sleeContainer
 								.getActivityContextFactory()
 								.getActivityContext(handle, false);
-						if (ac != null) {
-							ac.endActivity();
+						if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {		
+							return true;
 						}
-					} catch (Exception e) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Failed to end activity " + handle, e);
-						}
+					} catch (Throwable e) {
+						logger.error(e.getMessage(), e);
 					}
 				}
 			}
-			rb = false;
-		} catch (Exception e) {
-			logger.error("Exception while ending all activities for ra entity "
-					+ name, e);
-
-		} finally {
-			try {
-				if (rb) {
-					txManager.rollback();
-				} else {
-					txManager.commit();
-				}
-			} catch (Exception e) {
-				logger.error(
-						"Error in tx management while ending all activities for ra entity "
-								+ name, e);
-			}
-		}
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		} 
+		
+		return false;
 	}
 
+	private EndAllActivitiesRAEntityTimerTask timerTask;
+	
 	/**
 	 * Removes the entity, it will unconfigure and unset the ra context, the
 	 * entity object can not be reused
@@ -358,11 +376,18 @@ public class ResourceAdaptorEntity {
 	 */
 	public void remove() throws InvalidStateException {
 		if (!this.state.isInactive()) {
-			throw new InvalidStateException("entity " + name + " is in state: "
-					+ this.state);
+			if (this.state.isStopping() && timerTask != null) {
+				// run the task now
+				timerTask.run();
+			}
+			else {
+				throw new InvalidStateException("entity " + name + " is in state: "
+						+ this.state);
+			}
 		}
 		object.raUnconfigure();
 		object.unsetResourceAdaptorContext();
+		resourceAdaptorContext.getTimer().cancel();
 		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
 				.deregisterNotificationSource(this.getNotificationSource());
 		state = null;
@@ -564,8 +589,8 @@ public class ResourceAdaptorEntity {
 		if (deferredEvent.getService() != null) {
 			try {
 				receivableService = resourceAdaptorContext
-				.getServiceLookupFacility().getReceivableService(
-						deferredEvent.getService());
+						.getServiceLookupFacility().getReceivableService(
+								deferredEvent.getService());
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -585,5 +610,14 @@ public class ResourceAdaptorEntity {
 				deferredEvent.getEvent(), deferredEvent.getAddress(),
 				getReceivableService(deferredEvent), deferredEvent
 						.getEventFlags());
+	}
+
+	public void activityEnding(ActivityHandle handle) {
+		if (object.getState() == ResourceAdaptorObjectState.STOPPING && !hasActiveActivites()) {
+			if (timerTask != null) {
+				timerTask.cancel();
+			}
+			allActivitiesEnded();
+		}
 	}
 }

@@ -11,6 +11,7 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
+import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LinkNameAlreadyBoundException;
@@ -27,6 +28,7 @@ import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
@@ -261,7 +263,31 @@ public class ResourceManagement {
 				throw new UnrecognizedResourceAdaptorEntityException(
 						"Resource Adaptor Entity " + entityName + " not found.");
 			} else {
-				raEntity.deactivate();
+				boolean rollback = true;
+				try {
+					sleeContainer.getTransactionManager().begin();
+					raEntity.deactivate();
+					rollback = false;
+				} catch (NotSupportedException e) {
+					throw new SLEEException(e.getMessage(),e);
+				} catch (SystemException e) {
+					throw new SLEEException(e.getMessage(),e);
+				} catch (TransactionRequiredLocalException e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+				finally {
+					try {
+						if (rollback) {
+							sleeContainer.getTransactionManager().rollback();
+						}
+						else {
+							sleeContainer.getTransactionManager().commit();
+						}
+					}
+					catch (Throwable e) {
+						throw new SLEEException(e.getMessage(),e);
+					}
+				}
 				logger.info("Deactivated RA Entity " + entityName);
 			}
 		}

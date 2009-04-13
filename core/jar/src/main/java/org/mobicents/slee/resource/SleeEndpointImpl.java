@@ -18,7 +18,7 @@ import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 import javax.transaction.Transaction;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -218,18 +218,21 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * 
 	 * @param handle
 	 */
-	private void _endActivity(ActivityHandle handle) {
+	private void _endActivity(ActivityHandle handle) throws TransactionRequiredLocalException {
 		ActivityContextHandle ach = ActivityContextHandlerFactory
 		.createExternalActivityContextHandle(raEntity.getName(), handle);
 		// get ac
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
 		if (ac != null) {
+			// end the activity
 			ac.endActivity();
+			// warn the entity, it may be stopping and needs to know when all activities end
+			raEntity.activityEnding(handle);			
 		} else {
 			throw new UnrecognizedActivityException(handle);
 		}
 	}
-	
+		
 	// EVENT FIRING
 	
 	public void fireEvent(ActivityHandle handle, FireableEventType eventType,
