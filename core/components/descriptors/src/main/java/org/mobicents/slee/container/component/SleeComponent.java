@@ -77,11 +77,14 @@ public abstract class SleeComponent {
 			classPool.clean();
 		}
 		classPool = new ClassPool();
-		classPool.appendClassPath(new LoaderClassPath(this.classLoader));
+		classPool.appendClassPath(new LoaderClassPath(classLoader));
 		// add dependency loaders class paths to the component's javassist classpool
 		for (ClassLoader refClassLoader : classLoaderDomain.getDependencies()) {
 			classPool.appendClassPath(new LoaderClassPath(refClassLoader));
 		}
+		// add class path also for slee 
+		classPool.appendClassPath(new LoaderClassPath(classLoaderDomain.getSleeClassLoader()));
+		
 	}
 
 	/**

@@ -290,7 +290,10 @@ public class DeployableUnitBuilder {
 									(SbbID) componentID);
 				}
 				if (dependency != null && dependency.getClassLoaderDomain() != null) {					
-					classLoaderDomain.getDependencies().add(dependency.getClassLoaderDomain());					
+					classLoaderDomain.getDependencies().add(dependency.getClassLoaderDomain());
+					if (logger.isDebugEnabled()) {
+						logger.debug(classLoaderDomain+" added "+dependency.getClassLoaderDomain()+ " in dependencies");
+					}
 				}
 				else {
 					throw new SLEEException(component.toString()+" dependency "+componentID+" not found or doesn't have class loading domain");
