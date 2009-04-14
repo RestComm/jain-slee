@@ -789,15 +789,12 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 						.getComponentByID((ServiceID) componentID);
 			}
 			if (component != null)
-				componentDescriptor = component.getComponentDescriptor();
+				return component.getComponentDescriptor();
+			else 
+				return null;
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
-
-		if (componentDescriptor != null)
-			return componentDescriptor;
-		else
-			throw new UnrecognizedComponentException(componentID.toString());
 
 	}
 

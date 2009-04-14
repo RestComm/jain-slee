@@ -22,7 +22,6 @@ import javax.slee.usage.UsageNotificationManagerMBean;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
-import org.mobicents.slee.container.deployment.SleeComponentWithUsageParametersClassCodeGenerator;
 
 /**
  * Abstract class code for a "parent" usage mbean, such as the
@@ -198,8 +197,8 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		Class usageParameterClass = component.getUsageParametersConcreteClass();
 
 		// check if the usage parameter name set already exists
-		if (this.usageMBeans.containsKey(name)) {
-			throw new UsageParameterSetNameAlreadyExistsException("name "
+		if (name != null && this.usageMBeans.containsKey(name)) {
+				throw new UsageParameterSetNameAlreadyExistsException("name "
 					+ name + " already exists for " + this);
 		}
 
@@ -245,7 +244,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 						.getUsageNotificationManagerMBeanImplConcreteClass();
 				constructor = usageNotificationManagerMBeanClass
 						.getConstructor(new Class[] { Class.class,
-								NotificationSource.class,SleeComponentWithUsageParametersClassCodeGenerator.class });
+								NotificationSource.class,SleeComponentWithUsageParametersInterface.class});
 				usageNotificationManagerMBean = (UsageNotificationManagerMBeanImpl) constructor
 						.newInstance(new Object[] {
 								component
@@ -431,14 +430,14 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 				} else {
 					defaultUsageMBean = usageMbean;
 				}
-			}
-			try {
-				sleeContainer.getMBeanServer().registerMBean(usageMbean,
-						usageMbean.getObjectName());
-			} catch (Throwable f) {
-				logger.error("failed to re-register usage parameter mbean "
-						+ usageMbean.getObjectName());
-			}
+				try {
+					sleeContainer.getMBeanServer().registerMBean(usageMbean,
+							usageMbean.getObjectName());
+				} catch (Throwable f) {
+					logger.error("failed to re-register usage parameter mbean "
+							+ usageMbean.getObjectName());
+				}
+			}			
 			// note: removal rollback of notification manager is done by the
 			// removeNotificationManager() method
 			throw new ManagementException(e.getMessage(), e);
