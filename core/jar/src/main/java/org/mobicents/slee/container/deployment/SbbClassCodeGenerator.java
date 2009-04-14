@@ -16,14 +16,8 @@ public class SbbClassCodeGenerator {
 			.getLogger(SbbClassCodeGenerator.class);
 
 	public void process(SbbComponent sbbComponent) throws DeploymentException {
-
+		// generate usage param classes?
 		new SleeComponentWithUsageParametersClassCodeGenerator().process(sbbComponent);
-
-		// Enhancement code goes here...
-		SbbAbstractDecorator abstractSbbDecorator = new SbbAbstractDecorator(
-				sbbComponent.getAbstractSbbClass().getName(), sbbComponent.getDeploymentDir().getAbsolutePath(),
-				sbbComponent.getClassPool());
-		abstractSbbDecorator.decorateAbstractSbb();
 		// generate concrete sbb class
 		new ConcreteSbbGenerator(sbbComponent).generateConcreteSbb();
 

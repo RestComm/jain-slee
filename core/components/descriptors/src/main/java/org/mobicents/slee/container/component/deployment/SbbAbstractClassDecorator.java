@@ -7,9 +7,11 @@
  *                                                 *
  ***************************************************/
 
-package org.mobicents.slee.container.deployment;
+package org.mobicents.slee.container.component.deployment;
 
 import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -24,12 +26,12 @@ import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
 import org.jboss.logging.Logger;
-import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 
 /**
  * Class decorating the sbb abstract class. The byte code is modified IF
- * necessary to trap SBB code that violates the SLEE 1.0 spec: 
+ * necessary to trap SBB code that violates the SLEE spec: 
  * <pre>
  * 	1) write access to java:comp/env 
  *  2) new Thread()
@@ -40,12 +42,7 @@ import org.mobicents.slee.container.component.deployment.ClassPool;
  * @author Ivelin Ivanov
  *  
  */
-public class SbbAbstractDecorator {
-
-    /**
-     * the sbb abstract class name
-     */
-    private final String sbbAbstractClassName;
+public class SbbAbstractClassDecorator {
 
     /**
      * the sbb abstract class
@@ -62,15 +59,7 @@ public class SbbAbstractDecorator {
      */
     private Map concreteMethods = null;
 
-    /**
-     * Pool to generate or read classes with javassist
-     */
-    private final ClassPool pool;
-
-    /**
-     * The path where classes will reside
-     */
-    private final String deployDir;
+    private final SbbComponent component;
 
     /**
      * Optimization variable. Helps avoid writing to disk abstract classes, which are not modified.
@@ -78,16 +67,14 @@ public class SbbAbstractDecorator {
     private boolean isAbstractSbbClassDecorated = false;
     
     static {
-        logger = Logger.getLogger(SbbAbstractDecorator.class);
+        logger = Logger.getLogger(SbbAbstractClassDecorator.class);
     }
 
     /**
      * Constructor
      */
-    public SbbAbstractDecorator(String sbbAbstractClassName, String deploymentDir, ClassPool classPool) {
-        this.sbbAbstractClassName = sbbAbstractClassName;
-        this.deployDir = deploymentDir;
-        this.pool = classPool;
+    public SbbAbstractClassDecorator(SbbComponent component) {
+        this.component = component;
     }
 
     /**
@@ -97,6 +84,8 @@ public class SbbAbstractDecorator {
      */
     public void decorateAbstractSbb() throws DeploymentException {
        
+    	ClassPool pool = component.getClassPool();
+    	String sbbAbstractClassName = component.getDescriptor().getSbbAbstractClass().getSbbAbstractClassName();
         try {
             sbbAbstractClass = pool.get(sbbAbstractClassName);
         } catch (NotFoundException nfe) {
@@ -106,8 +95,14 @@ public class SbbAbstractDecorator {
 
         // populate the list of concrete methods. It will be needed by the
         // decorating methods.
-        concreteMethods = ClassUtils
-                .getConcreteMethodsFromClass(sbbAbstractClass);
+        concreteMethods = new HashMap();
+    	CtMethod[] methods = sbbAbstractClass.getDeclaredMethods();
+    	for (int i = 0; i < methods.length; i++) {
+    	    int mods = methods[i].getModifiers();
+    		if (!Modifier.isAbstract(mods) && !Modifier.isNative(mods)) {
+    			concreteMethods.put(methods[i].getName() + methods[i].getSignature(), methods[i]);
+    		}
+    	}
 
         decorateENCBindCalls();
         decorateNewThreadCalls();
@@ -115,23 +110,12 @@ public class SbbAbstractDecorator {
         if (isAbstractSbbClassDecorated) {
             writeDecoratedAbstractClassToDisc();
         }
-
-        /* Make sure that the class is written to disc and can be properly loaded */
-        Class clazz = null;
-        try {
-            clazz = Thread.currentThread().getContextClassLoader().loadClass(sbbAbstractClassName);
-        } catch (ClassNotFoundException e1) {
-            String s = "What the heck?! Could not find decorated abstract sbb class. Is it under the chair?";
-            logger.fatal(s, e1);
-            throw new RuntimeException(s, e1);
-        }
         
     }
 
     private void writeDecoratedAbstractClassToDisc() throws DeploymentException {
         try {
-//        	@@2.4+ -> 3.4+
-            //pool.writeFile(sbbAbstractClass.getName(), deployPath);
+        	String deployDir = component.getDeploymentDir().getAbsolutePath();
             sbbAbstractClass.writeFile(deployDir);
             sbbAbstractClass.detach();
             // the file on disk is now in sync with the latest in-memory version
@@ -207,7 +191,7 @@ public class SbbAbstractDecorator {
                     if (m.getClassName().equals(javax.naming.Context.class.getName())) {
                         isJndiCtx = true;
                     } else {
-                        CtClass cl0 = pool.get(m.getClassName());
+                        CtClass cl0 = component.getClassPool().get(m.getClassName());
                         CtClass[] cl0Interfaces = cl0.getInterfaces();
                         for (int i = 0; i < cl0Interfaces.length; i++) {
                             CtClass cl0If = cl0Interfaces[i];
@@ -232,7 +216,7 @@ public class SbbAbstractDecorator {
                     m.replace("{ "
                                 + "String fullJndiName = $0.composeName($1, $0.getNameInNamespace());"
                                 + "System.err.println(\"TRAPPED SBB METHOD - JNDI BIND CALL; fullJndiName: \" + fullJndiName);"
-                                + "if (fullJndiName.startsWith(\"" + SleeContainer.COMP_ENV + "\")"
+                                + "if (fullJndiName.startsWith(\"java:comp/env\")"
                                 +     " || " + "fullJndiName.startsWith(\"env\")"  
                             	+     ") {" 
                                 + "	   throw new javax.naming.OperationNotSupportedException(\"SBB is not allowed write access to java:comp/env. See SLEE 1.0 spec for details. \");	"

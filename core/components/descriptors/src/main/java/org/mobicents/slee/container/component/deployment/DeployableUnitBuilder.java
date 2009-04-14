@@ -257,7 +257,7 @@ public class DeployableUnitBuilder {
 
 	
 
-	private void createClassLoader(SleeComponent component) {
+	public static void createClassLoader(SleeComponent component) {
 
 		URLClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
 		if (classLoaderDomain != null) {
@@ -419,6 +419,8 @@ public class DeployableUnitBuilder {
 					}
 				} else if (sleeComponent instanceof SbbComponent) {
 					SbbComponent component = (SbbComponent) sleeComponent;
+					// before laoding the abstract class, we may have to decorate it
+					new SbbAbstractClassDecorator(component).decorateAbstractSbb();
 					Class<?> abstractSbbClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getSbbClasses().getSbbAbstractClass()
