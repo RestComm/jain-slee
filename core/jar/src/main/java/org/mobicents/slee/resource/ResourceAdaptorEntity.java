@@ -253,7 +253,7 @@ public class ResourceAdaptorEntity {
 	 * @throws TransactionRequiredLocalException 
 	 */
 	public void sleeStopping() throws InvalidStateException, TransactionRequiredLocalException {
-		if (this.state.isActive()) {
+		if (state != null && state.isActive()) {
 			object.raStopping();
 			scheduleAllActivitiesEnd();
 		}
