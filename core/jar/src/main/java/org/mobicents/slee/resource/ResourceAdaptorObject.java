@@ -81,8 +81,8 @@ public class ResourceAdaptorObject {
 	public void setResourceAdaptorContext(ResourceAdaptorContext context)
 			throws InvalidStateException {
 		if (state == null) {
-			object.setResourceAdaptorContext(context);
 			state = ResourceAdaptorObjectState.UNCONFIGURED;
+			object.setResourceAdaptorContext(context);
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -174,8 +174,8 @@ public class ResourceAdaptorObject {
 	 */
 	public void raActive() throws InvalidStateException {
 		if (state == ResourceAdaptorObjectState.INACTIVE) {
-			object.raActive();
 			state = ResourceAdaptorObjectState.ACTIVE;
+			object.raActive();			
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -190,8 +190,8 @@ public class ResourceAdaptorObject {
 	 */
 	public void raStopping() throws InvalidStateException {
 		if (state == ResourceAdaptorObjectState.ACTIVE) {
-			object.raStopping();
 			state = ResourceAdaptorObjectState.STOPPING;
+			object.raStopping();			
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -206,8 +206,8 @@ public class ResourceAdaptorObject {
 	 */
 	public void raInactive() throws InvalidStateException {
 		if (state == ResourceAdaptorObjectState.STOPPING) {
-			object.raInactive();
 			state = ResourceAdaptorObjectState.INACTIVE;
+			object.raInactive();			
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
@@ -221,8 +221,8 @@ public class ResourceAdaptorObject {
 	 */
 	public void raUnconfigure() throws InvalidStateException {
 		if (state == ResourceAdaptorObjectState.INACTIVE) {
-			object.raUnconfigure();
 			state = ResourceAdaptorObjectState.UNCONFIGURED;
+			object.raUnconfigure();			
 		} else {
 			throw new InvalidStateException("ra object is in state " + state);
 		}

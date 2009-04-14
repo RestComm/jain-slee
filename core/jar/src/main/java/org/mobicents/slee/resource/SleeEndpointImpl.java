@@ -145,7 +145,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
     	}
     	// check ra state
     	if(raEntity.getResourceAdaptorObject().getState() != ResourceAdaptorObjectState.ACTIVE) {
-    		throw new IllegalStateException("ra is not in state "+raEntity.getResourceAdaptorObject().getState());
+    		throw new IllegalStateException("ra is in state "+raEntity.getResourceAdaptorObject().getState());
     	}
 	}
 	
@@ -305,6 +305,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @throws IllegalEventException
 	 * @throws IllegalStateException
 	 */
+	@SuppressWarnings("unchecked")
 	private void checkFireEventPreconditions(ActivityHandle handle, FireableEventType eventType,
 			Object event) throws NullPointerException,IllegalEventException,IllegalStateException {
 		if (event == null) 
@@ -320,14 +321,11 @@ public class SleeEndpointImpl implements SleeEndpoint {
     	if (eventTypeComponent == null) {
     		throw new IllegalEventException("event type not installed (more on SLEE 1.1 specs 15.14.8)");
     	}
-    	try {
-			if (!Thread.currentThread().getContextClassLoader().loadClass(eventTypeComponent.getEventTypeClass().getName()).isAssignableFrom(event.getClass())) {
-				throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
-			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    	
+		if (!eventTypeComponent.getEventTypeClass().isAssignableFrom(event.getClass())) {
+			throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
 		}
+		
     	if (raEntity.getAllowedEventTypes() != null && !raEntity.getAllowedEventTypes().contains(eventType.getEventType())) {
     		throw new IllegalEventException("Resource Adaptor configured to not ignore ra type event checking and the event "+eventType.getEventType()+" does not belongs to any of the ra types implemented by the resource adaptor");
     	}

@@ -316,8 +316,8 @@ public class ResourceAdaptorEntity {
 			throw new InvalidStateException("entity " + name + " is in state: "
 					+ this.state);
 		}
-		object.raStopping();
 		this.state = ResourceAdaptorEntityState.STOPPING;
+		object.raStopping();		
 		scheduleAllActivitiesEnd();
 	}	
 	
