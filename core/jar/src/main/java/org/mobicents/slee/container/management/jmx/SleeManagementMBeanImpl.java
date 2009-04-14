@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.management.jmx;
 
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -521,6 +522,180 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		}
 	}
 
+	private void endAllServiceAndProfileTableActivities() {
+		
+		logger.info("Ending all service and profile table activities...");
+		
+		boolean rb = true;
+		try {
+			
+			sleeTransactionManager.begin();
+			
+			// end all service and profile table activities
+			for (ActivityContextHandle handle : sleeContainer
+					.getActivityContextFactory()
+					.getAllActivityContextsHandles()) {
+				if (handle.getActivityType() == ActivityType.serviceActivity
+						|| handle.getActivityType() == ActivityType.profileTableActivity) {
+					try {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Ending activity " + handle);
+						}
+						ActivityContext ac = sleeContainer
+								.getActivityContextFactory()
+								.getActivityContext(handle, false);
+						if (ac != null
+								&& ac.getState() == ActivityContextState.ACTIVE) {
+							ac.endActivity();
+						}
+					} catch (Exception e) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Failed to end activity "
+									+ handle, e);
+						}
+					}
+				}
+			}
+								
+			rb = false;
+		} catch (Exception e) {
+			logger
+					.error(
+							"Exception while ending all service and profile table activities",
+							e);
+
+		} finally {
+			try {
+				if (rb) {
+					sleeTransactionManager.rollback();
+				} else {
+					sleeTransactionManager.commit();
+				}
+			} catch (Exception e) {
+				logger
+						.error(
+								"Error in tx management while ending all service and profile table activities",
+								e);
+			}
+		}
+		
+		// wait all activites end
+		
+		boolean loop;
+		do {
+			loop = false;
+			
+			try {
+				sleeTransactionManager.begin();
+				for (ActivityContextHandle handle : sleeContainer
+						.getActivityContextFactory()
+						.getAllActivityContextsHandles()) {
+					if (handle.getActivityType() == ActivityType.serviceActivity
+							|| handle.getActivityType() == ActivityType.profileTableActivity) {
+						logger.info("Waiting for activity "+handle+" to end...");
+						loop = true;
+						break;
+					}
+				}
+			} catch (Exception e) {
+				if (logger.isDebugEnabled()) {
+					logger.debug(e.getMessage(), e);
+				}
+			}
+			finally {
+				try {
+					sleeTransactionManager.rollback();
+				} catch (Exception e) {
+					logger.error("Error in tx management while stopping SLEE",e);
+				}
+			}
+			if (loop) {
+				try {
+					// wait a sec
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		} while (loop);
+		
+	}
+	
+	private void stopResourceAdaptors() {
+		
+		logger.info("Stopping all active resource adaptors ...");
+		
+		final ResourceManagement resourceManagement = sleeContainer
+		.getResourceManagement();
+		
+		boolean rb = true;
+		try {
+			
+			sleeTransactionManager.begin();
+			
+			// inform all ra entities that we are stopping the container
+			for (String entityName : resourceManagement
+					.getResourceAdaptorEntities()) {
+				try {
+					resourceManagement.getResourceAdaptorEntity(entityName)
+							.sleeStopping();
+				} catch (Exception e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
+								
+			rb = false;
+		} catch (Exception e) {
+			logger
+					.error(
+							"Exception while stopping resource adaptors",
+							e);
+
+		} finally {
+			try {
+				if (rb) {
+					sleeTransactionManager.rollback();
+				} else {
+					sleeTransactionManager.commit();
+				}
+			} catch (Exception e) {
+				logger
+						.error(
+								"Error in tx management while stopping resource adaptors",
+								e);
+			}
+		}
+
+		// wait till all ra entity objects are stopped
+		boolean loop;
+		do {
+			loop = false;
+			for (String entityName : resourceManagement
+					.getResourceAdaptorEntities()) {
+				try {
+					if (resourceManagement.getResourceAdaptorEntity(
+							entityName).getResourceAdaptorObject()
+							.getState() == ResourceAdaptorObjectState.STOPPING) {
+						logger.info("Waiting for ra entity "+entityName+" to stop...");
+						loop = true;
+					}
+				} catch (Exception e) {
+					if (logger.isDebugEnabled()) {
+						logger.debug(e.getMessage(), e);
+					}
+				}
+			}
+			if (loop) {
+				try {
+					// wait a sec
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		} while (loop);
+	}
+	
 	/**
 	 * Setup a polling process to wait until all ActivityContexts ended. Then
 	 * set the SLEE container in STOPPED state.
@@ -531,117 +706,21 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		if (logger.isDebugEnabled()) {
 			logger.debug("schedule stopped");
 		}
-
-		final ResourceManagement resourceManagement = sleeContainer
-		.getResourceManagement();
 		
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		Runnable acStateChecker = new Runnable() {
-
 			public void run() {
-
-				
-				boolean rb = true;
-				try {
-					
-					sleeTransactionManager.begin();
-					
-					// inform all ra entities that we are stopping the container
-					for (String entityName : resourceManagement
-							.getResourceAdaptorEntities()) {
-						try {
-							resourceManagement.getResourceAdaptorEntity(entityName)
-									.sleeStopping();
-						} catch (Exception e) {
-							logger.error(e.getMessage(),e);
-						}
-					}
-					
-					// end all service and profile table activities
-					for (ActivityContextHandle handle : sleeContainer
-							.getActivityContextFactory()
-							.getAllActivityContextsHandles()) {
-						if (handle.getActivityType() == ActivityType.serviceActivity
-								|| handle.getActivityType() == ActivityType.profileTableActivity) {
-							try {
-								if (logger.isDebugEnabled()) {
-									logger.debug("Ending activity " + handle);
-								}
-								ActivityContext ac = sleeContainer
-										.getActivityContextFactory()
-										.getActivityContext(handle, false);
-								if (ac != null
-										&& ac.getState() == ActivityContextState.ACTIVE) {
-									ac.endActivity();
-								}
-							} catch (Exception e) {
-								if (logger.isDebugEnabled()) {
-									logger.debug("Failed to end activity "
-											+ handle, e);
-								}
-							}
-						}
-					}
-					rb = false;
-				} catch (Exception e) {
-					logger
-							.error(
-									"Exception while ending all service and profile table activities",
-									e);
-
-				} finally {
-					try {
-						if (rb) {
-							sleeTransactionManager.rollback();
-						} else {
-							sleeTransactionManager.commit();
-						}
-					} catch (Exception e) {
-						logger
-								.error(
-										"Error in tx management while ending all service and profile table activities",
-										e);
-					}
-				}
-
-				// wait till all ra entity objects are stopped
-				boolean loop;
-				do {
-					loop = false;
-					for (String entityName : resourceManagement
-							.getResourceAdaptorEntities()) {
-						try {
-							if (resourceManagement.getResourceAdaptorEntity(
-									entityName).getResourceAdaptorObject()
-									.getState() == ResourceAdaptorObjectState.STOPPING) {
-								logger.info("Waiting for ra entity "+entityName+" to stop...");
-								loop = true;
-							}
-						} catch (Exception e) {
-							if (logger.isDebugEnabled()) {
-								logger.debug(e.getMessage(), e);
-							}
-						}
-					}
-					if (loop) {
-						try {
-							// wait a sec
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							logger.error(e.getMessage(), e);
-						}
-					}
-				} while (loop);
-
+				endAllServiceAndProfileTableActivities();
+				stopResourceAdaptors();
 				changeSleeState(SleeState.STOPPED);
 			}
 		};
 
 		try {
-			Future future = exec.submit(acStateChecker);
 			// if jboss as is shutting down then we wait till servers stops
 			Boolean inShutdown = (Boolean) mbeanServer.getAttribute(
 					new ObjectName("jboss.system:type=Server"), "InShutdown");
+			Future future = exec.submit(acStateChecker);
 			if (inShutdown) {
 				future.get();
 			}

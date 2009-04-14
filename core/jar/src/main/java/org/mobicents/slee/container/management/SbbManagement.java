@@ -14,7 +14,7 @@ import javax.slee.management.DeploymentException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
-import org.jboss.util.naming.NonSerializableFactory;
+import org.jboss.naming.NonSerializableFactory;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
