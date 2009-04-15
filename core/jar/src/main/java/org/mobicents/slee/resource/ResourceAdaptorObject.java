@@ -33,7 +33,7 @@ public class ResourceAdaptorObject {
 	/**
 	 * the properties of the ra object/entity
 	 */
-	private final ConfigProperties configProperties;
+	private ConfigProperties configProperties;
 
 	/**
 	 * Creates a new instance, for the specified ra object and with the
@@ -121,47 +121,38 @@ public class ResourceAdaptorObject {
 	}
 
 	/**
-	 * merges the current properties values with the new ones and uses the ra to
+	 * Merges the current properties values with the new ones and uses the ra to
 	 * verify the configuration
 	 * 
-	 * @param entityProperties
+	 * @param newProperties
 	 * @throws InvalidConfigurationException
 	 *             if the configuration, after merging the specified properties
 	 *             with the current properties values, results in an invalid
 	 *             configuration
 	 */
-	private void verifyConfigProperties(ConfigProperties entityProperties)
+	private void verifyConfigProperties(ConfigProperties newProperties)
 			throws InvalidConfigurationException {
-		// merge and check properties values
-		for (ConfigProperties.Property entityProperty : entityProperties
+		// merge properties
+		for (ConfigProperties.Property configProperty : configProperties
+				.getProperties()) {
+			if (newProperties.getProperty(configProperty.getName()) == null) {
+				newProperties.addProperty(configProperty);				
+			}
+		}
+		// validate result
+		for (ConfigProperties.Property entityProperty : newProperties
 				.getProperties()) {
 			if (entityProperty.getValue() == null) {
 				throw new InvalidConfigurationException(
-						"the specified property " + entityProperty.getName()
-								+ " has null value");
-			} else {
-				ConfigProperties.Property configProperty = configProperties
-						.getProperty(entityProperty.getName());
-				if (configProperty == null) {
-					throw new InvalidConfigurationException(
-							"the specified property "
-									+ entityProperty.getName()
-									+ " is not defined in the resource adaptor");
-				} else {
-					configProperty.setValue(entityProperty.getValue());
-				}
-			}
-		}
-		for (ConfigProperties.Property configProperty : configProperties
-				.getProperties()) {
-			if (configProperty.getValue() == null) {
-				throw new InvalidConfigurationException(
 						"the property "
-								+ configProperty.getName()
-								+ " value is not defined after merging default/active configuration with provided properties");
+								+ entityProperty.getName()
+								+ " has null value");
 			}
 		}
-		object.raVerifyConfiguration(configProperties);
+		// validate in ra object
+		object.raVerifyConfiguration(newProperties);
+		// ok, switch config
+		configProperties = newProperties;
 	}
 
 	/**
