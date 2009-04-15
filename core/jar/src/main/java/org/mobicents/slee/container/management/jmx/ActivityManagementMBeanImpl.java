@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
+import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
@@ -728,11 +729,20 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 						// want to query it
 						return;
 					}
-					container.getResourceManagement()
-							.getResourceAdaptorEntity(
-									ach.getActivitySource())
-							.getResourceAdaptorObject().queryLiveness(
-									ach.getActivityHandle());
+					ResourceAdaptorEntity raEntity = container.getResourceManagement()
+					.getResourceAdaptorEntity(
+							ach.getActivitySource());
+					if (raEntity.getResourceAdaptorObject().getActivity(ach.getActivityHandle()) != null) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Invoking ra entity "+raEntity.getName()+" queryLiveness() for activity handle "+ach.getActivityHandle());
+						}
+						raEntity.getResourceAdaptorObject().queryLiveness(
+								ach.getActivityHandle());
+					}
+					else {
+						logger.warn("Ending leaked activity with handle "+ach.getActivityHandle()+" of ra entity "+raEntity.getName()+" since the ra entity getActivity() returns null");
+						ac.endActivity();
+					}					
 				}
 			}
 			catch (Exception e) {
