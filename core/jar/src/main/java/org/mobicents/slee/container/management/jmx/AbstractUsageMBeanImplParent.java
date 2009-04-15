@@ -16,7 +16,6 @@ import javax.slee.management.ProfileTableUsageMBean;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.management.UsageParameterSetNameAlreadyExistsException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
-import javax.slee.usage.UsageMBean;
 import javax.slee.usage.UsageNotificationManagerMBean;
 
 import org.apache.log4j.Logger;
@@ -31,7 +30,7 @@ import org.mobicents.slee.container.component.SleeComponentWithUsageParametersIn
  * 
  */
 public abstract class AbstractUsageMBeanImplParent extends StandardMBean implements
-		UsageMBeanImplParent, UsageNotificationManagerMBeanImplParent,
+		UsageMBeanImplParent, 
 		Serializable {
 
 	protected abstract Logger getLogger();
@@ -111,11 +110,10 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	}
 
 	/**
-	 * Clsoes this mbean
+	 * Removes the mbean
 	 * 
-	 * @throws ManagementException
 	 */
-	public void close() throws ManagementException {
+	public void remove() {
 
 		Logger logger = getLogger();
 		if (logger.isDebugEnabled()) {
@@ -146,6 +144,15 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @throws ManagementException
+	 */
+	public void close() throws ManagementException {
+		// ignore		
 	}
 
 	/**
@@ -253,7 +260,6 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 				ObjectName usageNotificationManagerMBeanObjectName = generateUsageNotificationManagerMBeanObjectName();
 				usageNotificationManagerMBean
 						.setObjectName(usageNotificationManagerMBeanObjectName);
-				usageNotificationManagerMBean.setParent(this);
 				sleeContainer.getMBeanServer().registerMBean(
 						usageNotificationManagerMBean,
 						usageNotificationManagerMBeanObjectName);
@@ -456,29 +462,6 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			}
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * Removes the usage mbean child, invoked by the {@link UsageMBean#close()}
-	 */
-	public void removeChild(UsageMBeanImpl usageMBeanImpl) {
-		try {
-			removeUsageParameterSet(usageMBeanImpl.getUsageParameterSet());
-		} catch (Throwable e) {
-			getLogger().error(e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * Removes the usage notification manager mbean child, invoked by the
-	 * {@link UsageNotificationManagerMBean#close()}
-	 */
-	public void removeChild(UsageNotificationManagerMBeanImpl child) {
-		try {
-			removeNotificationManager();
-		} catch (Throwable e) {
-			getLogger().error(e.getMessage(), e);
 		}
 	}
 

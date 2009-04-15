@@ -57,7 +57,7 @@ import org.mobicents.slee.container.component.SleeComponentWithUsageParametersIn
  */
 public class ServiceUsageMBeanImpl extends StandardMBean implements
 		ServiceUsageMBean, UsageMBeanImplParent,
-		UsageNotificationManagerMBeanImplParent, Serializable {
+		Serializable {
 
 	private static final long serialVersionUID = 2670146310843436229L;
 
@@ -257,7 +257,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 				ObjectName usageNotificationManagerMBeanObjectName = generateUsageNotificationManagerMBeanObjectName(sbbId);
 				usageNotificationManagerMBean
 						.setObjectName(usageNotificationManagerMBeanObjectName);
-				usageNotificationManagerMBean.setParent(this);
 				sleeContainer.getMBeanServer().registerMBean(
 						usageNotificationManagerMBean,
 						usageNotificationManagerMBeanObjectName);
@@ -607,14 +606,9 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.management.ServiceUsageMBean#close()
-	 */
-	public void close() throws ManagementException {
+	public void remove() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Unregistring Usage MBean of service " + getService());
+			logger.debug("Unregistring Usage MBean of service " + serviceID);
 		}
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final MBeanServer mbeanServer = sleeContainer.getMBeanServer();
@@ -627,12 +621,21 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		// remove all service usage param
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removing all usage parameters of service "
-					+ getService());
+					+ serviceID);
 		}
 		removeAllUsageParameterSet();
 		// remove usage mbean from service component
 		sleeContainer.getComponentRepositoryImpl().getComponentByID(serviceID)
 				.setServiceUsageMBean(null);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.management.ServiceUsageMBean#close()
+	 */
+	public void close() throws ManagementException {
+		// ignore
 	}
 
 	public ObjectName getSbbUsageNotificationManagerMBean(SbbID sbbId)

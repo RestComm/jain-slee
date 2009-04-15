@@ -51,17 +51,12 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 	public InstalledUsageParameterSet getUsageParameter() {
 		return usageParameterSet;
 	}
-		
+	
 	public void close() throws InvalidStateException, ManagementException {
 		if (listeners.size() != 0) {
 			throw new InvalidStateException(
 					"Could not close Usage MBean listeners still attached!");
-		}
-		try {
-			parent.removeChild(this);
-		} catch (Throwable e) {
-			throw new ManagementException(e.getMessage(), e);
-		}
+		}		
 	}
 
 	public NotificationSource getNotificationSource()

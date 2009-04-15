@@ -190,11 +190,7 @@ public class ResourceManagement {
 					resourceUsageMBeanImpl.createUsageParameterSet();					
 				} catch (Throwable e) {
 					if (resourceUsageMBeanImpl != null) {
-						try {
-							resourceUsageMBeanImpl.close();
-						} catch (ManagementException e1) {
-							logger.error(e.getMessage(),e);
-						}
+						resourceUsageMBeanImpl.remove();
 					}
 					for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
 						entitiesPerType.get(resourceAdaptorTypeID).remove(raEntity);						
@@ -337,11 +333,7 @@ public class ResourceManagement {
 			
 			ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
 			if (resourceUsageMBeanImpl != null) {
-				try {
-					resourceUsageMBeanImpl.close();									
-				} catch (Throwable e) {
-					throw new SLEEException("failed to close entity resource usage mbean",e);
-				}
+				resourceUsageMBeanImpl.remove();													
 			}
 			
 			logger.info("Removed RA Entity " + entityName);

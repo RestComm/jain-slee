@@ -9,9 +9,7 @@ import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
 import javax.slee.usage.UsageNotificationManagerMBean;
 
-import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParameter;
 
 /**
@@ -26,7 +24,6 @@ public class UsageNotificationManagerMBeanImpl extends StandardMBean implements
 		UsageNotificationManagerMBean {
 
 	private final NotificationSource notificationSource;
-	private UsageNotificationManagerMBeanImplParent parent;
 	private ObjectName objectName;
 	private final ConcurrentHashMap<String, Boolean> paramNames = new ConcurrentHashMap<String, Boolean>();
 	
@@ -50,13 +47,9 @@ public class UsageNotificationManagerMBeanImpl extends StandardMBean implements
 		}
 		
 	}
-
+	
 	public void close() throws ManagementException {
-		try {
-			parent.removeChild(this);
-		} catch (Throwable e) {
-			throw new ManagementException(e.getMessage(), e);
-		}
+		// ignore
 	}
 
 	public NotificationSource getNotificationSource()
@@ -110,7 +103,4 @@ public class UsageNotificationManagerMBeanImpl extends StandardMBean implements
 		this.objectName = objectName;
 	}
 	
-	public void setParent(UsageNotificationManagerMBeanImplParent parent) {
-		this.parent = parent;
-	}
 }

@@ -1,7 +1,6 @@
 package org.mobicents.slee.resource;
 
 import javax.slee.Address;
-import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;

@@ -128,13 +128,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 			catch (Throwable t) {
 				if (this.profileTableUsageMBean != null)
 				{
-					try
-					{
-						this.profileTableUsageMBean.close();
-					}
-					catch (ManagementException e) {
-						logger.error(e.getMessage(), e);
-					}
+					this.profileTableUsageMBean.remove();					
 				}
 
 				try {
@@ -162,13 +156,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		
 		if (this.profileTableUsageMBean != null)
 		{
-			try
-			{
-				this.profileTableUsageMBean.close();
-			}
-			catch (ManagementException e) {
-				logger.error(e.getMessage(), e);
-			}
+			this.profileTableUsageMBean.remove();			
 		}
 	}
 

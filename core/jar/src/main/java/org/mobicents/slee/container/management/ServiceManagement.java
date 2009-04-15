@@ -581,7 +581,7 @@ public class ServiceManagement {
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
 				try {
-					serviceUsageMBean.close();				
+					serviceUsageMBean.remove();				
 				}
 				catch (Throwable e) {
 					logger.error(e.getMessage(),e);
@@ -677,7 +677,7 @@ public class ServiceManagement {
 		}
 		ServiceUsageMBeanImpl serviceUsageMBean = (ServiceUsageMBeanImpl) serviceComponent.getServiceUsageMBean();
 		if (serviceUsageMBean != null) {
-			serviceUsageMBean.close();
+			serviceUsageMBean.remove();
 			// add rollback action to re-create the mbean
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {
