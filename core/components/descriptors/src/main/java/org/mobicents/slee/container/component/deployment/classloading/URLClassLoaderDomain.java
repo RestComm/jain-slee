@@ -26,26 +26,26 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 	private ConcurrentHashMap<String, Class<?>> cache = new ConcurrentHashMap<String, Class<?>>();
 
 	/**
-	 * the slee class loader, last place to look for classes
+	 * the slee class loader
 	 */
 	private ClassLoader sleeClassLoader;
 	
 	/**
 	 * 
 	 * @param urls
-	 * @param parent
+	 * @param sleeClassLoader
 	 */
 	public URLClassLoaderDomain(URL[] urls, ClassLoader sleeClassLoader) {
 		super(urls);
 		this.sleeClassLoader = sleeClassLoader;
 	}
-
+	
 	@Override
 	protected Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
 		return loadClass(name, resolve, new HashSet<URLClassLoaderDomain>(),true);
 	}
-
+	
 	/**
 	 * Loads the class for the specified name, providing a set of already
 	 * visited domains, if the domain was already visited a
@@ -60,7 +60,7 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 	 */
 	public Class<?> loadClass(String name, boolean resolve,
 			Set<URLClassLoaderDomain> visited, boolean loadFromSlee) throws ClassNotFoundException {
-	
+		
 		// try in cache
 		Class<?> result = cache.get(name);
 
@@ -81,7 +81,6 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 					}
 				}
 				if (result != null) {
-					cache.put(name, result);
 					break;
 				}
 			}
@@ -90,27 +89,44 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 				// try locally
 				try {
 					result = super.loadClass(name, resolve);
-					cache.put(name, result);
 				} catch (Throwable e) {
+					// ignore
+				}
+
+				if (result == null) {
 					// not found locally, try slee?
 					if (loadFromSlee) {
 						result = sleeClassLoader.loadClass(name);
-						cache.put(name, result);						
 					}
 					else {
 						throw new ClassNotFoundException(name);
 					}
 				}
 			}	
+			
+			cache.put(name, result);						
 		}
 		
 		if (resolve) {
 			resolveClass(result);
 		}
+		
 		return result;
 
 	}
-
+	
+	/**
+	 * Loads a class from the slee container.
+	 * @param name
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public Class<?> loadClassFromSlee(String name) throws ClassNotFoundException {
+		Class<?> result = sleeClassLoader.loadClass(name);
+		cache.put(name, result);
+		return result;
+	}
+	
 	/**
 	 * Retrieves the non thread safe set of dependencies for the domain.
 	 * 
@@ -119,7 +135,7 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 	public Set<URLClassLoaderDomain> getDependencies() {
 		return dependencies;
 	}
-
+	
 	/**
 	 * Retrieves the container's class loader
 	 * @return

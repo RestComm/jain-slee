@@ -326,7 +326,7 @@ public class ServiceManagement {
 				final Service service = getServiceFromServiceComponent(serviceComponent);
 
 				if (logger.isDebugEnabled())
-					logger.debug("Service is " + service + " serviceState = "
+					logger.debug(serviceID.toString() + " state = "
 							+ service.getState());
 
 				if (service.getState() == ServiceState.STOPPING)

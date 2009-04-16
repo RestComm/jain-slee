@@ -32,14 +32,13 @@ public class ServiceLookupFacilityImpl implements ServiceLookupFacility {
 	private final SleeContainer container;
 
 	/**
-	 * the ra allowed event types
+	 * the ra entity
 	 */
-	private final Set<EventTypeID> allowedEventTypes;
+	private final ResourceAdaptorEntity raEntity;
 
-	public ServiceLookupFacilityImpl(SleeContainer container,
-			Set<EventTypeID> allowedEventTypes) {
+	public ServiceLookupFacilityImpl(ResourceAdaptorEntity raEntity,SleeContainer container) {
 		this.container = container;
-		this.allowedEventTypes = allowedEventTypes;
+		this.raEntity = raEntity;
 	}
 
 	public ReceivableService getReceivableService(ServiceID serviceID)
@@ -79,6 +78,7 @@ public class ServiceLookupFacilityImpl implements ServiceLookupFacility {
 					.getEventEntries().values()) {
 				EventTypeID eventTypeID = eventEntry.getEventReference()
 						.getComponentID();
+				final Set<EventTypeID> allowedEventTypes = raEntity.getAllowedEventTypes();
 				if (allowedEventTypes == null
 						|| allowedEventTypes.contains(eventTypeID)) {
 					/*

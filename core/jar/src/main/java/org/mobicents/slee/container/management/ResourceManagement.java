@@ -15,7 +15,6 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LinkNameAlreadyBoundException;
-import javax.slee.management.ManagementException;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
@@ -181,7 +180,7 @@ public class ResourceManagement {
 				// create resource usage mbean
 				ResourceUsageMBeanImpl resourceUsageMBeanImpl = null;
 				try {
-					ObjectName objectName = new ObjectName(ResourceUsageMBean.BASE_OBJECT_NAME+','+ResourceUsageMBean.RESOURCE_ADAPTOR_ENTITY_NAME_KEY+'='+entityName);
+					ObjectName objectName = new ObjectName(ResourceUsageMBean.BASE_OBJECT_NAME+','+ResourceUsageMBean.RESOURCE_ADAPTOR_ENTITY_NAME_KEY+'='+ObjectName.quote(entityName));
 					resourceUsageMBeanImpl = new ResourceUsageMBeanImpl(entityName,component,sleeContainer);
 					resourceUsageMBeanImpl.setObjectName(objectName);
 					sleeContainer.getMBeanServer().registerMBean(resourceUsageMBeanImpl, objectName);
@@ -851,7 +850,7 @@ public class ResourceManagement {
 		// component
 		if (component.getActivityContextInterfaceFactoryConcreteClass() != null) {
 			try {
-				Constructor constructor = component
+				Constructor<?> constructor = component
 						.getActivityContextInterfaceFactoryConcreteClass()
 						.getConstructor(
 								new Class[] { SleeContainer.class,

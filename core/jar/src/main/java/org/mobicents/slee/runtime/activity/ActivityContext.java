@@ -120,7 +120,7 @@ public class ActivityContext {
 			// ac creation, create cache data and set activity flags
 			cacheData.create();
 			cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
-			// if activity flags require notification for unreferenced activity
+			setState(ActivityContextState.ACTIVE);
 			// then we need to schedule check for it
 			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags)) {
 				try {
@@ -159,8 +159,13 @@ public class ActivityContext {
 	 * @return the state.
 	 */
 	public ActivityContextState getState() {
-		ActivityContextState acState = (ActivityContextState) cacheData.getObject(NODE_MAP_KEY_STATE);
-		return (acState != null) ? acState : ActivityContextState.ACTIVE;
+		ActivityContextState state = (ActivityContextState) cacheData.getObject(NODE_MAP_KEY_STATE);
+		if (state == null) {
+			return ActivityContextState.INVALID;
+		}
+		else {
+			return state;
+		}
 	}
 	
 	/**
@@ -889,6 +894,11 @@ public class ActivityContext {
 	}
 	
 	private boolean cancelUnreferencedActivityCheck() {
-		return cacheData.removeObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck) != null;
+		if (cacheData.getObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck) != null) {
+			return cacheData.removeObject(NODE_MAP_KEY_ActivityUnreferenced2ndCheck) != null;
+		}
+		else {
+			return false;
+		}
 	}
 }

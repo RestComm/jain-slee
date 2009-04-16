@@ -1,5 +1,9 @@
 package org.mobicents.slee.resource;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.slee.Address;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
@@ -16,6 +20,8 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.SleeEndpoint;
 import javax.slee.resource.StartActivityException;
 import javax.slee.resource.UnrecognizedActivityHandleException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
@@ -66,32 +72,37 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		checkStartActivityParameters(handle,activity);
     	
     	SleeTransactionManager tm = sleeContainer.getTransactionManager();
-		boolean newTx = tm.requireTransaction();
-		boolean rollback = true;
+    	
+    	StartActivityInNewTransactionCallable callable = new StartActivityInNewTransactionCallable(handle,activityFlags,tm);
+		
+		// if there is an ongoing transaction the logic must run in a different thread
+		boolean runInThisThread = false;
 		try {
-			startActivity(handle,activityFlags);	            	
-	        rollback = false;            	
-        }
-        finally {
-        	try {
-        		if (newTx) {
-        			if (rollback) {
-        				tm.rollback();
-        			}
-        			else {
-        				tm.commit();
-        			}
-        		}
-        		else {
-        			if (rollback) {
-        				tm.setRollbackOnly();
-        			}
-        		}
+			runInThisThread = tm.getTransaction() == null;
+		} catch (SystemException e) {
+			throw new SLEEException("failed to end activity",e);
+		}
+		
+		if (runInThisThread) {
+			callable._call();
+		}
+		else {
+			try {
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.submit(callable).get();
+				executor.shutdown();			
+			} catch (Exception e) {
+				if (e.getCause() instanceof ActivityAlreadyExistsException) {
+					throw (ActivityAlreadyExistsException) e.getCause();
+				} else if (e.getCause() instanceof StartActivityException) {
+					throw (StartActivityException) e.getCause();					
+				} else if (e.getCause() instanceof SLEEException) {
+					throw (SLEEException) e.getCause();
+				} else {
+					throw new SLEEException("failed to end activity",e.getCause());
+				}
 			}
-        	catch (Exception e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
-        }
+		}
     }
 
 	public void startActivitySuspended(ActivityHandle handle, Object activity)
@@ -125,7 +136,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		checkStartActivityParameters(handle,activity);
     	// check tx state
     	sleeContainer.getTransactionManager().mandateTransaction();
-    	startActivity(handle,activityFlags);
+    	_startActivity(handle,activityFlags);
 	}
 
 	/**
@@ -155,7 +166,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @param handle
 	 * @param activityFlags
 	 */
-	private void startActivity(ActivityHandle handle, int activityFlags) {
+	private void _startActivity(ActivityHandle handle, int activityFlags) {
 		// create activity context
     	ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntity.getName(),handle);        
     	sleeContainer.getActivityContextFactory().createActivityContext(ach,activityFlags);
@@ -173,32 +184,35 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			throw new NullPointerException("handle is null");
 		
 		SleeTransactionManager tm = sleeContainer.getTransactionManager();
-		boolean newTx = tm.requireTransaction();
-		boolean rollback = true;
+		
+		EndActivityInNewTransactionCallable callable = new EndActivityInNewTransactionCallable(handle,tm);
+		
+		// if there is an ongoing transaction the logic must run in a different thread
+		boolean runInThisThread = false;
 		try {
-			_endActivity(handle);	            	
-	        rollback = false;            	
-        }
-        finally {
-        	try {
-        		if (newTx) {
-        			if (rollback) {
-        				tm.rollback();
-        			}
-        			else {
-        				tm.commit();
-        			}
-        		}
-        		else {
-        			if (rollback) {
-        				tm.setRollbackOnly();
-        			}
-        		}
+			runInThisThread = tm.getTransaction() == null;
+		} catch (SystemException e) {
+			throw new SLEEException("failed to end activity",e);
+		}
+		
+		if (runInThisThread) {
+			callable._call();
+		}
+		else {
+			try {
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.submit(callable).get();
+				executor.shutdown();			
+			} catch (Exception e) {
+				if (e.getCause() instanceof UnrecognizedActivityHandleException) {
+					throw (UnrecognizedActivityHandleException) e.getCause();
+				} else if (e.getCause() instanceof SLEEException) {
+					throw (SLEEException) e.getCause();
+				} else {
+					throw new SLEEException("failed to end activity",e.getCause());
+				}
 			}
-        	catch (Exception e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
-        }
+		}
 	}
 
 	public void endActivityTransacted(ActivityHandle handle)
@@ -218,7 +232,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * 
 	 * @param handle
 	 */
-	private void _endActivity(ActivityHandle handle) throws TransactionRequiredLocalException {
+	private void _endActivity(ActivityHandle handle) throws TransactionRequiredLocalException, UnrecognizedActivityHandleException {
 		ActivityContextHandle ach = ActivityContextHandlerFactory
 		.createExternalActivityContextHandle(raEntity.getName(), handle);
 		// get ac
@@ -229,7 +243,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			// warn the entity, it may be stopping and needs to know when all activities end
 			raEntity.activityEnding(handle);			
 		} else {
-			throw new UnrecognizedActivityException(handle);
+			throw new UnrecognizedActivityHandleException(handle.toString());
 		}
 	}
 		
@@ -248,34 +262,43 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			throws NullPointerException, UnrecognizedActivityHandleException,
 			IllegalEventException, ActivityIsEndingException,
 			FireEventException, SLEEException {
+		
 		checkFireEventPreconditions(handle,eventType,event);
-    	SleeTransactionManager tm = sleeContainer.getTransactionManager();
-		boolean newTx = tm.requireTransaction();
-		boolean rollback = true;
+    
+		final SleeTransactionManager tm = sleeContainer.getTransactionManager();
+		
+		FireEventInNewTransactionCallable callable = new FireEventInNewTransactionCallable(handle,eventType,event,address,receivableService,eventFlags,tm);
+		
+		// if there is an ongoing transaction the logic must run in a different thread
+		boolean runInThisThread = false;
 		try {
-			_fireEvent(handle,eventType,event,address,receivableService,eventFlags);	            	
-	        rollback = false;            	
-        }
-        finally {
-        	try {
-        		if (newTx) {
-        			if (rollback) {
-        				tm.rollback();
-        			}
-        			else {
-        				tm.commit();
-        			}
-        		}
-        		else {
-        			if (rollback) {
-        				tm.setRollbackOnly();
-        			}
-        		}
+			runInThisThread = tm.getTransaction() == null;
+		} catch (SystemException e) {
+			throw new SLEEException("failed to fire event",e);
+		}
+		
+		if (runInThisThread) {
+			callable._call();
+		}
+		else {
+			try {
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				executor.submit(callable).get();
+				executor.shutdown();			
+			} catch (Exception e) {
+				if (e.getCause() instanceof ActivityIsEndingException) {
+					throw (ActivityIsEndingException) e.getCause();
+				} else if (e.getCause() instanceof FireEventException) {
+					throw (FireEventException) e.getCause();
+				} else if (e.getCause() instanceof SLEEException) {
+					throw (SLEEException) e.getCause();
+				} else if (e.getCause() instanceof UnrecognizedActivityHandleException) {
+					throw (UnrecognizedActivityHandleException) e.getCause();
+				} else {
+					throw new SLEEException("failed to fire event",e.getCause());
+				}
 			}
-        	catch (Exception e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
-        }
+		}
 	}
 
 	public void fireEventTransacted(ActivityHandle handle, FireableEventType eventType,
@@ -326,6 +349,10 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			throw new IllegalEventException("the class of the event object fired is not assignable to the event class of the event type (more on SLEE 1.1 specs 15.14.8) ");
 		}
 		
+		if (eventType.getClass() != FireableEventTypeImpl.class) {
+			throw new IllegalEventException("unknown implementation of FireableEventType");
+		}
+		
     	if (raEntity.getAllowedEventTypes() != null && !raEntity.getAllowedEventTypes().contains(eventType.getEventType())) {
     		throw new IllegalEventException("Resource Adaptor configured to not ignore ra type event checking and the event "+eventType.getEventType()+" does not belongs to any of the ra types implemented by the resource adaptor");
     	}
@@ -349,12 +376,12 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @param eventFlags
 	 */
 	private void _fireEvent(ActivityHandle handle, FireableEventType eventType,
-			Object event, Address address, ReceivableService receivableService, int eventFlags) {
+			Object event, Address address, ReceivableService receivableService, int eventFlags) throws ActivityIsEndingException, SLEEException {
 		ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntity.getName(),handle);        
 		// get ac
     	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,true);
     	if (ac == null) {
-    		throw new UnrecognizedActivityException(handle);
+    		throw new UnrecognizedActivityHandleException(handle.toString());
     	}
     	else {        		
     		ac.fireEvent(eventType.getEventType(),event,address, (receivableService == null ? null : receivableService.getService()),eventFlags);
@@ -396,7 +423,163 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				throw new SLEEException(e.getMessage(),e);
 			}
 		} else {
-			throw new UnrecognizedActivityException(handle);
+			throw new UnrecognizedActivityHandleException(handle.toString());
 		}
 	} 
+	
+	// --- CALLABLES 
+	
+	/**
+	 * Callable to end an activity in a new transaction
+	 * @author martins
+	 *
+	 */
+	private class EndActivityInNewTransactionCallable implements Callable<Object> {
+		
+		private final SleeTransactionManager txManager;
+		private final ActivityHandle handle;
+		
+		public EndActivityInNewTransactionCallable(ActivityHandle handle,SleeTransactionManager txManager) {
+			this.txManager = txManager;
+			this.handle = handle;
+		}
+		
+		public Object call() throws Exception {
+			_call();
+			return null;
+		}
+		
+		public void _call() {
+			
+			boolean rollback = true;
+			try {
+				txManager.begin();
+				_endActivity(handle);	            	
+		        rollback = false;            	
+			} catch (NotSupportedException e) {
+				throw new SLEEException(e.getMessage(),e);
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+			finally {		        		
+				try {
+					if (rollback) {
+						txManager.rollback();
+					}
+					else {
+						txManager.commit();
+					}
+				} catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+	        }			
+		}
+	}
+	
+	/**
+	 * Callable to fire an event in a new transaction
+	 * @author martins
+	 *
+	 */
+	private class FireEventInNewTransactionCallable implements Callable<Object> {
+		
+		private final SleeTransactionManager txManager;
+		private final ActivityHandle handle;
+		private final FireableEventType eventType;
+		private final Object event;
+		private final Address address;
+		private final ReceivableService receivableService;
+		private final int eventFlags;
+		
+		public FireEventInNewTransactionCallable(ActivityHandle handle, FireableEventType eventType, Object event,
+				Address address, ReceivableService receivableService, int eventFlags,SleeTransactionManager txManager) {
+			this.txManager = txManager;
+			this.handle = handle;
+			this.eventType = eventType;
+			this.event = event;
+			this.address = address;
+			this.receivableService = receivableService;
+			this.eventFlags = eventFlags;
+		}
+		
+		public Object call() throws Exception {
+			_call();
+			return null;
+		}
+		
+		public void _call() {
+			
+			boolean rollback = true;
+			try {
+				txManager.begin();
+				_fireEvent(handle,eventType,event,address,receivableService,eventFlags);	            	
+		        rollback = false;            	
+			} catch (NotSupportedException e) {
+				throw new SLEEException(e.getMessage(),e);
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+			finally {		        		
+				try {
+					if (rollback) {
+						txManager.rollback();
+					}
+					else {
+						txManager.commit();
+					}
+				} catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+	        }			
+		}
+	}
+	
+	/**
+	 * Callable to start an activity in a new transaction
+	 * @author martins
+	 *
+	 */
+	private class StartActivityInNewTransactionCallable implements Callable<Object> {
+		
+		private final SleeTransactionManager txManager;
+		private final ActivityHandle handle;
+		private final int activityFlags;
+		
+		public StartActivityInNewTransactionCallable(ActivityHandle handle, int activityFlags,SleeTransactionManager txManager) {
+			this.txManager = txManager;
+			this.handle = handle;
+			this.activityFlags = activityFlags;
+		}
+		
+		public Object call() throws Exception {
+			_call();
+			return null;
+		}
+		
+		public void _call() {
+			
+			boolean rollback = true;
+			try {
+				txManager.begin();
+				_startActivity(handle, activityFlags);	            	
+		        rollback = false;            	
+			} catch (NotSupportedException e) {
+				throw new SLEEException(e.getMessage(),e);
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+			finally {		        		
+				try {
+					if (rollback) {
+						txManager.rollback();
+					}
+					else {
+						txManager.commit();
+					}
+				} catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+	        }			
+		}
+	}
 }

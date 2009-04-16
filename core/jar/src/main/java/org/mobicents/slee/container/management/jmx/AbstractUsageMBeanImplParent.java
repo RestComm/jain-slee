@@ -33,6 +33,11 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		UsageMBeanImplParent, 
 		Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected abstract Logger getLogger();
 
 	/**
@@ -80,7 +85,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 * @throws MalformedObjectNameException
 	 * @throws NullPointerException
 	 */
-	public AbstractUsageMBeanImplParent(Class mBeanInterfaceClass,
+	public AbstractUsageMBeanImplParent(Class<?> mBeanInterfaceClass,
 			SleeComponentWithUsageParametersInterface component,
 			NotificationSource notificationSource, SleeContainer sleeContainer)
 			throws NotCompliantMBeanException, MalformedObjectNameException,
@@ -201,7 +206,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		Logger logger = getLogger();
 
 		// get usage parameter class
-		Class usageParameterClass = component.getUsageParametersConcreteClass();
+		Class<?> usageParameterClass = component.getUsageParametersConcreteClass();
 
 		// check if the usage parameter name set already exists
 		if (name != null && this.usageMBeans.containsKey(name)) {
@@ -222,9 +227,9 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass
 					.getConstructor(null).newInstance(new Object[0]);
 			// create and register the usage mbean
-			Class usageParameterMBeanClass = component
+			Class<?> usageParameterMBeanClass = component
 					.getUsageParametersMBeanImplConcreteClass();
-			Constructor constructor = usageParameterMBeanClass
+			Constructor<?> constructor = usageParameterMBeanClass
 					.getConstructor(new Class[] { Class.class,
 							NotificationSource.class });
 
@@ -247,7 +252,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 				// default mbean
 				this.defaultUsageMBean = usageMbean;
 				// create notification manager
-				Class usageNotificationManagerMBeanClass = component
+				Class<?> usageNotificationManagerMBeanClass = component
 						.getUsageNotificationManagerMBeanImplConcreteClass();
 				constructor = usageNotificationManagerMBeanClass
 						.getConstructor(new Class[] { Class.class,
@@ -348,7 +353,13 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			throws ManagementException,
 			UnrecognizedUsageParameterSetNameException {
 
-		UsageMBeanImpl usageMBeanImpl = usageMBeans.get(name);
+		UsageMBeanImpl usageMBeanImpl = null;
+		if (name != null) {
+			usageMBeanImpl = usageMBeans.get(name);
+		}
+		else {
+			usageMBeanImpl = defaultUsageMBean;
+		}
 		if (usageMBeanImpl == null) {
 			throw new UnrecognizedUsageParameterSetNameException(name);
 		} else {

@@ -74,7 +74,7 @@ public class AbstractActivityContextInterfaceFactory implements Serializable {
 			}
 		}
 
-		throw new UnrecognizedActivityException(activity);
+		throw new UnrecognizedActivityException(activity.toString());
 	}
 
 	@Override
