@@ -298,11 +298,19 @@ public class EventRoutingTask implements Runnable {
 							if (nextSbbEntityFinder.next(ac, de.getEventTypeId(),de.getService(),sbbEntitiesThatHandledCurrentEvent) == null) {
 								gotSbb = false;
 							}
-						} catch (Exception e) {
+						} catch (Throwable e) {
 							gotSbb = false;
 						} 
+					}					
+					
+					if (!gotSbb) {
+						de.eventProcessingSucceed();
+						if (logger.isDebugEnabled()) {
+							logger.debug("Delaying commit for 100ms, needed by wrongly designed tck transaction isolation tests. This only happens with DEBUG log level");
+							Thread.sleep(100);
+						}						
 					}
-
+					
 					Thread.currentThread().setContextClassLoader(
 							oldClassLoader);
 
@@ -489,9 +497,7 @@ public class EventRoutingTask implements Runnable {
 				activityEndEventPostProcessor.process(de.getActivityContextId(), txMgr, this.container.getActivityContextFactory());
 			} else if (de.getEventTypeId().equals(TimerEventImpl.EVENT_TYPE_ID)) {
 				timerEventPostProcessor.process(de,this.container.getTimerFacility());
-			}
-
-			de.eventProcessingSucceed();
+			}			
 
 			// we got to the end of the event routing, remove the event context
 			de.getEventRouterActivity().setCurrentEventContext(null);
