@@ -317,8 +317,13 @@ public class ResourceAdaptorEntity {
 					+ this.state);
 		}
 		this.state = ResourceAdaptorEntityState.STOPPING;
-		object.raStopping();		
-		scheduleAllActivitiesEnd();
+		if (object.getState() == ResourceAdaptorObjectState.ACTIVE) {
+			object.raStopping();		
+			scheduleAllActivitiesEnd();
+		}
+		else {
+			allActivitiesEnded();
+		}
 	}	
 	
 	/**
