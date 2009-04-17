@@ -3,6 +3,7 @@ package org.mobicents.slee.resource;
 import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimerTask;
 
 import javax.slee.EventTypeID;
 import javax.slee.InvalidArgumentException;
@@ -228,7 +229,7 @@ public class ResourceAdaptorEntity {
 			throws InvalidConfigurationException, InvalidStateException {
 		if (!component.getDescriptor().getSupportsActiveReconfiguration()
 				&& (sleeContainer.getSleeState() == SleeState.RUNNING
-						&& sleeContainer.getSleeState() == SleeState.STOPPING && sleeContainer
+						|| sleeContainer.getSleeState() == SleeState.STOPPING || sleeContainer
 						.getSleeState() == SleeState.STARTING)
 				&& (state == ResourceAdaptorEntityState.ACTIVE || state == ResourceAdaptorEntityState.STOPPING)) {
 			throw new InvalidStateException(
@@ -288,14 +289,8 @@ public class ResourceAdaptorEntity {
 	 */
 	public void activate() throws InvalidStateException {
 		if (!this.state.isInactive()) {
-			if (this.state.isStopping() && timerTask != null) {
-				// run the task now
-				timerTask.run();
-			}
-			else {
-				throw new InvalidStateException("entity " + name + " is in state: "
-						+ this.state);
-			}
+			throw new InvalidStateException("entity " + name + " is in state: "
+					+ this.state);
 		}
 		this.state = ResourceAdaptorEntityState.ACTIVE;
 		// if slee is running then activate ra object
@@ -318,12 +313,30 @@ public class ResourceAdaptorEntity {
 		}
 		this.state = ResourceAdaptorEntityState.STOPPING;
 		if (object.getState() == ResourceAdaptorObjectState.ACTIVE) {
-			object.raStopping();		
-			scheduleAllActivitiesEnd();
+			object.raStopping();
 		}
-		else {
-			allActivitiesEnded();
-		}
+		// tck requires that the method returns with stopping state so do
+		// all deactivation logic half a sec later
+		TimerTask t = new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					cancel();
+					if (state == ResourceAdaptorEntityState.STOPPING) {
+						if (object.getState() == ResourceAdaptorObjectState.STOPPING) {	
+							scheduleAllActivitiesEnd();
+						}
+						else {
+							allActivitiesEnded();
+						}	
+					}
+				}
+				catch (Throwable e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
+		};
+		resourceAdaptorContext.getTimer().schedule(t,500);
 	}	
 	
 	/**
@@ -344,8 +357,7 @@ public class ResourceAdaptorEntity {
 
 	private boolean hasActiveActivites() throws TransactionRequiredLocalException {
 
-		sleeContainer.getTransactionManager().mandateTransaction();
-		
+		boolean newTx = sleeContainer.getTransactionManager().requireTransaction();
 		try {	
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
@@ -363,11 +375,19 @@ public class ResourceAdaptorEntity {
 						logger.error(e.getMessage(), e);
 					}
 				}
-			}
+			}			
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		} 
-		
+		finally {
+			if (newTx) {
+				try {
+					sleeContainer.getTransactionManager().commit();
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
+		}
 		return false;
 	}
 
