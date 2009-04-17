@@ -92,11 +92,10 @@ public class SleeTransactionManagerTest extends MicrocontainerTest {
 			}			
 		};
 		txMgr.asyncCommit(listener);
-		// javadoc in slee 1.1 specs define that this tx manager method is
-		// equivalent to SleeTransactionManager.asyncCommit(), thus the thread
-		// relation with transaction is kept and we need to suspend the
-		// transaction to be able to create new transactions
-		txMgr.suspend();
+		// javadoc in slee 1.1 specs define that the thread should not be associated with the tx
+		if (txMgr.getTransaction() != null) {
+			getLog().error("the thread should not be associated with the tx");
+		}		
 	}
 	
 	public void testAsyncRollback() throws Exception {
@@ -113,11 +112,10 @@ public class SleeTransactionManagerTest extends MicrocontainerTest {
 			}
 		};
 		txMgr.asyncRollback(listener);
-		// javadoc in slee 1.1 specs define that this tx manager method is
-		// equivalent to SleeTransactionManager.asyncRollback(), thus the thread
-		// relation with transaction is kept and we need to suspend the
-		// transaction to be able to create new transactions
-		txMgr.suspend();
+		// javadoc in slee 1.1 specs define that the thread should not be associated with the tx
+		if (txMgr.getTransaction() != null) {
+			getLog().error("the thread should not be associated with the tx");
+		}		
 	}
 	
 }

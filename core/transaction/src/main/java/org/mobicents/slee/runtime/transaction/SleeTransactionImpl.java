@@ -21,56 +21,85 @@ public class SleeTransactionImpl implements SleeTransaction {
 	/**
 	 * thread pool for async commit/rollback operations
 	 */
-	private static final ExecutorService executorService = Executors.newCachedThreadPool();
-	
+	private static final ExecutorService executorService = Executors
+			.newCachedThreadPool();
+
 	/**
 	 * the wrapped JBossTS transaction
 	 */
 	private final TransactionImple transaction;
-	
+
 	/**
 	 * caching the wrapped transaction id
 	 */
 	private final String transactionId;
-	
-	public SleeTransactionImpl(TransactionImple transaction) {			
+
+	/**
+	 * the transaction manager
+	 */
+	private final SleeTransactionManagerImpl transactionManager;
+
+	public SleeTransactionImpl(TransactionImple transaction,
+			SleeTransactionManagerImpl transactionManager) {
 		this.transaction = transaction;
 		this.transactionId = transaction.get_uid().toString();
+		this.transactionManager = transactionManager;
 	}
 
 	/**
-	 * Verifies if the wrapped transaction is active
+	 * Some operations require that the transaction be suspended
+	 * @throws SystemException
+	 */
+	private void suspendIfAssoaciatedWithThread() throws SystemException {
+		// if there is a tx associated with this thread and it is this one
+		// then suspend it to dissociate the thread
+		SleeTransaction currentThreadTransaction = transactionManager
+				.getSleeTransaction();
+		if (currentThreadTransaction != null
+				&& currentThreadTransaction.equals(this)) {
+			transactionManager.suspend();
+		}		
+	}
+	
+	/**
+	 * Verifies if the wrapped transaction is active and if dissociates it from
+	 * the thread if needed
+	 * 
 	 * @throws IllegalStateException
 	 * @throws SecurityException
 	 */
-	private void mandateActiveTransaction() throws IllegalStateException, SecurityException {
-		try {			
+	private void beforeAsyncOperation() throws IllegalStateException,
+			SecurityException {
+		try {
 			int status = transaction.getStatus();
-			if (status != Status.STATUS_ACTIVE && status != Status.STATUS_MARKED_ROLLBACK) {
+			if (status != Status.STATUS_ACTIVE
+					&& status != Status.STATUS_MARKED_ROLLBACK) {
 				throw new IllegalStateException(
-						"There is no active tx, tx is in state: "
-								+ status);
+						"There is no active tx, tx is in state: " + status);
 			}
+			suspendIfAssoaciatedWithThread();
 		} catch (SystemException e) {
 			throw new IllegalStateException(e);
 		}
 	}
-	
-	public void asyncCommit(CommitListener commitListener) throws IllegalStateException,
-			SecurityException {
-		mandateActiveTransaction();
-		executorService.submit(new AsyncTransactionCommitRunnable(commitListener,transaction));					
+
+	public void asyncCommit(CommitListener commitListener)
+			throws IllegalStateException, SecurityException {
+		beforeAsyncOperation();
+		executorService.submit(new AsyncTransactionCommitRunnable(
+				commitListener, transaction));
 	}
 
 	public void asyncRollback(RollbackListener rollbackListener)
 			throws IllegalStateException, SecurityException {
-		mandateActiveTransaction();
-		executorService.submit(new AsyncTransactionRollbackRunnable(rollbackListener,transaction));			
+		beforeAsyncOperation();
+		executorService.submit(new AsyncTransactionRollbackRunnable(
+				rollbackListener, transaction));
 	}
 
 	public boolean delistResource(XAResource arg0, int arg1)
 			throws IllegalStateException, SystemException {
-		return transaction.delistResource(arg0, arg1);		
+		return transaction.delistResource(arg0, arg1);
 	}
 
 	public boolean enlistResource(XAResource arg0)
@@ -87,7 +116,8 @@ public class SleeTransactionImpl implements SleeTransaction {
 	public void commit() throws RollbackException, HeuristicMixedException,
 			HeuristicRollbackException, SecurityException,
 			IllegalStateException, SystemException {
-		transaction.commit();
+		suspendIfAssoaciatedWithThread();
+		transaction.commit();		
 	}
 
 	public int getStatus() throws SystemException {
@@ -96,35 +126,36 @@ public class SleeTransactionImpl implements SleeTransaction {
 
 	public void registerSynchronization(Synchronization sync)
 			throws RollbackException, IllegalStateException, SystemException {
-		transaction.registerSynchronization(sync);		
+		transaction.registerSynchronization(sync);
 	}
 
 	public void rollback() throws IllegalStateException, SystemException {
+		suspendIfAssoaciatedWithThread();
 		transaction.rollback();
 	}
 
 	public void setRollbackOnly() throws IllegalStateException, SystemException {
-		transaction.setRollbackOnly();		
+		transaction.setRollbackOnly();
 	}
 
 	@Override
 	public String toString() {
 		return transactionId;
 	}
-	
+
 	@Override
-	public int hashCode() {		
+	public int hashCode() {
 		return transactionId.hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((SleeTransactionImpl)obj).transactionId.equals(this.transactionId);
-		}
-		else {
+			return ((SleeTransactionImpl) obj).transactionId
+					.equals(this.transactionId);
+		} else {
 			return false;
 		}
 	}
-	
+
 }

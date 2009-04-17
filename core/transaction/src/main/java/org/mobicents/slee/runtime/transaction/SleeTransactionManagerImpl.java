@@ -148,7 +148,7 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 			return (SleeTransaction) transaction;
 		}
 		if (transaction instanceof TransactionImple) {
-			return new SleeTransactionImpl((TransactionImple) transaction);
+			return new SleeTransactionImpl((TransactionImple) transaction,this);
 		}
 		throw new IllegalArgumentException("unexpected transaction class type "+transaction.getClass());
 	}
@@ -195,10 +195,12 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 
 	public SleeTransaction getSleeTransaction() throws SystemException {
 		Transaction transaction = getTransaction();
-		if (transaction == null) {
-			throw new IllegalStateException("no transaction");
+		if (transaction != null) {
+			return new SleeTransactionImpl((TransactionImple)transaction,this);
 		}
-		return new SleeTransactionImpl((TransactionImple)transaction);
+		else {
+			return null;
+		}		
 	}
 
 	public void begin() throws NotSupportedException, SystemException {
