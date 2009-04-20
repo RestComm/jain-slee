@@ -94,7 +94,13 @@
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=LogManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.log.MobicentsLogManagerMBeanImplMBean.class, registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
 	</bean>
-	
+	<bean name="Mobicents.JAINSLEE.PolicyManagementMBean"
+		class="org.mobicents.slee.container.management.jmx.PolicyMBeanImpl">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=PolicyManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.PolicyMBeanImplMBean.class, registerDirectly=true)</annotation>
+		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
+		<property name="useMPolicy">true</property>
+	</bean>
+
 	<bean name="Mobicents.JAINSLEE.MobicentsManagement"
 		class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, registerDirectly=true)</annotation>

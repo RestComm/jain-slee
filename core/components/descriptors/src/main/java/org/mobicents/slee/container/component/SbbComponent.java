@@ -33,6 +33,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
+import org.mobicents.slee.container.component.security.PermissionHolder;
 import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
 /**
@@ -191,23 +192,19 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 		this.concreteSbbClass = concreteSbbClass;
 		// build the map of event handler methods
 		eventHandlerMethods = new HashMap<EventTypeID, EventHandlerMethod>();
-		for (MEventEntry eventEntry : getDescriptor().getEventEntries()
-				.values()) {
+		for (MEventEntry eventEntry : getDescriptor().getEventEntries().values()) {
 			if (eventEntry.isReceived()) {
-				String eventHandlerMethodName = "on"
-						+ eventEntry.getEventName();
+				String eventHandlerMethodName = "on" + eventEntry.getEventName();
 				for (Method method : concreteSbbClass.getMethods()) {
 					if (method.getName().equals(eventHandlerMethodName)) {
-						EventHandlerMethod eventHandlerMethod = new EventHandlerMethod(
-								method);
+						EventHandlerMethod eventHandlerMethod = new EventHandlerMethod(method);
 						if (method.getParameterTypes().length == 3) {
 							eventHandlerMethod.setHasEventContextParam(true);
 						}
 						if (getDescriptor().getSbbActivityContextInterface() != null) {
 							eventHandlerMethod.setHasCustomACIParam(true);
 						}
-						eventHandlerMethods.put(eventEntry.getEventReference()
-								.getComponentID(), eventHandlerMethod);
+						eventHandlerMethods.put(eventEntry.getEventReference().getComponentID(), eventHandlerMethod);
 						break;
 					}
 				}
@@ -229,8 +226,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 * 
 	 * @param sbbLocalInterfaceConcreteClass
 	 */
-	public void setSbbLocalInterfaceConcreteClass(
-			Class sbbLocalInterfaceConcreteClass) {
+	public void setSbbLocalInterfaceConcreteClass(Class sbbLocalInterfaceConcreteClass) {
 		this.sbbLocalInterfaceConcreteClass = sbbLocalInterfaceConcreteClass;
 	}
 
@@ -249,8 +245,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 * 
 	 * @param activityContextInterfaceConcreteClass
 	 */
-	public void setActivityContextInterfaceConcreteClass(
-			Class activityContextInterfaceConcreteClass) {
+	public void setActivityContextInterfaceConcreteClass(Class activityContextInterfaceConcreteClass) {
 		this.activityContextInterfaceConcreteClass = activityContextInterfaceConcreteClass;
 	}
 
@@ -263,7 +258,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	boolean addToDeployableUnit() {
 		return getDeployableUnit().getSbbComponents().put(getSbbID(), this) == null;
 	}
-	
+
 	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
@@ -278,8 +273,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	public boolean validate() throws DependencyException, DeploymentException {
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(this);
-		validator.setComponentRepository(getDeployableUnit()
-				.getDeployableUnitRepository());
+		validator.setComponentRepository(getDeployableUnit().getDeployableUnitRepository());
 		return validator.validate();
 	}
 
@@ -294,8 +288,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 			for (MLibraryRef mLibraryRef : getDescriptor().getLibraryRefs()) {
 				libraryIDSet.add(mLibraryRef.getComponentID());
 			}
-			LibraryID[] libraryIDs = libraryIDSet
-					.toArray(new LibraryID[libraryIDSet.size()]);
+			LibraryID[] libraryIDs = libraryIDSet.toArray(new LibraryID[libraryIDSet.size()]);
 
 			Set<SbbID> sbbIDSet = new HashSet<SbbID>();
 			for (MSbbRef mSbbRef : getDescriptor().getSbbRefs()) {
@@ -304,44 +297,30 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 			SbbID[] sbbIDs = sbbIDSet.toArray(new SbbID[sbbIDSet.size()]);
 
 			Set<ProfileSpecificationID> profileSpecSet = new HashSet<ProfileSpecificationID>();
-			for (MProfileSpecRef mProfileSpecRef : getDescriptor()
-					.getProfileSpecRefs()) {
+			for (MProfileSpecRef mProfileSpecRef : getDescriptor().getProfileSpecRefs()) {
 				profileSpecSet.add(mProfileSpecRef.getComponentID());
 			}
-			ProfileSpecificationID[] profileSpecs = profileSpecSet
-					.toArray(new ProfileSpecificationID[profileSpecSet.size()]);
+			ProfileSpecificationID[] profileSpecs = profileSpecSet.toArray(new ProfileSpecificationID[profileSpecSet.size()]);
 
 			Set<EventTypeID> eventTypeSet = new HashSet<EventTypeID>();
-			for (MEventEntry mEventEntry : getDescriptor().getEventEntries()
-					.values()) {
-				eventTypeSet.add(mEventEntry.getEventReference()
-						.getComponentID());
+			for (MEventEntry mEventEntry : getDescriptor().getEventEntries().values()) {
+				eventTypeSet.add(mEventEntry.getEventReference().getComponentID());
 			}
-			EventTypeID[] eventTypes = eventTypeSet
-					.toArray(new EventTypeID[eventTypeSet.size()]);
+			EventTypeID[] eventTypes = eventTypeSet.toArray(new EventTypeID[eventTypeSet.size()]);
 
 			Set<ResourceAdaptorTypeID> raTypeIDSet = new HashSet<ResourceAdaptorTypeID>();
 			Set<String> raLinksSet = new HashSet<String>();
-			for (MResourceAdaptorTypeBinding mResourceAdaptorTypeBinding : getDescriptor()
-					.getResourceAdaptorTypeBindings()) {
-				raTypeIDSet.add(mResourceAdaptorTypeBinding
-						.getResourceAdaptorTypeRef());
-				for (MResourceAdaptorEntityBinding mResourceAdaptorEntityBinding : mResourceAdaptorTypeBinding
-						.getResourceAdaptorEntityBinding()) {
-					raLinksSet.add(mResourceAdaptorEntityBinding
-							.getResourceAdaptorEntityLink());
+			for (MResourceAdaptorTypeBinding mResourceAdaptorTypeBinding : getDescriptor().getResourceAdaptorTypeBindings()) {
+				raTypeIDSet.add(mResourceAdaptorTypeBinding.getResourceAdaptorTypeRef());
+				for (MResourceAdaptorEntityBinding mResourceAdaptorEntityBinding : mResourceAdaptorTypeBinding.getResourceAdaptorEntityBinding()) {
+					raLinksSet.add(mResourceAdaptorEntityBinding.getResourceAdaptorEntityLink());
 				}
 			}
-			ResourceAdaptorTypeID[] raTypeIDs = raTypeIDSet
-					.toArray(new ResourceAdaptorTypeID[raTypeIDSet.size()]);
-			String[] raLinks = raLinksSet
-					.toArray(new String[raLinksSet.size()]);
+			ResourceAdaptorTypeID[] raTypeIDs = raTypeIDSet.toArray(new ResourceAdaptorTypeID[raTypeIDSet.size()]);
+			String[] raLinks = raLinksSet.toArray(new String[raLinksSet.size()]);
 
-			specsDescriptor = new SbbDescriptor(getSbbID(), getDeployableUnit()
-					.getDeployableUnitID(), getDeploymentUnitSource(),
-					libraryIDs, sbbIDs, eventTypes, profileSpecs,
-					getDescriptor().getAddressProfileSpecRef(), raTypeIDs,
-					raLinks);
+			specsDescriptor = new SbbDescriptor(getSbbID(), getDeployableUnit().getDeployableUnitID(), getDeploymentUnitSource(), libraryIDs, sbbIDs, eventTypes, profileSpecs, getDescriptor()
+					.getAddressProfileSpecRef(), raTypeIDs, raLinks);
 		}
 		return specsDescriptor;
 	}
@@ -396,6 +375,17 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 
 		public void setHasEventContextParam(boolean hasEventContextParam) {
 			this.hasEventContextParam = hasEventContextParam;
+		}
+	}
+
+	@Override
+	public void processSecurityPermissions() throws DeploymentException {
+		try {
+			if (this.descriptor.getSecurityPermissions() != null) {
+				super.permissions.add(new PermissionHolder(super.getDeploymentDir().toURI(), this.descriptor.getSecurityPermissions().getSecurityPermissionSpec()));
+			}
+		} catch (Exception e) {
+			throw new DeploymentException("Failed to make permissions usable.", e);
 		}
 	}
 }

@@ -27,6 +27,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
+import org.mobicents.slee.container.component.security.PermissionHolder;
 
 /**
  * Start time:00:45:25 2009-02-04<br>
@@ -42,17 +43,17 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 	 * the ra descriptor
 	 */
 	private final ResourceAdaptorDescriptorImpl descriptor;
-	
+
 	/**
 	 * the ra class
 	 */
 	private Class resourceAdaptorClass = null;
-	
+
 	/**
 	 * the JAIN SLEE specs descriptor
 	 */
-	private ResourceAdaptorDescriptor specsDescriptor = null; 
-	
+	private ResourceAdaptorDescriptor specsDescriptor = null;
+
 	/**
 	 * 
 	 * @param descriptor
@@ -63,6 +64,7 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 
 	/**
 	 * Retrieves the ra descriptor
+	 * 
 	 * @return
 	 */
 	public ResourceAdaptorDescriptorImpl getDescriptor() {
@@ -71,6 +73,7 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 
 	/**
 	 * Retrieves the ra id
+	 * 
 	 * @return
 	 */
 	public ResourceAdaptorID getResourceAdaptorID() {
@@ -79,6 +82,7 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 
 	/**
 	 * Retrieves the ra class
+	 * 
 	 * @return
 	 */
 	public Class getResourceAdaptorClass() {
@@ -87,6 +91,7 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 
 	/**
 	 * Sets the ra class
+	 * 
 	 * @param resourceAdaptorClass
 	 */
 	public void setResourceAdaptorClass(Class resourceAdaptorClass) {
@@ -97,30 +102,31 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 	boolean addToDeployableUnit() {
 		return getDeployableUnit().getResourceAdaptorComponents().put(getResourceAdaptorID(), this) == null;
 	}
-	
+
 	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
 	}
-	
+
 	@Override
 	public ComponentID getComponentID() {
 		return getResourceAdaptorID();
 	}
-	
+
 	@Override
 	public boolean isSlee11() {
 		return descriptor.isSlee11();
 	}
-	
+
 	@Override
 	public boolean validate() throws DependencyException, DeploymentException {
 		// FIXME use validator when available
 		return true;
 	}
-	
+
 	/**
-	 *  Retrieves the JAIN SLEE specs descriptor
+	 * Retrieves the JAIN SLEE specs descriptor
+	 * 
 	 * @return
 	 */
 	public ResourceAdaptorDescriptor getSpecsDescriptor() {
@@ -130,41 +136,53 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 				libraryIDSet.add(mLibraryRef.getComponentID());
 			}
 			LibraryID[] libraryIDs = libraryIDSet.toArray(new LibraryID[libraryIDSet.size()]);
-			
+
 			Set<ResourceAdaptorTypeID> raTypeIDSet = new HashSet<ResourceAdaptorTypeID>();
-			for (MResourceAdaptorTypeRef mResourceAdaptorTypeRef : getDescriptor()
-					.getResourceAdaptorTypeRefs()) {
+			for (MResourceAdaptorTypeRef mResourceAdaptorTypeRef : getDescriptor().getResourceAdaptorTypeRefs()) {
 				raTypeIDSet.add(mResourceAdaptorTypeRef.getComponentID());
 			}
-			ResourceAdaptorTypeID[] raTypeIDs = raTypeIDSet
-					.toArray(new ResourceAdaptorTypeID[raTypeIDSet.size()]);
-			
+			ResourceAdaptorTypeID[] raTypeIDs = raTypeIDSet.toArray(new ResourceAdaptorTypeID[raTypeIDSet.size()]);
+
 			Set<ProfileSpecificationID> profileSpecSet = new HashSet<ProfileSpecificationID>();
 			for (MProfileSpecRef mProfileSpecRef : getDescriptor().getProfileSpecRefs()) {
 				profileSpecSet.add(mProfileSpecRef.getComponentID());
 			}
 			ProfileSpecificationID[] profileSpecs = profileSpecSet.toArray(new ProfileSpecificationID[profileSpecSet.size()]);
-			
-			specsDescriptor = new ResourceAdaptorDescriptor(getResourceAdaptorID(),getDeployableUnit().getDeployableUnitID(),getDeploymentUnitSource(),libraryIDs,raTypeIDs,profileSpecs,getDescriptor().getSupportsActiveReconfiguration());
+
+			specsDescriptor = new ResourceAdaptorDescriptor(getResourceAdaptorID(), getDeployableUnit().getDeployableUnitID(), getDeploymentUnitSource(), libraryIDs, raTypeIDs, profileSpecs,
+					getDescriptor().getSupportsActiveReconfiguration());
 		}
 		return specsDescriptor;
 	}
-	
+
 	@Override
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
 	}
-	
+
 	/**
 	 * Creates an instance of the {@link ConfigProperties} for this component
+	 * 
 	 * @return
 	 */
 	public ConfigProperties getDefaultConfigPropertiesInstance() {
 		ConfigProperties defaultProperties = new ConfigProperties();
 		for (MConfigProperty mConfigProperty : getDescriptor().getConfigProperties()) {
-			Object configPropertyValue = mConfigProperty.getConfigPropertyValue() == null ? null : ConfigProperties.Property.toObject(mConfigProperty.getConfigPropertyType(), mConfigProperty.getConfigPropertyValue());
-			defaultProperties.addProperty(new ConfigProperties.Property(mConfigProperty.getConfigPropertyName(),mConfigProperty.getConfigPropertyType(),configPropertyValue));
+			Object configPropertyValue = mConfigProperty.getConfigPropertyValue() == null ? null : ConfigProperties.Property.toObject(mConfigProperty.getConfigPropertyType(), mConfigProperty
+					.getConfigPropertyValue());
+			defaultProperties.addProperty(new ConfigProperties.Property(mConfigProperty.getConfigPropertyName(), mConfigProperty.getConfigPropertyType(), configPropertyValue));
 		}
 		return defaultProperties;
+	}
+
+	@Override
+	public void processSecurityPermissions() throws DeploymentException {
+		try {
+			if (this.descriptor.getSecurityPermissions() != null) {
+				super.permissions.add(new PermissionHolder(super.getDeploymentDir().toURI(), this.descriptor.getSecurityPermissions().getSecurityPermissionSpec()));
+			}
+		} catch (Exception e) {
+			throw new DeploymentException("Failed to make permissions usable.", e);
+		}
 	}
 }

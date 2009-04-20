@@ -13,6 +13,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.LinkedList;
 
 import javax.slee.SLEEException;
@@ -21,6 +23,7 @@ import javax.slee.TransactionRolledbackLocalException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
@@ -49,8 +52,8 @@ public class SbbLocalObjectInterceptor {
 
     }
 
-    public Object invokeAndReturnObject(Object proxy, String methodName,
-            Object[] args, Class[] types) throws Exception {
+    public Object invokeAndReturnObject(final Object proxy, String methodName,
+            final Object[] args, Class[] types) throws Exception {
         if (this.setRollbackOnly) {
             throw new TransactionRolledbackLocalException(
                     "Previous invocation caused rollback");
@@ -75,9 +78,56 @@ public class SbbLocalObjectInterceptor {
         String sbbEntityId = sbbConcrete.getSbbEntity().getSbbEntityId();
         LinkedList<String> invokedsbbEntities = EventRoutingTransactionData.getFromTransactionContext().getInvokedSbbEntities();
         try {
-            Method meth = proxy.getClass().getMethod(methodName, types);
+            final Method meth = proxy.getClass().getMethod(methodName, types);
             invokedsbbEntities.add(sbbEntityId);
-            return meth.invoke(proxy, args);
+            SbbDescriptorImpl descriptor = sbbConcrete.getSbbEntity().getSbbComponent().getDescriptor();
+           boolean isolateSecurityPermissions = descriptor.getSbbLocalInterface()==null?false:descriptor.getSbbLocalInterface().isIsolateSecurityPermissions();
+           if(!isolateSecurityPermissions)
+           {
+        	   return meth.invoke(proxy, args);
+           }else
+           {
+        	   //This try catch is akward inside, but its simpler than copying parts of this code
+        	   try {
+       			
+       			//This is required. Since domain chain may indicate RA for instance, or SLEE deployer. If we dont do that test: tests/runtime/security/Test1112012Test.xml and second one, w
+       			//will fail because domain of SLEE tck ra is too restrictive (or we have bad desgin taht allows this to happen?)
+        		   Object result =AccessController.doPrivileged(new PrivilegedExceptionAction(){
+
+       				public Object run() throws IllegalAccessException, InvocationTargetException{
+       					return meth.invoke(proxy, args);
+       				}});
+       			
+       			
+       			return result;
+       		} catch(PrivilegedActionException pae)
+       		{
+       			Throwable cause = pae.getException();
+       			if(cause instanceof  IllegalAccessException)
+       			 {
+       				throw new RuntimeException(cause);
+       			} else if(cause instanceof InvocationTargetException ) {
+       				// Remember the actual exception is hidden inside the
+       				// InvocationTarget exception when you use reflection!
+       				Throwable realException = cause.getCause();
+       				if (realException instanceof RuntimeException) {
+       					RuntimeException re = (RuntimeException) realException;
+       					throw re;
+       				} else if (realException instanceof Error) {
+       					Error re = (Error) realException;
+       					throw re;
+       				} else if (realException instanceof Exception) {
+       					Exception re = (Exception) realException;
+       					throw re;
+       				}
+       			}else
+       			{
+       				throw pae.getException();
+       			}
+       			//FIXME: why this is required?
+       			return null;
+       		}
+           }
         } catch (InvocationTargetException ex) {           
             if (logger.isDebugEnabled())
             	logger.debug("Invocation resulted in exception: " + ex.getMessage());
@@ -116,6 +166,7 @@ public class SbbLocalObjectInterceptor {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
 
         }
+
 
     }
 

@@ -155,7 +155,7 @@ public class ProfileSpecificationDescriptorImpl {
     return eventsEnabled;
   }
 
-  public MSecurityPermissions getSecurityPremissions() {
+  public MSecurityPermissions getSecurityPermissions() {
     return securityPremissions;
   }
 

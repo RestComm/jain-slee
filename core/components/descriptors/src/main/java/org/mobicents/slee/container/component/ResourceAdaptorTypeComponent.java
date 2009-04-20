@@ -24,6 +24,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Resour
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityType;
+import org.mobicents.slee.container.component.security.PermissionHolder;
 
 /**
  * Start time:00:45:05 2009-02-04<br>
@@ -206,5 +207,10 @@ public class ResourceAdaptorTypeComponent extends SleeComponent {
 	@Override
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
+	}
+	@Override
+	public void processSecurityPermissions() throws DeploymentException {
+		//Do nothing?
+		
 	}
 }

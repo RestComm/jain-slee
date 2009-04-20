@@ -210,6 +210,8 @@ public class DeployableUnitBuilder {
 								sleeComponent.toString()
 								+ " validation failed, check logs for errors found");
 					}
+					//Make permissions object, this instruments codebase etc, and store POJOs in component.
+					sleeComponent.processSecurityPermissions();
 				} catch (Throwable e) {
 					throw new DeploymentException("failed to validate "
 							+ sleeComponent, e);

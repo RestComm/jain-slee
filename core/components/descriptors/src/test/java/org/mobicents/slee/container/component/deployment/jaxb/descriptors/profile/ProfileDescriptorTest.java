@@ -176,7 +176,7 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 			assertNotNull("Profile specs Local interface is null", specs.getProfileClasses().getProfileLocalInterface());
 			assertNotNull("Profile specs Local interface value is null", specs.getProfileClasses().getProfileLocalInterface().getProfileLocalInterfaceName());
 			assertTrue("Profile specs Local interface is not equal to "+_DEFAULT_VALUE, specs.getProfileClasses().getProfileLocalInterface().getProfileLocalInterfaceName().compareTo(_DEFAULT_VALUE)==0);
-			assertTrue("Profile specs Local interface  should not isolate security permissions", !specs.getProfileClasses().getProfileLocalInterface().getIsolateSecurityPermissions());
+			assertTrue("Profile specs Local interface  should not isolate security permissions", !specs.getProfileClasses().getProfileLocalInterface().isIsolateSecurityPermissions());
 		}
 		
 		if(specs.isSlee11())
@@ -239,9 +239,9 @@ public class ProfileDescriptorTest extends TCUtilityClass {
 		assertFalse("Profile specs single profile hint should be false",specs.isSingleProfile());
 		
 		if(specs.isSlee11()){
-			assertNotNull("Profile specs security permissions are null",specs.getSecurityPremissions());
-			assertNotNull("Profile specs security permissions value is null", specs.getSecurityPremissions().getSecurityPermissionSpec());
-			assertTrue("Profile specs security permissions not equal to "+_DEFAULT_VALUE, specs.getSecurityPremissions().getSecurityPermissionSpec().compareTo(_DEFAULT_VALUE)==0);
+			assertNotNull("Profile specs security permissions are null",specs.getSecurityPermissions());
+			assertNotNull("Profile specs security permissions value is null", specs.getSecurityPermissions().getSecurityPermissionSpec());
+			assertTrue("Profile specs security permissions not equal to "+_DEFAULT_VALUE, specs.getSecurityPermissions().getSecurityPermissionSpec().compareTo(_DEFAULT_VALUE)==0);
 		}
 		
 		

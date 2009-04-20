@@ -22,6 +22,7 @@ import javax.slee.profile.ProfileSpecificationID;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.security.PermissionHolder;
 import org.mobicents.slee.container.component.validator.ProfileSpecificationComponentValidator;
 
 /**
@@ -327,7 +328,7 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	boolean addToDeployableUnit() {
 		return getDeployableUnit().getProfileSpecificationComponents().put(getProfileSpecificationID(), this) == null;
 	}
-	
+
 	@Override
 	public Set<ComponentID> getDependenciesSet() {
 		return descriptor.getDependenciesSet();
@@ -377,6 +378,17 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	@Override
 	public ComponentDescriptor getComponentDescriptor() {
 		return getSpecsDescriptor();
+	}
+
+	@Override
+	public void processSecurityPermissions() throws DeploymentException {
+		try {
+			if (this.descriptor.getSecurityPermissions() != null) {
+				super.permissions.add(new PermissionHolder(super.getDeploymentDir().toURI(), this.descriptor.getSecurityPermissions().getSecurityPermissionSpec()));
+			}
+		} catch (Exception e) {
+			throw new DeploymentException("Failed to make permissions usable.", e);
+		}
 	}
 
 }

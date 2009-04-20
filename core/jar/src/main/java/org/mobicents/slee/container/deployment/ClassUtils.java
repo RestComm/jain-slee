@@ -292,6 +292,31 @@ public class ClassUtils {
     	}
     	return concreteMethods;
     }
+    
+    public static Map getSuperClassesConcreteMethodsFromClass(CtClass sbbAbstractClass) {
+    	HashMap concrete = new HashMap();
+    	CtMethod[] methods = null;
+    	CtClass superClass;
+    	try {
+    		superClass = sbbAbstractClass.getSuperclass();
+    
+    		while (superClass.getName().compareTo("java.lang.Object") != 0) {
+    			methods = superClass.getDeclaredMethods();
+    			for (int i = 0; i < methods.length; i++) {
+    				if (!Modifier.isAbstract(methods[i].getModifiers())) {
+    					concrete.put(methods[i].getName(), methods[i]);
+    				}
+    			}
+    			superClass = superClass.getSuperclass();
+    		}
+    	} catch (NotFoundException e) {
+    		String s = "Method not found ! Huh!!";
+    		ConcreteClassGeneratorUtils.logger.fatal(s,e);
+    		throw new RuntimeException ("s",e);
+    	}
+    	return concrete;
+    }
+    
     public static Map getSuperClassesAbstractMethodsFromClass(CtClass sbbAbstractClass) {
     	HashMap abstractMethods = new HashMap();
     	CtMethod[] methods = null;

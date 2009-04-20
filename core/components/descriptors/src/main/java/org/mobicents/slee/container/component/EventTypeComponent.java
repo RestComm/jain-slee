@@ -21,6 +21,7 @@ import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.security.PermissionHolder;
 import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
@@ -162,5 +163,11 @@ public class EventTypeComponent extends SleeComponent {
 	 */
 	public void deactivatedServiceWhichDefineEventAsInitial(ServiceComponent serviceComponent) {
 		activeServicesWhichDefineEventAsInitial.remove(serviceComponent);
+	}
+	
+	@Override
+	public void processSecurityPermissions() throws DeploymentException {
+		//Do nothing
+		
 	}
 }

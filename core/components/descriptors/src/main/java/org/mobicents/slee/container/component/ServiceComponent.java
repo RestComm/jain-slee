@@ -22,6 +22,7 @@ import javax.slee.management.ServiceUsageMBean;
 import javax.slee.resource.ReceivableService;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
+import org.mobicents.slee.container.component.security.PermissionHolder;
 
 /**
  * Start time:16:00:31 2009-01-25<br>
@@ -188,5 +189,9 @@ public class ServiceComponent extends SleeComponent {
 	public void setServiceUsageMBean(ServiceUsageMBean serviceUsageMBean) {
 		this.serviceUsageMBean = serviceUsageMBean;
 	}
-
+	@Override
+	public void processSecurityPermissions() throws DeploymentException {
+		//Do nothing
+		
+	}
 }

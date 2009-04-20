@@ -28,7 +28,7 @@ public class MProfileLocalInterface {
     this.isolateSecurityPermissions = Boolean.parseBoolean(profileLocalInterface11.getIsolateSecurityPermissions());
   }
 
-  public boolean getIsolateSecurityPermissions() {
+  public boolean isIsolateSecurityPermissions() {
     return isolateSecurityPermissions;
   }
 

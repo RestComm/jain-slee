@@ -1,5 +1,9 @@
 package org.mobicents.slee.container.deployment.profile;
 
+import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -23,27 +27,25 @@ import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
 public class ConcreteProfileLocalObjectGenerator {
 
 	private static final Logger logger = Logger.getLogger(ConcreteProfileLocalObjectGenerator.class);
-	public static final String _PLO_CMP_INTERCEPTOR = "this.profileObject.getProfileConcrete()";
-	public static final String _PLO_MGMT_INTERCEPTOR = "this.profileObject.getProfileConcrete()";
+	public static final String _PLO_CMP_INTERCEPTOR = "localObject.getProfileConcrete()";
+	public static final String _PLO_MGMT_INTERCEPTOR = "localObject.getProfileConcrete()";
 	public static final String _PLO_PO_ALLOCATION = "allocateProfileObject();";
-	
+	public static final String _PLO_ISOLATE= "isIsolateSecurityPermissions()";
 	
 	private ProfileSpecificationComponent component = null;
 	private String cmpProfileInterfaceName = null;
 
 	private String profileLocalInterfaceName = null;
-	// private String profileManagementInterfaceName = null;
+
 
 	private ClassPool pool = component.getClassPool();
 	private CtClass mobicentsProfileLocalInterfaceConcrete = null;
 	private CtClass profileLocalConcreteClass = null;
 	private CtClass userDefinedProfileLocalInterface = null;
-	// private CtClass cmpProfileConcreteClass = null;
+
 	private CtClass cmpProfileInterface = null;
 
-	// private CtClass sleeProfileManagementInterface = null;
-	// private CtClass profileManagementAbstractClass = null;
-	// private CtClass profileManagementInterface = null;
+
 
 	public ConcreteProfileLocalObjectGenerator(ProfileSpecificationComponent component) {
 		super();
@@ -183,16 +185,45 @@ public class ConcreteProfileLocalObjectGenerator {
 			hasReturnValue = true;
 			returnStatement ="return ($r)";
 		}
+		
 		String body="{ "+
 		_PLO_PO_ALLOCATION+
+		"final ProfileObject localObject = this.profileObject;"+
 		"Thread t = Thread.currentThread();"+
 		"ClassLoader oldClassLoader = t.getContextClassLoader();"+
-		"t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());"+
-		"try{";
-		if(hasReturnValue)
-			body+="Object result = "+interceptorAccess+"."+method.getName()+"($$);";
-		else
-			body+=" = "+interceptorAccess+"."+method.getName()+"($$);";
+		"t.setContextClassLoader(localObject.getProfileSpecificationComponent().getClassLoader());"+
+		"try{" +
+				"Object result" +
+				"if(_PLO_ISOLATE)" +
+				"{";
+					if(hasReturnValue)
+					{
+						body+="  result =AccessController.doPrivileged(new PrivilegedAction(){"+
+
+						"public Object run(){"+
+     						"return "+interceptorAccess+"."+method.getName()+"($$);"+
+     						"}});";
+					}
+					else{
+					body+=" AccessController.doPrivileged(new PrivilegedAction(){"+
+
+						"public Object run(){"+
+							interceptorAccess+"."+method.getName()+"($$);"+
+     						"return null;"+
+     						"}});";
+					}
+				body+="}else{";
+				if(hasReturnValue)
+					body+="result = "+interceptorAccess+"."+method.getName()+"($$);";
+				else
+					body+=" = "+interceptorAccess+"."+method.getName()+"($$);";
+		
+		
+		
+		
+				body+="}";	
+		
+		
 		
 		body+="rollback = false;";
 		if(hasReturnValue)
@@ -271,24 +302,52 @@ public class ConcreteProfileLocalObjectGenerator {
 		}
 		String body="{  "+
 		_PLO_PO_ALLOCATION+
-		"try{";
-		if(hasReturnValue)
-			body+="Object result = "+interceptorAccess+"."+method.getName()+"($$);";
-		else
-			body+=" = "+interceptorAccess+"."+method.getName()+"($$);";
-		
+		"final ProfileObject localObject = this.profileObject;"+
+		"try{" +
+		"Object result" +
+		"if(_PLO_ISOLATE)" +
+		"{";
+			if(hasReturnValue)
+			{
+				body+="  result =AccessController.doPrivileged(new PrivilegedAction(){"+
+
+				"public Object run(){"+
+						"return "+interceptorAccess+"."+method.getName()+"($$);"+
+						"}});";
+			}
+			else{
+			body+=" AccessController.doPrivileged(new PrivilegedAction(){"+
+
+				"public Object run(){"+
+					interceptorAccess+"."+method.getName()+"($$);"+
+						"return null;"+
+						"}});";
+			}
+		body+="}else{";
+			if(hasReturnValue)
+				body+="result = "+interceptorAccess+"."+method.getName()+"($$);";
+			else
+				body+=" = "+interceptorAccess+"."+method.getName()+"($$);";
+
+
+
+
+	    body+="}";	
+
+
+
 		body+="rollback = false;";
 		if(hasReturnValue)
 			body+=returnStatement+"result;";
 		else	
 			body+=returnStatement+";";		
-		
+
 		body+=	
 		"}catch(java.lang.RuntimeException re)"+
 		"{"+
 		"	try {"+
 		"		this.sleeTransactionManager.rollback();"+
-		"		throw new "+TransactionRolledbackLocalException.class.getName()+"(\"ProfileLocalObject inocation results in RuntimeException, rolling back.\",re);"+
+		"		throw new "+TransactionRolledbackLocalException.class.getName()+"(\"ProfileLocalObject invocation results in RuntimeException, rolling back.\",re);"+
 		"	} catch (Exception e) {"+
 		"		throw new "+SLEEException.class.getName()+"(\"System level failure.,\",e);"+ 
 		"	}"+ 

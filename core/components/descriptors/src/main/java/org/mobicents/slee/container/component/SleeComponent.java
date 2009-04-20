@@ -1,7 +1,10 @@
 package org.mobicents.slee.container.component;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javassist.LoaderClassPath;
 
@@ -11,10 +14,12 @@ import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.classloading.ComponentClassLoader;
 import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomain;
+import org.mobicents.slee.container.component.security.PermissionHolder;
 
 /**
  * Base class for a SLEE component, providing features related with class
@@ -25,6 +30,8 @@ import org.mobicents.slee.container.component.deployment.classloading.URLClassLo
  */
 public abstract class SleeComponent {
 
+	protected  Logger logger = Logger.getLogger(this.getClass());
+	
 	/**
 	 * the component class loader
 	 */
@@ -57,6 +64,9 @@ public abstract class SleeComponent {
 	 */
 	private String deploymentUnitSource;
 
+	
+	protected Set<PermissionHolder> permissions = new TreeSet<PermissionHolder>();
+	
 	/**
 	 * Retrieves the component class loader
 	 * 
@@ -140,6 +150,7 @@ public abstract class SleeComponent {
 	 * @param deploymentDir
 	 */
 	public void setDeploymentDir(File deploymentDir) {
+		System.err.println("T["+this+"] DD["+deploymentDir.toURI().normalize()+"]");
 		this.deploymentDir = deploymentDir;
 	}
 
@@ -196,6 +207,18 @@ public abstract class SleeComponent {
 					"unable to install du having multiple components with id "
 							+ getComponentID());
 		}
+	}
+
+	
+	/**
+	 * Gets set with permissions. This may be empty list in case of components that dont have them. 
+	 * In case of compoennts that can have xml-desc wide permissions - this set contains this permissions,
+	 *  as does any other components set defined in that xml-descr. however impl of Policy MUST 
+	 *  handle double defined polic
+	 * @return
+	 */
+	public Set<PermissionHolder> getPermissions() {
+		return Collections.unmodifiableSet(this.permissions);
 	}
 
 	/**
@@ -262,5 +285,8 @@ public abstract class SleeComponent {
 	 * @return
 	 */
 	public abstract ComponentDescriptor getComponentDescriptor();
+	
+	public abstract void processSecurityPermissions() throws DeploymentException;
+	
 
 }

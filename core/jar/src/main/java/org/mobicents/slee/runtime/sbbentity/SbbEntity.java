@@ -2,8 +2,20 @@ package org.mobicents.slee.runtime.sbbentity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.CodeSource;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Policy;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.security.ProtectionDomain;
+import java.security.cert.Certificate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -31,6 +43,7 @@ import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
+import org.mobicents.slee.container.component.security.PolicyFile;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.service.Service;
@@ -700,8 +713,9 @@ public class SbbEntity {
 	public void invokeEventHandler(DeferredEvent sleeEvent, ActivityContext ac,
 			EventContextImpl eventContextImpl) throws Exception {
 
+		
 		// get event handler method
-		EventHandlerMethod eventHandlerMethod = sbbComponent
+		final EventHandlerMethod eventHandlerMethod = sbbComponent
 				.getEventHandlerMethods().get(sleeEvent.getEventTypeId());
 		// build aci
 		ActivityContextInterfaceImpl aciImpl = new ActivityContextInterfaceImpl(
@@ -725,7 +739,7 @@ public class SbbEntity {
 			activityContextInterface = aciImpl;
 		}
 		// now build the param array
-		Object[] parameters = null;
+		final Object[] parameters ;
 		if (eventHandlerMethod.getHasEventContextParam()) {
 			parameters = new Object[] { sleeEvent.getEvent(),
 					activityContextInterface, eventContextImpl };
@@ -741,27 +755,47 @@ public class SbbEntity {
 		data.putInTransactionContext();
 		// invoke method
 		try {
-			eventHandlerMethod.getEventHandlerMethod().invoke(
-					this.sbbObject.getSbbConcrete(), parameters);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-			// Remember the actual exception is hidden inside the
-			// InvocationTarget exception when you use reflection!
-			Throwable realException = e.getCause();
-			if (realException instanceof RuntimeException) {
-				RuntimeException re = (RuntimeException) realException;
-				throw re;
-			} else if (realException instanceof Error) {
-				Error re = (Error) realException;
-				throw re;
-			} else if (realException instanceof Exception) {
-				Exception re = (Exception) realException;
-				throw re;
+			
+			//This is required. Since domain chain may indicate RA for instance, or SLEE deployer. If we dont do that test: tests/runtime/security/Test1112012Test.xml and second one, w
+			//will fail because domain of SLEE tck ra is too restrictive (or we have bad desgin taht allows this to happen?)
+			AccessController.doPrivileged(new PrivilegedExceptionAction(){
+
+				public Object run() throws IllegalAccessException, InvocationTargetException{
+					eventHandlerMethod.getEventHandlerMethod().invoke(
+							sbbObject.getSbbConcrete(), parameters);
+					return null;
+				}});
+			
+			
+			
+		} catch(PrivilegedActionException pae)
+		{
+			Throwable cause = pae.getException();
+			if(cause instanceof  IllegalAccessException)
+			 {
+				throw new RuntimeException(cause);
+			} else if(cause instanceof InvocationTargetException ) {
+				// Remember the actual exception is hidden inside the
+				// InvocationTarget exception when you use reflection!
+				Throwable realException = cause.getCause();
+				if (realException instanceof RuntimeException) {
+					RuntimeException re = (RuntimeException) realException;
+					throw re;
+				} else if (realException instanceof Error) {
+					Error re = (Error) realException;
+					throw re;
+				} else if (realException instanceof Exception) {
+					Exception re = (Exception) realException;
+					throw re;
+				}
+			}else
+			{
+				pae.printStackTrace();
 			}
 		}
 		// remove data from tx context
 		data.removeFromTransactionContext();
+		
 	}
 
 	/**

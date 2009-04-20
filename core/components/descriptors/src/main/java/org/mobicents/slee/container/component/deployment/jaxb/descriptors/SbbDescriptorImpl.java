@@ -304,7 +304,7 @@ public class SbbDescriptorImpl {
 		return ejbRefs;
 	}
 
-	public MSecurityPermissions getSecurityPermisions() {
+	public MSecurityPermissions getSecurityPermissions() {
 		return securityPermisions;
 	}
 

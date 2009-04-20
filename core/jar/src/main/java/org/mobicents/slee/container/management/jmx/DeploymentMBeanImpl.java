@@ -11,6 +11,7 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.security.Policy;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,6 +54,8 @@ import org.mobicents.slee.container.component.SleeComponent;
 import org.mobicents.slee.container.component.deployment.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.DeployableUnitBuilder;
 import org.mobicents.slee.container.component.management.DeployableUnitManagement;
+import org.mobicents.slee.container.component.security.PermissionHolder;
+import org.mobicents.slee.container.component.security.PolicyFile;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -151,6 +154,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					for (LibraryComponent component : deployableUnit
 							.getLibraryComponents().values()) {
 						componentRepositoryImpl.putComponent(component);
+						updateSecurityPermissions(component, false);
 						logger.info("Installed " + component);
 					}
 					for (EventTypeComponent component : deployableUnit
@@ -190,6 +194,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								.getClassLoader());
 						sleeContainer.getSleeProfileTableManager()
 								.installProfileSpecification(component);
+						updateSecurityPermissions(component, false);
 						logger.info("Installed " + component);
 					}
 					for (ResourceAdaptorComponent component : deployableUnit
@@ -198,6 +203,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								.getClassLoader());
 						sleeContainer.getResourceManagement()
 								.installResourceAdaptor(component);
+						updateSecurityPermissions(component, false);
 						logger.info("Installed " + component);
 					}
 					for (SbbComponent component : deployableUnit
@@ -205,6 +211,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 						currentThread.setContextClassLoader(component
 								.getClassLoader());
 						sleeContainer.getSbbManagement().installSbb(component);
+						updateSecurityPermissions(component, false);
 						logger.info("Installed " + component);
 					}
 					// finally install the services
@@ -219,8 +226,9 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 					
 					deployableUnitManagement.addDeployableUnit(deployableUnit);
 					logger.info("Installed " +deployableUnitID);
-
+					updateSecurityPermissions(null, true);
 					rollback = false;
+					
 					return deployableUnitID;
 				} finally {
 					currentThread.setContextClassLoader(currentClassLoader);
@@ -231,6 +239,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								// put all components in the repo again
 								for (LibraryComponent component : deployableUnit
 										.getLibraryComponents().values()) {
+									removeSecurityPermissions(component, false);
 									componentRepositoryImpl.removeComponent(component.getLibraryID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
@@ -244,6 +253,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								for (ResourceAdaptorTypeComponent component : deployableUnit
 										.getResourceAdaptorTypeComponents()
 										.values()) {
+									removeSecurityPermissions(component, false);
 									componentRepositoryImpl.removeComponent(component.getResourceAdaptorTypeID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
@@ -257,12 +267,14 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								}
 								for (ResourceAdaptorComponent component : deployableUnit
 										.getResourceAdaptorComponents().values()) {
+									removeSecurityPermissions(component, false);
 									componentRepositoryImpl.removeComponent(component.getResourceAdaptorID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
 								}
 								for (SbbComponent component : deployableUnit
 										.getSbbComponents().values()) {
+									removeSecurityPermissions(component, false);
 									componentRepositoryImpl.removeComponent(component.getSbbID());
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
@@ -273,6 +285,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 									logger.info("Uninstalled " + component
 											+ " due to tx rollback");
 								}
+								removeSecurityPermissions(null, true);
 								// undeploy the unit
 								deployableUnit.undeploy();
 							}
@@ -368,6 +381,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 							.getSbbComponents().values()) {
 						currentThread.setContextClassLoader(component
 								.getClassLoader());
+						removeSecurityPermissions(component, false);
 						sleeContainer.getSbbManagement()
 								.uninstallSbb(component);
 						componentRepositoryImpl.removeComponent(component
@@ -377,6 +391,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 					for (ResourceAdaptorComponent component : deployableUnit
 							.getResourceAdaptorComponents().values()) {
+						removeSecurityPermissions(component, false);
 						resourceManagement.uninstallResourceAdaptor(component);
 						componentRepositoryImpl.removeComponent(component
 								.getResourceAdaptorID());
@@ -387,6 +402,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 							.getProfileSpecificationComponents().values()) {
 						currentThread.setContextClassLoader(component
 								.getClassLoader());
+						removeSecurityPermissions(component, false);
 						sleeContainer.getSleeProfileTableManager()
 								.uninstallProfileSpecification(component);
 						componentRepositoryImpl.removeComponent(component
@@ -411,10 +427,11 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 					for (LibraryID componentID : deployableUnit
 							.getLibraryComponents().keySet()) {
+						removeSecurityPermissions(componentRepositoryImpl.getComponentByID(componentID), false);
 						componentRepositoryImpl.removeComponent(componentID);
 						logger.info("Uninstalled " + componentID);
 					}
-
+					removeSecurityPermissions(null,true);
 					// remove du
 					deployableUnitManagement
 							.removeDeployableUnit(deployableUnitID);
@@ -445,6 +462,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								for (LibraryComponent component : deployableUnit
 										.getLibraryComponents().values()) {
 									if (componentRepositoryImpl.putComponent(component)) {
+										updateSecurityPermissions(component, false);
 										logger.info("Reinstalled " + component
 												+ " due to tx rollback");
 									}
@@ -468,6 +486,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 										.getProfileSpecificationComponents()
 										.values()) {
 									if (componentRepositoryImpl.putComponent(component)) {
+										updateSecurityPermissions(component, false);
 									logger.info("Reinstalled " + component
 											+ " due to tx rollback");
 									}
@@ -475,6 +494,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								for (ResourceAdaptorComponent component : deployableUnit
 										.getResourceAdaptorComponents().values()) {
 									if (componentRepositoryImpl.putComponent(component)) {
+										updateSecurityPermissions(component, false);
 									logger.info("Reinstalled " + component
 											+ " due to tx rollback");
 									}
@@ -482,6 +502,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								for (SbbComponent component : deployableUnit
 										.getSbbComponents().values()) {
 									if (componentRepositoryImpl.putComponent(component)) {
+										updateSecurityPermissions(component, false);
 									logger.info("Reinstalled " + component
 											+ " due to tx rollback");
 									}
@@ -493,6 +514,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 											+ " due to tx rollback");
 									}
 								}
+								updateSecurityPermissions(null, true);
 								deployableUnitManagement
 								.addDeployableUnit(deployableUnit);
 							}
@@ -897,4 +919,49 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		}
 	}
 
+	private void updateSecurityPermissions(SleeComponent component, boolean refresh)
+	{
+		Policy p = Policy.getPolicy();
+		if(!(p instanceof PolicyFile))
+		{
+			logger.error("Could nto find Policy implmentation specific to mobicents. Found: "+p.getClass());
+			return;
+		}
+		
+		PolicyFile policyFile = (PolicyFile) p;
+		if(component!=null)
+		{
+			//System.err.println(component.getComponentID()+" PERMS: "+component.getPermissions().size());
+			for(PermissionHolder ph : component.getPermissions())
+			{
+				//System.err.println("ADDING PERMISSION: "+ph+"\nP:"+ph.getPolicy());
+				policyFile.addPermissionHolder(ph, false);
+			}
+		}
+		
+
+		if(refresh)
+			policyFile.refresh();
+	}
+	
+	private void removeSecurityPermissions(SleeComponent component, boolean refresh)
+	{
+		Policy p = Policy.getPolicy();
+		if(!(p instanceof PolicyFile))
+		{
+			logger.error("Could nto find Policy implmentation specific to mobicents. Found: "+p.getClass());
+		}
+		
+		PolicyFile policyFile = (PolicyFile) p;
+		if(component!=null)
+		{
+			for(PermissionHolder ph : component.getPermissions())
+			{
+				policyFile.removePermissionHolder(ph, false);
+			}
+		}
+		
+		if(refresh)
+			policyFile.refresh();
+	}
 }
