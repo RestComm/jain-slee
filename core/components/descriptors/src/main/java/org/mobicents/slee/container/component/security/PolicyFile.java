@@ -814,7 +814,7 @@ public class PolicyFile extends Policy {
 
 		List<String> css = new ArrayList<String>();
 		for (PolicyHolderEntry phe : this.currentPolicy.get().policyHolderEntries) {
-			css.add(phe.getCodeSource().getLocation().toString());
+			css.add(phe.getCodeSource().getLocation()==null?"default":phe.getCodeSource().getLocation().toString());
 		}
 
 		return Arrays.toString(css.toArray());
