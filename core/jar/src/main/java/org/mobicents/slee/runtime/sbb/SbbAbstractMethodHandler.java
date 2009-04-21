@@ -214,7 +214,7 @@ public class SbbAbstractMethodHandler {
 		// do double check on here than have the aci fire method throwing it and
 		// the ra slee endpoint having to translate it to activity ending
 		// exception, it is not common to have custom event firing in sbbs
-		if (ac.getState() != ActivityContextState.ACTIVE) {
+		if (ac.isEnding()) {
 			throw new IllegalStateException("activity context "
 					+ ac.getActivityContextHandle() + " is ending");
 		}

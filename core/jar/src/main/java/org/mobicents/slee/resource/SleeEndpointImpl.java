@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 import javax.slee.Address;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
-import javax.slee.UnrecognizedActivityException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
@@ -117,7 +116,9 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			IllegalStateException, TransactionRequiredLocalException,
 			ActivityAlreadyExistsException, StartActivityException,
 			SLEEException {
-		startActivityTransacted(handle, activity,activityFlags);
+		// need to check tx before doing out of tx scope activity start
+		sleeContainer.getTransactionManager().mandateTransaction();
+		startActivity(handle, activity,activityFlags);
 		suspendActivity(handle);
 	}
 

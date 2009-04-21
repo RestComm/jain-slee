@@ -188,6 +188,8 @@ public class SleeContainer {
 	
 	private final MobicentsUUIDGenerator uuidGenerator = MobicentsUUIDGenerator.getInstance(); 
 	
+	private SleeContainerTimer timer;
+	
 	// LIFECYLE RELATED
 
 	/**
@@ -231,6 +233,7 @@ public class SleeContainer {
 		ConcreteClassGeneratorUtils.class.getClass();
 		DefaultSleeEntityResolver.init(this.getClass().getClassLoader());
 
+		this.timer = new SleeContainerTimer();		
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
 		//this.sleeProfileManager = new SleeProfileManager(this);
@@ -293,6 +296,7 @@ public class SleeContainer {
 		Context ctx = new InitialContext();
 		Util.unbind(ctx, JVM_ENV + CTX_SLEE);
 		stopRMIServer();
+		timer.realCancel();
 	}
 
 	/**
@@ -505,6 +509,14 @@ public class SleeContainer {
 		return mbeanServer;
 	}
 
+	/**
+	 * Retrieves the shared timer
+	 * @return
+	 */
+	public SleeContainerTimer getTimer() {
+		return timer;
+	}
+	
 	// RMI RELATED
 
 	/*

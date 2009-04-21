@@ -20,22 +20,20 @@ import javax.slee.transaction.SleeTransactionManager;
 import javax.slee.usage.NoUsageParametersInterfaceDefinedException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
+import org.mobicents.slee.container.SleeContainerTimer;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 
 public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
-	
-	private static final ResourceAdaptorContextTimer timer = new ResourceAdaptorContextTimer();
-	
+		
 	private final ResourceAdaptorEntity raEntity;
 	private final SleeEndpointImpl sleeEndpointImpl;
 	private final SleeContainer sleeContainer;
 	private final ServiceLookupFacility serviceLookupFacility;
 	private final EventLookupFacility eventLookupFacility;
-	
-	
+		
 	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
@@ -99,7 +97,7 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	}
 
 	public Timer getTimer() {
-		return timer;
+		return sleeContainer.getTimer();
 	}
 
 	public Tracer getTracer(String tracerName) throws NullPointerException,
@@ -118,8 +116,6 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 		try {
 			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(raEntity.getNotificationSource(), tracerName, true);
 		} catch (ManagementException e) {
-
-			//e.printStackTrace();
 			throw new SLEEException("Failed to crate tracer: "+tracerName,e);
 		}
 	}

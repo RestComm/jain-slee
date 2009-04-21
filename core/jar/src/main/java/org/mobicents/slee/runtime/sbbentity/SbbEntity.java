@@ -2,20 +2,11 @@ package org.mobicents.slee.runtime.sbbentity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.security.AccessControlContext;
 import java.security.AccessController;
-import java.security.CodeSource;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Policy;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.security.ProtectionDomain;
-import java.security.cert.Certificate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -43,7 +34,6 @@ import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
-import org.mobicents.slee.container.component.security.PolicyFile;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.service.Service;
@@ -627,7 +617,7 @@ public class SbbEntity {
 			ActivityContext ac = SleeContainer.lookupFromJndi()
 					.getActivityContextFactory().getActivityContext(acId, true);
 			// remove the sbb entity from the attachment set.
-			if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
+			if (ac != null && !ac.isEnding()) {
 				ac.detachSbbEntity(this.sbbeId);
 			}
 			// no need to remove ac from entity because the entity is being

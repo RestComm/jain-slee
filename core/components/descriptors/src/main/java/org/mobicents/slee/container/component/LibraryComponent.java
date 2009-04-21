@@ -10,8 +10,6 @@ package org.mobicents.slee.container.component;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -146,18 +144,12 @@ public class LibraryComponent extends SleeComponent {
 			for (MJar mjar : this.descriptor.getJars()) {
 				if (mjar.getSecurityPermissions() != null) {
 					File f = new File(super.getDeploymentDir(), mjar.getJarName());
-					if (logger.isInfoEnabled()) {
-						logger.info("PREPARE TO PARSE LIB JAR: " + f);
-					}
 					//System.err.println("PERMISSION FOR LIB1:"+Arrays.toString(super.permissions.toArray()));
 					child = new PermissionHolder(f.toURI(), mjar.getSecurityPermissions().getSecurityPermissionSpec());
 					super.permissions.add(child);
 					//System.err.println("ADD: "+super.permissions.add(child));
 					//System.err.println("PERMISSION FOR LIB2:"+Arrays.toString(super.permissions.toArray()));
-					
-					
 				}
-
 			}
 	
 		} catch (Exception e) {

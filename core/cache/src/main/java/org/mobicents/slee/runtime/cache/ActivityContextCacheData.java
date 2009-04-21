@@ -39,6 +39,13 @@ public class ActivityContextCacheData extends CacheData {
 
 	private static final Fqn CMP_ATTRIBUTES_FQN = Fqn
 			.fromElements("cmp-attributes");
+	
+	private static final Fqn IS_ENDING_FQN = Fqn
+	.fromElements("is-ending");
+
+	private static final Fqn IS_CHECKING_REFS_FQN = Fqn
+	.fromElements("is-checking-refs");
+	
 	private static final Object CMP_ATTRIBUTES_NODE_MAP_KEY = new Object();
 
 	/**
@@ -82,6 +89,56 @@ public class ActivityContextCacheData extends CacheData {
 		return getNode().remove(key);
 	}
 
+	public boolean isEnding() {
+		return getNode().getChild(IS_ENDING_FQN) != null;
+	}
+	
+	public boolean setEnding(boolean value) {
+		if (value) {
+			if (!isEnding()) {
+				getNode().addChild(IS_ENDING_FQN);
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			if (isEnding()) {
+				getNode().removeChild(IS_ENDING_FQN);
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	
+	public boolean isCheckingReferences() {
+		return getNode().getChild(IS_CHECKING_REFS_FQN) != null;
+	}
+	
+	public boolean setCheckingReferences(boolean value) {
+		if (value) {
+			if (!isEnding()) {
+				getNode().addChild(IS_CHECKING_REFS_FQN);
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			if (isEnding()) {
+				getNode().removeChild(IS_CHECKING_REFS_FQN);
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	
 	/**
 	 * Tries to attaches an sbb entity
 	 * 

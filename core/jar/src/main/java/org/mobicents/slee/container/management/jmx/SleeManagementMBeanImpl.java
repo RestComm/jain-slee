@@ -544,8 +544,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 						ActivityContext ac = sleeContainer
 								.getActivityContextFactory()
 								.getActivityContext(handle, false);
-						if (ac != null
-								&& ac.getState() == ActivityContextState.ACTIVE) {
+						if (ac != null) {
 							ac.endActivity();
 						}
 					} catch (Exception e) {

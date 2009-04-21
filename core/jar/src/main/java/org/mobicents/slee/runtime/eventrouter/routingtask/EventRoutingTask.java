@@ -303,14 +303,6 @@ public class EventRoutingTask implements Runnable {
 						} 
 					}					
 					
-					if (!gotSbb) {
-						de.eventProcessingSucceed();
-						if (logger.isDebugEnabled()) {
-							logger.debug("Delaying commit for 100ms, needed by wrongly designed tck transaction isolation tests. This only happens with DEBUG log level");
-							Thread.sleep(100);
-						}						
-					}
-					
 					Thread.currentThread().setContextClassLoader(
 							oldClassLoader);
 
@@ -486,6 +478,7 @@ public class EventRoutingTask implements Runnable {
 				// == false
 			} while (gotSbb);
 
+			de.eventProcessingSucceed();
 			
 			/*
 			 * End of SLEE Originated Invocation Sequence

@@ -1,13 +1,11 @@
 package org.mobicents.slee.resource;
 
-import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -15,7 +13,6 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 
 	private static final Logger logger = Logger.getLogger(EndAllActivitiesRAEntityTimerTask.class);
 	
-	private static final Timer timer = new Timer();
 	private static final long delay = 60000;
 	
 	private final ResourceAdaptorEntity raEntity;
@@ -26,7 +23,7 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 	public EndAllActivitiesRAEntityTimerTask(ResourceAdaptorEntity raEntity,SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
-		timer.schedule(this, delay);
+		sleeContainer.getTimer().schedule(this, delay);
 	}
 	
 	@Override
@@ -55,7 +52,7 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 						ActivityContext ac = sleeContainer
 								.getActivityContextFactory()
 								.getActivityContext(handle, false);
-						if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
+						if (ac != null) {
 							ac.endActivity();
 						}
 					} catch (Exception e) {

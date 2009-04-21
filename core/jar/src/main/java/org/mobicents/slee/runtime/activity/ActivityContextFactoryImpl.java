@@ -73,30 +73,31 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 
 	public ActivityContext createActivityContext(final ActivityContextHandle ach, int activityFlags) throws ActivityAlreadyExistsException {
 		
-		// create id
+		if (cacheData.getActivityContextId(ach) != null) {
+			throw new ActivityAlreadyExistsException(ach.toString()); 
+		}
+		// create id and map it to the ac handle
 		final String acId = createActivityContextId(ach);
-		
-		if (cacheData.addActivityContext(ach, acId)) {
-			// create ac
-			ActivityContext ac = new ActivityContext(ach,acId,true,Integer.valueOf(activityFlags));
-			// warn event router about it
-			sleeContainer.getEventRouter().activityStarted(acId);
-			// add rollback tx action to remove state created
-			TransactionalAction action = new TransactionalAction() {
-				public void execute() {
-					sleeContainer.getEventRouter().activityEnded(acId);				
-				}
-			};
-			try {
-				sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-			} catch (SystemException e) {
-				throw new SLEEException("failed to add rollback action to remove activity runtime resources",e);
+		cacheData.addActivityContext(ach, acId);
+		// create ac
+		ActivityContext ac = new ActivityContext(ach,acId,true,Integer.valueOf(activityFlags));
+		if (logger.isDebugEnabled()) {
+			logger.debug("Created ac "+ac+" for handle "+ach);
+		}
+		// warn event router about it
+		sleeContainer.getEventRouter().activityStarted(acId);
+		// add rollback tx action to remove state created
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				sleeContainer.getEventRouter().activityEnded(acId);				
 			}
-			return ac;
+		};
+		try {
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		} catch (SystemException e) {
+			throw new SLEEException("failed to add rollback action to remove activity runtime resources",e);
 		}
-		else {
-			throw new ActivityAlreadyExistsException(ach.toString());
-		}
+		return ac;
 	}
 
 	public ActivityContext getActivityContext(ActivityContextHandle ach, boolean updateAccessTime) {
@@ -129,6 +130,10 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	
 	public void removeActivityContext(final ActivityContext ac) {
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("Removing ac "+ac);
+		}
+		
 		ac.activityEnded();
 		
 		cacheData.removeActivityContext(ac.getActivityContextHandle(),ac.getActivityContextId());

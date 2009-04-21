@@ -35,7 +35,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.facilities.AbstractAlarmFacilityImpl;
@@ -368,7 +367,7 @@ public class ResourceAdaptorEntity {
 						ActivityContext ac = sleeContainer
 								.getActivityContextFactory()
 								.getActivityContext(handle, false);
-						if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {		
+						if (ac != null && !ac.isEnding()) {		
 							return true;
 						}
 					} catch (Throwable e) {
@@ -401,18 +400,11 @@ public class ResourceAdaptorEntity {
 	 */
 	public void remove() throws InvalidStateException {
 		if (!this.state.isInactive()) {
-			if (this.state.isStopping() && timerTask != null) {
-				// run the task now
-				timerTask.run();
-			}
-			else {
-				throw new InvalidStateException("entity " + name + " is in state: "
+			throw new InvalidStateException("entity " + name + " is in state: "
 						+ this.state);
-			}
 		}
 		object.raUnconfigure();
 		object.unsetResourceAdaptorContext();
-		((ResourceAdaptorContextTimer)resourceAdaptorContext.getTimer()).realCancel();
 		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
 				.deregisterNotificationSource(this.getNotificationSource());
 		state = null;

@@ -2,7 +2,6 @@ package org.mobicents.slee.runtime.activity;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class UnreferencedActivity2ndCheckTask implements Runnable {
@@ -28,7 +27,7 @@ public class UnreferencedActivity2ndCheckTask implements Runnable {
 			txManager.begin();
 			ActivityContext ac = sleeContainer.getActivityContextFactory()
 					.getActivityContext(acId, false);
-			if (ac != null && ac.getState() == ActivityContextState.ACTIVE) {
+			if (ac != null && !ac.isEnding()) {
 				ac.unreferencedActivity2ndCheck();
 			}
 			rollback = false;

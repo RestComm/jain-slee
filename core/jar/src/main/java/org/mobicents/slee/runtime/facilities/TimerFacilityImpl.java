@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,8 +70,6 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	// this is supposed to be the timer resolution in ms of the hosting
 	// OS/hardware
 	private int timerResolution = 10;
-
-	private transient Timer sysTimer = new Timer();
 
 	private final SleeContainer sleeContainer;
 	
@@ -134,38 +131,23 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 				if (logger.isDebugEnabled()) {
 					logger.debug("===Scheduling periodic timer");
 				}
-				try {
-					tf.sysTimer.scheduleAtFixedRate(task, startTime, period);
-				} catch (RuntimeException e) {
+				
+				sleeContainer.getTimer().scheduleAtFixedRate(task, startTime, period);
+				if (logger.isDebugEnabled()) {
 					logger
-							.warn(
-									"Failed to schedule new task with system timer. Will recycle system timer and retry.",
-									e);
-					recycleTimer();
-					if (logger.isDebugEnabled()) {
-						logger
-							.debug("Timer task scheduled successfully with recycled system timer.");
-					}
+					.debug("Timer task scheduled successfully.");
 				}
 			}
 
 			private void scheduleOneTimeTask(TimerFacilityImpl tf) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("===Scheduling one-time timer");
-				}
-				try {
-					tf.sysTimer.schedule(task, startTime);
-				} catch (RuntimeException e) {
+				}				
+				sleeContainer.getTimer().schedule(task, startTime);
+				if (logger.isDebugEnabled()) {
 					logger
-							.warn(
-									"Failed to schedule new task with system timer. Will recycle system timer and retry.",
-									e);
-					recycleTimer();
-					if (logger.isDebugEnabled()) {
-						logger
-							.debug("Timer task scheduled successfully with recycled system timer.");
-					}
-				}
+					.debug("Timer task scheduled successfully.");
+				}				
 			}
 		}
 
@@ -211,7 +193,6 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 
 	public TimerFacilityImpl(SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
-		this.sysTimer = new Timer();		
 		// init cache data
 		cacheData = sleeContainer.getCache().getTimerFacilityCacheData();
 		cacheData.create();
@@ -509,31 +490,6 @@ public class TimerFacilityImpl implements Serializable, TimerFacility {
 	 */
 	public long getDefaultTimeout() throws FacilityException {
 		return DEFAULT_TIMEOUT;
-	}
-
-	/**
-	 * stop the timer. This is for JMX management interfaces
-	 * 
-	 */
-	public void stop() {
-		this.sysTimer.cancel();
-		logger.info("TimerFacility stopped");
-		// once a system timer is canceled it can no longer be used for new
-		// tasks
-		// new system timer will be used for future timer tasks
-		recycleTimer();
-	}
-
-	public synchronized void recycleTimer() {
-		sysTimer = new Timer();
-	}
-
-	/**
-	 * Start the timer. This is for jmx management interfaces.
-	 * 
-	 */
-	public void start() {
-
 	}
 
 	/**

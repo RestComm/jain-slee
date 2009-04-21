@@ -2,7 +2,6 @@ package org.mobicents.slee.container.component;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,7 +13,6 @@ import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 
-import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.DeployableUnit;
 import org.mobicents.slee.container.component.deployment.classloading.ComponentClassLoader;
@@ -29,8 +27,6 @@ import org.mobicents.slee.container.component.security.PermissionHolder;
  * 
  */
 public abstract class SleeComponent {
-
-	protected  Logger logger = Logger.getLogger(this.getClass());
 	
 	/**
 	 * the component class loader
@@ -150,7 +146,6 @@ public abstract class SleeComponent {
 	 * @param deploymentDir
 	 */
 	public void setDeploymentDir(File deploymentDir) {
-		System.err.println("T["+this+"] DD["+deploymentDir.toURI().normalize()+"]");
 		this.deploymentDir = deploymentDir;
 	}
 
