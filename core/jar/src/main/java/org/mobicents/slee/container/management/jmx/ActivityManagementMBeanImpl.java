@@ -741,7 +741,14 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 					}
 					else {
 						logger.warn("Ending leaked activity with handle "+ach.getActivityHandle()+" of ra entity "+raEntity.getName()+" since the ra entity getActivity() returns null");
-						ac.endActivity();
+						if (!ac.isEnding()) {
+							// end it
+							ac.endActivity();
+						}
+						else {
+							// force removal
+							container.getActivityContextFactory().removeActivityContext(ac);
+						}
 					}					
 				}
 			}

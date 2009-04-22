@@ -61,7 +61,6 @@ public class ActivityContext {
 	private static final transient Logger logger = Logger.getLogger(ActivityContext.class);
 
 	// --- map keys for attributes cached
-	private static final transient String NODE_MAP_KEY_STATE = "state";
 	private static final transient String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags"; 
 	
 	/**
@@ -674,14 +673,12 @@ public class ActivityContext {
 		
 		case externalActivity:
 			// external activity, notify RA that the activity has ended
-			if (ActivityFlags.hasRequestEndedCallback(getActivityFlags())) {
-				try {
-					sleeContainer.getResourceManagement().getResourceAdaptorEntity(activityContextHandle.getActivitySource()).getResourceAdaptorObject().activityEnded(activityContextHandle.getActivityHandle());
-				}
-				catch (Throwable e) {
-					logger.error(e.getMessage(),e);
-				}
+			try {
+				sleeContainer.getResourceManagement().getResourceAdaptorEntity(activityContextHandle.getActivitySource()).activityEnded(activityContextHandle.getActivityHandle(),getActivityFlags());
 			}
+			catch (Throwable e) {
+				logger.error(e.getMessage(),e);
+			}			
 			break;
 		
 		case nullActivity:
@@ -748,7 +745,7 @@ public class ActivityContext {
 		}		
 	}
 	
-	private EventRouterActivity getEventRouterActivity() {
+	public EventRouterActivity getEventRouterActivity() {
 		return sleeContainer.getEventRouter().getEventRouterActivity(this.activityContextId);
 	}
 	

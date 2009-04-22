@@ -16,6 +16,7 @@ import javax.slee.management.NotificationSource;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.SleeState;
+import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.FailureReason;
@@ -33,7 +34,6 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
-import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
@@ -260,9 +260,9 @@ public class ResourceAdaptorEntity {
 	}
 
 	public void allActivitiesEnded() {
-		if(logger.isDebugEnabled()) {
-			logger.debug("all activities ended for ra entity "+name);
-		}
+		
+		logger.info("All activities ended for ra entity "+name);
+		
 		if (timerTask != null) {
 			timerTask = null;
 		}
@@ -346,7 +346,8 @@ public class ResourceAdaptorEntity {
 	 */
 	private void scheduleAllActivitiesEnd() throws TransactionRequiredLocalException {
 
-		if (hasActiveActivites()) {
+		if (hasActivites(null)) {
+			logger.info("RA entity "+name+" activities end scheduled.");
 			timerTask = new EndAllActivitiesRAEntityTimerTask(this,sleeContainer);
 		}
 		else {
@@ -354,7 +355,13 @@ public class ResourceAdaptorEntity {
 		}
 	}
 
-	private boolean hasActiveActivites() throws TransactionRequiredLocalException {
+	/**
+	 * Checks if the entity has activities besides the one passed as parameter (if not null).
+	 * @param exceptHandle
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 */
+	private boolean hasActivites(ActivityHandle exceptHandle) throws TransactionRequiredLocalException {
 
 		boolean newTx = sleeContainer.getTransactionManager().requireTransaction();
 		try {	
@@ -362,17 +369,8 @@ public class ResourceAdaptorEntity {
 					.getActivityContextFactory()
 					.getAllActivityContextsHandles()) {
 				if (handle.getActivityType() == ActivityType.externalActivity
-						&& handle.getActivitySource().equals(name)) {
-					try {
-						ActivityContext ac = sleeContainer
-								.getActivityContextFactory()
-								.getActivityContext(handle, false);
-						if (ac != null && !ac.isEnding()) {		
-							return true;
-						}
-					} catch (Throwable e) {
-						logger.error(e.getMessage(), e);
-					}
+						&& handle.getActivitySource().equals(name) && !handle.getActivityHandle().equals(exceptHandle)) {
+					return true;					
 				}
 			}			
 		} catch (Throwable e) {
@@ -629,8 +627,16 @@ public class ResourceAdaptorEntity {
 						.getEventFlags());
 	}
 
-	public void activityEnding(ActivityHandle handle) {
-		if (object.getState() == ResourceAdaptorObjectState.STOPPING && !hasActiveActivites()) {
+	/**
+	 * Callback to notify the entity and possibly the ra object, informing activity handled ended.
+	 * @param handle
+	 * @param activityFlags
+	 */
+	public void activityEnded(ActivityHandle handle, int activityFlags) {
+		if (ActivityFlags.hasRequestEndedCallback(activityFlags)) {
+			object.activityEnded(handle);
+		}
+		if (object.getState() == ResourceAdaptorObjectState.STOPPING && !hasActivites(handle)) {
 			if (timerTask != null) {
 				timerTask.cancel();
 			}

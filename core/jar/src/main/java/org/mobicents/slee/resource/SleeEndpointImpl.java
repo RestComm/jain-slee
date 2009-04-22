@@ -240,9 +240,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
 		if (ac != null) {
 			// end the activity
-			ac.endActivity();
-			// warn the entity, it may be stopping and needs to know when all activities end
-			raEntity.activityEnding(handle);			
+			ac.endActivity();		
 		} else {
 			throw new UnrecognizedActivityHandleException(handle.toString());
 		}

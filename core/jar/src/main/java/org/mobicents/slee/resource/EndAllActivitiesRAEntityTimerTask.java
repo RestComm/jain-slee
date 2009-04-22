@@ -7,6 +7,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityType;
+import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
@@ -47,13 +48,19 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 						&& handle.getActivitySource().equals(raEntity.getName())) {
 					try {
 						if (logger.isDebugEnabled()) {
-							logger.debug("Ending activity " + handle);
+							logger.debug("Forcing the end of activity " + handle);
 						}
 						ActivityContext ac = sleeContainer
 								.getActivityContextFactory()
 								.getActivityContext(handle, false);
 						if (ac != null) {
-							ac.endActivity();
+							// if it has a suspended event context then resume it
+							EventContextImpl eventContextImpl = ac.getEventRouterActivity().getCurrentEventContext();
+							if (eventContextImpl != null && eventContextImpl.isSuspended()) {
+								eventContextImpl.resumeDelivery();
+							}
+							// end activity
+							ac.endActivity();							
 						}
 					} catch (Exception e) {
 						if (logger.isDebugEnabled()) {
@@ -79,17 +86,15 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 						"Error in tx management while ending all activities for ra entity "
 								+ raEntity.getName(), e);
 			}
-		}
-		
-		// inform the ra entity we ended all activities
-		raEntity.allActivitiesEnded();
-			
+		}			
 	}
 
 	@Override
 	public synchronized void run() {
 		if (!canceled) {
 			cancel();
+			logger.info("Forcing the end of all activities for ra entity "
+					+ raEntity.getName());
 			try {
 				endAllActivities();
 			} catch (Throwable e) {

@@ -106,15 +106,14 @@ public class EventRouterImpl implements EventRouter {
 			// get ridden of old executors, if any
 			if (this.executors != null) {
 				for (ExecutorService executorService : this.executors) {
-					executorService.shutdownNow();
+					executorService.shutdown();
 				}
 			}
 			// create new ones
 			this.executors = new ExecutorService[eventExecutorsSize];
 			for (int i = 0; i < eventExecutorsSize; i++) {
 				this.executors[i] = Executors.newSingleThreadExecutor();
-			}
-			
+			}			
 			this.monitorPendingACAttachements = monitoringUncommittedAcAttachs;
 		}
 		else {

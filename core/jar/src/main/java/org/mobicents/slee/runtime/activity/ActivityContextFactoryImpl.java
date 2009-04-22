@@ -133,13 +133,12 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removing ac "+ac);
 		}
-		
+		// do end procedures 
 		ac.activityEnded();
-		
+		// remove mapping in the factory
 		cacheData.removeActivityContext(ac.getActivityContextHandle(),ac.getActivityContextId());
-		
+		// remove runtime resources
 		sleeContainer.getEventRouter().activityEnded(ac.getActivityContextId());
-		
 		// add rollback tx action to recreate state removed
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
