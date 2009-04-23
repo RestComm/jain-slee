@@ -921,6 +921,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 	private void updateSecurityPermissions(SleeComponent component, boolean refresh)
 	{
+		if(!SleeContainer.isSecurityEnabled())
+		{
+			return;
+		}
 		Policy p = Policy.getPolicy();
 		if(!(p instanceof PolicyFile))
 		{
@@ -931,10 +935,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		PolicyFile policyFile = (PolicyFile) p;
 		if(component!=null)
 		{
-			//System.err.println(component.getComponentID()+" PERMS: "+component.getPermissions().size());
+			
 			for(PermissionHolder ph : component.getPermissions())
 			{
-				//System.err.println("ADDING PERMISSION: "+ph+"\nP:"+ph.getPolicy());
+
 				policyFile.addPermissionHolder(ph, false);
 			}
 		}
@@ -946,6 +950,12 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	
 	private void removeSecurityPermissions(SleeComponent component, boolean refresh)
 	{
+		
+		if(!SleeContainer.isSecurityEnabled())
+		{
+			return;
+		}
+			
 		Policy p = Policy.getPolicy();
 		if(!(p instanceof PolicyFile))
 		{

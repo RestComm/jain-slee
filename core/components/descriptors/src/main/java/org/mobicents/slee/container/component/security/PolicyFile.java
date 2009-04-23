@@ -642,6 +642,8 @@ public class PolicyFile extends Policy {
 		}
 	}
 
+	//FIXME: should those method be hidden?
+	
 	public boolean removePermissionHolder(PermissionHolder holder) {
 
 		return this.removePermissionHolder(holder, true);

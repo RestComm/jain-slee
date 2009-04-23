@@ -32,6 +32,7 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepository;
 import org.mobicents.slee.container.component.EventTypeComponent;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -190,7 +191,7 @@ public class DeployableUnitBuilder {
 				// load the provided classes for the component
 				loadAndSetNonGeneratedComponentClasses(sleeComponent);
 			}
-			
+			boolean secEnabled = SleeContainer.isSecurityEnabled();
 			// validate each component
 			for (SleeComponent sleeComponent : duComponentsSet) {
 				ClassLoader componentClassLoader = sleeComponent
@@ -211,7 +212,10 @@ public class DeployableUnitBuilder {
 								+ " validation failed, check logs for errors found");
 					}
 					//Make permissions object, this instruments codebase etc, and store POJOs in component.
-					sleeComponent.processSecurityPermissions();
+					if(secEnabled)
+					{
+						sleeComponent.processSecurityPermissions();
+					}
 				} catch (Throwable e) {
 					throw new DeploymentException("failed to validate "
 							+ sleeComponent, e);

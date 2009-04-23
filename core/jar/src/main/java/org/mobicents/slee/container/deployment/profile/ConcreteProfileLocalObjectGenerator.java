@@ -17,6 +17,7 @@ import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
@@ -194,7 +195,7 @@ public class ConcreteProfileLocalObjectGenerator {
 		"t.setContextClassLoader(localObject.getProfileSpecificationComponent().getClassLoader());"+
 		"try{" +
 				"Object result" +
-				"if(_PLO_ISOLATE)" +
+				"if(_PLO_ISOLATE && "+SleeContainer.class.getName()+".isSecurityEnabled())" +
 				"{";
 					if(hasReturnValue)
 					{
@@ -305,7 +306,7 @@ public class ConcreteProfileLocalObjectGenerator {
 		"final ProfileObject localObject = this.profileObject;"+
 		"try{" +
 		"Object result" +
-		"if(_PLO_ISOLATE)" +
+		"if(_PLO_ISOLATE && "+SleeContainer.class.getName()+".isSecurityEnabled())" +
 		"{";
 			if(hasReturnValue)
 			{

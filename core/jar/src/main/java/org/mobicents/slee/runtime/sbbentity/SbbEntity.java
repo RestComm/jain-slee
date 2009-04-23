@@ -748,7 +748,9 @@ public class SbbEntity {
 			
 			//This is required. Since domain chain may indicate RA for instance, or SLEE deployer. If we dont do that test: tests/runtime/security/Test1112012Test.xml and second one, w
 			//will fail because domain of SLEE tck ra is too restrictive (or we have bad desgin taht allows this to happen?)
-			AccessController.doPrivileged(new PrivilegedExceptionAction(){
+			if(SleeContainer.isSecurityEnabled())
+			{
+				AccessController.doPrivileged(new PrivilegedExceptionAction(){
 
 				public Object run() throws IllegalAccessException, InvocationTargetException{
 					eventHandlerMethod.getEventHandlerMethod().invoke(
@@ -756,7 +758,11 @@ public class SbbEntity {
 					return null;
 				}});
 			
-			
+			}else
+			{
+				eventHandlerMethod.getEventHandlerMethod().invoke(
+						sbbObject.getSbbConcrete(), parameters);
+			}
 			
 		} catch(PrivilegedActionException pae)
 		{
@@ -782,6 +788,25 @@ public class SbbEntity {
 			{
 				pae.printStackTrace();
 			}
+		}catch(IllegalAccessException iae)
+		{
+			throw new RuntimeException(iae);
+		}catch(InvocationTargetException ite)
+		{
+			Throwable realException = ite.getCause();
+			if (realException instanceof RuntimeException) {
+				RuntimeException re = (RuntimeException) realException;
+				throw re;
+			} else if (realException instanceof Error) {
+				Error re = (Error) realException;
+				throw re;
+			} else if (realException instanceof Exception) {
+				Exception re = (Exception) realException;
+				throw re;
+			}
+		}catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 		// remove data from tx context
 		data.removeFromTransactionContext();

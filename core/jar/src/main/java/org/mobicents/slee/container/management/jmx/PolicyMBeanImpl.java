@@ -11,6 +11,7 @@ package org.mobicents.slee.container.management.jmx;
 import java.security.Policy;
 
 import org.jboss.system.ServiceMBeanSupport;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.security.PolicyFile;
 
 /**
@@ -58,6 +59,7 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 
 			this.mPolicyFile.refresh();
 			Policy.setPolicy(this.mPolicyFile);
+			SleeContainer.isSecurityEnabled=true;
 		} else {
 			if (!isUseMPolicy()) {
 				super.log.info("Policy is not Mobicents policy, can not remove it.");
@@ -71,6 +73,7 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 			}
 
 			this.previousPolicy.refresh();
+			SleeContainer.isSecurityEnabled=false;
 			Policy.setPolicy(this.previousPolicy);
 		}
 

@@ -30,7 +30,7 @@ import sun.security.provider.PolicyParser.ParsingException;
  * Start time:12:49:40 2009-04-13<br>
  * Project: mobicents-jainslee-server-core<br>
  * this class holds permission loaded from Slee components (only from slee
- * components) PermissionsLoaded with differentswitch are not represented by
+ * components) PermissionsLoaded from  different location are not represented by
  * this class. Set of this elements is present for each slee component (library,
  * sbb (actually one :), etc)
  * 
@@ -176,6 +176,11 @@ public class PermissionHolder implements Comparable<PermissionHolder> {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + " uri: " + permissionCodeBaseURI;
+	}
+
+	public void addPermissionHolder(PermissionHolder ph, PolicyFile policyFile, boolean b) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
