@@ -462,6 +462,9 @@ public class JPAUtils {
       catch (Exception e) {
         e.printStackTrace();
       }
+      catch (Throwable t) {
+        t.printStackTrace();
+      }
       finally {
         if(tx!=null) SleeContainer.lookupFromJndi().getTransactionManager().resume(tx);
       }

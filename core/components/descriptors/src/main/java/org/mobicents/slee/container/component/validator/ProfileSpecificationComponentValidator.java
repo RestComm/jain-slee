@@ -1133,6 +1133,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			if (this.component.getDescriptor().getProfileClasses().getProfileAbstractClass() == null) {
 
 				if (this.requiredProfileAbstractClass) {
+          passed = false;
 					errorBuffer = appendToBuffer(
 							"Profile specification profile management abstract class must be present",
 							"3.X", errorBuffer);
