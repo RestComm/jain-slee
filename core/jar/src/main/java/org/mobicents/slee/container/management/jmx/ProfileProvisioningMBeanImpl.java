@@ -178,16 +178,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to create profile due to some system level failure.", e);
 		} finally {
-			try {
-				if (rb)
-					this.sleeTransactionManagement.setRollbackOnly();
-				if (b)
-					this.sleeTransactionManagement.commit();
-			} catch (Exception e) {
-				logger.error("Failed getProfiles.", e);
-				throw new ManagementException("Failed getProfiles.", e);
-			}
-
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 		return objectName;
@@ -229,9 +220,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		 * profileManager); }
 		 */
 		SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
-		boolean b = false;
+		boolean b = transactionManager.requireTransaction();
+		boolean rb = true;
 		try {
-			b = transactionManager.requireTransaction();
 			logger.debug("creating new Profile Table " + profileTableName + " ...");
 			logger.debug("profile specification ID :" + specificationID.toString());
 
@@ -277,6 +268,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 				//
 			}
 			logger.debug("new Profile Table " + profileTableName + " created");
+			rb =false;
 		} catch (Exception x) {
 			try {
 				transactionManager.setRollbackOnly();
@@ -297,13 +289,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			else
 				throw new ManagementException("Failed createProfileTable", x);
 		} finally {
-			if (b)
-				try {
-					transactionManager.commit();
-				} catch (Exception e) {
-					logger.error("System Exception", e);
-					throw new ManagementException("System Exception", e);
-				}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 	}
@@ -375,13 +361,8 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to obtain MBean name for ProfileTable: " + profileTableName + ", profile: " + profileName + ", default: " + isDefault, e);
 		} finally {
-			if (b)
-				try {
-					this.sleeTransactionManagement.commit();
-				} catch (Exception e) {
-					logger.error("System Exception", e);
-					throw new ManagementException("System Exception", e);
-				}
+			// never rollbacks
+			sleeTransactionManagement.requireTransactionEnd(b,false);
 		}
 
 	}
@@ -420,13 +401,8 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
 		} finally {
-			if (b)
-				try {
-					this.sleeTransactionManagement.commit();
-				} catch (Exception e) {
-					logger.error("System Exception", e);
-					throw new ManagementException("System Exception", e);
-				}
+			// never rollbacks
+			sleeTransactionManagement.requireTransactionEnd(b,false);
 		}
 
 	}
@@ -480,14 +456,8 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
 		} finally {
-			// FIXME: rollback?
-			if (b)
-				try {
-					this.sleeTransactionManagement.commit();
-				} catch (Exception e) {
-					logger.error("System Exception", e);
-					throw new ManagementException("System Exception", e);
-				}
+			// never rollbacks
+			sleeTransactionManagement.requireTransactionEnd(b,false);
 		}
 
 	}
@@ -519,16 +489,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			else
 				throw new ManagementException("Failed getProfileTable", x);
 		} finally {
-
-			try {
-				if (rb)
-					this.sleeTransactionManagement.setRollbackOnly();
-				if (b)
-					this.sleeTransactionManagement.commit();
-			} catch (Exception e) {
-				logger.error("System Exception", e);
-				throw new ManagementException("System Exception", e);
-			}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 		return tablesName;
@@ -575,17 +536,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			else
 				throw new ManagementException("Failed createProfileTable", x);
 		} finally {
-			if (b)
-				try {
-					if (rb) {
-						this.sleeTransactionManagement.setRollbackOnly();
-					} else {
-						this.sleeTransactionManagement.commit();
-					}
-				} catch (Exception e) {
-					logger.error("System Exception", e);
-					throw new ManagementException("System Exception", e);
-				}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 		return tablesName;
@@ -612,15 +563,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 				throw (ManagementException) e;
 			throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
 		} finally {
-			try {
-				if (rb)
-					this.sleeTransactionManagement.setRollbackOnly();
-				if (b)
-					this.sleeTransactionManagement.commit();
-			} catch (Exception e) {
-				logger.error("Failed getProfiles.", e);
-				throw new ManagementException("Failed getProfiles.", e);
-			}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 		return names;
@@ -714,15 +657,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 				throw (ManagementException) e;
 			throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
 		} finally {
-			try {
-				if (rb)
-					this.sleeTransactionManagement.setRollbackOnly();
-				if (b)
-					this.sleeTransactionManagement.commit();
-			} catch (Exception e) {
-				logger.error("Failed getProfiles.", e);
-				throw new ManagementException("Failed getProfiles.", e);
-			}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 		return profileIDs;
@@ -772,15 +707,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to remove due to system level failure.", e);
 		} finally {
-			try {
-				if (rb)
-					this.sleeTransactionManagement.setRollbackOnly();
-				if (b)
-					this.sleeTransactionManagement.commit();
-			} catch (Exception e) {
-				logger.error("Failed getProfiles.", e);
-				throw new ManagementException("Failed getProfiles.", e);
-			}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 	}
@@ -802,15 +729,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to remove due to system level failure.", e);
 		} finally {
-			try {
-				if (rb)
-					this.sleeTransactionManagement.setRollbackOnly();
-				if (b)
-					this.sleeTransactionManagement.commit();
-			} catch (Exception e) {
-				logger.error("Failed getProfiles.", e);
-				throw new ManagementException("Failed getProfiles.", e);
-			}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 	}
@@ -869,15 +788,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to remove due to system level failure.", e);
 		} finally {
-			try {
-				if (rb)
-					this.sleeTransactionManagement.setRollbackOnly();
-				if (b)
-					this.sleeTransactionManagement.commit();
-			} catch (Exception e) {
-				logger.error("Failed getProfiles.", e);
-				throw new ManagementException("Failed getProfiles.", e);
-			}
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 	}

@@ -636,7 +636,12 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		{
 			if (!success && allocated != null)
 			{
-				this.deassignProfileObject(allocated, true);
+				try {
+					this.deassignProfileObject(allocated, true);
+				}
+				catch (Throwable e) {
+					logger.error(e.getMessage(),e);
+				}
 			}
 			
 			Thread.currentThread().setContextClassLoader(oldClassLoader);

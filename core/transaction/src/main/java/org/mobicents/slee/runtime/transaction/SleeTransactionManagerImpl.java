@@ -138,6 +138,34 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		return false;
 	}
 
+	public void requireTransactionEnd(boolean terminateTx, boolean doRollback) throws SLEEException {
+		if (terminateTx) {
+			if (doRollback) {
+				try {
+					rollback();
+				} catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+			}
+			else {
+				try {
+					commit();
+				} catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+			}
+		}
+		else {
+			if (doRollback) {
+				try {
+					setRollbackOnly();	
+				} catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+			}
+		}
+	}
+	
 	public SleeTransaction asSleeTransaction(Transaction transaction)
 			throws NullPointerException, IllegalArgumentException,
 			SystemException {
@@ -400,4 +428,5 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 			}
 		}
 	}
+	
 }
