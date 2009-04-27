@@ -264,7 +264,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 				Thread.currentThread().setContextClassLoader(component.getClassLoader());
 
 				profileTable = this.sleeProfileManagement.addProfileTable(profileTableName,component);
-				profileTable.addProfile(null, true);
+				//profileTable.addProfile(null, true);
 			} catch (TransactionRequiredLocalException e) {
 				throw new ManagementException("Transaction Manager Failure", e);
 			} catch (SystemException e) {

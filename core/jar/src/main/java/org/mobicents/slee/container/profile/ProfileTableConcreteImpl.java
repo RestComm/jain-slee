@@ -190,7 +190,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	}
 
 	public Collection<ProfileID> getProfilesIDs() {
-		return JPAUtils.getProfilesIDs(this);
+		return JPAUtils.INSTANCE.getProfilesIDs(this);
 	}
 
 	/**
@@ -289,7 +289,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	 */
 	public ProfileLocalObject find(String profileName, boolean allowNull) throws NullPointerException, TransactionRequiredLocalException, SLEEException
 	{
-	  if( profileName != null && (allowNull || (!allowNull && !profileName.equals("null"))) && JPAUtils.find(this, profileName))
+	  if( profileName != null && (allowNull || (!allowNull && !profileName.equals("null"))) && JPAUtils.INSTANCE.find(this, profileName))
 	  {
 	    return getProfileLocalObjectConcrete(profileName);
 	  }
@@ -301,7 +301,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	{
 	  Collection<ProfileLocalObject> plos = new ArrayList<ProfileLocalObject>();
 	  
-		List<String> profileNames = JPAUtils.findAll(this);
+		List<String> profileNames = JPAUtils.INSTANCE.findAll(this);
 		
 		for(String profileName : profileNames)
 		{
@@ -543,7 +543,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 			Thread.currentThread().setContextClassLoader(component.getClassLoader());
 
       // FIXME: Alexandre: [DONE] add check for existency of profile
-			if(JPAUtils.find(this, newProfileName))
+			if(JPAUtils.INSTANCE.find(this, newProfileName))
 			{
 			  throw new ProfileAlreadyExistsException("Profile with name '" + newProfileName + "' already exists in table '" + this.getProfileTableName() + "'");
 			}
@@ -679,10 +679,10 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		
 		if (create)
 		{
-			if (getProfileMBean(profileName, profileName == null) != null)
-			{
-				throw new ProfileAlreadyExistsException("Profile with name: " + profileName + ", already exists in profile table: " + this.profileTableName + ", its not commited yet.");
-			}
+			//if (getProfileMBean(profileName, profileName == null) != null)
+			//{
+			//	throw new ProfileAlreadyExistsException("Profile with name: " + profileName + ", already exists in profile table: " + this.profileTableName + ", its not commited yet.");
+			//}
 			// see if the profile MBean was closed/removed, but the profile itself is still visible in SLEE
 			if (isProfileCommitted(profileName)) {
 				throw new ProfileAlreadyExistsException("Profile with name: " + profileName + ", already exists in profile table: " + this.profileTableName);
@@ -725,7 +725,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 			logger.debug("[getProfileMBean] on: " + this);
 		}
 		// FIXME: Alex add check here?
-		if (!isProfileCommitted(profileName)) {
+		if (!isProfileCommitted(isDefault ? "" : profileName)) {
 			throw new UnrecognizedProfileNameException("Profile: " + profileName + ", does not exist in profile table: " + profileTableName);
 
 		}
@@ -756,7 +756,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 	}
 
 	public Collection<String> getProfileNames() {
-		return JPAUtils.findAll(this);
+		return JPAUtils.INSTANCE.findAll(this);
 	}
 
 	/**
@@ -771,7 +771,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 			logger.debug("[isProfileCommitted] on: " + this + " Profile[" + profileName + "]");
 		}
 		
-		return JPAUtils.find( this, profileName );
+		return JPAUtils.INSTANCE.find( this, profileName );
 	}
 
 	/**
@@ -791,7 +791,7 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 			}
 
 			// remove default profile
-			this.remove(null, true);
+			//this.remove(null, true);
 			// unregistering the default MBean profile from the mbean server
 			ObjectName defaultProfileObjectName = getDefaultProfileObjectName(profileTableName);
 
@@ -959,8 +959,10 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		return this.getClass().getSimpleName() + " Table[" + this.profileTableName + "] Specification[" + this.profileSpecificationId + "]";
 	}
 
-	public void activityEnded() {
+	public void activityEnded()
+	{
+	  logger.debug( "activityEnded called for Profile Table [" + this.getProfileTableName() + "]" );
+	  //FIXME: Alexandre: This is only called when we already removed, right?
 		this.sleeProfileManagement.removeProfileTable(this);
-		
 	}
 }

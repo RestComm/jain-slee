@@ -1,22 +1,21 @@
 package org.mobicents.slee.container.management;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 
-import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.LinkRef;
 import javax.naming.NameAlreadyBoundException;
+import javax.naming.NamingException;
 import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.profile.ProfileTable;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
@@ -26,13 +25,15 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
+import org.mobicents.slee.container.profile.ProfileCmpHandler;
+import org.mobicents.slee.container.profile.ProfileManagementHandler;
+import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
 import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -41,14 +42,14 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentHashMap;
  * Class that manages ProfileSpecification, profile tables, ProfileObjects. It
  * is responsible for setting up profile specification env.
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public class SleeProfileTableManager {
 
 	private static final Logger logger = Logger.getLogger(SleeProfileTableManager.class);
 	private final static SleeProfileClassCodeGenerator sleeProfileClassCodeGenerator = new SleeProfileClassCodeGenerator();
+  private static final String DEFAULT_PROFILE_DB_NAME = "";
 	private SleeContainer sleeContainer = null;
 	private SleeTransactionManager sleeTransactionManager = null;
 
@@ -168,8 +169,14 @@ public class SleeProfileTableManager {
 		}
 		
 		ProfileAlarmFacilityImpl alarmFacility = new ProfileAlarmFacilityImpl(this.sleeContainer.getAlarmFacility());
-		//This should be AlarmFacility.JNDI_NAME
-		facilitiesCtx.bind("alarm", alarmFacility);
+		// FIXME: Alexandre: This should be AlarmFacility.JNDI_NAME. Any problem if already bound?
+		try
+		{
+		  facilitiesCtx.bind("alarm", alarmFacility);
+		}
+		catch (NamingException e) {
+      // ignore.
+    }
 		
 		
 		for (MEnvEntry mEnvEntry : component.getDescriptor().getEnvEntries()) {
@@ -226,7 +233,8 @@ public class SleeProfileTableManager {
 
 	}
 
-	public ProfileTableConcrete getProfileTable(String profileTableName) throws SLEEException, UnrecognizedProfileTableNameException {
+	public ProfileTableConcrete getProfileTable(String profileTableName) throws SLEEException, UnrecognizedProfileTableNameException
+	{
 
 		try {
 			ProfileTableConcrete ptc = (ProfileTableConcrete) this.nameToProfileTableMap.get(profileTableName);
@@ -252,19 +260,49 @@ public class SleeProfileTableManager {
 		return this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationId);
 	}
 
-	public ProfileTableConcrete addProfileTable(String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException,
-			NullPointerException, InvalidArgumentException {
-		throw new UnsupportedOperationException();
-		/*
+	public ProfileTableConcrete addProfileTable(String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException
+	{
+		//throw new UnsupportedOperationException();
+
 		this.sleeTransactionManager.mandateTransaction();
-		this.nameToProfileTableMap.add(profileTableName, null);
+		//this.nameToProfileTableMap.add(profileTableName, null);
 
 		ProfileTableConcreteImpl profileTable = new ProfileTableConcreteImpl(this, profileTableName, component.getProfileSpecificationID());
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
 		profileTable.register();
-		// FIXME: mayeb here we shoudl add default profile?
-		return profileTable;*/
 
+		// 1. Instantiate CMP Impl
+		try
+    {
+		  Thread.currentThread().setContextClassLoader( component.getClassLoader() );
+		  
+      Class profileCmpClass = Thread.currentThread().getContextClassLoader().loadClass(component.getProfileCmpInterfaceClass().getName() + "Impl");
+      
+      Constructor profileCmpConstructor = profileCmpClass.getConstructor(ProfileManagementHandler.class);
+
+      // FIXME: Alexandre: Is this what we should be passing? 
+      ProfileManagementHandler argPMH = new ProfileManagementHandler();
+      argPMH.setProfileObject( new ProfileObject(profileTable, component.getProfileSpecificationID()));
+      argPMH.setProfileCmpHandler( new ProfileCmpHandler() );
+      
+      Object profileCmp = profileCmpConstructor.newInstance(argPMH);
+      
+      Method mSetTableName = profileCmpClass.getMethod( "setTableName", String.class );
+      mSetTableName.invoke( profileCmp, profileTableName );
+      
+      Method mSetProfileName = profileCmpClass.getMethod( "setProfileName", String.class );
+      mSetProfileName.invoke( profileCmp, DEFAULT_PROFILE_DB_NAME );
+      
+      JPAUtils.INSTANCE.getEntityManager(component.getComponentID()).persist( profileCmp );
+    }
+    catch ( Exception e )
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+		
+		// FIXME: mayeb here we shoudl add default profile?
+		return profileTable;
 	}
 
 	public Collection<String> getDeclaredProfileTableNames() {
@@ -293,7 +331,7 @@ public class SleeProfileTableManager {
 	public void removeProfileTable(ProfileTableConcreteImpl profileTableConcreteImpl) {
 		// FIXME: add more ?
 
-		this.nameToProfileTableMap.remove(profileTableConcreteImpl.getProfileTableName());
+	  this.nameToProfileTableMap.remove(profileTableConcreteImpl.getProfileTableName());
 	}
 
 	public void startAllProfileTableActivities() {

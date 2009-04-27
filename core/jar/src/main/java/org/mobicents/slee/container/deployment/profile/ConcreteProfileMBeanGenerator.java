@@ -31,7 +31,7 @@ public class ConcreteProfileMBeanGenerator {
 	private String cmpProfileInterfaceName = null;
 
 	private String profileManagementInterfaceName = null;
-	private ClassPool pool = component.getClassPool();
+	private ClassPool pool = null;
 	private CtClass cmpProfileInterface = null;
 	private CtClass profileManagementInterface = null;
 	private CtClass profileMBeanConcreteClass = null;

@@ -36,6 +36,7 @@ import javassist.bytecode.annotation.StringMemberValue;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.deployment.ClassUtils;
+import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
 
 /**
  * 
@@ -51,9 +52,10 @@ public class ClassGeneratorUtils {
 
   private static final Logger logger = Logger.getLogger(ClassGeneratorUtils.class);
 
-  private static ClassPool classPool = ClassPool.getDefault();
+  private static ClassPool classPool = null;
 
-  public static final String _PLO_PO_ALLOCATION = "allocateProfileObject();";
+  public static final String _PLO_PO_ALLOCATION = "";//"allocateProfileObject();";
+  public static final String CMP_HANDLER_FIELD_NAME = "cmpHandler";//"allocateProfileObject();";
 
   /**
    * Creates a class with the desired name and linked to the mentioned interfaces.
@@ -104,7 +106,10 @@ public class ClassGeneratorUtils {
     {
       try
       {
-        concreteClass.setInterfaces(classPool.get(interfaceNames));
+        for(String interfaceName : interfaceNames)
+        {
+          concreteClass.addInterface(classPool.get(interfaceName));
+        }
       }
       catch ( NotFoundException e ) {
         e.printStackTrace();
@@ -163,7 +168,7 @@ public class ClassGeneratorUtils {
    * @param parameterNames
    * @return
    */
-  public static CtConstructor generateConstructorWithParameters(CtClass concreteClass, Class[] parameterClasses, String[] parameterNames)
+  public static CtConstructor generateConstructorWithParameters(CtClass concreteClass, Class[] parameterClasses, String[] parameterNames, boolean[] isTransient)
   {
     CtConstructor constructor = null;
     CtClass[] parameters = new CtClass[parameterClasses.length];
@@ -174,20 +179,34 @@ public class ClassGeneratorUtils {
     {
       try
       {
-        parameters[i] = classPool.get(constructorBody);
+        CtField ctField = null;
+        
+        parameters[i] = classPool.get(parameterClasses[i].getName());
 
-        CtField ctField = new CtField(parameters[i], parameterNames[i], concreteClass);
-
-        if (ctField.getName().equals("java.lang.Object"))
+        try
         {
-          ctField.setModifiers(Modifier.PUBLIC);
+          ctField = concreteClass.getField(parameterNames[i]);
         }
-        else
+        catch (NotFoundException nfe)
         {
-          ctField.setModifiers(Modifier.PRIVATE);
-        }
+          ctField = new CtField(parameters[i], parameterNames[i], concreteClass);
 
-        concreteClass.addField(ctField);
+          if (ctField.getName().equals("java.lang.Object"))
+          {
+            ctField.setModifiers(Modifier.PUBLIC);
+          }
+          else
+          {
+            ctField.setModifiers(Modifier.PRIVATE);
+          }
+
+          concreteClass.addField(ctField);
+        }
+        
+        if(isTransient[i])
+        {
+          addAnnotation( "javax.persistence.Transient", null, ctField );
+        }
       }
       catch (Exception cce) {
         cce.printStackTrace();
@@ -200,6 +219,7 @@ public class ClassGeneratorUtils {
 
     try {
       constructor = CtNewConstructor.make(parameters, new CtClass[]{}, constructorBody, concreteClass);
+      concreteClass.addConstructor( constructor );
     } catch (CannotCompileException e) {
       e.printStackTrace();
     }
@@ -266,14 +286,36 @@ public class ClassGeneratorUtils {
    */
   public static CtField addField(CtClass fieldType, String fieldName, CtClass declaringClass, int modifier) throws CannotCompileException
   {
-    CtField field = new CtField( fieldType, decapitalize(fieldName), declaringClass );
-    field.setModifiers(modifier);
-
-    declaringClass.addField( field );
-
-    return field;
+    return addField( fieldType, fieldName, declaringClass, modifier, null );
   }
 
+  /**
+   * Adds a field of the desired type to the declaring class.
+   * 
+   * @param fieldType
+   * @param fieldName
+   * @param declaringClass
+   * @param modifier
+   * @return
+   * @throws CannotCompileException
+   */
+  public static CtField addField(CtClass fieldType, String fieldName, CtClass declaringClass, int modifier, String initializerExpr) throws CannotCompileException
+  {
+    CtField field = new CtField( fieldType, decapitalize(fieldName), declaringClass );
+    field.setModifiers(modifier);
+    
+    if(initializerExpr != null)
+    {
+      declaringClass.addField(field, CtField.Initializer.byExpr(initializerExpr));
+    }
+    else
+    {
+      declaringClass.addField(field);
+    }
+    
+    return field;
+  }
+  
   /**
    * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
    * 
@@ -284,11 +326,34 @@ public class ClassGeneratorUtils {
    */
   public static CtMethod generateGetter(CtField field) throws NotFoundException, CannotCompileException
   {
-    // FIXME: Alexandre: Do we need to care about tx or does JPA suffices? Add interceptor call.
-
     CtMethod getter = CtNewMethod.getter( "get" + capitalize(field.getName()), field );
 
     field.getDeclaringClass().addMethod(getter);
+
+    return getter;
+  }
+
+  /**
+   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
+   * 
+   * @param field
+   * @return
+   * @throws NotFoundException
+   * @throws CannotCompileException
+   */
+  public static CtMethod generateCMPGetter(CtField field) throws NotFoundException, CannotCompileException
+  {
+    CtMethod getter = CtNewMethod.getter( "get" + capitalize(field.getName()), field );
+    CtClass classToBeInstrumented = field.getDeclaringClass();
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug("About to instrument: " + getter.getName() + ", into: " + classToBeInstrumented.getName());
+    }
+
+    String getterBody = "{ return ($r) this." + CMP_HANDLER_FIELD_NAME + ".getCmpField(\"" + field.getName() + "\"); }";
+
+    getter.setBody(getterBody);
+    classToBeInstrumented.addMethod(getter);
 
     return getter;
   }
@@ -303,8 +368,6 @@ public class ClassGeneratorUtils {
    */
   public static CtMethod generateSetter(CtField field) throws NotFoundException, CannotCompileException
   {
-    // FIXME: Alexandre: Do we need to care about tx or does JPA suffices? Add interceptor call.
-
     CtMethod setter = CtNewMethod.setter( "set" + capitalize(field.getName()), field );
 
     field.getDeclaringClass().addMethod(setter);
@@ -312,6 +375,31 @@ public class ClassGeneratorUtils {
     return setter;
   }
 
+  /**
+   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
+   * 
+   * @param field
+   * @return
+   * @throws NotFoundException
+   * @throws CannotCompileException
+   */
+  public static CtMethod generateCMPSetter(CtField field) throws NotFoundException, CannotCompileException
+  {
+    CtMethod setter = CtNewMethod.setter( "set" + capitalize(field.getName()), field );
+    CtClass classToBeInstrumented = field.getDeclaringClass();
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug("About to instrument: " + setter.getName() + ", into: " + classToBeInstrumented.getName());
+    }
+
+    String setterBody = "{ Object o = ($w) $1; this." + CMP_HANDLER_FIELD_NAME + ".setCmpField(\"" + field.getName() + "\", o); }";
+
+    setter.setBody(setterBody);
+    classToBeInstrumented.addMethod(setter);
+
+    return setter;
+  }
+  
   /**
    * Generates getter and setter for the field (get/set<FieldName>) and adds them to the declaring class.
    * 
@@ -325,6 +413,13 @@ public class ClassGeneratorUtils {
     generateSetter(field);
   }
 
+  public static void generateCMPHandlers(CtField field) throws NotFoundException, CannotCompileException
+  {
+    generateCMPGetter(field);
+    generateCMPSetter(field);
+  }
+  
+  
   /**
    * Adds the selected annotation to the Object, along with the specified memberValues.
    * 
@@ -440,15 +535,15 @@ public class ClassGeneratorUtils {
 
   public static void instrumentBussinesMethod(CtClass concreteClass, CtMethod method, String interceptorAccess) throws Exception
   {
-    method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
-
     boolean hasReturnValue = method.getReturnType().toString().equals("void");
 
     String body = "{" +
     _PLO_PO_ALLOCATION +
+    "System.out.println(\"Calling " + method.getName() + "\");" +
     "Thread t = Thread.currentThread();"+
     "ClassLoader oldClassLoader = t.getContextClassLoader();"+
     "t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());"+
+    "System.out.println(\"profileManagementHandler[\" + this.profileManagementHandler + \"]\");" +
     "try {";
 
     if(hasReturnValue)
@@ -467,24 +562,75 @@ public class ClassGeneratorUtils {
       "    throw new javax.slee.TransactionRolledbackLocalException(\"ProfileLocalObject invocation results in RuntimeException, rolling back.\",re);"+
       "  }" +
       "  catch (Exception e) {"+
+      "    e.printStackTrace();"+
       "    throw new javax.slee.SLEEException(\"System level failure.\",e);"+ 
       "  }"+ 
       "}" +
       "finally"+
       "{"+
+      "  if(this.getProfileObject().getProfileContext().getRollbackOnly()){" +
+      "  try {"+
+      "    this.sleeTransactionManager.rollback();"+
+      "  }" +
+      "  catch (Exception e) {"+
+      "    e.printStackTrace();"+
+      "    throw new javax.slee.SLEEException(\"System level failure.\",e);"+ 
+      "  }"+ 
+      "}" +
       "  t.setContextClassLoader(oldClassLoader);"+
       "}"+
       "}";
 
     if(logger.isDebugEnabled())
     {
-      logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);
+      logger.info("Instrumented method, name:"+method.getName()+", with body:\n"+body);
     }
 
-    method.setBody(body);
-    concreteClass.addMethod(method);
+    CtMethod newMethod = CtNewMethod.make(method.getReturnType(), method.getName(), method.getParameterTypes(), method.getExceptionTypes(), body, concreteClass);
+    newMethod.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
+    
+    concreteClass.addMethod(newMethod);
   }
 
+  public static void generateDelegateMethod(CtClass classToBeInstrumented, CtMethod method, String interceptorAccess) throws CannotCompileException, NotFoundException
+  {
+    // FIXME: should we add check for concrete methods from profileManagementAbstractClass and do clone?
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("About to instrument: " + method.getName() + ", into: " + classToBeInstrumented.getName());
+    }
+    
+    method = CtNewMethod.copy(method, classToBeInstrumented, null);
+    method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
+    String retStatement = "";
+    try {
+      if (method.getReturnType().toString().compareTo("void") == 0) {
+
+      } else {
+        retStatement = "return ($r) ";
+      }
+    } catch (NotFoundException e) {
+      // this should nto happen
+      throw e;
+    }
+    String body = 
+      "{" +
+      "  try {" + 
+      ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" + 
+      retStatement +
+      interceptorAccess + "." + method.getName() + "($$);" +
+      "  }" +
+      "  finally {" +
+      ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(this);" + 
+      "  }" + 
+      "}";
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug("About to instrumented: " + method.getName() + ", body: " + body);
+    }
+    method.setBody(body);
+    classToBeInstrumented.addMethod(method);
+  }
 
   /**
    * Private method to add member values to annotation
@@ -579,4 +725,10 @@ public class ClassGeneratorUtils {
   {
     return s.length() > 0 ? s.substring(0, 1).toLowerCase() + s.substring(1) : s;
   }
+  
+  public static void setClassPool(ClassPool classPool)
+  {
+    ClassGeneratorUtils.classPool = classPool;
+  }
+
 }

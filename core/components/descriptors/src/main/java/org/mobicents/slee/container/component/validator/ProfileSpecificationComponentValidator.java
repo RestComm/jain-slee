@@ -223,6 +223,69 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 	}
 
+	private final static Set<String> _JAVA_RESERVED_WORDS;
+	static {
+    Set<String> tmp = new HashSet<String>();
+    tmp.add("boolean");
+    tmp.add("abstract");
+    tmp.add("break");
+    tmp.add("future");
+    tmp.add("byte");
+    tmp.add("class");
+    tmp.add("case");
+    tmp.add("generic");
+    tmp.add("char");
+    tmp.add("extends");
+    tmp.add("continue");
+    tmp.add("goto");
+    tmp.add("double");
+    tmp.add("implements");
+    tmp.add("default");
+    tmp.add("inner");
+    tmp.add("float");
+    tmp.add("import");
+    tmp.add("do");
+    tmp.add("native");
+    tmp.add("int");
+    tmp.add("instanceof");
+    tmp.add("else");
+    tmp.add("operator");
+    tmp.add("short");
+    tmp.add("interface");
+    tmp.add("for");
+    tmp.add("outer");
+    tmp.add("long");
+    tmp.add("super");
+    tmp.add("if");
+    tmp.add("package");
+    tmp.add("this");
+    tmp.add("new");
+    tmp.add("rest");
+    tmp.add("void");
+    tmp.add("return");
+    tmp.add("synchronized");
+    tmp.add("switch");
+    tmp.add("transient");
+    tmp.add("while");
+    tmp.add("var");
+    tmp.add("volatile");
+    tmp.add("false");
+    tmp.add("catch");
+    tmp.add("const");
+    tmp.add("null");
+    tmp.add("finally");
+    tmp.add("final");
+    tmp.add("true");
+    tmp.add("throw");
+    tmp.add("private");
+    tmp.add("throws");
+    tmp.add("protected");
+    tmp.add("try");
+    tmp.add("public");
+    tmp.add("static");
+    _JAVA_RESERVED_WORDS = Collections.unmodifiableSet(tmp);
+	}
+	
 	private boolean requiredProfileAbstractClass = false;
 
 	public void setComponentRepository(ComponentRepository repository) {
@@ -394,9 +457,15 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					continue;
 				}
 
-				cmpFieldName = cmpFieldName.replaceFirst(c + "", Character
-						.toLowerCase(c)
-						+ "");
+				if(_JAVA_RESERVED_WORDS.contains(cmpFieldName.toLowerCase()))
+				{
+          passed = false;
+          errorBuffer = appendToBuffer(
+              "Profile specification profile cmp interface field has forbidden name (JAVA reserved word). Field: "
+                  + cmpFieldName, "10.6", errorBuffer);				  
+				}
+				
+				cmpFieldName = cmpFieldName.replaceFirst(c + "", Character.toLowerCase(c) + "");
 
 				// XXX: this will fail even for duplicate delcarations of
 				// fields, but meesages might be missleading.
@@ -536,8 +605,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				// ech
 				String typStringName = fieldType.getComponentType().getName();
 				try {
-					Class type = fieldType.forName(typStringName);
-					if (ClassUtils.checkInterfaces(fieldType,
+					Class type = Thread.currentThread().getContextClassLoader().loadClass(typStringName);
+					if (ClassUtils.checkInterfaces(type,
 							"java.io.Serializable") == null) {
 
 						passed = false;
@@ -953,7 +1022,23 @@ public class ProfileSpecificationComponentValidator implements Validator {
 										+ entry.getKey(), "10.18", errorBuffer);
 
 						continue;
-					} else if (key.startsWith("get") || key.startsWith("set")) {
+					}
+					// The method name must not begin with “profile” or “ejb”. A SLEE implementation can use method 
+					// names that begin with “profile” when needed without being concerned with possible method name 
+					// conflicts with Profile Specification Developer declared method names. 
+					// This restriction does not apply when the Profile Specification Developer implements a 
+					// “profile<XXX>” method declared by the SLEE, such as the life cycle methods declared in the  
+					// javax.profile.Profile interface.
+					// FIXME: Alexandre: do we need to verify this exception at this point?
+          else if (key.startsWith("ejb") || key.startsWith("profile")) {
+            passed = false;
+            errorBuffer = appendToBuffer(
+                "Profile specification profile local interface method name must not begin with “profile” or “ejb”. Offending method: "
+                    + entry.getKey(), "10.18", errorBuffer);
+
+            continue;
+          }
+					else if (key.startsWith("get") || key.startsWith("set")) {
 						passed = false;
 						errorBuffer = appendToBuffer(
 								"Profile specification profile local interface declares method which is setter/getter and does not match CMP interface method, method: "
@@ -984,22 +1069,23 @@ public class ProfileSpecificationComponentValidator implements Validator {
 						continue;
 					}
 
-					Class[] params = entry.getValue().getParameterTypes();
-					for (int index = 0; index < params.length; index++) {
-						// FIXME: whichc should we use here?
-						if ((_ALLOWED_CMPS_TYPES.contains(params[index]
-								.toString())  || ClassUtils.checkInterfaces(params[index], "java.io.Serializable")!=null)) {
-
-						} else {
-							passed = false;
-							errorBuffer = appendToBuffer(
-									"Profile specification profile management interface declares management method with wrong parameter at index["
-											+ index
-											+ "], method: "
-											+ entry.getKey(), "10.18",
-									errorBuffer);
-						}
-					}
+					// FIXME: Alexandre: There's no restriction here, I guess!
+//					Class[] params = entry.getValue().getParameterTypes();
+//					for (int index = 0; index < params.length; index++) {
+//						// FIXME: whichc should we use here?
+//						if ((_ALLOWED_CMPS_TYPES.contains(params[index]
+//								.toString())  || ClassUtils.checkInterfaces(params[index], "java.io.Serializable")!=null)) {
+//
+//						} else {
+//							passed = false;
+//							errorBuffer = appendToBuffer(
+//									"Profile specification profile management interface declares management method with wrong parameter at index["
+//											+ index
+//											+ "], method: "
+//											+ entry.getKey(), "10.18",
+//									errorBuffer);
+//						}
+//					}
 
 					// lets check exceptions, we can define all except
 					// java.rmi.RemoteException
@@ -1707,15 +1793,25 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					passed = false;
 					iterator.remove();
 					errorBuffer = appendToBuffer(
-							"Profile specification profile table interface declares method with wrong name: "
+							"The first letter of the name of the static query must be upper-cased and prefixed by 'query'. Offending method: "
 									+ methodName, "10.8.2", errorBuffer);
 					continue;
 				}
 
 				String queryName = methodName.replace("query", "");
+				
+				if(Character.toUpperCase(queryName.charAt(0)) != queryName.charAt(0))
+				{
+          passed = false;
+          iterator.remove();
+          errorBuffer = appendToBuffer(
+              "The first letter of the name of the query must be upper-cased. Offending method: "
+                  + methodName, "10.8.2", errorBuffer);
+          continue;				  
+				}
+				
 				queryName = queryName.replaceFirst(queryName.charAt(0) + "",
 						Character.toLowerCase(queryName.charAt(0)) + "");
-
 
 				if (!nameToQueryMap.containsKey(queryName)) {
 					passed = false;
@@ -1743,6 +1839,34 @@ public class ProfileSpecificationComponentValidator implements Validator {
 									+ ", it should be java.util.Collection.",
 							"10.8.2", errorBuffer);
 				}
+
+				// If this option is not specified for a query, the default value is equal to the value of the 
+				// profile-read-only attribute of the enclosing profile-spec element. 
+				// It is a deployment error to specify false for this element if the value of the profile-
+				// read-only attribute of the enclosing profile-spec element is true
+				if(query.getQueryOptions() != null && query.getQueryOptions().isReadOnly() != this.component.getDescriptor().getReadOnly())
+				{
+          passed = false;
+          errorBuffer = appendToBuffer("Query read-only attribute must match enclosing specification read-only attribute. Offending query: " + queryName, "10.20.2", errorBuffer);
+        }
+				
+				// Zero or more query-parameter elements. 
+				// Each of these elements identifies a parameter of the query. The value of the parameter is provided 
+				// at runtime. Each query-parameter elements has the following attributes: 
+				// o  A name attribute. 
+				// This attribute defines the name of the query parameter. 
+				// o  A type attribute. 
+				// This attribute defines the type of the query parameter. The type must be a Java primitive 
+				// type or its equivalent object wrapper class, or java.lang.String. 
+        for(MQueryParameter qParam : query.getQueryParameters())
+        {
+          if(!_ALLOWED_QUERY_PARAMETER_TYPES.contains(qParam.getType()))
+          {
+            passed = false;
+            errorBuffer = appendToBuffer("Query parameter type must be a Java primitive type or its equivalent object wrapper class, or java.lang.String. Offending query: " + queryName, "10.20.2", errorBuffer);
+          }
+        }
+
 
 				Class[] exceptions = m.getExceptionTypes();
 

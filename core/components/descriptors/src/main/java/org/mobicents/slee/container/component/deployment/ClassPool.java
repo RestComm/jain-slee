@@ -117,4 +117,11 @@ public class ClassPool {
 			}
 		}
 	}
+
+	
+  public javassist.ClassPool getClassPool()
+  {
+    return classPool;
+  }
+
 }

@@ -142,7 +142,7 @@ public class ProfileObject {
 	}
 
 	public boolean isProfileReentrant() {
-		return !this.profileSpecificationComponent.getDescriptor().getProfileAbstractClass().getReentrant();
+		return this.profileSpecificationComponent.getDescriptor().getProfileAbstractClass() == null ? false : this.profileSpecificationComponent.getDescriptor().getProfileAbstractClass().getReentrant();
 	}
 
 	public void setCanAccessCMP(boolean canAccessCMP) {

@@ -138,7 +138,7 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			// getting last commited profile in case of update
 			
 			// FIXME: Alexandre: [DONE] Get profile from backend storage?
-			ProfileLocalObjectConcrete profileBeforeUpdate = (ProfileLocalObjectConcrete) JPAUtils.find( this.getProfileTableName(), this.getProfileName() );
+			ProfileLocalObjectConcrete profileBeforeUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
 
 			boolean wasProfileInBackEndStorage = false;
 			try {
@@ -254,13 +254,13 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 			if (!wasProfileInBackEndStorage)
 			{
 				// FIXME: Alexandre: [DONE] Allocate new instance of PLO
-				ProfileLocalObjectConcrete ploc = (ProfileLocalObjectConcrete) JPAUtils.find( this.getProfileTableName(), this.getProfileName() );
+				ProfileLocalObjectConcrete ploc = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
 				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(ploc);
 			}
 			else
 			{
 				// FIXME: Alexandre: [DONE] Allocate PLO
-				ProfileLocalObjectConcrete plocAfterUpdate = (ProfileLocalObjectConcrete) JPAUtils.find( this.getProfileTableName(), this.getProfileName() );
+				ProfileLocalObjectConcrete plocAfterUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
 				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpdate);
 			}
 

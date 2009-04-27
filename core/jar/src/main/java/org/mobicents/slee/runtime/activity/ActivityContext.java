@@ -37,6 +37,7 @@ import org.mobicents.slee.runtime.eventrouter.RollbackDeferredEventAction;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
@@ -690,7 +691,7 @@ public class ActivityContext {
 			try {
 				this.sleeContainer.getSleeProfileTableManager()
 						.getProfileTable(
-								activityContextHandle.getActivitySource())
+								((ProfileTableActivityHandle)activityContextHandle.getActivityHandle()).getProfileTable())
 						.activityEnded();
 			} catch (UnrecognizedProfileTableNameException e1) {
 				logger.warn(e1.getMessage(), e1);
