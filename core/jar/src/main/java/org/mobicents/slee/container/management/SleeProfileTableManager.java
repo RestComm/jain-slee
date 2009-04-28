@@ -97,6 +97,7 @@ public class SleeProfileTableManager {
 		} catch (DeploymentException de) {
 			throw de;
 		} catch (Throwable t) {
+		  t.printStackTrace();
 			throw new SLEEException(t.getMessage(),t);
 		}
 
@@ -271,8 +272,6 @@ public class SleeProfileTableManager {
 
       // FIXME: Alexandre: Is this what we should be passing? 
       ProfileManagementHandler argPMH = new ProfileManagementHandler();
-      argPMH.setProfileObject( new ProfileObject(profileTable, component.getProfileSpecificationID()));
-      argPMH.setProfileCmpHandler( new ProfileCmpHandler() );
       
       Object profileCmp = profileCmpConstructor.newInstance(argPMH);
       

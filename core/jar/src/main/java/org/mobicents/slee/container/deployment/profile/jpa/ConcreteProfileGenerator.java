@@ -54,7 +54,7 @@ public class ConcreteProfileGenerator {
   private static final String PROFILE_TABLE_IDENTIFIER = "tableName";
   private static final String PROFILE_IDENTIFIER = "profileName";
 
-  private static final String _PLO_MGMT_INTERCEPTOR = "this.profileManagementHandler";
+  private static final String _PLO_MGMT_INTERCEPTOR = "org.mobicents.slee.container.profile.ProfileManagementHandler";
   
   private ProfileSpecificationComponent profileComponent;
   private ProfileSpecificationDescriptorImpl profileDescriptor;
@@ -133,8 +133,8 @@ public class ConcreteProfileGenerator {
       CtField fSleeTransactionManager = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("javax.slee.transaction.SleeTransactionManager"), "sleeTransactionManager", profileConcreteClass, Modifier.PRIVATE, "org.mobicents.slee.container.SleeContainer.lookupFromJndi().getTransactionManager()" );
       ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fSleeTransactionManager );
 
-      CtField fProfileManagementHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileManagementHandler"), "profileManagementHandler", profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileManagementHandler()" );
-      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileManagementHandler );
+//      CtField fProfileManagementHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileManagementHandler"), "profileManagementHandler", profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileManagementHandler()" );
+//      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileManagementHandler );
       
       CtField fCMPHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileCmpHandler"), ClassGeneratorUtils.CMP_HANDLER_FIELD_NAME, profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileCmpHandler()" );
       ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fCMPHandler );
@@ -145,11 +145,11 @@ public class ConcreteProfileGenerator {
       // We also need getter/setter for profileObject and profileTableConcrete
       CtField fProfileObject = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileObject"), "profileObject", profileConcreteClass );
       ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileObject );
-      ClassGeneratorUtils.generateGetterAndSetter( fProfileObject );
+      ClassGeneratorUtils.generateGetterAndSetter( fProfileObject, null );
       
       CtField fProfileTableConcrete = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileTableConcrete"), "profileTableConcrete", profileConcreteClass );
       ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileTableConcrete );
-      ClassGeneratorUtils.generateGetterAndSetter( fProfileTableConcrete );
+      ClassGeneratorUtils.generateGetterAndSetter( fProfileTableConcrete, null );
       
       generateConstructors(profileConcreteClass);
       
@@ -161,6 +161,8 @@ public class ConcreteProfileGenerator {
 
       profileConcreteClass.getClassFile().setVersionToJava5();
       clazz = profileConcreteClass.toClass();
+      
+      logger.info( "Writing PROFILE CONCRETE CLASS to: " + deployDir );
       
       profileConcreteClass.writeFile( deployDir );
     }
@@ -217,7 +219,7 @@ public class ConcreteProfileGenerator {
       
       try
       {
-        ClassGeneratorUtils.generateDelegateMethod( profileConcreteClass, method, useInterceptor ? _PLO_MGMT_INTERCEPTOR : "super" );
+        ClassGeneratorUtils.generateDelegateMethod( profileConcreteClass, method, useInterceptor ? _PLO_MGMT_INTERCEPTOR : "super", false );
       }
       catch ( Exception e ) {
         e.printStackTrace();
@@ -243,7 +245,7 @@ public class ConcreteProfileGenerator {
 
     ClassGeneratorUtils.addAnnotation( "javax.persistence.Id", new LinkedHashMap<String, Object>(), tableNameField );
     ClassGeneratorUtils.addAnnotation( "javax.persistence.Column", columnAttrs, tableNameField );
-    ClassGeneratorUtils.generateGetterAndSetter( tableNameField );
+    ClassGeneratorUtils.generateGetterAndSetter( tableNameField, null );
 
     // Add Profile Name Attribute
     CtField profileNameField = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass(String.class.getName()), PROFILE_IDENTIFIER, profileConcreteClass, Modifier.PUBLIC);
@@ -251,7 +253,7 @@ public class ConcreteProfileGenerator {
     ClassGeneratorUtils.addAnnotation( "javax.persistence.Id", new LinkedHashMap<String, Object>(), profileNameField );
     ClassGeneratorUtils.addAnnotation( "javax.persistence.Column", columnAttrs, profileNameField );
 
-    ClassGeneratorUtils.generateGetterAndSetter( profileNameField );    
+    ClassGeneratorUtils.generateGetterAndSetter( profileNameField, null );    
   }
   
   private void generateCMPFieldsWithGettersAndSetters(CtClass profileConcreteClass) throws Exception

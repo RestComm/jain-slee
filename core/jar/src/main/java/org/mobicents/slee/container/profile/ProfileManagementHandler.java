@@ -23,231 +23,243 @@ public class ProfileManagementHandler {
   
 	private static Logger logger = Logger.getLogger(ProfileManagementHandler.class);
 	
-	private ProfileCmpHandler profileCmpHandler = null;
-	private ProfileObject profileObject = null;
+//	private ProfileCmpHandler profileCmpHandler = null;
+//
+//	public void setProfileCmpHandler(ProfileCmpHandler profileCmpHandler) {
+//		this.profileCmpHandler = profileCmpHandler;
+//	}
 
-	public void setProfileCmpHandler(ProfileCmpHandler profileCmpHandler) {
-		this.profileCmpHandler = profileCmpHandler;
-	}
-
-	public void setProfileObject(ProfileObject profileObject) {
-		this.profileObject = profileObject;
-	}
-
-	public boolean isProfileDirty() {
+	public static boolean isProfileDirty(ProfileObject profileObject)
+	{
 		return profileObject.getProfileConcrete().getProfileDirty();
 	}
 
-	public boolean isProfileValid(ProfileID profileId) throws NullPointerException, SLEEException {
+	public static boolean isProfileValid(ProfileObject profileObject, ProfileID profileId) throws NullPointerException, SLEEException
+	{
 		// FIXME: Alexandre: Validate the profile
 		return false;
 	}
 
-	public void markProfileDirty() {
+	public static void markProfileDirty(ProfileObject profileObject)
+	{
 		profileObject.getProfileConcrete().setProfileDirty(true);
 	}
 
-	public void profileInitialize()
+	public static void profileInitialize(ProfileObject profileObject)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profileInitialize] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profileInitialize] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
 		
-		ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
 		
 		try
 		{
-			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
 			// FIXME: Alexandre: Do profile initialization.
 		}
 		finally
 		{
 		  switchContextClassLoader(oldClassLoader);
-			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
 		}
 	}
 
-	public void profileLoad()
+	public static void profileLoad(ProfileObject profileObject)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profileLoad] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profileLoad] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
 
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Do profile load.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void profileStore()
+	public static void profileStore(ProfileObject profileObject)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profileStore] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profileStore] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
 		
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Do profile store.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void profileVerify() throws ProfileVerificationException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profileVerify] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+	public static void profileVerify(ProfileObject profileObject) throws ProfileVerificationException
+	{
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profileVerify] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
 		
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Do profile verification.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void profileActivate() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profileActivate] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+	public static void profileActivate(ProfileObject profileObject)
+	{
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profileActivate] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
     
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Do profile activation.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void profilePassivate() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profilePassivate] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+	public static void profilePassivate(ProfileObject profileObject)
+	{
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profilePassivate] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
     
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Do profile passivation.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void profilePostCreate() throws CreateException
+	public static void profilePostCreate(ProfileObject profileObject) throws CreateException
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profilePostCreate] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profilePostCreate] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
     
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Do profile post-creation actions.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void profileRemove()
+	public static void profileRemove(ProfileObject profileObject)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("[profileRemove] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[profileRemove] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
     
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Do profile removal.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void setProfileContext(ProfileContext profileContext)
+	public static void setProfileContext(ProfileObject profileObject, ProfileContext profileContext)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("[setProfileContext] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[setProfileContext] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
     
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Set profile context.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
-	public void unsetProfileContext()
+	public static void unsetProfileContext(ProfileObject profileObject)
 	{
-		if (logger.isDebugEnabled()) {
-			logger.debug("[unsetProfileContext] on: " + this.profileObject.getProfileName() + ", from table:" + this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("[unsetProfileContext] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
 		}
     
-    ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+    ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
-      ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
       // FIXME: Alexandre: Unset profile context.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
 	// Usage methods. Here we can be static for sure. Rest must be tested.
 	public static Object getProfileUsageParam(ProfileConcrete profileConcrete, String name) throws UnrecognizedUsageParameterSetNameException
 	{
-		if (logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled())
+		{
 			logger.debug("[getProfileUsageParam]: ProfileName = " + profileConcrete.getProfileName() + " , ProfileTableName = " + profileConcrete.getProfileTableConcrete().getProfileTableName() + " , name = " + name);
 		}
 		
@@ -262,7 +274,8 @@ public class ProfileManagementHandler {
 
 	public static Object getProfileDefaultUsageParam(ProfileConcrete profileConcrete)
 	{
-		if (logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled())
+		{
 			logger.debug("[getProfileUsageParam]: ProfileName = " + profileConcrete.getProfileName() + " , ProfileTableName = " + profileConcrete.getProfileTableConcrete().getProfileTableName());
 		}
 
@@ -271,7 +284,7 @@ public class ProfileManagementHandler {
 		return profileTableConcrete.getProfileTableUsageMBean().getInstalledUsageParameterSet(null);
 	}
 
-	private ClassLoader switchContextClassLoader(ClassLoader newClassLoader)
+	private static ClassLoader switchContextClassLoader(ClassLoader newClassLoader)
 	{
     Thread t = Thread.currentThread();
     ClassLoader oldClassLoader = t.getContextClassLoader();

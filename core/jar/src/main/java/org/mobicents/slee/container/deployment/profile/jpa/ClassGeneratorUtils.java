@@ -320,13 +320,19 @@ public class ClassGeneratorUtils {
    * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
    * 
    * @param field
+   * @param interceptorAccess 
    * @return
    * @throws NotFoundException
    * @throws CannotCompileException
    */
-  public static CtMethod generateGetter(CtField field) throws NotFoundException, CannotCompileException
+  public static CtMethod generateGetter(CtField field, String interceptorAccess) throws NotFoundException, CannotCompileException
   {
-    CtMethod getter = CtNewMethod.getter( "get" + capitalize(field.getName()), field );
+    String getterName = "get" + capitalize(field.getName());
+    
+    CtMethod getter = CtNewMethod.getter( getterName, field );
+
+    if(interceptorAccess != null)
+      getter.setBody( interceptorAccess + "." + getterName + "($$);" );
 
     field.getDeclaringClass().addMethod(getter);
 
@@ -366,10 +372,15 @@ public class ClassGeneratorUtils {
    * @throws NotFoundException
    * @throws CannotCompileException
    */
-  public static CtMethod generateSetter(CtField field) throws NotFoundException, CannotCompileException
+  public static CtMethod generateSetter(CtField field, String interceptorAccess) throws NotFoundException, CannotCompileException
   {
-    CtMethod setter = CtNewMethod.setter( "set" + capitalize(field.getName()), field );
-
+    String setterName = "set" + capitalize(field.getName());
+    
+    CtMethod setter = CtNewMethod.setter( setterName, field );
+    
+    if(interceptorAccess != null)
+      setter.setBody( interceptorAccess + "." + setterName + "($$);" );
+    
     field.getDeclaringClass().addMethod(setter);
 
     return setter;
@@ -407,10 +418,10 @@ public class ClassGeneratorUtils {
    * @throws NotFoundException
    * @throws CannotCompileException
    */
-  public static void generateGetterAndSetter(CtField field) throws NotFoundException, CannotCompileException
+  public static void generateGetterAndSetter(CtField field, String interceptorAccess) throws NotFoundException, CannotCompileException
   {
-    generateGetter(field);
-    generateSetter(field);
+    generateGetter(field, interceptorAccess);
+    generateSetter(field, interceptorAccess);
   }
 
   public static void generateCMPHandlers(CtField field) throws NotFoundException, CannotCompileException
@@ -592,7 +603,7 @@ public class ClassGeneratorUtils {
     concreteClass.addMethod(newMethod);
   }
 
-  public static void generateDelegateMethod(CtClass classToBeInstrumented, CtMethod method, String interceptorAccess) throws CannotCompileException, NotFoundException
+  public static void generateDelegateMethod(CtClass classToBeInstrumented, CtMethod method, String interceptorAccess, boolean recordTxData) throws CannotCompileException, NotFoundException
   {
     // FIXME: should we add check for concrete methods from profileManagementAbstractClass and do clone?
 
@@ -616,12 +627,12 @@ public class ClassGeneratorUtils {
     String body = 
       "{" +
       "  try {" + 
-      ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" + 
+      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" : "") + 
       retStatement +
-      interceptorAccess + "." + method.getName() + "($$);" +
+      interceptorAccess + "." + method.getName() + "(" + (interceptorAccess.equals("super") ? "" : "profileObject, ") + "$$);" +
       "  }" +
       "  finally {" +
-      ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(this);" + 
+      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(this);" : "") + 
       "  }" + 
       "}";
     
