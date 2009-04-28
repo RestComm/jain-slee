@@ -688,14 +688,15 @@ public class ActivityContext {
 			break;
 			
 		case profileTableActivity:
-			try {
+			// atm, nothing to do
+			/*try {
 				this.sleeContainer.getSleeProfileTableManager()
 						.getProfileTable(
 								((ProfileTableActivityHandle)activityContextHandle.getActivityHandle()).getProfileTable())
 						.activityEnded();
 			} catch (UnrecognizedProfileTableNameException e1) {
 				logger.warn(e1.getMessage(), e1);
-			}
+			}*/
 			break;
 			
 		case serviceActivity:
