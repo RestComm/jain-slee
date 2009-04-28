@@ -2,7 +2,6 @@ package org.mobicents.slee.container.deployment.profile;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.SleeComponentWithUsageParametersClassCodeGenerator;
 import org.mobicents.slee.container.deployment.profile.jpa.ConcreteProfileGenerator;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 

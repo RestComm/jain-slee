@@ -1,15 +1,17 @@
 package org.mobicents.slee.container.profile;
 
+import javax.management.NotCompliantMBeanException;
+import javax.management.StandardMBean;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.InvalidStateException;
 import javax.slee.management.ManagementException;
+import javax.slee.management.NotificationSource;
 import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileVerificationException;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
-import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
@@ -29,9 +31,11 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implements ProfileMBean {
+public abstract class ProfileMBeanConcrete extends StandardMBean implements ProfileMBean, NotificationSource {
 
-	public static final String _PROFILE_OBJECT = "profileObject";
+  private static final long serialVersionUID = 1L;
+  
+  public static final String _PROFILE_OBJECT = "profileObject";
 	public static final String _CHECK_WRITE_ACCESS = "checkWriteAccess();";
 
 	protected final Logger logger = Logger.getLogger(ProfileMBeanConcrete.class);
@@ -44,10 +48,10 @@ public abstract class ProfileMBeanConcrete extends ServiceMBeanSupport implement
 	protected ProfileObject profileObject = null;
 	protected SleeProfileTableManager sleeProfileManagement = null;
 	protected SleeTransactionManager sleeTransactionManager = null;
-	
-	public ProfileMBeanConcrete(ProfileObject profileObject)
+
+	public ProfileMBeanConcrete(Class mbeanInterface, ProfileObject profileObject) throws NotCompliantMBeanException
 	{
-		super();
+	  super(mbeanInterface);
 		this.profileObject = profileObject;
 		this.sleeProfileManagement = this.profileObject.getProfileTableConcrete().getProfileManagement();
 		this.sleeContainer = SleeContainer.lookupFromJndi();

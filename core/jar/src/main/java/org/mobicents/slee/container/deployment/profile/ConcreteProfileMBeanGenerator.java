@@ -171,7 +171,7 @@ public class ConcreteProfileMBeanGenerator {
 		
 		try
 		{
-		  profileMBeanConcreteClass.writeFile(this.component.getDeploymentDir().getAbsolutePath());
+		  pool.get(tmpClassName).writeFile(this.component.getDeploymentDir().getAbsolutePath());
 			if (logger.isDebugEnabled()) {
 				logger.debug("Concrete Class " + tmpClassName + " generated in the following path " + this.component.getDeploymentDir().getAbsolutePath());
 			}
@@ -309,52 +309,7 @@ public class ConcreteProfileMBeanGenerator {
 		
 		CtMethod newMethod = CtNewMethod.copy( method, concreteClass, null );
 		newMethod.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
-		String returnStatement = "return";
-		if(isGet)
-		{
-			returnStatement="return ($r)";
-		}
-		String body="{"+
-		"boolean createdTransaction = false;"+
-		"boolean rollback = true;"+
-		"try {"+
-		"	createdTransaction = super.sleeTransactionManager.requireTransaction();";
-			if(isGet)
-				body+="Object result = "+interceptorAccess+"."+method.getName()+"($$);";
-			else
-				body+= interceptorAccess+"."+method.getName()+"($$);";
-			
-			body+="rollback = false;";
-			if(isGet)
-				body+=returnStatement+"result;";
-			else	
-				body+=returnStatement+";";
-		body+="} catch ("+javax.slee.profile.ReadOnlyProfileException.class.getName()+" e) {"+
-		"	throw new "+javax.slee.InvalidStateException.class.getName()+"(\"Profile is read only.\");"+
-		"} finally {"+
-			
-		"	if (rollback) {"+
-		"		try {"+
-		"			super.sleeTransactionManager.rollback();"+
-		"		} catch ("+java.lang.Exception.class.getName()+" e) {"+
-
-		"			e.printStackTrace();"+
-		"			throw new "+ManagementException.class.getName()+"(\"Failed to rollback\", e);"+
-		"		}"+
-		"	} else if (createdTransaction) {"+
-		"		 {"+
-		"			try {"+
-		"				super.sleeTransactionManager.commit();"+
-		"			} catch ("+java.lang.Exception.class.getName()+" e) {"+
-
-		"				e.printStackTrace();"+
-		"				throw new "+ManagementException.class.getName()+"(\"Failed to commit\", e);"+
-		"			}"+
-		"		}"+
-		"	}"+
-		"}" +
-	"}";
-		
+		String body = "{"+ (isGet ? "return ($r)" : "") + interceptorAccess+"."+method.getName()+"($$); }";
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);

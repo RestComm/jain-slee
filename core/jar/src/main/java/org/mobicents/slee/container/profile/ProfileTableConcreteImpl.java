@@ -12,6 +12,7 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.CreateException;
@@ -583,9 +584,9 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 
 			// Add MBean
 			Class concreteProfileMBeanClass = component.getProfileMBeanConcreteImplClass();
-			Constructor con = concreteProfileMBeanClass.getConstructor(ProfileObject.class);
+			Constructor con = concreteProfileMBeanClass.getConstructor(Class.class, ProfileObject.class);
 			// FIXME: this must be StandardMBean ?
-			ServiceMBeanSupport profileMBean = (ServiceMBeanSupport) con.newInstance(allocated);
+			StandardMBean profileMBean = (StandardMBean) con.newInstance(component.getProfileMBeanConcreteInterfaceClass(), allocated);
 			if (isDefault) {
 				objectName = getDefaultProfileObjectName(profileTableName);
 			} else {
