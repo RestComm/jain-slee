@@ -1,5 +1,10 @@
 package org.mobicents.slee.container.component.deployment.classloading;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Enumeration;
+
 import javax.slee.ComponentID;
 
 /**
@@ -17,12 +22,33 @@ public class ComponentClassLoader extends ClassLoader {
 	 * the component id, used to make this class loader unique
 	 */
 	private final ComponentID componentID;
+	private final URLClassLoaderDomain parent;
 	
 	public ComponentClassLoader(ComponentID componentID, URLClassLoaderDomain parent) {
-		super(parent);		
+		this.parent = parent;		
 		this.componentID = componentID;
 	}
 
+	@Override
+	public Class<?> loadClass(String name) throws ClassNotFoundException {		
+		return parent.loadClass(name);
+	}
+	
+	@Override
+	public URL getResource(String name) {
+		return parent.getResource(name);
+	}
+	
+	@Override
+	public InputStream getResourceAsStream(String name) {
+		return parent.getResourceAsStream(name);
+	}
+	
+	@Override
+	public Enumeration<URL> getResources(String name) throws IOException {
+		return parent.getResources(name);
+	}
+	
 	@Override
 	public String toString() {
 		return "ComponentClassLoader[ componentID = " + componentID	+ " ]";

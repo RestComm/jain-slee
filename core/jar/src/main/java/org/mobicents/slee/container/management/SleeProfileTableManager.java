@@ -90,25 +90,14 @@ public class SleeProfileTableManager {
 			logger.debug("Installing " + component);
 		}
 
-		// FIXME:
-		this.sleeTransactionManager.mandateTransaction();
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		sleeTransactionManager.mandateTransaction();
-
-		// change classloader
-		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
-			Thread.currentThread().setContextClassLoader(component.getClassLoader());
-
 			this.createJndiSpace(component);
 			// FIXME: we wont use trace and alarm in 1.0 way wont we?
-			this.sleeProfileClassCodeGenerator.process(component);
+			sleeProfileClassCodeGenerator.process(component);
 		} catch (DeploymentException de) {
 			throw de;
 		} catch (Throwable t) {
-			throw new DeploymentException("Bad throwable, possible bug - this should be handled properly.", t);
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
+			throw new SLEEException(t.getMessage(),t);
 		}
 
 	}
