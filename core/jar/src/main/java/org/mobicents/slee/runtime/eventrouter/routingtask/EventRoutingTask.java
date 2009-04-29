@@ -1,5 +1,9 @@
 package org.mobicents.slee.runtime.eventrouter.routingtask;
 
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.Set;
 
 import javax.transaction.SystemException;
@@ -71,7 +75,20 @@ public class EventRoutingTask implements Runnable {
 		if (pendingAttachementsMonitor != null) {
 			pendingAttachementsMonitor.waitTillNoTxModifyingAttachs();
 		}
-		routeQueuedEvent();
+		
+		if(System.getSecurityManager()!=null)
+		{
+			AccessController.doPrivileged(new PrivilegedAction(){
+
+				public Object run(){
+					routeQueuedEvent();
+					return null;
+				}});
+		}else
+		{
+			routeQueuedEvent();
+		}
+		
 	}
 
 	/**
@@ -103,7 +120,7 @@ public class EventRoutingTask implements Runnable {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Active services for event "+de.getEventTypeId()+": "+eventTypeComponent.getActiveServicesWhichDefineEventAsInitial());
 				}
-				for (ServiceComponent serviceComponent : eventTypeComponent.getActiveServicesWhichDefineEventAsInitial()) {
+				for (final ServiceComponent serviceComponent : eventTypeComponent.getActiveServicesWhichDefineEventAsInitial()) {
 					if (de.getService() == null || de.getService().equals(serviceComponent.getServiceID())) {
 						initialEventProcessor.processInitialEvents(serviceComponent, de, txMgr, this.container.getActivityContextFactory());
 					}

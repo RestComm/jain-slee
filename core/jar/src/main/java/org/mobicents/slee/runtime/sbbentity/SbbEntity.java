@@ -745,10 +745,10 @@ public class SbbEntity {
 		data.putInTransactionContext();
 		// invoke method
 		try {
-			
+
 			//This is required. Since domain chain may indicate RA for instance, or SLEE deployer. If we dont do that test: tests/runtime/security/Test1112012Test.xml and second one, w
 			//will fail because domain of SLEE tck ra is too restrictive (or we have bad desgin taht allows this to happen?)
-			if(SleeContainer.isSecurityEnabled())
+			if(System.getSecurityManager()!=null)
 			{
 				AccessController.doPrivileged(new PrivilegedExceptionAction(){
 
@@ -763,7 +763,7 @@ public class SbbEntity {
 				eventHandlerMethod.getEventHandlerMethod().invoke(
 						sbbObject.getSbbConcrete(), parameters);
 			}
-			
+	
 		} catch(PrivilegedActionException pae)
 		{
 			Throwable cause = pae.getException();

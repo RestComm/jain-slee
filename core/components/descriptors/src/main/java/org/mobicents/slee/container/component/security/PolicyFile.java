@@ -16,11 +16,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.SocketPermission;
 import java.net.URI;
 import java.net.URL;
 import java.security.AccessController;
+import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.KeyStore;
 import java.security.Permission;
@@ -61,14 +62,14 @@ import sun.security.util.SecurityConstants;
  *         </a>
  */
 public class PolicyFile extends Policy {
-	//FIXME: should this be private class?
+	// FIXME: should this be private class?
 	private static final Logger logger = Logger.getLogger(PolicyFile.class);
 
 	// FIXME: make PermissionHolder default container??
 	private AtomicReference<GlobalPolicyHolder> currentPolicy = new AtomicReference<GlobalPolicyHolder>(new GlobalPolicyHolder());
 
+	//public static boolean show = false;
 	private final Set<PermissionHolder> sleeComponentsPermissions = new HashSet<PermissionHolder>();
-
 
 	// Some statics
 	private static String _DEFAULT_POLICY;
@@ -107,10 +108,13 @@ public class PolicyFile extends Policy {
 
 		Permissions p = new Permissions();
 		// We must always return muttable coolection
-		//FIXME: shoyuld this be done ni priviledged section?
+		// FIXME: shoyuld this be done ni priviledged section?
+		// codesource = AccessController.doPrivileged(new
+		// PerformURLConversionAction2( true,codesource,this));
 		codesource = performUrlConversion(codesource, true);
 		p = (Permissions) this.getPermissions(p, codesource);
-	
+		//if(show)
+		//	doPermDump(p, "RETURN: " + codesource);
 		return p;
 
 	}
@@ -130,14 +134,13 @@ public class PolicyFile extends Policy {
 				permissions.add((Permission) domainPermissions.nextElement());
 			}
 		}
-	
-
+		//if(show)
+		//	doPermDump(permissions, "RETURN2: " + domain.getCodeSource());
 		return permissions;
 	}
 
 	private void doPermDump(PermissionCollection pc, String string) {
-	
-		
+
 		Enumeration<Permission> en = pc.elements();
 		while (en.hasMoreElements()) {
 			Permission p = en.nextElement();
@@ -173,20 +176,27 @@ public class PolicyFile extends Policy {
 		CodeSource cs = domain.getCodeSource();
 		if (cs == null)
 			return;
-		//FIXME: should we 
+		// FIXME: should we
+		// cs = AccessController.doPrivileged(new PerformURLConversionAction2(
+		// true,cs,this));
 		cs = performUrlConversion(cs, true);
+	
 		// FIXME: add more actions?
+		
 		getPermissions(permissions, cs, domain.getPrincipals());
+		
+		
 
 	}
 
 	private void selectPermissions(Permissions permissions, final CodeSource cs, Principal[] principals, final PolicyHolderEntry phe) {
 
-		//FIXME: this always gets into if... even if debug is not on...
-//		 if (logger.isDebugEnabled() ) {
-//		
-//			logger.info("Select permissions. \nFor: " + cs + ", Entry\n CS: " + phe.getCodeSource() + "\n" + phe.getCodeSource().implies(cs));
-//		 }
+		// FIXME: this always gets into if... even if debug is not on...
+		// if (logger.isDebugEnabled() ) {
+		//	
+		//if (show)
+		//	logger.info("Select permissions. \nFor: " + cs + ", Entry\n CS: " + phe.getCodeSource() + "\n" + phe.getCodeSource().implies(cs));
+		// }
 
 		Boolean implies = phe.getCodeSource().implies(cs);
 		// Boolean implies = (Boolean) AccessController.doPrivileged(new
@@ -195,10 +205,10 @@ public class PolicyFile extends Policy {
 		// phe.getCodeSource());
 		boolean addPermissions = false;
 		if (!implies.booleanValue()) {
-			
+
 			return;
 		} else {
-			
+
 			final Principal[] pdp = principals;
 			List entryPs = phe.getPrincipals();
 			List domainPs = new LinkedList();
@@ -212,25 +222,28 @@ public class PolicyFile extends Policy {
 			// }
 
 			if (entryPs == null || entryPs.size() == 0) {
-				
+
 				addPermissions = true;
 			} else if (domainPs.size() != 0) {
-				
+
 				// FIXME: what goes here?
 			}
 
 			// implies succeeded - grant the permissions
 			if (!addPermissions) {
-		
+
 			} else {
 				
 				List<Permission> permissionsList = phe.getPermissions();
+				//if(show)
+				//	System.err.println("PERMS: "+permissionsList.size());
 				for (int j = 0; j < permissionsList.size(); j++) {
+					
 					Permission p = permissionsList.get(j);
-					
-
+				//	if(show)
+				//		System.err.println("PERMSx: "+p);
 					permissions.add(p);
-					
+
 				}
 			}
 		}
@@ -241,7 +254,7 @@ public class PolicyFile extends Policy {
 	public boolean implies(ProtectionDomain domain, Permission permission) {
 
 		Map<ProtectionDomain, PermissionCollection> pdMap = this.currentPolicy.get().getProtectionDomain2PermissionCollection();
-		;
+		
 
 		PermissionCollection pc = (PermissionCollection) pdMap.get(domain);
 
@@ -447,6 +460,7 @@ public class PolicyFile extends Policy {
 			// should not be null but:
 			if (cs == null)
 				return;
+			
 			PolicyHolderEntry phe = new PolicyHolderEntry(cs, nextElement.principals);
 
 			Enumeration<PolicyParser.PermissionEntry> permissionEntries = nextElement.permissionElements();
@@ -480,7 +494,7 @@ public class PolicyFile extends Policy {
 
 				}
 			}
-	
+			
 			newGlobalPolicyHolder.policyHolderEntries.add(phe);
 		} catch (Exception e) {
 
@@ -601,14 +615,22 @@ public class PolicyFile extends Policy {
 		}
 
 		URL location;
-
+		CodeSource cs = null;
 		if (nextElement.codeBase != null)
+		{
+			
 			location = new URL(nextElement.codeBase);
+			cs = new CodeSource(location, certs);
+			cs=performUrlConversion(cs, false);
+		}
 		else
+		{
 			location = null;
+			cs = new CodeSource(location, certs);
+		}
 
 		// FIXME: sun has something cvalled : canonical ....
-		return new CodeSource(location, certs);
+		return cs;
 	}
 
 	// Some add/remove methods
@@ -635,15 +657,15 @@ public class PolicyFile extends Policy {
 
 				parseGrantEntry(grantEntries.nextElement(), ks, holder);
 			}
-			// System.err.println("ADD: "+holder.getPermissionCodeBaseURI()+"\n"+holder.getPolicy()+"\n"+holder.getPolicyHolderEntry().size());
+			
 			if (refresh)
 				this.refresh();
 			return true;
 		}
 	}
 
-	//FIXME: should those method be hidden?
-	
+	// FIXME: should those method be hidden?
+
 	public boolean removePermissionHolder(PermissionHolder holder) {
 
 		return this.removePermissionHolder(holder, true);
@@ -719,7 +741,7 @@ public class PolicyFile extends Policy {
 	 * @param cs
 	 * @return
 	 */
-	private CodeSource performUrlConversion(CodeSource cs, boolean extractSignerCerts) {
+	CodeSource performUrlConversion(CodeSource cs, boolean extractSignerCerts) {
 
 		String path = null;
 		CodeSource parsedCodeSource = null;
@@ -737,7 +759,7 @@ public class PolicyFile extends Policy {
 			if (urlAccessPermission != null && urlAccessPermission instanceof FilePermission) {
 				path = ((FilePermission) urlAccessPermission).getName();
 			} else if ((urlAccessPermission == null) && (locationURL.getProtocol().equals("file"))) {
-				path = locationURL.getFile().replace('/', File.separatorChar);
+				path = locationURL.getFile().replace("/", File.separator);
 				// FIXME: do more?
 			} else {
 				// FIXME: ??
@@ -753,7 +775,8 @@ public class PolicyFile extends Policy {
 			try {
 				// Sun says it fails
 				if (path.endsWith("*")) {
-					// remove trailing '*' because it causes canonicaization
+					// remove trailing '*' because it causes
+					// canonicaization
 					// to fail on win32
 					path = path.substring(0, path.length() - 1);
 					boolean removeTrailingFileSep = false;
@@ -768,31 +791,32 @@ public class PolicyFile extends Policy {
 					// reappend '*' to canonicalized filename (note that
 					// canonicalization may have removed trailing file
 					// separator, so we have to check for that, too)
-					if (!path.endsWith(File.separator) && (removeTrailingFileSep || f.isDirectory()))
-						sb.append(File.separatorChar);
+					if (!path.endsWith(File.separator) && removeTrailingFileSep)
+						sb.append(File.separator);
 					sb.append('*');
 					path = sb.toString();
-				} else if(path.endsWith(File.separator))
-				{
-					//this is xxxx/x.jar!/ case.....
+				} else if (path.endsWith(File.separator)) {
+					// this is xxxx/x.jar!/ case.....
 					path = path.substring(0, path.length() - 1);
-					if(path.endsWith("!"))
-					{
+					if (path.endsWith("!")) {
 						path = path.substring(0, path.length() - 1);
 					}
-				}else {
+				} else {
 					path = new File(path).getCanonicalPath();
 				}
-				// FIXME: possible convert URL? what is check this in rfc
-				locationURL = new File(path).toURI().toURL();
-
+				// FIXME: possible convert URL? what is check this in
+				// rfc
+				locationURL=fileToEncodedURL(new File(path));
+				//locationURL = new URL("file", "", path);
+				
 				if (extractSignerCerts) {
 					parsedCodeSource = new CodeSource(locationURL, getSignerCertificates(cs));
 				} else {
 					parsedCodeSource = new CodeSource(locationURL, cs.getCertificates());
 				}
 			} catch (IOException ioe) {
-				// leave codesource as it is, unless we have to extract its
+				// leave codesource as it is, unless we have to extract
+				// its
 				// signer certificates
 				if (extractSignerCerts) {
 					parsedCodeSource = new CodeSource(cs.getLocation(), getSignerCertificates(cs));
@@ -802,6 +826,24 @@ public class PolicyFile extends Policy {
 		}
 
 		return parsedCodeSource;
+		// CodeSource o = AccessController.doPrivileged(new
+		// PerformURLConversionAction(extractSignerCerts,cs));
+
+		// return o;
+	}
+
+	public static URL fileToEncodedURL(File file) throws MalformedURLException {
+		String path = file.getAbsolutePath();
+		//pff, CS has hardcoded "/" checks
+		path = path.replace("\\", "/");
+		//path = ParseUtil.encodePath(path);
+		if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
+//		if (!path.endsWith("/") && file.isDirectory()) {
+//			path = path + "/";
+//		}
+		return new URL("file", "", path);
 	}
 
 	private Certificate[] getSignerCertificates(CodeSource cs) {
@@ -813,10 +855,9 @@ public class PolicyFile extends Policy {
 
 	public String getCodeSources() {
 
-
 		List<String> css = new ArrayList<String>();
 		for (PolicyHolderEntry phe : this.currentPolicy.get().policyHolderEntries) {
-			css.add(phe.getCodeSource().getLocation()==null?"default":phe.getCodeSource().getLocation().toString());
+			css.add(phe.getCodeSource().getLocation() == null ? "default" : phe.getCodeSource().getLocation().toString());
 		}
 
 		return Arrays.toString(css.toArray());

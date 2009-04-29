@@ -335,7 +335,7 @@ public class ProfileObject {
 		{
 			final ClassLoader cl = this.profileSpecificationComponent.getClassLoader();
 			
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 			{
 				AccessController.doPrivileged(new PrivilegedAction()
 				{
@@ -368,7 +368,7 @@ public class ProfileObject {
 		}
 		finally
 		{
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 			{
 				AccessController.doPrivileged(new PrivilegedAction()
 				{
@@ -410,7 +410,7 @@ public class ProfileObject {
 		try
 		{
 			final ClassLoader cl = this.profileSpecificationComponent.getClassLoader();
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 			{
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run()
@@ -433,7 +433,7 @@ public class ProfileObject {
 		}
 		finally
 		{
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 			{
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run()

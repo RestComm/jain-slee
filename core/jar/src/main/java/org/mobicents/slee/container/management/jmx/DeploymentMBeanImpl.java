@@ -921,7 +921,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 	private void updateSecurityPermissions(SleeComponent component, boolean refresh)
 	{
-		if(!SleeContainer.isSecurityEnabled())
+		if(System.getSecurityManager()==null)
 		{
 			return;
 		}
@@ -951,7 +951,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	private void removeSecurityPermissions(SleeComponent component, boolean refresh)
 	{
 		
-		if(!SleeContainer.isSecurityEnabled())
+		if(System.getSecurityManager()==null)
 		{
 			return;
 		}

@@ -74,7 +74,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
                 sbbObject.unsetSbbContext();
             }
         } finally {
-            if (SleeContainer.isSecurityEnabled())
+            if (System.getSecurityManager()!=null)
                 AccessController.doPrivileged(new PrivilegedAction() {
                     public Object run() {
                         Thread.currentThread().setContextClassLoader(
@@ -107,7 +107,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
 
         try {
             final ClassLoader cl = sbbComponent.getClassLoader();
-            if (SleeContainer.isSecurityEnabled())
+            if (System.getSecurityManager()!=null)
                 AccessController.doPrivileged(new PrivilegedAction() {
                     public Object run() {
                         Thread.currentThread().setContextClassLoader(cl);
@@ -121,7 +121,7 @@ public class SbbObjectPoolFactory implements PoolableObjectFactory {
             retval = new SbbObject(serviceID,sbbComponent);
         
         } finally {
-            if (SleeContainer.isSecurityEnabled())
+            if (System.getSecurityManager()!=null)
                 AccessController.doPrivileged(new PrivilegedAction() {
                     public Object run() {
                         Thread.currentThread().setContextClassLoader(

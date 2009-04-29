@@ -8,7 +8,12 @@
  */
 package org.mobicents.slee.container.management.jmx;
 
+import java.security.AccessControlContext;
+import java.security.AccessController;
 import java.security.Policy;
+import java.security.PrivilegedAction;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
@@ -54,12 +59,15 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 				super.log.info("Already switched policy from different bean, not performing switch");
 				return;
 			}
-
+			
 			this.previousPolicy = Policy.getPolicy();
-
+			//AccessControlContext acc = AccessController.getContext();
+			//AccessController.doPrivileged(new PrivilegedAction22(this.mPolicyFile));
+			
 			this.mPolicyFile.refresh();
 			Policy.setPolicy(this.mPolicyFile);
-			SleeContainer.isSecurityEnabled=true;
+			
+			
 		} else {
 			if (!isUseMPolicy()) {
 				super.log.info("Policy is not Mobicents policy, can not remove it.");
@@ -73,11 +81,14 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 			}
 
 			this.previousPolicy.refresh();
-			SleeContainer.isSecurityEnabled=false;
+			
 			Policy.setPolicy(this.previousPolicy);
 		}
-
+		
+		
 	}
+	
+	
 
 	@Override
 	protected void startService() throws Exception {
@@ -93,5 +104,6 @@ public class PolicyMBeanImpl extends ServiceMBeanSupport implements PolicyMBeanI
 		this.setUseMPolicy(false);
 
 	}
+
 
 }

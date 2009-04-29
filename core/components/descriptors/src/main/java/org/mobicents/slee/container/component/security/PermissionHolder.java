@@ -11,8 +11,10 @@ package org.mobicents.slee.container.component.security;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -30,7 +32,7 @@ import sun.security.provider.PolicyParser.ParsingException;
  * Start time:12:49:40 2009-04-13<br>
  * Project: mobicents-jainslee-server-core<br>
  * this class holds permission loaded from Slee components (only from slee
- * components) PermissionsLoaded from  different location are not represented by
+ * components) PermissionsLoaded from different location are not represented by
  * this class. Set of this elements is present for each slee component (library,
  * sbb (actually one :), etc)
  * 
@@ -106,7 +108,7 @@ public class PermissionHolder implements Comparable<PermissionHolder> {
 	}
 
 	public void setPolicy(String policy) {
-		
+
 		if (policy == null)
 			throw new IllegalArgumentException("Policy must not be null");
 
@@ -138,16 +140,22 @@ public class PermissionHolder implements Comparable<PermissionHolder> {
 
 		// Here we must instrument code base, so it either points to whole dir,
 		// or is
+
 		URI uri = this.permissionCodeBaseURI.normalize();
 		Enumeration<PolicyParser.GrantEntry> grantEntries = this.policyParser.grantElements();
 		while (grantEntries.hasMoreElements()) {
 			PolicyParser.GrantEntry ge = grantEntries.nextElement();
-			if (ge.codeBase == null) {
-				ge.codeBase = uri.toString();
-			} else {
-				// We have URI here , it must not be absolute
-				try {
-					URI presentCodeBase = new URI(ge.codeBase);
+			try {
+
+				if (ge.codeBase == null) {
+					ge.codeBase = uri.getPath();
+
+					ge.codeBase = PolicyFile.fileToEncodedURL(new File(ge.codeBase)).toString();
+
+				} else {
+					// We have URI here , it must not be absolute
+
+					URI presentCodeBase = new URI("file", "", new URI(ge.codeBase).getPath());
 					if (presentCodeBase.isAbsolute()) {
 						throw new IllegalArgumentException("Code base is absolute, it must be relative: " + ge.codeBase);
 					}
@@ -155,12 +163,16 @@ public class PermissionHolder implements Comparable<PermissionHolder> {
 					if (ge.codeBase.contains("..")) {
 						throw new IllegalArgumentException("Code contains \"..\", it must not: " + ge.codeBase);
 					}
-					ge.codeBase = new File(this.permissionCodeBaseURI.toString(), presentCodeBase.getPath()).toURI().normalize().toString();
-				} catch (URISyntaxException e) {
-					throw new IllegalArgumentException("Failed to parse code base: " + ge.codeBase, e);
+					String p = this.permissionCodeBaseURI.getPath();
+
 				}
+			} catch (URISyntaxException e) {
+				throw new IllegalArgumentException("Failed to parse code base: " + ge.codeBase, e);
+			} catch (MalformedURLException e) {
+				throw new IllegalArgumentException("Failed to parse code base: " + ge.codeBase, e);
 			}
 		}
+
 	}
 
 	public int compareTo(PermissionHolder o) {
@@ -180,7 +192,7 @@ public class PermissionHolder implements Comparable<PermissionHolder> {
 
 	public void addPermissionHolder(PermissionHolder ph, PolicyFile policyFile, boolean b) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

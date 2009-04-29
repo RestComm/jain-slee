@@ -133,11 +133,7 @@ public class SleeContainer {
 		return deployPath;
 	}
 
-	public static boolean isSecurityEnabled = false;
 
-	public static boolean isSecurityEnabled() {
-		return isSecurityEnabled;
-	}
 
 	private static SleeContainer sleeContainer;
 	private final SleeTransactionManager sleeTransactionManager;

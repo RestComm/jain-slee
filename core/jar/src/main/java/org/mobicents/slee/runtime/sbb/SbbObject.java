@@ -202,7 +202,7 @@ public class SbbObject implements Serializable {
 
 		try {
 			final ClassLoader cl = this.sbbComponent.getClassLoader();
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run() {
 						Thread.currentThread().setContextClassLoader(cl);
@@ -216,7 +216,7 @@ public class SbbObject implements Serializable {
 				this.sbbConcrete.unsetSbbContext();
 
 		} finally {
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run() {
 						Thread.currentThread().setContextClassLoader(
@@ -351,7 +351,7 @@ public class SbbObject implements Serializable {
 		if (this.sbbConcrete != null) {
 			final ClassLoader cl = this.sbbComponent.getClassLoader();
 			try {
-				if (SleeContainer.isSecurityEnabled())
+				if (System.getSecurityManager()!=null)
 					AccessController.doPrivileged(new PrivilegedAction() {
 						public Object run() {
 							Thread.currentThread().setContextClassLoader(cl);
@@ -373,7 +373,7 @@ public class SbbObject implements Serializable {
 				}
 
 			} finally {
-				if (SleeContainer.isSecurityEnabled())
+				if (System.getSecurityManager()!=null)
 					AccessController.doPrivileged(new PrivilegedAction() {
 						public Object run() {
 							Thread.currentThread().setContextClassLoader(
@@ -445,7 +445,7 @@ public class SbbObject implements Serializable {
 		try {
 
 			final ClassLoader cl = this.sbbComponent.getClassLoader();
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run() {
 						Thread.currentThread().setContextClassLoader(cl);
@@ -464,7 +464,7 @@ public class SbbObject implements Serializable {
 			}
 
 		} finally {
-			if (SleeContainer.isSecurityEnabled())
+			if (System.getSecurityManager()!=null)
 				AccessController.doPrivileged(new PrivilegedAction() {
 					public Object run() {
 						Thread.currentThread().setContextClassLoader(

@@ -64,7 +64,7 @@ public class SbbLocalObjectInterceptor {
         
         SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
         
-        if (sleeContainer.isSecurityEnabled())
+        if (System.getSecurityManager()!=null)
             AccessController.doPrivileged(new PrivilegedAction() {
                 public Object run() {
                     Thread.currentThread().setContextClassLoader(myClassLoader);
@@ -154,7 +154,7 @@ public class SbbLocalObjectInterceptor {
         	if (!invokedsbbEntities.removeLast().equals(sbbEntityId)) {
         		logger.error("last sbb entity id removed from event routing tx data was not the expected");
         	}
-            if (SleeContainer.isSecurityEnabled())
+            if (System.getSecurityManager()!=null)
                 AccessController.doPrivileged(new PrivilegedAction() {
                     public Object run() {
                         Thread.currentThread().setContextClassLoader(

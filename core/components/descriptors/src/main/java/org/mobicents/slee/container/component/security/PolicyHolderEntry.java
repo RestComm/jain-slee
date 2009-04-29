@@ -44,7 +44,7 @@ class PolicyHolderEntry {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+" cs: "+codesource;
+		return this.getClass().getSimpleName()+" cs: "+codesource+" -- "+permissions.size();
 	}
 
 	@Override

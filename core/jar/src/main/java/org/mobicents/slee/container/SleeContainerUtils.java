@@ -53,7 +53,7 @@ public class SleeContainerUtils {
 	}
 
 	public static ClassLoader getCurrentThreadClassLoader() {
-		if (SleeContainer.isSecurityEnabled)
+		if (System.getSecurityManager()!=null)
 			return (ClassLoader) AccessController
 					.doPrivileged(new PrivilegedAction() {
 						public Object run() {
