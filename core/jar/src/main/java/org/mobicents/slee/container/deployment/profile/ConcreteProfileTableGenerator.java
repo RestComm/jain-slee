@@ -21,7 +21,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.ProfileQueryHandler;
-import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 
 public class ConcreteProfileTableGenerator {
 
@@ -60,7 +60,7 @@ public class ConcreteProfileTableGenerator {
 		}
 
 		try {
-			mobicentsConcreteProfileTableClass = pool.get(ProfileTableConcreteImpl.class.getName());
+			mobicentsConcreteProfileTableClass = pool.get(ProfileTableImpl.class.getName());
 
 		} catch (NotFoundException nfe) {
 			// nfe.printStackTrace();

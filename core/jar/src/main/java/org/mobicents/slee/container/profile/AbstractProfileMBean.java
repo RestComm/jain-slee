@@ -1,6 +1,7 @@
 package org.mobicents.slee.container.profile;
 
 import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
@@ -14,7 +15,6 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
-import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
@@ -30,34 +30,53 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ * @author martins
  */
-public abstract class ProfileMBeanConcrete extends StandardMBean implements ProfileMBean, NotificationSource {
+public abstract class AbstractProfileMBean extends StandardMBean implements ProfileMBean, NotificationSource {
 
-  private static final long serialVersionUID = 1L;
-  
-  public static final String _PROFILE_OBJECT = "profileObject";
+	private static final long serialVersionUID = 1L;
+	private final Logger logger = Logger.getLogger(AbstractProfileMBean.class);
+	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
+  	public static final String _PROFILE_OBJECT = "profileObject";
 	public static final String _CHECK_WRITE_ACCESS = "checkWriteAccess();";
-
-	protected final Logger logger = Logger.getLogger(ProfileMBeanConcrete.class);
-	// FIXME: this logic possibly should go directly into MBean, but than we
-	// would have to handle cmp and other operations in different way - like
-	// dirty check ?
-
-  private SleeContainer sleeContainer = null;
-
-	protected ProfileObject profileObject = null;
-	protected SleeProfileTableManager sleeProfileManagement = null;
-	protected SleeTransactionManager sleeTransactionManager = null;
-
-	public ProfileMBeanConcrete(Class mbeanInterface, ProfileObject profileObject) throws NotCompliantMBeanException
-	{
+	
+	/**
+	 * the profile object assigned to this mbean
+	 */
+	protected final ProfileObject profileObject;
+	
+	/**
+	 * the object name used to register this mbean
+	 */
+	private final ObjectName objectName;
+	
+	/**
+	 * 
+	 * @param mbeanInterface
+	 * @param profileObject
+	 * @throws NotCompliantMBeanException
+	 */
+	public AbstractProfileMBean(Class<?> mbeanInterface, ProfileObject profileObject) throws NotCompliantMBeanException, ManagementException {
 	  super(mbeanInterface);
-		this.profileObject = profileObject;
-		this.sleeProfileManagement = this.profileObject.getProfileTableConcrete().getProfileManagement();
-		this.sleeContainer = SleeContainer.lookupFromJndi();
-		this.sleeTransactionManager = sleeContainer.getTransactionManager();
+	  this.profileObject = profileObject;
+	  // register the mbean
+	  try {
+		  this.objectName = ProfileTableImpl.generateProfileMBeanObjectName(profileObject.getProfileTableConcrete().getProfileTableName(), profileObject.getProfileName());
+		  sleeContainer.getMBeanServer().registerMBean(this, objectName);
+	  } catch (Throwable e) {
+		  throw new ManagementException(e.getMessage(),e);
+	  }
 	}
 
+	/**
+	 * Retrieves the object name used to register this mbean.
+	 * @return
+	 */
+	public ObjectName getObjectName() {
+		return objectName;
+	}
+	
   // #################
   // # MBean methods #
   // #################
@@ -94,14 +113,14 @@ public abstract class ProfileMBeanConcrete extends StandardMBean implements Prof
 			// The closeProfile method must throw a javax.slee.InvalidStateException if the Profile MBean object is in the read-write state.
 			if (this.profileObject.isWriteable() && this.profileObject.getProfileConcrete().isProfileDirty())
 				throw new InvalidStateException();
-
-			// Jean -- Should close imply unregister ? I think not.
-			// sleeProfileManager.unregisterProfileMBean(profileKey);
-			if (logger.isDebugEnabled()) {
-				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
-				logger.debug("closeProfile call ended");
+			// unregister mbean
+			try {
+				sleeContainer.getMBeanServer().unregisterMBean(objectName);
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
 			}
+			// passivate profile object
+			profileObject.getProfileTableConcrete().deassignProfileObject(profileObject,true);						
 		}
 		finally {
 		  switchContextClassLoader(oldClassLoader);
@@ -126,6 +145,7 @@ public abstract class ProfileMBeanConcrete extends StandardMBean implements Prof
 		/*
 		 * 10.26.3.2 commitProfile method
 		 */
+		SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 		boolean txCreated = sleeTransactionManager.requireTransaction();
 
 		try
@@ -146,7 +166,7 @@ public abstract class ProfileMBeanConcrete extends StandardMBean implements Prof
 
 			boolean wasProfileInBackEndStorage = false;
 			try {
-				wasProfileInBackEndStorage = this.profileObject.getProfileTableConcrete().isProfileCommitted(this.profileObject.getProfileName());
+				wasProfileInBackEndStorage = this.profileObject.getProfileTableConcrete().profileExists(this.profileObject.getProfileName());
 			}
 			catch (Exception e) {
 				throw new ManagementException("Unable to verify if profile is in Back-end storage.", e);

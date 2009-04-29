@@ -4,8 +4,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.slee.CreateException;
-import javax.slee.profile.Profile;
-import javax.slee.profile.ProfileContext;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileVerificationException;
 

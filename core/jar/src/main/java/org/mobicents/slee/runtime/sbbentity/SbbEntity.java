@@ -34,7 +34,7 @@ import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
-import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
+import org.mobicents.slee.container.profile.ProfileLocalObjectImpl;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -282,7 +282,7 @@ public class SbbEntity {
 							.getSleeProfileTableManager().getProfileTable(
 									profileLocalObjectCmpValue
 											.getProfileTableName());
-					ProfileLocalObjectConcreteImpl ploc = (ProfileLocalObjectConcreteImpl) ptc
+					ProfileLocalObjectImpl ploc = (ProfileLocalObjectImpl) ptc
 							.find(profileLocalObjectCmpValue.getProfileName());
 					// its safe, this op should not allocate object twice
 					ploc.allocateProfileObject();
@@ -386,9 +386,9 @@ public class SbbEntity {
 			cmpType = CmpType.eventctx;
 			cmpValue = eventContextImpl.getEventContextID();
 		} else if (object instanceof ProfileLocalObject) {
-			ProfileLocalObjectConcreteImpl profileLocalObjectConcreteImpl = null;
+			ProfileLocalObjectImpl profileLocalObjectConcreteImpl = null;
 			try {
-				profileLocalObjectConcreteImpl = (ProfileLocalObjectConcreteImpl) object;
+				profileLocalObjectConcreteImpl = (ProfileLocalObjectImpl) object;
 			} catch (ClassCastException e) {
 				throw new IllegalArgumentException("CMP value being set ("
 						+ object

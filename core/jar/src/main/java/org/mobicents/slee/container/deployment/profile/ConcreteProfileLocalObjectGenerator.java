@@ -20,7 +20,7 @@ import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.profile.ProfileLocalObjectConcreteImpl;
+import org.mobicents.slee.container.profile.ProfileLocalObjectImpl;
 
 public class ConcreteProfileLocalObjectGenerator {
 
@@ -60,7 +60,7 @@ public class ConcreteProfileLocalObjectGenerator {
 		try
 		{
 			// This is the class we will extend
-			mobicentsProfileLocalInterfaceConcrete = this.pool.get(ProfileLocalObjectConcreteImpl.class.getName());
+			mobicentsProfileLocalInterfaceConcrete = this.pool.get(ProfileLocalObjectImpl.class.getName());
       cmpProfileInterface = this.pool.get(cmpProfileInterfaceName);
 		}
 		catch (NotFoundException nfe) {

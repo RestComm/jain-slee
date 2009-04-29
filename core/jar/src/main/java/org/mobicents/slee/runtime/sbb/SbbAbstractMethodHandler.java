@@ -6,7 +6,6 @@ import javax.slee.ChildRelation;
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
 import javax.slee.ServiceID;
-import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
@@ -22,7 +21,6 @@ import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -253,20 +251,13 @@ public class SbbAbstractMethodHandler {
 		try {
 			
 			ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(profileID.getProfileName());
-			//FIXME: what was doing that ?
-//			if (sleeProfileManager.findProfileSpecId(profileID
-//					.getProfileTableName()) == null)
-//				throw new UnrecognizedProfileTableNameException();
 			
-			//This will throw UnrecognizedProfile when there is no such profile.
-			ProfileObject po=null;
-			try {
-				po = profileTable.assignProfileObject(profileID.getProfileName(), false);
-			} catch (ProfileAlreadyExistsException e) {
-				//This wont happen
-		
-				throw new SLEEException("Please report bug. This should not happen.",e);
+			if (!profileTable.profileExists(profileID.getProfileName())) {
+				throw new UnrecognizedProfileNameException(profileID.toString());
 			}
+			
+			ProfileObject po = profileTable.assignProfileObject(profileID.getProfileName());
+			
 			po.setManagementView(false);
 			sleeContainer.getTransactionManager().addBeforeCommitAction(new BeforeCommitTransctAction(po));
 			sleeContainer.getTransactionManager().addAfterRollbackAction(new RollbackTransctAction(po));

@@ -15,7 +15,6 @@ import javax.slee.profile.ProfileTable;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
-import javax.slee.profile.UnrecognizedProfileNameException;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
@@ -48,12 +47,15 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 * exception. In case of bool flag set to true it also tries to create
 	 * 
 	 * @param profileName
-	 *            - valid, existing profile profile name
 	 * @return
-	 * @throws UnrecognizedProfileNameException
 	 */
-	public ProfileObject assignProfileObject(String profileName, boolean create) throws UnrecognizedProfileNameException, ProfileAlreadyExistsException;
+	public ProfileObject assignProfileObject(String profileName);
 
+	/**
+	 * Returns a profile object instance to the table
+	 * @param profileObject
+	 * @param remove if the object should be removed or passivated
+	 */
 	public void deassignProfileObject(ProfileObject profileObject, boolean remove);
 
 	public ProfileTableActivity getActivity();
@@ -66,12 +68,10 @@ public interface ProfileTableConcrete extends ProfileTable {
 	public Collection<ProfileID> getProfilesByIndexedAttribute(String attributeName, Object attributeValue) throws UnrecognizedAttributeException, AttributeNotIndexedException,
 			AttributeTypeMismatchException, SLEEException;
 
-	public boolean isProfileCommitted(String newProfileName) throws Exception;
+	public boolean profileExists(String newProfileName);
 
-	public ObjectName addProfile(String newProfileName, boolean isDefault) throws TransactionRequiredLocalException, SingleProfileException, ProfileAlreadyExistsException, SLEEException,
+	public ProfileObject createProfile(String newProfileName) throws TransactionRequiredLocalException, ProfileAlreadyExistsException, SLEEException,
 			CreateException, ProfileVerificationException;
-
-	public ObjectName getProfileMBean(String profileName, boolean isDefault) throws UnrecognizedProfileNameException;
 
 	/**
 	 * Returns JMX MBean name of usage mbean
@@ -103,13 +103,6 @@ public interface ProfileTableConcrete extends ProfileTable {
 	public void removeProfileTable() throws TransactionRequiredLocalException, SLEEException;
 
 	// public void rename(String newProfileTableName);
-	/**
-	 * Method for old style?
-	 * 
-	 * @param profileID
-	 * @return
-	 */
-	public Object getSbbCMPProfile(String profileName) throws SLEEException, UnrecognizedProfileNameException;
 
 	/**
 	 * Method to start activity for this table.

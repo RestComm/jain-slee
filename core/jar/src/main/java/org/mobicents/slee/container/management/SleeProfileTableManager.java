@@ -30,7 +30,7 @@ import org.mobicents.slee.container.profile.ProfileCmpHandler;
 import org.mobicents.slee.container.profile.ProfileManagementHandler;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
-import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -49,7 +49,7 @@ public class SleeProfileTableManager {
 
 	private static final Logger logger = Logger.getLogger(SleeProfileTableManager.class);
 	private final static SleeProfileClassCodeGenerator sleeProfileClassCodeGenerator = new SleeProfileClassCodeGenerator();
-  private static final String DEFAULT_PROFILE_DB_NAME = "";
+	public static final String DEFAULT_PROFILE_DB_NAME = "";
 	private SleeContainer sleeContainer = null;
 	private SleeTransactionManager sleeTransactionManager = null;
 
@@ -257,7 +257,7 @@ public class SleeProfileTableManager {
 		this.sleeTransactionManager.mandateTransaction();
 		//this.nameToProfileTableMap.add(profileTableName, null);
 
-		ProfileTableConcreteImpl profileTable = new ProfileTableConcreteImpl(this, profileTableName, component.getProfileSpecificationID());
+		ProfileTableImpl profileTable = new ProfileTableImpl(this, profileTableName, component.getProfileSpecificationID());
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
 		profileTable.register();
 
@@ -316,7 +316,7 @@ public class SleeProfileTableManager {
 		return names;
 	}
 
-	public void removeProfileTable(ProfileTableConcreteImpl profileTableConcreteImpl) {
+	public void removeProfileTable(ProfileTableImpl profileTableConcreteImpl) {
 		// FIXME: add more ?
 
 	  this.nameToProfileTableMap.remove(profileTableConcreteImpl.getProfileTableName());
@@ -324,7 +324,7 @@ public class SleeProfileTableManager {
 
 	public void startAllProfileTableActivities() {
 		for (Object key : this.getDeclaredProfileTableNames()) {
-			ProfileTableConcreteImpl pt = (ProfileTableConcreteImpl) this.nameToProfileTableMap.get((String)key);
+			ProfileTableImpl pt = (ProfileTableImpl) this.nameToProfileTableMap.get((String)key);
 			pt.register();
 		}
 

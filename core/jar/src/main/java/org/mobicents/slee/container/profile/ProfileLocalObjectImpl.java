@@ -3,7 +3,6 @@ package org.mobicents.slee.container.profile;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
-import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTable;
@@ -16,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -30,9 +28,9 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcrete {
+public class ProfileLocalObjectImpl implements ProfileLocalObjectConcrete {
 
-	protected static final Logger logger = Logger.getLogger(ProfileLocalObjectConcreteImpl.class);
+	protected static final Logger logger = Logger.getLogger(ProfileLocalObjectImpl.class);
 
 	protected String profileName = null;
 	protected String profileTableName = null;
@@ -44,7 +42,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 	private SleeContainer sleeContainer;
 	private SleeTransactionManager sleeTransactionManager;
 
-	public ProfileLocalObjectConcreteImpl(ProfileSpecificationID profileSpecificationId, String profileTableName, String profileName, SleeProfileTableManager sleeProfileManagement, boolean isDefault) {
+	public ProfileLocalObjectImpl(ProfileSpecificationID profileSpecificationId, String profileTableName, String profileName, SleeProfileTableManager sleeProfileManagement, boolean isDefault) {
 		super();
 
 		if (profileSpecificationId == null || profileTableName == null || profileName == null) {
@@ -124,7 +122,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 		if (other == null)
 			throw new SLEEException("Unable to perform operation: ProfileLocalObject 'other' cannot be null.");
 
-		ProfileLocalObjectConcreteImpl otherImpl = (ProfileLocalObjectConcreteImpl) other;
+		ProfileLocalObjectImpl otherImpl = (ProfileLocalObjectImpl) other;
 
 		// If one is default and the other isn't, fail
 		if (otherImpl.isDefault != this.isDefault) {
@@ -208,7 +206,7 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 			}
 
 			ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName);
-			this.profileObject = profileTable.assignProfileObject(profileName, false);
+			this.profileObject = profileTable.assignProfileObject(profileName);
 
 			// Set flag that SLEE component interacts with it. this is true only
 			// in case of JMX client
@@ -224,21 +222,6 @@ public class ProfileLocalObjectConcreteImpl implements ProfileLocalObjectConcret
 			} catch (SystemException syse) {
 				logger.error("", syse);
 			}
-		} catch (UnrecognizedProfileNameException upne) {
-			// FIXME: WE NEED TO ENSUE THAT SNAPSHOTS WILL WORK!!!!!
-			try {
-				sleeTransactionManager.rollback();
-				throw new TransactionRolledbackLocalException("No such profile: " + profileName, upne);
-			} catch (IllegalStateException ise) {
-				logger.error("", ise);
-			} catch (SecurityException se) {
-				logger.error("", se);
-			} catch (SystemException syse) {
-				logger.error("", syse);
-			}
-		} catch (ProfileAlreadyExistsException e) {
-			// Should not happen
-			throw new SLEEException("Please report me, Im a huge bug.", e);
 		}
 
 		try {

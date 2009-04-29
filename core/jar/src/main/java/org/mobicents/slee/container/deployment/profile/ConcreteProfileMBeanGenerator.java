@@ -21,7 +21,7 @@ import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
-import org.mobicents.slee.container.profile.ProfileMBeanConcrete;
+import org.mobicents.slee.container.profile.AbstractProfileMBean;
 
 public class ConcreteProfileMBeanGenerator {
 
@@ -148,7 +148,7 @@ public class ConcreteProfileMBeanGenerator {
 
 		try
 		{
-			mobicentsProfileMBean = pool.get(ProfileMBeanConcrete.class.getName());
+			mobicentsProfileMBean = pool.get(AbstractProfileMBean.class.getName());
 		}
 		catch (NotFoundException nfe) {
 			throw new DeploymentException("Failed to locate requried class.", nfe);

@@ -14,11 +14,16 @@
  */
 package org.mobicents.slee.container.management.jmx;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.slee.CreateException;
 import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
@@ -27,8 +32,10 @@ import javax.slee.management.SleeState;
 import javax.slee.profile.AttributeNotIndexedException;
 import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileAlreadyExistsException;
+import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTableAlreadyExistsException;
+import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
@@ -42,10 +49,12 @@ import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
+import org.mobicents.slee.container.profile.AbstractProfileMBean;
+import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
-import org.mobicents.slee.container.profile.ProfileTableConcreteImpl;
-import org.mobicents.slee.container.profile.SingleProfileException;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * MBean class for profile provisioning through jmx
@@ -121,74 +130,91 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	public ObjectName createProfile(java.lang.String profileTableName, java.lang.String newProfileName) throws java.lang.NullPointerException, UnrecognizedProfileTableNameException,
 			InvalidArgumentException, ProfileAlreadyExistsException, ManagementException {
 
-		if (profileTableName == null)
-			throw new NullPointerException();
-		if (newProfileName == null)
-			throw new NullPointerException();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Creating profile with name "+newProfileName+" in table "+profileTableName);
+		}
 
-		ProfileTableConcreteImpl.validateProfileName(newProfileName);
-		ProfileTableConcreteImpl.validateProfileTableName(profileTableName);
+		ProfileTableImpl.validateProfileName(newProfileName);
+		ProfileTableImpl.validateProfileTableName(profileTableName);
 
-		boolean b = false;
-		boolean rb = true;
-
-		ObjectName objectName = null;
-		String infoStr = "Creating new Profile " + newProfileName + " in profile table " + profileTableName;
-		String errorStr = "Failed " + infoStr;
+		boolean terminateTx = sleeTransactionManagement.requireTransaction();
+		boolean doRollback = true;
 		try {
 
-			b = this.sleeTransactionManagement.requireTransaction();
 			// This checks if profile table exists - throws SLEEException in
 			// case of system level and UnrecognizedProfileTableNameException in
 			// case of no such table
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			ProfileSpecificationID profileSpecificationID = null;
-			ProfileSpecificationComponent component = null;
-
-			objectName = null;
-
-			// store class loader
-			// Thread currentThread = Thread.currentThread();
-			// ClassLoader currentClassLoader =
-			// currentThread.getContextClassLoader();
-			try {
-				// change class loader
-				// currentThread.setContextClassLoader(component.getClassLoader());
-				// since all validation checks pass, lets try to create the
-				// profile
-				objectName = profileTable.addProfile(newProfileName, false);
-				rb = false;
-			} catch (TransactionRequiredLocalException e) {
-				throw new ManagementException(errorStr, e);
-				// } catch (SystemException e) {
-				// throw new ManagementException(errorStr, e);
-			} catch (SingleProfileException e) {
-				throw new ManagementException("This profile specification defines " + "that it can exists only a single profile for it and " + "there is already a profile for this specification."
-						+ errorStr, e);
-			} catch (ProfileAlreadyExistsException e1) {
-				throw e1;
-			} catch (Exception e1) {
-				throw new ManagementException(errorStr, e1);
-			} finally {
-				// restore class loader
-				// currentThread.setContextClassLoader(currentClassLoader);
+			ProfileObject profileObject =  profileTable.createProfile(newProfileName);
+			ObjectName objectName = createAndRegisterProfileMBean(profileObject);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Profile with name "+newProfileName+" in table "+profileTableName+" created, returning mbean name "+objectName);
 			}
-			logger.debug(infoStr + "DONE. The profile has the following JMX Object Name " + objectName);
-
-		} catch (Exception e) {
-			throw new ManagementException("Failed to create profile due to some system level failure.", e);
+			doRollback = false;
+			return objectName;		
+		} catch (TransactionRequiredLocalException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (SLEEException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (CreateException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (ProfileVerificationException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} finally {
+			sleeTransactionManagement.requireTransactionEnd(terminateTx,doRollback);
 		}
-		finally {
-		  // FIXME: Alexandre: This should be uncommented! But teardown is failing!
-		  //if(rb)
-		  //{
-  			sleeTransactionManagement.requireTransactionEnd(b,rb);
-		  //}
-		}
-
-		return objectName;
 	}
 
+	/**
+	 * Creates and registers a profile mbean for the specified object.
+	 * @param profileObject
+	 * @return
+	 * @throws ManagementException
+	 */
+	private ObjectName createAndRegisterProfileMBean(ProfileObject profileObject) throws ManagementException {
+		
+		try {
+			ProfileSpecificationComponent component = profileObject.getProfileSpecificationComponent();
+			Constructor<?> constructor = component.getProfileMBeanConcreteImplClass().getConstructor(Class.class, ProfileObject.class);
+			final AbstractProfileMBean profileMBean = (AbstractProfileMBean) constructor.newInstance(component.getProfileMBeanConcreteInterfaceClass(), profileObject);
+			// add a rollback action to close the mbean
+			TransactionalAction rollbackAction = new TransactionalAction() {
+				public void execute() {
+					try {
+						if (logger.isDebugEnabled()) {
+							logger.debug("Removing profile mbean "+profileMBean.getObjectName()+" due to tx rollback");
+						}
+						if (profileMBean.isProfileWriteable()) {
+							profileMBean.restoreProfile();
+						}
+						profileMBean.closeProfile();
+					} catch (Throwable e) {
+						logger.error(e.getMessage(),e);
+					}					
+				}
+			};
+			sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
+			// TODO add profile mbean name in profile table to control idleness or make mbean server queries work (preferable) :)
+			return profileMBean.getObjectName();
+			
+		} catch (SecurityException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (NoSuchMethodException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (IllegalArgumentException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (InstantiationException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (IllegalAccessException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (InvocationTargetException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (SystemException e) {
+			throw new ManagementException(e.getMessage(),e);
+		}
+	}
+	
+	
 	/**
 	 * Create a new profile table from a profile specification.
 	 * 
@@ -232,7 +258,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			logger.debug("profile specification ID :" + specificationID.toString());
 
 			//FIXME: Its easier to handle this here + plus it hadnles NPE
-			ProfileTableConcreteImpl.validateProfileTableName(profileTableName);
+			ProfileTableImpl.validateProfileTableName(profileTableName);
 
 			ProfileTableConcrete profileTable = null;
 			try {
@@ -301,73 +327,45 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 	public ObjectName getDefaultProfile(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
 		try {
-			return this.getProfile(profileTableName, null, true);
+			return _getProfile(profileTableName,"");
 		} catch (UnrecognizedProfileNameException e) {
-			// This must not happen.
-			e.printStackTrace();
-		}
-		return null;
+			// can't happen
+			throw new ManagementException(e.getMessage(),e);
+		}		
 	}
 
 	public ObjectName getProfile(java.lang.String profileTableName, java.lang.String profileName) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedProfileNameException,
 			ManagementException {
-
-		return this.getProfile(profileTableName, profileName, false);
+		ProfileTableImpl.validateProfileName(profileName);
+		return _getProfile(profileTableName, profileName);
 	}
 
 	/**
 	 * 
-	 Get the JMX Object Name of the Profile MBean for an existing profile.
-	 * 
-	 * The JMX Object name of the Profile MBean is composed of at least:
-	 * 
-	 * a base name specifying the domain and type of the MBean the profile table
-	 * name property, with a value equal to profileTableName the profile name
-	 * property, with a value equal to profileName.
-	 * 
 	 * @param profileTableName
-	 *            - the name of the profile table to obtain the profile from.
 	 * @param profileName
-	 *            - the name of the profile.
-	 * @param isDefault
-	 *            - indicates that we want default profile
-	 * @return the Object Name of the profile.
-	 * @throws java.lang.NullPointerException
-	 *             - if either argument is null.
+	 * @return
+	 * @throws NullPointerException
 	 * @throws UnrecognizedProfileTableNameException
-	 *             - if a profile table with the specified name does not exist.
-	 * @throws UnrecognizedProfileNameException
-	 *             - if a profile with the specified name does not exist in the
-	 *             profile table.
 	 * @throws ManagementException
-	 *             - if the ObjectName of the profile MBean could not be
-	 *             obtained due to a system-level failure.
+	 * @throws UnrecognizedProfileNameException
+	 * @throws ManagementException
 	 */
-	private ObjectName getProfile(java.lang.String profileTableName, java.lang.String profileName, boolean isDefault) throws NullPointerException, UnrecognizedProfileTableNameException,
+	private ObjectName _getProfile(java.lang.String profileTableName, java.lang.String profileName) throws NullPointerException, UnrecognizedProfileTableNameException,
 			ManagementException, UnrecognizedProfileNameException, ManagementException {
 
-		if (profileTableName == null) {
-			throw new NullPointerException("Argument[ProfileTableName] must not be null.");
-		}
+		ProfileTableImpl.validateProfileTableName(profileTableName);
 
-		if (!isDefault && profileName == null) {
-			throw new NullPointerException("Argument[ProfileName] must not be null.");
-		}
-
-		boolean b = false;
+		boolean b = this.sleeTransactionManagement.requireTransaction();
+		boolean rb = true;
 		try {
-			b = this.sleeTransactionManagement.requireTransaction();
-
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-
-			return profileTable.getProfileMBean(profileName, isDefault);
-		} catch (UnrecognizedProfileTableNameException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new ManagementException("Failed to obtain MBean name for ProfileTable: " + profileTableName + ", profile: " + profileName + ", default: " + isDefault, e);
+			ProfileObject profileObject = profileTable.assignProfileObject(profileName);
+			ObjectName objectName = createAndRegisterProfileMBean(profileObject);
+			rb = false;
+			return objectName;		
 		} finally {
-			// never rollbacks
-			sleeTransactionManagement.requireTransactionEnd(b,false);
+			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 
 	}
@@ -699,7 +697,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		try {
 			b = this.sleeTransactionManagement.requireTransaction();
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			if (profileTable.isProfileCommitted(profileName)) {
+			if (profileTable.profileExists(profileName)) {
 				throw new UnrecognizedProfileNameException("There is no such profile: " + profileName + ", in profile table: " + profileTableName);
 			}
 
@@ -771,7 +769,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 		// Double check for null, also it will propably be done inside methods
 		// invoked lower in this method.
-		ProfileTableConcreteImpl.validateProfileTableName(newProfileTableName);
+		ProfileTableImpl.validateProfileTableName(newProfileTableName);
 
 		boolean b = false;
 		boolean rb = true;
