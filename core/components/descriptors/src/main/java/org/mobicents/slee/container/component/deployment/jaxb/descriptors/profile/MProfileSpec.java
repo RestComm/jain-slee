@@ -42,6 +42,8 @@ public class MProfileSpec {
   private List<MEnvEntry> envEntry = new ArrayList<MEnvEntry>();
   private List<MQuery> query = new ArrayList<MQuery>();
 
+  private boolean isSingleProfile = false;
+  
   public MProfileSpec(org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileSpec profileSpec10)
   {
     this.description = profileSpec10.getDescription() == null ? null : profileSpec10.getDescription().getvalue();
@@ -57,8 +59,8 @@ public class MProfileSpec {
       this.profileIndex.add( new MProfileIndex(profileIndex10) );
     }
 
-    // FIXME: Complete with Profile-Hints
-    // profileSpec10.getProfileHints()
+    this.isSingleProfile  = profileSpec10.getProfileHints() != null && profileSpec10.getProfileHints().getSingleProfile() != null ? 
+        Boolean.parseBoolean(profileSpec10.getProfileHints().getSingleProfile()) : false;
   }
 
   public MProfileSpec(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileSpec profileSpec11)
@@ -164,6 +166,11 @@ public class MProfileSpec {
   public List<MQuery> getQuery()
   {
     return query;
+  }
+  
+  public boolean isSingleProfile()
+  {
+    return isSingleProfile;
   }
 
 }
