@@ -94,7 +94,7 @@ public class ConcreteActivityContextInterfaceFactoryGenerator {
         concreteCtClass.writeFile(deploymentPathStr);
         logger.debug("Writing file " + concreteClassName);
         // load class into component        
-        component.setActivityContextInterfaceFactoryConcreteClass(concreteCtClass.toClass());
+        component.setActivityContextInterfaceFactoryConcreteClass(Thread.currentThread().getContextClassLoader().loadClass(concreteCtClass.getName()));
         // and defrost in javassist pool
         concreteCtClass.defrost();
     }

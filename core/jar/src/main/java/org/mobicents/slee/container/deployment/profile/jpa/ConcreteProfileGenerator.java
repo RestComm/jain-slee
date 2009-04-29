@@ -15,6 +15,7 @@ import javassist.CtField;
 import javassist.CtMethod;
 
 import javax.persistence.EntityManager;
+import javax.slee.SLEEException;
 import javax.slee.profile.Profile;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -160,15 +161,19 @@ public class ConcreteProfileGenerator {
 //      }
 
       profileConcreteClass.getClassFile().setVersionToJava5();
-      clazz = profileConcreteClass.toClass();
       
       logger.info( "Writing PROFILE CONCRETE CLASS to: " + deployDir );
       
       profileConcreteClass.writeFile( deployDir );
+      
+      clazz = Thread.currentThread().getContextClassLoader().loadClass(profileConcreteClass.getName());
+      
+      profileConcreteClass.defrost();
+      
     }
     catch ( Exception e )
     {
-      e.printStackTrace();
+      throw new SLEEException(e.getMessage(),e);
     }
     
     return clazz;
@@ -222,7 +227,7 @@ public class ConcreteProfileGenerator {
         ClassGeneratorUtils.generateDelegateMethod( profileConcreteClass, method, useInterceptor ? _PLO_MGMT_INTERCEPTOR : "super", false );
       }
       catch ( Exception e ) {
-        e.printStackTrace();
+    	  throw new SLEEException(e.getMessage(),e);
       }
     }
   }
@@ -338,7 +343,7 @@ public class ConcreteProfileGenerator {
       xformer.transform(source, resultx);
     }
     catch (Exception e) {
-      e.printStackTrace();
+    	throw new SLEEException(e.getMessage(),e);
     }
   }
 
@@ -354,8 +359,8 @@ public class ConcreteProfileGenerator {
       em.getTransaction().commit();  
     }
     catch (Exception e) {  
-      e.printStackTrace();  
       em.getTransaction().rollback();  
+      throw new SLEEException(e.getMessage(),e);
     }
     finally
     {  
