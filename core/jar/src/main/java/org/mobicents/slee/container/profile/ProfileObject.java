@@ -225,7 +225,7 @@ public class ProfileObject {
 		{
 			logger.debug("[profileLoad] "+this);
 		}
-		if (this.getState() != ProfileObjectState.POOLED) {
+		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
 		}

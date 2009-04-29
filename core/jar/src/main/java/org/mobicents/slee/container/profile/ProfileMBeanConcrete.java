@@ -509,7 +509,7 @@ public abstract class ProfileMBeanConcrete extends StandardMBean implements Prof
 		return this.profileObject.getProfileTableConcrete().getProfileTableName();
 	}
 
-  private ClassLoader switchContextClassLoader(ClassLoader newClassLoader)
+  protected ClassLoader switchContextClassLoader(ClassLoader newClassLoader)
   {
     Thread t = Thread.currentThread();
     ClassLoader oldClassLoader = t.getContextClassLoader();

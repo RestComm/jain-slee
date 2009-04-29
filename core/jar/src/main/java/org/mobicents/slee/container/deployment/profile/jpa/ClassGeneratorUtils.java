@@ -13,6 +13,7 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
+import javassist.CtPrimitiveType;
 import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
@@ -55,7 +56,7 @@ public class ClassGeneratorUtils {
   private static ClassPool classPool = null;
 
   public static final String _PLO_PO_ALLOCATION = "";//"allocateProfileObject();";
-  public static final String CMP_HANDLER_FIELD_NAME = "cmpHandler";//"allocateProfileObject();";
+  public static final String CMP_HANDLER = "org.mobicents.slee.container.profile.ProfileCmpHandler";
 
   /**
    * Creates a class with the desired name and linked to the mentioned interfaces.
@@ -356,11 +357,14 @@ public class ClassGeneratorUtils {
       logger.debug("About to instrument: " + getter.getName() + ", into: " + classToBeInstrumented.getName());
     }
 
-    String getterBody = "{ return ($r) this." + CMP_HANDLER_FIELD_NAME + ".getCmpField(\"" + field.getName() + "\"); }";
+    String getterBody = "{ return ($r) " + CMP_HANDLER + ".getCmpField(profileObject, \"" + field.getName() + "\"); }";
 
     getter.setBody(getterBody);
     classToBeInstrumented.addMethod(getter);
 
+    CtMethod getterJPA = CtNewMethod.getter( "get" + capitalize(field.getName()) + "JPA", field );
+    classToBeInstrumented.addMethod(getterJPA);
+    
     return getter;
   }
 
@@ -403,10 +407,24 @@ public class ClassGeneratorUtils {
       logger.debug("About to instrument: " + setter.getName() + ", into: " + classToBeInstrumented.getName());
     }
 
-    String setterBody = "{ Object o = ($w) $1; this." + CMP_HANDLER_FIELD_NAME + ".setCmpField(\"" + field.getName() + "\", o); }";
+    String setterBody = "{ Object o = ($w) $1; " + CMP_HANDLER + ".setCmpField(profileObject, \"" + field.getName() + "\", o); }";
 
     setter.setBody(setterBody);
     classToBeInstrumented.addMethod(setter);
+
+    CtMethod setterJPA =  null;
+    if(field.getType().isPrimitive())
+    {
+      CtPrimitiveType primType = ((CtPrimitiveType)field.getType());
+      
+      setterJPA = CtNewMethod.make( "public void set" + capitalize(field.getName()) + "JPA(" + primType.getWrapperName() + " arg0) { this." + field.getName() + " = arg0." + primType.getGetMethodName() + "(); }", classToBeInstrumented );
+    }
+    else
+    {
+      setterJPA = CtNewMethod.setter( "set" + capitalize(field.getName()) + "JPA", field );
+    }
+
+    classToBeInstrumented.addMethod(setterJPA);
 
     return setter;
   }

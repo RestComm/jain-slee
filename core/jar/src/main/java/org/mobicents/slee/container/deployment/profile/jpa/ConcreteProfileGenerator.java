@@ -137,11 +137,8 @@ public class ConcreteProfileGenerator {
 //      CtField fProfileManagementHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileManagementHandler"), "profileManagementHandler", profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileManagementHandler()" );
 //      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileManagementHandler );
       
-      CtField fCMPHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileCmpHandler"), ClassGeneratorUtils.CMP_HANDLER_FIELD_NAME, profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileCmpHandler()" );
-      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fCMPHandler );
-      
-      // CMP fields getters and setters
-      generateCMPFieldsWithGettersAndSetters(profileConcreteClass);
+//      CtField fCMPHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileCmpHandler"), ClassGeneratorUtils.CMP_HANDLER_FIELD_NAME, profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileCmpHandler()" );
+//      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fCMPHandler );
       
       // We also need getter/setter for profileObject and profileTableConcrete
       CtField fProfileObject = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileObject"), "profileObject", profileConcreteClass );
@@ -152,6 +149,13 @@ public class ConcreteProfileGenerator {
       ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileTableConcrete );
       ClassGeneratorUtils.generateGetterAndSetter( fProfileTableConcrete, null );
       
+      // CMP fields getters and setters
+      generateCMPFieldsWithGettersAndSetters(profileConcreteClass);
+      
+//      CtField fProfileDirty = ClassGeneratorUtils.addField( CtClass.booleanType, "profileDirty", profileConcreteClass, Modifier.PRIVATE, "false" );
+//      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileDirty );
+//      ClassGeneratorUtils.generateGetterAndSetter( fProfileDirty, null );
+
       generateConstructors(profileConcreteClass);
       
 //      if(profileDescriptor.getProfileAbstractClass() == null)

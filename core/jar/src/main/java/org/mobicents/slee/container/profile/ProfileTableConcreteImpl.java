@@ -690,11 +690,6 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		
 		if (create)
 		{
-			//if (getProfileMBean(profileName, profileName == null) != null)
-			//{
-			//	throw new ProfileAlreadyExistsException("Profile with name: " + profileName + ", already exists in profile table: " + this.profileTableName + ", its not commited yet.");
-			//}
-			// see if the profile MBean was closed/removed, but the profile itself is still visible in SLEE
 			if (isProfileCommitted(profileName)) {
 				throw new ProfileAlreadyExistsException("Profile with name: " + profileName + ", already exists in profile table: " + this.profileTableName);
 			}
@@ -702,15 +697,14 @@ public class ProfileTableConcreteImpl implements ProfileTableConcrete {
 		}
 		else
 		{
-			// FIXME: Alex is there anything else to do?
-			// FIXME: do we care about MBean?
 			if (!isProfileCommitted(profileName)) {
 				throw new UnrecognizedProfileNameException("Profile with name: " + profileName + ", does not exist in profile table(not commited): " + this.profileTableName);
 			}
-			profileObject.profileActivate();
-			profileObject.setState(ProfileObjectState.READY);
-			profileObject.profileLoad();
 		}
+
+    profileObject.profileActivate();
+    profileObject.setState(ProfileObjectState.READY);
+    profileObject.profileLoad();
 
 		return profileObject;
 	}

@@ -177,8 +177,13 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 		} catch (Exception e) {
 			throw new ManagementException("Failed to create profile due to some system level failure.", e);
-		} finally {
-			sleeTransactionManagement.requireTransactionEnd(b,rb);
+		}
+		finally {
+		  // FIXME: Alexandre: This should be uncommented! But teardown is failing!
+		  //if(rb)
+		  //{
+  			sleeTransactionManagement.requireTransactionEnd(b,rb);
+		  //}
 		}
 
 		return objectName;

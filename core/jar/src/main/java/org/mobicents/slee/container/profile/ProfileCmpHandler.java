@@ -19,65 +19,57 @@ import org.mobicents.slee.container.SleeContainer;
  */
 public class ProfileCmpHandler {
 
-	private ProfileObject profileObject = null;
-
-	private boolean dirty = false;
-
 	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
-	public void setProfileObject(ProfileObject profileObject) {
-		this.profileObject = profileObject;
-	}
-
 	/**
 	 * 
 	 * @param fieldName
 	 * @param value
 	 */
-	public void setCmpField(String fieldName, Object value) throws UnsupportedOperationException, IllegalStateException
+	public static void setCmpField(ProfileObject profileObject, String fieldName, Object value) throws UnsupportedOperationException, IllegalStateException
 	{
 	  sleeContainer.getTransactionManager().mandateTransaction();
 		
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		t.setContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
 		
 		try
 		{
-			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
 			// this operation is allowed ONLY
 			// 1. for 1.1 profiles - if profile is write able
 			// 2. for management clients
 			// if a sbb tries to set a value, it is not authorized
 
 			// This covers Management client
-			if (this.profileObject.isManagementView())
+			if (profileObject.isManagementView())
 			{
 				// write check is a double check to MBean, but lets be clear here
-				if (!this.profileObject.isWriteable())
+				if (!profileObject.isWriteable())
 				{
-					throw new ReadOnlyProfileException("Profile: " + this.profileObject.getProfileName() + ", table:" + this.profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
+					throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
 				}
 			}
 			else
 			{
 				// this gets
-				if (!this.profileObject.isProfileSpecificationWriteable())
+				if (!profileObject.isProfileSpecificationWriteable())
 				{
-					throw new ReadOnlyProfileException("Profile: " + this.profileObject.getProfileName() + ", table:" + this.profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
+					throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
 				}
 			}
 
-			if (!this.profileObject.isCanAccessCMP()) {
+			if (!profileObject.isCanAccessCMP()) {
 				throw new IllegalStateException("Can not access CMP field at this moment.");
 			}
 
 			// FIXME: Alexandre: [DONE] Add the real set code here (call set on concrete?)
 			try
       {
-			  String methodName = "set" + fieldName.replace(fieldName.charAt(0), fieldName.toUpperCase().charAt(0));
-        Method m = this.profileObject.getProfileConcrete().getClass().getMethod(methodName, value.getClass());
-        m.invoke( this.profileObject.getProfileConcrete(), value );
+			  String methodName = "set" + fieldName.replace(fieldName.charAt(0), fieldName.toUpperCase().charAt(0)) + "JPA";
+        Method m = profileObject.getProfileConcrete().getClass().getMethod(methodName, value.getClass());
+        m.invoke( profileObject.getProfileConcrete(), value );
       }
       catch ( SecurityException e )
       {
@@ -104,12 +96,12 @@ public class ProfileCmpHandler {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-			this.profileObject.getProfileConcrete().setProfileDirty(true);
+			profileObject.getProfileConcrete().setProfileDirty(true);
 		}
 		finally
 		{
 			t.setContextClassLoader(oldClassLoader);
-			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
 		}
 	}
 
@@ -119,19 +111,19 @@ public class ProfileCmpHandler {
 	 *            = Introspector.decapitalize(method.getName().substring(3));
 	 * @return
 	 */
-	public Object getCmpField(String fieldName)
+	public static Object getCmpField(ProfileObject profileObject, String fieldName)
 	{
 	  sleeContainer.getTransactionManager().mandateTransaction();
 	  
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		t.setContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
 		
 		try
 		{
-			ProfileCallRecorderTransactionData.addProfileCall(this.profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
 			
-			if (!this.profileObject.isCanAccessCMP())
+			if (!profileObject.isCanAccessCMP())
 			{
 				throw new IllegalStateException("Can not access CMP field at this moment.");
 			}
@@ -141,9 +133,9 @@ public class ProfileCmpHandler {
       // FIXME: Alexandre: [DONE] Return value here (call get on concrete?)
       try
       {
-        String methodName = "get" + fieldName.replace(fieldName.charAt(0), fieldName.toUpperCase().charAt(0));
-        Method m = this.profileObject.getProfileConcrete().getClass().getMethod(methodName);
-        retVal = m.invoke( this.profileObject.getProfileConcrete());
+        String methodName = "get" + fieldName.replace(fieldName.charAt(0), fieldName.toUpperCase().charAt(0)) + "JPA";
+        Method m = profileObject.getProfileConcrete().getClass().getMethod(methodName);
+        retVal = m.invoke( profileObject.getProfileConcrete());
       }
       catch ( NoSuchMethodException e )
       {
@@ -171,18 +163,18 @@ public class ProfileCmpHandler {
 		finally
 		{
 			t.setContextClassLoader(oldClassLoader);
-			ProfileCallRecorderTransactionData.removeProfileCall(this.profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
 		}
 	}
 
-	public void commitChanges()
+	public static void commitChanges(ProfileObject profileObject)
 	{
 		Thread t = Thread.currentThread();
 		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
+		t.setContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
 		
 		try {
-		  if(dirty)
+		  if(profileObject.getProfileConcrete().getProfileDirty())
 		  {
 	      // FIXME: Alexandre : Add call to persist in concrete		    
 		  }
