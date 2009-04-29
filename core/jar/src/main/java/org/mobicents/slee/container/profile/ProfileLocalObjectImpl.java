@@ -206,7 +206,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObjectConcrete {
 			}
 
 			ProfileTableConcrete profileTable = (ProfileTableConcrete) this.sleeProfileManagement.getProfileTable(profileTableName);
-			this.profileObject = profileTable.assignProfileObject(profileName);
+			this.profileObject = profileTable.assignAndActivateProfileObject(profileName);
 
 			// Set flag that SLEE component interacts with it. this is true only
 			// in case of JMX client

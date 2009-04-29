@@ -256,7 +256,7 @@ public class SbbAbstractMethodHandler {
 				throw new UnrecognizedProfileNameException(profileID.toString());
 			}
 			
-			ProfileObject po = profileTable.assignProfileObject(profileID.getProfileName());
+			ProfileObject po = profileTable.assignAndActivateProfileObject(profileID.getProfileName());
 			
 			po.setManagementView(false);
 			sleeContainer.getTransactionManager().addBeforeCommitAction(new BeforeCommitTransctAction(po));

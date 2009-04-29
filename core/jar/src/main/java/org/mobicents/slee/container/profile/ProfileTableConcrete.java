@@ -49,7 +49,14 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 * @param profileName
 	 * @return
 	 */
-	public ProfileObject assignProfileObject(String profileName);
+	//public ProfileObject assignProfileObject(String profileName);
+
+	/**
+	 * Assigns a profile object and activates it, invoking profileActivate() & profileLoad()
+	 * @param profileName
+	 * @return
+	 */
+	public ProfileObject assignAndActivateProfileObject(String profileName);
 
 	/**
 	 * Returns a profile object instance to the table

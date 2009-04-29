@@ -360,7 +360,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		boolean rb = true;
 		try {
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			ProfileObject profileObject = profileTable.assignProfileObject(profileName);
+			ProfileObject profileObject = profileTable.assignAndActivateProfileObject(profileName);
 			ObjectName objectName = createAndRegisterProfileMBean(profileObject);
 			rb = false;
 			return objectName;		

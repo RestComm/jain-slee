@@ -359,7 +359,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 				logger.error(s);
 				throw new SLEEException(s);
 			}
-			ProfileObject allocated = assignProfileObject(profileName);
+			ProfileObject allocated = assignAndActivateProfileObject(profileName);
 			// This will call remove
 			this.deassignProfileObject(allocated, true);
 
@@ -514,36 +514,38 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 						+ this.getProfileTableName() + "'");
 			}
 
+			if (!isDefault) {
+				if (component.getDescriptor().getReadOnly()) {
+					throw new ReadOnlyProfileException(
+							"Profile Specification declares profile to be read only.");
+				}
+				if (component.getDescriptor().isSingleProfile()
+						&& profileExists(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME)) {
+					throw new SLEEException(
+							"Profile Specification indicates that this is single profile, can not create more than one: "
+									+ profileSpecificationId);
+				}
+			}
+			
 			allocated = this.assignProfileObject(newProfileName);
 
 			if (isDefault) {
 				allocated.profileInitialize();
+			}
+			
+			if (component.isSlee11()) {
+				allocated.profilePostCreate();
+			}
+			
+			if (isDefault) {
+				// TODO confirm this
 				allocated.profileStore();
 				// See section 10.13.1.10 of JSLEE 1.1
 				if (!component.isSlee11()) {
 					allocated.profileVerify();
 				}
-			} else {
-				if (component.getDescriptor().getReadOnly()) {
-					throw new ReadOnlyProfileException(
-							"Profile Specification declares profile to be read only.");
-				}
-
-				// FIXME: Alexandre: Copy the attribute values from the default
-				// profile
-				if (component.getDescriptor().isSingleProfile()
-						&& profileExists(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME)) {
-					this.deassignProfileObject(allocated, false);
-					throw new SLEEException(
-							"Profile Specification indicates that this is single profile, can not create more than one: "
-									+ profileSpecificationId);
-				}
-
-				if (component.isSlee11()) {
-					allocated.profilePostCreate();
-				}
-			}
-
+			} 
+			
 			success = true;
 			return allocated;
 		} catch (IllegalArgumentException e) {
@@ -594,7 +596,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		return null;
 	}
 
-	public ProfileObject assignProfileObject(String profileName) {
+	private ProfileObject assignProfileObject(String profileName) {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("[assignProfileObject] on: " + this + " Profile["
@@ -605,16 +607,25 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 				this.profileSpecificationId);
 		ProfileContextImpl context = new ProfileContextImpl(this);
 		profileObject.setProfileContext(context);
-		profileObject.setState(ProfileObjectState.POOLED);
 		profileObject.setProfileName(profileName);
-
-		profileObject.profileActivate();
-		profileObject.setState(ProfileObjectState.READY);
-		profileObject.profileLoad();
 
 		return profileObject;
 	}
 
+	public ProfileObject assignAndActivateProfileObject(String profileName) {
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("[assignAndActivateProfileObject] on: " + this + " Profile["
+					+ profileName + "]");
+		}
+
+		ProfileObject profileObject = assignProfileObject(profileName);
+		profileObject.profileActivate();
+		profileObject.profileLoad();
+
+		return profileObject;
+	}
+	
 	/**
 	 * Returns object into pooled state
 	 */
@@ -629,7 +640,6 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		} else {
 			profileObject.profileRemove();
 		}
-		profileObject.setState(ProfileObjectState.POOLED);
 	}
 
 	public ObjectName getUsageMBeanName() throws IllegalArgumentException {

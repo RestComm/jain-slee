@@ -159,10 +159,6 @@ public class ProfileObject {
 		return profileConcrete;
 	}
 
-	public void setState(ProfileObjectState state) {
-		this.state = state;
-	}
-
 	public String getProfileName() {
 		return profileName;
 	}
@@ -214,7 +210,6 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileInitialize();
-		this.state = ProfileObjectState.READY;
 
 	}
 
@@ -322,10 +317,13 @@ public class ProfileObject {
 		if (profileContext == null) {
 			throw new NullPointerException("Passed context must not be null.");
 		}
+		
 		if (this.state != ProfileObjectState.DOES_NOT_EXIST) {
 			throw new IllegalStateException("Wrong state: " + this.state + ",on profile set context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
 		}
+		this.state = ProfileObjectState.POOLED;
+		
 		final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
 
 		// FIXME: is this needed ?
@@ -401,7 +399,8 @@ public class ProfileObject {
 			throw new IllegalStateException("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
 		}
-
+		this.state = ProfileObjectState.DOES_NOT_EXIST;
+		
 		final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
 
 		// FIXME: is this needed ?
