@@ -16,6 +16,7 @@ import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
 
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
@@ -34,8 +35,8 @@ import org.mobicents.slee.runtime.facilities.MNotificationSource;
  */
 public interface ProfileTableConcrete extends ProfileTable {
 
-	public SleeProfileTableManager getProfileManagement();
-
+	public SleeContainer getSleeContainer();
+	
 	public MNotificationSource getProfileTableNotification();
 
 	public String getProfileTableName();
@@ -153,6 +154,5 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 */
 	public void fireProfileUpdatedEvent(ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction) throws SLEEException;
 
-	public void activityEnded();
 
 }

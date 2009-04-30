@@ -8,7 +8,6 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileVerificationException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 
@@ -32,7 +31,6 @@ public class ProfileObject {
 	private ProfileConcrete profileConcrete = null;
 	private ProfileContextImpl profileContext = null;
 	private String profileName = null;
-	private SleeContainer sleeContainer;
 	private boolean managementView = false;
 	private boolean writeable = false;
 
@@ -47,7 +45,6 @@ public class ProfileObject {
 	 * profileActivate method.
 	 */
 	private boolean canAccessCMP = true;
-	private ProfileSpecificationComponent profileSpecificationComponent = null;
 
 	public ProfileObject(ProfileTableConcrete profileTableConcrete, ProfileSpecificationID profileSpecificationId) throws NullPointerException
 	{
@@ -57,11 +54,7 @@ public class ProfileObject {
 		}
 		
 		this.profileTableConcrete = profileTableConcrete;
-		this.sleeContainer = profileTableConcrete.getProfileManagement().getSleeContainer();
-		// this.profileContext = new ProfileContextImpl(this.profileTableConcrete,this.sleeContainer);
-		// this.profileContext.setProfileObject(this);
-		this.profileSpecificationComponent = this.profileTableConcrete.getProfileManagement().getProfileSpecificationComponent(profileSpecificationId);
-		
+				
 		createConcrete();
 	}
 
@@ -77,7 +70,7 @@ public class ProfileObject {
 			// logger.debug(sbbDescriptor.getConcreteSbbClass());
 			// Concrete class of the Sbb. the concrete sbb class is the class that implements the Sbb methods.
 		  // This is obtained from the deployment descriptor and the abstract sbb class.
-			this.profileConcrete = (ProfileConcrete) this.profileSpecificationComponent.getProfileCmpConcreteClass().newInstance();
+			this.profileConcrete = (ProfileConcrete) this.profileTableConcrete.getProfileSpecificationComponent().getProfileCmpConcreteClass().newInstance();
 			this.profileConcrete.setProfileObject(this);
 			this.profileConcrete.setProfileTableConcrete(this.profileTableConcrete);
 		}
@@ -86,7 +79,7 @@ public class ProfileObject {
 			
 			// FIXME: Alexandre; RuntimeException does not seem appropriate here...
 			throw new RuntimeException("Unexpected exception creating concrete class for profile: " + this.profileName + ", from profile table: " + this.profileTableConcrete.getProfileTableName()
-					+ " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), e);
+					+ " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
 		}
 	}
 
@@ -136,11 +129,11 @@ public class ProfileObject {
 	}
 
 	public boolean isProfileSpecificationWriteable() {
-		return !this.profileSpecificationComponent.getDescriptor().getReadOnly();
+		return !this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getReadOnly();
 	}
 
 	public boolean isProfileReentrant() {
-		return this.profileSpecificationComponent.getDescriptor().getProfileAbstractClass() == null ? false : this.profileSpecificationComponent.getDescriptor().getProfileAbstractClass().getReentrant();
+		return this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass() == null ? false : this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
 	}
 
 	public void setCanAccessCMP(boolean canAccessCMP) {
@@ -173,7 +166,7 @@ public class ProfileObject {
 	}
 
 	public ProfileSpecificationComponent getProfileSpecificationComponent() {
-		return profileSpecificationComponent;
+		return profileTableConcrete.getProfileSpecificationComponent();
 	}
 
 	public ProfileContextImpl getProfileContext() {
@@ -190,7 +183,7 @@ public class ProfileObject {
 		if (this.getState() != ProfileObjectState.POOLED)
 		{
 			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileActivate();
@@ -206,7 +199,7 @@ public class ProfileObject {
 
 		if (this.getState() != ProfileObjectState.POOLED) {
 			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileInitialize();
@@ -220,7 +213,7 @@ public class ProfileObject {
 		}
 		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileLoad();
@@ -235,7 +228,7 @@ public class ProfileObject {
 		// This must be called
 		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile passivate, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profilePassivate();
@@ -250,7 +243,7 @@ public class ProfileObject {
 		}
 		if (this.getState() != ProfileObjectState.POOLED) {
 			logger.error("Profile post create, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profilePostCreate();
@@ -264,7 +257,7 @@ public class ProfileObject {
 		}
 		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile remove, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileRemove();
@@ -278,7 +271,7 @@ public class ProfileObject {
 		}
 		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile store, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileStore();
@@ -292,7 +285,7 @@ public class ProfileObject {
 		}
 		if (this.getState() != ProfileObjectState.READY) {
 			logger.error("Profile verify, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileVerify();
@@ -311,7 +304,7 @@ public class ProfileObject {
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("setProfileContext, for profile: " + this.profileName + ", from profile table: " + this.profileTableConcrete.getProfileTableName() + " with specification: "
-					+ this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		if (profileContext == null) {
@@ -320,7 +313,7 @@ public class ProfileObject {
 		
 		if (this.state != ProfileObjectState.DOES_NOT_EXIST) {
 			throw new IllegalStateException("Wrong state: " + this.state + ",on profile set context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 		this.state = ProfileObjectState.POOLED;
 		
@@ -329,7 +322,7 @@ public class ProfileObject {
 		// FIXME: is this needed ?
 		try
 		{
-			final ClassLoader cl = this.profileSpecificationComponent.getClassLoader();
+			final ClassLoader cl = this.profileTableConcrete.getProfileSpecificationComponent().getClassLoader();
 			
 			if (System.getSecurityManager()!=null)
 			{
@@ -358,7 +351,7 @@ public class ProfileObject {
 				catch (Exception e) {
 					if (logger.isDebugEnabled())
 						logger.debug("Exception encountered while setting profile context for profile: " + this.profileName + ", from profile table: "
-								+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID(), e);
+								+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
 				}
 			}
 		}
@@ -394,10 +387,10 @@ public class ProfileObject {
 		if (this.state != ProfileObjectState.POOLED) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-						+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+						+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 			}
 			throw new IllegalStateException("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileSpecificationComponent.getProfileSpecificationID());
+					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 		this.state = ProfileObjectState.DOES_NOT_EXIST;
 		
@@ -406,7 +399,7 @@ public class ProfileObject {
 		// FIXME: is this needed ?
 		try
 		{
-			final ClassLoader cl = this.profileSpecificationComponent.getClassLoader();
+			final ClassLoader cl = this.profileTableConcrete.getProfileSpecificationComponent().getClassLoader();
 			if (System.getSecurityManager()!=null)
 			{
 				AccessController.doPrivileged(new PrivilegedAction() {
