@@ -11,11 +11,13 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
+import javax.slee.CreateException;
 import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
@@ -245,42 +247,16 @@ public class SleeProfileTableManager {
 		return this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationId);
 	}
 
-	public ProfileTableConcrete addProfileTable(String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException
+	public ProfileTableConcrete addProfileTable(String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException, CreateException, ProfileVerificationException
 	{
-
+		// create instance
 		ProfileTableImpl profileTable = new ProfileTableImpl(profileTableName, component, sleeContainer);
+		// map it
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
+		// register usage mbean
 		profileTable.register();
-
-		// 1. Instantiate CMP Impl
-		try
-		{
-			Thread.currentThread().setContextClassLoader( component.getClassLoader() );
-
-			Class profileCmpClass = Thread.currentThread().getContextClassLoader().loadClass(component.getProfileCmpInterfaceClass().getName() + "Impl");
-
-			Constructor profileCmpConstructor = profileCmpClass.getConstructor(ProfileManagementHandler.class);
-
-			// FIXME: Alexandre: Is this what we should be passing? 
-			ProfileManagementHandler argPMH = new ProfileManagementHandler();
-
-			Object profileCmp = profileCmpConstructor.newInstance(argPMH);
-
-			Method mSetTableName = profileCmpClass.getMethod( "setTableName", String.class );
-			mSetTableName.invoke( profileCmp, profileTableName );
-
-			Method mSetProfileName = profileCmpClass.getMethod( "setProfileName", String.class );
-			mSetProfileName.invoke( profileCmp, DEFAULT_PROFILE_DB_NAME );
-
-			JPAUtils.INSTANCE.getEntityManager(component.getComponentID()).persist( profileCmp );
-		}
-		catch ( Exception e )
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// FIXME: mayeb here we shoudl add default profile?
+		// add default profile
+		profileTable.createDefaultProfile();
 		return profileTable;
 	}
 

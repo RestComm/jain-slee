@@ -78,8 +78,24 @@ public interface ProfileTableConcrete extends ProfileTable {
 
 	public boolean profileExists(String newProfileName);
 
+	/**
+	 * Creates the default profile
+	 * @throws CreateException
+	 * @throws ProfileVerificationException
+	 */
+	public void createDefaultProfile() throws CreateException, ProfileVerificationException;
+	
+	/**
+	 * Creates the profile with the specified name.
+	 * @param newProfileName
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws ProfileAlreadyExistsException
+	 * @throws SLEEException
+	 * @throws CreateException
+	 */
 	public ProfileObject createProfile(String newProfileName) throws TransactionRequiredLocalException, ProfileAlreadyExistsException, SLEEException,
-			CreateException, ProfileVerificationException;
+			CreateException;
 
 	/**
 	 * Returns JMX MBean name of usage mbean

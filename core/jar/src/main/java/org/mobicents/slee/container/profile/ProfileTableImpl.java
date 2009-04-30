@@ -177,6 +177,12 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		return JPAUtils.INSTANCE.getProfilesIDs(this);
 	}
 
+	private void checkProfileSpecIsNotReadOnly() throws ReadOnlyProfileException {
+		if (component.getDescriptor().getReadOnly()) {
+			throw new ReadOnlyProfileException(component.toString());
+		}
+	}
+	
 	/**
 	 * Create a new profile with the specified name in the profile table
 	 * represented by this ProfileTable object. The ProfileLocalObject returned
@@ -222,19 +228,14 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		validateProfileName(profileName);
-
-		try {
-			createProfile(profileName);
-		} catch (ProfileVerificationException e) {
-			// SLEE 1.0 exception in a 1.1 method
-			throw new SLEEException(e.getMessage(),e);
-		}
-		ProfileLocalObjectImpl plo = new ProfileLocalObjectImpl(
+		checkProfileSpecIsNotReadOnly();
+				
+		// create profile but discards object
+		deassignProfileObject(createProfile(profileName),false);
+		// FIXME emmartins: probably the object assigned should go into the local object?
+		return new ProfileLocalObjectImpl(
 					component.getProfileSpecificationID(), this.profileTableName,
-					profileName, sleeContainer.getSleeProfileTableManager(), false);
-			
-		return plo;		
+					profileName, sleeContainer.getSleeProfileTableManager(), false);					
 	}
 
 	public ProfileLocalObject find(String profileName)
@@ -291,6 +292,8 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			throw new NullPointerException("Profile name must not be null");
 		}
 
+		checkProfileSpecIsNotReadOnly();
+		
 		return this.removeProfile(profileName);
 	}
 
@@ -304,10 +307,6 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		}
 		
 		sleeContainer.getTransactionManager().mandateTransaction();
-
-		if (component.getDescriptor().getReadOnly()) {
-			throw new ReadOnlyProfileException(component.toString() + " is read only.");
-		}
 
 		// TODO unregister any existent mbeans for this profile
 		
@@ -401,37 +400,40 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 				+ ",uuid=" + ObjectName.quote(UUID.randomUUID().toString()));
 	}
 
-	/**
-	 * This method
-	 * <ul>
-	 * <li>creates profile if it does not exist
-	 * <li>creates and registers MBean
-	 * </ul>
-	 * 
-	 * For execution of those task it switches CL to profiel specs CL.
-	 * 
-	 * @throws CreateException
-	 * @throws ProfileVerificationException
-	 */
+	public void createDefaultProfile() throws CreateException, ProfileVerificationException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Creating default profile for table "+profileTableName);
+		}
+		// lets get an object
+		ProfileObject profileObject = assignProfileObject(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME);
+		// invoke lifecycle methods
+		profileObject.profileInitialize();
+		if (component.isSlee11()) {
+			profileObject.profilePostCreate();
+		}
+		profileObject.profileStore();
+		// See section 10.13.1.10 of JSLEE 1.1
+		if (!component.isSlee11()) {
+			profileObject.profileVerify();
+		}
+		// passivate and return object
+		deassignProfileObject(profileObject, false);
+	}
+	
 	public ProfileObject createProfile(String newProfileName)
 			throws TransactionRequiredLocalException, NullPointerException,
 			SLEEException,
-			ProfileAlreadyExistsException, CreateException,
-			ProfileVerificationException, ReadOnlyProfileException {
+			ProfileAlreadyExistsException, CreateException {
+		
 		if (logger.isDebugEnabled()) {
-			logger.debug("[addProfile] on: " + this + " Profile["
-					+ newProfileName + "]");
+			logger.debug("Adding profile with name " + newProfileName + " on table with name "
+					+ newProfileName);
 		}
 
-		boolean isDefault = false;
-		if (newProfileName == null) {
-			isDefault = true;
-			newProfileName = "";
-		}
+		validateProfileName(newProfileName);
 
 		// switch the context classloader to the component cl
-		ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
+		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 
 		ProfileObject allocated = null;
 		boolean success = false;
@@ -445,38 +447,19 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 						+ newProfileName + "' already exists in table '"
 						+ this.getProfileTableName() + "'");
 			}
-
-			if (!isDefault) {
-				if (component.getDescriptor().getReadOnly()) {
-					throw new ReadOnlyProfileException(
-							"Profile Specification declares profile to be read only.");
-				}
-				if (component.getDescriptor().isSingleProfile()
-						&& profileExists(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME)) {
-					throw new SLEEException(
-							"Profile Specification indicates that this is single profile, can not create more than one: "
-									+ component);
-				}
-			}
 			
+			if (component.getDescriptor().isSingleProfile()
+					&& profileExists(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME)) {
+				throw new SLEEException(
+						"Profile Specification indicates that this is single profile, can not create more than one: "
+								+ component);
+			}
+						
 			allocated = this.assignProfileObject(newProfileName);
 
-			if (isDefault) {
-				allocated.profileInitialize();
-			}
-			
 			if (component.isSlee11()) {
 				allocated.profilePostCreate();
 			}
-			
-			if (isDefault) {
-				// TODO confirm this
-				allocated.profileStore();
-				// See section 10.13.1.10 of JSLEE 1.1
-				if (!component.isSlee11()) {
-					allocated.profileVerify();
-				}
-			} 
 			
 			success = true;
 			return allocated;
@@ -568,10 +551,11 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 					+ " ProfileObject[" + profileObject + "]");
 		}
 		if (!remove) {
-			profileObject.getProfileConcrete().profilePassivate();
+			profileObject.profilePassivate();
 		} else {
 			profileObject.profileRemove();
 		}
+		profileObject.unsetProfileContext();
 	}
 
 	public ObjectName getUsageMBeanName() throws IllegalArgumentException {

@@ -180,7 +180,7 @@ public class ProfileObject {
 			logger.debug("[profileActivate] "+this);
 		}
 		
-		if (this.getState() != ProfileObjectState.POOLED)
+		if (this.state != ProfileObjectState.POOLED)
 		{
 			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
@@ -197,7 +197,7 @@ public class ProfileObject {
 		}
 		// this is called for default profile when its created
 
-		if (this.getState() != ProfileObjectState.POOLED) {
+		if (this.state != ProfileObjectState.POOLED) {
 			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
@@ -211,7 +211,7 @@ public class ProfileObject {
 		{
 			logger.debug("[profileLoad] "+this);
 		}
-		if (this.getState() != ProfileObjectState.READY) {
+		if (this.state != ProfileObjectState.READY) {
 			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
@@ -226,7 +226,7 @@ public class ProfileObject {
 			logger.debug("[profilePassivate] "+this);
 		}
 		// This must be called
-		if (this.getState() != ProfileObjectState.READY) {
+		if (this.state != ProfileObjectState.READY) {
 			logger.error("Profile passivate, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
@@ -241,13 +241,13 @@ public class ProfileObject {
 		{
 			logger.debug("[profilePostCreate] "+this);
 		}
-		if (this.getState() != ProfileObjectState.POOLED) {
+		if (this.state != ProfileObjectState.POOLED) {
 			logger.error("Profile post create, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profilePostCreate();
-
+		this.state = ProfileObjectState.READY;
 	}
 
 	public void profileRemove() {
@@ -255,7 +255,7 @@ public class ProfileObject {
 		{
 			logger.debug("[profileRemove] "+this);
 		}
-		if (this.getState() != ProfileObjectState.READY) {
+		if (this.state != ProfileObjectState.READY) {
 			logger.error("Profile remove, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
@@ -283,7 +283,7 @@ public class ProfileObject {
 		{
 			logger.debug("[profileVerify] "+this);
 		}
-		if (this.getState() != ProfileObjectState.READY) {
+		if (this.state != ProfileObjectState.READY) {
 			logger.error("Profile verify, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}

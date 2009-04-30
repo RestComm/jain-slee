@@ -16,10 +16,8 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
@@ -32,10 +30,8 @@ import javax.slee.management.SleeState;
 import javax.slee.profile.AttributeNotIndexedException;
 import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileAlreadyExistsException;
-import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTableAlreadyExistsException;
-import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
@@ -157,8 +153,6 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (SLEEException e) {
 			throw new ManagementException(e.getMessage(),e);
 		} catch (CreateException e) {
-			throw new ManagementException(e.getMessage(),e);
-		} catch (ProfileVerificationException e) {
 			throw new ManagementException(e.getMessage(),e);
 		} finally {
 			sleeTransactionManagement.requireTransactionEnd(terminateTx,doRollback);
@@ -284,9 +278,8 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 			try {
 				Thread.currentThread().setContextClassLoader(component.getClassLoader());
-
 				profileTable = this.sleeProfileManagement.addProfileTable(profileTableName,component);
-				//profileTable.addProfile(null, true);
+				
 			} catch (TransactionRequiredLocalException e) {
 				throw new ManagementException("Transaction Manager Failure", e);
 			} catch (SystemException e) {
@@ -327,7 +320,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 	public ObjectName getDefaultProfile(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
 		try {
-			return _getProfile(profileTableName,"");
+			return _getProfile(profileTableName,SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME);
 		} catch (UnrecognizedProfileNameException e) {
 			// can't happen
 			throw new ManagementException(e.getMessage(),e);
