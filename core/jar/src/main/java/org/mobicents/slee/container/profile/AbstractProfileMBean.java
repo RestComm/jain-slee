@@ -106,12 +106,12 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			 */
 			if (logger.isDebugEnabled()) {
 				logger.debug("closeProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
-				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("profileWriteable " + this.isProfileWriteable());
+				logger.debug("dirtyFlag " + this.isProfileDirty());
 			}
 			
 			// The closeProfile method must throw a javax.slee.InvalidStateException if the Profile MBean object is in the read-write state.
-			if (this.profileObject.isWriteable() && this.profileObject.getProfileConcrete().isProfileDirty())
+			if (this.profileObject.isWriteable() && this.isProfileDirty())
 				throw new InvalidStateException();
 			// unregister mbean
 			try {
@@ -154,8 +154,8 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("commitProfile called (profile =" + getProfileTableName() + "/" + getProfileName() + ")");
-				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("profileWriteable " + this.isProfileWriteable());
+				logger.debug("dirtyFlag " + this.isProfileDirty());
 			}
 
 			// not storing default profile
@@ -328,7 +328,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("dirtyFlag " + this.isProfileDirty());
 				logger.debug("commitProfile call ended");
 			}
 
@@ -374,7 +374,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			if (logger.isDebugEnabled()) {
 				logger.debug("editProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("dirtyFlag " + this.isProfileDirty());
 			}
 
 			if (!this.profileObject.isWriteable())
@@ -410,7 +410,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			if (logger.isDebugEnabled())
 			{
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("dirtyFlag " + this.isProfileDirty());
 				logger.debug("editProfile call ended");
 			}
 		}
@@ -483,7 +483,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			if (logger.isDebugEnabled()) {
 				logger.debug("restoreProfile called (profile =" + this.profileObject.getProfileTableConcrete().getProfileTableName() + "/" + this.profileObject.getProfileName() + ")");
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("dirtyFlag " + this.isProfileDirty());
 			}
 			/*
 			 * The restoreProfile method must throw a
@@ -506,7 +506,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			
 			if (logger.isDebugEnabled()) {
 				logger.debug("profileWriteable " + this.profileObject.isWriteable());
-				logger.debug("dirtyFlag " + this.profileObject.getProfileConcrete().isProfileDirty());
+				logger.debug("dirtyFlag " + this.isProfileDirty());
 				logger.debug("restoreProfile call ended");
 			}
 		}

@@ -69,7 +69,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObjectConcrete {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting profile name for: " + this.profileName);
 		}
-		return this.isDefault ? null : this.profileName;
+		return this.isDefault ? SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME : this.profileName;
 	}
 
 	/*

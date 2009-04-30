@@ -23,25 +23,34 @@ public class ProfileManagementHandler {
   
 	private static Logger logger = Logger.getLogger(ProfileManagementHandler.class);
 	
-//	private ProfileCmpHandler profileCmpHandler = null;
-//
-//	public void setProfileCmpHandler(ProfileCmpHandler profileCmpHandler) {
-//		this.profileCmpHandler = profileCmpHandler;
-//	}
-
 	public static boolean isProfileDirty(ProfileObject profileObject)
 	{
+    if (logger.isDebugEnabled())
+    {
+      logger.info("[isProfileDirty] @ " + profileObject);
+    }
+
 		return profileObject.getProfileConcrete().getProfileDirty();
 	}
 
 	public static boolean isProfileValid(ProfileObject profileObject, ProfileID profileId) throws NullPointerException, SLEEException
 	{
-		// FIXME: Alexandre: Validate the profile
-		return false;
+    if (logger.isDebugEnabled())
+    {
+      logger.info("[isProfileValid(" + profileId + ")] @ " + profileObject);
+    }
+
+    // FIXME: Alexandre: Validate the profile
+		return true;
 	}
 
 	public static void markProfileDirty(ProfileObject profileObject)
 	{
+    if (logger.isDebugEnabled())
+    {
+      logger.info("[markProfileDirty] @ " + profileObject);
+    }
+    
 		profileObject.getProfileConcrete().setProfileDirty(true);
 	}
 
@@ -49,7 +58,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profileInitialize] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profileInitialize] @ " + profileObject);
 		}
 		
 		ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -70,7 +79,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profileLoad] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profileLoad] @ " + profileObject);
 		}
 
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -91,7 +100,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profileStore] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profileStore] @ " + profileObject);
 		}
 		
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -112,7 +121,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profileVerify] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profileVerify] @ " + profileObject);
 		}
 		
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -133,7 +142,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profileActivate] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profileActivate] @ " + profileObject);
 		}
     
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -154,7 +163,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profilePassivate] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profilePassivate] @ " + profileObject);
 		}
     
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -175,7 +184,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profilePostCreate] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profilePostCreate] @ " + profileObject);
 		}
     
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -196,20 +205,25 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[profileRemove] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[profileRemove] @ " + profileObject);
 		}
     
+		boolean removeProfileCall = false;
+		
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
     
     try
     {
       ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
+      removeProfileCall = true;
       // FIXME: Alexandre: Do profile removal.
     }
     finally
     {
       switchContextClassLoader(oldClassLoader);
-      ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
+      
+      if(removeProfileCall)
+        ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
     }
 	}
 
@@ -217,7 +231,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[setProfileContext] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[setProfileContext] @ " + profileObject);
 		}
     
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -238,7 +252,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[unsetProfileContext] on: " + profileObject.getProfileName() + ", from table:" + profileObject.getProfileTableConcrete().getProfileTableName());
+      logger.info("[unsetProfileContext] @ " + profileObject);
 		}
     
     ClassLoader oldClassLoader = switchContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -260,7 +274,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[getProfileUsageParam]: ProfileName = " + profileConcrete.getProfileName() + " , ProfileTableName = " + profileConcrete.getProfileTableConcrete().getProfileTableName() + " , name = " + name);
+      logger.info("[getProfileUsageParam(" + name + ")] @ " + profileConcrete.getProfileObject());
 		}
 		
 		if (name == null) {
@@ -276,7 +290,7 @@ public class ProfileManagementHandler {
 	{
 		if (logger.isDebugEnabled())
 		{
-			logger.debug("[getProfileUsageParam]: ProfileName = " + profileConcrete.getProfileName() + " , ProfileTableName = " + profileConcrete.getProfileTableConcrete().getProfileTableName());
+      logger.info("[getProfileDefaultUsageParam] @ " + profileConcrete.getProfileObject());
 		}
 
 		ProfileTableConcrete profileTableConcrete = profileConcrete.getProfileTableConcrete();

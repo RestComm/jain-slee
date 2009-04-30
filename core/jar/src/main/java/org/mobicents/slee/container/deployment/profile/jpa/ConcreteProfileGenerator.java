@@ -17,6 +17,7 @@ import javassist.CtMethod;
 import javax.persistence.EntityManager;
 import javax.slee.SLEEException;
 import javax.slee.profile.Profile;
+import javax.slee.profile.ProfileManagement;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -31,6 +32,7 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
+import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.profile.ProfileConcrete;
@@ -158,11 +160,38 @@ public class ConcreteProfileGenerator {
 
       generateConstructors(profileConcreteClass);
       
-//      if(profileDescriptor.getProfileAbstractClass() == null)
-//      {
-        String interfaceName = Profile.class.getName();
-        generateBusinessMethods(profileConcreteClass,interfaceName);
+      // Profile Management methods for JAIN SLEE 1.1
+      Map<String, CtMethod> profileManagementMethods = ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(Profile.class.getName()));
+      
+      // Profile Management methods for JAIN SLEE 1.0
+      profileManagementMethods.putAll(ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(ProfileManagement.class.getName())));
+
+      // Check for a Profile Management Interface
+      Class profileManagementInterface = this.profileComponent.getProfileManagementInterfaceClass();
+      
+      if (profileManagementInterface != null) {
+        profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(profileManagementInterface.getName())));
+      }
+      
+//      if (profileManagementAbstractClass != null) {
+//        // We do get concrete methods, so we can intercept calls before delegating them
+//        profileManagementMethods.putAll(ClassUtils.getConcreteMethodsFromClass(profileManagementAbstractClass));
+//        
+//        Map<String, CtMethod> abstractMethods = ClassUtils.getSuperClassesAbstractMethodsFromClass(profileManagementAbstractClass);
+//        abstractMethods.putAll(ClassUtils.getAbstractMethodsFromClass(profileManagementAbstractClass));
+//        // First we generate Usage methods and remove them from management
+//        // methods map
+//
+//        createDefaultUsageParameterGetter(abstractMethods, cmpProfileConcreteClass);
+//        createNamedUsageParameterGetter(abstractMethods, cmpProfileConcreteClass);
+//
 //      }
+
+      
+      generateBusinessMethods(profileConcreteClass, profileManagementMethods);
+
+//    String interfaceName = Profile.class.getName();
+//    generateBusinessMethods(profileConcreteClass, interfaceName);
 
       profileConcreteClass.getClassFile().setVersionToJava5();
       
@@ -195,13 +224,11 @@ public class ConcreteProfileGenerator {
     ClassGeneratorUtils.generateConstructorWithParameters( profileConcreteClass, pTypes, pNames, pTransient  );
   }
   
-  private void generateBusinessMethods(CtClass profileConcreteClass, String interfaceName)
+  private void generateBusinessMethods(CtClass profileConcreteClass, Map<String, CtMethod> methods)
   {
     boolean useInterceptor = true;
     Class abstractClass = this.profileComponent.getProfileAbstractClass();
     
-    Map<String, CtMethod> methods = ClassGeneratorUtils.getInterfaceMethodsFromInterface(interfaceName);
-
     for(CtMethod method : methods.values())
     {
       useInterceptor = true;

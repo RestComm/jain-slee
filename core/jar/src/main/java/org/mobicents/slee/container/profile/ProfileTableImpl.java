@@ -324,7 +324,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		this.deassignProfileObject(allocated, true);
 
 		// FIXME: Alexandre: Remove and Fetch profile for event
-		ProfileLocalObjectConcrete ploc = null;
+		ProfileLocalObjectConcrete ploc = new ProfileLocalObjectImpl(this.component.getProfileSpecificationID(), this.profileTableName, profileName, sleeContainer.getSleeProfileTableManager(), profileName.equals(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME));
 
 		// Profile Removed Event.
 		// After a Profile is removed from a Profile Table, the SLEE fires
