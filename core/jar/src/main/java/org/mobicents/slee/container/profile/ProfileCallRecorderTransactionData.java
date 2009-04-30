@@ -107,9 +107,6 @@ public class ProfileCallRecorderTransactionData {
 			if (data == null) {
 				throw new SLEEException("No Profile call recorder in memory, this is a bug.");
 			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("Removing call to profile, stored key: " + makeKey(pc) + ", last active table: " + data.invokedProfileTablesNames.getLast());
-			}
 			
 			if (!pc.getProfileObject().isProfileReentrant())
 			{

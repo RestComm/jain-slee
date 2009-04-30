@@ -38,6 +38,7 @@ import javax.slee.profile.UnrecognizedProfileSpecificationException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.profile.UnrecognizedQueryNameException;
 import javax.slee.profile.query.QueryExpression;
+import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
@@ -133,29 +134,44 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		ProfileTableImpl.validateProfileName(newProfileName);
 		ProfileTableImpl.validateProfileTableName(profileTableName);
 
-		boolean terminateTx = sleeTransactionManagement.requireTransaction();
-		boolean doRollback = true;
+		boolean rollback = true;
 		try {
 
+			sleeTransactionManagement.begin();
 			// This checks if profile table exists - throws SLEEException in
 			// case of system level and UnrecognizedProfileTableNameException in
 			// case of no such table
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			// create object
 			ProfileObject profileObject =  profileTable.createProfile(newProfileName);
-			ObjectName objectName = createAndRegisterProfileMBean(profileObject);
+			// create mbean and registers it
+			AbstractProfileMBean profileMBean = createAndRegisterProfileMBean(profileObject);
+			// indicate that it is a profile creation, this will suspend the transaction
+			profileMBean.createProfile();
 			if (logger.isDebugEnabled()) {
-				logger.debug("Profile with name "+newProfileName+" in table "+profileTableName+" created, returning mbean name "+objectName);
+				logger.debug("Profile with name "+newProfileName+" in table "+profileTableName+" created, returning mbean name "+profileMBean.getObjectName());
 			}
-			doRollback = false;
-			return objectName;		
+			rollback = false;
+			return profileMBean.getObjectName();		
 		} catch (TransactionRequiredLocalException e) {
 			throw new ManagementException(e.getMessage(),e);
 		} catch (SLEEException e) {
 			throw new ManagementException(e.getMessage(),e);
 		} catch (CreateException e) {
 			throw new ManagementException(e.getMessage(),e);
+		} catch (NotSupportedException e) {
+			throw new ManagementException(e.getMessage(),e);
+		} catch (SystemException e) {
+			throw new ManagementException(e.getMessage(),e);
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(terminateTx,doRollback);
+			if(rollback) {
+				try {
+					sleeTransactionManagement.rollback();
+				}
+				catch (Throwable e) {
+					logger.error(e.getMessage(),e);
+				}
+			}
 		}
 	}
 
@@ -165,7 +181,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	 * @return
 	 * @throws ManagementException
 	 */
-	private ObjectName createAndRegisterProfileMBean(ProfileObject profileObject) throws ManagementException {
+	private AbstractProfileMBean createAndRegisterProfileMBean(ProfileObject profileObject) throws ManagementException {
 		
 		try {
 			ProfileSpecificationComponent component = profileObject.getProfileSpecificationComponent();
@@ -174,22 +190,27 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			// add a rollback action to close the mbean
 			TransactionalAction rollbackAction = new TransactionalAction() {
 				public void execute() {
-					try {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Removing profile mbean "+profileMBean.getObjectName()+" due to tx rollback");
+					Runnable r = new Runnable() {
+						public void run() {
+							try {
+								if (logger.isDebugEnabled()) {
+									logger.debug("Removing profile mbean "+profileMBean.getObjectName()+" due to tx rollback");
+								}
+								if (profileMBean.isProfileWriteable()) {
+									profileMBean.restoreProfile();
+								}
+								profileMBean.closeProfile();
+							} catch (Throwable e) {
+								logger.error(e.getMessage(),e);
+							}									
 						}
-						if (profileMBean.isProfileWriteable()) {
-							profileMBean.restoreProfile();
-						}
-						profileMBean.closeProfile();
-					} catch (Throwable e) {
-						logger.error(e.getMessage(),e);
-					}					
+					};
+					new Thread(r).start();
 				}
 			};
 			sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
 			// TODO add profile mbean name in profile table to control idleness or make mbean server queries work (preferable) :)
-			return profileMBean.getObjectName();
+			return profileMBean;
 			
 		} catch (SecurityException e) {
 			throw new ManagementException(e.getMessage(),e);
@@ -354,7 +375,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		try {
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
 			ProfileObject profileObject = profileTable.assignAndActivateProfileObject(profileName);
-			ObjectName objectName = createAndRegisterProfileMBean(profileObject);
+			ObjectName objectName = createAndRegisterProfileMBean(profileObject).getObjectName();
 			rb = false;
 			return objectName;		
 		} finally {

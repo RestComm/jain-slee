@@ -32,18 +32,6 @@ public interface ProfileConcrete extends Profile ,ProfileManagement {
 	public void setProfileName(String profileName);
 	public String getProfileName();
 	
-	/**
-	 * This method is used by management client
-	 * @return
-	 */
-	public Boolean getProfileDirty();
-	public void setProfileDirty(Boolean b);
-	
-	public void commitChanges();
-
-	public Boolean getProfileInBackEndStorage();
-	public void setProfileInBackEndStorage(Boolean b);
-
 	// /**
 	// * Assigns to this ProfileEntity to a profile object, and then invoke
 	// * profileActivate()

@@ -309,7 +309,19 @@ public class ConcreteProfileMBeanGenerator {
 		
 		CtMethod newMethod = CtNewMethod.copy( method, concreteClass, null );
 		newMethod.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
-		String body = "{"+ (isGet ? "return ($r)" : "") + interceptorAccess+"."+method.getName()+"($$); }";
+		
+		String fieldName = method.getName().substring(3,4).toLowerCase() + method.getName().substring(4);
+
+		// Set the first char of the accessor to UpperCase to follow the
+		// javabean requirements
+				
+		String body = null;
+		if (isGet) {
+			body = "{ return ($r) " + AbstractProfileMBean.class.getName()+".getCmpField(this,\""+fieldName+"\"); }";
+		}
+		else {
+			body = "{ Object o = ($w) $1; " + AbstractProfileMBean.class.getName()+".setCmpField(this,\""+fieldName+"\",o); }";
+		}
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);

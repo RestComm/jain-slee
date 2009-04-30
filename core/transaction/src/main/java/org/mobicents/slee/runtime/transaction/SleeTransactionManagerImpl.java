@@ -92,9 +92,6 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("mandateTransaction() invoked. tx = "+tx);
-		}
 		if (tx == null)
 			throw new TransactionRequiredLocalException(
 					"Transaction Mandatory");
@@ -249,15 +246,11 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 	public void commit() throws RollbackException, HeuristicMixedException,
 			HeuristicRollbackException, SecurityException,
 			IllegalStateException, SystemException {
-		Transaction tx = null;
 		if (logger.isDebugEnabled()) {
-			tx = getTransaction();
-		}
+			logger.debug("Starting commit of tx "+getTransaction());
+		}	
 		
-		transactionManager.commit();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Committed tx "+tx);
-		}
+		transactionManager.commit();		
 	}
 
 	public int getStatus() throws SystemException {
@@ -286,6 +279,9 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 	public void resume(Transaction transaction) throws InvalidTransactionException,
 			IllegalStateException, SystemException {
 		if (transactionManager != null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Resuming tx "+transaction);
+			}
 			transactionManager.resume(transaction);	
 		}
 		else {
@@ -295,15 +291,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 
 	public void rollback() throws IllegalStateException, SecurityException,
 			SystemException {
-		Transaction tx = null;
 		if (logger.isDebugEnabled()) {
-			tx = getTransaction();
-		}
-		
-		transactionManager.rollback();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Rollbacked tx "+tx);
-		}		
+			logger.debug("Starting rollback of tx "+getTransaction());
+		}				
+		transactionManager.rollback();			
 	}
 
 	public void setRollbackOnly() throws IllegalStateException, SystemException {
@@ -330,6 +321,9 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 
 	public Transaction suspend() throws SystemException {
 		if (transactionManager != null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Suspending tx "+getTransaction());
+			}
 			return transactionManager.suspend();
 		}
 		else {
@@ -354,10 +348,7 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		if (tc == null) {
 			tc = new TransactionContext();
 			transactionContexts.put(tx, tc);
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("getTransactionContext() invoked for tx "+tx+" . Transaction context is "+tc);
-		}
+		}		
 		return tc;
 	}
 
@@ -418,9 +409,7 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 			}
 		}
 
-		public void beforeCompletion() {
-			if (logger.isDebugEnabled())
-				logger.debug("beforeCompletion for tx " + tx);
+		public void beforeCompletion() {			
 			// get entry and execute before commit actions
 			TransactionContext tc = transactionContexts.get(tx);
 			if (tc != null) {

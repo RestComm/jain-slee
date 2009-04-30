@@ -32,7 +32,6 @@ public class ProfileObject {
 	private ProfileContextImpl profileContext = null;
 	private String profileName = null;
 	private boolean managementView = false;
-	private boolean writeable = false;
 
 	/**
 	 * This indicates wheather we are service as snapshot, in that case we are
@@ -40,11 +39,8 @@ public class ProfileObject {
 	 * events.
 	 */
 	private boolean snapshot = false;
-	/**
-	 * this flag indicates wheather profile CMP state can be accessed - see
-	 * profileActivate method.
-	 */
-	private boolean canAccessCMP = true;
+
+	private boolean profileDirty = false;
 
 	public ProfileObject(ProfileTableConcrete profileTableConcrete, ProfileSpecificationID profileSpecificationId) throws NullPointerException
 	{
@@ -91,6 +87,14 @@ public class ProfileObject {
 		this.snapshot = true;
 	}
 
+	public boolean isProfileDirty() {
+		return profileDirty;
+	}
+	
+	public void setProfileDirty(boolean dirty) {
+		this.profileDirty = dirty;
+	}
+	
 	/**
 	 * if this return true changes to CMPs must be allowed, even if profile is
 	 * marked read only, this is true ONLY when management side accesses
@@ -106,38 +110,13 @@ public class ProfileObject {
 		this.managementView = managementView;
 	}
 
-	public boolean isWriteable() {
-		return writeable;
-	}
-
-	public void setWriteable(boolean writeable) {
-		this.writeable = writeable;
-	}
-
-	/**
-	 * In some cases when Profile method is invoked CMP state MUST not be
-	 * accessed, this flag indicates by it value if this is taht kind of
-	 * situation - for instance see profileActivate
-	 * 
-	 * @return <ul>
-	 *         <li><b>true</b> - if CMP can be accessed</li>
-	 *         <li><b>false</b> - if CMP must not be accessed</li>
-	 *         </ul>
-	 */
-	public boolean isCanAccessCMP() {
-		return canAccessCMP;
-	}
-
+	
 	public boolean isProfileSpecificationWriteable() {
 		return !this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getReadOnly();
 	}
 
 	public boolean isProfileReentrant() {
 		return this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass() == null ? false : this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
-	}
-
-	public void setCanAccessCMP(boolean canAccessCMP) {
-		this.canAccessCMP = canAccessCMP;
 	}
 
 	public ProfileObjectState getState() {
@@ -217,7 +196,7 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileLoad();
-
+		setProfileDirty(false);
 	}
 
 	public void profilePassivate() {
@@ -275,7 +254,7 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileStore();
-
+		setProfileDirty(false);
 	}
 
 	public void profileVerify() throws ProfileVerificationException {

@@ -461,6 +461,8 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 				allocated.profilePostCreate();
 			}
 			
+			allocated.setProfileDirty(true);
+			
 			success = true;
 			return allocated;
 		} catch (IllegalArgumentException e) {

@@ -30,7 +30,7 @@ public class ProfileManagementHandler {
       logger.info("[isProfileDirty] @ " + profileObject);
     }
 
-		return profileObject.getProfileConcrete().getProfileDirty();
+		return profileObject.isProfileDirty();
 	}
 
 	public static boolean isProfileValid(ProfileObject profileObject, ProfileID profileId) throws NullPointerException, SLEEException
@@ -51,7 +51,7 @@ public class ProfileManagementHandler {
       logger.info("[markProfileDirty] @ " + profileObject);
     }
     
-		profileObject.getProfileConcrete().setProfileDirty(true);
+		profileObject.setProfileDirty(true);
 	}
 
 	public static void profileInitialize(ProfileObject profileObject)
@@ -108,7 +108,7 @@ public class ProfileManagementHandler {
     try
     {
       ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
-      // FIXME: Alexandre: Do profile store.
+      profileObject.profileStore();
     }
     finally
     {
@@ -129,7 +129,7 @@ public class ProfileManagementHandler {
     try
     {
       ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
-      // FIXME: Alexandre: Do profile verification.
+      profileObject.profileVerify();
     }
     finally
     {
