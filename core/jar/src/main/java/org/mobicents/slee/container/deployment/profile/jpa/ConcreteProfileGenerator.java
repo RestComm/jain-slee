@@ -7,12 +7,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
+import javassist.CtPrimitiveType;
 
 import javax.persistence.EntityManager;
 import javax.slee.SLEEException;
@@ -36,7 +38,6 @@ import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.profile.ProfileConcrete;
-import org.mobicents.slee.container.profile.ProfileManagementHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -50,6 +51,7 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
+@SuppressWarnings("deprecation")
 public class ConcreteProfileGenerator {
 
   private static final Logger logger = Logger.getLogger(ConcreteProfileGenerator.class);
@@ -57,8 +59,6 @@ public class ConcreteProfileGenerator {
   private static final String PROFILE_TABLE_IDENTIFIER = "tableName";
   private static final String PROFILE_IDENTIFIER = "profileName";
 
-  private static final String _PLO_MGMT_INTERCEPTOR = "org.mobicents.slee.container.profile.ProfileManagementHandler";
-  
   private ProfileSpecificationComponent profileComponent;
   private ProfileSpecificationDescriptorImpl profileDescriptor;
 
@@ -136,12 +136,6 @@ public class ConcreteProfileGenerator {
       CtField fSleeTransactionManager = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("javax.slee.transaction.SleeTransactionManager"), "sleeTransactionManager", profileConcreteClass, Modifier.PRIVATE, "org.mobicents.slee.container.SleeContainer.lookupFromJndi().getTransactionManager()" );
       ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fSleeTransactionManager );
 
-//      CtField fProfileManagementHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileManagementHandler"), "profileManagementHandler", profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileManagementHandler()" );
-//      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileManagementHandler );
-      
-//      CtField fCMPHandler = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileCmpHandler"), ClassGeneratorUtils.CMP_HANDLER_FIELD_NAME, profileConcreteClass, Modifier.PRIVATE, "new org.mobicents.slee.container.profile.ProfileCmpHandler()" );
-//      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fCMPHandler );
-      
       // We also need getter/setter for profileObject and profileTableConcrete
       CtField fProfileObject = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileObject"), "profileObject", profileConcreteClass );
       ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileObject );
@@ -187,11 +181,9 @@ public class ConcreteProfileGenerator {
 //
 //      }
 
-      
-      generateBusinessMethods(profileConcreteClass, profileManagementMethods);
+      Map<String, CtMethod> cmpInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(this.profileComponent.getProfileCmpInterfaceClass().getName()));
+      generateBusinessMethods(profileConcreteClass, profileManagementMethods, cmpInterfaceMethods);
 
-//    String interfaceName = Profile.class.getName();
-//    generateBusinessMethods(profileConcreteClass, interfaceName);
 
       profileConcreteClass.getClassFile().setVersionToJava5();
       
@@ -204,8 +196,7 @@ public class ConcreteProfileGenerator {
       profileConcreteClass.defrost();
       
     }
-    catch ( Exception e )
-    {
+    catch ( Exception e ) {
       throw new SLEEException(e.getMessage(),e);
     }
     
@@ -215,52 +206,86 @@ public class ConcreteProfileGenerator {
   private void generateConstructors(CtClass profileConcreteClass)
   {
     ClassGeneratorUtils.generateDefaultConstructor(profileConcreteClass);
-
-    //profileConcreteClass.addConstructor(CtNewConstructor.defaultConstructor(profileConcreteClass));
-    Class[] pTypes = new Class[]{ProfileManagementHandler.class};
-    String[] pNames = new String[]{"profileManagementHandler"};
-    boolean[] pTransient = new boolean[]{true};
-    
-    ClassGeneratorUtils.generateConstructorWithParameters( profileConcreteClass, pTypes, pNames, pTransient  );
   }
   
-  private void generateBusinessMethods(CtClass profileConcreteClass, Map<String, CtMethod> methods)
+  private void generateBusinessMethods(CtClass profileConcreteClass, Map<String, CtMethod> methods, Map<String, CtMethod> cmpInterfaceMethods)
   {
-    boolean useInterceptor = true;
+    //boolean useInterceptor = true;
     Class abstractClass = this.profileComponent.getProfileAbstractClass();
-    
-    for(CtMethod method : methods.values())
+
+    Iterator<Map.Entry<String, CtMethod>> mm = methods.entrySet().iterator();
+
+    while (mm.hasNext())
     {
-      useInterceptor = true;
+      String interceptor = ClassGeneratorUtils.MANAGEMENT_HANDLER;
       
-      if(abstractClass != null)
+      Map.Entry<String, CtMethod> entry = mm.next();
+      
+      CtMethod method = entry.getValue();
+      
+      if(cmpInterfaceMethods.containsKey(entry.getKey()))
+      {
+        // This was already implemented by generateCMP...
+        continue;
+      }
+      if (entry.getKey().contains("commitChanges"))
+      {
+        interceptor = ClassGeneratorUtils.CMP_HANDLER;
+      }
+      else if(abstractClass != null)
       {
         try
         {
           int i = 0;
           Class[] pTypes = new Class[method.getParameterTypes().length];
         
-          for(CtClass ctClass : method.getParameterTypes())
+          for(CtClass pType : method.getParameterTypes())
           {
-            pTypes[i++]  = ctClass.toClass();
+            if(pType.isPrimitive())
+              pTypes[i++] = ((Class)Class.forName( ((CtPrimitiveType)pType).getWrapperName() ).getField( "TYPE" ).get( null ));
+            else
+              pTypes[i++] = Class.forName(pType.getClassFile().getName());
           }
           
           abstractClass.getMethod( method.getName(), pTypes );
-          useInterceptor = false;
+          interceptor = "super";
         }
         catch ( Exception e ) {
-          // ignore... we are using interceptor.
+          if (!(e instanceof NoSuchMethodException))
+            throw new SLEEException("Problem with Business method generation: " + method.getName(), e);
+            
+          // else ignore... we are using default interceptor.
         }
       }
       
       try
       {
-        ClassGeneratorUtils.generateDelegateMethod( profileConcreteClass, method, useInterceptor ? _PLO_MGMT_INTERCEPTOR : "super", false );
+        ClassGeneratorUtils.generateDelegateMethod( profileConcreteClass, entry.getValue(), interceptor, false );
       }
       catch ( Exception e ) {
-    	  throw new SLEEException(e.getMessage(),e);
+        throw new SLEEException(e.getMessage(),e);
       }
     }
+//      useInterceptor = true;
+//      
+//      if(abstractClass != null)
+//      {
+//        try
+//        {
+//          int i = 0;
+//          Class[] pTypes = new Class[method.getParameterTypes().length];
+//        
+//          for(CtClass ctClass : method.getParameterTypes())
+//          {
+//            pTypes[i++]  = ctClass.toClass();
+//          }
+//          
+//          abstractClass.getMethod( method.getName(), pTypes );
+//          useInterceptor = false;
+//        }
+//        catch ( Exception e ) {
+//          // ignore... we are using interceptor.
+//        }
   }
   
   private void generateProfileIdentifiers(CtClass profileConcreteClass) throws Exception

@@ -31,6 +31,8 @@ import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.profile.ProfileConcrete;
+import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 
 /**
@@ -175,7 +177,16 @@ public class JPAUtils {
 
   public Object find(String profileTableName, String profileName)
   {
-    // TODO: complete.
+//    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
+//
+//    Query createProfileQuery = getEntityManager(ptc.getProfileSpecificationComponent().getComponentID()).createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTableName).setParameter( 2, profileName );
+//
+//    try {
+//      return createProfileQuery.getSingleResult();
+//    }
+//    catch (NoResultException e) {
+//    }
+    
     return null;
   }
 
@@ -363,6 +374,21 @@ public class JPAUtils {
     return null;
   }
 
+  public void persistProfile(ProfileObject profileObject)
+  {
+    try
+    {
+      ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
+      profileObject.getProfileConcrete().getClass().getMethod( "setProfileName", String.class ).invoke( profileConcrete, profileObject.getProfileName() );
+      profileObject.getProfileConcrete().getClass().getMethod( "setTableName", String.class ).invoke( profileConcrete, profileObject.getProfileTableConcrete().getProfileTableName() );
+    }
+    catch (Exception e) {
+      // ignore, no problem.. we hope.
+    }
+    
+    getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());
+  }
+  
   public EntityManagerFactory createPersistenceUnit(ProfileSpecificationComponent profileComponent)
   {
     

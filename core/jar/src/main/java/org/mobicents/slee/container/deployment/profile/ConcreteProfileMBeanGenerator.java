@@ -22,6 +22,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.AbstractProfileMBean;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class ConcreteProfileMBeanGenerator {
 
@@ -239,14 +240,15 @@ public class ConcreteProfileMBeanGenerator {
 		}
 		
 		//Slee 1.1 specs section 10.26.2
-		String body="{ "+
+		String body="{ " +
+		"org.mobicents.slee.runtime.transaction.SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();"+
 		"boolean createdTransaction = false;"+
 		"boolean rollback = true;"+
 		"Thread t = Thread.currentThread();"+
 		"ClassLoader oldClassLoader = t.getContextClassLoader();"+
 		"t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());"+
 		"try {"+
-		"	createdTransaction = super.sleeTransactionManager.requireTransaction();";
+		"	createdTransaction = sleeTransactionManager.requireTransaction();";
 		if(hasReturnValue)
 			body+="Object result = "+interceptorAccess+"."+method.getName()+"($$);";
 		else
@@ -271,7 +273,7 @@ public class ConcreteProfileMBeanGenerator {
 		"t.setContextClassLoader(oldClassLoader);"+	
 		"	if (rollback) {"+
 		"		try {"+
-		"			super.sleeTransactionManager.rollback();"+
+		"			sleeTransactionManager.rollback();"+
 		"		} catch ("+java.lang.Exception.class.getName()+" e) {"+
 
 		"			e.printStackTrace();"+
@@ -280,7 +282,7 @@ public class ConcreteProfileMBeanGenerator {
 		"	} else if (createdTransaction) {"+
 		"		 {"+
 		"			try {"+
-		"				super.sleeTransactionManager.commit();"+
+		"				sleeTransactionManager.commit();"+
 		"			} catch ("+java.lang.Exception.class.getName()+" e) {"+
 
 		"				e.printStackTrace();"+

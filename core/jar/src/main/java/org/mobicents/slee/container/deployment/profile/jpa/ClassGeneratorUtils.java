@@ -56,7 +56,9 @@ public class ClassGeneratorUtils {
   private static ClassPool classPool = null;
 
   public static final String _PLO_PO_ALLOCATION = "";//"allocateProfileObject();";
+
   public static final String CMP_HANDLER = "org.mobicents.slee.container.profile.ProfileCmpHandler";
+  public static final String MANAGEMENT_HANDLER = "org.mobicents.slee.container.profile.ProfileManagementHandler";
 
   /**
    * Creates a class with the desired name and linked to the mentioned interfaces.
@@ -80,6 +82,9 @@ public class ClassGeneratorUtils {
       clazz.setInterfaces( classPool.get( interfaces ) );
     }
 
+    CtField fLogger = addField(classPool.get(Logger.class.getName()), "logger", clazz, Modifier.PRIVATE & Modifier.STATIC & Modifier.FINAL, Logger.class.getName() + ".getLogger(\"" + clazz.getName() + "\")");
+    addAnnotation( "javax.persistence.Transient", null, fLogger );
+    
     return clazz;
   }
 
@@ -228,40 +233,6 @@ public class ClassGeneratorUtils {
     return constructor;
   }
 
-  /*
-  CtConstructor constructorWithParameter = new CtConstructor(parameters, concreteClass);
-  String constructorBody = "{";
-
-  // "this();";
-  for (int i = 0; i < parameters.length; i++) {
-
-    try {
-      CtField ctField = new CtField(parameters[i], parameterNames[i], concreteClass);
-      if (ctField.getName().equals("java.lang.Object"))
-        ctField.setModifiers(Modifier.PUBLIC);
-      else
-        ctField.setModifiers(Modifier.PRIVATE);
-      concreteClass.addField(ctField);
-    } catch (CannotCompileException cce) {
-      cce.printStackTrace();
-    }
-    int paramNumber = i + 1;
-    constructorBody += parameterNames[i] + "=$" + paramNumber + ";";
-  }
-
-  constructorBody += "}";
-  try {
-    concreteClass.addConstructor(constructorWithParameter);
-    constructorWithParameter.setBody(constructorBody);
-    if (logger.isDebugEnabled()) {
-      logger.debug("ConstructorWithParameter created: " + constructorBody);
-    }
-  } catch (CannotCompileException e) {
-
-    throw new DeploymentException("Failed to instrument constructor.", e);
-  }
-   */
-
   /**
    * Adds a field of the desired type to the declaring class.
    * 
@@ -357,7 +328,8 @@ public class ClassGeneratorUtils {
       logger.debug("About to instrument: " + getter.getName() + ", into: " + classToBeInstrumented.getName());
     }
 
-    String getterBody = "{ return ($r) " + CMP_HANDLER + ".getCmpField(profileObject, \"" + field.getName() + "\"); }";
+    String getterBody = "{ if(logger.isDebugEnabled()){logger.info(\"" + getter.getName() + " called for \" + profileObject + \".\");}";
+    getterBody += "return ($r) " + CMP_HANDLER + ".getCmpField(profileObject, \"" + field.getName() + "\"); }";
 
     getter.setBody(getterBody);
     classToBeInstrumented.addMethod(getter);
@@ -407,7 +379,8 @@ public class ClassGeneratorUtils {
       logger.debug("About to instrument: " + setter.getName() + ", into: " + classToBeInstrumented.getName());
     }
 
-    String setterBody = "{ Object o = ($w) $1; " + CMP_HANDLER + ".setCmpField(profileObject, \"" + field.getName() + "\", o); }";
+    String setterBody = "{ if(logger.isDebugEnabled()){logger.info(\"" + setter.getName() + " called for \" + profileObject + \".\");}";
+    setterBody += " Object o = ($w) $1; " + CMP_HANDLER + ".setCmpField(profileObject, \"" + field.getName() + "\", o); }";
 
     setter.setBody(setterBody);
     classToBeInstrumented.addMethod(setter);
@@ -621,7 +594,7 @@ public class ClassGeneratorUtils {
     concreteClass.addMethod(newMethod);
   }
 
-  public static void generateDelegateMethod(CtClass classToBeInstrumented, CtMethod method, String interceptorAccess, boolean recordTxData) throws CannotCompileException, NotFoundException
+  public static void generateDelegateMethod(CtClass classToBeInstrumented, CtMethod method, String interceptorAccess, boolean recordTxData) throws CannotCompileException, NotFoundException, IllegalArgumentException, SecurityException, IllegalAccessException, NoSuchFieldException, ClassNotFoundException
   {
     // FIXME: should we add check for concrete methods from profileManagementAbstractClass and do clone?
 
@@ -631,24 +604,43 @@ public class ClassGeneratorUtils {
     
     method = CtNewMethod.copy(method, classToBeInstrumented, null);
     method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
-    String retStatement = "";
-    try {
-      if (method.getReturnType().toString().compareTo("void") == 0) {
 
-      } else {
-        retStatement = "return ($r) ";
+    String retStatement = null;
+    String retType = null;
+    
+    try
+    {
+      if(method.getReturnType() != CtClass.voidType)
+      {
+        retStatement = "return ($r) result;";
       }
-    } catch (NotFoundException e) {
-      // this should nto happen
+    }
+    catch (NotFoundException e) {
       throw e;
     }
-    String body = 
-      "{" +
+    
+    boolean hasImpl = interceptorAccess.equals("super");
+    
+    String body = "{ if(logger.isDebugEnabled()){logger.info(\"" + method.getName() + " called for \" + profileObject + \".\");}" +
       "  try {" + 
-      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" : "") + 
-      retStatement +
-      interceptorAccess + "." + method.getName() + "(" + (interceptorAccess.equals("super") ? "" : "profileObject, ") + "$$);" +
-      "  }" +
+      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" : "");
+      
+      
+    body += interceptorAccess + "." + method.getName() + "Before(profileObject, $$);";
+  
+    if(retStatement != null)
+    {
+      if(method.getReturnType().isPrimitive())
+        retType = ((Class)Class.forName( ((CtPrimitiveType)method.getReturnType()).getWrapperName() ).getField( "TYPE" ).get( null )).toString();
+      else
+        retType = Class.forName(method.getReturnType().getClassFile().getName()).toString();
+    }
+    
+    body += (retStatement != null ? retType + " result = " : "") + interceptorAccess + "." + method.getName() + "(" + (hasImpl ? "" : "profileObject, ") + "$$);";
+    body += interceptorAccess + "." + method.getName() + "After(profileObject, $$);"; 
+    body += retStatement != null ? retStatement : "";
+    
+    body += "  }" +
       "  finally {" +
       (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(this);" : "") + 
       "  }" + 

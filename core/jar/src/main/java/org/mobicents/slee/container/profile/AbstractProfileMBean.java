@@ -38,9 +38,10 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AbstractProfileMBean.class);
-	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+
+	protected final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
-  	public static final String _PROFILE_OBJECT = "profileObject";
+  public static final String _PROFILE_OBJECT = "profileObject";
 	public static final String _CHECK_WRITE_ACCESS = "checkWriteAccess();";
 	
 	/**
