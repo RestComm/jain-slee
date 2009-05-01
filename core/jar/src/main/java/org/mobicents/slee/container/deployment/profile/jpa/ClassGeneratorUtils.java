@@ -621,13 +621,10 @@ public class ClassGeneratorUtils {
     
     boolean hasImpl = interceptorAccess.equals("super");
     
-    String body = "{ if(logger.isDebugEnabled()){logger.info(\"" + method.getName() + " called for \" + profileObject + \".\");}" +
+    String body = "{ " +
       "  try {" + 
       (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" : "");
-      
-      
-    body += interceptorAccess + "." + method.getName() + "Before(profileObject, $$);";
-  
+        
     if(retStatement != null)
     {
       if(method.getReturnType().isPrimitive())
@@ -637,7 +634,6 @@ public class ClassGeneratorUtils {
     }
     
     body += (retStatement != null ? retType + " result = " : "") + interceptorAccess + "." + method.getName() + "(" + (hasImpl ? "" : "profileObject, ") + "$$);";
-    body += interceptorAccess + "." + method.getName() + "After(profileObject, $$);"; 
     body += retStatement != null ? retStatement : "";
     
     body += "  }" +

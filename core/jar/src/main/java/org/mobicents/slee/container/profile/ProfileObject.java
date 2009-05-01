@@ -10,6 +10,7 @@ import javax.slee.profile.ProfileVerificationException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 
 /**
  * Start time:16:46:52 2009-03-13<br>
@@ -194,7 +195,7 @@ public class ProfileObject {
 			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
-
+		loadCmpFields();
 		this.profileConcrete.profileLoad();
 		setProfileDirty(false);
 	}
@@ -254,9 +255,22 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileStore();
+		persistCmpFields();
 		setProfileDirty(false);
 	}
 
+	private void loadCmpFields() {
+		// FIXME 
+	}
+	
+	private void persistCmpFields() {
+		//if (logger.isDebugEnabled()) {
+			logger.info("Persisting "+this);
+			
+		//}
+		JPAUtils.INSTANCE.persistProfile(this);			
+	}
+	
 	public void profileVerify() throws ProfileVerificationException {
 		if(logger.isDebugEnabled())
 		{

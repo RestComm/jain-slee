@@ -144,7 +144,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			}
 			profileObject.setManagementView(false);
 			// passivate profile object
-			profileObject.getProfileTableConcrete().deassignProfileObject(profileObject,true);						
+			profileObject.getProfileTableConcrete().deassignProfileObject(profileObject,false);						
 		}
 		finally {
 		  switchContextClassLoader(oldClassLoader);
@@ -184,28 +184,11 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			// getting last committed profile in case of update
 			ProfileLocalObjectConcrete profileBeforeUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
 			// persist new state
-			try {
-				this.profileObject.profileStore();
-			}
-			catch (Exception e) {
-				logger.error("Failure trying to store profile.", e);
-				if (e instanceof ProfileVerificationException)
-					throw (ProfileVerificationException) e;
-				throw new ManagementException(e.getMessage());
-			}
-
+			this.profileObject.profileStore();
 			// FIXME:THIS SHOULD NOT BE DONE LIKE THAT!!!
 			// FIXME: emmartins : wtf is the comment above? 
 			// Fire a Profile Added or Updated Event
-			Address profileAddress = new Address(AddressPlan.SLEE_PROFILE, getProfileTableName() + "/" + getProfileName());
-			ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory = sleeContainer.getProfileTableActivityContextInterfaceFactory();
-			if (profileTableActivityContextInterfaceFactory == null) {
-				final String s = "got NULL ProfileTable ACI Factory";
-				logger.error(s);
-				throw new ManagementException(s);
-			}
-			
-			if (profileBeforeUpdate == null) {
+			/*if (profileBeforeUpdate == null) {
 				// FIXME: Alexandre: [DONE] Allocate new instance of PLO
 				ProfileLocalObjectConcrete ploc = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
 				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(ploc);
@@ -215,7 +198,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 				ProfileLocalObjectConcrete plocAfterUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
 				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpdate);
 			}
-
+			 */
 			// so far so good, time to commit the tx so that the profile is
 			// visible in the SLEE
 			try {

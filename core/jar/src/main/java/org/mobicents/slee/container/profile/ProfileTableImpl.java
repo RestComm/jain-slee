@@ -329,8 +329,8 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		// After a Profile is removed from a Profile Table, the SLEE fires
 		// and delivers a Profile Removed Event on the Profile Table’s
 		// Activity.
-		// FIXME emmartins : ploc is null ?!?!?
-		fireProfileRemovedEvent(ploc);
+		// FIXME
+		// fireProfileRemovedEvent(ploc);
 
 		return true;
 	}
