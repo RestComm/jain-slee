@@ -23,7 +23,6 @@ import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.query.QueryExpression;
 import javax.transaction.Transaction;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.hibernate.cfg.Environment;
 import org.hibernate.ejb.HibernatePersistence;
@@ -47,115 +46,17 @@ import org.mobicents.slee.container.profile.ProfileTableConcrete;
  */
 public class JPAUtils {
 
-  public final static JPAUtils INSTANCE = new JPAUtils();
-  
-  private JPAUtils() {
-//    Properties properties = new Properties();
-//
-//    properties.setProperty(Environment.DRIVER, "org.hsqldb.jdbcDriver");
-//    properties.setProperty(Environment.URL, "jdbc:mysql://127.0.0.1:3306/mobicents");
-//    properties.setProperty(Environment.USER, "sa");
-//    properties.setProperty(Environment.PASS, "");
-//    properties.setProperty(Environment.AUTOCOMMIT, "false");
-//    
-//    properties.setProperty(Environment.DATASOURCE, "java:/DefaultDS");
-//    properties.setProperty(Environment.DIALECT, "org.hibernate.dialect.HSQLDialect");
-//    properties.setProperty(Environment.SHOW_SQL, "true");
-//    properties.setProperty(Environment.FLUSH_BEFORE_COMPLETION, "false");
-//    properties.setProperty(Environment.HBM2DDL_AUTO, "create");
-//    properties.setProperty(Environment.USE_REFLECTION_OPTIMIZER, "true");
-//    
-//    config = (AnnotationConfiguration)(new AnnotationConfiguration().setProperties(properties));
-//
-//    emf = Persistence.createEntityManagerFactory( "JSLEEProfiles" );
-  }
+  public static final JPAUtils INSTANCE = new JPAUtils();
+
+  private static final String DEFAULT_PROFILE_NAME = "";
   
   private HashMap<ProfileSpecificationID, String> jpaTableToClassMap = new HashMap<ProfileSpecificationID, String>();
 
+  private JPAUtils() { }
+  
   public EntityManager getEntityManager(ComponentID componentId)
   {
     return psidEMFs.get( String.valueOf(componentId.hashCode()) ).createEntityManager();
-  }
-
-  public void addAnnotattedClass(String className)
-  {
-//    if(config.getClassMapping( className ) == null)
-//    {
-//      try
-//      {
-//        config.addAnnotatedClass(Thread.currentThread().getContextClassLoader().loadClass( className ));
-//        emf = config.();
-//      }
-//      catch ( MappingException e )
-//      {
-//        // TODO Auto-generated catch block
-//        e.printStackTrace();
-//      }
-//      catch ( ClassNotFoundException e )
-//      {
-//        // TODO Auto-generated catch block
-//        e.printStackTrace();
-//      }
-//    }
-
-//    try {
-//      // Create a builder factory
-//      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//      factory.setValidating(false);
-//
-//      // Create the builder and parse the file
-//      InputStream is = SleeContainer.class.getClassLoader().getResourceAsStream("../META-INF/persistence.xml");
-//      Document doc = factory.newDocumentBuilder().parse(is);
-//
-//      NodeList classes = doc.getElementsByTagName("class");
-//      for(int i = 0; i < classes.getLength(); i++)
-//      {
-//        if( classes.item(i).getTextContent().equals(className) )
-//          return;
-//      }
-//      
-//      Element classElement = doc.createElement( "class" );
-//      classElement.setTextContent( className );
-//
-//      Node puElement = doc.getElementsByTagName( "persistence-unit" ).item(0);
-//
-//      if(puElement.hasChildNodes()) {
-//        puElement.insertBefore(classElement, puElement.getLastChild());
-//      }
-//      else {
-//        puElement.appendChild(classElement);
-//      }
-//
-//      javax.xml.transform.TransformerFactory tfactory = TransformerFactory.newInstance();
-//      javax.xml.transform.Transformer xform = tfactory.newTransformer();
-//      javax.xml.transform.Source src = new DOMSource(doc);
-//      java.io.StringWriter writer = new StringWriter();
-//      Result results = new StreamResult(writer);
-//      xform.transform(src, results);
-//      System.out.println(writer.toString());
-//
-//
-//      Transformer transformer = TransformerFactory.newInstance().newTransformer();
-//      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-//
-//      //initialize StreamResult with File object to save to le
-//      StreamResult result = new StreamResult(new StringWriter());
-//      DOMSource source = new DOMSource(doc);
-//      transformer.transform(source, result);
-//
-//      // Write to file
-//      File file = new File(SleeContainer.class.getClassLoader().getResource("../META-INF/persistence.xml").getPath());
-//      Result resultx = new StreamResult(file);
-//
-//      // Write the DOM document to the file
-//      Transformer xformer = TransformerFactory.newInstance().newTransformer();
-//      xformer.transform(source, resultx);
-//      
-//      emf = Persistence.createEntityManagerFactory( "JSLEEProfiles" );
-//    }
-//    catch (Exception e) {
-//      e.printStackTrace();
-//    }
   }
 
   private String getJPATable(ProfileSpecificationID psid)
@@ -379,7 +280,11 @@ public class JPAUtils {
     try
     {
       ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
-      profileObject.getProfileConcrete().getClass().getMethod( "setProfileName", String.class ).invoke( profileConcrete, profileObject.getProfileName() );
+      String profileName = profileObject.getProfileName();
+      if (profileName == null) {
+        profileName = DEFAULT_PROFILE_NAME;
+      }
+      profileObject.getProfileConcrete().getClass().getMethod( "setProfileName", String.class ).invoke( profileConcrete, profileName);
       profileObject.getProfileConcrete().getClass().getMethod( "setTableName", String.class ).invoke( profileConcrete, profileObject.getProfileTableConcrete().getProfileTableName() );
     }
     catch (Exception e) {
@@ -389,58 +294,40 @@ public class JPAUtils {
     getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());
   }
   
+  public void retrieveProfile(ProfileObject profileObject)
+  {
+    try
+    {
+      ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
+      String profileName = profileObject.getProfileName();
+      if (profileName == null) {
+        profileName = DEFAULT_PROFILE_NAME;
+      }
+      profileObject.getProfileConcrete().getClass().getMethod( "setProfileName", String.class ).invoke( profileConcrete, profileName);
+      profileObject.getProfileConcrete().getClass().getMethod( "setTableName", String.class ).invoke( profileConcrete, profileObject.getProfileTableConcrete().getProfileTableName() );
+    }
+    catch (Exception e) {
+      // ignore, no problem.. we hope.
+    }
+
+    getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).refresh(profileObject.getProfileConcrete());
+  }
+
+  
   public EntityManagerFactory createPersistenceUnit(ProfileSpecificationComponent profileComponent)
   {
-    
-    //properties.setProperty(Environment.TRANSACTION_MANAGER_STRATEGY, "org.hibernate.transaction.JBossTransactionManagerLookup");
-    //properties.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
-    //properties.setProperty("hibernate.jndi.java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-    //properties.setProperty("hibernate.jndi.java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
-    //properties.setProperty(Environment.USE_REFLECTION_OPTIMIZER, "false");
-    //properties.setProperty(Environment.BYTECODE_PROVIDER, "javassist");
-    
-    
-//    properties.setProperty(Environment.DRIVER, "org.hsqldb.jdbcDriver");
-//    //properties.setProperty(Environment.URL, "jdbc:mysql://127.0.0.1:3306/mobicents");
-//    //properties.setProperty(Environment.USER, "sa");
-//    //properties.setProperty(Environment.PASS, "");
-//    //properties.setProperty(Environment.AUTOCOMMIT, "false");
-//    properties.setProperty(Environment.DIALECT, "org.hibernate.dialect.HSQLDialect");
-//    properties.setProperty(Environment.SHOW_SQL, "true");
-    //properties.setProperty(Environment.FLUSH_BEFORE_COMPLETION, "false");
-    //properties.setProperty(Environment.HBM2DDL_AUTO, "create");
-    
     try {
-      // Create a builder factory
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      factory.setValidating(false);
-
-      //Persistence.createEntityManagerFactory( null, jpaTableToClassMap )
-      
-      // Create the builder and parse the file
-      //Document doc = factory.newDocumentBuilder().parse(this.getClass().getClassLoader().getResourceAsStream( "META-INF/was-persistence.xml" ));
-      
-//      AnnotationConfiguration config = (AnnotationConfiguration)(new AnnotationConfiguration().addProperties( properties ));
-//
-//      return config.buildSessionFactory();
-      
-      // PersistenceUnitMetaData@1d22f35{provider=org.hibernate.ejb.HibernatePersistence, 
-      // jta-data-source=java:/DefaultDS, non-jta-data-source=null, non-jta-data-source=null, 
-      // classes=[org.mobicents.slee.container.deployment.profile.jpa.JPAProfileId], excludeUnlistedClasses=false, 
-      // properties={hibernate.hbm2ddl.auto=create-drop, hibernate.dialect=org.hibernate.dialect.HSQLDialect}, 
-      // name=JSLEEProfiles, transactionType=null}
-      
       
       HibernatePersistence hp = new HibernatePersistence();
       PersistenceUnitMetaData pumd = new PersistenceUnitMetaData();
       
       pumd.setProvider("org.hibernate.ejb.HibernatePersistence");
-      pumd.setJtaDataSource( "java:/DefaultDS" );
-      pumd.setExcludeUnlistedClasses( false );
+      pumd.setJtaDataSource("java:/DefaultDS");
+      pumd.setExcludeUnlistedClasses(false);
       
       Map pumdProps = new HashMap();
-      pumdProps.put( "hibernate.hbm2ddl.auto","create-drop" );
-      pumdProps.put( "hibernate.dialect","org.hibernate.dialect.HSQLDialect" );
+      pumdProps.put( Environment.HBM2DDL_AUTO, "create-drop" );
+      pumdProps.put( Environment.DIALECT, "org.hibernate.dialect.HSQLDialect" );
       
       pumd.setProperties( pumdProps );
       pumd.setName( "JSLEEProfiles" + profileComponent.getComponentID().hashCode() );
@@ -453,24 +340,25 @@ public class JPAUtils {
       Properties properties = new Properties();
 
       properties.setProperty(Environment.DATASOURCE, "java:/DefaultDS");
-      properties.setProperty( Environment.TRANSACTION_STRATEGY, "org.hibernate.ejb.transaction.JoinableCMTTransactionFactory" );
-      properties.setProperty( "hibernate.connection.provider_class", "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider" );
-      properties.setProperty("hibernate.jndi.java.naming.factory.url.pkgs","org.jboss.naming:org.jnp.interfaces");
-      properties.setProperty("hibernate.cache.provider_class","org.hibernate.cache.HashtableCacheProvider");
-      properties.setProperty("hibernate.transaction.manager_lookup_class","org.hibernate.transaction.JBossTransactionManagerLookup");
-      properties.setProperty("hibernate.jndi.java.naming.factory.initial","org.jnp.interfaces.NamingContextFactory");
-      properties.setProperty("hibernate.dialect","org.hibernate.dialect.HSQLDialect");
-      properties.setProperty("hibernate.jacc.ctx.id","persistence.xml");
-      properties.setProperty("hibernate.cache.region_prefix","persistence.unit:unitName=#" + pumd.getName() );
-      properties.setProperty("hibernate.session_factory_name","persistence.unit:unitName=#" + pumd.getName() );
-      properties.setProperty("hibernate.hbm2ddl.auto","create-drop");
-      properties.setProperty("hibernate.bytecode.use_reflection_optimizer","false");
-      properties.setProperty("hibernate.bytecode.provider","javassist");
+      properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.ejb.transaction.JoinableCMTTransactionFactory" );
+      properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider" );
+      properties.setProperty("hibernate.jndi.java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+      properties.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
+      properties.setProperty(Environment.TRANSACTION_MANAGER_STRATEGY, "org.hibernate.transaction.JBossTransactionManagerLookup");
+      properties.setProperty("hibernate.jndi.java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
+      properties.setProperty(Environment.DIALECT, "org.hibernate.dialect.HSQLDialect");
+      // FIXME: Should be Environment.JACC_CONTEXTID but it's hibernate.jacc_context_id vs hibernate.jacc.ctx.id. Bug?
+      properties.setProperty("hibernate.jacc.ctx.id", "persistence.xml");
+      properties.setProperty(Environment.CACHE_REGION_PREFIX, "persistence.unit:unitName=#" + pumd.getName() );
+      properties.setProperty(Environment.SESSION_FACTORY_NAME, "persistence.unit:unitName=#" + pumd.getName() );
+      properties.setProperty(Environment.HBM2DDL_AUTO, "create-drop");
+      properties.setProperty(Environment.USE_REFLECTION_OPTIMIZER, "false");
+      properties.setProperty(Environment.BYTECODE_PROVIDER, "javassist");
       
       for(String className : pumd.getClasses())
       {
         ClassLoader newClassLoader = profileComponent.getClassLoader();
-        //ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+
         Thread.currentThread().setContextClassLoader( newClassLoader );
 
         Thread.currentThread().getContextClassLoader().loadClass( className );

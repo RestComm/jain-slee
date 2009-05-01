@@ -628,9 +628,9 @@ public class ClassGeneratorUtils {
     if(retStatement != null)
     {
       if(method.getReturnType().isPrimitive())
-        retType = ((Class)Class.forName( ((CtPrimitiveType)method.getReturnType()).getWrapperName() ).getField( "TYPE" ).get( null )).toString();
+        retType = ((Class)Class.forName( ((CtPrimitiveType)method.getReturnType()).getWrapperName() ).getField( "TYPE" ).get( null )).getName();
       else
-        retType = Class.forName(method.getReturnType().getClassFile().getName()).toString();
+        retType = Class.forName(method.getReturnType().getClassFile().getName()).getName();
     }
     
     body += (retStatement != null ? retType + " result = " : "") + interceptorAccess + "." + method.getName() + "(" + (hasImpl ? "" : "profileObject, ") + "$$);";

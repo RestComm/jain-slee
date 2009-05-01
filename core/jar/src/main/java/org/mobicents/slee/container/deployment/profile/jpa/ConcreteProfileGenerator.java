@@ -247,8 +247,8 @@ public class ConcreteProfileGenerator {
               pTypes[i++] = Class.forName(pType.getClassFile().getName());
           }
           
-          abstractClass.getMethod( method.getName(), pTypes );
-          interceptor = "super";
+          Method m = abstractClass.getMethod( method.getName(), pTypes );
+          interceptor = Modifier.isAbstract(m.getModifiers()) ? interceptor : "super";
         }
         catch ( Exception e ) {
           if (!(e instanceof NoSuchMethodException))

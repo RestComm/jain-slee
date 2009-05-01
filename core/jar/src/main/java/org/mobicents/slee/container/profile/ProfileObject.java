@@ -380,7 +380,11 @@ public class ProfileObject {
 	 * 
 	 */
 	private void loadCmpFields() {
-		// FIXME 
+    //if (logger.isDebugEnabled()) {
+    logger.info("Loading "+this);
+    
+  //}
+    JPAUtils.INSTANCE.retrieveProfile(this);     
 	}
 	
 	/**
