@@ -38,8 +38,7 @@ public class ProfileCmpHandler {
 		try {
 			ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
 
-			if (!profileObject.isManagementView() && !profileObject.isProfileSpecificationWriteable()) {
-				// not an mbean && profile is not writable
+			if (profileObject.isProfileReadOnly()) {				
 				throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
 			}
 

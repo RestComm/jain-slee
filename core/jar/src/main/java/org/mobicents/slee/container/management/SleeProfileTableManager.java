@@ -1,7 +1,5 @@
 package org.mobicents.slee.container.management;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,8 +25,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
-import org.mobicents.slee.container.profile.ProfileManagementHandler;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
@@ -48,7 +44,6 @@ public class SleeProfileTableManager {
 
 	private static final Logger logger = Logger.getLogger(SleeProfileTableManager.class);
 	private final static SleeProfileClassCodeGenerator sleeProfileClassCodeGenerator = new SleeProfileClassCodeGenerator();
-	public static final String DEFAULT_PROFILE_DB_NAME = "";
 	private SleeContainer sleeContainer = null;
 
 	// FIXME: Alex this has to be moved into cache structure

@@ -4,6 +4,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.slee.CreateException;
+import javax.slee.SLEEException;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileVerificationException;
 
@@ -22,18 +23,40 @@ import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ * @author martins
  */
 public class ProfileObject {
 
+	/**
+	 * 
+	 */
 	private static final Logger logger = Logger.getLogger(ProfileObject.class);
 
+	/**
+	 * the state of the profile object
+	 */
 	private ProfileObjectState state = ProfileObjectState.DOES_NOT_EXIST;
-	private ProfileTableConcrete profileTableConcrete = null;
-	private ProfileConcrete profileConcrete = null;
+	
+	/**
+	 * the profile table the profile is related
+	 */
+	private final ProfileTableConcrete profileTableConcrete;
+	
+	/**
+	 * the instance of the concrete implementation of the profile spec 
+	 */
+	private final ProfileConcrete profileConcrete;
+	
+	/**
+	 * the context of the profile object
+	 */
 	private ProfileContextImpl profileContext = null;
-	private String profileName = null;
+	
+	/**
+	 * if this object is assigned to a mbean 
+	 */
 	private boolean managementView = false;
-
+		
 	/**
 	 * This indicates wheather we are service as snapshot, in that case we are
 	 * out of sync, and we can not commit. This is used in update, remove
@@ -41,29 +64,39 @@ public class ProfileObject {
 	 */
 	private boolean snapshot = false;
 
+	/**
+	 * indicates if a profile persistent state was changed since load
+	 */
 	private boolean profileDirty = false;
 
-	public ProfileObject(ProfileTableConcrete profileTableConcrete, ProfileSpecificationID profileSpecificationId) throws NullPointerException
-	{
-		if (profileTableConcrete == null || profileSpecificationId == null)
-		{
+	/**
+	 * inidcates if this profile can be invoked more than once in a call tree for a single tx, thus exposed to loops
+	 */
+	private final boolean profileReentrant;
+	
+	/**
+	 * indicates if the persisted state can be modified using the object 
+	 */
+	private final boolean profileReadOnly;
+	
+	/**
+	 * 
+	 * @param profileTableConcrete
+	 * @param profileSpecificationId
+	 * @throws NullPointerException
+	 * @throws SLEEException
+	 */
+	public ProfileObject(ProfileTableConcrete profileTableConcrete, ProfileSpecificationID profileSpecificationId) throws NullPointerException, SLEEException {
+		
+		if (profileTableConcrete == null || profileSpecificationId == null) {
 			throw new NullPointerException("Parameters must not be null");
 		}
 		
 		this.profileTableConcrete = profileTableConcrete;
-				
-		createConcrete();
-	}
-
-	private void createConcrete()
-	{
-		if(logger.isDebugEnabled())
-		{
-			logger.debug("[createConcrete] "+this);
-		}
+		this.profileReentrant = this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass() == null ? false : this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
+		this.profileReadOnly = this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getReadOnly();
 		
-		try
-		{
+		try {
 			// logger.debug(sbbDescriptor.getConcreteSbbClass());
 			// Concrete class of the Sbb. the concrete sbb class is the class that implements the Sbb methods.
 		  // This is obtained from the deployment descriptor and the abstract sbb class.
@@ -71,35 +104,69 @@ public class ProfileObject {
 			this.profileConcrete.setProfileObject(this);
 			this.profileConcrete.setProfileTableConcrete(this.profileTableConcrete);
 		}
-		catch (Exception e) {
-			logger.error("unexpected exception creating concrete class!", e);
-			
-			// FIXME: Alexandre; RuntimeException does not seem appropriate here...
-			throw new RuntimeException("Unexpected exception creating concrete class for profile: " + this.profileName + ", from profile table: " + this.profileTableConcrete.getProfileTableName()
-					+ " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
+		catch (Throwable e) {
+			throw new SLEEException("Unexpected exception creating concrete class for profile from table: " + this.profileTableConcrete.getProfileTableName()
+					+ " and specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
 		}
 	}
 
+	/**
+	 * 
+	 * @param profileName
+	 */
+	public void setProfileName(String profileName) {
+		profileConcrete.setProfileName(profileName);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getProfileName() {
+		return profileConcrete.getProfileName();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public ProfileSpecificationComponent getProfileSpecificationComponent() {
+		return profileTableConcrete.getProfileSpecificationComponent();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isSnapshot() {
 		return this.snapshot;
 	}
 
+	/**
+	 * 
+	 */
 	public void setSnapshot() {
 		this.snapshot = true;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isProfileDirty() {
 		return profileDirty;
 	}
 	
+	/**
+	 * 
+	 * @param dirty
+	 */
 	public void setProfileDirty(boolean dirty) {
 		this.profileDirty = dirty;
 	}
 	
 	/**
-	 * if this return true changes to CMPs must be allowed, even if profile is
-	 * marked read only, this is true ONLY when management side accesses
-	 * profile.
+	 * Indicates the object is being used by an mbean
 	 * 
 	 * @return
 	 */
@@ -107,53 +174,65 @@ public class ProfileObject {
 		return managementView;
 	}
 
+	/**
+	 * 
+	 * @param managementView
+	 */
 	public void setManagementView(boolean managementView) {
 		this.managementView = managementView;
 	}
 
-	
-	public boolean isProfileSpecificationWriteable() {
-		return !this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getReadOnly();
+	/**
+	 * Indicates if the profile object can be used to modify the persistent state of the profile. 
+	 * @return false if the object is currently assigned to an mbean or if it is not read only
+	 */
+	public boolean isProfileReadOnly() {
+		return profileReadOnly && !isManagementView();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isProfileReentrant() {
-		return this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass() == null ? false : this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
+		return profileReentrant;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public ProfileObjectState getState() {
 		return state;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public ProfileTableConcrete getProfileTableConcrete() {
 		return profileTableConcrete;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public ProfileConcrete getProfileConcrete() {
 		return profileConcrete;
 	}
 
-	public String getProfileName() {
-		return profileName;
-	}
-
-	public void setProfileName(String profileName) {
-		if (profileName == null) {
-			throw new NullPointerException("Profile name must not be null");
-		}
-		this.profileName = profileName;
-		this.profileConcrete.setProfileName(profileName);
-
-	}
-
-	public ProfileSpecificationComponent getProfileSpecificationComponent() {
-		return profileTableConcrete.getProfileSpecificationComponent();
-	}
-
+	/**
+	 * 
+	 * @return
+	 */
 	public ProfileContextImpl getProfileContext() {
 		return profileContext;
 	}
 
-	// FIXME: determine if there is something more to do here
+	/**
+	 * 
+	 */
 	public void profileActivate() {
 		if(logger.isDebugEnabled())
 		{
@@ -162,7 +241,7 @@ public class ProfileObject {
 		
 		if (this.state != ProfileObjectState.POOLED)
 		{
-			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
@@ -170,6 +249,9 @@ public class ProfileObject {
 		this.state = ProfileObjectState.READY;
 	}
 
+	/**
+	 * 
+	 */
 	public void profileInitialize() {
 		if(logger.isDebugEnabled())
 		{
@@ -178,7 +260,7 @@ public class ProfileObject {
 		// this is called for default profile when its created
 
 		if (this.state != ProfileObjectState.POOLED) {
-			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
@@ -186,13 +268,16 @@ public class ProfileObject {
 
 	}
 
+	/**
+	 * 
+	 */
 	public void profileLoad() {
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[profileLoad] "+this);
 		}
 		if (this.state != ProfileObjectState.READY) {
-			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 		loadCmpFields();
@@ -200,6 +285,9 @@ public class ProfileObject {
 		setProfileDirty(false);
 	}
 
+	/**
+	 * 
+	 */
 	public void profilePassivate() {
 		if(logger.isDebugEnabled())
 		{
@@ -207,7 +295,7 @@ public class ProfileObject {
 		}
 		// This must be called
 		if (this.state != ProfileObjectState.READY) {
-			logger.error("Profile passivate, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile passivate, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
@@ -216,13 +304,17 @@ public class ProfileObject {
 
 	}
 
+	/**
+	 * 
+	 * @throws CreateException
+	 */
 	public void profilePostCreate() throws CreateException {
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[profilePostCreate] "+this);
 		}
 		if (this.state != ProfileObjectState.POOLED) {
-			logger.error("Profile post create, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile post create, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
@@ -230,13 +322,16 @@ public class ProfileObject {
 		this.state = ProfileObjectState.READY;
 	}
 
+	/**
+	 * 
+	 */
 	public void profileRemove() {
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[profileRemove] "+this);
 		}
 		if (this.state != ProfileObjectState.READY) {
-			logger.error("Profile remove, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile remove, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
@@ -244,25 +339,53 @@ public class ProfileObject {
 		this.state = ProfileObjectState.POOLED;
 	}
 
+	/**
+	 * 
+	 */
 	public void profileStore() {
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[profileStore] "+this);
 		}
 		if (this.getState() != ProfileObjectState.READY) {
-			logger.error("Profile store, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile store, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
 		this.profileConcrete.profileStore();
-		persistCmpFields();
+		
+		if (!isProfileDirty()) {
+			// FIXME getting last committed profile in case of update
+			// ProfileLocalObjectConcrete profileBeforeUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
+			
+			persistCmpFields();
+			// fire an event ?
+			// Fire a Profile Added or Updated Event
+			/*if (profileBeforeUpdate == null) {
+				// FIXME: Alexandre: [DONE] Allocate new instance of PLO
+				ProfileLocalObjectConcrete ploc = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
+				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(ploc);
+			}
+			else {
+				// FIXME: Alexandre: [DONE] Allocate PLO
+				ProfileLocalObjectConcrete plocAfterUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
+				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpdate);
+			}
+			 */			
+		}
 		setProfileDirty(false);
 	}
 
+	/**
+	 * 
+	 */
 	private void loadCmpFields() {
 		// FIXME 
 	}
 	
+	/**
+	 * 
+	 */
 	private void persistCmpFields() {
 		//if (logger.isDebugEnabled()) {
 			logger.info("Persisting "+this);
@@ -271,13 +394,17 @@ public class ProfileObject {
 		JPAUtils.INSTANCE.persistProfile(this);			
 	}
 	
+	/**
+	 * 
+	 * @throws ProfileVerificationException
+	 */
 	public void profileVerify() throws ProfileVerificationException {
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[profileVerify] "+this);
 		}
 		if (this.state != ProfileObjectState.READY) {
-			logger.error("Profile verify, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			logger.error("Profile verify, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
@@ -296,7 +423,7 @@ public class ProfileObject {
 			logger.debug("[setProfileContext] "+this);
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("setProfileContext, for profile: " + this.profileName + ", from profile table: " + this.profileTableConcrete.getProfileTableName() + " with specification: "
+			logger.debug("setProfileContext, for profile: " + this.getProfileName() + ", from profile table: " + this.profileTableConcrete.getProfileTableName() + " with specification: "
 					+ this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 
@@ -305,7 +432,7 @@ public class ProfileObject {
 		}
 		
 		if (this.state != ProfileObjectState.DOES_NOT_EXIST) {
-			throw new IllegalStateException("Wrong state: " + this.state + ",on profile set context operation, for profile: " + this.profileName + ", from profile table: "
+			throw new IllegalStateException("Wrong state: " + this.state + ",on profile set context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 		this.state = ProfileObjectState.POOLED;
@@ -343,7 +470,7 @@ public class ProfileObject {
 				}
 				catch (Exception e) {
 					if (logger.isDebugEnabled())
-						logger.debug("Exception encountered while setting profile context for profile: " + this.profileName + ", from profile table: "
+						logger.debug("Exception encountered while setting profile context for profile: " + this.getProfileName() + ", from profile table: "
 								+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
 				}
 			}
@@ -379,10 +506,10 @@ public class ProfileObject {
 
 		if (this.state != ProfileObjectState.POOLED) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+				logger.debug("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 						+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 			}
-			throw new IllegalStateException("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.profileName + ", from profile table: "
+			throw new IllegalStateException("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 		this.state = ProfileObjectState.DOES_NOT_EXIST;
@@ -435,7 +562,7 @@ public class ProfileObject {
 	
 	public String toString()
 	{
-		return this.getClass().getSimpleName()+" State["+this.state+"] Snapshot["+this.snapshot+"] Profile["+this.profileName+"] Table["+this.profileTableConcrete.getProfileTableName()+"] ID: "+this.hashCode();
+		return this.getClass().getSimpleName()+" State["+this.state+"] Snapshot["+this.snapshot+"] Profile["+this.getProfileName()+"] Table["+this.profileTableConcrete.getProfileTableName()+"] ID: "+this.hashCode();
 	}
 
 }

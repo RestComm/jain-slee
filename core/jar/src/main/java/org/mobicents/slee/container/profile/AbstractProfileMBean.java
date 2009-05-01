@@ -3,8 +3,6 @@ package org.mobicents.slee.container.profile;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
-import javax.slee.Address;
-import javax.slee.AddressPlan;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.management.ManagementException;
@@ -18,9 +16,6 @@ import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
-import org.mobicents.slee.container.management.SleeProfileTableManager;
-import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -178,28 +173,11 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 				throw new ManagementException(e.getMessage(),e);
 			}
 			// if not the default profile then invoke profileVerify()
-			if (!this.profileObject.getProfileName().equals(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME)) {
+			if (this.profileObject.getProfileName() != null) {
 				this.profileObject.profileVerify();				
 			}
-			// getting last committed profile in case of update
-			ProfileLocalObjectConcrete profileBeforeUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
 			// persist new state
 			this.profileObject.profileStore();
-			// FIXME:THIS SHOULD NOT BE DONE LIKE THAT!!!
-			// FIXME: emmartins : wtf is the comment above? 
-			// Fire a Profile Added or Updated Event
-			/*if (profileBeforeUpdate == null) {
-				// FIXME: Alexandre: [DONE] Allocate new instance of PLO
-				ProfileLocalObjectConcrete ploc = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
-				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(ploc);
-			}
-			else {
-				// FIXME: Alexandre: [DONE] Allocate PLO
-				ProfileLocalObjectConcrete plocAfterUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
-				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpdate);
-			}
-			 */
-			// so far so good, time to commit the tx so that the profile is
 			// visible in the SLEE
 			try {
 				sleeTransactionManager.commit();

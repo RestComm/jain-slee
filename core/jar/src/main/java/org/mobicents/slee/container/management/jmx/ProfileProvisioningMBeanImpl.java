@@ -57,7 +57,7 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  * MBean class for profile provisioning through jmx
  * 
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- * 
+ * @author martins
  */
 public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements ProfileProvisioningMBeanImplMBean {
 
@@ -341,7 +341,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 	public ObjectName getDefaultProfile(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, ManagementException {
 		try {
-			return _getProfile(profileTableName,SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME);
+			return _getProfile(profileTableName,null);
 		} catch (UnrecognizedProfileNameException e) {
 			// can't happen
 			throw new ManagementException(e.getMessage(),e);

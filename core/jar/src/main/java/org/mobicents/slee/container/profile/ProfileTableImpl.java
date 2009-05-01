@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
-import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -235,7 +234,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		// FIXME emmartins: probably the object assigned should go into the local object?
 		return new ProfileLocalObjectImpl(
 					component.getProfileSpecificationID(), this.profileTableName,
-					profileName, sleeContainer.getSleeProfileTableManager(), false);					
+					profileName, sleeContainer);					
 	}
 
 	public ProfileLocalObject find(String profileName)
@@ -323,7 +322,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		this.deassignProfileObject(allocated, true);
 
 		// FIXME: Alexandre: Remove and Fetch profile for event
-		ProfileLocalObjectConcrete ploc = new ProfileLocalObjectImpl(this.component.getProfileSpecificationID(), this.profileTableName, profileName, sleeContainer.getSleeProfileTableManager(), profileName.equals(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME));
+		ProfileLocalObjectConcrete ploc = new ProfileLocalObjectImpl(this.component.getProfileSpecificationID(), this.profileTableName, profileName, sleeContainer);
 
 		// Profile Removed Event.
 		// After a Profile is removed from a Profile Table, the SLEE fires
@@ -405,7 +404,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			logger.debug("Creating default profile for table "+profileTableName);
 		}
 		// lets get an object
-		ProfileObject profileObject = assignProfileObject(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME);
+		ProfileObject profileObject = assignProfileObject(null);
 		// invoke lifecycle methods
 		profileObject.profileInitialize();
 		if (component.isSlee11()) {
@@ -448,13 +447,15 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 						+ this.getProfileTableName() + "'");
 			}
 			
-			if (component.getDescriptor().isSingleProfile()
-					&& profileExists(SleeProfileTableManager.DEFAULT_PROFILE_DB_NAME)) {
+			/*
+			 * FIXME afaik the default profile doesn't count, let it be till a test fails 
+			if (component.getDescriptor().isSingleProfile()) {
 				throw new SLEEException(
 						"Profile Specification indicates that this is single profile, can not create more than one: "
 								+ component);
 			}
-						
+			*/
+			
 			allocated = this.assignProfileObject(newProfileName);
 
 			if (component.isSlee11()) {
@@ -767,7 +768,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			String profileName) {
 		ProfileLocalObjectConcrete ploc = new ProfileLocalObjectImpl(
 				component.getProfileSpecificationID(), this.profileTableName,
-				profileName, sleeContainer.getSleeProfileTableManager(), false);
+				profileName, sleeContainer);
 		return ploc;
 
 	}
