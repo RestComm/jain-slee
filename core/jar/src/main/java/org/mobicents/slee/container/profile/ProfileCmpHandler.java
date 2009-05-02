@@ -42,9 +42,10 @@ public class ProfileCmpHandler {
 				throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
 			}
 
-			if (profileObject.getState() != ProfileObjectState.READY) {
-				throw new IllegalStateException("Profile object must be in ready state");
-			}
+			// FIXME: Alexandre: This has been moved to MBean (done) / PLOC (missing)
+			//if (profileObject.getState() != ProfileObjectState.READY) {
+			//	throw new IllegalStateException("Profile object must be in ready state");
+			//}
 
 			// FIXME: Alexandre: [DONE] Add the real set code here (call set on concrete?)
 			try

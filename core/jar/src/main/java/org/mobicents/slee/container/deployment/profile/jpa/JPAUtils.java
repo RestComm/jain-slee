@@ -21,9 +21,11 @@ import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.profile.query.QueryExpression;
 import javax.transaction.Transaction;
 
+import org.apache.log4j.Logger;
 import org.hibernate.cfg.Environment;
 import org.hibernate.ejb.HibernatePersistence;
 import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
@@ -45,6 +47,8 @@ import org.mobicents.slee.container.profile.ProfileTableConcrete;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
 public class JPAUtils {
+
+  private static Logger logger = Logger.getLogger(JPAUtils.class);
 
   public static final JPAUtils INSTANCE = new JPAUtils();
 
@@ -76,17 +80,18 @@ public class JPAUtils {
     return null;
   }
 
-  public Object find(String profileTableName, String profileName)
+  public Object find(String profileTableName, String profileName) throws SLEEException, UnrecognizedProfileTableNameException
   {
-//    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
-//
-//    Query createProfileQuery = getEntityManager(ptc.getProfileSpecificationComponent().getComponentID()).createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTableName).setParameter( 2, profileName );
-//
-//    try {
-//      return createProfileQuery.getSingleResult();
-//    }
-//    catch (NoResultException e) {
-//    }
+    ProfileTableConcrete ptc = SleeContainer.lookupFromJndi().getSleeProfileTableManager().getProfileTable(profileTableName);
+    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
+
+    Query createProfileQuery = getEntityManager(ptc.getProfileSpecificationComponent().getComponentID()).createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTableName).setParameter( 2, profileName );
+
+    try {
+      return createProfileQuery.getSingleResult();
+    }
+    catch (NoResultException e) {
+    }
     
     return null;
   }
@@ -294,23 +299,37 @@ public class JPAUtils {
     getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());
   }
   
-  public void retrieveProfile(ProfileObject profileObject)
+  public ProfileConcrete retrieveProfile(ProfileObject profileObject)
   {
+    String profileName = profileObject.getProfileName();
+    if (profileName == null) {
+      profileName = DEFAULT_PROFILE_NAME;
+    }
+    String profileTable = profileObject.getProfileTableConcrete().getProfileTableName();
+    
     try
     {
       ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
-      String profileName = profileObject.getProfileName();
-      if (profileName == null) {
-        profileName = DEFAULT_PROFILE_NAME;
-      }
+
       profileObject.getProfileConcrete().getClass().getMethod( "setProfileName", String.class ).invoke( profileConcrete, profileName);
-      profileObject.getProfileConcrete().getClass().getMethod( "setTableName", String.class ).invoke( profileConcrete, profileObject.getProfileTableConcrete().getProfileTableName() );
+      profileObject.getProfileConcrete().getClass().getMethod( "setTableName", String.class ).invoke( profileConcrete, profileTable );
     }
     catch (Exception e) {
       // ignore, no problem.. we hope.
     }
 
-    getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).refresh(profileObject.getProfileConcrete());
+    ProfileSpecificationComponent psc = profileObject.getProfileSpecificationComponent();
+    
+    Query q = getEntityManager(psc.getComponentID()).createQuery("FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable).setParameter(2, profileName);
+    
+    try{
+      return (ProfileConcrete) q.getSingleResult();
+    }
+    catch (Exception e) {
+      logger.error("Failure retrieving profile.", e);
+    }
+    
+    return null;
   }
 
   

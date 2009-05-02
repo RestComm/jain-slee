@@ -45,7 +45,7 @@ public class ProfileObject {
 	/**
 	 * the instance of the concrete implementation of the profile spec 
 	 */
-	private final ProfileConcrete profileConcrete;
+	private ProfileConcrete profileConcrete;
 	
 	/**
 	 * the context of the profile object
@@ -184,10 +184,10 @@ public class ProfileObject {
 
 	/**
 	 * Indicates if the profile object can be used to modify the persistent state of the profile. 
-	 * @return false if the object is currently assigned to an mbean or if it is not read only
+	 * @return false if the object is currently assigned to an mbean or if it is not read only or if it is default profile
 	 */
 	public boolean isProfileReadOnly() {
-		return profileReadOnly && !isManagementView();
+		return profileReadOnly && !isManagementView() && getProfileName() != null;
 	}
 
 	/**
@@ -384,7 +384,7 @@ public class ProfileObject {
     logger.info("Loading "+this);
     
   //}
-    JPAUtils.INSTANCE.retrieveProfile(this);     
+    this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(this);     
 	}
 	
 	/**

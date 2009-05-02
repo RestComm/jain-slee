@@ -328,7 +328,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 
 	  logger.info("setting cmp field with name "+fieldName+" and value "+value+" on profile with name "+mbean.profileObject.getProfileName()+" of table "+mbean.profileObject.getProfileTableConcrete().getProfileTableName());
 	  
-	  if (mbean.isProfileWriteable()) {
+	  if (mbean.profileObject.getState() == ProfileObjectState.READY && mbean.isProfileWriteable()) {
 			final SleeTransactionManager txManager = sleeContainer.getTransactionManager();			
 			try {
 				// resume tx
