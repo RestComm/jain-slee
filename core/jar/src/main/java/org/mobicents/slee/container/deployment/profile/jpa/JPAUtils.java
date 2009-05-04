@@ -282,54 +282,28 @@ public class JPAUtils {
 
   public void persistProfile(ProfileObject profileObject)
   {
-    try
-    {
-      ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
-      String profileName = profileObject.getProfileName();
-      if (profileName == null) {
-        profileName = DEFAULT_PROFILE_NAME;
-      }
-      profileObject.getProfileConcrete().getClass().getMethod( "setProfileName", String.class ).invoke( profileConcrete, profileName);
-      profileObject.getProfileConcrete().getClass().getMethod( "setTableName", String.class ).invoke( profileConcrete, profileObject.getProfileTableConcrete().getProfileTableName() );
-    }
-    catch (Exception e) {
-      // ignore, no problem.. we hope.
-    }
+      getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());   
     
-    getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());
   }
   
-  public ProfileConcrete retrieveProfile(ProfileObject profileObject)
+  public ProfileConcrete retrieveProfile(ProfileTableConcrete profileTable, String profileName)
   {
-    String profileName = profileObject.getProfileName();
+  
     if (profileName == null) {
       profileName = DEFAULT_PROFILE_NAME;
     }
-    String profileTable = profileObject.getProfileTableConcrete().getProfileTableName();
+   
+    ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
     
-    try
-    {
-      ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
-
-      profileObject.getProfileConcrete().getClass().getMethod( "setProfileName", String.class ).invoke( profileConcrete, profileName);
-      profileObject.getProfileConcrete().getClass().getMethod( "setTableName", String.class ).invoke( profileConcrete, profileTable );
-    }
-    catch (Exception e) {
-      // ignore, no problem.. we hope.
-    }
-
-    ProfileSpecificationComponent psc = profileObject.getProfileSpecificationComponent();
+    Query q = getEntityManager(psc.getComponentID()).createQuery("FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
     
-    Query q = getEntityManager(psc.getComponentID()).createQuery("FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable).setParameter(2, profileName);
-    
-    try{
-      return (ProfileConcrete) q.getSingleResult();
-    }
-    catch (Exception e) {
-      logger.error("Failure retrieving profile.", e);
-    }
-    
-    return null;
+   	List resultList = q.getResultList();
+   	if (resultList.size() > 0) {
+   		return (ProfileConcrete) resultList.get(0);
+   	}
+   	else {
+   		return null;
+   	}
   }
 
   

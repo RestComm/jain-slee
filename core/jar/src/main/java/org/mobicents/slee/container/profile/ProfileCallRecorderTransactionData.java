@@ -54,10 +54,10 @@ public class ProfileCallRecorderTransactionData {
 	 * @param po
 	 * @throws SLEEException
 	 */
-	public static void addProfileCall(ProfileConcrete pc) throws TransactionRequiredLocalException, SLEEException
+	public static void addProfileCall(ProfileObject po) throws TransactionRequiredLocalException, SLEEException
 	{
 		if (logger.isDebugEnabled()) {
-			logger.debug("Recording call to profile, stored key: " + makeKey(pc));
+			logger.debug("Recording call to profile, stored key: " + makeKey(po));
 		}
 		
 		SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
@@ -74,15 +74,15 @@ public class ProfileCallRecorderTransactionData {
 				sleeTransactionManager.getTransactionContext().getData().put(TRANSACTION_CONTEXT_KEY, data);
 			}
 			
-			if (!pc.getProfileObject().isProfileReentrant())
+			if (!po.isProfileReentrant())
 			{
-				String key = makeKey(pc);
+				String key = makeKey(po);
 				// we need to check
 				if (data.invokedProfiles.contains(key) && data.invokedProfiles.getLast().compareTo(key) != 0) {
 					throw new SLEEException("Detected loopback call. Call sequence: " + data.invokedProfiles);
 				}
 				data.invokedProfiles.add(key);
-				data.invokedProfileTablesNames.add(pc.getProfileTableConcrete().getProfileTableName());
+				data.invokedProfileTablesNames.add(po.getProfileTableConcrete().getProfileTableName());
 			}
 		}
 		catch (SystemException e) {
@@ -90,10 +90,10 @@ public class ProfileCallRecorderTransactionData {
 		}
 	}
 
-	public static void removeProfileCall(ProfileConcrete pc) throws TransactionRequiredLocalException, SLEEException
+	public static void removeProfileCall(ProfileObject po) throws TransactionRequiredLocalException, SLEEException
 	{
 		if (logger.isDebugEnabled()) {
-			logger.debug("Removing call to profile, stored key: " + makeKey(pc));
+			logger.debug("Removing call to profile, stored key: " + makeKey(po));
 		}
 		
 		SleeTransactionManager sleeTransactionManaget = sleeContainer.getTransactionManager();
@@ -108,9 +108,9 @@ public class ProfileCallRecorderTransactionData {
 				throw new SLEEException("No Profile call recorder in memory, this is a bug.");
 			}
 			
-			if (!pc.getProfileObject().isProfileReentrant())
+			if (!po.isProfileReentrant())
 			{
-				String key = makeKey(pc);
+				String key = makeKey(po);
 				// we need to check
 				String lastKey = data.invokedProfiles.getLast();
 				if (lastKey.compareTo(key) != 0)
@@ -166,7 +166,7 @@ public class ProfileCallRecorderTransactionData {
 		}
 	}
 
-	private static String makeKey(ProfileConcrete pc) {
+	private static String makeKey(ProfileObject pc) {
 		// FIXME: Alexandre: Removed toString() as it may cause it to identify as differente profile
 		return pc.getProfileTableConcrete().getProfileTableName() + "-" + pc.getProfileName();// + "-" + pc.toString();
 	}

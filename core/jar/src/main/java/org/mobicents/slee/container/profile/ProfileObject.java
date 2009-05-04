@@ -80,6 +80,16 @@ public class ProfileObject {
 	private final boolean profileReadOnly;
 	
 	/**
+	 * indicates if the profile is being created or not
+	 */
+	private boolean profileCreation = false;
+	
+	/**
+	 * the profile name currently assigned to the object
+	 */
+	private String profileName;
+	
+	/**
 	 * 
 	 * @param profileTableConcrete
 	 * @param profileSpecificationId
@@ -95,14 +105,10 @@ public class ProfileObject {
 		this.profileTableConcrete = profileTableConcrete;
 		this.profileReentrant = this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass() == null ? false : this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
 		this.profileReadOnly = this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getReadOnly();
-		
+		// there must be always a profile concrete object in the object, be it assigned or not with a specific profile
 		try {
-			// logger.debug(sbbDescriptor.getConcreteSbbClass());
-			// Concrete class of the Sbb. the concrete sbb class is the class that implements the Sbb methods.
-		  // This is obtained from the deployment descriptor and the abstract sbb class.
 			this.profileConcrete = (ProfileConcrete) this.profileTableConcrete.getProfileSpecificationComponent().getProfileCmpConcreteClass().newInstance();
 			this.profileConcrete.setProfileObject(this);
-			this.profileConcrete.setProfileTableConcrete(this.profileTableConcrete);
 		}
 		catch (Throwable e) {
 			throw new SLEEException("Unexpected exception creating concrete class for profile from table: " + this.profileTableConcrete.getProfileTableName()
@@ -110,12 +116,16 @@ public class ProfileObject {
 		}
 	}
 
+	public boolean isProfileCreation() {
+		return profileCreation;
+	}
+	
 	/**
 	 * 
 	 * @param profileName
 	 */
 	public void setProfileName(String profileName) {
-		profileConcrete.setProfileName(profileName);
+		this.profileName = profileName;
 	}
 	
 	/**
@@ -123,7 +133,7 @@ public class ProfileObject {
 	 * @return
 	 */
 	public String getProfileName() {
-		return profileConcrete.getProfileName();
+		return this.profileName;
 	}
 	
 	/**
@@ -132,21 +142,6 @@ public class ProfileObject {
 	 */
 	public ProfileSpecificationComponent getProfileSpecificationComponent() {
 		return profileTableConcrete.getProfileSpecificationComponent();
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isSnapshot() {
-		return this.snapshot;
-	}
-
-	/**
-	 * 
-	 */
-	public void setSnapshot() {
-		this.snapshot = true;
 	}
 
 	/**
@@ -244,7 +239,7 @@ public class ProfileObject {
 			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
-
+		this.profileCreation = false;
 		this.profileConcrete.profileActivate();
 		this.state = ProfileObjectState.READY;
 	}
@@ -263,11 +258,22 @@ public class ProfileObject {
 			logger.error("Profile initialize, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
-
+		
+		// invoke life cycle method on profile
 		this.profileConcrete.profileInitialize();
-
+		setProfileDirty(true);
 	}
 
+	/**
+	 * initialize state from default profile
+	 */
+	public void loadFromDefaultProfile() {
+		// TODO alexandre: replace this with copy of state from default profile
+		profileInitialize();
+		// don't forget to leave this
+		setProfileDirty(true);
+	}
+	
 	/**
 	 * 
 	 */
@@ -317,7 +323,7 @@ public class ProfileObject {
 			logger.error("Profile post create, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
-
+		this.profileCreation = true;
 		this.profileConcrete.profilePostCreate();
 		this.state = ProfileObjectState.READY;
 	}
@@ -354,26 +360,24 @@ public class ProfileObject {
 
 		this.profileConcrete.profileStore();
 		
-		if (!isProfileDirty()) {
-			// FIXME getting last committed profile in case of update
-			// ProfileLocalObjectConcrete profileBeforeUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
-			
+		if (isProfileDirty()) {
+			// getting last committed profile in case of update
+			ProfileObject profileBeforeUpdate = null;
+			/*if (!isProfileCreation()) {
+				profileBeforeUpdate = profileTableConcrete.assignAndActivateProfileObject(getProfileName());
+			}*/			
 			persistCmpFields();
-			// fire an event ?
 			// Fire a Profile Added or Updated Event
-			/*if (profileBeforeUpdate == null) {
-				// FIXME: Alexandre: [DONE] Allocate new instance of PLO
-				ProfileLocalObjectConcrete ploc = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
-				this.profileObject.getProfileTableConcrete().fireProfileAddedEvent(ploc);
+			if (profileBeforeUpdate == null) {
+				// creation
+				profileTableConcrete.fireProfileAddedEvent(this);
 			}
 			else {
-				// FIXME: Alexandre: [DONE] Allocate PLO
-				ProfileLocalObjectConcrete plocAfterUpdate = (ProfileLocalObjectConcrete) JPAUtils.INSTANCE.find( this.getProfileTableName(), this.getProfileName() );
-				this.profileObject.getProfileTableConcrete().fireProfileUpdatedEvent( profileBeforeUpdate, plocAfterUpdate);
+				profileTableConcrete.fireProfileUpdatedEvent(profileBeforeUpdate, this);
 			}
-			 */			
+			setProfileDirty(false);
 		}
-		setProfileDirty(false);
+		
 	}
 
 	/**
@@ -384,7 +388,7 @@ public class ProfileObject {
     logger.info("Loading "+this);
     
   //}
-    this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(this);     
+    this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(getProfileTableConcrete(),getProfileName());     
 	}
 	
 	/**
@@ -463,21 +467,18 @@ public class ProfileObject {
 			{
 				Thread.currentThread().setContextClassLoader(cl);
 			}
-			
-			if (this.profileConcrete != null)
+						
+			try
 			{
-				try
-				{
-					this.profileContext = profileContext;
-					this.profileConcrete.setProfileContext(this.profileContext);
-					this.profileContext.setProfileObject(this);
-				}
-				catch (Exception e) {
-					if (logger.isDebugEnabled())
-						logger.debug("Exception encountered while setting profile context for profile: " + this.getProfileName() + ", from profile table: "
-								+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
-				}
+				this.profileContext = profileContext;
+				this.profileConcrete.setProfileContext(this.profileContext);
+				this.profileContext.setProfileObject(this);
 			}
+			catch (Exception e) {
+				if (logger.isDebugEnabled())
+					logger.debug("Exception encountered while setting profile context for profile: " + this.getProfileName() + ", from profile table: "
+							+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
+			}			
 		}
 		finally
 		{
@@ -538,12 +539,10 @@ public class ProfileObject {
 			{
 				Thread.currentThread().setContextClassLoader(cl);
 			}
+						
+			this.profileConcrete.unsetProfileContext();
+			this.profileContext.setProfileObject(null);
 			
-			if (this.profileConcrete != null)
-			{
-				this.profileConcrete.unsetProfileContext();
-				this.profileContext.setProfileObject(null);
-			}
 		}
 		finally
 		{

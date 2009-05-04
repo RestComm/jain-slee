@@ -22,7 +22,6 @@ import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.profile.ProfileLocalObject;
-import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
@@ -39,7 +38,6 @@ import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.cache.SbbEntityCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.EventContextID;
@@ -270,13 +268,8 @@ public class SbbEntity {
 				}
 
 			case profilelo:
-				// FIXED: I do not know that.
-				// throw new
-				// SLEEException("Bartosz is the oen who knows how to build a profile local object :)");
 				ProfileLocalObjectCmpValue profileLocalObjectCmpValue = (ProfileLocalObjectCmpValue) cmpWrapper
 						.getValue();
-				// See JSLEE Specs 6.5.1 , page 72. Should we check for SBB 1.1
-				// vs 1.0 ?
 				try {
 					ProfileTableConcrete ptc = this.sleeContainer
 							.getSleeProfileTableManager().getProfileTable(
@@ -284,30 +277,15 @@ public class SbbEntity {
 											.getProfileTableName());
 					ProfileLocalObjectImpl ploc = (ProfileLocalObjectImpl) ptc
 							.find(profileLocalObjectCmpValue.getProfileName());
-					// its safe, this op should not allocate object twice
-					ploc.allocateProfileObject();
 					return ploc;
 				} catch (UnrecognizedProfileTableNameException e) {
-					// FIXME: ??
 					if (log.isDebugEnabled()) {
-						// e.printStackTrace();
 						log.debug("Profile table does not exist anymore: "
 								+ profileLocalObjectCmpValue
 										.getProfileTableName(), e);
 					}
 					return null;
-				} catch (UnrecognizedProfileNameException e) {
-					// FIXME: ??
-					if (log.isDebugEnabled()) {
-						// e.printStackTrace();
-						log.debug("Profile  does not exist anymore, table: "
-								+ profileLocalObjectCmpValue
-										.getProfileTableName() + ", profile: "
-								+ profileLocalObjectCmpValue.getProfileName(),
-								e);
-					}
-					return null;
-				}
+				} 
 
 			case normal:
 				if (log.isDebugEnabled()) {

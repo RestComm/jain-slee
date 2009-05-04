@@ -228,13 +228,8 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		checkProfileSpecIsNotReadOnly();
-				
-		// create profile but discards object
-		deassignProfileObject(createProfile(profileName),false);
-		// FIXME emmartins: probably the object assigned should go into the local object?
-		return new ProfileLocalObjectImpl(
-					component.getProfileSpecificationID(), this.profileTableName,
-					profileName, sleeContainer);					
+			
+		return new ProfileLocalObjectImpl(createProfile(profileName),false,sleeContainer);					
 	}
 
 	public ProfileLocalObject find(String profileName)
@@ -310,26 +305,18 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		// TODO unregister any existent mbeans for this profile
 		
 		// Fire the removed event only when the transaction commits
-		final ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory = sleeContainer
-		.getProfileTableActivityContextInterfaceFactory();
-		if (profileTableActivityContextInterfaceFactory == null) {
-			final String s = "got NULL ProfileTable ACI Factory";
-			logger.error(s);
-			throw new SLEEException(s);
-		}
+		
 		ProfileObject allocated = assignAndActivateProfileObject(profileName);
-		// This will call remove
-		this.deassignProfileObject(allocated, true);
-
+		
 		// FIXME: Alexandre: Remove and Fetch profile for event
-		ProfileLocalObjectConcrete ploc = new ProfileLocalObjectImpl(this.component.getProfileSpecificationID(), this.profileTableName, profileName, sleeContainer);
+		ProfileLocalObjectConcrete ploc = new ProfileLocalObjectImpl(allocated,true,sleeContainer);
 
 		// Profile Removed Event.
 		// After a Profile is removed from a Profile Table, the SLEE fires
 		// and delivers a Profile Removed Event on the Profile Table’s
 		// Activity.
-		// FIXME
-		// fireProfileRemovedEvent(ploc);
+		// FIXME when the event is unreferenced return the object and remove the profile
+		//fireProfileRemovedEvent(ploc);
 
 		return true;
 	}
@@ -646,11 +633,11 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	}
 
 	public void fireProfileAddedEvent(
-			ProfileLocalObjectConcrete profileLocaObject) throws SLEEException {
-		if (logger.isDebugEnabled()) {
+			ProfileObject profileObject) throws SLEEException {
+		/*if (logger.isDebugEnabled()) {
 			logger.debug("[fireProfileAddedEvent][" + checkFireCondition()
 					+ "] on: " + this + " ProfileLocalObject:"
-					+ profileLocaObject);
+					+ profileObject);
 		}
 		if (!checkFireCondition()) {
 			if (logger.isDebugEnabled()) {
@@ -659,7 +646,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 						+ component
 						+ ", not firinig ProfileAddedEvent on: "
 						+ profileTableName + "/"
-						+ profileLocaObject.getProfileName());
+						+ profileObject.getProfileName());
 			}
 			return;
 		}
@@ -670,23 +657,25 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 								.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
 										profileTableName)), false);
 
-		Address address = getProfileaddress(profileLocaObject.getProfileName());
+		Address address = getProfileaddress(profileObject.getProfileName());
 
 		ProfileID profileID = new ProfileID(address);
 
 		ProfileAddedEventImpl profileAddedEvent = new ProfileAddedEventImpl(
-				address, profileID, profileLocaObject, ac);
+				address, profileID, profileObject, ac);
 
 		ac.fireEvent(ProfileAddedEventImpl.EVENT_TYPE_ID, profileAddedEvent,
 				address, null, 0);
+				*/
 	}
-
+	
 	public void fireProfileRemovedEvent(
-			ProfileLocalObjectConcrete profileLocalObject) throws SLEEException {
+			ProfileObject profileObject) throws SLEEException {
+		/*
 		if (logger.isDebugEnabled()) {
 			logger.debug("[fireProfileRemovedEvent][" + checkFireCondition()
 					+ "] on: " + this + " ProfileLocalObject:"
-					+ profileLocalObject);
+					+ profileObject);
 		}
 		if (!checkFireCondition()) {
 			if (logger.isDebugEnabled()) {
@@ -694,7 +683,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 						+ component
 						+ ", not firinig ProfileRemovedEvent on: "
 						+ profileTableName + "/"
-						+ profileLocalObject.getProfileName());
+						+ profileObject.getProfileName());
 			}
 			return;
 		}
@@ -706,21 +695,22 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 								.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
 										profileTableName)), false);
 
-		Address address = getProfileaddress(profileLocalObject.getProfileName());
+		Address address = getProfileaddress(profileObject.getProfileName());
 		ProfileID profileID = new ProfileID(address);
 
 		ProfileRemovedEventImpl profileRemovedEventImpl = new ProfileRemovedEventImpl(
-				address, profileID, profileLocalObject, ac);
+				address, profileID, profileObject, ac);
 
 		ac.fireEvent(ProfileRemovedEventImpl.EVENT_TYPE_ID,
 				profileRemovedEventImpl, address, null, 0);
+		*/
 	}
 
 	public void fireProfileUpdatedEvent(
-			ProfileLocalObjectConcrete profileLocalObjectBeforeAction,
-			ProfileLocalObjectConcrete profileLocalObjectAfterAction)
+			ProfileObject profileLocalObjectBeforeAction,
+			ProfileObject profileLocalObjectAfterAction)
 			throws SLEEException {
-
+/*
 		if (logger.isDebugEnabled()) {
 			logger.debug("[fireProfileUpdatedEvent][" + checkFireCondition()
 					+ "] on: " + this + " ProfileLocalObject before:"
@@ -757,6 +747,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 
 		ac.fireEvent(ProfileUpdatedEventImpl.EVENT_TYPE_ID,
 				profileUpdatedEventImpl, address, null, 0);
+				*/
 	}
 
 	private Address getProfileaddress(String profileName) {
@@ -766,11 +757,8 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 
 	private ProfileLocalObjectConcrete getProfileLocalObjectConcrete(
 			String profileName) {
-		ProfileLocalObjectConcrete ploc = new ProfileLocalObjectImpl(
-				component.getProfileSpecificationID(), this.profileTableName,
-				profileName, sleeContainer);
-		return ploc;
-
+		
+		return new ProfileLocalObjectImpl(assignAndActivateProfileObject(profileName),false,sleeContainer);		
 	}
 
 	private boolean checkFireCondition() {

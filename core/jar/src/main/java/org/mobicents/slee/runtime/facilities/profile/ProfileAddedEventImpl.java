@@ -9,18 +9,14 @@
 
 package org.mobicents.slee.runtime.facilities.profile;
 
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
-import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-
-import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileAddedEvent;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileLocalObject;
-import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
+
+import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 
 /**
  * Profile added event implementation.
@@ -72,7 +68,7 @@ public class ProfileAddedEventImpl extends SuperProfileEvent implements ProfileA
 	public Object getAddedProfile() {
 
 		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
-			return super.profileLocalObjectAfterAction.getProfileConcrete();
+			return super.profileLocalObjectAfterAction.getProfileObject().getProfileConcrete();
 		} else {
 			return null;
 		}

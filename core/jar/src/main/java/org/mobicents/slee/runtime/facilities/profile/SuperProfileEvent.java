@@ -48,7 +48,6 @@ public class SuperProfileEvent {
 		// this.activityContextInterface = activityContextInterface;
 		this.profileLocalObjectAfterAction = profileLocalObject;
 		this.activityContext = activityContext;
-		this.profileLocalObjectAfterAction.setSnapshot();
 	}
 
 	protected boolean isClassLoaded(Class clazz) {

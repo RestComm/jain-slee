@@ -15,10 +15,8 @@ import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileUpdatedEvent;
 
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
  * Profile Updated Event implementation.
@@ -39,7 +37,6 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 		super(profileAddress, profile, profileLocalObjectAfterAction, activityContext);
 
 		this.profileLocalObjectBeforeAction = profileLocalObjectBeforeAction;
-		this.profileLocalObjectBeforeAction.setSnapshot();
 	}
 
 	/*
@@ -68,7 +65,7 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 	 */
 	public Object getBeforeUpdateProfile() {
 		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
-			return this.profileLocalObjectBeforeAction.getProfileConcrete();
+			return this.profileLocalObjectBeforeAction.getProfileObject().getProfileConcrete();
 		} else {
 			return null;
 		}
@@ -82,7 +79,7 @@ public class ProfileUpdatedEventImpl extends SuperProfileEvent implements Profil
 	 */
 	public Object getAfterUpdateProfile() {
 		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
-			return super.profileLocalObjectAfterAction.getProfileConcrete();
+			return super.profileLocalObjectAfterAction.getProfileObject().getProfileConcrete();
 		} else {
 			return null;
 		}

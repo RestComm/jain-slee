@@ -21,46 +21,13 @@ import javax.slee.profile.ProfileManagement;
  */
 public interface ProfileConcrete extends Profile ,ProfileManagement {
 
-	public void setProfileTableConcrete(ProfileTableConcrete profileTableConcrete);
-
-	public ProfileTableConcrete getProfileTableConcrete();
-
 	public void setProfileObject(ProfileObject profileObject);
-
 	public ProfileObject getProfileObject();
 
 	public void setProfileName(String profileName);
 	public String getProfileName();
-	
-	// /**
-	// * Assigns to this ProfileEntity to a profile object, and then invoke
-	// * profileActivate()
-	// *
-	// * @throws Exception
-	// */
-	// public void assignAndActivateProfileObject() throws Exception;
-	//
-	// /**
-	// * Assigns to this ProfileEntity to a profile object, and then invoke
-	// * profileCreate() and profilePostCreate()
-	// *
-	// * @throws Exception
-	// */
-	// public void assignAndCreateSbbObject() throws Exception;
-	//
-	// /**
-	// * Invoke profilePassivate() and release ProfileObject into pool
-	// *
-	// * @throws Exception
-	// */
-	// public void passivateAndReleaseSbbObject() throws Exception;
-	//
-	// /**
-	// * Invoke profileRemove() and then release the profile object from the
-	// * entity
-	// *
-	// * @throws Exception
-	// */
-	// public void removeAndReleaseSbbObject() throws Exception;
+
+	public void setProfileTableName(String profileTableName);
+	public String getProfileTableName();
 
 }

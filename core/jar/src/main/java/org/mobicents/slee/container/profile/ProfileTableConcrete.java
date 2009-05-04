@@ -18,7 +18,6 @@ import javax.slee.profile.UnrecognizedAttributeException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
 
@@ -135,40 +134,40 @@ public interface ProfileTableConcrete extends ProfileTable {
 
 	/**
 	 * Fire profile Added event for this profile table activity. It does check
-	 * if event shoudl be fired before doing so.
+	 * if event should be fired before doing so.
 	 * 
 	 * @param profileLocalObject
-	 *            - snapshot view of profile objct.
+	 *            - profile object.
 	 * @throws SLEEException
 	 *             - thrown in case of any error
 	 */
-	public void fireProfileAddedEvent(ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
+	public void fireProfileAddedEvent(ProfileObject profileObject) throws SLEEException;
 
 	/**
 	 * Fire profile remove event on this profile table activity. It does check
-	 * if event shoudl be fired before doing so.
+	 * if event should be fired before doing so.
 	 * 
 	 * @param profileLocalObject
-	 *            - snapshot view of the profile
+	 *            - profile object
 	 * @throws SLEEException
 	 *             - thrown in case of any error
 	 */
-	public void fireProfileRemovedEvent(ProfileLocalObjectConcrete profileLocalObject) throws SLEEException;
+	public void fireProfileRemovedEvent(ProfileObject profileObject) throws SLEEException;
 
 	/**
 	 * Fire profiel updated event on this profile table activty. It does check
 	 * if event shoudl be fired before doing so.
 	 * 
-	 * @param profileLocalObjectBeforeAction
-	 *            - snapshot profile local object with CMPs set to profile
+	 * @param profileObjectBeforeAction
+	 *            - profile object with CMPs set to profile
 	 *            before commit.
-	 * @param profileLocalObjectAfterAction
-	 *            - snapshot profile local obejct with CMPs set to current
+	 * @param profileObjectAfterAction
+	 *            - profile object with CMPs set to current
 	 *            values (current in term of commit.)
 	 * @throws SLEEException
 	 *             - thrown in case of any error
 	 */
-	public void fireProfileUpdatedEvent(ProfileLocalObjectConcrete profileLocalObjectBeforeAction, ProfileLocalObjectConcrete profileLocalObjectAfterAction) throws SLEEException;
+	public void fireProfileUpdatedEvent(ProfileObject profileObjectBeforeAction, ProfileObject profileObjectAfterAction) throws SLEEException;
 
 
 }

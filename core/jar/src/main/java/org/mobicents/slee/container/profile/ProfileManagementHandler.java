@@ -116,11 +116,11 @@ public class ProfileManagementHandler {
 	}
 
 	// Usage methods. Here we can be static for sure. Rest must be tested.
-	public static Object getProfileUsageParam(ProfileConcrete profileConcrete,
+	public static Object getProfileUsageParam(ProfileObject profileObject,
 			String name) throws UnrecognizedUsageParameterSetNameException {
 		if (logger.isDebugEnabled()) {
 			logger.info("[getProfileUsageParam(" + name + ")] @ "
-					+ profileConcrete.getProfileObject());
+					+ profileObject);
 		}
 
 		if (name == null) {
@@ -128,7 +128,7 @@ public class ProfileManagementHandler {
 					"UsageParameterSet name must not be null.");
 		}
 
-		ProfileTableConcrete profileTableConcrete = profileConcrete
+		ProfileTableConcrete profileTableConcrete = profileObject
 				.getProfileTableConcrete();
 
 		return profileTableConcrete.getProfileTableUsageMBean()
@@ -136,13 +136,13 @@ public class ProfileManagementHandler {
 	}
 
 	public static Object getProfileDefaultUsageParam(
-			ProfileConcrete profileConcrete) {
+			ProfileObject profileObject) {
 		if (logger.isDebugEnabled()) {
 			logger.info("[getProfileDefaultUsageParam] @ "
-					+ profileConcrete.getProfileObject());
+					+ profileObject);
 		}
 
-		ProfileTableConcrete profileTableConcrete = profileConcrete
+		ProfileTableConcrete profileTableConcrete = profileObject
 				.getProfileTableConcrete();
 
 		return profileTableConcrete.getProfileTableUsageMBean()

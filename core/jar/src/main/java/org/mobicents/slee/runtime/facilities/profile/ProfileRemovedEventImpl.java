@@ -20,10 +20,8 @@ import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileRemovedEvent;
 
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 
 /**
  * Profile removed event implementation.
@@ -82,7 +80,7 @@ public class ProfileRemovedEventImpl extends SuperProfileEvent implements Profil
 	 */
 	public Object getRemovedProfile() {
 		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
-			return super.profileLocalObjectAfterAction.getProfileConcrete();
+			return super.profileLocalObjectAfterAction.getProfileObject().getProfileConcrete();
 		} else {
 			return null;
 		}

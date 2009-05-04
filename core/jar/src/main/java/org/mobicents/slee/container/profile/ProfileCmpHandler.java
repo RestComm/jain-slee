@@ -36,7 +36,7 @@ public class ProfileCmpHandler {
 		t.setContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
 
 		try {
-			ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.addProfileCall(profileObject);
 
 			if (profileObject.isProfileReadOnly()) {				
 				throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
@@ -85,7 +85,7 @@ public class ProfileCmpHandler {
 		}
 		finally
 		{
-			ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
 			t.setContextClassLoader(oldClassLoader);			
 		}
 	}
@@ -106,7 +106,7 @@ public class ProfileCmpHandler {
 
 		try
 		{
-			ProfileCallRecorderTransactionData.addProfileCall(profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.addProfileCall(profileObject);
 
 			if (profileObject.getState() != ProfileObjectState.READY) {
 				throw new IllegalStateException("Profile object must be in ready state");
@@ -146,7 +146,7 @@ public class ProfileCmpHandler {
 		}
 		finally
 		{
-			ProfileCallRecorderTransactionData.removeProfileCall(profileObject.getProfileConcrete());
+			ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
 			t.setContextClassLoader(oldClassLoader);
 		}
 	}
