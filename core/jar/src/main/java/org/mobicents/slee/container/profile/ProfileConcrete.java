@@ -27,7 +27,7 @@ public interface ProfileConcrete extends Profile ,ProfileManagement {
 	public void setProfileName(String profileName);
 	public String getProfileName();
 
-	public void setProfileTableName(String profileTableName);
-	public String getProfileTableName();
+	public void setTableName(String profileTableName);
+	public String getTableName();
 
 }

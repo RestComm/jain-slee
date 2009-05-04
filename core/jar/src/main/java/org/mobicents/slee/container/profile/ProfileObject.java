@@ -109,6 +109,7 @@ public class ProfileObject {
 		try {
 			this.profileConcrete = (ProfileConcrete) this.profileTableConcrete.getProfileSpecificationComponent().getProfileCmpConcreteClass().newInstance();
 			this.profileConcrete.setProfileObject(this);
+			this.profileConcrete.setTableName(profileTableConcrete.getProfileTableName());
 		}
 		catch (Throwable e) {
 			throw new SLEEException("Unexpected exception creating concrete class for profile from table: " + this.profileTableConcrete.getProfileTableName()
@@ -126,6 +127,7 @@ public class ProfileObject {
 	 */
 	public void setProfileName(String profileName) {
 		this.profileName = profileName;
+		profileConcrete.setProfileName(profileName);
 	}
 	
 	/**

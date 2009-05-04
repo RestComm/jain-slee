@@ -442,15 +442,14 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 								+ component);
 			}
 			*/
-			
+			// get an object
 			allocated = this.assignProfileObject(newProfileName);
-
+			// copy state from default profile
+			allocated.loadFromDefaultProfile();
+			// if slee 1.1 then invoke postCreate()
 			if (component.isSlee11()) {
 				allocated.profilePostCreate();
 			}
-			
-			allocated.setProfileDirty(true);
-			
 			success = true;
 			return allocated;
 		} catch (IllegalArgumentException e) {

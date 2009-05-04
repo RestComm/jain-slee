@@ -282,6 +282,10 @@ public class JPAUtils {
 
   public void persistProfile(ProfileObject profileObject)
   {
+	  ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
+	  if (profileConcrete.getProfileName() == null) {
+		  profileObject.setProfileName(DEFAULT_PROFILE_NAME);
+	  }
       getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());   
     
   }
