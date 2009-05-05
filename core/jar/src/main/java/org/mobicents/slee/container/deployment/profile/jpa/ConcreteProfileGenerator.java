@@ -58,7 +58,7 @@ public class ConcreteProfileGenerator {
   private static final Logger logger = Logger.getLogger(ConcreteProfileGenerator.class);
 
   private static final String PROFILE_TABLE_IDENTIFIER = "tableName";
-  private static final String PROFILE_IDENTIFIER = "profileName";
+  private static final String PROFILE_IDENTIFIER = "safeProfileName";
 
   private ProfileSpecificationComponent profileComponent;
   private ProfileSpecificationDescriptorImpl profileDescriptor;
@@ -189,9 +189,28 @@ public class ConcreteProfileGenerator {
       profileConcreteClass.getClassFile().setVersionToJava5();
       
       // generate cl0ne method
-      String cl0neMethodSrc = " public "+ProfileConcrete.class.getName()+" cl0ne() throws CloneNotSupportedException { return ("+ProfileConcrete.class.getName()+") clone(); }";
+      String cl0neMethodSrc = "public "+ProfileConcrete.class.getName()+" cl0ne() throws CloneNotSupportedException { return ("+ProfileConcrete.class.getName()+") clone(); }";
       CtMethod cl0neMethod = CtNewMethod.make(cl0neMethodSrc, profileConcreteClass);
       profileConcreteClass.addMethod(cl0neMethod);
+      // generate getProfileName method
+      String getProfileNameMethodSrc = "public String getProfileName()" +
+      									"{" +
+      									"	String safeProfileName = getSafeProfileName();" +
+      									"	if(safeProfileName.equals(\"\")) " +
+      									"		return null;" +
+      									"	else " +
+      									"		return safeProfileName;" +
+      									"}";
+      CtMethod getProfileNameMethod = CtNewMethod.make(getProfileNameMethodSrc, profileConcreteClass);
+      profileConcreteClass.addMethod(getProfileNameMethod);
+      // generate setProfileName method
+      String setProfileNameMethodSrc = "public void setProfileName(String profileName)" +
+      									"{" +
+      									"	profileName == null ? setSafeProfileName(\"\") : setSafeProfileName(profileName);" +
+      									"}";
+      CtMethod setProfileNameMethod = CtNewMethod.make(setProfileNameMethodSrc, profileConcreteClass);
+      profileConcreteClass.addMethod(setProfileNameMethod);
+      
       
       logger.info( "Writing PROFILE CONCRETE CLASS to: " + deployDir );
       

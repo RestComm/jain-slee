@@ -250,15 +250,9 @@ public class JPAUtils {
 
   public void persistProfile(ProfileObject profileObject)
   {
-    ProfileConcrete profileConcrete = profileObject.getProfileConcrete();
-    boolean defaultProfile = profileConcrete.getProfileName() == null;	
-    if (defaultProfile) {
-    	profileConcrete.setProfileName(DEFAULT_PROFILE_NAME);
-    }
+   
     getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());
-    if (defaultProfile) {
-    	profileConcrete.setProfileName(null);
-    }
+   
   }
 
   public ProfileConcrete retrieveProfile(ProfileTableConcrete profileTable, String profileName)
@@ -267,12 +261,6 @@ public class JPAUtils {
     
     try
     {
-    
-     boolean defaultProfile = profileName == null;	
-      if (defaultProfile) {
-        profileName = DEFAULT_PROFILE_NAME;
-      }
-  
       ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
   
       em = getEntityManager(psc.getComponentID());
@@ -280,12 +268,7 @@ public class JPAUtils {
   
       List resultList = q.getResultList();
       if (resultList.size() > 0) {
-        ProfileConcrete profileConcrete = (ProfileConcrete) resultList.get(0);
-        if (defaultProfile) {
-        	// set the name again to null
-        	profileConcrete.setProfileName(null);
-        }
-        return profileConcrete;
+        return (ProfileConcrete) resultList.get(0);        
       }
       else {
         return null;
