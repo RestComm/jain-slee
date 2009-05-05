@@ -264,7 +264,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			SLEEException {
 		Collection<ProfileLocalObject> plos = new ArrayList<ProfileLocalObject>();
 
-		List<String> profileNames = JPAUtils.INSTANCE.findAll(this);
+		List<String> profileNames = (List<String>) getProfileNames();
 
 		for (String profileName : profileNames) {
 			plos.add(getProfileLocalObjectConcrete(profileName));
@@ -561,7 +561,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	}
 
 	public Collection<String> getProfileNames() {
-		return JPAUtils.INSTANCE.findAll(this);
+		return JPAUtils.INSTANCE.findAllNames(this);
 	}
 
 	/**
@@ -604,7 +604,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 
 			// remove the table profiles
 			for (String profileName : this.getProfileNames()) {
-				remove(profileName);
+				this.removeProfile(profileName);
 			}
 
 			// Issue an activity end event.

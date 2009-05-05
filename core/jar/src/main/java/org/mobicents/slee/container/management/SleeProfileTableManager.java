@@ -242,7 +242,7 @@ public class SleeProfileTableManager {
 		return this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationId);
 	}
 
-	public ProfileTableConcrete addProfileTable(String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException, CreateException, ProfileVerificationException
+	public ProfileTableConcrete addProfileTable(final String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException, CreateException, ProfileVerificationException
 	{
 		// create instance
 		ProfileTableImpl profileTable = new ProfileTableImpl(profileTableName, component, sleeContainer);
@@ -252,6 +252,7 @@ public class SleeProfileTableManager {
 		profileTable.register();
 		// add default profile
 		profileTable.createDefaultProfile();
+
 		return profileTable;
 	}
 

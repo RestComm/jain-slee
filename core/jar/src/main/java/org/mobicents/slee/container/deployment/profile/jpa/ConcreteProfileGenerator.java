@@ -103,7 +103,7 @@ public class ConcreteProfileGenerator {
       String concreteClassName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpInterface.getProfileCmpInterfaceName() + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
 
       // Create the Impl class
-      CtClass profileConcreteClass = ClassGeneratorUtils.createClass(concreteClassName, new String[]{cmpInterface.getProfileCmpInterfaceName(), ProfileConcrete.class.getName()});
+      CtClass profileConcreteClass = ClassGeneratorUtils.createClass(concreteClassName, new String[]{cmpInterface.getProfileCmpInterfaceName(), ProfileConcrete.class.getName(), Cloneable.class.getName()});
 
       // If this is combination 3 or 4, the the concrete class extends the Concrete Profile Management Abstract Class
       if( profileCombination >= 3 )

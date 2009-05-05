@@ -271,7 +271,10 @@ public class ProfileObject {
 	 */
 	public void loadFromDefaultProfile() {
 		// TODO alexandre: replace this with copy of state from default profile
-		profileInitialize();
+	  // get a default profile
+		this.loadProfileConcrete(null);
+		// and change it's name
+		setProfileName(this.profileName);
 		// don't forget to leave this
 		setProfileDirty(true);
 	}
@@ -288,7 +291,7 @@ public class ProfileObject {
 			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
-		loadCmpFields();
+		loadProfileConcrete(this.getProfileName());
 		this.profileConcrete.profileLoad();
 		setProfileDirty(false);
 	}
@@ -368,7 +371,7 @@ public class ProfileObject {
 			/*if (!isProfileCreation()) {
 				profileBeforeUpdate = profileTableConcrete.assignAndActivateProfileObject(getProfileName());
 			}*/			
-			persistCmpFields();
+			persistProfileConcrete();
 			// Fire a Profile Added or Updated Event
 			if (profileBeforeUpdate == null) {
 				// creation
@@ -385,18 +388,18 @@ public class ProfileObject {
 	/**
 	 * 
 	 */
-	private void loadCmpFields() {
+	private void loadProfileConcrete(String profileName) {
     //if (logger.isDebugEnabled()) {
     logger.info("Loading "+this);
     
   //}
-    this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(getProfileTableConcrete(),getProfileName());     
+    this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);     
 	}
 	
 	/**
 	 * 
 	 */
-	private void persistCmpFields() {
+	private void persistProfileConcrete() {
 		//if (logger.isDebugEnabled()) {
 			logger.info("Persisting "+this);
 			
