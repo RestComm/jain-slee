@@ -19,7 +19,7 @@ import javax.slee.profile.ProfileManagement;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public interface ProfileConcrete extends Profile ,ProfileManagement {
+public interface ProfileConcrete extends Profile,ProfileManagement {
 
 	public void setProfileObject(ProfileObject profileObject);
 	public ProfileObject getProfileObject();
@@ -30,4 +30,6 @@ public interface ProfileConcrete extends Profile ,ProfileManagement {
 	public void setTableName(String profileTableName);
 	public String getTableName();
 
+	public ProfileConcrete cl0ne() throws CloneNotSupportedException ;
+	
 }

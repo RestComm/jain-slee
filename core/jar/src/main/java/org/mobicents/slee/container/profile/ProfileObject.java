@@ -1,17 +1,28 @@
 package org.mobicents.slee.container.profile;
 
+import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.slee.CreateException;
 import javax.slee.SLEEException;
+import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileVerificationException;
+import javax.slee.profile.UnrecognizedProfileNameException;
+import javax.slee.resource.EventFlags;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
+import org.mobicents.slee.runtime.facilities.profile.AbstractProfileEvent;
+import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileRemovedEventImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
+import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 
 /**
  * Start time:16:46:52 2009-03-13<br>
@@ -48,21 +59,15 @@ public class ProfileObject {
 	private ProfileConcrete profileConcrete;
 	
 	/**
+	 * a snapshot copy of the current profile concrete, before updates, needed
+	 * for profile table events
+	 */
+	private ProfileConcrete profileConcreteSnapshot;
+	
+	/**
 	 * the context of the profile object
 	 */
 	private ProfileContextImpl profileContext = null;
-	
-	/**
-	 * if this object is assigned to a mbean 
-	 */
-	private boolean managementView = false;
-		
-	/**
-	 * This indicates wheather we are service as snapshot, in that case we are
-	 * out of sync, and we can not commit. This is used in update, remove
-	 * events.
-	 */
-	private boolean snapshot = false;
 
 	/**
 	 * indicates if a profile persistent state was changed since load
@@ -77,7 +82,7 @@ public class ProfileObject {
 	/**
 	 * indicates if the persisted state can be modified using the object 
 	 */
-	private final boolean profileReadOnly;
+	private boolean profileReadOnly = false;
 	
 	/**
 	 * indicates if the profile is being created or not
@@ -88,6 +93,8 @@ public class ProfileObject {
 	 * the profile name currently assigned to the object
 	 */
 	private String profileName;
+	
+	private boolean invokingProfilePostCreate = false;
 	
 	/**
 	 * 
@@ -104,7 +111,7 @@ public class ProfileObject {
 		
 		this.profileTableConcrete = profileTableConcrete;
 		this.profileReentrant = this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass() == null ? false : this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
-		this.profileReadOnly = this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getReadOnly();
+		
 		// there must be always a profile concrete object in the object, be it assigned or not with a specific profile
 		try {
 			this.profileConcrete = (ProfileConcrete) this.profileTableConcrete.getProfileSpecificationComponent().getProfileCmpConcreteClass().newInstance();
@@ -117,6 +124,10 @@ public class ProfileObject {
 		}
 	}
 
+	public boolean isInvokingProfilePostCreate() {
+		return invokingProfilePostCreate;
+	}
+	
 	public boolean isProfileCreation() {
 		return profileCreation;
 	}
@@ -127,7 +138,9 @@ public class ProfileObject {
 	 */
 	public void setProfileName(String profileName) {
 		this.profileName = profileName;
-		profileConcrete.setProfileName(profileName);
+		if (profileConcrete != null) {
+			profileConcrete.setProfileName(profileName);
+		}
 	}
 	
 	/**
@@ -161,22 +174,13 @@ public class ProfileObject {
 	public void setProfileDirty(boolean dirty) {
 		this.profileDirty = dirty;
 	}
-	
-	/**
-	 * Indicates the object is being used by an mbean
-	 * 
-	 * @return
-	 */
-	public boolean isManagementView() {
-		return managementView;
-	}
 
 	/**
 	 * 
-	 * @param managementView
+	 * @param profileReadOnly
 	 */
-	public void setManagementView(boolean managementView) {
-		this.managementView = managementView;
+	public void setProfileReadOnly(boolean profileReadOnly) {
+		this.profileReadOnly = profileReadOnly;
 	}
 
 	/**
@@ -184,7 +188,7 @@ public class ProfileObject {
 	 * @return false if the object is currently assigned to an mbean or if it is not read only or if it is default profile
 	 */
 	public boolean isProfileReadOnly() {
-		return profileReadOnly && !isManagementView() && getProfileName() != null;
+		return profileReadOnly;
 	}
 
 	/**
@@ -270,19 +274,23 @@ public class ProfileObject {
 	 * initialize state from default profile
 	 */
 	public void loadFromDefaultProfile() {
-		// TODO alexandre: replace this with copy of state from default profile
-	  // get a default profile
-		this.loadProfileConcrete(null);
-		// and change it's name
-		setProfileName(this.profileName);
-		// don't forget to leave this
+		try {
+			// load the default profile
+			this.loadProfileConcrete(null);
+			// clone it and change it's name
+			this.profileConcrete = this.profileConcrete.cl0ne();
+		} catch (Throwable e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
+		this.profileConcrete.setProfileName(this.profileName);
+		// turn on dirty flag
 		setProfileDirty(true);
 	}
 	
 	/**
 	 * 
 	 */
-	public void profileLoad() {
+	public void profileLoad() throws UnrecognizedProfileNameException {
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("[profileLoad] "+this);
@@ -291,7 +299,16 @@ public class ProfileObject {
 			logger.error("Profile load, wrong state: " + this.state + ",on profile unset context operation, for profile: " + this.getProfileName() + ", from profile table: "
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
+		// load profile concrete from data source
 		loadProfileConcrete(this.getProfileName());
+		// create a snapshot copy if the profile table fires events
+		if (profileTableConcrete.doesFireEvents()) {
+			try {
+				this.profileConcreteSnapshot = this.profileConcrete.cl0ne();
+			} catch (CloneNotSupportedException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}		
+		}
 		this.profileConcrete.profileLoad();
 		setProfileDirty(false);
 	}
@@ -329,8 +346,14 @@ public class ProfileObject {
 					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 		this.profileCreation = true;
-		this.profileConcrete.profilePostCreate();
-		this.state = ProfileObjectState.READY;
+		this.invokingProfilePostCreate = true;
+		try {
+			this.profileConcrete.profilePostCreate();
+			this.state = ProfileObjectState.READY;
+		}
+		finally {
+			this.invokingProfilePostCreate = false;
+		}
 	}
 
 	/**
@@ -347,6 +370,17 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileRemove();
+		if (profileTableConcrete.doesFireEvents() && profileConcreteSnapshot != null) {
+			// fire event
+			if (logger.isDebugEnabled()) {
+				logger.debug("[fireProfileRemovedEvent]"
+						+ " on: " + this);
+			}
+			AbstractProfileEvent event = new ProfileRemovedEventImpl(profileConcrete);					
+			profileTableConcrete.getActivityContext().fireEvent(event.getEventTypeID(), event,
+					event.getProfileAddress(), null, EventFlags.NO_FLAGS);
+		}
+		// TODO remove profile
 		this.state = ProfileObjectState.POOLED;
 	}
 
@@ -366,20 +400,39 @@ public class ProfileObject {
 		this.profileConcrete.profileStore();
 		
 		if (isProfileDirty()) {
-			// getting last committed profile in case of update
-			ProfileObject profileBeforeUpdate = null;
-			/*if (!isProfileCreation()) {
-				profileBeforeUpdate = profileTableConcrete.assignAndActivateProfileObject(getProfileName());
-			}*/			
+			
 			persistProfileConcrete();
-			// Fire a Profile Added or Updated Event
-			if (profileBeforeUpdate == null) {
-				// creation
-				profileTableConcrete.fireProfileAddedEvent(this);
+			
+			if (profileTableConcrete.doesFireEvents()) {
+				// Fire a Profile Added or Updated Event
+				ActivityContext ac = profileTableConcrete.getActivityContext();
+				AbstractProfileEvent event = null;
+				if (profileConcreteSnapshot == null) {
+					// creation
+					if (logger.isDebugEnabled()) {
+						logger.debug("[fireProfileAddedEvent]"
+								+ " on: " + this);
+					}					
+					
+					event = new ProfileAddedEventImpl(profileConcrete);					
+				}
+				else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("[fireProfileUpdatedEvent]"
+								+ " on: " + this);
+					}										
+					event = new ProfileUpdatedEventImpl(profileConcreteSnapshot,profileConcrete);					
+				}
+				ac.fireEvent(event.getEventTypeID(), event,
+						event.getProfileAddress(), null, EventFlags.NO_FLAGS);
+				// reset snapshot clone
+				try {
+					this.profileConcreteSnapshot = this.profileConcrete.cl0ne();
+				} catch (CloneNotSupportedException e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
 			}
-			else {
-				profileTableConcrete.fireProfileUpdatedEvent(profileBeforeUpdate, this);
-			}
+			
 			setProfileDirty(false);
 		}
 		
@@ -388,12 +441,15 @@ public class ProfileObject {
 	/**
 	 * 
 	 */
-	private void loadProfileConcrete(String profileName) {
-    //if (logger.isDebugEnabled()) {
-    logger.info("Loading "+this);
-    
-  //}
-    this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);     
+	private void loadProfileConcrete(String profileName) throws UnrecognizedProfileNameException {
+		//if (logger.isDebugEnabled()) {
+		logger.info("Loading "+this);
+
+		//}
+		this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);
+		if (this.profileConcrete == null) {
+			throw new UnrecognizedProfileNameException();
+		}
 	}
 	
 	/**
@@ -570,7 +626,42 @@ public class ProfileObject {
 	
 	public String toString()
 	{
-		return this.getClass().getSimpleName()+" State["+this.state+"] Snapshot["+this.snapshot+"] Profile["+this.getProfileName()+"] Table["+this.profileTableConcrete.getProfileTableName()+"] ID: "+this.hashCode();
+		return this.getClass().getSimpleName()+" State["+this.state+"] ReadOnly["+this.profileReadOnly+"] Profile["+this.getProfileName()+"] Table["+this.profileTableConcrete.getProfileTableName()+"] ID: "+this.hashCode();
+	}
+
+	/**
+	 * local representation for this profile object
+	 */
+	private ProfileLocalObject profileLocalObject = null;
+	
+	/**
+	 * Retrieves the local representation for this profile object
+	 * @return
+	 */
+	public ProfileLocalObject getProfileLocalObject() {
+		if (profileLocalObject == null) {
+			final Class<?> profileLocalObjectConcreteClass = profileTableConcrete.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass();
+			ProfileLocalObject profileLocalObject = null;
+			if (profileLocalObjectConcreteClass == null) {
+				profileLocalObject = new ProfileLocalObjectImpl(this);
+			}
+			else {
+				try {
+					profileLocalObject = (ProfileLocalObject) profileLocalObjectConcreteClass.getConstructor(ProfileObject.class).newInstance(this);
+				} catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+			}
+		}
+		return profileLocalObject;
+	}
+
+	/**
+	 * Replaces the profile concrete object currently bound to the object
+	 * @param profileConcrete
+	 */
+	public void setProfileConcrete(ProfileConcrete profileConcrete) {
+		this.profileConcrete = profileConcrete;		
 	}
 
 }

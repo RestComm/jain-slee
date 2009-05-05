@@ -14,6 +14,7 @@ import java.util.Map;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
+import javassist.CtNewMethod;
 import javassist.CtPrimitiveType;
 
 import javax.persistence.EntityManager;
@@ -186,6 +187,11 @@ public class ConcreteProfileGenerator {
 
 
       profileConcreteClass.getClassFile().setVersionToJava5();
+      
+      // generate cl0ne method
+      String cl0neMethodSrc = " public "+ProfileConcrete.class.getName()+" cl0ne() throws CloneNotSupportedException { return ("+ProfileConcrete.class.getName()+") clone(); }";
+      CtMethod cl0neMethod = CtNewMethod.make(cl0neMethodSrc, profileConcreteClass);
+      profileConcreteClass.addMethod(cl0neMethod);
       
       logger.info( "Writing PROFILE CONCRETE CLASS to: " + deployDir );
       

@@ -9,6 +9,7 @@ import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
 import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileVerificationException;
+import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
@@ -63,7 +64,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	public AbstractProfileMBean(Class<?> mbeanInterface, ProfileObject profileObject) throws NotCompliantMBeanException, ManagementException {
 	  super(mbeanInterface);
 	  this.profileObject = profileObject;
-	  profileObject.setManagementView(true);
+	  profileObject.setProfileReadOnly(false);
 	  // register the mbean
 	  try {
 		  this.objectName = ProfileTableImpl.generateProfileMBeanObjectName(profileObject.getProfileTableConcrete().getProfileTableName(), profileObject.getProfileName());
@@ -137,7 +138,6 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			} catch (Throwable e) {
 				throw new ManagementException(e.getMessage(),e);
 			}
-			profileObject.setManagementView(false);
 			// passivate profile object
 			profileObject.getProfileTableConcrete().deassignProfileObject(profileObject,false);						
 		}
@@ -218,6 +218,8 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 				throw new ManagementException(e.getMessage());
 			} catch (SystemException e) {
 				throw new ManagementException(e.getMessage());
+			} catch (UnrecognizedProfileNameException e) {
+				throw new ManagementException(e.getMessage(),e);
 			}
 			finally
 			{

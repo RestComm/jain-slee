@@ -3,33 +3,33 @@ package org.mobicents.slee.container.deployment.profile;
 import java.util.Iterator;
 import java.util.Map;
 
+import javassist.CannotCompileException;
 import javassist.CtClass;
+import javassist.CtConstructor;
 import javassist.CtMethod;
+import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
 import javax.slee.SLEEException;
-import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.ProfileLocalObjectImpl;
+import org.mobicents.slee.container.profile.ProfileObject;
 
 public class ConcreteProfileLocalObjectGenerator {
 
 	private static final Logger logger = Logger.getLogger(ConcreteProfileLocalObjectGenerator.class);
 	
-	public static final String _PLO_CMP_INTERCEPTOR = "localObject.getProfileConcrete()";
-	public static final String _PLO_MGMT_INTERCEPTOR = "localObject.getProfileConcrete()";
-	public static final String _PLO_PO_ALLOCATION = "allocateProfileObject();";
-	public static final String _PLO_ISOLATE= "isIsolateSecurityPermissions()";
+	public static final String _PLO_CMP_INTERCEPTOR = "profileObject";
+	public static final String _PLO_MGMT_INTERCEPTOR = "profileObject";
 	
 	private ProfileSpecificationComponent component = null;
 	private String cmpProfileInterfaceName = null;
@@ -113,7 +113,15 @@ public class ConcreteProfileLocalObjectGenerator {
 		// Create interface and inheritance links
 		ConcreteClassGeneratorUtils.createInterfaceLinks(profileLocalConcreteClass, targetInterface);
 		ConcreteClassGeneratorUtils.createInheritanceLink(profileLocalConcreteClass, mobicentsProfileLocalInterfaceConcrete);
-		
+		// generate constructor
+	    try {
+	      CtClass[] constructorParameters = new CtClass[] { pool.get(ProfileObject.class.getName()) };
+	      String constructorBody = "{ super($$) }";
+	      CtConstructor constructor = CtNewConstructor.make(constructorParameters, new CtClass[]{}, constructorBody , profileLocalConcreteClass);
+	      profileLocalConcreteClass.addConstructor(constructor);
+	    } catch (CannotCompileException e) {
+	      throw new SLEEException(e.getMessage(),e);
+	    }
 		// now lets generate CMPs
 		generateCmps(cmpInterfaceMethods, ploManagementMethods, profileLocalConcreteClass);
 		// and mgmt methods

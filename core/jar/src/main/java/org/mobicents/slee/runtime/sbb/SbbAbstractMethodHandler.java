@@ -41,7 +41,7 @@ public class SbbAbstractMethodHandler {
 	// CMP ACCESSORs
 
 	public static Object getCMPField(SbbEntity sbbEntity, String cmpFieldName,
-			Class returnType) {
+			Class<?> returnType) {
 
 		Object cmpFieldValue = sbbEntity.getCMPField(cmpFieldName);
 
@@ -238,7 +238,6 @@ public class SbbAbstractMethodHandler {
 						getProfileCMPMethodName);
 		if (mGetProfileCMPMethod == null)
 			throw new AbstractMethodError("Profile CMP Method not found");
-		SbbObject sbbObject = sbbEntity.getSbbObject();
 
 		if (sbbEntity.getSbbObject().getState() != SbbObjectState.READY) {
 			throw new IllegalStateException(
@@ -256,11 +255,21 @@ public class SbbAbstractMethodHandler {
 				throw new UnrecognizedProfileNameException(profileID.toString());
 			}
 			
-			ProfileObject po = profileTable.assignAndActivateProfileObject(profileID.getProfileName());
+			final ProfileObject po = profileTable.assignAndActivateProfileObject(profileID.getProfileName());
+			po.profileLoad();
 			
-			po.setManagementView(false);
-			sleeContainer.getTransactionManager().addBeforeCommitAction(new BeforeCommitTransctAction(po));
-			sleeContainer.getTransactionManager().addAfterRollbackAction(new RollbackTransctAction(po));
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					try {
+						po.getProfileTableConcrete().deassignProfileObject(po, false);						
+					} catch (Exception e) {
+						logger.error("Failed to deallocate ProfileObject");
+					}
+				}
+			};
+			
+			sleeContainer.getTransactionManager().addBeforeCommitAction(action);
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 			return po.getProfileConcrete();
 		} catch (SystemException e) {
 			throw new SLEEException("low-level failure", e);
@@ -296,44 +305,6 @@ public class SbbAbstractMethodHandler {
 		return (ServiceUsageMBeanImpl) sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(serviceID)
 				.getServiceUsageMBean();
-	}
-	
-	
-	private static class BeforeCommitTransctAction implements TransactionalAction {
-
-	
-		private ProfileObject po = null;
-		
-		
-		
-		public BeforeCommitTransctAction(ProfileObject po) {
-			super();
-	
-			this.po = po;
-		}
-
-
-
-		public void execute() {
-			try {
-				po.getProfileTableConcrete().deassignProfileObject(po, false);
-				
-
-			} catch (Exception e) {
-
-				logger.error("Failed to deallocate ProfileObject, please report this to dev team.");
-
-			}
-		}
-	}
-
-	// for now its the same
-	private static  class RollbackTransctAction extends BeforeCommitTransctAction {
-
-		public RollbackTransctAction(ProfileObject po) {
-			super(po);
-		
-		}
 	}
 	
 }

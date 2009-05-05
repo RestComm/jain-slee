@@ -8,7 +8,6 @@ import javax.slee.profile.ProfileTable;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 
 /**
  * Start time:14:20:46 2009-03-14<br>
@@ -20,20 +19,16 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author martins
  */
-public class ProfileLocalObjectImpl implements ProfileLocalObjectConcrete {
+public class ProfileLocalObjectImpl implements ProfileLocalObject {
 
 	protected static final Logger logger = Logger.getLogger(ProfileLocalObjectImpl.class);
 	
-	private final SleeContainer sleeContainer;
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
-	private ProfileObject profileObject;
-	
-	private final boolean snapshot;
-	
-	public ProfileLocalObjectImpl(ProfileObject profileObject, boolean snapshot, SleeContainer sleeContainer) {
-		this.profileObject = profileObject;
-		this.snapshot = snapshot;
-		this.sleeContainer = sleeContainer;		
+	protected final ProfileObject profileObject;
+		
+	public ProfileLocalObjectImpl(ProfileObject profileObject) {
+		this.profileObject = profileObject;	
 	}
 
 	/*
@@ -96,22 +91,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObjectConcrete {
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		this.getProfileTable().remove(this.getProfileName());		
+		profileObject.profileRemove();		
 	}
-
-	public boolean isSnapshot() {
-		return snapshot;
-	}
-
-	public ProfileObject getProfileObject() {
-		return profileObject;
-	}
-	
-	public boolean isIsolateSecurityPermissions() {
-		ProfileSpecificationDescriptorImpl descriptor = this.profileObject.getProfileSpecificationComponent().getDescriptor();
-		boolean isolateSecurityPermissions = descriptor.getProfileLocalInterface() == null ? false : descriptor.getProfileLocalInterface().isIsolateSecurityPermissions();
-		return isolateSecurityPermissions;
-	}
-	
 
 }

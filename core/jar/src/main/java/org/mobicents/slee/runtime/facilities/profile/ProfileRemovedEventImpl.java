@@ -14,82 +14,53 @@
  */
 package org.mobicents.slee.runtime.facilities.profile;
 
-import javax.slee.Address;
 import javax.slee.EventTypeID;
-import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileRemovedEvent;
 
-import org.mobicents.slee.container.profile.ProfileLocalObjectConcrete;
-import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.container.profile.ProfileConcrete;
 
 /**
  * Profile removed event implementation.
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski</a>
+ * @author martins
  * 
  */
-public class ProfileRemovedEventImpl extends SuperProfileEvent implements ProfileRemovedEvent {
+public class ProfileRemovedEventImpl extends AbstractProfileEvent implements ProfileRemovedEvent {
 
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileRemovedEvent", "javax.slee", "1.0");
 
-	public ProfileRemovedEventImpl(Address profileAddress, ProfileID profile, ProfileLocalObjectConcrete profileLocalObject, ActivityContext activityContext) {
-		super(profileAddress, profile, profileLocalObject, activityContext);
-
+	public ProfileRemovedEventImpl(ProfileConcrete profileConcrete) {
+		super(profileConcrete);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.profile.ProfileAddedEvent#getProfile()
-	 */
-	public ProfileID getProfile() {
-
-		return super.profile;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.profile.ProfileAddedEvent#getProfileAddress()
-	 */
-	public Address getProfileAddress() {
-
-		return super.profileAddress;
-	}
-
+	@Override
 	public EventTypeID getEventTypeID() {
 		return EVENT_TYPE_ID;
 	}
-
-	public Object getEventObject() {
-		// return ((ProfileTableActivityImpl)
-		// this.activityContextInterface.getActivity()).getProfileEvent();
-		return (ProfileRemovedEvent) this;
-	}
-
-	public Address getAddress() {
-		return super.profileAddress;
-	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfile()
 	 */
 	public Object getRemovedProfile() {
-		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
-			return super.profileLocalObjectAfterAction.getProfileObject().getProfileConcrete();
+		if (isProfileConcreteClassVisible()) {
+			return getProfileConcreteAfterAction();
 		} else {
 			return null;
 		}
-		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfileLocal()
+	 */
 	public ProfileLocalObject getRemovedProfileLocal() {
-		if (super.isClassLoaded(super.profileLocalObjectAfterAction.getClass())) {
-			return super.profileLocalObjectAfterAction;
+		if (isProfileConcreteClassVisible()) {
+			return getProfileLocalObjectValidInCurrentTransaction(getProfileConcreteAfterAction());
 		} else {
 			return null;
 		}

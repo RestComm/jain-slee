@@ -86,7 +86,15 @@ public class ProfileContextImpl implements ProfileContext {
 
 	public ProfileLocalObject getProfileLocalObject() throws IllegalStateException, SLEEException
 	{
-		return new ProfileLocalObjectImpl(this.profileObject, true, SleeContainer.lookupFromJndi());
+		// check state
+		if (profileObject.getState() != ProfileObjectState.READY && !profileObject.isInvokingProfilePostCreate()) {
+			throw new IllegalStateException();
+		}
+		// check if it is default profile
+		if (profileObject.getProfileName() == null) {
+			throw new IllegalStateException();
+		}
+		return profileObject.getProfileLocalObject();
 	}
 
 	public String getProfileName() throws IllegalStateException, SLEEException

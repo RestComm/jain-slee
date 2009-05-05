@@ -19,6 +19,7 @@ import javax.slee.profile.UnrecognizedAttributeException;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
 
 /**
@@ -34,6 +35,8 @@ import org.mobicents.slee.runtime.facilities.MNotificationSource;
  */
 public interface ProfileTableConcrete extends ProfileTable {
 
+	public boolean doesFireEvents();
+	
 	public SleeContainer getSleeContainer();
 	
 	public MNotificationSource getProfileTableNotification();
@@ -43,16 +46,7 @@ public interface ProfileTableConcrete extends ProfileTable {
 	public ProfileSpecificationComponent getProfileSpecificationComponent();
 
 	/**
-	 * This method assigns PO to existing profile, otherwise it throws
-	 * exception. In case of bool flag set to true it also tries to create
-	 * 
-	 * @param profileName
-	 * @return
-	 */
-	//public ProfileObject assignProfileObject(String profileName);
-
-	/**
-	 * Assigns a profile object and activates it, invoking profileActivate() & profileLoad()
+	 * Assigns a profile object and activates it, invoking profileActivate()
 	 * @param profileName
 	 * @return
 	 */
@@ -65,6 +59,8 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 */
 	public void deassignProfileObject(ProfileObject profileObject, boolean remove);
 
+	public ActivityContext getActivityContext();
+	
 	public ProfileTableActivity getActivity();
 
 	public Collection<ProfileID> getProfilesIDs();
@@ -131,43 +127,5 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 * Method to start activity for this table.
 	 */
 	public void register();
-
-	/**
-	 * Fire profile Added event for this profile table activity. It does check
-	 * if event should be fired before doing so.
-	 * 
-	 * @param profileLocalObject
-	 *            - profile object.
-	 * @throws SLEEException
-	 *             - thrown in case of any error
-	 */
-	public void fireProfileAddedEvent(ProfileObject profileObject) throws SLEEException;
-
-	/**
-	 * Fire profile remove event on this profile table activity. It does check
-	 * if event should be fired before doing so.
-	 * 
-	 * @param profileLocalObject
-	 *            - profile object
-	 * @throws SLEEException
-	 *             - thrown in case of any error
-	 */
-	public void fireProfileRemovedEvent(ProfileObject profileObject) throws SLEEException;
-
-	/**
-	 * Fire profiel updated event on this profile table activty. It does check
-	 * if event shoudl be fired before doing so.
-	 * 
-	 * @param profileObjectBeforeAction
-	 *            - profile object with CMPs set to profile
-	 *            before commit.
-	 * @param profileObjectAfterAction
-	 *            - profile object with CMPs set to current
-	 *            values (current in term of commit.)
-	 * @throws SLEEException
-	 *             - thrown in case of any error
-	 */
-	public void fireProfileUpdatedEvent(ProfileObject profileObjectBeforeAction, ProfileObject profileObjectAfterAction) throws SLEEException;
-
 
 }

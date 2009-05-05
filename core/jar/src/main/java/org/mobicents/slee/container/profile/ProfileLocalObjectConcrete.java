@@ -13,9 +13,5 @@ import javax.slee.profile.ProfileLocalObject;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public interface ProfileLocalObjectConcrete extends ProfileLocalObject {
-
-	boolean isSnapshot();
-
-	ProfileObject getProfileObject();
 	
 }
