@@ -2,7 +2,6 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -15,29 +14,28 @@ public class JPAProfileId implements Serializable {
   private String tableName;
   
   @Id
-  @Column(nullable=true)
-  private String profileName;
+  private String safeProfileName;
 
   public JPAProfileId()
   {
     this.tableName = null;
-    this.profileName = null;
+    this.safeProfileName = null;
   }
   
-  public JPAProfileId(String tableName, String profileName)
+  public JPAProfileId(String tableName, String safeProfileName)
   {
     this.tableName = tableName;
-    this.profileName = profileName;
+    this.safeProfileName = safeProfileName;
   }
   
-  public String getProfileName()
+  public String getSafeProfileName()
   {
-    return profileName;
+    return safeProfileName;
   }
   
-  public void setProfileName( String profileName )
+  public void setSafeProfileName( String profileName )
   {
-    this.profileName = profileName;
+    this.safeProfileName = profileName;
   }
   
   public String getTableName()
@@ -51,19 +49,14 @@ public class JPAProfileId implements Serializable {
   }
   
   @Override
-  public boolean equals( Object obj )
-  {
-    if(obj instanceof JPAProfileId)
-    {
-      JPAProfileId other = (JPAProfileId)obj;
-      
-      boolean pn = (this.profileName == other.profileName) || (this.profileName != null && this.profileName.equals(other.profileName));
-      boolean tn = (this.tableName == other.tableName) || (this.tableName != null && this.tableName.equals(other.tableName));
-      
-      return pn && tn;
+  public boolean equals( Object obj ) {
+    if (obj != null && obj.getClass() == this.getClass()) {
+    	JPAProfileId other = (JPAProfileId)obj;
+    	return this.safeProfileName.equals(other.safeProfileName) && this.tableName.equals(other.tableName);
     }
-    
-    return false;
+    else {
+    	return false;
+    }
   }
   
   @Override

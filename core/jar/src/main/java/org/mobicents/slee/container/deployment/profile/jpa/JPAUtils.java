@@ -70,7 +70,7 @@ public class JPAUtils {
       String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
 
       em = getEntityManager(ptc.getProfileSpecificationComponent().getComponentID());
-      Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTableName).setParameter(2, profileName);
+      Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTableName).setParameter(2, profileName);
 
       try {
         return createProfileQuery.getSingleResult();
@@ -123,7 +123,7 @@ public class JPAUtils {
 
       for(Object o : createProfileQuery.getResultList())
       {
-        String profileName = o.getClass().getField("profileName").get(o).toString();
+        String profileName = o.getClass().getField("safeProfileName").get(o).toString();
         result.add( new ProfileID(profileTableName, profileName) );
       }
     }
@@ -149,7 +149,7 @@ public class JPAUtils {
       String profileTableName = ptc.getProfileTableName();
 
       em = getEntityManager(ptc.getProfileSpecificationComponent().getComponentID());
-      Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTableName).setParameter( 2, profileName );
+      Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTableName).setParameter( 2, profileName );
 
       try
       {
@@ -186,7 +186,7 @@ public class JPAUtils {
 
       for(Object result : results)
       {
-        profileNames.add( result.getClass().getField("profileName").get(result).toString() );
+        profileNames.add( result.getClass().getField("safeProfileName").get(result).toString() );
       }
     }
     catch (Exception e) {
@@ -264,7 +264,7 @@ public class JPAUtils {
       ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
   
       em = getEntityManager(psc.getComponentID());
-      Query q = em.createQuery("FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
+      Query q = em.createQuery("FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
   
       List resultList = q.getResultList();
       if (resultList.size() > 0) {

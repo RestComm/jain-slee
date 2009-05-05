@@ -41,7 +41,7 @@ import javax.slee.profile.query.QueryExpression;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -61,21 +61,13 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  */
 public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements ProfileProvisioningMBeanImplMBean {
 
-	private static Logger logger;
+	private static final Logger logger = Logger.getLogger(ProfileProvisioningMBeanImpl.class);
 
 	// private SleeProfileManager profileManager;
 	private SleeProfileTableManager sleeProfileManagement = null;
 	private SleeContainer sleeContainer = null;
 	private SleeTransactionManager sleeTransactionManagement = null;
-	static {
-		try {
-			logger = Logger.getLogger(ProfileProvisioningMBeanImpl.class);
-
-		} catch (Exception ex) {
-			logger.fatal("error initializing profile provisioning mbean");
-		}
-	}
-
+	
 	public ProfileProvisioningMBeanImpl() throws NotCompliantMBeanException {
 		super(ProfileProvisioningMBeanImplMBean.class);
 		this.sleeContainer = SleeContainer.lookupFromJndi();
@@ -369,7 +361,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			ManagementException, UnrecognizedProfileNameException, ManagementException {
 
 		ProfileTableImpl.validateProfileTableName(profileTableName);
-
+		logger.info("_getProfile()");
 		boolean b = this.sleeTransactionManagement.requireTransaction();
 		boolean rb = true;
 		ProfileTableConcrete profileTable = null;

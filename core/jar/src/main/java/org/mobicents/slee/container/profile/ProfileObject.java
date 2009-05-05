@@ -450,6 +450,7 @@ public class ProfileObject {
 		if (this.profileConcrete == null) {
 			throw new UnrecognizedProfileNameException();
 		}
+		this.profileConcrete.setProfileObject(this);
 	}
 	
 	/**
