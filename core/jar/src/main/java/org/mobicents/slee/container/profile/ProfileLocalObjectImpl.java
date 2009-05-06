@@ -23,7 +23,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 
 	protected static final Logger logger = Logger.getLogger(ProfileLocalObjectImpl.class);
 	
-	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	protected static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 	protected final ProfileObject profileObject;
 		

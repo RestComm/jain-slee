@@ -1,7 +1,5 @@
 package org.mobicents.slee.container.deployment.profile;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import javassist.CannotCompileException;
@@ -14,8 +12,11 @@ import javassist.Modifier;
 import javassist.NotFoundException;
 
 import javax.slee.SLEEException;
+import javax.slee.TransactionRequiredLocalException;
+import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileLocalObject;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -149,7 +150,20 @@ public class ConcreteProfileLocalObjectGenerator {
 		newMethod.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
 		// generate body
 		String returnStatement = method.getReturnType().equals(CtClass.voidType) ? "" : "return ($r)";
-		String body="{ " + returnStatement + interceptorAccess +'.'+ method.getName()+"($$);" + " }";
+		String body=
+			"{ " 
+			+ "super.sleeContainer.getTransactionManager().mandateTransaction();"
+			+ "try {"
+			+ 		returnStatement + interceptorAccess +'.'+ method.getName()+"($$);" 
+			+ "} catch ("+RuntimeException.class.getName()+" e) {"
+			+ "	try {"
+			+ " 	super.sleeContainer.getTransactionManager().setRollbackOnly();" 
+			+ " } catch ("+SystemException.class.getName()+" e1) {" 
+			+ " 	throw new "+SLEEException.class.getName()+"(e1.getMessage(),e1);" 
+			+ " };"
+			+ "	throw new "+TransactionRolledbackLocalException.class.getName()+"(e.getMessage(),e);"
+			+ "}"+
+			"}";
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);
