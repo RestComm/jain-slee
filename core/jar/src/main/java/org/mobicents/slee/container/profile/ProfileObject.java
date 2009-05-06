@@ -273,7 +273,7 @@ public class ProfileObject {
 	public void loadFromDefaultProfile() {
 		try {
 			// load the default profile
-			this.loadProfileConcrete("");
+			this.loadProfileConcrete(null);
 			// clone it and change it's name
 			this.profileConcrete = this.profileConcrete.cl0ne();
 		} catch (Throwable e) {
@@ -367,17 +367,13 @@ public class ProfileObject {
 		}
 
 		this.profileConcrete.profileRemove();
-		if (profileTableConcrete.doesFireEvents() && profileConcreteSnapshot != null) {
+		if (profileTableConcrete.doesFireEvents() && profileName != null && profileConcreteSnapshot != null) {
 			// fire event
-			if (logger.isDebugEnabled()) {
-				logger.debug("[fireProfileRemovedEvent]"
-						+ " on: " + this);
-			}
 			AbstractProfileEvent event = new ProfileRemovedEventImpl(profileConcrete);					
 			profileTableConcrete.getActivityContext().fireEvent(event.getEventTypeID(), event,
 					event.getProfileAddress(), null, EventFlags.NO_FLAGS);
 		}
-		// TODO remove profile
+		JPAUtils.INSTANCE.removeprofile(this);
 		this.state = ProfileObjectState.POOLED;
 	}
 
@@ -400,24 +396,15 @@ public class ProfileObject {
 			
 			persistProfileConcrete();
 			
-			if (profileTableConcrete.doesFireEvents()) {
+			if (profileTableConcrete.doesFireEvents() && profileName != null) {
 				// Fire a Profile Added or Updated Event
 				ActivityContext ac = profileTableConcrete.getActivityContext();
 				AbstractProfileEvent event = null;
-				if (profileConcreteSnapshot == null) {
+				if (isProfileCreation()) {
 					// creation
-					if (logger.isDebugEnabled()) {
-						logger.debug("[fireProfileAddedEvent]"
-								+ " on: " + this);
-					}					
-					
 					event = new ProfileAddedEventImpl(profileConcrete);					
 				}
 				else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("[fireProfileUpdatedEvent]"
-								+ " on: " + this);
-					}										
 					event = new ProfileUpdatedEventImpl(profileConcreteSnapshot,profileConcrete);					
 				}
 				ac.fireEvent(event.getEventTypeID(), event,
@@ -439,10 +426,10 @@ public class ProfileObject {
 	 * 
 	 */
 	private void loadProfileConcrete(String profileName) throws UnrecognizedProfileNameException {
-		//if (logger.isDebugEnabled()) {
-		logger.info("Loading "+this);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Loading profile with name "+profileName+" on object "+this);
 
-		//}
+		}
 		this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);
 		if (this.profileConcrete == null) {
 			throw new UnrecognizedProfileNameException();
@@ -454,11 +441,13 @@ public class ProfileObject {
 	 * 
 	 */
 	private void persistProfileConcrete() {
-		//if (logger.isDebugEnabled()) {
-			logger.info("Persisting "+this);
-			
-		//}
-		JPAUtils.INSTANCE.persistProfile(this);			
+		if (isProfileCreation()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Persisting "+this);
+				
+			}
+			JPAUtils.INSTANCE.persistProfile(this);			
+		}		
 	}
 	
 	/**
@@ -639,7 +628,6 @@ public class ProfileObject {
 	public ProfileLocalObject getProfileLocalObject() {
 		if (profileLocalObject == null) {
 			final Class<?> profileLocalObjectConcreteClass = profileTableConcrete.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass();
-			ProfileLocalObject profileLocalObject = null;
 			if (profileLocalObjectConcreteClass == null) {
 				profileLocalObject = new ProfileLocalObjectImpl(this);
 			}

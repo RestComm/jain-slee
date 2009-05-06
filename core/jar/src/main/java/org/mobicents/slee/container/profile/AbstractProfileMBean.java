@@ -107,9 +107,9 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	 */
 	public void closeProfile() throws InvalidStateException, ManagementException
 	{
-		//if(logger.isDebugEnabled()) {
-			logger.info("[closeProfile] on: " + this.profileObject.getProfileName() + ", from table:"  +this.profileObject.getProfileTableConcrete().getProfileTableName());
-		//}
+		if (logger.isDebugEnabled()) {
+			  logger.debug("closeProfile() on: " + this.profileObject.getProfileName() + ", from table:"  +this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		
 		ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
 		try
@@ -154,9 +154,9 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	 */
 	public void commitProfile() throws InvalidStateException, ProfileVerificationException, ManagementException {
 		
-		//if(logger.isDebugEnabled()) {
-			logger.info("[commitProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
-		//}
+		if (logger.isDebugEnabled()) {
+			logger.debug("commitProfile() on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		
 		if (!this.isProfileWriteable())
 			throw new IllegalStateException("not in write state");
@@ -203,9 +203,9 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 
 	public void editProfile() throws ManagementException
 	{
-		//if(logger.isDebugEnabled()) {
-			logger.info("Editing profile with name "+this.profileObject.getProfileName()+", from table with name "+this.profileObject.getProfileTableConcrete().getProfileTableName());
-		//}
+		if(logger.isDebugEnabled()) {
+			logger.debug("Editing profile with name "+this.profileObject.getProfileName()+", from table with name "+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		}
 		
 		if (!isProfileWriteable()) {
 			ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());
@@ -232,7 +232,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	{
 		if(logger.isDebugEnabled())
 		{
-			logger.debug("[isProfileDirty] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+			logger.debug("isProfileDirty() on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
 		}
 		/*
 		 * The isProfileDirty method returns true if the Profile MBean object is
@@ -248,7 +248,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	{
 		if(logger.isDebugEnabled())
 		{
-			logger.debug("[isProfileWriteable] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+			logger.debug("isProfileWriteable() on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
 		}
 		/*
 		 * The isProfileWriteable method returns true if the Profile MBean
@@ -260,8 +260,8 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 
 	public void restoreProfile() throws InvalidStateException, ManagementException
 	{
-		if(logger.isDebugEnabled()) {
-			logger.debug("[restoreProfile] on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+		if (logger.isDebugEnabled()) {
+			  logger.debug("restoreProfile() on: "+this.profileObject.getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
 		}
 
 		if (!isProfileWriteable()) {
@@ -328,7 +328,9 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
    */
   public static void setCmpField(AbstractProfileMBean mbean, String fieldName, Object value) throws ManagementException {
 
-	  logger.info("setting cmp field with name "+fieldName+" and value "+value+" on profile with name "+mbean.profileObject.getProfileName()+" of table "+mbean.profileObject.getProfileTableConcrete().getProfileTableName());
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("setCmpField() with field name "+fieldName+" and value "+value+" on profile with name "+mbean.profileObject.getProfileName()+" of table "+mbean.profileObject.getProfileTableConcrete().getProfileTableName());
+	  }
 	  
 	  if (mbean.profileObject.getState() == ProfileObjectState.READY && mbean.isProfileWriteable()) {
 			final SleeTransactionManager txManager = sleeContainer.getTransactionManager();			

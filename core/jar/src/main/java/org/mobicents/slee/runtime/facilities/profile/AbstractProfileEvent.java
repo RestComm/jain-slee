@@ -104,6 +104,7 @@ public abstract class AbstractProfileEvent {
 		final ProfileObject profileObject = profileTableConcrete.assignAndActivateProfileObject(profileConcrete.getProfileName());
 		// set the concrete object and raise read only flag
 		profileObject.setProfileConcrete(profileConcrete);
+		profileConcrete.setProfileObject(profileObject);
 		profileObject.setProfileReadOnly(true);
 		// add tx action to release object after tx ends
 		TransactionalAction action = new TransactionalAction() {

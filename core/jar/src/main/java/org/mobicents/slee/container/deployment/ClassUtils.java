@@ -13,6 +13,7 @@ package org.mobicents.slee.container.deployment;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -384,30 +385,30 @@ public class ClassUtils {
     }
 
     /**
-     * Retrieve all interface methods from an interface
+     * Retrieve all methods from an interface, including super interfaces
      * 
      * @param sbbAbstractClass
      *            the class to extract the abstract methods
      * @return all interface methods from an interface
      */
     public static Map getInterfaceMethodsFromInterface(CtClass interfaceClass) {
-    	HashMap interfaceMethods = new HashMap();
-    	CtMethod[] methods = interfaceClass.getDeclaredMethods();
-    	for (int i = 0; i < methods.length; i++) {
-    		interfaceMethods.put(getMethodKey(methods[i]), methods[i]);
-    	}
-    	interfaceMethods.putAll(getSuperClassesAbstractMethodsFromInterface(interfaceClass));
-    	return interfaceMethods;
+    	return getInterfaceMethodsFromInterface(interfaceClass, Collections.EMPTY_MAP);
     }
 
+    /**
+     * Retrieve all methods from an interface, including super interfaces, except the ones specified in the provided map 
+     * @param interfaceClass
+     * @param exceptMethods
+     * @return
+     */
     public static Map getInterfaceMethodsFromInterface(CtClass interfaceClass,
-            Map inputMap) {
+            Map exceptMethods) {
     
         HashMap interfaceMethods = new HashMap();
         CtMethod[] methods = interfaceClass.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++)
         {
-            if (inputMap.get(methods[i].getName()) == null)
+            if (exceptMethods.get(methods[i].getName()) == null)
             {
                     ConcreteClassGeneratorUtils.logger.debug(methods[i].getName());
                     interfaceMethods.put(getMethodKey(methods[i]), methods[i]);
@@ -418,7 +419,7 @@ public class ClassUtils {
         for (Iterator i= temp.keySet().iterator(); i.hasNext(); )
         {
             String key = (String)i.next();
-            if (!inputMap.containsKey(key)) {
+            if (!exceptMethods.containsKey(key)) {
                     interfaceMethods.put(key, temp.get(key));
             }
         }
