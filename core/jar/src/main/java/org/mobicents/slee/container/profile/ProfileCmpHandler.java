@@ -6,7 +6,6 @@ import javax.slee.SLEEException;
 import javax.slee.profile.ReadOnlyProfileException;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 
 /**
  * Start time:18:25:55 2009-03-17<br>
@@ -109,9 +108,4 @@ public class ProfileCmpHandler {
 		}
 	}
 
-	public static void commitChanges(ProfileObject profileObject) {
-		if(profileObject.isProfileDirty()) {
-			JPAUtils.INSTANCE.persistProfile(profileObject);	    
-		}
-	}
 }

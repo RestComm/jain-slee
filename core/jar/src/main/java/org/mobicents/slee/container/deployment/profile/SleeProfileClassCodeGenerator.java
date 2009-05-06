@@ -3,8 +3,6 @@ package org.mobicents.slee.container.deployment.profile;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.SleeComponentWithUsageParametersClassCodeGenerator;
-import org.mobicents.slee.container.deployment.profile.jpa.ConcreteProfileGenerator;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 
 /**
  * 
@@ -26,15 +24,6 @@ public class SleeProfileClassCodeGenerator {
       logger.debug("Generating code for " + component);
     }
     
-    ConcreteProfileGenerator concreteProfileGenerator = new ConcreteProfileGenerator(component);
-
-    // 1. Generate CMP Interface Impl with JPA Annotations
-    Class c = concreteProfileGenerator.generateConcreteProfile();
-    component.setProfileCmpConcreteClass(c);
-
-    // 2. Create the corresponding JPA PU -- FIXME: Should be somewhere else?
-    JPAUtils.INSTANCE.createPersistenceUnit( component );
-
     // Generate Profile MBean Interface 
     ConcreteProfileMBeanGenerator mbeanGenerator = new ConcreteProfileMBeanGenerator(component);
     mbeanGenerator.generateProfileMBeanInterface();

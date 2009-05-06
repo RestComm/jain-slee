@@ -28,7 +28,6 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -179,7 +178,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	}
 
 	public Collection<ProfileID> getProfilesIDs() {
-		return JPAUtils.INSTANCE.getProfilesIDs(this);
+		return ProfileDataSource.INSTANCE.getProfilesIDs(this);
 	}
 
 	private void checkProfileSpecIsNotReadOnly() throws ReadOnlyProfileException {
@@ -558,7 +557,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	}
 
 	public Collection<String> getProfileNames() {
-		return JPAUtils.INSTANCE.findAllNames(this);
+		return ProfileDataSource.INSTANCE.findAllNames(this);
 	}
 
 	/**
@@ -572,7 +571,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 					+ profileName + "]");
 		}
 
-		return JPAUtils.INSTANCE.find(this, profileName);
+		return ProfileDataSource.INSTANCE.find(this, profileName);
 	}
 
 	/**

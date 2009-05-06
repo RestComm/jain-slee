@@ -25,6 +25,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
+import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
@@ -85,6 +86,7 @@ public class SleeProfileTableManager {
 		try {
 			this.createJndiSpace(component);
 			// FIXME: we wont use trace and alarm in 1.0 way wont we?
+			ProfileDataSource.INSTANCE.install(component);
 			sleeProfileClassCodeGenerator.process(component);
 		} catch (DeploymentException de) {
 			throw de;
@@ -115,6 +117,7 @@ public class SleeProfileTableManager {
 			}
 		}
 		
+		ProfileDataSource.INSTANCE.uninstall(component);		
 	}
 
 	/**

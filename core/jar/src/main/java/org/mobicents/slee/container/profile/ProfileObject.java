@@ -14,7 +14,6 @@ import javax.slee.resource.EventFlags;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.facilities.profile.AbstractProfileEvent;
 import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
@@ -373,7 +372,7 @@ public class ProfileObject {
 			profileTableConcrete.getActivityContext().fireEvent(event.getEventTypeID(), event,
 					event.getProfileAddress(), null, EventFlags.NO_FLAGS);
 		}
-		JPAUtils.INSTANCE.removeprofile(this);
+		ProfileDataSource.INSTANCE.removeprofile(this);
 		this.state = ProfileObjectState.POOLED;
 	}
 
@@ -430,7 +429,7 @@ public class ProfileObject {
 			logger.debug("Loading profile with name "+profileName+" on object "+this);
 
 		}
-		this.profileConcrete = JPAUtils.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);
+		this.profileConcrete = ProfileDataSource.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);
 		if (this.profileConcrete == null) {
 			throw new UnrecognizedProfileNameException();
 		}
@@ -446,7 +445,7 @@ public class ProfileObject {
 				logger.debug("Persisting "+this);
 				
 			}
-			JPAUtils.INSTANCE.persistProfile(this);			
+			ProfileDataSource.INSTANCE.persistProfile(this);			
 		}		
 	}
 	
