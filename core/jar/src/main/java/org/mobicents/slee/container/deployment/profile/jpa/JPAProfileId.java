@@ -64,4 +64,10 @@ public class JPAProfileId implements Serializable {
   {
     return super.hashCode();
   }
+  
+  @Override
+  public String toString()
+  {
+    return this.getClass().getName() + "(TableName[" + this.tableName + "] SafeProfileName[" + this.safeProfileName + "])";
+  }
 }

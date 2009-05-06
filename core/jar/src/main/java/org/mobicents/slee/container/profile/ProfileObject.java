@@ -1,6 +1,5 @@
 package org.mobicents.slee.container.profile;
 
-import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -17,11 +16,9 @@ import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.facilities.profile.AbstractProfileEvent;
 import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileRemovedEventImpl;
-import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 
 /**
@@ -276,7 +273,7 @@ public class ProfileObject {
 	public void loadFromDefaultProfile() {
 		try {
 			// load the default profile
-			this.loadProfileConcrete(null);
+			this.loadProfileConcrete("");
 			// clone it and change it's name
 			this.profileConcrete = this.profileConcrete.cl0ne();
 		} catch (Throwable e) {

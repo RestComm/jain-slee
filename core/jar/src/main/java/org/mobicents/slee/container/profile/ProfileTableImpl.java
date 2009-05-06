@@ -453,7 +453,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		} finally {
 			if (!success && allocated != null) {
 				try {
-					this.deassignProfileObject(allocated, true);
+					this.deassignProfileObject(allocated, false);
 				} catch (Throwable e) {
 					logger.error(e.getMessage(), e);
 				}

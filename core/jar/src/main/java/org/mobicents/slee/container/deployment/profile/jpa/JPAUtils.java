@@ -250,9 +250,14 @@ public class JPAUtils {
 
   public void persistProfile(ProfileObject profileObject)
   {
-   
-    getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID()).persist(profileObject.getProfileConcrete());
-   
+    EntityManager em = null;
+    try {
+      em = getEntityManager(profileObject.getProfileSpecificationComponent().getComponentID());
+      em.persist(profileObject.getProfileConcrete()); 
+    }
+    finally {
+      em.close();
+    }
   }
 
   public ProfileConcrete retrieveProfile(ProfileTableConcrete profileTable, String profileName)
@@ -281,6 +286,45 @@ public class JPAUtils {
     }
   }
 
+  public boolean removeprofile(ProfileTableConcrete profileTable, String profileName)
+  {
+    EntityManager em = null;
+  
+    try
+    {
+      ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
+
+      em = getEntityManager(psc.getComponentID());
+      Query q = em.createQuery("DELETE FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
+
+      return q.executeUpdate() > 0;
+    }
+    finally {
+      if(em != null) {
+        em.close();
+      }
+    }
+  }
+  
+  public void removeprofile(ProfileObject profileObject)
+  {
+    EntityManager em = null;
+  
+    try
+    {
+      ProfileSpecificationComponent psc = profileObject.getProfileSpecificationComponent();
+
+      em = getEntityManager(psc.getComponentID());
+      em.remove(profileObject.getProfileConcrete());
+    }
+    finally {
+      if(em != null) {
+        em.close();
+      }
+    }
+  }
+
+  
   public EntityManagerFactory createPersistenceUnit(ProfileSpecificationComponent profileComponent)
   {
     try
