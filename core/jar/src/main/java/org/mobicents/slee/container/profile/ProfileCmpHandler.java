@@ -1,8 +1,5 @@
 package org.mobicents.slee.container.profile;
 
-import java.lang.reflect.Method;
-
-import javax.slee.SLEEException;
 import javax.slee.profile.ReadOnlyProfileException;
 
 import org.mobicents.slee.container.SleeContainer;
@@ -26,86 +23,63 @@ public class ProfileCmpHandler {
 	 * @param fieldName
 	 * @param value
 	 */
-	public static void setCmpField(ProfileObject profileObject, String fieldName, Object value) throws UnsupportedOperationException, IllegalStateException
-	{
+	public static void beforeSetCmpField(ProfileObject profileObject) throws IllegalStateException, ReadOnlyProfileException {
+		
 		sleeContainer.getTransactionManager().mandateTransaction();
-
-		Thread t = Thread.currentThread();
-		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
-
-		try {
-			ProfileCallRecorderTransactionData.addProfileCall(profileObject);
-
-			if (profileObject.isProfileReadOnly()) {				
-				throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
-			}
-
-			// FIXME: Alexandre: This has been moved to MBean (done) / PLOC (missing)
-			//if (profileObject.getState() != ProfileObjectState.READY) {
-			//	throw new IllegalStateException("Profile object must be in ready state");
-			//}
-
-			try
-			{
-				String methodName = "set" + fieldName.replace(fieldName.charAt(0), fieldName.toUpperCase().charAt(0)) + "JPA";
-				Method m = profileObject.getProfileConcrete().getClass().getMethod(methodName, value.getClass());
-				m.invoke( profileObject.getProfileConcrete(), value );
-			}
-			catch (Exception e) {
-			  throw new SLEEException("Failure setting CMP Field (" + fieldName + ").", e);
-			}		
-			
-			profileObject.setProfileDirty(true);
+		
+		if (profileObject.getState() != ProfileObjectState.READY) {
+			throw new IllegalStateException("Profile object must be in ready state");
 		}
-		finally {
-			ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
-			t.setContextClassLoader(oldClassLoader);			
+		
+		if (profileObject.getProfileEntity().isReadOnly()) {				
+			throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileEntity().getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
 		}
+		
+		ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
 	}
 
 	/**
 	 * 
+	 * @param profileObject
 	 * @param fieldName
-	 *            = Introspector.decapitalize(method.getName().substring(3));
-	 * @return
+	 * @param value
+	 * @throws IllegalStateException
+	 * @throws ReadOnlyProfileException
 	 */
-	public static Object getCmpField(ProfileObject profileObject, String fieldName)
-	{
-	  sleeContainer.getTransactionManager().mandateTransaction();
-	  
-		Thread t = Thread.currentThread();
-		ClassLoader oldClassLoader = t.getContextClassLoader();
-		t.setContextClassLoader(profileObject.getProfileSpecificationComponent().getClassLoader());
+	public static void afterSetCmpField(ProfileObject profileObject) {
 
-		try
-		{
-			ProfileCallRecorderTransactionData.addProfileCall(profileObject);
+		profileObject.getProfileEntity().setDirty(true);
+		ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
+	}
+	
+	/**
+	 * 
+	 * @param fieldName
+	 * @param value
+	 */
+	public static void beforeGetCmpField(ProfileObject profileObject) throws IllegalStateException {
+		
+		sleeContainer.getTransactionManager().mandateTransaction();
 
-			if (profileObject.getState() != ProfileObjectState.READY) {
-				throw new IllegalStateException("Profile object must be in ready state");
-			}
-
-			Object retVal = null;
-
-			try
-			{
-				String methodName = "get" + fieldName.replace(fieldName.charAt(0), fieldName.toUpperCase().charAt(0)) + "JPA";
-				Method m = profileObject.getProfileConcrete().getClass().getMethod(methodName);
-				retVal = m.invoke( profileObject.getProfileConcrete());
-			}
-			catch(Exception e )
-			{
-        throw new SLEEException("Failure getting CMP Field (" + fieldName + ").", e);
-			}
-
-			return retVal;
+		// not a snapshot, so ensure object in ready state
+		if (profileObject.getState() != ProfileObjectState.READY) {
+			throw new IllegalStateException("Profile object must be in ready state");
 		}
-		finally
-		{
-			ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
-			t.setContextClassLoader(oldClassLoader);
-		}
+		
+		ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
+	}
+
+	/**
+	 * 
+	 * @param profileObject
+	 * @param fieldName
+	 * @param value
+	 * @throws IllegalStateException
+	 * @throws ReadOnlyProfileException
+	 */
+	public static void afterGetCmpField(ProfileObject profileObject) {
+
+		ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
 	}
 
 }

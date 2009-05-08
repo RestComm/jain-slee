@@ -1,5 +1,8 @@
 package org.mobicents.slee.runtime.facilities.profile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.EventTypeID;
@@ -7,11 +10,11 @@ import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileLocalObject;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.profile.ProfileConcrete;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.profile.ProfileObject;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -33,21 +36,21 @@ public abstract class AbstractProfileEvent {
 	private final ProfileID profileID;
 	
 	/**
-	 * a snapshot of the concrete instance of the event's profile, when the event occurred 
+	 * a snapshot of the event's profile, when the event occurred 
 	 */
-	private final ProfileConcrete profileConcreteAfterAction;
+	private final ProfileEntity profileAfterAction;
 
 	private final static SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 	/**
 	 * 
-	 * @param profileConcreteAfterAction
+	 * @param profileEntityAfterAction
 	 */
-	AbstractProfileEvent(ProfileConcrete profileConcreteAfterAction) {
+	AbstractProfileEvent(ProfileEntity profileEntityAfterAction) {
 		
-		this.profileConcreteAfterAction = profileConcreteAfterAction;
-		this.profileAddress = new Address(AddressPlan.SLEE_PROFILE, profileConcreteAfterAction.getTableName() + "/"
-				+ profileConcreteAfterAction.getProfileName());
+		this.profileAfterAction = profileEntityAfterAction;
+		this.profileAddress = new Address(AddressPlan.SLEE_PROFILE, profileEntityAfterAction.getTableName() + "/"
+				+ profileEntityAfterAction.getProfileName());
 		this.profileID = new ProfileID(this.profileAddress);		
 	}
 
@@ -60,11 +63,11 @@ public abstract class AbstractProfileEvent {
 	}
 	
 	/**
-	 * Retrieves a snapshot of the concrete instance of the event's profile, when the event occurred
+	 * Retrieves a snapshot of the instance of the event's profile, when the event occurred
 	 * @return
 	 */
-	public ProfileConcrete getProfileConcreteAfterAction() {
-		return profileConcreteAfterAction;
+	public ProfileEntity getProfileConcreteAfterAction() {
+		return profileAfterAction;
 	}
 	
 	/**
@@ -79,9 +82,9 @@ public abstract class AbstractProfileEvent {
 	 * Verifies if the specified class can be loaded by current thread class loader 
 	 * @return
 	 */
-	boolean isProfileConcreteClassVisible() {
+	boolean isProfileClassVisible() {
 		try {
-			Thread.currentThread().getContextClassLoader().loadClass(profileConcreteAfterAction.getClass().getName());
+			Thread.currentThread().getContextClassLoader().loadClass(profileAfterAction.getClass().getName());
 			return true;
 		} catch (Throwable e) {
 			return false;
@@ -91,36 +94,38 @@ public abstract class AbstractProfileEvent {
 	/**
 	 * Retrieves a local object valid for thus current transaction.
 	 * 
-	 * @param profileConcrete
+	 * @param profilePojo
 	 * @return
 	 * @throws TransactionRequiredLocalException
 	 */
-	ProfileLocalObject getProfileLocalObjectValidInCurrentTransaction(ProfileConcrete profileConcrete) throws TransactionRequiredLocalException {
+	ProfileObject getProfileObjectValidInCurrentTransaction(ProfileEntity profileEntity) throws TransactionRequiredLocalException {
 		// check tx
 		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
 		txManager.mandateTransaction();
-		// get an object from the table
-		final ProfileTableConcrete profileTableConcrete = profileConcrete.getProfileObject().getProfileTableConcrete();
-		final ProfileObject profileObject = profileTableConcrete.assignAndActivateProfileObject(profileConcrete.getProfileName());
-		// set the concrete object and raise read only flag
-		profileObject.setProfileConcrete(profileConcrete);
-		profileConcrete.setProfileObject(profileObject);
-		profileObject.setProfileReadOnly(true);
-		// add tx action to release object after tx ends
-		TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				profileTableConcrete.deassignProfileObject(profileObject, false);				
-			}
-		};
-		try {
-			txManager.addAfterCommitAction(action);
-			txManager.addAfterRollbackAction(action);
-		} catch (Throwable e) {
-			throw new SLEEException(e.getMessage(),e);
+		
+		// look for an assigned object in local map
+		if (txData == null) {
+			txData = new HashMap<ProfileEntity, ProfileObject>();
 		}
-		// finally get the object
-		return profileObject.getProfileLocalObject();
+		ProfileObject profileObject = (ProfileObject) txData.get(profileEntity);
+		if (profileObject == null) {
+			// get an object from the table
+			try {
+				profileEntity.setReadOnly(true);
+				profileObject = sleeContainer.getSleeProfileTableManager().getProfileTable(profileEntity.getTableName()).borrowProfileObject();
+				profileObject.profileActivate(profileEntity);				
+			} catch (UnrecognizedProfileTableNameException e1) {
+				throw new SLEEException(e1.getMessage(),e1);
+			}
+			txData.put(profileEntity, profileObject);
+		}
+		return profileObject;
 	}
+	
+	/**
+	 * a map to hold loaded profile objects
+	 */
+	private Map<ProfileEntity,ProfileObject> txData = null;
 	
 	/**
 	 * Retrieves the event type id for the event object

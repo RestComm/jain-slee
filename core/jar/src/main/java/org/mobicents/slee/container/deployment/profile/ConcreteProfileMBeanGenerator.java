@@ -27,7 +27,7 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 public class ConcreteProfileMBeanGenerator {
 
 	private static final Logger logger = Logger.getLogger(ConcreteProfileManagementGenerator.class);
-	public static final String _MBEAN_CMP_INTERCEPTOR = "super.profileObject.getProfileConcrete()";
+	public static final String _MBEAN_CMP_INTERCEPTOR = "profileObject.getProfileConcrete()";
 	public static final String _MBEAN_MGMT_INTERCEPTOR = "super.profileObject.getProfileConcrete()";
 	private ProfileSpecificationComponent component = null;
 	private String cmpProfileInterfaceName = null;
@@ -302,7 +302,7 @@ public class ConcreteProfileMBeanGenerator {
 		profileMBeanConcreteClass.addMethod(newMethod);
 	}
 
-	private void instrumentCmpMethod(CtClass concreteClass,CtMethod method, boolean isGet, String interceptorAccess) throws Exception
+	private void instrumentCmpMethod(CtClass concreteClass,CtMethod method, boolean isGet) throws Exception
 	{
 		if(logger.isDebugEnabled())
 		{
@@ -311,18 +311,13 @@ public class ConcreteProfileMBeanGenerator {
 		
 		CtMethod newMethod = CtNewMethod.copy( method, concreteClass, null );
 		newMethod.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
-		
-		String fieldName = method.getName().substring(3,4).toLowerCase() + method.getName().substring(4);
-
-		// Set the first char of the accessor to UpperCase to follow the
-		// javabean requirements
-				
+						
 		String body = null;
 		if (isGet) {
-			body = "{ return ($r) " + AbstractProfileMBean.class.getName()+".getCmpField(this,\""+fieldName+"\"); }";
+			body = "{ beforeGetCmpField(); try { return ($r) (("+component.getProfileCmpConcreteClass().getName()+")profileObject.getProfileConcrete())." + method.getName()+"(); } finally { afterGetCmpField(); } }";
 		}
 		else {
-			body = "{ Object o = ($w) $1; " + AbstractProfileMBean.class.getName()+".setCmpField(this,\""+fieldName+"\",o); }";
+			body = "{ beforeSetCmpField(); try { (("+component.getProfileCmpConcreteClass().getName()+")profileObject.getProfileConcrete())." + method.getName()+"($1); } finally { afterSetCmpField(); } }";
 		}
 		if(logger.isDebugEnabled())
 		{
@@ -362,7 +357,7 @@ public class ConcreteProfileMBeanGenerator {
 			Map.Entry<String, CtMethod> entry = it.next();
 			if(profileCmpMethods.containsKey(ClassUtils.getMethodKey(entry.getValue())))
 			{
-				instrumentCmpMethod(profileMBeanConcreteClass, entry.getValue(), entry.getKey().startsWith(ClassUtils.GET_PREFIX), "((" + this.component.getProfileCmpConcreteClass().getName() + ")" + _MBEAN_CMP_INTERCEPTOR + ")");
+				instrumentCmpMethod(profileMBeanConcreteClass, entry.getValue(), entry.getKey().startsWith(ClassUtils.GET_PREFIX));
 				it.remove();
 			}
 			else

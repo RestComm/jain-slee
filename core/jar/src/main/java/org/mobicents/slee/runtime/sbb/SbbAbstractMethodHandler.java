@@ -247,34 +247,16 @@ public class SbbAbstractMethodHandler {
 		SleeProfileTableManager sleeProfileManager = sleeContainer
 				.getSleeProfileTableManager();
 
-		try {
-			
-			ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(profileID.getProfileName());
-			
-			if (!profileTable.profileExists(profileID.getProfileName())) {
-				throw new UnrecognizedProfileNameException(profileID.toString());
-			}
-			
-			final ProfileObject po = profileTable.assignAndActivateProfileObject(profileID.getProfileName());
-			po.profileLoad();
-			
-			TransactionalAction action = new TransactionalAction() {
-				public void execute() {
-					try {
-						po.getProfileTableConcrete().deassignProfileObject(po, false);						
-					} catch (Exception e) {
-						logger.error("Failed to deallocate ProfileObject");
-					}
-				}
-			};
-			
-			sleeContainer.getTransactionManager().addBeforeCommitAction(action);
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-			return po.getProfileConcrete();
-		} catch (SystemException e) {
-			throw new SLEEException("low-level failure", e);
+		ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(profileID.getProfileName());
+
+		if (!profileTable.profileExists(profileID.getProfileName())) {
+			throw new UnrecognizedProfileNameException(profileID.toString());
 		}
 
+		final ProfileObject po = profileTable.borrowProfileObject();
+		po.profileActivate(profileID.getProfileName());
+		po.releaseProfileObjectOnTxEnd();
+		return po.getProfileConcrete();		
 	}
 
 	// SBB USAGE PARAMS

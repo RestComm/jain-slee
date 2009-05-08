@@ -91,7 +91,7 @@ public class ProfileContextImpl implements ProfileContext {
 			throw new IllegalStateException();
 		}
 		// check if it is default profile
-		if (profileObject.getProfileName() == null) {
+		if (profileObject.getProfileEntity().getProfileName() == null) {
 			throw new IllegalStateException();
 		}
 		return profileObject.getProfileLocalObject();
@@ -106,7 +106,7 @@ public class ProfileContextImpl implements ProfileContext {
 		}
 		
 		try {
-			return this.profileObject.getProfileName();
+			return this.profileObject.getProfileEntity().getProfileName();
 		}
 		catch (Exception e) {
 			throw new SLEEException("Failed with profile table ;[", e);

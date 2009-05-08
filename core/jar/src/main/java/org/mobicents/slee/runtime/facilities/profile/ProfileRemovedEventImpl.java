@@ -18,6 +18,7 @@ import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileRemovedEvent;
 
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.profile.ProfileConcrete;
 
 /**
@@ -31,8 +32,8 @@ public class ProfileRemovedEventImpl extends AbstractProfileEvent implements Pro
 
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileRemovedEvent", "javax.slee", "1.0");
 
-	public ProfileRemovedEventImpl(ProfileConcrete profileConcrete) {
-		super(profileConcrete);
+	public ProfileRemovedEventImpl(ProfileEntity profileEntity) {
+		super(profileEntity);
 	}
 
 	@Override
@@ -46,8 +47,8 @@ public class ProfileRemovedEventImpl extends AbstractProfileEvent implements Pro
 	 * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfile()
 	 */
 	public Object getRemovedProfile() {
-		if (isProfileConcreteClassVisible()) {
-			return getProfileConcreteAfterAction();
+		if (isProfileClassVisible()) {
+			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileConcrete();
 		} else {
 			return null;
 		}
@@ -59,8 +60,8 @@ public class ProfileRemovedEventImpl extends AbstractProfileEvent implements Pro
 	 * @see javax.slee.profile.ProfileRemovedEvent#getRemovedProfileLocal()
 	 */
 	public ProfileLocalObject getRemovedProfileLocal() {
-		if (isProfileConcreteClassVisible()) {
-			return getProfileLocalObjectValidInCurrentTransaction(getProfileConcreteAfterAction());
+		if (isProfileClassVisible()) {
+			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileLocalObject();
 		} else {
 			return null;
 		}

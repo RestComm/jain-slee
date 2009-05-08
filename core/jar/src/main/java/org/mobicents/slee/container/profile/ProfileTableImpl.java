@@ -24,10 +24,12 @@ import javax.slee.profile.ReadOnlyProfileException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -35,17 +37,17 @@ import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * 
  * Start time:11:20:19 2009-03-14<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * This is wrapper class for defined profiles. Its counter part is Service class
- * which manages SbbEntities. Actual profile with its data is logical SbbEntity.
  * 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ * @author martins
  */
 public class ProfileTableImpl implements ProfileTableConcrete {
 
@@ -67,7 +69,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	 * indicates if this table fires events
 	 */
 	private final boolean fireEvents;
-		
+	
 	public ProfileTableImpl(String profileTableName, ProfileSpecificationComponent component, SleeContainer sleeContainer) {
 		
 		ProfileTableImpl.validateProfileTableName(profileTableName);
@@ -233,8 +235,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		checkProfileSpecIsNotReadOnly();
-			
-		return createProfile(profileName).getProfileLocalObject();					
+		return  createProfile(profileName).getProfileLocalObject();
 	}
 
 	public ProfileLocalObject find(String profileName)
@@ -304,16 +305,15 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		// TODO unregister any existent mbeans for this profile
-		
-		// Fire the removed event only when the transaction commits
-		ProfileObject profileObject = assignAndActivateProfileObject(profileName);
+
 		try {
-			profileObject.profileLoad();
-			deassignProfileObject(profileObject, true);			
+			ProfileObject profileObject = borrowProfileObject();
+			profileObject.profileActivate(profileName);
+			profileObject.profileRemove();	
 			return true;
 		} catch (UnrecognizedProfileNameException e) {
 			return false;
-		}													
+		}															
 	}
 
 	public static void validateProfileName(String profileName)
@@ -386,19 +386,11 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			logger.debug("Creating default profile for table "+profileTableName);
 		}
 		// lets get an object
-		ProfileObject profileObject = assignProfileObject(null);
+		ProfileObject profileObject = borrowProfileObject();
 		// invoke lifecycle methods
-		profileObject.profileInitialize();
-		if (component.isSlee11()) {
-			profileObject.profilePostCreate();
-		}
-		profileObject.profileStore();
-		// See section 10.13.1.10 of JSLEE 1.1
-		if (!component.isSlee11()) {
-			profileObject.profileVerify();
-		}
-		// passivate and return object
-		deassignProfileObject(profileObject, false);
+		profileObject.profileCreate(null);
+		profileObject.profileVerify();
+		profileObject.profilePassivate();		
 	}
 	
 	public ProfileObject createProfile(String newProfileName)
@@ -417,7 +409,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 
 		ProfileObject allocated = null;
-		boolean success = false;
+		
 		try {
 			
 			Thread.currentThread().setContextClassLoader(
@@ -437,27 +429,14 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 								+ component);
 			}
 			*/
-			// get an object
-			allocated = this.assignProfileObject(newProfileName);
-			// copy state from default profile
-			allocated.loadFromDefaultProfile();
-			// if slee 1.1 then invoke postCreate()
-			if (component.isSlee11()) {
-				allocated.profilePostCreate();
-			}
-			success = true;
+			
+			allocated = borrowProfileObject();
+			allocated.profileCreate(newProfileName);
+						
 			return allocated;
 		} catch (IllegalArgumentException e) {
 			throw new SLEEException(e.getMessage(), e);
 		} finally {
-			if (!success && allocated != null) {
-				try {
-					this.deassignProfileObject(allocated, false);
-				} catch (Throwable e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
 		}
 
@@ -495,52 +474,20 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		return null;
 	}
 
-	private ProfileObject assignProfileObject(String profileName) {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("[assignProfileObject] on: " + this + " Profile["
-					+ profileName + "]");
-		}
-
-		ProfileObject profileObject = new ProfileObject(this,
-				component.getProfileSpecificationID());
-		ProfileContextImpl context = new ProfileContextImpl(this);
-		profileObject.setProfileContext(context);
-		profileObject.setProfileName(profileName);
-		if (profileName != null) {
-			profileObject.setProfileReadOnly(getProfileSpecificationComponent().getDescriptor().getReadOnly());
-		}
-		return profileObject;
-	}
-
-	public ProfileObject assignAndActivateProfileObject(String profileName) {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("[assignAndActivateProfileObject] on: " + this + " Profile["
-					+ profileName + "]");
-		}
-
-		ProfileObject profileObject = assignProfileObject(profileName);
-		profileObject.profileActivate();
-
-		return profileObject;
+	public ProfileObject borrowProfileObject() {
+		final ProfileObjectPool pool = sleeContainer.getProfileObjectPoolManagement().getObjectPool(profileTableName);
+		return pool.borrowObject();		
 	}
 	
 	/**
 	 * Returns object into pooled state
 	 */
-	public void deassignProfileObject(ProfileObject profileObject,
-			boolean remove) {
+	public void returnProfileObject(ProfileObject profileObject) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("[deassignProfileObject] on: " + this
-					+ " ProfileObject[" + profileObject + "]");
-		}
-		if (!remove) {
-			profileObject.profilePassivate();
-		} else {
-			profileObject.profileRemove();
-		}
-		profileObject.unsetProfileContext();
+			logger.debug("[returnProfileObject] on: " + profileObject + "]");
+		}		
+		ProfileObjectPool pool = sleeContainer.getProfileObjectPoolManagement().getObjectPool(profileTableName);
+		pool.returnObject(profileObject);
 	}
 
 	public ObjectName getUsageMBeanName() throws IllegalArgumentException {
@@ -639,8 +586,8 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	
 	private ProfileLocalObject getProfileLocalObject(
 			String profileName) throws UnrecognizedProfileNameException {
-		ProfileObject profileObject = assignAndActivateProfileObject(profileName);
-		profileObject.profileLoad();
+		ProfileObject profileObject = borrowProfileObject();
+		profileObject.profileActivate(profileName);
 		return profileObject.getProfileLocalObject();		
 	}
 
@@ -649,4 +596,5 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 				+ this.profileTableName + " , component ="
 				+ component + " )";
 	}
+	
 }

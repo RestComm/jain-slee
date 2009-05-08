@@ -30,7 +30,7 @@ public class ProfileManagementHandler {
 			logger.info("[isProfileDirty] @ " + profileObject);
 		}
 
-		return profileObject.isProfileDirty();
+		return profileObject.getProfileEntity().isDirty();
 	}
 
 	public static boolean isProfileValid(ProfileObject profileObject,
@@ -49,7 +49,7 @@ public class ProfileManagementHandler {
 			logger.info("[markProfileDirty] @ " + profileObject);
 		}
 
-		profileObject.setProfileDirty(true);
+		profileObject.getProfileEntity().setDirty(true);
 	}
 
 	public static void profileInitialize(ProfileObject profileObject) {

@@ -21,15 +21,7 @@ import javax.slee.profile.ProfileManagement;
  */
 public interface ProfileConcrete extends Profile,ProfileManagement {
 
-	public void setProfileObject(ProfileObject profileObject);
+	public void setProfileObject(ProfileObject value);
 	public ProfileObject getProfileObject();
 
-	public void setProfileName(String profileName);
-	public String getProfileName();
-
-	public void setTableName(String profileTableName);
-	public String getTableName();
-
-	public ProfileConcrete cl0ne() throws CloneNotSupportedException ;
-	
 }

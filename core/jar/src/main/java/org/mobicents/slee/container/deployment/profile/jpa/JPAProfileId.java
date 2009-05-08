@@ -62,7 +62,7 @@ public class JPAProfileId implements Serializable {
   @Override
   public int hashCode()
   {
-    return super.hashCode();
+    return safeProfileName.hashCode()*31+tableName.hashCode();
   }
   
   @Override

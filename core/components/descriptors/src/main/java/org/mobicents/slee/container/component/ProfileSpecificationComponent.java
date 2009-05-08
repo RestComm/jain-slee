@@ -68,8 +68,13 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	/**
 	 * holds concrete class that implementeds all required interface and methods
 	 */
-	private Class profileCmpConcreteClass = null;
+	private Class profileConcreteClass = null;
 
+	/**
+	 * holder of cmp data for a profile
+	 */
+	private Class profileEntityClass = null;
+	
 	/**
 	 * holds reference to generate MBean interface class for this specification
 	 */
@@ -214,13 +219,33 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	}
 
 	/**
+	 * Returns class that holds cmp data for a profile
+	 * implements all required
+	 * 
+	 * @return
+	 */
+	public Class getProfileEntityClass() {
+		return profileEntityClass;
+	}
+
+	/**
+	 * Sets class that holds cmp data for a profile
+	 * implements all required
+	 * 
+	 * @param c
+	 */
+	public void setProfileEntityClass(Class c) {
+		this.profileEntityClass = c;
+	}
+
+	/**
 	 * Returns class object representing concrete impl of cmp interface - it
 	 * implements all required
 	 * 
 	 * @return
 	 */
 	public Class getProfileCmpConcreteClass() {
-		return profileCmpConcreteClass;
+		return profileConcreteClass;
 	}
 
 	/**
@@ -230,9 +255,10 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	 * @param profileCmpConcreteClass
 	 */
 	public void setProfileCmpConcreteClass(Class profileCmpConcreteClass) {
-		this.profileCmpConcreteClass = profileCmpConcreteClass;
+		this.profileConcreteClass = profileCmpConcreteClass;
 	}
 
+	
 	/**
 	 * Returns concrete/generated mbean interface for this profile specs
 	 * 

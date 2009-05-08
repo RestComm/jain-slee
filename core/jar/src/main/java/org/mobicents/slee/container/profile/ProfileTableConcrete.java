@@ -15,9 +15,11 @@ import javax.slee.profile.ProfileTable;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedAttributeException;
+import javax.slee.profile.UnrecognizedProfileNameException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
@@ -46,18 +48,16 @@ public interface ProfileTableConcrete extends ProfileTable {
 	public ProfileSpecificationComponent getProfileSpecificationComponent();
 
 	/**
-	 * Assigns a profile object and activates it, invoking profileActivate()
-	 * @param profileName
+	 * Borrows a profile object from the profile table pool
 	 * @return
 	 */
-	public ProfileObject assignAndActivateProfileObject(String profileName);
-
+	public ProfileObject borrowProfileObject();
+	
 	/**
-	 * Returns a profile object instance to the table
+	 * Returns a profile object from the profile table pool
 	 * @param profileObject
-	 * @param remove if the object should be removed or passivated
 	 */
-	public void deassignProfileObject(ProfileObject profileObject, boolean remove);
+	void returnProfileObject(ProfileObject profileObject);
 
 	public ActivityContext getActivityContext();
 	

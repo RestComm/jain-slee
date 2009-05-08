@@ -13,7 +13,7 @@ import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileUpdatedEvent;
 
-import org.mobicents.slee.container.profile.ProfileConcrete;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 
 /**
  * Profile Updated Event implementation.
@@ -27,11 +27,11 @@ public class ProfileUpdatedEventImpl extends AbstractProfileEvent implements Pro
 
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.profile.ProfileUpdatedEvent", "javax.slee", "1.0");
 
-	private final ProfileConcrete profileConcreteBeforeAction;
+	private final ProfileEntity profileBeforeAction;
 
-	public ProfileUpdatedEventImpl(ProfileConcrete profileConcreteBeforeAction, ProfileConcrete profileConcreteAfterAction) {
-		super(profileConcreteAfterAction);
-		this.profileConcreteBeforeAction = profileConcreteBeforeAction;
+	public ProfileUpdatedEventImpl(ProfileEntity profileBeforeAction, ProfileEntity profileAfterAction) {
+		super(profileAfterAction);
+		this.profileBeforeAction = profileBeforeAction;
 	}
 
 	@Override
@@ -45,8 +45,8 @@ public class ProfileUpdatedEventImpl extends AbstractProfileEvent implements Pro
 	 * @see javax.slee.profile.ProfileUpdatedEvent#getAfterUpdateProfile()
 	 */
 	public Object getAfterUpdateProfile() {
-		if (isProfileConcreteClassVisible()) {
-			return getProfileConcreteAfterAction();
+		if (isProfileClassVisible()) {
+			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileConcrete();
 		} else {
 			return null;
 		}		
@@ -58,8 +58,8 @@ public class ProfileUpdatedEventImpl extends AbstractProfileEvent implements Pro
 	 * @see javax.slee.profile.ProfileUpdatedEvent#getAfterUpdateProfileLocal()
 	 */
 	public ProfileLocalObject getAfterUpdateProfileLocal() {
-		if (isProfileConcreteClassVisible()) {
-			return getProfileLocalObjectValidInCurrentTransaction(getProfileConcreteAfterAction());
+		if (isProfileClassVisible()) {
+			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileLocalObject();
 		} else {
 			return null;
 		}
@@ -71,8 +71,8 @@ public class ProfileUpdatedEventImpl extends AbstractProfileEvent implements Pro
 	 * @see javax.slee.profile.ProfileUpdatedEvent#getBeforeUpdateProfile()
 	 */
 	public Object getBeforeUpdateProfile() {
-		if (isProfileConcreteClassVisible()) {
-			return this.profileConcreteBeforeAction;
+		if (isProfileClassVisible()) {
+			return getProfileObjectValidInCurrentTransaction(this.profileBeforeAction).getProfileConcrete();
 		} else {
 			return null;
 		}	
@@ -84,8 +84,8 @@ public class ProfileUpdatedEventImpl extends AbstractProfileEvent implements Pro
 	 * @see javax.slee.profile.ProfileUpdatedEvent#getBeforeUpdateProfileLocal()
 	 */
 	public ProfileLocalObject getBeforeUpdateProfileLocal() {
-		if (isProfileConcreteClassVisible()) {
-			return getProfileLocalObjectValidInCurrentTransaction(this.profileConcreteBeforeAction);
+		if (isProfileClassVisible()) {
+			return getProfileObjectValidInCurrentTransaction(this.profileBeforeAction).getProfileLocalObject();
 		} else {
 			return null;
 		}

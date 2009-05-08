@@ -30,7 +30,6 @@ import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.profile.ProfileConcrete;
 import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
@@ -63,9 +62,10 @@ public class JPAUtils implements ProfileDataSource {
 
   public void install(ProfileSpecificationComponent component) {
 	  synchronized (this) {
-		  // 1. Generate CMP Interface Impl with JPA Annotations
-		  Class<?> c = new ConcreteProfileGenerator(component).generateConcreteProfile();
-		  component.setProfileCmpConcreteClass(c);
+		  // generate profile pojo
+		  component.setProfileEntityClass(new ConcreteProfileEntityGenerator(component).generateClass());
+		  // 1. Generate CMP Interface Impl with JPA Annotations		  
+		  component.setProfileCmpConcreteClass(new ConcreteProfileGenerator(component).generateConcreteProfile());
 		  // 2. Create the corresponding JPA PU -- FIXME: Should be somewhere else?
 		  createPersistenceUnit( component );
 	  }	
@@ -90,7 +90,7 @@ public class JPAUtils implements ProfileDataSource {
       pumd.setName( "JSLEEProfiles" + profileComponent.getComponentID().hashCode() );
 
       Set classes = new HashSet<String>();
-      classes.add( profileComponent.getProfileCmpInterfaceClass().getName() + "Impl" );
+      classes.add( profileComponent.getProfileEntityClass().getName());
 
       pumd.setClasses(classes);
 
@@ -216,7 +216,7 @@ public class JPAUtils implements ProfileDataSource {
     }
 
     ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
-    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
+    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
 
     EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
     Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTableName).setParameter(2, profileName);
@@ -254,7 +254,7 @@ public class JPAUtils implements ProfileDataSource {
 
 	  ProfileSpecificationID psid = ptc.getProfileSpecificationComponent().getProfileSpecificationID();
 
-	  String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
+	  String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
 	  String profileTableName = ptc.getProfileTableName();
 
 	  EntityManager em = getEntityManager(psid);
@@ -262,7 +262,7 @@ public class JPAUtils implements ProfileDataSource {
 
 	  for(Object o : createProfileQuery.getResultList())
 	  {
-		  result.add( new ProfileID(profileTableName, ((ProfileConcrete)o).getProfileName()) );
+		  result.add( new ProfileID(profileTableName, ((ProfileEntity)o).getProfileName()) );
 	  }
 
 	  return result;
@@ -277,7 +277,7 @@ public class JPAUtils implements ProfileDataSource {
 	  }
 
 
-	  String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
+	  String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
 	  String profileTableName = ptc.getProfileTableName();
 
 	  em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
@@ -300,7 +300,7 @@ public class JPAUtils implements ProfileDataSource {
     EntityManager em = null;
 
     
-      String jpaTableName = ptc.getProfileSpecificationComponent().getProfileCmpConcreteClass().getName();
+      String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
       String profileTableName = ptc.getProfileTableName();
 
       em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
@@ -309,7 +309,7 @@ public class JPAUtils implements ProfileDataSource {
 
       for(Object result : results)
       {
-        profileNames.add( ((ProfileConcrete)result).getProfileName());
+        profileNames.add( ((ProfileEntity)result).getProfileName());
       }
     
 
@@ -367,12 +367,12 @@ public class JPAUtils implements ProfileDataSource {
   {
     EntityManager em = null;
     
-      em = getEntityManager(profileObject.getProfileSpecificationComponent().getProfileSpecificationID());
-      em.persist(profileObject.getProfileConcrete()); 
+      em = getEntityManager(profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getProfileSpecificationID());
+      em.persist(profileObject.getProfileEntity()); 
     
   }
   
-  public ProfileConcrete retrieveProfile(ProfileTableConcrete profileTable, String profileName)
+  public ProfileEntity retrieveProfile(ProfileTableConcrete profileTable, String profileName)
   {
     EntityManager em = null;
     
@@ -384,11 +384,11 @@ public class JPAUtils implements ProfileDataSource {
       ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
   
       em = getEntityManager(psc.getProfileSpecificationID());
-      Query q = em.createQuery("FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
+      Query q = em.createQuery("FROM " + psc.getProfileEntityClass().getName() + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
   
       List resultList = q.getResultList();
       if (resultList.size() > 0) {
-        return (ProfileConcrete) resultList.get(0);        
+        return (ProfileEntity) resultList.get(0);        
       }
       else {
         return null;
@@ -408,7 +408,7 @@ public class JPAUtils implements ProfileDataSource {
       ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
 
       em = getEntityManager(psc.getProfileSpecificationID());
-      Query q = em.createQuery("DELETE FROM " + psc.getProfileCmpConcreteClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
+      Query q = em.createQuery("DELETE FROM " + psc.getProfileEntityClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
 
       return q.executeUpdate() > 0;
     
@@ -419,10 +419,10 @@ public class JPAUtils implements ProfileDataSource {
     EntityManager em = null;
   
     
-      ProfileSpecificationComponent psc = profileObject.getProfileSpecificationComponent();
+      ProfileSpecificationComponent psc = profileObject.getProfileTableConcrete().getProfileSpecificationComponent();
 
       em = getEntityManager(psc.getProfileSpecificationID());
-      em.remove(profileObject.getProfileConcrete());
+      em.remove(profileObject.getProfileEntity());
     
   }
 

@@ -253,6 +253,8 @@ public class SleeProfileTableManager {
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
 		// register usage mbean
 		profileTable.register();
+		// create object pool
+		sleeContainer.getProfileObjectPoolManagement().createObjectPool(profileTable, sleeContainer.getTransactionManager());
 		// add default profile
 		profileTable.createDefaultProfile();
 
@@ -284,7 +286,9 @@ public class SleeProfileTableManager {
 
 	public void removeProfileTable(ProfileTableImpl profileTableConcreteImpl) {
 		// FIXME: add more ?
-
+	  // remove object pool
+	  sleeContainer.getProfileObjectPoolManagement().removeObjectPool(profileTableConcreteImpl, sleeContainer.getTransactionManager());
+	  // remove from mapping
 	  this.nameToProfileTableMap.remove(profileTableConcreteImpl.getProfileTableName());
 	}
 

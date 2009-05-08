@@ -63,6 +63,7 @@ import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorRegistrator;
 import org.mobicents.slee.container.management.xml.DefaultSleeEntityResolver;
+import org.mobicents.slee.container.profile.ProfileObjectPoolManagement;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
@@ -162,6 +163,7 @@ public class SleeContainer {
 	private SbbManagement sbbManagement;
 	// object pool management
 	private SbbObjectPoolManagement sbbPoolManagement;
+	private ProfileObjectPoolManagement profileObjectPoolManagement;
 	
 	/**
 	 * where DUs are stored
@@ -278,6 +280,9 @@ public class SleeContainer {
 		
 		this.sbbPoolManagement = new SbbObjectPoolManagement(sleeContainer);
 		this.sbbPoolManagement.register();
+		
+		this.profileObjectPoolManagement = new ProfileObjectPoolManagement(sleeContainer);
+		this.profileObjectPoolManagement.register();
 	}
 
 	/**
@@ -372,6 +377,14 @@ public class SleeContainer {
 		return sbbPoolManagement;
 	}
 
+	/**
+	 * Retrieves the profile object pool management
+	 * @return
+	 */
+	public ProfileObjectPoolManagement getProfileObjectPoolManagement() {
+		return profileObjectPoolManagement;
+	}
+	
 	/**
 	 * manages (un)install of services
 	 * 

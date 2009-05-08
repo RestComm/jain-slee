@@ -176,7 +176,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	private AbstractProfileMBean createAndRegisterProfileMBean(ProfileObject profileObject) throws ManagementException {
 		
 		try {
-			ProfileSpecificationComponent component = profileObject.getProfileSpecificationComponent();
+			ProfileSpecificationComponent component = profileObject.getProfileTableConcrete().getProfileSpecificationComponent();
 			Constructor<?> constructor = component.getProfileMBeanConcreteImplClass().getConstructor(Class.class, ProfileObject.class);
 			final AbstractProfileMBean profileMBean = (AbstractProfileMBean) constructor.newInstance(component.getProfileMBeanConcreteInterfaceClass(), profileObject);
 			// add a rollback action to close the mbean
@@ -368,15 +368,12 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		ProfileObject profileObject = null;
 		try {
 			profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			profileObject = profileTable.assignAndActivateProfileObject(profileName);
-			profileObject.profileLoad();
+			profileObject = profileTable.borrowProfileObject();
+			profileObject.profileActivate(profileName);
 			ObjectName objectName = createAndRegisterProfileMBean(profileObject).getObjectName();
 			rb = false;
 			return objectName;		
-		} finally {
-			if (rb && profileObject != null) {
-				profileTable.deassignProfileObject(profileObject, false);
-			}
+		} finally {			
 			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 

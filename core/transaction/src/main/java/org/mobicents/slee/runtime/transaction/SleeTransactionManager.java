@@ -112,6 +112,13 @@ public interface SleeTransactionManager extends javax.slee.transaction.SleeTrans
 	public void addBeforeCommitAction(TransactionalAction action) throws SystemException; 
 	
 	/**
+	 * adds a new {@link TransactionalAction} that will be executed before the transaction is committed, at first
+	 * @param action
+	 * @throws SystemException
+	 */
+	public void addBeforeCommitPriorityAction(TransactionalAction action) throws SystemException;
+	
+	/**
 	 * 
 	 * @return true if the current transaction is marked for rollback
 	 * @throws SystemException

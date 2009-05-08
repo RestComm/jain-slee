@@ -64,6 +64,11 @@ public class TransactionContext {
 	 * {@link TransactionalAction}s which should be executed before transaction commits
 	 */
 	private List<TransactionalAction> beforeCommitActions;
+	
+	/**
+	 * {@link TransactionalAction}s which should be executed before transaction commits at first
+	 */
+	private List<TransactionalAction> beforeCommitPriorityActions;
 
 	/**
 	 * transaction data
@@ -112,6 +117,17 @@ public class TransactionContext {
 			beforeCommitActions = new ArrayList<TransactionalAction>();
 		}
 		return beforeCommitActions;
+	}
+	
+	/**
+	 * Retrieves the list of actions which should be executed before commit at first
+	 * @return
+	 */
+	public List<TransactionalAction> getBeforeCommitPriorityActions() {
+		if (beforeCommitPriorityActions == null) {
+			beforeCommitPriorityActions = new ArrayList<TransactionalAction>();
+		}
+		return beforeCommitPriorityActions;
 	}
 
 	// ------- DATA MANAGEMENT
@@ -192,6 +208,23 @@ public class TransactionContext {
 			}
 		}
 	}
+	
+	/**
+	 * Executes actions scheduled for before commit at first
+	 */
+	protected void executeBeforeCommitPriorityActions() {
+		
+		if (beforeCommitPriorityActions != null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Executing before commit priority actions");
+			}
+			executeActions(beforeCommitPriorityActions);
+		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("No before commit priority actions to execute");
+			}
+		}
+	}
 
 	private void executeActions(List<TransactionalAction> actions) {
 		
@@ -214,6 +247,7 @@ public class TransactionContext {
 		afterCommitPriorityActions = null;
 		afterRollbackActions = null;
 		beforeCommitActions = null;
+		beforeCommitPriorityActions = null;
 		data = null;
 	}
 	

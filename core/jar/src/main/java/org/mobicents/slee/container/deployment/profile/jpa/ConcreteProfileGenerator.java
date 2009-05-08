@@ -1,8 +1,5 @@
 package org.mobicents.slee.container.deployment.profile.jpa;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -11,24 +8,17 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.CtPrimitiveType;
+import javassist.NotFoundException;
 
-import javax.persistence.EntityManager;
 import javax.slee.SLEEException;
 import javax.slee.profile.Profile;
 import javax.slee.profile.ProfileManagement;
-import javax.slee.profile.ProfileSpecificationID;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -36,15 +26,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.deployment.ClassUtils;
-import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
+import org.mobicents.slee.container.profile.ProfileCmpHandler;
 import org.mobicents.slee.container.profile.ProfileConcrete;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.mobicents.slee.container.profile.ProfileObject;
 
 /**
  * 
- * ConcreteProfileJPAGenerator.java
+ * Generates the ProfileConcrete impl for a specific Profile Specification.
  *
  * <br>Project:  mobicents
  * <br>11:16:57 AM Mar 23, 2009 
@@ -101,10 +90,10 @@ public class ConcreteProfileGenerator {
 
       MProfileCMPInterface cmpInterface = this.profileDescriptor.getProfileCMPInterface();
 
-      String concreteClassName = ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_PREFIX + cmpInterface.getProfileCmpInterfaceName() + ConcreteClassGeneratorUtils.PROFILE_CONCRETE_CLASS_NAME_SUFFIX;
+      String concreteClassName = cmpInterface.getProfileCmpInterfaceName() + "Impl";
 
       // Create the Impl class
-      CtClass profileConcreteClass = ClassGeneratorUtils.createClass(concreteClassName, new String[]{cmpInterface.getProfileCmpInterfaceName(), ProfileConcrete.class.getName(), Cloneable.class.getName()});
+      CtClass profileConcreteClass = ClassGeneratorUtils.createClass(concreteClassName, new String[]{cmpInterface.getProfileCmpInterfaceName(), ProfileConcrete.class.getName()});
 
       // If this is combination 3 or 4, the the concrete class extends the Concrete Profile Management Abstract Class
       if( profileCombination >= 3 )
@@ -119,40 +108,14 @@ public class ConcreteProfileGenerator {
           ClassGeneratorUtils.createInterfaceLinks( profileConcreteClass, new String[]{profileDescriptor.getProfileManagementInterface().getProfileManagementInterfaceName()} );
         }
       }
-      
-      // Annotate class with @Entity
-      ClassGeneratorUtils.addAnnotation( "javax.persistence.Entity", new LinkedHashMap<String, Object>(), profileConcreteClass );
-
-      // Add the table name to map it to ProfileSpecification ID
-      LinkedHashMap<String, Object> tableMVs = new LinkedHashMap<String, Object>();
-
-      ProfileSpecificationID psid = profileDescriptor.getProfileSpecificationID();
-      tableMVs.put( "name", "JSLEEProfile" + Math.abs((psid.getName() + "#" + psid.getVendor() + "#" + psid.getVersion()).hashCode()) + "" );
-
-      ClassGeneratorUtils.addAnnotation( "javax.persistence.Table", tableMVs, profileConcreteClass );
-
-      // Add profileName and profileTableName fields
-      generateProfileIdentifiers(profileConcreteClass);
-      
-      CtField fSleeTransactionManager = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("javax.slee.transaction.SleeTransactionManager"), "sleeTransactionManager", profileConcreteClass, Modifier.PRIVATE, "org.mobicents.slee.container.SleeContainer.lookupFromJndi().getTransactionManager()" );
-      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fSleeTransactionManager );
-
-      // We also need getter/setter for profileObject and profileTableConcrete
-      CtField fProfileObject = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileObject"), "profileObject", profileConcreteClass );
-      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileObject );
+ 
+      // add profile object field and getter/setter
+      CtField fProfileObject = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass(ProfileObject.class.getName()), "profileObject", profileConcreteClass );
       ClassGeneratorUtils.generateGetterAndSetter( fProfileObject, null );
-      
-      CtField fProfileTableConcrete = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass("org.mobicents.slee.container.profile.ProfileTableConcrete"), "profileTableConcrete", profileConcreteClass );
-      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileTableConcrete );
-      ClassGeneratorUtils.generateGetterAndSetter( fProfileTableConcrete, null );
       
       // CMP fields getters and setters
       generateCMPFieldsWithGettersAndSetters(profileConcreteClass);
       
-//      CtField fProfileDirty = ClassGeneratorUtils.addField( CtClass.booleanType, "profileDirty", profileConcreteClass, Modifier.PRIVATE, "false" );
-//      ClassGeneratorUtils.addAnnotation( "javax.persistence.Transient", null, fProfileDirty );
-//      ClassGeneratorUtils.generateGetterAndSetter( fProfileDirty, null );
-
       generateConstructors(profileConcreteClass);
       
       // Profile Management methods for JAIN SLEE 1.1
@@ -167,50 +130,12 @@ public class ConcreteProfileGenerator {
       if (profileManagementInterface != null) {
         profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(profileManagementInterface.getName())));
       }
-      
-//      if (profileManagementAbstractClass != null) {
-//        // We do get concrete methods, so we can intercept calls before delegating them
-//        profileManagementMethods.putAll(ClassUtils.getConcreteMethodsFromClass(profileManagementAbstractClass));
-//        
-//        Map<String, CtMethod> abstractMethods = ClassUtils.getSuperClassesAbstractMethodsFromClass(profileManagementAbstractClass);
-//        abstractMethods.putAll(ClassUtils.getAbstractMethodsFromClass(profileManagementAbstractClass));
-//        // First we generate Usage methods and remove them from management
-//        // methods map
-//
-//        createDefaultUsageParameterGetter(abstractMethods, cmpProfileConcreteClass);
-//        createNamedUsageParameterGetter(abstractMethods, cmpProfileConcreteClass);
-//
-//      }
 
       Map<String, CtMethod> cmpInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(this.profileComponent.getProfileCmpInterfaceClass().getName()));
       generateBusinessMethods(profileConcreteClass, profileManagementMethods, cmpInterfaceMethods);
 
 
       profileConcreteClass.getClassFile().setVersionToJava5();
-      
-      // generate cl0ne method
-      String cl0neMethodSrc = "public "+ProfileConcrete.class.getName()+" cl0ne() throws CloneNotSupportedException { return ("+ProfileConcrete.class.getName()+") clone(); }";
-      CtMethod cl0neMethod = CtNewMethod.make(cl0neMethodSrc, profileConcreteClass);
-      profileConcreteClass.addMethod(cl0neMethod);
-      // generate getProfileName method
-      String getProfileNameMethodSrc = "public String getProfileName()" +
-      									"{" +
-      									"	String safeProfileName = getSafeProfileName();" +
-      									"	if(safeProfileName.equals(\"\")) " +
-      									"		return null;" +
-      									"	else " +
-      									"		return safeProfileName;" +
-      									"}";
-      CtMethod getProfileNameMethod = CtNewMethod.make(getProfileNameMethodSrc, profileConcreteClass);
-      profileConcreteClass.addMethod(getProfileNameMethod);
-      // generate setProfileName method
-      String setProfileNameMethodSrc = "public void setProfileName(String profileName)" +
-      									"{" +
-      									"	profileName == null ? setSafeProfileName(\"\") : setSafeProfileName(profileName);" +
-      									"}";
-      CtMethod setProfileNameMethod = CtNewMethod.make(setProfileNameMethodSrc, profileConcreteClass);
-      profileConcreteClass.addMethod(setProfileNameMethod);
-      
       
       logger.info( "Writing PROFILE CONCRETE CLASS to: " + deployDir );
       
@@ -362,8 +287,8 @@ public class ConcreteProfileGenerator {
           fieldNames.put( fieldName, method.getReturnType() );
           
           CtField genField = ClassGeneratorUtils.addField( method.getReturnType(), fieldName, profileConcreteClass );
-
-          ClassGeneratorUtils.generateCMPHandlers( genField );
+          generateCMPGetter( genField );
+          generateCMPSetter( genField );
         }
       }
     }
@@ -382,71 +307,73 @@ public class ConcreteProfileGenerator {
     }
   }
   
-  public void addClassToPersistenceXML(String className)
+  
+  /**
+   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
+   * 
+   * @param field
+   * @return
+   * @throws NotFoundException
+   * @throws CannotCompileException
+   */
+  private CtMethod generateCMPGetter(CtField field) throws NotFoundException, CannotCompileException
   {
-    try {
-      // Create a builder factory
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      factory.setValidating(false);
-
-      // Create the builder and parse the file
-      InputStream is = this.getClass().getClassLoader().getResourceAsStream( "META-INF/persistence.xml" );
-      Document doc = factory.newDocumentBuilder().parse(is);
-
-      Element classElement = doc.createElement( "class" );
-      classElement.setTextContent( className );
-
-      doc.getElementsByTagName( "persistence-unit" ).item(0).appendChild( classElement );
-
-      javax.xml.transform.TransformerFactory tfactory = TransformerFactory.newInstance();
-      javax.xml.transform.Transformer xform = tfactory.newTransformer();
-      javax.xml.transform.Source src = new DOMSource(doc);
-      java.io.StringWriter writer = new StringWriter();
-      Result results = new StreamResult(writer);
-      xform.transform(src, results);
-      System.out.println(writer.toString());
-
-
-      Transformer transformer = TransformerFactory.newInstance().newTransformer();
-      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-      //initialize StreamResult with File object to save to file
-      StreamResult result = new StreamResult(new StringWriter());
-      DOMSource source = new DOMSource(doc);
-      transformer.transform(source, result);
-
-      // Write to file
-      File file = new File(this.getClass().getClassLoader().getResource( "META-INF/persistence.xml" ).toURI());
-      Result resultx = new StreamResult(file);
-
-      // Write the DOM document to the file
-      Transformer xformer = TransformerFactory.newInstance().newTransformer();
-      xformer.transform(source, resultx);
+    CtMethod getter = CtNewMethod.getter( "get" + ClassGeneratorUtils.capitalize(field.getName()), field );
+    CtClass classToBeInstrumented = field.getDeclaringClass();
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug("About to instrument: " + getter.getName() + ", into: " + classToBeInstrumented.getName());
     }
-    catch (Exception e) {
-    	throw new SLEEException(e.getMessage(),e);
-    }
+    
+    String getterBody = 
+    	"{" +
+    		ProfileCmpHandler.class.getName() + ".beforeGetCmpField(profileObject);" +
+        "	try {" +
+        "		return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "();" +
+        "	}" +
+        "	finally {" +
+        		ProfileCmpHandler.class.getName() + ".afterGetCmpField(profileObject);" +
+        "	};"+
+    	"}";
+
+    getter.setBody(getterBody);
+    classToBeInstrumented.addMethod(getter);
+    
+    return getter;
   }
 
-  public void persist(Object[] objects, EntityManager em)
-  {  
-    em.getTransaction().begin();
-
-    try
-    {
-      for(Object object : objects)
-        em.persist(object);
-
-      em.getTransaction().commit();  
+  /**
+   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
+   * 
+   * @param field
+   * @return
+   * @throws NotFoundException
+   * @throws CannotCompileException
+   */
+  private CtMethod generateCMPSetter(CtField field) throws NotFoundException, CannotCompileException
+  {
+    CtMethod setter = CtNewMethod.setter( "set" + ClassGeneratorUtils.capitalize(field.getName()), field );
+    CtClass classToBeInstrumented = field.getDeclaringClass();
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug("About to instrument: " + setter.getName() + ", into: " + classToBeInstrumented.getName());
     }
-    catch (Exception e) {  
-      em.getTransaction().rollback();  
-      throw new SLEEException(e.getMessage(),e);
-    }
-    finally
-    {  
-      em.close();  
-    }  
+
+    String setterBody = 
+    	"{" +
+    		ProfileCmpHandler.class.getName() + ".beforeSetCmpField(profileObject);" +
+        "	try {" +
+        "		return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "($1);" +
+        "	}" +
+        "	finally {" +
+        		ProfileCmpHandler.class.getName() + ".afterSetCmpField(profileObject);" +
+        "	};"+
+    	"}";
+    
+    setter.setBody(setterBody);
+    classToBeInstrumented.addMethod(setter);
+
+    return setter;
   }
 
   public void dumpClassInfo(String className) throws Exception

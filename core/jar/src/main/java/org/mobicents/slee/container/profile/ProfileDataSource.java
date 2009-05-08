@@ -11,6 +11,7 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.profile.query.QueryExpression;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 
 public interface ProfileDataSource {
@@ -50,7 +51,7 @@ public interface ProfileDataSource {
 
 	  public void persistProfile(ProfileObject profileObject);
 	  
-	  public ProfileConcrete retrieveProfile(ProfileTableConcrete profileTable, String profileName);
+	  public ProfileEntity retrieveProfile(ProfileTableConcrete profileTable, String profileName);
 
 	  public boolean removeprofile(ProfileTableConcrete profileTable, String profileName);
 	  

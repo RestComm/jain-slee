@@ -371,6 +371,11 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		getTransactionContext().getBeforeCommitActions().add(action);
 	}
 	
+	public void addBeforeCommitPriorityAction(TransactionalAction action)
+	throws SystemException {
+		getTransactionContext().getBeforeCommitPriorityActions().add(action);
+	}
+	
 	// --- TX MANAGER LISTENER
 	
 	class SynchronizationHandler implements Synchronization {
@@ -413,6 +418,7 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 			// get entry and execute before commit actions
 			TransactionContext tc = transactionContexts.get(tx);
 			if (tc != null) {
+				tc.executeBeforeCommitPriorityActions();
 				tc.executeBeforeCommitActions();
 			}
 		}

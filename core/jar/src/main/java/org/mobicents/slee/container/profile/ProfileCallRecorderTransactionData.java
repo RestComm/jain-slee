@@ -168,6 +168,6 @@ public class ProfileCallRecorderTransactionData {
 
 	private static String makeKey(ProfileObject pc) {
 		// FIXME: Alexandre: Removed toString() as it may cause it to identify as differente profile
-		return pc.getProfileTableConcrete().getProfileTableName() + "-" + pc.getProfileName();// + "-" + pc.toString();
+		return pc.getProfileTableConcrete().getProfileTableName() + "-" + pc.getProfileEntity().getProfileName();// + "-" + pc.toString();
 	}
 }

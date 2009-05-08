@@ -37,7 +37,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileName()
 	 */
 	public String getProfileName() throws SLEEException {
-		return profileObject.getProfileName();
+		return profileObject.getProfileEntity().getProfileName();
 	}
 
 	/*
@@ -91,7 +91,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		profileObject.profileRemove();		
+		profileObject.getProfileEntity().remove();		
 	}
 
 }

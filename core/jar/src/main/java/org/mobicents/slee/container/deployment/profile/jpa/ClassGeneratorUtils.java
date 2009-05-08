@@ -310,36 +310,7 @@ public class ClassGeneratorUtils {
 
     return getter;
   }
-
-  /**
-   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
-   * 
-   * @param field
-   * @return
-   * @throws NotFoundException
-   * @throws CannotCompileException
-   */
-  public static CtMethod generateCMPGetter(CtField field) throws NotFoundException, CannotCompileException
-  {
-    CtMethod getter = CtNewMethod.getter( "get" + capitalize(field.getName()), field );
-    CtClass classToBeInstrumented = field.getDeclaringClass();
-    
-    if (logger.isDebugEnabled()) {
-      logger.debug("About to instrument: " + getter.getName() + ", into: " + classToBeInstrumented.getName());
-    }
-
-    String getterBody = "{ if(logger.isDebugEnabled()){logger.info(\"" + getter.getName() + " called for \" + profileObject + \".\");}";
-    getterBody += "return ($r) " + CMP_HANDLER + ".getCmpField(profileObject, \"" + field.getName() + "\"); }";
-
-    getter.setBody(getterBody);
-    classToBeInstrumented.addMethod(getter);
-
-    CtMethod getterJPA = CtNewMethod.getter( "get" + capitalize(field.getName()) + "JPA", field );
-    classToBeInstrumented.addMethod(getterJPA);
-    
-    return getter;
-  }
-
+  
   /**
    * Generates a setter for the field (get<FieldName>) and adds it to the declaring class.
    * 
@@ -363,46 +334,6 @@ public class ClassGeneratorUtils {
   }
 
   /**
-   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
-   * 
-   * @param field
-   * @return
-   * @throws NotFoundException
-   * @throws CannotCompileException
-   */
-  public static CtMethod generateCMPSetter(CtField field) throws NotFoundException, CannotCompileException
-  {
-    CtMethod setter = CtNewMethod.setter( "set" + capitalize(field.getName()), field );
-    CtClass classToBeInstrumented = field.getDeclaringClass();
-    
-    if (logger.isDebugEnabled()) {
-      logger.debug("About to instrument: " + setter.getName() + ", into: " + classToBeInstrumented.getName());
-    }
-
-    String setterBody = "{ if(logger.isDebugEnabled()){logger.info(\"" + setter.getName() + " called for \" + profileObject + \".\");}";
-    setterBody += " Object o = ($w) $1; " + CMP_HANDLER + ".setCmpField(profileObject, \"" + field.getName() + "\", o); }";
-
-    setter.setBody(setterBody);
-    classToBeInstrumented.addMethod(setter);
-
-    CtMethod setterJPA =  null;
-    if(field.getType().isPrimitive())
-    {
-      CtPrimitiveType primType = ((CtPrimitiveType)field.getType());
-      
-      setterJPA = CtNewMethod.make( "public void set" + capitalize(field.getName()) + "JPA(" + primType.getWrapperName() + " arg0) { this." + field.getName() + " = arg0." + primType.getGetMethodName() + "(); }", classToBeInstrumented );
-    }
-    else
-    {
-      setterJPA = CtNewMethod.setter( "set" + capitalize(field.getName()) + "JPA", field );
-    }
-
-    classToBeInstrumented.addMethod(setterJPA);
-
-    return setter;
-  }
-  
-  /**
    * Generates getter and setter for the field (get/set<FieldName>) and adds them to the declaring class.
    * 
    * @param field
@@ -415,12 +346,15 @@ public class ClassGeneratorUtils {
     generateSetter(field, interceptorAccess);
   }
 
-  public static void generateCMPHandlers(CtField field) throws NotFoundException, CannotCompileException
-  {
-    generateCMPGetter(field);
-    generateCMPSetter(field);
+ 
+  /**
+   * Retrieves the sufix to add to set/get and obtain the profile cmp acessors method names in the profile pojo
+   * @param fieldName
+   * @return
+   */
+  public static String getPojoCmpAccessorSufix(String fieldName) {
+	  return "C" + capitalize(fieldName); 
   }
-  
   
   /**
    * Adds the selected annotation to the Object, along with the specified memberValues.
@@ -728,7 +662,7 @@ public class ClassGeneratorUtils {
    * @param s
    * @return
    */
-  private static String capitalize(String s)
+  public static String capitalize(String s)
   {
     return s.length() > 0 ? s.substring(0, 1).toUpperCase() + s.substring(1) : s;
   }
@@ -738,7 +672,7 @@ public class ClassGeneratorUtils {
    * @param s
    * @return
    */
-  private static String decapitalize(String s)
+  public static String decapitalize(String s)
   {
     return s.length() > 0 ? s.substring(0, 1).toLowerCase() + s.substring(1) : s;
   }
