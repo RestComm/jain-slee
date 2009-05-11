@@ -13,7 +13,6 @@ import javassist.NotFoundException;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileTable;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
@@ -33,7 +32,7 @@ public class ConcreteProfileTableGenerator {
 	private String profileTableInterfaceName = null;
 	private String profileTableConcreteClassName = null;
 
-	private ClassPool pool = component.getClassPool();
+	private ClassPool pool;
 	private CtClass cmpProfileInterface;
 	private CtClass profileTableInterface = null;
 	private CtClass sleeProfileTableInterface = null;
@@ -163,7 +162,6 @@ public class ConcreteProfileTableGenerator {
 		if (component.getProfileTableConcreteClass() == null) {
 			throw new DeploymentException("Concrete cmp itnerface class is null, could we possibly fail and not throw exception yet?, " + component);
 		}
-		
 	}
 
 	private void generateQueries(CtClass profileTableConcreteClass, Map<String, CtMethod> queriesMapToDivert) throws Exception{
@@ -174,7 +172,6 @@ public class ConcreteProfileTableGenerator {
 			instrumetnQuery(profileTableConcreteClass,it.next().getValue(),_INTERCEPTOR_QUERY);
 			it.remove();
 		}
-		
 	}
 
 	private void instrumetnQuery(CtClass profileTableConcreteClass, CtMethod method, String interceptorQuery) throws Exception{
@@ -183,7 +180,7 @@ public class ConcreteProfileTableGenerator {
 			logger.debug("About to instrument query method: "+method.getName()+", into: "+profileTableConcreteClass);
 		}
 		String queryName = method.getName();
-		if(queryName.startsWith("_QUERY_METHOD_NAME_PREFIX"))
+		if(queryName.startsWith(_QUERY_METHOD_NAME_PREFIX))
 		{
 			queryName= Introspector.decapitalize(queryName.replace(_QUERY_METHOD_NAME_PREFIX, ""));
 		}else
@@ -206,12 +203,7 @@ public class ConcreteProfileTableGenerator {
 		body+="}";
 		method.setBody(body);
 		profileTableConcreteClass.addMethod(method);
-	
-		
-		
-		
-		
-		
+
 	}
 
 }
