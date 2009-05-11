@@ -22,7 +22,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.Profil
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.AbstractProfileMBean;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class ConcreteProfileMBeanGenerator {
 
@@ -246,7 +245,7 @@ public class ConcreteProfileMBeanGenerator {
 		"boolean rollback = true;"+
 		"Thread t = Thread.currentThread();"+
 		"ClassLoader oldClassLoader = t.getContextClassLoader();"+
-		"t.setContextClassLoader(this.profileObject.getProfileSpecificationComponent().getClassLoader());"+
+		"t.setContextClassLoader(this.profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getClassLoader());"+
 		"try {"+
 		"	createdTransaction = sleeTransactionManager.requireTransaction();";
 		if(hasReturnValue)

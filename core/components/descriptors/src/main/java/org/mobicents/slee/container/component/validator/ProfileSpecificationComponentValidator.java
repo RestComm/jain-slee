@@ -1458,6 +1458,15 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			if (this.component.getDescriptor().getProfileClasses().getProfileManagementInterface() != null) {
 				Class profileManagementInterfaceClass = this.component
 						.getProfileManagementInterfaceClass();
+				
+				// if abstract class and management interface are both defined than abstract class must implement the management interface
+				if (this.component.getProfileAbstractClass() != null && !profileManagementInterfaceClass.isAssignableFrom(this.component.getProfileAbstractClass())) {
+					passed = false;
+					errorBuffer = appendToBuffer(
+							"Profile abstract class must implement profile management interface if both are specified", "10.11",
+							errorBuffer);
+				}
+				
 				Map<String, Method> profileManagementInterfaceMethods = ClassUtils
 						.getAllInterfacesMethods(
 								profileManagementInterfaceClass, ignore);
