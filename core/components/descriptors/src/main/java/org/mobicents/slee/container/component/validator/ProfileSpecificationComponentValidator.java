@@ -1854,10 +1854,10 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				// profile-read-only attribute of the enclosing profile-spec element. 
 				// It is a deployment error to specify false for this element if the value of the profile-
 				// read-only attribute of the enclosing profile-spec element is true
-				if(query.getQueryOptions() != null && query.getQueryOptions().isReadOnly() != this.component.getDescriptor().getReadOnly())
+				if(query.getQueryOptions() != null && this.component.getDescriptor().getReadOnly() && !query.getQueryOptions().isReadOnly())
 				{
           passed = false;
-          errorBuffer = appendToBuffer("Query read-only attribute must match enclosing specification read-only attribute. Offending query: " + queryName, "10.20.2", errorBuffer);
+          errorBuffer = appendToBuffer("It is a deployment error to specify false for this element if the value of the profile read-only attribute of the enclosing profile-spec element is true. Offending query: " + queryName, "10.20.2", errorBuffer);
         }
 				
 				// Zero or more query-parameter elements. 
@@ -1872,8 +1872,13 @@ public class ProfileSpecificationComponentValidator implements Validator {
         {
           if(!_ALLOWED_QUERY_PARAMETER_TYPES.contains(qParam.getType()))
           {
-            passed = false;
-            errorBuffer = appendToBuffer("Query parameter type must be a Java primitive type or its equivalent object wrapper class, or java.lang.String. Offending query: " + queryName, "10.20.2", errorBuffer);
+            // Alexandre: Let it pass if it's javax.slee.Address. This is not in spec, but should. See the link below.
+            // https://jsleetck11.dev.java.net/servlets/ProjectForumMessageView?messageID=25143&forumID=3225                       
+            if(!qParam.getType().equals(javax.slee.Address.class.getName()))
+            {
+              passed = false;
+              errorBuffer = appendToBuffer("Query parameter type must be a Java primitive type or its equivalent object wrapper class, or java.lang.String. Offending query: " + queryName, "10.20.2", errorBuffer);
+            }
           }
         }
 

@@ -147,7 +147,13 @@ public class MQueryExpression {
 	
 	public MQueryExpression getNot()
 	{
-		return this.childExpressions.get(0);
+	  for(MQueryExpression expr : this.childExpressions)
+	  {
+	    if(expr.getType() == MQueryExpressionType.Not);
+	      return expr;
+	  }
+	  
+	  return null;
 	}
 	
 	public List<MQueryExpression> getAnd()

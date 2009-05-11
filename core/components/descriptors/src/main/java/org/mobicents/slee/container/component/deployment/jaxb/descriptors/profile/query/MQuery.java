@@ -12,8 +12,6 @@ import java.util.List;
  */
 public class MQuery {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Query query11;
-
   private String name;
 
   private List<MQueryParameter> queryParameters;
@@ -22,8 +20,6 @@ public class MQuery {
 
   public MQuery(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Query query11)
   {
-    this.query11 = query11;
-
     this.name = query11.getName();
 
     this.queryParameters = new ArrayList<MQueryParameter>();

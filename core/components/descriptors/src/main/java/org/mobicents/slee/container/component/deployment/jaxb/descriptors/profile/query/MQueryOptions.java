@@ -9,15 +9,11 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  */
 public class MQueryOptions {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryOptions queryOptions11;
-
   private boolean readOnly;
   private long maxMatches;
 
   public MQueryOptions(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryOptions queryOptions11)
   {
-    this.queryOptions11 = queryOptions11;
-
     this.readOnly = Boolean.parseBoolean(queryOptions11.getReadOnly());
     this.maxMatches = queryOptions11.getMaxMatches() == null ? Long.MAX_VALUE : Long.parseLong(queryOptions11.getMaxMatches());
   }
