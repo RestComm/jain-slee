@@ -12,7 +12,6 @@ import javassist.Modifier;
 import javassist.NotFoundException;
 
 import javax.slee.SLEEException;
-import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileLocalObject;
@@ -70,8 +69,18 @@ public class ConcreteProfileLocalObjectGenerator {
 			throw new SLEEException("Failed to locate required class for " + component, nfe);
 		}
 
-		String profileLocalInterfaceName = descriptor.getProfileLocalInterface().getProfileLocalInterfaceName();
-		String profileLocalConcreteClassName = profileLocalInterfaceName + "Impl";
+		boolean profileLocalObjectInterfaceProvided = descriptor.getProfileLocalInterface() != null;
+		
+		String profileLocalInterfaceName = null;
+		String profileLocalConcreteClassName = null;
+		if (profileLocalObjectInterfaceProvided) {
+			profileLocalInterfaceName = descriptor.getProfileLocalInterface().getProfileLocalInterfaceName();
+			profileLocalConcreteClassName = profileLocalInterfaceName + "Impl";
+		}
+		else {
+			profileLocalInterfaceName = descriptor.getProfileCMPInterface().getProfileCmpInterfaceName();
+			profileLocalConcreteClassName = profileLocalInterfaceName + "_PLO_Impl";
+		}
 
 		CtClass profileLocalConcreteClass = null;
 		try {
@@ -80,16 +89,16 @@ public class ConcreteProfileLocalObjectGenerator {
 			throw new DeploymentException("Failed to create Profile Local Interface implementation class.",e);
 		}
 		
-		CtClass userDefinedProfileLocalInterface = null;
+		CtClass profileLocalInterface = null;
 		try {
-			userDefinedProfileLocalInterface = pool.get(profileLocalInterfaceName);
+			profileLocalInterface = pool.get(profileLocalInterfaceName);
 		}
 		catch (NotFoundException nfe) {
 			throw new DeploymentException("Failed to locate user provided local object interface class for " + component, nfe);
 		}
 		
 		// implement only methods from profile cmp and management interface that are also on user defined local object interface
-		Map<String, CtMethod> methodsToImplement = ClassUtils.getInterfaceMethodsFromInterface(userDefinedProfileLocalInterface,ClassUtils.getInterfaceMethodsFromInterface(profileLocalObjectInterface));
+		Map<String, CtMethod> methodsToImplement = ClassUtils.getInterfaceMethodsFromInterface(profileLocalInterface,ClassUtils.getInterfaceMethodsFromInterface(profileLocalObjectInterface));
 		
 		// Create interface and inheritance links
 		CtClass[] presentInterfaces = profileLocalObjectImplClass.getInterfaces();
@@ -97,7 +106,7 @@ public class ConcreteProfileLocalObjectGenerator {
 		for (int index = 0; index < presentInterfaces.length; index++) {
 			targetInterfaces[index] = presentInterfaces[index];
 		}
-		targetInterfaces[targetInterfaces.length - 1] = userDefinedProfileLocalInterface;	
+		targetInterfaces[targetInterfaces.length - 1] = profileLocalInterface;	
 		ConcreteClassGeneratorUtils.createInterfaceLinks(profileLocalConcreteClass, targetInterfaces);
 		ConcreteClassGeneratorUtils.createInheritanceLink(profileLocalConcreteClass, profileLocalObjectImplClass);
 		

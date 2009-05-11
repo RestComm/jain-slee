@@ -39,13 +39,11 @@ public class SleeProfileClassCodeGenerator {
       logger.debug("Generated MBean concrete " + component.getProfileMBeanConcreteImplClass());
     }
 
-    if (component.getProfileLocalInterfaceClass() != null) {
-    	ConcreteProfileLocalObjectGenerator concreteProfileLocalObjectGenerator = new ConcreteProfileLocalObjectGenerator(component);
-    	concreteProfileLocalObjectGenerator.generateProfileLocalConcreteClass();
-    	if (logger.isDebugEnabled()) {
-    		logger.debug("Generated Profile Local Object impl for " + component);
-    		logger.debug("Generated Profile Local Object concrete " + component.getProfileLocalObjectConcreteClass());
-    	}
+   	ConcreteProfileLocalObjectGenerator concreteProfileLocalObjectGenerator = new ConcreteProfileLocalObjectGenerator(component);
+    concreteProfileLocalObjectGenerator.generateProfileLocalConcreteClass();
+    if (logger.isDebugEnabled()) {
+    	logger.debug("Generated Profile Local Object impl for " + component);
+    	logger.debug("Generated Profile Local Object concrete " + component.getProfileLocalObjectConcreteClass());
     }
 
     if (component.getProfileTableInterfaceClass() != null) {
