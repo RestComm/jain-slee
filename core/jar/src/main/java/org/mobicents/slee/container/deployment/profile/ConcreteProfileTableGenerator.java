@@ -10,6 +10,7 @@ import javassist.CtMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
 
+import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 import javax.slee.profile.ProfileTable;
 
@@ -55,7 +56,7 @@ public class ConcreteProfileTableGenerator {
 
 		} catch (NotFoundException nfe) {
 			// nfe.printStackTrace();
-			throw new DeploymentException("Failed to locate cmp interface class for " + component, nfe);
+			throw new SLEEException("Failed to locate cmp interface class for " + component, nfe);
 		}
 
 		try {
@@ -63,7 +64,7 @@ public class ConcreteProfileTableGenerator {
 
 		} catch (NotFoundException nfe) {
 			// nfe.printStackTrace();
-			throw new DeploymentException("Failed to locate ProfileTableConcreteImpl class for " + component, nfe);
+			throw new SLEEException("Failed to locate ProfileTableConcreteImpl class for " + component, nfe);
 		}
 
 		try {
@@ -71,7 +72,7 @@ public class ConcreteProfileTableGenerator {
 
 		} catch (NotFoundException nfe) {
 			// nfe.printStackTrace();
-			throw new DeploymentException("Failed to locate ProfileTable interface for " + component, nfe);
+			throw new SLEEException("Failed to locate ProfileTable interface for " + component, nfe);
 		}
 
 		//Those methods are already implemented.
@@ -169,12 +170,12 @@ public class ConcreteProfileTableGenerator {
 		Iterator<Map.Entry<String, CtMethod>> it = queriesMapToDivert.entrySet().iterator();
 		while(it.hasNext())
 		{
-			instrumetnQuery(profileTableConcreteClass,it.next().getValue(),_INTERCEPTOR_QUERY);
+			instrumentQuery(profileTableConcreteClass,it.next().getValue(),_INTERCEPTOR_QUERY);
 			it.remove();
 		}
 	}
 
-	private void instrumetnQuery(CtClass profileTableConcreteClass, CtMethod method, String interceptorQuery) throws Exception{
+	private void instrumentQuery(CtClass profileTableConcreteClass, CtMethod method, String interceptorQuery) throws Exception{
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("About to instrument query method: "+method.getName()+", into: "+profileTableConcreteClass);
@@ -192,7 +193,7 @@ public class ConcreteProfileTableGenerator {
 		method.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
 		String body = "{";
 	
-		body+="return "+_INTERCEPTOR_QUERY+"(this,"+queryName+",$$);";
+		body+="return "+_INTERCEPTOR_QUERY+"(this,\""+queryName+"\",$args);";
 		
 		
 		if(logger.isDebugEnabled())

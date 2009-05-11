@@ -30,7 +30,7 @@ public class ProfileQueryHandler {
 	 * @throws SLEEException
 	 *             - if something goes really wrong.
 	 */
-	public java.util.Collection handle(ProfileTableConcrete profileTable, String queryName, Object[] arguments) throws TransactionRequiredLocalException,SLEEException {
+	public static java.util.Collection handle(ProfileTableImpl profileTable, String queryName, Object[] arguments) throws TransactionRequiredLocalException,SLEEException {
 
 		profileTable.getSleeContainer().getTransactionManager().mandateTransaction();
 		
