@@ -7,8 +7,10 @@ import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
+import javax.slee.profile.ProfileImplementationException;
 import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileVerificationException;
+import javax.slee.profile.ReadOnlyProfileException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
@@ -31,6 +33,8 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * @author martins
  */
 public abstract class AbstractProfileMBean extends StandardMBean implements ProfileMBean, NotificationSource {
+	
+	private enum State { read, write };
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AbstractProfileMBean.class);
@@ -55,9 +59,20 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	 */
 	private Transaction transaction;
 	
+	/**
+	 * the table related with the profile mbean
+	 */
 	private final ProfileTableConcrete profileTable;
 	
+	/**
+	 * the name of the profile assigned to the mbean
+	 */
 	private final String profileName;
+	
+	/**
+	 * current state in the mbean
+	 */
+	private State state = State.read;
 	
 	/**
 	 * 
@@ -65,20 +80,18 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	 * @param profileObject
 	 * @throws NotCompliantMBeanException
 	 */
-	public AbstractProfileMBean(Class<?> mbeanInterface, ProfileObject profileObject) throws NotCompliantMBeanException, ManagementException {
+	public AbstractProfileMBean(Class<?> mbeanInterface, String profileName, ProfileTableConcrete profileTable) throws NotCompliantMBeanException, ManagementException {
 	  super(mbeanInterface);
-	  this.profileObject = profileObject;
-	  this.profileTable = profileObject.getProfileTableConcrete();
-	  this.profileName = profileObject.getProfileEntity().getProfileName();
+	  this.profileTable = profileTable;
+	  this.profileName = profileName;
 	  // register the mbean
 	  try {
-		  this.objectName = ProfileTableImpl.generateProfileMBeanObjectName(profileObject.getProfileTableConcrete().getProfileTableName(), profileObject.getProfileEntity().getProfileName());
+		  this.objectName = ProfileTableImpl.generateProfileMBeanObjectName(profileTable.getProfileTableName(), profileName);
 		  sleeContainer.getMBeanServer().registerMBean(this, objectName);
 	  } catch (Throwable e) {
 		  throw new ManagementException(e.getMessage(),e);
 	  }
 	}
-
 	
 	/**
 	 * Retrieves the object name used to register this mbean.
@@ -89,11 +102,12 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	}
 	
 	/**
-	 * Indicates the mbean is for a new profile
+	 * Moves to the write mode, using specified object. The current java transaction will be suspended.
 	 * @throws ManagementException 
 	 */
-	public void createProfile() throws SLEEException, ManagementException {
+	public void writeMode(ProfileObject profileObject) throws SLEEException, ManagementException {
 		if (!isProfileWriteable()) {
+			this.profileObject = profileObject;
 			// make it writable
 			profileObject.getProfileEntity().setReadOnly(false);
 			// suspend the transaction
@@ -102,7 +116,14 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			} catch (SystemException e) {
 				throw new SLEEException(e.getMessage(),e);
 			}
+			state = State.write;
 		}
+	}
+	
+	public void readMode() {
+		state = State.read;
+		profileObject = null;
+		transaction = null;
 	}
 	
   // #################
@@ -173,9 +194,22 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			} catch (Throwable e) {
 				throw new ManagementException(e.getMessage(),e);
 			}
-			this.profileObject.profileVerify();	
-			this.profileObject.profilePassivate();
-			// visible in the SLEE
+			try {
+				this.profileObject.profileVerify();	
+				this.profileObject.profilePassivate();
+			}
+			catch (RuntimeException e) {
+				// oops, set rollback flag, suspend tx and throw mngmt exception
+				try {
+					sleeTransactionManager.setRollbackOnly();
+					sleeTransactionManager.suspend();
+				} catch (Throwable f) {
+					logger.error(f.getMessage(),f);
+				}
+				profileObject.invalidateObject();
+				throw new ManagementException(e.getMessage(),e);
+			}
+			// the profile will now become visible in the SLEE
 			try {
 				sleeTransactionManager.commit();
 			} catch (Throwable e) {
@@ -188,9 +222,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			 * in the Profile Management object must also be set to false upon a
 			 * successful commit.
 			 */
-			profileObject = null;
-			transaction = null;
-
+			readMode();
 		}
 		finally
 		{
@@ -202,18 +234,24 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	public void editProfile() throws ManagementException
 	{
 		if(logger.isDebugEnabled()) {
-			logger.debug("Editing profile with name "+this.profileObject.getProfileEntity().getProfileName()+", from table with name "+this.profileObject.getProfileTableConcrete().getProfileTableName());
+			logger.debug("Editing profile with name "+profileName+", from table with name "+this.profileTable.getProfileTableName());
 		}
 		
 		if (!isProfileWriteable()) {
-			ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getClassLoader());
+			ClassLoader oldClassLoader = switchContextClassLoader(this.profileTable.getProfileSpecificationComponent().getClassLoader());
 			try {
 				final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 				sleeTransactionManager.begin();				  
-				this.profileObject = profileObject.getProfileTableConcrete().borrowProfileObject();
-				this.profileObject.profileActivate(profileName);
-				this.profileObject.getProfileEntity().setReadOnly(false);
-				transaction = sleeTransactionManager.suspend();
+				ProfileObject profileObject = profileTable.borrowProfileObject();
+				try {
+					profileObject.profileActivate(profileName);
+				}
+				catch (RuntimeException e) {
+					sleeTransactionManager.rollback();
+					profileObject.invalidateObject();
+					throw new ManagementException(e.getMessage(),e);
+				}
+				writeMode(profileObject);
 			} catch (NotSupportedException e) {
 				throw new ManagementException(e.getMessage());
 			} catch (SystemException e) {
@@ -246,20 +284,20 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 
 	public boolean isProfileWriteable() throws ManagementException
 	{
-		return transaction != null;
+		return state == State.write;
 	}
 
 	public void restoreProfile() throws InvalidStateException, ManagementException
 	{
 		if (logger.isDebugEnabled()) {
-			  logger.debug("restoreProfile() on: "+this.profileObject.getProfileEntity().getProfileName()+", from table:"+this.profileObject.getProfileTableConcrete().getProfileTableName());
+			  logger.debug("restoreProfile() on: "+profileName+", from table:"+ profileTable.getProfileTableName());
 		}
 
 		if (!isProfileWriteable()) {
 			throw new InvalidStateException("The restoreProfile method must throw a javax.slee.InvalidStateException if the Profile MBean object is not in the read-write state.");
 		}
 		
-		ClassLoader oldClassLoader = switchContextClassLoader(this.profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getClassLoader());
+		ClassLoader oldClassLoader = switchContextClassLoader(this.profileTable.getProfileSpecificationComponent().getClassLoader());
 		
 		try {
 			/*
@@ -279,12 +317,10 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			 */
 			final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
 			txManager.resume(transaction);
-			transaction = null;
 			profileObject.profilePassivate();
-			profileObject = null;
+			readMode();
 			txManager.rollback();
 			
-
 		} catch (InvalidTransactionException e) {
 			throw new SLEEException(e.getMessage(),e);
 		} catch (IllegalStateException e) {
@@ -299,11 +335,11 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	}
 
 	protected String getProfileName() {
-		return this.profileObject.getProfileEntity().getProfileName();
+		return profileName;
 	}
 
 	protected String getProfileTableName() {
-		return this.profileObject.getProfileTableConcrete().getProfileTableName();
+		return profileTable.getProfileTableName();
 	}
 
   protected ClassLoader switchContextClassLoader(ClassLoader newClassLoader)
@@ -317,11 +353,34 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
   
   // cmp accessor helpers
 
-  protected void beforeSetCmpField() throws ManagementException, InvalidStateException {
+  /**
+   * Logic to execute before invoking a cmp setter method on the mbean
+   * @return true if the method resumed a transaction
+   * @throws ManagementException
+   */
+  protected boolean beforeSetCmpField() throws ManagementException, InvalidStateException {
 
-	  if (isProfileWriteable()) {			
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("beforeSetCmpField() on "+profileObject);
+	  }
+	  
+	  if (isProfileWriteable()) {
+		  final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
 		  try {
-			  sleeContainer.getTransactionManager().resume(transaction);
+			  Transaction activeTransaction = txManager.getTransaction();
+			  if (activeTransaction == null) {
+				  txManager.resume(transaction);
+				  return true;
+			  }
+			  else {
+				  if (activeTransaction.equals(transaction)) {
+					  // ok, same tx is already running
+					  return false;
+				  }
+				  else {
+					  throw new SLEEException("mbean is in write state bound with a suspended transaction but the tx manager is running another transaction");
+				  }
+			  }
 		  } catch (Throwable e) {
 			  throw new ManagementException(e.getMessage(),e);			
 		  }			
@@ -331,48 +390,166 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	  }
   }
 
-  protected void afterSetCmpField() throws ManagementException {
-
-	  try {
-		  sleeContainer.getTransactionManager().suspend();
-	  } catch (Throwable e) {
-		  throw new ManagementException(e.getMessage(),e);			
-	  }			
+  /**
+   * Logic to execute after invoking a cmp setter method on the mbean
+   * @param resumedTransaction if the method beforeSetCmpField() resumed a transaction
+   * @throws ManagementException
+   */
+  protected void afterSetCmpField(boolean resumedTransaction) throws ManagementException {
+	  
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("afterSetCmpField( resumedTransaction = "+resumedTransaction+" ) on "+profileObject);
+	  }
+	  
+	  if (resumedTransaction) {
+		  try {
+			  sleeContainer.getTransactionManager().suspend();
+		  } catch (Throwable e) {
+			  throw new ManagementException(e.getMessage(),e);			
+		  }			
+	  }
   }
   
-  protected void beforeGetCmpField() throws ManagementException {
+  /**
+   * Logic to execute before invoking a cmp getter method on the mbean
+   * @return true if the method initiated or resumed a transaction
+   * @throws ManagementException
+   */
+  protected boolean beforeGetCmpField() throws ManagementException {
+	  
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("beforeGetCmpField() on "+profileObject);
+	  }
+	  
+	  return beforeManagementMethodInvocation();
+  }
 
+  /**
+   * Logic to execute after invoking a cmp getter method on the mbean
+   * @param activatedTransaction if the method beforeGetCmpField() initiated or resumed a transaction
+   * @throws ManagementException
+   */
+  protected void afterGetCmpField(boolean activatedTransaction) throws ManagementException {
+	  
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("afterGetCmpField( activatedTransaction = "+activatedTransaction+" ) on "+profileObject);
+	  }
+	  
+	 afterManagementMethodInvocation(activatedTransaction);
+  }
+
+  /**
+   * Logic to execute before invoking a management method on the mbean
+   * @return true if the method initiated or resumed a transaction
+   * @throws ManagementException
+   */
+  protected boolean beforeManagementMethodInvocation() throws ManagementException {
+
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("beforeManagementMethodInvocation() on "+profileObject);
+	  }
+	  
 	  final SleeTransactionManager txManager = sleeContainer.getTransactionManager();	
 	  try {
+		  Transaction activeTransaction = txManager.getTransaction();
 		  if (isProfileWriteable()) {
-			  txManager.resume(transaction);
+			  if (activeTransaction == null) {
+				  txManager.resume(transaction);
+				  return true;
+			  }
+			  else {
+				  if (activeTransaction.equals(transaction)) {
+					  // ok, same tx is already running
+					  return false;
+				  }
+				  else {
+					  throw new SLEEException("mbean is in write state bound with a suspended transaction but the tx manager is running another transaction");
+				  }
+			  }
 		  }
 		  else {
-			  txManager.begin();
-			  profileObject = profileTable.borrowProfileObject();
-			  profileObject.profileActivate(profileName);
+			  if (activeTransaction == null) {
+				  txManager.begin();
+				  if (profileObject == null) {
+					  profileObject = profileTable.borrowProfileObject();
+					  profileObject.profileActivate(profileName);
+				  }
+				  return true;
+			  }
+			  else {
+				 return false;
+			  }
 		  }
-
 	  } catch (Throwable e) {
 		  throw new ManagementException(e.getMessage(),e);			
 	  }	
   }
 
-  protected void afterGetCmpField() throws ManagementException {
-
-	  final SleeTransactionManager txManager = sleeContainer.getTransactionManager();	
-		try {
-			if (isProfileWriteable()) {
-				txManager.suspend();
-			}
-			else {
-				profileObject.profilePassivate();
-				txManager.commit();	
-				profileObject = null;
-			}
-		} catch (Throwable e) {
-			throw new ManagementException(e.getMessage(),e);			
-		}			
+  /**
+   * Logic to execute after invoking a management method on the mbean
+   * @param activatedTransaction if the method beforeManagementMethodInvocation() initiated or resumed a transaction
+   * @throws ManagementException
+   */
+  protected void afterManagementMethodInvocation(boolean activatedTransaction) throws ManagementException {
+	  
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("afterManagementMethodInvocation( activatedTransaction = "+activatedTransaction+" ) on "+profileObject);
+	  }
+	  
+	  if (activatedTransaction) {
+		  final SleeTransactionManager txManager = sleeContainer.getTransactionManager();	
+		  try {
+			  if (isProfileWriteable()) {
+				  txManager.suspend();
+			  }
+			  else {
+				  profileObject.profilePassivate();
+				  if (txManager.getRollbackOnly()) {
+					  txManager.rollback();	
+				  }
+				  else {
+					  txManager.commit();
+				  }
+				  profileObject = null;
+			  }
+		  } catch (Throwable e) {
+			  throw new ManagementException(e.getMessage(),e);			
+		  }			
+	  }
   }
- 
+
+  /**
+   * Handles a {@link Throwable}, which was the result of a management method invocation
+   * @param t
+   * @throws ProfileImplementationException
+   * @throws InvalidStateException
+   * @throws ManagementException
+   */
+  protected void throwableOnManagementMethodInvocation(Throwable t) throws ProfileImplementationException, InvalidStateException, ManagementException {
+	  if (t instanceof ProfileImplementationException) {
+		  throw (ProfileImplementationException)t;
+	  }
+	  else if (t instanceof InvalidStateException) {
+		  throw (InvalidStateException)t;
+	  }
+	  else if (t instanceof ManagementException) {
+		  throw (ManagementException)t;
+	  }
+	  else if (t instanceof RuntimeException) {		  
+		  try {
+			  profileObject.invalidateObject();
+			  sleeContainer.getTransactionManager().setRollbackOnly();
+		  } catch (Throwable e) {
+			  throw new ManagementException(e.getMessage(),e);
+		  }
+		  throw new ProfileImplementationException(t);
+	  }
+	  else if (t instanceof ReadOnlyProfileException) {
+		  throw new InvalidStateException(t.getMessage());
+	  }
+	  else {
+		  // checked exception
+		  throw new ProfileImplementationException(t);
+	  }
+  }
 }

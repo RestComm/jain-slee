@@ -137,9 +137,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			// create object
 			ProfileObject profileObject =  profileTable.createProfile(newProfileName);
 			// create mbean and registers it
-			AbstractProfileMBean profileMBean = createAndRegisterProfileMBean(profileObject);
+			AbstractProfileMBean profileMBean = createAndRegisterProfileMBean(newProfileName,profileTable);
 			// indicate that it is a profile creation, this will suspend the transaction
-			profileMBean.createProfile();
+			profileMBean.writeMode(profileObject);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Profile with name "+newProfileName+" in table "+profileTableName+" created, returning mbean name "+profileMBean.getObjectName());
 			}
@@ -173,12 +173,12 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	 * @return
 	 * @throws ManagementException
 	 */
-	private AbstractProfileMBean createAndRegisterProfileMBean(ProfileObject profileObject) throws ManagementException {
+	private AbstractProfileMBean createAndRegisterProfileMBean(String profileName, ProfileTableConcrete profileTable) throws ManagementException {
 		
 		try {
-			ProfileSpecificationComponent component = profileObject.getProfileTableConcrete().getProfileSpecificationComponent();
-			Constructor<?> constructor = component.getProfileMBeanConcreteImplClass().getConstructor(Class.class, ProfileObject.class);
-			final AbstractProfileMBean profileMBean = (AbstractProfileMBean) constructor.newInstance(component.getProfileMBeanConcreteInterfaceClass(), profileObject);
+			ProfileSpecificationComponent component = profileTable.getProfileSpecificationComponent();
+			Constructor<?> constructor = component.getProfileMBeanConcreteImplClass().getConstructor(Class.class, String.class, ProfileTableConcrete.class);
+			final AbstractProfileMBean profileMBean = (AbstractProfileMBean) constructor.newInstance(component.getProfileMBeanConcreteInterfaceClass(), profileName, profileTable);
 			// add a rollback action to close the mbean
 			TransactionalAction rollbackAction = new TransactionalAction() {
 				public void execute() {
@@ -361,16 +361,19 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			ManagementException, UnrecognizedProfileNameException, ManagementException {
 
 		ProfileTableImpl.validateProfileTableName(profileTableName);
-		logger.info("_getProfile()");
+		
+		logger.info("getProfile() : profileTableName = "+profileTableName+" , profileName = "+profileName);
+		
 		boolean b = this.sleeTransactionManagement.requireTransaction();
 		boolean rb = true;
 		ProfileTableConcrete profileTable = null;
 		ProfileObject profileObject = null;
 		try {
 			profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			profileObject = profileTable.borrowProfileObject();
-			profileObject.profileActivate(profileName);
-			ObjectName objectName = createAndRegisterProfileMBean(profileObject).getObjectName();
+			if (!profileTable.profileExists(profileName)) {
+				throw new UnrecognizedProfileNameException(profileName);
+			}
+			ObjectName objectName = createAndRegisterProfileMBean(profileName,profileTable).getObjectName();
 			rb = false;
 			return objectName;		
 		} finally {			

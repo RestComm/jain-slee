@@ -487,7 +487,19 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			logger.debug("[returnProfileObject] on: " + profileObject + "]");
 		}		
 		ProfileObjectPool pool = sleeContainer.getProfileObjectPoolManagement().getObjectPool(profileTableName);
-		pool.returnObject(profileObject);
+		if (profileObject.getState() == ProfileObjectState.POOLED) {
+			pool.returnObject(profileObject);
+		}
+		else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("profile object "+profileObject+" returned without pooled state, invalidating");
+			}
+			try {
+				pool.invalidateObject(profileObject);
+			} catch (Exception e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
 	}
 
 	public ObjectName getUsageMBeanName() throws IllegalArgumentException {

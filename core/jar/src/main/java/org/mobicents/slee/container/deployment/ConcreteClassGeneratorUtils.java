@@ -455,32 +455,52 @@ public class ConcreteClassGeneratorUtils {
 	 */
 	public static void copyMethods(CtClass source, CtClass destination,
 			CtClass[] exceptions) {
-		CtMethod[] methods = source.getDeclaredMethods();
-		for (int i = 0; i < methods.length; i++) {
-			CtMethod method = null;
-			/*
-			 * CtClass returnType=null; CtClass[] parameters=null; try{
-			 * returnType=methods[i].getReturnType(); } catch(NotFoundException
-			 * nfe){ } try { parameters=methods[i].getParameterTypes(); } catch
-			 * (NotFoundException nfe) { nfe.printStackTrace(); }
-			 */
-
-			try {
-				method = new CtMethod(methods[i], destination, null);
-				if (exceptions != null) {
-					try {
-						method.setExceptionTypes(exceptions);
-					} catch (NotFoundException e1) {
-						e1.printStackTrace();
-					}
-				}
-				destination.addMethod(method);
-			} catch (CannotCompileException e) {
-				e.printStackTrace();
-				return;
-			}
-		}
+		copyMethods(source.getDeclaredMethods(), destination, exceptions);
 	}
 
 
+	/**
+	 * Copy all methods from one class to another
+	 * FIXME emmartins: merge with other method when 1.1 dev cycle ends
+	 * @param source
+	 *            the class from which the methods are copied
+	 * @param destination
+	 *            the class to which the methods are copied
+	 * @param exceptions
+	 *            optionnal, defines the set of exceptions the methods can throw
+	 */
+	public static void copyAllMethods(CtClass source, CtClass destination,
+			CtClass[] exceptions) {
+		copyMethods(source.getDeclaredMethods(), destination, exceptions);
+	}
+	
+	/**
+	 * Copy methods to a class
+	 *  
+	 * @param methods
+	 *            the methods to copy
+	 * @param destination
+	 *            the class to which the methods are copied
+	 * @param exceptions
+	 *            optional, defines the set of exceptions the methods can throw
+	 */
+	public static void copyMethods(CtMethod[] methods, CtClass destination,
+			CtClass[] exceptions) {
+		CtMethod methodCopy = null;
+		for (CtMethod method : methods) {
+			try {
+				methodCopy = new CtMethod(method, destination, null);
+				if (exceptions != null) {
+					try {
+						methodCopy.setExceptionTypes(exceptions);
+					} catch (NotFoundException e) {
+						throw new SLEEException(e.getMessage(),e);
+					}
+				}
+				destination.addMethod(methodCopy);
+			} catch (CannotCompileException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
+	}
 }

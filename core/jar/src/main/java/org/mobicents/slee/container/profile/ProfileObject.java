@@ -415,20 +415,22 @@ public class ProfileObject {
 	 */
 	public void profilePassivate() {
 		
-		profileStore();
-		
-		if(logger.isDebugEnabled()) {
-			logger.debug("[profilePassivate] "+this);
+		if (state != ProfileObjectState.DOES_NOT_EXIST) {
+			
+			profileStore();
+
+			if(logger.isDebugEnabled()) {
+				logger.debug("[profilePassivate] "+this);
+			}
+
+			if (state != ProfileObjectState.READY) {
+				throw new SLEEException(this.toString());
+			}		
+
+			if (isSlee11) {
+				this.profileConcrete.profilePassivate();
+			}
 		}
-		
-		if (state != ProfileObjectState.READY) {
-			throw new SLEEException(this.toString());
-		}		
-		
-		if (isSlee11) {
-			this.profileConcrete.profilePassivate();
-		}
-		
 		returnToProfileTable();
 	}
 
@@ -463,74 +465,75 @@ public class ProfileObject {
 	}
 	
 	private void returnToProfileTable() {
+		
 		this.profileEntity = null;
 		this.profileEntitySnapshot = null;
 		this.profileLocalObject = null;
 		this.addedTxActionsToReleaseObject = false;
-		state = ProfileObjectState.POOLED;
 		
+		if (state == ProfileObjectState.READY) {
+			state = ProfileObjectState.POOLED;			
+		}
 		profileTableConcrete.returnProfileObject(this);
 		
 	}
 	
 
-	
+
 	/**
 	 * Invoked when pool removes object
 	 */
 	public void unsetProfileContext() {
-		
+
 		if(logger.isDebugEnabled())	{
 			logger.debug("[unsetProfileContext] "+this);
 		}
 
-		if (state != ProfileObjectState.POOLED) {
-			throw new IllegalStateException("unsetProfileContext, wrong state: " + this.state + ",on profile unset context operation, for profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
-		}
-				
-		final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
+		if (state == ProfileObjectState.POOLED) {
 
-		// FIXME: is this needed ?
-		try
-		{
-			final ClassLoader cl = profileTableConcrete.getProfileSpecificationComponent().getClassLoader();
-			if (System.getSecurityManager()!=null)
+			final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
+
+			// FIXME: is this needed ?
+			try
 			{
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run()
-					{
-						Thread.currentThread().setContextClassLoader(cl);
-						return null;
-					}
-				});
+				final ClassLoader cl = profileTableConcrete.getProfileSpecificationComponent().getClassLoader();
+				if (System.getSecurityManager()!=null)
+				{
+					AccessController.doPrivileged(new PrivilegedAction() {
+						public Object run()
+						{
+							Thread.currentThread().setContextClassLoader(cl);
+							return null;
+						}
+					});
+				}
+				else
+				{
+					Thread.currentThread().setContextClassLoader(cl);
+				}
+
+				if (isSlee11) {
+					profileConcrete.unsetProfileContext();
+				}
+				profileContext.setProfileObject(null);
+				state = ProfileObjectState.DOES_NOT_EXIST;
 			}
-			else
+			finally
 			{
-				Thread.currentThread().setContextClassLoader(cl);
-			}
-						
-			if (isSlee11) {
-				profileConcrete.unsetProfileContext();
-			}
-			profileContext.setProfileObject(null);
-			state = ProfileObjectState.DOES_NOT_EXIST;
-		}
-		finally
-		{
-			if (System.getSecurityManager()!=null)
-			{
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run()
-					{
-						Thread.currentThread().setContextClassLoader(oldClassLoader);
-						return null;
-					}
-				});
-			}
-			else
-			{
-				Thread.currentThread().setContextClassLoader(oldClassLoader);
+				if (System.getSecurityManager()!=null)
+				{
+					AccessController.doPrivileged(new PrivilegedAction() {
+						public Object run()
+						{
+							Thread.currentThread().setContextClassLoader(oldClassLoader);
+							return null;
+						}
+					});
+				}
+				else
+				{
+					Thread.currentThread().setContextClassLoader(oldClassLoader);
+				}
 			}
 		}
 	}
@@ -684,4 +687,10 @@ public class ProfileObject {
 		return "ProfileObject( table= "+profileTableConcrete.getProfileTableName()+" , state = "+state+" , entity = "+ profileEntity+" )";
 	}
 
+	/**
+	 * use this method to move the object to {@link ProfileObjectState#DOES_NOT_EXIST} state and indicate to the pool that the object should be discarded
+	 */
+	public void invalidateObject() {
+		state = ProfileObjectState.DOES_NOT_EXIST;		
+	}
 }
