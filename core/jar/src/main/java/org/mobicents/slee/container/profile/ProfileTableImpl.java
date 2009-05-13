@@ -98,29 +98,17 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			// create resource usage mbean
 			try {
 				ObjectName objectName = this.getUsageMBeanName();
-				if (this.profileTableUsageMBean != null) {
-					// FIXME: is this valid? on restart we dont recrete those,
-					// dont we ?
-					this.profileTableUsageMBean = new ProfileTableUsageMBeanImpl(
+				this.profileTableUsageMBean = new ProfileTableUsageMBeanImpl(
 							this.profileTableName, component, sleeContainer);
-					this.profileTableUsageMBean.setObjectName(objectName);
-					sleeContainer.getMBeanServer().registerMBean(
-							this.profileTableUsageMBean, objectName);
-
-					// create default usage param set
-					this.profileTableUsageMBean.createUsageParameterSet();
-				}
+				this.profileTableUsageMBean.setObjectName(objectName);
+				sleeContainer.getMBeanServer().registerMBean(
+						this.profileTableUsageMBean, objectName);
+				// create default usage param set
+				this.profileTableUsageMBean.createUsageParameterSet();
 			} catch (Throwable t) {
 				if (this.profileTableUsageMBean != null) {
 					this.profileTableUsageMBean.remove();
 				}
-
-				try {
-					this.removeProfileTable();
-				} catch (Throwable t1) {
-					logger.error(t1.getMessage(), t1);
-				}
-
 				throw new SLEEException(
 						"Failed to create and register Table Usage MBean", t);
 			}
@@ -165,11 +153,6 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 
 	public ProfileTableUsageMBeanImpl getProfileTableUsageMBean() {
 		return profileTableUsageMBean;
-	}
-
-	public void setProfileTableUsageMBean(
-			ProfileTableUsageMBeanImpl profileTableUsageMBean) {
-		this.profileTableUsageMBean = profileTableUsageMBean;
 	}
 
 	public ProfileTableActivity getActivity() {
@@ -447,11 +430,11 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		return null;
 	}	
 
-	public ObjectName getUsageMBeanName() throws IllegalArgumentException {
+	private ObjectName getUsageMBeanName() throws IllegalArgumentException {
 		try {
 			return new ObjectName(ProfileTableUsageMBean.BASE_OBJECT_NAME + ','
 					+ ProfileTableUsageMBean.PROFILE_TABLE_NAME_KEY + '='
-					+ profileTableName);
+					+ ObjectName.quote(profileTableName));
 		} catch (Exception e) {
 			throw new IllegalArgumentException(
 					"Failed to create MBean name, due to some system level error.",

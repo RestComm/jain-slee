@@ -468,21 +468,22 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	public ObjectName getProfileTableUsageMBean(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, InvalidArgumentException, ManagementException {
 		if (profileTableName == null)
 			throw new NullPointerException("Argument[ProfileTableName] must not be null");
-		// FIXME: maybe this does not requrie TX
-		boolean b = false;
+		boolean b = this.sleeTransactionManagement.requireTransaction();
 		try {
-			b = this.sleeTransactionManagement.requireTransaction();
-
-			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			return profileTable.getUsageMBeanName();
+			ProfileTableUsageMBeanImpl usageMBeanImpl = this.sleeProfileManagement.getProfileTable(profileTableName).getProfileTableUsageMBean();
+			if (usageMBeanImpl == null) {
+				throw new InvalidArgumentException();
+			}
+			else {
+				return usageMBeanImpl.getObjectName();
+			}			
 		} catch (SLEEException e) {
 			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
 		} catch (UnrecognizedProfileTableNameException e) {
 			throw e;
-
 		} catch (InvalidArgumentException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
 		} finally {
 			// never rollbacks

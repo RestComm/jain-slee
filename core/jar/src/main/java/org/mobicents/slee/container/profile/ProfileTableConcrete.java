@@ -102,24 +102,13 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 */
 	public ProfileObject getProfile(String profileName) throws TransactionRequiredLocalException, SLEEException;
 	
-	/**
-	 * Returns JMX MBean name of usage mbean
-	 * 
-	 * @return
-	 * @throws InvalidArgumentException
-	 *             - confusing exception name, however it is thrown when this
-	 *             tables specs does not define Usage parameters
-	 */
-	public ObjectName getUsageMBeanName() throws InvalidArgumentException;
-
+	
 	/**
 	 * Return Usage MBean if profile specification declares UsageInterface.
 	 * 
 	 * @return
 	 */
 	public ProfileTableUsageMBeanImpl getProfileTableUsageMBean();
-
-	public void setProfileTableUsageMBean(ProfileTableUsageMBeanImpl profileTableUsageMBean);
 
 	/**
 	 * Return collection of Strings. Each string represent profile name in this
