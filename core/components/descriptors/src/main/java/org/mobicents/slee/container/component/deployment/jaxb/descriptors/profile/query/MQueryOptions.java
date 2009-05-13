@@ -15,7 +15,7 @@ public class MQueryOptions {
   public MQueryOptions(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryOptions queryOptions11)
   {
     this.readOnly = Boolean.parseBoolean(queryOptions11.getReadOnly());
-    this.maxMatches = queryOptions11.getMaxMatches() == null ? Long.MAX_VALUE : Long.parseLong(queryOptions11.getMaxMatches());
+    this.maxMatches = queryOptions11.getMaxMatches() == null ? -1 : Long.parseLong(queryOptions11.getMaxMatches());
   }
 
   public long getMaxMatches() {

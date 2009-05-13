@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.management;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAQueryBuilder;
 import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
@@ -88,6 +90,8 @@ public class SleeProfileTableManager {
 			// FIXME: we wont use trace and alarm in 1.0 way wont we?
 			ProfileDataSource.INSTANCE.install(component);
 			sleeProfileClassCodeGenerator.process(component);
+			JPAQueryBuilder queryBuilder = new JPAQueryBuilder(component);
+			queryBuilder.parseStaticQueries();
 		} catch (DeploymentException de) {
 			throw de;
 		} catch (Throwable t) {
@@ -245,10 +249,12 @@ public class SleeProfileTableManager {
 		return this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationId);
 	}
 
-	public ProfileTableConcrete addProfileTable(final String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException, CreateException, ProfileVerificationException
+	public ProfileTableConcrete addProfileTable(final String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException, CreateException, ProfileVerificationException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException
 	{
 		// create instance
-		ProfileTableImpl profileTable = new ProfileTableImpl(profileTableName, component, sleeContainer);
+		ProfileTableImpl profileTable = component.getProfileTableConcreteClass() == null ? new ProfileTableImpl(profileTableName, component, sleeContainer) : 
+		  (ProfileTableImpl)component.getProfileTableConcreteClass().getConstructor(String.class, ProfileSpecificationComponent.class, SleeContainer.class).newInstance(profileTableName, component, sleeContainer);
+		
 		// map it
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
 		// register usage mbean

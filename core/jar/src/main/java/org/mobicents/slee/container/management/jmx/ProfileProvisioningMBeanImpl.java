@@ -30,6 +30,7 @@ import javax.slee.management.SleeState;
 import javax.slee.profile.AttributeNotIndexedException;
 import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileAlreadyExistsException;
+import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTableAlreadyExistsException;
 import javax.slee.profile.UnrecognizedAttributeException;
@@ -45,6 +46,8 @@ import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAQueryBuilder;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.AbstractProfileMBean;
 import org.mobicents.slee.container.profile.ProfileObject;
@@ -590,11 +593,36 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		return null;
 	}
 
-	public Collection getProfilesByDynamicQuery(String arg0, QueryExpression query) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedAttributeException,
+	public Collection getProfilesByDynamicQuery(String profileTableName, QueryExpression expr) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedAttributeException,
 			AttributeTypeMismatchException, ManagementException {
-		// XXX: alex?
-		return null;
-	}
+    if (profileTableName == null)
+      throw new NullPointerException("Argument[ProfileTableName] must not be null");
+    if (expr == null)
+      throw new NullPointerException("Argument[QueryExpression] must not be null");
+
+    boolean b = false;
+    boolean rb = true;
+    Collection profileIDs = new ArrayList<ProfileID>();
+    
+    try
+    {
+      b = this.sleeTransactionManagement.requireTransaction();
+
+      profileIDs = JPAUtils.INSTANCE.getProfilesByDynamicQuery( profileTableName, expr );
+
+      rb = false;
+    }
+    catch (Exception e) {
+      if (e instanceof ManagementException)
+        throw (ManagementException) e;
+      throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
+    }
+    finally {
+      sleeTransactionManagement.requireTransactionEnd(b,rb);
+    }
+
+    return profileIDs;
+  }
 
 	public Collection getProfilesByIndexedAttribute(String arg0, String arg1, Object arg2) throws NullPointerException, UnrecognizedProfileTableNameException, UnrecognizedAttributeException,
 			AttributeNotIndexedException, AttributeTypeMismatchException, ManagementException {
@@ -645,33 +673,32 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	 *             - if the profile identifiers could not be obtained due to a
 	 *             system-level failure. Since: SLEE 1.1
 	 */
-	public Collection getProfilesByStaticQuery(java.lang.String profileTableName, java.lang.String queryName, java.lang.Object[] parameters) throws java.lang.NullPointerException,
-			UnrecognizedProfileTableNameException, UnrecognizedQueryNameException, InvalidArgumentException, AttributeTypeMismatchException, ManagementException {
+	public Collection<ProfileID> getProfilesByStaticQuery(java.lang.String profileTableName, java.lang.String queryName, java.lang.Object[] parameters) throws java.lang.NullPointerException,
+			UnrecognizedProfileTableNameException, UnrecognizedQueryNameException, InvalidArgumentException, AttributeTypeMismatchException, ManagementException
+	{
+    if (profileTableName == null)
+      throw new NullPointerException("Argument[ProfileTableName] must not be null");
+    if (queryName == null)
+      throw new NullPointerException("Argument[QueryName] must not be null");
+
 		boolean b = false;
 		boolean rb = true;
-		Collection profileIDs = null;
-		if (profileTableName == null)
-			throw new NullPointerException("Argument[ProfileTableName] must not be null");
-		if (queryName == null)
-			throw new NullPointerException("Argument[QueryName] must not be null");
-
-		// Other NPE checks are done in handlers ?
-
-		try {
+		Collection profileIDs = new ArrayList<ProfileID>();
+		
+		try
+		{
 			b = this.sleeTransactionManagement.requireTransaction();
 
-			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			profileIDs = JPAUtils.INSTANCE.getProfilesByStaticQuery( profileTableName, queryName, parameters );
 
 			rb = false;
-		} catch (UnrecognizedProfileTableNameException e) {
-
-			throw e;
-
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			if (e instanceof ManagementException)
 				throw (ManagementException) e;
 			throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
-		} finally {
+		}
+		finally {
 			sleeTransactionManagement.requireTransactionEnd(b,rb);
 		}
 

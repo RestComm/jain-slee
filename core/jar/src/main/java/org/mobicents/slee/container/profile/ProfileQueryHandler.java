@@ -3,6 +3,8 @@ package org.mobicents.slee.container.profile;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 
+import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
+
 /**
  * 
  * Start time:12:49:42 2009-03-20<br>
@@ -34,7 +36,7 @@ public class ProfileQueryHandler {
 
 		profileTable.getSleeContainer().getTransactionManager().mandateTransaction();
 		
-		return null;
+		return JPAUtils.INSTANCE.getProfilesByStaticQuery( profileTable.getProfileTableName(), queryName, arguments );
 	}
 
 }

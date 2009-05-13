@@ -346,14 +346,82 @@ public class JPAUtils implements ProfileDataSource {
 
   public Collection getProfilesByStaticQuery(String profileTableName, String queryName, Object[] parameters) 
   {
-    // TODO: complete.
-    return null;
+    Collection<ProfileID> profileIDs = new ArrayList<ProfileID>();
+    
+    try
+    {
+      QueryWrapper wQuery = JPAQueryBuilder.getQuery(queryName);
+  
+      ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
+      String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
+  
+      EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
+      Query staticQuery = em.createQuery(wQuery.getQuerySQL(jpaTableName));
+      
+      if(wQuery.getMaxMatches() > 0)
+        staticQuery.setMaxResults((int)wQuery.getMaxMatches());
+      
+      for(int i = 0; i < parameters.length; i++)
+      {
+        try{
+          staticQuery.setParameter( i+1, parameters[i] );          
+        }
+        catch (Exception ignore) {
+          // We don't care, it's because there's no such parameter.
+        }
+      }
+      
+      List<ProfileEntity> pEntities = staticQuery.getResultList();
+      
+      for(ProfileEntity pEntity : pEntities)
+      {
+        profileIDs.add( new ProfileID(pEntity.getTableName(), pEntity.getProfileName()) );
+      }
+    }
+    catch (Exception e) {
+      logger.error( "Static Query execution failed: " + e.getMessage(), e );
+    }
+    
+    logger.info( "Returning {" + profileIDs.size() + "} profiles..." );
+    return profileIDs;
   }
 
   public Collection getProfilesByDynamicQuery(String profileTableName, QueryExpression expr)
   {
-    // TODO: complete.
-    return null;
+    Collection<ProfileID> profileIDs = new ArrayList<ProfileID>();
+    
+    try
+    {
+      QueryWrapper wQuery = JPAQueryBuilder.parseDynamicQuery(expr);
+  
+      ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
+      String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
+  
+      EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
+      Query dynamicQuery = em.createQuery(wQuery.getQuerySQL(jpaTableName));
+      
+      int i = 1;
+      for(Object param : wQuery.getDynamicParameters())
+      {
+        dynamicQuery.setParameter( i++, param );
+      }
+      
+      if(wQuery.getMaxMatches() > 0)
+        dynamicQuery.setMaxResults((int)wQuery.getMaxMatches());
+      
+      List<ProfileEntity> pEntities = dynamicQuery.getResultList();
+      
+      for(ProfileEntity pEntity : pEntities)
+      {
+        profileIDs.add( new ProfileID(pEntity.getTableName(), pEntity.getProfileName()) );
+      }
+    }
+    catch (Exception e) {
+      logger.error( "Static Query execution failed: " + e.getMessage(), e );
+    }
+    
+    logger.info( "Returning {" + profileIDs.size() + "} profiles..." );
+    return profileIDs;
   }
 
   @Deprecated

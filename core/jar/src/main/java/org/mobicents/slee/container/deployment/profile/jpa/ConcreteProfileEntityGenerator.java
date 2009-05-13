@@ -2,6 +2,7 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -40,7 +41,6 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author martins
  */
-@SuppressWarnings("deprecation")
 public class ConcreteProfileEntityGenerator {
 
   private static final Logger logger = Logger.getLogger(ConcreteProfileEntityGenerator.class);
@@ -77,7 +77,7 @@ public class ConcreteProfileEntityGenerator {
       String concreteClassName = cmpInterface.getProfileCmpInterfaceName() + "Pojo";
 
       // Create the Impl class which implements the profile cmp interface and extends AbstractProfilePojo
-      CtClass profileConcreteClass = ClassGeneratorUtils.createClass(concreteClassName, new String[]{cmpInterface.getProfileCmpInterfaceName()});      
+      CtClass profileConcreteClass = ClassGeneratorUtils.createClass(concreteClassName, new String[]{cmpInterface.getProfileCmpInterfaceName(), Serializable.class.getName()});      
       ClassGeneratorUtils.createInheritanceLink(profileConcreteClass, ProfileEntity.class.getName());
       
       // Annotate class with @Entity
