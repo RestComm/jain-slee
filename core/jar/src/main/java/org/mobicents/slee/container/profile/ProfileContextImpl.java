@@ -4,18 +4,14 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.facilities.Tracer;
-import javax.slee.management.ProfileTableNotification;
 import javax.slee.profile.ProfileContext;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileTable;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
-import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * Start time:17:11:23 2009-03-13<br>
@@ -42,37 +38,16 @@ public class ProfileContextImpl implements ProfileContext {
 	private ProfileTableConcrete profileTable = null;
 	private ProfileObject profileObject = null;
 
-	private final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 	public ProfileContextImpl(ProfileTableConcrete profileTable)
-	{
-		super();
-		
+	{		
 		if (profileTable == null) {
 			throw new NullPointerException("Parameters must not be null");
 		}
 		 
 		this.profileTable = profileTable;
 		
-    // register tracer
-		try {
-    final String tableName = profileTable.getProfileTableName();
-    
-    TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-    traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(tableName));
-    
-    TransactionalAction action = new TransactionalAction() {
-      public void execute() {
-        // remove notification sources for profile table
-        TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-        traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(tableName));
-      }
-    };
-    sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		}
-		catch (SystemException e) {
-		  throw new SLEEException("Failure to register Tracer", e);
-    }
+ 
 	}
 
 	public void setProfileObject(ProfileObject profileObject)
@@ -87,7 +62,7 @@ public class ProfileContextImpl implements ProfileContext {
 	public ProfileLocalObject getProfileLocalObject() throws IllegalStateException, SLEEException
 	{
 		// check state
-		if (profileObject.getState() != ProfileObjectState.READY && !profileObject.isInvokingProfilePostCreate()) {
+		if (profileObject == null || profileObject.getState() != ProfileObjectState.READY) {
 			throw new IllegalStateException();
 		}
 		// check if it is default profile
@@ -101,8 +76,8 @@ public class ProfileContextImpl implements ProfileContext {
 	{
 		doGeneralChecks();
 		
-		if (this.profileObject == null || this.profileObject.getState() != ProfileObjectState.READY) {
-			throw new IllegalStateException("Profile not assigned or");
+		if (profileObject == null || profileObject.getState() != ProfileObjectState.READY) {
+			throw new IllegalStateException();
 		}
 		
 		try {
@@ -240,7 +215,7 @@ public class ProfileContextImpl implements ProfileContext {
 	public Tracer getTracer(String tracerName) throws NullPointerException, IllegalArgumentException, SLEEException
 	{
 		if (tracerName == null) {
-			throw new NullPointerException("TracerName must nto be null");
+			throw new NullPointerException("TracerName must not be null");
 		}
 		
 		doGeneralChecks();
@@ -256,7 +231,7 @@ public class ProfileContextImpl implements ProfileContext {
 			return profileTable.getSleeContainer().getTraceFacility().getTraceMBeanImpl().createTracer(this.profileTable.getProfileTableNotification().getNotificationSource(), tracerName, true);
 		}
 		catch (Exception e) {
-			throw new SLEEException("Failed to obtain tracer due to ");
+			throw new SLEEException("Failed to obtain tracer",e);
 		}
 	}
 

@@ -25,6 +25,7 @@ import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.ProfileLocalObjectImpl;
 import org.mobicents.slee.container.profile.ProfileObject;
+import org.mobicents.slee.container.profile.ProfileObjectState;
 
 public class ConcreteProfileLocalObjectGenerator {
 
@@ -150,13 +151,13 @@ public class ConcreteProfileLocalObjectGenerator {
 	private void implementMethod(CtClass concreteClass, CtMethod method, String interceptorAccess) throws Exception {
 		// copy method to concrete class
 		CtMethod newMethod = CtNewMethod.copy( method, concreteClass, null );
-		// ensure it is not abstract
-		newMethod.setModifiers(method.getModifiers() & ~Modifier.ABSTRACT);
 		// generate body
 		String returnStatement = method.getReturnType().equals(CtClass.voidType) ? "" : "return ($r)";
 		String body=
 			"{ " 
 			+ "super.sleeContainer.getTransactionManager().mandateTransaction();"
+			// FIXME this is a double check on profile object state for cmp setters and getters 
+			+" if (profileObject.getState() != "+ProfileObjectState.class.getName()+".READY) throw new "+IllegalStateException.class.getName()+"(\"Profile object must be in ready state\");"
 			+ "try {"
 			+ 		returnStatement + interceptorAccess +'.'+ method.getName()+"($$);" 
 			+ "} catch ("+RuntimeException.class.getName()+" e) {"

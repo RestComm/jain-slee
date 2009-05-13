@@ -44,8 +44,7 @@ public class ProfileObjectPoolFactory implements PoolableObjectFactory {
         }
     	
     	ProfileObject profileObject = new ProfileObject(profileTable);
-		ProfileContextImpl context = new ProfileContextImpl(profileTable);
-		profileObject.setProfileContext(context);
+		profileObject.setProfileContext(new ProfileContextImpl(profileTable));
         return profileObject;
     }
 

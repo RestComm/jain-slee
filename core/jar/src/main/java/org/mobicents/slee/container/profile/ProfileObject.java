@@ -5,6 +5,7 @@ import java.security.PrivilegedAction;
 
 import javax.slee.CreateException;
 import javax.slee.SLEEException;
+import javax.slee.management.ManagementException;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileNameException;
@@ -100,11 +101,6 @@ public class ProfileObject {
 	
 	/**
 	 * 
-	 */
-	private boolean addedTxActionsToReleaseObject = false;
-	
-	/**
-	 * 
 	 * @param profileTableConcrete
 	 * @param profileSpecificationId
 	 * @throws NullPointerException
@@ -180,7 +176,12 @@ public class ProfileObject {
 			{
 				this.profileContext = profileContext;
 				if (isSlee11) {
-					profileConcrete.setProfileContext(profileContext);
+					try {
+						profileConcrete.setProfileContext(profileContext);
+					}
+					catch (RuntimeException e) {
+						runtimeExceptionOnProfileInvocation(e);
+					}
 				}
 				this.profileContext.setProfileObject(this);
 				state = ProfileObjectState.POOLED;
@@ -242,7 +243,12 @@ public class ProfileObject {
 				profileEntity.setProfileName(null);
 				profileEntity.setTableName(profileTableConcrete.getProfileTableName());
 				// invoke life cycle method on profile
-				profileConcrete.profileInitialize();
+				try {
+					profileConcrete.profileInitialize();
+				}
+				catch (RuntimeException e) {
+					runtimeExceptionOnProfileInvocation(e);
+				}
 			}
 			else {
 				// load the default profile entity
@@ -274,18 +280,24 @@ public class ProfileObject {
 		if (this.state != ProfileObjectState.POOLED) {
 			throw new SLEEException(this.toString());
 		}
-				
+		
+		this.state = ProfileObjectState.READY;
+		
 		if (isSlee11) {
-			this.invokingProfilePostCreate = true;
+			//this.invokingProfilePostCreate = true;
+			//try {
 			try {
 				this.profileConcrete.profilePostCreate();
 			}
-			finally {
-				this.invokingProfilePostCreate = false;
-			}
-		}
+			catch (RuntimeException e) {
+				runtimeExceptionOnProfileInvocation(e);
+			}	
+			//}
+			//finally {
+			//	this.invokingProfilePostCreate = false;
+			//}
+		}		
 		
-		this.state = ProfileObjectState.READY;
 	}
 	
 	/**
@@ -324,7 +336,12 @@ public class ProfileObject {
 			throw new SLEEException(this.toString());
 		}
 		if (isSlee11) {
-			profileConcrete.profileActivate();
+			try {
+				profileConcrete.profileActivate();
+			}
+			catch (RuntimeException e) {
+				runtimeExceptionOnProfileInvocation(e);
+			}	
 		}
 		this.state = ProfileObjectState.READY;
 	}
@@ -349,7 +366,12 @@ public class ProfileObject {
 			profileEntitySnapshot = profileEntity.cl0ne();
 			profileEntitySnapshot.setReadOnly(true);						
 		}
-		this.profileConcrete.profileLoad();
+		try {
+			this.profileConcrete.profileLoad();
+		}
+		catch (RuntimeException e) {
+			runtimeExceptionOnProfileInvocation(e);
+		}	
 	}
 
 	/**
@@ -367,27 +389,56 @@ public class ProfileObject {
 
 		if(!isSlee11 || profileEntity.getProfileName() != null) {
 			// only invoke when it is a slee 1.0 profile or a non default slee 1.1 profile
-			profileConcrete.profileVerify();
+			try {
+				profileConcrete.profileVerify();
+			}
+			catch (RuntimeException e) {
+				runtimeExceptionOnProfileInvocation(e);
+			}
 		}
+	}
+	
+	private void runtimeExceptionOnProfileInvocation(RuntimeException e) {
+		logger.error("Runtime exception when invoking concrete profile! Setting tx for rollback and invalidating object",e);
+		final SleeTransactionManager txManager = profileTableConcrete.getSleeContainer().getTransactionManager();
+		try {
+			if (txManager.getTransaction() != null) {
+				txManager.setRollbackOnly();
+			}			
+		} catch (Throwable f) {
+			logger.error(f.getMessage(),f);
+		}
+		invalidateObject();
 	}
 	
 	/**
 	 * 
 	 */
-	private void profileStore() {
+	public void profileStore() {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("[profileStore] "+this);
 		}
 		
+		// skip if object has been invalidated
+
 		if (state != ProfileObjectState.READY) {
 			throw new SLEEException(this.toString());
 		}
 
-		profileConcrete.profileStore();
-		
+		if (profileEntity.isReadOnly()) {
+			return;
+		}
+
+		try {
+			profileConcrete.profileStore();
+		}
+		catch (RuntimeException e) {
+			runtimeExceptionOnProfileInvocation(e);
+		}
+
 		if (profileEntity.isDirty()) {
-			
+
 			persistProfileConcrete();
 			// check the table fires events and the object is not assigned to a default profile
 			if (profileTableConcrete.doesFireEvents() && profileEntity.getProfileName() != null) {
@@ -408,6 +459,7 @@ public class ProfileObject {
 			}
 			profileEntity.setDirty(false);
 		}
+		
 	}
 	
 	/**
@@ -415,29 +467,39 @@ public class ProfileObject {
 	 */
 	public void profilePassivate() {
 		
-		if (state != ProfileObjectState.DOES_NOT_EXIST) {
-			
-			profileStore();
+		if (state == ProfileObjectState.READY) {
 
 			if(logger.isDebugEnabled()) {
 				logger.debug("[profilePassivate] "+this);
 			}
 
-			if (state != ProfileObjectState.READY) {
-				throw new SLEEException(this.toString());
-			}		
-
 			if (isSlee11) {
-				this.profileConcrete.profilePassivate();
+				try {
+					profileConcrete.profilePassivate();
+				}
+				catch (RuntimeException e) {
+					runtimeExceptionOnProfileInvocation(e);
+				}
+			}
+			
+			if (this.profileEntity.getProfileName() != null) {
+				state = ProfileObjectState.POOLED;			
+			}
+			else {
+				// FIXME due to tests/profiles/profileabstractclass/Test1110251Test.xml we need to get ridden of the default profile object
+				state = ProfileObjectState.DOES_NOT_EXIST;
 			}
 		}
-		returnToProfileTable();
+		
+		this.profileEntity = null;
+		this.profileEntitySnapshot = null;
+		
 	}
 
 	/**
 	 * 
 	 */
-	public void profileRemove() {
+	public void profileRemove(boolean invokeConcreteSbb) {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("[profileRemove] "+this);
@@ -447,8 +509,13 @@ public class ProfileObject {
 			throw new SLEEException(this.toString());
 		}
 				
-		if (isSlee11) {
-			profileConcrete.profileRemove();
+		if (isSlee11 && invokeConcreteSbb) {
+			try {
+				profileConcrete.profileRemove();
+			}
+			catch (RuntimeException e) {
+				runtimeExceptionOnProfileInvocation(e);
+			}			
 		}
 		
 		if (profileTableConcrete.doesFireEvents() && profileEntity.getProfileName() != null && profileEntitySnapshot != null) {
@@ -460,24 +527,33 @@ public class ProfileObject {
 		
 		ProfileDataSource.INSTANCE.removeprofile(this);
 		
-		returnToProfileTable();
-			
-	}
-	
-	private void returnToProfileTable() {
+		state = ProfileObjectState.POOLED;
 		
 		this.profileEntity = null;
 		this.profileEntitySnapshot = null;
-		this.profileLocalObject = null;
-		this.addedTxActionsToReleaseObject = false;
 		
+		//returnToProfileTable();
+			
+	}
+	/*
+	private void returnToProfileTable() {
+		
+		//boolean defaultProfile = profileEntity.getProfileName() == null;
+		this.profileEntity = null;
+		this.profileEntitySnapshot = null;
+		this.profileLocalObject = null;
 		if (state == ProfileObjectState.READY) {
-			state = ProfileObjectState.POOLED;			
-		}
-		profileTableConcrete.returnProfileObject(this);
+			//if (!defaultProfile) {
+				state = ProfileObjectState.POOLED;			
+			//}
+			//else {
+				// FIXME due to tests/profiles/profileabstractclass/Test1110251Test.xml we need to get ridden of the default profile object
+				//state = ProfileObjectState.DOES_NOT_EXIST;
+			//}
+		}		
 		
 	}
-	
+	*/
 
 
 	/**
@@ -513,7 +589,12 @@ public class ProfileObject {
 				}
 
 				if (isSlee11) {
-					profileConcrete.unsetProfileContext();
+					try {
+						profileConcrete.unsetProfileContext();
+					}
+					catch (RuntimeException e) {
+						runtimeExceptionOnProfileInvocation(e);
+					}	
 				}
 				profileContext.setProfileObject(null);
 				state = ProfileObjectState.DOES_NOT_EXIST;
@@ -555,52 +636,6 @@ public class ProfileObject {
 	}	
 	
 	/**
-	 * 
-	 */
-	public void releaseProfileObjectOnTxEnd() {
-		
-		if (!addedTxActionsToReleaseObject) {
-			TransactionalAction action1 = new TransactionalAction() {
-				public void execute() {
-					if (state == ProfileObjectState.READY) {
-						if (profileEntity.isReadOnly()) {
-							if (profileEntity.isRemove()) {
-								profileRemove();
-							}
-							else {
-								profilePassivate();
-							}
-						}
-						else {
-							profilePassivate();
-						}
-					}
-				}
-			};
-			SleeTransactionManager txManager = profileTableConcrete.getSleeContainer().getTransactionManager();
-			try {
-				txManager.addBeforeCommitPriorityAction(action1);
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
-			// an action to passivate only if rollback occurs (if commit was invoked action 1 already was executed)
-			TransactionalAction action2 = new TransactionalAction() {
-				public void execute() {
-					if (state == ProfileObjectState.READY) {
-						profilePassivate();
-					}
-				}
-			};
-			try {
-				txManager.addAfterRollbackAction(action2);
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(),e);
-			}	
-			addedTxActionsToReleaseObject = true;
-		}
-	}
-	
-	/**
 	 * Retrieves the local representation for this profile object
 	 * @return
 	 */
@@ -617,8 +652,6 @@ public class ProfileObject {
 					throw new SLEEException(e.getMessage(),e);
 				}
 			}
-			// lets ensure the profile object is released
-			releaseProfileObjectOnTxEnd();
 		}
 		return profileLocalObject;
 	}
@@ -631,14 +664,6 @@ public class ProfileObject {
 		return state;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isInvokingProfilePostCreate() {
-		return invokingProfilePostCreate;
-	}
-
 	/**
 	 * 
 	 * @return

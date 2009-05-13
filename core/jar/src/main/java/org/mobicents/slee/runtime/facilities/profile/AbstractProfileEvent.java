@@ -15,6 +15,8 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.profile.ProfileObject;
+import org.mobicents.slee.container.profile.ProfileObjectPool;
+import org.mobicents.slee.container.profile.ProfileTableTransactionView;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -110,13 +112,11 @@ public abstract class AbstractProfileEvent {
 		ProfileObject profileObject = (ProfileObject) txData.get(profileEntity);
 		if (profileObject == null) {
 			// get an object from the table
-			try {
-				profileEntity.setReadOnly(true);
-				profileObject = sleeContainer.getSleeProfileTableManager().getProfileTable(profileEntity.getTableName()).borrowProfileObject();
-				profileObject.profileActivate(profileEntity);				
-			} catch (UnrecognizedProfileTableNameException e1) {
-				throw new SLEEException(e1.getMessage(),e1);
-			}
+			profileEntity.setReadOnly(true);
+			ProfileObjectPool pool = sleeContainer.getProfileObjectPoolManagement().getObjectPool(profileEntity.getTableName());
+			profileObject = pool.borrowObject();
+			profileObject.profileActivate(profileEntity);
+			ProfileTableTransactionView.passivateProfileObjectOnTxEnd(txManager, profileObject, pool);
 			txData.put(profileEntity, profileObject);
 		}
 		return profileObject;

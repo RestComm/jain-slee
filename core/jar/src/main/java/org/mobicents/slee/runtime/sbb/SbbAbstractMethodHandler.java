@@ -252,11 +252,8 @@ public class SbbAbstractMethodHandler {
 		if (!profileTable.profileExists(profileID.getProfileName())) {
 			throw new UnrecognizedProfileNameException(profileID.toString());
 		}
-
-		final ProfileObject po = profileTable.borrowProfileObject();
-		po.profileActivate(profileID.getProfileName());
-		po.releaseProfileObjectOnTxEnd();
-		return po.getProfileConcrete();		
+	
+		return profileTable.getProfile(profileID.getProfileName()).getProfileConcrete();		
 	}
 
 	// SBB USAGE PARAMS

@@ -6,7 +6,6 @@ import java.util.Set;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import javassist.Modifier;
 import javassist.NotFoundException;
 
 import javax.slee.InvalidStateException;
@@ -25,8 +24,7 @@ import org.mobicents.slee.container.profile.AbstractProfileMBean;
 public class ConcreteProfileMBeanGenerator {
 
 	private static final Logger logger = Logger.getLogger(ConcreteProfileManagementGenerator.class);
-	public static final String _MBEAN_CMP_INTERCEPTOR = "profileObject.getProfileConcrete()";
-	public static final String _MBEAN_MGMT_INTERCEPTOR = "super.profileObject.getProfileConcrete()";
+
 	private ProfileSpecificationComponent component = null;
 	private String cmpProfileInterfaceName = null;
 
@@ -232,7 +230,7 @@ public class ConcreteProfileMBeanGenerator {
 				body = 	"{ " +
 						"	boolean resumedTransaction = beforeSetCmpField();" +
 						"	try { " +
-						"		(("+component.getProfileCmpConcreteClass().getName()+")profileObject.getProfileConcrete())." + method.getName()+"($1);" +
+						"		(("+component.getProfileCmpConcreteClass().getName()+")getProfileObject().getProfileConcrete())." + method.getName()+"($1);" +
 						"	} finally {" +
 						"		afterSetCmpField(resumedTransaction);" +
 						"	}" +
@@ -242,7 +240,7 @@ public class ConcreteProfileMBeanGenerator {
 				body = 	"{ " +
 						"	boolean activatedTransaction = beforeGetCmpField();" +
 						"	try { " +
-						"		return ($r) (("+component.getProfileCmpConcreteClass().getName()+")profileObject.getProfileConcrete())." + method.getName()+"();" +
+						"		return ($r) (("+component.getProfileCmpConcreteClass().getName()+")getProfileObject().getProfileConcrete())." + method.getName()+"();" +
 						"	} finally {" +
 						"		afterGetCmpField(activatedTransaction);" +
 						"	}" +
@@ -265,7 +263,7 @@ public class ConcreteProfileMBeanGenerator {
 			if (!newMethod.getReturnType().equals(CtClass.voidType)) {
 				body += "return ($r) ";
 			}
-			body += "(("+component.getProfileCmpConcreteClass().getName()+")profileObject.getProfileConcrete())." + method.getName()+"($$); } catch(Throwable t) { throwableOnManagementMethodInvocation(t); } finally { afterManagementMethodInvocation(activatedTransaction); } throw new "+SLEEException.class.getName()+"(\"bad code generated\"); }"; 				
+			body += "(("+component.getProfileCmpConcreteClass().getName()+")getProfileObject().getProfileConcrete())." + method.getName()+"($$); } catch(Throwable t) { throwableOnManagementMethodInvocation(t); } finally { afterManagementMethodInvocation(activatedTransaction); } throw new "+SLEEException.class.getName()+"(\"bad code generated\"); }"; 				
 						
 			if(logger.isDebugEnabled()) {
 				logger.debug("Implemented profile mbean method named "+method.getName()+", with body:\n"+body);

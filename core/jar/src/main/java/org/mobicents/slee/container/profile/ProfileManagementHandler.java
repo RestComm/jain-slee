@@ -53,66 +53,46 @@ public class ProfileManagementHandler {
 	}
 
 	public static void profileInitialize(ProfileObject profileObject) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profileInitialize] @ " + profileObject);
-		}
+		
 	}
 
 	public static void profileLoad(ProfileObject profileObject) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profileLoad] @ " + profileObject);
-		}
+		
 	}
 
 	public static void profileStore(ProfileObject profileObject) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profileStore] @ " + profileObject);
-		}
+		
 	}
 
 	public static void profileVerify(ProfileObject profileObject)
 			throws ProfileVerificationException {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profileVerify] @ " + profileObject);
-		}
+	
 	}
 
 	public static void profileActivate(ProfileObject profileObject) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profileActivate] @ " + profileObject);
-		}
+	
 	}
 
 	public static void profilePassivate(ProfileObject profileObject) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profilePassivate] @ " + profileObject);
-		}
+	
 	}
 
 	public static void profilePostCreate(ProfileObject profileObject)
 			throws CreateException {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profilePostCreate] @ " + profileObject);
-		}
+	
 	}
 
 	public static void profileRemove(ProfileObject profileObject) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[profileRemove] @ " + profileObject);
-		}
+		
 	}
 
 	public static void setProfileContext(ProfileObject profileObject,
 			ProfileContext profileContext) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[setProfileContext] @ " + profileObject);
-		}
+		
 	}
 
 	public static void unsetProfileContext(ProfileObject profileObject) {
-		if (logger.isDebugEnabled()) {
-			logger.info("[unsetProfileContext] @ " + profileObject);
-		}
+		
 	}
 
 	// Usage methods. Here we can be static for sure. Rest must be tested.

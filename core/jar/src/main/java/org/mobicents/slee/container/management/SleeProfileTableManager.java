@@ -15,6 +15,7 @@ import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.ProfileTableNotification;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
@@ -27,11 +28,13 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAQueryBuilder;
+import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * 
@@ -254,16 +257,33 @@ public class SleeProfileTableManager {
 		// create instance
 		ProfileTableImpl profileTable = component.getProfileTableConcreteClass() == null ? new ProfileTableImpl(profileTableName, component, sleeContainer) : 
 		  (ProfileTableImpl)component.getProfileTableConcreteClass().getConstructor(String.class, ProfileSpecificationComponent.class, SleeContainer.class).newInstance(profileTableName, component, sleeContainer);
-		
 		// map it
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
+		// register tracer
+		try {
+			final String tableName = profileTable.getProfileTableName();
+
+			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(tableName));
+
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					// remove notification sources for profile table
+					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+					traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(tableName));
+				}
+			};
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		}
+		catch (SystemException e) {
+			throw new SLEEException("Failure to register Tracer", e);
+		}
 		// register usage mbean
 		profileTable.register();
 		// create object pool
 		sleeContainer.getProfileObjectPoolManagement().createObjectPool(profileTable, sleeContainer.getTransactionManager());
 		// add default profile
 		profileTable.createDefaultProfile();
-
 		return profileTable;
 	}
 

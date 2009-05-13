@@ -40,7 +40,9 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.profile.UnrecognizedQueryNameException;
 import javax.slee.profile.query.QueryExpression;
 import javax.transaction.NotSupportedException;
+import javax.transaction.Status;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
@@ -128,26 +130,33 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 
 		ProfileTableImpl.validateProfileName(newProfileName);
 		ProfileTableImpl.validateProfileTableName(profileTableName);
-
+		Transaction transaction = null;
+		ProfileObject profileObject = null;
 		boolean rollback = true;
 		try {
-
+			// begin tx
 			sleeTransactionManagement.begin();
+			transaction = sleeTransactionManagement.getTransaction();
 			// This checks if profile table exists - throws SLEEException in
 			// case of system level and UnrecognizedProfileTableNameException in
 			// case of no such table
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			// create object
-			ProfileObject profileObject =  profileTable.createProfile(newProfileName);
-			// create mbean and registers it
-			AbstractProfileMBean profileMBean = createAndRegisterProfileMBean(newProfileName,profileTable);
-			// indicate that it is a profile creation, this will suspend the transaction
-			profileMBean.writeMode(profileObject);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Profile with name "+newProfileName+" in table "+profileTableName+" created, returning mbean name "+profileMBean.getObjectName());
+			// create profile
+			profileTable.createProfile(newProfileName);
+			if (sleeTransactionManagement.getRollbackOnly()) {
+				throw new ManagementException("Transaction used in profile creation rolled back");
 			}
-			rollback = false;
-			return profileMBean.getObjectName();		
+			else {
+				// create mbean and registers it
+				AbstractProfileMBean profileMBean = createAndRegisterProfileMBean(newProfileName,profileTable);
+				// change to write mode, providing the object, this will suspend the transaction
+				profileMBean.writeMode();
+				if (logger.isDebugEnabled()) {
+					logger.debug("Profile with name "+newProfileName+" in table "+profileTableName+" created, returning mbean name "+profileMBean.getObjectName());
+				}
+				rollback = false;
+				return profileMBean.getObjectName();
+			}					
 		} catch (TransactionRequiredLocalException e) {
 			throw new ManagementException(e.getMessage(),e);
 		} catch (SLEEException e) {
@@ -160,12 +169,25 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new ManagementException(e.getMessage(),e);
 		} finally {
 			if(rollback) {
+				if (profileObject != null) {
+					try {
+						profileObject.invalidateObject();
+						profileObject.profilePassivate();
+					}
+					catch (Throwable e) {
+						logger.error(e.getMessage(),e);
+					}
+				}
 				try {
+					if (sleeTransactionManagement.getTransaction() == null) {
+						// the tx was suspended, resume it
+						sleeTransactionManagement.resume(transaction);
+					}
 					sleeTransactionManagement.rollback();
 				}
 				catch (Throwable e) {
 					logger.error(e.getMessage(),e);
-				}
+				}				
 			}
 		}
 	}
@@ -182,25 +204,15 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			ProfileSpecificationComponent component = profileTable.getProfileSpecificationComponent();
 			Constructor<?> constructor = component.getProfileMBeanConcreteImplClass().getConstructor(Class.class, String.class, ProfileTableConcrete.class);
 			final AbstractProfileMBean profileMBean = (AbstractProfileMBean) constructor.newInstance(component.getProfileMBeanConcreteInterfaceClass(), profileName, profileTable);
-			// add a rollback action to close the mbean
+			profileMBean.register();
+			// add a rollback action to unregister the mbean
 			TransactionalAction rollbackAction = new TransactionalAction() {
 				public void execute() {
-					Runnable r = new Runnable() {
-						public void run() {
-							try {
-								if (logger.isDebugEnabled()) {
-									logger.debug("Removing profile mbean "+profileMBean.getObjectName()+" due to tx rollback");
-								}
-								if (profileMBean.isProfileWriteable()) {
-									profileMBean.restoreProfile();
-								}
-								profileMBean.closeProfile();
-							} catch (Throwable e) {
-								logger.error(e.getMessage(),e);
-							}									
-						}
-					};
-					new Thread(r).start();
+					try {
+						profileMBean.unregister();								
+					} catch (Throwable e) {
+						logger.error(e.getMessage(),e);
+					}									
 				}
 			};
 			sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
@@ -221,7 +233,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new ManagementException(e.getMessage(),e);
 		} catch (SystemException e) {
 			throw new ManagementException(e.getMessage(),e);
-		}
+		} 
 	}
 	
 	
@@ -736,12 +748,16 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		try {
 			b = this.sleeTransactionManagement.requireTransaction();
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			if (profileTable.profileExists(profileName)) {
+			if (!profileTable.profileExists(profileName)) {
 				throw new UnrecognizedProfileNameException("There is no such profile: " + profileName + ", in profile table: " + profileTableName);
 			}
-
 			profileTable.remove(profileName);
-			rb = false;
+			if(!sleeTransactionManagement.getRollbackOnly()) {
+				rb = false;
+			}
+			else {
+				throw new ManagementException("Transaction used in profile removal rolled back");
+			}
 		} catch (UnrecognizedProfileTableNameException e) {
 			throw e;
 		} catch (UnrecognizedProfileNameException e) {
@@ -749,7 +765,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to remove due to system level failure.", e);
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(b,rb);
+			sleeTransactionManagement.requireTransactionEnd(b,rb);			
 		}
 
 	}

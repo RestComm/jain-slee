@@ -51,13 +51,13 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 * Borrows a profile object from the profile table pool
 	 * @return
 	 */
-	public ProfileObject borrowProfileObject();
+	//public ProfileObject borrowProfileObject();
 	
 	/**
 	 * Returns a profile object from the profile table pool
 	 * @param profileObject
 	 */
-	void returnProfileObject(ProfileObject profileObject);
+	//void returnProfileObject(ProfileObject profileObject);
 
 	public ActivityContext getActivityContext();
 	
@@ -82,16 +82,26 @@ public interface ProfileTableConcrete extends ProfileTable {
 	
 	/**
 	 * Creates the profile with the specified name.
-	 * @param newProfileName
+	 * @param profileName
 	 * @return
 	 * @throws TransactionRequiredLocalException
 	 * @throws ProfileAlreadyExistsException
 	 * @throws SLEEException
 	 * @throws CreateException
 	 */
-	public ProfileObject createProfile(String newProfileName) throws TransactionRequiredLocalException, ProfileAlreadyExistsException, SLEEException,
+	public ProfileObject createProfile(String profileName) throws TransactionRequiredLocalException, ProfileAlreadyExistsException, SLEEException,
 			CreateException;
 
+	/**
+	 * 
+	 * @param profileName
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws UnrecognizedProfileNameException
+	 * @throws SLEEException
+	 */
+	public ProfileObject getProfile(String profileName) throws TransactionRequiredLocalException, SLEEException;
+	
 	/**
 	 * Returns JMX MBean name of usage mbean
 	 * 
