@@ -382,10 +382,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		boolean b = this.sleeTransactionManagement.requireTransaction();
 		boolean rb = true;
 		ProfileTableConcrete profileTable = null;
-		ProfileObject profileObject = null;
 		try {
 			profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			if (!profileTable.profileExists(profileName)) {
+			if (profileName != null && !profileTable.profileExists(profileName)) {
 				throw new UnrecognizedProfileNameException(profileName);
 			}
 			ObjectName objectName = createAndRegisterProfileMBean(profileName,profileTable).getObjectName();
