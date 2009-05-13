@@ -11,7 +11,6 @@ import javax.slee.profile.ProfileImplementationException;
 import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.ReadOnlyProfileException;
-import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
@@ -190,7 +189,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 		}
 		
 		if (!this.isProfileWriteable())
-			throw new IllegalStateException("not in write state");
+			throw new InvalidStateException("not in write state");
 		
 		ClassLoader oldClassLoader = switchContextClassLoader(this.profileTable.getProfileSpecificationComponent().getClassLoader());
 
@@ -198,41 +197,32 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 		
 		try	{
 			// resume transaction
+			sleeTransactionManager.resume(transaction);
+			// verify changes
+			getProfileObject().profileVerify();	
+			
+		} catch (ProfileVerificationException e) {
+			throw e;
+			
+		} catch (Throwable e) {
+			throw new ManagementException(e.getMessage(),e);
+		
+		} finally {
 			try {
-				sleeTransactionManager.resume(transaction);
+				if (sleeTransactionManager.getRollbackOnly()) {
+					sleeTransactionManager.rollback();
+				}
+				else {
+					// the profile will now become visible in the SLEE
+					sleeTransactionManager.commit();					
+				}
 			} catch (Throwable e) {
 				throw new ManagementException(e.getMessage(),e);
 			}
-			
-			try {
-				getProfileObject().profileVerify();	
-			}
 			finally {
-				// the profile will now become visible in the SLEE
-				try {
-					if (sleeTransactionManager.getRollbackOnly()) {
-						sleeTransactionManager.rollback();
-					}
-					else {
-						sleeTransactionManager.commit();
-					}
-				} catch (Throwable e) {
-					throw new ManagementException(e.getMessage(),e);
-				}
-				/*
-				 * If a commit succeeds, the Profile MBean object should move to the
-				 * read-only state. The SLEE must also fire a Profile Updated Event
-				 * if a Profile has been updated (see Section 1.1). The dirty flag
-				 * in the Profile Management object must also be set to false upon a
-				 * successful commit.
-				 */
 				readMode();
-			}			
-		}
-		finally
-		{
-			switchContextClassLoader(oldClassLoader);
-			
+				switchContextClassLoader(oldClassLoader);
+			}						
 		}
 	}
 

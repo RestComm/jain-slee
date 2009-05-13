@@ -409,6 +409,7 @@ public class ProfileObject {
 			logger.error(f.getMessage(),f);
 		}
 		invalidateObject();
+		throw e;
 	}
 	
 	/**
