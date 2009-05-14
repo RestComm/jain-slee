@@ -191,11 +191,9 @@ public class ConcreteProfileMBeanGenerator {
 		}
 		catch (Throwable e) {
 			throw new SLEEException(e.getMessage(), e);
-		}
-		
-		
+		}	
 	}
-
+	
 	/**
 	 * This method generates concrete class of MBean impl
 	 */
@@ -269,7 +267,7 @@ public class ConcreteProfileMBeanGenerator {
 			if (!voidReturnType) {
 				body += "throw new "+SLEEException.class.getName()+"(\"bad code generated\");";				 				
 			}
-			body += "};";
+			body += " }";
 						
 			if(logger.isDebugEnabled()) {
 				logger.debug("Implemented profile mbean method named "+method.getName()+", with body:\n"+body);
