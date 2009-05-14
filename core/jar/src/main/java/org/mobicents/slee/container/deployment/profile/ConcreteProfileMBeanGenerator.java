@@ -259,11 +259,17 @@ public class ConcreteProfileMBeanGenerator {
 			CtMethod newMethod = CtNewMethod.copy( method, profileMBeanConcreteClass, null );
 			
 			// generate body
+			boolean voidReturnType = newMethod.getReturnType().equals(CtClass.voidType);
+				
 			String body = "{ boolean activatedTransaction = beforeManagementMethodInvocation(); try { ";
-			if (!newMethod.getReturnType().equals(CtClass.voidType)) {
+			if (!voidReturnType) {
 				body += "return ($r) ";
 			}
-			body += "(("+component.getProfileCmpConcreteClass().getName()+")getProfileObject().getProfileConcrete())." + method.getName()+"($$); } catch(Throwable t) { throwableOnManagementMethodInvocation(t); } finally { afterManagementMethodInvocation(activatedTransaction); } throw new "+SLEEException.class.getName()+"(\"bad code generated\"); }"; 				
+			body += "(("+component.getProfileCmpConcreteClass().getName()+")getProfileObject().getProfileConcrete())." + method.getName()+"($$); } catch(Throwable t) { throwableOnManagementMethodInvocation(t); } finally { afterManagementMethodInvocation(activatedTransaction); }";
+			if (!voidReturnType) {
+				body += "throw new "+SLEEException.class.getName()+"(\"bad code generated\");";				 				
+			}
+			body += "};";
 						
 			if(logger.isDebugEnabled()) {
 				logger.debug("Implemented profile mbean method named "+method.getName()+", with body:\n"+body);

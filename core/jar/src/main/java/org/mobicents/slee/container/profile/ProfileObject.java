@@ -242,12 +242,18 @@ public class ProfileObject {
 				profileEntity = (ProfileEntity) profileTableConcrete.getProfileSpecificationComponent().getProfileEntityClass().newInstance();
 				profileEntity.setProfileName(null);
 				profileEntity.setTableName(profileTableConcrete.getProfileTableName());
+				// change state to ready so the concrete profile can use the cmp acessors
+				this.state = ProfileObjectState.READY;
 				// invoke life cycle method on profile
 				try {
 					profileConcrete.profileInitialize();
 				}
 				catch (RuntimeException e) {
 					runtimeExceptionOnProfileInvocation(e);
+				}
+				finally {
+					// restore pooled state
+					this.state = ProfileObjectState.POOLED;
 				}
 			}
 			else {
