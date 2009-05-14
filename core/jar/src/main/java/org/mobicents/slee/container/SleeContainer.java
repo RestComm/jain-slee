@@ -259,7 +259,7 @@ public class SleeContainer {
 		this.timerFacility = new TimerFacilityImpl(this);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,
 				timerFacility);
-		this.profileFacility = new ProfileFacilityImpl(sleeProfileTableManager);
+		this.profileFacility = new ProfileFacilityImpl(this);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
 				profileFacility);
 		this.serviceActivityFactory = new ServiceActivityFactoryImpl();

@@ -25,6 +25,7 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -44,18 +45,13 @@ public class ProfileFacilityImpl implements ProfileFacility {
 
 	public static final String JNDI_NAME = "profile";
 
-	private SleeProfileTableManager sleeProfileManagement = null;
-	private SleeTransactionManager sleeTransactionManager = null;
+	private final SleeContainer sleeContainer;
 
 	/**
      *  
      */
-	public ProfileFacilityImpl(SleeProfileTableManager sleeProfileManagement) {
-		if (sleeProfileManagement == null) {
-			throw new NullPointerException("Argument must not be null.");
-		}
-		this.sleeProfileManagement = sleeProfileManagement;
-
+	public ProfileFacilityImpl(SleeContainer sleeContainer) {
+		this.sleeContainer = sleeContainer;
 	}
 
 	/**
@@ -84,15 +80,23 @@ public class ProfileFacilityImpl implements ProfileFacility {
 		if (profileTableName == null) {
 			throw new NullPointerException("ProfileTableName must not be null.");
 		}
-		ProfileTable profileTable = null;
+		
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager(); 
+			
+		boolean terminateTx = sleeTransactionManager.requireTransaction();
 		try {
-			profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			return sleeProfileManagement.getProfileTable(profileTableName);
 		} catch (UnrecognizedProfileTableNameException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new FacilityException("Failed to obtain profile table.", e);
 		}
-		return profileTable;
+		finally {
+			// never rollback
+			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
+		}
+		
 	}
 
 	/**
@@ -125,21 +129,26 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	 *             system-level failure.
 	 */
 	public Collection getProfiles(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, TransactionRolledbackLocalException, FacilityException {
+		
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
+		
 		if (sleeProfileManagement == null) {
 			throw new NullPointerException("Argument must not be null.");
 		}
 
-		this.sleeTransactionManager.mandateTransaction();
-
-		Collection<ProfileID> collection = null;
+		boolean terminateTx = sleeTransactionManager.requireTransaction();
 		try {
-			collection = this.sleeProfileManagement.getProfileTable(profileTableName).getProfilesIDs();
+			return sleeProfileManagement.getProfileTable(profileTableName).getProfilesIDs();
 		} catch (UnrecognizedProfileTableNameException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new FacilityException("Failed to obtain profile ids for profile table: " + profileTableName, e);
 		}
-		return collection;
+		finally {
+			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
+		}
+		
 	}
 
 	/**
@@ -167,40 +176,19 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	public ProfileTableActivity getProfileTableActivity(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, TransactionRolledbackLocalException,
 			FacilityException {
 
-		ProfileTableActivity profileTableActivity = null;
-		boolean createTransaction = this.sleeTransactionManager.requireTransaction();
-		Throwable cause = null;
-		try {
-			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			profileTableActivity = profileTable.getActivity();
-
-		} catch (UnrecognizedProfileTableNameException e) {
-			cause = e;
-			throw e;
-		} catch (Exception e) {
-			cause = e;
-			throw new FacilityException("Failed to obtain ID due to system level failure.", e);
-		} finally {
-			if (createTransaction) {
-				try {
-					if (this.sleeTransactionManager.getRollbackOnly()) {
-						throw new TransactionRolledbackLocalException("Something went wrong.", cause);
-					}
-				} catch (SystemException e) {
-					throw new FacilityException("Failed with rollback check", e);
-				}
-
-				try {
-					this.sleeTransactionManager.commit();
-				} catch (Exception e) {
-					throw new FacilityException("Failed with commit ", e);
-				}
-
-			}
-
+		if (profileTableName == null) {
+			throw new NullPointerException("null profile table name");
 		}
-
-		return profileTableActivity;
+		
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
+		
+		boolean terminateTx = sleeTransactionManager.requireTransaction();
+		try {
+			return sleeProfileManagement.getProfileTable(profileTableName).getActivity();
+		} finally {
+			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
+		}
 	}
 
 	/**
@@ -267,11 +255,14 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			throw new NullPointerException("Attributes[AttributeName] must not be null.");
 		}
 
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
+		
 		ProfileID profileID = null;
-		boolean createTransaction = this.sleeTransactionManager.requireTransaction();
+		boolean createTransaction = sleeTransactionManager.requireTransaction();
 		Throwable cause = null;
 		try {
-			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			ProfileTableConcrete profileTable = sleeProfileManagement.getProfileTable(profileTableName);
 			if (profileTable.getProfileSpecificationComponent().isSlee11()) {
 				throw new FacilityException("This method is only allowed for JSLEE 1.0 compilant profiles. Profile: " + profileTable.getProfileSpecificationComponent().getProfileSpecificationID()
 						+ " is not 1.0.");
@@ -297,7 +288,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 		} finally {
 			if (createTransaction) {
 				try {
-					if (this.sleeTransactionManager.getRollbackOnly()) {
+					if (sleeTransactionManager.getRollbackOnly()) {
 						throw new TransactionRolledbackLocalException("Something went wrong.", cause);
 					}
 				} catch (SystemException e) {
@@ -305,7 +296,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 				}
 
 				try {
-					this.sleeTransactionManager.commit();
+					sleeTransactionManager.commit();
 				} catch (Exception e) {
 					throw new FacilityException("Failed with commit ", e);
 				}
@@ -383,11 +374,14 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			throw new NullPointerException("Attributes[AttributeName] must not be null.");
 		}
 
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
+		
 		Collection<ProfileID> profileIDs = null;
-		boolean createTransaction = this.sleeTransactionManager.requireTransaction();
+		boolean createTransaction = sleeTransactionManager.requireTransaction();
 		Throwable cause = null;
 		try {
-			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
+			ProfileTableConcrete profileTable = sleeProfileManagement.getProfileTable(profileTableName);
 			if (profileTable.getProfileSpecificationComponent().isSlee11()) {
 				throw new FacilityException("This method is only allowed for JSLEE 1.0 compilant profiles. Profile: " + profileTable.getProfileSpecificationComponent().getProfileSpecificationID()
 						+ " is not 1.0.");
@@ -413,7 +407,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 		} finally {
 			if (createTransaction) {
 				try {
-					if (this.sleeTransactionManager.getRollbackOnly()) {
+					if (sleeTransactionManager.getRollbackOnly()) {
 						throw new TransactionRolledbackLocalException("Something went wrong.", cause);
 					}
 				} catch (SystemException e) {
@@ -421,7 +415,7 @@ public class ProfileFacilityImpl implements ProfileFacility {
 				}
 
 				try {
-					this.sleeTransactionManager.commit();
+					sleeTransactionManager.commit();
 				} catch (Exception e) {
 					throw new FacilityException("Failed with commit ", e);
 				}
