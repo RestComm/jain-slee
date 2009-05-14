@@ -273,7 +273,7 @@ public class JPAUtils implements ProfileDataSource {
 	  EntityManager em = null;
 
     if (profileName == null) {
-      profileName = DEFAULT_PROFILE_NAME;
+      throw new NullPointerException("null profile name");
     }
 
 	  String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
