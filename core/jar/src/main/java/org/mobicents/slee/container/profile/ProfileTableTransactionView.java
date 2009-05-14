@@ -45,7 +45,8 @@ public class ProfileTableTransactionView {
 			try {
 				value.profileActivate(profileName);
 			} catch (UnrecognizedProfileNameException e) {
-				pool.returnObject(value);
+				value.invalidateObject();
+				pool.invalidateObject(value);
 				return null;
 			}
 			txData.put(key, value);

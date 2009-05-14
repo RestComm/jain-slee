@@ -58,8 +58,12 @@ public class ProfileObjectPool {
 		pool.close();		
 	}
 
-	public void invalidateObject(ProfileObject obj) throws Exception {		
-		pool.invalidateObject(obj);
+	public void invalidateObject(ProfileObject obj) {		
+		try {
+			pool.invalidateObject(obj);
+		} catch (Exception e) {
+			throw new SLEEException(e.getMessage(),e);
+		}			
 		if (logger.isDebugEnabled()) {
 			logger.debug("invalidated object "+obj + " to " + this);
 		}

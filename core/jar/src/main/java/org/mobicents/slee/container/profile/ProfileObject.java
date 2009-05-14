@@ -258,6 +258,9 @@ public class ProfileObject {
 			}
 			else {
 				// load the default profile entity
+				if (logger.isDebugEnabled()) {
+					logger.debug("Copying state from default profile on object "+this);
+				}
 				loadProfileEntity(null);
 				// clone it and change it's name
 				profileEntity = profileEntity.cl0ne();
@@ -366,6 +369,9 @@ public class ProfileObject {
 		}
 		
 		// load profile concrete from data source
+		if (logger.isDebugEnabled()) {
+			logger.debug("Loading persisted state for profile named "+profileName+" on object "+this);
+		}
 		loadProfileEntity(profileName);
 		// create a snapshot copy if the profile table fires events
 		if (profileTableConcrete.doesFireEvents()) {
@@ -691,10 +697,6 @@ public class ProfileObject {
 	 * 
 	 */
 	private void loadProfileEntity(String profileName) throws UnrecognizedProfileNameException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Loading profile with name "+profileName+" on object "+this);
-
-		}
 		profileEntity = ProfileDataSource.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);
 		if (profileEntity == null) {
 			throw new UnrecognizedProfileNameException();

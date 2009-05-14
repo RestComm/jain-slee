@@ -458,7 +458,13 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 					+ profileName + "]");
 		}
 
-		return ProfileDataSource.INSTANCE.find(this, profileName);
+		boolean result = ProfileDataSource.INSTANCE.find(this, profileName);
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Profile named "+profileName+(result ? "" : " does not")+" exists on table named " + this.getProfileTableName());
+		} 
+		
+		return result;
 	}
 
 	/**
