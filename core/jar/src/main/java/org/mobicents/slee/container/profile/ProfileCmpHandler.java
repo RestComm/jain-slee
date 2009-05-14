@@ -27,7 +27,7 @@ public class ProfileCmpHandler {
 		
 		sleeContainer.getTransactionManager().mandateTransaction();
 		
-		if (profileObject.getState() != ProfileObjectState.READY) {
+		if (profileObject.getProfileEntity().getProfileName() != null && profileObject.getState() != ProfileObjectState.READY) {
 			throw new IllegalStateException("Profile object must be in ready state");
 		}
 		
