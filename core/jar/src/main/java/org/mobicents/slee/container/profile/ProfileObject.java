@@ -402,6 +402,7 @@ public class ProfileObject {
 		if(!isSlee11 || profileEntity.getProfileName() != null) {
 			// only invoke when it is a slee 1.0 profile or a non default slee 1.1 profile
 			try {
+			  profileStore();
 				profileConcrete.profileVerify();
 			}
 			catch (RuntimeException e) {
