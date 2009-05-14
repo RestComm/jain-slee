@@ -514,6 +514,9 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 	  else if (t instanceof InvalidStateException) {
 		  throw (InvalidStateException)t;
 	  }
+	  else if (t instanceof ReadOnlyProfileException) {
+		  throw new InvalidStateException(t.getMessage());
+	  }
 	  else if (t instanceof ManagementException) {
 		  throw (ManagementException)t;
 	  }
@@ -525,10 +528,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			  throw new ManagementException(e.getMessage(),e);
 		  }
 		  throw new ProfileImplementationException(t);
-	  }
-	  else if (t instanceof ReadOnlyProfileException) {
-		  throw new InvalidStateException(t.getMessage());
-	  }
+	  }	  
 	  else {
 		  // checked exception
 		  throw new ProfileImplementationException(t);
