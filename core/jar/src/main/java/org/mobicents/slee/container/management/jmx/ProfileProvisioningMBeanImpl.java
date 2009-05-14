@@ -582,7 +582,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			b = this.sleeTransactionManagement.requireTransaction();
 
 			ProfileTableConcrete profileTable = this.sleeProfileManagement.getProfileTable(profileTableName);
-			names = profileTable.getProfileNames();
+			names = profileTable.getProfilesIDs();
 			rb = false;
 		} catch (UnrecognizedProfileTableNameException e) {
 
