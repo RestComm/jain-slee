@@ -266,7 +266,7 @@ public class ConcreteProfileMBeanGenerator {
 				body += "return ($r) ";
 			}
 			body += "(("+component.getProfileCmpConcreteClass().getName()+")getProfileObject().getProfileConcrete())." + method.getName()+"($$); } catch(Throwable t) { throwableOnManagementMethodInvocation(t); } finally { afterManagementMethodInvocation(activatedTransaction); }";
-			if (voidReturnType) {
+			if (!voidReturnType) {
 				body += "throw new "+SLEEException.class.getName()+"(\"bad code generated\");";				 				
 			}
 			body += "};";
