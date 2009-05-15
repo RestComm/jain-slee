@@ -3,9 +3,7 @@ package org.mobicents.slee.container.profile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.slee.CreateException;
 import javax.slee.SLEEException;
@@ -17,7 +15,6 @@ import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileAlreadyExistsException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileLocalObject;
-import javax.slee.profile.ProfileMBean;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.ReadOnlyProfileException;
@@ -270,13 +267,13 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		ProfileObject profileObject = getProfile(profileName);
 		if (profileObject != null) {
 			profileObject.profileRemove(invokeConcreteSbb);
+			// close mbean if exists
+			AbstractProfileMBeanImpl.close(profileTableName,profileName);
 			return true;
 		}
 		else {
 			return false;
 		}
-
-		// TODO unregister any existent mbeans for this profile
 																	
 	}
 
@@ -324,27 +321,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	// # Helper methods #
 	// ##################
 
-	/**
-	 * 
-	 * Creates a JMX ObjectName for a profile, given its profile name and
-	 * profile table name
-	 * 
-	 * @param profileTableName
-	 * @param profileName
-	 * @return
-	 * @throws MalformedObjectNameException
-	 */
-	public static ObjectName generateProfileMBeanObjectName(
-			String profileTableName, String profileName)
-			throws MalformedObjectNameException {
-		return new ObjectName(ProfileMBean.BASE_OBJECT_NAME + ','
-				+ ProfileMBean.PROFILE_TABLE_NAME_KEY + '='
-				+ ObjectName.quote(profileTableName) + ','
-				+ ProfileMBean.PROFILE_NAME_KEY + '='
-				+ ObjectName.quote(profileName != null ? profileName : "")
-				+ ",uuid=" + ObjectName.quote(UUID.randomUUID().toString()));
-	}
-
+	
 	public void createDefaultProfile() throws CreateException, ProfileVerificationException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Creating default profile for table "+profileTableName);

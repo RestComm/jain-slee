@@ -15,7 +15,6 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -49,7 +48,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
-import org.mobicents.slee.container.profile.AbstractProfileMBean;
+import org.mobicents.slee.container.profile.AbstractProfileMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
@@ -146,7 +145,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			}
 			else {
 				// create mbean and registers it
-				AbstractProfileMBean profileMBean = createAndRegisterProfileMBean(newProfileName,profileTable);
+				AbstractProfileMBeanImpl profileMBean = createAndRegisterProfileMBean(newProfileName,profileTable);
 				// change to write mode, providing the object, this will suspend the transaction
 				profileMBean.writeMode();
 				rollback = false;
@@ -196,12 +195,12 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 	 * @return
 	 * @throws ManagementException
 	 */
-	private AbstractProfileMBean createAndRegisterProfileMBean(String profileName, ProfileTableConcrete profileTable) throws ManagementException {
+	private AbstractProfileMBeanImpl createAndRegisterProfileMBean(String profileName, ProfileTableConcrete profileTable) throws ManagementException {
 		
 		try {
 			ProfileSpecificationComponent component = profileTable.getProfileSpecificationComponent();
 			Constructor<?> constructor = component.getProfileMBeanConcreteImplClass().getConstructor(Class.class, String.class, ProfileTableConcrete.class);
-			final AbstractProfileMBean profileMBean = (AbstractProfileMBean) constructor.newInstance(component.getProfileMBeanConcreteInterfaceClass(), profileName, profileTable);
+			final AbstractProfileMBeanImpl profileMBean = (AbstractProfileMBeanImpl) constructor.newInstance(component.getProfileMBeanConcreteInterfaceClass(), profileName, profileTable);
 			profileMBean.register();
 			// add a rollback action to unregister the mbean
 			TransactionalAction rollbackAction = new TransactionalAction() {
@@ -213,23 +212,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					}									
 				}
 			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
-			// TODO add profile mbean name in profile table to control idleness or make mbean server queries work (preferable) :)
-			return profileMBean;
-			
-		} catch (SecurityException e) {
-			throw new ManagementException(e.getMessage(),e);
-		} catch (NoSuchMethodException e) {
-			throw new ManagementException(e.getMessage(),e);
-		} catch (IllegalArgumentException e) {
-			throw new ManagementException(e.getMessage(),e);
-		} catch (InstantiationException e) {
-			throw new ManagementException(e.getMessage(),e);
-		} catch (IllegalAccessException e) {
-			throw new ManagementException(e.getMessage(),e);
-		} catch (InvocationTargetException e) {
-			throw new ManagementException(e.getMessage(),e);
-		} catch (SystemException e) {
+			sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);				
+			return profileMBean;			
+		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(),e);
 		} 
 	}
@@ -391,7 +376,10 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			if (profileName != null && !profileTable.profileExists(profileName)) {
 				throw new UnrecognizedProfileNameException(profileName);
 			}
-			ObjectName objectName = createAndRegisterProfileMBean(profileName,profileTable).getObjectName();
+			ObjectName objectName = AbstractProfileMBeanImpl.getObjectName(profileTable.getProfileTableName(), profileName);
+			if (!sleeContainer.getMBeanServer().isRegistered(objectName)) {
+				createAndRegisterProfileMBean(profileName, profileTable);				
+			}
 			rb = false;
 			return objectName;		
 		} finally {			

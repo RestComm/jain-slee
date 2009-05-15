@@ -20,6 +20,7 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.profile.AbstractProfileMBean;
+import org.mobicents.slee.container.profile.AbstractProfileMBeanImpl;
 
 public class ConcreteProfileMBeanGenerator {
 
@@ -34,7 +35,6 @@ public class ConcreteProfileMBeanGenerator {
 	private CtClass profileManagementInterface = null;
 	private CtClass profileMBeanConcreteClass = null;
 	private CtClass profileMBeanConcreteInterface = null;
-	private CtClass sleeProfileMBean = null;
 	
 	/**
 	 * holds all cmp acessor methods to copy to mbean interface and implement in mbean impl
@@ -76,14 +76,13 @@ public class ConcreteProfileMBeanGenerator {
 			throw new DeploymentException("Failed to locate CMP/Management Interface for " + component, nfe);
 		}
 		
-		// Extends the javax.slee.profile.ProfileMBean
+		// set interface
 		try {
-			sleeProfileMBean = pool.get(ProfileMBean.class.getName());
+			profileMBeanConcreteInterface.addInterface(pool.get(AbstractProfileMBean.class.getName()));
 		}
-		catch (NotFoundException e) {
+		catch (Throwable e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
-		profileMBeanConcreteInterface.addInterface(sleeProfileMBean);
 		
 		// gather exceptions that the mbean methods may throw
 		CtClass[] managementMethodExceptions = new CtClass[3];
@@ -211,7 +210,7 @@ public class ConcreteProfileMBeanGenerator {
 		// set interface & super class
 		try {
 			profileMBeanConcreteClass.setInterfaces(new CtClass[] {profileMBeanConcreteInterface});
-			profileMBeanConcreteClass.setSuperclass(pool.get(AbstractProfileMBean.class.getName()));			
+			profileMBeanConcreteClass.setSuperclass(pool.get(AbstractProfileMBeanImpl.class.getName()));			
 		}
 		catch (NotFoundException e) {
 			throw new SLEEException(e.getMessage(),e);
