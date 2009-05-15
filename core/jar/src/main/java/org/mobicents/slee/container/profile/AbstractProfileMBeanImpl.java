@@ -218,6 +218,14 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 			sleeTransactionManager.resume(transaction);
 			// verify changes
 			getProfileObject().profileVerify();	
+			if (sleeTransactionManager.getRollbackOnly()) {
+				throw new IllegalStateException("the tx is marked for rollback, can't proceed with commit");
+			}
+			else {
+				// the profile will now become visible in the SLEE
+				sleeTransactionManager.commit();	
+				readMode();
+			}
 			
 		} catch (ProfileVerificationException e) {
 			throw e;
@@ -225,23 +233,16 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(),e);
 		
-		} finally {
-			try {
-				if (sleeTransactionManager.getRollbackOnly()) {
-					sleeTransactionManager.rollback();
-					throw new RollbackException();
+		} finally {	
+			if (isProfileWriteable()) {
+				// commit failed, suspend tx
+				try {
+					sleeTransactionManager.suspend();
+				} catch (SystemException e) {
+					throw new ManagementException(e.getMessage(),e);
 				}
-				else {
-					// the profile will now become visible in the SLEE
-					sleeTransactionManager.commit();					
-				}
-			} catch (Throwable e) {
-				throw new ManagementException(e.getMessage(),e);
 			}
-			finally {
-				readMode();
-				switchContextClassLoader(oldClassLoader);
-			}						
+			switchContextClassLoader(oldClassLoader);									
 		}
 	}
 
