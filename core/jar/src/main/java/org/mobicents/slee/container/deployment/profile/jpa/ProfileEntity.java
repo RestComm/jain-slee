@@ -158,8 +158,8 @@ public abstract class ProfileEntity implements Cloneable {
     /**
      * 
      */
-    public void setDirty(boolean dirty) {
-    	this.dirty = dirty;
+    public void markAsDirty() {
+    	this.dirty = true;
     }
     
     /**

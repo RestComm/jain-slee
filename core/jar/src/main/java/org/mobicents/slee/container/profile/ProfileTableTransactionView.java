@@ -77,32 +77,22 @@ public class ProfileTableTransactionView {
 	}
 	
 	public static void passivateProfileObjectOnTxEnd(SleeTransactionManager txManager, final ProfileObject profileObject, final ProfileObjectPool pool) {
-		TransactionalAction action1 = new TransactionalAction() {
+		TransactionalAction afterRollbackAction = new TransactionalAction() {
 			public void execute() {
 				profileObject.profilePassivate();
-				if (profileObject.getState() == ProfileObjectState.POOLED) {
-					pool.returnObject(profileObject);
-				}
-				else {
-					try {
-						pool.invalidateObject(profileObject);
-					} catch (Exception e) {
-						throw new SLEEException(e.getMessage(),e);
-					}
-				}
+				pool.returnObject(profileObject);			
 			}
 		};
-		TransactionalAction action2 = new TransactionalAction() {
+		TransactionalAction beforeCommitAction = new TransactionalAction() {
 			public void execute() {
-				if (profileObject.getState() == ProfileObjectState.READY) {
-					profileObject.profileStore();
-				}
+				profileObject.fireAddOrUpdatedEventIfNeeded();
+				profileObject.profilePassivate();
+				pool.returnObject(profileObject);
 			}
 		};
 		try{
-			txManager.addAfterCommitAction(action1);
-			txManager.addAfterRollbackAction(action1);
-			txManager.addBeforeCommitPriorityAction(action2);
+			txManager.addAfterRollbackAction(afterRollbackAction);
+			txManager.addBeforeCommitPriorityAction(beforeCommitAction);
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}				

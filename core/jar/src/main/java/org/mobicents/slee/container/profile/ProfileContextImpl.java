@@ -80,12 +80,14 @@ public class ProfileContextImpl implements ProfileContext {
 			throw new IllegalStateException();
 		}
 		
-		try {
-			return this.profileObject.getProfileEntity().getProfileName();
+		String profileName = this.profileObject.getProfileEntity().getProfileName();
+		if (profileName == null) {
+			throw new SLEEException("default profile");
 		}
-		catch (Exception e) {
-			throw new SLEEException("Failed with profile table ;[", e);
+		else {
+			return profileName;
 		}
+		
 	}
 
 	public ProfileTable getProfileTable() throws SLEEException

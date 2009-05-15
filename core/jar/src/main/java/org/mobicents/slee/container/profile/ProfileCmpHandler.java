@@ -20,14 +20,15 @@ public class ProfileCmpHandler {
 	
 	/**
 	 * 
-	 * @param fieldName
-	 * @param value
+	 * @param profileObject
+	 * @throws IllegalStateException
+	 * @throws ReadOnlyProfileException
 	 */
 	public static void beforeSetCmpField(ProfileObject profileObject) throws IllegalStateException, ReadOnlyProfileException {
 		
 		sleeContainer.getTransactionManager().mandateTransaction();
 		
-		if (profileObject.getState() != ProfileObjectState.READY) {
+		if (profileObject.getState() != ProfileObjectState.READY && profileObject.getState() != ProfileObjectState.PROFILE_INITIALIZATION) {
 			throw new IllegalStateException("Profile object must be in ready state");
 		}
 		
@@ -41,28 +42,23 @@ public class ProfileCmpHandler {
 	/**
 	 * 
 	 * @param profileObject
-	 * @param fieldName
-	 * @param value
-	 * @throws IllegalStateException
-	 * @throws ReadOnlyProfileException
 	 */
 	public static void afterSetCmpField(ProfileObject profileObject) {
-
-		profileObject.getProfileEntity().setDirty(true);
+		profileObject.getProfileEntity().markAsDirty();
 		ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
 	}
 	
 	/**
 	 * 
-	 * @param fieldName
-	 * @param value
+	 * @param profileObject
+	 * @throws IllegalStateException
 	 */
 	public static void beforeGetCmpField(ProfileObject profileObject) throws IllegalStateException {
 		
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		// not a snapshot, so ensure object in ready state
-		if (profileObject.getState() != ProfileObjectState.READY) {
+		if (profileObject.getState() != ProfileObjectState.READY && profileObject.getState() != ProfileObjectState.PROFILE_INITIALIZATION) {
 			throw new IllegalStateException("Profile object must be in ready state");
 		}
 		
@@ -72,10 +68,6 @@ public class ProfileCmpHandler {
 	/**
 	 * 
 	 * @param profileObject
-	 * @param fieldName
-	 * @param value
-	 * @throws IllegalStateException
-	 * @throws ReadOnlyProfileException
 	 */
 	public static void afterGetCmpField(ProfileObject profileObject) {
 

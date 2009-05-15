@@ -5,12 +5,10 @@ import java.security.PrivilegedAction;
 
 import javax.slee.CreateException;
 import javax.slee.SLEEException;
-import javax.slee.management.ManagementException;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.resource.EventFlags;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
@@ -22,7 +20,6 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileRemovedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * Start time:16:46:52 2009-03-13<br>
@@ -220,6 +217,8 @@ public class ProfileObject {
 	public void profileCreate(String profileName) throws CreateException {
 		profileInitialize(profileName);
 		profilePostCreate();
+		profileStore();
+		persistProfileConcrete();
 	}
 	
 	/**
@@ -242,19 +241,15 @@ public class ProfileObject {
 				profileEntity = (ProfileEntity) profileTableConcrete.getProfileSpecificationComponent().getProfileEntityClass().newInstance();
 				profileEntity.setProfileName(null);
 				profileEntity.setTableName(profileTableConcrete.getProfileTableName());
-				// change state to ready so the concrete profile can use the cmp acessors
-				this.state = ProfileObjectState.READY;
+				// change state
+				this.state = ProfileObjectState.PROFILE_INITIALIZATION;
 				// invoke life cycle method on profile
 				try {
 					profileConcrete.profileInitialize();
 				}
 				catch (RuntimeException e) {
 					runtimeExceptionOnProfileInvocation(e);
-				}
-				finally {
-					// restore pooled state
-					this.state = ProfileObjectState.POOLED;
-				}
+				}				
 			}
 			else {
 				// load the default profile entity
@@ -273,7 +268,7 @@ public class ProfileObject {
 		
 		// mark entity as dirty and for creation
 		profileEntity.create();
-		profileEntity.setDirty(true);
+		profileEntity.markAsDirty();
 	}
 	
 	/**
@@ -286,25 +281,19 @@ public class ProfileObject {
 			logger.debug("[profilePostCreate] "+this);
 		}
 		
-		if (this.state != ProfileObjectState.POOLED) {
+		if (this.state != ProfileObjectState.POOLED && this.state != ProfileObjectState.PROFILE_INITIALIZATION) {
 			throw new SLEEException(this.toString());
 		}
 		
 		this.state = ProfileObjectState.READY;
 		
 		if (isSlee11) {
-			//this.invokingProfilePostCreate = true;
-			//try {
 			try {
 				this.profileConcrete.profilePostCreate();
 			}
 			catch (RuntimeException e) {
 				runtimeExceptionOnProfileInvocation(e);
 			}	
-			//}
-			//finally {
-			//	this.invokingProfilePostCreate = false;
-			//}
 		}		
 		
 	}
@@ -319,7 +308,7 @@ public class ProfileObject {
 			throw new SLEEException("can only assign profile entities without creation or load when read only");
 		}
 		profileActivate();
-		this.profileEntity = snapshot;
+		this.profileEntity = snapshot;		
 	}
 	
 	/**
@@ -329,7 +318,7 @@ public class ProfileObject {
 	 */
 	public void profileActivate(String profileName) throws UnrecognizedProfileNameException {
 		profileActivate();
-		profileLoad(profileName);
+		profileLoad(profileName);		
 	}
 	
 	/**
@@ -391,9 +380,12 @@ public class ProfileObject {
 	 * @throws ProfileVerificationException
 	 */
 	public void profileVerify() throws ProfileVerificationException {
+		
 		if(logger.isDebugEnabled()) {
 			logger.debug("[profileVerify] "+this);
 		}
+		
+		profileStore();
 		
 		if (state != ProfileObjectState.READY) {
 			throw new SLEEException(this.toString());
@@ -402,7 +394,6 @@ public class ProfileObject {
 		if(!isSlee11 || profileEntity.getProfileName() != null) {
 			// only invoke when it is a slee 1.0 profile or a non default slee 1.1 profile
 			try {
-			  profileStore();
 				profileConcrete.profileVerify();
 			}
 			catch (RuntimeException e) {
@@ -434,8 +425,6 @@ public class ProfileObject {
 			logger.debug("[profileStore] "+this);
 		}
 		
-		// skip if object has been invalidated
-
 		if (state != ProfileObjectState.READY) {
 			throw new SLEEException(this.toString());
 		}
@@ -443,37 +432,13 @@ public class ProfileObject {
 		if (profileEntity.isReadOnly()) {
 			return;
 		}
-
+		
 		try {
 			profileConcrete.profileStore();
 		}
 		catch (RuntimeException e) {
 			runtimeExceptionOnProfileInvocation(e);
-		}
-
-		if (profileEntity.isDirty()) {
-
-			persistProfileConcrete();
-			// check the table fires events and the object is not assigned to a default profile
-			if (profileTableConcrete.doesFireEvents() && profileEntity.getProfileName() != null) {
-				// Fire a Profile Added or Updated Event
-				ActivityContext ac = profileTableConcrete.getActivityContext();
-				AbstractProfileEvent event = null;
-				if (profileEntity.isCreate()) {
-					event = new ProfileAddedEventImpl(profileEntity);					
-				}
-				else {
-					event = new ProfileUpdatedEventImpl(profileEntitySnapshot,profileEntity);					
-				}
-				ac.fireEvent(event.getEventTypeID(), event,
-						event.getProfileAddress(), null, EventFlags.NO_FLAGS);
-				// reset snapshot clone
-				profileEntitySnapshot = profileEntity.cl0ne();	
-				profileEntitySnapshot.setReadOnly(true);
-			}
-			profileEntity.setDirty(false);
-		}
-		
+		}		
 	}
 	
 	/**
@@ -483,10 +448,21 @@ public class ProfileObject {
 		
 		if (state == ProfileObjectState.READY) {
 
+			// FIXME tests/profiles/lifecycle/Test1110227Test.xml enforces profileStore to be called before every profilePassivate(), doing this here to enfore it happens
+			profileStore();
+			
 			if(logger.isDebugEnabled()) {
 				logger.debug("[profilePassivate] "+this);
 			}
 
+			if (this.profileEntity.getProfileName() != null) {
+				state = ProfileObjectState.POOLED;			
+			}
+			else {
+				// FIXME due to tests/profiles/profileabstractclass/Test1110251Test.xml we need to get ridden of the default profile object
+				state = ProfileObjectState.DOES_NOT_EXIST;
+			}
+			
 			if (isSlee11) {
 				try {
 					profileConcrete.profilePassivate();
@@ -496,13 +472,6 @@ public class ProfileObject {
 				}
 			}
 			
-			if (this.profileEntity.getProfileName() != null) {
-				state = ProfileObjectState.POOLED;			
-			}
-			else {
-				// FIXME due to tests/profiles/profileabstractclass/Test1110251Test.xml we need to get ridden of the default profile object
-				state = ProfileObjectState.DOES_NOT_EXIST;
-			}
 		}
 		
 		this.profileEntity = null;
@@ -545,30 +514,8 @@ public class ProfileObject {
 		
 		this.profileEntity = null;
 		this.profileEntitySnapshot = null;
-		
-		//returnToProfileTable();
-			
+					
 	}
-	/*
-	private void returnToProfileTable() {
-		
-		//boolean defaultProfile = profileEntity.getProfileName() == null;
-		this.profileEntity = null;
-		this.profileEntitySnapshot = null;
-		this.profileLocalObject = null;
-		if (state == ProfileObjectState.READY) {
-			//if (!defaultProfile) {
-				state = ProfileObjectState.POOLED;			
-			//}
-			//else {
-				// FIXME due to tests/profiles/profileabstractclass/Test1110251Test.xml we need to get ridden of the default profile object
-				//state = ProfileObjectState.DOES_NOT_EXIST;
-			//}
-		}		
-		
-	}
-	*/
-
 
 	/**
 	 * Invoked when pool removes object
@@ -727,5 +674,30 @@ public class ProfileObject {
 	 */
 	public void invalidateObject() {
 		state = ProfileObjectState.DOES_NOT_EXIST;		
+	}
+
+	/**
+	 * Fires a profile added or updated event if the profile object state is ready and the persistent state is dirty 
+	 */
+	public void fireAddOrUpdatedEventIfNeeded() {
+		if (state == ProfileObjectState.READY) {
+			if (profileEntity.isDirty()) {
+				// check the table fires events and the object is not assigned to a default profile
+				if (profileTableConcrete.doesFireEvents() && profileEntity.getProfileName() != null) {
+					// Fire a Profile Added or Updated Event
+					ActivityContext ac = profileTableConcrete.getActivityContext();
+					AbstractProfileEvent event = null;
+					if (profileEntity.isCreate()) {
+						event = new ProfileAddedEventImpl(profileEntity);					
+					}
+					else {
+						event = new ProfileUpdatedEventImpl(profileEntitySnapshot,profileEntity);					
+					}
+					ac.fireEvent(event.getEventTypeID(), event,
+							event.getProfileAddress(), null, EventFlags.NO_FLAGS);
+				}
+			}
+		}
+		
 	}
 }

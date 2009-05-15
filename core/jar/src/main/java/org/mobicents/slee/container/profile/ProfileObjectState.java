@@ -12,12 +12,29 @@ package org.mobicents.slee.container.profile;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 public enum ProfileObjectState {
-  // The Profile object exists but is not assigned to any particular Profile.
+
+	/**
+	 * The Profile object does not exist. It may not have been created or it may
+	 * have been deleted.
+	 */
+	DOES_NOT_EXIST,
+
+	/**
+	 * The Profile object exists but is not assigned to any particular Profile.
+	 */
 	POOLED,
-	// The Profile object is assigned to a Profile. It is ready to receive method invocations through its 
-	// Profile Local interface or Profile Management interface, and various lifecycle callback method in-
-	// vocations. 
-	READY, 
-	// The Profile object does not exist. It may not have been created or it may have been deleted. 
-	DOES_NOT_EXIST;
+
+	/**
+	 * The Profile object is making the transaction from POOLED to READY through
+	 * a call of profileInitialize().
+	 */
+	PROFILE_INITIALIZATION,
+
+	/**
+	 * The Profile object is assigned to a Profile. It is ready to receive
+	 * method invocations through its Profile Local interface or Profile
+	 * Management interface, and various life-cycle callback method invocations.
+	 */
+	READY;
+
 }

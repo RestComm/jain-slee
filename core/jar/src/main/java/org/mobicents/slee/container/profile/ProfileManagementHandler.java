@@ -49,7 +49,7 @@ public class ProfileManagementHandler {
 			logger.info("[markProfileDirty] @ " + profileObject);
 		}
 
-		profileObject.getProfileEntity().setDirty(true);
+		profileObject.getProfileEntity().markAsDirty();
 	}
 
 	public static void profileInitialize(ProfileObject profileObject) {

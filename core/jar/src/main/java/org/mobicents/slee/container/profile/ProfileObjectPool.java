@@ -35,14 +35,19 @@ public class ProfileObjectPool {
 		return obj; 
 	}
 	
-	public void returnObject(ProfileObject obj) {				
-		try {
-			pool.returnObject(obj);
-		} catch (Exception e) {
-			throw new SLEEException(e.getMessage(),e);
-		}	
-		if (logger.isDebugEnabled()) {
-			logger.debug("returned object "+obj + " to " + this);
+	public void returnObject(ProfileObject profileObject) {				
+		if (profileObject.getState() == ProfileObjectState.POOLED) {
+			try {
+				pool.returnObject(profileObject);
+			} catch (Exception e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("returned object "+profileObject + " to " + this);
+			}
+		}
+		else {
+			invalidateObject(profileObject);
 		}
 	}
 	

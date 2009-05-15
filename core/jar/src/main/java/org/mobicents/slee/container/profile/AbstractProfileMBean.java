@@ -13,6 +13,7 @@ import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.ReadOnlyProfileException;
 import javax.transaction.InvalidTransactionException;
 import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
@@ -211,6 +212,7 @@ public abstract class AbstractProfileMBean extends StandardMBean implements Prof
 			try {
 				if (sleeTransactionManager.getRollbackOnly()) {
 					sleeTransactionManager.rollback();
+					throw new RollbackException();
 				}
 				else {
 					// the profile will now become visible in the SLEE
