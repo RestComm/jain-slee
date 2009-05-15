@@ -101,7 +101,17 @@ public interface ProfileTableConcrete extends ProfileTable {
 	 * @throws SLEEException
 	 */
 	public ProfileObject getProfile(String profileName) throws TransactionRequiredLocalException, SLEEException;
-	
+
+	/**
+	 * 
+	 * @param profileName
+	 * @param invokeConcreteSbb
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 */
+	public boolean removeProfile(String profileName, boolean invokeConcreteSbb)
+			throws TransactionRequiredLocalException, SLEEException;
 	
 	/**
 	 * Return Usage MBean if profile specification declares UsageInterface.

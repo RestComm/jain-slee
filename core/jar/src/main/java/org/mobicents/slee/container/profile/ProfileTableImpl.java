@@ -259,9 +259,8 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 		return this.removeProfile(profileName,true);
 	}
 
-	private boolean removeProfile(String profileName, boolean invokeConcreteSbb)
-			throws NullPointerException, ReadOnlyProfileException,
-			TransactionRequiredLocalException, SLEEException {
+	public boolean removeProfile(String profileName, boolean invokeConcreteSbb)
+			throws TransactionRequiredLocalException, SLEEException {
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("[remove] on: " + this + " Profile[" + profileName
@@ -453,11 +452,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 	 * any other than defualt?
 	 */
 	public boolean profileExists(String profileName) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("[isProfileCommitted] on: " + this + " Profile["
-					+ profileName + "]");
-		}
-
+		
 		boolean result = ProfileDataSource.INSTANCE.find(this, profileName);
 		
 		if (logger.isDebugEnabled()) {

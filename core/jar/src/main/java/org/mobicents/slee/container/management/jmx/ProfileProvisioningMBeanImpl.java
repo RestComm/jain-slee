@@ -40,7 +40,6 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.profile.UnrecognizedQueryNameException;
 import javax.slee.profile.query.QueryExpression;
 import javax.transaction.NotSupportedException;
-import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
@@ -48,7 +47,6 @@ import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAQueryBuilder;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.AbstractProfileMBean;
@@ -751,7 +749,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			if (!profileTable.profileExists(profileName)) {
 				throw new UnrecognizedProfileNameException("There is no such profile: " + profileName + ", in profile table: " + profileTableName);
 			}
-			profileTable.remove(profileName);
+			profileTable.removeProfile(profileName, true);
 			if(!sleeTransactionManagement.getRollbackOnly()) {
 				rb = false;
 			}
