@@ -1038,14 +1038,15 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
             continue;
           }
-					else if (key.startsWith("get") || key.startsWith("set")) {
-						passed = false;
-						errorBuffer = appendToBuffer(
-								"Profile specification profile local interface declares method which is setter/getter and does not match CMP interface method, method: "
-										+ entry.getKey(), "10.18", errorBuffer);
-
-						continue;
-					}
+					// FIXME: Alexandre: Business method may have the same name as long as it has different arguments from CMP accessor method.
+					//else if (key.startsWith("get") || key.startsWith("set")) {
+					//	passed = false;
+					//	errorBuffer = appendToBuffer(
+					//			"Profile specification profile local interface declares method which is setter/getter and does not match CMP interface method, method: "
+					//					+ entry.getKey(), "10.18", errorBuffer);
+					//
+					//	continue;
+					//}
 
 					// is this the right place? This tells validator
 					// wheather it should require profile abstract class in
