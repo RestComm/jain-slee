@@ -114,7 +114,15 @@ public class ClassGeneratorUtils {
       {
         for(String interfaceName : interfaceNames)
         {
-          concreteClass.addInterface(classPool.get(interfaceName));
+          boolean found = false;
+          for(CtClass existingInterfaces : concreteClass.getInterfaces())
+          {
+            if(existingInterfaces.getName().equals(interfaceName))
+              found = true;
+          }
+          
+          if(!found)
+            concreteClass.addInterface(classPool.get(interfaceName));
         }
       }
       catch ( NotFoundException e ) {
