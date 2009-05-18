@@ -329,8 +329,10 @@ public class ConcreteProfileGenerator {
     	"{" +
     		ProfileCmpHandler.class.getName() + ".beforeGetCmpField(profileObject);" +
         "	try {" +
-        "		return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "();" +
-        "	}" +
+        (field.getType().isPrimitive() ? 
+        "    return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "();" : 
+        "    return ($r) " + ProfileEntity.class.getName() + ".makeDeepCopy(" + "(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "()" + ");") +
+        " }" +
         "	finally {" +
         		ProfileCmpHandler.class.getName() + ".afterGetCmpField(profileObject);" +
         "	};"+
@@ -363,7 +365,9 @@ public class ConcreteProfileGenerator {
     	"{" +
     		ProfileCmpHandler.class.getName() + ".beforeSetCmpField(profileObject);" +
         "	try {" +
-        "		return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "($1);" +
+        (field.getType().isPrimitive() ? 
+        "		(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "($1);" :
+        "   (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "((" + field.getType().getName() + ")" + ProfileEntity.class.getName() + ".makeDeepCopy($1));") +
         "	}" +
         "	finally {" +
         		ProfileCmpHandler.class.getName() + ".afterSetCmpField(profileObject);" +

@@ -1,5 +1,11 @@
 package org.mobicents.slee.container.deployment.profile.jpa;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import javax.persistence.Transient;
 import javax.slee.SLEEException;
 
@@ -179,4 +185,26 @@ public abstract class ProfileEntity implements Cloneable {
     public String toString() {
 		return " ProfileEntity( profileName = "+getProfileName()+" , tableName = "+tableName+" , create = "+create+" , dirty = "+dirty+ " , readOnly = "+readOnly+" , remove = "+remove+" )";
 	}
+    
+    public static Object makeDeepCopy(Object orig) {
+      Object obj = null;
+      try {
+          // Write the object out to a byte array
+          ByteArrayOutputStream bos = new ByteArrayOutputStream();
+          ObjectOutputStream out = new ObjectOutputStream(bos);
+          out.writeObject(orig);
+          out.flush();
+          out.close();
+
+          // Make an input stream from the byte array and read
+          // a copy of the object back in.
+          ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+          obj = in.readObject();
+      }
+      catch(Exception e) {
+        throw new SLEEException("Failed to create copy of CMP object.", e);
+      }
+      return obj;
+  }
+
 }
