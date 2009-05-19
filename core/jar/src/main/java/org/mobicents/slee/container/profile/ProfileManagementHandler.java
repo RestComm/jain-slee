@@ -5,9 +5,13 @@ import javax.slee.SLEEException;
 import javax.slee.profile.ProfileContext;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileVerificationException;
+import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * 
@@ -40,8 +44,27 @@ public class ProfileManagementHandler {
 					+ profileObject);
 		}
 
-		// FIXME: Alexandre: Validate the profile
-		return true;
+		if (profileId == null) {
+			throw new NullPointerException("null profile id");
+		}
+		
+		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
+		
+		boolean terminateTx = txManager.requireTransaction(); 
+		try {
+			ProfileTableConcrete profileTable = SleeContainer.lookupFromJndi().getSleeProfileTableManager().getProfileTable(profileId.getProfileTableName());
+			return profileTable.profileExists(profileId.getProfileName());
+		}
+		catch (UnrecognizedProfileTableNameException e) {
+			return false;
+		}
+		catch (Throwable e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
+		finally {
+			txManager.requireTransactionEnd(terminateTx, false);
+		}
 	}
 
 	public static void markProfileDirty(ProfileObject profileObject) {
