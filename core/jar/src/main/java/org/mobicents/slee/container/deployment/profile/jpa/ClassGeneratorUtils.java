@@ -565,7 +565,7 @@ public class ClassGeneratorUtils {
     
     String body = "{ " +
       "  try {" + 
-      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(this);" : "");
+      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(profileObject);" : "");
         
     if(retStatement != null)
     {
@@ -580,7 +580,7 @@ public class ClassGeneratorUtils {
     
     body += "  }" +
       "  finally {" +
-      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(this);" : "") + 
+      (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(profileObject);" : "") + 
       "  }" + 
       "}";
     

@@ -46,9 +46,6 @@ public class ConcreteProfileGenerator {
 
   private static final Logger logger = Logger.getLogger(ConcreteProfileGenerator.class);
 
-  private static final String PROFILE_TABLE_IDENTIFIER = "tableName";
-  private static final String PROFILE_IDENTIFIER = "safeProfileName";
-
   private ProfileSpecificationComponent profileComponent;
   private ProfileSpecificationDescriptorImpl profileDescriptor;
 
@@ -128,7 +125,13 @@ public class ConcreteProfileGenerator {
       Class profileManagementInterface = this.profileComponent.getProfileManagementInterfaceClass();
       
       if (profileManagementInterface != null) {
-        profileManagementMethods.putAll(org.mobicents.slee.container.deployment.ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(profileManagementInterface.getName())));
+        profileManagementMethods.putAll(ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(profileManagementInterface.getName())));
+      }
+      
+      Class profileLocalInterface = this.profileComponent.getProfileLocalInterfaceClass();
+      
+      if(profileLocalInterface != null) {
+        profileManagementMethods.putAll(ClassUtils.getAbstractMethodsFromClass((ClassGeneratorUtils.getClass(profileLocalInterface.getName()))));
       }
 
       Map<String, CtMethod> cmpInterfaceMethods = ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(this.profileComponent.getProfileCmpInterfaceClass().getName()));
@@ -173,7 +176,10 @@ public class ConcreteProfileGenerator {
       
       CtMethod method = entry.getValue();
       
-      if(cmpInterfaceMethods.containsKey(entry.getKey()))
+      // We should use key, but ClassUtils has different behaviors... go safe!
+      String methodKey = method.getName() + method.getSignature();
+      
+      if(cmpInterfaceMethods.containsKey(methodKey))
       {
         // This was already implemented by generateCMP...
         continue;
@@ -210,61 +216,12 @@ public class ConcreteProfileGenerator {
       
       try
       {
-        ClassGeneratorUtils.generateDelegateMethod( profileConcreteClass, entry.getValue(), interceptor, false );
+        ClassGeneratorUtils.generateDelegateMethod( profileConcreteClass, entry.getValue(), interceptor, true );
       }
       catch ( Exception e ) {
         throw new SLEEException(e.getMessage(),e);
       }
     }
-//      useInterceptor = true;
-//      
-//      if(abstractClass != null)
-//      {
-//        try
-//        {
-//          int i = 0;
-//          Class[] pTypes = new Class[method.getParameterTypes().length];
-//        
-//          for(CtClass ctClass : method.getParameterTypes())
-//          {
-//            pTypes[i++]  = ctClass.toClass();
-//          }
-//          
-//          abstractClass.getMethod( method.getName(), pTypes );
-//          useInterceptor = false;
-//        }
-//        catch ( Exception e ) {
-//          // ignore... we are using interceptor.
-//        }
-  }
-  
-  private void generateProfileIdentifiers(CtClass profileConcreteClass) throws Exception
-  {
-    // Create the IdClass value
-    LinkedHashMap<String, Object> idClassMVs = new LinkedHashMap<String, Object>();
-    idClassMVs.put( "value", JPAProfileId.class );
-
-    // Annotate class with @IdClass(org.mobicents.slee.container.deployment.profile.jpa.JPAProfileId)
-    ClassGeneratorUtils.addAnnotation( "javax.persistence.IdClass", idClassMVs, profileConcreteClass );
-
-    // Add Table Name Attribute
-    CtField tableNameField = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass(String.class.getName()), PROFILE_TABLE_IDENTIFIER, profileConcreteClass, Modifier.PUBLIC);
-
-    LinkedHashMap<String, Object> columnAttrs = new LinkedHashMap<String, Object>();
-    columnAttrs.put( "nullable", true );
-    columnAttrs.put( "unique", true );
-
-    ClassGeneratorUtils.addAnnotation( "javax.persistence.Id", new LinkedHashMap<String, Object>(), tableNameField );
-    ClassGeneratorUtils.addAnnotation( "javax.persistence.Column", columnAttrs, tableNameField );
-    ClassGeneratorUtils.generateGetterAndSetter( tableNameField, null );
-
-    // Add Profile Name Attribute
-    CtField profileNameField = ClassGeneratorUtils.addField( ClassGeneratorUtils.getClass(String.class.getName()), PROFILE_IDENTIFIER, profileConcreteClass, Modifier.PUBLIC);
-
-    ClassGeneratorUtils.addAnnotation( "javax.persistence.Id", new LinkedHashMap<String, Object>(), profileNameField );
-    ClassGeneratorUtils.addAnnotation( "javax.persistence.Column", columnAttrs, profileNameField );
-
-    ClassGeneratorUtils.generateGetterAndSetter( profileNameField, null );    
   }
   
   private void generateCMPFieldsWithGettersAndSetters(CtClass profileConcreteClass) throws Exception

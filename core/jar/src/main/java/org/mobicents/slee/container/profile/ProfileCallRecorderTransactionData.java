@@ -25,8 +25,8 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * <li>calls from different thread</li> --- how should we do that ? lol
  * </ul>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * 
  */
 public class ProfileCallRecorderTransactionData {
@@ -168,6 +168,6 @@ public class ProfileCallRecorderTransactionData {
 
 	private static String makeKey(ProfileObject pc) {
 		// FIXME: Alexandre: Removed toString() as it may cause it to identify as differente profile
-		return pc.getProfileTableConcrete().getProfileTableName() + "-" + pc.getProfileEntity().getProfileName();// + "-" + pc.toString();
+		return pc.getProfileTableConcrete().getProfileTableName() + "-" + (pc.getProfileEntity() == null ? "" : pc.getProfileEntity().getProfileName());// + "-" + pc.toString();
 	}
 }
