@@ -24,7 +24,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.w3c.dom.Document;
@@ -155,21 +154,10 @@ public class ConcreteProfileEntityGenerator {
           CtMethod ctMethod = CtNewMethod.getter( "get" + pojoCmpAccessorSufix, genField );
           profileConcreteClass.addMethod(ctMethod);
           ctMethod = CtNewMethod.setter( "set" + pojoCmpAccessorSufix, genField );
+//          if(!genField.getType().isPrimitive())
+//            ctMethod.setBody("{this." + genField.getName() +" = " + ProfileEntity.class.getName() + ".makeDeepCopy($1);}");
           profileConcreteClass.addMethod(ctMethod);
         }
-      }
-    }
-
-    for(MCMPField cmpField : cmpInterface.getCmpFields())
-    {
-      if( cmpField.getUnique() )
-      {
-        CtField field = profileConcreteClass.getField( cmpField.getCmpFieldName() );
-
-        LinkedHashMap<String, Object> mvs = new LinkedHashMap<String, Object>();
-        mvs.put( "unique", true );
-
-        ClassGeneratorUtils.addAnnotation( "javax.persistence.Column", mvs, field );
       }
     }
   }

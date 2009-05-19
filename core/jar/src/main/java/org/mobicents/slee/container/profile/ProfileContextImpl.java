@@ -81,13 +81,7 @@ public class ProfileContextImpl implements ProfileContext {
 		}
 		
 		String profileName = this.profileObject.getProfileEntity().getProfileName();
-		if (profileName == null) {
-			throw new SLEEException("default profile");
-		}
-		else {
-			return profileName;
-		}
-		
+		return profileName;
 	}
 
 	public ProfileTable getProfileTable() throws SLEEException

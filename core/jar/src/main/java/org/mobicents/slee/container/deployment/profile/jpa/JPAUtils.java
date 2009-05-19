@@ -30,6 +30,8 @@ import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
 import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
@@ -238,14 +240,54 @@ public class JPAUtils implements ProfileDataSource {
 
   public Object findProfileByAttribute(String profileTableName, String attributeName, Object attributeValue)
   {
-    // TODO: complete.
-    return null;
+    // If more than one matching Profile is found the SLEE may arbitrarily return any one of the matching Profiles.
+    // The Profile Table's default Profile is not considered when determining matching Profiles. If no matching Profiles
+    // are  found this method returns null.
+
+    Collection<Object> results = findProfilesByAttribute(profileTableName, attributeName, attributeValue);
+
+    return results != null && results.size() > 0 ? results.iterator().next() : null;
   }
 
-  public Collection<Object> findProfilesByAttribute(String profileTableName, String attributeName, Object attributeValue)
+  public Collection<Object> findProfilesByAttribute(String profileTableName, String attributeName, Object attributeValue) throws NullPointerException, IllegalArgumentException, TransactionRequiredLocalException, SLEEException
   {
-    // TODO: complete.
-    return null;
+    if (profileTableName == null) {
+      throw new NullPointerException("null profile table name");
+    }
+    if (attributeName == null) {
+      throw new NullPointerException("null attribute name");
+    }
+    if (attributeValue == null) {
+      throw new NullPointerException("null attribute value");
+    }
+
+    Collection<Object> results = new ArrayList<Object>();
+    ProfileTableConcrete ptc;
+    
+    try {
+      ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
+    }
+    catch ( UnrecognizedProfileTableNameException uptne ) {
+      // This shouldn't happen...
+      logger.error( "Unexpected error. Profile Table Name was not found: " + profileTableName, uptne );
+      
+      // If no matching Profiles are found in the Profile Table an empty collection is returned.
+      return results;
+    }
+    
+    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
+
+    EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
+    Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName <> '' AND C" + attributeName + " = ?2").setParameter(1, profileTableName).setParameter(2, attributeValue);
+
+    try {
+      results = createProfileQuery.getResultList();
+    }
+    catch (NoResultException e) {
+      // we ignore it.
+    }
+    
+    return results;
   }
 
   public Collection<ProfileID> getProfilesIDs(ProfileTableConcrete ptc)
@@ -434,9 +476,17 @@ public class JPAUtils implements ProfileDataSource {
   {
     EntityManager em = null;
     
+    if(checkUniqueFields(profileObject))
+    {
       em = getEntityManager(profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getProfileSpecificationID());
       em.persist(profileObject.getProfileEntity()); 
-    
+    }
+    else
+    {
+    	// FIXME: We need to throw this PVException!
+      //throw new ProfileVerificationException("Failed to persist profile due to uniqueness constraint.");
+      throw new SLEEException("Failed to persist profile due to uniqueness constraint.");
+    }
   }
   
   public ProfileEntity retrieveProfile(ProfileTableConcrete profileTable, String profileName)
@@ -493,7 +543,80 @@ public class JPAUtils implements ProfileDataSource {
     
   }
 
+  private boolean checkUniqueFields(ProfileObject profileObject)
+  {
+    try
+    {
+      ArrayList<Object> attrValues = new ArrayList<Object>();
+      ProfileSpecificationComponent psc = profileObject.getProfileTableConcrete().getProfileSpecificationComponent();
+      
+      String sqlQuery = "FROM " + psc.getProfileEntityClass().getName() + " WHERE tableName = ?1 AND safeProfileName <> ''";
+
+      if(psc.isSlee11())
+      {
+        int i = 2;
+        for(MCMPField cmpField : psc.getDescriptor().getProfileCMPInterface().getCmpFields())
+        {
+          if(cmpField.getUnique())
+          {
+            // Get field name and capitalize it
+            String fieldName = cmpField.getCmpFieldName();
+            fieldName = fieldName.replaceFirst( "" + fieldName.charAt(0), "" + Character.toUpperCase(fieldName.charAt(0)) );
+
+            // Invoke getter for obtaining value
+            Object value = profileObject.getProfileConcrete().getClass().getMethod("get" + fieldName).invoke(profileObject.getProfileConcrete());
+            attrValues.add(value);
+
+            // Compose the SQL Query with new field name
+            sqlQuery += (i == 2 ? " AND ( C" : " OR C") + fieldName + " = ?" + i++;
+          }
+        }      
+      }
+      else
+      {
+        int i = 2;
+        for(MProfileIndex indexedAttribute : psc.getDescriptor().getIndexedAttributes())
+        {
+          if(indexedAttribute.getUnique())
+          {
+            // Get field name and capitalize it
+            String fieldName = indexedAttribute.getName();
+            fieldName = fieldName.replaceFirst( "" + fieldName.charAt(0), "" + Character.toUpperCase(fieldName.charAt(0)) );
+            
+            // Invoke getter for obtaining value
+            Object value = profileObject.getProfileConcrete().getClass().getMethod("get" + fieldName).invoke(profileObject.getProfileConcrete());
+            attrValues.add(value);
+
+            // Compose the SQL Query with new field name
+            sqlQuery += (i == 2 ? " AND ( C" : " OR C") + fieldName + " = ?" + i++;
+          }
+        }
+      }
+
+      sqlQuery += ")";
+      
+      if(attrValues.size() > 0)
+      {
+        EntityManager em = getEntityManager(profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getProfileSpecificationID());
+
+        Query q = em.createQuery(sqlQuery);
+        q.setParameter( 1, profileObject.getProfileTableConcrete().getProfileTableName() );
+        
+        int i = 2;
+        for(Object attrValue : attrValues)
+        {
+          q.setParameter( i++, attrValue );
+        }
   
-  
+        if(q.getResultList().size() > 0)
+          return false;
+      }
+    }
+    catch (Exception e) {
+      logger.error( "Unable to verify unique constraints.", e );
+    }
+
+    return true;
+  }
 
 }

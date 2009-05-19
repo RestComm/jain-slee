@@ -2,6 +2,7 @@ package org.mobicents.slee.container.profile;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.management.ObjectName;
@@ -24,6 +25,8 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -240,7 +243,7 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			}
 		}
 
-		return plos;
+		return Collections.unmodifiableCollection(plos);
 	}
 
 	public boolean remove(String profileName) throws NullPointerException,
@@ -378,15 +381,36 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			Object attributeValue) throws NullPointerException,
 			IllegalArgumentException, TransactionRequiredLocalException,
 			SLEEException {
-		return findProfileByAttribute(attributeName, attributeValue);
+	  Collection plocs = findProfilesByAttribute(attributeName, attributeValue);
+	  
+	  if(plocs == null || plocs.size() == 0)
+	    return null;
+	  
+	  return (ProfileLocalObject) plocs.iterator().next();
 	}
 
 	public Collection findProfilesByAttribute(String attributeName,
 			Object attributeValue) throws NullPointerException,
 			IllegalArgumentException, TransactionRequiredLocalException,
 			SLEEException {
-		// FIXME: Alexandre: Implement findProfilesByAttribute(String, Object);
-		return null;
+    Collection<Object> profilePOJOs = JPAUtils.INSTANCE.findProfilesByAttribute( getProfileTableName(), attributeName, attributeValue );
+    
+    ArrayList<ProfileLocalObject> plocs = new ArrayList<ProfileLocalObject>();
+
+    for(Object profilePOJO : profilePOJOs)
+    {
+      Class plocClass = this.component.getProfileLocalObjectConcreteClass() == null ? ProfileLocalObjectImpl.class : this.component.getProfileLocalObjectConcreteClass(); 
+      String profileName = ((ProfileEntity)profilePOJO).getProfileName();
+      
+      try {
+        plocs.add((ProfileLocalObject) plocClass.getConstructor(ProfileObject.class).newInstance(getProfile(profileName)));
+      }
+      catch (Exception e) {
+        throw new SLEEException("Failed to instantiate ProfileLocalObject.", e);
+      }
+    }
+    
+    return Collections.unmodifiableCollection(plocs);
 	}
 
 	public ProfileID getProfileByIndexedAttribute(String attributeName,
