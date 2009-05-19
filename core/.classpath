@@ -50,6 +50,7 @@
 	<classpathentry kind="src" path="standard-events/jar/src/main/resources"/>
 	<classpathentry kind="src" path="standard-events11/jar/src/main/resources"/>
 	<classpathentry kind="src" path="standard-profiles/jar/src/main/resources"/>
+	<classpathentry kind="src" path="standard-profiles11/jar/src/main/resources"/>
 	<classpathentry kind="src" path="transaction/src/test/java"/>
 	<classpathentry kind="src" path="transaction/src/main/java"/>
 	<classpathentry kind="src" path="transaction/src/test/resources"/>	

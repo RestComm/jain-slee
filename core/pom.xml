@@ -33,7 +33,8 @@
 		<module>deployer</module>
 		<module>standard-events</module>
 		<module>standard-events11</module>
-		<!-- module>standard-profiles</module-->
+		<module>standard-profiles</module>
+		<module>standard-profiles11</module>
 	</modules>
 
 	<properties>

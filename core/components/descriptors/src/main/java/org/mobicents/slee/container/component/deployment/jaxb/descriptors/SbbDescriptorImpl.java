@@ -122,6 +122,16 @@ public class SbbDescriptorImpl {
 							"the address profile spec alias in sbb descriptor is defined but there are no profile specs references");
 				}
 			}
+			else {
+				// FIXME emmartins: not sure that defining the standard profile spec when the alias ref is not present is correct,
+				// but test tests/events/eventrouting/Test1108081Test1.xml defines no address profile spec ref and uses it
+				if (isSlee11) {
+					this.addressProfileSpecRef = new ProfileSpecificationID("AddressProfileSpec","javax.slee","1.1");
+				}
+				else {
+					this.addressProfileSpecRef = new ProfileSpecificationID("AddressProfileSpec","javax.slee","1.0");
+				}
+			}
 
 			this.sbbRefs = sbb.getSbbRef();
 
@@ -221,7 +231,7 @@ public class SbbDescriptorImpl {
 		for (MProfileSpecRef profileSpecRef : profileSpecRefs) {
 			this.dependenciesSet.add(profileSpecRef.getComponentID());
 		}
-
+		
 		for (MLibraryRef libraryRef : libraryRefs) {
 			this.dependenciesSet.add(libraryRef.getComponentID());
 		}
@@ -229,7 +239,6 @@ public class SbbDescriptorImpl {
 		for (MResourceAdaptorTypeBinding binding : resourceAdaptorTypeBindings) {
 			this.dependenciesSet.add(binding.getResourceAdaptorTypeRef());
 		}
-		
 		
 		// FIXME: EJB's do not have component ID... what gives?
 		// for(MEjbRef ejbRef : ejbRefs)

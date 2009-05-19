@@ -370,9 +370,9 @@ public class InitialEventProcessor {
 			if (selector.getAddress() == null) {
 				buff.append("null");
 			} else {
-				SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 				ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(addressProfileId);
 				if (profileSpecificationComponent == null) {
+					// FIXME this can be checked in deploy
 					throw new Exception("Could not find address profile ! "
 							+ addressProfileId);
 				}
@@ -387,6 +387,7 @@ public class InitialEventProcessor {
 									+ addressProfileTable);
 				}
 				if (addressProfileTable == null) {
+					// FIXME this can be checked in deploy
 					throw new Exception(
 							"null address profile table in service !");
 				}
