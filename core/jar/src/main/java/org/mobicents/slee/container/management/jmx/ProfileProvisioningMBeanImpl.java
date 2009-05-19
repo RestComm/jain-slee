@@ -49,7 +49,6 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.AbstractProfileMBeanImpl;
-import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -128,7 +127,6 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		ProfileTableImpl.validateProfileName(newProfileName);
 		ProfileTableImpl.validateProfileTableName(profileTableName);
 		Transaction transaction = null;
-		ProfileObject profileObject = null;
 		boolean rollback = true;
 		try {
 			// begin tx
@@ -146,8 +144,8 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			else {
 				// create mbean and registers it
 				AbstractProfileMBeanImpl profileMBean = createAndRegisterProfileMBean(newProfileName,profileTable);
-				// change to write mode, providing the object, this will suspend the transaction
-				profileMBean.writeMode();
+				// indicate profile creation
+				profileMBean.createProfile();
 				rollback = false;
 				if (logger.isDebugEnabled()) {
 					logger.debug("createProfile( profileTable = "+profileTableName+" , profile = "+newProfileName+" ) result is "+profileMBean.getObjectName());
@@ -166,15 +164,6 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new ManagementException(e.getMessage(),e);
 		} finally {
 			if(rollback) {
-				if (profileObject != null) {
-					try {
-						profileObject.invalidateObject();
-						profileObject.profilePassivate();
-					}
-					catch (Throwable e) {
-						logger.error(e.getMessage(),e);
-					}
-				}
 				try {
 					if (sleeTransactionManagement.getTransaction() == null) {
 						// the tx was suspended, resume it

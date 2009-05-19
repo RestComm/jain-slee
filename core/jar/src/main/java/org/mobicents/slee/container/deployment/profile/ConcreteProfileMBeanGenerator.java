@@ -13,7 +13,6 @@ import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.ManagementException;
 import javax.slee.profile.ProfileImplementationException;
-import javax.slee.profile.ProfileMBean;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -225,11 +224,11 @@ public class ConcreteProfileMBeanGenerator {
 			String body = null;				
 			if (method.getName().startsWith("set")) {
 				body = 	"{ " +
-						"	boolean resumedTransaction = beforeSetCmpField();" +
+						"	beforeSetCmpField();" +
 						"	try { " +
 						"		(("+component.getProfileCmpConcreteClass().getName()+")getProfileObject().getProfileConcrete())." + method.getName()+"($1);" +
 						"	} finally {" +
-						"		afterSetCmpField(resumedTransaction);" +
+						"		afterSetCmpField();" +
 						"	}" +
 						"}"; 				
 			}
