@@ -247,7 +247,7 @@ public class SbbAbstractMethodHandler {
 		SleeProfileTableManager sleeProfileManager = sleeContainer
 				.getSleeProfileTableManager();
 
-		ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(profileID.getProfileName());
+		ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(profileID.getProfileTableName());
 
 		if (!profileTable.profileExists(profileID.getProfileName())) {
 			throw new UnrecognizedProfileNameException(profileID.toString());
