@@ -392,9 +392,8 @@ public class InitialEventProcessor {
 							"null address profile table in service !");
 				}
 				ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(addressProfileTable);
-				ProfileID profileID = profileTable
-						.getProfileByIndexedAttribute(
-								"addresses", selector.getAddress());
+				ProfileID profileID = profileTable.getProfileByIndexedAttribute(
+				    profileSpecificationComponent.isSlee11() ? "address" : "addresses", selector.getAddress());
 				if (profileID == null )
 					throw new Exception("Could not find the specified profile");
 				// Check -- JEAN - is this how you retrieve an address profile?

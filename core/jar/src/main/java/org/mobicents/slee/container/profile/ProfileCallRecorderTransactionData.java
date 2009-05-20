@@ -54,18 +54,27 @@ public class ProfileCallRecorderTransactionData {
 	 * @param po
 	 * @throws SLEEException
 	 */
-	public static void addProfileCall(ProfileObject po) throws TransactionRequiredLocalException, SLEEException
+	public static void addProfileCall(ProfileObject po) throws SLEEException
 	{
+    SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+    
+    try {
+      if(sleeTransactionManager.getTransaction() == null) {
+        return;
+      }
+    }
+    catch ( SystemException se ) {
+      throw new SLEEException("Unable to verify SLEE Transaction.", se);
+    }
+    
+	  String key = makeKey(po);
+	  
 		if (logger.isDebugEnabled()) {
-			logger.debug("Recording call to profile, stored key: " + makeKey(po));
+			logger.debug("Recording call to profile. Key[" + key + "]");
 		}
-		
-		SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 		
 		try
 		{
-			sleeTransactionManager.mandateTransaction();
-
 			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManager.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
 			
 			// If data does not exist, create it
@@ -76,7 +85,6 @@ public class ProfileCallRecorderTransactionData {
 			
 			if (!po.isProfileReentrant())
 			{
-				String key = makeKey(po);
 				// we need to check
 				if (data.invokedProfiles.contains(key) && data.invokedProfiles.getLast().compareTo(key) != 0) {
 					throw new SLEEException("Detected loopback call. Call sequence: " + data.invokedProfiles);
@@ -90,19 +98,28 @@ public class ProfileCallRecorderTransactionData {
 		}
 	}
 
-	public static void removeProfileCall(ProfileObject po) throws TransactionRequiredLocalException, SLEEException
+	public static void removeProfileCall(ProfileObject po) throws SLEEException
 	{
+    SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+    
+    try {
+      if(sleeTransactionManager.getTransaction() == null) {
+        return;
+      }
+    }
+    catch ( SystemException se ) {
+      throw new SLEEException("Unable to verify SLEE Transaction.", se);
+    }
+    
+    String key = makeKey(po);
+    
 		if (logger.isDebugEnabled()) {
-			logger.debug("Removing call to profile, stored key: " + makeKey(po));
+      logger.debug("Removing call to profile. Key[" + key + "]");
 		}
-		
-		SleeTransactionManager sleeTransactionManaget = sleeContainer.getTransactionManager();
 		
 		try
 		{
-			sleeTransactionManaget.mandateTransaction();
-
-			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManaget.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
+			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManager.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
 			
 			if (data == null) {
 				throw new SLEEException("No Profile call recorder in memory, this is a bug.");
@@ -110,7 +127,6 @@ public class ProfileCallRecorderTransactionData {
 			
 			if (!po.isProfileReentrant())
 			{
-				String key = makeKey(po);
 				// we need to check
 				String lastKey = data.invokedProfiles.getLast();
 				if (lastKey.compareTo(key) != 0)
@@ -124,10 +140,9 @@ public class ProfileCallRecorderTransactionData {
 					data.invokedProfileTablesNames.removeLast();
 					if (data.invokedProfiles.isEmpty())
 					{
-						sleeTransactionManaget.getTransactionContext().getData().remove(TRANSACTION_CONTEXT_KEY);
+						sleeTransactionManager.getTransactionContext().getData().remove(TRANSACTION_CONTEXT_KEY);
 					}
 				}
-
 			}
 		}
 		catch (SystemException e) {
@@ -166,8 +181,8 @@ public class ProfileCallRecorderTransactionData {
 		}
 	}
 
-	private static String makeKey(ProfileObject pc) {
-		// FIXME: Alexandre: Removed toString() as it may cause it to identify as differente profile
-		return pc.getProfileTableConcrete().getProfileTableName() + "-" + (pc.getProfileEntity() == null ? "" : pc.getProfileEntity().getProfileName());// + "-" + pc.toString();
+	private static String makeKey(ProfileObject pc)
+	{
+		return pc.getProfileTableConcrete().getProfileTableName() + "-" + (pc.getProfileEntity() == null ? "NO_PROFILE_ENTITY" : pc.getProfileEntity().getProfileName());
 	}
 }

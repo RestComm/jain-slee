@@ -417,8 +417,12 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			Object attributeValue) throws UnrecognizedAttributeException,
 			AttributeNotIndexedException, AttributeTypeMismatchException,
 			SLEEException {
-		// FIXME: Alexandre: This is only for 1.0. Need to do checks!
-		return null;
+	  Collection<ProfileID> profileIDs = getProfilesByIndexedAttribute( attributeName, attributeValue );
+	  
+	  if(profileIDs.size() > 0)
+	    return profileIDs.iterator().next();
+	  
+	  return null;
 	}
 
 	public Collection<ProfileID> getProfilesByIndexedAttribute(
@@ -426,8 +430,19 @@ public class ProfileTableImpl implements ProfileTableConcrete {
 			throws UnrecognizedAttributeException,
 			AttributeNotIndexedException, AttributeTypeMismatchException,
 			SLEEException {
-		// FIXME: Alexandre: This is only for 1.0. Need to do checks!
-		return null;
+    
+    // We get POJOs
+    Collection<Object> profilePOJOs = JPAUtils.INSTANCE.findProfilesByAttribute( getProfileTableName(), attributeName, attributeValue );
+    
+    // We need ProfileIDs
+    Collection<ProfileID> profileIDs = new ArrayList<ProfileID>();
+    for(Object profilePOJO : profilePOJOs)
+    {
+      ProfileEntity profileEntity = (ProfileEntity) profilePOJO;
+      profileIDs.add( new ProfileID(profileEntity.getTableName(), profileEntity.getProfileName()) );    
+    }
+    
+    return Collections.unmodifiableCollection( profileIDs );
 	}	
 
 	private ObjectName getUsageMBeanName() throws IllegalArgumentException {

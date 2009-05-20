@@ -33,7 +33,7 @@ public class ProfileCmpHandler {
 		}
 		
 		if (profileObject.getProfileEntity().isReadOnly()) {				
-			throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileEntity().getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
+			throw new UnsupportedOperationException("Profile: " + profileObject.getProfileEntity().getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
 		}
 		
 		ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
@@ -62,7 +62,7 @@ public class ProfileCmpHandler {
 			throw new IllegalStateException("Profile object must be in ready state");
 		}
 		
-		ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
+		//ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class ProfileCmpHandler {
 	 */
 	public static void afterGetCmpField(ProfileObject profileObject) {
 
-		ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
+		//ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
 	}
 
 }
