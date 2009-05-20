@@ -1,0 +1,2 @@
+<classloading xmlns="urn:jboss:classloading:1.0" export-all="NON_EMPTY"
+	import-all="true" blackList="false" cache="true" parent-first="false" />
