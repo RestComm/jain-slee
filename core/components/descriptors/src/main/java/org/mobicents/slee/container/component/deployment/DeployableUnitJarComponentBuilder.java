@@ -125,18 +125,6 @@ public class DeployableUnitJarComponentBuilder {
 				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
 						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
 								.getContextClassLoader());
-				// ugly hack to load tck rmi stub interfaces from slee class loader (till no better solution arises)
-				try {				
-					classLoaderDomain
-							.loadClassFromSlee("com.opencloud.sleetck.lib.rautils.RMIObjectChannel");
-					classLoaderDomain
-					.loadClassFromSlee("com.opencloud.sleetck.lib.rautils.MessageHandlerRegistry");
-			classLoaderDomain
-					.loadClassFromSlee("com.opencloud.sleetck.lib.rautils.MessageHandler");
-				}
-				catch (Throwable e) {
-					// ignore
-				}
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
@@ -222,18 +210,6 @@ public class DeployableUnitJarComponentBuilder {
 				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
 						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
 								.getContextClassLoader());
-				// ugly hack to load tck rmi stub interfaces from slee class loader (till no better solution arises)
-				try {
-					classLoaderDomain
-							.loadClassFromSlee("com.opencloud.sleetck.lib.rautils.MessageHandlerRegistry");
-					classLoaderDomain
-							.loadClassFromSlee("com.opencloud.sleetck.lib.rautils.MessageHandler");
-					classLoaderDomain
-							.loadClassFromSlee("com.opencloud.sleetck.lib.rautils.RMIObjectChannel");
-				}
-				catch (Throwable e) {
-					// ignore
-				}
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);

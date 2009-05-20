@@ -58,7 +58,7 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
-	public Class<?> loadClass(String name, boolean resolve,
+	protected Class<?> loadClass(String name, boolean resolve,
 			Set<URLClassLoaderDomain> visited, boolean loadFromSlee) throws ClassNotFoundException {
 		
 		// try in cache
@@ -70,40 +70,38 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 				// cycle
 				throw new ClassNotFoundException(name);
 			}
-			// try in dependencies
-			for (URLClassLoaderDomain dependency : dependencies) {
-				result = dependency.cache.get(name);
-				if (result == null) {
-					try {
-						result = dependency.loadClass(name, resolve, visited,false);
-					} catch (Throwable e) {
-						// ignore
-					}
-				}
-				if (result != null) {
-					break;
-				}
-			}
 			
-			if (result == null) {
-				// try locally
+			 // try slee shared class loader?
+			if (loadFromSlee) {
 				try {
-					result = super.loadClass(name, resolve);
+					result = sleeClassLoader.loadClass(name);
 				} catch (Throwable e) {
 					// ignore
 				}
-
-				if (result == null) {
-					// not found locally, try slee?
-					if (loadFromSlee) {
-						result = sleeClassLoader.loadClass(name);
+			}
+			
+			if (result == null) {				
+				// try in dependencies
+				for (URLClassLoaderDomain dependency : dependencies) {
+					result = dependency.cache.get(name);
+					if (result == null) {
+						try {
+							result = dependency.loadClass(name, resolve, visited,false);
+						} catch (Throwable e) {
+							// ignore
+						}
 					}
-					else {
-						throw new ClassNotFoundException(name);
+					if (result != null) {
+						break;
 					}
 				}
-			}	
-			
+				
+				if (result == null) {
+					// finally try locally
+					result = super.loadClass(name, resolve);
+				}	
+			}
+			 
 			cache.put(name, result);						
 		}
 		
@@ -113,18 +111,6 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 		
 		return result;
 
-	}
-	
-	/**
-	 * Loads a class from the slee container.
-	 * @param name
-	 * @return
-	 * @throws ClassNotFoundException
-	 */
-	public Class<?> loadClassFromSlee(String name) throws ClassNotFoundException {
-		Class<?> result = sleeClassLoader.loadClass(name);
-		cache.put(name, result);
-		return result;
 	}
 	
 	/**
