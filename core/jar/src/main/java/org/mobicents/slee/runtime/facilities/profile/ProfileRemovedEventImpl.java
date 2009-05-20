@@ -48,7 +48,7 @@ public class ProfileRemovedEventImpl extends AbstractProfileEvent implements Pro
 	 */
 	public Object getRemovedProfile() {
 		if (isProfileClassVisible()) {
-			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileConcrete();
+			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileCmpSlee10Wrapper();
 		} else {
 			return null;
 		}

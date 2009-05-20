@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 
 import javax.persistence.Transient;
 import javax.slee.SLEEException;
+import javax.slee.profile.ReadOnlyProfileException;
 
 import org.apache.log4j.Logger;
 
@@ -178,7 +179,10 @@ public abstract class ProfileEntity implements Cloneable {
     /**
      * 
      */
-    public void remove() {
+    public void remove() throws ReadOnlyProfileException {
+    	if (isReadOnly()) {				
+			throw new ReadOnlyProfileException("Profile: " + getProfileName() + ", table:" + getTableName() + " , is not writeable.");
+		}
     	remove = true;
     }
     

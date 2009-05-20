@@ -46,7 +46,7 @@ public class ProfileUpdatedEventImpl extends AbstractProfileEvent implements Pro
 	 */
 	public Object getAfterUpdateProfile() {
 		if (isProfileClassVisible()) {
-			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileConcrete();
+			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileCmpSlee10Wrapper();
 		} else {
 			return null;
 		}		
@@ -72,7 +72,7 @@ public class ProfileUpdatedEventImpl extends AbstractProfileEvent implements Pro
 	 */
 	public Object getBeforeUpdateProfile() {
 		if (isProfileClassVisible()) {
-			return getProfileObjectValidInCurrentTransaction(this.profileBeforeAction).getProfileConcrete();
+			return getProfileObjectValidInCurrentTransaction(this.profileBeforeAction).getProfileCmpSlee10Wrapper();
 		} else {
 			return null;
 		}	

@@ -44,7 +44,7 @@ public class ProfileAddedEventImpl extends AbstractProfileEvent implements Profi
 	 */
 	public Object getAddedProfile() {
 		if (isProfileClassVisible()) {
-			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileConcrete();
+			return getProfileObjectValidInCurrentTransaction(getProfileConcreteAfterAction()).getProfileCmpSlee10Wrapper();
 		} else {
 			return null;
 		}

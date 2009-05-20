@@ -24,6 +24,12 @@ public class SleeProfileClassCodeGenerator {
       logger.debug("Generating code for " + component);
     }
     
+    // generate profile cmp slee 1.0 wrapper
+	new ProfileCmpSlee10WrapperClassGenerator(component).generateClass();
+	if (logger.isDebugEnabled()) {
+		logger.debug("Generated Profile CMP Slee 1.0 Wrapper for " + component);
+	}
+
     // Generate Profile MBean Interface 
     ConcreteProfileMBeanGenerator mbeanGenerator = new ConcreteProfileMBeanGenerator(component);
     mbeanGenerator.generateProfileMBeanInterface();

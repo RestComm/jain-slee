@@ -4,25 +4,21 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.ChildRelation;
 import javax.slee.EventTypeID;
-import javax.slee.SLEEException;
 import javax.slee.ServiceID;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.resource.EventFlags;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
-import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * The logic to implement sbb abstract methods.
@@ -253,7 +249,7 @@ public class SbbAbstractMethodHandler {
 			throw new UnrecognizedProfileNameException(profileID.toString());
 		}
 	
-		return profileTable.getProfile(profileID.getProfileName()).getProfileConcrete();		
+		return profileTable.getProfile(profileID.getProfileName()).getProfileCmpSlee10Wrapper();		
 	}
 
 	// SBB USAGE PARAMS

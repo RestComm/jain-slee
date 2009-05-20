@@ -70,11 +70,6 @@ public class ProfileObject {
 	 * inidcates if this profile can be invoked more than once in a call tree for a single tx, thus exposed to loops
 	 */
 	private final boolean profileReentrant;
-		
-	/**
-	 * 
-	 */
-	private boolean invokingProfilePostCreate = false;
 	
 	/**
 	 * indicates if the object is related with a slee 1.1 profile spec or not
@@ -700,4 +695,25 @@ public class ProfileObject {
 		}
 		
 	}
+	
+	/**
+	 * the profile cmp slee 1.0 wrapper for this profile object
+	 */
+	private AbstractProfileCmpSlee10Wrapper profileCmpSlee10Wrapper;
+	
+	/**
+	 * Retrieves the profile cmp slee 1.0 wrapper for this profile object
+	 * @return
+	 */
+	public AbstractProfileCmpSlee10Wrapper getProfileCmpSlee10Wrapper() {
+		if (profileCmpSlee10Wrapper == null) {
+			try {
+				profileCmpSlee10Wrapper = (AbstractProfileCmpSlee10Wrapper) profileTableConcrete.getProfileSpecificationComponent().getProfileCmpSlee10WrapperClass().getConstructor(ProfileObject.class).newInstance(this);
+			} catch (Throwable e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
+		return profileCmpSlee10Wrapper;
+	}
+	
 }

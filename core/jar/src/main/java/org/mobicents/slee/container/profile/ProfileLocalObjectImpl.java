@@ -5,6 +5,7 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileTable;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -91,7 +92,18 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		profileObject.getProfileEntity().remove();		
+		try {
+			profileObject.getProfileEntity().remove();		
+		}
+		catch (RuntimeException e) {
+			try {
+				profileObject.invalidateObject();
+				sleeContainer.getTransactionManager().setRollbackOnly();
+			} catch (SystemException e1) { 
+				throw new SLEEException(e1.getMessage(),e1); 
+			};
+			throw new TransactionRolledbackLocalException(e.getMessage(),e);
+		}
 	}
 
 }

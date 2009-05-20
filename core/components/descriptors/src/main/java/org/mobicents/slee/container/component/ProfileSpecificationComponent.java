@@ -417,4 +417,31 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 		}
 	}
 
+	/**
+	 * the Profile CMP Slee 1.0 Wrapper, an object that implements the Profile CMP
+	 * Interface, wrapping the SLEE 1.1 real profile concrete object in a SLEE 1.0
+	 * compatible interface
+	 */
+	private Class<?> profileCmpSlee10WrapperClass;
+
+	/**
+	 * Retreives the Profile CMP Slee 1.0 Wrapper class, an object that implements the Profile CMP
+	 * Interface, wrapping the SLEE 1.1 real profile concrete object in a SLEE 1.0
+	 * compatible interface
+	 * @return
+	 */
+	public Class<?> getProfileCmpSlee10WrapperClass() {
+		return profileCmpSlee10WrapperClass;
+	}
+
+	/**
+	 * Sets the Profile CMP Slee 1.0 Wrapper class, an object that implements the Profile CMP
+	 * Interface, wrapping the SLEE 1.1 real profile concrete object in a SLEE 1.0
+	 * compatible interface
+	 * @param clazz
+	 */
+	public void setProfileCmpSlee10WrapperClass(Class<?> clazz) {
+		this.profileCmpSlee10WrapperClass = clazz;		
+	}
+
 }
