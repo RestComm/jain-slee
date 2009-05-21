@@ -115,9 +115,13 @@ public class SleeTransactionImpl implements SleeTransaction {
 
 	public void commit() throws RollbackException, HeuristicMixedException,
 			HeuristicRollbackException, SecurityException,
-			IllegalStateException, SystemException {
-		suspendIfAssoaciatedWithThread();
-		transaction.commit();		
+			IllegalStateException, SystemException {		
+		try {
+			transaction.commit();		
+		}
+		finally {
+			suspendIfAssoaciatedWithThread();
+		}
 	}
 
 	public int getStatus() throws SystemException {
@@ -130,8 +134,12 @@ public class SleeTransactionImpl implements SleeTransaction {
 	}
 
 	public void rollback() throws IllegalStateException, SystemException {
-		suspendIfAssoaciatedWithThread();
-		transaction.rollback();
+		try {
+			transaction.rollback();		
+		}
+		finally {
+			suspendIfAssoaciatedWithThread();
+		}		
 	}
 
 	public void setRollbackOnly() throws IllegalStateException, SystemException {

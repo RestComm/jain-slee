@@ -85,9 +85,16 @@ public class ProfileTableTransactionView {
 		};
 		TransactionalAction beforeCommitAction = new TransactionalAction() {
 			public void execute() {
-				profileObject.fireAddOrUpdatedEventIfNeeded();
-				profileObject.profilePassivate();
-				pool.returnObject(profileObject);
+				if (profileObject.getState() == ProfileObjectState.READY) {
+					if (!profileObject.getProfileEntity().isRemove()) {
+						profileObject.fireAddOrUpdatedEventIfNeeded();
+						profileObject.profilePassivate();
+					}
+					else {
+						profileObject.profileRemove(true);
+					}
+					pool.returnObject(profileObject);
+				}
 			}
 		};
 		try{

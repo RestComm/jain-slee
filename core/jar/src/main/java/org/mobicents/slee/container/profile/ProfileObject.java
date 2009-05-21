@@ -82,11 +82,6 @@ public class ProfileObject {
 	private ProfileEntity profileEntity;
 	
 	/**
-	 * local representation for this profile object
-	 */
-	private ProfileLocalObject profileLocalObject = null;
-	
-	/**
 	 * 
 	 */
 	private final boolean readOnlyProfileTable;
@@ -596,19 +591,19 @@ public class ProfileObject {
 	 * @return
 	 */
 	public ProfileLocalObject getProfileLocalObject() {
-		if (profileLocalObject == null) {
-			final Class<?> profileLocalObjectConcreteClass = profileTableConcrete.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass();
-			if (profileLocalObjectConcreteClass == null) {
-				profileLocalObject = new ProfileLocalObjectImpl(this);
-			}
-			else {
-				try {
-					profileLocalObject = (ProfileLocalObject) profileLocalObjectConcreteClass.getConstructor(ProfileObject.class).newInstance(this);
-				} catch (Throwable e) {
-					throw new SLEEException(e.getMessage(),e);
-				}
+		final Class<?> profileLocalObjectConcreteClass = profileTableConcrete.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass();
+		ProfileLocalObject profileLocalObject = null;
+		if (profileLocalObjectConcreteClass == null) {
+			profileLocalObject = new ProfileLocalObjectImpl(this);
+		}
+		else {
+			try {
+				profileLocalObject = (ProfileLocalObject) profileLocalObjectConcreteClass.getConstructor(ProfileObject.class).newInstance(this);
+			} catch (Throwable e) {
+				throw new SLEEException(e.getMessage(),e);
 			}
 		}
+		
 		return profileLocalObject;
 	}
 	

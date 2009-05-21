@@ -155,9 +155,8 @@ public class ConcreteProfileLocalObjectGenerator {
 		String returnStatement = method.getReturnType().equals(CtClass.voidType) ? "" : "return ($r)";
 		String body=
 			"{ " 
-			+ "super.sleeContainer.getTransactionManager().mandateTransaction();"
-			// FIXME this is a double check on profile object state for cmp setters and getters 
-			+" if (profileObject.getState() != "+ProfileObjectState.class.getName()+".READY) throw new "+IllegalStateException.class.getName()+"(\"Profile object must be in ready state\");"
+			+ "super.sleeContainer.getTransactionManager().mandateTransaction();" 
+			+" checkTransaction();"
 			+ "try {"
 			+ 		returnStatement + interceptorAccess +'.'+ method.getName()+"($$);" 
 			+ "} catch ("+RuntimeException.class.getName()+" e) {"

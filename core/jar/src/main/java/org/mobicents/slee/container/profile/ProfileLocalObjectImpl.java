@@ -1,14 +1,17 @@
 package org.mobicents.slee.container.profile;
 
+import javax.slee.NoSuchObjectLocalException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileTable;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 
 /**
  * Start time:14:20:46 2009-03-14<br>
@@ -26,10 +29,29 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 	
 	protected static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
+	/**
+	 * the profile object to be used
+	 */
 	protected final ProfileObject profileObject;
-		
+	
+	/**
+	 * the transaction that defines if the profile object is tsill valid 
+	 */
+	protected final Transaction transaction;
+	
+	/**
+	 * the name of the profile related with this object
+	 */
+	private final String profileName;
+	
 	public ProfileLocalObjectImpl(ProfileObject profileObject) {
-		this.profileObject = profileObject;	
+		this.profileObject = profileObject;
+		try {
+			this.transaction = sleeContainer.getTransactionManager().getTransaction();
+			this.profileName = profileObject.getProfileEntity().getProfileName();
+		} catch (Throwable e) {
+			throw new SLEEException(e.getMessage(),e);
+		}		
 	}
 
 	/*
@@ -38,7 +60,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileName()
 	 */
 	public String getProfileName() throws SLEEException {
-		return profileObject.getProfileEntity().getProfileName();
+		return profileName;
 	}
 
 	/*
@@ -93,7 +115,23 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		try {
-			profileObject.getProfileEntity().remove();		
+			ProfileEntity profileEntity = profileObject.getProfileEntity();
+			if (profileEntity != null) {
+				// confirm it is still the same tx
+				checkTransaction();
+				// remove
+				profileEntity.remove();
+			}
+			else {
+				// there is no profile assigned to the object
+				if(getProfileTable().find(getProfileName()) == null) {
+					// this exception has priority
+					throw new NoSuchObjectLocalException("the profile with name "+getProfileName()+" was not found on table with name "+getProfileTableName());
+				}
+				else {
+					throw new IllegalStateException("the profile object is no longer valid");
+				}
+			}								
 		}
 		catch (RuntimeException e) {
 			try {
@@ -104,6 +142,20 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 			};
 			throw new TransactionRolledbackLocalException(e.getMessage(),e);
 		}
+	}
+	
+	/**
+	 * Verifies that the current transaction is still the one used to create the object
+	 * @throws IllegalStateException
+	 */
+	protected void checkTransaction() throws IllegalStateException {
+		try {
+			if (!sleeContainer.getTransactionManager().getTransaction().equals(this.transaction)) {
+				throw new IllegalStateException();
+			}
+		} catch (SystemException e) {
+			throw new IllegalStateException();
+		}		
 	}
 
 }
