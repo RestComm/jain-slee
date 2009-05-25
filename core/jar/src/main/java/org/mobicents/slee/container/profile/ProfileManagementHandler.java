@@ -10,7 +10,6 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -53,7 +52,7 @@ public class ProfileManagementHandler {
 		
 		boolean terminateTx = txManager.requireTransaction(); 
 		try {
-			ProfileTableConcrete profileTable = SleeContainer.lookupFromJndi().getSleeProfileTableManager().getProfileTable(profileId.getProfileTableName());
+			ProfileTableImpl profileTable = SleeContainer.lookupFromJndi().getSleeProfileTableManager().getProfileTable(profileId.getProfileTableName());
 			return profileTable.profileExists(profileId.getProfileName());
 		}
 		catch (UnrecognizedProfileTableNameException e) {
@@ -72,7 +71,7 @@ public class ProfileManagementHandler {
 			logger.info("[markProfileDirty] @ " + profileObject);
 		}
 
-		profileObject.getProfileEntity().markAsDirty();
+		profileObject.getProfileEntity().setDirty(true);
 	}
 
 	public static void profileInitialize(ProfileObject profileObject) {
@@ -131,10 +130,10 @@ public class ProfileManagementHandler {
 					"UsageParameterSet name must not be null.");
 		}
 
-		ProfileTableConcrete profileTableConcrete = profileObject
-				.getProfileTableConcrete();
+		ProfileTableImpl profileTable = profileObject
+				.getProfileTable();
 
-		return profileTableConcrete.getProfileTableUsageMBean()
+		return profileTable.getProfileTableUsageMBean()
 				.getInstalledUsageParameterSet(name);
 	}
 
@@ -145,10 +144,10 @@ public class ProfileManagementHandler {
 					+ profileObject);
 		}
 
-		ProfileTableConcrete profileTableConcrete = profileObject
-				.getProfileTableConcrete();
+		ProfileTableImpl profileTable = profileObject
+				.getProfileTable();
 
-		return profileTableConcrete.getProfileTableUsageMBean()
+		return profileTable.getProfileTableUsageMBean()
 				.getInstalledUsageParameterSet(null);
 	}
 

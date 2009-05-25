@@ -1,6 +1,7 @@
 package org.mobicents.slee.runtime.eventrouter.routingtask;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import javax.slee.Address;
 import javax.slee.InitialEventSelector;
@@ -14,7 +15,7 @@ import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -391,15 +392,13 @@ public class InitialEventProcessor {
 					throw new Exception(
 							"null address profile table in service !");
 				}
-				ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(addressProfileTable);
-				ProfileID profileID = profileTable.getProfileByIndexedAttribute(
-				    profileSpecificationComponent.isSlee11() ? "address" : "addresses", selector.getAddress());
-				if (profileID == null )
+				ProfileTableImpl profileTable = sleeProfileManager.getProfileTable(addressProfileTable);
+				Collection<ProfileID> profileIDs = profileTable.getProfilesByAttribute(profileSpecificationComponent.isSlee11() ? "address" : "addresses", selector.getAddress(), profileSpecificationComponent.isSlee11());
+				if (profileIDs.isEmpty())
 					throw new Exception("Could not find the specified profile");
-				// Check -- JEAN - is this how you retrieve an address profile?
-
-				buff.append(profileID.toString());
-
+				else {
+					buff.append(profileIDs.iterator().next().toString());
+				}				
 			}
 
 		} else

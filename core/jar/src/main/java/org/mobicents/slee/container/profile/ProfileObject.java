@@ -48,7 +48,7 @@ public class ProfileObject {
 	/**
 	 * the profile table the profile is related
 	 */
-	private final ProfileTableConcrete profileTableConcrete;
+	private final ProfileTableImpl profileTable;
 	
 	/**
 	 * the instance of the concrete implementation of the profile spec 
@@ -88,24 +88,24 @@ public class ProfileObject {
 	
 	/**
 	 * 
-	 * @param profileTableConcrete
+	 * @param profileTable
 	 * @param profileSpecificationId
 	 * @throws NullPointerException
 	 * @throws SLEEException
 	 */
-	public ProfileObject(ProfileTableConcrete profileTableConcrete) throws NullPointerException, SLEEException {
+	public ProfileObject(ProfileTableImpl profileTable) throws NullPointerException, SLEEException {
 		
-		if (profileTableConcrete == null) {
+		if (profileTable == null) {
 			throw new NullPointerException("Parameters must not be null");
 		}
 		
-		this.profileTableConcrete = profileTableConcrete;
+		this.profileTable = profileTable;
 		
-		final ProfileSpecificationComponent component = profileTableConcrete.getProfileSpecificationComponent();
+		final ProfileSpecificationComponent component = profileTable.getProfileSpecificationComponent();
 		
-		this.profileReentrant = component.getDescriptor().getProfileAbstractClass() == null ? false : this.profileTableConcrete.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
+		this.profileReentrant = component.getDescriptor().getProfileAbstractClass() == null ? false : this.profileTable.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
 		this.readOnlyProfileTable = component.getDescriptor().getReadOnly();
-		this.isSlee11 = profileTableConcrete.getProfileSpecificationComponent().isSlee11();
+		this.isSlee11 = profileTable.getProfileSpecificationComponent().isSlee11();
 		
 		try {
 			this.profileConcrete = (ProfileConcrete) component.getProfileCmpConcreteClass().newInstance();
@@ -133,7 +133,7 @@ public class ProfileObject {
 		
 		if (state != ProfileObjectState.DOES_NOT_EXIST) {
 			throw new IllegalStateException("Wrong state: " + this.state + ",on profile set context operation, for profile table: "
-					+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID());
+					+ this.profileTable.getProfileTableName() + " with specification: " + this.profileTable.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
 		
 		final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
@@ -141,7 +141,7 @@ public class ProfileObject {
 		// FIXME: is this needed ?
 		try
 		{
-			final ClassLoader cl = this.profileTableConcrete.getProfileSpecificationComponent().getClassLoader();
+			final ClassLoader cl = this.profileTable.getProfileSpecificationComponent().getClassLoader();
 			
 			if (System.getSecurityManager()!=null)
 			{
@@ -176,7 +176,7 @@ public class ProfileObject {
 			catch (Exception e) {
 				if (logger.isDebugEnabled())
 					logger.debug("Exception encountered while setting profile context for profile table: "
-							+ this.profileTableConcrete.getProfileTableName() + " with specification: " + this.profileTableConcrete.getProfileSpecificationComponent().getProfileSpecificationID(), e);
+							+ this.profileTable.getProfileTableName() + " with specification: " + this.profileTable.getProfileSpecificationComponent().getProfileSpecificationID(), e);
 			}			
 		}
 		finally
@@ -228,9 +228,9 @@ public class ProfileObject {
 			if (profileName == null) {
 				// default profile creation
 				// create instance of entity
-				profileEntity = (ProfileEntity) profileTableConcrete.getProfileSpecificationComponent().getProfileEntityClass().newInstance();
+				profileEntity = (ProfileEntity) profileTable.getProfileSpecificationComponent().getProfileEntityClass().newInstance();
 				profileEntity.setProfileName(null);
-				profileEntity.setTableName(profileTableConcrete.getProfileTableName());
+				profileEntity.setTableName(profileTable.getProfileTableName());
 				// change state
 				this.state = ProfileObjectState.PROFILE_INITIALIZATION;
 				// invoke life cycle method on profile
@@ -258,7 +258,7 @@ public class ProfileObject {
 		
 		// mark entity as dirty and for creation
 		profileEntity.create();
-		profileEntity.markAsDirty();
+		profileEntity.setDirty(true);
 	}
 	
 	/**
@@ -293,12 +293,13 @@ public class ProfileObject {
 	 * Activates the profile object and use a specific snapshot of a profile entity
 	 * @param snapshot
 	 */
-	public void profileActivate(ProfileEntity snapshot) {
-		if (!snapshot.isReadOnly()) {
-			throw new SLEEException("can only assign profile entities without creation or load when read only");
+	public void profileActivate(ProfileEntity profileEntity) {
+		this.profileEntity = profileEntity;
+		if (profileTable.doesFireEvents()) {
+			profileEntitySnapshot = profileEntity.cl0ne();
+			profileEntitySnapshot.setReadOnly(true);						
 		}
-		profileActivate();
-		this.profileEntity = snapshot;		
+		profileActivate();		
 	}
 	
 	/**
@@ -353,7 +354,7 @@ public class ProfileObject {
 		}
 		loadProfileEntity(profileName);
 		// create a snapshot copy if the profile table fires events
-		if (profileTableConcrete.doesFireEvents()) {
+		if (profileTable.doesFireEvents()) {
 			profileEntitySnapshot = profileEntity.cl0ne();
 			profileEntitySnapshot.setReadOnly(true);						
 		}
@@ -394,7 +395,7 @@ public class ProfileObject {
 	
 	private void runtimeExceptionOnProfileInvocation(RuntimeException e) {
 		logger.error("Runtime exception when invoking concrete profile! Setting tx for rollback and invalidating object",e);
-		final SleeTransactionManager txManager = profileTableConcrete.getSleeContainer().getTransactionManager();
+		final SleeTransactionManager txManager = profileTable.getSleeContainer().getTransactionManager();
 		try {
 			if (txManager.getTransaction() != null) {
 				txManager.setRollbackOnly();
@@ -491,10 +492,13 @@ public class ProfileObject {
 			}			
 		}
 		
-		if (profileTableConcrete.doesFireEvents() && profileEntity.getProfileName() != null && profileEntitySnapshot != null) {
+		if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null && profileEntitySnapshot != null) {
 			// fire event
-			AbstractProfileEvent event = new ProfileRemovedEventImpl(profileEntity);					
-			profileTableConcrete.getActivityContext().fireEvent(event.getEventTypeID(), event,
+			AbstractProfileEvent event = new ProfileRemovedEventImpl(profileEntity);
+			if (logger.isDebugEnabled()) {
+				logger.debug("firing profile removed event for profile named "+profileEntity);
+			}
+			profileTable.getActivityContext().fireEvent(event.getEventTypeID(), event,
 					event.getProfileAddress(), null, EventFlags.NO_FLAGS);
 		}
 		
@@ -523,7 +527,7 @@ public class ProfileObject {
 			// FIXME: is this needed ?
 			try
 			{
-				final ClassLoader cl = profileTableConcrete.getProfileSpecificationComponent().getClassLoader();
+				final ClassLoader cl = profileTable.getProfileSpecificationComponent().getClassLoader();
 				if (System.getSecurityManager()!=null)
 				{
 					AccessController.doPrivileged(new PrivilegedAction() {
@@ -591,7 +595,7 @@ public class ProfileObject {
 	 * @return
 	 */
 	public ProfileLocalObject getProfileLocalObject() {
-		final Class<?> profileLocalObjectConcreteClass = profileTableConcrete.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass();
+		final Class<?> profileLocalObjectConcreteClass = profileTable.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass();
 		ProfileLocalObject profileLocalObject = null;
 		if (profileLocalObjectConcreteClass == null) {
 			profileLocalObject = new ProfileLocalObjectImpl(this);
@@ -627,15 +631,15 @@ public class ProfileObject {
 	 * 
 	 * @return
 	 */
-	public ProfileTableConcrete getProfileTableConcrete() {
-		return profileTableConcrete;
+	public ProfileTableImpl getProfileTable() {
+		return profileTable;
 	}
 
 	/**
 	 * 
 	 */
 	private void loadProfileEntity(String profileName) throws UnrecognizedProfileNameException {
-		profileEntity = ProfileDataSource.INSTANCE.retrieveProfile(getProfileTableConcrete(), profileName);
+		profileEntity = ProfileDataSource.INSTANCE.retrieveProfile(getProfileTable(), profileName);
 		if (profileEntity == null) {
 			throw new UnrecognizedProfileNameException();
 		}		
@@ -656,7 +660,7 @@ public class ProfileObject {
 	}
 	
 	public String toString() {
-		return "ProfileObject( table= "+profileTableConcrete.getProfileTableName()+" , state = "+state+" , entity = "+ profileEntity+" )";
+		return "ProfileObject( table= "+profileTable.getProfileTableName()+" , state = "+state+" , entity = "+ profileEntity+" )";
 	}
 
 	/**
@@ -670,18 +674,25 @@ public class ProfileObject {
 	 * Fires a profile added or updated event if the profile object state is ready and the persistent state is dirty 
 	 */
 	public void fireAddOrUpdatedEventIfNeeded() {
+		
 		if (state == ProfileObjectState.READY) {
 			if (profileEntity.isDirty()) {
 				// check the table fires events and the object is not assigned to a default profile
-				if (profileTableConcrete.doesFireEvents() && profileEntity.getProfileName() != null) {
+				if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null) {
 					// Fire a Profile Added or Updated Event
-					ActivityContext ac = profileTableConcrete.getActivityContext();
+					ActivityContext ac = profileTable.getActivityContext();
 					AbstractProfileEvent event = null;
 					if (profileEntity.isCreate()) {
-						event = new ProfileAddedEventImpl(profileEntity);					
+						event = new ProfileAddedEventImpl(profileEntity);	
+						if (logger.isDebugEnabled()) {
+							logger.debug("firing profile added event for profile named "+profileEntity);
+						}
 					}
 					else {
-						event = new ProfileUpdatedEventImpl(profileEntitySnapshot,profileEntity);					
+						event = new ProfileUpdatedEventImpl(profileEntitySnapshot,profileEntity);		
+						if (logger.isDebugEnabled()) {
+							logger.debug("firing profile updated event for profile named "+profileEntity);
+						}
 					}
 					ac.fireEvent(event.getEventTypeID(), event,
 							event.getProfileAddress(), null, EventFlags.NO_FLAGS);
@@ -703,7 +714,7 @@ public class ProfileObject {
 	public AbstractProfileCmpSlee10Wrapper getProfileCmpSlee10Wrapper() {
 		if (profileCmpSlee10Wrapper == null) {
 			try {
-				profileCmpSlee10Wrapper = (AbstractProfileCmpSlee10Wrapper) profileTableConcrete.getProfileSpecificationComponent().getProfileCmpSlee10WrapperClass().getConstructor(ProfileObject.class).newInstance(this);
+				profileCmpSlee10Wrapper = (AbstractProfileCmpSlee10Wrapper) profileTable.getProfileSpecificationComponent().getProfileCmpSlee10WrapperClass().getConstructor(ProfileObject.class).newInstance(this);
 			} catch (Throwable e) {
 				throw new SLEEException(e.getMessage(),e);
 			}

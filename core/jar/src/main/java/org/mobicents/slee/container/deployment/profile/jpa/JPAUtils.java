@@ -13,13 +13,13 @@ import java.util.Set;
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
-import javax.slee.TransactionRequiredLocalException;
-import javax.slee.profile.ProfileID;
+import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.profile.UnrecognizedProfileTableNameException;
+import javax.slee.profile.UnrecognizedAttributeException;
+import javax.slee.profile.UnrecognizedQueryNameException;
 import javax.slee.profile.query.QueryExpression;
 import javax.transaction.Transaction;
 
@@ -34,7 +34,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
 import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileObject;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -47,6 +47,7 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  * <br>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
+ * @author martins
  */
 public class JPAUtils implements ProfileDataSource {
 
@@ -73,7 +74,8 @@ public class JPAUtils implements ProfileDataSource {
 	  }	
 	}
   
-  private void createPersistenceUnit(ProfileSpecificationComponent profileComponent)
+  @SuppressWarnings("unchecked")
+private void createPersistenceUnit(ProfileSpecificationComponent profileComponent)
   {
     try
     {
@@ -172,8 +174,8 @@ public class JPAUtils implements ProfileDataSource {
   
   private final static String TX_CONTEXT_EM_PREFIX = "JPA.EM." ;
   
-  private EntityManager getEntityManager(ProfileSpecificationID componentId)
-  {
+  @SuppressWarnings("unchecked")
+private EntityManager getEntityManager(ProfileSpecificationID componentId) {
 	  
 	  // look in tx
 	  Map transactionContextData = null;
@@ -211,192 +213,58 @@ public class JPAUtils implements ProfileDataSource {
 	  
   }
 
-  public Object find(String profileTableName, String profileName) throws SLEEException, UnrecognizedProfileTableNameException
-  {    
-    if (profileName == null) {
-    	throw new NullPointerException("null profile name");
-    }
-
-    ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
-    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
-
-    EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
-    Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTableName).setParameter(2, profileName);
-
-    try {
-    	return createProfileQuery.getSingleResult();
-    }
-    catch (NoResultException e) {
-    	// we ignore it.
-    	return null;
-    }
+  public Collection<ProfileEntity> findAll(ProfileTableImpl profileTable) {
+	 return findProfilesByAttribute(profileTable, null, null);
   }
-
-  public Collection<Object> findAll(String profileTableName)
-  {
-    // TODO: complete.
-    return null;
-  }
-
-  public Object findProfileByAttribute(String profileTableName, String attributeName, Object attributeValue)
-  {
-    // If more than one matching Profile is found the SLEE may arbitrarily return any one of the matching Profiles.
-    // The Profile Table's default Profile is not considered when determining matching Profiles. If no matching Profiles
-    // are  found this method returns null.
-
-    Collection<Object> results = findProfilesByAttribute(profileTableName, attributeName, attributeValue);
-
-    return results != null && results.size() > 0 ? results.iterator().next() : null;
-  }
-
-  public Collection<Object> findProfilesByAttribute(String profileTableName, String attributeName, Object attributeValue) throws NullPointerException, IllegalArgumentException, TransactionRequiredLocalException, SLEEException
-  {
-    if (profileTableName == null) {
-      throw new NullPointerException("null profile table name");
-    }
-    if (attributeName == null) {
-      throw new NullPointerException("null attribute name");
-    }
-    if (attributeValue == null) {
-      throw new NullPointerException("null attribute value");
-    }
-
-    Collection<Object> results = new ArrayList<Object>();
-    ProfileTableConcrete ptc;
-    
-    try {
-      ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
-    }
-    catch ( UnrecognizedProfileTableNameException uptne ) {
-      // This shouldn't happen...
-      logger.error( "Unexpected error. Profile Table Name was not found: " + profileTableName, uptne );
-      
-      // If no matching Profiles are found in the Profile Table an empty collection is returned.
-      return results;
-    }
-    
-    String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
-
-    EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
-    Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName <> '' AND C" + attributeName + " = ?2").setParameter(1, profileTableName).setParameter(2, attributeValue);
-
-    try {
-      results = createProfileQuery.getResultList();
-    }
-    catch (NoResultException e) {
-      // we ignore it.
-    }
-    
-    return results;
-  }
-
-  public Collection<ProfileID> getProfilesIDs(ProfileTableConcrete ptc)
-  {
-	  Collection<ProfileID> result = new ArrayList<ProfileID>();
-
-	  ProfileSpecificationID psid = ptc.getProfileSpecificationComponent().getProfileSpecificationID();
-
-	  String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
-	  String profileTableName = ptc.getProfileTableName();
-
-	  EntityManager em = getEntityManager(psid);
-	  Query createProfileQuery = em.createQuery( "FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName <> ?2").setParameter(1, profileTableName).setParameter(2, DEFAULT_PROFILE_NAME);
-
-	  for(Object o : createProfileQuery.getResultList())
-	  {
-		  result.add( new ProfileID(profileTableName, ((ProfileEntity)o).getProfileName()) );
+  
+  @SuppressWarnings("unchecked")
+public Collection<ProfileEntity> findProfilesByAttribute(ProfileTableImpl profileTable, String attributeName, Object attributeValue) {
+	  
+	  String jpaTableName = profileTable.getProfileSpecificationComponent().getProfileEntityClass().getName();
+	  String queryString = "FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName <> ''";
+	  if (attributeName != null) {
+		  queryString += " AND C" + attributeName + " = ?2";
 	  }
 
-	  return result;
-  }
-
-  public boolean find(ProfileTableConcrete ptc, String profileName)
-  {
-	  EntityManager em = null;
-
-    if (profileName == null) {
-      throw new NullPointerException("null profile name");
-    }
-
-	  String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
-	  String profileTableName = ptc.getProfileTableName();
-
-	  em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
-	  Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTableName).setParameter( 2, profileName );
-
-	  try
-	  {
-		  createProfileQuery.getSingleResult();
-		  return true;        
+	  EntityManager em = getEntityManager(profileTable.getProfileSpecificationComponent().getProfileSpecificationID());
+	  Query query = em.createQuery(queryString).setParameter(1, profileTable.getProfileTableName());
+	  if (attributeName != null) {
+		  query.setParameter(2, attributeValue);
 	  }
-	  catch (NoResultException e) {
-		  // we ignore this
-		  return false;
-	  }   
+	  return query.getResultList();	    
+  }
+  
+  public ProfileEntity findProfile(ProfileTableImpl profileTable, String profileName) {
+	  
+	  String jpaTableName = profileTable.getProfileSpecificationComponent().getProfileEntityClass().getName();
+	  EntityManager em = getEntityManager(profileTable.getProfileSpecificationComponent().getProfileSpecificationID());
+	  Query query = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter( 2, profileName );
+	
+	  List<?> resultList = query.getResultList();
+	  if (resultList.isEmpty()) {
+		  return null;
+	  }
+	  else {
+		  return (ProfileEntity) resultList.get(0);
+	  }
   }
 
-  public List<String> findAllNames(ProfileTableConcrete ptc) throws NullPointerException, TransactionRequiredLocalException, SLEEException
-  {
-    ArrayList<String> profileNames = new ArrayList<String>();
-    EntityManager em = null;
-
-    
-      String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
-      String profileTableName = ptc.getProfileTableName();
-
-      em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
-      Query createProfileQuery = em.createQuery("FROM " + jpaTableName + " WHERE tableName = ?1 AND safeProfileName <> ?2").setParameter(1, profileTableName).setParameter(2, DEFAULT_PROFILE_NAME);
-      List results = createProfileQuery.getResultList();
-
-      for(Object result : results)
-      {
-        profileNames.add( ((ProfileEntity)result).getProfileName());
-      }
-    
-
-    return profileNames;
-    //new ProfileLocalObjectConcreteImpl(ptc.getProfileTableName(), ptc.getProfileSpecificationComponent().getProfileSpecificationID(), profileName, null, false);
-  }
+  
 
   // ProfileProvisioningMBean Operations
 
-  public ProfileSpecificationID getProfileSpecification(String profileTableName)
-  {
-    // TODO: complete.
-    return null;
-  }
 
-
-  public Collection getProfileTables(ProfileSpecificationID id)
-  {
-    // TODO: complete.
-    return null;
-  }
-
-  public Collection getProfiles(String profileTableName)
-  {
-    // TODO: complete.
-    return null;
-  }
-
-  public Collection getProfilesByAttribute(String profileTableName, String attributeName, Object attributeValue)
-  {
-    // TODO: complete.
-    return null;
-  }
-
-  public Collection getProfilesByStaticQuery(String profileTableName, String queryName, Object[] parameters) 
-  {
-    Collection<ProfileID> profileIDs = new ArrayList<ProfileID>();
+  @SuppressWarnings("unchecked")
+public Collection<ProfileEntity> getProfilesByStaticQuery(ProfileTableImpl profileTable, String queryName, Object[] parameters) throws NullPointerException, UnrecognizedQueryNameException,
+	AttributeTypeMismatchException, InvalidArgumentException {
     
-    try
-    {
+	// TODO check for exceptions
+	  
       QueryWrapper wQuery = JPAQueryBuilder.getQuery(queryName);
   
-      ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
-      String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
+      String jpaTableName = profileTable.getProfileSpecificationComponent().getProfileEntityClass().getName();
   
-      EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
+      EntityManager em = getEntityManager(profileTable.getProfileSpecificationComponent().getProfileSpecificationID());
       Query staticQuery = em.createQuery(wQuery.getQuerySQL(jpaTableName));
       
       if(wQuery.getMaxMatches() > 0)
@@ -412,33 +280,22 @@ public class JPAUtils implements ProfileDataSource {
         }
       }
       
-      List<ProfileEntity> pEntities = staticQuery.getResultList();
-      
-      for(ProfileEntity pEntity : pEntities)
-      {
-        profileIDs.add( new ProfileID(pEntity.getTableName(), pEntity.getProfileName()) );
-      }
-    }
-    catch (Exception e) {
-      logger.error( "Static Query execution failed: " + e.getMessage(), e );
-    }
+      return staticQuery.getResultList();
+     
     
-    logger.info( "Returning {" + profileIDs.size() + "} profiles..." );
-    return profileIDs;
   }
 
-  public Collection getProfilesByDynamicQuery(String profileTableName, QueryExpression expr)
-  {
-    Collection<ProfileID> profileIDs = new ArrayList<ProfileID>();
+  @SuppressWarnings("unchecked")
+public Collection<ProfileEntity> getProfilesByDynamicQuery(ProfileTableImpl profileTable, QueryExpression expr) throws UnrecognizedAttributeException,
+	AttributeTypeMismatchException {
     
-    try
-    {
+	  // TODO check for exceptions
+	  
       QueryWrapper wQuery = JPAQueryBuilder.parseDynamicQuery(expr);
   
-      ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(profileTableName);
-      String jpaTableName = ptc.getProfileSpecificationComponent().getProfileEntityClass().getName();
+      String jpaTableName = profileTable.getProfileSpecificationComponent().getProfileEntityClass().getName();
   
-      EntityManager em = getEntityManager(ptc.getProfileSpecificationComponent().getProfileSpecificationID());
+      EntityManager em = getEntityManager(profileTable.getProfileSpecificationComponent().getProfileSpecificationID());
       Query dynamicQuery = em.createQuery(wQuery.getQuerySQL(jpaTableName));
       
       int i = 1;
@@ -450,35 +307,18 @@ public class JPAUtils implements ProfileDataSource {
       if(wQuery.getMaxMatches() > 0)
         dynamicQuery.setMaxResults((int)wQuery.getMaxMatches());
       
-      List<ProfileEntity> pEntities = dynamicQuery.getResultList();
-      
-      for(ProfileEntity pEntity : pEntities)
-      {
-        profileIDs.add( new ProfileID(pEntity.getTableName(), pEntity.getProfileName()) );
-      }
-    }
-    catch (Exception e) {
-      logger.error( "Static Query execution failed: " + e.getMessage(), e );
-    }
+      return dynamicQuery.getResultList();  
     
-    logger.info( "Returning {" + profileIDs.size() + "} profiles..." );
-    return profileIDs;
   }
 
-  @Deprecated
-  public Collection getProfilesByIndexedAttribute(String profileTableName, String attributeName, Object attributeValue)
-  {
-    // TODO: complete.
-    return null;
-  }
-
+  
   public void persistProfile(ProfileObject profileObject)
   {
     EntityManager em = null;
     
     if(checkUniqueFields(profileObject))
     {
-      em = getEntityManager(profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getProfileSpecificationID());
+      em = getEntityManager(profileObject.getProfileTable().getProfileSpecificationComponent().getProfileSpecificationID());
       em.persist(profileObject.getProfileEntity()); 
     }
     else
@@ -489,45 +329,35 @@ public class JPAUtils implements ProfileDataSource {
     }
   }
   
-  public ProfileEntity retrieveProfile(ProfileTableConcrete profileTable, String profileName)
+  public ProfileEntity retrieveProfile(ProfileTableImpl profileTable, String profileName)
   {
-    EntityManager em = null;
-    
-    if (profileName == null) {
-    	profileName = DEFAULT_PROFILE_NAME;
-    }
-    
-    
-      ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
-  
-      em = getEntityManager(psc.getProfileSpecificationID());
-      Query q = em.createQuery("FROM " + psc.getProfileEntityClass().getName() + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
-  
-      List resultList = q.getResultList();
-      if (resultList.size() > 0) {
-        return (ProfileEntity) resultList.get(0);        
+
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("retrieveProfile( profileTableName = "+profileTable.getProfileTableName()+" , profileName = "+profileName+" )");  
+	  }
+
+	  EntityManager em = null;
+
+	  if (profileName == null) {
+		  profileName = DEFAULT_PROFILE_NAME;
+	  }
+
+
+	  ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
+
+	  em = getEntityManager(psc.getProfileSpecificationID());
+	  Query q = em.createQuery("FROM " + psc.getProfileEntityClass().getName() + " WHERE tableName = ?1 AND safeProfileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
+
+	  List<?> resultList = q.getResultList();
+	  if (resultList.size() > 0) {
+		  if (logger.isDebugEnabled()) {
+				logger.debug("ProfileEntity retrieved -> "+resultList.get(0));  
+			  }
+		  return (ProfileEntity) resultList.get(0);        
+	  }
+	  else {
+		  return null;
       }
-      else {
-        return null;
-      }
-    
-  }
-
-  public boolean removeprofile(ProfileTableConcrete profileTable, String profileName)
-  {
-    EntityManager em = null;
-  
-    if (profileName == null) {
-    	profileName = DEFAULT_PROFILE_NAME;
-    }
-    
-    
-      ProfileSpecificationComponent psc = profileTable.getProfileSpecificationComponent();
-
-      em = getEntityManager(psc.getProfileSpecificationID());
-      Query q = em.createQuery("DELETE FROM " + psc.getProfileEntityClass().getName() + " WHERE tableName = ?1 AND profileName = ?2").setParameter(1, profileTable.getProfileTableName()).setParameter(2, profileName);
-
-      return q.executeUpdate() > 0;
     
   }
   
@@ -536,7 +366,7 @@ public class JPAUtils implements ProfileDataSource {
     EntityManager em = null;
   
     
-      ProfileSpecificationComponent psc = profileObject.getProfileTableConcrete().getProfileSpecificationComponent();
+      ProfileSpecificationComponent psc = profileObject.getProfileTable().getProfileSpecificationComponent();
 
       em = getEntityManager(psc.getProfileSpecificationID());
       em.remove(profileObject.getProfileEntity());
@@ -548,7 +378,7 @@ public class JPAUtils implements ProfileDataSource {
     try
     {
       ArrayList<Object> attrValues = new ArrayList<Object>();
-      ProfileSpecificationComponent psc = profileObject.getProfileTableConcrete().getProfileSpecificationComponent();
+      ProfileSpecificationComponent psc = profileObject.getProfileTable().getProfileSpecificationComponent();
       
       String sqlQuery = "FROM " + psc.getProfileEntityClass().getName() + " WHERE tableName = ?1 AND safeProfileName <> ''";
 
@@ -597,10 +427,10 @@ public class JPAUtils implements ProfileDataSource {
       
       if(attrValues.size() > 0)
       {
-        EntityManager em = getEntityManager(profileObject.getProfileTableConcrete().getProfileSpecificationComponent().getProfileSpecificationID());
+        EntityManager em = getEntityManager(profileObject.getProfileTable().getProfileSpecificationComponent().getProfileSpecificationID());
 
         Query q = em.createQuery(sqlQuery);
-        q.setParameter( 1, profileObject.getProfileTableConcrete().getProfileTableName() );
+        q.setParameter( 1, profileObject.getProfileTable().getProfileTableName() );
         
         int i = 2;
         for(Object attrValue : attrValues)

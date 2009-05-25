@@ -8,7 +8,11 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.slee.ComponentID;
@@ -19,9 +23,12 @@ import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationDescriptor;
 import javax.slee.profile.ProfileSpecificationID;
 
+import org.apache.tools.ant.util.StringUtils;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
 import org.mobicents.slee.container.component.security.PermissionHolder;
 import org.mobicents.slee.container.component.validator.ProfileSpecificationComponentValidator;
 
@@ -100,8 +107,16 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	 */
 	private Class profileTableConcreteClass;
 
+	/**
+	 * 
+	 */
 	private Class profileLocalObjectConcreteClass;
 
+	/**
+	 * a map containing all attributes of the profile specification
+	 */
+	private Map<String, ProfileAttribute> profileAttributeMap;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -138,12 +153,63 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	}
 
 	/**
-	 * Sets the profile cmp interface
+	 * Sets the profile cmp interface and builds the profile attribute map
 	 * 
 	 * @param profileCmpInterfaceClass
+	 * @throws DeploymentException 
 	 */
-	public void setProfileCmpInterfaceClass(Class profileCmpInterfaceClass) {
+	public void setProfileCmpInterfaceClass(Class profileCmpInterfaceClass) throws DeploymentException {
 		this.profileCmpInterfaceClass = profileCmpInterfaceClass;
+		buildProfileAttributeMap();
+	}
+
+	/**
+	 * Builds the profile attribute map using the cmp interface class
+	 * @throws DeploymentException 
+	 */
+	private void buildProfileAttributeMap() throws DeploymentException {
+		 HashMap<String, ProfileAttribute> map = new HashMap<String, ProfileAttribute>();
+		 Class<?> cmpInterface = getProfileCmpInterfaceClass();
+		 String attributeGetterMethodPrefix = "get";
+		 for (Method method : cmpInterface.getMethods()) {
+			 if (!method.getDeclaringClass().equals(Object.class) && method.getName().startsWith(attributeGetterMethodPrefix)) {
+				 String attributeName = method.getName().substring(attributeGetterMethodPrefix.length());
+				 switch (attributeName.length()) {
+				 case 0:
+					throw new DeploymentException("the profile cmp interface class has an invalid attribute getter method name > "+method.getName());					
+				 case 1:
+					attributeName = attributeName.toLowerCase();
+					break;					
+				 default:
+					attributeName = attributeName.substring(0, 1).toLowerCase() + attributeName.substring(1);
+				 	break;
+				 }			
+				 ProfileAttribute profileAttribute = null;
+				 try {
+					profileAttribute = new ProfileAttribute(attributeName,method.getReturnType());
+				 } catch (Throwable e) {
+					throw new DeploymentException("Invalid profile cmp interface attribute getter method definition ( name = "+attributeName+" , type = "+method.getReturnType()+" )",e);
+				 }
+				 if (isSlee11()) {
+					 for (MCMPField cmpField : getDescriptor().getProfileCMPInterface().getCmpFields()) {
+						 if (cmpField.getCmpFieldName().equals(attributeName)) {
+							 // TODO add index hints ?
+							 profileAttribute.setUnique(cmpField.getUnique());
+						 }
+					 }
+				 }
+				 else {
+					 for (MProfileIndex profileIndex : getDescriptor().getIndexedAttributes()) {
+						 if (profileIndex.getName().equals(attributeName)) {
+							 profileAttribute.setIndex(true);
+							 profileAttribute.setUnique(profileIndex.getUnique());
+						 }
+					 }
+				 }
+				 map.put(attributeName, profileAttribute);
+			 }
+		 }
+		 profileAttributeMap = Collections.unmodifiableMap(map);		
 	}
 
 	/**
@@ -444,4 +510,11 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 		this.profileCmpSlee10WrapperClass = clazz;		
 	}
 
+	/**
+	 * Retrieves a unmodifiable map of {@link ProfileAttribute}, the key of this map is the attribute name 
+	 * @return
+	 */
+	public Map<String, ProfileAttribute> getProfileAttributes() {
+		return profileAttributeMap;
+	}
 }

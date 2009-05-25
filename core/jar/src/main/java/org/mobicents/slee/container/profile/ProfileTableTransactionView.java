@@ -8,6 +8,7 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.transaction.SystemException;
 
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -53,6 +54,25 @@ public class ProfileTableTransactionView {
 		}
 		return value;
 	}
+	
+	public ProfileObject getProfile(ProfileEntity profileEntity)
+	throws TransactionRequiredLocalException, SLEEException {
+
+		Map txData = getTxData();
+		ProfileTransactionID key = new ProfileTransactionID(profileEntity.getProfileName(),
+				profileTable.getProfileTableName());
+		ProfileObject value = (ProfileObject) txData.get(key);
+		if (value == null) {
+			ProfileObjectPool pool = profileTable.getSleeContainer()
+			.getProfileObjectPoolManagement().getObjectPool(
+					profileTable.getProfileTableName());
+			value = pool.borrowObject();
+			passivateProfileObjectOnTxEnd(value,pool);
+			value.profileActivate(profileEntity);			
+			txData.put(key, value);
+		}
+		return value;
+	}
 
 	public ProfileObject createProfile(String profileName) throws TransactionRequiredLocalException, SLEEException, CreateException {
 
@@ -79,7 +99,7 @@ public class ProfileTableTransactionView {
 	public static void passivateProfileObjectOnTxEnd(SleeTransactionManager txManager, final ProfileObject profileObject, final ProfileObjectPool pool) {
 		TransactionalAction afterRollbackAction = new TransactionalAction() {
 			public void execute() {
-				profileObject.profilePassivate();
+				profileObject.invalidateObject();
 				pool.returnObject(profileObject);			
 			}
 		};

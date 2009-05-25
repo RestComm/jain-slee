@@ -34,7 +34,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.ME
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
 import org.mobicents.slee.container.profile.ProfileLocalObjectImpl;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
@@ -271,11 +271,11 @@ public class SbbEntity {
 				ProfileLocalObjectCmpValue profileLocalObjectCmpValue = (ProfileLocalObjectCmpValue) cmpWrapper
 						.getValue();
 				try {
-					ProfileTableConcrete ptc = this.sleeContainer
+					ProfileTableImpl profileTable = this.sleeContainer
 							.getSleeProfileTableManager().getProfileTable(
 									profileLocalObjectCmpValue
 											.getProfileTableName());
-					ProfileLocalObjectImpl ploc = (ProfileLocalObjectImpl) ptc
+					ProfileLocalObjectImpl ploc = (ProfileLocalObjectImpl) profileTable
 							.find(profileLocalObjectCmpValue.getProfileName());
 					return ploc;
 				} catch (UnrecognizedProfileTableNameException e) {

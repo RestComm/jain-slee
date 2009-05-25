@@ -90,7 +90,7 @@ public class ProfileCallRecorderTransactionData {
 					throw new SLEEException("Detected loopback call. Call sequence: " + data.invokedProfiles);
 				}
 				data.invokedProfiles.add(key);
-				data.invokedProfileTablesNames.add(po.getProfileTableConcrete().getProfileTableName());
+				data.invokedProfileTablesNames.add(po.getProfileTable().getProfileTableName());
 			}
 		}
 		catch (SystemException e) {
@@ -169,9 +169,9 @@ public class ProfileCallRecorderTransactionData {
 			//IF data is present, there is something in it.
 			String tableName = data.invokedProfileTablesNames.getLast();
 			//FIXME: should we create new object? or lookup table? Lets do lookup
-			ProfileTableConcrete ptc = sleeContainer.getSleeProfileTableManager().getProfileTable(tableName);
+			ProfileTableImpl profileTable = sleeContainer.getSleeProfileTableManager().getProfileTable(tableName);
 			
-			return ptc.getProfileTableNotification();
+			return profileTable.getProfileTableNotification();
 		}
 		catch (SystemException e) {
 			throw new SLEEException("Failed to fetch notification source due to some system level error.", e);
@@ -183,6 +183,6 @@ public class ProfileCallRecorderTransactionData {
 
 	private static String makeKey(ProfileObject pc)
 	{
-		return pc.getProfileTableConcrete().getProfileTableName() + "-" + (pc.getProfileEntity() == null ? "NO_PROFILE_ENTITY" : pc.getProfileEntity().getProfileName());
+		return pc.getProfileTable().getProfileTableName() + "-" + (pc.getProfileEntity() == null ? "NO_PROFILE_ENTITY" : pc.getProfileEntity().getProfileName());
 	}
 }

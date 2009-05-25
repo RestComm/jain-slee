@@ -1,15 +1,13 @@
 package org.mobicents.slee.container.profile;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
+import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
-import javax.slee.profile.ProfileID;
+import javax.slee.profile.AttributeTypeMismatchException;
 import javax.slee.profile.ProfileLocalObject;
-
-import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
+import javax.slee.profile.UnrecognizedQueryNameException;
 
 /**
  * 
@@ -27,37 +25,21 @@ public class ProfileQueryHandler {
 	 * Method that does lookup and creates PLOs
 	 * 
 	 * @param profileTable
-	 *            - profile table impl object for which we perform search.
 	 * @param queryName
-	 *            - name of this query, this is requiered so it can be located
-	 *            in ProfileSpecComponent and changed into acting object.
 	 * @param arguments
-	 *            - arguemnts of a query.
-	 * @return collection of ProfileLocalObject.
+	 * @return
+	 * @throws InvalidArgumentException
+	 * @throws AttributeTypeMismatchException
+	 * @throws UnrecognizedQueryNameException
 	 * @throws SLEEException
-	 *             - if something goes really wrong.
+	 * @throws NullPointerException
 	 */
-	public static Collection handle(ProfileTableImpl profileTable, String queryName, Object[] arguments) throws TransactionRequiredLocalException,SLEEException
-	{
-		profileTable.getSleeContainer().getTransactionManager().mandateTransaction();
-		
-		Collection<ProfileLocalObject> plocs = new ArrayList<ProfileLocalObject>();
-		Collection<ProfileID> profileIDs = JPAUtils.INSTANCE.getProfilesByStaticQuery( profileTable.getProfileTableName(), queryName, arguments );
-
-		Class plocClass = profileTable.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass() == null ? ProfileLocalObjectImpl.class : profileTable.getProfileSpecificationComponent().getProfileLocalObjectConcreteClass(); 
-
-		for(ProfileID profileID : profileIDs)
-		{
-		  ProfileObject po = profileTable.getProfile(profileID.getProfileName());
-      try {
-        plocs.add((ProfileLocalObject) plocClass.getConstructor(ProfileObject.class).newInstance(po));
-      }
-      catch ( Exception e ) {
-        throw new SLEEException("Unable to create Profile Local Object.", e);
-      }
-		}
-		
-		return Collections.unmodifiableCollection(plocs);
+	public static Collection<ProfileLocalObject> handle(
+			ProfileTableImpl profileTable, String queryName, Object[] arguments)
+			throws NullPointerException, TransactionRequiredLocalException, SLEEException,
+			UnrecognizedQueryNameException, AttributeTypeMismatchException,
+			InvalidArgumentException {
+		return profileTable.getProfilesByStaticQuery(queryName, arguments);
 	}
 
 }

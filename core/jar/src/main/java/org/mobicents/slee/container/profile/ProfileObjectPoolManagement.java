@@ -5,9 +5,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.slee.SLEEException;
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
-import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.apache.commons.pool.ObjectPool;
@@ -15,7 +12,6 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPoolFactory;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -148,8 +144,7 @@ public class ProfileObjectPoolManagement implements ProfileObjectPoolManagementM
 
 	/**
 	 * Removes the object pool for the specified profile table. If a
-	 * transaction manager is used then, and if the tx rollbacks, the pool will
-	 * be restored.
+	 * transaction manager is used then the removal is only after the tx commit.
 	 * 
 	 * @param sleeTransactionManager
 	 * @throws Exception
@@ -157,28 +152,26 @@ public class ProfileObjectPoolManagement implements ProfileObjectPoolManagementM
 	public void removeObjectPool(final ProfileTableImpl profileTable,
 			final SleeTransactionManager sleeTransactionManager) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing Pool for " + profileTable);
-		}
-
-		removeObjectPool(profileTable);
-
-		if (sleeTransactionManager != null) {
-			// restore object pool if tx rollbacks
-			TransactionalAction action = new TransactionalAction() {
-				public void execute() {
-					if (logger.isDebugEnabled()) {
-						logger
-								.debug("Due to tx rollback, restoring pool for " + profileTable);
-					}
-					createObjectPool(profileTable);
+		
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Removing Pool for " + profileTable);
 				}
-			};
+
+				removeObjectPool(profileTable);
+			}
+		};
+		
+		if (sleeTransactionManager != null) {
 			try {
-				sleeTransactionManager.addAfterRollbackAction(action);
+				sleeTransactionManager.addAfterCommitAction(action);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(),e);
 			}
+		}
+		else {
+			action.execute();
 		}
 	}
 

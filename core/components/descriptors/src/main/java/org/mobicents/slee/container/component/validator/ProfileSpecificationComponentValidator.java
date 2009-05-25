@@ -23,14 +23,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.slee.SLEEException;
-import javax.slee.TransactionRequiredLocalException;
-
 import javassist.Modifier;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.component.ProfileAttribute;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
@@ -60,7 +58,6 @@ public class ProfileSpecificationComponentValidator implements Validator {
 	private final static transient Logger logger = Logger
 			.getLogger(ProfileSpecificationComponentValidator.class);
 	// this does not include serializables
-	private final static Set<String> _ALLOWED_CMPS_TYPES;
 	private final static Set<String> _ALLOWED_MANAGEMENT_TYPES;
 	static {
 		Set<String> tmp = new HashSet<String>();
@@ -104,7 +101,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 		// tmp.add(String[].class.toString());
 		// tmp.add(String.class.toString());
 		_ALLOWED_MANAGEMENT_TYPES = Collections.unmodifiableSet(tmp);
-		_ALLOWED_CMPS_TYPES = Collections.unmodifiableSet(tmp);
+		
 	}
 	
 	//See section
@@ -436,7 +433,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					cmpFieldName = methodName.replaceFirst("set", "");
 				}
 
-				if (!(_ALLOWED_CMPS_TYPES.contains(fieldType.toString()) || validateSerializableType(
+				if (!(ProfileAttribute.ALLOWED_PROFILE_ATTRIBUTE_TYPES.contains(fieldType.getName()) || validateSerializableType(
 						fieldType, methodName))) {
 					passed = false;
 					errorBuffer = appendToBuffer(

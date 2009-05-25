@@ -1,6 +1,5 @@
 package org.mobicents.slee.container.management;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,14 +9,12 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
-import javax.slee.CreateException;
-import javax.slee.InvalidArgumentException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.ProfileTableNotification;
 import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.profile.ProfileVerificationException;
+import javax.slee.profile.ProfileTableAlreadyExistsException;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
@@ -30,7 +27,6 @@ import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGener
 import org.mobicents.slee.container.deployment.profile.jpa.JPAQueryBuilder;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileDataSource;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
@@ -111,7 +107,7 @@ public class SleeProfileTableManager {
 		for(String profileTableName:profileTableNames)
 		{
 			try {
-				this.getProfileTable(profileTableName).removeProfileTable();
+				this.getProfileTable(profileTableName).remove();
 			} catch (TransactionRequiredLocalException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -172,7 +168,7 @@ public class SleeProfileTableManager {
 		
 		
 		for (MEnvEntry mEnvEntry : component.getDescriptor().getEnvEntries()) {
-			Class type = null;
+			Class<?> type = null;
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Got an environment entry:" + mEnvEntry);
@@ -225,22 +221,16 @@ public class SleeProfileTableManager {
 
 	}
 
-	public ProfileTableConcrete getProfileTable(String profileTableName) throws SLEEException, UnrecognizedProfileTableNameException
-	{
+	public ProfileTableImpl getProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException {
 
-		try {
-			ProfileTableConcrete ptc = (ProfileTableConcrete) this.nameToProfileTableMap.get(profileTableName);
-			if (ptc == null)
-				throw new UnrecognizedProfileTableNameException();
+		if (profileTableName == null) throw new NullPointerException("profile table name is null");
 
-			// FIXME: add activity check to see if we are beeing removed ?
-
+		ProfileTableImpl ptc = (ProfileTableImpl) this.nameToProfileTableMap.get(profileTableName);
+		if (ptc == null)
+			throw new UnrecognizedProfileTableNameException();
+		else
 			return ptc;
-		} catch (UnrecognizedProfileTableNameException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new SLEEException("Failed to fetch ProfileTable due to unknown error, please report.", e);
-		}
+
 	}
 
 	public SleeContainer getSleeContainer() {
@@ -251,12 +241,71 @@ public class SleeProfileTableManager {
 		// FIXME: we posbily dont need this.
 		return this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationId);
 	}
+	
+	public Collection<String> getDeclaredProfileTableNames() {
+		return Collections.unmodifiableCollection(this.nameToProfileTableMap.getProfileTables());
+	}
 
-	public ProfileTableConcrete addProfileTable(final String profileTableName, ProfileSpecificationComponent component) throws TransactionRequiredLocalException, SystemException, ClassNotFoundException, NullPointerException, InvalidArgumentException, CreateException, ProfileVerificationException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException
-	{
+	public Collection<String> getDeclaredProfileTableNames(ProfileSpecificationID id) throws UnrecognizedProfileSpecificationException {
+
+		if (this.sleeContainer.getComponentRepositoryImpl().getComponentByID(id) == null) {
+			throw new UnrecognizedProfileSpecificationException("No such profile specification: " + id);
+		}
+		ArrayList<String> names = new ArrayList<String>();
+
+		// FIXME: this will fail if done async to change, is this ok ?
+		Iterator<String> it = this.getDeclaredProfileTableNames().iterator();
+		while (it.hasNext()) {
+			String name = it.next();
+			if (((ProfileTableImpl) this.nameToProfileTableMap.get(name)).getProfileSpecificationComponent().getProfileSpecificationID().equals(id)) {
+				names.add(name);
+			}
+		}
+
+		return names;
+	}
+
+	public void startAllProfileTableActivities() {
+		for (Object key : this.getDeclaredProfileTableNames()) {
+			ProfileTableImpl pt = (ProfileTableImpl) this.nameToProfileTableMap.get((String)key);
+			pt.startActivity();
+		}
+	}
+	
+	private ProfileTableImpl createProfileTableInstance(String profileTableName, ProfileSpecificationComponent component) throws SLEEException {
+		ProfileTableImpl profileTable = null;
+		if (component.getProfileTableConcreteClass() == null) {
+			profileTable = new ProfileTableImpl(profileTableName, component, sleeContainer); 
+		}
+		else {
+			try {
+				profileTable = (ProfileTableImpl)component.getProfileTableConcreteClass().getConstructor(String.class, ProfileSpecificationComponent.class, SleeContainer.class).newInstance(profileTableName, component, sleeContainer);
+			} catch (Throwable e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
+		return profileTable;
+	}
+	
+	/**
+	 * 
+	 * @param profileTableName
+	 * @param component
+	 * @return
+	 * @throws ProfileTableAlreadyExistsException
+	 * @throws SLEEException
+	 */
+	public ProfileTableImpl addProfileTable(final String profileTableName, ProfileSpecificationComponent component) throws ProfileTableAlreadyExistsException, SLEEException {
+		
+		try {
+			getProfileTable(profileTableName);
+			throw new ProfileTableAlreadyExistsException("there is already a profile table named "+profileTableName);
+		}
+		catch (UnrecognizedProfileTableNameException e) {
+			// expected
+		}
 		// create instance
-		ProfileTableImpl profileTable = component.getProfileTableConcreteClass() == null ? new ProfileTableImpl(profileTableName, component, sleeContainer) : 
-		  (ProfileTableImpl)component.getProfileTableConcreteClass().getConstructor(String.class, ProfileSpecificationComponent.class, SleeContainer.class).newInstance(profileTableName, component, sleeContainer);
+		final ProfileTableImpl profileTable = createProfileTableInstance(profileTableName, component);
 		// map it
 		this.nameToProfileTableMap.add(profileTableName, profileTable);
 		// register tracer
@@ -279,51 +328,54 @@ public class SleeProfileTableManager {
 			throw new SLEEException("Failure to register Tracer", e);
 		}
 		// register usage mbean
-		profileTable.register();
+		profileTable.registerUsageMBean();
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				profileTable.unregisterUsageMBean();				
+			}
+		};
+		try {
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 		// create object pool
 		sleeContainer.getProfileObjectPoolManagement().createObjectPool(profileTable, sleeContainer.getTransactionManager());
+		// start activity
+		profileTable.startActivity();
 		// add default profile
-		profileTable.createDefaultProfile();
+		try {
+			profileTable.createDefaultProfile();
+		} catch (Throwable e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 		return profileTable;
 	}
 
-	public Collection<String> getDeclaredProfileTableNames() {
-		return Collections.unmodifiableCollection(this.nameToProfileTableMap.getProfileTables());
+	/**
+	 * 
+	 * @param profileTableName
+	 * @throws NullPointerException
+	 * @throws UnrecognizedProfileTableNameException
+	 */
+	public void removeProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException {
+		ProfileTableImpl profileTable = getProfileTable(profileTableName);
+		nameToProfileTableMap.remove(profileTableName);
+		profileTable.remove();
 	}
 
-	public Collection<String> getDeclaredProfileTableNames(ProfileSpecificationID id) throws UnrecognizedProfileSpecificationException {
-
-		if (this.sleeContainer.getComponentRepositoryImpl().getComponentByID(id) == null) {
-			throw new UnrecognizedProfileSpecificationException("No such profile specification: " + id);
-		}
-		ArrayList<String> names = new ArrayList<String>();
-
-		// FIXME: this will fail if done async to change, is this ok ?
-		Iterator<String> it = this.getDeclaredProfileTableNames().iterator();
-		while (it.hasNext()) {
-			String name = it.next();
-			if (((ProfileTableConcrete) this.nameToProfileTableMap.get(name)).getProfileSpecificationComponent().getProfileSpecificationID().equals(id)) {
-				names.add(name);
-			}
-		}
-
-		return names;
-	}
-
-	public void removeProfileTable(ProfileTableImpl profileTableConcreteImpl) {
-		// FIXME: add more ?
-	  // remove object pool
-	  sleeContainer.getProfileObjectPoolManagement().removeObjectPool(profileTableConcreteImpl, sleeContainer.getTransactionManager());
-	  // remove from mapping
-	  this.nameToProfileTableMap.remove(profileTableConcreteImpl.getProfileTableName());
-	}
-
-	public void startAllProfileTableActivities() {
-		for (Object key : this.getDeclaredProfileTableNames()) {
-			ProfileTableImpl pt = (ProfileTableImpl) this.nameToProfileTableMap.get((String)key);
-			pt.register();
-		}
-
+	/**
+	 * 
+	 * @param oldProfileTableName
+	 * @param newProfileTableName
+	 * @throws ProfileTableAlreadyExistsException
+	 * @throws NullPointerException
+	 * @throws UnrecognizedProfileTableNameException
+	 */
+	public void renameProfileTable(String oldProfileTableName, String newProfileTableName) throws ProfileTableAlreadyExistsException, NullPointerException, UnrecognizedProfileTableNameException {
+		ProfileSpecificationComponent component = getProfileTable(oldProfileTableName).getProfileSpecificationComponent();
+		removeProfileTable(oldProfileTableName);
+		addProfileTable(newProfileTableName, component);		
 	}
 
 }

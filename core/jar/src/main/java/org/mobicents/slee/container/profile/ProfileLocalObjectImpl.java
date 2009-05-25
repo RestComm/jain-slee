@@ -69,7 +69,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileTable()
 	 */
 	public ProfileTable getProfileTable() throws SLEEException {
-		return profileObject.getProfileTableConcrete();
+		return profileObject.getProfileTable();
 	}
 
 	/*
@@ -78,7 +78,7 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 	 * @see javax.slee.profile.ProfileLocalObject#getProfileTableName()
 	 */
 	public String getProfileTableName() throws SLEEException {
-		return profileObject.getProfileTableConcrete().getProfileTableName();
+		return profileObject.getProfileTable().getProfileTableName();
 	}
 
 	/*

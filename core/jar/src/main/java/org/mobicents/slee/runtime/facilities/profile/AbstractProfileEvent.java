@@ -113,6 +113,7 @@ public abstract class AbstractProfileEvent {
 		if (profileObject == null) {
 			// get an object from the table
 			profileEntity.setReadOnly(true);
+			profileEntity.setDirty(false);
 			ProfileObjectPool pool = sleeContainer.getProfileObjectPoolManagement().getObjectPool(profileEntity.getTableName());
 			profileObject = pool.borrowObject();
 			profileObject.profileActivate(profileEntity);

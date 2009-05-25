@@ -35,11 +35,11 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  */
 public class ProfileContextImpl implements ProfileContext {
 
-	private ProfileTableConcrete profileTable = null;
+	private ProfileTableImpl profileTable = null;
 	private ProfileObject profileObject = null;
 
 	
-	public ProfileContextImpl(ProfileTableConcrete profileTable)
+	public ProfileContextImpl(ProfileTableImpl profileTable)
 	{		
 		if (profileTable == null) {
 			throw new NullPointerException("Parameters must not be null");

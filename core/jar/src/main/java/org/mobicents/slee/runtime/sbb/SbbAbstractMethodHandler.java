@@ -16,7 +16,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 
@@ -243,7 +243,7 @@ public class SbbAbstractMethodHandler {
 		SleeProfileTableManager sleeProfileManager = sleeContainer
 				.getSleeProfileTableManager();
 
-		ProfileTableConcrete profileTable = sleeProfileManager.getProfileTable(profileID.getProfileTableName());
+		ProfileTableImpl profileTable = sleeProfileManager.getProfileTable(profileID.getProfileTableName());
 
 		if (!profileTable.profileExists(profileID.getProfileName())) {
 			throw new UnrecognizedProfileNameException(profileID.toString());

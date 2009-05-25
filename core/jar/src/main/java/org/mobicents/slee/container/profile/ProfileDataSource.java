@@ -1,63 +1,92 @@
 package org.mobicents.slee.container.profile;
 
 import java.util.Collection;
-import java.util.List;
 
-import javax.slee.SLEEException;
-import javax.slee.TransactionRequiredLocalException;
-import javax.slee.profile.ProfileID;
-import javax.slee.profile.ProfileSpecificationID;
-import javax.slee.profile.UnrecognizedProfileTableNameException;
+import javax.slee.InvalidArgumentException;
+import javax.slee.profile.AttributeTypeMismatchException;
+import javax.slee.profile.UnrecognizedAttributeException;
+import javax.slee.profile.UnrecognizedQueryNameException;
 import javax.slee.profile.query.QueryExpression;
 
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAUtils;
+import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
 
 public interface ProfileDataSource {
 
 	  public static ProfileDataSource INSTANCE = JPAUtils.INSTANCE;
 	  
+	  /**
+	   * 
+	   * @param component
+	   */
 	  public void install(ProfileSpecificationComponent component);
 	  
+	  /**
+	   * 
+	   * @param component
+	   */
 	  public void uninstall(ProfileSpecificationComponent component);
 	  
-	  public Object find(String profileTableName, String profileName) throws SLEEException, UnrecognizedProfileTableNameException;
+	  /**
+	   * 
+	   * @param profileTable
+	   * @return
+	   */
+	  public Collection<ProfileEntity> findAll(ProfileTableImpl profileTable);
+	  
+	  /**
+	   * 
+	   * @param profileTable
+	   * @param attributeName
+	   * @param attributeValue
+	   * @return
+	   */
+	  public Collection<ProfileEntity> findProfilesByAttribute(ProfileTableImpl profileTable, String attributeName, Object attributeValue);
+	  
+	  /**
+	   * 
+	   * @param profileTable
+	   * @param profileName
+	   * @return
+	   */
+	  public ProfileEntity findProfile(ProfileTableImpl profileTable, String profileName);
+	  
+	  /**
+	   * 
+	   * @param profileTableName
+	   * @param queryName
+	   * @param parameters
+	   * @return
+	   */
+	  public Collection<ProfileEntity> getProfilesByStaticQuery(ProfileTableImpl profileTable, String queryName, Object[] parameters) throws NullPointerException, UnrecognizedQueryNameException,AttributeTypeMismatchException,InvalidArgumentException;
 
-	  public Collection<Object> findAll(String profileTableName);
+	  /**
+	   * 
+	   * @param profileTableName
+	   * @param expr
+	   * @return
+	   */
+	  public Collection<ProfileEntity> getProfilesByDynamicQuery(ProfileTableImpl profileTable, QueryExpression expr) throws UnrecognizedAttributeException,AttributeTypeMismatchException;
 
-	  public Object findProfileByAttribute(String profileTableName, String attributeName, Object attributeValue);
-
-	  public Collection<Object> findProfilesByAttribute(String profileTableName, String attributeName, Object attributeValue);
-
-	  public Collection<ProfileID> getProfilesIDs(ProfileTableConcrete ptc);
-
-	  public boolean find(ProfileTableConcrete ptc, String profileName);
-
-	  public List<String> findAllNames(ProfileTableConcrete ptc) throws NullPointerException, TransactionRequiredLocalException, SLEEException;
-
-	  public Collection getProfileTables(ProfileSpecificationID id);
-
-	  public Collection getProfiles(String profileTableName);
-
-	  public Collection getProfilesByAttribute(String profileTableName, String attributeName, Object attributeValue);
-
-	  public Collection getProfilesByStaticQuery(String profileTableName, String queryName, Object[] parameters);
-
-	  public Collection getProfilesByDynamicQuery(String profileTableName, QueryExpression expr);
-
-	  @Deprecated
-	  public Collection getProfilesByIndexedAttribute(String profileTableName, String attributeName, Object attributeValue);
-
+	  /**
+	   * 
+	   * @param profileObject
+	   */
 	  public void persistProfile(ProfileObject profileObject);
 	  
-	  public ProfileEntity retrieveProfile(ProfileTableConcrete profileTable, String profileName);
+	  /**
+	   * 
+	   * @param profileTable
+	   * @param profileName
+	   * @return
+	   */
+	  public ProfileEntity retrieveProfile(ProfileTableImpl profileTable, String profileName);
 
-	  public boolean removeprofile(ProfileTableConcrete profileTable, String profileName);
-	  
+	  /**
+	   * 
+	   * @param profileObject
+	   */
 	  public void removeprofile(ProfileObject profileObject);
-
-	  
-	  
 
 }

@@ -11,8 +11,6 @@ import java.util.ArrayList;
  */
 public class MCMPField {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField cmpField11;
-
   private String description;
   private String cmpFieldName;
 
@@ -23,7 +21,6 @@ public class MCMPField {
 
   public MCMPField(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField cmpField11)
   {
-    this.cmpField11 = cmpField11;
 
     this.description = cmpField11.getDescription() == null ? null : cmpField11.getDescription().getvalue();
 

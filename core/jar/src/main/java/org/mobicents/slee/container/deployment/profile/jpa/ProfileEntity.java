@@ -2,7 +2,6 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -165,8 +164,8 @@ public abstract class ProfileEntity implements Cloneable {
     /**
      * 
      */
-    public void markAsDirty() {
-    	this.dirty = true;
+    public void setDirty(boolean dirty) {
+    	this.dirty = dirty;
     }
     
     /**

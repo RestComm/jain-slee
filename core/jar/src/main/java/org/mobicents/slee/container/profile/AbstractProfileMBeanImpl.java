@@ -42,7 +42,7 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 	/**
 	 * the table related with the profile mbean
 	 */
-	private final ProfileTableConcrete profileTable;
+	private final ProfileTableImpl profileTable;
 	
 	/**
 	 * the name of the profile assigned to the mbean
@@ -65,7 +65,7 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 	 * @param profileObject
 	 * @throws NotCompliantMBeanException
 	 */
-	public AbstractProfileMBeanImpl(Class<?> mbeanInterface, String profileName, ProfileTableConcrete profileTable) throws NotCompliantMBeanException, ManagementException {
+	public AbstractProfileMBeanImpl(Class<?> mbeanInterface, String profileName, ProfileTableImpl profileTable) throws NotCompliantMBeanException, ManagementException {
 	  super(mbeanInterface);
 	  this.profileTable = profileTable;
 	  this.profileName = profileName;	

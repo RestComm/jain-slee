@@ -32,7 +32,7 @@ import org.mobicents.slee.container.profile.ProfileCmpHandler;
 import org.mobicents.slee.container.profile.ProfileConcrete;
 import org.mobicents.slee.container.profile.ProfileManagementHandler;
 import org.mobicents.slee.container.profile.ProfileObject;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 
 public class ConcreteProfileManagementGenerator {
 
@@ -56,7 +56,7 @@ public class ConcreteProfileManagementGenerator {
 
 	public static final String _PROFILE_OBJECT_FIELD = "ProfileObject";
 	public static final String _PROFILE_NAME_FIELD = "ProfileName";
-	public static final String _PROFILE_TABLE_FIELD = "ProfileTableConcrete";
+	public static final String _PROFILE_TABLE_FIELD = "ProfileTable";
 	public static final String _PROFILE_DIRTY_FIELD = "ProfileDirty";
 	public static final String _PROFILE_INBACK_FIELD = "ProfileInBackEndStorage";
 
@@ -208,7 +208,7 @@ public class ConcreteProfileManagementGenerator {
 		// now lets implement fields.
 		createField(ProfileObject.class, _PROFILE_OBJECT_FIELD, cmpProfileConcreteClass, this.pool);
 		createField(String.class, _PROFILE_NAME_FIELD, cmpProfileConcreteClass, this.pool);
-		createField(ProfileTableConcrete.class, _PROFILE_TABLE_FIELD, cmpProfileConcreteClass, this.pool);
+		createField(ProfileTableImpl.class, _PROFILE_TABLE_FIELD, cmpProfileConcreteClass, this.pool);
 		createField(Boolean.class, _PROFILE_DIRTY_FIELD, cmpProfileConcreteClass, this.pool);
 		createField(Boolean.class, _PROFILE_INBACK_FIELD, cmpProfileConcreteClass, this.pool);
 

@@ -16,6 +16,7 @@ import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
+import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
@@ -181,7 +182,12 @@ class FakeRepository implements ComponentRepository {
 			ProfileSpecificationID id) {
 
 		ProfileSpecificationComponent cmp = new ProfileSpecificationComponent(null);
-		cmp.setProfileCmpInterfaceClass(ProfileCmpInterface.class);
+		try {
+			cmp.setProfileCmpInterfaceClass(ProfileCmpInterface.class);
+		} catch (DeploymentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		return cmp;
 	}

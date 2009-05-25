@@ -22,12 +22,10 @@ import javax.slee.profile.ProfileTable;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
-import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.management.SleeProfileTableManager;
-import org.mobicents.slee.container.profile.ProfileTableConcrete;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -75,28 +73,32 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	 *             - if the ProfileTable object could not be obtained due to a
 	 *             system-level-failure.
 	 */
-	public ProfileTable getProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, FacilityException {
+	public ProfileTable getProfileTable(String profileTableName)
+			throws NullPointerException, UnrecognizedProfileTableNameException,
+			FacilityException {
 
-		if (profileTableName == null) {
-			throw new NullPointerException("ProfileTableName must not be null.");
+		if (logger.isDebugEnabled()) {
+			logger.debug("getProfileTable( profileTableName = "
+					+ profileTableName + " )");
 		}
-		
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager(); 
-			
+				
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();		
 		boolean terminateTx = sleeTransactionManager.requireTransaction();
 		try {
-			return sleeProfileManagement.getProfileTable(profileTableName);
+			return sleeContainer
+			.getSleeProfileTableManager().getProfileTable(profileTableName);
+		} catch (NullPointerException e) {
+			throw e;
 		} catch (UnrecognizedProfileTableNameException e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			throw new FacilityException("Failed to obtain profile table.", e);
-		}
-		finally {
+		} finally {
 			// never rollback
 			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
 		}
-		
+
 	}
 
 	/**
@@ -128,27 +130,27 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	 *             - if the profile identifies could not be obtained due to a
 	 *             system-level failure.
 	 */
-	public Collection getProfiles(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, TransactionRolledbackLocalException, FacilityException {
-		
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
-		
-		if (sleeProfileManagement == null) {
-			throw new NullPointerException("Argument must not be null.");
-		}
+	public Collection<ProfileID> getProfiles(String profileTableName)
+			throws NullPointerException, UnrecognizedProfileTableNameException,
+			TransactionRolledbackLocalException, FacilityException {
 
-		boolean terminateTx = sleeTransactionManager.requireTransaction();
-		try {
-			return sleeProfileManagement.getProfileTable(profileTableName).getProfilesIDs();
-		} catch (UnrecognizedProfileTableNameException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new FacilityException("Failed to obtain profile ids for profile table: " + profileTableName, e);
-		}
-		finally {
-			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
+		if (logger.isDebugEnabled()) {
+			logger.debug("getProfiles( profileTableName = "
+					+ profileTableName + " )");
 		}
 		
+		sleeContainer.getTransactionManager().mandateTransaction();
+
+		try {
+			return sleeContainer.getSleeProfileTableManager().getProfileTable(
+							profileTableName).getProfiles();			
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;		
+		} catch (Throwable e) {
+			throw new FacilityException(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -173,22 +175,31 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	 *             invoked on a ProfileFacility object provided to a resource
 	 *             adaptor via its ResourceAdaptorContext.
 	 */
-	public ProfileTableActivity getProfileTableActivity(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, TransactionRolledbackLocalException,
-			FacilityException {
+	public ProfileTableActivity getProfileTableActivity(String profileTableName)
+			throws NullPointerException, UnrecognizedProfileTableNameException,
+			TransactionRolledbackLocalException, FacilityException {
 
-		if (profileTableName == null) {
-			throw new NullPointerException("null profile table name");
+		if (logger.isDebugEnabled()) {
+			logger.debug("getProfileTableActivity( profileTableName = "
+					+ profileTableName + " )");
 		}
-		
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
-		
+				
+		final SleeTransactionManager sleeTransactionManager = sleeContainer
+				.getTransactionManager();		
 		boolean terminateTx = sleeTransactionManager.requireTransaction();
 		try {
-			return sleeProfileManagement.getProfileTable(profileTableName).getActivity();
+			return sleeContainer
+			.getSleeProfileTableManager().getProfileTable(profileTableName).getActivity();
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new FacilityException("Failed to obtain profile table.", e);
 		} finally {
+			// never rollback
 			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
-		}
+		}		
 	}
 
 	/**
@@ -240,72 +251,50 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	 *             - if the profile identifier could not be obtained due to a
 	 *             system-level failure.
 	 */
-	public ProfileID getProfileByIndexedAttribute(java.lang.String profileTableName, java.lang.String attributeName, java.lang.Object attributeValue) throws java.lang.NullPointerException,
-			UnrecognizedProfileTableNameException, UnrecognizedAttributeException, AttributeNotIndexedException, AttributeTypeMismatchException, TransactionRolledbackLocalException, FacilityException {
+	public ProfileID getProfileByIndexedAttribute(
+			java.lang.String profileTableName, java.lang.String attributeName,
+			java.lang.Object attributeValue) throws NullPointerException,
+			UnrecognizedProfileTableNameException,
+			UnrecognizedAttributeException, AttributeNotIndexedException,
+			AttributeTypeMismatchException,
+			TransactionRolledbackLocalException, FacilityException {
 
-		if (profileTableName == null) {
-			throw new NullPointerException("Attributes[ProfileTableName] must not be null.");
+		if (logger.isDebugEnabled()) {
+			logger.debug("getProfileByIndexedAttribute( profileTableName = "
+					+ profileTableName + " , attributeName = " + attributeName
+					+ " , attributeValue = " + attributeValue + " )");
 		}
-
-		if (attributeValue == null) {
-			throw new NullPointerException("Attributes[AttributeValue] must not be null.");
-		}
-
-		if (attributeName == null) {
-			throw new NullPointerException("Attributes[AttributeName] must not be null.");
-		}
-
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
 		
-		ProfileID profileID = null;
-		boolean createTransaction = sleeTransactionManager.requireTransaction();
-		Throwable cause = null;
-		try {
-			ProfileTableConcrete profileTable = sleeProfileManagement.getProfileTable(profileTableName);
-			if (profileTable.getProfileSpecificationComponent().isSlee11()) {
-				throw new FacilityException("This method is only allowed for JSLEE 1.0 compilant profiles. Profile: " + profileTable.getProfileSpecificationComponent().getProfileSpecificationID()
-						+ " is not 1.0.");
-			}
-			profileID = profileTable.getProfileByIndexedAttribute(attributeName, attributeValue);
-		} catch (UnrecognizedProfileTableNameException e) {
-			cause = e;
-			throw e;
-		} catch (AttributeTypeMismatchException e) {
-			cause = e;
-			throw e;
-		}
+		sleeContainer.getTransactionManager().mandateTransaction();
 
-		catch (UnrecognizedAttributeException e) {
-			cause = e;
+		try {
+			ProfileTableImpl profileTable = sleeContainer
+					.getSleeProfileTableManager().getProfileTable(
+							profileTableName);
+			if (profileTable.getProfileSpecificationComponent().isSlee11()) {
+				throw new FacilityException(
+						"JAIN SLEE 1.1 Specs forbidden the usage of this method on SLEE 1.1 Profile Tables");
+			}
+			Collection<ProfileID> profileIDs = profileTable.getProfilesByAttribute(attributeName,attributeValue,false);
+			if (profileIDs.isEmpty()) {
+				return null;
+			}
+			else {
+				return profileIDs.iterator().next();
+			}
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+		} catch (UnrecognizedAttributeException e) {
 			throw e;
 		} catch (AttributeNotIndexedException e) {
-			cause = e;
 			throw e;
-		} catch (Exception e) {
-			cause = e;
-			throw new FacilityException("Failed to obtain ID due to system level failure.", e);
-		} finally {
-			if (createTransaction) {
-				try {
-					if (sleeTransactionManager.getRollbackOnly()) {
-						throw new TransactionRolledbackLocalException("Something went wrong.", cause);
-					}
-				} catch (SystemException e) {
-					throw new FacilityException("Failed with rollback check", e);
-				}
-
-				try {
-					sleeTransactionManager.commit();
-				} catch (Exception e) {
-					throw new FacilityException("Failed with commit ", e);
-				}
-
-			}
-
+		} catch (AttributeTypeMismatchException e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new FacilityException(e.getMessage(), e);
 		}
-
-		return profileID;
 	}
 
 	/**
@@ -360,71 +349,45 @@ public class ProfileFacilityImpl implements ProfileFacility {
 	 * @throw FacilityException - if the profile identifiers could not be
 	 *        obtained due to a system-level failure.
 	 */
-	public Collection getProfilesByIndexedAttribute(java.lang.String profileTableName, java.lang.String attributeName, java.lang.Object attributeValue) throws java.lang.NullPointerException,
-			UnrecognizedProfileTableNameException, UnrecognizedAttributeException, AttributeNotIndexedException, AttributeTypeMismatchException, TransactionRolledbackLocalException, FacilityException {
-		if (profileTableName == null) {
-			throw new NullPointerException("Attributes[ProfileTableName] must not be null.");
-		}
+	public Collection<ProfileID> getProfilesByIndexedAttribute(
+			java.lang.String profileTableName, java.lang.String attributeName,
+			java.lang.Object attributeValue)
+			throws java.lang.NullPointerException,
+			UnrecognizedProfileTableNameException,
+			UnrecognizedAttributeException, AttributeNotIndexedException,
+			AttributeTypeMismatchException,
+			TransactionRolledbackLocalException, FacilityException {
 
-		if (attributeValue == null) {
-			throw new NullPointerException("Attributes[AttributeValue] must not be null.");
+		if (logger.isDebugEnabled()) {
+			logger.debug("getProfilesByIndexedAttribute( profileTableName = "
+					+ profileTableName + " , attributeName = " + attributeName
+					+ " , attributeValue = " + attributeValue + " )");
 		}
-
-		if (attributeName == null) {
-			throw new NullPointerException("Attributes[AttributeName] must not be null.");
-		}
-
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		final SleeProfileTableManager sleeProfileManagement = sleeContainer.getSleeProfileTableManager();
 		
-		Collection<ProfileID> profileIDs = null;
-		boolean createTransaction = sleeTransactionManager.requireTransaction();
-		Throwable cause = null;
-		try {
-			ProfileTableConcrete profileTable = sleeProfileManagement.getProfileTable(profileTableName);
-			if (profileTable.getProfileSpecificationComponent().isSlee11()) {
-				throw new FacilityException("This method is only allowed for JSLEE 1.0 compilant profiles. Profile: " + profileTable.getProfileSpecificationComponent().getProfileSpecificationID()
-						+ " is not 1.0.");
-			}
-			profileIDs = profileTable.getProfilesByIndexedAttribute(attributeName, attributeValue);
-		} catch (UnrecognizedProfileTableNameException e) {
-			cause = e;
-			throw e;
-		} catch (AttributeTypeMismatchException e) {
-			cause = e;
-			throw e;
-		}
+		sleeContainer.getTransactionManager().mandateTransaction();
 
-		catch (UnrecognizedAttributeException e) {
-			cause = e;
+		try {
+			ProfileTableImpl profileTable = sleeContainer
+					.getSleeProfileTableManager().getProfileTable(
+							profileTableName);
+			if (profileTable.getProfileSpecificationComponent().isSlee11()) {
+				throw new FacilityException(
+						"JAIN SLEE 1.1 Specs forbidden the usage of this method on SLEE 1.1 Profile Tables");
+			}
+			return profileTable.getProfilesByAttribute(attributeName,attributeValue,false);
+		} catch (NullPointerException e) {
+			throw e;
+		} catch (UnrecognizedProfileTableNameException e) {
+			throw e;
+		} catch (UnrecognizedAttributeException e) {
 			throw e;
 		} catch (AttributeNotIndexedException e) {
-			cause = e;
 			throw e;
-		} catch (Exception e) {
-			cause = e;
-			throw new FacilityException("Failed to obtain ID due to system level failure.", e);
-		} finally {
-			if (createTransaction) {
-				try {
-					if (sleeTransactionManager.getRollbackOnly()) {
-						throw new TransactionRolledbackLocalException("Something went wrong.", cause);
-					}
-				} catch (SystemException e) {
-					throw new FacilityException("Failed with rollback check", e);
-				}
-
-				try {
-					sleeTransactionManager.commit();
-				} catch (Exception e) {
-					throw new FacilityException("Failed with commit ", e);
-				}
-
-			}
-
+		} catch (AttributeTypeMismatchException e) {
+			throw e;
+		} catch (Throwable e) {
+			throw new FacilityException(e.getMessage(), e);
 		}
-
-		return profileIDs;
 	}
 
 	public String _toString() {

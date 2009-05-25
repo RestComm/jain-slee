@@ -33,7 +33,7 @@ public class ProfileCmpHandler {
 		}
 		
 		if (profileObject.getProfileEntity().isReadOnly()) {				
-			throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileEntity().getProfileName() + ", table:" + profileObject.getProfileTableConcrete().getProfileTableName() + " ,is not writeable.");
+			throw new ReadOnlyProfileException("Profile: " + profileObject.getProfileEntity().getProfileName() + ", table:" + profileObject.getProfileTable().getProfileTableName() + " ,is not writeable.");
 		}
 		
 		ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
@@ -44,7 +44,7 @@ public class ProfileCmpHandler {
 	 * @param profileObject
 	 */
 	public static void afterSetCmpField(ProfileObject profileObject) {
-		profileObject.getProfileEntity().markAsDirty();
+		profileObject.getProfileEntity().setDirty(true);
 		ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
 	}
 	
@@ -57,13 +57,11 @@ public class ProfileCmpHandler {
 		
 		sleeContainer.getTransactionManager().mandateTransaction();
 
-		// not a snapshot, so ensure object in ready state
-		//if (profileObject.getState() != ProfileObjectState.READY && profileObject.getState() != ProfileObjectState.PROFILE_INITIALIZATION) {
-		if (profileObject.getProfileEntity() == null) {
+		if (profileObject.getState() != ProfileObjectState.READY && profileObject.getState() != ProfileObjectState.PROFILE_INITIALIZATION) {
 			throw new IllegalStateException("Profile object must be in ready state");
 		}
 		
-		//ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
+		ProfileCallRecorderTransactionData.addProfileCall(profileObject);			
 	}
 
 	/**
@@ -72,7 +70,7 @@ public class ProfileCmpHandler {
 	 */
 	public static void afterGetCmpField(ProfileObject profileObject) {
 
-		//ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
+		ProfileCallRecorderTransactionData.removeProfileCall(profileObject);
 	}
 
 }
