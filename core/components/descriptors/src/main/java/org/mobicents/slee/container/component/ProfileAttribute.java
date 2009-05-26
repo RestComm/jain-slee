@@ -41,6 +41,10 @@ public class ProfileAttribute {
 	private boolean index;
 
 	/**
+	 * indicates if the profile attribute value is of type array or not 
+	 */
+	private boolean array = false;
+	/**
 	 * 
 	 * @param name
 	 * @param type
@@ -59,48 +63,56 @@ public class ProfileAttribute {
 			}
 			else if (type == boolean[].class) {
 				nonPrimitiveType = Boolean[].class;
+				array = true;
 			}
 			else if (type == byte.class) {
 				nonPrimitiveType = Byte.class;
 			}
 			else if (type == byte[].class) {
 				nonPrimitiveType = Byte[].class;
+				array = true;
 			}
 			else if (type == char.class) {
 				nonPrimitiveType = Character.class;
 			}
 			else if (type == char[].class) {
 				nonPrimitiveType = Character[].class;
+				array = true;
 			}
 			else if (type == short.class) {
 				nonPrimitiveType = Short.class;
 			}
 			else if (type == short[].class) {
 				nonPrimitiveType = Short[].class;
+				array = true;
 			}
 			else if (type == int.class) {
 				nonPrimitiveType = Integer.class;
 			}
 			else if (type == int[].class) {
 				nonPrimitiveType = Integer[].class;
+				array = true;
 			}
 			else if (type == long.class) {
 				nonPrimitiveType = Long.class;
 			}
 			else if (type == long[].class) {
 				nonPrimitiveType = Long[].class;
+				array = true;
 			}
 			else if (type == double.class) {
 				nonPrimitiveType = Double.class;
 			}
 			else if (type == double[].class) {
 				nonPrimitiveType = Double[].class;
+				array = true;
 			}
 			else if (type == float.class) {
 				nonPrimitiveType = Float.class;
 			}
 			else if (type == float[].class) {
 				nonPrimitiveType = Float[].class;
+				array = true;
 			}
 			else {
 				throw new SLEEException("unexpected primitive type "+type);
@@ -111,6 +123,14 @@ public class ProfileAttribute {
 		}
 	}
 
+	/**
+	 * Indicates if the profile attribute value is of type array or not
+	 * @return
+	 */
+	public boolean isArray() {
+		return array;
+	}
+	
 	/**
 	 * Indicates if the profile attribute value must be unique
 	 * @return

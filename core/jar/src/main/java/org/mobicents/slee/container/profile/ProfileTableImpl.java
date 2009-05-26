@@ -77,11 +77,6 @@ public class ProfileTableImpl implements ProfileTable {
 	 * 
 	 */
 	private final ProfileTableTransactionView transactionView;
-
-	/**
-	 * indicates if the table was removed or not
-	 */
-	private boolean removed;
 	
 	public ProfileTableImpl(String profileTableName, ProfileSpecificationComponent component, SleeContainer sleeContainer) {
 		
@@ -540,13 +535,6 @@ public class ProfileTableImpl implements ProfileTable {
 			// remove default profile
 			this.removeProfile(null, false);
 			
-			// raise removed flag
-			removed = true;
-			TransactionalAction rollbackAction = new TransactionalAction() {
-				public void execute() {
-					removed = false;					
-				}
-			};
 			// add action after commit to close uncommitted mbeans
 			TransactionalAction commitAction = new TransactionalAction() {
 				public void execute() {
@@ -555,7 +543,6 @@ public class ProfileTableImpl implements ProfileTable {
 			};
 			
 			try {
-				sleeTransactionManager.addAfterRollbackAction(rollbackAction);
 				sleeTransactionManager.addAfterCommitAction(commitAction);
 			} catch (SystemException e) {
 				throw new SLEEException(e.getMessage(),e);
@@ -628,10 +615,6 @@ public class ProfileTableImpl implements ProfileTable {
 	}
 	public ActivityContext getActivityContext() {
 		return sleeContainer.getActivityContextFactory().getActivityContext(getActivityContextHandle(), false);
-	}
-	
-	public boolean isRemoved() {
-		return removed;
 	}
 	
 	public void startActivity() {

@@ -1,29 +1,26 @@
 package org.mobicents.slee.container.deployment.profile.jpa;
 
-import java.lang.reflect.Field;
+import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.CtPrimitiveType;
-import javassist.NotFoundException;
 
 import javax.slee.SLEEException;
 import javax.slee.profile.Profile;
 import javax.slee.profile.ProfileManagement;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.component.ProfileAttribute;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
@@ -111,7 +108,7 @@ public class ConcreteProfileGenerator {
       ClassGeneratorUtils.generateGetterAndSetter( fProfileObject, null );
       
       // CMP fields getters and setters
-      generateCMPFieldsWithGettersAndSetters(profileConcreteClass);
+      generateCMPAccessors(profileConcreteClass);
       
       generateConstructors(profileConcreteClass);
       
@@ -224,152 +221,82 @@ public class ConcreteProfileGenerator {
     }
   }
   
-  private void generateCMPFieldsWithGettersAndSetters(CtClass profileConcreteClass) throws Exception
-  {
-    // Get the CMP interface to generate the getters/setters
+  private void generateCMPAccessors(CtClass profileConcreteClass) throws Exception {
+    
+	  // Get the CMP interface to generate the getters/setters
     MProfileCMPInterface cmpInterface = profileDescriptor.getProfileCMPInterface();
     
-    CtClass cmpInterfaceClass = ClassGeneratorUtils.getClass( cmpInterface.getProfileCmpInterfaceName() );
+    ClassPool pool = profileComponent.getClassPool();
     
-    HashMap<String, CtClass> fieldNames = new HashMap<String, CtClass>(); 
-
-    for(CtMethod method : cmpInterfaceClass.getDeclaredMethods())
-    {
-      if(method.getName().startsWith( "get" ))
-      {
-        String fieldName = method.getName().replaceFirst( "get", "" );
-
-        if(!fieldNames.containsKey( fieldName ))
-        {
-          fieldNames.put( fieldName, method.getReturnType() );
-          
-          CtField genField = ClassGeneratorUtils.addField( method.getReturnType(), fieldName, profileConcreteClass );
-          generateCMPGetter( genField );
-          generateCMPSetter( genField );
-        }
-      }
-    }
-
-    for(MCMPField cmpField : cmpInterface.getCmpFields())
-    {
-      if( cmpField.getUnique() )
-      {
-        CtField field = profileConcreteClass.getField( cmpField.getCmpFieldName() );
-
-        LinkedHashMap<String, Object> mvs = new LinkedHashMap<String, Object>();
-        mvs.put( "unique", true );
-
-        ClassGeneratorUtils.addAnnotation( "javax.persistence.Column", mvs, field );
+    CtClass cmpInterfaceClass = pool.get( cmpInterface.getProfileCmpInterfaceName() );
+    CtClass objectClass = pool.get( Object.class.getName() );
+    
+    for(CtMethod method : cmpInterfaceClass.getMethods()) {
+    	
+      if(!method.getDeclaringClass().equals(objectClass)) {
+    	  if (method.getName().startsWith( "get" )) {
+    		  generateCMPGetter(method, profileConcreteClass);
+    	  }
+    	  else if (method.getName().startsWith( "set" )) {
+    		  generateCMPSetter(method, profileConcreteClass);
+    	  }
+    	  else {
+    		  throw new SLEEException("unexpected method name in cmp interface "+method.getName());
+    	  }
       }
     }
   }
   
+  private void generateCMPGetter(CtMethod method, CtClass classToBeInstrumented) throws Exception {
+	  
+	  String fieldName = Introspector.decapitalize(method.getName().replaceFirst( "get", "" ));
+	  	  
+      String methodBody = 
+      	"{" +
+      		ProfileCmpHandler.class.getName() + ".beforeGetCmpField(profileObject);" +
+          "	try {" +
+          (method.getReturnType().isPrimitive() ? 
+          "    return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "();" : 
+          "    return ($r) " + ProfileEntity.class.getName() + ".makeDeepCopy(" + "(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "()" + ");") +
+          " }" +
+          "	finally {" +
+          		ProfileCmpHandler.class.getName() + ".afterGetCmpField(profileObject);" +
+          "	};"+
+      	"}";
+
+      CtMethod methodCopy = CtNewMethod.copy(method, classToBeInstrumented ,null);
+      methodCopy.setBody(methodBody);
+      classToBeInstrumented.addMethod(methodCopy);
+      
+      if (logger.isDebugEnabled()) {
+		    logger.debug("Added method with source : " + methodBody + ", into: " + classToBeInstrumented);
+		 }
+  }
+
+  private void generateCMPSetter(CtMethod method, CtClass classToBeInstrumented) throws Exception {
+
+	  String fieldName = Introspector.decapitalize(method.getName().replaceFirst( "set", "" ));
+
+	  ProfileAttribute profileAttribute = profileComponent.getProfileAttributes().get(fieldName);
+
+	  String methodBody = 
+		  "{" + ProfileCmpHandler.class.getName() + ".beforeSetCmpField(profileObject);" +
+		  "	try {" +
+		  (profileAttribute.getType().isPrimitive() ? 
+		  "		(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "($1);" :
+		  "		(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "((" + method.getParameterTypes()[0].getName() + ")" + ProfileEntity.class.getName() + ".makeDeepCopy($1));") +
+		  "	}" +
+		  "	finally {" + ProfileCmpHandler.class.getName() + ".afterSetCmpField(profileObject);" + "	};"+
+		  "}";
+
+	  CtMethod methodCopy = CtNewMethod.copy(method, classToBeInstrumented ,null);
+	  methodCopy.setBody(methodBody);
+	  classToBeInstrumented.addMethod(methodCopy);
+
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("Added method with source : " + methodBody + ", into: " + classToBeInstrumented);
+	  }
+  }
+
   
-  /**
-   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
-   * 
-   * @param field
-   * @return
-   * @throws NotFoundException
-   * @throws CannotCompileException
-   */
-  private CtMethod generateCMPGetter(CtField field) throws NotFoundException, CannotCompileException
-  {
-    CtMethod getter = CtNewMethod.getter( "get" + ClassGeneratorUtils.capitalize(field.getName()), field );
-    CtClass classToBeInstrumented = field.getDeclaringClass();
-    
-    if (logger.isDebugEnabled()) {
-      logger.debug("About to instrument: " + getter.getName() + ", into: " + classToBeInstrumented.getName());
-    }
-    
-    String getterBody = 
-    	"{" +
-    		ProfileCmpHandler.class.getName() + ".beforeGetCmpField(profileObject);" +
-        "	try {" +
-        (field.getType().isPrimitive() ? 
-        "    return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "();" : 
-        "    return ($r) " + ProfileEntity.class.getName() + ".makeDeepCopy(" + "(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "()" + ");") +
-        " }" +
-        "	finally {" +
-        		ProfileCmpHandler.class.getName() + ".afterGetCmpField(profileObject);" +
-        "	};"+
-    	"}";
-
-    getter.setBody(getterBody);
-    classToBeInstrumented.addMethod(getter);
-    
-    return getter;
-  }
-
-  /**
-   * Generates a getter for the field (get<FieldName>) and adds it to the declaring class.
-   * 
-   * @param field
-   * @return
-   * @throws NotFoundException
-   * @throws CannotCompileException
-   */
-  private CtMethod generateCMPSetter(CtField field) throws NotFoundException, CannotCompileException
-  {
-    CtMethod setter = CtNewMethod.setter( "set" + ClassGeneratorUtils.capitalize(field.getName()), field );
-    CtClass classToBeInstrumented = field.getDeclaringClass();
-    
-    if (logger.isDebugEnabled()) {
-      logger.debug("About to instrument: " + setter.getName() + ", into: " + classToBeInstrumented.getName());
-    }
-
-    String setterBody = 
-    	"{" +
-    		ProfileCmpHandler.class.getName() + ".beforeSetCmpField(profileObject);" +
-        "	try {" +
-        (field.getType().isPrimitive() ? 
-        "		(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "($1);" :
-        "   (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(field.getName()) + "((" + field.getType().getName() + ")" + ProfileEntity.class.getName() + ".makeDeepCopy($1));") +
-        "	}" +
-        "	finally {" +
-        		ProfileCmpHandler.class.getName() + ".afterSetCmpField(profileObject);" +
-        "	};"+
-    	"}";
-    
-    setter.setBody(setterBody);
-    classToBeInstrumented.addMethod(setter);
-
-    return setter;
-  }
-
-  public void dumpClassInfo(String className) throws Exception
-  {
-    System.out.println("****************************** BEGIN OF CLASS DUMP ******************************");
-    System.out.println("-< INTERFACES >-");
-    for( java.lang.Class clazz : Class.forName( className ).getInterfaces() )
-    {
-      System.out.println( clazz.toString() );
-    }
-    
-    System.out.println("-< CLASS >-");
-    for( java.lang.annotation.Annotation annot : Class.forName( className ).getDeclaredAnnotations() )
-    {
-      System.out.println( annot.toString() );
-    }
-
-    System.out.println("-< METHODS >-");
-    for( Method method : Class.forName( className ).getDeclaredMethods() )
-    {
-      for( java.lang.annotation.Annotation annot : method.getAnnotations() )
-        System.out.println( annot.toString() );
-      
-      System.out.println( method.toString() );
-    }
-
-    System.out.println("-< FIELDS >-");
-    for( Field field : Class.forName( className ).getDeclaredFields() )
-    {
-      for( java.lang.annotation.Annotation annot : field.getAnnotations() )
-        System.out.println( annot.toString() );
-      
-      System.out.println( field.toString() );
-    }
-    System.out.println("******************************* END OF CLASS DUMP *******************************");
-  }
-
 }

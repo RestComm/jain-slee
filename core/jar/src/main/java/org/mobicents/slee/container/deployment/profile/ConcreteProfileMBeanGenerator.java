@@ -23,7 +23,7 @@ import org.mobicents.slee.container.profile.AbstractProfileMBeanImpl;
 
 public class ConcreteProfileMBeanGenerator {
 
-	private static final Logger logger = Logger.getLogger(ConcreteProfileManagementGenerator.class);
+	private static final Logger logger = Logger.getLogger(ConcreteProfileMBeanGenerator.class);
 
 	private ProfileSpecificationComponent component = null;
 	private String cmpProfileInterfaceName = null;

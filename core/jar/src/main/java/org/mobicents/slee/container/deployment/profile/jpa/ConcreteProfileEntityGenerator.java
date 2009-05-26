@@ -23,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
@@ -136,20 +137,24 @@ public class ConcreteProfileEntityGenerator {
     // Get the CMP interface to generate the getters/setters
     MProfileCMPInterface cmpInterface = profileDescriptor.getProfileCMPInterface();
     
-    CtClass cmpInterfaceClass = ClassGeneratorUtils.getClass( cmpInterface.getProfileCmpInterfaceName() );
+    ClassPool pool = profileComponent.getClassPool();
+    
+    CtClass cmpInterfaceClass = pool.get( cmpInterface.getProfileCmpInterfaceName() );
+    CtClass objectClass = pool.get( Object.class.getName() );
     
     HashMap<String, CtClass> fieldNames = new HashMap<String, CtClass>(); 
 
-    for(CtMethod method : cmpInterfaceClass.getDeclaredMethods())
+    for(CtMethod method : cmpInterfaceClass.getMethods())
     {
-      if(method.getName().startsWith( "get" ))
+      if(!method.getDeclaringClass().equals(objectClass) && method.getName().startsWith( "get" ))
       {
         String fieldName = method.getName().replaceFirst( "get", "" );
 
         if(!fieldNames.containsKey( fieldName ))
         {
           fieldNames.put( fieldName, method.getReturnType() );          
-          CtField genField = ClassGeneratorUtils.addField( method.getReturnType(), fieldName, profileConcreteClass );          
+          CtField genField = ClassGeneratorUtils.addField( method.getReturnType(), fieldName, profileConcreteClass );      
+          
           String pojoCmpAccessorSufix = ClassGeneratorUtils.getPojoCmpAccessorSufix(genField.getName());
           CtMethod ctMethod = CtNewMethod.getter( "get" + pojoCmpAccessorSufix, genField );
           profileConcreteClass.addMethod(ctMethod);
