@@ -425,12 +425,22 @@ public class DeployableUnitBuilder {
 					}
 				} else if (sleeComponent instanceof SbbComponent) {
 					SbbComponent component = (SbbComponent) sleeComponent;
-					// before laoding the abstract class, we may have to decorate it
-					new SbbAbstractClassDecorator(component).decorateAbstractSbb();
-					Class<?> abstractSbbClass = componentClassLoader
+					// before loading the abstract class, we may have to decorate it
+					boolean decoratedClass = new SbbAbstractClassDecorator(component).decorateAbstractSbb();
+					Class<?> abstractSbbClass = null;
+					if (decoratedClass) {
+						// need to ensure we load the class from disk, not one coming from SLEE shared class loading domain
+						 abstractSbbClass = componentClassLoader
+							.loadClassLocally(component.getDescriptor()
+									.getSbbClasses().getSbbAbstractClass()
+									.getSbbAbstractClassName());
+					}
+					else {
+						 abstractSbbClass = componentClassLoader
 							.loadClass(component.getDescriptor()
 									.getSbbClasses().getSbbAbstractClass()
 									.getSbbAbstractClassName());
+					}
 					component.setAbstractSbbClass(abstractSbbClass);
 					MSbbLocalInterface mSbbLocalInterface = component
 							.getDescriptor().getSbbClasses()

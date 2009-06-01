@@ -9,7 +9,6 @@
 
 package org.mobicents.slee.container.component.deployment;
 
-import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -82,7 +81,7 @@ public class SbbAbstractClassDecorator {
      * 
      * @return the decorated sbb abstract class
      */
-    public void decorateAbstractSbb() throws DeploymentException {
+    public boolean decorateAbstractSbb() throws DeploymentException {
        
     	ClassPool pool = component.getClassPool();
     	String sbbAbstractClassName = component.getDescriptor().getSbbAbstractClass().getSbbAbstractClassName();
@@ -108,38 +107,30 @@ public class SbbAbstractClassDecorator {
         decorateNewThreadCalls();
         
         if (isAbstractSbbClassDecorated) {
-            writeDecoratedAbstractClassToDisc();
+        	try {
+        		String deployDir = component.getDeploymentDir().getAbsolutePath();
+        		sbbAbstractClass.writeFile(deployDir);
+        		sbbAbstractClass.detach();
+        		// the file on disk is now in sync with the latest in-memory version
+        		if (logger.isDebugEnabled()) {
+        			logger.debug("Modified Abstract Class "
+        					+ sbbAbstractClass.getName()
+        					+ " generated in the following path "
+        					+ deployDir);
+        		}
+        		//} catch (NotFoundException e) {
+        		//    String s = "Error writing modified abstract sbb class";
+        		//    logger.error(s,e);
+        		//    throw new DeploymentException (s,e);
+        	} catch (Throwable e) {
+        		throw new SLEEException ( e.getMessage(), e);                
+        	} finally { 
+        		sbbAbstractClass.defrost();
+        	}
+        	return true;
         }
-        
-    }
-
-    private void writeDecoratedAbstractClassToDisc() throws DeploymentException {
-        try {
-        	String deployDir = component.getDeploymentDir().getAbsolutePath();
-            sbbAbstractClass.writeFile(deployDir);
-            sbbAbstractClass.detach();
-            // the file on disk is now in sync with the latest in-memory version
-            isAbstractSbbClassDecorated = false;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Modified Abstract Class "
-                            + sbbAbstractClass.getName()
-                            + " generated in the following path "
-                            + deployDir);
-            }
-        //} catch (NotFoundException e) {
-        //    String s = "Error writing modified abstract sbb class";
-        //    logger.error(s,e);
-        //    throw new DeploymentException (s,e);
-        } catch (CannotCompileException e) {
-            String s = "Error Compiling  modified abstract sbb class";
-            logger.fatal(s,e);
-            throw new RuntimeException ( s, e);
-        } catch (IOException e) {
-            String  s = "Error writing modified abstract sbb class";
-            logger.fatal(s,e);
-            throw new RuntimeException (s,e);
-        } finally { 
-            sbbAbstractClass.defrost();
+        else {
+        	return false;
         }
     }
 

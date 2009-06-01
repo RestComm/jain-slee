@@ -29,6 +29,16 @@ public class ComponentClassLoader extends ClassLoader {
 		this.componentID = componentID;
 	}
 
+	/**
+	 * Loads a class locally, i.e., from managed URLs or URLs managed by dependencies.
+	 * @param name
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public Class<?> loadClassLocally(String name) throws ClassNotFoundException {
+		return parent.loadClassLocally(name);
+	}
+
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {		
 		return parent.loadClass(name);

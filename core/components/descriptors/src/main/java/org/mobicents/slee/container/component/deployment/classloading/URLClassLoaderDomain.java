@@ -40,6 +40,18 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 		this.sleeClassLoader = sleeClassLoader;
 	}
 	
+	/**
+	 * 
+	 * Loads a class locally, i.e., from managed URLs or URLs managed by dependencies.
+	 * 
+	 * @param name
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public Class<?> loadClassLocally(String name) throws ClassNotFoundException {
+		return loadClass(name, false, new HashSet<URLClassLoaderDomain>(),false);
+	}
+	
 	@Override
 	protected Class<?> loadClass(String name, boolean resolve)
 			throws ClassNotFoundException {
