@@ -8,28 +8,56 @@ import javax.slee.TransactionRequiredLocalException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.transaction.SystemException;
 
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
+/**
+ * The transaction view of a profile table.
+ * 
+ * @author martins
+ * 
+ */
 public class ProfileTableTransactionView {
 
+	/**
+	 * the profile table
+	 */
 	private final ProfileTableImpl profileTable;
 
+	/**
+	 * 
+	 * @param profileTable
+	 */
 	public ProfileTableTransactionView(ProfileTableImpl profileTable) {
 		this.profileTable = profileTable;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws SLEEException
+	 */
 	private Map getTxData() throws SLEEException {
-		final SleeTransactionManager txManager = profileTable.getSleeContainer().getTransactionManager();
+		final SleeTransactionManager txManager = profileTable
+				.getSleeContainer().getTransactionManager();
 		txManager.mandateTransaction();
 		try {
 			return txManager.getTransactionContext().getData();
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(), e);
-		}		
+		}
 	}
-	
+
+	/**
+	 * Retrieves a profile object for the table and specified profile name,
+	 * there is only one profile object per profile entity per transaction
+	 * 
+	 * @param profileName
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 */
 	public ProfileObject getProfile(String profileName)
 			throws TransactionRequiredLocalException, SLEEException {
 
@@ -42,7 +70,8 @@ public class ProfileTableTransactionView {
 					.getProfileObjectPoolManagement().getObjectPool(
 							profileTable.getProfileTableName());
 			value = pool.borrowObject();
-			passivateProfileObjectOnTxEnd(value,pool);
+			passivateProfileObjectOnTxEnd(profileTable.getSleeContainer()
+					.getTransactionManager(), value, pool);
 			try {
 				value.profileActivate(profileName);
 			} catch (UnrecognizedProfileNameException e) {
@@ -54,27 +83,48 @@ public class ProfileTableTransactionView {
 		}
 		return value;
 	}
-	
+
+	/**
+	 * 
+	 * Retrieves a profile object for the table and specified profile entity,
+	 * there is only one profile object per profile entity per transaction
+	 * 
+	 * @param profileEntity
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 */
 	public ProfileObject getProfile(ProfileEntity profileEntity)
-	throws TransactionRequiredLocalException, SLEEException {
+			throws TransactionRequiredLocalException, SLEEException {
 
 		Map txData = getTxData();
-		ProfileTransactionID key = new ProfileTransactionID(profileEntity.getProfileName(),
-				profileTable.getProfileTableName());
+		ProfileTransactionID key = new ProfileTransactionID(profileEntity
+				.getProfileName(), profileTable.getProfileTableName());
 		ProfileObject value = (ProfileObject) txData.get(key);
 		if (value == null) {
 			ProfileObjectPool pool = profileTable.getSleeContainer()
-			.getProfileObjectPoolManagement().getObjectPool(
-					profileTable.getProfileTableName());
+					.getProfileObjectPoolManagement().getObjectPool(
+							profileTable.getProfileTableName());
 			value = pool.borrowObject();
-			passivateProfileObjectOnTxEnd(value,pool);
-			value.profileActivate(profileEntity);			
+			passivateProfileObjectOnTxEnd(profileTable.getSleeContainer()
+					.getTransactionManager(), value, pool);
+			value.profileActivate(profileEntity);
 			txData.put(key, value);
 		}
 		return value;
 	}
 
-	public ProfileObject createProfile(String profileName) throws TransactionRequiredLocalException, SLEEException, CreateException {
+	/**
+	 * 
+	 * @param profileName
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 * @throws CreateException
+	 */
+	public ProfileObject createProfile(String profileName)
+			throws TransactionRequiredLocalException, SLEEException,
+			CreateException {
 
 		Map txData = getTxData();
 		ProfileTransactionID key = new ProfileTransactionID(profileName,
@@ -82,25 +132,32 @@ public class ProfileTableTransactionView {
 		ProfileObject value = (ProfileObject) txData.get(key);
 		if (value == null) {
 			ProfileObjectPool pool = profileTable.getSleeContainer()
-			.getProfileObjectPoolManagement().getObjectPool(
-					profileTable.getProfileTableName());
+					.getProfileObjectPoolManagement().getObjectPool(
+							profileTable.getProfileTableName());
 			value = pool.borrowObject();
-			passivateProfileObjectOnTxEnd(value,pool);
+			passivateProfileObjectOnTxEnd(profileTable.getSleeContainer()
+					.getTransactionManager(), value, pool);
 			value.profileCreate(profileName);
 			txData.put(key, value);
 		}
 		return value;
 	}
-	
-	public void passivateProfileObjectOnTxEnd(final ProfileObject profileObject, final ProfileObjectPool pool) {
-		passivateProfileObjectOnTxEnd(profileTable.getSleeContainer().getTransactionManager(), profileObject,pool);
-	}
-	
-	public static void passivateProfileObjectOnTxEnd(SleeTransactionManager txManager, final ProfileObject profileObject, final ProfileObjectPool pool) {
+
+	/**
+	 * Adds transactional actions to the active transaction to passivate a
+	 * profile object.
+	 * 
+	 * @param txManager
+	 * @param profileObject
+	 * @param pool
+	 */
+	public static void passivateProfileObjectOnTxEnd(
+			SleeTransactionManager txManager,
+			final ProfileObject profileObject, final ProfileObjectPool pool) {
 		TransactionalAction afterRollbackAction = new TransactionalAction() {
 			public void execute() {
 				profileObject.invalidateObject();
-				pool.returnObject(profileObject);			
+				pool.returnObject(profileObject);
 			}
 		};
 		TransactionalAction beforeCommitAction = new TransactionalAction() {
@@ -109,22 +166,26 @@ public class ProfileTableTransactionView {
 					if (!profileObject.getProfileEntity().isRemove()) {
 						profileObject.fireAddOrUpdatedEventIfNeeded();
 						profileObject.profilePassivate();
-					}
-					else {
+					} else {
 						profileObject.profileRemove(true);
 					}
 					pool.returnObject(profileObject);
 				}
 			}
 		};
-		try{
+		try {
 			txManager.addAfterRollbackAction(afterRollbackAction);
 			txManager.addBeforeCommitPriorityAction(beforeCommitAction);
 		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}				
+			throw new SLEEException(e.getMessage(), e);
+		}
 	}
-	
+
+	/**
+	 * 
+	 * @author martins
+	 * 
+	 */
 	private class ProfileTransactionID {
 
 		private final String profileName;

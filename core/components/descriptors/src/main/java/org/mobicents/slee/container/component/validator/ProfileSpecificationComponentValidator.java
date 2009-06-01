@@ -28,7 +28,6 @@ import javassist.Modifier;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.ProfileAttribute;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
@@ -42,6 +41,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpression;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryParameter;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MRangeMatch;
+import org.mobicents.slee.container.component.profile.ProfileAttribute;
 
 /**
  * Start time:10:45:52 2009-02-09<br>

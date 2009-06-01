@@ -4,6 +4,7 @@ import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javassist.CtClass;
@@ -11,18 +12,22 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.CtPrimitiveType;
+import javassist.NotFoundException;
 
+import javax.slee.Address;
 import javax.slee.SLEEException;
 import javax.slee.profile.Profile;
 import javax.slee.profile.ProfileManagement;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.ProfileAttribute;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
+import org.mobicents.slee.container.component.profile.ProfileAttribute;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.deployment.ClassUtils;
+import org.mobicents.slee.container.deployment.profile.ClassGeneratorUtils;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.profile.ProfileCmpHandler;
 import org.mobicents.slee.container.profile.ProfileConcrete;
@@ -43,32 +48,22 @@ public class ConcreteProfileGenerator {
 
   private static final Logger logger = Logger.getLogger(ConcreteProfileGenerator.class);
 
-  private ProfileSpecificationComponent profileComponent;
-  private ProfileSpecificationDescriptorImpl profileDescriptor;
-
-  private int profileCombination = -1;
+  private final ProfileSpecificationComponent profileComponent;
   
-  private String deployDir;
-
-  public ConcreteProfileGenerator(ProfileSpecificationComponent profileComponent)
-  {
+  private final int profileCombination;
+  
+  public ConcreteProfileGenerator(ProfileSpecificationComponent profileComponent) {
     this.profileComponent = profileComponent;
-    this.profileDescriptor = profileComponent.getDescriptor();
-
     this.profileCombination = SleeProfileClassCodeGenerator.checkCombination(profileComponent);
-    logger.info( "Profile combination for " + profileComponent.getProfileSpecificationID() + " = " + this.profileCombination );
-
-    this.deployDir = profileComponent.getDeploymentDir().getAbsolutePath();
-
     ClassGeneratorUtils.setClassPool( this.profileComponent.getClassPool().getClassPool() );
   }
 
-  public Class generateConcreteProfile()
-  {
-    Class clazz = null;
+  @SuppressWarnings("unchecked")
+public Class<?> generateConcreteProfile() {
     
-    try
-    {
+	  Class<?> clazz = null;
+    
+    try {
       /*
        * 10.12  Profile concrete class 
        * A Profile concrete class is implemented by the SLEE when a Profile Specification is deployed. The Profile
@@ -82,7 +77,13 @@ public class ConcreteProfileGenerator {
        *   provides an implementation of the Profile CMP interface.
        */
 
-      MProfileCMPInterface cmpInterface = this.profileDescriptor.getProfileCMPInterface();
+    	ProfileSpecificationDescriptorImpl profileDescriptor = profileComponent.getDescriptor();
+        
+        logger.info( "Profile combination for " + profileComponent.getProfileSpecificationID() + " = " + this.profileCombination );
+
+        String deployDir = profileComponent.getDeploymentDir().getAbsolutePath();
+        
+      MProfileCMPInterface cmpInterface = profileDescriptor.getProfileCMPInterface();
 
       String concreteClassName = cmpInterface.getProfileCmpInterfaceName() + "Impl";
 
@@ -111,7 +112,7 @@ public class ConcreteProfileGenerator {
       generateCMPAccessors(profileConcreteClass);
       
       generateConstructors(profileConcreteClass);
-      
+            
       // Profile Management methods for JAIN SLEE 1.1
       Map<String, CtMethod> profileManagementMethods = ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(Profile.class.getName()));
       
@@ -119,13 +120,13 @@ public class ConcreteProfileGenerator {
       profileManagementMethods.putAll(ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(ProfileManagement.class.getName())));
 
       // Check for a Profile Management Interface
-      Class profileManagementInterface = this.profileComponent.getProfileManagementInterfaceClass();
+      Class<?> profileManagementInterface = this.profileComponent.getProfileManagementInterfaceClass();
       
       if (profileManagementInterface != null) {
         profileManagementMethods.putAll(ClassUtils.getInterfaceMethodsFromInterface(ClassGeneratorUtils.getClass(profileManagementInterface.getName())));
       }
       
-      Class profileLocalInterface = this.profileComponent.getProfileLocalInterfaceClass();
+      Class<?> profileLocalInterface = this.profileComponent.getProfileLocalInterfaceClass();
       
       if(profileLocalInterface != null) {
         profileManagementMethods.putAll(ClassUtils.getAbstractMethodsFromClass((ClassGeneratorUtils.getClass(profileLocalInterface.getName()))));
@@ -153,7 +154,7 @@ public class ConcreteProfileGenerator {
     return clazz;
   }
 
-  private void generateConstructors(CtClass profileConcreteClass)
+private void generateConstructors(CtClass profileConcreteClass)
   {
     ClassGeneratorUtils.generateDefaultConstructor(profileConcreteClass);
   }
@@ -161,7 +162,7 @@ public class ConcreteProfileGenerator {
   private void generateBusinessMethods(CtClass profileConcreteClass, Map<String, CtMethod> methods, Map<String, CtMethod> cmpInterfaceMethods)
   {
     //boolean useInterceptor = true;
-    Class abstractClass = this.profileComponent.getProfileAbstractClass();
+    Class<?> abstractClass = this.profileComponent.getProfileAbstractClass();
 
     Iterator<Map.Entry<String, CtMethod>> mm = methods.entrySet().iterator();
 
@@ -190,12 +191,12 @@ public class ConcreteProfileGenerator {
         try
         {
           int i = 0;
-          Class[] pTypes = new Class[method.getParameterTypes().length];
+          Class<?>[] pTypes = new Class[method.getParameterTypes().length];
         
           for(CtClass pType : method.getParameterTypes())
           {
             if(pType.isPrimitive())
-              pTypes[i++] = ((Class)Class.forName( ((CtPrimitiveType)pType).getWrapperName() ).getField( "TYPE" ).get( null ));
+              pTypes[i++] = ((Class<?>)Class.forName( ((CtPrimitiveType)pType).getWrapperName() ).getField( "TYPE" ).get( null ));
             else
               pTypes[i++] = Class.forName(pType.getClassFile().getName());
           }
@@ -224,7 +225,7 @@ public class ConcreteProfileGenerator {
   private void generateCMPAccessors(CtClass profileConcreteClass) throws Exception {
     
 	  // Get the CMP interface to generate the getters/setters
-    MProfileCMPInterface cmpInterface = profileDescriptor.getProfileCMPInterface();
+    MProfileCMPInterface cmpInterface = profileComponent.getDescriptor().getProfileCMPInterface();
     
     ClassPool pool = profileComponent.getClassPool();
     
@@ -234,6 +235,8 @@ public class ConcreteProfileGenerator {
     for(CtMethod method : cmpInterfaceClass.getMethods()) {
     	
       if(!method.getDeclaringClass().equals(objectClass)) {
+    	  // ignoring methods from Object class
+    	  
     	  if (method.getName().startsWith( "get" )) {
     		  generateCMPGetter(method, profileConcreteClass);
     	  }
@@ -247,30 +250,61 @@ public class ConcreteProfileGenerator {
     }
   }
   
+  private boolean isPrimitiveOrPrimitiveArray(CtClass ctClass) {
+	  if (ctClass.isArray()) {
+		try {
+			return ctClass.getComponentType().isPrimitive();
+		} catch (NotFoundException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}  
+	  }
+	  else {
+		return ctClass.isPrimitive();  
+	  }
+  }
+  
   private void generateCMPGetter(CtMethod method, CtClass classToBeInstrumented) throws Exception {
 	  
 	  String fieldName = Introspector.decapitalize(method.getName().replaceFirst( "get", "" ));
-	  	  
-      String methodBody = 
-      	"{" +
-      		ProfileCmpHandler.class.getName() + ".beforeGetCmpField(profileObject);" +
-          "	try {" +
-          (method.getReturnType().isPrimitive() ? 
-          "    return ($r) (("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "();" : 
-          "    return ($r) " + ProfileEntity.class.getName() + ".makeDeepCopy(" + "(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "()" + ");") +
-          " }" +
-          "	finally {" +
-          		ProfileCmpHandler.class.getName() + ".afterGetCmpField(profileObject);" +
-          "	};"+
-      	"}";
-
+	  
+	  boolean isPrimitive = isPrimitiveOrPrimitiveArray(method.getReturnType());
+	  
+	  // 1. invoke profile entity getter
+	  String profileEntityGetterInvocationBody = "(("+profileComponent.getProfileEntityFramework().getProfileEntityClass().getName()+")profileObject.getProfileEntity()).get" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "()";
+	  
+      // 2. create the open and close "return" code - do a deep copy on the result if the return type is not a primitive, this ensures no refs with original value
+	  String returnOpenBody = "return ($r) " + (!isPrimitive ? ProfileEntity.class.getName() + ".makeDeepCopy(" : "");
+	  String returnCloseBody = !isPrimitive ? ");" : ";";
+	  
+	  // 3. lets add the code between the profile entity getter invocation and the return clause - if the return type is an array then we need to convert it from the attr array value list
+	  String methodBody = null;
+	  if (method.getReturnType().isArray()) {
+		 if (isPrimitiveOrPrimitiveArray(method.getReturnType()) || method.getReturnType().getComponentType().getName().equals(String.class.getName()) || method.getReturnType().getComponentType().getName().equals(Address.class.getName())) {
+			 methodBody = returnOpenBody + ProfileAttributeArrayValueUtils.class.getName() + ".to" + method.getReturnType().getComponentType().getSimpleName() + "Array(" + profileEntityGetterInvocationBody + ")" + returnCloseBody;
+		 }
+		 else {
+			 methodBody = 
+				 List.class.getName()+" list = " + profileEntityGetterInvocationBody + ";" + 
+				 returnOpenBody + ProfileAttributeArrayValueUtils.class.getName() + ".toSerializableArray( new "+method.getReturnType().getComponentType().getName() + "[list.size()] , list)" + returnCloseBody;
+		 }
+	  }
+	  else {
+		  methodBody = returnOpenBody + profileEntityGetterInvocationBody + returnCloseBody;
+	  };
+	  // add final method wrappers
+	  methodBody = 
+		  "{" + ProfileCmpHandler.class.getName() + ".beforeGetCmpField(profileObject);" +
+		  "	try { " + methodBody + " } finally { " + ProfileCmpHandler.class.getName() + ".afterGetCmpField(profileObject);	}"+
+          "}";
+	  
+      if (logger.isDebugEnabled()) {
+		  logger.debug("Adding method named "+method.getName()+", with source : " + methodBody + ", into: " + classToBeInstrumented);
+	  }
+      
       CtMethod methodCopy = CtNewMethod.copy(method, classToBeInstrumented ,null);
       methodCopy.setBody(methodBody);
       classToBeInstrumented.addMethod(methodCopy);
       
-      if (logger.isDebugEnabled()) {
-		    logger.debug("Added method with source : " + methodBody + ", into: " + classToBeInstrumented);
-		 }
   }
 
   private void generateCMPSetter(CtMethod method, CtClass classToBeInstrumented) throws Exception {
@@ -278,24 +312,34 @@ public class ConcreteProfileGenerator {
 	  String fieldName = Introspector.decapitalize(method.getName().replaceFirst( "set", "" ));
 
 	  ProfileAttribute profileAttribute = profileComponent.getProfileAttributes().get(fieldName);
-
+	  
+	  JPAProfileEntityFramework profileEntityFramework = (JPAProfileEntityFramework) profileComponent.getProfileEntityFramework();
+	  
+	  // define the string of the object to store in the profile entity
+	  // if it is not a primitive do a deep copy of the object
+	  String objectToStore = !profileAttribute.isPrimitive() ? "(" + method.getParameterTypes()[0].getName() + ")" + ProfileEntity.class.getName() + ".makeDeepCopy($1)" : "$1";
+	  // if it is an array convert it to a list
+	  if (profileAttribute.getType().isArray())  { 
+		  objectToStore = ProfileAttributeArrayValueUtils.class.getName()+".toProfileAttributeArrayValueList( "+profileEntityFramework.getProfileEntityArrayAttrValueClassMap().get(profileAttribute.getName()).getName()+".class , " + objectToStore + ")" ;
+	  }
+	  
 	  String methodBody = 
 		  "{" + ProfileCmpHandler.class.getName() + ".beforeSetCmpField(profileObject);" +
 		  "	try {" +
-		  (profileAttribute.getType().isPrimitive() ? 
-		  "		(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "($1);" :
-		  "		(("+profileComponent.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "((" + method.getParameterTypes()[0].getName() + ")" + ProfileEntity.class.getName() + ".makeDeepCopy($1));") +
+		  "		(("+profileEntityFramework.getProfileEntityClass().getName()+")profileObject.getProfileEntity()).set" + ClassGeneratorUtils.getPojoCmpAccessorSufix(fieldName) + "(" + objectToStore + ");" +
 		  "	}" +
 		  "	finally {" + ProfileCmpHandler.class.getName() + ".afterSetCmpField(profileObject);" + "	};"+
 		  "}";
 
+
+	  if (logger.isDebugEnabled()) {
+		  logger.debug("Adding method named "+method.getName()+", with source : " + methodBody + ", into: " + classToBeInstrumented);
+	  }
+	  
 	  CtMethod methodCopy = CtNewMethod.copy(method, classToBeInstrumented ,null);
 	  methodCopy.setBody(methodBody);
 	  classToBeInstrumented.addMethod(methodCopy);
 
-	  if (logger.isDebugEnabled()) {
-		  logger.debug("Added method with source : " + methodBody + ", into: " + classToBeInstrumented);
-	  }
   }
 
   

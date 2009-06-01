@@ -1,5 +1,6 @@
-package org.mobicents.slee.container.deployment.profile.jpa;
+package org.mobicents.slee.container.deployment.profile;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -22,6 +23,7 @@ import javassist.bytecode.FieldInfo;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
+import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.BooleanMemberValue;
 import javassist.bytecode.annotation.ByteMemberValue;
 import javassist.bytecode.annotation.CharMemberValue;
@@ -81,9 +83,6 @@ public class ClassGeneratorUtils {
     {
       clazz.setInterfaces( classPool.get( interfaces ) );
     }
-
-    CtField fLogger = addField(classPool.get(Logger.class.getName()), "logger", clazz, Modifier.PRIVATE & Modifier.STATIC & Modifier.FINAL, Logger.class.getName() + ".getLogger(\"" + clazz.getName() + "\")");
-    addAnnotation( "javax.persistence.Transient", null, fLogger );
     
     return clazz;
   }
@@ -182,7 +181,7 @@ public class ClassGeneratorUtils {
    * @param parameterNames
    * @return
    */
-  public static CtConstructor generateConstructorWithParameters(CtClass concreteClass, Class[] parameterClasses, String[] parameterNames, boolean[] isTransient)
+  public static CtConstructor generateConstructorWithParameters(CtClass concreteClass, Class<?>[] parameterClasses, String[] parameterNames, boolean[] isTransient)
   {
     CtConstructor constructor = null;
     CtClass[] parameters = new CtClass[parameterClasses.length];
@@ -361,7 +360,7 @@ public class ClassGeneratorUtils {
    * @return
    */
   public static String getPojoCmpAccessorSufix(String fieldName) {
-	  return "C" + capitalize(fieldName); 
+	  return "C" + fieldName; 
   }
   
   /**
@@ -454,7 +453,7 @@ public class ClassGeneratorUtils {
     }
   }
 
-  public static Map getInterfaceMethodsFromInterface(String interfaceClassName)
+  public static Map<?,?> getInterfaceMethodsFromInterface(String interfaceClassName)
   {
     HashMap<String, CtMethod> interfaceMethods = new HashMap<String, CtMethod>();
 
@@ -570,7 +569,7 @@ public class ClassGeneratorUtils {
     if(retStatement != null)
     {
       if(method.getReturnType().isPrimitive())
-        retType = ((Class)Class.forName( ((CtPrimitiveType)method.getReturnType()).getWrapperName() ).getField( "TYPE" ).get( null )).getName();
+        retType = ((Class<?>)Class.forName( ((CtPrimitiveType)method.getReturnType()).getWrapperName() ).getField( "TYPE" ).get( null )).getName();
       else
         retType = Class.forName(method.getReturnType().getClassFile().getName()).getName();
     }
@@ -591,23 +590,11 @@ public class ClassGeneratorUtils {
     classToBeInstrumented.addMethod(method);
   }
 
-  /**
-   * Private method to add member values to annotation
-   * 
-   * @param annotation
-   * @param cp
-   * @param memberValues
-   */
-  private static void addMemberValuesToAnnotation(Annotation annotation, ConstPool cp, LinkedHashMap<String, Object> memberValues)
-  {
-    // Get the member value object
-    for(String mvName : memberValues.keySet())
-    {
-      Object mvValue = memberValues.get(mvName);
-
-      MemberValue mv;
-
-      if(mvValue instanceof String)
+  private static MemberValue getMemberValue(Object mvValue,ConstPool cp) {
+	  
+	  MemberValue mv = null;
+      
+	  if(mvValue instanceof String)
       {
         mv = new StringMemberValue((String)mvValue, cp);
       } 
@@ -629,7 +616,7 @@ public class ClassGeneratorUtils {
       } 
       else if(mvValue instanceof Class)
       {
-        mv = new ClassMemberValue(((Class)mvValue).getName(), cp);
+        mv = new ClassMemberValue(((Class<?>)mvValue).getName(), cp);
       } 
       else if(mvValue instanceof Double)
       {
@@ -637,8 +624,10 @@ public class ClassGeneratorUtils {
       } 
       else if(mvValue instanceof Enum)
       {
-        // FIXME: How to use this?
-        mv = new EnumMemberValue(((Enum)mvValue).ordinal(), ((Enum)mvValue).ordinal(), cp);
+        EnumMemberValue emv = new EnumMemberValue(cp);
+    	emv.setType(((Enum<?>)mvValue).getClass().getName());
+    	emv.setValue(((Enum<?>)mvValue).name());
+        mv = emv;        
       } 
       else if(mvValue instanceof Float)
       {
@@ -646,7 +635,9 @@ public class ClassGeneratorUtils {
       } 
       else if(mvValue instanceof Integer)
       {
-        mv = new IntegerMemberValue((Integer)mvValue, cp);
+        IntegerMemberValue imv = new IntegerMemberValue(cp);
+        imv.setValue(((Integer)mvValue).intValue());
+        mv = imv;
       } 
       else if(mvValue instanceof Long)
       {
@@ -656,11 +647,37 @@ public class ClassGeneratorUtils {
       {
         mv = new ShortMemberValue((Short)mvValue, null);
       } 
+      else if(mvValue.getClass().isArray() ) {    	  
+    	  ArrayMemberValue amv = new ArrayMemberValue(cp);
+    	  MemberValue[] elements = new MemberValue[Array.getLength(mvValue)];
+    	  for(int i=0;i<elements.length;i++) {
+    		  elements[i] = getMemberValue(Array.get(mvValue, i), cp); 
+    	  }
+    	  amv.setValue(elements);
+    	  mv = amv;
+      }
       else
       {
         throw new UnsupportedOperationException("Unknown object type: " + mvValue.getClass());
       }
 
+	  return mv;
+  }
+  
+  /**
+   * Private method to add member values to annotation
+   * 
+   * @param annotation
+   * @param cp
+   * @param memberValues
+   */
+  private static void addMemberValuesToAnnotation(Annotation annotation, ConstPool cp, LinkedHashMap<String, Object> memberValues)
+  {
+    // Get the member value object
+    for(String mvName : memberValues.keySet())
+    {
+      Object mvValue = memberValues.get(mvName);
+      MemberValue mv = getMemberValue(mvValue, cp);
       annotation.addMemberValue( mvName, mv );
     }
   }

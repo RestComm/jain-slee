@@ -13,7 +13,7 @@ import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileObjectPool;
 import org.mobicents.slee.container.profile.ProfileTableTransactionView;

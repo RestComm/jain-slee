@@ -13,7 +13,8 @@ import javax.slee.resource.EventFlags;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.facilities.profile.AbstractProfileEvent;
 import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
@@ -88,6 +89,11 @@ public class ProfileObject {
 	
 	/**
 	 * 
+	 */
+	private final ProfileEntityFramework profileEntityFramework;
+	
+	/**
+	 * 
 	 * @param profileTable
 	 * @param profileSpecificationId
 	 * @throws NullPointerException
@@ -114,6 +120,9 @@ public class ProfileObject {
 		catch (Throwable e) {
 			throw new SLEEException(e.getMessage(), e);
 		}
+		
+		this.profileEntityFramework = component.getProfileEntityFramework();
+		
 	}
 
 	/**
@@ -224,13 +233,11 @@ public class ProfileObject {
 			throw new SLEEException(this.toString());
 		}
 		
-		try {
+		
 			if (profileName == null) {
 				// default profile creation
 				// create instance of entity
-				profileEntity = (ProfileEntity) profileTable.getProfileSpecificationComponent().getProfileEntityClass().newInstance();
-				profileEntity.setProfileName(null);
-				profileEntity.setTableName(profileTable.getProfileTableName());
+				profileEntity = profileEntityFramework.getProfileEntityFactory().newInstance(profileTable.getProfileTableName(), null);
 				// change state
 				this.state = ProfileObjectState.PROFILE_INITIALIZATION;
 				// invoke life cycle method on profile
@@ -246,15 +253,15 @@ public class ProfileObject {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Copying state from default profile on object "+this);
 				}
-				loadProfileEntity(null);
-				// clone it and change it's name
-				profileEntity = profileEntity.cl0ne();
-				profileEntity.setProfileName(profileName);				
+				try {
+					loadProfileEntity(null);
+				} catch (UnrecognizedProfileNameException e) {
+					throw new SLEEException("the default profile does not exist?!?",e);
+				}
+				// clone it
+				profileEntity = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileName, profileEntity);				
 			}
-		}
-		catch (Throwable e) {
-			throw new SLEEException(e.getMessage(), e);
-		}
+		
 		
 		// mark entity as dirty and for creation
 		profileEntity.create();
@@ -296,7 +303,7 @@ public class ProfileObject {
 	public void profileActivate(ProfileEntity profileEntity) {
 		this.profileEntity = profileEntity;
 		if (profileTable.doesFireEvents()) {
-			profileEntitySnapshot = profileEntity.cl0ne();
+			profileEntitySnapshot = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileEntity.getProfileName(), profileEntity);
 			profileEntitySnapshot.setReadOnly(true);						
 		}
 		profileActivate();		
@@ -355,7 +362,7 @@ public class ProfileObject {
 		loadProfileEntity(profileName);
 		// create a snapshot copy if the profile table fires events
 		if (profileTable.doesFireEvents()) {
-			profileEntitySnapshot = profileEntity.cl0ne();
+			profileEntitySnapshot = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileName, profileEntity);
 			profileEntitySnapshot.setReadOnly(true);						
 		}
 		try {
@@ -502,7 +509,7 @@ public class ProfileObject {
 					event.getProfileAddress(), null, EventFlags.NO_FLAGS);
 		}
 		
-		ProfileDataSource.INSTANCE.removeprofile(this);
+		profileEntityFramework.removeprofile(profileEntity);
 		
 		state = ProfileObjectState.POOLED;
 		
@@ -639,7 +646,7 @@ public class ProfileObject {
 	 * 
 	 */
 	private void loadProfileEntity(String profileName) throws UnrecognizedProfileNameException {
-		profileEntity = ProfileDataSource.INSTANCE.retrieveProfile(getProfileTable(), profileName);
+		profileEntity = profileEntityFramework.retrieveProfile(profileTable.getProfileTableName(), profileName);
 		if (profileEntity == null) {
 			throw new UnrecognizedProfileNameException();
 		}		
@@ -654,8 +661,8 @@ public class ProfileObject {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Persisting "+this);
 				
-			}
-			ProfileDataSource.INSTANCE.persistProfile(this);			
+			}			
+			profileEntityFramework.persistProfile(profileEntity);			
 		}		
 	}
 	

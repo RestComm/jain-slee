@@ -76,8 +76,8 @@ public class ProfileSpecificationDescriptorImpl {
     }
 
     // Now it's only 1.1
-    this.libraryRefs = new HashSet(profileSpec.getLibraryRef());
-    this.profileSpecRefs = new HashSet(profileSpec.getProfileSpecRef());
+    this.libraryRefs = new HashSet<MLibraryRef>(profileSpec.getLibraryRef());
+    this.profileSpecRefs = new HashSet<MProfileSpecRef>(profileSpec.getProfileSpecRef());
     this.collators = profileSpec.getCollator();
 
     this.envEntries = profileSpec.getEnvEntry();

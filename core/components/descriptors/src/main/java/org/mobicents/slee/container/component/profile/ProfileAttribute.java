@@ -1,10 +1,11 @@
-package org.mobicents.slee.container.component;
+package org.mobicents.slee.container.component.profile;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.slee.Address;
 import javax.slee.SLEEException;
 
 /**
@@ -119,6 +120,9 @@ public class ProfileAttribute {
 			}
 		}
 		else {
+			if (type.isArray()) {
+				array = true;
+			}
 			nonPrimitiveType = type;
 		}
 	}
@@ -206,11 +210,10 @@ public class ProfileAttribute {
 	 * Indicates if the attribute type is a java primitive or not
 	 * @return
 	 */
-	public boolean isTypePrimitive() {
+	public boolean isPrimitive() {
 		return getType() != getNonPrimitiveType();
 	}
-	
-	
+		
 	/**
 	 * the class names for allowed types for a profile attribute value
 	 */
@@ -268,4 +271,5 @@ public class ProfileAttribute {
 		tmp.addAll(getAllowedNonPrimitiveTypes());
 		return Collections.unmodifiableSet(tmp);
 	}
+	
 }

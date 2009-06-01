@@ -18,7 +18,7 @@ import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileRemovedEvent;
 
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.profile.ProfileConcrete;
 
 /**

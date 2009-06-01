@@ -1,22 +1,22 @@
-package org.mobicents.slee.container.deployment.profile.jpa;
+package org.mobicents.slee.container.component.profile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.IOException;
 
-import javax.persistence.Transient;
 import javax.slee.SLEEException;
 import javax.slee.profile.ReadOnlyProfileException;
 
 import org.apache.log4j.Logger;
+import org.jboss.serial.io.JBossObjectInputStream;
+import org.jboss.serial.io.JBossObjectOutputStream;
 
 /**
  * The container for for a profile cmp fields
  * @author martins
  *
  */
-public abstract class ProfileEntity implements Cloneable {
+public abstract class ProfileEntity {
 
 	protected static final Logger logger = Logger.getLogger(ProfileEntity.class);
 	
@@ -33,25 +33,21 @@ public abstract class ProfileEntity implements Cloneable {
 	/**
 	 * indicates if the pojo should be removed in the end of transaction
 	 */
-	@Transient
 	private boolean remove = false;
 	
 	/**
 	 * indicates if the pojo should be created in the end of transaction, or its cmp fields just updated
 	 */
-	@Transient
 	private boolean create = false;
 	
 	/**
 	 * indicates if the pojo cmp fields values have changed since being load from persistence
 	 */
-	@Transient
 	private boolean dirty = false;
 	
 	/**
 	 * indicates if the pojo cmp fields are read only
 	 */
-	@Transient
 	private boolean readOnly = false;
 	
 	/**
@@ -86,20 +82,7 @@ public abstract class ProfileEntity implements Cloneable {
         tableName = s;
     }
     
-    /**
-     * Retrieves a shallow copy of the object
-     * @return
-     * @throws CloneNotSupportedException
-     */
-    public ProfileEntity cl0ne() {
-    	try {
-			return (ProfileEntity) clone();
-		} catch (CloneNotSupportedException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
-    }
-
-    /**
+	/**
      * Sets profile name
      * @return
      */
@@ -112,7 +95,7 @@ public abstract class ProfileEntity implements Cloneable {
     }
 
     /**
-     * Retrieves the profile name
+     * Sets the profile name
      * @param s
      */
     public void setProfileName(String s) {
@@ -120,8 +103,8 @@ public abstract class ProfileEntity implements Cloneable {
     		setSafeProfileName("");
     	else
     		setSafeProfileName(s);
-    }
-
+    }    
+    
     /**
      * 
      * @return
@@ -187,27 +170,43 @@ public abstract class ProfileEntity implements Cloneable {
     
     public String toString() {
 		return " ProfileEntity( profileName = "+getProfileName()+" , tableName = "+tableName+" , create = "+create+" , dirty = "+dirty+ " , readOnly = "+readOnly+" , remove = "+remove+" )";
-	}
-    
-    public static Object makeDeepCopy(Object orig) {
-      Object obj = null;
-      try {
-          // Write the object out to a byte array
-          ByteArrayOutputStream bos = new ByteArrayOutputStream();
-          ObjectOutputStream out = new ObjectOutputStream(bos);
-          out.writeObject(orig);
-          out.flush();
-          out.close();
-
-          // Make an input stream from the byte array and read
-          // a copy of the object back in.
-          ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
-          obj = in.readObject();
+	}    
+        
+    public static <T> T makeDeepCopy(T orig) {
+    	
+      T copy = null;
+      if (orig != null) {
+    	  ByteArrayOutputStream baos = null;
+    	  JBossObjectOutputStream out = null;
+    	  JBossObjectInputStream in = null;
+    	  try {
+    		  baos = new ByteArrayOutputStream();
+    		  out = new JBossObjectOutputStream(baos);
+    		  out.writeObject(orig);
+    		  out.close();
+    		  in = new JBossObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+    		  copy = (T) in.readObject();
+    		  in.close();
+    	  }
+    	  catch(Throwable e) {
+    		  if (out != null)  {
+    			  try {
+    				  out.close();
+    			  } catch (IOException e1) {
+    				  logger.error(e.getMessage(),e);
+    			  }  
+    		  }
+    		  if (in != null)  {
+    			  try {
+    				  in.close();
+    			  } catch (IOException e1) {
+    				  logger.error(e.getMessage(),e);
+    			  }    
+    		  }
+    		  throw new SLEEException("Failed to create copy of CMP object.", e);
+    	  }
       }
-      catch(Exception e) {
-        throw new SLEEException("Failed to create copy of CMP object.", e);
-      }
-      return obj;
+      return copy;
   }
 
 }

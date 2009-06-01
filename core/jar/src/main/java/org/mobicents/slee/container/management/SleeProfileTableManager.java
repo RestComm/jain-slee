@@ -10,7 +10,6 @@ import javax.naming.InitialContext;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
 import javax.slee.SLEEException;
-import javax.slee.TransactionRequiredLocalException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.ProfileTableNotification;
 import javax.slee.profile.ProfileSpecificationID;
@@ -23,10 +22,10 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
+import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAQueryBuilder;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileEntityFramework;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
-import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
@@ -87,10 +86,9 @@ public class SleeProfileTableManager {
 		try {
 			this.createJndiSpace(component);
 			// FIXME: we wont use trace and alarm in 1.0 way wont we?
-			ProfileDataSource.INSTANCE.install(component);
+			ProfileEntityFramework profileEntityFramework = new JPAProfileEntityFramework(component);
+			profileEntityFramework.install();
 			sleeProfileClassCodeGenerator.process(component);
-			JPAQueryBuilder queryBuilder = new JPAQueryBuilder(component);
-			queryBuilder.parseStaticQueries();
 		} catch (DeploymentException de) {
 			throw de;
 		} catch (Throwable t) {
@@ -100,31 +98,30 @@ public class SleeProfileTableManager {
 
 	}
 
+	/**
+	 * 
+	 * @param component
+	 * @throws UnrecognizedProfileSpecificationException
+	 */
 	public void uninstallProfileSpecification(ProfileSpecificationComponent component) throws UnrecognizedProfileSpecificationException {
-		//FIXME: Alex ?
+
 		Collection<String> profileTableNames = getDeclaredProfileTableNames(component.getProfileSpecificationID());
 		
-		for(String profileTableName:profileTableNames)
-		{
+		for(String profileTableName:profileTableNames) {
 			try {
 				this.getProfileTable(profileTableName).remove();
-			} catch (TransactionRequiredLocalException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SLEEException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnrecognizedProfileTableNameException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Throwable e) {
+				throw new SLEEException(e.getMessage(),e);
 			}
 		}
 		
-		ProfileDataSource.INSTANCE.uninstall(component);		
+		component.getProfileEntityFramework().uninstall();		
 	}
 
 	/**
-	 * This creates
+	 * 
+	 * @param component
+	 * @throws Exception
 	 */
 	private void createJndiSpace(ProfileSpecificationComponent component) throws Exception {
 		Context ctx = (Context) new InitialContext().lookup("java:comp");
@@ -221,6 +218,13 @@ public class SleeProfileTableManager {
 
 	}
 
+	/**
+	 * 
+	 * @param profileTableName
+	 * @return
+	 * @throws NullPointerException
+	 * @throws UnrecognizedProfileTableNameException
+	 */
 	public ProfileTableImpl getProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException {
 
 		if (profileTableName == null) throw new NullPointerException("profile table name is null");
@@ -233,19 +237,38 @@ public class SleeProfileTableManager {
 
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public SleeContainer getSleeContainer() {
 		return sleeContainer;
 	}
 
+	/**
+	 * 
+	 * @param profileSpecificationId
+	 * @return
+	 */
 	public ProfileSpecificationComponent getProfileSpecificationComponent(ProfileSpecificationID profileSpecificationId) {
 		// FIXME: we posbily dont need this.
 		return this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationId);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public Collection<String> getDeclaredProfileTableNames() {
 		return Collections.unmodifiableCollection(this.nameToProfileTableMap.getProfileTables());
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 * @throws UnrecognizedProfileSpecificationException
+	 */
 	public Collection<String> getDeclaredProfileTableNames(ProfileSpecificationID id) throws UnrecognizedProfileSpecificationException {
 
 		if (this.sleeContainer.getComponentRepositoryImpl().getComponentByID(id) == null) {
@@ -265,6 +288,9 @@ public class SleeProfileTableManager {
 		return names;
 	}
 
+	/**
+	 * 
+	 */
 	public void startAllProfileTableActivities() {
 		for (Object key : this.getDeclaredProfileTableNames()) {
 			ProfileTableImpl pt = (ProfileTableImpl) this.nameToProfileTableMap.get((String)key);
@@ -272,6 +298,13 @@ public class SleeProfileTableManager {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param profileTableName
+	 * @param component
+	 * @return
+	 * @throws SLEEException
+	 */
 	private ProfileTableImpl createProfileTableInstance(String profileTableName, ProfileSpecificationComponent component) throws SLEEException {
 		ProfileTableImpl profileTable = null;
 		if (component.getProfileTableConcreteClass() == null) {

@@ -34,6 +34,9 @@ public class SbbAbstractMethodHandler {
 	private static final SleeContainer sleeContainer = SleeContainer
 			.lookupFromJndi();
 
+	
+	private static final Byte DEFAULT_VALUE_BYTE = Byte.valueOf((byte) 0);
+	
 	// CMP ACCESSORs
 
 	public static Object getCMPField(SbbEntity sbbEntity, String cmpFieldName,
@@ -46,7 +49,9 @@ public class SbbAbstractMethodHandler {
 				if (returnType.equals(Integer.TYPE)) {
 					return new Integer(0);
 				} else if (returnType.equals(Boolean.TYPE)) {
-					return new Boolean("false");
+					return Boolean.FALSE;
+				} else if (returnType.equals(Byte.TYPE)) {
+					return DEFAULT_VALUE_BYTE;
 				} else if (returnType.equals(Long.TYPE)) {
 					return new Long(0);
 				} else if (returnType.equals(Double.TYPE)) {

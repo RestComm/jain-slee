@@ -11,7 +11,7 @@ import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 
 /**
  * Start time:14:20:46 2009-03-14<br>

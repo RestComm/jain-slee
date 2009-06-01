@@ -29,9 +29,9 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ProfileAttribute;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileAttribute;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
@@ -61,13 +61,31 @@ public class ProfileTableImpl implements ProfileTable {
 	
 	private static final Logger logger = Logger.getLogger(ProfileTableImpl.class);
 
+	/**
+	 * 
+	 */
 	private final ProfileSpecificationComponent component;
+	
+	/**
+	 * 
+	 */
 	private final String profileTableName;
+	
+	/**
+	 * 
+	 */
 	private final SleeContainer sleeContainer;
 	
+	/**
+	 * 
+	 */
 	private MNotificationSource profileTableNotification = null;
+	
+	/**
+	 * 
+	 */
 	private ProfileTableUsageMBeanImpl profileTableUsageMBean = null;
-
+	
 	/**
 	 * indicates if this table fires events
 	 */
@@ -78,6 +96,12 @@ public class ProfileTableImpl implements ProfileTable {
 	 */
 	private final ProfileTableTransactionView transactionView;
 	
+	/**
+	 * 
+	 * @param profileTableName
+	 * @param component
+	 * @param sleeContainer
+	 */
 	public ProfileTableImpl(String profileTableName, ProfileSpecificationComponent component, SleeContainer sleeContainer) {
 		
 		ProfileTableImpl.validateProfileTableName(profileTableName);
@@ -85,7 +109,7 @@ public class ProfileTableImpl implements ProfileTable {
 			throw new NullPointerException();
 		}
 
-		this.component = component;
+		this.component = component;		
 		this.sleeContainer = sleeContainer;
 		this.profileTableName = profileTableName;
 		
@@ -95,41 +119,71 @@ public class ProfileTableImpl implements ProfileTable {
 		this.fireEvents = component.getDescriptor().getEventsEnabled();
 		this.transactionView = new ProfileTableTransactionView(this);
 	}
-
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public SleeContainer getSleeContainer() {
 		return sleeContainer;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean doesFireEvents() {
 		return fireEvents;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getProfileTableName() {
 		return this.profileTableName;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public ProfileSpecificationComponent getProfileSpecificationComponent() {
 		return component;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public MNotificationSource getProfileTableNotification() {
 		return this.profileTableNotification;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public ProfileTableUsageMBeanImpl getProfileTableUsageMBean() {
 		return profileTableUsageMBean;
 	}
 
-	
-
+	/**
+	 * 
+	 * @return
+	 */
 	public Collection<ProfileID> getProfiles() {
 		List<ProfileID> result = new ArrayList<ProfileID>();
-		for (ProfileEntity profileEntity : ProfileDataSource.INSTANCE.findAll(this)) {
+		for (ProfileEntity profileEntity : component.getProfileEntityFramework().findAll(this.getProfileTableName())) {
 			result.add(new ProfileID(profileTableName,profileEntity.getProfileName()));
 		}
 		return Collections.unmodifiableCollection(result);
 	}
 
+	/**
+	 * 
+	 * @throws ReadOnlyProfileException
+	 */
 	private void checkProfileSpecIsNotReadOnly() throws ReadOnlyProfileException {
 		if (component.getDescriptor().getReadOnly()) {
 			throw new ReadOnlyProfileException(component.toString());
@@ -177,12 +231,16 @@ public class ProfileTableImpl implements ProfileTable {
 		sleeContainer.getTransactionManager().mandateTransaction();
 		
 		Collection<ProfileLocalObject> result = new ArrayList<ProfileLocalObject>();
-		for (ProfileEntity profileEntity : ProfileDataSource.INSTANCE.findAll(this)) {
+		for (ProfileEntity profileEntity : component.getProfileEntityFramework().findAll(this.getProfileTableName())) {
 			result.add(transactionView.getProfile(profileEntity).getProfileLocalObject());
 		}
 		return Collections.unmodifiableCollection(result);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.profile.ProfileTable#remove(java.lang.String)
+	 */
 	public boolean remove(String profileName) throws NullPointerException,
 			ReadOnlyProfileException, TransactionRequiredLocalException,
 			SLEEException {
@@ -196,6 +254,14 @@ public class ProfileTableImpl implements ProfileTable {
 		return this.removeProfile(profileName,true);
 	}
 
+	/**
+	 * 
+	 * @param profileName
+	 * @param invokeConcreteSbb
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 */
 	public boolean removeProfile(String profileName, boolean invokeConcreteSbb)
 			throws TransactionRequiredLocalException, SLEEException {
 		
@@ -218,6 +284,12 @@ public class ProfileTableImpl implements ProfileTable {
 																	
 	}
 
+	/**
+	 * 
+	 * @param profileName
+	 * @throws IllegalArgumentException
+	 * @throws NullPointerException
+	 */
 	public static void validateProfileName(String profileName)
 			throws IllegalArgumentException, NullPointerException {
 		if (profileName == null) {
@@ -238,6 +310,12 @@ public class ProfileTableImpl implements ProfileTable {
 		}
 	}
 
+	/**
+	 * 
+	 * @param profileTableName
+	 * @throws IllegalArgumentException
+	 * @throws NullPointerException
+	 */
 	public static void validateProfileTableName(String profileTableName)
 			throws IllegalArgumentException, NullPointerException {
 		if (profileTableName == null) {
@@ -258,11 +336,11 @@ public class ProfileTableImpl implements ProfileTable {
 		}
 	}
 
-	// ##################
-	// # Helper methods #
-	// ##################
-
-	
+	/**
+	 * 
+	 * @throws CreateException
+	 * @throws ProfileVerificationException
+	 */
 	public void createDefaultProfile() throws CreateException, ProfileVerificationException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Creating default profile for table "+profileTableName);
@@ -434,8 +512,7 @@ public class ProfileTableImpl implements ProfileTable {
 			}
 		}
 		
-		return ProfileDataSource.INSTANCE.findProfilesByAttribute(this, attributeName, attributeValue);
-		
+		return component.getProfileEntityFramework().findProfilesByAttribute(this.getProfileTableName(), profileAttribute, attributeValue);
 	}	
 	
 	/**
@@ -463,7 +540,8 @@ public class ProfileTableImpl implements ProfileTable {
 			throw new UnrecognizedAttributeException(component.toString()+" does not defines an attribute named "+attributeName);
 		}
 		else {
-			if (!profileAttribute.getNonPrimitiveType().getName().equals(attributeValue.getClass().getName())) {
+			Class<?> allowedProfileAttributeType = profileAttribute.getNonPrimitiveType().isArray() ? profileAttribute.getNonPrimitiveType().getComponentType() : profileAttribute.getNonPrimitiveType() ; 
+			if (!allowedProfileAttributeType.getName().equals(attributeValue.getClass().getName())) {
 				throw new AttributeTypeMismatchException(component.toString()+" defines an attribute named "+attributeName+" with value type "+profileAttribute.getType()+", the specified value is of type "+attributeValue.getClass());
 			}
 			else {
@@ -492,7 +570,7 @@ public class ProfileTableImpl implements ProfileTable {
 	 */
 	public boolean profileExists(String profileName) {
 		
-		boolean result = ProfileDataSource.INSTANCE.findProfile(this, profileName) != null;
+		boolean result = component.getProfileEntityFramework().findProfile(this.getProfileTableName(), profileName) != null;
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Profile named "+profileName+(result ? "" : " does not")+" exists on table named " + this.getProfileTableName());
@@ -595,7 +673,7 @@ public class ProfileTableImpl implements ProfileTable {
 		
 		Collection<ProfileLocalObject> plocs = new ArrayList<ProfileLocalObject>();
 
-		for(ProfileEntity profileEntity : ProfileDataSource.INSTANCE.getProfilesByStaticQuery( this, queryName, arguments )) {
+		for(ProfileEntity profileEntity : component.getProfileEntityFramework().getProfilesByStaticQuery( this.getProfileTableName(), queryName, arguments )) {
 			plocs.add(transactionView.getProfile(profileEntity).getProfileLocalObject());
 		}
       
@@ -604,23 +682,41 @@ public class ProfileTableImpl implements ProfileTable {
 	
 	// ACTIVITY related
 
+	/**
+	 * 
+	 */
 	public ProfileTableActivity getActivity() {
 		return new ProfileTableActivityImpl(new ProfileTableActivityHandle(this.profileTableName));
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	private ActivityContextHandle getActivityContextHandle() {
 		return ActivityContextHandlerFactory
 		.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
 				profileTableName));
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public ActivityContext getActivityContext() {
 		return sleeContainer.getActivityContextFactory().getActivityContext(getActivityContextHandle(), false);
 	}
 	
+	/**
+	 * 
+	 */
 	public void startActivity() {
 		sleeContainer.getActivityContextFactory().createActivityContext(getActivityContextHandle());
 	}
 	
+	/**
+	 * 
+	 */
 	public void endActivity() {
 		ActivityContext ac = getActivityContext();
 		if (ac != null) {
@@ -671,16 +767,30 @@ public class ProfileTableImpl implements ProfileTable {
 	
 	// OPEN PROFILE MBEANS FOR PROFILES NOT CREATED
 	
+	/**
+	 * 
+	 */
 	private final Set<AbstractProfileMBean> uncommittedProfileMBeans = new ConcurrentHashSet<AbstractProfileMBean>();
 	
+	/**
+	 * 
+	 * @param profileMBean
+	 */
 	public void addUncommittedProfileMBean(AbstractProfileMBean profileMBean) {
 		uncommittedProfileMBeans.add(profileMBean);
 	}
 	
+	/**
+	 * 
+	 * @param profileMBean
+	 */
 	public void removeUncommittedProfileMBean(AbstractProfileMBean profileMBean) {
 		uncommittedProfileMBeans.remove(profileMBean);
 	}
 	
+	/**
+	 * 
+	 */
 	private void closeUncommittedProfileMBeans() {
 		// run it in a new thread to ensure no nested transactions
 		Runnable r = new Runnable() {

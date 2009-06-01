@@ -13,7 +13,7 @@ import javax.slee.EventTypeID;
 import javax.slee.profile.ProfileAddedEvent;
 import javax.slee.profile.ProfileLocalObject;
 
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 
 /**
  * Profile added event implementation.

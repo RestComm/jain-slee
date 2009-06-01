@@ -47,10 +47,9 @@ import org.apache.log4j.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.deployment.profile.jpa.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.AbstractProfileMBeanImpl;
-import org.mobicents.slee.container.profile.ProfileDataSource;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -534,7 +533,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			if (!profileTable.getProfileSpecificationComponent().isSlee11()) {
 				throw new UnsupportedOperationException("JAIN SLEE 1.1 Specs forbiddens the usage of this method on SLEE 1.0 Profile Tables");
 			}
-			for (ProfileEntity profileEntity : ProfileDataSource.INSTANCE.getProfilesByDynamicQuery(profileTable,queryExpression)) {
+			for (ProfileEntity profileEntity : profileTable.getProfileSpecificationComponent().getProfileEntityFramework().getProfilesByDynamicQuery(profileTableName,queryExpression)) {
 				profileIDs.add(new ProfileID(profileEntity.getTableName(),profileEntity.getProfileName()));
 			}
 		} catch (NullPointerException e) {
@@ -626,7 +625,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			if (!profileTable.getProfileSpecificationComponent().isSlee11()) {
 				throw new UnsupportedOperationException("JAIN SLEE 1.1 Specs forbiddens the usage of this method on SLEE 1.0 Profile Tables");
 			}
-			for (ProfileEntity profileEntity : ProfileDataSource.INSTANCE.getProfilesByStaticQuery( profileTable, queryName, parameters )) {
+			for (ProfileEntity profileEntity : profileTable.getProfileSpecificationComponent().getProfileEntityFramework().getProfilesByStaticQuery( profileTableName, queryName, parameters )) {
 				profileIDs.add(new ProfileID(profileEntity.getTableName(),profileEntity.getProfileName()));
 			}
 		} catch (NullPointerException e) {

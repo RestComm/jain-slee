@@ -1,4 +1,4 @@
-package org.mobicents.slee.container.component;
+package org.mobicents.slee.container.component.sbb;
 
 import java.lang.reflect.Method;
 
