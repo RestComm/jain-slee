@@ -96,7 +96,11 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			throw new FacilityException("Failed to obtain profile table.", e);
 		} finally {
 			// never rollback
-			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
+			try {
+				sleeTransactionManager.requireTransactionEnd(terminateTx,false);	
+			} catch (Throwable e) {
+				throw new FacilityException(e.getMessage(),e);
+			}	
 		}
 
 	}
@@ -198,7 +202,11 @@ public class ProfileFacilityImpl implements ProfileFacility {
 			throw new FacilityException("Failed to obtain profile table.", e);
 		} finally {
 			// never rollback
-			sleeTransactionManager.requireTransactionEnd(terminateTx, false);
+			try {
+				sleeTransactionManager.requireTransactionEnd(terminateTx,false);	
+			} catch (Throwable e) {
+				throw new FacilityException(e.getMessage(),e);
+			}
 		}		
 	}
 

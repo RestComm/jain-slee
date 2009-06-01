@@ -35,6 +35,9 @@ package org.mobicents.slee.runtime.transaction;
 
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
 /** 
@@ -70,8 +73,14 @@ public interface SleeTransactionManager extends javax.slee.transaction.SleeTrans
 	 * @param doRollback if true indicates a rollback should be done, either by terminating the tx with rollback() or by just setting the rollback only flag
 	 * @param txManager the tx manager to use
 	 * @throws SLEEException if the transaction can't be finalized
+	 * @throws SystemException 
+	 * @throws SecurityException 
+	 * @throws IllegalStateException 
+	 * @throws HeuristicRollbackException 
+	 * @throws HeuristicMixedException 
+	 * @throws RollbackException 
 	 */
-	public void requireTransactionEnd(boolean terminateTx, boolean doRollback) throws SLEEException;
+	public void requireTransactionEnd(boolean terminateTx, boolean doRollback) throws IllegalStateException, SecurityException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException;
 
 	/**
 	 * retrieves the context object associated with the current transaction

@@ -62,7 +62,7 @@ public class ProfileContextImpl implements ProfileContext {
 	public ProfileLocalObject getProfileLocalObject() throws IllegalStateException, SLEEException
 	{
 		// check state
-		if (profileObject == null || profileObject.getState() != ProfileObjectState.READY) {
+		if (profileObject == null || profileObject.getState() == ProfileObjectState.PROFILE_INITIALIZATION || profileObject.getProfileEntity() == null) {
 			throw new IllegalStateException();
 		}
 		// check if it is default profile
@@ -76,12 +76,11 @@ public class ProfileContextImpl implements ProfileContext {
 	{
 		doGeneralChecks();
 		
-		if (profileObject == null || profileObject.getState() != ProfileObjectState.READY) {
+		if (profileObject == null || profileObject.getState() == ProfileObjectState.PROFILE_INITIALIZATION || profileObject.getProfileEntity() == null) {
 			throw new IllegalStateException();
 		}
 		
-		String profileName = this.profileObject.getProfileEntity().getProfileName();
-		return profileName;
+		return this.profileObject.getProfileEntity().getProfileName();		
 	}
 
 	public ProfileTable getProfileTable() throws SLEEException
@@ -90,20 +89,9 @@ public class ProfileContextImpl implements ProfileContext {
 		return this.profileTable;
 	}
 
-	public ProfileTable getProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, SLEEException
-	{
-		if (profileTableName == null) {
-			throw new NullPointerException("ProfileTableName must not be null.");
-		}
-
-		doGeneralChecks();
-		
-		try {
-			return this.profileTable.getSleeContainer().getSleeProfileTableManager().getProfileTable(profileTableName);
-		}
-		catch (Exception e) {
-			throw new SLEEException("Failed to obtain profile table.", e);
-		}
+	public ProfileTable getProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException, SLEEException {
+				
+		return this.profileTable.getSleeContainer().getSleeProfileTableManager().getProfileTable(profileTableName);
 	}
 
 	public String getProfileTableName() throws SLEEException

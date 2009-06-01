@@ -237,8 +237,12 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(),e);
 		} finally {
-			Thread.currentThread().setContextClassLoader(currentClassLoader);
-			sleeTransactionManagement.requireTransactionEnd(terminateTx,doRollback);
+			Thread.currentThread().setContextClassLoader(currentClassLoader);			
+			try {
+				sleeTransactionManagement.requireTransactionEnd(terminateTx,doRollback);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
 	}
 
@@ -314,9 +318,12 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			rb = false;
 			return objectName;		
 		} finally {			
-			sleeTransactionManagement.requireTransactionEnd(b,rb);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,rb);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}		
 		}
-
 	}
 
 	/*
@@ -347,9 +354,12 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
 		} finally {
 			// never rollbacks
-			sleeTransactionManagement.requireTransactionEnd(b,false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
-
 	}
 
 	/*
@@ -385,7 +395,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new ManagementException("Failed to obtain ProfileSpecID name for ProfileTable: " + profileTableName, e);
 		} finally {
 			// never rollbacks
-			sleeTransactionManagement.requireTransactionEnd(b,false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
 
 	}
@@ -409,7 +423,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			else
 				throw new ManagementException("Failed getProfileTable", x);
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(b,false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
 	}
 
@@ -435,7 +453,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Throwable x) {
 			throw new ManagementException("Failed createProfileTable", x);
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(b,false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
 	}
 
@@ -450,7 +472,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					+ profileTableName + " )");
 		}
 		
-		boolean terminateTx = sleeTransactionManagement.requireTransaction();
+		boolean b = sleeTransactionManagement.requireTransaction();
 		try {		
 			return sleeProfileManagement.getProfileTable(profileTableName).getProfiles();			
 		} catch (NullPointerException e) {
@@ -460,7 +482,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(), e);		 
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(terminateTx, false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}		
 	}
 
@@ -480,7 +506,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					+ " , attributeValue = " + attributeValue + " )");
 		}
 		
-		boolean terminateTx = sleeTransactionManagement.requireTransaction();
+		boolean b = sleeTransactionManagement.requireTransaction();
 		try {		
 			ProfileTableImpl profileTable = sleeProfileManagement.getProfileTable(profileTableName);
 			if (!profileTable.getProfileSpecificationComponent().isSlee11()) {
@@ -500,9 +526,12 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(), e);		 
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(terminateTx, false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
-		
 	}
 	
 	/*
@@ -525,7 +554,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new NullPointerException("queryExpression is null");
 		}
 		
-		boolean terminateTx = sleeTransactionManagement.requireTransaction();
+		boolean b = sleeTransactionManagement.requireTransaction();
 
 		Collection<ProfileID> profileIDs = new ArrayList<ProfileID>();
 		try {
@@ -548,7 +577,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
 		}
 		finally {
-			sleeTransactionManagement.requireTransactionEnd(terminateTx,false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
 
 		return profileIDs;
@@ -572,7 +605,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					+ " , attributeValue = " + attributeValue + " )");
 		}
 		
-		boolean terminateTx = sleeTransactionManagement.requireTransaction();
+		boolean b = sleeTransactionManagement.requireTransaction();
 		try {		
 			ProfileTableImpl profileTable = sleeProfileManagement.getProfileTable(profileTableName);
 			if (profileTable.getProfileSpecificationComponent().isSlee11()) {
@@ -594,7 +627,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(), e);		 
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(terminateTx, false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
 	}
 
@@ -617,7 +654,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new NullPointerException("queryName is null");
 		}
 		
-		boolean terminateTx = sleeTransactionManagement.requireTransaction();
+		boolean b = sleeTransactionManagement.requireTransaction();
 
 		Collection<ProfileID> profileIDs = new ArrayList<ProfileID>();
 		try {
@@ -642,7 +679,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new ManagementException("Failed to obtain ProfileNames for ProfileTable: " + profileTableName, e);
 		}
 		finally {
-			sleeTransactionManagement.requireTransactionEnd(terminateTx,false);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,false);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}
 		}
 
 		return profileIDs;
@@ -687,7 +728,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Exception e) {
 			throw new ManagementException("Failed to remove due to system level failure.", e);
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(b,rb);			
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,rb);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}			
 		}
 
 	}
@@ -717,7 +762,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			rb = true;
 			throw new ManagementException("Failed to remove due to system level failure.", e);
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(b,rb);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,rb);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}			
 		}
 
 	}
@@ -754,7 +803,11 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		} catch (Throwable e) {
 			throw new ManagementException("Failed to remove due to system level failure.", e);
 		} finally {
-			sleeTransactionManagement.requireTransactionEnd(b,rb);
+			try {
+				sleeTransactionManagement.requireTransactionEnd(b,rb);	
+			} catch (Throwable e) {
+				throw new ManagementException(e.getMessage(),e);
+			}	
 		}
 	}
 

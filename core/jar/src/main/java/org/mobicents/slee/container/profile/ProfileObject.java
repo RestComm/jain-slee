@@ -234,33 +234,33 @@ public class ProfileObject {
 		}
 		
 		
-			if (profileName == null) {
-				// default profile creation
-				// create instance of entity
-				profileEntity = profileEntityFramework.getProfileEntityFactory().newInstance(profileTable.getProfileTableName(), null);
-				// change state
-				this.state = ProfileObjectState.PROFILE_INITIALIZATION;
-				// invoke life cycle method on profile
-				try {
-					profileConcrete.profileInitialize();
-				}
-				catch (RuntimeException e) {
-					runtimeExceptionOnProfileInvocation(e);
-				}				
+		if (profileName == null) {
+			// default profile creation
+			// create instance of entity
+			profileEntity = profileEntityFramework.getProfileEntityFactory().newInstance(profileTable.getProfileTableName(), null);
+			// change state
+			this.state = ProfileObjectState.PROFILE_INITIALIZATION;
+			// invoke life cycle method on profile
+			try {
+				profileConcrete.profileInitialize();
 			}
-			else {
-				// load the default profile entity
-				if (logger.isDebugEnabled()) {
-					logger.debug("Copying state from default profile on object "+this);
-				}
-				try {
-					loadProfileEntity(null);
-				} catch (UnrecognizedProfileNameException e) {
-					throw new SLEEException("the default profile does not exist?!?",e);
-				}
-				// clone it
-				profileEntity = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileName, profileEntity);				
+			catch (RuntimeException e) {
+				runtimeExceptionOnProfileInvocation(e);
+			}				
+		}
+		else {
+			// load the default profile entity
+			if (logger.isDebugEnabled()) {
+				logger.debug("Copying state from default profile on object "+this);
 			}
+			try {
+				loadProfileEntity(null);
+			} catch (UnrecognizedProfileNameException e) {
+				throw new SLEEException("the default profile does not exist?!?",e);
+			}
+			// clone it
+			profileEntity = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileName, profileEntity);				
+		}
 		
 		
 		// mark entity as dirty and for creation

@@ -39,7 +39,6 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
@@ -584,63 +583,45 @@ public class ProfileTableImpl implements ProfileTable {
 	 * 
 	 * @throws UnrecognizedProfileTableNameException
 	 */
-	public void remove() throws TransactionRequiredLocalException,
-			SLEEException {
+	public void remove() throws SLEEException {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("[removeProfileTable] on: " + this);
+			logger.debug("removeProfileTable: removing profileTable="
+					+ profileTableName);
 		}
 
-		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-		
-		boolean terminateTx = sleeTransactionManager.requireTransaction();
-		boolean doRollback = true;
+		// remove the table profiles
+		for (ProfileID profileID : getProfiles()) {
+			// don't invoke the profile concrete object, to avoid evil profile lifecycle impls 
+			// that rollbacks tx, as Test1110251Test
+			this.removeProfile(profileID.getProfileName(), false);
+		}
+
+		// remove default profile
+		this.removeProfile(null, false);
+
+		// add action after commit to close uncommitted mbeans
+		TransactionalAction commitAction = new TransactionalAction() {
+			public void execute() {
+				closeUncommittedProfileMBeans();					
+			}
+		};
 
 		try {
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("removeProfileTable: removing profileTable="
-						+ profileTableName);
-			}
-
-			// remove the table profiles
-			for (ProfileID profileID : getProfiles()) {
-				// don't invoke the profile concrete object, to avoid evil profile lifecycle impls 
-				// that rollbacks tx, as Test1110251Test
-				this.removeProfile(profileID.getProfileName(), false);
-			}
-
-			// remove default profile
-			this.removeProfile(null, false);
-			
-			// add action after commit to close uncommitted mbeans
-			TransactionalAction commitAction = new TransactionalAction() {
-				public void execute() {
-					closeUncommittedProfileMBeans();					
-				}
-			};
-			
-			try {
-				sleeTransactionManager.addAfterCommitAction(commitAction);
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
-					
-			endActivity();
-			
-			// unregister mbean
-			unregisterUsageMBean();
-			
-			// remove object pool
-			sleeContainer.getProfileObjectPoolManagement().removeObjectPool(this, sleeContainer.getTransactionManager());
-			
-			doRollback = false;
-
-			// FIXME baranowb, where is the tracer notif source unregistred?
-		} finally {
-			sleeTransactionManager.requireTransactionEnd(terminateTx,
-					doRollback);
+			sleeContainer.getTransactionManager().addAfterCommitAction(commitAction);
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
 		}
+
+		endActivity();
+
+		// unregister mbean
+		unregisterUsageMBean();
+
+		// remove object pool
+		sleeContainer.getProfileObjectPoolManagement().removeObjectPool(this, sleeContainer.getTransactionManager());
+
+		// FIXME baranowb, where is the tracer notif source unregistred?
 
 	}
 

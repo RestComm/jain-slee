@@ -52,7 +52,7 @@ public class ProfileManagementHandler {
 		
 		boolean terminateTx = txManager.requireTransaction(); 
 		try {
-			ProfileTableImpl profileTable = SleeContainer.lookupFromJndi().getSleeProfileTableManager().getProfileTable(profileId.getProfileTableName());
+			ProfileTableImpl profileTable = sleeContainer.getSleeProfileTableManager().getProfileTable(profileId.getProfileTableName());
 			return profileTable.profileExists(profileId.getProfileName());
 		}
 		catch (UnrecognizedProfileTableNameException e) {
@@ -62,7 +62,11 @@ public class ProfileManagementHandler {
 			throw new SLEEException(e.getMessage(),e);
 		}
 		finally {
-			txManager.requireTransactionEnd(terminateTx, false);
+			try {
+				txManager.requireTransactionEnd(terminateTx, false);
+			} catch (Throwable e) {
+				logger.error(e.getMessage(),e);
+			}
 		}
 	}
 

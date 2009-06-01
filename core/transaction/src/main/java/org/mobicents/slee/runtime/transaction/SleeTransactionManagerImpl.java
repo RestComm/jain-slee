@@ -135,30 +135,18 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		return false;
 	}
 
-	public void requireTransactionEnd(boolean terminateTx, boolean doRollback) throws SLEEException {
+	public void requireTransactionEnd(boolean terminateTx, boolean doRollback) throws IllegalStateException, SecurityException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
 		if (terminateTx) {
 			if (doRollback) {
-				try {
-					rollback();
-				} catch (Throwable e) {
-					throw new SLEEException(e.getMessage(),e);
-				}
+				rollback();
 			}
 			else {
-				try {
-					commit();
-				} catch (Throwable e) {
-					throw new SLEEException(e.getMessage(),e);
-				}
+				commit();
 			}
 		}
 		else {
 			if (doRollback) {
-				try {
-					setRollbackOnly();	
-				} catch (Throwable e) {
-					throw new SLEEException(e.getMessage(),e);
-				}
+				setRollbackOnly();	
 			}
 		}
 	}
