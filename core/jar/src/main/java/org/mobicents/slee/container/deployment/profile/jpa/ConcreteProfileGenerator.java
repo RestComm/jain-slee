@@ -3,9 +3,11 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javassist.CtClass;
 import javassist.CtField;
@@ -166,6 +168,9 @@ private void generateConstructors(CtClass profileConcreteClass)
 
     Iterator<Map.Entry<String, CtMethod>> mm = methods.entrySet().iterator();
 
+    Set<String> implementedMethods = new HashSet<String>();
+    implementedMethods.addAll(cmpInterfaceMethods.keySet());
+    
     while (mm.hasNext())
     {
       String interceptor = ClassGeneratorUtils.MANAGEMENT_HANDLER;
@@ -177,16 +182,13 @@ private void generateConstructors(CtClass profileConcreteClass)
       // We should use key, but ClassUtils has different behaviors... go safe!
       String methodKey = method.getName() + method.getSignature();
       
-      if(cmpInterfaceMethods.containsKey(methodKey))
+      if(!implementedMethods.add(methodKey))
       {
-        // This was already implemented by generateCMP...
+        // This was already implemented 
         continue;
       }
-      if (entry.getKey().contains("commitChanges"))
-      {
-        interceptor = ClassGeneratorUtils.CMP_HANDLER;
-      }
-      else if(abstractClass != null)
+      
+      if(abstractClass != null)
       {
         try
         {

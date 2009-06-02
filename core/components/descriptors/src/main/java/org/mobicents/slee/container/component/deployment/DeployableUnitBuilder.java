@@ -371,11 +371,23 @@ public class DeployableUnitBuilder {
 					}
 					if (component.getDescriptor().getProfileClasses()
 							.getProfileAbstractClass() != null) {
-						Class<?> profileAbstractClass = componentClassLoader
-								.loadClass(component.getDescriptor()
-										.getProfileClasses()
-										.getProfileAbstractClass()
-										.getProfileAbstractClassName());
+						boolean decoratedClass = new ProfileAbstractClassDecorator(component).decorateAbstractClass();
+						Class<?> profileAbstractClass = null;
+						if (decoratedClass) {
+							// need to ensure we load the class from disk, not one coming from SLEE shared class loading domain
+							profileAbstractClass = componentClassLoader
+							.loadClassLocally(component.getDescriptor()
+									.getProfileClasses()
+									.getProfileAbstractClass()
+									.getProfileAbstractClassName());
+						}
+						else {
+							profileAbstractClass = componentClassLoader
+							.loadClass(component.getDescriptor()
+									.getProfileClasses()
+									.getProfileAbstractClass()
+									.getProfileAbstractClassName());
+						}
 						component.setProfileAbstractClass(profileAbstractClass);
 					}
 					MProfileTableInterface mProfileTableInterface = component

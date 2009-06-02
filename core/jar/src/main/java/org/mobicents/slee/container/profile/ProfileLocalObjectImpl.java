@@ -90,17 +90,47 @@ public class ProfileLocalObjectImpl implements ProfileLocalObject {
 	 */
 	public boolean isIdentical(ProfileLocalObject other) throws SLEEException {
 		
-		if (this == other) {
-			return true;
-		}
-
 		if (!(other instanceof ProfileLocalObjectImpl)) {
 			return false;
 		}
 		
-		return this.getProfileTableName().equals(other.getProfileTableName()) && this.getProfileName().equals(other.getProfileName());
+		return this._equals(other);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ProfileLocalObjectImpl) {
+			ProfileLocalObjectImpl other = (ProfileLocalObjectImpl) obj;
+			return this._equals(other);
+		}
+		else {
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param other
+	 * @return
+	 */
+	private boolean _equals(ProfileLocalObject other) {
+		
+		if (!this.getProfileTableName().equals(other.getProfileTableName())) {
+			return false;
+		}
+		
+		if (this.getProfileName() == null) {
+			if (other.getProfileName() == null) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return this.getProfileName().equals(other.getProfileName());
+		}
+	}
 	/*
 	 * (non-Javadoc)
 	 * 

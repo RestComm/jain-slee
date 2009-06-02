@@ -563,7 +563,9 @@ public class ClassGeneratorUtils {
     boolean hasImpl = interceptorAccess.equals("super");
     
     String body = "{ " +
-      "  try {" + 
+    	ClassLoader.class.getName()+ " cl = "+Thread.class.getName()+".currentThread().getContextClassLoader();" +
+    	Thread.class.getName()+".currentThread().setContextClassLoader(profileObject.getProfileTable().getProfileSpecificationComponent().getClassLoader());"+
+        "  try {" + 
       (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(profileObject);" : "");
         
     if(retStatement != null)
@@ -579,6 +581,7 @@ public class ClassGeneratorUtils {
     
     body += "  }" +
       "  finally {" +
+      Thread.class.getName()+".currentThread().setContextClassLoader(cl);" +
       (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(profileObject);" : "") + 
       "  }" + 
       "}";

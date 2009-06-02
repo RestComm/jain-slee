@@ -127,7 +127,7 @@ public class SleeProfileTableManager {
 		Context ctx = (Context) new InitialContext().lookup("java:comp");
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Setting up SBB env. Initial context is " + ctx);
+			logger.debug("Setting up Profile Spec env. Initial context is " + ctx);
 		}
 
 		Context envCtx = null;
