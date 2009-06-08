@@ -13,13 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
-import javax.management.Notification;
-import javax.management.NotificationBroadcasterSupport;
-import javax.management.NotificationFilter;
-import javax.management.NotificationListener;
 import javax.slee.ComponentID;
 import javax.slee.InvalidArgumentException;
 import javax.slee.UnrecognizedComponentException;
@@ -29,7 +24,6 @@ import javax.slee.facilities.Tracer;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.TraceMBean;
-import javax.slee.management.TraceNotification;
 import javax.slee.management.UnrecognizedNotificationSourceException;
 import javax.transaction.SystemException;
 
@@ -67,6 +61,12 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 		this.traceFacility = new TraceFacilityImpl(this);
 	}
 
+	@Override
+	public String toString() {
+		return "Trace MBean Impl : " 
+			+ "\n+-- Tracers: "	+ tracerStorage.toString();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

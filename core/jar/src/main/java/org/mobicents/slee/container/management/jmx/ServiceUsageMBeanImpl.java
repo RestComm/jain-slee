@@ -107,6 +107,13 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		serviceComponent.setServiceUsageMBean(this);
 	}
 
+	@Override
+	public String toString() {
+		return serviceID + " Usage MBean : " 
+			+ "\n+-- Notification Managers: "	+ notificationManagers.keySet()
+			+ "\n+-- Usage MBeans: "	+ usageMBeans.keySet();
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

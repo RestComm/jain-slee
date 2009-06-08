@@ -398,11 +398,4 @@ public class ProfileFacilityImpl implements ProfileFacility {
 		}
 	}
 
-	public String _toString() {
-		// get profile manager
-		// FIXME:
-		String tableNames = "";
-		return "Profile Facility: " + "\n+-- Tables: " + tableNames;
-	}
-
 }

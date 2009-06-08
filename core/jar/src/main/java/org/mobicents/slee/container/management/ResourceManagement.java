@@ -827,10 +827,10 @@ public class ResourceManagement {
 
 	@Override
 	public String toString() {
-		return "Resource Management: " + "\n+-- Resource Adaptor Entities: "
-				+ resourceAdaptorEntities.keySet()
-				+ "\n+-- Resource Adaptor Entitiy Links: "
-				+ resourceAdaptorEntities.keySet();
+		return "Resource Management: " 
+			+ "\n+-- Resource Adaptor Entities: " + resourceAdaptorEntities.keySet()
+			+ "\n+-- Resource Adaptor Entity Links: " + resourceAdaptorEntityLinks.keySet()
+			+ "\n+-- Resource Adaptor Entities per RA Type size: "	+ entitiesPerType.size();
 	}
 
 	/**

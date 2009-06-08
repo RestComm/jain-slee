@@ -96,6 +96,11 @@ public class ProfileTableImpl implements ProfileTable {
 	private final ProfileTableTransactionView transactionView;
 	
 	/**
+	 * the entity with the default profile attribute values
+	 */
+	private ProfileEntity defaultProfileEntity;
+	
+	/**
 	 * 
 	 * @param profileTableName
 	 * @param component
@@ -201,7 +206,9 @@ public class ProfileTableImpl implements ProfileTable {
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		checkProfileSpecIsNotReadOnly();
-		return  createProfile(profileName).getProfileLocalObject();
+		ProfileObject profileObject = createProfile(profileName);
+		profileObject.profilePersist();
+		return profileObject.getProfileLocalObject();
 	}
 
 	/*
@@ -337,6 +344,14 @@ public class ProfileTableImpl implements ProfileTable {
 
 	/**
 	 * 
+	 * @return
+	 */
+	public ProfileEntity getDefaultProfileEntity() {
+		return defaultProfileEntity;
+	}
+	
+	/**
+	 * 
 	 * @throws CreateException
 	 * @throws ProfileVerificationException
 	 */
@@ -345,7 +360,8 @@ public class ProfileTableImpl implements ProfileTable {
 			logger.debug("Creating default profile for table "+profileTableName);
 		}
 		ProfileObject profileObject = transactionView.createProfile(null);
-		profileObject.profileVerify();			
+		profileObject.profileVerify();	
+		this.defaultProfileEntity = profileObject.getProfileEntity();
 	}
 	
 	public ProfileObject createProfile(String newProfileName)
@@ -598,7 +614,9 @@ public class ProfileTableImpl implements ProfileTable {
 		}
 
 		// remove default profile
-		this.removeProfile(null, false);
+		if (getDefaultProfileEntity() != null) {
+			this.removeProfile(null, false);
+		}
 
 		// add action after commit to close uncommitted mbeans
 		TransactionalAction commitAction = new TransactionalAction() {
@@ -625,10 +643,31 @@ public class ProfileTableImpl implements ProfileTable {
 
 	}
 
+	/**
+	 * 
+	 * @param profileName
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 */
 	public ProfileObject getProfile(String profileName)
 			throws TransactionRequiredLocalException, SLEEException {
 		
 		return transactionView.getProfile(profileName);
+	}
+	
+	/**
+	 * Use this method (and the object it returns) very carefully, if the profile entity is not from the current
+	 * transaction and changes are done, those won't be persisted
+	 * 
+	 * @param profileEntity
+	 * @return
+	 * @throws TransactionRequiredLocalException
+	 * @throws SLEEException
+	 */
+	public ProfileObject getProfile(ProfileEntity profileEntity)
+		throws TransactionRequiredLocalException, SLEEException {
+		return transactionView.getProfile(profileEntity);
 	}
 
 	public String toString() {
@@ -790,6 +829,11 @@ public class ProfileTableImpl implements ProfileTable {
 			}
 		};
 		new Thread(r).start();
+		
+	}
+
+	public void setDefaultProfileEntity(ProfileEntity profileEntity) {
+		this.defaultProfileEntity = profileEntity;
 		
 	}
 }

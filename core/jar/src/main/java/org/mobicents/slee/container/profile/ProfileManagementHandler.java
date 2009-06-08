@@ -122,10 +122,10 @@ public class ProfileManagementHandler {
 	}
 
 	// Usage methods. Here we can be static for sure. Rest must be tested.
-	public static Object getProfileUsageParam(ProfileObject profileObject,
+	public static Object getUsageParameterSet(ProfileObject profileObject,
 			String name) throws UnrecognizedUsageParameterSetNameException {
 		if (logger.isDebugEnabled()) {
-			logger.info("[getProfileUsageParam(" + name + ")] @ "
+			logger.info("[getUsageParameterSet(" + name + ")] @ "
 					+ profileObject);
 		}
 
@@ -133,26 +133,28 @@ public class ProfileManagementHandler {
 			throw new NullPointerException(
 					"UsageParameterSet name must not be null.");
 		}
-
 		ProfileTableImpl profileTable = profileObject
 				.getProfileTable();
-
-		return profileTable.getProfileTableUsageMBean()
+		Object result = profileTable.getProfileTableUsageMBean()
 				.getInstalledUsageParameterSet(name);
+		if (result == null) {
+			throw new UnrecognizedUsageParameterSetNameException();			
+		}
+		else {
+			return result;
+		}
 	}
 
-	public static Object getProfileDefaultUsageParam(
+	public static Object getDefaultUsageParameterSet(
 			ProfileObject profileObject) {
+	
 		if (logger.isDebugEnabled()) {
-			logger.info("[getProfileDefaultUsageParam] @ "
+			logger.info("[getDefaultUsageParameterSet] @ "
 					+ profileObject);
 		}
-
 		ProfileTableImpl profileTable = profileObject
 				.getProfileTable();
-
-		return profileTable.getProfileTableUsageMBean()
-				.getInstalledUsageParameterSet(null);
+		return profileTable.getProfileTableUsageMBean().getDefaultInstalledUsageParameterSet();
 	}
 
 	private static ClassLoader switchContextClassLoader(

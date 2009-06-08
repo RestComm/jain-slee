@@ -324,4 +324,16 @@ public class ComponentRepositoryImpl implements ComponentRepository {
 	public void removeComponent(ServiceID componentID) {
 		serviceComponents.remove(componentID);
 	}
+	
+	@Override
+	public String toString() {
+		return "Component Repository: " 
+			+ "\n+-- Event Type Components: " + getEventComponentIDs()
+			+ "\n+-- Library Components: " + getEventComponentIDs()
+			+ "\n+-- Profile Specification Components: " + getEventComponentIDs()
+			+ "\n+-- Resource Adaptor Components: " + getEventComponentIDs()
+			+ "\n+-- Resource Adaptor Type Components: " + getEventComponentIDs()
+			+ "\n+-- Sbb Components: " + getEventComponentIDs()
+			+ "\n+-- Service Components: " + getEventComponentIDs();
+	}
 }

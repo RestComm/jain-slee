@@ -71,65 +71,65 @@ public class ConcreteProfileEntityFactoryGenerator {
 			  	" return profileEntity; " +
 			  "}";
 		  if (logger.isDebugEnabled()) {
-			  logger.debug( "Adding method named "+newInstanceMethodCopy.getName()+" with body "+newInstanceMethodCopy+" , into class " + className );
+			  logger.debug( "\nAdding method named "+newInstanceMethodCopy.getName()+" with body "+newInstanceMethodCopy+" , into class " + className );
 		  }
 		  newInstanceMethodCopy.setBody(newInstanceMethodCopyBody);
 		  ctClass.addMethod(newInstanceMethodCopy);
 		
-		  // copy cloneInstance method from interface and generate body
-		  CtMethod cloneInstanceMethod = profileEntityFactoryClass.getDeclaredMethod("cloneInstance");
-		  CtMethod cloneInstanceMethodCopy = CtNewMethod.copy(cloneInstanceMethod, ctClass, null);
+		  // copy copyAttributes method from interface and generate body
+		  CtMethod copyAttributesMethod = profileEntityFactoryClass.getDeclaredMethod("copyAttributes");
+		  CtMethod copyAttributesMethodCopy = CtNewMethod.copy(copyAttributesMethod, ctClass, null);
 		  // body header
-		  String cloneInstanceMethodCopyBody = 
+		  String copyAttributesMethodCopyBody = 
 			  "{ "+
-			  	profileEntityClass.getName()+" newProfileEntity = new "+profileEntityClass.getName()+"(); " +
-			  	" newProfileEntity.setProfileName($1); " +
-			  	" newProfileEntity.setTableName($2.getTableName()); " +
-			  	profileEntityClass.getName()+" oldProfileEntity = ("+profileEntityClass.getName()+") $2; ";
+			  	profileEntityClass.getName()+" newProfileEntity = ("+profileEntityClass.getName()+") $2; " +
+			  	profileEntityClass.getName()+" oldProfileEntity = ("+profileEntityClass.getName()+") $1; ";
 		  // process fields copy
 		  String profileEntityAttributeArrayValueClassName = null;
 		  for (ProfileAttribute profileAttribute : profileAttributes) {
 			  String accessorMethodSufix = ClassGeneratorUtils.getPojoCmpAccessorSufix(profileAttribute.getName());
 			  if (profileAttribute.isArray()) {
 				  profileEntityAttributeArrayValueClassName = profileEntityAttributeArrayValueClasses.get(profileAttribute.getName()).getName();
-				  cloneInstanceMethodCopyBody += 
-					  // new linked list instance
-					  List.class.getName() + " new"+ profileAttribute.getName() + " = new " + LinkedList.class.getName() + "(); " +
+				  copyAttributesMethodCopyBody += 
+					  "if (oldProfileEntity.get"+accessorMethodSufix+"() != null) { " +
+					  // if the target list already exists then empty it so elements get deleted, otherwise create new
+					  List.class.getName() + " new"+ profileAttribute.getName() + " = newProfileEntity.get"+accessorMethodSufix+"(); " +
+					  "if (new"+profileAttribute.getName()+" == null) { new"+ profileAttribute.getName() + " = new " + LinkedList.class.getName() + "(); } else { new"+profileAttribute.getName()+".clear(); } " +
 					  // extract list to copy
 					  List.class.getName() + " old"+ profileAttribute.getName() + " = oldProfileEntity.get" + accessorMethodSufix + "(); " +
 					  // iterate each list element
 					  "for ("+Iterator.class.getName()+" i = old"+profileAttribute.getName()+".iterator(); i.hasNext();) { " +
 					  profileEntityAttributeArrayValueClassName+" oldArrayValue = ("+profileEntityAttributeArrayValueClassName+") i.next(); " +
 					  profileEntityAttributeArrayValueClassName+" newArrayValue = new "+profileEntityAttributeArrayValueClassName+"(); " +
+					  // link to profile entity
+					  "newArrayValue.setOwner( newProfileEntity ); " +
 					  // copy fields
 					  "newArrayValue.setString( oldArrayValue.getString() ); " +
 					  "newArrayValue.setSerializable( ("+Serializable.class.getName()+") "+ProfileEntity.class.getName()+".makeDeepCopy(oldArrayValue.getSerializable()) ); " +
 					  "new"+profileAttribute.getName()+".add(newArrayValue); " +
 					  "} " +
-					  "newProfileEntity.set"+accessorMethodSufix+"(new"+profileAttribute.getName()+"); ";					  
+					  "newProfileEntity.set"+accessorMethodSufix+"(new"+profileAttribute.getName()+"); };";					  
 			  }
 			  else {
 				  if (profileAttribute.isPrimitive()) {
 					  // just copy value
-					  cloneInstanceMethodCopyBody += 
+					  copyAttributesMethodCopyBody += 
 						  " newProfileEntity.set"+accessorMethodSufix+"(oldProfileEntity.get"+accessorMethodSufix+"()); ";
 				  }
 				  else {
 					// just copy value but do a deep copy
-					  cloneInstanceMethodCopyBody += 
-						  " newProfileEntity.set"+accessorMethodSufix+"(("+profileAttribute.getType().getName()+")"+ProfileEntity.class.getName()+".makeDeepCopy(oldProfileEntity.get"+accessorMethodSufix+"())); ";
+					  copyAttributesMethodCopyBody += 
+						  " if (oldProfileEntity.get"+accessorMethodSufix+"() != null) { newProfileEntity.set"+accessorMethodSufix+"(("+profileAttribute.getType().getName()+")"+ProfileEntity.class.getName()+".makeDeepCopy(oldProfileEntity.get"+accessorMethodSufix+"())); }; ";
 				  }
 			  }
 		  }
 		  // body footer
-		  cloneInstanceMethodCopyBody += 
-			  " return newProfileEntity; " +
-			  "}";
+		  copyAttributesMethodCopyBody += " }";
 		  if (logger.isDebugEnabled()) {
-			  logger.debug( "Adding method named "+cloneInstanceMethodCopy.getName()+" with body "+cloneInstanceMethodCopyBody+" , into class " + className );
+			  logger.debug( "\nAdding method named "+copyAttributesMethodCopy.getName()+" with body "+copyAttributesMethodCopyBody+" , into class " + className );
 		  }
-		  cloneInstanceMethodCopy.setBody(cloneInstanceMethodCopyBody);
-		  ctClass.addMethod(cloneInstanceMethodCopy);
+		  copyAttributesMethodCopy.setBody(copyAttributesMethodCopyBody);
+		  ctClass.addMethod(copyAttributesMethodCopy);
 		  
       String deployDir = profileComponent.getDeploymentDir().getAbsolutePath();
       

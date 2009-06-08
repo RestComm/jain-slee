@@ -597,7 +597,10 @@ public class ClassGeneratorUtils {
 	  
 	  MemberValue mv = null;
       
-	  if(mvValue instanceof String)
+	  if(mvValue instanceof MemberValue){
+		  mv = (MemberValue) mvValue;
+	  }
+	  else if(mvValue instanceof String)
       {
         mv = new StringMemberValue((String)mvValue, cp);
       } 

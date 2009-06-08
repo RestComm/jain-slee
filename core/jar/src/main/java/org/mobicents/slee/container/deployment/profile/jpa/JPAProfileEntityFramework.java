@@ -30,13 +30,10 @@ import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
 import org.mobicents.slee.container.component.profile.ProfileAttribute;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.component.profile.ProfileEntityFactory;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
-import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -215,7 +212,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 					.createQuery(
 							"SELECT x FROM "
 									+ profileEntityClassName
-									+ " x WHERE x.tableName = :tableName AND x.safeProfileName <> ''")
+									+ " x WHERE x.tableName = :tableName")
 					.setParameter("tableName", profileTable);
 		} else {
 			if (profileAttribute.isArray()) {
@@ -225,7 +222,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 										+ profileEntityClassName
 										+ " x , IN (x.c"
 										+ profileAttribute.getName()
-										+ ") y WHERE x.tableName = :tableName AND x.safeProfileName <> '' AND y.string = :attrValue")
+										+ ") y WHERE x.tableName = :tableName AND y.string = :attrValue")
 						.setParameter("tableName", profileTable).setParameter(
 								"attrValue", attributeValue.toString());
 			} else {
@@ -235,7 +232,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 						.createQuery(
 								"SELECT x FROM "
 										+ profileEntityClassName
-										+ " x WHERE x.tableName = :tableName AND x.safeProfileName <> '' AND x.c"
+										+ " x WHERE x.tableName = :tableName AND x.c"
 										+ profileAttribute.getName()
 										+ " = :attrValue").setParameter(
 								"tableName", profileTable).setParameter(
@@ -265,7 +262,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 		EntityManager em = getEntityManager();
 		Query query = em.createQuery(
 				"FROM " + profileEntityClassName
-						+ " WHERE tableName = ?1 AND safeProfileName = ?2")
+						+ " WHERE tableName = ?1 AND profileName = ?2")
 				.setParameter(1, profileTable).setParameter(2, profileName);
 
 		List<?> resultList = query.getResultList();
@@ -395,7 +392,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 
 		Query q = em.createQuery(
 				"FROM " + profileEntityClassName
-						+ " WHERE tableName = ?1 AND safeProfileName = ?2")
+						+ " WHERE tableName = ?1 AND profileName = ?2")
 				.setParameter(1, profileTable).setParameter(2, profileName);
 
 		List<?> resultList = q.getResultList();
@@ -648,89 +645,5 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			}
 		}
 		return result;
-	}
-
-	/**
-	 * 
-	 * @param profileObject
-	 * @return
-	 */
-	private boolean checkUniqueFields(ProfileObject profileObject) {
-		try {
-			ArrayList<Object> attrValues = new ArrayList<Object>();
-			ProfileSpecificationComponent psc = profileObject.getProfileTable()
-					.getProfileSpecificationComponent();
-
-			String sqlQuery = "FROM " + profileEntityClassName
-					+ " WHERE tableName = ?1 AND safeProfileName <> ''";
-
-			if (psc.isSlee11()) {
-				int i = 2;
-				for (MCMPField cmpField : psc.getDescriptor()
-						.getProfileCMPInterface().getCmpFields()) {
-					if (cmpField.getUnique()) {
-						// Get field name and capitalize it
-						String fieldName = cmpField.getCmpFieldName();
-						fieldName = fieldName.replaceFirst(""
-								+ fieldName.charAt(0), ""
-								+ Character.toUpperCase(fieldName.charAt(0)));
-
-						// Invoke getter for obtaining value
-						Object value = profileObject.getProfileConcrete()
-								.getClass().getMethod("get" + fieldName)
-								.invoke(profileObject.getProfileConcrete());
-						attrValues.add(value);
-
-						// Compose the SQL Query with new field name
-						sqlQuery += (i == 2 ? " AND ( c" : " OR c") + fieldName
-								+ " = ?" + i++;
-					}
-				}
-			} else {
-				int i = 2;
-				for (MProfileIndex indexedAttribute : psc.getDescriptor()
-						.getIndexedAttributes()) {
-					if (indexedAttribute.getUnique()) {
-						// Get field name and capitalize it
-						String fieldName = indexedAttribute.getName();
-						fieldName = fieldName.replaceFirst(""
-								+ fieldName.charAt(0), ""
-								+ Character.toUpperCase(fieldName.charAt(0)));
-
-						// Invoke getter for obtaining value
-						Object value = profileObject.getProfileConcrete()
-								.getClass().getMethod("get" + fieldName)
-								.invoke(profileObject.getProfileConcrete());
-						attrValues.add(value);
-
-						// Compose the SQL Query with new field name
-						sqlQuery += (i == 2 ? " AND ( C" : " OR C") + fieldName
-								+ " = ?" + i++;
-					}
-				}
-			}
-
-			sqlQuery += ")";
-
-			if (attrValues.size() > 0) {
-				EntityManager em = getEntityManager();
-
-				Query q = em.createQuery(sqlQuery);
-				q.setParameter(1, profileObject.getProfileTable()
-						.getProfileTableName());
-
-				int i = 2;
-				for (Object attrValue : attrValues) {
-					q.setParameter(i++, attrValue);
-				}
-
-				if (q.getResultList().size() > 0)
-					return false;
-			}
-		} catch (Exception e) {
-			logger.error("Unable to verify unique constraints.", e);
-		}
-
-		return true;
 	}
 }

@@ -22,13 +22,11 @@ public interface ProfileEntityFactory {
 	public ProfileEntity newInstance(String profileTableName, String profileName);
 	
 	/**
-	 * Creates a new {@link ProfileEntity} instance with the specified profile
-	 * name, and copies the profile table name and all the fields from the specified profile entity.
+	 * Copies the attributes between two instances of {@link ProfileEntity}.
 	 * 
-	 * @param profileName
-	 * @param profileEntity
-	 * @return
+	 * @param from
+	 * @param to
 	 */
-	public ProfileEntity cloneInstance(String profileName, ProfileEntity profileEntity);
+	public void copyAttributes(ProfileEntity from, ProfileEntity to);
 	
 }

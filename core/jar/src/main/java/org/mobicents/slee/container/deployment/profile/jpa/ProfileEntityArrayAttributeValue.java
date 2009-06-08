@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.slee.Address;
 
+import org.mobicents.slee.container.component.profile.ProfileEntity;
+
 /**
  * Abstract base class of a profile entity array attribute value (jpa entity) wrapper.
  * 
@@ -76,6 +78,15 @@ public abstract class ProfileEntityArrayAttributeValue {
 	public void setString(String string) {
 		this.string = string;
 	}
+
+	/**
+	 * NOTE: when adding an instance of this class to a profile entity, it is
+	 * required to invoke this method with the owner, otherwise the insert on
+	 * jpa is created by hibernate with the entity ids as null.
+	 * 
+	 * @param profileEntity
+	 */
+	public abstract void setProfileEntity(ProfileEntity profileEntity); 
 	
 	// --- AUX METHODS to avoid autoboxing
 	
@@ -514,4 +525,9 @@ public abstract class ProfileEntityArrayAttributeValue {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "ProfileEntityArrayAttributeValue[ id = "+getId()+" , string = "+getString()+" , serializable = "+getSerializable()+" ]";
+	}
+	
 }

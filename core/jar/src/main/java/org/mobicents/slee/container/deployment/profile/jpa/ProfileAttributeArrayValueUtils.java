@@ -1,12 +1,14 @@
 package org.mobicents.slee.container.deployment.profile.jpa;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.slee.Address;
 import javax.slee.SLEEException;
+
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 
 /**
  * A class providing static utility methods to deal with conversion of arrays to
@@ -18,36 +20,58 @@ import javax.slee.SLEEException;
 public class ProfileAttributeArrayValueUtils {
 
 	/**
-	 * 
+	 * TODO
 	 * @param profileAttrArrayValueClass
 	 * @return
 	 */
 	private static ProfileEntityArrayAttributeValue newProfileEntityArrayAttributeValueInstance(
-			Class<?> profileAttrArrayValueClass) {
+			Class<?> profileAttrArrayValueClass,ProfileEntity owner) {
 		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
 		try {
 			profileAttrArrayValue = (ProfileEntityArrayAttributeValue) profileAttrArrayValueClass
 					.newInstance();
+			profileAttrArrayValue.setProfileEntity(owner);
 		} catch (Throwable e) {
 			throw new SLEEException(e.getMessage(), e);
 		}
 		return profileAttrArrayValue;
 	}
-
+	
+	// ----------
+	
 	/**
 	 * 
 	 * @param profileAttrArrayValueClass
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, boolean[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (boolean b : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setboolean(b);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, boolean[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				boolean b = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setboolean(b);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -58,14 +82,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, byte[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (byte b : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setbyte(b);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, byte[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				byte b = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setbyte(b);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -76,14 +119,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, char[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (char c : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setchar(c);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, char[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				char c = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setchar(c);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -94,14 +156,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, double[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (double d : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setdouble(d);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, double[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				double d = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setdouble(d);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -112,14 +193,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, float[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (float f : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setfloat(f);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, float[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				float f = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setfloat(f);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -130,14 +230,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, int[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (int i : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setint(i);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, int[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				int j = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setint(j);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -148,14 +267,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, long[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (long l : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setlong(l);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, long[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				long l = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setlong(l);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -166,14 +304,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, short[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (short s : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setshort(s);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, short[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				short s = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setshort(s);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -184,14 +341,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Boolean[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (boolean b : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setBoolean(b);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Boolean[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Boolean b = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setBoolean(b);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -202,14 +378,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Byte[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (byte b : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setByte(b);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Byte[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Byte b = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setByte(b);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -220,14 +415,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Character[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (char c : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setCharacter(c);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Character[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Character c = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setCharacter(c);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -238,14 +452,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Double[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (double d : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setDouble(d);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Double[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Double d = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setDouble(d);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -256,14 +489,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Float[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (float f : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setFloat(f);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Float[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Float f = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setFloat(f);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -274,14 +526,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Integer[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (int i : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setInteger(i);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Integer[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Integer j = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setInteger(j);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -292,14 +563,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Long[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (long l : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setLong(l);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Long[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Long l = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setLong(l);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -310,14 +600,33 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Short[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (short s : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setShort(s);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Short[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Short s = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setShort(s);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}
@@ -328,16 +637,35 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, String[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (String s : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setString(s);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, String[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				String s = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setString(s);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
-		return result;
+		return result;	
 	}
 
 	/**
@@ -346,32 +674,70 @@ public class ProfileAttributeArrayValueUtils {
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Address[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (Address o : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setAddress(o);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Address[] arg0) {		
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Address a = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setAddress(a);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
-		return result;
+		return result;		
 	}
-
+	
 	/**
 	 * 
 	 * @param profileAttrArrayValueClass
 	 * @param arg0
 	 * @return
 	 */
-	public static List<Object> toProfileAttributeArrayValueList(
-			Class<?> profileAttrArrayValueClass, Serializable[] arg0) {
-		ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
-		List<Object> result = new LinkedList<Object>();
-		for (Serializable o : arg0) {
-			profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass);
-			profileAttrArrayValue.setSerializable(o);
-			result.add(profileAttrArrayValue);
+	public static List<ProfileEntityArrayAttributeValue> toProfileAttributeArrayValueList(
+			Class<?> profileAttrArrayValueClass, ProfileEntity owner, List<ProfileEntityArrayAttributeValue> result, boolean uniqueAttribute, Serializable[] arg0) {
+		// init result list if needed
+		if (result == null) {
+			result = new ArrayList<ProfileEntityArrayAttributeValue>();
+		}		
+		// make copy of result list if it is not empty
+		List<ProfileEntityArrayAttributeValue> copy = null;
+		if (!result.isEmpty()) {
+			copy = new ArrayList<ProfileEntityArrayAttributeValue>(result);
+			result.clear();
+		}		
+		if (arg0 != null) {
+			ProfileEntityArrayAttributeValue profileAttrArrayValue = null;
+			for (int i=0;i<arg0.length;i++) {
+				Serializable s = arg0[i];
+				profileAttrArrayValue = newProfileEntityArrayAttributeValueInstance(profileAttrArrayValueClass,owner);
+				profileAttrArrayValue.setSerializable(s);
+				if (copy != null && i < copy.size()) {
+					ProfileEntityArrayAttributeValue existentElement = copy.get(i);
+					// reuse element if possible, to avoid unique constraint failures on inserts 
+					if (existentElement != null && new ProfileAttributeArrayValueIdentity(existentElement).equals(new ProfileAttributeArrayValueIdentity(profileAttrArrayValue))) {
+						profileAttrArrayValue = existentElement;
+					}
+				}
+				result.add(profileAttrArrayValue);
+			}
 		}
 		return result;
 	}

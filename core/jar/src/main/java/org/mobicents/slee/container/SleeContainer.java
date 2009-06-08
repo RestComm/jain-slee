@@ -325,12 +325,19 @@ public class SleeContainer {
 	 * @return
 	 */
 	public String dumpState() {
-		return resourceManagement + "\n"
-				+ sbbManagement + "\n" + timerFacility + "\n"
+		return deployableUnitManagement + "\n" 
+				+ componentRepositoryImpl + "\n"
+				+ resourceManagement + "\n"
+				+ sbbPoolManagement + "\n"
+				+ timerFacility + "\n"
+				+ traceFacility + "\n"
 				+ sleeProfileTableManager + "\n"
-				+ activityContextFactory + "\n" + activityContextNamingFacility
-				+ "\n" + nullActivityFactory + "\n" + serviceManagement + "\n"
-				+ profileFacility + "\n" + getEventRouter() + "\n" + getTransactionManager();
+				+ profileObjectPoolManagement + "\n"
+				+ activityContextFactory + "\n"
+				+ activityContextNamingFacility	+ "\n"
+				+ nullActivityFactory + "\n"
+				+ getEventRouter() + "\n"
+				+ getTransactionManager();
 	}
 
 	// GETTERS -- managers

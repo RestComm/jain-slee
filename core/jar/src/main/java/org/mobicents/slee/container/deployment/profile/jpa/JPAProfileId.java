@@ -2,6 +2,7 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -11,31 +12,33 @@ public class JPAProfileId implements Serializable {
   private static final long serialVersionUID = 52944414592091037L;
    
   @Id
+  @Column(name="tableName")
   private String tableName;
   
   @Id
-  private String safeProfileName;
+  @Column(name="profileName")
+  private String profileName;
 
   public JPAProfileId()
   {
     this.tableName = null;
-    this.safeProfileName = null;
+    this.profileName = null;
   }
   
   public JPAProfileId(String tableName, String safeProfileName)
   {
     this.tableName = tableName;
-    this.safeProfileName = safeProfileName;
+    this.profileName = safeProfileName;
   }
   
-  public String getSafeProfileName()
+  public String getProfileName()
   {
-    return safeProfileName;
+    return profileName;
   }
   
-  public void setSafeProfileName( String profileName )
+  public void setProfileName( String profileName )
   {
-    this.safeProfileName = profileName;
+    this.profileName = profileName;
   }
   
   public String getTableName()
@@ -52,7 +55,7 @@ public class JPAProfileId implements Serializable {
   public boolean equals( Object obj ) {
     if (obj != null && obj.getClass() == this.getClass()) {
     	JPAProfileId other = (JPAProfileId)obj;
-    	return this.safeProfileName.equals(other.safeProfileName) && this.tableName.equals(other.tableName);
+    	return this.profileName.equals(other.profileName) && this.tableName.equals(other.tableName);
     }
     else {
     	return false;
@@ -62,12 +65,12 @@ public class JPAProfileId implements Serializable {
   @Override
   public int hashCode()
   {
-    return safeProfileName.hashCode()*31+tableName.hashCode();
+    return profileName.hashCode()*31+tableName.hashCode();
   }
   
   @Override
   public String toString()
   {
-    return this.getClass().getName() + "(TableName[" + this.tableName + "] SafeProfileName[" + this.safeProfileName + "])";
+    return this.getClass().getName() + "(TableName[" + this.tableName + "] ProfileName[" + this.profileName + "])";
   }
 }

@@ -319,7 +319,8 @@ public class ProfileObjectPoolManagement implements ProfileObjectPoolManagementM
 
 	@Override
 	public String toString() {
-		return "Profile Object Pool Management: " + "\n+-- Pools: " + pools.keySet();
+		return "Profile Object Pool Management: " 
+			+ "\n+-- Pools: " + pools.keySet();
 	}
 
 }

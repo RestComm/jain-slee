@@ -21,9 +21,9 @@ public abstract class ProfileEntity {
 	protected static final Logger logger = Logger.getLogger(ProfileEntity.class);
 	
 	/**
-	 * the profile name as stored in db
+	 * the profile name
 	 */
-	protected String safeProfileName;
+	protected String profileName;
 	
 	/**
 	 * the profile table name
@@ -54,16 +54,16 @@ public abstract class ProfileEntity {
 	 * Only for usage by JPA, use getProfileName() instead
 	 * @return
 	 */
-    public String getSafeProfileName() {
-        return safeProfileName;
+    public String getProfileName() {
+        return profileName;
     }
 
     /**
      * Only for usage by JPA, use setProfileName(String) instead
      * @param s
      */
-    public void setSafeProfileName(String s) {
-        safeProfileName = s;
+    public void setProfileName(String s) {
+        profileName = s;
     }
 
     /**
@@ -81,29 +81,6 @@ public abstract class ProfileEntity {
     public void setTableName(String s) {
         tableName = s;
     }
-    
-	/**
-     * Sets profile name
-     * @return
-     */
-    public String getProfileName() {
-    	final String s = getSafeProfileName();
-    	if(s.equals(""))
-    		return null;
-    	else
-    		return s;
-    }
-
-    /**
-     * Sets the profile name
-     * @param s
-     */
-    public void setProfileName(String s) {
-    	if(s == null)
-    		setSafeProfileName("");
-    	else
-    		setSafeProfileName(s);
-    }    
     
     /**
      * 
@@ -207,6 +184,6 @@ public abstract class ProfileEntity {
     	  }
       }
       return copy;
-  }
+    }    
 
 }

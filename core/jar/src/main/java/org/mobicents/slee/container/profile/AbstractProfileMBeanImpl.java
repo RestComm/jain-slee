@@ -4,6 +4,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
+import javax.persistence.PersistenceException;
 import javax.slee.InvalidStateException;
 import javax.slee.SLEEException;
 import javax.slee.management.ManagementException;
@@ -15,7 +16,9 @@ import javax.transaction.RollbackException;
 import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -257,26 +260,52 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 			throw new InvalidStateException("not in write state");
 				
 		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
+		
+		ProfileEntity profileEntity = null;
+		
 		try	{
+			
+			// resume tx
 			txManager.resume(this.transaction);
-			// verify changes
-			getProfileObject().profileVerify();	
-			if (sleeContainer.getTransactionManager().getRollbackOnly()) {				
+			
+			// verify state
+			ProfileObject profileObject = getProfileObject();
+			profileObject.profileVerify();
+			
+			// check if the tx is marked for rollback
+			if (txManager.getRollbackOnly()) {
+				// FIXME can't undertsand why the rollback and change of state, perhaps tests/profiles/lifecycle/Test1110227Test.xml is faulty??
 				txManager.rollback();
+				readMode();
 				this.transaction = null;
-				readMode();
-				throw new RollbackException("the tx is marked for rollback, can't proceed with commit");
+				throw new RollbackException("the tx is marked for rollback, can't proceeed with commit");
 			}
-			else {				
-				txManager.commit();	
-				readMode();
-			}			
+
+			// "save" profile entity, we may need to recover its current state
+			profileEntity = profileObject.getProfileEntity();
+
+			// commit tx
+			this.transaction = null;
+			txManager.commit();		
+			
+			// change mode
+			readMode();
+			
 		} catch (ProfileVerificationException e) {
 			if (logger.isDebugEnabled()) {
 				logger.debug(e.getMessage(),e);
+			}		
+			throw e;		
+		} catch (RollbackException e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(e.getMessage(),e);
 			}
-			throw e;
-			
+			if (e.getCause() instanceof PersistenceException && e.getCause().getCause() instanceof ConstraintViolationException) {
+				throw new ProfileVerificationException(e.getCause().getMessage(),e);
+			}
+			else {
+				throw new ManagementException(e.getMessage(),e);
+			}			
 		} catch (Throwable e) {
 			if (logger.isDebugEnabled()) {
 				logger.debug(e.getMessage(),e);
@@ -284,16 +313,32 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 			throw new ManagementException(e.getMessage(),e);
 		
 		} finally {
-			if (isProfileWriteable()) {
-				// tx commit failed or not tried
-				if (logger.isDebugEnabled()) {
-					logger.debug("The tx commit failed or not tried due to tx marked for rollback, suspending tx");
+			if(this.transaction == null) {
+				if (isProfileWriteable()) {
+					// still in write mode
+					if (logger.isDebugEnabled()) {
+						logger.debug("The tx commit failed, recreating tx with current profile entity state");
+					}				
+					try {
+						txManager.begin();
+						this.transaction = txManager.getTransaction();
+						ProfileEntity newTxProfileEntity = profileEntity.isCreate() ? profileTable.createProfile(profileName).getProfileEntity() : getProfileObject().getProfileEntity();
+						profileTable.getProfileSpecificationComponent().getProfileEntityFramework().getProfileEntityFactory().copyAttributes(profileEntity, newTxProfileEntity);
+						newTxProfileEntity.setReadOnly(false);		
+						txManager.suspend();
+					}
+					catch (Throwable e) {
+						throw new ManagementException(e.getMessage(),e);
+					}
 				}
+			}
+			else {
+				// tx still valid
 				try {
-					txManager.suspend();					
+					txManager.suspend();				
 				}
-				catch (Throwable e) {
-					throw new ManagementException(e.getMessage(),e);
+				catch (Throwable f) {
+					logger.error(f.getMessage(),f);
 				}
 			}									
 		}
@@ -304,7 +349,7 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 			logger.debug("Creating profile with name "+profileName+", from table with name "+this.profileTable.getProfileTableName());
 		}
 		
-		if (!isProfileWriteable()) {
+		if (!isProfileWriteable()) {			
 			final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
 			try {
 				writeMode();

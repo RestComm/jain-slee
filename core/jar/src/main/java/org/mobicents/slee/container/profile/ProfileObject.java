@@ -9,11 +9,13 @@ import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.resource.EventFlags;
+import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
+import org.mobicents.slee.container.component.profile.ProfileEntityFactory;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.facilities.profile.AbstractProfileEvent;
@@ -21,6 +23,7 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileAddedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileRemovedEventImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileUpdatedEventImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * Start time:16:46:52 2009-03-13<br>
@@ -91,6 +94,11 @@ public class ProfileObject {
 	 * 
 	 */
 	private final ProfileEntityFramework profileEntityFramework;
+	
+	/**
+	 *
+	 */
+	private boolean persisted;
 	
 	/**
 	 * 
@@ -217,7 +225,12 @@ public class ProfileObject {
 		profileInitialize(profileName);
 		profilePostCreate();
 		profileStore();
+		profilePersist();
+	}
+	
+	public void profilePersist() {
 		persistProfileConcrete();
+		persisted = true;
 	}
 	
 	/**
@@ -232,7 +245,6 @@ public class ProfileObject {
 		if (this.state != ProfileObjectState.POOLED) {
 			throw new SLEEException(this.toString());
 		}
-		
 		
 		if (profileName == null) {
 			// default profile creation
@@ -253,16 +265,10 @@ public class ProfileObject {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Copying state from default profile on object "+this);
 			}
-			try {
-				loadProfileEntity(null);
-			} catch (UnrecognizedProfileNameException e) {
-				throw new SLEEException("the default profile does not exist?!?",e);
-			}
-			// clone it
-			profileEntity = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileName, profileEntity);				
+			profileEntity = cloneEntity(profileTable.getDefaultProfileEntity());
+			profileEntity.setProfileName(profileName);
 		}
-		
-		
+				
 		// mark entity as dirty and for creation
 		profileEntity.create();
 		profileEntity.setDirty(true);
@@ -292,7 +298,6 @@ public class ProfileObject {
 				runtimeExceptionOnProfileInvocation(e);
 			}	
 		}		
-		
 	}
 	
 	/**
@@ -300,15 +305,11 @@ public class ProfileObject {
 	 * Activates the profile object and use a specific snapshot of a profile entity
 	 * @param snapshot
 	 */
-	public void profileActivate(ProfileEntity profileEntity) {
-		this.profileEntity = profileEntity;
-		if (profileTable.doesFireEvents()) {
-			profileEntitySnapshot = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileEntity.getProfileName(), profileEntity);
-			profileEntitySnapshot.setReadOnly(true);						
-		}
-		profileActivate();		
+	public void profileActivate(ProfileEntity profileEntity) {		
+		profileActivate();	
+		profileLoad(profileEntity);
 	}
-	
+		
 	/**
 	 * Activates the profile object and loads its persistent state
 	 * @param profileName
@@ -351,19 +352,31 @@ public class ProfileObject {
 			logger.debug("[profileLoad] "+this+" , profileName = "+profileName);
 		}
 		
+		ProfileEntity profileEntity = loadProfileEntity(profileName);
+		profileEntity.setReadOnly(readOnlyProfileTable);
+		profileLoad(profileEntity);				
+	}
+	
+	/**
+	 * 
+	 * @param profileEntity
+	 */
+	private void profileLoad(ProfileEntity profileEntity) {
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("[profileLoad] "+this+" , profileEntity = "+profileEntity);
+		}
+		
 		if (state != ProfileObjectState.READY) {
 			throw new SLEEException(this.toString());
 		}
 		
-		// load profile concrete from data source
-		if (logger.isDebugEnabled()) {
-			logger.debug("Loading persisted state for profile named "+profileName+" on object "+this);
-		}
-		loadProfileEntity(profileName);
+		this.profileEntity = profileEntity;
+		
 		// create a snapshot copy if the profile table fires events
 		if (profileTable.doesFireEvents()) {
-			profileEntitySnapshot = profileEntityFramework.getProfileEntityFactory().cloneInstance(profileName, profileEntity);
-			profileEntitySnapshot.setReadOnly(true);						
+			profileEntitySnapshot = cloneEntity(profileEntity);
+			profileEntitySnapshot.setReadOnly(true);;						
 		}
 		try {
 			this.profileConcrete.profileLoad();
@@ -509,7 +522,13 @@ public class ProfileObject {
 					event.getProfileAddress(), null, EventFlags.NO_FLAGS);
 		}
 		
-		profileEntityFramework.removeprofile(profileEntity);
+		if(profileEntity.getProfileName() != null) {
+			profileEntityFramework.removeprofile(profileEntity);
+		}
+		else {
+			// the default profile entity is not stored in the framework
+			profileTable.setDefaultProfileEntity(null);
+		}
 		
 		state = ProfileObjectState.POOLED;
 		
@@ -642,15 +661,41 @@ public class ProfileObject {
 		return profileTable;
 	}
 
+	private ProfileEntity cloneEntity(ProfileEntity source) {
+		ProfileEntityFactory profileEntityFactory = profileTable.getProfileSpecificationComponent().getProfileEntityFramework().getProfileEntityFactory();
+		ProfileEntity result = profileEntityFactory.newInstance(source.getTableName(), source.getProfileName());
+		profileEntityFactory.copyAttributes(source, result);
+		return result;
+	}
+	
 	/**
 	 * 
 	 */
-	private void loadProfileEntity(String profileName) throws UnrecognizedProfileNameException {
-		profileEntity = profileEntityFramework.retrieveProfile(profileTable.getProfileTableName(), profileName);
-		if (profileEntity == null) {
-			throw new UnrecognizedProfileNameException();
+	private ProfileEntity loadProfileEntity(String profileName) throws UnrecognizedProfileNameException {
+		
+		if (profileName != null) {
+			ProfileEntity profileEntity = profileEntityFramework.retrieveProfile(profileTable.getProfileTableName(), profileName);
+			if (profileEntity == null) {
+				throw new UnrecognizedProfileNameException();
+			}
+			return profileEntity;
+		}
+		else {
+			// clone default profile entity 
+			final ProfileEntity profileEntity = cloneEntity(profileTable.getDefaultProfileEntity());
+			// add a tx action after commit to update the state on the one stored in the table
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					profileTable.setDefaultProfileEntity(cloneEntity(profileEntity));
+				}
+			};
+			try {
+				profileTable.getSleeContainer().getTransactionManager().addAfterCommitAction(action);				
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(), e);
+			}
+			return profileEntity;
 		}		
-		profileEntity.setReadOnly(readOnlyProfileTable);		
 	}
 	
 	/**
@@ -662,7 +707,13 @@ public class ProfileObject {
 				logger.debug("Persisting "+this);
 				
 			}			
-			profileEntityFramework.persistProfile(profileEntity);			
+			if (profileEntity.getProfileName() != null) {
+				// the default profile entity is not persisted using the framework
+				profileEntityFramework.persistProfile(profileEntity);		
+			}	
+			else {
+				profileTable.setDefaultProfileEntity(cloneEntity(profileEntity));
+			}
 		}		
 	}
 	
@@ -690,9 +741,15 @@ public class ProfileObject {
 					ActivityContext ac = profileTable.getActivityContext();
 					AbstractProfileEvent event = null;
 					if (profileEntity.isCreate()) {
-						event = new ProfileAddedEventImpl(profileEntity);	
-						if (logger.isDebugEnabled()) {
-							logger.debug("firing profile added event for profile named "+profileEntity);
+						if (persisted) {
+							event = new ProfileAddedEventImpl(profileEntity);
+							persisted = false;
+							if (logger.isDebugEnabled()) {
+								logger.debug("firing profile added event for profile named "+profileEntity);
+							}
+						}
+						else {
+							return;
 						}
 					}
 					else {

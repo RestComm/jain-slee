@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 import javax.management.NotCompliantMBeanException;
 import javax.slee.ComponentID;
 import javax.slee.InvalidArgumentException;
+import javax.slee.SLEEException;
 import javax.slee.UnrecognizedComponentException;
 import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.Level;
@@ -65,6 +66,13 @@ public class TraceFacilityImpl implements TraceFacility {
 		return traceMBeanImpl;
 	}
 
+	@Override
+	public String toString() {
+		return "Trace Facility Impl : " 
+			+ "\n+-- Notification Types: "	+ notificationTypes
+			+ "\n" + traceMBeanImpl;
+	}
+	
 	class MTraceLevel {
 		private Level level;
 		private int seqno;

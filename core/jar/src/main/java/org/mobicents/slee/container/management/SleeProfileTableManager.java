@@ -411,4 +411,9 @@ public class SleeProfileTableManager {
 		addProfileTable(newProfileTableName, component);		
 	}
 
+	@Override
+	public String toString() {
+		return "Profile Table Manager: " 
+			+ "\n+-- Profile Tables: " + nameToProfileTableMap.getProfileTables();
+	}
 }

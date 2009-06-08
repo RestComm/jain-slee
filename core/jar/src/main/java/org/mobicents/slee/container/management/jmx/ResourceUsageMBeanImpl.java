@@ -3,6 +3,7 @@ package org.mobicents.slee.container.management.jmx;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.slee.SLEEException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ProfileTableUsageMBean;
 import javax.slee.management.ResourceAdaptorEntityNotification;
@@ -82,9 +83,14 @@ public class ResourceUsageMBeanImpl extends AbstractUsageMBeanImplParent
 
 	@Override
 	public String toString() {
-		return "ResourceUsageMBean( entityName = " + entityName + " )";
+		try {
+			return "Resource Entity " + entityName + " Usage MBean : " 
+				+ "\n+-- Usage Parameter Sets: "	+ getUsageParameterSets();
+		} catch (ManagementException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 	}
-
+	
 	public String getEntityName() throws ManagementException {
 		return entityName;
 	}

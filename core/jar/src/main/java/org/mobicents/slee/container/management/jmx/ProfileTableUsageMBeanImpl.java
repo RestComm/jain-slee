@@ -3,6 +3,7 @@ package org.mobicents.slee.container.management.jmx;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.slee.SLEEException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ProfileTableNotification;
 import javax.slee.management.ProfileTableUsageMBean;
@@ -85,8 +86,12 @@ public class ProfileTableUsageMBeanImpl extends AbstractUsageMBeanImplParent
 
 	@Override
 	public String toString() {
-		return "ProfileTableUsageMBean( profileTableName = " + profileTableName
-				+ " )";
+		try {
+			return "Profile Table " + profileTableName + " Usage MBean : " 
+				+ "\n+-- Usage Parameter Sets: "	+ getUsageParameterSets();
+		} catch (ManagementException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
 	}
 
 	public String getProfileTableName() throws ManagementException {

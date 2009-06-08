@@ -82,7 +82,7 @@ public class JPAQueryBuilder {
       }
 
       long s = System.currentTimeMillis();
-      String sqlQuery = "SELECT " + (queryMaxMatches != -1 ? ("TOP " + queryMaxMatches) : "") + " * " + getExpression( query.getQueryExpression(), queryParameters, 0 ) + " AND safeProfileName != ''";
+      String sqlQuery = "SELECT " + (queryMaxMatches != -1 ? ("TOP " + queryMaxMatches) : "") + " * " + getExpression( query.getQueryExpression(), queryParameters, 0 );
       logger.info("Query :: SQL[" + sqlQuery + "]");
       long e = System.currentTimeMillis();
       logger.info("Query :: Parsed in " + (e-s) + "ms.");
@@ -267,7 +267,7 @@ public class JPAQueryBuilder {
     ArrayList<Object> params = new ArrayList<Object>();
 
     long s = System.currentTimeMillis();
-    String sqlQuery = "SELECT * " + parseDynamicQuery( query, 0, null, params ) + " AND safeProfileName != ''";
+    String sqlQuery = "SELECT * " + parseDynamicQuery( query, 0, null, params );
     logger.info("Query :: SQL[" + sqlQuery + "]");
     long e = System.currentTimeMillis();
     logger.info("Query :: Parsed in " + (e-s) + "ms.");
