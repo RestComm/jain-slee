@@ -167,6 +167,10 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		closed = true;		
 	}
 
+	public void open() {
+		closed = false;		
+	}
+	
 	/**
 	 * 
 	 * @throws ManagementException
@@ -462,10 +466,6 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			throws UnrecognizedUsageParameterSetNameException,
 			ManagementException {
 
-		if (ensureMBeanIsNotClosed) {
-			ensureMBeanIsNotClosed();
-		}
-		
 		Logger logger = getLogger();
 		if (logger.isDebugEnabled()) {
 			logger.debug("_removeUsageParameterSet( name = "+name+")");

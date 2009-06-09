@@ -779,6 +779,9 @@ public class ResourceManagement {
 				throw new InvalidArgumentException(" Resource Adaptor entity "+entityName+" related resource adaptor does not defines a usage paramters interface. See section 14.2 in SLEE 1.1 specs for more info");
 			}
 			else {
+				// ensure it is open
+				mbean.open();
+				// return its object name
 				return mbean.getObjectName();
 			}			
 		}

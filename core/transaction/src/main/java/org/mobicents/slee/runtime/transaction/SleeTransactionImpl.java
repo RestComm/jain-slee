@@ -39,6 +39,8 @@ public class SleeTransactionImpl implements SleeTransaction {
 	 */
 	private final SleeTransactionManagerImpl transactionManager;
 
+	private boolean asyncOperationInitiated = false;
+	
 	public SleeTransactionImpl(TransactionImple transaction,
 			SleeTransactionManagerImpl transactionManager) {
 		this.transaction = transaction;
@@ -77,6 +79,7 @@ public class SleeTransactionImpl implements SleeTransaction {
 				throw new IllegalStateException(
 						"There is no active tx, tx is in state: " + status);
 			}
+			asyncOperationInitiated = true;
 			suspendIfAssoaciatedWithThread();
 		} catch (SystemException e) {
 			throw new IllegalStateException(e);
@@ -115,7 +118,12 @@ public class SleeTransactionImpl implements SleeTransaction {
 
 	public void commit() throws RollbackException, HeuristicMixedException,
 			HeuristicRollbackException, SecurityException,
-			IllegalStateException, SystemException {		
+			IllegalStateException, SystemException {	
+		
+		if (asyncOperationInitiated) {
+			throw new IllegalStateException();
+		}
+		
 		try {
 			transaction.commit();		
 		}
@@ -134,6 +142,11 @@ public class SleeTransactionImpl implements SleeTransaction {
 	}
 
 	public void rollback() throws IllegalStateException, SystemException {
+		
+		if (asyncOperationInitiated) {
+			throw new IllegalStateException();
+		}
+		
 		try {
 			transaction.rollback();		
 		}
