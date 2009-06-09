@@ -148,6 +148,11 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	 * @throws IllegalStateException
 	 */
 	private void checkStartActivityParameters(ActivityHandle handle, Object activity) throws NullPointerException,IllegalStateException {
+		
+		if (logger.isDebugEnabled()) {
+    		logger.debug("Starting activity : "+ handle);
+    	}	
+		
 		// check args
 		if (handle == null) {
     		throw new NullPointerException("null handle");
@@ -330,6 +335,11 @@ public class SleeEndpointImpl implements SleeEndpoint {
 	@SuppressWarnings("unchecked")
 	private void checkFireEventPreconditions(ActivityHandle handle, FireableEventType eventType,
 			Object event) throws NullPointerException,IllegalEventException,IllegalStateException {
+		
+		if (logger.isDebugEnabled()) {
+    		logger.debug("Firing event "+ event + " of type " +eventType.getEventType() + " on activity " + handle);
+    	}	
+		
 		if (event == null) 
     		throw new NullPointerException("event is null");
     	

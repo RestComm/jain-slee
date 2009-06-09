@@ -131,9 +131,7 @@ public class ResourceAdaptorEntity {
 		try {
 			Thread.currentThread().setContextClassLoader(
 					component.getClassLoader());
-			Constructor<?> cons = this.component.getResourceAdaptorClass()
-					.getConstructor(null);
-			ResourceAdaptor ra = (ResourceAdaptor) cons.newInstance(null);
+			ResourceAdaptor ra = (ResourceAdaptor) this.component.getResourceAdaptorClass().newInstance();
 			object = new ResourceAdaptorObject(ra, component
 					.getDefaultConfigPropertiesInstance());
 		} catch (Exception e) {
@@ -632,15 +630,26 @@ public class ResourceAdaptorEntity {
 	 * @param handle
 	 * @param activityFlags
 	 */
-	public void activityEnded(ActivityHandle handle, int activityFlags) {
+	public void activityEnded(final ActivityHandle handle, int activityFlags) {
 		if (ActivityFlags.hasRequestEndedCallback(activityFlags)) {
 			object.activityEnded(handle);
 		}
-		if (object.getState() == ResourceAdaptorObjectState.STOPPING && !hasActivites(handle)) {
-			if (timerTask != null) {
-				timerTask.cancel();
-			}
-			allActivitiesEnded();
+		if (object.getState() == ResourceAdaptorObjectState.STOPPING) {
+			// the ra object is stopping, check if the timer task is still
+			// needed
+			// this needs to be done in a different thread cause this callback
+			// in on tx action after commit
+			Runnable runnable = new Runnable() {
+				public void run() {
+					if (!hasActivites(handle)) {
+						if (timerTask != null) {
+							timerTask.cancel();
+						}
+						allActivitiesEnded();
+					}
+				}
+			};
+			new Thread(runnable).start();
 		}
 	}
 }
