@@ -2,6 +2,7 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.MBeanServer;
@@ -76,6 +77,11 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	private final NotificationSource notificationSource;
 
 	/**
+	 * 
+	 */
+	private boolean closed = false;
+	
+	/**
 	 * Creates a new instance of an abstract usage mbean
 	 * @param mBeanInterfaceClass the class poiting to the interface this mbean implements
 	 * @param component the component related with this mbean
@@ -138,7 +144,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		}
 		for (String name : usageMBeans.keySet()) {
 			try {
-				removeUsageParameterSet(name);
+				_removeUsageParameterSet(name,false);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -157,9 +163,20 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 * @throws ManagementException
 	 */
 	public void close() throws ManagementException {
-		// ignore		
+		ensureMBeanIsNotClosed();
+		closed = true;		
 	}
 
+	/**
+	 * 
+	 * @throws ManagementException
+	 */
+	protected void ensureMBeanIsNotClosed() throws ManagementException {
+		if (closed) {
+			throw new ManagementException("closed");
+		}
+	}
+	
 	/**
 	 * Creates the default usage param (and its mbean)
 	 * 
@@ -203,6 +220,8 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			boolean failIfSbbHasNoUsageParamSet) throws NullPointerException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
 
+		ensureMBeanIsNotClosed();
+		
 		Logger logger = getLogger();
 
 		// get usage parameter class
@@ -355,6 +374,8 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			throws ManagementException,
 			UnrecognizedUsageParameterSetNameException {
 
+		ensureMBeanIsNotClosed();
+		
 		Logger logger = getLogger();
 		if (logger.isDebugEnabled()) {
 			logger.debug("_getUsageMBean( name = "+name+")");
@@ -382,6 +403,9 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 */
 	public ObjectName getUsageNotificationManagerMBean()
 			throws ManagementException {
+		
+		ensureMBeanIsNotClosed();
+		
 		return notificationManager.getObjectName();
 	}
 
@@ -392,7 +416,19 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 * @throws ManagementException
 	 */
 	public String[] getUsageParameterSets() throws ManagementException {
-		return usageMBeans.keySet().toArray(new String[0]);
+		
+		ensureMBeanIsNotClosed();
+		
+		return getUsageParameterNamesSet().toArray(new String[0]);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Set<String> getUsageParameterNamesSet() {
+		
+		return usageMBeans.keySet();
 	}
 
 	/**
@@ -403,7 +439,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 */
 	private void removeUsageParameterSet() throws ManagementException,
 			UnrecognizedUsageParameterSetNameException {
-		_removeUsageParameterSet(null);
+		_removeUsageParameterSet(null,false);
 	}
 
 	/**
@@ -419,13 +455,17 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			UnrecognizedUsageParameterSetNameException, ManagementException {
 		if (paramSetName == null)
 			throw new NullPointerException("usage param set is null");
-		_removeUsageParameterSet(paramSetName);
+		_removeUsageParameterSet(paramSetName,true);
 	}
 
-	private synchronized void _removeUsageParameterSet(String name)
+	private synchronized void _removeUsageParameterSet(String name, boolean ensureMBeanIsNotClosed)
 			throws UnrecognizedUsageParameterSetNameException,
 			ManagementException {
 
+		if (ensureMBeanIsNotClosed) {
+			ensureMBeanIsNotClosed();
+		}
+		
 		Logger logger = getLogger();
 		if (logger.isDebugEnabled()) {
 			logger.debug("_removeUsageParameterSet( name = "+name+")");
@@ -477,6 +517,9 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 * @throws ManagementException
 	 */
 	public void resetAllUsageParameters() throws ManagementException {
+		
+		ensureMBeanIsNotClosed();
+		
 		try {
 			for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
 				usageMBeanImpl.resetAllUsageParameters();

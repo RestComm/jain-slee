@@ -36,7 +36,7 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import javax.slee.usage.UsageMBean;
 import javax.slee.usage.UsageNotificationManagerMBean;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
@@ -55,6 +55,7 @@ import org.mobicents.slee.container.component.SleeComponentWithUsageParametersIn
  * @author Ivelin Ivanov
  * @author martins
  */
+@SuppressWarnings("deprecation")
 public class ServiceUsageMBeanImpl extends StandardMBean implements
 		ServiceUsageMBean, UsageMBeanImplParent,
 		Serializable {
@@ -189,7 +190,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					+ " is not part of " + getService());
 		}
 		// get sbb usage parameter class
-		Class usageParameterClass = sbbComponent
+		Class<?> usageParameterClass = sbbComponent
 				.getUsageParametersConcreteClass();
 		if (usageParameterClass == null) {
 			if (failIfSbbHasNoUsageParamSet) {
@@ -219,11 +220,11 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			// mbean
 			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass.newInstance();
 			// create and register the usage mbean
-			Class usageParameterMBeanClass = sbbComponent
+			Class<?> usageParameterMBeanClass = sbbComponent
 					.getUsageParametersMBeanImplConcreteClass();
 			SbbNotification sbbNotification = new SbbNotification(serviceID,
 					sbbId);
-			Constructor constructor = null;
+			Constructor<?> constructor = null;
 			if (sbbComponent.isSlee11()) {
 				constructor = usageParameterMBeanClass
 						.getConstructor(new Class[] { Class.class,
@@ -251,7 +252,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			// if it's the default usage param set and it's an slee 1.1. sbb
 			// then we have to create the notification manager too
 			if (sbbComponent.isSlee11() && name == null) {
-				Class usageNotificationManagerMBeanClass = sbbComponent
+				Class<?> usageNotificationManagerMBeanClass = sbbComponent
 						.getUsageNotificationManagerMBeanImplConcreteClass();
 				constructor = usageNotificationManagerMBeanClass
 						.getConstructor(new Class[] { Class.class,
@@ -368,7 +369,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					+ " is not part of " + getService());
 		}
 		// get sbb usage parameter class
-		Class usageParameterClass = sbbComponent
+		Class<?> usageParameterClass = sbbComponent
 				.getUsageParametersConcreteClass();
 		if (usageParameterClass == null) {
 			throw new InvalidArgumentException(sbbId.toString()
@@ -834,10 +835,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			throws ManagementException {
 
 		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
-		// get the sbb component
-		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
-				.getComponentByID(sbbId);
 
 		UsageNotificationManagerMBeanImpl usageMbean = null;
 		try {
