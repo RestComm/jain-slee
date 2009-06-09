@@ -25,7 +25,7 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 	private final NotificationSource notificationSource;
 	private ObjectName objectName;
 	
-	public UsageMBeanImpl(Class mbeanInterface, NotificationSource notificationSource) throws NotCompliantMBeanException,
+	public UsageMBeanImpl(Class<?> mbeanInterface, NotificationSource notificationSource) throws NotCompliantMBeanException,
 			ClassNotFoundException {
 		super(mbeanInterface);
 		this.notificationSource = notificationSource;

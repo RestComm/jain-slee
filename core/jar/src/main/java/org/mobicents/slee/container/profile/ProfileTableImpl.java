@@ -1,5 +1,6 @@
 package org.mobicents.slee.container.profile;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,7 +53,12 @@ import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author martins
  */
-public class ProfileTableImpl implements ProfileTable {
+public class ProfileTableImpl implements ProfileTable, Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	public static final int _UNICODE_RANGE_START = 0x0020;
 	public static final int _UNICODE_RANGE_END = 0x007e;

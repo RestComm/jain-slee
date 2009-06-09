@@ -12,6 +12,10 @@
  */
 package org.mobicents.slee.container.deployment;
 
+import java.beans.Introspector;
+import java.util.HashSet;
+import java.util.Set;
+
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
@@ -61,7 +65,7 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
     public void generateConcreteUsageNotificationManagerMBean(
             ) throws Exception {
     	
-    	Class interfaceClass = component.getUsageParametersInterface();
+    	Class<?> interfaceClass = component.getUsageParametersInterface();
         if (interfaceClass == null)
             return;
         
@@ -94,12 +98,26 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
                 .getName()),classPool.get(SleeComponentWithUsageParametersInterface.class
                         .getName()));
                 
-        CtMethod[] methods = usageParamInterface.getDeclaredMethods();
+        CtMethod[] methods = usageParamInterface.getMethods();
 
-        for (int i = 0; i < methods.length; i++) {
-            // Generate the concrete method.
-            generateAbstractMethod(ctInterface, methods[i]);
-            generateConcreteMethod(ctClass, methods[i]);
+        Set<String> userParams = new HashSet<String>();
+        for (CtMethod ctMethod : methods) {
+        	if (!ctMethod.getDeclaringClass().getName().equals(Object.class.getName())) {
+        		if (ctMethod.getName().startsWith("increment")) {
+        			userParams.add(ctMethod.getName().substring("increment".length()));
+        		}
+        		else if (ctMethod.getName().startsWith("sample")) {
+        			userParams.add(ctMethod.getName().substring("sample".length()));
+        		}
+        		else if (ctMethod.getName().startsWith("get")) {
+        			userParams.add(ctMethod.getName().substring("get".length()));
+        		}            
+        	}
+        }
+        
+        for(String userParam : userParams) {        	
+        	generateInterfaceMethod(ctInterface, userParam);
+            generateConcreteMethod(ctClass, userParam);           
         }
 
         String deploymentPathStr = component.getDeploymentDir().getAbsolutePath();
@@ -115,18 +133,9 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
         ctClass.defrost();
     }
 
-    private void generateConcreteMethod(CtClass ctClass, CtMethod method) throws Exception{
-    	
-    	String methodName = method.getName();
-        String userParamName = null;
-        if (methodName.startsWith("increment")) {
-        	userParamName = methodName.substring("increment".length());
-        }
-        else if (methodName.startsWith("sample")) {
-        	userParamName = methodName.substring("sample".length());
-        }
+    private void generateConcreteMethod(CtClass ctClass, String userParamName) throws Exception{
         
-        String userParamNameLowerCase = userParamName.substring(0, 1).toLowerCase() + userParamName.substring(1);
+        String userParamNameLowerCase = Introspector.decapitalize(userParamName);
         
         String getterBody = "public boolean get" + userParamName + "NotificationsEnabled"
                     + "() throws " + ManagementException.class.getName() + " {"
@@ -147,17 +156,8 @@ public class ConcreteUsageNotificationManagerMBeanGenerator {
         ctClass.addMethod(setterMethod);
     }
     
-    private void generateAbstractMethod(CtClass ctClass, CtMethod method)
+    private void generateInterfaceMethod(CtClass ctClass,  String userParamName)
             throws Exception {
-
-        String methodName = method.getName();
-        String userParamName = null;
-        if (methodName.startsWith("increment")) {
-        	userParamName = methodName.substring("increment".length());
-        }
-        else if (methodName.startsWith("sample")) {
-        	userParamName = methodName.substring("sample".length());
-        }
             	
         ClassPool classPool = component.getClassPool();
         CtClass managementExceptionClass = classPool.get(ManagementException.class.getName());

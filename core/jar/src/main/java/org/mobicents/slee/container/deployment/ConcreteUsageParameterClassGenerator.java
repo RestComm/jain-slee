@@ -22,6 +22,7 @@
 
 package org.mobicents.slee.container.deployment;
 
+import java.beans.Introspector;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -67,7 +68,7 @@ public class ConcreteUsageParameterClassGenerator {
     
     private final String deploymentDir;
     
-    private final HashSet generatedFields = new HashSet();
+    private final HashSet<String> generatedFields = new HashSet<String>();
 
     public ConcreteUsageParameterClassGenerator(String usageParameterInterfaceName, String deploymentDir, ClassPool classPool) {
         this.usageParameterInterfaceName = usageParameterInterfaceName;
@@ -75,7 +76,7 @@ public class ConcreteUsageParameterClassGenerator {
     	this.classPool = classPool;
     }
 
-    public Class generateConcreteUsageParameterClass() throws Exception {
+    public Class<?> generateConcreteUsageParameterClass() throws Exception {
         
     	CtClass usageParamInterface = classPool.get(usageParameterInterfaceName);
 
@@ -119,7 +120,7 @@ public class ConcreteUsageParameterClassGenerator {
             if (logger.isDebugEnabled())
                 logger.debug("UsageParameterGenerator Writing file "
                         + concreteClassName);
-            Class retval = Thread.currentThread().getContextClassLoader()
+            Class<?> retval = Thread.currentThread().getContextClassLoader()
                     .loadClass(concreteClassName);
             return retval;
         } finally {
@@ -178,75 +179,14 @@ public class ConcreteUsageParameterClassGenerator {
         }
     }
 
-    /**
-     * Generate the fields.
-     * 
-     * @param concreteClass
-     * @param parameters
-     * @throws Exception
-     */
-    private void generateFields (CtClass concreteClass, CtClass[] parameters ) {
-        for (int i = 0; i < parameters.length; i++) {
-            String parameterName = paramNameFromClassName(parameters[i]);
-
-            try {
-                CtField ctField = new CtField(parameters[i], parameterName,
-                        concreteClass);
-                ctField.setModifiers(Modifier.PRIVATE);
-                concreteClass.addField(ctField);
-            } catch (CannotCompileException cce) {
-                cce.printStackTrace();
-            }
-        }
-    }
     
-    /**
-     * Create a constructor. This method simply records the input parameters in
-     * appropriately named fields.
-     * 
-     * @param
-     * @param classes
-     */
-    private void createConstructor(CtClass concreteClass, CtClass[] parameters)
-            throws Exception {
-
-        CtConstructor ctCons = new CtConstructor(parameters, concreteClass);
-        String constructorBody = "{";
-        constructorBody += " this.reset(); ";
-        for (int i = 0; i < parameters.length; i++) {
-            String parameterName = paramNameFromClassName(parameters[i]);
-
-            
-            int paramNumber = i + 1;
-            constructorBody += parameterName + "=$" + paramNumber + ";";
-
-        }
-        constructorBody += "}";
-        ctCons.setBody(constructorBody);
-        concreteClass.addConstructor(ctCons);
-
-    }
-
-    private static String paramNameFromClassName(CtClass parameter) {
-
-        String parameterName = parameter.getName();
-        parameterName = parameterName
-                .substring(parameterName.lastIndexOf(".") + 1);
-        if (parameterName.indexOf('[') != -1) {
-            parameterName = parameterName.substring(0, parameterName
-                    .indexOf('['));
-        }
-        String firstCharLowerCase = parameterName.substring(0, 1).toLowerCase();
-        parameterName = firstCharLowerCase.concat(parameterName.substring(1));
-        return parameterName;
-    }
 
     /**
      * Reset the usage parameters.
      */
     private void generateResetMethod(CtClass ctClass) throws Exception {
         String body = "public synchronized void reset() {";
-        for (Iterator it = this.generatedFields.iterator(); it.hasNext();) {
+        for (Iterator<String> it = this.generatedFields.iterator(); it.hasNext();) {
             String generatedField = (String) it.next();
             if ( generatedField.endsWith("Max")) {
                 body += generatedField + " = Long.MIN_VALUE  ; ";
@@ -281,9 +221,8 @@ public class ConcreteUsageParameterClassGenerator {
 
         String paramName = null;
         if (methodName.startsWith("increment")) {
-            paramName = methodName.substring("increment".length());
-            String firstCharLowerCase = paramName.substring(0, 1).toLowerCase();
-            paramName = firstCharLowerCase.concat(paramName.substring(1));
+            
+        	paramName = Introspector.decapitalize(methodName.substring("increment".length()));
             
             CtField ctField = new CtField(CtClass.longType, paramName + "Value",
                     ctClass);
@@ -311,9 +250,8 @@ public class ConcreteUsageParameterClassGenerator {
              * a sample -type usage parameter and reset the state of the usage
              * parameter through the SLEE’s management interface.
              */
-            paramName = methodName.substring("sample".length());
-            String firstCharLowerCase = paramName.substring(0, 1).toLowerCase();
-            paramName = firstCharLowerCase.concat(paramName.substring(1));
+            
+            paramName = Introspector.decapitalize(methodName.substring("sample".length()));
             
             CtField ctField = new CtField(CtClass.longType, paramName + "Value",
                     ctClass);
@@ -345,7 +283,6 @@ public class ConcreteUsageParameterClassGenerator {
             ctClass.addField(ctField);
             this.generatedFields.add(paramName + "Count");
             
-
             ctField = new CtField(CtClass.doubleType, paramName + "Sum", ctClass);
             ctField.setModifiers(Modifier.PRIVATE);
             ctClass.addField(ctField);
@@ -353,6 +290,7 @@ public class ConcreteUsageParameterClassGenerator {
 
         } else
             return; // TODO -- should I throw exception here ?
+        
         if ( logger.isDebugEnabled() )
             logger.debug("generateConcreteMethod(): USAGEPARAM variable is " + paramName);
         
@@ -361,7 +299,7 @@ public class ConcreteUsageParameterClassGenerator {
         
         String body = "";
         String getterBody = "";
-
+        String getter11Body = "";
 
         if (methodName.startsWith("increment")) {
 
@@ -394,9 +332,9 @@ public class ConcreteUsageParameterClassGenerator {
             //getterBody += "this." + paramName + "Max = Long.MIN_VALUE ;}";
             getterBody += "return tempCount;";
             getterBody += "}";
-            logger.debug("body = " + getterBody);
-            CtMethod newmethod = CtNewMethod.make(getterBody, ctClass);
-            ctClass.addMethod(newmethod);
+            
+            getter11Body += "public long get" + methodName.substring("increment".length())
+            + "() { return get" + methodName.substring("increment".length())+ "(false); }";
 
         } else if (methodName.startsWith("sample")) {
             /*
@@ -416,8 +354,6 @@ public class ConcreteUsageParameterClassGenerator {
                     + paramName + "Min = longValue;";
             body += "this." + paramName + "Count++;";
             
-            
-
             // sendUsageNotification (long value, long seqno, String
             // usageParameterSetName, String usageParameterName, boolean
             // isCounter)
@@ -445,17 +381,31 @@ public class ConcreteUsageParameterClassGenerator {
             getterBody += "this." + paramName + "Max = Long.MIN_VALUE ;}";
             getterBody += "return tempValue;";
             getterBody += "}";
-            logger.debug("body = " + getterBody);
-            CtMethod newmethod = CtNewMethod.make(getterBody, ctClass);
-            ctClass.addMethod(newmethod);
+            
+            getter11Body += "public " + SampleStatistics.class.getName() + " get" + methodName.substring("sample".length())
+            + "() { return get" + methodName.substring("sample".length())+ "(false); }";          
             
         } else {
             return;
         }
 
-        logger.debug("body = " + body);
-        CtMethod newmethod = CtNewMethod.make(body, ctClass);
-        ctClass.addMethod(newmethod);
+        if (logger.isDebugEnabled()) {
+        	logger.debug("Adding SLEE 1.0 usage param getter with source "+getterBody);
+        }
+        CtMethod getterMethod = CtNewMethod.make(getterBody, ctClass);
+        ctClass.addMethod(getterMethod);
+        
+        if (logger.isDebugEnabled()) {
+        	logger.debug("Adding SLEE 1.1 usage param getter with source "+getter11Body);
+        }
+        CtMethod getter11Method = CtNewMethod.make(getter11Body, ctClass);
+        ctClass.addMethod(getter11Method);
+        
+        if (logger.isDebugEnabled()) {
+        	logger.debug("Adding usage param setter with source "+body);
+        }
+        CtMethod setterMethod = CtNewMethod.make(body, ctClass);
+        ctClass.addMethod(setterMethod);
     }
 
 }

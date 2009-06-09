@@ -270,6 +270,9 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 				this.notificationManager = usageNotificationManagerMBean;
 			}
 		} catch (Throwable e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Error creating usage param set named "+name,e);
+			}
 			if (usageMbean != null) {
 				if (name != null) {
 					this.usageMBeans.remove(name);
@@ -352,6 +355,11 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			throws ManagementException,
 			UnrecognizedUsageParameterSetNameException {
 
+		Logger logger = getLogger();
+		if (logger.isDebugEnabled()) {
+			logger.debug("_getUsageMBean( name = "+name+")");
+		}
+		
 		UsageMBeanImpl usageMBeanImpl = null;
 		if (name != null) {
 			usageMBeanImpl = usageMBeans.get(name);
@@ -419,7 +427,10 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			ManagementException {
 
 		Logger logger = getLogger();
-
+		if (logger.isDebugEnabled()) {
+			logger.debug("_removeUsageParameterSet( name = "+name+")");
+		}
+		
 		UsageMBeanImpl usageMbean = null;
 		try {
 			if (name != null) {

@@ -3,7 +3,9 @@ package org.mobicents.slee.container.management;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -55,14 +57,14 @@ public class SleeProfileTableManager {
 	 * 
 	 */
 	//private ConcurrentHashMap nameToProfileTableMap = new ConcurrentHashMap();
-	private ProfileManagementCacheData nameToProfileTableMap;
+	private ConcurrentHashMap<String, ProfileTableImpl> nameToProfileTableMap;
 
 	public SleeProfileTableManager(SleeContainer sleeContainer) {
 		super();
 		if (sleeContainer == null)
 			throw new NullPointerException("Parameter must not be null");
 		this.sleeContainer = sleeContainer;
-		this.nameToProfileTableMap=this.sleeContainer.getCache().getProfileManagementCacheData();
+		this.nameToProfileTableMap=new ConcurrentHashMap<String, ProfileTableImpl>(); // this.sleeContainer.getCache().getProfileManagementCacheData();
 
 	}
 
@@ -260,7 +262,7 @@ public class SleeProfileTableManager {
 	 * @return
 	 */
 	public Collection<String> getDeclaredProfileTableNames() {
-		return Collections.unmodifiableCollection(this.nameToProfileTableMap.getProfileTables());
+		return Collections.unmodifiableSet(new HashSet(this.nameToProfileTableMap.keySet()));
 	}
 
 	/**
@@ -340,7 +342,19 @@ public class SleeProfileTableManager {
 		// create instance
 		final ProfileTableImpl profileTable = createProfileTableInstance(profileTableName, component);
 		// map it
-		this.nameToProfileTableMap.add(profileTableName, profileTable);
+		this.nameToProfileTableMap.put(profileTableName, profileTable);
+		
+		TransactionalAction action1 = new TransactionalAction() {
+			public void execute() {
+				nameToProfileTableMap.remove(profileTableName);				
+			}
+		};
+		try {
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action1);
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}
+		
 		// register tracer
 		try {
 			final String tableName = profileTable.getProfileTableName();
@@ -348,27 +362,27 @@ public class SleeProfileTableManager {
 			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
 			traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(tableName));
 
-			TransactionalAction action = new TransactionalAction() {
+			TransactionalAction action2 = new TransactionalAction() {
 				public void execute() {
 					// remove notification sources for profile table
 					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
 					traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(tableName));
 				}
 			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action2);
 		}
 		catch (SystemException e) {
 			throw new SLEEException("Failure to register Tracer", e);
 		}
 		// register usage mbean
 		profileTable.registerUsageMBean();
-		TransactionalAction action = new TransactionalAction() {
+		TransactionalAction action3 = new TransactionalAction() {
 			public void execute() {
 				profileTable.unregisterUsageMBean();				
 			}
 		};
 		try {
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action3);
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
@@ -414,6 +428,6 @@ public class SleeProfileTableManager {
 	@Override
 	public String toString() {
 		return "Profile Table Manager: " 
-			+ "\n+-- Profile Tables: " + nameToProfileTableMap.getProfileTables();
+			+ "\n+-- Profile Tables: " + getDeclaredProfileTableNames();
 	}
 }
