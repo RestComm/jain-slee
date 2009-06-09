@@ -36,7 +36,6 @@ import org.mobicents.slee.runtime.eventrouter.RollbackDeferredEventAction;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
-import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
@@ -673,11 +672,22 @@ public class ActivityContext {
 		
 		case externalActivity:
 			// external activity, notify RA that the activity has ended
+			final int activityFlags = getActivityFlags();
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					try {
+						sleeContainer.getResourceManagement().getResourceAdaptorEntity(activityContextHandle.getActivitySource()).activityEnded(activityContextHandle.getActivityHandle(),activityFlags);
+					}
+					catch (Throwable e) {
+						logger.error(e.getMessage(),e);
+					}					
+				}
+			};
 			try {
-				sleeContainer.getResourceManagement().getResourceAdaptorEntity(activityContextHandle.getActivitySource()).activityEnded(activityContextHandle.getActivityHandle(),getActivityFlags());
-			}
-			catch (Throwable e) {
-				logger.error(e.getMessage(),e);
+				sleeContainer.getTransactionManager().addAfterCommitAction(action);
+			} catch (Throwable e) {
+				logger.error("error adding tx action to tx manager, to inform ra entity of activity end, executing action now",e);
+				action.execute();
 			}			
 			break;
 		
@@ -713,7 +723,6 @@ public class ActivityContext {
 		}
 		
 		removeFromCache();
-		
 	}
 	
 	private void fireDeferredEvent(DeferredEvent dE) {

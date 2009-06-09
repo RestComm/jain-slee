@@ -114,7 +114,7 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 
 	public void activityEnded(NullActivityHandle nullActivityHandle) {
 		try {
-			// put in cache
+			// remove from cache
 			cacheData.removeNullActivityId(nullActivityHandle.getId());
 		}
 		catch (Exception e) {

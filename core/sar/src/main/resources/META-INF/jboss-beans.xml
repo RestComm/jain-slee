@@ -124,7 +124,7 @@
          </bean>
       </property>
       
-      <property name="isolationLevel">READ_COMMITTED</property>
+      <property name="isolationLevel">REPEATABLE_READ</property>
       <property name="cacheMode">LOCAL</property>
       <property name="lockParentForChildInsertRemove">false</property>
       <property name="lockAcquisitionTimeout">15000</property>
