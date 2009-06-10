@@ -92,19 +92,6 @@ public class ActivityContext {
 
 	private transient SbbEntityComparator sbbEntityComparator;
 
-	private void printNode() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("ActivityContext.printNode() { \n"
-					+ "activityContextHandle = " + activityContextHandle
-					+ "nodeNameInCache = " + activityContextId
-					+ "\nsbbAttachmentSet = "
-					+ this.getSbbAttachmentSet().keySet()					
-					+ "\nnamingBinding  = " + this.getNamingBindingCopy()
-					+ "\nattachedTimers = " + this.getAttachedTimersCopy()
-					+ "\nisEnding = " + this.isEnding() + "}");
-		}
-	}
-
 	public ActivityContext(ActivityContextHandle activityContextHandle, String id, boolean updateAccessTime, Integer activityFlags) {
 
 		assert (activityContextHandle != null) : "activityContextHandle cannot be null";
@@ -131,7 +118,6 @@ public class ActivityContext {
 		if (updateAccessTime) {
 			updateLastAccessTime();
 		}
-		printNode();		
 	}
 	
 	/**
@@ -583,7 +569,7 @@ public class ActivityContext {
 	}
 
 	public String toString() {
-		return  "activity context : id=" + activityContextId;
+		return  "AC { id = " + activityContextId+" , handle = "+activityContextHandle+" }";
 	}
 	
 	// emmartins: added to split null activity end related logic
