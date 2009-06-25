@@ -926,9 +926,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			return;
 		}
 		Policy p = Policy.getPolicy();
-		if(!(p instanceof PolicyFile))
-		{
-			logger.error("Could nto find Policy implmentation specific to mobicents. Found: "+p.getClass());
+		if (!(p instanceof PolicyFile)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Could not find Policy implmentation specific to mobicents. Found: " + p.getClass());
+			}
 			return;
 		}
 		
@@ -959,7 +960,10 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		Policy p = Policy.getPolicy();
 		if(!(p instanceof PolicyFile))
 		{
-			logger.error("Could nto find Policy implmentation specific to mobicents. Found: "+p.getClass());
+		if (logger.isDebugEnabled()) {
+				logger.debug("Could not find Policy implmentation specific to mobicents. Found: " + p.getClass());
+			}
+			return;
 		}
 		
 		PolicyFile policyFile = (PolicyFile) p;

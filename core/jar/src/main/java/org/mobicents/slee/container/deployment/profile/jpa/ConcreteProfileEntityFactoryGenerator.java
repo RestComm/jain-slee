@@ -20,6 +20,7 @@ import org.mobicents.slee.container.component.profile.ProfileAttribute;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.component.profile.ProfileEntityFactory;
 import org.mobicents.slee.container.deployment.profile.ClassGeneratorUtils;
+import org.mobicents.slee.container.security.Utility;
 
 /**
  * 
@@ -86,6 +87,9 @@ public class ConcreteProfileEntityFactoryGenerator {
 			  	profileEntityClass.getName()+" oldProfileEntity = ("+profileEntityClass.getName()+") $1; ";
 		  // process fields copy
 		  String profileEntityAttributeArrayValueClassName = null;
+		  if(System.getSecurityManager()==null)
+		  {
+		  
 		  for (ProfileAttribute profileAttribute : profileAttributes) {
 			  String accessorMethodSufix = ClassGeneratorUtils.getPojoCmpAccessorSufix(profileAttribute.getName());
 			  if (profileAttribute.isArray()) {
@@ -123,6 +127,57 @@ public class ConcreteProfileEntityFactoryGenerator {
 				  }
 			  }
 		  }
+		  }else
+		  {
+			  for (ProfileAttribute profileAttribute : profileAttributes) {
+			  	  String accessorMethodSufix = ClassGeneratorUtils.getPojoCmpAccessorSufix(profileAttribute.getName());
+			  		  if (profileAttribute.isArray()) {
+			  		  profileEntityAttributeArrayValueClassName = profileEntityAttributeArrayValueClasses.get(profileAttribute.getName()).getName();
+			  		  copyAttributesMethodCopyBody += 
+			  						  "if ("+Utility.class.getName()+".makeSafeProxyCall(oldProfileEntity,\"get"+accessorMethodSufix+"\",null,null) != null) {" +
+			  						  		"" +
+			  						  // if the target list already exists then empty it so elements get deleted, otherwise create new
+			  						  List.class.getName() + " new"+ profileAttribute.getName() + " = newProfileEntity.get"+accessorMethodSufix+"(); " +
+			  						  "if (new"+profileAttribute.getName()+" == null) { new"+ profileAttribute.getName() + " = new " + LinkedList.class.getName() + "(); } else { new"+profileAttribute.getName()+".clear(); } " +
+			  						  // extract list to copy
+			  						  //List.class.getName() + " old"+ profileAttribute.getName() + " = oldProfileEntity.get" + accessorMethodSufix + "(); " +
+			  						  List.class.getName() + " old"+ profileAttribute.getName() + " = ("+List.class.getName()+")"+Utility.class.getName()+".makeSafeProxyCall(oldProfileEntity,\"get"+accessorMethodSufix+"\",null,null);"+
+			  						  // iterate each list element 
+			  						  Iterator.class.getName()+" i = "+Utility.class.getName()+".makeSafeProxyCall(old"+profileAttribute.getName()+",\"iterator\",null,null);"+
+			  						  "for (; "+Utility.class.getName()+".evaluateNext(i);) { " +
+			  						  profileEntityAttributeArrayValueClassName+" oldArrayValue = ("+profileEntityAttributeArrayValueClassName+") i.next();"+
+			  						  profileEntityAttributeArrayValueClassName+" newArrayValue = new "+profileEntityAttributeArrayValueClassName+"(); " +
+			  						  // link to profile entity
+			  						  "newArrayValue.setOwner( newProfileEntity ); " +
+			  						  // copy fields
+			  					  "newArrayValue.setString( oldArrayValue.getString() ); " +
+			  						  "newArrayValue.setSerializable( ("+Serializable.class.getName()+") "+ProfileEntity.class.getName()+".makeDeepCopy(oldArrayValue.getSerializable()) ); " +
+			  						  "new"+profileAttribute.getName()+".add(newArrayValue); " +
+			  						  "} " +
+			  						  //"newProfileEntity.set"+accessorMethodSufix+"(new"+profileAttribute.getName()+"); };";
+			  						  Utility.class.getName()+".makeSafeProxyCall(newProfileEntity,\"set"+accessorMethodSufix+"\",new Class[]{"+Utility.class.getName()+".getReturnType(oldProfileEntity,\"get"+accessorMethodSufix+"\")},new Object[]{new"+profileAttribute.getName()+"});}";
+			  				  }
+			  				  else {
+			  					  if (profileAttribute.isPrimitive()) {
+			  						  // just copy value
+			  						  //copyAttributesMethodCopyBody += 
+			  						  //	  " newProfileEntity.set"+accessorMethodSufix+"(oldProfileEntity.get"+accessorMethodSufix+"()); ";
+			  						  copyAttributesMethodCopyBody +="Object value = "+Utility.class.getName()+".makeSafeProxyCall(oldProfileEntity,\"get"+accessorMethodSufix+"\",null,null);";
+			  						  copyAttributesMethodCopyBody +=Utility.class.getName()+".makeSafeProxyCall(newProfileEntity,\"set"+accessorMethodSufix+"\",new Class[]{"+Utility.class.getName()+".getReturnType(oldProfileEntity,\"get"+accessorMethodSufix+"\")},new Object[]{value});";
+			  					  }
+			  					  else {
+			  						// just copy value but do a deep copy
+			  						  copyAttributesMethodCopyBody += 
+			  							  "if ("+Utility.class.getName()+".makeSafeProxyCall(oldProfileEntity,\"get"+accessorMethodSufix+"\",null,null) != null)  " 
+			  							  		+"{ Object value = "+Utility.class.getName()+".makeSafeProxyCall(oldProfileEntity,\"get"+accessorMethodSufix+"\",null,null);"
+			  							  			
+			  							  			//+"newProfileEntity.set"+accessorMethodSufix+"(("+profileAttribute.getType().getName()+")"+ProfileEntity.class.getName()+".makeDeepCopy(value)); }; "
+			  							  		+Utility.class.getName()+".makeSafeProxyCall(newProfileEntity,\"set"+accessorMethodSufix+"\",new Class[]{"+Utility.class.getName()+".getReturnType(oldProfileEntity,\"get"+accessorMethodSufix+"\")},new Object[]{"+ProfileEntity.class.getName()+".makeDeepCopy(value)});"
+			  							  			+"}";
+			  					  }
+			  				  }
+			  			  }
+			  		  }
 		  // body footer
 		  copyAttributesMethodCopyBody += " }";
 		  if (logger.isDebugEnabled()) {

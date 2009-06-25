@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
+import org.mobicents.slee.container.security.Utility;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -87,11 +88,12 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 	 * @throws ManagementException
 	 */
 	public void register() throws ManagementException {
-		  try {
-			  sleeContainer.getMBeanServer().registerMBean(this, getObjectName());
-		  } catch (Throwable e) {
-			  throw new ManagementException(e.getMessage(),e);
-		  }
+//		  try {
+//			  sleeContainer.getMBeanServer().registerMBean(this, getObjectName());
+//		  } catch (Throwable e) {
+//			  throw new ManagementException(e.getMessage(),e);
+//		  }
+		Utility.registerSafelyMBean(sleeContainer, getObjectName(), this);
 	}
 	
 	/**
@@ -99,11 +101,12 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 	 * @throws ManagementException
 	 */
 	public void unregister() throws ManagementException {
-		try {		
-			sleeContainer.getMBeanServer().unregisterMBean(getObjectName());
-		} catch (Throwable e) {
-			throw new ManagementException(e.getMessage(),e);
-		}
+//		try {		
+//			sleeContainer.getMBeanServer().unregisterMBean(getObjectName());
+//		} catch (Throwable e) {
+//			throw new ManagementException(e.getMessage(),e);
+//		}
+		Utility.unregisterSafelyMBean(sleeContainer, getObjectName());
 	}
 	
 	public void close() throws ManagementException {

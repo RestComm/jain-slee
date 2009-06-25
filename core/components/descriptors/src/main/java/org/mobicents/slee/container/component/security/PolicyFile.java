@@ -589,12 +589,18 @@ public class PolicyFile extends Policy {
 	// private InputStream getStream(URL url) throws IOException {
 	private InputStream getStream(URI uri) throws IOException {
 
-		if (uri.toURL().getProtocol().equals(_PROTOCOL_FILE)) {
-			String path = uri.toURL().getFile().replace('\\', File.separatorChar);
+		try {
+			if (uri.toURL().getProtocol().equals(_PROTOCOL_FILE)) {
+				String path = uri.toURL().getFile().replace('\\', File.separatorChar);
 
-			return new FileInputStream(path);
-		} else {
-			return uri.toURL().openStream();
+				return new FileInputStream(path);
+			} else {
+				return uri.toURL().openStream();
+			}
+		} catch (java.lang.IllegalArgumentException e) {
+			// this happens if url is relative, meaning a file?
+			
+			return new FileInputStream(new File(uri));
 		}
 
 	}

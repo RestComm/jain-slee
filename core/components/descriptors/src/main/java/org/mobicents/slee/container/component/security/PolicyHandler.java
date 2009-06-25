@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -50,33 +51,7 @@ public class PolicyHandler {
 	
 	private List<URI> presentPolicyFiles = new ArrayList<URI>();
 
-	public synchronized void addPolicy(File deployURL, String policyFileContent) throws DeploymentException {
-
-		File policyFile = new File(deployURL, _FILE_NAME);
-		if (presentPolicyFiles.contains(policyFile.toURI().normalize()) && policyFile.exists()) {
-			// We already have this, why?
-			System.err.println("Double policy entry: " + policyFile);
-			return;
-		}
-
-		try {
-			if (!policyFile.createNewFile()) {
-				throw new DeploymentException("Failed to create file: " + policyFile);
-			}
-		} catch (IOException e1) {
-			throw new DeploymentException("Failed to create file: " + policyFile,e1);
-		}
-
-		PolicyParser pp = new PolicyParser(true);
-		try {
-			pp.read(new StringReader(policyFileContent));
-		} catch (Exception e) {
-			throw new DeploymentException("Failed to parse passed security permissions", e);
-		}
-
-		instrumentCodeBase(deployURL, pp);
-		instrumenPolicyObjectWithSLEE(pp, policyFile);
-	}
+	
 
 	private void instrumentCodeBase(File deployURL, PolicyParser pp) throws DeploymentException {
 
@@ -109,40 +84,17 @@ public class PolicyHandler {
 
 	private static int counter =1;
 	
-	private void instrumenPolicyObjectWithSLEE(PolicyParser pp, File policyFile) throws DeploymentException {
-		// Well here we have PolicyParser with some data, we need to write it to
-		// a file and
-
-		FileWriter fw;
-		try {
-			fw = new FileWriter(policyFile);
-			
-		} catch (IOException e) {
-			throw new DeploymentException("Failed to write file.", e);
-		}
-		System.err.println("------------- Writing policy file. ------------------");
-		pp.write(fw);
-		pp.write(new OutputStreamWriter(System.err));
-		
-		System.err.println("------------- Refresh ------------------");
-		Properties p = System.getProperties();
-		p.setProperty(_POLICY_PROP_URL+(counter++), policyFile.toURI().normalize().toString());
-		try{
-			Policy.getPolicy().refresh();
-		}catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		System.err.println("------------- Refreshed ------------------");
-
-	}
-
+	
 	public static void main(String[] args) {
 
 		try {
 			URI u = new URI("../asd/asd/zxcv/artyw");
 			System.err.println(u.getPath());
+			u.toURL();
 		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

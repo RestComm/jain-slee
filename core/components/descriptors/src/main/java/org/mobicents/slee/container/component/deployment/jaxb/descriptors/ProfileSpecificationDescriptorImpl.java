@@ -54,7 +54,8 @@ public class ProfileSpecificationDescriptorImpl {
   private boolean singleProfile = false;
   private boolean readOnly = true;
   private boolean eventsEnabled = true;
-
+  private boolean isolateSecurityPermission = false;
+  
   private MSecurityPermissions securityPremissions;
 
   private boolean isSlee11;
@@ -88,7 +89,10 @@ public class ProfileSpecificationDescriptorImpl {
 
     this.readOnly = profileSpec.getProfileReadOnly().booleanValue();
     this.eventsEnabled = profileSpec.getProfileEventsEnabled().booleanValue();
+     
     buildDependenciesSet();
+    
+    this.isolateSecurityPermission = this.getProfileLocalInterface() == null?false:(this.getProfileLocalInterface().isIsolateSecurityPermissions());
   }
 
   private void buildDependenciesSet()
@@ -150,10 +154,14 @@ public class ProfileSpecificationDescriptorImpl {
   public boolean getReadOnly() {
     return readOnly;
   }
+  
+  public boolean isIsolateSecurityPermission() {
+		return isolateSecurityPermission;
+	}
 
-  public boolean getEventsEnabled() {
-    return eventsEnabled;
-  }
+	public boolean getEventsEnabled() {
+		return eventsEnabled;
+	}
 
   public MSecurityPermissions getSecurityPermissions() {
     return securityPremissions;

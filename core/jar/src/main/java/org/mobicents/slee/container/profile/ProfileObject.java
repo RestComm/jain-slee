@@ -179,6 +179,7 @@ public class ProfileObject {
 			try
 			{
 				this.profileContext = profileContext;
+				this.profileContext.setProfileObject(this);
 				if (isSlee11) {
 					try {
 						profileConcrete.setProfileContext(profileContext);
@@ -187,7 +188,7 @@ public class ProfileObject {
 						runtimeExceptionOnProfileInvocation(e);
 					}
 				}
-				this.profileContext.setProfileObject(this);
+				
 				state = ProfileObjectState.POOLED;
 			}
 			catch (Exception e) {
@@ -661,10 +662,21 @@ public class ProfileObject {
 		return profileTable;
 	}
 
-	private ProfileEntity cloneEntity(ProfileEntity source) {
-		ProfileEntityFactory profileEntityFactory = profileTable.getProfileSpecificationComponent().getProfileEntityFramework().getProfileEntityFactory();
-		ProfileEntity result = profileEntityFactory.newInstance(source.getTableName(), source.getProfileName());
-		profileEntityFactory.copyAttributes(source, result);
+	private ProfileEntity cloneEntity(final ProfileEntity source) {
+		final ProfileEntityFactory profileEntityFactory = profileTable.getProfileSpecificationComponent().getProfileEntityFramework().getProfileEntityFactory();
+		final ProfileEntity result = profileEntityFactory.newInstance(source.getTableName(), source.getProfileName());
+		if(System.getSecurityManager()==null)
+		{
+			profileEntityFactory.copyAttributes(source, result);
+		}else
+		{
+			AccessController.doPrivileged(new PrivilegedAction(){
+
+				public Object run() {
+					profileEntityFactory.copyAttributes(source, result);
+					return null;
+				}});
+		}
 		return result;
 	}
 	
@@ -785,5 +797,5 @@ public class ProfileObject {
 		}
 		return profileCmpSlee10Wrapper;
 	}
-	
+
 }

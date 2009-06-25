@@ -1,5 +1,8 @@
 package org.mobicents.slee.container.deployment.profile;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 
 import javassist.CannotCompileException;
@@ -18,6 +21,7 @@ import javax.slee.profile.ProfileLocalObject;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
@@ -26,6 +30,7 @@ import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.profile.ProfileLocalObjectImpl;
 import org.mobicents.slee.container.profile.ProfileObject;
 import org.mobicents.slee.container.profile.ProfileObjectState;
+import org.mobicents.slee.container.security.Utility;
 
 public class ConcreteProfileLocalObjectGenerator {
 
@@ -153,27 +158,50 @@ public class ConcreteProfileLocalObjectGenerator {
 		CtMethod newMethod = CtNewMethod.copy( method, concreteClass, null );
 		// generate body
 		String returnStatement = method.getReturnType().equals(CtClass.voidType) ? "" : "return ($r)";
+	
+
 		String body=
 			"{ " 
 			+ "super.sleeContainer.getTransactionManager().mandateTransaction();" 
 			+" checkTransaction();"
-			+ "try {"
-			+ 		returnStatement + interceptorAccess +'.'+ method.getName()+"($$);" 
+			+ "try {" 
+			+		"if(System.getSecurityManager()!=null && profileObject.getProfileTable().getProfileSpecificationComponent().getDescriptor().isIsolateSecurityPermission()){" 
+			+		""
+			+               returnStatement+" " +Utility.class.getName()+".makeSafeProxyCall("+interceptorAccess+",\""+method.getName()+"\",$sig,$args);"
+					+"}else" 
+					+"{" 
+			+	        	returnStatement + interceptorAccess +'.'+ method.getName()+"($$);" 
+
+					+"}"
+			
 			+ "} catch ("+RuntimeException.class.getName()+" e) {"
-			+ "	try {"
-			+ " 	profileObject.invalidateObject(); super.sleeContainer.getTransactionManager().setRollbackOnly();" 
-			+ " } catch ("+SystemException.class.getName()+" e1) {" 
-			+ " 	throw new "+SLEEException.class.getName()+"(e1.getMessage(),e1);" 
-			+ " };"
-			+ "	throw new "+TransactionRolledbackLocalException.class.getName()+"(e.getMessage(),e);"
-			+ "}"+
-			"}";
+			+ "	     try {"
+			+ " 	      profileObject.invalidateObject(); super.sleeContainer.getTransactionManager().setRollbackOnly();" 
+			+ "      } catch ("+SystemException.class.getName()+" e1) {" 
+			+ " 	      throw new "+SLEEException.class.getName()+"(e1.getMessage(),e1);" 
+			+"       }" 
+			+"" 
+			+ "	     throw new "+TransactionRolledbackLocalException.class.getName()+"(e.getMessage(),e);"		
+			+ "} catch ("+PrivilegedActionException.class.getName()+" e) {"
+			+ "	     try {"
+			+ " 	      profileObject.invalidateObject(); super.sleeContainer.getTransactionManager().setRollbackOnly();" 
+			+ "      } catch ("+SystemException.class.getName()+" e1) {" 
+			+ " 	   throw new "+SLEEException.class.getName()+"(e1.getMessage(),e1);" 
+			+ "      }"
+			+ "	     throw new "+TransactionRolledbackLocalException.class.getName()+"(e.getCause().getMessage(),e.getCause());"
+			+ "}"
+			+"}";
+		
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("Instrumented method, name:"+method.getName()+", with body:\n"+body);
 		}
+		
 		newMethod.setBody(body);
 		// add to concrete class  
 		concreteClass.addMethod(newMethod);
+
+		
+		
 	}
 }

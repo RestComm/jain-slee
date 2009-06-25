@@ -40,6 +40,7 @@ import javassist.bytecode.annotation.StringMemberValue;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
+import org.mobicents.slee.container.security.Utility;
 
 /**
  * 
@@ -562,9 +563,11 @@ public class ClassGeneratorUtils {
     
     boolean hasImpl = interceptorAccess.equals("super");
     
-    String body = "{ " +
-    	ClassLoader.class.getName()+ " cl = "+Thread.class.getName()+".currentThread().getContextClassLoader();" +
-    	Thread.class.getName()+".currentThread().setContextClassLoader(profileObject.getProfileTable().getProfileSpecificationComponent().getClassLoader());"+
+    String body = "{ " 
+
+    	+ClassLoader.class.getName()+ " cl = "+Utility.class.getName()+".switchSafelyClassLoader(null,profileObject);" +
+    	//ClassLoader.class.getName()+ " cl = "+Thread.class.getName()+".currentThread().getContextClassLoader();" +
+    	///Thread.class.getName()+".currentThread().setContextClassLoader(profileObject.getProfileTable().getProfileSpecificationComponent().getClassLoader());"+
         "  try {" + 
       (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".addProfileCall(profileObject);" : "");
         
@@ -581,7 +584,8 @@ public class ClassGeneratorUtils {
     
     body += "  }" +
       "  finally {" +
-      Thread.class.getName()+".currentThread().setContextClassLoader(cl);" +
+      Utility.class.getName()+".switchSafelyClassLoader(cl,null);" +
+      //Thread.class.getName()+".currentThread().setContextClassLoader(cl);" +
       (recordTxData ? ProfileCallRecorderTransactionData.class.getName() + ".removeProfileCall(profileObject);" : "") + 
       "  }" + 
       "}";

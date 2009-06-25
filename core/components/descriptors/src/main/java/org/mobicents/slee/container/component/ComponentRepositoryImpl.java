@@ -329,11 +329,11 @@ public class ComponentRepositoryImpl implements ComponentRepository {
 	public String toString() {
 		return "Component Repository: " 
 			+ "\n+-- Event Type Components: " + getEventComponentIDs()
-			+ "\n+-- Library Components: " + getEventComponentIDs()
-			+ "\n+-- Profile Specification Components: " + getEventComponentIDs()
-			+ "\n+-- Resource Adaptor Components: " + getEventComponentIDs()
-			+ "\n+-- Resource Adaptor Type Components: " + getEventComponentIDs()
-			+ "\n+-- Sbb Components: " + getEventComponentIDs()
-			+ "\n+-- Service Components: " + getEventComponentIDs();
+			+ "\n+-- Library Components: " + getLibraryIDs()
+			+ "\n+-- Profile Specification Components: " + getProfileSpecificationIDs()
+			+ "\n+-- Resource Adaptor Components: " + getResourceAdaptorIDs()
+			+ "\n+-- Resource Adaptor Type Components: " + getResourceAdaptorTypeIDs()
+			+ "\n+-- Sbb Components: " + getSbbIDs()
+			+ "\n+-- Service Components: " + getServiceIDs();
 	}
 }

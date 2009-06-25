@@ -3,6 +3,9 @@ package org.mobicents.slee.container.component.profile;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 import javax.slee.SLEEException;
 import javax.slee.profile.ReadOnlyProfileException;
@@ -149,41 +152,66 @@ public abstract class ProfileEntity {
 		return " ProfileEntity( profileName = "+getProfileName()+" , tableName = "+tableName+" , create = "+create+" , dirty = "+dirty+ " , readOnly = "+readOnly+" , remove = "+remove+" )";
 	}    
         
-    public static <T> T makeDeepCopy(T orig) {
+    public static <T> T makeDeepCopy(final T orig) {
     	
-      T copy = null;
-      if (orig != null) {
-    	  ByteArrayOutputStream baos = null;
-    	  JBossObjectOutputStream out = null;
-    	  JBossObjectInputStream in = null;
-    	  try {
-    		  baos = new ByteArrayOutputStream();
-    		  out = new JBossObjectOutputStream(baos);
-    		  out.writeObject(orig);
-    		  out.close();
-    		  in = new JBossObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
-    		  copy = (T) in.readObject();
-    		  in.close();
-    	  }
-    	  catch(Throwable e) {
-    		  if (out != null)  {
-    			  try {
-    				  out.close();
-    			  } catch (IOException e1) {
-    				  logger.error(e.getMessage(),e);
-    			  }  
-    		  }
-    		  if (in != null)  {
-    			  try {
-    				  in.close();
-    			  } catch (IOException e1) {
-    				  logger.error(e.getMessage(),e);
-    			  }    
-    		  }
-    		  throw new SLEEException("Failed to create copy of CMP object.", e);
-    	  }
-      }
-      return copy;
+     if(System.getSecurityManager()!=null)
+     {
+    	 try {
+			return (T) AccessController.doPrivileged(new PrivilegedExceptionAction(){
+
+				public Object run() throws Exception {
+					
+					return _makeDeepCopy(orig);
+				}});
+		} catch (PrivilegedActionException e) {
+			if(e.getCause() instanceof RuntimeException)
+			{
+				throw (RuntimeException) e.getCause();
+			}else
+			{
+				throw new SLEEException("Failed to create copy of CMP object.", e);
+			}
+		}
+     }else
+     {
+    	 return _makeDeepCopy(orig);
+     }
     }    
+    private static <T> T _makeDeepCopy(T orig)
+    {
+    	 T copy = null;
+         if (orig != null) {
+       	  ByteArrayOutputStream baos = null;
+       	  JBossObjectOutputStream out = null;
+       	  JBossObjectInputStream in = null;
+       	  try {
+       		  baos = new ByteArrayOutputStream();
+       		  out = new JBossObjectOutputStream(baos);
+       		  out.writeObject(orig);
+       		  out.close();
+       		  in = new JBossObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+       		  copy = (T) in.readObject();
+       		  in.close();
+       	  }
+       	  catch(Throwable e) {
+       		  if (out != null)  {
+       			  try {
+       				  out.close();
+       			  } catch (IOException e1) {
+       				  logger.error(e.getMessage(),e);
+       			  }  
+       		  }
+       		  if (in != null)  {
+       			  try {
+       				  in.close();
+       			  } catch (IOException e1) {
+       				  logger.error(e.getMessage(),e);
+       			  }    
+       		  }
+       		  throw new SLEEException("Failed to create copy of CMP object.", e);
+       	  }
+         }
+         return copy;
+    }
 
 }

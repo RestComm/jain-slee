@@ -1,6 +1,10 @@
 package org.mobicents.slee.container.deployment.profile.jpa;
 
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -283,16 +287,18 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<ProfileEntity> getProfilesByStaticQuery(
-			String profileTable, String queryName, Object[] parameters)
+			String profileTable, String queryName, final Object[] parameters)
 			throws NullPointerException, UnrecognizedQueryNameException,
 			AttributeTypeMismatchException, InvalidArgumentException {
 
 		// TODO check for exceptions
 
-		QueryWrapper wQuery = JPAQueryBuilder.getQuery(queryName);
+		final QueryWrapper wQuery = JPAQueryBuilder.getQuery(queryName);
 
-		EntityManager em = getEntityManager();
+		final EntityManager em = getEntityManager();
 
+		if(System.getSecurityManager()==null)
+		{
 		Query staticQuery = em.createQuery(wQuery
 				.getQuerySQL(profileEntityClassName));
 
@@ -308,6 +314,44 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 		}
 
 		return staticQuery.getResultList();
+		}else
+		{
+			try {
+				return AccessController.doPrivileged(new PrivilegedExceptionAction<Collection<ProfileEntity>>(){
+
+					public Collection<ProfileEntity> run() throws Exception {
+						Query staticQuery = em.createQuery(wQuery
+								.getQuerySQL(profileEntityClassName));
+
+						if (wQuery.getMaxMatches() > 0)
+							staticQuery.setMaxResults((int) wQuery.getMaxMatches());
+
+						for (int i = 0; i < parameters.length; i++) {
+							try {
+								staticQuery.setParameter(i + 1, parameters[i]);
+							} catch (Exception ignore) {
+								// We don't care, it's because there's no such parameter.
+							}
+						}
+
+						return staticQuery.getResultList();
+					}});
+			} catch (PrivilegedActionException e) {
+				Throwable t = e.getCause();
+				if(t instanceof NullPointerException)
+					throw (NullPointerException )t;
+				if(t instanceof UnrecognizedQueryNameException)
+					throw (UnrecognizedQueryNameException )t;
+				if(t instanceof AttributeTypeMismatchException)
+					throw (AttributeTypeMismatchException )t;
+				if(t instanceof InvalidArgumentException)
+					throw (InvalidArgumentException )t;
+				
+				//?
+				throw new SLEEException("",t);
+				
+			}
+		}
 
 	}
 
@@ -390,19 +434,37 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 
 		EntityManager em = getEntityManager();
 
-		Query q = em.createQuery(
+		final Query q = em.createQuery(
 				"FROM " + profileEntityClassName
 						+ " WHERE tableName = ?1 AND profileName = ?2")
 				.setParameter(1, profileTable).setParameter(2, profileName);
 
-		List<?> resultList = q.getResultList();
-		if (resultList.size() > 0) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("ProfileEntity retrieved -> " + resultList.get(0));
+		if(System.getSecurityManager()==null)
+		{
+			List<?> resultList = q.getResultList();
+			if (resultList.size() > 0) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("ProfileEntity retrieved -> " + resultList.get(0));
+				}
+				return (ProfileEntity) resultList.get(0);
+			} else {
+				return null;
 			}
-			return (ProfileEntity) resultList.get(0);
-		} else {
-			return null;
+		}else
+		{
+			return AccessController.doPrivileged(new PrivilegedAction<ProfileEntity>(){
+
+				public ProfileEntity run() {
+					List<?> resultList = q.getResultList();
+					if (resultList.size() > 0) {
+						if (logger.isDebugEnabled()) {
+							logger.debug("ProfileEntity retrieved -> " + resultList.get(0));
+						}
+						return (ProfileEntity) resultList.get(0);
+					} else {
+						return null;
+					}
+				}});
 		}
 
 	}
