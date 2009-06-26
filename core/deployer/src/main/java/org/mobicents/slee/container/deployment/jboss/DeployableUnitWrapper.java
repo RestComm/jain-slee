@@ -22,37 +22,46 @@ public class DeployableUnitWrapper
   
   public DeployableUnitWrapper(URL url)
   {
-    this.url = url;
-    
-    this.fullPath = url.getFile();
-    
-    this.fileName = getFileNameInternal(fullPath);
-    
-    this.isDirectory = isDirectoryInternal(url);
+    try {
+      gatherInfoFromURL(url);
+    }
+    catch (MalformedURLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
   
   public DeployableUnitWrapper(DeploymentUnit du)
   {
-    try
-    {
+    try {
       this.du = du;
       
-      this.url = new URL(du.getName());
-
-      this.fullPath = url.getFile();
-      
-      this.fileName = getFileNameInternal(fullPath);
-      
-      this.isDirectory = isDirectoryInternal(url);
+      gatherInfoFromURL(new URL(du.getName()));
     }
-    catch ( Exception e )
-    {
+    catch (MalformedURLException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }
   
   // Private ------------------------------------------------------- 
+  
+  private void gatherInfoFromURL(URL url) throws MalformedURLException
+  {
+    // Weird VFS behavior... returns jar:file:...jar!/
+    if(url.getProtocol().equals("jar")) {
+      this.url = new URL(url.getFile().replaceFirst("!/", "/"));
+    }
+    else {
+      this.url = url;
+    }
+
+    this.fullPath = this.url.getFile();
+    
+    this.fileName = getFileNameInternal(fullPath);
+    
+    this.isDirectory = isDirectoryInternal(url);    
+  }
   
   private boolean isDirectoryInternal(URL url)
   {
