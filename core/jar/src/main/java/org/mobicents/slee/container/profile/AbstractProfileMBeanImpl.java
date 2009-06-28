@@ -306,6 +306,10 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 			if (e.getCause() instanceof PersistenceException && e.getCause().getCause() instanceof ConstraintViolationException) {
 				throw new ProfileVerificationException(e.getCause().getMessage(),e);
 			}
+			else if (e.getCause() != null && e.getCause().getClass() == Throwable.class && e.getCause().getMessage() != null && e.getCause().getMessage().equals("setRollbackOnly called from:")) {
+				// workaround for issue with jboss AS 5.1.0 GA / Hibernate Entity Manager 3.4.0.GA / JBoss TS 4.6.1.GA, the persistentexception is not thrown
+				throw new ProfileVerificationException(e.getCause().getMessage(),e);
+			}
 			else {
 				throw new ManagementException(e.getMessage(),e);
 			}			

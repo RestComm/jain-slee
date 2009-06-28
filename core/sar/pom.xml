@@ -83,11 +83,6 @@
 			<groupId>org.jboss.cache</groupId>
 			<artifactId>jbosscache-core</artifactId>
 		</dependency>
-		
-		<dependency>
-			<groupId>jboss.jbossts</groupId>
-			<artifactId>jbossjta</artifactId>
-		</dependency>
       
       <!-- 
       <dependency>
