@@ -19,10 +19,8 @@ import javax.slee.management.DependencyException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.ServiceDescriptor;
 import javax.slee.management.ServiceUsageMBean;
-import javax.slee.resource.ReceivableService;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
-import org.mobicents.slee.container.component.security.PermissionHolder;
 
 /**
  * Start time:16:00:31 2009-01-25<br>
@@ -193,5 +191,13 @@ public class ServiceComponent extends SleeComponent {
 	public void processSecurityPermissions() throws DeploymentException {
 		//Do nothing
 		
+	}
+	
+	@Override
+	public void undeployed() {
+		super.undeployed();
+		specsDescriptor = null;
+		rootSbbComponent = null;
+		serviceUsageMBean = null;		
 	}
 }

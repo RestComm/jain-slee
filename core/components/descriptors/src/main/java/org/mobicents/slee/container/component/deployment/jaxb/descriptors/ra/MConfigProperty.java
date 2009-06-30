@@ -11,8 +11,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
 public class MConfigProperty {
-
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ConfigProperty configProperty11;
   
   private String description;
   private String configPropertyName;
@@ -20,9 +18,7 @@ public class MConfigProperty {
   private String configPropertyValue;
   
   public MConfigProperty(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ConfigProperty configProperty11)
-  {
-    this.configProperty11 = configProperty11;
-    
+  {    
     this.description = configProperty11.getDescription() == null ? null : configProperty11.getDescription().getvalue();
     
     this.configPropertyName = configProperty11.getConfigPropertyName().getvalue();

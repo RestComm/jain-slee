@@ -11,10 +11,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.servi
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
 public class MRootSbb {
-  
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.service.RootSbb rootSbb10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.service.RootSbb rootSbb11;
-  
+    
   private String description;
   
   private String sbbName;
@@ -22,9 +19,7 @@ public class MRootSbb {
   private String sbbVersion;
   
   public MRootSbb(org.mobicents.slee.container.component.deployment.jaxb.slee.service.RootSbb rootSbb10)
-  {
-    this.rootSbb10 = rootSbb10;
-    
+  {  
     this.description = rootSbb10.getDescription() == null ? null : rootSbb10.getDescription().getvalue();
     
     this.sbbName = rootSbb10.getSbbName().getvalue();
@@ -34,8 +29,6 @@ public class MRootSbb {
 
   public MRootSbb(org.mobicents.slee.container.component.deployment.jaxb.slee11.service.RootSbb rootSbb11)
   {
-    this.rootSbb11 = rootSbb11;
-    
     this.description = rootSbb11.getDescription() == null ? null : rootSbb11.getDescription().getvalue();
     
     this.sbbName = rootSbb11.getSbbName().getvalue();

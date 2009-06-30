@@ -11,9 +11,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.event
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
 public class MEventDefinition {
-
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.event.EventDefinition eventDefinition10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.event.EventDefinition eventDefinition11;
   
   private String description;
   private String eventTypeName;
@@ -22,9 +19,7 @@ public class MEventDefinition {
   private String eventClassName;
   
   public MEventDefinition(org.mobicents.slee.container.component.deployment.jaxb.slee.event.EventDefinition eventDefinition10)
-  {
-    this.eventDefinition10 = eventDefinition10;
-    
+  {    
     this.description = eventDefinition10.getDescription() == null ? null : eventDefinition10.getDescription().getvalue();
     
     this.eventTypeName = eventDefinition10.getEventTypeName().getvalue();
@@ -35,9 +30,7 @@ public class MEventDefinition {
   }
 
   public MEventDefinition(org.mobicents.slee.container.component.deployment.jaxb.slee11.event.EventDefinition eventDefinition11)
-  {
-    this.eventDefinition11 = eventDefinition11;
-    
+  {    
     this.description = eventDefinition11.getDescription() == null ? null : eventDefinition11.getDescription().getvalue();
     
     this.eventTypeName = eventDefinition11.getEventTypeName().getvalue();

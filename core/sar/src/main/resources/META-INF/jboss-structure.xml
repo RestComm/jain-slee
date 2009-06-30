@@ -7,7 +7,6 @@
         </metaDataPath>        
         <classpath>
             <path name=""/>
-            <!-- path name="" suffixes=".jar" / -->
             <path name="lib" suffixes=".jar" />
             <path name="dtd" suffixes=".dtd" />
         </classpath>

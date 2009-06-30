@@ -157,6 +157,10 @@ public class LibraryComponent extends SleeComponent {
 		}
 	}
 
-	
+	@Override
+	public void undeployed() {
+		super.undeployed();
+		specsDescriptor = null;
+	}
 
 }

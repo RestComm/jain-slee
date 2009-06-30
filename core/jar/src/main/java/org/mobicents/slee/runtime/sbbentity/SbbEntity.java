@@ -526,7 +526,7 @@ public class SbbEntity {
 				String childSbbEntityID = (String) i.next();
 				// recreated the sbb entity
 				SbbEntity childSbbEntity = SbbEntityFactory
-						.getSbbEntity(childSbbEntityID);
+						.getSbbEntityWithoutLock(childSbbEntityID);
 				attachmentCount += childSbbEntity.getAttachmentCount();
 			}
 		}
@@ -1081,4 +1081,8 @@ public class SbbEntity {
 		childsWithSbbObjects.add(childSbbEntity);
 	}
 
+	@Override
+	public String toString() {
+		return "SbbEntity:"+sbbeId;
+	}
 }

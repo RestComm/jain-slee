@@ -47,7 +47,7 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 	/**
 	 * the ra class
 	 */
-	private Class resourceAdaptorClass = null;
+	private Class<?> resourceAdaptorClass = null;
 
 	/**
 	 * the JAIN SLEE specs descriptor
@@ -85,7 +85,7 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 	 * 
 	 * @return
 	 */
-	public Class getResourceAdaptorClass() {
+	public Class<?> getResourceAdaptorClass() {
 		return resourceAdaptorClass;
 	}
 
@@ -94,7 +94,7 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 	 * 
 	 * @param resourceAdaptorClass
 	 */
-	public void setResourceAdaptorClass(Class resourceAdaptorClass) {
+	public void setResourceAdaptorClass(Class<?> resourceAdaptorClass) {
 		this.resourceAdaptorClass = resourceAdaptorClass;
 	}
 
@@ -184,5 +184,12 @@ public class ResourceAdaptorComponent extends SleeComponentWithUsageParametersIn
 		} catch (Exception e) {
 			throw new DeploymentException("Failed to make permissions usable.", e);
 		}
+	}
+	
+	@Override
+	public void undeployed() {
+		super.undeployed();
+		specsDescriptor = null;
+		resourceAdaptorClass = null;
 	}
 }

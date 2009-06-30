@@ -9,15 +9,11 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  */
 public class MQueryParameter {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter queryParameter11;
-
   private String name;
   private String type;
 
   public MQueryParameter(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.QueryParameter queryParameter11)
   {
-    this.queryParameter11 = queryParameter11;
-
     this.name = queryParameter11.getName();
     this.type = queryParameter11.getType();
   }

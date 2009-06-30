@@ -9,8 +9,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  */
 public class MProfileLocalInterface {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileLocalInterface profileLocalInterface11;
-
   private boolean isolateSecurityPermissions = false;
 
   private String description;
@@ -19,7 +17,6 @@ public class MProfileLocalInterface {
 
   public MProfileLocalInterface(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileLocalInterface profileLocalInterface11)
   {
-    this.profileLocalInterface11 = profileLocalInterface11;
 
     this.description = profileLocalInterface11.getDescription() == null ? null : profileLocalInterface11.getDescription().getvalue();
 

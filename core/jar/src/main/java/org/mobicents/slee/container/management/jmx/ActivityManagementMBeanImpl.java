@@ -387,7 +387,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 						if (sbbEntityIdToSbbID.containsKey(sbbEID)) {
 							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEID);
 						} else {
-							SbbEntity sbbe = SbbEntityFactory.getSbbEntity(sbbEID);
+							SbbEntity sbbe = SbbEntityFactory.getSbbEntityWithoutLock(sbbEID);
 							implSbbID = sbbe.getSbbId();
 							sbbEntityIdToSbbID.put(sbbEID, implSbbID);
 						}

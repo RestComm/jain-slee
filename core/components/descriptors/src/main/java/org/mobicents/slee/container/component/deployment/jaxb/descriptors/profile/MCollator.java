@@ -10,8 +10,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  */
 public class MCollator {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Collator collator11;
-
   private String description;
 
   private String strength;
@@ -23,9 +21,7 @@ public class MCollator {
   private String localeVariant;
 
   public MCollator(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Collator collator11)
-  {
-    this.collator11 = collator11;
-    
+  {    
     // This is not defined in JAIN SLEE Specification 1.1 (p233)
     this.description = collator11.getDescription() == null ? null : collator11.getDescription().getvalue();
 

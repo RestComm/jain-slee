@@ -38,7 +38,7 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.jboss.system.server.ServerConfigLocator;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepository;
@@ -305,8 +305,11 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			// This will remove stack trace;
 			// throw e;
 			throw new DeploymentException(
-					"Failur encountered during deploy process.", e);
+					"Failure encountered during deploy process.", e);
 		} catch (Throwable e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(e.getMessage(),e);
+			}
 			throw new ManagementException(e.getMessage(), e);
 		}
 	}

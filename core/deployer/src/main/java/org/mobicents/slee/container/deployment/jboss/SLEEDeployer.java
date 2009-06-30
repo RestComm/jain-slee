@@ -19,7 +19,7 @@ public class SLEEDeployer extends AbstractSimpleVFSRealDeployer<SLEEDeploymentMe
     super(SLEEDeploymentMetaData.class);
     setOutput(SLEEDeploymentMetaData.class);
     
-    logger.info("»»»»» SLEE Real Deployer Initialized! «««««");    
+    logger.info("Mobicents SLEE Real Deployer initialized.");    
   }
 
   @Override

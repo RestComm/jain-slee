@@ -17,8 +17,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
  */
 public class MLibrary {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.library.Library library11;
-
   private String description;
 
   private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();
@@ -31,7 +29,6 @@ public class MLibrary {
 
   public MLibrary(org.mobicents.slee.container.component.deployment.jaxb.slee11.library.Library library11)
   {
-    this.library11 = library11;
 
     this.description = library11.getDescription() == null ? null : library11.getDescription().getvalue();
 

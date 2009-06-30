@@ -13,8 +13,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.servi
  */
 public class MService {
 
-	//private org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service service10;
-	//private org.mobicents.slee.container.component.deployment.jaxb.slee11.service.Service service11;
 	private boolean isSlee11;
 
 	private String description;
@@ -31,7 +29,6 @@ public class MService {
 	private String resourceInfoProfileTable;
 
 	public MService(org.mobicents.slee.container.component.deployment.jaxb.slee.service.Service service10) {
-		//this.service10 = service10;
 		this.isSlee11 = false;
 		this.description = service10.getDescription() == null ? null : service10.getDescription().getvalue();
 
@@ -48,7 +45,6 @@ public class MService {
 	}
 
 	public MService(org.mobicents.slee.container.component.deployment.jaxb.slee11.service.Service service11) {
-		//this.service11 = service11;
 		this.isSlee11 = true;
 		this.description = service11.getDescription() == null ? null : service11.getDescription().getvalue();
 

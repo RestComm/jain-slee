@@ -9,15 +9,11 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  */
 public class MProfileTableInterface {
 
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileTableInterface profileTableInterface11;
-
 	private String description;
 	private String profileTableInterfaceName;
 
 	public MProfileTableInterface(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileTableInterface profileTableInterface11)
-	{
-	  this.profileTableInterface11 = profileTableInterface11;
-	  
+	{	  
 		this.description = profileTableInterface11.getDescription() == null ? null : profileTableInterface11.getDescription().getvalue();
 		this.profileTableInterfaceName = profileTableInterface11.getProfileTableInterfaceName().getvalue();
 	}

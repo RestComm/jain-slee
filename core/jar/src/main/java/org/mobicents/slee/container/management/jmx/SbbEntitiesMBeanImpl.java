@@ -66,7 +66,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 			while (sbbes.hasNext()) {
 				try {
 					SbbEntity sbbe = SbbEntityFactory
-							.getSbbEntity(sbbes.next());
+							.getSbbEntityWithoutLock(sbbes.next());
 					result.add(sbbEntityToArray(sbbe));
 				} catch (Exception e) {
 					// ignore
@@ -115,7 +115,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 		Set<String> result = new HashSet<String>();
 
 		try {
-			SbbEntity sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
+			SbbEntity sbbEntity = SbbEntityFactory.getSbbEntityWithoutLock(sbbEntityId);
 			for (MGetChildRelationMethod method : sbbEntity.getSbbComponent().getDescriptor().getGetChildRelationMethods().values()) {
 				ChildRelationImpl childRelationImpl = sbbEntity
 						.getChildRelation(method.getChildRelationMethodName());
@@ -169,7 +169,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 
 	private SbbEntity getSbbEntityById(String sbbeId) {
 		try {
-			return SbbEntityFactory.getSbbEntity(sbbeId);
+			return SbbEntityFactory.getSbbEntityWithoutLock(sbbeId);
 		} catch (Exception e) {
 			return null;
 		}

@@ -21,7 +21,6 @@ import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
-import org.mobicents.slee.container.component.security.PermissionHolder;
 import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
@@ -42,7 +41,7 @@ public class EventTypeComponent extends SleeComponent {
 	/**
 	 * the event type class
 	 */
-	private Class eventTypeClass = null;
+	private Class<?> eventTypeClass = null;
 
 	/**
 	 * the JAIN SLEE specs event type descriptor
@@ -66,7 +65,7 @@ public class EventTypeComponent extends SleeComponent {
 	 * Retrieves the event type class
 	 * @return
 	 */
-	public Class getEventTypeClass() {
+	public Class<?> getEventTypeClass() {
 		return eventTypeClass;
 	}
 
@@ -74,7 +73,7 @@ public class EventTypeComponent extends SleeComponent {
 	 * Sets the event type class
 	 * @param eventTypeClass
 	 */
-	public void setEventTypeClass(Class eventTypeClass) {
+	public void setEventTypeClass(Class<?> eventTypeClass) {
 		this.eventTypeClass = eventTypeClass;
 	}
 
@@ -169,5 +168,15 @@ public class EventTypeComponent extends SleeComponent {
 	public void processSecurityPermissions() throws DeploymentException {
 		//Do nothing
 		
+	}
+	
+	@Override
+	public void undeployed() {		
+		super.undeployed();
+		eventTypeClass = null;
+		if (activeServicesWhichDefineEventAsInitial != null) {
+			activeServicesWhichDefineEventAsInitial.clear();
+			activeServicesWhichDefineEventAsInitial = null;
+		}
 	}
 }

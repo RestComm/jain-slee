@@ -37,7 +37,6 @@ import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponent;
-import org.mobicents.slee.container.component.deployment.classloading.URLClassLoaderDomain;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
 
 /**
@@ -268,19 +267,9 @@ public class DeployableUnit {
 	 * Undeploys this unit
 	 */
 	public void undeploy() {		
-		// clean component domains & class pools
+		// remove components
 		for (SleeComponent component : getDeployableUnitComponents()) {
-			URLClassLoaderDomain classLoaderDomain = component.getClassLoaderDomain();
-			if (classLoaderDomain != null) {				
-				component.setClassLoader(null);
-				classLoaderDomain.clean();
-				component.setClassLoaderDomain(null);				
-			}
-			ClassPool classPool = component.getClassPool();
-			if (classPool != null) {
-				classPool.clean();
-				component.setClassPool(null);
-			}
+			component.undeployed();
 		}
 		// now delete the deployment dir
 		deletePath(getDeploymentDir());

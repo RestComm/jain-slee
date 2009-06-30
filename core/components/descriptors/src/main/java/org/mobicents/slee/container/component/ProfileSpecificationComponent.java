@@ -517,4 +517,24 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 		validator.setComponentRepository(getDeployableUnit().getDeployableUnitRepository());
 		return validator.validate();
 	}
+	
+	@Override
+	public void undeployed() {
+		super.undeployed();
+		specsDescriptor = null;
+		profileAbstractClass = null;
+		profileAttributeMap = null;
+		profileCmpInterfaceClass = null;
+		profileCmpSlee10WrapperClass = null;
+		profileConcreteClass = null;
+		profileEntityFramework = null;
+		profileLocalInterfaceClass = null;
+		profileLocalObjectConcreteClass = null;
+		profileManagementInterfaceClass = null;
+		profileMBeanConcreteImplClass = null;
+		profileMBeanConcreteInterfaceClass = null;
+		profilePersistanceTransientStateConcreteClass = null;
+		profileTableConcreteClass = null;
+		profileTableInterfaceClass = null;
+	}
 }

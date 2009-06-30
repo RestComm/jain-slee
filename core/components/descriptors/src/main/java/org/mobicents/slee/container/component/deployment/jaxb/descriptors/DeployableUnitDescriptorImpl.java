@@ -10,8 +10,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.ServiceX
 
 public class DeployableUnitDescriptorImpl {
 
-	private final org.mobicents.slee.container.component.deployment.jaxb.slee.du.DeployableUnit duDescriptor10;
-	private final org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit duDescriptor11;
 	private final boolean isSlee11;
 	
 	private final List<String> jarEntries = new ArrayList<String>();
@@ -20,10 +18,9 @@ public class DeployableUnitDescriptorImpl {
 	public DeployableUnitDescriptorImpl(org.mobicents.slee.container.component.deployment.jaxb.slee11.du.DeployableUnit duDescriptor11)
 	throws DeploymentException {		
 		try {
-			this.duDescriptor10 = null;
-			this.duDescriptor11 = duDescriptor11;
 			this.isSlee11 = true;
-			buildDescriptionMap();		
+			buildDescriptionMap(duDescriptor11
+					.getJarOrServiceXml());		
 		} catch (DeploymentException e) {
 			throw e;		
 		} catch (Exception e) {
@@ -34,10 +31,8 @@ public class DeployableUnitDescriptorImpl {
 	public DeployableUnitDescriptorImpl(org.mobicents.slee.container.component.deployment.jaxb.slee.du.DeployableUnit duDescriptor10)
 			throws DeploymentException {
 		try {
-			this.duDescriptor10 = duDescriptor10;
-			this.duDescriptor11 = null;
 			this.isSlee11 = false;
-			buildDescriptionMap();		
+			buildDescriptionMap(duDescriptor10.getJarOrServiceXml());		
 		} catch (DeploymentException e) {
 			throw e;		
 		} catch (Exception e) {
@@ -46,16 +41,14 @@ public class DeployableUnitDescriptorImpl {
 		}
 	}
 
-	private void buildDescriptionMap() throws DeploymentException {
+	private void buildDescriptionMap(List<Object> jarOrServiceXml) throws DeploymentException {
 
 		// This is akward, since we have two classes with the same name in
 		// different package
 		// We could use reflections but it would a killer in case of event
 		// definitions and such ;[
 
-			for (Object o : (this.isSlee11() ? this.duDescriptor11
-					.getJarOrServiceXml() : this.duDescriptor10
-					.getJarOrServiceXml())) {
+			for (Object o : jarOrServiceXml) {
 				if (o.getClass().getCanonicalName().contains("Jar")) {
 					String v = null;
 					if (this.isSlee11()) {

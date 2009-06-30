@@ -12,9 +12,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratyp
  */
 public class MActivityType
 {
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ActivityType activityType10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ActivityType activityType11;
-  
+	
   private String description;
   private String activityTypeName;
   
@@ -22,8 +20,6 @@ public class MActivityType
   {
     super();
     
-    this.activityType10 = activityType10;
-
     this.description = activityType10.getDescription() == null ? null : activityType10.getDescription().getvalue();
     this.activityTypeName = activityType10.getActivityTypeName().getvalue();
   }
@@ -32,8 +28,6 @@ public class MActivityType
   {
     super();
     
-    this.activityType11 = activityType11;
-
     this.description = activityType11.getDescription() == null ? null : activityType11.getDescription().getvalue();
     this.activityTypeName = activityType11.getActivityTypeName().getvalue();
   }

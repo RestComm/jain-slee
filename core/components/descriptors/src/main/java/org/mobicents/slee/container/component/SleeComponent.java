@@ -283,5 +283,27 @@ public abstract class SleeComponent {
 	
 	public abstract void processSecurityPermissions() throws DeploymentException;
 	
+	/**
+	 * Indicates that the component was undeployed and thus should clean up any resources 
+	 */
+	public void undeployed() {
+		
+		classLoader = null;
+		
+		if (classLoaderDomain != null) {				
+			classLoaderDomain.clean();
+			classLoaderDomain = null;				
+		}
+		
+		if (classPool != null) {
+			classPool.clean();
+			classPool = null;
+		}
+		
+		if (permissions != null) {
+			permissions.clear();
+			permissions = null;
+		}
+	}
 
 }

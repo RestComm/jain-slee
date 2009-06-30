@@ -25,9 +25,6 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEv
  */
 public class MEventEntry {
 
-	private Event event = null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.Event llEvent = null;
-
 	private boolean initialEvent = false;
 	private MEventDirection eventDirection = null;
 	private boolean maskOnAttach = false;
@@ -44,49 +41,48 @@ public class MEventEntry {
 	public MEventEntry(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.Event llEvent) {
 		super();
-		this.llEvent = llEvent;
 		
-		this.eventDirection = MEventDirection.fromString(this.llEvent
+		this.eventDirection = MEventDirection.fromString(llEvent
 				.getEventDirection());
-		this.initialEvent = Boolean.parseBoolean(this.llEvent.getInitialEvent());
-		this.maskOnAttach = Boolean.parseBoolean(this.llEvent.getMaskOnAttach());
+		this.initialEvent = Boolean.parseBoolean(llEvent.getInitialEvent());
+		this.maskOnAttach = Boolean.parseBoolean(llEvent.getMaskOnAttach());
 
 		// 1.1 last in transaction
-		String v=this.llEvent.getLastInTransaction();
+		String v=llEvent.getLastInTransaction();
 		if(v!=null && !Boolean.parseBoolean(v))
 		{
 			this.lastInTransaction=false;
 		}
 		
-		this.description = this.llEvent.getDescription() == null ? null
-				: this.llEvent.getDescription().getvalue();
+		this.description = llEvent.getDescription() == null ? null
+				: llEvent.getDescription().getvalue();
 		
 		
-		this.eventReference=new MEventTypeRef(this.llEvent.getEventTypeRef());
-//		this.eventReference = new ComponentKey(this.llEvent.getEventTypeRef()
-//				.getEventTypeName().getvalue(), this.llEvent.getEventTypeRef()
-//				.getEventTypeVendor().getvalue(), this.llEvent.getEventTypeRef()
+		this.eventReference=new MEventTypeRef(llEvent.getEventTypeRef());
+//		this.eventReference = new ComponentKey(llEvent.getEventTypeRef()
+//				.getEventTypeName().getvalue(), llEvent.getEventTypeRef()
+//				.getEventTypeVendor().getvalue(), llEvent.getEventTypeRef()
 //				.getEventTypeVersion().getvalue());
 
-		this.eventName=this.llEvent.getEventName().getvalue();
+		this.eventName=llEvent.getEventName().getvalue();
 		this.initialEventSelects=new ArrayList<MInitialEventSelect>();
 		
-		if(this.llEvent.getInitialEventSelect()!=null)
+		if(llEvent.getInitialEventSelect()!=null)
 		{
-			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.InitialEventSelect ies:this.llEvent.getInitialEventSelect())
+			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.InitialEventSelect ies:llEvent.getInitialEventSelect())
 			{
 				MInitialEventSelect mies=new MInitialEventSelect(ies);
 				this.initialEventSelects.add(mies);
 			}
 		}
 		
-		if(this.llEvent.getInitialEventSelectorMethodName()!=null )
+		if(llEvent.getInitialEventSelectorMethodName()!=null )
 		{
-			this.initialEventSelectorMethod=this.llEvent.getInitialEventSelectorMethodName().getvalue();
+			this.initialEventSelectorMethod=llEvent.getInitialEventSelectorMethodName().getvalue();
 		}
-		if(this.llEvent.getEventResourceOption()!=null )
+		if(llEvent.getEventResourceOption()!=null )
 		{
-			this.resourceOption=this.llEvent.getEventResourceOption().getvalue();
+			this.resourceOption=llEvent.getEventResourceOption().getvalue();
 		}
 		
 		
@@ -94,41 +90,40 @@ public class MEventEntry {
 
 	public MEventEntry(Event event) {
 		super();
-		this.event = event;
 
-		this.eventDirection = MEventDirection.fromString(this.event
+		this.eventDirection = MEventDirection.fromString(event
 				.getEventDirection());
-		this.initialEvent = Boolean.parseBoolean(this.event.getInitialEvent());
-		this.maskOnAttach = Boolean.parseBoolean(this.event.getMaskOnAttach());
+		this.initialEvent = Boolean.parseBoolean(event.getInitialEvent());
+		this.maskOnAttach = Boolean.parseBoolean(event.getMaskOnAttach());
 
 		// 1.1 last in transaction
-		this.description = this.event.getDescription() == null ? null
-				: this.event.getDescription().getvalue();
-		this.eventReference=new MEventTypeRef(this.event.getEventTypeRef());
-//		this.eventReference = new ComponentKey(this.event.getEventTypeRef()
-//				.getEventTypeName().getvalue(), this.event.getEventTypeRef()
-//				.getEventTypeVendor().getvalue(), this.event.getEventTypeRef()
+		this.description = event.getDescription() == null ? null
+				: event.getDescription().getvalue();
+		eventReference=new MEventTypeRef(event.getEventTypeRef());
+//		eventReference = new ComponentKey(event.getEventTypeRef()
+//				.getEventTypeName().getvalue(), event.getEventTypeRef()
+//				.getEventTypeVendor().getvalue(), event.getEventTypeRef()
 //				.getEventTypeVersion().getvalue());
 
-		this.eventName=this.event.getEventName().getvalue();
+		eventName=event.getEventName().getvalue();
 		this.initialEventSelects=new ArrayList<MInitialEventSelect>();
 		
-		if(this.event.getInitialEventSelect()!=null)
+		if(event.getInitialEventSelect()!=null)
 		{
-			for(InitialEventSelect ies:this.event.getInitialEventSelect())
+			for(InitialEventSelect ies:event.getInitialEventSelect())
 			{
 				MInitialEventSelect mies=new MInitialEventSelect(ies);
 				this.initialEventSelects.add(mies);
 			}
 		}
 		
-		if(this.event.getInitialEventSelectorMethodName()!=null )
+		if(event.getInitialEventSelectorMethodName()!=null )
 		{
-			this.initialEventSelectorMethod=this.event.getInitialEventSelectorMethodName().getvalue();
+			this.initialEventSelectorMethod=event.getInitialEventSelectorMethodName().getvalue();
 		}
-		if(this.event.getEventResourceOption()!=null )
+		if(event.getEventResourceOption()!=null )
 		{
-			this.resourceOption=this.event.getEventResourceOption().getvalue();
+			this.resourceOption=event.getEventResourceOption().getvalue();
 		}
 		
 		

@@ -9,11 +9,6 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  */
 public class MProfileAbstractClass {
 
-  // This is tricky.. it's the same thing but with different names, and SLEE 1.0 
-  // doesn't have any attributes or elements. Choosed SLEE 1.1 name for class.
-  private org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileManagementAbstractClassName profileManagementAbstractClassName10;
-  private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileAbstractClass profileAbstractClass11;
-
   private String description;
   private String profileAbstractClassName;
 
@@ -21,15 +16,11 @@ public class MProfileAbstractClass {
 
   public MProfileAbstractClass(org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileManagementAbstractClassName profileManagementAbstractClassName10)
   {
-    this.profileManagementAbstractClassName10 = profileManagementAbstractClassName10;
-
     this.profileAbstractClassName = profileManagementAbstractClassName10.getvalue();
   }
 
   public MProfileAbstractClass(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.ProfileAbstractClass profileAbstractClass11)
   {
-    this.profileAbstractClass11 = profileAbstractClass11;
-
     this.description = profileAbstractClass11.getDescription() == null ? null : profileAbstractClass11.getDescription().getvalue();
 
     this.reentrant = Boolean.parseBoolean(profileAbstractClass11.getReentrant());
