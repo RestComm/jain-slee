@@ -13,7 +13,6 @@ import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
 import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.ProfileTableNotification;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTableAlreadyExistsException;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
@@ -27,9 +26,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileEntityFramework;
-import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
-import org.mobicents.slee.runtime.cache.ProfileManagementCacheData;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -111,7 +108,7 @@ public class SleeProfileTableManager {
 		
 		for(String profileTableName:profileTableNames) {
 			try {
-				this.getProfileTable(profileTableName).remove();
+				this.removeProfileTable(profileTableName);
 			} catch (Throwable e) {
 				throw new SLEEException(e.getMessage(),e);
 			}
@@ -355,25 +352,6 @@ public class SleeProfileTableManager {
 			throw new SLEEException(e.getMessage(),e);
 		}
 		
-		// register tracer
-		try {
-			final String tableName = profileTable.getProfileTableName();
-
-			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-			traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(tableName));
-
-			TransactionalAction action2 = new TransactionalAction() {
-				public void execute() {
-					// remove notification sources for profile table
-					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-					traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(tableName));
-				}
-			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action2);
-		}
-		catch (SystemException e) {
-			throw new SLEEException("Failure to register Tracer", e);
-		}
 		// register usage mbean
 		profileTable.registerUsageMBean();
 		TransactionalAction action3 = new TransactionalAction() {

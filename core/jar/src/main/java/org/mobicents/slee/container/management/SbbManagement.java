@@ -216,7 +216,7 @@ public class SbbManagement {
 		String alarm = "java:slee/facilities/alarm";
 		try {
 			//This has to be checked, to be sure sbb have it under correct jndi binding
-			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),this.sleeContainer.getAlarmFacility());
+			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),sleeContainer.getAlarmFacility());
 			newCtx.bind("alarm", sbbAlarmFacility);
 		} catch (NameAlreadyBoundException ex) {
 		}

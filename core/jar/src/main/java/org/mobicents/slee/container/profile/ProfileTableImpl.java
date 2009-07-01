@@ -34,6 +34,7 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.profile.ProfileAttribute;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.management.jmx.ProfileTableUsageMBeanImpl;
+import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -112,7 +113,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * @param component
 	 * @param sleeContainer
 	 */
-	public ProfileTableImpl(String profileTableName, ProfileSpecificationComponent component, SleeContainer sleeContainer) {
+	public ProfileTableImpl(final String profileTableName, ProfileSpecificationComponent component, final SleeContainer sleeContainer) {
 		
 		ProfileTableImpl.validateProfileTableName(profileTableName);
 		if (sleeContainer == null || component == null) {
@@ -128,6 +129,24 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		
 		this.fireEvents = component.getDescriptor().getEventsEnabled();
 		this.transactionView = new ProfileTableTransactionView(this);
+		// register tracer
+		try {
+			
+
+			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(profileTableName));
+
+			TransactionalAction action2 = new TransactionalAction() {
+				public void execute() {
+					// remove notification sources for profile table
+					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+					traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
+				}
+			};
+			sleeContainer.getTransactionManager().addAfterRollbackAction(action2);
+		}catch (SystemException e) {
+			throw new SLEEException("Failure to register Tracer", e);
+		}
 	}
 	
 	/**
@@ -611,8 +630,8 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 			logger.debug("removeProfileTable: removing profileTable="
 					+ profileTableName);
 		}
-
-		// remove the table profiles
+		
+		// remove the table profiles, at this stage they may use notification source, lets leave it.
 		for (ProfileID profileID : getProfiles()) {
 			// don't invoke the profile concrete object, to avoid evil profile lifecycle impls 
 			// that rollbacks tx, as Test1110251Test
@@ -623,14 +642,17 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		if (getDefaultProfileEntity() != null) {
 			this.removeProfile(null, false);
 		}
-
-		// add action after commit to close uncommitted mbeans
+		
+		// add action after commit to remove tracer and close uncommitted mbeans
 		TransactionalAction commitAction = new TransactionalAction() {
 			public void execute() {
+				// remove notification sources for profile table
+				TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+				traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
+				// close uncommitted mbeans
 				closeUncommittedProfileMBeans();					
 			}
 		};
-
 		try {
 			sleeContainer.getTransactionManager().addAfterCommitAction(commitAction);
 		} catch (SystemException e) {
@@ -644,8 +666,6 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 
 		// remove object pool
 		sleeContainer.getProfileObjectPoolManagement().removeObjectPool(this, sleeContainer.getTransactionManager());
-
-		// FIXME baranowb, where is the tracer notif source unregistred?
 
 	}
 

@@ -1,25 +1,45 @@
 package org.mobicents.slee.runtime.facilities;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.slee.management.NotificationSource;
 
-public class MNotificationSource {
+/**
+ * TODO javadocs
+ * @author baranowb
+ *
+ */
+public class MNotificationSource implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 */
 	private NotificationSource notificationSource = null;
-	private AtomicLong sequence = new AtomicLong(0);
 	
+	/**
+	 * 
+	 */
+	private final AtomicLong sequence = new AtomicLong(0);
+	
+	/**
+	 * 
+	 * @param notificationSource
+	 */
 	public MNotificationSource(NotificationSource notificationSource) {
-		super();
 		this.notificationSource = notificationSource;
 	}
+	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((notificationSource == null) ? 0 : notificationSource.hashCode());
-		return result;
+		return ((notificationSource == null) ? 0 : notificationSource.hashCode());		
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -36,20 +56,24 @@ public class MNotificationSource {
 			return false;
 		return true;
 	}
+	
+	/**
+	 * @return
+	 */
 	public NotificationSource getNotificationSource() {
 		return notificationSource;
 	}
+	
+	/**
+	 * @return
+	 */
 	public long getNextSequence() {
 		return sequence.getAndIncrement();
 	}
+	
 	@Override
 	public String toString() {
-		
 		return notificationSource+"@"+super.toString();
 	}
-
-	
-	
-	
 	
 }

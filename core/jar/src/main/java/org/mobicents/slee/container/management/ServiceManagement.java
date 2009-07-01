@@ -44,6 +44,7 @@ import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceFactory;
+import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -600,7 +601,7 @@ public class ServiceManagement {
 				if(sbbComponent.isSlee11())
 				{
 					traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
-			
+					
 					// add rollback action to remove state created
 					action = new TransactionalAction() {
 						public void execute() {
@@ -612,8 +613,13 @@ public class ServiceManagement {
 					};
 					sleeContainer.getTransactionManager().addAfterRollbackAction(action);
 				}
+				
+				//this might be used not only by 1.1 sbbs...
+				MNotificationSource sbbMNotificationSource = new MNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+				serviceComponent.getAlarmNotificationSources().putIfAbsent(sbbID, sbbMNotificationSource);
 			}
-		
+			
+			
 		
 		// create object pools
 		SbbObjectPoolManagement sbbObjectPoolManagement = sleeContainer.getSbbPoolManagement();

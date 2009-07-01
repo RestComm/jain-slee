@@ -19,8 +19,7 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
  * Start time:19:20:19 2009-03-09<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski</a>
  * 
  */
 public class TracerStorage {

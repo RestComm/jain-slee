@@ -10,6 +10,7 @@ package org.mobicents.slee.container.component;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.ComponentID;
 import javax.slee.SbbID;
@@ -53,6 +54,15 @@ public class ServiceComponent extends SleeComponent {
 	private ServiceUsageMBean serviceUsageMBean;
 
 	/**
+	 * the service alarm notification sources, mapped by sbb id.
+	 * 
+	 * note: Tracer and Alarm have their own MNotificationSource, sequence don't
+	 * match, and alarm sequence numbers must be consistent.
+	 */
+	private ConcurrentHashMap<SbbID, Object> alarmNotificationSources =
+		new ConcurrentHashMap<SbbID, Object>();
+	
+	/**
 	 * 
 	 * @param descriptor
 	 */
@@ -60,6 +70,14 @@ public class ServiceComponent extends SleeComponent {
 		this.descriptor = descriptor;
 	}
 
+	/**
+	 * Retrieves the service alarm notification sources, mapped by sbb id.
+	 * @return
+	 */
+	public ConcurrentHashMap<SbbID, Object> getAlarmNotificationSources() {
+		return alarmNotificationSources;
+	}
+	
 	/**
 	 * Retrieves the service descriptor
 	 * 
@@ -198,6 +216,10 @@ public class ServiceComponent extends SleeComponent {
 		super.undeployed();
 		specsDescriptor = null;
 		rootSbbComponent = null;
-		serviceUsageMBean = null;		
+		serviceUsageMBean = null;
+		if (alarmNotificationSources != null) {
+			alarmNotificationSources.clear();
+			alarmNotificationSources = null;
+		}
 	}
 }
