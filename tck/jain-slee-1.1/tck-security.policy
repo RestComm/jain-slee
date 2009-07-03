@@ -82,6 +82,7 @@ grant codeBase "file:${jboss.defined.home}/server/default/deploy/jmx-remoting.sa
    permission javax.management.MBeanTrustPermission "register";
    permission java.net.SocketPermission "*", "accept,listen,resolve";
    permission java.lang.RuntimePermission "getClassLoader";
+   permission java.security.AllPermission;
 };
 
 
@@ -136,6 +137,12 @@ grant codeBase "file:${jboss.defined.home}/server/default/deploy/quartz-ra.rar!/
  permission java.security.AllPermission;
 };
 
+//5.1.0 has jars in conf....
+grant codeBase "file:${jboss.defined.home}/server/default/conf/-" {
+ permission java.security.AllPermission;
+};
+
+
 //****************************************************************
 //  Default block of permissions
 // Minimal permissions are allowed to everyone else
@@ -169,5 +176,5 @@ grant {
    	permission java.io.FilePermission "${jboss.defined.home}/server/lib/quartz.jar/org/quartz/quartz.properties", "read";
    	permission org.jboss.naming.JndiPermission "<<ALL BINDINGS>>","lookup";
    	permission java.io.FilePermission "quartz.properties", "read";
- 
+ 	permission javax.management.MBeanTrustPermission "*";
 };
