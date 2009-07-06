@@ -1,0 +1,11 @@
+﻿<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]><!-- chapter id nickname: ittjss -->
+
+<chapter id="rad-Resource_Adapter_Demonstrations">
+	<title>Resource Adapter Demonstrations</title>
+	<para>The following demonstrations provide examples of working Resource Adapter (RA) implementations that can be used as a programatical starting point when developing applications for the platform.</para>
+	
+	<xi:include href="example-section-Converged_Demo.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+</chapter>

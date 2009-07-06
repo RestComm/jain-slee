@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+	 <section id="cdpr">
+	  <title>Converged Demonstration Pre-requisites</title>
+      <para>The following pre-requisites are required before attempting to test the Converged Application demonstration (the demonstration):</para>
+      <itemizedlist>
+        <listitem>
+          <para>Install and configure the Mobicents Binary.</para>
+          <para>Download and install the latest stable binary from <ulink url="http://www.mobicents.org/jainsleeplatformdownload.html">http://www.mobicents.org/jainsleeplatformdownload.html</ulink>.  For installation instructions, refer to Installing the JAIN SLEE Server in the Mobicents JAIN SLEE Server Guide.</para>
+        </listitem>
+        <listitem>
+          <para>Install and configure Twinkle SIP Softphone.</para>
+          <para>Refer to <xref linkend="tss"/> for configuration settings specific to the demonstration.</para>
+        </listitem>
+        <listitem>
+          <para>Install and Configure Apache Ant.</para>
+          <para>Apache Ant is freely available from the <ulink url="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</ulink>.</para>
+          <note><para>Ensure the ANT_HOME and JAVA_HOME environment variables point to the correct locations, and that the <command>ant</command> command is added to the <filename>path</filename> file.</para></note>
+        </listitem>
+      </itemizedlist>
+    </section>

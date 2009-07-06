@@ -1,0 +1,85 @@
+﻿<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]><!-- chapter id nickname: wwra -->
+<chapter id="wwra-Working_with_Resource_Adapters">
+	<title>Working with Resource Adapters</title>
+	
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task-section-Deploying_and_Undeploying_Resource_Adapters.xml"/>
+	
+	<section id="wwra-Resource_Adapters">
+		<title>Resource Adapters</title>
+		<para>The following links to the current documentation for individual resource adapters can be found on this <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-jainslee-resource-adaptors">mobicents-public page</ulink>.</para>
+		
+		<section id="wwra-Asterisk">
+			<title>Asterisk</title>
+			<para>For information on the Parlay resource adapter, refer to <ulink url="http://wiki.java.net/bin/view/Communications/MobicentsAsteriskRA"/>.</para>
+		</section>
+		
+		<section id="wwra-Diameter">
+			<title>Diameter</title>
+			<para>For information on the Diameter resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-diameter-ra"/>.</para>
+		</section>
+		
+		<section id="wwra-HTTP_Client">
+			<title>HTTP Client</title>
+			<para>For information on the HTTP Client resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-http-client-ra"/>.</para>
+		</section>
+		
+		<section	id="wwra-HTTP_Servlet">
+			<title>HTTP Servlet</title>
+			<para>For information on the HTTP Servlet resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-http-servlet-ra"/>.</para>
+		</section>
+		
+		<section id="wwra-Media">
+			<title>Media</title>
+			<para>The Media resource adapter is under active development, but for the current information on it, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-media-ra"/>.</para>
+		</section>
+		
+		<section id="wwra-MGCP">
+			<title>MGCP</title>
+			<para>For information on the MGCP resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-mgcp-resource-adaptor-v2"/>.</para>
+		</section>
+		
+		<section id="wwra-Parlay">
+			<title>Parlay</title>
+			<para>For information on the Parlay resource adapter, refer to <ulink url="http://wiki.java.net/bin/view/Communications/MobicentsExamplesParlayRACallBlocking"/>.</para>
+		</section>
+		
+		<section id="wwra-Persistence">
+			<title>Persistence</title>
+			<para>For information on the Persistence resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/persistence-ra-design"/>.</para>
+		</section>
+		
+		<section id="wwra-Rules">
+			<title>Rules</title>
+			<para>For information on the Rules resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-rules-ra"/>.</para>
+		</section>
+		
+		<section
+			id="wwra-SIP">
+			<title>SIP</title>
+			<para>For information on the SIP resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-sip-resources"/>.</para>
+		</section>
+		
+		<section
+			id="wwra-SMPP">
+			<title>SMPP</title>
+			<para>For information on the SMPP resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/smpp-resource-adaptor"/>.</para>
+		</section>
+		
+		<section id="wwra-TTS">
+			<title>TTS</title>
+			<para>For information on the TTS resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-tts-ra"/>.</para>
+		</section>
+		
+		<section id="wwra-XCAP_Client">
+			<title>XCAP Client</title>
+			<para>For information on the XCAP Client resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/xcap-client-resource-adaptor"/>.</para>
+		</section>
+		
+		<section id="wwra-XMPP">
+			<title>XMPP</title>
+			<para>For information on the XMPP resource adapter, refer to <ulink url="http://wiki.java.net/bin/view/Communications/MobicentsExamplesXMPPSBB"/>.</para>
+		</section>
+	</section>
+	</chapter>

@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE appendix PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
+<appendix id="tss">
+	  <title>Twinkle SIP Softphone</title>
+      <para>The Twinkle SIP Softphone (Twinkle) is available for Linux only, and can be downloaded from <ulink url="http://www.twinklephone.com/">http://www.twinklephone.com/</ulink>.  
+        Some Linux distributions may offer Twinkle through the distribution's Package Manager application.</para>
+      <section id="ctftcad">
+        <title>Configuring Twinkle for the Converged Application Demonstration</title>
+        <para>In the Converged Application demonstration (the demonstration), Twinkle is used to receive calls initiated by the JAIN SLEE Server (the server).  After the customer makes purchases through the Mobicents Seam Furniture Store (the portal), the server calls the customer via a SIP Softphone and asks them to confirm the order and specify a date and time for delivery.  In order for Twinkle to receive the calls, specific configuration is required prior to deploying the demonstration on the Mobicents server.  To ensure the demonstration functions correctly, follow the setup instructions detailed in this document.</para>
+       <para>Twinkle is recommended because it supports codecs compatible with the Media resource adapter used in the Converged Application demonstration.  Other SIP Softphones may be compatible with the Media-RA server, however configuring softphones other than Twinkle is not covered in this document.</para>  
+        <note><para>The screens depicted in this document are taken from Twinkle v1.4.2.  The settings in later versions of Twinkle may be similar to those featured in this document, however, configuring later versions of Twinkle is not covered in this document.</para></note>
+        <procedure>
+	          <title>Install Twinkle</title>
+              <step>
+              <title>Download </title>
+                <para>Download and install Twinkle on the machine that will run the server, and demonstration.</para>
+                <important><para>Twinkle must be installed locally because the Mobicents SIP server is bound to the http://localhost:8080/ address.</para></important>
+              </step>
+	            <step>
+                <title>Run</title> 
+                <para>Start Twinkle by selecting the application from the <guimenu>Applications &gt; Internet</guimenu> menu.</para>
+              </step>
+            </procedure>
+          <para>When Twinkle starts for the first time, it will ask for basic account settings to be configured.  Follow the procedure to configure the basic settings required by the demonstration.</para>
+          <procedure>
+	          <title>Configure Basic Settings</title>
+              <step>
+              <title>Start the User Profile Wizard</title>
+                <para>If this is the first time Twinkle has run on the machine, select the Wizard option in the dialog.</para>
+                <para>If Twinkle has run previously on the machine, in the main Twinkle window select <guibutton>File &gt; Change User</guibutton> and click <guibutton>Wizard</guibutton> in the <guilabel>Create Profile</guilabel> group.</para>
+              </step>
+	            <step>
+                <title>Complete the Wizard</title> 
+                <para>Complete the fields in the wizard, using the following information.</para>
+                <important><para>The Password must be set to <userinput>password</userinput>.</para></important>
+                <mediaobject>
+                  <imageobject><imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleUserProfileWizard.png" /></imageobject>
+                  <textobject><phrase>User Profile Wizard</phrase></textobject>
+                </mediaobject>
+                <para>Once the fields have been completed, click <guibutton>OK</guibutton>.</para>
+              </step>
+            </procedure>
+            <para>Now that basic account settings are defined, settings relating to the demonstration can be configured.</para>
+            <procedure>
+	          <title>Configure Demonstration-specific Settings</title>
+              <step>
+              <title>Open the User Profile in the Editor</title>
+                <para>The <guilabel>Select User Profile</guilabel> screen should still be open.</para>
+                <para>Select the "customer" user, and click <guibutton>Edit</guibutton> in the <guilabel>Modify Profile</guilabel> group.</para>
+              </step>
+	            <step>
+                <title>Configure the SIP Server Page</title> 
+                <para>Complete the <guilabel>Registrar</guilabel> and <guilabel>Outbound Proxy</guilabel> groups in the SIP server page, according to the following information.</para>
+                <mediaobject>
+                  <imageobject><imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleSIPServerConfig.png" /></imageobject>
+                  <textobject><phrase>SIP Server Settings</phrase></textobject>
+                </mediaobject>
+                <para>Once the fields have been completed, click <guibutton>RTP Audio</guibutton> in the left pane of the <guilabel>User Profile</guilabel> screen.</para>
+              </step>
+              <step>
+                <title>Configure the RTP Audio Page</title> 
+                <para>The demonstration supports the G.711 RTP codecs only.</para>
+                <para>Complete the <guilabel>Codecs</guilabel> tab according to the following information.</para>
+                <mediaobject>
+                  <imageobject><imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleRTPAudioConfig.png" /></imageobject>
+                  <textobject><phrase>RTP Audio Codec Settings</phrase></textobject>
+                </mediaobject>
+                <para>Complete the <guilabel>DTMF</guilabel> tab according to the following information.</para>
+                <mediaobject>
+                  <imageobject><imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleRTPAudioDTMFConfig.png" /></imageobject>
+                  <textobject><phrase>RTP Audio DTMF Settings</phrase></textobject>
+                </mediaobject>
+              </step>
+              <step>
+                <para>Once the fields have been completed, click <guibutton>OK</guibutton> to complete the user account configuration.</para>
+              </step>
+              <step>
+                <para>Set the "customer" account as the default profile, and click <guibutton>Cancel</guibutton> to close the Close the <guilabel>Select User Profile</guilabel> screen.</para>
+              </step>
+            </procedure>
+            <para>Now that user account settings are defined, Twinkle must have the global SIP port defined.  This port is used by Twinkle to communicate to the Registrar server.</para>
+            <procedure>
+	            <title>Set the Global UDP Port</title>
+                <step>
+                  <para>From the Twinkle main screen, select <guimenu>Edit &gt; System Settings</guimenu>.</para>
+                </step>
+	              <step>
+                  <para>Click <guibutton>Network</guibutton> and set <guilabel>SIP port:</guilabel> to <userinput>5059</userinput></para>
+                </step>
+                <step>
+                  <para>Click <guibutton>OK</guibutton> to set the SIP port.</para>
+                </step>
+            </procedure>
+            <para>Twinkle is now configured to work with the demonstration, and can be closed.</para>
+            <note><para>If the server is not running, the Twinkle client will report a Registration Failed error.  This is normal if the server is not running, because it is acting as the SIP Registrar for Twinkle.  Once the server is started, Twinkle will work correctly with the specified settings.</para></note>
+      </section>
+    </appendix>

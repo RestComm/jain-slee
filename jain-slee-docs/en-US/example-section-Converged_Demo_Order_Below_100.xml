@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML 4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section id="paob100">
+    <title>Placing an Order Below $100.00</title>
+      <para>This procedure describes how to to place and confirm an order for less than $100.00, and specify the delivery date and time.</para>
+      <para>Ensure Twinkle is correctly configured (<xref linkend="tss"/>), and idle, before proceeding.</para>
+      <procedure>
+        <title>Placing an Order Below $100.00</title>
+        <step>
+          <para>Log onto the portal using the previously configured customer account in <xref linkend="suaca"/></para>
+        </step>
+        <step>
+          <para>Click the <guilabel>Shop</guilabel> tab, or <guibutton>Start Shopping</guibutton>, to display the Furniture Search screen.</para>
+        </step>
+        <step>
+          <para>Click the "Mission Natural" item link.</para>
+        </step>
+        <step>
+          <title>Select Item</title>
+            <para>Click <guibutton>Add to Cart</guibutton>.</para>
+            <para>The "Mission Natural Coffee Table", with a value of $75.76, is added to the Shopping Cart.</para>
+            <mediaobject>
+              <imageobject><imagedata fileref="images/jss-ConvergedDemo-ss-ShoppingCartMissionNatural.png" /></imageobject>
+              <textobject><phrase>Shopping Cart</phrase></textobject>
+            </mediaobject>
+        </step>
+        <step>
+          <title>Checkout</title>
+          <para>Click <guibutton>Checkout</guibutton>.</para>
+          <para>The Shopping Cart screen is displayed.</para>
+        </step>
+        <step>
+          <para>Click <guibutton>Purchase</guibutton>.</para>
+        </step>
+        <step>
+          <para>Click <guibutton>Checkout</guibutton>, and then click <guibutton>Confirm</guibutton>.</para>
+          <para>At this point, the server dials the SIP Number specified in the user account.</para>
+        </step>
+        <step>
+          <title>Confirm the Order</title>
+          <para>Answer the incoming call and, when prompted, press <userinput>1</userinput> to confirm the order.</para>
+          <para>Once the order is confirmed, the server will terminate the call.  After terminating the confirmation call, the user will received a second call to confirm the delivery date and time.</para>
+          <note><para>If <userinput>2</userinput> is pressed, the order is cancelled.  The user will receive no further calls from the server.</para></note>
+        </step>
+        <step>
+          <title>Confirm the Delivery Date and Time</title>
+            <para>Answer the second incoming call and, when prompted, enter the date and time according to the format required by the server.</para>
+            <note><para>The format required for the date and time is <userinput>ddmmyyhhmm</userinput>.  For example, if the preferred delivery date and time is 7th December 2009 at 1pm, the number sequence required is <userinput>0712091300</userinput>.</para></note>
+            <para>Once the date and time has been correctly entered, the server will confirm the date and time entered and terminate the call.</para>
+          </step>
+        </procedure>
+  </section>

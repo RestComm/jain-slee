@@ -1,0 +1,110 @@
+﻿<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]><!-- chapter id nickname: wwtjssmc -->
+<chapter id="wwtjssmc-Working_with_the_JAIN_SLEE_Server_Management_Console">
+	<title>Working with the JAIN SLEE Server Management Console</title>
+	<section id="wwtjssmc-Introduction_to_the_Management_Console">
+		<title>Introduction to the Mobicents Management Console</title>
+		<para>Once the JAIN SLEE Server is running, you can access the management console by pointing your browser to <systemitem><ulink url="http://localhost:8080/management-console/"/>
+		</systemitem>. If you are working with a remote machine, replace <userinput>localhost</userinput> with the name of the remote machine's host, and <userinput>8080</userinput> with the correct port.</para>
+		<para>The Management Console screen has the following components:</para>
+		<itemizedlist>
+			<listitem>
+				<para>The <literal>Main Menu</literal>, on the left.</para>
+			</listitem>
+			<listitem>
+				<para>The <literal>Current View</literal>, on the right.</para>
+			</listitem>
+			<listitem>
+				<para>The <literal>Log Console</literal>, on the bottom.</para>
+			</listitem>
+		</itemizedlist>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-MMCInitialView">
+			<imageobject>
+				<imagedata width="444" align="center" fileref="images/jss-WorkingWithMMC-ss-MMCInitialView.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>The JAIN SLEE Server Management Console, initial view</para>
+			</caption>
+		</mediaobject>
+		<para>New views my be selected by clicking on the <literal>Main Menu</literal> items. The <literal>Log Console</literal> displays important and relevant notifications when operations are executed, such as error and status messages.</para>
+		<para>The initial management console view, which can also be accessed by clicking on <literal>SLEE</literal> at the top of the <literal>Main Menu</literal>, displays a status message indicating whether the Management Console is currently running or not, and provides controls to start, stop, and shut down the JAIN SLEE Server.</para>
+		<formalpara>
+			<title>
+				<literal>Deployable Units</literal>
+			</title>
+			<para>This view can be selected by clicking on <literal>Deployable Units</literal> from the Main Menu, and shows a list of all deployable units that can be deployed with the JAIN SLEE Server.</para>
+		</formalpara>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-DeployableUnits">
+			<imageobject>
+				<imagedata width="444" align="center" fileref="images/jss-WorkingWithMMC-ss-DeployableUnits.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>The <literal>Deployable Units</literal> view</para>
+			</caption>
+		</mediaobject>
+		<para>A tab bar at the top of the view allows one to browse, search for, and install deployable units.</para>
+		<formalpara>
+			<title>
+				<literal>Components</literal>
+			</title>
+			<para>The next view on the Main Menu is the <literal>Components</literal> view, which displays a list of component types, such as services, <acronym>SBB</acronym>s, resource adapters, <abbrev>etc.</abbrev>, and their current count. Clicking on a component type will cause the management console to show a list of components for that type. From there, you can click on the different components to see their details.</para>
+		</formalpara>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-MMCComponents">
+			<imageobject>
+				<imagedata width="444" align="center" fileref="images/jss-WorkingWithMMC-ss-MMCComponents.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>The <literal>Components</literal> view</para>
+			</caption>
+		</mediaobject>
+		<formalpara>
+			<title>
+				<literal>Services</literal>
+			</title>
+			<para>The <literal>Services</literal> view shows the list of available services, their state, whether <literal>ACTIVE</literal> or <literal>INACTIVE</literal>, and all currently possible actions for that resource adapter, such as <literal>activate</literal>, <literal>deactivate</literal> or <literal>remove</literal>.</para>
+		</formalpara>
+		<mediaobject
+			id="wwtjssmc-jss-WorkingWithMMC-ss-Services">
+			<imageobject>
+				<imagedata align="center" width="444" fileref="images/jss-WorkingWithMMC-ss-Services.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>The <literal>Services</literal> view</para>
+			</caption>
+		</mediaobject>
+		<para>The tab bar at the top of the <literal>Services</literal> view also allows you to control the usage parameters of services.</para>
+		<formalpara>
+			<title>
+				<literal>Resource Adapters</literal>
+			</title>
+			<para>Choosing <literal>Resources</literal> from the <literal>Main Menu</literal> will put the currently-deployed resource adapters in view. There, you can see their name, type, vendor and version. Clicking on one of the resource adapters will provide further information such as the name of the deployable unit, its state, whether <literal>ACTIVE</literal> or <literal>INACTIVE</literal>, and the currently possible actions for specific services, such as activating, deactivating, or removing them.</para>
+		</formalpara>
+		<mediaobject
+			id="wwtjssmc-jss-WorkingWithMMC-ss-Resources">
+			<imageobject>
+				<imagedata
+					width="444" align="center" fileref="images/jss-WorkingWithMMC-ss-Resources.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>The <literal>Resources</literal> view</para>
+			</caption>
+		</mediaobject>
+		<formalpara>
+			<title>
+				<literal>Activity Contexts</literal>
+			</title>
+			<para>The Activity Contexts view can be displayed by clicking on <literal>Activities</literal> from the <literal>Main Menu</literal>, and shows the current activity contexts. The <literal>TTL</literal> field shows how much time the activity can remain idle before being marked for garbage collection.</para>
+		</formalpara>
+		<mediaobject
+			id="wwtjssmc-jss-WorkingWithMMC-ss-MMCActivities">
+			<imageobject>
+				<imagedata
+					width="444" 		align="center" fileref="images/jss-WorkingWithMMC-ss-MMCActivities.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>The <literal>Activities</literal> view</para>
+			</caption>
+		</mediaobject>
+	</section>
+</chapter>

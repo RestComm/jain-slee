@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section>
+  <title>Application Flow</title>
+  <para>The flow begins when a customer places an order through the Mobicents Seam Furniture Store (the portal).  The diagram describes the process at this point of the workflow.</para>
+  <mediaobject>
+    <imageobject><imagedata width="410" align="center" format="PNG" fileref="images/jss-Converged_Demo-dia-Converged_Demo_Order_Placed.png"  /></imageobject>
+    <caption><para>Customer Places and Confirms Order</para></caption>
+  </mediaobject>
+  <para>After the customer confirms the order, the process separates into two streams:</para>
+  <itemizedlist>
+  <listitem><para>Orders under $100.00</para></listitem>
+  <listitem><para>Orders over $100.00</para></listitem>
+  </itemizedlist>
+<para>If the order is under $100.00, the site manager processes the order for shipping and the server calls the customer confirming the agreed delivery date and time.  If the order is above $100.00 the site manager approves the order, and the server calls the customer to request a delivery date and time.  The diagram shows the process at this point in the workflow.</para>
+  <mediaobject>
+    <imageobject><imagedata width="410" align="center" format="PNG" fileref="images/jss-Converged_Demo-dia-Converged_Demo_Order_Value.png" /></imageobject>
+    <caption><para>Order Value Decision Node</para></caption>
+  </mediaobject>
+  <para>Once the customer has specified the delivery date and time, the process merges back to one common stream.  The diagram describes the process up to the point of confirming the order is shipped.</para>
+    <mediaobject>
+    <imageobject><imagedata width="410" align="center" format="PNG" fileref="images/jss-Converged_Demo-dia-Converged_Demo_Order_Shipping.png" /></imageobject>
+    <caption><para>Order Fulfillment to Shipping</para></caption>
+  </mediaobject>
+</section>

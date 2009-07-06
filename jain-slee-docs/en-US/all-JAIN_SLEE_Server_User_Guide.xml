@@ -1,0 +1,2376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Server_User_Guide.ent">
+<!-- NOTES ON CHANGING ENTITY FILES
+Important: take care when changing entities for directories
+* Linux path separators must be: "/"
+* Windows path separators must be: "\"
+* Entities which represent directories MUST HAVE a final path separator:
+	my/path/  <- (final separator)
+If this final separator is missing, then the documentation will be wrong. --><!-- Common entities: same across all books except for BOOKID --><!ENTITY PRODUCT "JBoss Communications Platform">
+<!ENTITY BOOKID "JAIN_SLEE_Server_User_Guide">
+<!ENTITY YEAR "2009">
+<!ENTITY HOLDER "Red Hat Inc">
+<!-- Shared: Configuring the JBOSS_HOME Environment Variable --><!ENTITY MOB_JBOSS_HOME_LIN "mobicents-all-1.2.1.GA-jboss-4.2.3.GA/jboss/">
+<!ENTITY JBCP_JBOSS_HOME_LIN "jboss-eap-4.3/jboss-as/">
+<!-- Platform Installation Guide --><!ENTITY PIG_MOB_PLAT_VERSION "1.2.1 GA">
+<!ENTITY PIG_MOB_PLAT_SIZE "200 MB">
+<!ENTITY PIG_MOB_PLAT_ZIP "mobicents-all-1.2.1.GA-jboss-4.2.3.GA.zip">
+<!ENTITY PIG_MOB_JBOSS_HOME_BIN_LIN "jboss-4.2.3.GA/bin/">
+<!ENTITY PIG_MOB_JBOSS_HOME_BIN_WIN "jboss-4.2.3.GA\bin\">
+<!ENTITY PIG_JBCP_PLAT_VERSION "1.2.1">
+<!ENTITY PIG_JBCP_PLAT_SIZE "310 MB">
+<!ENTITY PIG_JBCP_PLAT_ZIP "JBCP-1.2.1.GA-jboss-eap-4.3.zip">
+<!ENTITY PIG_JBCP_JBOSS_HOME_BIN_LIN "jboss-eap-4.3/jboss-as/bin/">
+<!ENTITY PIG_JBCP_JBOSS_HOME_BIN_WIN "jboss-eap-4.3\jboss-as\bin\">
+<!-- JAIN SLEE Server User Guide --><!ENTITY JSS_VERSION "1.2.5 GA">
+<!ENTITY JSS_SIZE "100 MB">
+<!ENTITY JSS_ZIP "mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip">
+<!ENTITY JSS_JBOSS_HOME "jboss-4.2.3.GA">
+<!ENTITY JSS_JBOSS_HOME_BIN_LIN "jboss-4.2.3.GA/bin/">
+<!ENTITY JSS_JBOSS_HOME_BIN_WIN "jboss-4.2.3.GA\bin/">
+<!-- Media Server User Guide --><!ENTITY MS_VERSION "1.1.0 GA">
+<!ENTITY MS_SIZE "110 MB">
+<!ENTITY MS_ZIP "mobicents-media-server-all-1.1.0.GA.zip">
+<!ENTITY MS_JBOSS_HOME_BIN_LIN "jboss-4.2.3.GA/bin/">
+<!ENTITY MS_JBOSS_HOME_BIN_WIN "jboss-4.2.3.GA\bin\">
+<!-- SIP Servlet Server Installation Guide --><!ENTITY SSS_MSS4J_VERSION "1.0.0">
+<!ENTITY SSS_MSS4J_SIZE "135 MB">
+<!ENTITY SSS_MSS4J_ZIP "mss-1.0.0-jboss-4.2.3.GA-0904211307.zip">
+<!ENTITY SSS_MSS4T_VERSION "0.5">
+<!ENTITY SSS_MSS4T_SIZE "20 MB">
+<!ENTITY SSS_MSS4T_ZIP "mss-1.0.0.GA-apache-tomcat-6.0.14-0904211257.zip">
+<!-- SIP Presence Service User Guide --><!ENTITY SPS_INT_VERSION "1.0.0 BETA4">
+<!ENTITY SPS_INT_SIZE "90 MB">
+<!ENTITY SPS_INT_ZIP "mobicents-sip-presence-integrated-1.0.0.BETA4-CP1.zip">
+<!ENTITY SPS_INT_JBOSS_HOME_BIN_LIN "bin/">
+<!ENTITY SPS_INT_JBOSS_HOME_BIN_WIN "bin\">
+<!ENTITY SPS_XDMS_VERSION "1.0.0 BETA4 CP1">
+<!ENTITY SPS_XDMS_SIZE "90 MB">
+<!ENTITY SPS_XDMS_ZIP "mobicents-sip-presence-xdms-1.0.0.BETA4-CP1.zip">
+<!ENTITY SPS_XDMS_JBOSS_HOME_BIN_LIN "bin/">
+<!ENTITY SPS_XDMS_JBOSS_HOME_BIN_WIN "bin\">
+]>
+<book lang="en-US">
+	<bookinfo id="jssug-JAIN_SLEE_Server_User_Guide" lang="en-US">
+	<!--  chapter id nickname: jssug  --><title>JAIN SLEE Server User Guide</title>
+	<subtitle>The First Open Source JAIN SLEE 1.0-Certified Application Server</subtitle>
+	<productname>Mobicents Platform</productname>
+	<productnumber>1.2.1</productnumber>
+	<edition>2.0</edition>
+	<pubsnumber>1</pubsnumber>
+	<abstract>
+		<para><application condition="mob">The Mobicents Platform</application> is the first and only open source <acronym>VoIP</acronym> platform certified for <acronym>JAIN SLEE</acronym> 1.0 and <acronym>SIP</acronym> Servlets 1.1 compliance. <application condition="mob">Mobicents</application> serves as a high-performance core for Service Delivery Platforms (<acronym>SDP</acronym>s) and <acronym>IP</acronym> Multimedia Subsystems (<acronym>IMS</acronym>s) by leveraging <acronym>J2EE</acronym> to enable the convergence of data and video in Next-Generation
+Intelligent Network (<acronym>NGIN</acronym>) applications.</para>
+			<para>The <application condition="mob">Mobicents Platform</application> enables the composition of predefined Service Building Blocks (<acronym>SBB</acronym>s) such as Call-Control, Billing, User-Provisioning, Administration
+and Presence-Sensing. Out-of-the-box monitoring and management of <application condition="mob">Mobicents</application> components is achieved through <acronym>JMX</acronym> Consoles. <acronym>JSLEE</acronym> allows popular protocol stacks such as <acronym>SIP</acronym> to be plugged in as Resource Adapters (<acronym>RA</acronym>s), and Service Building Blocks—which share many similarities with <acronym>EJB</acronym>s—allow the easy accommodation and integration of enterprise
+applications with end points such as the Web, Customer Relationship
+Management (<acronym>CRM</acronym>) systems and Service-Oriented Architectures (<acronym>SOA</acronym>s). The <application condition="mob">Mobicents Platform</application> is the natural choice for telecommunication Operations Support
+Systems (OSSs) and Network Management Systems (NMSs).</para>
+				<para>In addition to the telecommunication industry, the <application condition="mob">Mobicents Platform</application> is suitable for a variety of problem domains demanding an
+Event-Driven Architecture (<acronym>EDA</acronym>) for high-volume, low-latency signaling, such as financial
+trading, online gaming, (<acronym>RFID</acronym>) sensor network integration, and distributed control.</para></abstract>
+					<corpauthor>
+						<inlinemediaobject>
+							<imageobject>
+								<imagedata fileref="Common_Content/images/title_logo.svg" format="SVG"/>
+							</imageobject>
+							<textobject>
+								<phrase>Logo</phrase>
+							</textobject>
+						</inlinemediaobject>
+					</corpauthor>
+					<copyright>
+						<year>2009</year>
+						<holder>Red Hat Inc</holder>
+					</copyright>
+					<!-- ORIGINAL:
+	<xi:include
+		href="Common_Content/Legal_Notice.xml"
+		xmlns:xi="http://www.w3.org/2001/XInclude" /> --><!-- FOR JDOCBOOK: --><!-- <xi:include
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="Common_Content/Legal_Notice.xml">
+		<xi:fallback
+			xmlns:xi="http://www.w3.org/2001/XInclude">
+			<xi:include
+				href="../fallback_content/Legal_Notice.xml"
+				xmlns:xi="http://www.w3.org/2001/XInclude"></xi:include>
+		</xi:fallback>
+	</xi:include> --><authorgroup lang="en-US">
+	<author>
+		<firstname>Jared</firstname>
+		<surname>Morgan</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv>Engineering Content Services</orgdiv>
+		</affiliation>
+		<email condition="mobicents">jmorgan@redhat.com</email>
+	</author>
+	<author>
+		<firstname>Douglas</firstname>
+		<surname>Silas</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv>Engineering Content Services</orgdiv>
+		</affiliation>
+		<email condition="mobicents">dhensley@redhat.com</email>
+	</author>
+	<author>
+		<firstname>Ivelin</firstname>
+		<surname>Ivanov</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">ivelin.atanasoff.ivanov@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Vladimir</firstname>
+		<surname>Ralev</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">vladimir.ralev@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Eduardo</firstname>
+		<surname>Martins</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">emmartins@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Jean</firstname>
+		<surname>Deruelle</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">jean.deruelle@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Oleg</firstname>
+		<surname>Kulikov</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">oleg.kulikoff@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Amit</firstname>
+		<surname>Bhayani</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">amit.bhayani@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Luis</firstname>
+		<surname>Barreiro</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">lbbbarreiro@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Alexandre</firstname>
+		<surname>Mendonça</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">brainslog@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Bartosz</firstname>
+		<surname>Baranowski</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">baranowb@gmail.com</email>
+	</author>
+	<author>
+		<firstname>Pavel</firstname>
+		<surname>Šlégr</surname>
+		<affiliation>
+			<orgname>Red Hat, </orgname>
+			<orgdiv condition="mob">Mobicents</orgdiv>
+		</affiliation>
+		<email condition="mob">pavel.slegr@gmail.com</email>
+	</author>
+</authorgroup>
+				</bookinfo>
+	<preface lang="en-US">
+	<title>Preface</title>
+	<para>
+		 
+	</para>
+	<section lang="en-US" xml:base="Common_Content/Conventions.xml">
+	<title>Document Conventions</title>
+	<para>
+		This manual uses several conventions to highlight certain words and phrases and draw attention to specific pieces of information.
+	</para>
+	<para>
+		In PDF and paper editions, this manual uses typefaces drawn from the <ulink url="https://fedorahosted.org/liberation-fonts/">Liberation Fonts</ulink> set. The Liberation Fonts set is also used in HTML editions if the set is installed on your system. If not, alternative but equivalent typefaces are displayed. Note: Red Hat Enterprise Linux 5 and later includes the Liberation Fonts set by default.
+	</para>
+	<section>
+		<title>Typographic Conventions</title>
+		<para>
+			Four typographic conventions are used to call attention to specific words and phrases. These conventions, and the circumstances they apply to, are as follows.
+		</para>
+		<para>
+			<literal>Mono-spaced Bold</literal>
+		</para>
+		<para>
+			Used to highlight system input, including shell commands, file names and paths. Also used to highlight key caps and key-combinations. For example:
+		</para>
+		<blockquote>
+			<para>
+				To see the contents of the file <filename>my_next_bestselling_novel</filename> in your current working directory, enter the <command>cat my_next_bestselling_novel</command> command at the shell prompt and press <keycap>Enter</keycap> to execute the command.
+			</para>
+		</blockquote>
+		<para>
+			The above includes a file name, a shell command and a key cap, all presented in Mono-spaced Bold and all distinguishable thanks to context.
+		</para>
+		<para>
+			Key-combinations can be distinguished from key caps by the hyphen connecting each part of a key-combination. For example:
+		</para>
+		<blockquote>
+			<para>
+				Press <keycap>Enter</keycap> to execute the command.
+			</para>
+			<para>
+				Press <keycombo><keycap>Ctrl</keycap><keycap>Alt</keycap><keycap>F1</keycap></keycombo> to switch to the first virtual terminal. Press <keycombo><keycap>Ctrl</keycap><keycap>Alt</keycap><keycap>F7</keycap></keycombo> to return to your X-Windows session.
+			</para>
+		</blockquote>
+		<para>
+			The first sentence highlights the particular key cap to press. The second highlights two sets of three key caps, each set pressed simultaneously.
+		</para>
+		<para>
+			If source code is discussed, class names, methods, functions, variable names and returned values mentioned within a paragraph will be presented as above, in <literal>Mono-spaced Bold</literal>. For example:
+		</para>
+		<blockquote>
+			<para>
+				File-related classes include <classname>filesystem</classname> for file systems, <classname>file</classname> for files, and <classname>dir</classname> for directories. Each class has its own associated set of permissions.
+			</para>
+		</blockquote>
+		<para>
+			<application>Proportional Bold</application>
+		</para>
+		<para>
+			This denotes words or phrases encountered on a system, including application names; dialogue box text; labelled buttons; check-box and radio button labels; menu titles and sub-menu titles. For example:
+		</para>
+		<blockquote>
+			<para>
+				Choose <guimenu>System &gt; Preferences &gt; Mouse</guimenu> from the main menu bar to launch <application>Mouse Preferences</application>. In the <guilabel>Buttons</guilabel> tab, click the <guilabel>Left-handed mouse</guilabel> check box and click <guibutton>Close</guibutton> to switch the primary mouse button from the left to the right (making the mouse suitable for use in the left hand).
+			</para>
+			<para>
+				To insert a special character into a <application>gedit</application> file, choose <guimenu>Applications &gt; Accessories &gt; Character Map</guimenu> from the main menu bar. Next, choose <guimenu>Search &gt; Find…</guimenu> from the <application>Character Map</application> menu bar, type the name of the character in the <guilabel>Search</guilabel> field and click <guibutton>Next</guibutton>. The character you sought will be highlighted in the <guilabel>Character Table</guilabel>. Double-click this highlighted character to place it in the <guilabel>Text to copy</guilabel> field and then click the <guibutton>Copy</guibutton> button. Now switch back to your document and choose <guimenu>Edit &gt; Paste</guimenu> from the <application>gedit</application> menu bar.
+			</para>
+		</blockquote>
+		<para>
+			The above text includes application names; system-wide menu names and items; application-specific menu names; and buttons and text found within a GUI interface, all presented in Proportional Bold and all distinguishable by context.
+		</para>
+		<para>
+			Note the <guimenu>&gt;</guimenu> shorthand used to indicate traversal through a menu and its sub-menus. This is to avoid the difficult-to-follow 'Select <guimenuitem>Mouse</guimenuitem> from the <guimenu>Preferences</guimenu> sub-menu in the <guimenu>System</guimenu> menu of the main menu bar' approach.
+		</para>
+		<para>
+			<command><replaceable>Mono-spaced Bold Italic</replaceable></command> or <application><replaceable>Proportional Bold Italic</replaceable></application>
+		</para>
+		<para>
+			Whether Mono-spaced Bold or Proportional Bold, the addition of Italics indicates replaceable or variable text. Italics denotes text you do not input literally or displayed text that changes depending on circumstance. For example:
+		</para>
+		<blockquote>
+			<para>
+				To connect to a remote machine using ssh, type <command>ssh <replaceable>username</replaceable>@<replaceable>domain.name</replaceable></command> at a shell prompt. If the remote machine is <filename>example.com</filename> and your username on that machine is john, type <command>ssh john@example.com</command>.
+			</para>
+			<para>
+				The <command>mount -o remount <replaceable>file-system</replaceable></command> command remounts the named file system. For example, to remount the <filename>/home</filename> file system, the command is <command>mount -o remount /home</command>.
+			</para>
+			<para>
+				To see the version of a currently installed package, use the <command>rpm -q <replaceable>package</replaceable></command> command. It will return a result as follows: <command><replaceable>package-version-release</replaceable></command>.
+			</para>
+		</blockquote>
+		<para>
+			Note the words in bold italics above — username, domain.name, file-system, package, version and release. Each word is a placeholder, either for text you enter when issuing a command or for text displayed by the system.
+		</para>
+		<para>
+			Aside from standard usage for presenting the title of a work, italics denotes the first use of a new and important term. For example:
+		</para>
+		<blockquote>
+			<para>
+				When the Apache HTTP Server accepts requests, it dispatches child processes or threads to handle them. This group of child processes or threads is known as a <firstterm>server-pool</firstterm>. Under Apache HTTP Server 2.0, the responsibility for creating and maintaining these server-pools has been abstracted to a group of modules called <firstterm>Multi-Processing Modules</firstterm> (<firstterm>MPMs</firstterm>). Unlike other modules, only one module from the MPM group can be loaded by the Apache HTTP Server.
+			</para>
+		</blockquote>
+	</section>
+	
+	<section>
+		<title>Pull-quote Conventions</title>
+		<para>
+			Two, commonly multi-line, data types are set off visually from the surrounding text.
+		</para>
+		<para>
+			Output sent to a terminal is set in <computeroutput>Mono-spaced Roman</computeroutput> and presented thus:
+		</para>
+		
+<screen>
+books        Desktop   documentation  drafts  mss    photos   stuff  svn
+books_tests  Desktop1  downloads      images  notes  scripts  svgs
+</screen>
+		<para>
+			Source-code listings are also set in <computeroutput>Mono-spaced Roman</computeroutput> but are presented and highlighted as follows:
+		</para>
+		
+<programlisting language="java">
+package org.jboss.book.jca.ex1;
+
+import javax.naming.InitialContext;
+
+public class ExClient
+{
+   public static void main(String args[]) 
+       throws Exception
+   {
+      InitialContext iniCtx = new InitialContext();
+      Object         ref    = iniCtx.lookup("EchoBean");
+      EchoHome       home   = (EchoHome) ref;
+      Echo           echo   = home.create();
+
+      System.out.println("Created Echo");
+
+      System.out.println("Echo.echo('Hello') = " + echo.echo("Hello"));
+   }
+   
+}
+</programlisting>
+	</section>
+	
+	<section>
+		<title>Notes and Warnings</title>
+		<para>
+			Finally, we use three visual styles to draw attention to information that might otherwise be overlooked.
+		</para>
+		<note>
+			<title>Note</title>
+			<para>
+				A note is a tip or shortcut or alternative approach to the task at hand. Ignoring a note should have no negative consequences, but you might miss out on a trick that makes your life easier.
+			</para>
+		</note>
+		<important>
+			<title>Important</title>
+			<para>
+				Important boxes detail things that are easily missed: configuration changes that only apply to the current session, or services that need restarting before an update will apply. Ignoring Important boxes won't cause data loss but may cause irritation and frustration.
+			</para>
+		</important>
+		<warning>
+			<title>Warning</title>
+			<para>
+				A Warning should not be ignored. Ignoring warnings will most likely cause data loss.
+			</para>
+		</warning>
+	</section>
+
+</section>
+	<!-- <xi:include
+		href="Feedback.xml"
+		xmlns:xi="http://www.w3.org/2001/XInclude">
+		<xi:fallback
+			xmlns:xi="http://www.w3.org/2001/XInclude">
+			<xi:include
+				href="Common_Content/Feedback.xml"
+				xmlns:xi="http://www.w3.org/2001/XInclude" />
+		</xi:fallback>
+	</xi:include> -->
+</preface>
+	<chapter id="ittjss-Introduction_to_the_JAIN_SLEE_Server" lang="en-US">
+	<!--  chapter id nickname: ittjss  --><title>Introduction to the JAIN SLEE Server</title>
+	<para>
+		<application condition="mob">Mobicents Platform</application><acronym> JAIN SLEE</acronym> provides a highly-scalable, event-driver application server with a robust component model and a fault-tolerant execution environment. <application condition="mob">Mobicents Platform</application> <acronym>JSLEE</acronym> is the first and only open source platform certified for <acronym>JSLEE</acronym> 1.0 compliance. It complements <acronym>J2EE</acronym> to enable the convergence of voice, video and data in next-generation intelligent applications. The Web and <acronym>SIP</acronym> can be combined to achieve a more sophisticated and natural user experience.
+	</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata align="center" fileref="images/jss-Introduction-dia-JSLEE+J2EEApplicationServer.png" format="PNG" width="410"/>
+		</imageobject>
+		<caption>
+		<para>
+			Overview of JAIN SLEE Server components
+		</para>
+		</caption>
+	</mediaobject>
+	<para>
+		The <application condition="mob">Mobicents Platform</application> enables the composition of Service Building Blocks (<acronym>SBB</acronym>s) such as call control, billing, user-provisioning, administration, and presence-sensing features. The <acronym>JAIN SLEE</acronym> specification allows popular protocol stacks such as <acronym>SIP</acronym> to be plugged in as resource adapters. The <acronym>SLEE</acronym> Service Building Blocks have many similarities to Enterprise Java Beans (<acronym>EJB</acronym>s), and naturally accommodate integration with enterprise applications, the Web, Customer Relationship Management (<acronym>CRM</acronym>) and Service-Oriented Architecture (<acronym>SOA</acronym>) end points.
+	</para>
+	<para>
+		Out-of-the-box monitoring and management of <application condition="mob">Mobicents</application> components is achieved via <acronym>SLEE</acronym> standard-based Java Management Extensions (<acronym>JMX</acronym>es) and Simple Network Management Profile (<acronym>SNMP</acronym>) interfaces.
+	</para>
+	<para>
+		Beyond telecommunications, the <application condition="mob">Mobicents Platform</application> is applicable to a wider variety of problems demanding high-volume, low-latency signaling. Examples include financial trading, online gaming, Radio Frequency Identification (<acronym>RFID</acronym>) sensor network integration, and distributed control.
+	</para>
+</chapter>
+	<chapter id="itjss-Installing_the_JAIN_SLEE_Server" lang="en-US">
+	<!--  chapter id nickname: itjss  --><title>Installing the JAIN SLEE Server</title>
+	<para>
+		The Mobicents JAIN SLEE Server can be installed by downloading the ready-to-go binary distribution
+	</para>
+	<para>
+		Alternatively, the source code can be obtained using the Subversion version control system (<acronym>VCS</acronym>) and then can be built from source. Installing the binary distribution is recommended for most users, and obtaining and building the source code distribution is recommended for those who want access to the latest revisions and capabilities. This guide only details how to install, run and configure the Mobicents JAIN SLEE Server from the ready-to-go binary distribution.
+	</para>
+	<section lang="en-US">
+	<!--  chapter id nickname: jdkicar  --><title>Java Development Kit: Installing, Configuring and Running</title>
+	<para>
+		The <application condition="mob">Mobicents</application> platform is written in Java. A working Java Runtime Environment (<acronym>JRE</acronym>) or Java Development Kit (<acronym>JDK</acronym>) must be installed prior to running the server. The required versiom must be version 5 or higher.
+	</para>
+	<para>
+		It is possible to run most <application condition="mob">Mobicents</application> servers, such as the JAIN SLEE Server, using a Java 6 JRE or JDK. However, the XML Document Management Server does not run on Java 6. Check the <ulink url="http://groups.google.com/group/mobicents-public/topics">public support forum</ulink> and <ulink url="http://www.mobicents.org/roadmap.html">project roadmap</ulink> pages to verify Java 6 support prior to running the XML Document Management Server with Java 6.
+	</para>
+	<formalpara>
+		<title>JRE or JDK?</title>
+		<para>
+			Although <application condition="mob">Mobicents</application> servers are capable of running on the Java Runtime Environment, this guide assumes the audience is mainly developers interested in developing Java-based, <application condition="mob">Mobicents</application>-driven solutions. Therefore, installing the Java Development Kit is covered due to the anticipated audience requirements.
+		</para>
+	</formalpara>
+	<formalpara>
+		<title>32-Bit or 64-Bit JDK</title>
+		<para>
+			If the system uses 64-Bit Linux or Windows architecure, the 64-bit JDK is strongly recommended over the 32-bit version. The following heuristics should be considered in determining whether the 64-bit Java Virtual Machine (JVM) is suitable:
+		</para>
+	</formalpara>
+	<itemizedlist>
+		<listitem>
+			<para>
+				Wider datapath: the pipe between RAM and CPU is doubled, which improves the performance of memory-bound applications when using a 64-bit JVM.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				64-bit memory addressing provides a virtually unlimited (1 exabyte) heap allocation. Note that large heaps can affect garbage collection.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				Applications that run with more than 1.5 GB of RAM (including free space for garbage collection optimization) should utilize the 64-bit JVM.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				Applications that run on a 32-bit JVM and do not require more than minimal heap sizes will gain nothing from a 64-bit JVM. Excluding memory issues, 64-bit hardware with the same relative clock speed and architecture is not likely to run Java applications faster than the 32-bit version.
+			</para>
+		</listitem>
+	</itemizedlist>
+	<note>
+		<para>
+			The following instructions describe how to download and install the 32-bit JDK, however the steps are nearly identical for installing the 64-bit version.
+		</para>
+	</note>
+	<!--  <formalpara
+			id="jdkicar-binary-Java_Development_Kit-Pre-Install Requirements and Prerequisites">
+			<title>Pre-Install Requirements and Prerequisites</title>
+			<para></para>
+		</formalpara>  --><!--   <variablelist
+			condition="jdkicar-binary-Java_Development_Kit-Hardware_Requirements">
+			<title>Hardware Requirements</title>
+			<varlistentry>
+				<term>Sufficient Disk Space</term>
+				<listitem>
+					<para></para>
+				</listitem>
+			</varlistentry>
+		</variablelist>   --><!--   <variablelist
+			condition="jdkicar-binary-Java_Development_Kit-Software_Prerequisites">
+			<title>Software Prerequisites</title>
+			<varlistentry>
+				<term></term>
+				<listitem>
+					<para></para>
+				</listitem>
+			</varlistentry>
+		</variablelist>   -->
+	<formalpara>
+		<!--  id="jdkicar-binary-Java_Development_Kit-Downloading">  --><title>Downloading</title>
+		<para>
+			Download the Sun JDK 5.0 (Java 2 Development Kit) from Sun's website: <ulink url="http://java.sun.com/javase/downloads/index_jdk5.jsp"/>. Click the <guilabel>Download</guilabel> link next to "JDK 5.0 Update <replaceable>&lt;x&gt;</replaceable>" (where <replaceable>&lt;x&gt;</replaceable> is the latest minor version release number).
+		</para>
+	</formalpara>
+	<para>
+		The Sun website offers two download options: 
+		<itemizedlist>
+			<listitem>
+				<para>
+					A self-extracting RPM (for example, <filename>jdk-1_5_0_16-linux-i586-rpm.bin</filename>)
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					A self-extracting file (e.g. <filename>jdk-1_5_0_16-linux-i586.bin</filename>)
+				</para>
+			</listitem>
+		</itemizedlist>
+	</para>
+	<para>
+		If installing the JDK on Red Hat Enterprise Linux, Fedora, or another RPM-based Linux system, it is recommended that the self-extracting file containing the RPM package is selected. This option will set up and use the SysV service scripts in addition to installing the JDK. The RPM option is also recommended if the <application condition="mob">Mobicents</application> platform is being set up in a production environment.
+	</para>
+	<formalpara>
+		<!--  id="jdkicar-binary-Java_Development_Kit-Installing">  --><title>Installing</title>
+		<para>
+			The following procedures detail how to install the Java Development Kit on both Linux and Windows.
+		</para>
+	</formalpara>
+	<procedure>
+		<title>Installing the JDK on Linux</title>
+		<step>
+			<para>
+				Ensure the file is executable, then run it:
+			</para>
+			<!--   ~]$ chmod +x "jdk-1_5_0_<minor_version>-linux-<architecture>-rpm.bin"
+~]$ ./"jdk-1_5_0_<minor_version>-linux-<architecture>-rpm.bin"   -->
+<screen>~]$ chmod +x "jdk-1_5_0_&lt;minor_version&gt;-linux-&lt;architecture&gt;-rpm.bin"
+~]$ ./"jdk-1_5_0_&lt;minor_version&gt;-linux-&lt;architecture&gt;-rpm.bin"
+</screen>
+		</step>
+	</procedure>
+	
+	<note>
+		<title>Setting up SysV Service Scripts for Non-RPM Files</title>
+		<para>
+			If the non-RPM self-extracting file is selected for an RPM-based system, the SysV service scripts can be configured by downloading and installing one of the <literal>-compat</literal> packages from the JPackage project. Download the <literal>-compat</literal> package that corresponds correctly to the minor release number of the installed JDK. The compat packages are available from <ulink url="ftp://jpackage.hmdc.harvard.edu/JPackage/1.7/generic/RPMS.non-free/"/>.
+		</para>
+	</note>
+	<important>
+		<para>
+			A <literal>-compat</literal> package is not required for RPM installations. The <literal>-compat</literal> package performs the same SysV service script set up that the RPM version of the JDK installer does.
+		</para>
+	</important>
+	<procedure>
+		<title>Installing the JDK on Windows</title>
+		<step>
+			<para>
+				Using Explorer, double-click the downloaded self-extracting installer and follow the instructions to install the JDK.
+			</para>
+		</step>
+	</procedure>
+	
+	<formalpara>
+		<!--  id="jdkicar-binary-Java_Development_Kit-Configuring">  --><title>Configuring</title>
+		<para>
+			Configuring the system for the JDK consists of two tasks: setting the <envar>JAVA_HOME</envar> environment variable, and ensuring the system is using the proper JDK (or JRE) using the <command>alternatives</command> command. Setting <envar>JAVA_HOME</envar> generally overrides the values for <command>java</command>, <command>javac</command> and <command>java_sdk_1.5.0</command> in <command>alternatives</command>, however it is recommended to specify the value for consistency.
+		</para>
+	</formalpara>
+	<variablelist>
+		<varlistentry>
+			<term>Setting the <envar>JAVA_HOME</envar> Environment Variable on Generic Linux</term>
+			<listitem>
+				<para>
+					After installing the JDK, ensure the <envar>JAVA_HOME</envar> environment variable exists and points to the location of the JDK installation.
+				</para>
+				<formalpara>
+					<title>Setting the <envar>JAVA_HOME</envar> Environment Variable on Linux</title>
+					<para>
+						Determine whether <envar>JAVA_HOME</envar> is set by executing the following command:
+					</para>
+				</formalpara>
+				
+<screen>~]$ echo $JAVA_HOME
+</screen>
+				<para>
+					If <envar>JAVA_HOME</envar> is not set, the value must be set to the location of the JDK installation on the system. This can be achieved by adding two lines to the <filename>~/.bashrc</filename> configuration file. Open <filename>~/.bashrc</filename> (or create it if it does not exist) and add a line similar to the following one anywhere inside the file:
+				</para>
+				
+<programlisting>export JAVA_HOME="/usr/lib/jvm/jdk1.5.0_&lt;version&gt;"
+</programlisting>
+				<para>
+					The changes should also be applied for other users who will be running the <application condition="mob">Mobicents</application> on the machine (any environment variables <command>export</command>ed from <filename>~/.bashrc</filename> files are local to that user).
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>Setting <envar>java</envar>, <envar>javac</envar> and <envar>java_sdk_1.5.0</envar> using the <command>alternatives</command> command </term>
+			<listitem>
+				<formalpara>
+					<title>Selecting the Correct System JVM on Linux using <command>alternatives</command></title>
+					<para>
+						On systems with the <command>alternatives</command> command, including Red Hat Enterprise Linux and Fedora, it is possible to choose which JDK (or JRE) installation to use, as well as which <command>java</command> and <command>javac</command> executables should be run when called.
+					</para>
+				</formalpara>
+				<para>
+					<emphasis>As the superuser</emphasis>, call <command>/usr/sbin/alternatives</command> with the <option>--config java</option> option to select between JDKs and JREs installed on your system:
+				</para>
+				
+<programlisting>
+home]$ sudo /usr/sbin/alternatives --config java
+
+There are 3 programs which provide 'java'.
+
+  Selection    Command
+-----------------------------------------------
+   1           /usr/lib/jvm/jre-1.5.0-gcj/bin/java
+   2           /usr/lib/jvm/jre-1.6.0-sun/bin/java
+*+ 3         /usr/lib/jvm/jre-1.5.0-sun/bin/java
+
+Enter to keep the current selection[+], or type selection number:
+</programlisting>
+				<para>
+					The Sun JDK, version 5, is required to run the <command>java</command> executable. In the <command>alternatives</command> information printout above, a plus (<literal>+</literal>) next to a number indicates the option currently being used. Press <keycap>Enter</keycap> to keep the current JVM, or enter the number corresponding to the JVM to select that option.
+				</para>
+				<para>
+					As the superuser, repeat the procedure above for the <command>javac</command> command and the <literal>java_sdk_1.5.0</literal> environment variable:
+				</para>
+				
+<screen>home]$ sudo /usr/sbin/alternatives --config javac
+</screen>
+				
+<screen>home]$ sudo /usr/sbin/alternatives --config java_sdk_1.5.0
+</screen>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>Setting the <envar>JAVA_HOME</envar> Environment Variable on Windows</term>
+			<listitem>
+				<para>
+					For information on how to set environment variables in Windows, refer to <ulink url="http://support.microsoft.com/kb/931715"/>.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<formalpara>
+		<!--  id="jdkicar-binary-Java_Development_Kit-Testing">  --><title>Testing</title>
+		<para>
+			To ensure the correct JDK or Java version (5 or higher), and that the java executable is in the <envar>PATH</envar> environment variable, run the <command>java -version</command> command in the terminal from the home directory:
+		</para>
+	</formalpara>
+	
+<programlisting>
+home]$ java -version
+java version "1.5.0_16"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_16-b03)
+Java HotSpot(TM) Client VM (build 1.5.0_16-b03, mixed mode, sharing)
+</programlisting>
+	<!--  <formalpara
+		id="jdkicar-binary-Java_Development_Kit-Running">
+		<title>Running</title>
+		<para></para>
+	</formalpara>  --><!--   <formalpara
+		id="jdkicar-binary-Java_Development_Kit-Stopping">
+		<title>Stopping</title>
+		<para></para>
+	</formalpara>   -->
+	<formalpara>
+		<!--  id="jdkicar-binary-Java_Development_Kit-Uninstalling">  --><title>Uninstalling</title>
+		<para>
+			It is not necessary to remove a particular JDK from a system, because the JDK and JRE version can be switched as required using the <command>alternatives</command> command, and/or by setting <envar>JAVA_HOME</envar>.
+		</para>
+	</formalpara>
+	<formalpara>
+		<title>Uninstalling the JDK on Linux</title>
+		<para>
+			On RPM-based systems, uninstall the JDK using the <command>yum remove &lt;jdk_rpm_name&gt;</command> command.
+		</para>
+	</formalpara>
+	<formalpara>
+		<title>Uninstalling the JDK on Windows</title>
+		<para>
+			On Windows systems, check the JDK entry in the <literal>Start</literal> menu for an uninstall option, or use <literal>Add/Remove Programs</literal>.
+		</para>
+	</formalpara>
+</section>
+	<section id="itjss-binary-JAIN_SLEE_Server-Installing_Configuring_and_Running">
+		<title>Binary Distribution: Installing, Configuring and Running</title>
+		<section id="itjss-binary-JAIN_SLEE_Server-PreInstall_Requirements_and_Prerequisites">
+			<title>Pre-Install Requirements and Prerequisites</title>
+			<para>
+				You should ensure that a few requirements have been met before continuing with the install.
+			</para>
+			<variablelist id="itjss-binary-JAIN_SLEE_Server-Hardware_Requirements">
+				<title>Hardware Requirements</title>
+				<varlistentry>
+					<term>Sufficient Disk Space</term>
+					<listitem>
+						<para>
+							You must have sufficient disk space in order to install the Mobicents JAIN SLEE Server binary release. Once unzipped, version 1.2.5 GA of the binary release requires <emphasis>at least</emphasis> 100 MB of free disk space. Keep in mind that disk space requirements may change from release to release.
+						</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Anything Java Itself Will Run On</term>
+					<listitem>
+						<para>
+							The Mobicents JAIN SLEE Server is 100% Java, along with all of its bundled servers, resource adapters and demonstration examples. Therefore, the JAIN SLEE Server will run on the same hardware that the JBoss Application Server runs on.
+						</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+			<variablelist id="itjss-binary-JAIN_SLEE_Server-Software_Prerequisites">
+				<title>Software Prerequisites</title>
+				<varlistentry>
+					<term>JDK 5 or Higher</term>
+					<listitem>
+						<para>
+							A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 5 or higher is required in order to run the Mobicents JAIN SLEE Server. Note that the JBoss Application Server is a runtime dependency of the JAIN SLEE Server and, as mentioned, comes bundled with the binary distribution.
+						</para>
+						<!-- <para>For instructions on how to install the JDK, refer to <xref
+							linkend="jdkicar-binary-Java_Development_Kit-Installing_Configuring_and_Running"/>.</para> -->
+					</listitem>
+				</varlistentry>
+			</variablelist>
+		</section>
+		
+		<section id="itjss-binary-JAIN_SLEE_Server-Downloading">
+			<title>Downloading</title>
+			<para>
+				When you download the Mobicents JAIN SLEE Server binary distribution, you can also choose to verify the integrity of the zip file you download, which is both preferred and safer. If you are setting up the server in a production environment (as opposed to, say, merely playing around with the JAIN SLEE Server's capabilities on your personal machine), we recommend verifying the integrity of the downloaded distribution. The first procedure following shows you how to simply download the JAIN SLEE Server binary distribution, while the second procedure following details how to download <emphasis>and</emphasis> verify the installation zip file.
+			</para>
+			<procedure>
+				<title>Downloading Without Verifying</title>
+				<step>
+					<para>
+						You can download the latest version of the JAIN SLEE Server from <ulink url="http://www.mobicents.org/jainsleedownload.html"/>. Look for this paragraph at the top of the page: <quote>The latest release of Mobicents JAIN SLEE Server is 1.2.5 GA and recommended one. Browse all files <emphasis>here</emphasis></quote>.
+					</para>
+				</step>
+			</procedure>
+			
+			<procedure>
+				<title>Downloading and Verifying</title>
+				<step>
+					<para>
+						The preferred—and safer—way to obtain the JAIN SLEE Server binary distribution is to download the binary zip file as well as its corresponding SHA-1 file, and to use the SHA-1 file to verify the integrity of the zip file. To do this, first go to <ulink url="http://www.mobicents.org/jainsleedownload.html"/> and, at the top of the page, click on the <guilabel>here</guilabel> in the <guilabel>Browse all files here</guilabel> link <emphasis>for the JAIN SLEE Server</emphasis>. The most recent releases are located near the top, but make sure that you don't select an alpha release, such as the JAIN SLEE Server version 2.0.0. <emphasis>ALPHA</emphasis> release<footnote>
+						<para>
+							This guide is for the 1.2-series of Mobicents JAIN SLEE Server releases.
+						</para>
+						</footnote>. Download both the zip file and its attendant SHA-1 file. For example, if you wanted to download the Mobicents JAIN SLEE Server version 1.2.3 GA (suggested), you would want to download both of the following files:
+					</para>
+					<itemizedlist>
+						<listitem>
+							<para>
+								mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip
+							</para>
+						</listitem>
+						<listitem>
+							<para>
+								mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip.sha1.asc
+							</para>
+						</listitem>
+					</itemizedlist>
+				</step>
+				<step>
+					<para>
+						Next, verify the integrity of the zip file with the SHA-1 file, which contains a checksum which is used to do precisely this, to alert you if the file has been changed since it was uploaded, or if it was corrupted upon download.
+					</para>
+					<para>
+						On a Linux system you can use the <command>sha1sum</command> command to verify the integrity of the binary distribution zip file.
+					</para>
+					<para>
+						On a Windows system you will need to download a sha1sum-generating program such as the <command>sha1sum.exe</command> program. This program will generate a checksum that you can compare with the sum in the sha1 file.
+					</para>
+					<para>
+						If the two checksums are identical, then the downloaded binary distribution zip file's integrity is assured, and it is safe to proceed with the installation.
+					</para>
+					<warning>
+						<title>Beware of a Corrupted or Compromised Zip File!</title>
+						<para>
+							If the two checksums are <emphasis>not</emphasis> identical, it means that the downloaded zip file was corrupted upon download, or has been changed since it was last uploaded to the server. In this case, you should first re-download the two files (the zip file and the SHA-1 file) and compare them once more. If this second comparison fails, it could indicate a problem with the install file, and you should contact the Mobicents team by email (see <!-- <xref linkend="Author_Group"/> -->) to alert them of the conflict.
+						</para>
+					</warning>
+				</step>
+			</procedure>
+
+		</section>
+		
+		<section id="itjss-binary-JAIN_SLEE_Server-Installing">
+			<title>Installing</title>
+			<para>
+				Once the requirements and prerequisites have been met and you have downloaded the binary distribution zip file, you are ready to install the JAIN SLEE Server. Follow the instructions below for your platform, whether Linux or Windows.
+			</para>
+			<note id="itjss-Use_Version_Numbers_Relevant_to_Your_Installation">
+				<title>Use Version Numbers Relevant to Your Installation!</title>
+				<para>
+					For clarity, the command line instructions presented in this chapter use specific version numbers and directory names. Remember to replace them with version numbers and file names relevant to those you are actually working with.
+				</para>
+			</note>
+			<procedure>
+				<title>Installing the JAIN SLEE Server Binary Distribution on Linux</title>
+				<step>
+					<para>
+						Assuming that you downloaded the binary distribution zip file to your home folder, create a subdirectory to unzip hte files to. It is good practice to include the version number in this directory name; if you do so, remember to correctly match it with the version of the binary distribution you downloaded.
+					</para>
+					<!--  ~]$ mkdir "jss-<replaceable><version></replaceable>"  -->
+<screen condition="mob">~]$ mkdir "jss-&lt;version&gt;"
+</screen>
+				</step>
+				<step>
+					<para>
+						Move the downloaded zip file into the directory you just created:
+					</para>
+					<!--  ~]$ mv "&JSS_ZIP;" "jss-<replaceable><version></replaceable>"  -->
+<screen condition="mob">~]$ mv "mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip" "jss-&lt;version&gt;"
+</screen>
+				</step>
+				<step>
+					<para>
+						Move into that directory:
+					</para>
+					<!--  ~]$ cd "jss-<replaceable><version></replaceable>"  -->
+<screen condition="mob">~]$ cd "jss-&lt;version&gt;"
+</screen>
+				</step>
+				<step>
+					<para>
+						Finally, use Java's <command>jar <option>-xvf</option></command> command to extract the contents of the zip file into the current directory, thus completing the install:
+					</para>
+					<!--  jss-<replaceable><version></replaceable>]$ jar -xvf "&JSS_ZIP;"  -->
+<screen condition="mob">jss-&lt;version&gt;]$ jar -xvf "mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip"
+</screen>
+					<stepalternatives>
+					<step>
+						<para>
+							Alternatively, if Linux's <command>unzip</command> utility is present on your system or is installable, you can use it in lieu of Java's <command>jar <option>-xvf</option></command> command:
+						</para>
+						<!--  jss-<replaceable><version></replaceable>]$ unzip "&JSS_ZIP;"  -->
+<screen condition="mob">jss-&lt;version&gt;]$ unzip "mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip"
+</screen>
+						<note>
+							<para>
+								You can also use <command>unzip</command>'s <option>-d</option><filename><replaceable>&lt;unzip_to_location&gt;</replaceable></filename> option to extract the zip file's contents to a location other than the current directory.
+							</para>
+						</note>
+					</step>
+					</stepalternatives>
+				</step>
+				<step>
+					<para>
+						To free disk space, you may want to delete the zip file once you've extracted its contents:
+					</para>
+					<!--  jss-<replaceable><version></replaceable>]$ rm "&JSS_ZIP;"  -->
+<screen condition="mob">jss-&lt;version&gt;]$ rm "mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip"
+</screen>
+				</step>
+			</procedure>
+			
+			<procedure>
+				<title>Installing the JAIN SLEE Server Binary Distribution on Windows</title>
+				<step>
+					<para>
+						For this example, we'll assume that you downloaded the binary distribution zip file to the <filename>My Downloads</filename> folder. First, using Windows Explorer, create a subfolder in <filename>My Downloads</filename> to extract the zip file's contents into. When you name this folder, it is good practice to include the version number; if you do so, remember to correctly match it with the version of the JAIN SLEE Server binary distribution you downloaded. In these instructions, we will refer to this folder as <filename>jss-<replaceable>&lt;version&gt;</replaceable></filename>.
+					</para>
+				</step>
+				<step>
+					<para>
+						Double-click the downloaded zip file, selecting as the destination folder the one you just created to hold the zip file's contents.
+					</para>
+					<stepalternatives>
+					<step>
+						<para>
+							Alternatively, it is also possible to use Java's <command>jar <option>-xvf</option></command> command to extract the binary distribution files from the zip archive. To use this method instead, first move the downloaded zip file from <filename>My Downloads</filename> to the folder that you just created to hold the JAIN SLEE Server files.
+						</para>
+					</step>
+					<step>
+						<para>
+							Then, open the Windows Command Prompt and navigate to the folder holding the archive using the <command>cd</command> command:
+						</para>
+						<note id="itjss-Opening_the_Command_Prompt_from_Windows_Explorer">
+							<title>Opening the Command Prompt from Windows Explorer</title>
+							<para>
+								If you are using Windows Vista®, you can open the Command Prompt directly from Explorer. Hold down the <keycap>Shift</keycap> key and right-click on either a folder, the desktop, or inside a folder. This will cause an <guimenuitem>Open Command Window Here</guimenuitem> context menu item to appear, which can be used to open the Command Prompt with the current working directory set to either the folder you opened, or opened it from.
+							</para>
+						</note>
+						<!--  C:\Users\Me>cd "My Downloads\jss-<replaceable><version></replaceable>"  -->
+<screen condition="mob">C:\Users\Me&gt;cd "My Downloads\jss-&lt;version&gt;"
+</screen>
+					</step>
+					<step>
+						<para>
+							Finally, use the <command>jar <option>-xvf</option></command> command to extract the archive contents into the current folder.
+						</para>
+						<!--  C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>jar -xvf "&JSS_ZIP;"  -->
+<screen condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;jar -xvf "mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip"
+</screen>
+					</step>
+					</stepalternatives>
+				</step>
+				<step>
+					<para>
+						At this point, you may want to move the folder holding the JAIN SLEE Server binary files (in this example, the folder named <filename>jss-<replaceable>&lt;version&gt;</replaceable></filename>) to another location. This step is not strictly necessary, but it is probably a good idea to move the Mobicents folder from <filename>My Downloads</filename> to a user-defined location for storing runnable programs. Any location will suffice, however.
+					</para>
+				</step>
+				<step>
+					<para>
+						You may also want to delete the zip file after extracting its contents in order to free disk space:
+					</para>
+					<!--  C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>delete "&JSS_ZIP;"  -->
+<screen condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;delete "mobicents-jainslee-server-1.2.5.GA-jboss-4.2.3.GA.zip"
+</screen>
+				</step>
+			</procedure>
+
+		</section>
+		
+		<section lang="en-US">
+	<title>Setting the JBOSS_HOME Environment Variable</title>
+	<para>
+		The <application>Mobicents Platform</application> (<application>Mobicents</application>) is built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). You do not need to set the <envar>JBOSS_HOME</envar> environment variable to run any of the <application>Mobicents Platform</application> servers <emphasis>unless</emphasis> <envar>JBOSS_HOME</envar> is <emphasis>already</emphasis> set.
+	</para>
+	<para>
+		The best way to know for sure whether <envar>JBOSS_HOME</envar> was set previously or not is to perform a simple check which may save you time and frustration.
+	</para>
+	<formalpara>
+		<title>Checking to See If JBOSS_HOME is Set on Linux</title>
+		<para>
+			At the command line, <command>echo</command><userinput>$JBOSS_HOME</userinput> to see if it is currently defined in your environment:
+		</para>
+	</formalpara>
+	<!--   ~]$ echo $JBOSS_HOME   -->
+<screen>~]$ echo $JBOSS_HOME
+</screen>
+	<para>
+		The <application>Mobicents Platform</application> and most Mobicents servers are built on top of the <application>JBoss Application Server</application> (<application>JBoss AS</application>). When the <application>Mobicents Platform</application> or Mobicents servers are built <emphasis>from source</emphasis>, then <envar>JBOSS_HOME</envar> <emphasis>must</emphasis> be set, because the Mobicents files are installed into (or <quote>over top of</quote> if you prefer) a clean <application>JBoss AS</application> installation, and the build process assumes that the location pointed to by the <envar>JBOSS_HOME</envar> environment variable at the time of building is the <application>JBoss AS</application> installation into which you want it to install the Mobicents files.
+	</para>
+	<para>
+		This guide does not detail building the <application>Mobicents Platform</application> or any Mobicents servers from source. It is nevertheless useful to understand the role played by <application>JBoss AS</application> and <envar>JBOSS_HOME</envar> in the Mobicents ecosystem.
+	</para>
+	<para>
+		The immediately-following section considers whether you need to set <envar>JBOSS_HOME</envar> at all and, if so, when. The subsequent sections detail how to set <envar>JBOSS_HOME</envar> on Linux and Windows
+	</para>
+	<important>
+		<para>
+			Even if you fall into the category below of <emphasis>not needing</emphasis> to set <envar>JBOSS_HOME</envar>, you may want to for various reasons anyway. Also, even if you are instructed that you do <emphasis>not need</emphasis> to set <envar>JBOSS_HOME</envar>, it is good practice nonetheless to check and make sure that <envar>JBOSS_HOME</envar> actually <emphasis>isn't</emphasis> set or defined on your system for some reason. This can save you both time and frustration.
+		</para>
+	</important>
+	<bridgehead>You <emphasis>DO NOT NEED</emphasis> to set <envar>JBOSS_HOME</envar> if...</bridgehead>
+	<itemizedlist>
+		<listitem>
+			<para>
+				...you have installed the <application>Mobicents Platform</application> binary distribution.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				...you have installed a Mobicents server binary distribution <emphasis>which bundles <application>JBoss AS</application>.</emphasis>
+			</para>
+		</listitem>
+	</itemizedlist>
+	<bridgehead>You <emphasis>MUST</emphasis> set <envar>JBOSS_HOME</envar> if you are:</bridgehead>
+	<itemizedlist>
+		<listitem>
+			<para>
+				installing the <application>Mobicents Platform</application> or any of the Mobicents servers <emphasis>from source</emphasis>.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				installing the <application>Mobicents Platform</application> binary distribution, or one of the Mobicents server binary distributions, which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>.
+			</para>
+		</listitem>
+	</itemizedlist>
+	<para>
+		Naturally, if you installed the <application>Mobicents Platform</application> or one of the Mobicents server binary releases which <emphasis>do not</emphasis> bundle <application>JBoss AS</application>, yet requires it to run, then you should <ulink url="http://www.jboss.org/file-access/default/members/jbossas/freezone/docs/Installation_Guide/4/html/index.html">install <application>JBoss AS</application></ulink> before setting <envar>JBOSS_HOME</envar> or proceeding with anything else.
+	</para>
+	<formalpara>
+		<title>Setting the JBOSS_HOME Environment Variable on Linux</title>
+		<para>
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase><application>Mobicents Platform</application> or individual Mobicents server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+		</para>
+	</formalpara>
+	<para>
+		Setting <envar>JBOSS_HOME</envar> in your personal <filename>~/.bashrc</filename> startup script carries the advantage of retaining effect over reboots. Each time you log in, the environment variable is sure to be set for you, as a user. On Linux, it is possible to set <envar>JBOSS_HOME</envar> as a system-wide environment variable, by defining it in <filename>/etc/bashrc</filename>, but this method is neither recommended nor detailed in these instructions.
+	</para>
+	<procedure>
+		<title>To Set JBOSS_HOME on Linux</title>
+		<step>
+			<para>
+				Open the <filename>~/.bashrc</filename> startup script, which is a hidden file in your home directory, in a text editor, and insert the following line on its own line while substituting for the actual install location on your system:
+			</para>
+			<!--   export JBOSS_HOME="/home/<replaceable>&lt;username&gt;</replaceable>/<replaceable>&lt;path&gt;</replaceable>/<replaceable>&lt;to&gt;</replaceable>/<replaceable>&lt;install_directory&gt;</replaceable>"   -->
+<screen>export JBOSS_HOME="/home/&lt;username&gt;/&lt;path&gt;/&lt;to&gt;/&lt;install_directory&gt;"
+</screen>
+		</step>
+		<step>
+			<para>
+				Save and close the <filename>.bashrc</filename> startup script.
+			</para>
+		</step>
+		<step>
+			<para>
+				You should <command>source</command> the <filename>.bashrc</filename> script to force your change to take effect, so that <envar>JBOSS_HOME</envar> becomes set for the current session. Note that any other terminals which were opened prior to altering <filename>.bashrc</filename> will need to <command>source</command><filename>~/.bashrc</filename> as well should they require access to <envar>JBOSS_HOME</envar>.
+			</para>
+			
+<screen>~]$ source ~/.bashrc
+</screen>
+		</step>
+		<step>
+			<para>
+				Finally, ensure that <envar>JBOSS_HOME</envar> is set in the current session, and actually points to the correct location:
+			</para>
+			<note>
+				<para>
+					The command line usage below is based upon a binary installation of the <application>Mobicents Platform</application>. In this sample output, <envar>JBOSS_HOME</envar> has been set correctly to the <replaceable>topmost_directory</replaceable> of the <application>Mobicents</application> installation. Note that if you are installing one of the standalone <application>Mobicents</application> servers (with <application>JBoss AS</application> bundled!), then <envar>JBOSS_HOME</envar> would point to the <replaceable>topmost_directory</replaceable> of your server installation.
+				</para>
+			</note>
+			
+<screen>~]$ echo $JBOSS_HOME
+/home/user/mobicents-all-1.2.1.GA-jboss-4.2.3.GA/jboss/
+</screen>
+		</step>
+	</procedure>
+	
+	<formalpara>
+		<title>Setting the JBOSS_HOME Environment Variable on Windows</title>
+		<para>
+			The <envar>JBOSS_HOME</envar> environment variable must point to the directory which contains all of the files for the <phrase>Mobicents Platform or individual Mobicents server</phrase> that you installed. As another hint, this topmost directory contains a <filename>bin</filename> subdirectory.
+		</para>
+	</formalpara>
+	<para>
+		For information on how to set environment variables in recent versions of Windows, refer to <ulink url="http://support.microsoft.com/kb/931715"/>.
+	</para>
+</section>
+		<section id="itjss-binary-JAIN_SLEE_Server-Running">
+			<title>Running</title>
+			<para>
+				Once installed, you can run the Mobicents JAIN SLEE Server by executing the one of the startup scripts in the <filename>jboss-4.2.3.GA/bin/</filename> subdirectory<footnote>
+				<para>
+					the <filename>jboss</filename> directory is actually a <quote>version-less</quote> shortcut to a directory which contains the version number in the file name, such as <filename>jboss-4.2.3.GA</filename>. Using either of these will work.
+				</para>
+				</footnote> (on Linux or Windows), or by double-clicking the <filename>run.bat</filename> executable batch file in that same directory (on Windows only). However, we suggest always starting the JAIN SLEE Server using the terminal or Command Prompt because you are then able to read—and act upon—any startup messages, and possibly debug any problems that might arise. In the Linux terminal or Command Prompt, you will be able to tell that the JAIN SLEE Server started successfully if the last line of output is similar to the following (ending with <emphasis>Started in 25s:527ms</emphasis>):
+			</para>
+			
+<screen>16:29:15,442 INFO  [ManagementConsole] Mobicents Management Console initialized
+16:29:15,551 INFO  [Http11Protocol] Starting Coyote HTTP/1.1 on http-127.0.0.1-8080
+16:29:15,586 INFO  [AjpProtocol] Starting Coyote AJP/1.3 on ajp-127.0.0.1-8009
+16:29:15,622 INFO  [Server] JBoss (MX MicroKernel) [4.2.2.GA (build: SVNTag=JBoss_4_2_2_GA date=200710221139)] Started in 25s:527ms
+</screen>
+			<para>
+				Detailed instructions are given below, arranged by platform.
+			</para>
+			<procedure>
+				<title>Running the JAIN SLEE Server on Linux</title>
+				<step>
+					<para>
+						Change your working directory to the JAIN SLEE Server's install directory (the one which you extracted the zip file's contents to):
+					</para>
+					<!--  ~]$ cd "jss-<replaceable><version></replaceable>"  -->
+<screen condition="mob">~]$ cd "jss-&lt;version&gt;"
+</screen>
+				</step>
+				<step performance="optional">
+					<para>
+						(Optional) Ensure that the <filename>jboss-4.2.3.GA/bin//run.sh</filename> start script is executable:
+					</para>
+					<!--  jss-<replaceable><version></replaceable>]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;run.sh  -->
+<screen condition="mob">jss-&lt;version&gt;]$ chmod +x jboss-4.2.3.GA/bin/run.sh
+</screen>
+				</step>
+				<step>
+					<para>
+						Finally, execute the <filename>run.sh</filename> Bourne shell script:
+					</para>
+					<!--  jss-<replaceable><version></replaceable>]$ <quote>./&JSS_JBOSS_HOME_BIN_LIN;run.sh</quote>  -->
+<screen condition="mob">jss-&lt;version&gt;]$ "./jboss-4.2.3.GA/bin/run.sh"
+</screen>
+					<stepalternatives>
+					<step>
+						<para>
+							Instead of executing the Bourne shell script to start the server, you may alternatively run the <filename>run.jar</filename> executable Java archive in the <filename>jboss-4.2.3.GA/bin/</filename> directory:
+						</para>
+						<!--  jss-<replaceable><version></replaceable>]$ java -jar &JSS_JBOSS_HOME_BIN_LIN;run.jar  -->
+<screen condition="mob">jss-&lt;version&gt;]$ java -jar jboss-4.2.3.GA/bin/run.jar
+</screen>
+					</step>
+					</stepalternatives>
+				</step>
+			</procedure>
+			
+			<procedure>
+				<title>Running the JAIN SLEE Server on Windows</title>
+				<step>
+					<para>
+						There are several different ways to start the JAIN SLEE Server on Windows. All of the following methods accomplish the same task.
+					</para>
+					<para>
+						Using Windows Explorer, change your folder to the one in which you unzipped the downloaded zip file, and then to the <filename>jboss-4.2.3.GA\bin/</filename> subfolder.
+					</para>
+				</step>
+				<step>
+					<para>
+						Although not the preferred way (see below), it is possible to start the JAIN SLEE Server by double-clicking on the <filename>run.bat</filename> executable batch file.
+					</para>
+					<stepalternatives>
+					<step>
+						<para>
+							As mentioned above, the best way to start the JAIN SLEE Server is by using the Command Prompt. Doing it this way will allow you to view all of the server startup details, which will enable you to easily determine whether any problems were encountered during the startup process. You can open the Command Prompt directly from the <filename>&lt;install_directory&gt;\jboss-4.2.3.GA\bin/</filename> folder in Windows Explorer <!-- (see <xref
+								linkend="itjss-Opening_the_Command_Prompt_from_Windows_Explorer"/> for details) -->, or you can open the Command Prompt via the <guilabel>Start</guilabel> menu and navigate to the correct folder:
+						</para>
+						<!--  C:\Users\Me\My Downloads> cd "jss-<replaceable><version></replaceable>"  -->
+<screen condition="mob">C:\Users\Me\My Downloads&gt; cd "jss-&lt;version&gt;"
+</screen>
+					</step>
+					<step>
+						<para>
+							Start the JAIN SLEE Server by running the executable <filename>run.bat</filename> batch file:
+						</para>
+						<!--  C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>&JSS_JBOSS_HOME_BIN_WIN;run.bat  -->
+<screen condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;jboss-4.2.3.GA\bin/run.bat
+</screen>
+						<stepalternatives>
+						<step>
+							<para>
+								It is also possible to start the JAIN SLEE Server by running the <filename>run.jar</filename> executable Java archive:
+							</para>
+							<!--  C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>java -jar &JSS_JBOSS_HOME_BIN_WIN;run.jar  -->
+<screen condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;java -jar jboss-4.2.3.GA\bin/run.jar
+</screen>
+						</step>
+						</stepalternatives>
+					</step>
+					</stepalternatives>
+				</step>
+			</procedure>
+
+		</section>
+		
+		<section id="itjss-binary-JAIN_SLEE_Server-Using">
+			<title>Using</title>
+			<para>
+				The JAIN SLEE Server can be observed and controlled using the Management Console, which is started along with the server. For information on configuring the JAIN SLEE Server with the Management Console, refer to <xref linkend="wwtjssmc-Working_with_the_JAIN_SLEE_Server_Management_Console"/>.
+			</para>
+		</section>
+		
+		<section id="itjss-binary-JAIN_SLEE_Server-Stopping">
+			<title>Stopping</title>
+			<para>
+				Detailed instructions for stopping the JAIN SLEE Server are given below, arranged by platform. Note that if you properly stop the server, you will see the following three lines as the last output in the Linux terminal or Command Prompt:
+			</para>
+			
+<programlisting>16:44:29,745 INFO  [Server] Shutdown complete
+Shutdown complete
+Halting VM
+</programlisting>
+			<!-- <procedure>
+				<title>Stopping the JAIN SLEE Server on Linux by Issuing a Control Code</title>
+				<step>
+					<para>Assuming that you started the JAIN SLEE Server as a foreground process in the terminal, the easiest way to stop it is by pressing the <keycombo
+							action="simul"><keycap>Ctrl</keycap>
+						<keycap>c</keycap>
+					</keycombo> key combination in the same terminal in which you started it.
+						</para>
+				</step>
+			</procedure> -->
+			<procedure>
+				<title>Stopping the JAIN SLEE Server on Linux by Executing <filename>shutdown.sh</filename> or <filename>shutdown.jar</filename></title>
+				<step>
+					<para>
+						Another way to shut down the JAIN SLEE Server is by executing the <filename>shutdown.sh</filename> Bourne shell script in the <filename>jboss-4.2.3.GA/bin/</filename> directory. To do so, first change your working directory to the JAIN SLEE Server's install directory (the one to which you extracted the downloaded zip file's contents):
+					</para>
+					<!--  ~]$ cd "jss-<replaceable><version></replaceable>"  -->
+<screen condition="mob">~]$ cd "jss-&lt;version&gt;"
+</screen>
+				</step>
+				<step performance="optional">
+					<para>
+						(Optional) Ensure that the <filename>jboss-4.2.3.GA/bin//shutdown.sh</filename> start script is executable:
+					</para>
+					<!--  jss-<replaceable><version></replaceable>]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;shutdown.sh  -->
+<screen condition="mob">jss-&lt;version&gt;]$ chmod +x jboss-4.2.3.GA/bin/shutdown.sh
+</screen>
+				</step>
+				<step>
+					<para>
+						Finally, run the <filename>shutdown.sh</filename> executable Bourne shell script, and remember to add the <option>-S</option> option (which is the short option for <option>--shutdown</option>) as a command line argument:
+					</para>
+					<!--  jss-<replaceable><version></replaceable>]$ <quote>./&JSS_JBOSS_HOME_BIN_LIN;shutdown.sh</quote> -S  -->
+<screen condition="mob">jss-&lt;version&gt;]$ "./jboss-4.2.3.GA/bin/shutdown.sh" -S
+</screen>
+					<stepalternatives>
+					<step>
+						<para>
+							Instead of executing the Bourne shell script to stop the server, you may alternatively run the <filename>shutdown.jar</filename> executable Java archive to do so (and remembering, again, to add the <option>-S</option> command line argument):
+						</para>
+						<!--  jss-<replaceable><version></replaceable>]$ java -jar <quote>&JSS_JBOSS_HOME_BIN_LIN;shutdown.jar</quote> -S  -->
+<screen condition="mob">jss-&lt;version&gt;]$ java -jar "jboss-4.2.3.GA/bin/shutdown.jar" -S
+</screen>
+					</step>
+					</stepalternatives>
+				</step>
+			</procedure>
+			
+			<procedure>
+				<title>Stopping the JAIN SLEE Server on Windows</title>
+				<step>
+					<para>
+						Stopping the JAIN SLEE Server on Windows consists in executing either the <filename>shutdown.bat</filename> or the <filename>shutdown.jar</filename> executable file in the <filename>jboss-4.2.3.GA\bin/</filename> subfolder of the JAIN SLEE Server binary distribution. Make sure to add the <option>-S</option> option (which is the short option for <option>--shutdown</option>) as a command line argument.
+					</para>
+					<!--  C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>&JSS_JBOSS_HOME_BIN_WIN;shutdown.bat -S  -->
+<screen condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;jboss-4.2.3.GA\bin/shutdown.bat -S
+</screen>
+					<stepalternatives>
+					<step>
+						<para>
+							Alternatively, you can execute the <filename>shutdown.jar</filename> Java archive by running the <command>java <option>-jar</option></command> command, and remembering to add the <option>-S</option> option as a command line argument:
+						</para>
+						<!--  C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>java -jar <quote>&JSS_JBOSS_HOME_BIN_WIN;shutdown.jar</quote> -S  -->
+<screen condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;java -jar "jboss-4.2.3.GA\bin/shutdown.jar" -S
+</screen>
+					</step>
+					</stepalternatives>
+				</step>
+			</procedure>
+
+		</section>
+		
+		<section id="itjss-binary-JAIN_SLEE_Server-Testing">
+			<title>Testing</title>
+			<para>
+				 
+			</para>
+		</section>
+		
+		<section id="itjss-binary-JAIN_SLEE_Server-Uninstalling">
+			<title>Uninstalling</title>
+			<para>
+				To uninstall the JAIN SLEE Server, simply delete the directory you decompressed the binary distribution archive into.
+			</para>
+		</section>
+
+	</section>
+
+</chapter>
+	<chapter id="wwra-Working_with_Resource_Adapters" lang="en-US">
+	<!--  chapter id nickname: wwra  --><title>Working with Resource Adapters</title>
+	<section id="daura-Deploying_and_Undeploying_Resource_Adapters" lang="en-US">
+	<!--  chapter id nickname: daura  --><title>Deploying and Undeploying Resource Adapters</title>
+	<para>
+		Resource adapters can be deployed using the Management Console or, alternatively, by invoking <command>ant</command> tasks, or by copying deployable unit files from the <filename>resources/<replaceable>resource_adapter</replaceable></filename> subdirectory of a platform or server installation into <application>JBoss</application>'s <filename>deploy</filename> directory.
+	</para>
+	<section id="daura-Deploying_Resource_Adapters_Using_the_Management_Console">
+		<title>Deploying Resource Adapters Using the Management Console</title>
+		<para>
+			Resource adapters can be deployed from the <guilabel>Install</guilabel> tab of the <guilabel>Deployable Units</guilabel> section of the Management Console.
+		</para>
+		<mediaobject id="daura-jss-DeployingRAs-ss-DUInstall.png">
+			<imageobject>
+				<imagedata align="center" fileref=" images/jss-DeployingRAs-ss-DUInstall.png" format="PNG" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				Deployable Units Install tab
+			</para>
+			</caption>
+		</mediaobject>
+		<para>
+			Clicking on the <guibutton>Browse...</guibutton> button opens your browser's file selector. Navigate to the <filename>&lt;install_directory&gt;/resources/<replaceable>resource_adapter/</replaceable></filename> subdirectory, where <replaceable>resource_adapter</replaceable> corresponds to the resource adapter you want to install. For example, if you wanted to install the HTTP Servlet resource adapter:
+		</para>
+		<mediaobject id="daura-jss-DeployingRAs-ss-SelectingDU.png">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-DeployingRAs-ss-SelectingDU.png" format="PNG" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				Selecting the HTTP Servlet deployable unit
+			</para>
+			</caption>
+		</mediaobject>
+		<para>
+			Deployable units are <acronym>JAR</acronym> files which contain <filename>-ra-DU</filename> in their file names. Simply select that file in the file chooser and click <guibutton>Open</guibutton>. Finally, you must click the <guibutton>Install</guibutton> button to install the deployable unit file, and therefore the corresponding resource adapter.
+		</para>
+		<formalpara>
+			<title>Ensuring the Resource Adapter Is Installed</title>
+			<para>
+				You can ensure that the resource adapter deployed successfully by clicking on the <guilabel>Resources</guilabel> section in the Mobicents Management Console. There, under <guilabel>Resource Adapters</guilabel>, you should now see all of the resource adapters listed which you have deployed so far. In the screenshot, you can see that both the HTTP Servlet and HTTP Client resource adapters have been deployed.
+			</para>
+		</formalpara>
+		<mediaobject id="daura-jss-DeployingRAs-ss-InstalledRAs.png">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-DeployingRAs-ss-InstalledRAs.png" format="PNG" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				HTTP Servlet and HTTP Client RAs successfully deployed
+			</para>
+			</caption>
+		</mediaobject>
+	</section>
+	
+	<section id="daura-Deploying_Resource_Adapters_Using_Ant_and_JMX">
+		<title>Deploying Resource Adapters Using Ant and JMX</title>
+		<para>
+			Alternatively, you can install resource adapters by issuing an <command>ant</command> command in the directory corresponding to the resource adapter that you want to deploy. All resource adapters are located in subdirectories of the <filename>&lt;install_directory&gt;/resources/</filename> directory.
+		</para>
+		<formalpara id="daura-Installing_Apache_Ant_version_1.7_or_Higher">
+			<title>Installing Apache Ant, version 1.7 or Higher</title>
+			<para>
+				In order to deploy the resource adapters with the <command>ant</command> command, you need to install Ant version 1.7 or higher. Ant can be installed on Red Hat Enterprise Linux or Fedora by issuing the following command as the root user:
+			</para>
+		</formalpara>
+		
+<screen># yum install ant
+</screen>
+		<para>
+			To install Apache Ant on other systems, refer to <ulink url="http://ant.apache.org/bindownload.cgi"/>.
+		</para>
+		<para>
+			You can choose to deploy resource adapters using either Java Management Extensions (<acronym>JMX</acronym>) or with the DU<footnote>
+			<para>
+				Deployable Unit
+			</para>
+			</footnote> Deployer (see <xref linkend="daura-Deploying_Resource_Adapters_Using_Ant_and_the_DU_Deployer"/>). Both methods achieve the same effect; however, it is wise to undeploy the resource adapter using the method you used to deploy it. Note that Ant is required with both methods.
+		</para>
+		<procedure id="daura-Deploying_Resource_Adapters_Using_JMX">
+			<title>Deploying Resource Adapters Using JMX</title>
+			<step>
+				<para>
+					Make sure that the <application>JAIN SLEE Server</application> is running: <xref linkend="itjss-binary-JAIN_SLEE_Server-Running"/>.
+				</para>
+			</step>
+			<step>
+				<para>
+					Move to the server install directory:
+				</para>
+				
+<screen condition="mob">~]$ cd &lt;path&gt;/&lt;to&gt;/&lt;install_directory&gt;
+</screen>
+			</step>
+			<step>
+				<para>
+					Then call <command>ant <option>-f</option></command> on the <filename>build.xml</filename> file inside the subdirectory corresponding to the resource adapter you want to install :
+				</para>
+				<!--  <replaceable><install_directory></replaceable>]$ ant -f resources/<replaceable><resource_adapter></replaceable>/build.xml deploy-jmx  -->
+<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml deploy-jmx
+</screen>
+				<para>
+					For example, if you wanted to install the SIP resource adapter, you would issue the following command:
+				</para>
+				<example id="daura-Installing_the_SIP_RA_By_Deploying_with_Ant_and_JMX">
+					<title>Installing the SIP RA By Deploying with Ant and JMX</title>
+					<!--  <replaceable><install_directory></replaceable>]$ ant -f resources/sip/build.xml deploy-jmx  -->
+<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/sip/build.xml deploy-jmx
+</screen>
+				</example>
+			</step>
+			<step>
+				<para>
+					Finally, to undeploy a resource adapter, simply use the same command used to install it with the <option>undeploy</option> option:
+				</para>
+				<!--  <replaceable><install_directory></replaceable>]$ ant -f resources/<replaceable><resource_adapter></replaceable>/build.xml undeploy-jmx  -->
+<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml undeploy-jmx
+</screen>
+			</step>
+		</procedure>
+
+	</section>
+	
+	<section id="daura-Deploying_Resource_Adapters_Using_Ant_and_the_DU_Deployer">
+		<title>Deploying Resource Adapters Using Ant and the DU Deployer</title>
+		<para>
+			You can choose to deploy resource adapters using either Java Management Extensions (<acronym>JMX</acronym>; see <xref linkend="daura-Deploying_Resource_Adapters_Using_Ant_and_JMX"/>) or with the Deployable Unit (DU) Deployer. Both methods achieve the same effect; however, it is wise to undeploy the resource adapter using the method you used to deploy it. Note that Apache Ant is required with both methods. For instructions on installing Ant, go to <xref linkend="daura-Installing_Apache_Ant_version_1.7_or_Higher"/>.
+		</para>
+		<procedure id="daura-Deploying_Resource_Adapters_Using_the_DU_Deployer">
+			<title>Deploying Resource Adapters Using the DU Deployer</title>
+			<step>
+				<para>
+					Make sure that the <application>JAIN SLEE Server</application> is running: <xref linkend="itjss-binary-JAIN_SLEE_Server-Running"/>.
+				</para>
+			</step>
+			<step>
+				<para>
+					Move to the server install directory:
+				</para>
+				<!--  ~]$ cd <replaceable><path></replaceable>/<replaceable><to></replaceable>/<replaceable><install_directory></replaceable>   -->
+<screen condition="mob">~]$ cd &lt;path&gt;/&lt;to&gt;/&lt;install_directory&gt;
+</screen>
+			</step>
+			<step>
+				<para>
+					Then call <command>ant <option>-f</option></command> on the <filename>build.xml</filename> file inside the subdirectory corresponding to the resource adapter you want to install :
+				</para>
+				
+<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml deploy
+</screen>
+				<para>
+					For example, if you wanted to install the SIP resource adapter, you would issue the following command:
+				</para>
+				<example id="daura-Installing_the_SIP_RA_By_Deploying_with_Ant_Using_the_DU_Deployer">
+					<title>Installing the SIP RA By Deploying with Ant Using the DU Deployer</title>
+					
+<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/sip/build.xml deploy
+</screen>
+				</example>
+			</step>
+			<step>
+				<para>
+					Finally, to undeploy a resource adapter, simply use the same command used to install it with the <option>undeploy</option> option:
+				</para>
+				
+<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml undeploy
+</screen>
+			</step>
+		</procedure>
+
+	</section>
+
+</section>
+	<section id="wwra-Resource_Adapters">
+		<title>Resource Adapters</title>
+		<para>
+			The following links to the current documentation for individual resource adapters can be found on this <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-jainslee-resource-adaptors">mobicents-public page</ulink>.
+		</para>
+		<section id="wwra-Asterisk">
+			<title>Asterisk</title>
+			<para>
+				For information on the Parlay resource adapter, refer to <ulink url="http://wiki.java.net/bin/view/Communications/MobicentsAsteriskRA"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-Diameter">
+			<title>Diameter</title>
+			<para>
+				For information on the Diameter resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-diameter-ra"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-HTTP_Client">
+			<title>HTTP Client</title>
+			<para>
+				For information on the HTTP Client resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-http-client-ra"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-HTTP_Servlet">
+			<title>HTTP Servlet</title>
+			<para>
+				For information on the HTTP Servlet resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-http-servlet-ra"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-Media">
+			<title>Media</title>
+			<para>
+				The Media resource adapter is under active development, but for the current information on it, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-media-ra"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-MGCP">
+			<title>MGCP</title>
+			<para>
+				For information on the MGCP resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-mgcp-resource-adaptor-v2"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-Parlay">
+			<title>Parlay</title>
+			<para>
+				For information on the Parlay resource adapter, refer to <ulink url="http://wiki.java.net/bin/view/Communications/MobicentsExamplesParlayRACallBlocking"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-Persistence">
+			<title>Persistence</title>
+			<para>
+				For information on the Persistence resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/persistence-ra-design"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-Rules">
+			<title>Rules</title>
+			<para>
+				For information on the Rules resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-rules-ra"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-SIP">
+			<title>SIP</title>
+			<para>
+				For information on the SIP resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-sip-resources"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-SMPP">
+			<title>SMPP</title>
+			<para>
+				For information on the SMPP resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/smpp-resource-adaptor"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-TTS">
+			<title>TTS</title>
+			<para>
+				For information on the TTS resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/mobicents-tts-ra"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-XCAP_Client">
+			<title>XCAP Client</title>
+			<para>
+				For information on the XCAP Client resource adapter, refer to <ulink url="http://groups.google.com/group/mobicents-public/web/xcap-client-resource-adaptor"/>.
+			</para>
+		</section>
+		
+		<section id="wwra-XMPP">
+			<title>XMPP</title>
+			<para>
+				For information on the XMPP resource adapter, refer to <ulink url="http://wiki.java.net/bin/view/Communications/MobicentsExamplesXMPPSBB"/>.
+			</para>
+		</section>
+
+	</section>
+
+</chapter>
+	<chapter id="rad-Resource_Adapter_Demonstrations" lang="en-US">
+	<!--  chapter id nickname: ittjss  --><title>Resource Adapter Demonstrations</title>
+	<para>
+		The following demonstrations provide examples of working Resource Adapter (RA) implementations that can be used as a programatical starting point when developing applications for the platform.
+	</para>
+	<section id="cad" lang="en-US">
+	<title>Converged Application Demonstration</title>
+	<para>
+		The purpose of this demonstration is to show how a Java Enterprise Edition application can utilize Mobicents to transfer voice, messages, and data seamlessly. The demonstration uses the Seam web application framework, the JAIN SLEE Server, and a selection of resource adapters that provide access to Session Initiation Protocol (SIP), Text To Speech (TTS), and Media services deployed on the server.
+	</para>
+	<section lang="en-US">
+	<title>Application Flow</title>
+	<para>
+		The flow begins when a customer places an order through the Mobicents Seam Furniture Store (the portal). The diagram describes the process at this point of the workflow.
+	</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata align="center" fileref="images/jss-Converged_Demo-dia-Converged_Demo_Order_Placed.png" format="PNG" scalefit="1" width="410"/>
+		</imageobject>
+		<caption>
+		<para>
+			Customer Places and Confirms Order
+		</para>
+		</caption>
+	</mediaobject>
+	<para>
+		After the customer confirms the order, the process separates into two streams:
+	</para>
+	<itemizedlist>
+		<listitem>
+			<para>
+				Orders under $100.00
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				Orders over $100.00
+			</para>
+		</listitem>
+	</itemizedlist>
+	<para>
+		If the order is under $100.00, the site manager processes the order for shipping and the server calls the customer confirming the agreed delivery date and time. If the order is above $100.00 the site manager approves the order, and the server calls the customer to request a delivery date and time. The diagram shows the process at this point in the workflow.
+	</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata align="center" fileref="images/jss-Converged_Demo-dia-Converged_Demo_Order_Value.png" format="PNG" scalefit="1" width="410"/>
+		</imageobject>
+		<caption>
+		<para>
+			Order Value Decision Node
+		</para>
+		</caption>
+	</mediaobject>
+	<para>
+		Once the customer has specified the delivery date and time, the process merges back to one common stream. The diagram describes the process up to the point of confirming the order is shipped.
+	</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata align="center" fileref="images/jss-Converged_Demo-dia-Converged_Demo_Order_Shipping.png" format="PNG" width="410"/>
+		</imageobject>
+		<caption>
+		<para>
+			Order Fulfillment to Shipping
+		</para>
+		</caption>
+	</mediaobject>
+</section>
+	<section id="cdpr" lang="en-US">
+	<title>Converged Demonstration Pre-requisites</title>
+	<para>
+		The following pre-requisites are required before attempting to test the Converged Application demonstration (the demonstration):
+	</para>
+	<itemizedlist>
+		<listitem>
+			<para>
+				Install and configure the Mobicents Binary.
+			</para>
+			<para>
+				Download and install the latest stable binary from <ulink url="http://www.mobicents.org/jainsleeplatformdownload.html">http://www.mobicents.org/jainsleeplatformdownload.html</ulink>. For installation instructions, refer to Installing the JAIN SLEE Server in the Mobicents JAIN SLEE Server Guide.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				Install and configure Twinkle SIP Softphone.
+			</para>
+			<para>
+				Refer to <xref linkend="tss"/> for configuration settings specific to the demonstration.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				Install and Configure Apache Ant.
+			</para>
+			<para>
+				Apache Ant is freely available from the <ulink url="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</ulink>.
+			</para>
+			<note>
+				<para>
+					Ensure the ANT_HOME and JAVA_HOME environment variables point to the correct locations, and that the <command>ant</command> command is added to the <filename>path</filename> file.
+				</para>
+			</note>
+		</listitem>
+	</itemizedlist>
+</section>
+	<section id="dta" lang="en-US">
+	<title>Deploy the Application</title>
+	<para>
+		To deploy the demonstration, the JAIN SLEE Server (the server) must be started and the demonstration deployed to the server.
+	</para>
+	<procedure>
+		<title>Starting the Server</title>
+		<step>
+			<para>
+				Open a console and navigate to the /bin directory:
+			</para>
+			
+<programlisting>bin]$ cd /home/&lt;user_name&gt;/&lt;install_folder&gt;/jboss-&lt;version_number&gt;/bin
+</programlisting>
+		</step>
+		<step>
+			<title>Start</title>
+			<para>
+				As the superuser, start the server by executing the following command:
+			</para>
+			
+<programlisting>bin]# ./run.sh -c default
+</programlisting>
+		</step>
+		<step>
+			<title>Verify</title>
+			<para>
+				Ensure the server has started by checking the Slee State in the Mobicents Management Console (MMC).
+			</para>
+			<para>
+				Open <ulink url="http://localhost:8080/management-console/">http://localhost:8080/management-console/</ulink>, and verify that the SLEE state is green (Running).
+			</para>
+		</step>
+	</procedure>
+	
+	<para>
+		Once the server has initialized, the demonstration can be deployed using Apache Ant.
+	</para>
+	<procedure>
+		<title>Deploying the Demonstration</title>
+		<step>
+			<para>
+				Open a console and navigate to the <filename>converged-demo</filename> folder:
+			</para>
+			
+<programlisting>converged-demo]$ cd /home/&lt;user_name&gt;/&lt;install_folder&gt;/jboss-&lt;version_number&gt;/examples/converged-demo
+</programlisting>
+		</step>
+		<step>
+			<title>Deploy</title>
+			<para>
+				Deploy the demonstration by executing the following command:
+			</para>
+			
+<programlisting>converged-demo]$ ant deploy-all
+</programlisting>
+		</step>
+	</procedure>
+	
+	<para>
+		Apache Ant will deploy the demonstration, the shopping portal (<filename>ShoppingDemo-dev-ds.xml</filename>), and the related resource adaptors (SIP, Media, and TTS). If Apache Ant is successful, a message is displayed in the console.
+	</para>
+	<note>
+		<para>
+			Once the demonstration is deployed to the server, it will be permanently available until it is uninstalled. Starting the server in future will automatically load the demonstration, ready for use.
+		</para>
+	</note>
+</section>
+	<section id="utsp">
+		<title>Using the Shopping Portal</title>
+		<para>
+			Once the server is started and the demonstration deployed, the Mobicents Seam Furniture Store portal (the portal) is ready for use. Open a web browser, and navigate to <ulink url="http://localhost:8080/ShoppingDemo/">http://localhost:8080/ShoppingDemo/</ulink> to reach the home page of the portal.
+		</para>
+		<section id="suaca" lang="en-US">
+	<title>Setting up a Customer Account</title>
+	<para>
+		The portal home page is displayed. From this page, it is necessary to create a customer account before proceeding.
+	</para>
+	<procedure>
+		<title>Creating a Customer Account - Screen One</title>
+		<important>
+			<para>
+				The user account cannot be edited once it is created. Ensure all information is correct before the form information is submitted.
+			</para>
+		</important>
+		<step>
+			<para>
+				On the portal home page, click the <guibutton>Create Account</guibutton> link.
+			</para>
+		</step>
+		<step>
+			<para>
+				On the New Account Registration page, type the following information into the fields:
+			</para>
+			<itemizedlist>
+				<listitem>
+					<para>
+						<guilabel>User Name: </guilabel><userinput>customer</userinput>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						<guilabel>Password: </guilabel><userinput>password</userinput>
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						<guilabel>Verify Password: </guilabel><userinput>password</userinput>
+					</para>
+				</listitem>
+			</itemizedlist>
+		</step>
+	</procedure>
+	
+	<procedure>
+		<title>Creating a Customer Account - Screen Two</title>
+		<step>
+			<para>
+				Complete all required fields, using the following information.
+			</para>
+			<important>
+				<para>
+					The Phone field must contain the SIP address specified in the Twinkle account. The format is <filename>sip:&lt;username&gt;@&lt;IP Address&gt;:&lt;Port&gt;</filename>, for example <userinput>sip:customer@127.0.0.1:5059</userinput>. If the SIP address is incorrectly entered, the server will not be able to call the customer.
+				</para>
+			</important>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/jss-ConvergedDemo-ss-NewAccountRegistration2.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<phrase>Customer Details - Screen Two</phrase>
+				</textobject>
+			</mediaobject>
+		</step>
+		<step>
+			<para>
+				Click <guibutton>Continue</guibutton>.
+			</para>
+		</step>
+	</procedure>
+	
+	<procedure>
+		<title>Creating a Customer Account - Screen Three</title>
+		<step>
+			<para>
+				Complete all required fields, using the information in the image as a guide.
+			</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/jss-ConvergedDemo-ss-NewAccountRegistration3.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<phrase>Customer Details - Screen Two</phrase>
+				</textobject>
+			</mediaobject>
+		</step>
+		<step>
+			<para>
+				Click <guibutton>Submit New Customer Data</guibutton>.
+			</para>
+		</step>
+	</procedure>
+	
+	<para>
+		The customer account can now be used to shop within the portal.
+	</para>
+</section>
+		<section id="pi">
+			<title>Purchasing Items</title>
+			<para>
+				The portal contains a selection of items that can be purchased by customers. The total value of the order at checkout time determines how the server interacts with the customer.
+			</para>
+			<para>
+				If the total order is below $100.00, the order is automatically approved by the Store Manager. The server initiates a call to the customer, requesting that the customer choose a date and time for the delivery. If the order is over $100.00, the portal manager must first approve the order before the server will call the customer.
+			</para>
+			<section id="paob100" lang="en-US">
+	<title>Placing an Order Below $100.00</title>
+	<para>
+		This procedure describes how to to place and confirm an order for less than $100.00, and specify the delivery date and time.
+	</para>
+	<para>
+		Ensure Twinkle is correctly configured (<xref linkend="tss"/>), and idle, before proceeding.
+	</para>
+	<procedure>
+		<title>Placing an Order Below $100.00</title>
+		<step>
+			<para>
+				Log onto the portal using the previously configured customer account in <xref linkend="suaca"/>
+			</para>
+		</step>
+		<step>
+			<para>
+				Click the <guilabel>Shop</guilabel> tab, or <guibutton>Start Shopping</guibutton>, to display the Furniture Search screen.
+			</para>
+		</step>
+		<step>
+			<para>
+				Click the "Mission Natural" item link.
+			</para>
+		</step>
+		<step>
+			<title>Select Item</title>
+			<para>
+				Click <guibutton>Add to Cart</guibutton>.
+			</para>
+			<para>
+				The "Mission Natural Coffee Table", with a value of $75.76, is added to the Shopping Cart.
+			</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/jss-ConvergedDemo-ss-ShoppingCartMissionNatural.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<phrase>Shopping Cart</phrase>
+				</textobject>
+			</mediaobject>
+		</step>
+		<step>
+			<title>Checkout</title>
+			<para>
+				Click <guibutton>Checkout</guibutton>.
+			</para>
+			<para>
+				The Shopping Cart screen is displayed.
+			</para>
+		</step>
+		<step>
+			<para>
+				Click <guibutton>Purchase</guibutton>.
+			</para>
+		</step>
+		<step>
+			<para>
+				Click <guibutton>Checkout</guibutton>, and then click <guibutton>Confirm</guibutton>.
+			</para>
+			<para>
+				At this point, the server dials the SIP Number specified in the user account.
+			</para>
+		</step>
+		<step>
+			<title>Confirm the Order</title>
+			<para>
+				Answer the incoming call and, when prompted, press <userinput>1</userinput> to confirm the order.
+			</para>
+			<para>
+				Once the order is confirmed, the server will terminate the call. After terminating the confirmation call, the user will received a second call to confirm the delivery date and time.
+			</para>
+			<note>
+				<para>
+					If <userinput>2</userinput> is pressed, the order is cancelled. The user will receive no further calls from the server.
+				</para>
+			</note>
+		</step>
+		<step>
+			<title>Confirm the Delivery Date and Time</title>
+			<para>
+				Answer the second incoming call and, when prompted, enter the date and time according to the format required by the server.
+			</para>
+			<note>
+				<para>
+					The format required for the date and time is <userinput>ddmmyyhhmm</userinput>. For example, if the preferred delivery date and time is 7th December 2009 at 1pm, the number sequence required is <userinput>0712091300</userinput>.
+				</para>
+			</note>
+			<para>
+				Once the date and time has been correctly entered, the server will confirm the date and time entered and terminate the call.
+			</para>
+		</step>
+	</procedure>
+
+</section>
+			<section id="paoa100" lang="en-US">
+	<title>Placing an Order Above $100.00</title>
+	<para>
+		This procedure describes how to to place an order above $100.00, and confirm the date and time for delivery.
+	</para>
+	<para>
+		Ensure Twinkle is correctly configured (<xref linkend="tss"/>), and idle, before proceeding.
+	</para>
+	<procedure>
+		<title>Placing an Order Above $100.00</title>
+		<step>
+			<para>
+				Orders above $100.00 require the Store Manager to approve the order before the server will contact the customer.
+			</para>
+			<para>
+				Open two instances of the portal. In one portal instance, log in as the customer. The other portal must be logged on using the Store Manager account.
+			</para>
+			<note>
+				<para>
+					The Store Manager account details are on the portal home page.
+				</para>
+			</note>
+		</step>
+		<step>
+			<para>
+				Follow the procedure in <xref linkend="paob100"/>, ensuring that the item (or items) selected total more than $100.00.
+			</para>
+		</step>
+		<step>
+			<para>
+				The order is now confirmed, and the Store Manager must approve the order before the server continues processing the transaction.
+			</para>
+		</step>
+	</procedure>
+	
+	<procedure>
+		<title>Approving The Order</title>
+		<para>
+			The Site Manager must approve the order according to a Process Management workflow; the workflow selected determines how the customer is contacted.
+		</para>
+		<step>
+			<para>
+				In the Site Manager portal, the order is awaiting approval.
+			</para>
+		</step>
+		<step>
+			<title>Select the Process Management workflow</title>
+			<para>
+				Before approving the pending order, select <guimenuitem>ordermanagement2</guimenuitem> in <guimenu>Admin Options</guimenu> and click <guibutton>Switch Order Process</guibutton>.
+			</para>
+			<note>
+				<para>
+					The ordermanagement2 workflow showcases the full process management functionality in the demonstration.
+				</para>
+			</note>
+		</step>
+		<step>
+			<title>Escalate Order to Order Acceptance</title>
+			<para>
+				Under the Task Assignment section, click <guibutton>Assign</guibutton>.
+			</para>
+			<para>
+				The customer order is moved from Task Assignment to Order Acceptance.
+			</para>
+		</step>
+		<step>
+			<title>Review the Order</title>
+			<para>
+				Under the Order Acceptance section, click <guibutton>Review</guibutton>.
+			</para>
+			<para>
+				The order acceptance screen is displayed. The screen provides details of the customer order and the opportunity for the Store Manager to Accept or Reject the order.
+			</para>
+		</step>
+		<step>
+			<title>Accept the Order</title>
+			<para>
+				Click <guibutton>Accept Order</guibutton>.
+			</para>
+			<para>
+				The order is now accepted by the Store Manager, and the server calls the customer to set a delivery date and time.
+			</para>
+		</step>
+		<step>
+			<title>Customer Specifies the Delivery Date and Time</title>
+			<para>
+				Answer the incoming call and, when prompted, enter the date and time according to the format required by the server.
+			</para>
+			<note>
+				<para>
+					The format required for the date and time is <userinput>ddmmyyhhmm</userinput>. For example, if the preferred delivery date and time is 7th December 2009 at 1pm, the number sequence required is <userinput>0712091300</userinput>.
+				</para>
+			</note>
+			<para>
+				Once the date and time has been correctly entered, the server will confirm the date and time entered and terminate the call.
+			</para>
+			<para>
+				The server then moves the order back to the Task Assignment phase of the workflow.
+			</para>
+		</step>
+		<step>
+			<title>Escalate Order to Order Shipping</title>
+			<para>
+				In the Task Assignment section of the Store Manager portal, click <guibutton>Assign</guibutton>.
+			</para>
+			<para>
+				The order moves to the final phase of the Order Process 2 workflow: the Order Shipping phase.
+			</para>
+		</step>
+		<step>
+			<title>Enter Tracking Number and Ship</title>
+			<para>
+				In the Order Shipping section of the Store Manager portal, enter a tracking number and click <guibutton>Ship.</guibutton>
+			</para>
+			<para>
+				The server initiates a call to the customer confirming the order number, and the delivery date and time.
+			</para>
+		</step>
+	</procedure>
+	
+	<para>
+		The order has now been processed, and is on its way to the customer. The Statistics section provides the updated overview of Inventory and Sales.
+	</para>
+	<para>
+		Experiment with the other workflows listed in the Order Management section of the Store Manager portal by placing a new customer order over $100.00. On the Store Manager portal, set the Process Management workflow to either <guimenuitem>ordermanagement1</guimenuitem> or <guimenuitem>ordermanagement3</guimenuitem>, and note the differences regarding how the server interacts with the Store Manager and the Customer.
+	</para>
+</section>
+		</section>
+
+	</section>
+
+</section>
+</chapter>
+	<chapter id="wwtjssmc-Working_with_the_JAIN_SLEE_Server_Management_Console" lang="en-US">
+	<!--  chapter id nickname: wwtjssmc  --><title>Working with the JAIN SLEE Server Management Console</title>
+	<section id="wwtjssmc-Introduction_to_the_Management_Console">
+		<title>Introduction to the Mobicents Management Console</title>
+		<para>
+			Once the JAIN SLEE Server is running, you can access the management console by pointing your browser to <systemitem><ulink url="http://localhost:8080/management-console/"/></systemitem>. If you are working with a remote machine, replace <userinput>localhost</userinput> with the name of the remote machine's host, and <userinput>8080</userinput> with the correct port.
+		</para>
+		<para>
+			The Management Console screen has the following components:
+		</para>
+		<itemizedlist>
+			<listitem>
+				<para>
+					The <literal>Main Menu</literal>, on the left.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					The <literal>Current View</literal>, on the right.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					The <literal>Log Console</literal>, on the bottom.
+				</para>
+			</listitem>
+		</itemizedlist>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-MMCInitialView">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-WorkingWithMMC-ss-MMCInitialView.png" format="PNG" scalefit="1" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				The JAIN SLEE Server Management Console, initial view
+			</para>
+			</caption>
+		</mediaobject>
+		<para>
+			New views my be selected by clicking on the <literal>Main Menu</literal> items. The <literal>Log Console</literal> displays important and relevant notifications when operations are executed, such as error and status messages.
+		</para>
+		<para>
+			The initial management console view, which can also be accessed by clicking on <literal>SLEE</literal> at the top of the <literal>Main Menu</literal>, displays a status message indicating whether the Management Console is currently running or not, and provides controls to start, stop, and shut down the JAIN SLEE Server.
+		</para>
+		<formalpara>
+			<title><literal>Deployable Units</literal></title>
+			<para>
+				This view can be selected by clicking on <literal>Deployable Units</literal> from the Main Menu, and shows a list of all deployable units that can be deployed with the JAIN SLEE Server.
+			</para>
+		</formalpara>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-DeployableUnits">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-WorkingWithMMC-ss-DeployableUnits.png" format="PNG" scalefit="1" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				The <literal>Deployable Units</literal> view
+			</para>
+			</caption>
+		</mediaobject>
+		<para>
+			A tab bar at the top of the view allows one to browse, search for, and install deployable units.
+		</para>
+		<formalpara>
+			<title><literal>Components</literal></title>
+			<para>
+				The next view on the Main Menu is the <literal>Components</literal> view, which displays a list of component types, such as services, <acronym>SBB</acronym>s, resource adapters, <abbrev>etc.</abbrev>, and their current count. Clicking on a component type will cause the management console to show a list of components for that type. From there, you can click on the different components to see their details.
+			</para>
+		</formalpara>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-MMCComponents">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-WorkingWithMMC-ss-MMCComponents.png" format="PNG" scalefit="1" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				The <literal>Components</literal> view
+			</para>
+			</caption>
+		</mediaobject>
+		<formalpara>
+			<title><literal>Services</literal></title>
+			<para>
+				The <literal>Services</literal> view shows the list of available services, their state, whether <literal>ACTIVE</literal> or <literal>INACTIVE</literal>, and all currently possible actions for that resource adapter, such as <literal>activate</literal>, <literal>deactivate</literal> or <literal>remove</literal>.
+			</para>
+		</formalpara>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-Services">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-WorkingWithMMC-ss-Services.png" format="PNG" scalefit="1" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				The <literal>Services</literal> view
+			</para>
+			</caption>
+		</mediaobject>
+		<para>
+			The tab bar at the top of the <literal>Services</literal> view also allows you to control the usage parameters of services.
+		</para>
+		<formalpara>
+			<title><literal>Resource Adapters</literal></title>
+			<para>
+				Choosing <literal>Resources</literal> from the <literal>Main Menu</literal> will put the currently-deployed resource adapters in view. There, you can see their name, type, vendor and version. Clicking on one of the resource adapters will provide further information such as the name of the deployable unit, its state, whether <literal>ACTIVE</literal> or <literal>INACTIVE</literal>, and the currently possible actions for specific services, such as activating, deactivating, or removing them.
+			</para>
+		</formalpara>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-Resources">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-WorkingWithMMC-ss-Resources.png" format="PNG" scalefit="1" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				The <literal>Resources</literal> view
+			</para>
+			</caption>
+		</mediaobject>
+		<formalpara>
+			<title><literal>Activity Contexts</literal></title>
+			<para>
+				The Activity Contexts view can be displayed by clicking on <literal>Activities</literal> from the <literal>Main Menu</literal>, and shows the current activity contexts. The <literal>TTL</literal> field shows how much time the activity can remain idle before being marked for garbage collection.
+			</para>
+		</formalpara>
+		<mediaobject id="wwtjssmc-jss-WorkingWithMMC-ss-MMCActivities">
+			<imageobject>
+				<imagedata align="center" fileref="images/jss-WorkingWithMMC-ss-MMCActivities.png" format="PNG" scalefit="1" width="444"/>
+			</imageobject>
+			<caption>
+			<para>
+				The <literal>Activities</literal> view
+			</para>
+			</caption>
+		</mediaobject>
+	</section>
+
+</chapter>
+	<appendix id="tss" lang="en-US">
+	<title>Twinkle SIP Softphone</title>
+	<para>
+		The Twinkle SIP Softphone (Twinkle) is available for Linux only, and can be downloaded from <ulink url="http://www.twinklephone.com/">http://www.twinklephone.com/</ulink>. Some Linux distributions may offer Twinkle through the distribution's Package Manager application.
+	</para>
+	<section id="ctftcad">
+		<title>Configuring Twinkle for the Converged Application Demonstration</title>
+		<para>
+			In the Converged Application demonstration (the demonstration), Twinkle is used to receive calls initiated by the JAIN SLEE Server (the server). After the customer makes purchases through the Mobicents Seam Furniture Store (the portal), the server calls the customer via a SIP Softphone and asks them to confirm the order and specify a date and time for delivery. In order for Twinkle to receive the calls, specific configuration is required prior to deploying the demonstration on the Mobicents server. To ensure the demonstration functions correctly, follow the setup instructions detailed in this document.
+		</para>
+		<para>
+			Twinkle is recommended because it supports codecs compatible with the Media resource adapter used in the Converged Application demonstration. Other SIP Softphones may be compatible with the Media-RA server, however configuring softphones other than Twinkle is not covered in this document.
+		</para>
+		<note>
+			<para>
+				The screens depicted in this document are taken from Twinkle v1.4.2. The settings in later versions of Twinkle may be similar to those featured in this document, however, configuring later versions of Twinkle is not covered in this document.
+			</para>
+		</note>
+		<procedure>
+			<title>Install Twinkle</title>
+			<step>
+				<title>Download </title>
+				<para>
+					Download and install Twinkle on the machine that will run the server, and demonstration.
+				</para>
+				<important>
+					<para>
+						Twinkle must be installed locally because the Mobicents SIP server is bound to the http://localhost:8080/ address.
+					</para>
+				</important>
+			</step>
+			<step>
+				<title>Run</title>
+				<para>
+					Start Twinkle by selecting the application from the <guimenu>Applications &gt; Internet</guimenu> menu.
+				</para>
+			</step>
+		</procedure>
+		
+		<para>
+			When Twinkle starts for the first time, it will ask for basic account settings to be configured. Follow the procedure to configure the basic settings required by the demonstration.
+		</para>
+		<procedure>
+			<title>Configure Basic Settings</title>
+			<step>
+				<title>Start the User Profile Wizard</title>
+				<para>
+					If this is the first time Twinkle has run on the machine, select the Wizard option in the dialog.
+				</para>
+				<para>
+					If Twinkle has run previously on the machine, in the main Twinkle window select <guibutton>File &gt; Change User</guibutton> and click <guibutton>Wizard</guibutton> in the <guilabel>Create Profile</guilabel> group.
+				</para>
+			</step>
+			<step>
+				<title>Complete the Wizard</title>
+				<para>
+					Complete the fields in the wizard, using the following information.
+				</para>
+				<important>
+					<para>
+						The Password must be set to <userinput>password</userinput>.
+					</para>
+				</important>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleUserProfileWizard.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<phrase>User Profile Wizard</phrase>
+					</textobject>
+				</mediaobject>
+				<para>
+					Once the fields have been completed, click <guibutton>OK</guibutton>.
+				</para>
+			</step>
+		</procedure>
+		
+		<para>
+			Now that basic account settings are defined, settings relating to the demonstration can be configured.
+		</para>
+		<procedure>
+			<title>Configure Demonstration-specific Settings</title>
+			<step>
+				<title>Open the User Profile in the Editor</title>
+				<para>
+					The <guilabel>Select User Profile</guilabel> screen should still be open.
+				</para>
+				<para>
+					Select the "customer" user, and click <guibutton>Edit</guibutton> in the <guilabel>Modify Profile</guilabel> group.
+				</para>
+			</step>
+			<step>
+				<title>Configure the SIP Server Page</title>
+				<para>
+					Complete the <guilabel>Registrar</guilabel> and <guilabel>Outbound Proxy</guilabel> groups in the SIP server page, according to the following information.
+				</para>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleSIPServerConfig.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<phrase>SIP Server Settings</phrase>
+					</textobject>
+				</mediaobject>
+				<para>
+					Once the fields have been completed, click <guibutton>RTP Audio</guibutton> in the left pane of the <guilabel>User Profile</guilabel> screen.
+				</para>
+			</step>
+			<step>
+				<title>Configure the RTP Audio Page</title>
+				<para>
+					The demonstration supports the G.711 RTP codecs only.
+				</para>
+				<para>
+					Complete the <guilabel>Codecs</guilabel> tab according to the following information.
+				</para>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleRTPAudioConfig.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<phrase>RTP Audio Codec Settings</phrase>
+					</textobject>
+				</mediaobject>
+				<para>
+					Complete the <guilabel>DTMF</guilabel> tab according to the following information.
+				</para>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="./images/jss-ConvergedDemo-ss-TwinkleRTPAudioDTMFConfig.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<phrase>RTP Audio DTMF Settings</phrase>
+					</textobject>
+				</mediaobject>
+			</step>
+			<step>
+				<para>
+					Once the fields have been completed, click <guibutton>OK</guibutton> to complete the user account configuration.
+				</para>
+			</step>
+			<step>
+				<para>
+					Set the "customer" account as the default profile, and click <guibutton>Cancel</guibutton> to close the Close the <guilabel>Select User Profile</guilabel> screen.
+				</para>
+			</step>
+		</procedure>
+		
+		<para>
+			Now that user account settings are defined, Twinkle must have the global SIP port defined. This port is used by Twinkle to communicate to the Registrar server.
+		</para>
+		<procedure>
+			<title>Set the Global UDP Port</title>
+			<step>
+				<para>
+					From the Twinkle main screen, select <guimenu>Edit &gt; System Settings</guimenu>.
+				</para>
+			</step>
+			<step>
+				<para>
+					Click <guibutton>Network</guibutton> and set <guilabel>SIP port:</guilabel> to <userinput>5059</userinput>
+				</para>
+			</step>
+			<step>
+				<para>
+					Click <guibutton>OK</guibutton> to set the SIP port.
+				</para>
+			</step>
+		</procedure>
+		
+		<para>
+			Twinkle is now configured to work with the demonstration, and can be closed.
+		</para>
+		<note>
+			<para>
+				If the server is not running, the Twinkle client will report a Registration Failed error. This is normal if the server is not running, because it is acting as the SIP Registrar for Twinkle. Once the server is started, Twinkle will work correctly with the specified settings.
+			</para>
+		</note>
+	</section>
+
+</appendix>
+	<appendix lang="en-US">
+	<title>Revision History</title>
+	<simpara>
+		<revhistory>
+			<revision>
+				<revnumber>3.0</revnumber>
+				<date>Thu Jun 11 2009</date>
+				<author>
+					<firstname>Jared</firstname>
+					<surname>Morgan</surname>
+					<email>jmorgan@redhat.com</email>
+				</author>
+				<revdescription>
+					<simplelist>
+						<member>Second release of the "parameterized" documentation.</member>
+					</simplelist>
+				</revdescription>
+			</revision>
+			<revision>
+				<revnumber>2.0</revnumber>
+				<date>Fri Mar 06 2009</date>
+				<author>
+					<firstname>Douglas</firstname>
+					<surname>Silas</surname>
+					<email>dhensley@redhat.com</email>
+				</author>
+				<revdescription>
+					<simplelist>
+						<member>First release of the "parameterized", and much-improved JBCP documentation.</member>
+					</simplelist>
+				</revdescription>
+			</revision>
+		</revhistory>
+	</simpara>
+</appendix>
+	<!-- <index /> -->
+</book>

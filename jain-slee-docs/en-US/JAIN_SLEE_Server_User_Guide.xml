@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<book>
+
+	<xi:include href="Book_Info.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<xi:include href="Preface.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<xi:include href="concept-chapter-Introduction_to_the_JAIN_SLEE_Server.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<xi:include href="task-chapter-Installing_the_JAIN_SLEE_Server.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<xi:include href="concept-chapter-Working_with_Resource_Adapters.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+	<xi:include href="concept-chapter-Resource_Adapter_Demonstrations.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+	<xi:include href="concept-chapter-Working_with_the_JAIN_SLEE_Server_Management_Console.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	
+  <xi:include href="appendix-Install_Twinkle_Softphone.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+	<xi:include href="Revision_History.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+	<!--<index />-->
+</book>
+

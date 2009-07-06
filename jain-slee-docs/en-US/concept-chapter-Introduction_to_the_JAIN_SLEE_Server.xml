@@ -1,0 +1,38 @@
+<?xml version='1.0'?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]><!-- chapter id nickname: ittjss -->
+
+<chapter
+	id="ittjss-Introduction_to_the_JAIN_SLEE_Server">
+	<title>Introduction to the JAIN SLEE Server</title>
+	<para><application
+			condition="mob">Mobicents Platform</application><application condition="jbcp">JBoss Communications Platform</application>
+		<acronym> JAIN SLEE</acronym> provides a highly-scalable, event-driver application server with a robust component model and a fault-tolerant execution environment. <application
+			condition="mob">Mobicents Platform</application>
+		<application
+			condition="jbcp">JBoss Communications Platform</application> <acronym>JSLEE</acronym> is the first and only open source platform certified for <acronym>JSLEE</acronym> 1.0 compliance. It complements <acronym>J2EE</acronym> to enable the convergence of voice, video and data in next-generation intelligent applications. The Web and <acronym>SIP</acronym> can be combined to achieve a more sophisticated and natural user experience.</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="410"
+				align="center"
+				fileref="images/jss-Introduction-dia-JSLEE+J2EEApplicationServer.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>Overview of JAIN SLEE Server components</para>
+		</caption>
+	</mediaobject>
+	<para>The <application
+			condition="mob">Mobicents Platform</application>
+		<application
+			condition="jbcp">JBoss Communications Platform</application> enables the composition of Service Building Blocks (<acronym>SBB</acronym>s) such as call control, billing, user-provisioning, administration, and presence-sensing features. The <acronym>JAIN SLEE</acronym> specification allows popular protocol stacks such as <acronym>SIP</acronym> to be plugged in as resource adapters. The <acronym>SLEE</acronym> Service Building Blocks have many similarities to Enterprise Java Beans (<acronym>EJB</acronym>s), and naturally accommodate integration with enterprise applications, the Web, Customer Relationship Management (<acronym>CRM</acronym>) and Service-Oriented Architecture (<acronym>SOA</acronym>) end points.</para>
+	<para>Out-of-the-box monitoring and management of <application
+			condition="mob">Mobicents</application>
+		<application
+			condition="jbcp">JBCP</application> components is achieved via <acronym>SLEE</acronym> standard-based Java Management Extensions (<acronym>JMX</acronym>es) and Simple Network Management Profile (<acronym>SNMP</acronym>) interfaces.</para>
+	<para>Beyond telecommunications, the <application
+			condition="mob">Mobicents Platform</application>
+		<application
+			condition="jbcp">JBoss Communications Platform</application> is applicable to a wider variety of problems demanding high-volume, low-latency signaling. Examples include financial trading, online gaming, Radio Frequency Identification (<acronym>RFID</acronym>) sensor network integration, and distributed control.</para>
+</chapter>

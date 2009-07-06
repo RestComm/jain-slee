@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML 4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<section id="suaca">
+    <title>Setting up a Customer Account</title>
+      <para>The portal home page is displayed.  From this page, it is necessary to create a customer account before proceeding.</para>
+        <procedure>
+          <title>Creating a Customer Account - Screen One</title>
+          <important><para>The user account cannot be edited once it is created.  Ensure all information is correct before the form information is submitted.</para></important>
+          <step>
+            <para>On the portal home page, click the <guibutton>Create Account</guibutton> link.</para>
+          </step>
+          <step>
+            <para>On the New Account Registration page, type the following information into the fields:</para>
+              <itemizedlist>
+                <listitem>
+                  <para><guilabel>User Name: </guilabel><userinput>customer</userinput></para>
+                </listitem>
+               <listitem>
+                  <para><guilabel>Password: </guilabel><userinput>password</userinput></para>
+                </listitem>
+                <listitem>
+                  <para><guilabel>Verify Password: </guilabel><userinput>password</userinput></para>
+                </listitem>
+              </itemizedlist>
+          </step>
+        </procedure>
+        <procedure>
+          <title>Creating a Customer Account - Screen Two</title>
+            <step>
+              <para>Complete all required fields, using the following information.</para>
+              <important><para>The Phone field must contain the SIP address specified in the Twinkle account.  The format is <filename>sip:&lt;username&gt;@&lt;IP Address&gt;:&lt;Port&gt;</filename>, for example <userinput>sip:customer@127.0.0.1:5059</userinput>. If the SIP address is incorrectly entered, the server will not be able to call the customer.</para></important>
+              <mediaobject>
+                <imageobject><imagedata fileref="images/jss-ConvergedDemo-ss-NewAccountRegistration2.png" /></imageobject>
+                <textobject><phrase>Customer Details - Screen Two</phrase></textobject>
+              </mediaobject>
+            </step>
+            <step>
+              <para>Click <guibutton>Continue</guibutton>.</para>
+            </step>
+        </procedure>
+        <procedure>
+          <title>Creating a Customer Account - Screen Three</title>
+          <step>
+            <para>Complete all required fields, using the information in the image as a guide.</para>
+              <mediaobject>
+                <imageobject><imagedata fileref="images/jss-ConvergedDemo-ss-NewAccountRegistration3.png" /></imageobject>
+                <textobject><phrase>Customer Details - Screen Two</phrase></textobject>
+              </mediaobject>
+          </step>
+          <step>
+            <para>Click <guibutton>Submit New Customer Data</guibutton>.</para>
+          </step>
+        </procedure>
+        <para>The customer account can now be used to shop within the portal.</para>
+        </section>

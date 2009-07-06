@@ -1,0 +1,128 @@
+﻿<?xml version='1.0'?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]><!-- chapter id nickname: daura -->
+<section id="daura-Deploying_and_Undeploying_Resource_Adapters">
+	<title>Deploying and Undeploying Resource Adapters</title>
+	<para>Resource adapters can be deployed using the Management Console or, alternatively, by invoking <command>ant</command> tasks, or by copying deployable unit files from the <filename>resources/<replaceable>resource_adapter</replaceable></filename> subdirectory of a platform or server installation into <application>JBoss</application>'s <filename>deploy</filename> directory.</para>
+	<section id="daura-Deploying_Resource_Adapters_Using_the_Management_Console">
+		<title>Deploying Resource Adapters Using the Management Console</title>
+		<para>Resource adapters can be deployed from the <guilabel>Install</guilabel> tab of the <guilabel>Deployable Units</guilabel> section of the Management Console.</para>
+		<mediaobject
+			id="daura-jss-DeployingRAs-ss-DUInstall.png">
+			<imageobject>
+				<imagedata align="center" width="444" fileref=" images/jss-DeployingRAs-ss-DUInstall.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>Deployable Units Install tab</para>
+			</caption>
+		</mediaobject>
+		<para>Clicking on the <guibutton>Browse...</guibutton> button opens your browser's file selector. Navigate to the <filename>&lt;install_directory&gt;/resources/<replaceable>resource_adapter/</replaceable>
+			</filename> subdirectory, where <replaceable>resource_adapter</replaceable> corresponds to the resource adapter you want to install. For example, if you wanted to install the HTTP Servlet resource adapter:</para>
+		<mediaobject id="daura-jss-DeployingRAs-ss-SelectingDU.png">
+			<imageobject>
+				<imagedata align="center" width="444" fileref="images/jss-DeployingRAs-ss-SelectingDU.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>Selecting the HTTP Servlet deployable unit</para>
+			</caption>
+		</mediaobject>
+		<para>Deployable units are <acronym>JAR</acronym> files which contain <filename>-ra-DU</filename> in their file names. Simply select that file in the file chooser and click <guibutton>Open</guibutton>. Finally, you must click the <guibutton>Install</guibutton> button to install the deployable unit file, and therefore the corresponding resource adapter.</para>
+		<formalpara>
+			<title>Ensuring the Resource Adapter Is Installed</title>
+			<para>You can ensure that the resource adapter deployed successfully by clicking on the <guilabel>Resources</guilabel> section in the Mobicents Management Console. There, under <guilabel>Resource Adapters</guilabel>, you should now see all of the resource adapters listed which you have deployed so far. In the screenshot, you can see that both the HTTP Servlet and HTTP Client resource adapters have been deployed.</para>
+		</formalpara>
+		<mediaobject
+			id="daura-jss-DeployingRAs-ss-InstalledRAs.png">
+			<imageobject>
+				<imagedata align="center" width="444" fileref="images/jss-DeployingRAs-ss-InstalledRAs.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>HTTP Servlet and HTTP Client RAs successfully deployed</para>
+			</caption>
+		</mediaobject>
+	</section>
+
+	<section id="daura-Deploying_Resource_Adapters_Using_Ant_and_JMX">
+		<title>Deploying Resource Adapters Using Ant and JMX</title>
+		<para>Alternatively, you can install resource adapters by issuing an <command>ant</command> command in the directory corresponding to the resource adapter that you want to deploy. All resource adapters are located in subdirectories of the <filename>&lt;install_directory&gt;/resources/</filename> directory.</para>
+		<formalpara id="daura-Installing_Apache_Ant_version_1.7_or_Higher">
+			<title>Installing Apache Ant, version 1.7 or Higher</title>
+			<para>In order to deploy the resource adapters with the <command>ant</command> command, you need to install Ant version 1.7 or higher. Ant can be installed on Red Hat Enterprise Linux or Fedora by issuing the following command as the root user:</para>
+		</formalpara>
+		<screen># yum install ant</screen>
+		<para>To install Apache Ant on other systems, refer to <ulink url="http://ant.apache.org/bindownload.cgi"/>.</para>
+		<para>You can choose to deploy resource adapters using either Java Management Extensions (<acronym>JMX</acronym>) or with the DU<footnote><para>Deployable Unit</para>
+			</footnote> Deployer (see <xref linkend="daura-Deploying_Resource_Adapters_Using_Ant_and_the_DU_Deployer"/>). Both methods achieve the same effect; however, it is wise to undeploy the resource adapter using the method you used to deploy it. Note that Ant is required with both methods.</para>
+		<procedure id="daura-Deploying_Resource_Adapters_Using_JMX">
+			<title>Deploying Resource Adapters Using JMX</title>
+			<step>
+				<para>Make sure that the <application>JAIN SLEE Server</application> is running: <xref linkend="itjss-binary-JAIN_SLEE_Server-Running"/>.</para>
+			</step>
+			<step>
+				<para>Move to the server install directory:</para>
+				<screen condition="jbcp">~]$ cd <replaceable>&lt;path&gt;</replaceable>/<replaceable>&lt;to&gt;</replaceable>/<replaceable>&lt;install_directory&gt;</replaceable>
+				</screen>
+				<screen condition="mob">~]$ cd &lt;path&gt;/&lt;to&gt;/&lt;install_directory&gt;</screen>
+			</step>
+			<step>
+				<para>Then call <command>ant <option>-f</option></command> on the <filename>build.xml</filename> file inside the subdirectory corresponding to the resource adapter you want to install :</para>
+				  <!-- <replaceable><install_directory></replaceable>]$ ant -f resources/<replaceable><resource_adapter></replaceable>/build.xml deploy-jmx -->
+				<screen condition="jbcp"> <replaceable>&lt;install_directory&gt;</replaceable>]$ ant -f resources/<replaceable>&lt;resource_adapter&gt;</replaceable>/build.xml deploy-jmx</screen>
+				<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml deploy-jmx</screen>
+				<para>For example, if you wanted to install the SIP resource adapter, you would issue the following command:</para>
+				
+				<example id="daura-Installing_the_SIP_RA_By_Deploying_with_Ant_and_JMX">
+					<title>Installing the SIP RA By Deploying with Ant and JMX</title>
+					<!-- <replaceable><install_directory></replaceable>]$ ant -f resources/sip/build.xml deploy-jmx -->
+					<screen condition="jbcp"> <replaceable>&lt;install_directory&gt;</replaceable>]$ ant -f resources/sip/build.xml deploy-jmx</screen>
+					<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/sip/build.xml deploy-jmx</screen>
+				</example>
+			</step>
+
+			<step>
+				<para>Finally, to undeploy a resource adapter, simply use the same command used to install it with the <option>undeploy</option> option:</para>
+						  <!-- <replaceable><install_directory></replaceable>]$ ant -f resources/<replaceable><resource_adapter></replaceable>/build.xml undeploy-jmx -->
+				<screen condition="jbcp"> <replaceable>&lt;install_directory&gt;</replaceable>]$ ant -f resources/<replaceable>&lt;resource_adapter&gt;</replaceable>/build.xml undeploy-jmx</screen>
+				<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml undeploy-jmx</screen>
+			</step>
+		</procedure>
+	</section>
+
+	<section id="daura-Deploying_Resource_Adapters_Using_Ant_and_the_DU_Deployer">
+		<title>Deploying Resource Adapters Using Ant and the DU Deployer</title>
+		<para>You can choose to deploy resource adapters using either Java Management Extensions (<acronym>JMX</acronym>; see <xref linkend="daura-Deploying_Resource_Adapters_Using_Ant_and_JMX"/>) or with the Deployable Unit (DU) Deployer.  Both methods achieve the same effect; however, it is wise to undeploy the resource adapter using the method you used to deploy it. Note that Apache Ant is required with both methods. For instructions on installing Ant, go to <xref linkend="daura-Installing_Apache_Ant_version_1.7_or_Higher"/>.</para>
+		<procedure id="daura-Deploying_Resource_Adapters_Using_the_DU_Deployer">
+			<title>Deploying Resource Adapters Using the DU Deployer</title>
+			<step>
+				<para>Make sure that the <application>JAIN SLEE Server</application> is running: <xref linkend="itjss-binary-JAIN_SLEE_Server-Running"/>.</para>
+			</step>
+			<step>
+				<para>Move to the server install directory:</para>
+				   <!-- ~]$ cd <replaceable><path></replaceable>/<replaceable><to></replaceable>/<replaceable><install_directory></replaceable>  -->
+				<screen condition="jbcp">~]$ cd <replaceable>&lt;path&gt;</replaceable>/<replaceable>&lt;to&gt;</replaceable>/<replaceable>&lt;install_directory&gt;</replaceable>
+				</screen>
+				<screen condition="mob">~]$ cd &lt;path&gt;/&lt;to&gt;/&lt;install_directory&gt; </screen>
+			</step>
+			<step>
+				<para>Then call <command>ant <option>-f</option></command> on the <filename>build.xml</filename> file inside the subdirectory corresponding to the resource adapter you want to install :</para>
+				<screen condition="jbcp"> <replaceable>&lt;install_directory&gt;</replaceable>]$ ant -f resources/<replaceable>&lt;resource_adapter&gt;</replaceable>/build.xml deploy</screen>
+				<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml deploy</screen>
+
+				<para>For example, if you wanted to install the SIP resource adapter, you would issue the following command:</para>
+
+				<example id="daura-Installing_the_SIP_RA_By_Deploying_with_Ant_Using_the_DU_Deployer">
+					<title>Installing the SIP RA By Deploying with Ant Using the DU Deployer</title>
+					<screen condition="jbcp"> <replaceable>&lt;install_directory&gt;</replaceable>]$ ant -f resources/sip/build.xml deploy</screen>
+					<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/sip/build.xml deploy</screen>
+				</example>
+			</step>
+
+			<step>
+				<para>Finally, to undeploy a resource adapter, simply use the same command used to install it with the <option>undeploy</option> option:</para>
+				<screen condition="jbcp"> <replaceable>&lt;install_directory&gt;</replaceable>]$ ant -f resources/<replaceable>&lt;resource_adapter&gt;</replaceable>/build.xml undeploy </screen>
+				<screen condition="mob">&lt;install_directory&gt;]$ ant -f resources/&lt;resource_adapter&gt;/build.xml undeploy </screen>
+			</step>
+		</procedure>
+	</section>
+</section>
+

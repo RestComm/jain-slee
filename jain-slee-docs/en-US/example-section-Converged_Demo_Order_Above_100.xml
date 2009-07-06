@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML 4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section id="paoa100">
+    <title>Placing an Order Above $100.00</title>
+      <para>This procedure describes how to to place an order above $100.00, and confirm the date and time for delivery.</para>
+      <para>Ensure Twinkle is correctly configured (<xref linkend="tss"/>), and idle, before proceeding.</para>
+      <procedure>
+        <title>Placing an Order Above $100.00</title>
+          <step>
+            <para>Orders above $100.00 require the Store Manager to approve the order before the server will contact the customer.</para>
+            <para>Open two instances of the portal.  In one portal instance, log in as the customer.  The other portal must be logged on using the Store Manager account.</para>
+            <note><para>The Store Manager account details are on the portal home page.</para></note>
+          </step>
+          <step>
+            <para>Follow the procedure in <xref linkend="paob100"/>, ensuring that the item (or items) selected total more than $100.00.</para>
+          </step>
+          <step>
+            <para>The order is now confirmed, and the Store Manager must approve the order before the server continues processing the transaction.</para>
+          </step>
+        </procedure>
+        <procedure>
+          <title>Approving The Order</title>
+          <para>The Site Manager must approve the order according to a Process Management workflow; the workflow selected determines how the customer is contacted.</para>
+            <step>
+              <para>In the Site Manager portal, the order is awaiting approval.</para>
+            </step>
+            <step>
+              <title>Select the Process Management workflow</title>
+              <para>Before approving the pending order, select <guimenuitem>ordermanagement2</guimenuitem> in <guimenu>Admin Options</guimenu> and click <guibutton>Switch Order Process</guibutton>.</para>
+              <note><para>The ordermanagement2 workflow showcases the full process management functionality in the demonstration.</para></note>
+            </step>
+            <step>
+              <title>Escalate Order to Order Acceptance</title>
+              <para>Under the Task Assignment section, click <guibutton>Assign</guibutton>.</para>
+              <para>The customer order is moved from Task Assignment to Order Acceptance.</para>
+            </step>
+            <step>
+              <title>Review the Order</title>
+              <para>Under the Order Acceptance section, click <guibutton>Review</guibutton>.</para>
+              <para>The order acceptance screen is displayed.  The screen provides details of the customer order and the opportunity for the Store Manager to Accept or Reject the order.</para>
+            </step>
+            <step>
+              <title>Accept the Order</title>
+              <para>Click <guibutton>Accept Order</guibutton>.</para>
+              <para>The order is now accepted by the Store Manager, and the server calls the customer to set a delivery date and time.</para>
+            </step>
+            <step>
+              <title>Customer Specifies the Delivery Date and Time</title>
+              <para>Answer the incoming call and, when prompted, enter the date and time according to the format required by the server.</para>
+              <note><para>The format required for the date and time is <userinput>ddmmyyhhmm</userinput>.  For example, if the preferred delivery date and time is 7th December 2009 at 1pm, the number sequence required is <userinput>0712091300</userinput>.</para></note>
+             <para>Once the date and time has been correctly entered, the server will confirm the date and time entered and terminate the call.</para>
+              <para>The server then moves the order back to the Task Assignment phase of the workflow.</para>
+            </step>
+            <step>
+              <title>Escalate Order to Order Shipping</title>
+              <para>In the Task Assignment section of the Store Manager portal, click <guibutton>Assign</guibutton>.</para>
+              <para>The order moves to the final phase of the Order Process 2 workflow: the Order Shipping phase.</para>
+            </step>
+            <step>
+              <title>Enter Tracking Number and Ship</title>
+              <para>In the Order Shipping section of the Store Manager portal, enter a tracking number and click <guibutton>Ship.</guibutton></para>
+              <para>The server initiates a call to the customer confirming the order number, and the delivery date and time.</para>
+            </step>
+          </procedure>
+      <para>The order has now been processed, and is on its way to the customer.  The Statistics section provides the updated overview of Inventory and Sales.</para>
+      <para>Experiment with the other workflows listed in the Order Management section of the Store Manager portal by placing a new customer order over $100.00.  On the Store Manager portal, set the Process Management workflow to either <guimenuitem>ordermanagement1</guimenuitem> or <guimenuitem>ordermanagement3</guimenuitem>, and note the differences regarding how the server interacts with the Store Manager and the Customer.</para>
+  </section>

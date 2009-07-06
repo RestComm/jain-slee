@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<section id="cad">
+	<title>Converged Application Demonstration</title>
+	<para>The purpose of this demonstration is to show how a Java Enterprise Edition application can utilize Mobicents to transfer voice, messages, and data seamlessly.  The demonstration uses the Seam web application framework, the JAIN SLEE Server, and a selection of resource adapters that provide access to Session Initiation Protocol (SIP), Text To Speech (TTS), and Media services deployed on the server.</para>
+    <xi:include href="example-section-Converged_Demo_Application_Flow.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include href="example-section-Converged_Demo_Pre_Requisites.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+    <xi:include href="example-section-Converged_Demo_Deploy_Application.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+      <section id="utsp">
+        <title>Using the Shopping Portal</title>
+         <para>Once the server is started and the demonstration deployed, the Mobicents Seam Furniture Store portal (the portal) is ready for use.  Open a web browser, and navigate to <ulink url="http://localhost:8080/ShoppingDemo/">http://localhost:8080/ShoppingDemo/</ulink> to reach the home page of the portal.</para>
+       <xi:include href="example-section-Converged_Demo_Setting_Up_Customer_Account.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+      <section id="pi">
+         <title>Purchasing Items</title>
+         <para>The portal contains a selection of items that can be purchased by customers.  The total value of the order at checkout time determines how the server interacts with the customer.</para>
+         <para>If the total order is below $100.00, the order is automatically approved by the Store Manager.  The server initiates a call to the customer, requesting that the customer choose a date and time for the delivery.  If the order is over $100.00, the portal manager must first approve the order before the server will call the customer.</para>
+         <xi:include href="example-section-Converged_Demo_Order_Below_100.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+         <xi:include href="example-section-Converged_Demo_Order_Above_100.xml" xmlns:xi="http://www.w3.org/2001/XInclude" />
+        </section>
+      </section>
+</section>

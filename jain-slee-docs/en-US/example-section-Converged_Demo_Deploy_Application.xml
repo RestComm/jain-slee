@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML 4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+  <section id="dta">
+    <title>Deploy the Application</title>
+      <para>To deploy the demonstration, the JAIN SLEE Server (the server) must be started and the demonstration deployed to the server.</para>
+        <procedure>
+          <title>Starting the Server</title>
+            <step>
+              <para>Open a console and navigate to the /bin directory:</para>
+              <programlisting>bin]$ cd /home/&lt;user_name&gt;/&lt;install_folder&gt;/jboss-&lt;version_number&gt;/bin</programlisting>
+            </step>
+            <step>
+              <title>Start</title>
+              <para>As the superuser, start the server by executing the following command:</para>
+              <programlisting>bin]# ./run.sh -c default</programlisting>
+            </step>
+            <step>
+              <title>Verify</title>
+              <para>Ensure the server has started by checking the Slee State in the Mobicents Management Console (MMC).</para>
+              <para>Open <ulink url="http://localhost:8080/management-console/">http://localhost:8080/management-console/</ulink>, 
+              and verify that the SLEE state is green (Running).</para>
+            </step>
+        </procedure>
+    <para>Once the server has initialized, the demonstration can be deployed using Apache Ant.</para>
+      <procedure>
+        <title>Deploying the Demonstration</title>
+          <step>
+            <para>Open a console and navigate to the <filename>converged-demo</filename> folder:</para>
+            <programlisting>converged-demo]$ cd /home/&lt;user_name&gt;/&lt;install_folder&gt;/jboss-&lt;version_number&gt;/examples/converged-demo</programlisting>
+          </step>
+          <step>
+            <title>Deploy</title> 
+            <para>Deploy the demonstration by executing the following command:</para>
+            <programlisting>converged-demo]$ ant deploy-all</programlisting>
+          </step>
+      </procedure>
+    <para>Apache Ant will deploy the demonstration, the shopping portal (<filename>ShoppingDemo-dev-ds.xml</filename>), and the related resource adaptors (SIP, Media, and TTS).  If Apache Ant is successful, a message is displayed in the console.</para>
+    <note><para>Once the demonstration is deployed to the server, it will be permanently available until it is uninstalled.  Starting the server in future will automatically load the demonstration, ready for use.</para></note>
+  </section>
