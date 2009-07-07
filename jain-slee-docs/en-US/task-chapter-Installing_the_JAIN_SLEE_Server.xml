@@ -4,7 +4,7 @@
 <chapter id="itjss-Installing_the_JAIN_SLEE_Server">
 	<title>Installing the JAIN SLEE Server</title>
 	<para>The Mobicents JAIN SLEE Server can be installed by downloading the ready-to-go binary distribution</para>
-	<para>Alternatively, the source code can be obtained using the Subversion version control system (<acronym>VCS</acronym>) and then can be built from source. Installing the binary distribution is recommended for most users, and obtaining and building the source code distribution is recommended for those who want access to the latest revisions and capabilities. This guide only details how to install, run and configure the Mobicents JAIN SLEE Server from the ready-to-go binary distribution.</para>
+	<para>Alternatively, the source code can be obtained using the Subversion version control system (<acronym>VCS</acronym>) and then can be built from source.  Installing the binary distribution is recommended for most users, and obtaining and building the source code distribution is recommended for those who want access to the latest revisions and capabilities.  This guide discusses how to install, run and configure the Mobicents JAIN SLEE Server from the ready-to-go binary distribution.</para>
 	
 	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="mob-task-section-Java_Development_Kit-Installing_Configuring_and_Running.xml"/>
 	
@@ -13,20 +13,18 @@
 		
 		<section	id="itjss-binary-JAIN_SLEE_Server-PreInstall_Requirements_and_Prerequisites">
 			<title>Pre-Install Requirements and Prerequisites</title>
-			<para>You should ensure that a few requirements have been met before continuing with the install.</para>
+			<para>Ensure that the following requirements have been met before continuing with the install.</para>
 			<variablelist
 				id="itjss-binary-JAIN_SLEE_Server-Hardware_Requirements">
 				<title>Hardware Requirements</title>
 				<varlistentry>
 					<term>Sufficient Disk Space</term>
-					<listitem>
-						<para>You must have sufficient disk space in order to install the Mobicents JAIN SLEE Server binary release. Once unzipped, version &JSS_VERSION; of the binary release requires <emphasis>at least</emphasis> &JSS_SIZE; of free disk space. Keep in mind that disk space requirements may change from release to release.</para>
-					</listitem>
+					<listitem><para>Once unzipped, the JAIN SLEE Server binary release requires <emphasis>at least</emphasis> &JSS_SIZE; of free disk space.  Keep in mind that disk space requirements may change from release to release.</para></listitem>
 				</varlistentry>
 				<varlistentry>
 					<term>Anything Java Itself Will Run On</term>
 					<listitem>
-						<para>The Mobicents JAIN SLEE Server is 100% Java, along with all of its bundled servers, resource adapters and demonstration examples. Therefore, the JAIN SLEE Server will run on the same hardware that the JBoss Application Server runs on.</para>
+						<para>The Mobicents JAIN SLEE Server, its bundled servers, resource adapters, and demonstration examples are 100% java.. The JAIN SLEE Server will run on the same hardware that the JBoss Application Server runs on.</para>
 					</listitem>
 				</varlistentry>
 			</variablelist>
@@ -46,38 +44,46 @@
 		
 		<section	id="itjss-binary-JAIN_SLEE_Server-Downloading">
 			<title>Downloading</title>
-			<para>When you download the Mobicents JAIN SLEE Server binary distribution, you can also choose to verify the integrity of the zip file you download, which is both preferred and safer. If you are setting up the server in a production environment (as opposed to, say, merely playing around with the JAIN SLEE Server's capabilities on your personal machine), we recommend verifying the integrity of the downloaded distribution. The first procedure following shows you how to simply download the JAIN SLEE Server binary distribution, while the second procedure following details how to download <emphasis>and</emphasis> verify the installation zip file.</para>
+			<para>If the server is going to be deployed into a production environment, it is recommended that the integrity of the zip file is verified.  If the server is being used for testing or evaluation purposes on a local machine, verification is not as important, but is recommended.</para>
 			<procedure>
 				<title>Downloading Without Verifying</title>
 				<step>
-					<para>You can download the latest version of the  JAIN SLEE Server from <ulink
-							url="http://www.mobicents.org/jainsleedownload.html"/>. Look for this paragraph at the top of the page: <quote>The latest release of Mobicents JAIN SLEE Server is &JSS_VERSION; and recommended one. Browse all files <emphasis>here</emphasis>
-					</quote>.</para>
-				</step>
+				  <para>Open <ulink url="http://www.mobicents.org/jainsleedownload.html"/>.</para>
+        </step>
+        <step>
+				  <para>The top row of the <literal>Files</literal> table holds the latest Stable (recommended) server version.  Click the <literal>Download</literal> link to start the download.</para>
+        </step>
+        <step>
+				  <para>Click the zip file link to start the download.</para>
+        </step>
 			</procedure>
 			<procedure>
 				<title>Downloading and Verifying</title>
 				<step>
-					<para>The preferred&#x2014;and safer&#x2014;way to obtain the JAIN SLEE Server binary distribution is to download the binary zip file as well as its corresponding SHA-1 file, and to use the SHA-1 file to verify the integrity of the zip file. To do this, first go to <ulink
-							url="http://www.mobicents.org/jainsleedownload.html"/> and, at the top of the page, click on the <guilabel>here</guilabel> in the <guilabel>Browse all files here</guilabel> link <emphasis>for the JAIN SLEE Server</emphasis>. The most recent releases are located near the top, but make sure that you don't select an alpha release, such as the JAIN SLEE Server version 2.0.0. <emphasis>ALPHA</emphasis> release<footnote><para>This guide is for the 1.2-series of Mobicents JAIN SLEE Server releases.</para>
-						</footnote>. Download both the zip file and its attendant SHA-1 file. For example, if you wanted to download the Mobicents JAIN SLEE Server version 1.2.3 GA (suggested), you would want to download both of the following files:</para>
+				  <para>Open <ulink url="http://www.mobicents.org/jainsleedownload.html"/>.</para>
+        </step>
+        <step>
+				  <para>The top row of the <literal>Files</literal> table holds the latest Stable (recommended) server version.  Click the <literal>Download</literal> link to start the download.</para>
+        </step>
+        <step>
+					<para>Download both the zip file and its attendant SHA-1 file.  For example, to download the latest recommended JAIN SLEE Server version, select the following files:</para>
 					<itemizedlist>
-						<listitem>
-							<para>&JSS_ZIP;</para>
-						</listitem>
-						<listitem>
-							<para>&JSS_ZIP;.sha1.asc</para>
-						</listitem>
+						<listitem><para>&JSS_ZIP;</para></listitem>
+						<listitem><para>&JSS_ZIP;.sha1.asc</para></listitem>
 					</itemizedlist>
 				</step>
 				<step>
-					<para>Next, verify the integrity of the zip file with the SHA-1 file, which contains a checksum which is used to do precisely this, to alert you if the file has been changed since it was uploaded, or if it was corrupted upon download.</para>
-					<para>On a Linux system you can use the <command>sha1sum</command> command to verify the integrity of the binary distribution zip file.</para>
-					<para>On a Windows system you will need to download a sha1sum-generating program such as the <command>sha1sum.exe</command> program. This program will generate a checksum that you can compare with the sum in the sha1 file.</para>
+					<para>Check the integrity of the zip file by analysing the SHA1 file using a checksum verification tool.  The following command-line tools are suggested to perform this task:</para>
+					<itemizedlist>
+						<listitem><para>Linux: <command>sha1sum</command></para></listitem>
+						<listitem><para>Windows: <command>sha1sum.exe</command></para></listitem>
+					</itemizedlist>
+          <para>To learn the operation of each tool, consult the help documentation available for the specific tool.</para>
 					<para>If the two checksums are identical, then the downloaded binary distribution zip file's integrity is assured, and it is safe to proceed with the installation.</para>
 					<warning>
-						<title>Beware of a Corrupted or Compromised Zip File!</title>
-						<para>If the two checksums are <emphasis>not</emphasis> identical, it means that the downloaded zip file was corrupted upon download, or has been changed since it was last uploaded to the server. In this case, you should first re-download the two files (the zip file and the SHA-1 file) and compare them once more. If this second comparison fails, it could indicate a problem with the install file, and you should contact the Mobicents team by email (see <!--<xref linkend="Author_Group"/>-->) to alert them of the conflict.</para>
+						<title>Mismatched Checksums</title>
+						<para>If the checksums are <emphasis>not</emphasis> identical, the downloaded zip file may have been corrupted during download, or has been changed since it was last uploaded to the server.  Re-download the two files (the zip file and the SHA-1 file) and verify the file integrity again.</para>
+						<para>If the second attempt at verification results in a mismatch, it could indicate a problem with the install file.  Contact the Mobicents team through the <ulink url="http://groups.google.com/group/mobicents-public/topics">public forum</ulink> for further advice.</para>
 					</warning>
 				</step>
 			</procedure>
@@ -85,131 +91,63 @@
 		
 		<section	id="itjss-binary-JAIN_SLEE_Server-Installing">
 			<title>Installing</title>
-			<para>Once the requirements and prerequisites have been met and you have downloaded the binary distribution zip file, you are ready to install the JAIN SLEE Server. Follow the instructions below for your platform, whether Linux or Windows.</para>
-			<note
-				id="itjss-Use_Version_Numbers_Relevant_to_Your_Installation">
-				<title>Use Version Numbers Relevant to Your Installation!</title>
-				<para>For clarity, the command line instructions presented in this chapter use specific version numbers and directory names. Remember to replace them with version numbers and file names relevant to those you are actually working with.</para>
-			</note>
+			<para>Once the requirements and prerequisites have been met, the JAIN SLEE Server can be installed onto the system.  Follow the instructions below for the operating system on which the server will reside.</para>
 			<procedure>
-				<title>Installing the JAIN SLEE Server Binary Distribution on Linux</title>
-				<step>
-					<para>Assuming that you downloaded the binary distribution zip file to your home folder, create a subdirectory to unzip hte files to. It is good practice to include the version number in this directory name; if you do so, remember to correctly match it with the version of the binary distribution you downloaded.</para>
-				 <!-- ~]$ mkdir "jss-<replaceable><version></replaceable>" -->
-					<screen
-						condition="jbcp">~]$ mkdir &quot;jss-<replaceable>&lt;version&gt;</replaceable>&quot;</screen>
-					<screen
-						condition="mob">~]$ mkdir &quot;jss-&lt;version&gt;&quot;</screen>
-
+			<title>Installing the JAIN SLEE Server on Linux</title>
+			<step>
+					<para>Create a subdirectory to extract the files into.  For ease of identification, it is recommended that the version number of the binary is included in this directory name.</para>
+					<screen>~]$ mkdir <quote>jss-&lt;version&gt;</quote></screen>
 				</step>
 				<step>
-					<para>Move the downloaded zip file into the directory you just created:</para>
-				 <!-- ~]$ mv "&JSS_ZIP;" "jss-<replaceable><version></replaceable>" -->
-					<screen
-						condition="jbcp">~]$ mv &quot;&JSS_ZIP;&quot; &quot;jss-<replaceable>&lt;version&gt;</replaceable>&quot;</screen>
-					<screen
-						condition="mob">~]$ mv &quot;&JSS_ZIP;&quot; &quot;jss-&lt;version&gt;&quot;</screen>
-
+					<para>Move the downloaded zip file into the directory:</para>
+					<screen>~]$ mv <quote>&JSS_ZIP;</quote> <quote>jss-&lt;version&gt;</quote></screen>
 				</step>
 				<step>
-					<para>Move into that directory:</para>
-				 <!-- ~]$ cd "jss-<replaceable><version></replaceable>" -->
-					<screen
-						condition="jbcp">~]$ cd &quot;jss-<replaceable>&lt;version&gt;</replaceable>&quot;</screen>
-					<screen
-						condition="mob">~]$ cd &quot;jss-&lt;version&gt;&quot;</screen>
-
+					<para>Move into the directory:</para>
+					<screen>~]$ cd <quote>jss-&lt;version&gt;</quote></screen>
 				</step>
 				<step>
-					<para>Finally, use Java's <command>jar <option>-xvf</option>
-							</command> command to extract the contents of the zip file into the current directory, thus completing the install:</para>
-				<!-- jss-<replaceable><version></replaceable>]$ jar -xvf "&JSS_ZIP;" -->
-					<screen
-						condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ jar -xvf &quot;&JSS_ZIP;&quot;</screen>
-					<screen
-						condition="mob">jss-&lt;version&gt;]$ jar -xvf &quot;&JSS_ZIP;&quot;</screen>
-
-					<stepalternatives>
-						<step>
-							<para>Alternatively, if Linux's <command>unzip</command> utility is present on your system or is installable, you can use it in lieu of Java's <command>jar <option>-xvf</option>
-									</command> command:</para>
-						<!-- jss-<replaceable><version></replaceable>]$ unzip "&JSS_ZIP;" -->
-							<screen
-								condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ unzip &quot;&JSS_ZIP;&quot;</screen>
-							<screen
-								condition="mob">jss-&lt;version&gt;]$ unzip &quot;&JSS_ZIP;&quot;</screen>
-
-							<note>
-								<para>You can also use <command>unzip</command>'s <option>-d</option>
-									<filename>
-								<replaceable>&lt;unzip_to_location&gt;</replaceable>
-							</filename> option to extract the zip file's contents to a location other than the current directory.</para>
-							</note>
-						</step>
-					</stepalternatives>
+				<para>Extract the files into the current directory by executing one of the following commands.
+				<itemizedlist>
+          <listitem><para>Java: <screen>jss-&lt;version&gt;]$ jar -xvf <quote>&JSS_ZIP;</quote></screen></para></listitem>
+				  <listitem><para>Linux: <screen>jss-&lt;version&gt;]$ unzip &quot;&JSS_ZIP;&quot;</screen></para></listitem>
+        </itemizedlist>
+        <note><para>Alternatively, use <command>unzip</command> -d &lt;unzip_to_location&gt; to extract the zip file's contents to a location other than the current directory.</para></note>
+				</para>
 				</step>
 				<step>
-					<para>To free disk space, you may want to delete the zip file once you've extracted its contents:</para>
-				<!-- jss-<replaceable><version></replaceable>]$ rm "&JSS_ZIP;" -->
-					<screen
-						condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ rm &quot;&JSS_ZIP;&quot;</screen>
-					<screen
-						condition="mob">jss-&lt;version&gt;]$ rm &quot;&JSS_ZIP;&quot;</screen>
-
+					<para>Consider deleting the archive, if free disk space is an issue.</para>
+					<screen>ms-<replaceable>&lt;version&gt;</replaceable>]$ rm <quote>&JSS_ZIP;</quote></screen>
 				</step>
 			</procedure>
 			<procedure>
 				<title>Installing the JAIN SLEE Server Binary Distribution on Windows</title>
 				<step>
-					<para>For this example, we'll assume that you downloaded the binary distribution zip file to the <filename>My Downloads</filename> folder. First, using Windows Explorer, create a subfolder in <filename>My Downloads</filename> to extract the zip file's contents into. When you name this folder, it is good practice to include the version number; if you do so, remember to correctly match it with the version of the JAIN SLEE Server binary distribution you downloaded. In these instructions, we will refer to this folder as <filename>jss-<replaceable>&lt;version&gt;</replaceable>
-					</filename>.</para>
+					<para>For this procedure, it is assumed that the downloaded archive is saved in the <filename>My Downloads</filename> folder.</para>
 				</step>
 				<step>
-					<para>Double-click the downloaded zip file, selecting as the destination folder the one you just created to hold the zip file's contents.</para>
-					<stepalternatives>
-						<step>
-							<para>Alternatively, it is also possible to use Java's <command>jar <option>-xvf</option>
-									</command> command to extract the binary distribution files from the zip archive. To use this method instead, first move the downloaded zip file from <filename>My Downloads</filename> to the folder that you just created to hold the JAIN SLEE Server files.</para>
-						</step>
-						<step>
-							<para>Then, open the Windows Command Prompt and navigate to the folder holding the archive using the <command>cd</command> command:</para>
-							<note
-								id="itjss-Opening_the_Command_Prompt_from_Windows_Explorer">
-								<title>Opening the Command Prompt from Windows Explorer</title>
-								<para>If you are using Windows Vista&#xAE;, you can open the Command Prompt directly from Explorer. Hold down the <keycap>Shift</keycap> key and right-click on either a folder, the desktop, or inside a folder. This will cause an <guimenuitem>Open Command Window Here</guimenuitem> context menu item to appear, which can be used to open the Command Prompt with the current working directory set to either the folder you opened, or opened it from.</para>
-							</note>
-						<!-- C:\Users\Me>cd "My Downloads\jss-<replaceable><version></replaceable>" -->
-							<screen
-								condition="jbcp">C:\Users\Me&gt;cd &quot;My Downloads\jss-<replaceable>&lt;version&gt;</replaceable>&quot;</screen>
-							<screen
-								condition="mob">C:\Users\Me&gt;cd &quot;My Downloads\jss-&lt;version&gt;&quot;</screen>
-
-						</step>
-						<step>
-							<para>Finally, use the <command>jar <option>-xvf</option>
-									</command> command to extract the archive contents into the current folder.</para>
-							 <!-- C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>jar -xvf "&JSS_ZIP;" -->
-							<screen
-								condition="jbcp">C:\Users\Me\My Downloads\jss-<replaceable>&lt;version&gt;</replaceable>&gt;jar -xvf &quot;&JSS_ZIP;&quot;</screen>
-							<screen
-								condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;jar -xvf &quot;&JSS_ZIP;&quot;</screen>
-
-						</step>
-					</stepalternatives>
-				</step>
-				<step>
-					<para>At this point, you may want to move the folder holding the JAIN SLEE Server binary files (in this example, the folder named <filename>jss-<replaceable>&lt;version&gt;</replaceable>
-						</filename>) to another location. This step is not strictly necessary, but it is probably a good idea to move the Mobicents folder from <filename>My Downloads</filename> to a user-defined location for storing runnable programs. Any location will suffice, however.</para>
-				</step>
-				<step>
-					<para>You may also want to delete the zip file after extracting its contents in order to free disk space:</para>
-					 <!-- C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>delete "&JSS_ZIP;" -->
-					<screen
-						condition="jbcp">C:\Users\Me\My Downloads\jss-<replaceable>&lt;version&gt;</replaceable>&gt;delete &quot;&JSS_ZIP;&quot;</screen>
-					<screen
-						condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;delete &quot;&JSS_ZIP;&quot;</screen>
-
-				</step>
+				<para>Create a subfolder in <filename>My Downloads</filename> to extract the zip file's contents into.  For ease of identification, it is recommended that the version number of the binary is included in the folder name.  For example, <filename>jss-&lt;version&gt;</filename>.</para>
+			</step>
+			<step>
+				<para>Extract the contents of the archive, specifying the destination folder as the one created in the previous step.</para>
+      </step>
+      <step>
+        <para>Alternatively, execute the <command>jar -xvf</command> command to extract the binary distribution files from the zip archive.</para>
+        <orderedlist>
+          <listitem><para>Move the downloaded zip file from <filename>My Downloads</filename> to the folder created in the previous step.</para></listitem>
+          <listitem><para>Open the Windows Command Prompt and navigate to the folder that contains the archive using the <command>cd</command> command</para></listitem>
+          <listitem><para>Execute the <command>jar -xvf</command> command to extract the archive contents into the current folder.</para>
+          <screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;jss-&lt;version&gt;&bsol;jar -xvf &quot;&JSS_ZIP;&quot;</screen>
+          </listitem>
+        </orderedlist>
+      </step>
+			<step>
+				<para>It is recommended that the folder holding the MSS for JBoss files (in this example, the folder named <filename>mss-jboss-<replaceable>&lt;version&gt;</replaceable></filename>) is moved to a user-defined location for storing executable programs.  For example, the <filename>Program Files</filename> folder.</para>
+			</step>
+			<step>
+				<para>Consider deleting the archive, if free disk space is an issue.</para>
+				<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;jss-&lt;version&gt;&bsol;delete &quot;&JSS_ZIP;&quot;</screen>
+			</step>
 			</procedure>
 		</section>
 	
@@ -217,198 +155,102 @@
 
 		<section	id="itjss-binary-JAIN_SLEE_Server-Running">
 			<title>Running</title>
-			<para>Once installed, you can run the Mobicents JAIN SLEE Server by executing the one of the startup scripts in the <filename>&JSS_JBOSS_HOME_BIN_LIN;</filename> subdirectory<footnote><para>the <filename>jboss</filename> directory is actually a <quote>version-less</quote> shortcut to a directory which contains the version number in the file name, such as <filename>&JSS_JBOSS_HOME;</filename>. Using either of these will work.</para>
-				</footnote> (on Linux or Windows), or by double-clicking the <filename>run.bat</filename> executable batch file in that same directory (on Windows only). However, we suggest always starting the JAIN SLEE Server using the terminal or Command Prompt because you are then able to read&#x2014;and act upon&#x2014;any startup messages, and possibly debug any problems that might arise. In the Linux terminal or Command Prompt, you will be able to tell that the JAIN SLEE Server started successfully if the last line of output is similar to the following (ending with <emphasis>Started in 25s:527ms</emphasis>):</para>
+			<para>In the Linux terminal or Windows command prompt, the JAIN SLEE Server has started successfully if the last line of output is similar to the following (ending with <quote>Started in 25s:527ms</quote>):</para>
 			<screen><![CDATA[16:29:15,442 INFO  [ManagementConsole] Mobicents Management Console initialized
 16:29:15,551 INFO  [Http11Protocol] Starting Coyote HTTP/1.1 on http-127.0.0.1-8080
 16:29:15,586 INFO  [AjpProtocol] Starting Coyote AJP/1.3 on ajp-127.0.0.1-8009
 16:29:15,622 INFO  [Server] JBoss (MX MicroKernel) [4.2.2.GA (build: SVNTag=JBoss_4_2_2_GA date=200710221139)] Started in 25s:527ms]]></screen>
-			<para>Detailed instructions are given below, arranged by platform.</para>
+			
 			<procedure>
 				<title>Running the JAIN SLEE Server on Linux</title>
 				<step>
-					<para>Change your working directory to the JAIN SLEE Server's install directory (the one which you extracted the zip file's contents to):</para>
-					<!-- ~]$ cd "jss-<replaceable><version></replaceable>" -->
-					<screen
-						condition="jbcp">~]$ cd &quot;jss-<replaceable>&lt;version&gt;</replaceable>&quot;</screen>
-					<screen
-						condition="mob">~]$ cd &quot;jss-&lt;version&gt;&quot;</screen>
-
-				</step>
-				<step
-					performance="optional">
-					<para>(Optional) Ensure that the <filename>&JSS_JBOSS_HOME_BIN_LIN;/run.sh</filename> start script is executable:</para>
-					 <!-- jss-<replaceable><version></replaceable>]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;run.sh -->
-					<screen
-						condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;run.sh</screen>
-					<screen
-						condition="mob">jss-&lt;version&gt;]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;run.sh</screen>
-
-
-				</step>
-				<step>
-					<para>Finally, execute the <filename>run.sh</filename> Bourne shell script:</para>
-					 <!-- jss-<replaceable><version></replaceable>]$ <quote>./&JSS_JBOSS_HOME_BIN_LIN;run.sh</quote> -->
-					<screen
-						condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ <quote>./&JSS_JBOSS_HOME_BIN_LIN;run.sh</quote>
-					</screen>
-					<screen
-						condition="mob">jss-&lt;version&gt;]$ &quot;./&JSS_JBOSS_HOME_BIN_LIN;run.sh&quot;</screen>
-
-					<stepalternatives>
-						<step>
-							<para>Instead of executing the Bourne shell script to start the server, you may alternatively run the <filename>run.jar</filename> executable Java archive in the <filename>&JSS_JBOSS_HOME_BIN_LIN;</filename> directory:</para>
-							<!-- jss-<replaceable><version></replaceable>]$ java -jar &JSS_JBOSS_HOME_BIN_LIN;run.jar -->
-							<screen
-								condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ java -jar &JSS_JBOSS_HOME_BIN_LIN;run.jar</screen>
-							<screen
-								condition="mob">jss-&lt;version&gt;]$ java -jar &JSS_JBOSS_HOME_BIN_LIN;run.jar</screen>
-
-						</step>
-					</stepalternatives>
-				</step>
-			</procedure>
+				  <para>Change the working directory to installation directory (the one in which the zip file's contents was extracted to)</para>
+				  <screen>downloads]$ cd &quot;jss-&lt;version&gt;&quot;</screen>
+			  </step>
+			  <step>
+			  	<para>(Optional) Ensure that the <filename>bin/run.sh</filename> start script is executable.</para>
+			  	<screen>jss-&lt;version&gt;]$ chmod +x bin/run.sh</screen>
+			  </step>
+		  	<step>
+		  		<para>Execute the <filename>run.sh</filename> Bourne shell script.</para>
+	  			<screen>jss-&lt;version&gt;]$ ./bin/run.sh</screen>
+        </step>
+	  	</procedure>
+		  <note><para>Instead of executing the Bourne shell script to start the server, the <filename>run.jar</filename> executable Java archive can be executed from the <filename>bin</filename> directory:</para>
+			<screen>jss-&lt;version&gt;]$ java -jar bin/run.jar</screen></note>
 			<procedure>
-				<title>Running the JAIN SLEE Server on Windows</title>
-				<step>
-					<para>There are several different ways to start the JAIN SLEE Server on Windows. All of the following methods accomplish the same task.</para>
-					<para>Using Windows Explorer, change your folder to the one in which you unzipped the downloaded zip file, and then to the <filename>&JSS_JBOSS_HOME_BIN_WIN;</filename> subfolder.</para>
-				</step>
-				<step>
-					<para>Although not the preferred way (see below), it is possible to start the JAIN SLEE Server by double-clicking on the <filename>run.bat</filename> executable batch file.</para>
-					<stepalternatives>
-						<step>
-							<para>As mentioned above, the best way to start the JAIN SLEE Server is by using the Command Prompt. Doing it this way will allow you to view all of the server startup details, which will enable you to easily determine whether any problems were encountered during the startup process. You can open the Command Prompt directly from the <filename>&lt;install_directory&gt;\&JSS_JBOSS_HOME_BIN_WIN;</filename> folder in Windows Explorer <!--(see <xref
-								linkend="itjss-Opening_the_Command_Prompt_from_Windows_Explorer"/> for details)-->, or you can open the Command Prompt via the <guilabel>Start</guilabel> menu and navigate to the correct folder:</para>
-							<!-- C:\Users\Me\My Downloads> cd "jss-<replaceable><version></replaceable>" -->
-							<screen
-								condition="jbcp">C:\Users\Me\My Downloads&gt; cd &quot;jss-<replaceable>&lt;version&gt;</replaceable>&quot;</screen>
-							<screen
-								condition="mob">C:\Users\Me\My Downloads&gt; cd &quot;jss-&lt;version&gt;&quot;</screen>
-
-						</step>
-						<step>
-							<para>Start the JAIN SLEE Server by running the executable <filename>run.bat</filename> batch file:</para>
-							<!-- C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>&JSS_JBOSS_HOME_BIN_WIN;run.bat -->
-							<screen
-								condition="jbcp">C:\Users\Me\My Downloads\jss-<replaceable>&lt;version&gt;</replaceable>&gt;&JSS_JBOSS_HOME_BIN_WIN;run.bat</screen>
-							<screen
-								condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;&JSS_JBOSS_HOME_BIN_WIN;run.bat</screen>
-
-							<stepalternatives>
-								<step>
-									<para>It is also possible to start the JAIN SLEE Server by running the <filename>run.jar</filename> executable Java archive:</para>
-									<!-- C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>java -jar &JSS_JBOSS_HOME_BIN_WIN;run.jar -->
-									<screen
-										condition="jbcp">C:\Users\Me\My Downloads\jss-<replaceable>&lt;version&gt;</replaceable>&gt;java -jar &JSS_JBOSS_HOME_BIN_WIN;run.jar</screen>
-									<screen
-										condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;java -jar &JSS_JBOSS_HOME_BIN_WIN;run.jar</screen>
-
-								</step>
-							</stepalternatives>
-						</step>
-					</stepalternatives>
-				</step>
+		  	<title>Running the JAIN SLEE Server on <productname>Windows</productname></title>
+	  		<step>
+		  		<para>Using Windows Explorer, navigate to the <filename>bin</filename> subfolder in the installation directory.</para>
+        </step>
+		  	<step>
+		  		<para>The preferred way to start the Media Server is from the Command Prompt.  The command line interface displays details of the startup process, including any problems encountered during the startup process.</para>
+		  		<para>Open the Command Prompt via the <guilabel>Start</guilabel> menu and navigate to the correct folder:</para>
+			  	<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&gt; cd &quot;jss-&lt;version&gt;&quot;</screen>
+		  	</step>
+        <step>
+         <para>Start the server by executing one of the following files:
+         <itemizedlist>
+           <listitem><para><filename>run.bat</filename> batch file:</para><screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;jss-&lt;version&gt;&gt;bin&bsol;run.bat</screen></listitem>
+           <listitem><para><filename>run.jar</filename> executable Java archive:</para><screen>C:&bsol;Users&bsol;&lt;user&gt;My Downloads&bsol;jss-&lt;version&gt;&gt;java -jar bin&bsol;run.jar</screen></listitem>
+          </itemizedlist>
+          </para>
+			  </step>
 			</procedure>
+			
 		</section>
 		
 		<section	id="itjss-binary-JAIN_SLEE_Server-Using">
 			<title>Using</title>
-			<para>The JAIN SLEE Server can be observed and controlled using the Management Console, which is started along with the server. For information on configuring the JAIN SLEE Server with the Management Console, refer to <xref linkend="wwtjssmc-Working_with_the_JAIN_SLEE_Server_Management_Console"/>.</para>
+			<para>The JAIN SLEE Server can be observed and controlled using the Management Console, which is started along with the server.  Refer to <xref linkend="wwtjssmc-Working_with_the_JAIN_SLEE_Server_Management_Console"/> for detailed information regarding configuring the JAIN SLEE Server with the Management Console.</para>
 		</section>
 		
 		<section	id="itjss-binary-JAIN_SLEE_Server-Stopping">
 			<title>Stopping</title>
-			<para>Detailed instructions for stopping the JAIN SLEE Server are given below, arranged by platform. Note that if you properly stop the server, you will see the following three lines as the last output in the Linux terminal or Command Prompt:</para>
+			<para>Detailed instructions for stopping the JAIN SLEE Server are given below, arranged by platform.  If the server is correctly stopped, the following three lines are displayed as the last output in the Linux terminal or Command Prompt:</para>
 			<programlisting>16:44:29,745 INFO  [Server] Shutdown complete
 Shutdown complete
 Halting VM</programlisting>
-			<!--<procedure>
-				<title>Stopping the JAIN SLEE Server on Linux by Issuing a Control Code</title>
-				<step>
-					<para>Assuming that you started the JAIN SLEE Server as a foreground process in the terminal, the easiest way to stop it is by pressing the <keycombo
-							action="simul"><keycap>Ctrl</keycap>
-						<keycap>c</keycap>
-					</keycombo> key combination in the same terminal in which you started it.
-						</para>
-				</step>
-			</procedure>-->
 			<procedure>
-				<title>Stopping the JAIN SLEE Server on Linux by Executing <filename>shutdown.sh</filename> or <filename>shutdown.jar</filename>
-				</title>
-				<step>
-					<para>Another way to shut down the JAIN SLEE Server is by executing the <filename>shutdown.sh</filename> Bourne shell script in the <filename>&JSS_JBOSS_HOME_BIN_LIN;</filename> directory. To do so, first change your working directory to the JAIN SLEE Server's install directory (the one to which you extracted the downloaded zip file's contents):</para>
-					<!-- ~]$ cd "jss-<replaceable><version></replaceable>" -->
-					<screen
-						condition="jbcp">~]$ cd &quot;jss-<replaceable>&lt;version&gt;</replaceable>&quot;</screen>
-					<screen
-						condition="mob">~]$ cd &quot;jss-&lt;version&gt;&quot;</screen>
-
-				</step>
-				<step
-					performance="optional">
-					<para>(Optional) Ensure that the <filename>&JSS_JBOSS_HOME_BIN_LIN;/shutdown.sh</filename> start script is executable:</para>
-					<!-- jss-<replaceable><version></replaceable>]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;shutdown.sh -->
-					<screen
-						condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;shutdown.sh</screen>
-					<screen
-						condition="mob">jss-&lt;version&gt;]$ chmod +x &JSS_JBOSS_HOME_BIN_LIN;shutdown.sh</screen>
-
-				</step>
-				<step>
-					<para>Finally, run the <filename>shutdown.sh</filename> executable Bourne shell script, and remember to add the <option>-S</option> option (which is the short option for <option>--shutdown</option>) as a command line argument:</para>
-					<!-- jss-<replaceable><version></replaceable>]$ <quote>./&JSS_JBOSS_HOME_BIN_LIN;shutdown.sh</quote> -S -->
-					<screen
-						condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ <quote>./&JSS_JBOSS_HOME_BIN_LIN;shutdown.sh</quote> -S</screen>
-					<screen
-						condition="mob">jss-&lt;version&gt;]$ &quot;./&JSS_JBOSS_HOME_BIN_LIN;shutdown.sh&quot; -S</screen>
-
-					<stepalternatives>
-						<step>
-							<para>Instead of executing the Bourne shell script to stop the server, you may alternatively run the <filename>shutdown.jar</filename> executable Java archive to do so (and remembering, again, to add the <option>-S</option> command line argument):</para>
-							<!-- jss-<replaceable><version></replaceable>]$ java -jar <quote>&JSS_JBOSS_HOME_BIN_LIN;shutdown.jar</quote> -S -->
-							<screen
-								condition="jbcp">jss-<replaceable>&lt;version&gt;</replaceable>]$ java -jar <quote>&JSS_JBOSS_HOME_BIN_LIN;shutdown.jar</quote> -S</screen>
-							<screen
-								condition="mob">jss-&lt;version&gt;]$ java -jar &quot;&JSS_JBOSS_HOME_BIN_LIN;shutdown.jar&quot; -S</screen>
-
-						</step>
-					</stepalternatives>
-				</step>
-			</procedure>
+			  <title>Stopping the JAIN SLEE Server on Linux</title>
+			  <step>
+	  			<para>Change the working directory to the binary distribution's install directory.</para>
+		  		<screen>~]$ cd &quot;jss-&lt;version&gt;&quot;</screen>
+		  	</step>
+		  	<step>
+		  		<para>(Optional) Ensure that the bin/shutdown.sh start script is executable:</para>
+	  			<screen>jss-&lt;version&gt;]$ chmod +x bin/shutdown.sh</screen>
+	  		</step>
+	  		<step>
+		  		<para>Run the <filename>shutdown.sh</filename> executable Bourne shell script with the <option>-S</option> option (the short option for <option>--shutdown</option>) as a command line argument:</para>
+		  		<screen>jss-&lt;version&gt;]$ ./bin/shutdown.sh -S</screen>
+		  	</step>
+      </procedure>
+		  <note><para>The <filename>shutdown.jar</filename> executable Java archive with the <option>-S</option> option can also be used to shut down the server:</para>
+      <screen>jss-&lt;version&gt;]$ java -jar bin/shutdown.jar -S</screen></note>
 			<procedure>
-				<title>Stopping the JAIN SLEE Server on Windows</title>
-				<step>
-					<para>Stopping the JAIN SLEE Server on Windows consists in executing either the <filename>shutdown.bat</filename> or the <filename>shutdown.jar</filename> executable file in the <filename>&JSS_JBOSS_HOME_BIN_WIN;</filename> subfolder of the JAIN SLEE Server binary distribution. Make sure to add the <option>-S</option> option (which is the short option for <option>--shutdown</option>) as a command line argument.</para>
-					<!-- C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>&JSS_JBOSS_HOME_BIN_WIN;shutdown.bat -S -->
-					<screen
-						condition="jbcp">C:\Users\Me\My Downloads\jss-<replaceable>&lt;version&gt;</replaceable>&gt;&JSS_JBOSS_HOME_BIN_WIN;shutdown.bat -S</screen>
-					<screen
-						condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;&JSS_JBOSS_HOME_BIN_WIN;shutdown.bat -S</screen>
-
-					<stepalternatives>
-						<step>
-							<para>Alternatively, you can execute the <filename>shutdown.jar</filename> Java archive by running the <command>java <option>-jar</option>
-									</command> command, and remembering to add the <option>-S</option> option as a command line argument:</para>
-							<!-- C:\Users\Me\My Downloads\jss-<replaceable><version></replaceable>>java -jar <quote>&JSS_JBOSS_HOME_BIN_WIN;shutdown.jar</quote> -S -->
-							<screen
-								condition="jbcp">C:\Users\Me\My Downloads\jss-<replaceable>&lt;version&gt;</replaceable>&gt;java -jar <quote>&JSS_JBOSS_HOME_BIN_WIN;shutdown.jar</quote> -S</screen>
-							<screen
-								condition="mob">C:\Users\Me\My Downloads\jss-&lt;version&gt;&gt;java -jar &quot;&JSS_JBOSS_HOME_BIN_WIN;shutdown.jar&quot; -S</screen>
-
-						</step>
-					</stepalternatives>
-				</step>
-			</procedure>
+			<title>Stopping the JAIN SLEE Server on Windows</title>
+			  <step>
+		  		<para>Stopping the JAIN SLEE Server on Windows consists of executing either the <filename>shutdown.bat</filename> or the <filename>shutdown.jar</filename> executable file in the <filename>bin</filename> subfolder of the JAIN SLEE Server binary distribution.  Ensure the <option>-S</option> option (the short option for <option>--shutdown</option>) is included in the command line argument.</para>
+		  		<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;jss-&lt;version&gt;&gt;bin&bsol;shutdown.bat -S</screen>
+		  		<stepalternatives>
+		  			<step>
+			  			<para>The <filename>shutdown.jar</filename> executable Java archive with the <option>-S</option> option can also be used to shut down the server:</para>
+		  				<screen>C:&bsol;Users&bsol;&lt;user&gt;&bsol;My Downloads&bsol;jss-&lt;version&gt;&gt;java -jar bin&bsol;shutdown.jar -S</screen>
+		  			</step>
+		  		</stepalternatives>
+		  	</step>
+		  </procedure>
 		</section>
 		
 		<section	id="itjss-binary-JAIN_SLEE_Server-Testing">
 			<title>Testing</title>
 			<para>&nbsp;</para>
 		</section>
+		
 		<section	id="itjss-binary-JAIN_SLEE_Server-Uninstalling">
 			<title>Uninstalling</title>
-			<para>To uninstall the JAIN SLEE Server, simply delete the directory you decompressed the binary distribution archive into.</para>
+			<para>To uninstall the JAIN SLEE Server, delete the directory containing the extracted binary distribution.</para>
 		</section>
 	</section>
 </chapter>
