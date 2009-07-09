@@ -74,8 +74,8 @@ public class SleeTransactionImpl implements SleeTransaction {
 			SecurityException {
 		try {
 			int status = transaction.getStatus();
-			if (status != Status.STATUS_ACTIVE
-					&& status != Status.STATUS_MARKED_ROLLBACK) {
+			if (asyncOperationInitiated || (status != Status.STATUS_ACTIVE
+					&& status != Status.STATUS_MARKED_ROLLBACK)) {
 				throw new IllegalStateException(
 						"There is no active tx, tx is in state: " + status);
 			}
