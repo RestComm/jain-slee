@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.0//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_0.dtd">
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd">
 
 <resource-adaptor-type-jar>
 	<description />
@@ -7,10 +7,17 @@
 	<resource-adaptor-type>
 
 		<description>Jain SIP RA Type</description>
+		
 		<resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
 		<resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
 		<resource-adaptor-type-version>1.2</resource-adaptor-type-version>
 
+		<library-ref>
+			<library-name>jain-sip</library-name>
+			<library-vendor>javax.sip</library-vendor>
+			<library-version>1.2</library-version>
+		</library-ref>
+    
 		<resource-adaptor-type-classes>
 
 			<activity-type>

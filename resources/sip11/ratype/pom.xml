@@ -12,13 +12,10 @@
 	
 	<dependencies>
 		<dependency>
-      		<groupId>javax.slee</groupId>
+			<groupId>javax.slee</groupId>
 			<artifactId>jain-slee</artifactId>
-    	</dependency>
-		<dependency>
-			<groupId>javax.sip</groupId>
-			<artifactId>jain-sip-api</artifactId>
-		</dependency>
+			<version>1.1</version>
+		</dependency>		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>sip11-events</artifactId>

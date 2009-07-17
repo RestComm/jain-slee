@@ -8,11 +8,14 @@
 	</parent>
 
 	<artifactId>sip11-events</artifactId>
+	
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
+	
 	<dependencies>
 		<dependency>
-			<groupId>javax.sip</groupId>
-			<artifactId>jain-sip-api</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>sip11-library</artifactId>
+			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
 </project>

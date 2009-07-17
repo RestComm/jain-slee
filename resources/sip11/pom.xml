@@ -5,8 +5,8 @@
 	<parent>
 		<artifactId>mobicents</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>8</version>
-		<relativePath>../../pom.xml</relativePath>
+		<version>12</version>
+		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 	
 	<artifactId>sip11-parent</artifactId>
@@ -16,6 +16,7 @@
 	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
 	<modules>
+		<module>library</module>
 		<module>events</module>
 		<module>ratype</module>
 		<module>ra</module>
@@ -23,7 +24,8 @@
 	</modules>
 	
 	<properties>
-		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
+		<mobicents.tools.mavenplugin.du.version>2.0.0-SNAPSHOT</mobicents.tools.mavenplugin.du.version>
+		<mobicents.tools.mavenplugin.library.version>1.0.0-SNAPSHOT</mobicents.tools.mavenplugin.library.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 	

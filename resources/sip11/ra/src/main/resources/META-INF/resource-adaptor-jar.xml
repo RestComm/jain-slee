@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!DOCTYPE resource-adaptor-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.0//EN" "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_0.dtd">
+<!DOCTYPE resource-adaptor-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_1.dtd">
 
 <resource-adaptor-jar>
-   <resource-adaptor id="jain-sip_1.1_RA">
+
+	<resource-adaptor id="jain-sip_1.1_RA">
+
        <description>JAIN SIP Resource Adaptor</description>
+
        <resource-adaptor-name>JainSipResourceAdaptor</resource-adaptor-name>
        <resource-adaptor-vendor>net.java.slee.sip</resource-adaptor-vendor>
        <resource-adaptor-version>1.2</resource-adaptor-version>
 
+		<library-ref>
+        	<library-name>jain-sip</library-name>
+        	<library-vendor>javax.sip</library-vendor>
+        	<library-version>1.2</library-version>
+    	</library-ref>
+    
        <resource-adaptor-type-ref>
             <resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
             <resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
@@ -44,4 +53,5 @@
             <config-property-value>UDP</config-property-value>
         </config-property>
     </resource-adaptor>
+    
 </resource-adaptor-jar>
