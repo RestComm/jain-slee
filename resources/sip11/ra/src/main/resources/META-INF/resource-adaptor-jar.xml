@@ -34,24 +34,33 @@
         </resource-adaptor-classes>
         
         <config-property>
-            <config-property-name>port</config-property-name>
+            <config-property-name>javax.sip.PORT</config-property-name>
             <config-property-type>java.lang.Integer</config-property-type>
             <config-property-value>5060</config-property-value>
         </config-property>
         
         <config-property>
-        	<description>IP to which SIP RAs stack should attach - if "null" it will cause RA to pick up Container bind address address</description>
-            <config-property-name>ip</config-property-name>
+        	<description/>
+        	<description>IP/HOST to which SIP RAs stack should attach - if "null" it will cause RA to pick up Container bind address address</description>
+            <config-property-name>javax.sip.IP_ADDRESS</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
             <config-property-value>null</config-property-value>
         </config-property>
         
         <config-property>
         	<description>List of transports, separated with ","</description>
-            <config-property-name>transports</config-property-name>
+            <config-property-name>javax.sip.TRANSPORT</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
             <config-property-value>UDP</config-property-value>
         </config-property>
+        
+        <config-property>
+        	<description/>
+            <config-property-name>javax.sip.STACK_NAME</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>default</config-property-value>
+        </config-property>
+        
     </resource-adaptor>
     
 </resource-adaptor-jar>

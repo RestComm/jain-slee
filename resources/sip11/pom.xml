@@ -29,6 +29,16 @@
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>javax.slee</groupId>
+				<artifactId>jain-slee</artifactId>
+				<version>1.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
 	<profiles>
 		<profile>
 			<id>release</id>

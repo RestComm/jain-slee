@@ -16,7 +16,16 @@
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>sip11-ratype</artifactId>
 			<version>${pom.version}</version>
-		</dependency>		
+		</dependency>	
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>			
+		</dependency>	
 	</dependencies>
 	
 </project>
