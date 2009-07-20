@@ -12,19 +12,18 @@
        <resource-adaptor-vendor>net.java.slee.sip</resource-adaptor-vendor>
        <resource-adaptor-version>1.2</resource-adaptor-version>
 
+		<resource-adaptor-type-ref>
+            <resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
+            <resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
+            <resource-adaptor-type-version>1.2</resource-adaptor-type-version>
+       </resource-adaptor-type-ref>
+       
 		<library-ref>
         	<library-name>jain-sip</library-name>
         	<library-vendor>javax.sip</library-vendor>
         	<library-version>1.2</library-version>
     	</library-ref>
     
-       <resource-adaptor-type-ref>
-            <resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
-            <resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
-            <resource-adaptor-type-version>1.2</resource-adaptor-type-version>
-       </resource-adaptor-type-ref>
-
-	<!--added oc-resource-adaptor.xml lines here altogether-->
         <resource-adaptor-classes>
             <resource-adaptor-class>
                 <resource-adaptor-class-name>
@@ -40,7 +39,6 @@
         </config-property>
         
         <config-property>
-        	<description/>
         	<description>IP/HOST to which SIP RAs stack should attach - if "null" it will cause RA to pick up Container bind address address</description>
             <config-property-name>javax.sip.IP_ADDRESS</config-property-name>
             <config-property-type>java.lang.String</config-property-type>

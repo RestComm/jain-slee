@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy-config>
-  <ra-entity resource-adaptor-id="JainSipResourceAdaptor#net.java.slee.sip#1.2" entity-name="SipRA">
-    <properties file="" />
-    <ra-link name="SipRA" />
-  </ra-entity>
+	<ra-entity
+		resource-adaptor-id="ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]"
+		entity-name="SipRA">
+		<properties file="" />
+		<ra-link name="SipRA" />
+	</ra-entity>
 </deploy-config>
