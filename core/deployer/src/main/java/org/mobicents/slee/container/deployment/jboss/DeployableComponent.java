@@ -13,6 +13,8 @@ import javax.slee.ComponentID;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorFactory;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ResourceAdaptorDescriptorFactory;
@@ -46,6 +48,7 @@ public class DeployableComponent
   public final static int RA_COMPONENT          = 4;
   public final static int SBB_COMPONENT         = 5;
   public final static int SERVICE_COMPONENT     = 6;
+  public final static int LIBRARY_COMPONENT     = 7;
   
   // The DeploymentInfo short name
   private String diShortName; 
@@ -650,6 +653,82 @@ public class DeployableComponent
           }
         }
       }
+      else if( ( descriptorXML = duWrapper.getEntry( "META-INF/library-jar.xml" ) ) != null )
+      {
+        if( logger.isTraceEnabled() )
+          logger.trace( "Parsing Library Descriptor." );
+  
+        InputStream is = null;
+        
+        try
+        {
+          // Get the InputStream
+          is = descriptorXML.openStream();
+  
+          // Parse the descriptor using the factory
+          LibraryDescriptorFactory ldf = new LibraryDescriptorFactory();
+          List<LibraryDescriptorImpl> libraryDescriptors = ldf.parse( is );
+  
+          // Go through all the Resource Adaptor Elements
+          for( LibraryDescriptorImpl libraryDescriptor : libraryDescriptors )
+          {
+            DeployableComponent dc = new DeployableComponent( this );
+            
+            // Set Component Type
+            dc.componentType = LIBRARY_COMPONENT;
+            
+            // Set the Component ID
+            dc.componentID = libraryDescriptor.getLibraryID();
+            
+            // Set the Component Key
+            dc.componentKey = getComponentIdAsString(dc.componentID);
+  
+            if( logger.isTraceEnabled() )
+            {
+              logger.trace( "Component ID: " + dc.componentKey );
+  
+              logger.trace( "------------------------------ Dependencies ------------------------------" );
+            }
+            
+            // Get the set of this sbb dependencies
+            Set<ComponentID> libraryDependencies = libraryDescriptor.getDependenciesSet();
+            
+            // Iterate through dependencies set
+            for( ComponentID dependencyId : libraryDependencies )
+            {
+              // Add the dependency
+              dc.dependencies.add( getComponentIdAsString( dependencyId ) );
+              
+              if( logger.isTraceEnabled() )
+                logger.trace( getComponentIdAsString( dependencyId ) );
+            }
+
+            if( logger.isTraceEnabled() )
+              logger.trace( "--------------------------- End of Dependencies --------------------------" );
+  
+            deployableComponents.add( dc );
+          }
+        }
+        catch ( Exception e )
+        {
+          logger.error( "", e );
+        }
+        finally
+        {
+          // Clean up!
+          if( is != null )
+          {
+            try
+            {
+              is.close();
+            }
+            finally
+            {
+              is = null;
+            }
+          }
+        }
+      }
       else
       {
         logger.warn( "\r\n--------------------------------------------------------------------------------\r\n"
@@ -752,6 +831,9 @@ public class DeployableComponent
       result = true;
       break;
     case SERVICE_COMPONENT:
+      result = true;
+      break;
+    case LIBRARY_COMPONENT:
       result = true;
       break;
     }
