@@ -2,6 +2,7 @@ package org.mobicents.slee.container.component;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -83,16 +84,22 @@ public abstract class SleeComponent {
 			classPool.clean();
 		}
 		classPool = new ClassPool();
-		classPool.appendClassPath(new LoaderClassPath(classLoader));
-		// add dependency loaders class paths to the component's javassist classpool
-		for (ClassLoader refClassLoader : classLoaderDomain.getDependencies()) {
-			classPool.appendClassPath(new LoaderClassPath(refClassLoader));
-		}
+		// add class path for domain and dependencies
+		addDomainLoadersToJavassistPool(new HashSet<URLClassLoaderDomain>(),classLoaderDomain);
 		// add class path also for slee 
 		classPool.appendClassPath(new LoaderClassPath(classLoaderDomain.getSleeClassLoader()));
-		
 	}
 
+	private void addDomainLoadersToJavassistPool(Set<URLClassLoaderDomain> visitedDomains, URLClassLoaderDomain domain) {
+		if (visitedDomains.add(domain)) {
+			classPool.appendClassPath(new LoaderClassPath(domain));
+			// add dependency loaders class paths to the component's javassist classpool
+			for (URLClassLoaderDomain dependencyDomain : domain.getDependencies()) {
+				addDomainLoadersToJavassistPool(visitedDomains, dependencyDomain);
+			}
+		}
+	}
+	
 	/**
 	 * Retrieves the class loader domain for the component jar this component
 	 * belongs, components that depend on this component must add this in its
