@@ -47,6 +47,7 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
+import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
@@ -58,6 +59,7 @@ import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
+import javax.slee.resource.StartActivityException;
 
 import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
@@ -182,7 +184,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 		return eventFlags;
 	}
 		
-	public static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
+	private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
 	
 	public SipResourceAdaptor() {
 		// Those values are defualt
@@ -406,9 +408,8 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 			// This means that ST is activity
 			SAH = STW.getActivityHandle();
 			if (activities.get(SAH) == null) {
-				addActivity(SAH, STW);
 				try {
-					raContext.getSleeEndpoint().startActivity(SAH,STW, ACTIVITY_FLAGS);
+					addActivity(SAH, STW);
 				} catch (Throwable e) {
 					log.error(e.getMessage(),e);
 					try {
@@ -803,8 +804,16 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 			log.debug("Adding sip activity handle " + sah);
 		}
 
-		this.activities.put(sah, wrapperActivity);
-
+		try {
+			raContext.getSleeEndpoint().startActivity(sah,wrapperActivity,ACTIVITY_FLAGS);
+			activities.put(sah, wrapperActivity);
+		} catch (ActivityAlreadyExistsException e) {
+			log.error(e.getMessage(),e);
+		} catch (StartActivityException e) {
+			log.error(e.getMessage(),e);
+		} 
+		// note: letting the runtime exceptions from startactivity to be thrown	
+		
 	}
 
 	public void removeActivity(SipActivityHandle sah) {
@@ -1171,7 +1180,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 			Integer port = (Integer) properties.getProperty(SIP_PORT_BIND).getValue();
 			// get host
 			String stackAddress = (String) properties.getProperty(SIP_BIND_ADDRESS).getValue();
-			if (!stackAddress.equals("null")) {
+			if (stackAddress.equals("null")) {
 				stackAddress = System.getProperty("jboss.bind.address");				
 			}
 			// try to open socket

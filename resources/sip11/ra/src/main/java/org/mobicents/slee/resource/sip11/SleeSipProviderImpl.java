@@ -189,6 +189,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	public ListeningPoint getListeningPoint() {
 
 		return this.provider.getListeningPoint();
@@ -274,17 +275,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		// add transaction to activities if it's dialog not exists and is an activity
 		// considering that if dw exists then it's an activity 
 		if (dw == null) {
-			
 			if(createActivity) {
-				ra.addActivity(ctw.getActivityHandle(), ctw);
-				try {
-					ra.getRaContext().getSleeEndpoint().startActivity(ctw.getActivityHandle(),ctw,SipResourceAdaptor.ACTIVITY_FLAGS);					
-				} catch (Exception e) {
-					logger.error("Failed to start sip activity ("
-							+ ctw.getActivityHandle() + ")",e);
-
-					ra.removeActivity(ctw.getActivityHandle());
-				} 
+				ra.addActivity(ctw.getActivityHandle(), ctw);				
 			}
 		}
 				
@@ -327,18 +319,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		// considering that if dw exists then it's an activity 
 		
 		if (dw == null) {
-
-			ra.addActivity(stw.getActivityHandle(), stw);
-
 			if (createActivityInSlee) {
-				try {
-					ra.getRaContext().getSleeEndpoint().startActivity(stw.getActivityHandle(),stw,SipResourceAdaptor.ACTIVITY_FLAGS);
-				} catch (Exception e) {
-					logger.error("Failed to start sip activity ("
-						+ stw.getActivityHandle() + ")\n",e);
-					
-					ra.removeActivity(stw.getActivityHandle());
-				} 
+				ra.addActivity(stw.getActivityHandle(), stw);
 			}
 		}
 		
@@ -395,14 +377,6 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			}
 		ra.addActivity(dw.getActivityHandle(), dw);
 
-		try {
-			// assume it is only called from slee, thus within a tx
-			ra.getRaContext().getSleeEndpoint().startActivity(dw.getActivityHandle(),dw,SipResourceAdaptor.ACTIVITY_FLAGS);
-		} catch (Exception e) {
-			logger.error("Failed to start sip activity (" + dw.getActivityHandle() + ");\n", e);
-			ra.removeActivity(dw.getActivityHandle());
-		}
-
 		return dw;
 	}
 
@@ -442,15 +416,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			dw.setFromAddress(from);
 			dw.setToAddress(to);
 			ra.addActivity(dw.getActivityHandle(), dw);
-
-			try {
-				ra.getRaContext().getSleeEndpoint().startActivityTransacted(dw.getActivityHandle(),dw,SipResourceAdaptor.ACTIVITY_FLAGS);
-			} catch (Exception e) {
-				logger.error("Failed to start sip activity ("
-						+ dw.getActivityHandle() + ");\n", e);
-				ra.removeActivity(dw.getActivityHandle());
-			}
-
+			
 			if(callIdHeader == null) {
 				callIdHeader = provider.getNewCallId();
 			}
