@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -139,10 +139,10 @@ public class DeployableUnitJarComponentBuilder {
 				}
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/library-jar.xml")) != null) {
-				// create the class loader domain shared by all libs in this lib jar
-				URLClassLoaderDomain sharedClassLoaderDomain = new URLClassLoaderDomain(new URL[]{componentJarDeploymentDir.toURL()},Thread.currentThread().getContextClassLoader());
-				// create a map for temp storage of each jar class loader domain 
-				Map<String, URLClassLoaderDomain> jarClassLoaderDomains = new HashMap<String, URLClassLoaderDomain>();
+				Set<LibraryComponent> libraryComponents = new HashSet<LibraryComponent>();
+				// we need to gather all URLs for the shared class loader domain to watch
+				Set<URL> classLoaderDomainURLs = new HashSet<URL>();
+				classLoaderDomainURLs.add(componentJarDeploymentDir.toURL());
 				// parse the descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
@@ -151,24 +151,20 @@ public class DeployableUnitJarComponentBuilder {
 				// create components
 				for (LibraryDescriptorImpl descriptor : descriptors) {
 					LibraryComponent component = new LibraryComponent(descriptor);
-					// each lib component has a different class loader domain that depends on the shared domain and each jar it refers in the descriptor
-					URLClassLoaderDomain componentClassLoaderDomain = new URLClassLoaderDomain(new URL[]{},Thread.currentThread().getContextClassLoader());
-					componentClassLoaderDomain.getDependencies().add(sharedClassLoaderDomain);
-					// for each referenced jar create a class loader domain
 					for (MJar mJar : descriptor.getJars()) {
-						// create the domain for that specific jar if does not exists yet
-						URLClassLoaderDomain jarClassLoaderDomain = jarClassLoaderDomains.get(mJar.getJarName());
-						if (jarClassLoaderDomain == null) {
-							jarClassLoaderDomain = new URLClassLoaderDomain(new URL[]{(new File(componentJarDeploymentDir,mJar.getJarName())).toURL()},Thread.currentThread().getContextClassLoader());
-							jarClassLoaderDomains.put(mJar.getJarName(), jarClassLoaderDomain);
-						}
-						componentClassLoaderDomain.getDependencies().add(jarClassLoaderDomain);
+						classLoaderDomainURLs.add(new File(componentJarDeploymentDir,mJar.getJarName()).toURL());
 					}					
 					// set deploy dir and cl domain
 					component.setDeploymentDir(componentJarDeploymentDir);
-					component.setClassLoaderDomain(componentClassLoaderDomain);
-					components.add(component);					
+					components.add(component);
+					libraryComponents.add(component);
 				}
+				// create shared url domain
+				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(classLoaderDomainURLs.toArray(new URL[classLoaderDomainURLs.size()]),Thread.currentThread().getContextClassLoader());
+				// add it to each component
+				for (LibraryComponent component : libraryComponents) {
+					component.setClassLoaderDomain(classLoaderDomain);
+				}				
 			} else if ((componentDescriptor = componentJarFile
 					.getJarEntry("META-INF/event-jar.xml")) != null) {
 				// create class loader domain shared by all components

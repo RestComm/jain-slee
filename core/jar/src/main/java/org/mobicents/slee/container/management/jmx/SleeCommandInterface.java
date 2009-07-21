@@ -186,7 +186,7 @@ public class SleeCommandInterface {
 		} else if (command.equals(UNINSTALL_DU_OPERATION)) {
 			commandBean = DeploymentMBean.OBJECT_NAME;
 			commandString = "uninstall";
-			opArg1 = new DeployableUnitID(data1);
+			opArg1 = new DeployableUnitID((new URL(data1)).toString());
 		}
 
 		// Service Management

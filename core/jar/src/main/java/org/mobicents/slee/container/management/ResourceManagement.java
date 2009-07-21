@@ -133,78 +133,87 @@ public class ResourceManagement {
 						"Failed to create RA Entity. RA ID: " + id
 								+ " not found.");
 			}
-
-			if (this.resourceAdaptorEntities.containsKey(entityName)) {
-				throw new ResourceAdaptorEntityAlreadyExistsException(
-						"Failed to create RA Entity. Resource Adpator Entity Name: "
-								+ entityName + " already exists! RA ID: " + id);
-			}
-			
-			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-			ResourceAdaptorEntityNotification notificationSource = new ResourceAdaptorEntityNotification(entityName);
-			traceMBeanImpl.registerNotificationSource(notificationSource);
-			ResourceAdaptorEntity raEntity =null;
-			try { 
-				raEntity = new ResourceAdaptorEntity(
-						entityName, component, properties, sleeContainer,notificationSource);
-			}
-			catch (InvalidConfigurationException e) {
-				traceMBeanImpl.deregisterNotificationSource(notificationSource);
-				throw e;
-			}
-			catch (InvalidArgumentException e) {
-				traceMBeanImpl.deregisterNotificationSource(notificationSource);
-				throw e;
-			}
-			catch (SLEEException e) {
-				traceMBeanImpl.deregisterNotificationSource(notificationSource);
-				throw e;
-			}
-			catch (Throwable e) {
-				traceMBeanImpl.deregisterNotificationSource(notificationSource);
-				throw new SLEEException(e.getMessage(),e);
-			}
-			
-			for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
-				Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
-				if (set == null) {
-					throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
-				}
-				else {
-					set.add(raEntity);
-				}
-			}
-			this.resourceAdaptorEntities.put(entityName, raEntity);
-			
-			if (component.getUsageParametersInterface() != null) {
-				// create resource usage mbean
-				ResourceUsageMBeanImpl resourceUsageMBeanImpl = null;
+			else {
+				final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+				Thread.currentThread().setContextClassLoader(component.getClassLoader());
 				try {
-					ObjectName objectName = new ObjectName(ResourceUsageMBean.BASE_OBJECT_NAME+','+ResourceUsageMBean.RESOURCE_ADAPTOR_ENTITY_NAME_KEY+'='+ObjectName.quote(entityName));
-					resourceUsageMBeanImpl = new ResourceUsageMBeanImpl(entityName,component,sleeContainer);
-					resourceUsageMBeanImpl.setObjectName(objectName);
-					sleeContainer.getMBeanServer().registerMBean(resourceUsageMBeanImpl, objectName);
-					raEntity.setResourceUsageMBean(resourceUsageMBeanImpl);
-					// create default usage param set
-					resourceUsageMBeanImpl.createUsageParameterSet();					
-				} catch (Throwable e) {
-					if (resourceUsageMBeanImpl != null) {
-						resourceUsageMBeanImpl.remove();
+					if (this.resourceAdaptorEntities.containsKey(entityName)) {
+						throw new ResourceAdaptorEntityAlreadyExistsException(
+								"Failed to create RA Entity. Resource Adpator Entity Name: "
+										+ entityName + " already exists! RA ID: " + id);
 					}
+					
+					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+					ResourceAdaptorEntityNotification notificationSource = new ResourceAdaptorEntityNotification(entityName);
+					traceMBeanImpl.registerNotificationSource(notificationSource);
+					ResourceAdaptorEntity raEntity =null;
+					try { 
+						raEntity = new ResourceAdaptorEntity(
+								entityName, component, properties, sleeContainer,notificationSource);
+					}
+					catch (InvalidConfigurationException e) {
+						traceMBeanImpl.deregisterNotificationSource(notificationSource);
+						throw e;
+					}
+					catch (InvalidArgumentException e) {
+						traceMBeanImpl.deregisterNotificationSource(notificationSource);
+						throw e;
+					}
+					catch (SLEEException e) {
+						traceMBeanImpl.deregisterNotificationSource(notificationSource);
+						throw e;
+					}
+					catch (Throwable e) {
+						traceMBeanImpl.deregisterNotificationSource(notificationSource);
+						throw new SLEEException(e.getMessage(),e);
+					}
+					
 					for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
-						entitiesPerType.get(resourceAdaptorTypeID).remove(raEntity);						
+						Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
+						if (set == null) {
+							throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
+						}
+						else {
+							set.add(raEntity);
+						}
 					}
-					this.resourceAdaptorEntities.remove(raEntity);
-					try {
-						raEntity.remove();
-					} catch (InvalidStateException e1) {
-						logger.error(e.getMessage(),e);
+					this.resourceAdaptorEntities.put(entityName, raEntity);
+					
+					if (component.getUsageParametersInterface() != null) {
+						// create resource usage mbean
+						ResourceUsageMBeanImpl resourceUsageMBeanImpl = null;
+						try {
+							ObjectName objectName = new ObjectName(ResourceUsageMBean.BASE_OBJECT_NAME+','+ResourceUsageMBean.RESOURCE_ADAPTOR_ENTITY_NAME_KEY+'='+ObjectName.quote(entityName));
+							resourceUsageMBeanImpl = new ResourceUsageMBeanImpl(entityName,component,sleeContainer);
+							resourceUsageMBeanImpl.setObjectName(objectName);
+							sleeContainer.getMBeanServer().registerMBean(resourceUsageMBeanImpl, objectName);
+							raEntity.setResourceUsageMBean(resourceUsageMBeanImpl);
+							// create default usage param set
+							resourceUsageMBeanImpl.createUsageParameterSet();					
+						} catch (Throwable e) {
+							if (resourceUsageMBeanImpl != null) {
+								resourceUsageMBeanImpl.remove();
+							}
+							for (ResourceAdaptorTypeID resourceAdaptorTypeID : component.getSpecsDescriptor().getResourceAdaptorTypes()) {
+								entitiesPerType.get(resourceAdaptorTypeID).remove(raEntity);						
+							}
+							this.resourceAdaptorEntities.remove(raEntity);
+							try {
+								raEntity.remove();
+							} catch (InvalidStateException e1) {
+								logger.error(e.getMessage(),e);
+							}
+							throw new SLEEException("failed to create and register entity resource usage mbean",e);
+						}
 					}
-					throw new SLEEException("failed to create and register entity resource usage mbean",e);
+								
+					logger.info("Created Resource Adaptor Entity "+entityName+" for " + id+" Config Properties: " + properties);
+				}
+				finally {
+					Thread.currentThread().setContextClassLoader(classLoader);
 				}
 			}
-						
-			logger.info("Created Resource Adaptor Entity "+entityName+" for " + id+" Config Properties: " + properties);
+			
 		}
 	}
 
@@ -230,8 +239,15 @@ public class ResourceManagement {
 				throw new UnrecognizedResourceAdaptorEntityException(
 						"Resource Adaptor Entity " + entityName + " not found.");
 			} else {
-				raEntity.activate();
-				logger.info("Activated RA Entity " + entityName);
+				final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+				Thread.currentThread().setContextClassLoader(raEntity.getComponent().getClassLoader());
+				try {
+					raEntity.activate();
+					logger.info("Activated RA Entity " + entityName);
+				}
+				finally {
+					Thread.currentThread().setContextClassLoader(classLoader);
+				}
 			}
 		}
 	}
@@ -258,6 +274,8 @@ public class ResourceManagement {
 				throw new UnrecognizedResourceAdaptorEntityException(
 						"Resource Adaptor Entity " + entityName + " not found.");
 			} else {
+				final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+				Thread.currentThread().setContextClassLoader(raEntity.getComponent().getClassLoader());
 				boolean rollback = true;
 				try {
 					sleeContainer.getTransactionManager().begin();
@@ -281,6 +299,9 @@ public class ResourceManagement {
 					}
 					catch (Throwable e) {
 						throw new SLEEException(e.getMessage(),e);
+					}
+					finally {
+						Thread.currentThread().setContextClassLoader(classLoader);
 					}
 				}
 				logger.info("Deactivated RA Entity " + entityName);
@@ -311,31 +332,39 @@ public class ResourceManagement {
 				throw new UnrecognizedResourceAdaptorEntityException(
 						"Resource Adaptor Entity " + entityName + " not found.");
 			}
+			else {
+				final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+				Thread.currentThread().setContextClassLoader(raEntity.getComponent().getClassLoader());
+				try {
+					if (this.resourceAdaptorEntityLinks.containsValue(entityName)) {
+						throw new DependencyException("entity name has link(s)");
+					}
 
-			if (this.resourceAdaptorEntityLinks.containsValue(entityName)) {
-				throw new DependencyException("entity name has link(s)");
-			}
+					raEntity.remove();
 
-			raEntity.remove();
-
-			this.resourceAdaptorEntities.remove(entityName);
-			
-			for (ResourceAdaptorTypeID resourceAdaptorTypeID : raEntity.getComponent().getSpecsDescriptor().getResourceAdaptorTypes()) {
-				Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
-				if (set == null) {
-					throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
+					this.resourceAdaptorEntities.remove(entityName);
+					
+					for (ResourceAdaptorTypeID resourceAdaptorTypeID : raEntity.getComponent().getSpecsDescriptor().getResourceAdaptorTypes()) {
+						Set<ResourceAdaptorEntity> set = entitiesPerType.get(resourceAdaptorTypeID);
+						if (set == null) {
+							throw new SLEEException("there is no set of ra entities for "+resourceAdaptorTypeID); 
+						}
+						else {
+							set.remove(raEntity);
+						}
+					}
+					
+					ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
+					if (resourceUsageMBeanImpl != null) {
+						resourceUsageMBeanImpl.remove();													
+					}
+					
+					logger.info("Removed RA Entity " + entityName);
 				}
-				else {
-					set.remove(raEntity);
+				finally {
+					Thread.currentThread().setContextClassLoader(classLoader);
 				}
-			}
-			
-			ResourceUsageMBeanImpl resourceUsageMBeanImpl = raEntity.getResourceUsageMBean();
-			if (resourceUsageMBeanImpl != null) {
-				resourceUsageMBeanImpl.remove();													
-			}
-			
-			logger.info("Removed RA Entity " + entityName);
+			}			
 		}
 	}
 
@@ -367,8 +396,15 @@ public class ResourceManagement {
 			throw new UnrecognizedResourceAdaptorEntityException(
 					"Resource Adaptor Entity " + entityName + " not found.");
 		} else {
-			raEntity.updateConfigurationProperties(properties);
-			logger.info("Updated RA Entity with properties: " + properties);
+			final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(raEntity.getComponent().getClassLoader());
+			try {
+				raEntity.updateConfigurationProperties(properties);
+				logger.info("Updated RA Entity with properties: " + properties);
+			}
+			finally {
+				Thread.currentThread().setContextClassLoader(classLoader);
+			}
 		}
 	}
 

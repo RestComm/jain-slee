@@ -19,7 +19,7 @@ public class UninstallTask implements SubTask {
 			// Invoke the getDeployableUnit operation
 			Object result = slee.invokeOperation(
 					SleeCommandInterface.UNINSTALL_DU_OPERATION,
-					deployableUnitID, null, null);
+					url, null, null);
 
 			if (result == null) {
 				logger.info("No response");
@@ -35,9 +35,9 @@ public class UninstallTask implements SubTask {
 		}
 	}
 
-	public void setDeployableUnitID(String s) {
-		this.deployableUnitID = s;
+	public void setURL(String s) {
+		this.url = s;
 	}
 
-	private String deployableUnitID = null;
+	private String url = null;
 }

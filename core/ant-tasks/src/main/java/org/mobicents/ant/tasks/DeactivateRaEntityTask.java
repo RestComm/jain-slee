@@ -34,6 +34,17 @@ public class DeactivateRaEntityTask implements SubTask {
 			logger.log(Level.WARNING, "Bad result: " + slee.commandBean + "."
 					+ slee.commandString + "\n" + ex.getCause().toString());
 		}
+		
+		// wait a few of seconds, give it time to complete deactivation, else
+		// a further entity removal invocation will fail
+		// TODO instead pool the resource management mbean to learn when
+		// deactivation is complete
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	// The setter for the "entityName" attribute
