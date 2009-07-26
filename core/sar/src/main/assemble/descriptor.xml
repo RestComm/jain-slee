@@ -9,9 +9,6 @@
       <directory>xml/rar</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
-    <fileSet>
-      <directory>dtd</directory>
-    </fileSet>
   </fileSets>
   <dependencySets>
     <dependencySet>

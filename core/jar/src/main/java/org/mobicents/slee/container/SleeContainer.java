@@ -62,7 +62,6 @@ import org.mobicents.slee.container.management.jmx.AlarmMBeanImpl;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.management.jmx.editors.SleePropertyEditorRegistrator;
-import org.mobicents.slee.container.management.xml.DefaultSleeEntityResolver;
 import org.mobicents.slee.container.profile.ProfileObjectPoolManagement;
 import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
@@ -105,7 +104,7 @@ public class SleeContainer {
 		// establish the location of mobicents.sar
 		try {
 			java.net.URL url = VFSUtils.getCompatibleURL(VFS.getRoot(SleeContainer.class.getClassLoader()
-					.getResource("META-INF/..")));;
+					.getResource("..")));
 			java.net.URI uri = new java.net.URI(url.toExternalForm()
 					.replaceAll(" ", "%20"));
 			deployPath = new File(uri).getAbsolutePath();
@@ -185,9 +184,7 @@ public class SleeContainer {
 	private TraceFacilityImpl traceFacility;
 	
 	private final MobicentsUUIDGenerator uuidGenerator = MobicentsUUIDGenerator.getInstance(); 
-	
-	private SleeContainerTimer timer;
-	
+		
 	// LIFECYLE RELATED
 
 	/**
@@ -229,9 +226,7 @@ public class SleeContainer {
 		// Force class loading of ConcreteClassGeneratorUtils to initilize the
 		// static pool
 		ConcreteClassGeneratorUtils.class.getClass();
-		DefaultSleeEntityResolver.init(this.getClass().getClassLoader());
 
-		this.timer = new SleeContainerTimer();		
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
 		//this.sleeProfileManager = new SleeProfileManager(this);
@@ -297,7 +292,6 @@ public class SleeContainer {
 		Context ctx = new InitialContext();
 		Util.unbind(ctx, JVM_ENV + CTX_SLEE);
 		stopRMIServer();
-		timer.realCancel();
 	}
 
 	/**
@@ -523,14 +517,6 @@ public class SleeContainer {
 	 */
 	public MBeanServer getMBeanServer() {
 		return mbeanServer;
-	}
-
-	/**
-	 * Retrieves the shared timer
-	 * @return
-	 */
-	public SleeContainerTimer getTimer() {
-		return timer;
 	}
 	
 	// RMI RELATED

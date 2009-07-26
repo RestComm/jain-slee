@@ -15,6 +15,12 @@
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
+           	<artifactId>timers</artifactId>
+           	<version>${pom.version}</version>           	
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
            	<artifactId>transaction</artifactId>
            	<version>${pom.version}</version>           	
 		</dependency>

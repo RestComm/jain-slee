@@ -6,9 +6,8 @@
             <path name="META-INF"/>
         </metaDataPath>        
         <classpath>
-            <path name=""/>
+            <path name="" />
             <path name="lib" suffixes=".jar" />
-            <path name="dtd" suffixes=".dtd" />
         </classpath>
     </context>
 </structure>

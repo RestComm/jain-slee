@@ -98,12 +98,12 @@ public class MobicentsCache {
 	}
 
 	/**
-	 * Retrieves an instance of an {@link TimerFacilityCacheData}, the cache
+	 * Retrieves an instance of an {@link TimerTasksCacheData}, the cache
 	 * proxy for the Timer Facility
 	 * 
 	 * @return
 	 */
-	public TimerFacilityCacheData getTimerFacilityCacheData() {
-		return new TimerFacilityCacheData(jBossCache);
+	public TimerTasksCacheData getTimerFacilityCacheData() {
+		return new TimerTasksCacheData(jBossCache);
 	}
 }

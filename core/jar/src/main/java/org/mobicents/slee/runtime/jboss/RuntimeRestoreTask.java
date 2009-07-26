@@ -61,9 +61,7 @@ public class RuntimeRestoreTask implements Runnable {
 
             NullActivityFactoryImpl naf = sleeContainer
                     .getNullActivityFactory();
-            naf.restart();
-            TimerFacilityImpl timerFacility = sleeContainer.getTimerFacility();
-            timerFacility.restart();
+            naf.restart();            
             rb = false;
         } catch (Exception ex) {
             ex.printStackTrace();

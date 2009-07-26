@@ -1,112 +1,31 @@
-/*
- * TimerFacilityTimerTask.java
- * 
- * Created on Aug 21, 2005
- * 
- * Created by: M. Ranganathan
- * 
- * The Mobicents Open SLEE project
- * 
- * A SLEE for the people!
- * 
- * The source code contained in this file is in in the public domain. It can be
- * used in any project or product without prior permission, license or royalty
- * payments. There is NO WARRANTY OF ANY KIND, EXPRESS, IMPLIED OR STATUTORY,
- * INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE, AND DATA ACCURACY. We do not warrant or
- * make any representations regarding the use of the software or the results
- * thereof, including but not limited to the correctness, accuracy, reliability
- * or usefulness of the software.
- */
-
 package org.mobicents.slee.runtime.facilities;
 
-import java.io.Serializable;
-import java.util.TimerTask;
-
-import javax.slee.Address;
-import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
 import javax.slee.resource.EventFlags;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.core.timers.TimerTask;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
-public class TimerFacilityTimerTask extends TimerTask implements Serializable {
+public class TimerFacilityTimerTask extends TimerTask {
 
-    /**
-	 * Comment for <code>serialVersionUID</code>
-	 */
-	private static final long serialVersionUID = -938503788187751855L;
+	private static final Logger logger = Logger.getLogger(TimerFacilityTimerTask.class);
 
-	private static Logger logger = Logger.getLogger(TimerFacilityTimerTask.class);
-
-    private TimerID timerId;
-
-    private String acId;
-
-    private Address address;
-
-    private TimerOptions timerOptions;
-
-    long startTime;
-
-    int numRepetitions;
-
-    int remainingRepetitions;
-
-    int missedRepetitions;
-
-    long period;
+	private final TimerFacilityTimerTaskData data;
+	
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		
+    public TimerFacilityTimerTask(TimerFacilityTimerTaskData data) {
+    	super(data);
+    	this.data = data;
+	}
     
-    private long lastTick;
-
-    public String toString() {
-        return new StringBuffer().append("timerId = " + timerId).append(
-                "\nacId = " + this.acId).append(
-                "\nAddress = " + address).append(
-                "\ntimerOptions = " + timerOptions).append(
-                "\nstartTime = " + startTime).append(
-                "\nnumReps = " + numRepetitions).append(
-                "\nremainingReps " + this.remainingRepetitions).append(
-                "\nperiod  " + this.period).toString();
-    }
-
-    public TimerFacilityTimerTask(TimerID timerId, String acId,
-            Address address, long startTime, long period, int numRepetitions,
-            TimerOptions timerOptions) {
-
-        this.timerId = timerId;
-
-        //this.aci = aci;
-        this.acId = acId;
-        this.address = address;
-        this.startTime = startTime;
-        this.period = period;
-        this.numRepetitions = numRepetitions;
-
-        // for infinitely repetitive events the remainingRepetitions value
-        // has to be always Int.MAX_VALUE
-        if (numRepetitions <= 0)
-            this.remainingRepetitions = Integer.MAX_VALUE;
-        else
-            this.remainingRepetitions = numRepetitions;
-
-        this.missedRepetitions = 0;
-        this.timerOptions = timerOptions;
-     
-    }
-
-    public TimerOptions getTimerOptions() {
-        return this.timerOptions;
-    }
-    
-    TimerID getTimerID() {
-        return timerId;
-    }
+    public TimerFacilityTimerTaskData getTimerFacilityTimerTaskData() {
+		return data;
+	}
 
     /*
      * 
@@ -123,242 +42,191 @@ public class TimerFacilityTimerTask extends TimerTask implements Serializable {
      * @see java.lang.Runnable#run()
      */
     public void run() {
+    	
+    	if (logger.isDebugEnabled()) {
+            logger.debug("Executing task with timer ID "+getData().getTaskID());
+        }
+    	
     	try {
             runInternal(); 
     	} catch (Throwable t) {
-    		// we don't want a timer task to be able to cancel the timer thread, because
-    		// that will prevent other scheduled tasks in the same system timer to run
-    		logger.warn("Failed to cancel timer task[ID:" + timerId + "]", t);
+    		logger.error(t.getMessage(),t);
     	}
     }
 
 	private void runInternal() {
-		if (logger.isDebugEnabled()) {
-            logger.debug("In TimerFacilityTimerTask.run()");
-        }
-
-        TimerFacilityImpl timerFacility = SleeContainer.lookupFromJndi().getTimerFacility();           
-        
-        long tRes = timerFacility.getResolution();
-        long tSys = System.currentTimeMillis();
-        long tDto = timerFacility.getDefaultTimeout();
-       
-        boolean postIt = false;
-
-        if (this.timerOptions.getPreserveMissed() == TimerPreserveMissed.ALL) {
-            /*
-             * Always post the event. Remember, this method will get called for
-             * late events since this TimerTask was scheduled to run at fixed
-             * rate. see Timer.scheduleAtFixedRate()
-             */
-            postIt = true;
-            if (logger.isDebugEnabled()) {
-                logger.debug("TimerPreserveMissed.ALL so posting the event");
-            }
-        } else {
-            long timeOut;
-            if (this.timerOptions.getTimeout() == 0) {
-                timeOut = tDto;
-            } else {
-                timeOut = this.timerOptions.getTimeout();
-            }
-            timeOut = Math.min(Math.max(timeOut, tRes), this.period);
-            if (logger.isDebugEnabled()) {
-                logger
-                        .debug("I'm using "
-                                + timeOut
-                                + " for the timeout to work out whether the event's late");
-            }
-
-            if (this.timerOptions.getPreserveMissed() == TimerPreserveMissed.NONE) {
-                //If events are late we NEVER want to post them
-                if (logger.isDebugEnabled()) {
-                    logger.debug("TimerPreserveMissed.NONE");
-                }
-                if (tSys <= this.scheduledExecutionTime() + timeOut) {
-                    //Event is not late
-                    postIt = true;
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Event is NOT late so I'm posting it");
-                    }
-                } else {
-                    //Event is late so NOT posting it
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Event is late so I'm NOT posting it");
-                    }
-                    this.missedRepetitions++;
-                }
-            } else if (this.timerOptions.getPreserveMissed() == TimerPreserveMissed.LAST) {
-                //Count missed events.
-                //Preserve the last missed event
-                if (logger.isDebugEnabled()) {
-                    logger.debug("TimerPreserveMissed.LAST");
-                }
-
-                if (remainingRepetitions > 1
-                        && (tSys > this.scheduledExecutionTime() + timeOut)) {
-                    //Event is not the last one and event is late
-                    if (logger.isDebugEnabled()) {
-                        logger
-                                .debug("Event is late and NOT the last one so I'm NOT posting it");
-                    }
-                    this.missedRepetitions++;
-                } else {
-                    if (logger.isDebugEnabled()) {
-                        logger
-                                .debug("Event is either NOT late, or late and is the last event so I'm posting it");
-                    }
-                    postIt = true;
-                }
-            }
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("SCHEDULED EXECUTION TIME IS "
-                    + this.scheduledExecutionTime());
-            logger.debug("Remaining repetitions:" + this.remainingRepetitions);
-        }
-       
-        decrementRemainingRepetitions();
-               
-        // we need to know if the timer ended so we can warn the event router,
-        // if needed, that's the last event that the timer posts          
-        boolean timerEnded = (remainingRepetitions == 0);
-
-        if (timerEnded) {
-        	// ensure that the java system time doesn't keep spinning 
-        	//   invalid events
-        	this.cancel();
-        }        
-        	        
-        if (postIt) {
-            //Post the timer event
-            SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
-            TimerEventImpl timerEvent = new TimerEventImpl(this.timerId, this
-                    .scheduledExecutionTime(), tSys, this.period,
-                    this.numRepetitions, this.remainingRepetitions,
-                    this.missedRepetitions, this,timerEnded);
-            
-            this.missedRepetitions = 0;
-           
-            postEvent(timerEvent);
-        }
-        else {
-        	if (timerEnded) {
-        		// if event is not posted and ended then we cancel it
-        		// so it's removed
-        		timerFacility.cancelTimer(this.getTimerID());
-        	}
-        }
-        
-	}
-    
-    
-    /**
-     * Decrement remainingRepetitions by 1 if this is not an infinitely
-     * repeatable timer
-     * @param timerFacility 
-     */
-    private void decrementRemainingRepetitions() {
-        if (remainingRepetitions > 0 && (numRepetitions != 0)) {
-            this.remainingRepetitions--;
-        }
-        
-    }
-
-    private void checkForTimerEnd(TimerFacilityImpl timerFacility) {
-        if (remainingRepetitions == 0  ) {
-        	// ensure that the java system time doesn't keep spinning 
-        	//   invalid events
-        	this.cancel();
-            
-            //Remove reference to the Timer so the ActivityContext can be
-            // reclaimed Spec 13.1.2.1
-            if (logger.isDebugEnabled()) {
-                logger.debug("Timer has expired - removing it");
-            }      
-           	timerFacility.cancelTimer(timerId);
-        }
-    }
-    
-    void postEvent(TimerEventImpl timerEvent) {
-        
-    	SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-    	SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
-		// b is true if tx is created
-		boolean b = txmgr.requireTransaction();
-		// rb is true if a rollback is needed
-		boolean rb = true;
-		try {
+		
+		int remainingRepetitions = data.getRemainingRepetitions();
+		
+		// till the actual task cancellation (in the scheduler) a periodic timer can still try to execute the task again after all executions been done
+		if (remainingRepetitions > 0) {
 			
-			//Post the timer event to the queue.
-			this.lastTick = System.currentTimeMillis();
-			
-			
-			ActivityContext ac = sleeContainer.getActivityContextFactory()
-			.getActivityContext(this.acId,true);
-			
-			// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
-			//   and thus the timer cancelation came a bit late
-			if (ac == null) {
-				logger.warn("Cannot fire a timer event, because the underlying activity is gone.");
-				remainingRepetitions = 0;
+			final TimerFacilityImpl timerFacility = sleeContainer.getTimerFacility();
+
+			long tRes = timerFacility.getResolution();
+			long tSys = System.currentTimeMillis();
+			long tDto = timerFacility.getDefaultTimeout();
+
+			boolean postIt = false;
+
+			final TimerOptions timerOptions = data.getTimerOptions();
+			final long period = data.getPeriod();
+			final long scheduledTime = data.getScheduledTime();
+			final long delayTillEvent = tSys - scheduledTime;
+
+			if (timerOptions.getPreserveMissed() == TimerPreserveMissed.ALL) {
+				/*
+				 * Always post the event. Remember, this method will get called for
+				 * late events since this TimerTask was scheduled to run at fixed
+				 * rate. see Timer.scheduleAtFixedRate()
+				 */
+				postIt = true;
+				if (logger.isDebugEnabled()) {
+					logger.debug("TimerPreserveMissed.ALL so posting the event");
+				}
 			} else {
+				long timeOut;
+				if (timerOptions.getTimeout() == 0) {
+					timeOut = tDto;
+				} else {
+					timeOut = timerOptions.getTimeout();
+				}
+				timeOut = Math.min(Math.max(timeOut, tRes), period);
 				if (logger.isDebugEnabled()) {
 					logger
-					.debug("Posting timer event on event router queue. Activity context:  "
-							+ ac.getActivityContextId()
-							+ " remainingRepetitions: "
-							+ remainingRepetitions);
+					.debug("I'm using "
+							+ timeOut
+							+ " for the timeout to work out whether the event's late");
 				}
-				
-				ac.fireEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,this.address,null,EventFlags.NO_FLAGS);
-				
-				rb = false;
-			}            
-			
-		} catch (Exception ex) {
-			try {
-				if (rb) {
-					if (b) {
-						txmgr.rollback();
-					}
-					else {
-						txmgr.setRollbackOnly();
-					}
-				}
-					
-			} catch (Exception e) {
-				logger.error("Exception setting proper rollback state in tx when posting timer event", e);
-			}
-			logger.error("Unable to post timer event", ex);
 
-        } finally {
-			try {
-				if (b) {
-					txmgr.commit();
+				boolean lateEvent = delayTillEvent + timeOut < 0;
+
+				if (timerOptions.getPreserveMissed() == TimerPreserveMissed.NONE) {
+					//If events are late we NEVER want to post them
+					if (logger.isDebugEnabled()) {
+						logger.debug("TimerPreserveMissed.NONE");
+					}
+					if (!lateEvent) {
+						postIt = true;
+						if (logger.isDebugEnabled()) {
+							logger.debug("Event is NOT late so I'm posting it");
+						}
+					} else {
+						//Event is late so NOT posting it
+						if (logger.isDebugEnabled()) {
+							logger.debug("Event is late so I'm NOT posting it");
+						}
+						data.incrementMissedRepetitions();
+					}
+				} else if (timerOptions.getPreserveMissed() == TimerPreserveMissed.LAST) {
+					//Count missed events.
+					//Preserve the last missed event
+					if (logger.isDebugEnabled()) {
+						logger.debug("TimerPreserveMissed.LAST");
+					}
+
+					if (remainingRepetitions > 1
+							&& lateEvent) {
+						//Event is not the last one and event is late
+						if (logger.isDebugEnabled()) {
+							logger
+							.debug("Event is late and NOT the last one so I'm NOT posting it");
+						}
+						data.incrementMissedRepetitions();
+					} else {
+						if (logger.isDebugEnabled()) {
+							logger
+							.debug("Event is either NOT late, or late and is the last event so I'm posting it");
+						}
+						postIt = true;
+					}
 				}
-			} catch (Exception e) {
-				logger.error("Exception committing tx when posting timer event", e);
+			}
+
+			// increment executions and recalculate remaining ones
+			data.incrementExecutions();
+			remainingRepetitions = data.getRemainingRepetitions();
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug("Delay till execution is " + delayTillEvent);
+				logger.debug("Remaining executions:" + remainingRepetitions);
+			}			
+			
+			// we need to know if the timer ended so we can warn the event router,
+			// if needed, that's the last event that the timer posts  
+			boolean timerEnded = remainingRepetitions == 0;
+
+			if (postIt) {
+
+				//Post the timer event
+				TimerEventImpl timerEvent = new TimerEventImpl(data.getTimerID(), scheduledTime, tSys, (period < 0 ? Long.MAX_VALUE : period),
+						data.getNumRepetitions(), remainingRepetitions,
+						data.getMissedRepetitions(), this,timerEnded);
+
+				data.setMissedRepetitions(0);
+
+				final SleeTransactionManager txmgr = sleeContainer.getTransactionManager();
+				boolean terminateTx = txmgr.requireTransaction();
+				boolean doRollback = true;
+
+				try {
+
+					//Post the timer event to the queue.
+					data.setLastTick(System.currentTimeMillis());
+
+					final ActivityContext ac = sleeContainer.getActivityContextFactory()
+					.getActivityContext(data.getAcID(),true);
+
+					// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
+					//   and thus the timer cancelation came a bit late
+					if (ac == null) {
+						logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getAcID()+" is gone.");
+						timerFacility.cancelTimer(data.getTimerID());
+					} else {
+						if (logger.isDebugEnabled()) {
+							logger
+							.debug("Posting timer event on event router queue. Activity context:  "
+									+ ac.getActivityContextId()
+									+ " remainingRepetitions: "
+									+ data.getRemainingRepetitions());
+						}
+						ac.fireEvent(TimerEventImpl.EVENT_TYPE_ID,timerEvent,data.getAddress(),null,EventFlags.NO_FLAGS);
+					}   
+					doRollback = false;
+				} finally {
+					try {
+						txmgr.requireTransactionEnd(terminateTx, doRollback);
+					} catch (Throwable e) {
+						logger.error(e.getMessage(),e);
+					}
+				}
+			}
+			else {
+				if (timerEnded) {
+					// if event is not posted and ended then we cancel it
+					// so it's removed
+					timerFacility.cancelTimer(data.getTimerID());
+				}
 			}
 		}
-
-    }
-    
-    public long getLastTick() {
-        return this.lastTick;
-    }
-
-    /**
-     * @return the activity context interface for the timer task.
-     */
-    public String getActivityContextId() {
         
-        return this.acId;
-    }
-    
-    public long getStartTime() {
-        return this.startTime;
+	}
+
+    @SuppressWarnings("deprecation")
+	@Override
+    public void beforeRecover() {
+    	
+    	long period = data.getPeriod();
+		long startTime = data.getStartTime();
+		long now = System.currentTimeMillis();
+		
+		if (data.getTimerOptions().isPersistent()) {
+			long lastTick = data.getLastTick();
+			if (lastTick + period < now)
+				startTime = now;
+			else
+				startTime = lastTick + period;
+		}
+		data.setStartTime(startTime);
     }
 }

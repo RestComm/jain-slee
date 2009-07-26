@@ -12,13 +12,14 @@ import javax.slee.ComponentID;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
-import org.mobicents.slee.container.management.xml.XMLUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -406,9 +407,13 @@ public class DeployableUnit {
 					.getInputStream(deployInfoXML) : null;
 
 			if (is != null) {
-				// Read the file into a Document
-				Document doc = XMLUtils.parseDocument(is, true);
 
+				// Read the file into a Document
+				DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	            factory.setValidating(false);
+	            DocumentBuilder builder = factory.newDocumentBuilder();
+	            Document doc =  builder.parse(is);
+	            
 				// By now we only care about <ra-entitu> nodes
 				NodeList raEntities = doc.getElementsByTagName("ra-entity");
 

@@ -20,7 +20,6 @@ import javax.slee.transaction.SleeTransactionManager;
 import javax.slee.usage.NoUsageParametersInterfaceDefinedException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
-import org.mobicents.slee.container.SleeContainerTimer;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
@@ -33,13 +32,16 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	private final SleeContainer sleeContainer;
 	private final ServiceLookupFacility serviceLookupFacility;
 	private final EventLookupFacility eventLookupFacility;
-		
+	private final ResourceAdaptorEntityTimer timer;
+	
 	public ResourceAdaptorContextImpl(ResourceAdaptorEntity raEntity, SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
 		this.sleeEndpointImpl = new SleeEndpointImpl(raEntity,sleeContainer);
 		this.eventLookupFacility = new EventLookupFacilityImpl(raEntity,sleeContainer);
 		this.serviceLookupFacility = new ServiceLookupFacilityImpl(raEntity,sleeContainer);
+		// FIXME replace by fault tolerant timer shared by all ra entities
+		this.timer = new ResourceAdaptorEntityTimer(new Timer()); 
 	}
 	
 	public AlarmFacility getAlarmFacility() {
@@ -97,7 +99,7 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 	}
 
 	public Timer getTimer() {
-		return sleeContainer.getTimer();
+		return timer;
 	}
 
 	public Tracer getTracer(String tracerName) throws NullPointerException,

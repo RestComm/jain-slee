@@ -1,10 +1,8 @@
 package org.mobicents.slee.runtime.cache;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TimerTask;
-
-import javax.slee.facilities.TimerID;
 
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
@@ -18,7 +16,7 @@ import org.jboss.cache.Node;
  * 
  */
 
-public class TimerFacilityCacheData extends CacheData {
+public class TimerTasksCacheData extends CacheData {
 
 	/**
 	 * root fqn
@@ -27,7 +25,7 @@ public class TimerFacilityCacheData extends CacheData {
 	/**
 	 * the name of the cache node that holds all data
 	 */
-	private static final String CACHE_NODE_NAME = "timer-facility";
+	private static final String CACHE_NODE_NAME = "timertasks";
 
 	private static final Object CACHE_NODE_MAP_KEY = new Object();
 
@@ -35,22 +33,22 @@ public class TimerFacilityCacheData extends CacheData {
 	 * 
 	 * @param txManager
 	 */
-	protected TimerFacilityCacheData(Cache jBossCache) {
+	protected TimerTasksCacheData(Cache jBossCache) {
 		super(Fqn.fromRelativeElements(parentNodeFqn, CACHE_NODE_NAME),
 				jBossCache);
 	}
 
-	public void addTask(TimerID timerID, TimerTask task) {
-		getNode().addChild(Fqn.fromElements(timerID)).put(CACHE_NODE_MAP_KEY,
-				task);
+	public void addTaskData(Serializable taskID, Object taskData) {
+		getNode().addChild(Fqn.fromElements(taskID)).put(CACHE_NODE_MAP_KEY,
+				taskData);
 	}
 
-	public boolean removeTask(TimerID timerID) {
-		return getNode().removeChild(Fqn.fromElements(timerID));
+	public boolean removeTaskData(Serializable taskID) {
+		return getNode().removeChild(Fqn.fromElements(taskID));
 	}
 
-	public Object getTask(TimerID timerID) {
-		Node childNode = getNode().getChild(Fqn.fromElements(timerID));
+	public Object getTaskData(Serializable taskID) {
+		Node childNode = getNode().getChild(Fqn.fromElements(taskID));
 		if (childNode == null) {
 			return null;
 		} else {
@@ -58,7 +56,7 @@ public class TimerFacilityCacheData extends CacheData {
 		}
 	}
 
-	public Set getTasks() {
+	public Set getTaskDatas() {
 		Set result = new HashSet();
 		for (Object obj : getNode().getChildren()) {
 			Node childNode = (Node) obj;

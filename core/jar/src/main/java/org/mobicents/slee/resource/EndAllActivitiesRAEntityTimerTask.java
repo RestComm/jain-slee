@@ -1,5 +1,6 @@
 package org.mobicents.slee.resource;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
@@ -20,11 +21,14 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 	private final SleeContainer sleeContainer;
 	
 	private boolean canceled = false;
-		
+	
+	// TODO replace by ft timer?
+	private final static Timer timer = new Timer();
+	
 	public EndAllActivitiesRAEntityTimerTask(ResourceAdaptorEntity raEntity,SleeContainer sleeContainer) {
 		this.raEntity = raEntity;
 		this.sleeContainer = sleeContainer;
-		sleeContainer.getTimer().schedule(this, delay);
+		timer.schedule(this, delay);
 	}
 	
 	@Override

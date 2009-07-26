@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.ComponentID;
+import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.DeploymentException;
@@ -31,6 +32,13 @@ public class ServiceDescriptorImpl {
 			this.serviceID = new ServiceID(mService.getServiceName(),mService.getServiceVendor(),mService.getServiceVersion());
 			this.rootSbbID = new SbbID(mService.getRootSbb().getSbbName(),mService.getRootSbb().getSbbVendor(),mService.getRootSbb().getSbbVersion());
 			dependenciesSet.add(rootSbbID);
+			// even if the root sbb does not declares it, all services depend on standard service started event(s)
+			dependenciesSet.add(new EventTypeID("javax.slee.serviceactivity.ServiceStartedEvent", "javax.slee",
+			"1.0"));
+			if (isSlee11()) {
+				dependenciesSet.add(new EventTypeID("javax.slee.serviceactivity.ServiceStartedEvent", "javax.slee",
+				"1.1"));
+			}
 		} catch (Exception e) {
 			throw new DeploymentException("failed to build service descriptor",e);
 		}
