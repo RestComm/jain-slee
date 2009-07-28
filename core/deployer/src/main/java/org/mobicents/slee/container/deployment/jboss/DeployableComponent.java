@@ -177,25 +177,34 @@ public class DeployableComponent
         {
           DeployableComponent dc = new DeployableComponent( this );
           
+          dc.componentType = SERVICE_COMPONENT;
+          
           dc.componentID = sd.getServiceID();
           
           dc.componentKey = getComponentIdAsString( dc.componentID );
           
-          dc.componentType = SERVICE_COMPONENT;
-          
-          if( logger.isTraceEnabled() )
+          if( logger.isTraceEnabled() ) {
             logger.trace( "Component ID: " + dc.componentKey );
 
-          String rootSbb = getComponentIdAsString( sd.getRootSbbID() );
-
-          if( logger.isTraceEnabled() )
-          {
             logger.trace( "------------------------------ Dependencies ------------------------------" );
-            logger.trace( rootSbb );
-            logger.trace( "--------------------------- End of Dependencies --------------------------" );
+          }
+          
+          // Get the set of this sbb dependencies
+          Set<ComponentID> serviceDependencies = sd.getDependenciesSet();
+          
+          // Iterate through dependencies set
+          for( ComponentID dependencyId : serviceDependencies )
+          {
+            // Add the dependency
+            dc.dependencies.add( getComponentIdAsString( dependencyId ) );
+            
+            if( logger.isTraceEnabled() )
+              logger.trace( getComponentIdAsString( dependencyId ) );
           }
 
-          dc.dependencies.add( rootSbb );
+          if( logger.isTraceEnabled() ) {
+            logger.trace( "--------------------------- End of Dependencies --------------------------" );
+          }
           
           dc.installActions.add( new Object[] {"activate", dc.componentID} );
 
