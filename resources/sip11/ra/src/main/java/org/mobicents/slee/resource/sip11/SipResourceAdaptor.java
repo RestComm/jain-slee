@@ -47,6 +47,8 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
+import javax.slee.SLEEException;
+import javax.slee.TransactionRequiredLocalException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
@@ -60,6 +62,8 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.StartActivityException;
+import javax.slee.transaction.SleeTransaction;
+import javax.slee.transaction.SleeTransactionManager;
 
 import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
@@ -381,67 +385,88 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 		DialogWrapper DW = null;
 		boolean inDialog = false;
 
-		if (st.getDialog() != null) {
+		final SleeTransactionManager txManager = raContext.getSleeTransactionManager();
 
-			// TODO: add check for fork?
+		boolean terminateTx = false;
+		try {
+			txManager.begin();
+			terminateTx = true;
 
-			Dialog d = st.getDialog();
+			if (st.getDialog() != null) {
 
-			if (d.getApplicationData() != null
-					&& d.getApplicationData() instanceof DialogActivity) {
-				DW = (DialogWrapper) d.getApplicationData();
-				inDialog = true;
-				SAH = DW.getActivityHandle();
-				DW.addOngoingTransaction(STW);
-			} else {
-				if (log.isDebugEnabled()) {
-					log
-							.debug("Dialog ["
-									+ d
-									+ "] exists, but no wrapper is present. Delivering event on TX");
-				}
-				inDialog = false;
-				SAH = STW.getActivityHandle();
-			}
+				// TODO: add check for fork?
 
-		} else {
-			// This means that ST is activity
-			SAH = STW.getActivityHandle();
-			if (activities.get(SAH) == null) {
-				try {
-					addActivity(SAH, STW);
-				} catch (Throwable e) {
-					log.error(e.getMessage(),e);
-					try {
-						st.sendResponse(providerProxy.getMessageFactory().createResponse(Response.SERVER_INTERNAL_ERROR, req.getRequest()));
-					} catch (Throwable e1) {
-						log.error(e.getMessage(),e);
+				Dialog d = st.getDialog();
+
+				if (d.getApplicationData() != null
+						&& d.getApplicationData() instanceof DialogActivity) {
+					DW = (DialogWrapper) d.getApplicationData();
+					inDialog = true;
+					SAH = DW.getActivityHandle();
+					DW.addOngoingTransaction(STW);
+				} else {
+					if (log.isDebugEnabled()) {
+						log
+						.debug("Dialog ["
+								+ d
+								+ "] exists, but no wrapper is present. Delivering event on TX");
 					}
-					return;
+					inDialog = false;
+					SAH = STW.getActivityHandle();
+				}
+
+			} else {
+				// This means that ST is activity
+				SAH = STW.getActivityHandle();
+				if (activities.get(SAH) == null) {
+					if (!addActivity(SAH, STW)) {
+						sendErrorResponse(req.getServerTransaction(), req.getRequest(),
+								Response.SERVER_INTERNAL_ERROR,
+						"Failed to deliver request event to JAIN SLEE container");
+						terminateTx = false;
+						txManager.rollback();
+						return;
+					}
 				}
 			}
-		}
 
-		RequestEventWrapper REW = new RequestEventWrapper(this.providerProxy,
-				STW, DW, req.getRequest());
+			RequestEventWrapper REW = new RequestEventWrapper(this.providerProxy,
+					STW, DW, req.getRequest());
 
-		if (!fireEvent(REW, SAH, eventIdCache.getEventId(raContext.getEventLookupFacility(), REW
-				.getRequest(), inDialog), new Address(AddressPlan.SIP,
-				((ToHeader) req.getRequest().getHeader(ToHeader.NAME))
-						.getAddress().toString()),false)) {
-			if (!inDialog) {
-				// since the activity would be created only in slee with a sucessfull
-				// event firing then remove it from the map (was added by provider) here
-				activities.remove(STW.getActivityHandle());
-				STW.cleanup();
+			if (!fireEvent(REW, SAH, eventIdCache.getEventId(raContext.getEventLookupFacility(), REW
+					.getRequest(), inDialog), new Address(AddressPlan.SIP,
+							((ToHeader) req.getRequest().getHeader(ToHeader.NAME))
+							.getAddress().toString()),true)) {
+				if (!inDialog) {
+					// since the activity would be created only in slee with a sucessfull
+					// event firing then remove it from the map (was added by provider) here
+					activities.remove(STW.getActivityHandle());
+					STW.cleanup();
+				}
+				sendErrorResponse(req.getServerTransaction(), req.getRequest(),
+						Response.SERVER_INTERNAL_ERROR,
+				"Failed to deliver request event to JAIN SLEE container");
+				terminateTx = false;
+				txManager.rollback();
+				return;
 			}
-			sendErrorResponse(req.getServerTransaction(), req.getRequest(),
-					Response.SERVER_INTERNAL_ERROR,
-					"Failed to deliver request event to JAIN SLEE container");
+			else if (!inDialog && STW.getWrappedTransaction() instanceof ACKDummyTransaction) {
+				processTransactionTerminated(new TransactionTerminatedEventWrapper(this.providerProxy,
+						(ServerTransaction) STW.getWrappedTransaction()));
+			}
+			terminateTx = false;
+			txManager.commit();			
 		}
-		else if (!inDialog && STW.getWrappedTransaction() instanceof ACKDummyTransaction) {
-			processTransactionTerminated(new TransactionTerminatedEventWrapper(this.providerProxy,
-					(ServerTransaction) STW.getWrappedTransaction()));
+		catch (Throwable e) {
+			log.error(e.getMessage(),e);
+			if (terminateTx) {
+				try {
+					txManager.rollback();
+				}
+				catch (Throwable f) {
+					log.error(f.getMessage(),f);
+				}
+			}
 		}
 		
 	}
@@ -598,7 +623,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 	public void processTimeout(TimeoutEvent arg0) {
 
 		Transaction t = null;
-		WrapperSuperInterface wsi = null;
 
 		boolean dialogPresent = false;
 		SipActivityHandle handleToFire = null;
@@ -638,7 +662,6 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 									.getTimeout());
 					ClientTransactionWrapper ctw = (ClientTransactionWrapper) t
 							.getApplicationData();
-					wsi = ctw;
 					// method = ctw.getRequest().getMethod();
 					if (ctw.getDialog() != null
 							&& ctw.getDialog() instanceof DialogWrapper) {
@@ -657,7 +680,12 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 				t = arg0.getServerTransaction();
 				ServerTransactionWrapper stw = (ServerTransactionWrapper) t
 						.getApplicationData();
-				wsi = (WrapperSuperInterface) t.getApplicationData();
+				if (stw == null) {
+					log
+							.error("FAILURE on processTimeout - STX. Wrong app data["
+									+ t.getApplicationData() + "]");
+					return;
+				}
 				// method = stw.getRequest().getMethod();
 				if ((stw.getDialog()) != null
 						&& stw.getDialog() instanceof DialogWrapper) {
@@ -797,7 +825,7 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 		return false;
 	}
 	
-	public void addActivity(SipActivityHandle sah,
+	public boolean addActivity(SipActivityHandle sah,
 			WrapperSuperInterface wrapperActivity) {
 
 		if (log.isDebugEnabled()) {
@@ -805,15 +833,14 @@ public class SipResourceAdaptor implements SipListener, ResourceAdaptor {
 		}
 
 		try {
-			raContext.getSleeEndpoint().startActivity(sah,wrapperActivity,ACTIVITY_FLAGS);
-			activities.put(sah, wrapperActivity);
-		} catch (ActivityAlreadyExistsException e) {
+			raContext.getSleeEndpoint().startActivityTransacted(sah,wrapperActivity,ACTIVITY_FLAGS);
+		}
+		catch (Throwable e) {
 			log.error(e.getMessage(),e);
-		} catch (StartActivityException e) {
-			log.error(e.getMessage(),e);
-		} 
-		// note: letting the runtime exceptions from startactivity to be thrown	
-		
+			return false;
+		}
+		activities.put(sah, wrapperActivity);
+		return true;
 	}
 
 	public void removeActivity(SipActivityHandle sah) {

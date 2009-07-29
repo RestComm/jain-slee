@@ -22,21 +22,17 @@ import javax.slee.resource.ActivityHandle;
  * 
  * @author F.Moggia
  */
-public class SipActivityHandle implements ActivityHandle,
-		Comparable<SipActivityHandle> {
+public class SipActivityHandle implements ActivityHandle {
 	
-	private String id;
+	private final String id;
 	
 	public SipActivityHandle(String id) {
-		if (id == null) {
-			throw new NullPointerException("null sip activity handle id");
-		}
 		this.id = id;
 	}
 
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return this.toString().equals(obj.toString());
+			return this.id.equals(((SipActivityHandle)obj).id);
 		} else
 			return false;
 	}
@@ -46,14 +42,7 @@ public class SipActivityHandle implements ActivityHandle,
 	}
 
 	public String toString() {
-		return this.id;
-	}
-
-	public int compareTo(SipActivityHandle o) {
-		if (o == null)
-			return 1;
-		else
-			return this.id.compareTo(o.id);
+		return id;
 	}
 
 	public String getID() {
