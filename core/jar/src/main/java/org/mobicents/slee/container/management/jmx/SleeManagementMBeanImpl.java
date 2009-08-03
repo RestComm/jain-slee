@@ -535,15 +535,15 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
 					.getAllActivityContextsHandles()) {
-				if (handle.getActivityType() == ActivityType.serviceActivity
-						|| handle.getActivityType() == ActivityType.profileTableActivity) {
+				if (handle.getActivityType() == ActivityType.SERVICE
+						|| handle.getActivityType() == ActivityType.PTABLE) {
 					try {
 						if (logger.isDebugEnabled()) {
 							logger.debug("Ending activity " + handle);
 						}
 						ActivityContext ac = sleeContainer
 								.getActivityContextFactory()
-								.getActivityContext(handle, false);
+								.getActivityContext(handle);
 						if (ac != null) {
 							ac.endActivity();
 						}
@@ -589,8 +589,8 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 				for (ActivityContextHandle handle : sleeContainer
 						.getActivityContextFactory()
 						.getAllActivityContextsHandles()) {
-					if (handle.getActivityType() == ActivityType.serviceActivity
-							|| handle.getActivityType() == ActivityType.profileTableActivity) {
+					if (handle.getActivityType() == ActivityType.SERVICE
+							|| handle.getActivityType() == ActivityType.PTABLE) {
 						logger.info("Waiting for activity "+handle+" to end...");
 						loop = true;
 						break;

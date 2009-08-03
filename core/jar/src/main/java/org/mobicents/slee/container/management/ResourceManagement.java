@@ -2,6 +2,7 @@ package org.mobicents.slee.container.management;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -452,11 +453,8 @@ public class ResourceManagement {
 		}
 
 		synchronized (sleeContainer.getManagementMonitor()) {
-			SbbID[] boundSbbs = getBoundSbbs(linkName);
-			if (boundSbbs.length > 0) {
-				throw new DependencyException(linkName
-						+ " link name is still referenced by sbbs "
-						+ Arrays.asList(boundSbbs));
+			if (sleeContainer.getServiceManagement().isRAEntityLinkNameReferenced(linkName)) {
+				throw new DependencyException(linkName + " link name is still used by sbbs");
 			} else {
 				this.resourceAdaptorEntityLinks.remove(linkName);
 				logger.info("Unbound RA Entity Link " + linkName);
@@ -498,10 +496,11 @@ public class ResourceManagement {
 	 * @see ResourceManagementMBean#getLinkNames()
 	 */
 	public String[] getLinkNames() {
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Getting RA link names");
 		}
-		String[] linkNames = resourceAdaptorEntityLinks.keySet().toArray(
+		String[] linkNames = getLinkNamesSet().toArray(
 				new String[0]);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Got RA link names : " + Arrays.asList(linkNames));
@@ -510,6 +509,14 @@ public class ResourceManagement {
 
 	}
 
+	/**
+	 * Retrieves a copy of the current set of ra entity links
+	 * @return
+	 */
+	public Set<String> getLinkNamesSet() {
+		return Collections.unmodifiableSet(resourceAdaptorEntityLinks.keySet());
+	}
+	
 	/**
 	 * @see ResourceManagementMBean#getLinkNames(String)
 	 */

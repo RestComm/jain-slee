@@ -25,7 +25,7 @@ public class ActivityContextCacheData extends CacheData {
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
 	 */
-	private final static Fqn parentNodeFqn = Fqn.fromElements("ac");
+	public final static Fqn parentNodeFqn = Fqn.fromElements("ac");
 
 	// --- child cache nodes naming
 
@@ -50,11 +50,11 @@ public class ActivityContextCacheData extends CacheData {
 
 	/**
 	 * 
-	 * @param activityContextId
+	 * @param activityContextHandle
 	 */
-	protected ActivityContextCacheData(String activityContextId,
+	protected ActivityContextCacheData(Object activityContextHandle,
 			Cache jBossCache) {
-		super(Fqn.fromRelativeElements(parentNodeFqn, activityContextId),
+		super(Fqn.fromRelativeElements(parentNodeFqn, activityContextHandle),
 				jBossCache);
 	}
 
@@ -90,8 +90,9 @@ public class ActivityContextCacheData extends CacheData {
 	}
 
 	public boolean isEnding() {
-		return getNode().getChild(IS_ENDING_FQN) != null;
+		return getNode().hasChild(IS_ENDING_FQN);
 	}
+	
 	
 	public boolean setEnding(boolean value) {
 		if (value) {
@@ -115,7 +116,7 @@ public class ActivityContextCacheData extends CacheData {
 	}
 	
 	public boolean isCheckingReferences() {
-		return getNode().getChild(IS_CHECKING_REFS_FQN) != null;
+		return getNode().hasChild(IS_CHECKING_REFS_FQN);
 	}
 	
 	public boolean setCheckingReferences(boolean value) {
@@ -178,7 +179,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noSbbEntitiesAttached() {
 		Node childNode = getNode().getChild(ATTACHED_SBBs_FQN);
-		if (childNode == null || childNode.getChildren().size() == 0) {
+		if (childNode == null || childNode.getChildrenNames().size() == 0) {
 			return true;
 		} else {
 			return false;
@@ -186,22 +187,17 @@ public class ActivityContextCacheData extends CacheData {
 	}
 
 	/**
-	 * Builds an identity map from all sbb entities attached.
+	 * Return a set with all sbb entities attached.
 	 * 
 	 * @return
 	 */
-	public Map getSbbEntitiesAttachedCopy() {
-		Map result = null;
+	public Set getSbbEntitiesAttached() {
+		Set result = null;
 		Node childNode = getNode().getChild(ATTACHED_SBBs_FQN);
 		if (childNode == null) {
-			result = Collections.EMPTY_MAP;
+			result = Collections.EMPTY_SET;
 		} else {
-			result = new HashMap();
-			for (Object obj : childNode.getChildren()) {
-				Node cmpNode = (Node) obj;
-				Object sbbEntityId = cmpNode.getFqn().getLastElement();
-				result.put(sbbEntityId, sbbEntityId);
-			}
+			result = childNode.getChildrenNames();
 		}
 		return result;
 	}
@@ -237,7 +233,7 @@ public class ActivityContextCacheData extends CacheData {
 	 */
 	public boolean noTimersAttached() {
 		Node childNode = getNode().getChild(ATTACHED_TIMERS_FQN);
-		if (childNode == null || childNode.getChildren().size() == 0) {
+		if (childNode == null || childNode.getChildrenNames().size() == 0) {
 			return true;
 		} else {
 			return false;
@@ -255,11 +251,7 @@ public class ActivityContextCacheData extends CacheData {
 		if (childNode == null) {
 			result = Collections.EMPTY_SET;
 		} else {
-			result = new HashSet();
-			for (Object obj : childNode.getChildren()) {
-				Node cmpNode = (Node) obj;
-				result.add(cmpNode.getFqn().getLastElement());
-			}
+			result = new HashSet(childNode.getChildrenNames());			
 		}
 		return result;
 	}
@@ -312,11 +304,7 @@ public class ActivityContextCacheData extends CacheData {
 		if (childNode == null) {
 			result = Collections.EMPTY_SET;
 		} else {
-			result = new HashSet();
-			for (Object obj : childNode.getChildren()) {
-				Node cmpNode = (Node) obj;
-				result.add(cmpNode.getFqn().getLastElement());
-			}
+			result = new HashSet(childNode.getChildrenNames());
 		}
 		return result;
 	}
@@ -365,8 +353,9 @@ public class ActivityContextCacheData extends CacheData {
 			result = Collections.EMPTY_MAP;
 		} else {
 			result = new HashMap();
+			Node cmpNode = null;
 			for (Object obj : cmpsNode.getChildren()) {
-				Node cmpNode = (Node) obj;
+				cmpNode = (Node) obj;
 				result.put(cmpNode.getFqn().getLastElement(), cmpNode
 						.get(CMP_ATTRIBUTES_NODE_MAP_KEY));
 			}

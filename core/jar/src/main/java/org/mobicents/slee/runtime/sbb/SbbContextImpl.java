@@ -36,6 +36,7 @@ import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -116,14 +117,14 @@ public class SbbContextImpl implements SbbContext, Serializable {
 			throw new IllegalStateException("Cannot call SbbContext getActivities in " + this.sbbObject.getState());
 		}
 		Set activities = sbbObject.getSbbEntity().getActivityContexts();
-		Object[] activityContextIds = activities.toArray();
-		ActivityContextInterface[] aci = new ActivityContextInterface[activityContextIds.length];
+		Object[] activityContextHandles = activities.toArray();
+		ActivityContextInterface[] aci = new ActivityContextInterface[activityContextHandles.length];
 		if (logger.isDebugEnabled()) {
-			logger.debug("The Sbb is attached to " + activityContextIds.length + "activities");
+			logger.debug("The Sbb is attached to " + activityContextHandles.length + "activities");
 		}
 		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
-		for (int i = 0; i < activityContextIds.length; i++) {
-			ActivityContext ac = acf.getActivityContext((String) activityContextIds[i], true);
+		for (int i = 0; i < activityContextHandles.length; i++) {
+			ActivityContext ac = acf.getActivityContext((ActivityContextHandle) activityContextHandles[i]);
 			aci[i] = new ActivityContextInterfaceImpl(ac);
 		}
 		return aci;
@@ -139,11 +140,11 @@ public class SbbContextImpl implements SbbContext, Serializable {
 			throw new IllegalStateException("Wrong state! SbbEntity is not assigned");
 		}
 		sleeContainer.getTransactionManager().mandateTransaction();
-		String acId = ((ActivityContextInterfaceImpl) aci).getActivityContext().getActivityContextId();
-		if (!sbbObject.getSbbEntity().isAttached(acId))
+		ActivityContextHandle ach = ((ActivityContextInterfaceImpl) aci).getActivityContext().getActivityContextHandle();
+		if (!sbbObject.getSbbEntity().isAttached(ach))
 			throw new NotAttachedException("ACI not attached to SBB");
 
-		return sbbObject.getSbbEntity().getEventMask(acId);
+		return sbbObject.getSbbEntity().getEventMask(ach);
 	}
 
 	public boolean getRollbackOnly() throws TransactionRequiredLocalException, SLEEException {
@@ -199,11 +200,11 @@ public class SbbContextImpl implements SbbContext, Serializable {
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
-		String acId = ((ActivityContextInterfaceImpl) aci).getActivityContext().getActivityContextId();
+		ActivityContextHandle ach = ((ActivityContextInterfaceImpl) aci).getActivityContext().getActivityContextHandle();
 
-		if (!sbbObject.getSbbEntity().isAttached(acId))
+		if (!sbbObject.getSbbEntity().isAttached(ach))
 			throw new NotAttachedException("ACI is not attached to SBB ");
-		sbbObject.getSbbEntity().setEventMask(acId, eventNames);
+		sbbObject.getSbbEntity().setEventMask(ach, eventNames);
 
 	}
 

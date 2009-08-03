@@ -112,12 +112,12 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 			ActivityContextHandle ach = ActivityContextHandlerFactory
 					.createNullActivityContextHandle(nullActivityHandle);
 			ActivityContext ac = sleeContainer.getActivityContextFactory()
-					.getActivityContext(ach, false);
+					.getActivityContext(ach);
 			if (ac == null) {
 				sleeContainer.getNullActivityFactory().createNullActivityImpl(
 						nullActivityHandle, false);
 				ac = sleeContainer.getActivityContextFactory()
-						.getActivityContext(ach, false);
+						.getActivityContext(ach);
 				if (ac == null) {
 					throw new SLEEException(
 							"unable to create null ac for external activity handle "

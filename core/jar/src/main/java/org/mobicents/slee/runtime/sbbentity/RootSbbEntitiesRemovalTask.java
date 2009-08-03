@@ -10,13 +10,13 @@ import java.util.concurrent.Executors;
 
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
-import javax.transaction.SystemException;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.eventrouter.EventRouterActivity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
@@ -143,21 +143,21 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 						// detach the entity from activities using the activities executor service
 						for (Object obj : attachedACs) {
 
-							final String acId = (String) obj;
+							final ActivityContextHandle ach = (ActivityContextHandle) obj;
 
 							try {
-								EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(acId);
+								EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(ach);
 								if (era != null) {
 
 									Runnable r = new Runnable() {
 										public void run() {
 											try {
 												sleeTransactionManager.begin();
-												ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(acId,false);
+												ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
 												if (ac != null) {
 													ac.detachSbbEntity(sbbEntityId);
 													if (logger.isDebugEnabled()) {
-														logger.debug("sbb entity "+sbbEntityId+" is now detached from AC "+acId);
+														logger.debug("sbb entity "+sbbEntityId+" is now detached from AC "+ach);
 													}
 												}												
 											}

@@ -7,7 +7,6 @@ import javax.slee.nullactivity.NullActivity;
 
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
-import org.jboss.cache.Node;
 
 /**
  * 
@@ -62,10 +61,6 @@ public class NullActivityFactoryCacheData extends CacheData {
 	 * @return
 	 */
 	public Set<String> getNullActivityIds() {
-		Set<String> result = new HashSet<String>();
-		for (Object obj : getNode().getChildren()) {
-			result.add(((Node) obj).getFqn().getLastElementAsString());
-		}
-		return result;
+		return new HashSet<String>(getNode().getChildrenNames());		
 	}
 }

@@ -95,8 +95,8 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			logger
 					.debug("ActivityContextInterface.attach(): ACI attach Called for "
 							+ sbbLocalObject
-							+ " ACID = "
-							+ getActivityContext().getActivityContextId()
+							+ " AC = "
+							+ getActivityContext()
 							+ " SbbEntityId "
 							+ sbbeId);
 		}
@@ -110,7 +110,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 					setRollbackAndThrowException = true;
 				} else {
 					// attach entity from ac
-					sbbEntity.afterACAttach(getActivityContext().getActivityContextId());
+					sbbEntity.afterACAttach(getActivityContext().getActivityContextHandle());
 				}
 			} catch (Exception e) {
 				setRollbackAndThrowException = true;
@@ -136,14 +136,14 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			//        		The SLEE delivers the event to an SBB entity that stays attached once. The SLEE may deliver the
 			//        		event to the same SBB entity more than once if it has been detached and then re -attached. 
 			EventContextImpl eventContextImpl = sleeContainer.getEventRouter().getEventRouterActivity(
-					getActivityContext().getActivityContextId()).getCurrentEventContext();
+					getActivityContext().getActivityContextHandle()).getCurrentEventContext();
 			if (eventContextImpl != null && eventContextImpl.getSbbEntitiesThatHandledEvent().remove(sbbeId)) {
 				if (logger.isDebugEnabled()) {
 					logger
 							.debug("Removed the SBB Entity ["
 									+ sbbeId
 									+ "] from the delivered set of activity context ["
-									+ getActivityContext().getActivityContextId()
+									+ getActivityContext().getActivityContextHandle()
 									+ "]. Seems to be a reattachment after detachment in the same event delivery transaction. See JSLEE 1.0 Spec, Section 8.5.8.");
 				}
 			}
@@ -161,7 +161,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			TransactionRolledbackLocalException, SLEEException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("ACI detach called for : " + sbbLocalObject + " AC = "
-					+ getActivityContext().getActivityContextId());
+					+ getActivityContext().getActivityContextHandle());
 		}
 
 		if (sbbLocalObject == null)
@@ -184,7 +184,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 				setRollbackAndThrowException = true;
 			} else {
 				// detach entity from ac
-				sbbEntity.afterACDetach(getActivityContext().getActivityContextId());
+				sbbEntity.afterACDetach(getActivityContext().getActivityContextHandle());
 			}
 		} catch (Exception e) {
 			setRollbackAndThrowException = true;
@@ -250,7 +250,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl) sbbLocalObject;
 			SbbEntity sbbEntity = sbbLocalObjectImpl.getSbbEntity();
 			if (sbbEntity != null && !sbbEntity.isRemoved()) {				
-				return sbbEntity.isAttached(activityContext.getActivityContextId());
+				return sbbEntity.isAttached(activityContext.getActivityContextHandle());
 			}
 		}
 		

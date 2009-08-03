@@ -45,17 +45,9 @@ public class NextSbbEntityFinder {
 		SbbEntity sbbEntity = null;
 
 		// get the highest priority sbb from sbb entities attached to AC
-		for (Iterator iter = ac.getSortedCopyOfSbbAttachmentSet().iterator(); iter
+		for (Iterator iter = ac.getSortedSbbAttachmentSet(sbbEntitiesThatHandledCurrentEvent).iterator(); iter
 				.hasNext();) {
 			sbbEntityId = (String) iter.next();
-			// check sbb entity is not on the delivery set
-			if (sbbEntitiesThatHandledCurrentEvent.contains(sbbEntityId)) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Already delivered event to sbbEntityId "
-							+ sbbEntityId + ", skipping...");
-				}
-				continue;
-			}
 			try {
 				sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
 				if (service != null && !service.equals(sbbEntity.getServiceId())) {

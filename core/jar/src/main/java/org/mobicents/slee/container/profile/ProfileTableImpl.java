@@ -750,7 +750,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * @return
 	 */
 	public ActivityContext getActivityContext() {
-		return sleeContainer.getActivityContextFactory().getActivityContext(getActivityContextHandle(), false);
+		return sleeContainer.getActivityContextFactory().getActivityContext(getActivityContextHandle());
 	}
 	
 	/**

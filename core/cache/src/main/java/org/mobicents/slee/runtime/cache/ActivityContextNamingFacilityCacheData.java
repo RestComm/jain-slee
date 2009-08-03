@@ -41,19 +41,19 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	}
 
 	/**
-	 * Binds the specified aci name with the specified activity context id
-	 * @param acId
+	 * Binds the specified aci name with the specified activity context handle
+	 * @param ach
 	 * @param name
 	 * @throws NameAlreadyBoundException
 	 */
-	public void bindName(String acId, String name)
+	public void bindName(Object ach, String name)
 			throws NameAlreadyBoundException {
 		Node node = getNode();
 		Fqn childNodeFqn = Fqn.fromElements(name);
 		if (node.hasChild(childNodeFqn)) {
 			throw new NameAlreadyBoundException("name already bound");
 		} else {
-			node.addChild(childNodeFqn).put(CACHE_NODE_MAP_KEY, acId);
+			node.addChild(childNodeFqn).put(CACHE_NODE_MAP_KEY, ach);
 		}
 	}
 
@@ -63,16 +63,16 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @return
 	 * @throws NameNotBoundException
 	 */
-	public String unbindName(String name) throws NameNotBoundException {
+	public Object unbindName(String name) throws NameNotBoundException {
 		Node node = getNode();
 		Fqn childNodeFqn = Fqn.fromElements(name);
 		Node childNode = node.getChild(childNodeFqn);
 		if (childNode == null) {
 			throw new NameNotBoundException("name not bound");
 		} else {
-			String acId = (String) childNode.get(CACHE_NODE_MAP_KEY);
+			Object ach = childNode.get(CACHE_NODE_MAP_KEY);
 			node.removeChild(childNodeFqn);
-			return acId;
+			return ach;
 		}
 	}
 
@@ -81,25 +81,27 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @param name
 	 * @return
 	 */
-	public String lookupName(String name) {
+	public Object lookupName(String name) {
 		Node childNode = getNode().getChild(Fqn.fromElements(name));
 		if (childNode == null) {
 			return null;
 		} else {
-			return (String) childNode.get(CACHE_NODE_MAP_KEY);
+			return childNode.get(CACHE_NODE_MAP_KEY);
 		}
 	}
 
 	/**
-	 * Retrieves a map of the bindings. Key is the aci name and Value is the activity context id
+	 * Retrieves a map of the bindings. Key is the aci name and Value is the activity context handle
 	 * @return
 	 */
 	public Map getNameBindings() {
 
 		Map result = new HashMap();
+		Node childNode = null;
+		Object key = null;
 		for (Object obj : getNode().getChildren()) {
-			Node childNode = (Node) obj;
-			Object key = childNode.getFqn().getLastElement();
+			childNode = (Node) obj;
+			key = childNode.getFqn().getLastElement();
 			result.put(key, childNode.get(key));
 		}
 		return result;

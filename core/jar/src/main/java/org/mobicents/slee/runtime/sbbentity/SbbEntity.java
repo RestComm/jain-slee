@@ -37,6 +37,7 @@ import org.mobicents.slee.container.profile.ProfileLocalObjectImpl;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.cache.SbbEntityCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
@@ -109,6 +110,7 @@ public class SbbEntity {
 		setSbbId(sbbID);
 		setServiceId(svcId);
 		setServiceConvergenceName(convergenceName);
+		setCreationDate();
 
 		this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
 				getServiceId(), getSbbId());
@@ -124,6 +126,14 @@ public class SbbEntity {
 			throw new RuntimeException(s);
 		}
 
+	}
+
+	private void setCreationDate() {
+		cacheData.setCreationDate(Long.valueOf(System.nanoTime()));
+	}
+	
+	public Long getCreationDate() {
+		return cacheData.getCreationDate();
 	}
 
 	/**
@@ -236,7 +246,7 @@ public class SbbEntity {
 			case aci:
 				final ActivityContext ac = sleeContainer
 						.getActivityContextFactory().getActivityContext(
-								(String) cmpWrapper.getValue(), true);
+								(ActivityContextHandle) cmpWrapper.getValue());
 				if (ac != null) {
 					return new ActivityContextInterfaceImpl(ac);
 				} else {
@@ -248,7 +258,7 @@ public class SbbEntity {
 						.getValue();
 				final EventRouterActivity eventRouterActivity = sleeContainer
 						.getEventRouter().getEventRouterActivity(
-								eventContextID.getActivityContextID());
+								eventContextID.getActivityContextHandle());
 				if (eventRouterActivity != null) {
 					EventContextImpl eventContextImpl = eventRouterActivity
 							.getCurrentEventContext();
@@ -351,7 +361,7 @@ public class SbbEntity {
 						+ ") is an unknown ActivityContextInterface implementation");
 			}
 			cmpType = CmpType.aci;
-			cmpValue = activityContextInterfaceImpl.getActivityContext().getActivityContextId();
+			cmpValue = activityContextInterfaceImpl.getActivityContext().getActivityContextHandle();
 		} else if (object instanceof EventContext) {
 			EventContextImpl eventContextImpl = null;
 			try {
@@ -383,7 +393,7 @@ public class SbbEntity {
 		cacheData.setCmpField(cmpFieldName, cmpWrapper);
 	}
 
-	public void afterACAttach(String acId) {
+	public void afterACAttach(ActivityContextHandle ach) {
 
 		// add event mask entry
 		Collection<MEventEntry> mEventEntries = sbbComponent.getDescriptor()
@@ -399,31 +409,31 @@ public class SbbEntity {
 			}
 		}
 		// add to cache
-		cacheData.attachActivityContext(acId);
-		cacheData.updateEventMask(acId, maskedEvents);
+		cacheData.attachActivityContext(ach);
+		cacheData.updateEventMask(ach, maskedEvents);
 
 		if (log.isDebugEnabled()) {
-			log.debug("attached sbb entity " + sbbeId + " to ac " + acId
+			log.debug("attached sbb entity " + sbbeId + " to ac " + ach
 					+ " , events added to current mask " + maskedEvents);
 		}
 	}
 
-	public void afterACDetach(String acId) {
+	public void afterACDetach(ActivityContextHandle ach) {
 
 		// remove from cache
-		cacheData.detachActivityContext(acId);
+		cacheData.detachActivityContext(ach);
 
 		if (log.isDebugEnabled()) {
-			log.debug("detached sbb entity " + sbbeId + " to ac " + acId);
+			log.debug("detached sbb entity " + sbbeId + " to ac " + ach);
 		}
 	}
 
-	public Set getMaskedEventTypes(String acId) {
+	public Set getMaskedEventTypes(ActivityContextHandle ach) {
 
-		Set eventMaskSet = cacheData.getMaskedEventTypes(acId);
+		Set eventMaskSet = cacheData.getMaskedEventTypes(ach);
 
 		if (log.isDebugEnabled()) {
-			log.debug("event mask for sbb entity " + sbbeId + " and ac " + acId
+			log.debug("event mask for sbb entity " + sbbeId + " and ac " + ach
 					+ " --> " + eventMaskSet);
 		}
 
@@ -434,7 +444,7 @@ public class SbbEntity {
 		}
 	}
 
-	public void setEventMask(String acId, String[] eventMask)
+	public void setEventMask(ActivityContextHandle ach, String[] eventMask)
 			throws UnrecognizedEventException {
 
 		HashSet<EventTypeID> maskedEvents = new HashSet<EventTypeID>();
@@ -462,11 +472,11 @@ public class SbbEntity {
 			}
 		}
 
-		cacheData.setEventMask(acId, maskedEvents);
+		cacheData.setEventMask(ach, maskedEvents);
 
 		if (log.isDebugEnabled()) {
 			log.debug("set event mask " + maskedEvents + " for sbb entity "
-					+ sbbeId + " and ac " + acId);
+					+ sbbeId + " and ac " + ach);
 		}
 	}
 
@@ -477,13 +487,13 @@ public class SbbEntity {
 
 	private static final String[] emptyStringArray = {};
 
-	public String[] getEventMask(String acId) {
+	public String[] getEventMask(ActivityContextHandle ach) {
 
-		Set maskedEvents = (Set) cacheData.getMaskedEventTypes(acId);
+		Set maskedEvents = (Set) cacheData.getMaskedEventTypes(ach);
 
 		if (log.isDebugEnabled()) {
 			log.debug("set event mask " + maskedEvents + " for sbb entity "
-					+ sbbeId + " and ac " + acId);
+					+ sbbeId + " and ac " + ach);
 		}
 
 		if (maskedEvents == null || maskedEvents.isEmpty()) {
@@ -590,10 +600,9 @@ public class SbbEntity {
 
 		// removes the SBB entity from all Activity Contexts.
 		for (Iterator i = this.getActivityContexts().iterator(); i.hasNext();) {
-			String acId = (String) i.next();
+			ActivityContextHandle ach = (ActivityContextHandle) i.next();
 			// get ac
-			ActivityContext ac = SleeContainer.lookupFromJndi()
-					.getActivityContextFactory().getActivityContext(acId, true);
+			ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
 			// remove the sbb entity from the attachment set.
 			if (ac != null && !ac.isEnding()) {
 				ac.detachSbbEntity(this.sbbeId);
@@ -882,8 +891,8 @@ public class SbbEntity {
 		return this.sbbObject;
 	}
 
-	public boolean isAttached(String acId) {
-		return this.getActivityContexts().contains(acId);
+	public boolean isAttached(ActivityContextHandle ach) {
+		return this.getActivityContexts().contains(ach);
 	}
 
 	public SbbComponent getSbbComponent() {

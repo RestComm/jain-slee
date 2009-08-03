@@ -74,7 +74,7 @@ public class NullActivityImpl implements NullActivity, Serializable {
 
 		sleeContainer.getActivityContextFactory().getActivityContext(
 				ActivityContextHandlerFactory
-						.createNullActivityContextHandle(handle), false)
+						.createNullActivityContextHandle(handle))
 				.endActivity();
 	}
 

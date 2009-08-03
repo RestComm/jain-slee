@@ -112,8 +112,9 @@ public class ServiceCacheData extends CacheData {
 		Node childsNode = getNode().getChild(CHILD_OBJ_FQN);
 		if (childsNode != null) {
 			Set result = new HashSet();
+			Node childNode = null;
 			for (Object obj : childsNode.getChildren()) {
-				Node childNode = (Node) obj;
+				childNode = (Node) obj;
 				result.add(childNode.get(NODE_MAP_KEY_CHILD_SBB_ENTITY_ID));
 			}
 			return result;

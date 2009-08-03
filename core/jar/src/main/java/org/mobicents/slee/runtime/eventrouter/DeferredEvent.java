@@ -25,7 +25,6 @@ public class DeferredEvent {
 	private final SleeContainer sleeContainer;
 	private final EventRouterActivity era;
 	private final EventTypeID eventTypeId;
-	private final String acId;
 	private final ActivityContextHandle ach;
 	private final Object event;
 	private final Address address;
@@ -39,18 +38,10 @@ public class DeferredEvent {
 		this.era = era;
 		this.eventTypeId = eventTypeId;
 		this.event = event;
-		this.acId = ac.getActivityContextId();
 		this.ach = ac.getActivityContextHandle();
 		this.address = address;
 		this.serviceID = serviceID;
 		this.eventFlags = eventFlags;
-	}
-
-	/**
-	 * @return Returns the activity id.
-	 */
-	public String getActivityContextId() {
-		return acId;
 	}
 
 	public ActivityContextHandle getActivityContextHandle() {
@@ -94,7 +85,7 @@ public class DeferredEvent {
 
 	public void eventProcessingSucceed() {
 		if (EventFlags.hasRequestProcessingSuccessfulCallback(eventFlags)
-				&& ach.getActivityType() == ActivityType.externalActivity) {
+				&& ach.getActivityType() == ActivityType.RA) {
 			sleeContainer.getResourceManagement().getResourceAdaptorEntity(
 					ach.getActivitySource()).eventProcessingSucceed(this);
 		}
@@ -102,7 +93,7 @@ public class DeferredEvent {
 
 	public void eventProcessingFailed(FailureReason failureReason) {
 		if (EventFlags.hasRequestProcessingFailedCallback(eventFlags)
-				&& ach.getActivityType() == ActivityType.externalActivity) {
+				&& ach.getActivityType() == ActivityType.RA) {
 			sleeContainer.getResourceManagement().getResourceAdaptorEntity(
 					ach.getActivitySource()).eventProcessingFailed(this,
 					failureReason);
@@ -114,4 +105,10 @@ public class DeferredEvent {
 				ach.getActivitySource()).eventUnreferenced(this);
 		
 	}
+	
+	@Override
+	public String toString() {		
+		return "DeferredEvent[ eventTypeId = "+eventTypeId+" , event = "+event+" , ach = "+ach+" , address = "+address+" , serviceID = "+serviceID+" , eventFlags = "+EventFlags.toString(eventFlags)+" ]";
+	}
+	
 }

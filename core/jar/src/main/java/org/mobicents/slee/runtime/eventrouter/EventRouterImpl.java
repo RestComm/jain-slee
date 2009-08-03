@@ -9,6 +9,7 @@ import javax.slee.management.SleeState;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTask;
 
 /**
@@ -28,7 +29,7 @@ public class EventRouterImpl implements EventRouter {
 	/**
 	 * the {@link EventRouterActivity} objects, which hold all runtime structures related to the activity
 	 */
-	private final ConcurrentHashMap<String, EventRouterActivity> activities = new ConcurrentHashMap<String, EventRouterActivity>();
+	private final ConcurrentHashMap<ActivityContextHandle, EventRouterActivity> activities = new ConcurrentHashMap<ActivityContextHandle, EventRouterActivity>();
 	
 	/**
 	 * The array of {@link ExecutorService}s that are used to route events
@@ -56,7 +57,7 @@ public class EventRouterImpl implements EventRouter {
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Routing event: " + de.getEventTypeId() + " activity context "
-					+ de.getActivityContextId() + " address " + de.getAddress());
+					+ de.getActivityContextHandle() + " address " + de.getAddress());
 		}
 
 		if (container.getSleeState() == SleeState.STOPPED) {
@@ -69,18 +70,18 @@ public class EventRouterImpl implements EventRouter {
 
 	}
 
-	public void activityEnded(String acId) {
-		activities.remove(acId);
+	public void activityEnded(ActivityContextHandle ach) {
+		activities.remove(ach);
 	}
 
-	public void activityStarted(String acId) {
+	public void activityStarted(ActivityContextHandle ach) {
 		PendingAttachementsMonitor pendingAttachementsMonitor = null;
 		if (monitorPendingACAttachements) {
 			pendingAttachementsMonitor = new PendingAttachementsMonitor();
 		}
-		EventRouterActivity era = new EventRouterActivity(acId,pendingAttachementsMonitor,container);
-		if (activities.putIfAbsent(acId,era) == null) {
-			era.setExecutorService(mapExecutor(acId));
+		EventRouterActivity era = new EventRouterActivity(ach,pendingAttachementsMonitor,container);
+		if (activities.putIfAbsent(ach,era) == null) {
+			era.setExecutorService(mapExecutor(ach));
 		}
 	}
 	
@@ -89,15 +90,15 @@ public class EventRouterImpl implements EventRouter {
 	 * 
 	 * @return
 	 */
-	private ExecutorService mapExecutor(String acId) {
+	private ExecutorService mapExecutor(ActivityContextHandle ach) {
 		return executors[activities.size() % executors.length];
 	}
 	
 	@Override
 	public String toString() {
 		return "EventRouter: "
-		+ "\n+-- Number of executors: " + executors.length
-		+ "\n+-- Number of activities: " + activities.size();
+		+ "\n+-- Executors: " + executors.length
+		+ "\n+-- Activities: " + activities.keySet();
 	}
 
 	public void config(int eventExecutorsSize,
@@ -121,8 +122,8 @@ public class EventRouterImpl implements EventRouter {
 		}
 	}
 	
-	public EventRouterActivity getEventRouterActivity(String acId) {		
-		return activities.get(acId);
+	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach) {		
+		return activities.get(ach);
 	}
 
 	public void resumeEventContext(EventContextImpl eventContextImpl) {

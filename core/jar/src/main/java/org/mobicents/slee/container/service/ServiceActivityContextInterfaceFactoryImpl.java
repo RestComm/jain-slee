@@ -58,7 +58,7 @@ public class ServiceActivityContextInterfaceFactoryImpl implements
 
 		ActivityContextHandle ach = ActivityContextHandlerFactory
 		.createServiceActivityContextHandle(new ServiceActivityHandle(((ServiceActivityImpl) serviceActivityImpl).getServiceID()));
-		ActivityContext ac = SleeContainer.lookupFromJndi().getActivityContextFactory().getActivityContext(ach, false);
+		ActivityContext ac = SleeContainer.lookupFromJndi().getActivityContextFactory().getActivityContext(ach);
 		if (ac == null) {
 			throw new UnrecognizedActivityException(serviceActivityImpl);
 		}

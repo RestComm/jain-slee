@@ -1,14 +1,11 @@
 package org.mobicents.slee.resource;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import javax.slee.SLEEException;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.StartActivityException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -18,9 +15,7 @@ public class SleeEndpointStartActivityNotTransactedExecutor {
 	private final SleeContainer sleeContainer;
 	
 	private final SleeEndpointImpl sleeEndpoint;
-	
-	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	
+		
 	public SleeEndpointStartActivityNotTransactedExecutor(SleeContainer sleeContainer,SleeEndpointImpl sleeEndpoint) {
 		this.sleeContainer = sleeContainer;
 		this.sleeEndpoint = sleeEndpoint;
@@ -59,33 +54,25 @@ public class SleeEndpointStartActivityNotTransactedExecutor {
 			}
 		};
 		
-		boolean runInThisThread = false;
+		Transaction tx = null;
 		try {
-			runInThisThread = txManager.getTransaction() == null;
+			tx = txManager.getTransaction();
+			if (tx != null) {
+				txManager.suspend();
+			}
+			runnable.run();
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
-		
-		if (runInThisThread) {
-			runnable.run();
-		}
-		else {
-			try {
-				executorService.submit(runnable).get();
-			} catch (ExecutionException e) {
-				final Throwable realException = e.getCause();
-				if (realException instanceof StartActivityException) {
-					throw (StartActivityException) realException;
+		finally {
+			if (tx != null) {
+				try {
+					txManager.resume(tx);
 				}
-				else if (realException instanceof SLEEException) {
-					throw (SLEEException) realException;
-				} 
-				else {
+				catch (Throwable e) {
 					throw new SLEEException(e.getMessage(),e);
 				}
-			} catch (Throwable e) {
-				throw new SLEEException(e.getMessage(),e);
-			}			
+			}
 		}
 	}
 	

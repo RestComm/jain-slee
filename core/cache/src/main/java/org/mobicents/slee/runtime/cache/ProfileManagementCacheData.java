@@ -35,23 +35,16 @@ public class ProfileManagementCacheData extends CacheData {
 
   public void add(String profileTableName, Object table)
   {
-    //getNode().addChild(Fqn.fromRelativeElements(parentNodeFqn, profileTableName)).put(profileTableName, table);
     getNode().addChild(Fqn.fromElements(profileTableName)).put(CACHE_NODE_MAP_KEY, table);
   }
 
   public void remove(String profileTableName)
   {
-    //getNode().removeChild(profileTableName);
     getNode().removeChild(Fqn.fromElements(profileTableName));
   }
 
   public Object get(String profileTableName)
   {
-    //if (exists(profileTableName)) {
-    //	return getNode().getChild(profileTableName).get(profileTableName);
-    //} else {
-    //	return null;
-    //}
     Node childNode = getNode().getChild(Fqn.fromElements(profileTableName));
     if (childNode == null)
     {
@@ -65,7 +58,7 @@ public class ProfileManagementCacheData extends CacheData {
 
   public boolean exists(String profileTableName)
   {
-    return getNode().getChild(Fqn.fromElements(profileTableName)) != null;
+    return getNode().hasChild(Fqn.fromElements(profileTableName));
   }
 
   /**
@@ -74,12 +67,7 @@ public class ProfileManagementCacheData extends CacheData {
    * @return
    */
   public Set<String> getProfileTables() {
-    Set<String> result = new HashSet<String>();
-    for (Object obj : getNode().getChildren()) {
-      Node profileTableNode = (Node) obj;
-      result.add(profileTableNode.getFqn().getLastElementAsString());
-    }
-    return result;
+    return new HashSet<String>(getNode().getChildrenNames());
   }
 
 }

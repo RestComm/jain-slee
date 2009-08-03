@@ -16,6 +16,8 @@
 package org.mobicents.slee.container.management;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
@@ -26,6 +28,7 @@ import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
+import javax.slee.management.InvalidLinkNameBindingStateException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.SbbNotification;
 import javax.slee.management.ServiceState;
@@ -155,14 +158,29 @@ public class ServiceManagement {
 		}
 	}
 
+	/**
+	 * Retrieves the set of ra entity link names referenced by the service componen, which do not exist
+	 * @param serviceComponent
+	 */
+	public Set<String> getReferencedRAEntityLinksWhichNotExists(ServiceComponent serviceComponent) {
+		Set<String> result = new HashSet<String>();
+		Set<String> raLinkNames = sleeContainer.getResourceManagement().getLinkNamesSet();
+		for (String raLink : serviceComponent.getResourceAdaptorEntityLinks(componentRepositoryImpl)) {
+			if (!raLinkNames.contains(raLink)) {
+				result.add(raLink);
+			}
+		}
+		return result;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see javax.slee.management.ServiceManagementMBean#activate(javax.slee.ServiceID)
 	 */
 	public void activate(ServiceID serviceID) throws NullPointerException,
-			UnrecognizedServiceException, InvalidStateException,
-			ManagementException {
+	UnrecognizedServiceException, InvalidStateException,
+	InvalidLinkNameBindingStateException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activating " + serviceID);
@@ -191,6 +209,12 @@ public class ServiceManagement {
 							+ " already active");
 				}
 
+				// check sbb ra entity links
+				Set<String> referencedRAEntityLinksWhichNotExists = getReferencedRAEntityLinksWhichNotExists(serviceComponent);
+				if (!referencedRAEntityLinksWhichNotExists.isEmpty()) {
+					throw new InvalidLinkNameBindingStateException(referencedRAEntityLinksWhichNotExists.iterator().next());
+				}
+				
 				// If there was a deactivate before we have sbb entities
 				// pending,
 				// remove those first
@@ -238,13 +262,8 @@ public class ServiceManagement {
 				rb = false;
 				logger.info("Activated " + serviceID);
 								
-			} catch (InvalidStateException ise) {
-				throw ise;
-			} catch (UnrecognizedServiceException use) {
-				throw use;
-			} catch (Exception ex) {
-				throw new ManagementException(
-						"system exception starting service", ex);
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
 			} finally {
 
 				try {
@@ -283,15 +302,9 @@ public class ServiceManagement {
 					throw new InvalidArgumentException(
 							"InvalidArgumentException");
 				}
-		try {
-			for (int i = 0; i < serviceIDs.length; i++) {
-				activate(serviceIDs[i]);
-			}
-		} catch (InvalidStateException ise) {
-			throw ise;
-		} catch (Exception ex) {
-			throw new ManagementException("system exception starting service",
-					ex);
+		
+		for (int i = 0; i < serviceIDs.length; i++) {
+			activate(serviceIDs[i]);
 		}
 	}
 
@@ -752,4 +765,34 @@ public class ServiceManagement {
 		}
 	}
 	
+	/**
+	 * Verifies if the specified ra entity link name is referenced by a non inactive service.
+	 * 
+	 * @param raLinkName
+	 * @return
+	 */
+	public boolean isRAEntityLinkNameReferenced(String raLinkName) {
+		if (raLinkName == null) {
+			throw new NullPointerException("null ra link name");
+		}
+		
+		boolean b = false;
+		try {
+			b = transactionManager.requireTransaction();
+			for (ServiceID serviceID : componentRepositoryImpl.getServiceIDs()) {
+				ServiceComponent serviceComponent = componentRepositoryImpl.getComponentByID(serviceID);
+				Service service = getServiceFromServiceComponent(serviceComponent);
+				if (service.getState() != ServiceState.INACTIVE && serviceComponent.getResourceAdaptorEntityLinks(componentRepositoryImpl).contains(raLinkName)) {
+					return true;
+				}				
+			}
+			return false;
+		} finally {
+			try {
+				transactionManager.requireTransactionEnd(b, false);
+			} catch (Throwable ex) {
+				throw new SLEEException(ex.getMessage(),ex);
+			}
+		}
+	}
 }

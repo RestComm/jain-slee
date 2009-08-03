@@ -322,7 +322,7 @@ public class Service {
 		if (logger.isDebugEnabled()) {
 			logger.debug("ending service activity "+ach);
 		}
-		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,false);
+		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
 		if (ac != null) {
 			ac.endActivity();
 		}

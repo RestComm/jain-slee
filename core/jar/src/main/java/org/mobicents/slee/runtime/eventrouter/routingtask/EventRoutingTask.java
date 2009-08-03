@@ -108,7 +108,7 @@ public class EventRoutingTask implements Runnable {
 			if (eventContextImpl == null) {				
 				if (logger.isDebugEnabled())
 					logger.debug("\n\n\nDelivering event : [[[ eventId "
-							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+							+ de.getEventTypeId() + " on ac "+de.getActivityContextHandle()+"\n");
 				
 				// event context not set, create it 
 				eventContextImpl = new EventContextImpl(de,container);
@@ -128,14 +128,14 @@ public class EventRoutingTask implements Runnable {
 				if (eventContextImpl.isSuspendedNotTransacted()) {
 					if (logger.isDebugEnabled())
 						logger.debug("\n\n\nFreezing (due to suspended context) event delivery : [[[ eventId "
-								+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+								+ de.getEventTypeId() + " on ac "+de.getActivityContextHandle()+"\n");
 					eventContextImpl.barrierEvent(de);
 					return;
 				}
 				else {
 					if (logger.isDebugEnabled())
 						logger.debug("\n\n\nResuming event delivery : [[[ eventId "
-							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+							+ de.getEventTypeId() + " on ac "+de.getActivityContextHandle()+"\n");
 				}
 			}
 			
@@ -183,12 +183,12 @@ public class EventRoutingTask implements Runnable {
 					
 					try {
 					
-						ac = container.getActivityContextFactory().getActivityContext(de.getActivityContextId(),true);
+						ac = container.getActivityContextFactory().getActivityContext(de.getActivityContextHandle());
 
 						try {
 							highestPrioritySbbEntity = nextSbbEntityFinder.next(ac, de.getEventTypeId(), de.getService(), sbbEntitiesThatHandledCurrentEvent);
 						} catch (Exception e) {
-							logger.warn("Failed to find next sbb entity to deliver the event "+de+" in "+ac.getActivityContextId(), e);
+							logger.warn("Failed to find next sbb entity to deliver the event "+de+" in "+ac.getActivityContextHandle(), e);
 							highestPrioritySbbEntity = null;
 						}
 
@@ -204,7 +204,7 @@ public class EventRoutingTask implements Runnable {
 
 							if (logger.isDebugEnabled()) {
 								logger
-										.debug("Highest priority SBB entity, which is attached to the ac "+de.getActivityContextId()+" , to deliver the event: "
+										.debug("Highest priority SBB entity, which is attached to the ac "+de.getActivityContextHandle()+" , to deliver the event: "
 												+ highestPrioritySbbEntity.getSbbEntityId());
 							}
 
@@ -223,7 +223,7 @@ public class EventRoutingTask implements Runnable {
 							sbbObject.sbbLoad();
 
 							// GET AND CHECK EVENT MASK FOR THIS SBB ENTITY
-							Set eventMask = sbbEntity.getMaskedEventTypes(de.getActivityContextId());
+							Set eventMask = sbbEntity.getMaskedEventTypes(de.getActivityContextHandle());
 							if (!eventMask.contains(de.getEventTypeId())) {
 
 								// TIME TO INVOKE THE EVENT HANDLER METHOD
@@ -231,14 +231,14 @@ public class EventRoutingTask implements Runnable {
 								
 								if (logger.isDebugEnabled()) {
 									logger
-											.debug("---> Invoking event handler: ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
+											.debug("---> Invoking event handler: ac="+de.getActivityContextHandle()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
 								}
 								
 								sbbEntity.invokeEventHandler(de,ac,eventContextImpl);
 
 								if (logger.isDebugEnabled()) {
 									logger
-											.debug("<--- Invoked event handler: ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
+											.debug("<--- Invoked event handler: ac="+de.getActivityContextHandle()+" , sbbEntity="+sbbEntity.getSbbEntityId()+" , sbbObject="+sbbObject);
 								}
 								
 								// check to see if the transaction is marked for
@@ -261,9 +261,9 @@ public class EventRoutingTask implements Runnable {
 							if (de.getEventTypeId().equals(ActivityEndEventImpl.EVENT_TYPE_ID)) {
 								if (logger.isDebugEnabled()) {
 									logger
-											.debug("The event is an activity end event, detaching ac="+de.getActivityContextId()+" , sbbEntity="+sbbEntity.getSbbEntityId());
+											.debug("The event is an activity end event, detaching ac="+de.getActivityContextHandle()+" , sbbEntity="+sbbEntity.getSbbEntityId());
 								}
-								highestPrioritySbbEntity.afterACDetach(de.getActivityContextId());
+								highestPrioritySbbEntity.afterACDetach(de.getActivityContextHandle());
 							}
 
 							// CHECK IF WE CAN CLAIM THE ROOT SBB ENTITY
@@ -485,7 +485,7 @@ public class EventRoutingTask implements Runnable {
 				if (eventContextImpl.isSuspendedNotTransacted()) {
 					if (logger.isDebugEnabled())
 						logger.debug("\n\n\nSuspended event delivery : [[[ eventId "
-							+ de.getEventTypeId() + " on ac "+de.getActivityContextId()+"\n");
+							+ de.getEventTypeId() + " on ac "+de.getActivityContextHandle()+"\n");
 					return;
 				}
 				
@@ -502,7 +502,7 @@ public class EventRoutingTask implements Runnable {
 			 */
 
 			if (de.getEventTypeId().equals(ActivityEndEventImpl.EVENT_TYPE_ID)) {
-				activityEndEventPostProcessor.process(de.getActivityContextId(), txMgr, this.container.getActivityContextFactory());
+				activityEndEventPostProcessor.process(de.getActivityContextHandle(), txMgr, this.container.getActivityContextFactory());
 			} else if (de.getEventTypeId().equals(TimerEventImpl.EVENT_TYPE_ID)) {
 				timerEventPostProcessor.process(de,this.container.getTimerFacility());
 			}			
@@ -511,7 +511,7 @@ public class EventRoutingTask implements Runnable {
 			de.getEventRouterActivity().setCurrentEventContext(null);
 			// manage event references
 			DeferredEventReferencesManagement eventReferencesManagement = container.getEventRouter().getDeferredEventReferencesManagement();
-			eventReferencesManagement.eventUnreferencedByActivity(de.getEvent(), de.getActivityContextId());
+			eventReferencesManagement.eventUnreferencedByActivity(de.getEvent(), de.getActivityContextHandle());
 			
 		} catch (Exception e) {
 			logger.error("Unhandled Exception in event router top try", e);

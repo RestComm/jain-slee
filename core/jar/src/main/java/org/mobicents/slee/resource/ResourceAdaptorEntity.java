@@ -366,7 +366,7 @@ public class ResourceAdaptorEntity {
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
 					.getAllActivityContextsHandles()) {
-				if (handle.getActivityType() == ActivityType.externalActivity
+				if (handle.getActivityType() == ActivityType.RA
 						&& handle.getActivitySource().equals(name) && !handle.getActivityHandle().equals(exceptHandle)) {
 					return true;					
 				}

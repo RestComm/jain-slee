@@ -3,6 +3,7 @@ package org.mobicents.slee.runtime.eventrouter;
 import java.io.Serializable;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -21,15 +22,15 @@ public class RollbackDeferredEventAction implements TransactionalAction, Seriali
 	private static final long serialVersionUID = 8427380358783989321L;
 	
 	private final DeferredEvent de;
-	private final String acId; 
+	private final ActivityContextHandle ach; 
 	
-	public RollbackDeferredEventAction(DeferredEvent de, String acId) {
+	public RollbackDeferredEventAction(DeferredEvent de, ActivityContextHandle ach) {
 		this.de = de;
-		this.acId = acId;
+		this.ach = ach;
 	}
 	
 	public void execute() {				
-		sleeContainer.getEventRouter().getEventRouterActivity(acId).getEventQueueManager().rollback(de);						
+		sleeContainer.getEventRouter().getEventRouterActivity(ach).getEventQueueManager().rollback(de);						
 	}
 	
 }

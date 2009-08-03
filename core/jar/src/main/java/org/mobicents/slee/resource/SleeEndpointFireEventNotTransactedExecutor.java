@@ -14,6 +14,7 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -60,43 +61,28 @@ public class SleeEndpointFireEventNotTransactedExecutor {
 					} catch (Throwable e) {
 						throw new SLEEException(e.getMessage(),e);
 					}
-		        }		
-				
+		        }	
 			}
 		};
 		
-		boolean runInThisThread = false;
+		Transaction tx = null;
 		try {
-			runInThisThread = txManager.getTransaction() == null;
+			tx = txManager.getTransaction();
+			if (tx != null) {
+				txManager.suspend();
+			}
+			runnable.run();
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
-		
-		if (runInThisThread) {
-			runnable.run();
-		}
-		else {
-			try {
-				executorService.submit(runnable).get();
-			} catch (ExecutionException e) {
-				final Throwable realException = e.getCause();
-				if (realException instanceof ActivityIsEndingException) {
-					throw (ActivityIsEndingException) realException;
+		finally {
+			if (tx != null) {
+				try {
+					txManager.resume(tx);
 				}
-				else if (realException instanceof FireEventException) {
-					throw (FireEventException) realException;
-				} 
-				else if (realException instanceof UnrecognizedActivityHandleException) {
-					throw (UnrecognizedActivityHandleException) realException;
-				} 
-				else if (realException instanceof SLEEException) {
-					throw (SLEEException) realException;
-				} 
-				else {
+				catch (Throwable e) {
 					throw new SLEEException(e.getMessage(),e);
 				}
-			} catch (Throwable e) {
-				throw new SLEEException(e.getMessage(),e);
 			}
 		}
 	}

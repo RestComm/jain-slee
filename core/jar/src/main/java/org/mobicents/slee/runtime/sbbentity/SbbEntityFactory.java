@@ -72,7 +72,7 @@ public class SbbEntityFactory {
 			String rootSbbEntityId, String convergenceName) {
 
 		try {
-			final String sbbeId = svcId.toString() + ":nonroot:" + genId();
+			final String sbbeId = genId();
 			return _createSbbEntity(sbbeId, sbbId, svcId, parentSbbEntityId,
 					parentChildRelation, rootSbbEntityId, convergenceName);
 		} catch (Throwable ex) {
@@ -93,7 +93,7 @@ public class SbbEntityFactory {
 			String convergenceName) {
 
 		try {
-			final String sbbeId = svcId.toString() + ":root:" + genId();
+			final String sbbeId = genId();
 			return _createSbbEntity(sbbeId, sbbId, svcId, null, null, sbbeId,
 					convergenceName);
 		} catch (Throwable ex) {

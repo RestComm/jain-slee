@@ -1,12 +1,9 @@
 package org.mobicents.slee.runtime.activity;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.Address;
@@ -20,7 +17,7 @@ import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
 import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.service.Service;
@@ -37,8 +34,8 @@ import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
-import org.mobicents.slee.runtime.sbbentity.SbbEntity;
-import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
+import org.mobicents.slee.runtime.sbbentity.SbbEntityComparator;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -56,11 +53,12 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 public class ActivityContext {
 
-	private static final transient SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-	private static final transient Logger logger = Logger.getLogger(ActivityContext.class);
+	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	
+	private static final Logger logger = Logger.getLogger(ActivityContext.class);
 
 	// --- map keys for attributes cached
-	private static final transient String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags"; 
+	private static final String NODE_MAP_KEY_ACTIVITY_FLAGS = "flags"; 
 	
 	/**
 	 * This map contains mappings between acId and Long Objects. Long object represnt  timestamp of last access time to ac. 
@@ -71,63 +69,51 @@ public class ActivityContext {
 	 * acting in multithreaded env we cant be sure if this operation wasnt followed by some update (however tests didnt reveal this situation when trash is left),
 	 * thus here is used WeakHashMap in which entries fade durign time. This is not a problem since ac should be accessed frequently, and if not we consider them old.
 	 */
-	private static ConcurrentHashMap<String, Long> timeStamps = new ConcurrentHashMap<String, Long>(500);
+	private static final ConcurrentHashMap<ActivityContextHandle, Long> timeStamps = new ConcurrentHashMap<ActivityContextHandle, Long>(500);
 	
 	/**
 	 * the handle for this ac
 	 */
-	private ActivityContextHandle activityContextHandle;
-	
-	/**
-	 * the node name for this object in the containers cache
-	 */
-	private String activityContextId;
+	private final ActivityContextHandle activityContextHandle;
 	
 	/**
 	 * the data stored in cache for this ac
 	 */
-	protected ActivityContextCacheData cacheData;
+	protected final ActivityContextCacheData cacheData;
 	
-	private transient SbbEntityFactory sbbEntityFactory;
+	private static final SbbEntityComparator sbbEntityComparator = new SbbEntityComparator();
 
-	private transient SbbEntityComparator sbbEntityComparator;
-
-	public ActivityContext(ActivityContextHandle activityContextHandle, String id, boolean updateAccessTime, Integer activityFlags) {
-
-		assert (activityContextHandle != null) : "activityContextHandle cannot be null";
-
-		this.activityContextHandle = activityContextHandle;
-		this.activityContextId = id;
-		this.sbbEntityComparator = new SbbEntityComparator(sbbEntityFactory);
-		// init cache data
-		cacheData = sleeContainer.getCache().getActivityContextCacheData(id);
-		if (activityFlags != null) {
-			// ac creation, create cache data and set activity flags
-			cacheData.create();
-			cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
-			// then we need to schedule check for it
-			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags) && activityContextHandle.getActivityType() == ActivityType.nullActivity) {
-				try {
-					scheduleCheckForUnreferencedActivity();
-				} catch (SystemException e) {
-					throw new SLEEException(e.getMessage(),e);
-				}	
+	public ActivityContext(final ActivityContextHandle activityContextHandle, ActivityContextCacheData cacheData, boolean updateAccessTime, Integer activityFlags) {
+		this(activityContextHandle,cacheData,false);
+		// ac creation, create cache data and set activity flags
+		this.cacheData.create();
+		this.cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
+		
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				updateLastAccessTime(activityContextHandle);				
 			}
-		}
+		};
+		try {
+			sleeContainer.getTransactionManager().addAfterCommitAction(action);
+			// then we need to schedule check for it
+			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags) && activityContextHandle.getActivityType() == ActivityType.NULL) {
+				scheduleCheckForUnreferencedActivity();
+			}
+		} catch (SystemException e) {
+			throw new SLEEException(e.getMessage(),e);
+		}	
+	}
+	
+	public ActivityContext(ActivityContextHandle activityContextHandle, ActivityContextCacheData cacheData, boolean updateAccessTime) {
+		this.activityContextHandle = activityContextHandle;
+		this.cacheData = cacheData;
 		// update last acess time if needed	
 		if (updateAccessTime) {
-			updateLastAccessTime();
+			updateLastAccessTime(activityContextHandle);
 		}
 	}
-	
-	/**
-	 * Retrieves the string id of this ac
-	 * @return
-	 */
-	public String getActivityContextId() {
-		return activityContextId;
-	}
-	
+
 	/**
 	 * Retrieves the handle of this ac
 	 * @return
@@ -170,7 +156,7 @@ public class ActivityContext {
 	public void setDataAttribute(String key, Object newValue) {
 		cacheData.setCmpAttribute(key,newValue);
 		if (logger.isDebugEnabled()) {
-			logger.debug("ac "+getActivityContextId()+" cmp attribute set : attr name = " + key
+			logger.debug("ac "+getActivityContextHandle()+" cmp attribute set : attr name = " + key
 					+ " , attr value = " + newValue);
 		}
 	}
@@ -219,7 +205,7 @@ public class ActivityContext {
 				acf.removeName(aciName);
 			} catch (Exception e) {
 				logger.warn("failed to unbind name: " + aciName
-						+ " from ac:" + getActivityContextId(), e);
+						+ " from ac:" + getActivityContextHandle(), e);
 			}	
 		}		
 	}
@@ -318,7 +304,7 @@ public class ActivityContext {
 		// Beyond here we dont stamp this one
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
-				ActivityContext.timeStamps.remove(activityContextId);
+				ActivityContext.timeStamps.remove(activityContextHandle);
 			}
 		};
 		try {
@@ -361,7 +347,7 @@ public class ActivityContext {
 		}
 		if (logger.isDebugEnabled()) {
 			logger
-					.debug("attachement from sbb entity "+sbbEntityId+" to ac "+getActivityContextId()+" result: "+attached);
+					.debug("attachement from sbb entity "+sbbEntityId+" to ac "+getActivityContextHandle()+" result: "+attached);
 		}
 		return attached;
 	}
@@ -393,7 +379,7 @@ public class ActivityContext {
 			}
 			if (logger.isDebugEnabled()) {
 				logger
-						.debug("detached sbb entity "+sbbEntityId+" from ac "+getActivityContextId());
+						.debug("detached sbb entity "+sbbEntityId+" from ac "+getActivityContextHandle());
 			}
 		}	
 	}
@@ -405,121 +391,22 @@ public class ActivityContext {
 	 * @return list of SbbEIDs
 	 * 
 	 */
-	public List getSortedCopyOfSbbAttachmentSet() {
-		Map sbbSet = new TreeMap(sbbEntityComparator);
-		sbbSet.putAll(cacheData.getSbbEntitiesAttachedCopy());
-		return new LinkedList(sbbSet.values());
+	public Set getSortedSbbAttachmentSet(Set excludeSet) {
+		final Set<String> sbbAttachementSet = cacheData.getSbbEntitiesAttached();
+		final SortedSet orderSbbSet = new TreeSet(sbbEntityComparator);
+		for (String sbbEntityId : sbbAttachementSet) {
+			if (!excludeSet.contains(sbbEntityId)) {
+				orderSbbSet.add(sbbEntityId);
+			}
+		}
+		return orderSbbSet;
 	}	
 	
-	public Map getSbbAttachmentSet() {
-		return cacheData.getSbbEntitiesAttachedCopy();	
+	public Set getSbbAttachmentSet() {
+		return cacheData.getSbbEntitiesAttached();	
 	}
 	
 	// --- private helpers
-		
-	private class SbbEntityComparator implements Comparator {
-		SbbEntityFactory sbbEntityFactory;
-
-		SbbEntityComparator(SbbEntityFactory sbbEntityFactory) {
-			this.sbbEntityFactory = sbbEntityFactory;
-		}
-
-		private Stack priorityOfSbb(SbbEntity sbbe) {
-			Stack stack = new Stack();
-			// push all non root sbb entities
-			while (!sbbe.isRootSbbEntity()) {
-				stack.push(sbbe);
-				sbbe = SbbEntityFactory.getSbbEntity(sbbe
-						.getParentSbbEntityId());
-			}
-			;
-			// push the root one
-			stack.push(sbbe);
-
-			return stack;
-		}
-
-		public int compare(Object sbbeId1, Object sbbeId2) {
-
-			// In case we are looking for this entry - this will save some
-			// CPU cycles, cache readings etc.
-			if (sbbeId1.equals(sbbeId2))
-				return 0;
-			SbbEntity sbbe1 = null;
-
-			try {
-				sbbe1 = SbbEntityFactory.getSbbEntity((String) sbbeId1);
-			} catch (Exception e) {
-				// ignore
-			}
-			SbbEntity sbbe2 = null;
-			try {
-				sbbe2 = SbbEntityFactory.getSbbEntity((String) sbbeId2);
-			} catch (Exception e) {
-				// ignore
-			}
-			if (sbbe1 == null) {
-				if (sbbe2 == null) {
-					return 0;
-				} else {
-					return 1;
-				}
-			} else {
-				if (sbbe2 == null) {
-					return -1;
-				} else {
-					return higherPrioritySbb(sbbe1, sbbe2);
-				}
-			}
-
-		}
-
-		private int higherPrioritySbb(SbbEntity sbbe1, SbbEntity sbbe2) {
-			logger.debug("higherPrioritySbb " + sbbe1.getSbbId() + " "
-					+ sbbe2.getSbbId());
-
-			Stack stack1 = priorityOfSbb(sbbe1);
-			Stack stack2 = priorityOfSbb(sbbe2);
-			while (true) {
-				SbbEntity sbb1a = (SbbEntity) stack1.pop();
-				SbbEntity sbb2a = (SbbEntity) stack2.pop();
-				if (sbb1a == sbb2a) {
-					// sbb entities have the same ancestor.
-					if (stack1.isEmpty()) {
-
-						return -1;
-
-					} else if (stack2.isEmpty()) {
-
-						return 1;
-
-					}
-				} else {
-
-					if (sbb1a.getPriority() > sbb2a.getPriority()) {
-
-						return -1;
-
-					} else if (sbb1a.getPriority() < sbb2a.getPriority()) {
-
-						return 1;
-
-					} else {
-
-						return sbb1a.getSbbEntityId().compareTo(
-								sbb2a.getSbbEntityId());
-						// does it matter?
-						// We need predicatble order to get TreeMap opeartional
-						// and not returning some silly null values
-						// So this will ensure that if SbbE are on the same leve
-						// (childs) in SbbETree, and have the same priority
-						// They will be stored alphabeticaly.
-					}
-
-				}
-			}
-		}
-	}
 
 	/**
 	 * Returns time stamp of last access to this ac. If timestamp is found it
@@ -529,47 +416,22 @@ public class ActivityContext {
 	 * @return
 	 */
 	public long getLastAccessTime() {
-		Long l = (Long) ActivityContext.timeStamps.get(activityContextId);
+		final Long l = timeStamps.get(activityContextHandle);
 		if (l != null)
 			return l.longValue();
 		else
 			return 0;
 	}
 
+	private void updateLastAccessTime(ActivityContextHandle activityContextHandle) {
+		timeStamps.put(activityContextHandle,Long.valueOf(System.currentTimeMillis()));		
+	}
+	
 	private static final Object MAP_VALUE = new Object();
 	
-	void updateLastAccessTime() {
-
-		// only update for resource adaptor activity contexts
-		if (this.activityContextHandle.getActivityType() != ActivityType.externalActivity) {
-			return;
-		}
-		
-		// update once per tx, after commit
-		try {
-			final String txContextFlagKey = "ts:" + activityContextHandle;
-			if (sleeContainer.getTransactionManager().getTransactionContext()
-					.getData().containsKey(txContextFlagKey)) {
-				TransactionalAction action = new TransactionalAction() {
-					public void execute() {
-						ActivityContext.timeStamps.put(activityContextId,
-								new Long(System.currentTimeMillis()));
-					}
-				};
-				sleeContainer.getTransactionManager().addAfterCommitAction(
-						action);
-				sleeContainer.getTransactionManager().getTransactionContext()
-						.getData()
-						.put(txContextFlagKey, MAP_VALUE);
-			}
-		}
-		catch (SystemException e) {
-			logger.error(e.getMessage(),e);
-		}
-	}
 
 	public String toString() {
-		return  "AC { id = " + activityContextId+" , handle = "+activityContextHandle+" }";
+		return  "ActivityContext{ handle = "+activityContextHandle+" }";
 	}
 	
 	// emmartins: added to split null activity end related logic
@@ -588,7 +450,7 @@ public class ActivityContext {
 	
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((ActivityContext)obj).activityContextId.equals(this.activityContextId);
+			return ((ActivityContext)obj).activityContextHandle.equals(this.activityContextHandle);
 		}
 		else {
 			return false;
@@ -596,7 +458,7 @@ public class ActivityContext {
 	}
 	
 	public int hashCode() {
-		return activityContextId.hashCode();
+		return activityContextHandle.hashCode();
 	}
 	
 	// FIXME add logic to remove refs in facilities when activity is explicitely
@@ -656,7 +518,7 @@ public class ActivityContext {
 		// check activity type
 		switch (activityContextHandle.getActivityType()) {
 		
-		case externalActivity:
+		case RA:
 			// external activity, notify RA that the activity has ended
 			final int activityFlags = getActivityFlags();
 			TransactionalAction action = new TransactionalAction() {
@@ -677,16 +539,16 @@ public class ActivityContext {
 			}			
 			break;
 		
-		case nullActivity:
+		case NULL:
 			// null activity, warn the factory
 			sleeContainer.getNullActivityFactory().activityEnded((NullActivityHandle)activityContextHandle.getActivityHandle());
 			break;
 			
-		case profileTableActivity:
+		case PTABLE:
 			// do nothing
 			break;
 			
-		case serviceActivity:
+		case SERVICE:
 			ServiceActivityImpl serviceActivity = (ServiceActivityImpl) activityContextHandle.getActivity();			
 			
 			try {
@@ -717,13 +579,13 @@ public class ActivityContext {
 		if (aeqm != null) {
 			aeqm.pending(dE);
 			// add tx actions to commit or rollback
+			final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
 			try {
-				sleeContainer.getTransactionManager().addAfterCommitPriorityAction(
+				txManager.addAfterCommitPriorityAction(
 						new CommitDeferredEventAction(dE, aeqm));
-				sleeContainer.getTransactionManager()
-					.addAfterRollbackAction(
+				txManager.addAfterRollbackAction(
 						new RollbackDeferredEventAction(dE,
-								this.activityContextId));
+								this.activityContextHandle));
 			} catch (SystemException e) {
 				aeqm.rollback(dE);
 				throw new SLEEException("failed to add tx actions to commit and rollback event firing",e);
@@ -734,7 +596,7 @@ public class ActivityContext {
 	}
 	
 	public EventRouterActivity getEventRouterActivity() {
-		return sleeContainer.getEventRouter().getEventRouterActivity(this.activityContextId);
+		return sleeContainer.getEventRouter().getEventRouterActivity(activityContextHandle);
 	}
 	
 	// UNREF CHECK PROCESS
@@ -764,7 +626,7 @@ public class ActivityContext {
 		
 		if (!isEnding()) {
 			
-			String activityUnreferenced1stCheckKey = activityContextId + NODE_MAP_KEY_ActivityUnreferenced1stCheck;
+			String activityUnreferenced1stCheckKey = activityContextHandle + NODE_MAP_KEY_ActivityUnreferenced1stCheck;
 			Map txLocalData = sleeContainer.getTransactionManager().getTransactionContext().getData();
 			// schedule check only once at time
 			if (txLocalData.get(activityUnreferenced1stCheckKey) != null) {
@@ -776,7 +638,7 @@ public class ActivityContext {
 			}
 			
 			if (logger.isDebugEnabled()) {
-				logger.debug("schedule checking for unreferenced activity on ac "+this.getActivityContextId());
+				logger.debug("schedule checking for unreferenced activity on ac "+this.getActivityContextHandle());
 			}
 			
 			TransactionalAction implicitEndCheck = new TransactionalAction() {
@@ -791,7 +653,7 @@ public class ActivityContext {
 	
 	private void unreferencedActivity1stCheck() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("1st check for unreferenced activity on ac "+this.getActivityContextId());
+			logger.debug("1st check for unreferenced activity on ac "+this.getActivityContextHandle());
 		}
 		
 		if (!isEnding()) {
@@ -806,7 +668,7 @@ public class ActivityContext {
 				TransactionalAction action = new TransactionalAction() {
 					public void execute() {
 						getEventRouterActivity().getExecutorService()
-						.submit(new UnreferencedActivity2ndCheckTask(getActivityContextId()));
+						.submit(new UnreferencedActivity2ndCheckTask(getActivityContextHandle()));
 					}
 				};
 				try {
@@ -825,7 +687,7 @@ public class ActivityContext {
 				logger.debug(toString() + " is unreferenced");
 			}
 			switch (activityContextHandle.getActivityType()) {
-			case externalActivity:
+			case RA:
 				// external activity, notify RA that the activity is
 				// unreferenced
 				sleeContainer.getResourceManagement().getResourceAdaptorEntity(
@@ -833,7 +695,7 @@ public class ActivityContext {
 						.getResourceAdaptorObject().activityUnreferenced(
 								activityContextHandle.getActivityHandle());
 				break;
-			case nullActivity:
+			case NULL:
 				// null activity unreferenced, end it
 				endActivity();
 				break;

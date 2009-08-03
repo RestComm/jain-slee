@@ -8,8 +8,11 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
@@ -21,7 +24,6 @@ import javax.slee.management.LibraryID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
-import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
  * Start time:00:44:47 2009-02-04<br>
@@ -49,10 +51,27 @@ public class EventTypeComponent extends SleeComponent {
 	private EventTypeDescriptor specsDescriptor = null;
 	
 	/**
-	 * the set of active {@link ServiceComponent} which define this event as initial 
+	 * the ordered set of active {@link ServiceComponent} which define this event as initial 
 	 */
-	private ConcurrentHashSet<ServiceComponent> activeServicesWhichDefineEventAsInitial = new ConcurrentHashSet<ServiceComponent>();
-		
+	private SortedSet<ServiceComponent> activeServicesWhichDefineEventAsInitial = new TreeSet<ServiceComponent>(new ActiveServicesWhichDefineEventAsInitialComparator());
+	
+	private class ActiveServicesWhichDefineEventAsInitialComparator implements Comparator<ServiceComponent> {
+		public int compare(ServiceComponent o1, ServiceComponent o2) {
+			if (o1 == o2) {
+				return 0;
+			}
+			int result = o2.getDescriptor().getMService().getDefaultPriority() - o1.getDescriptor().getMService().getDefaultPriority();
+			if (result == 0) {
+				// older wins
+				result = (int) (o1.getCreationTime() - o2.getCreationTime());
+				if (result == 0) {
+					// id string comparation, cause a 0 result means one entity is not added to set
+					result = o1.getServiceID().compareTo(o2.getServiceID());
+				}
+			}
+			return result;
+		}
+	}
 	/**
 	 * 
 	 * @param descriptor
@@ -153,7 +172,9 @@ public class EventTypeComponent extends SleeComponent {
 	 * @param serviceComponent
 	 */
 	public void activatedServiceWhichDefineEventAsInitial(ServiceComponent serviceComponent) {
-		activeServicesWhichDefineEventAsInitial.add(serviceComponent);
+		synchronized (activeServicesWhichDefineEventAsInitial) {
+			activeServicesWhichDefineEventAsInitial.add(serviceComponent);
+		}
 	}
 	
 	/**
@@ -161,7 +182,9 @@ public class EventTypeComponent extends SleeComponent {
 	 * @param serviceComponent
 	 */
 	public void deactivatedServiceWhichDefineEventAsInitial(ServiceComponent serviceComponent) {
-		activeServicesWhichDefineEventAsInitial.remove(serviceComponent);
+		synchronized (activeServicesWhichDefineEventAsInitial) {
+			activeServicesWhichDefineEventAsInitial.remove(serviceComponent);
+		}
 	}
 	
 	@Override

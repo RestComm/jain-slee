@@ -45,7 +45,7 @@ public class InitialEventProcessor {
 			throws Exception {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Initial event processing for " + serviceComponent.getServiceID());
+			logger.debug("Initial event processing for " + serviceComponent+" and "+deferredEvent);
 		}
 		
 		Exception caught = null;
@@ -76,15 +76,14 @@ public class InitialEventProcessor {
 				 * service deployment. The names set is composed by only one
 				 * convergence name the error is due an error in the pseudocode
 				 */
-				final Service service = ServiceFactory.getService(serviceComponent);
-				
+				final Service service = ServiceFactory.getService(serviceComponent);			
 				if (service.getState().isActive()) {
 
-					String name = computeConvergenceName(serviceComponent.getRootSbbComponent(),deferredEvent, serviceComponent);
-
-					if (logger.isDebugEnabled()) {
-						logger.debug("Convergence name computed for "
-								+ serviceComponent.getServiceID() + " is " + name);
+					String name = null;
+					try {
+						name = computeConvergenceName(deferredEvent,serviceComponent);
+					} catch (Throwable e) {
+						logger.error("Failed to compute convergance name for "+serviceComponent+" and "+deferredEvent,e);
 					}
 
 					if (name != null) {
@@ -92,8 +91,8 @@ public class InitialEventProcessor {
 						if (!service.containsConvergenceName(name)) {
 
 							if (logger.isDebugEnabled()) {
-								logger.debug("not found the convergence name "
-										+ name + ", creating new sbb entity");
+								logger.debug("Computed convergence name for "+serviceComponent+" and "+deferredEvent+" is "
+										+ name + ", creating sbb entity and attaching to activity context.");
 							}
 							
 							// Create a new root sbb entity
@@ -118,10 +117,10 @@ public class InitialEventProcessor {
 								throw ex;
 							}
 							// attach sbb entity on AC
-							ActivityContext ac = activityContextFactory.getActivityContext(deferredEvent.getActivityContextId(),true);
+							ActivityContext ac = activityContextFactory.getActivityContext(deferredEvent.getActivityContextHandle());
 							if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
 								// do the reverse on the sbb entity
-								sbbEntity.afterACAttach(deferredEvent.getActivityContextId());
+								sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
 							}
 							// passivate sbb object
 							try {
@@ -141,21 +140,22 @@ public class InitialEventProcessor {
 						} else {
 							
 							if (logger.isDebugEnabled()) {
-								logger.debug("found the convergence name " + name + ", attaching entity to AC (if not attached yet)");
+								logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is "
+										+ name + ", sbb entity already exists, attaching to activity context (if not attached yet)");
 							}
 							// get sbb entity id for this convergence name
 							String rootSbbEntityId = service.getRootSbbEntityId(name);
 							// attach sbb entity on AC
-							if (activityContextFactory.getActivityContext(deferredEvent.getActivityContextId(),true).attachSbbEntity(rootSbbEntityId)) {
+							if (activityContextFactory.getActivityContext(deferredEvent.getActivityContextHandle()).attachSbbEntity(rootSbbEntityId)) {
 								// do the reverse on the sbb entity
 								SbbEntityFactory.getSbbEntity(rootSbbEntityId)
-								.afterACAttach(deferredEvent.getActivityContextId());
+								.afterACAttach(deferredEvent.getActivityContextHandle());
 							}
 						}
 
 					} else {
 						if (logger.isDebugEnabled()) {
-							logger.debug("Service with id:"	+ serviceComponent.getServiceID() + " returns a null convergence name. Either the service does not exist or it is not interested in the event.");
+							logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is null, either the root sbb is not interested in the event or an error occurred.");
 						}
 					}
 				}
@@ -163,7 +163,6 @@ public class InitialEventProcessor {
 			} catch (Exception e) {
 				logger.error("Caught an error! ", e);
 				caught = e;
-				
 			}
 
 			boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject, caught, invokerClassLoader, txMgr);
@@ -180,11 +179,7 @@ public class InitialEventProcessor {
 				 */
 			}
 						
-			// commit or rollback the tx. if the setRollbackOnly flag is set then this will trigger rollback action.
-			if (logger.isDebugEnabled()) {
-				logger.debug("Committing SLEE Originated Invocation Sequence");
-			}
-			
+			// commit or rollback the tx. if the setRollbackOnly flag is set then this will trigger rollback action.			
 			try {
 				txMgr.commit();
 			} catch (Exception e) {
@@ -204,7 +199,7 @@ public class InitialEventProcessor {
 						
 		} catch (Exception e) {
 			logger.error("Failed to process initial event for "
-					+ serviceComponent.getServiceID(), e);
+					+ serviceComponent + " and "+deferredEvent, e);
 		}
 		
 		EventRouterThreadLocals.setInvokingService(null);
@@ -214,6 +209,8 @@ public class InitialEventProcessor {
 		}
 	}
 
+	private static final String NULL_STRING = "null";
+	
 	/**
 	 * Compute a convergence name for the Sbb for the given Slee event.
 	 * Convergence names are used to instantiate the Sbb. I really ought to move
@@ -224,12 +221,13 @@ public class InitialEventProcessor {
 	 * @return the convergence name or null if this is not an initial event for
 	 *         this service
 	 */
-	private String computeConvergenceName(SbbComponent sbbComponent, DeferredEvent sleeEvent,
+	private String computeConvergenceName(DeferredEvent sleeEvent,
 			ServiceComponent serviceComponent) throws Exception {
 		
+		final SbbComponent sbbComponent = serviceComponent.getRootSbbComponent();
 		MEventEntry mEventEntry = sbbComponent.getDescriptor().getEventEntries().get(sleeEvent.getEventTypeId());
 		InitialEventSelectorImpl selector = new InitialEventSelectorImpl(
-				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextId(), mEventEntry.getInitialEventSelects(), mEventEntry.getInitialEventSelectorMethod(), sleeEvent
+				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextHandle(), mEventEntry.getInitialEventSelects(), mEventEntry.getInitialEventSelectorMethod(), sleeEvent
 						.getAddress());
 
 		/*
@@ -286,35 +284,32 @@ public class InitialEventProcessor {
 			}
 		}
 
-		String convergenceName = null;
-
 		StringBuilder buff = new StringBuilder();
 
 		if (selector.isActivityContextSelected()) {
-			buff.append(sleeEvent.getActivityContextId());
+			buff.append(sleeEvent.getActivityContextHandle());
 		} else
-			buff.append("null");
+			buff.append(NULL_STRING);
 
-		// buff.append(e.getActivityContext().getActivityContextID());
 		// TODO the ProfileTle select varile for now is null
 
-		buff.append("null");
+		buff.append(NULL_STRING);
 
 		if (selector.isAddressSelected()) {
 			Address address = selector.getAddress();
 
 			if (address == null)
-				buff.append("null");
+				buff.append(NULL_STRING);
 			else
 				buff.append(address.toString());
 		} else
-			buff.append("null");
+			buff.append(NULL_STRING);
 
 		// If event type is selected append it to te convergence name.
 		if (selector.isEventTypeSelected()) {
 			buff.append(selector.getEventTypeID());
 		} else
-			buff.append("null");
+			buff.append(NULL_STRING);
 
 		/*
 		 * Event. The value of this variable (if selected) is unique for each
@@ -346,7 +341,7 @@ public class InitialEventProcessor {
 			buff.append(sleeEvent.hashCode()); // TODO: use a more unique value
 			// than the hash code
 		} else
-			buff.append("null");
+			buff.append(NULL_STRING);
 		/*
 		 * The address attribute of the InitialEventSelector object provides the
 		 * default address. The value of this attribute may be null if there is
@@ -369,7 +364,7 @@ public class InitialEventProcessor {
 			ProfileSpecificationID addressProfileId = sbbComponent.getDescriptor().getAddressProfileSpecRef();
 
 			if (selector.getAddress() == null) {
-				buff.append("null");
+				buff.append(NULL_STRING);
 			} else {
 				ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(addressProfileId);
 				if (profileSpecificationComponent == null) {
@@ -402,7 +397,7 @@ public class InitialEventProcessor {
 			}
 
 		} else
-			buff.append("null");
+			buff.append(NULL_STRING);
 
 		String customName = selector.getCustomName();
 

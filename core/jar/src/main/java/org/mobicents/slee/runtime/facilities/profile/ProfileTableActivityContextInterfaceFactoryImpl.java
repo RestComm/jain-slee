@@ -67,7 +67,7 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 		}
 
 		ActivityContextHandle ach = ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableActivity.getProfileTableName()));
-        ActivityContext ac = serviceContainer.getActivityContextFactory().getActivityContext(ach, false);
+        ActivityContext ac = serviceContainer.getActivityContextFactory().getActivityContext(ach);
         if (ac == null) {
         	throw new UnrecognizedActivityException(profileTableActivity);
         }

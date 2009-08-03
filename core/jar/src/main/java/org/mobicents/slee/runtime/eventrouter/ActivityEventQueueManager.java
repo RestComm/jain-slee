@@ -9,6 +9,7 @@ import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
@@ -57,13 +58,13 @@ public class ActivityEventQueueManager {
 	/**
 	 * the activity context id that identifies this object
 	 */
-	private final String acId;
+	private final ActivityContextHandle ach;
 
 	public ActivityEventQueueManager(
-			String acId,
+			ActivityContextHandle ach,
 			SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
-		this.acId = acId;
+		this.ach = ach;
 	}
 
 	/**
@@ -85,8 +86,8 @@ public class ActivityEventQueueManager {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("pending event of type " + dE.getEventTypeId()
-					+ " for activity context with id "
-					+ dE.getActivityContextId());
+					+ " for "
+					+ dE.getActivityContextHandle());
 		}
 
 		if (activityEndEvent == null) {
@@ -98,7 +99,7 @@ public class ActivityEventQueueManager {
 				eventReferencesManagement.manageReferencesForEvent(dE);
 			}
 			else {
-				eventReferencesManagement.eventReferencedByActivity(dE.getEvent(), dE.getActivityContextId());
+				eventReferencesManagement.eventReferencedByActivity(dE.getEvent(), dE.getActivityContextHandle());
 			}
 		} else {
 			// processing of the event failed
@@ -111,8 +112,8 @@ public class ActivityEventQueueManager {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("committing event of type " + dE.getEventTypeId()
-					+ " for activity context with id "
-					+ dE.getActivityContextId());
+					+ " for "
+					+ dE.getActivityContextHandle());
 		}
 
 		if (pendingEvents.remove(dE)) {
@@ -194,8 +195,8 @@ public class ActivityEventQueueManager {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("rolling back event of type " + dE.getEventTypeId()
-					+ " for activity context with id "
-					+ dE.getActivityContextId());
+					+ " for "
+					+ dE.getActivityContextHandle());
 		}
 
 		if (pendingEvents.remove(dE)) {
@@ -207,7 +208,7 @@ public class ActivityEventQueueManager {
 				eventReferencesManagement.unmanageReferencesForEvent(dE);
 			}
 			else {
-				eventReferencesManagement.eventUnreferencedByActivity(dE.getEvent(), dE.getActivityContextId());
+				eventReferencesManagement.eventUnreferencedByActivity(dE.getEvent(), dE.getActivityContextHandle());
 			}
 		}
 	}
@@ -240,8 +241,8 @@ public class ActivityEventQueueManager {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((ActivityEventQueueManager) obj).acId
-					.equals(this.acId);
+			return ((ActivityEventQueueManager) obj).ach
+					.equals(this.ach);
 		} else {
 			return false;
 		}
@@ -249,6 +250,6 @@ public class ActivityEventQueueManager {
 
 	@Override
 	public int hashCode() {
-		return acId.hashCode();
+		return ach.hashCode();
 	}
 }

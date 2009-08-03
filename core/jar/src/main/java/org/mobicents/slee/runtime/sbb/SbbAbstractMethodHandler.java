@@ -205,7 +205,7 @@ public class SbbAbstractMethodHandler {
 				.getActivityContext();
 		if (logger.isDebugEnabled()) {
 			logger.debug("invoke(): firing event on "
-					+ ac.getActivityContextId());
+					+ ac);
 		}
 		
 		// exception not in specs by mandated by

@@ -21,17 +21,23 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
  */
 public class ActivityContextHandle {
 
-	private static final SleeContainer sleeContainer = SleeContainer
-			.lookupFromJndi();
+	private static transient ResourceManagement _resourceManagement;
 
 	private static ResourceManagement getResourceManagement() {
-		return sleeContainer.getResourceManagement();
+		if (_resourceManagement == null) {
+			_resourceManagement = SleeContainer
+			.lookupFromJndi().getResourceManagement();
+		}
+		return _resourceManagement;
 	}
 
 	private ActivityHandle activityHandle;
 	private String activitySource;
 	private ActivityType activityType;
-
+	
+	private int hashcode = -1;
+	private String toString = null;
+	
 	protected ActivityContextHandle(ActivityType activityType,
 			String activitySource, ActivityHandle activityHandle) {
 		this.activityHandle = activityHandle;
@@ -53,12 +59,20 @@ public class ActivityContextHandle {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj != null && obj.getClass() == this.getClass()) {
-			ActivityContextHandle other = (ActivityContextHandle) obj;
-			if (other.activityType == this.activityType
-					&& other.activityHandle.equals(this.activityHandle)) {
+		
+		if (this == obj) {
+			return true;
+		}
+		
+		if (obj == null) {
+			return false;
+		}
+		
+		if (obj.getClass() == this.getClass()) {
+			final ActivityContextHandle other = (ActivityContextHandle) obj;
+			if (other.activityHandle.equals(this.activityHandle) && other.activityType == this.activityType) {
 				// only compare the source if the activity type is external
-				if (this.activityType == ActivityType.externalActivity) {
+				if (this.activityType == ActivityType.RA) {
 					return other.activitySource.equals(this.activitySource);
 				} else {
 					return true;
@@ -70,14 +84,17 @@ public class ActivityContextHandle {
 			return false;
 		}
 	}
-
+	
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = activityHandle.hashCode();
-		result = prime * result + activitySource.hashCode();
-		result = prime * result + activityType.hashCode();
-		return result;
+		if (hashcode == -1) {
+			final int prime = 31;
+			int result = activityHandle.hashCode();
+			result = prime * result + activitySource.hashCode();
+			result = prime * result + activityType.hashCode();
+			hashcode = result;
+		}
+		return hashcode;
 	}
 
 	public Object getActivity() {
@@ -85,7 +102,7 @@ public class ActivityContextHandle {
 		Object activity = null;
 
 		switch (activityType) {
-		case externalActivity:
+		case RA:
 			try {
 				activity = getResourceManagement().getResourceAdaptorEntity(
 						activitySource).getResourceAdaptorObject().getActivity(
@@ -94,14 +111,14 @@ public class ActivityContextHandle {
 				throw new SLEEException(e.getMessage(), e);
 			}
 			break;
-		case nullActivity:
+		case NULL:
 			activity = new NullActivityImpl((NullActivityHandle) activityHandle);
 			break;
-		case profileTableActivity:
+		case PTABLE:
 			activity = new ProfileTableActivityImpl(
 					(ProfileTableActivityHandle) getActivityHandle());
 			break;
-		case serviceActivity:
+		case SERVICE:
 			activity = ServiceActivityFactoryImpl
 					.getActivity(((ServiceActivityHandle) activityHandle)
 							.getServiceID());
@@ -112,11 +129,13 @@ public class ActivityContextHandle {
 
 		return activity;
 	}
-
+	
 	@Override
 	public String toString() {
-		return "ac handle : type=" + activityType + ", source="
-				+ activitySource + ", handle=" + activityHandle;
+		if (toString == null) {
+			toString = "ACH=" + activityType + ">"+ activitySource + ">" + activityHandle; 
+		}
+		return toString;
 	}
 
 }

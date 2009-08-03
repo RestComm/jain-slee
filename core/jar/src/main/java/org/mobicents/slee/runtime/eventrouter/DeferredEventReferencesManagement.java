@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.resource.EventFlags;
 
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 /**
@@ -25,17 +26,17 @@ public class DeferredEventReferencesManagement {
 		eventsBeingManaged.remove(de.getEvent());
 	}
 	
-	public void eventReferencedByActivity(Object event, String acId) {
+	public void eventReferencedByActivity(Object event, ActivityContextHandle ach) {
 		DeferredEventReferences der = eventsBeingManaged.get(event);
 		if (der != null) {
-			der.getActivitiesReferencing().add(acId);
+			der.getActivitiesReferencing().add(ach);
 		}
 	}
 	
-	public void eventUnreferencedByActivity(Object event, String acId) {
+	public void eventUnreferencedByActivity(Object event, ActivityContextHandle ach) {
 		DeferredEventReferences der = eventsBeingManaged.get(event);
 		if (der != null) {
-			der.getActivitiesReferencing().remove(acId);
+			der.getActivitiesReferencing().remove(ach);
 			if (der.getActivitiesReferencing().isEmpty()) {
 				eventsBeingManaged.remove(event);
 				der.getDeferredEvent().eventUnreferenced();
@@ -47,18 +48,18 @@ public class DeferredEventReferencesManagement {
 		
 		private final DeferredEvent de;
 		
-		private final Set<String> activitiesReferencing = new ConcurrentHashSet<String>();
+		private final Set<ActivityContextHandle> activitiesReferencing = new ConcurrentHashSet<ActivityContextHandle>();
 		
 		public DeferredEventReferences(DeferredEvent de) {
 			this.de = de;
-			activitiesReferencing.add(de.getActivityContextId());
+			activitiesReferencing.add(de.getActivityContextHandle());
 		}
 		
 		public DeferredEvent getDeferredEvent() {
 			return de;
 		}
 		
-		public Set<String> getActivitiesReferencing() {
+		public Set<ActivityContextHandle> getActivitiesReferencing() {
 			return activitiesReferencing;
 		}
 		

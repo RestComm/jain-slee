@@ -1,6 +1,7 @@
 package org.mobicents.slee.runtime.eventrouter;
 
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
  * Interface for the container's Event Router
@@ -15,7 +16,7 @@ public interface EventRouter {
 	 * 
 	 * @return
 	 */
-	public EventRouterActivity getEventRouterActivity(String acId);
+	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach);
 
 	/**
 	 * Requests the routing of a {@link DeferredEvent}
@@ -37,13 +38,13 @@ public interface EventRouter {
 	 * The activity has started so the event router may init related runtime resources
 	 * @param ach
 	 */
-	public void activityStarted(String acId);
+	public void activityStarted(ActivityContextHandle ach);
 	
 	/**
 	 * The activity has ended so the event router may close related runtime resources 
 	 * @param ach
 	 */
-	public void activityEnded(String acId);
+	public void activityEnded(ActivityContextHandle ach);
 
 	/**
 	 * Configures the event router, defining the number of event executors and

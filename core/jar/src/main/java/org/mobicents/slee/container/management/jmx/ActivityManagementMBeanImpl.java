@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -135,23 +134,23 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 	// --- OPERATIONS
 
-	public void endActivity(String nullACID) throws ManagementException {
+	public void endActivity(ActivityContextHandle ach) throws ManagementException {
 
 		// Again this is tx method
-		logger.info("Trying to stop null activity[" + nullACID + "]!!");
+		logger.info("Trying to stop null activity[" + ach + "]!!");
 		// prepareBean();
 		boolean createdTx = false;
 		try {
 			createdTx = txMgr.requireTransaction();
-			ActivityContext ac = acFactory.getActivityContext(nullACID,false);
+			ActivityContext ac = acFactory.getActivityContext(ach);
 			if (ac == null) {
 				logger.debug("There is no ac associated with given acID["
-						+ nullACID + "]!!");
+						+ ach + "]!!");
 				throw new ManagementException("Can not find AC for given ID["
-						+ nullACID + "], try again!!!");
+						+ ach + "], try again!!!");
 			}
-			if (ac.getActivityContextHandle().getActivityType() == ActivityType.nullActivity) {
-				logger.debug("Scheduling activity end for acID[" + nullACID
+			if (ac.getActivityContextHandle().getActivityType() == ActivityType.NULL) {
+				logger.debug("Scheduling activity end for acID[" + ach
 						+ "]");
 
 				NullActivity nullActivity = (NullActivity) ac.getActivityContextHandle().getActivity();
@@ -160,7 +159,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 				}
 			} else {
 				logger.debug("AC is not null activity context");
-				throw new IllegalArgumentException("Given ID[" + nullACID
+				throw new IllegalArgumentException("Given ID[" + ach
 						+ "] does not point to NullActivity");
 			}
 			
@@ -260,20 +259,20 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		return ret;
 	}
 
-	public Object[] retrieveActivityContextDetails(String AC_ID)
+	public Object[] retrieveActivityContextDetails(ActivityContextHandle ach)
 			throws ManagementException {
-		logger.info("Retrieving AC details for acID[" + AC_ID + "]");
+		logger.info("Retrieving AC details for " + ach);
 		// prepareBean();
 		boolean createdTx = false;
 		Object[] o = null;
 		try {
 			createdTx = txMgr.requireTransaction();
-			ActivityContext ac = this.acFactory.getActivityContext(AC_ID,false);
+			ActivityContext ac = this.acFactory.getActivityContext(ach);
 			if (ac == null) {
-				logger.debug("Ac retrieval failed, no such ac[" + AC_ID
+				logger.debug("Ac retrieval failed, no such ac[" + ach
 						+ "]!!!");
 				throw new ManagementException(
-						"Activity Context does not exist (ACID[" + AC_ID
+						"Activity Context does not exist (ACID[" + ach
 						+ "]), try another one!!");
 			}
 			o = getDetails(ac);
@@ -332,18 +331,19 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		logger.info("Listing with criteria[" + criteria + "] with details["
 				+ inDetails + "] only IDS[" + listIDsOnly + "]");
 
-		Iterator<String> it = this.acFactory.getAllActivityContextsIds().iterator();
+		Iterator<ActivityContextHandle> it = this.acFactory.getAllActivityContextsHandles().iterator();
 		ArrayList lst = new ArrayList();
 
 		// Needed by LIST_BY_SBBID
 		HashMap sbbEntityIdToSbbID = new HashMap();
 
 		while (it.hasNext()) {
-			ActivityContext ac = this.acFactory.getActivityContext(it.next(),false);
+			ActivityContextHandle ach = it.next();
+			ActivityContext ac = this.acFactory.getActivityContext(ach);
 			if (ac == null) {
 				continue;
 			}
-			Object activity = ac.getActivityContextHandle().getActivity();
+			Object activity = ach.getActivity();
 			if (activity != null) {  
 				
 				switch (criteria) {
@@ -356,8 +356,8 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 				case LIST_BY_RAENTITY:
 
-					if (ac.getActivityContextHandle().getActivityType() == ActivityType.externalActivity) {
-						if (!ac.getActivityContextHandle().getActivitySource().equals(comparisonCriteria))
+					if (ach.getActivityType() == ActivityType.RA) {
+						if (!ach.getActivitySource().equals(comparisonCriteria))
 							ac = null;
 					} else
 						ac = null;
@@ -367,7 +367,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 					// is this enough ?
 					if (comparisonCriteria.equals("")
-							|| !ac.getSortedCopyOfSbbAttachmentSet().contains(
+							|| !ac.getSbbAttachmentSet().contains(
 									comparisonCriteria)) {
 						ac = null;
 					}
@@ -380,10 +380,8 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 					SbbID idBeingLookedUp = (SbbID) propertyEditor.getValue();
 					boolean match = false;
 					SbbID implSbbID = null;
-					List list = ac.getSortedCopyOfSbbAttachmentSet();
-					for (int i = 0; i < list.size(); i++) {
-						String sbbEID = (String) list.get(i);
-
+					for (Object obj : ac.getSbbAttachmentSet()) {
+						String sbbEID = (String) obj;
 						if (sbbEntityIdToSbbID.containsKey(sbbEID)) {
 							implSbbID = (SbbID) sbbEntityIdToSbbID.get(sbbEID);
 						} else {
@@ -424,7 +422,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 				// Now we have to check - if we want only IDS
 				Object singleResult = null;
 				if (!listIDsOnly) {
-					logger.debug("Adding AC[" + ac.getActivityContextId() + "]");
+					logger.debug("Adding AC[" + ach + "]");
 
 					Object[] o = getDetails(ac);
 
@@ -448,7 +446,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 				} else {
 
-					singleResult = ac.getActivityContextId();
+					singleResult = ach;
 				}
 
 				lst.add(singleResult);
@@ -474,16 +472,16 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	private Object[] getDetails(ActivityContext ac) {
 
 		logger.debug("Retrieveing details for acID["
-				+ ac.getActivityContextId() + "]");
+				+ ac.getActivityContextHandle() + "]");
 		Object[] o = new Object[ARRAY_SIZE];
 
-		o[ActivityManagementMBeanImplMBean.AC_ID] = ac.getActivityContextId();
+		o[ActivityManagementMBeanImplMBean.AC_ID] = ac.getActivityContextHandle();
 		logger.debug("======[getDetails]["
 				+ o[ActivityManagementMBeanImplMBean.AC_ID] + "]["
 				+ ac.hashCode() + "]");
 		
 		ActivityContextHandle ach = ac.getActivityContextHandle();
-		if (ach.getActivityType() == ActivityType.externalActivity) {
+		if (ach.getActivityType() == ActivityType.RA) {
 			o[RA] = ach.getActivitySource();
 		}
 		
@@ -496,11 +494,10 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		logger.debug("======[getDetails][LAST_ACCESS_TIME]["
 				+ o[LAST_ACCESS_TIME] + "]["
 				+ new Date(Long.parseLong((String) o[LAST_ACCESS_TIME])) + "]");
-		// Do we want it sorted? - other way we need to introduce another
-		// method, or parse String that contains MAP....
-		List lst = ac.getSortedCopyOfSbbAttachmentSet();
-		String[] tmp = new String[lst.size()];
-		tmp = (String[]) lst.toArray(tmp);
+		
+		Set set = ac.getSbbAttachmentSet();
+		String[] tmp = new String[set.size()];
+		tmp = (String[]) set.toArray(tmp);
 		o[SBB_ATTACHMENTS] = tmp;
 
 		Set s = ac.getNamingBindingCopy();
@@ -719,9 +716,9 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 			
 			try {
 				txMgr.begin();
-				ActivityContext ac = acFactory.getActivityContext(ach,false);
+				ActivityContext ac = acFactory.getActivityContext(ach);
 				if (ac != null) {  
-					if (ach.getActivityType() != ActivityType.externalActivity)
+					if (ach.getActivityType() != ActivityType.RA)
 						return;
 
 					if ((currentTime - ac.getLastAccessTime()) < maxActivityIdleTime) {
@@ -812,19 +809,5 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 		
 
 	}
-
-	/*
-	public String dumpContainerState() {
-		Set set = XACacheTestViewer.getXACacheMap().keySet();
-	    StringBuilder sb = new StringBuilder(SleeContainer.lookupFromJndi().getEventRouter().toString());
-	    sb.append("\n"+ActivityContext.dumpStaticState());
-	    sb.append("\n"+SleeContainer.lookupFromJndi().dumpState());
-		for(Iterator i=set.iterator();i.hasNext();) {
-	    	String key = (String)i.next();
-	    	sb.append("\nXACache key "+key+" values = "+((Map)XACacheTestViewer.getXACacheMap().get(key)).keySet());
-	    }
-	    return sb.toString();
-	}
-	*/
 	
 }

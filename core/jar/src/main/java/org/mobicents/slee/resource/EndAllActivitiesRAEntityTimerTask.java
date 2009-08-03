@@ -48,7 +48,7 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 			for (ActivityContextHandle handle : sleeContainer
 					.getActivityContextFactory()
 					.getAllActivityContextsHandles()) {
-				if (handle.getActivityType() == ActivityType.externalActivity
+				if (handle.getActivityType() == ActivityType.RA
 						&& handle.getActivitySource().equals(raEntity.getName())) {
 					try {
 						if (logger.isDebugEnabled()) {
@@ -56,7 +56,7 @@ public class EndAllActivitiesRAEntityTimerTask extends TimerTask {
 						}
 						ActivityContext ac = sleeContainer
 								.getActivityContextFactory()
-								.getActivityContext(handle, false);
+								.getActivityContext(handle);
 						if (ac != null) {
 							// if it has a suspended event context then resume it
 							EventContextImpl eventContextImpl = ac.getEventRouterActivity().getCurrentEventContext();

@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.slee.management.ManagementException;
 
 import org.jboss.system.ServiceMBean;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
  * This is MBean interface that provides outside world with information about
@@ -216,7 +217,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 *             null AC.
 	 * 
 	 */
-	public void endActivity(String nullACID) throws ManagementException;
+	public void endActivity(ActivityContextHandle nullACID) throws ManagementException;
 
 	/**
 	 * 
@@ -228,7 +229,7 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	public String[] listActivityContextsFactories();
 
 	/**
-	 * Retieves list of Activity Context IDs related with specified Activity
+	 * Retieves list of Activity Context Handles related with specified Activity
 	 * object class name
 	 * 
 	 * @param fullQualifiedActivityClassName -
@@ -300,17 +301,14 @@ public interface ActivityManagementMBeanImplMBean extends ServiceMBean
 	 * @throws ManagementException
 	 *             if ac is not found
 	 */
-	public Object[] retrieveActivityContextDetails(String AC_ID)
+	public Object[] retrieveActivityContextDetails(ActivityContextHandle ach)
 			throws ManagementException;
 
 	
 	/**
 	 * This method returns map containing name bindings of activity contexts.
-	 * @return Map containing mappings name->acID
+	 * @return Map containing mappings name->ach
 	 */
 	public Map retrieveNamesToActivityContextIDMappings();
 	
-	/*
-	public String dumpContainerState();
-	*/
 }

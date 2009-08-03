@@ -20,8 +20,7 @@ public class MobicentsCache {
 
 	public MobicentsCache(Cache jBossCache, TransactionManager txManager) {
 		this.jBossCache = jBossCache;
-		this.jBossCache.addInterceptor(new MobicentsCommandInterceptor(
-				txManager), 0);
+		//this.jBossCache.addInterceptor(new MobicentsCommandInterceptor(txManager), 0);
 		logger.info("SLEE Cache created.");
 	}
 
@@ -29,12 +28,12 @@ public class MobicentsCache {
 	 * Retrieves an instance of an {@link ActivityContextCacheData} for the
 	 * Activity Context with the specified id.
 	 * 
-	 * @param activityContextId
+	 * @param activityContextHandle
 	 * @return
 	 */
 	public ActivityContextCacheData getActivityContextCacheData(
-			String activityContextId) {
-		return new ActivityContextCacheData(activityContextId, jBossCache);
+			Object activityContextHandle) {
+		return new ActivityContextCacheData(activityContextHandle, jBossCache);
 	}
 
 	/**

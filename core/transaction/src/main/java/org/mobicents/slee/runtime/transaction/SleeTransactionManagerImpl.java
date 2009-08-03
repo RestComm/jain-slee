@@ -118,14 +118,8 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 			}
 			if (tx == null || (status != Status.STATUS_ACTIVE && status != Status.STATUS_MARKED_ROLLBACK)) {
 				// start a new one
-				if (logger.isDebugEnabled()) {
-					logger.debug("requireTransaction: no tx or tx is inactive, creating one");
-				}
 				this.begin();
 				return true;
-			}
-			if (logger.isDebugEnabled()) {
-				logger.debug("requireTransaction: active tx already exists");
 			}						
 		} catch (NotSupportedException e) {
 			logger.error("Exception creating transaction", e);

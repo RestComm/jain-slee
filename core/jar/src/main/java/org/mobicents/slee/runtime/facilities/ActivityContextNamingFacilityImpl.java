@@ -25,6 +25,7 @@ import javax.slee.facilities.NameNotBoundException;
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.cache.ActivityContextNamingFacilityCacheData;
 
@@ -84,11 +85,12 @@ public class ActivityContextNamingFacilityImpl implements
           
         try {        
         	org.mobicents.slee.runtime.activity.ActivityContextInterface sleeAci = (org.mobicents.slee.runtime.activity.ActivityContextInterface)aci;
-        	String acId = sleeAci.getActivityContext().getActivityContextId();
-        	cacheData.bindName(acId,aciName);
-	        sleeContainer.getActivityContextFactory().getActivityContext(acId,true).addNameBinding(aciName);
+        	ActivityContext ac = sleeAci.getActivityContext();
+        	ActivityContextHandle ach = ac.getActivityContextHandle();
+        	cacheData.bindName(ach,aciName);
+	        ac.addNameBinding(aciName);
 	        if (log.isDebugEnabled()) {
-	        	log.debug("aci name "+aciName+" bound to "+acId+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
+	        	log.debug("aci name "+aciName+" bound to "+ach+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
 	        }
         } catch (NameAlreadyBoundException ex) {
             if (log.isDebugEnabled()) {
@@ -118,13 +120,13 @@ public class ActivityContextNamingFacilityImpl implements
         
         try {       
             
-        	String acId = cacheData.unbindName(aciName);         
+        	ActivityContextHandle ach = (ActivityContextHandle) cacheData.unbindName(aciName);         
             ActivityContext ac = sleeContainer.
-            	getActivityContextFactory().getActivityContext(acId,true);
+            	getActivityContextFactory().getActivityContext(ach);
             if ( ac != null )
                 ac.removeNameBinding(aciName);
             if (log.isDebugEnabled()) {
-	        	log.debug("aci name "+aciName+" unbound from ac with id "+acId+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
+	        	log.debug("aci name "+aciName+" unbound from "+ach+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
 	        }
         } catch ( NameNotBoundException ex) {
             if (log.isDebugEnabled()) {
@@ -170,21 +172,26 @@ public class ActivityContextNamingFacilityImpl implements
         
         try {        
             
-	        String acId = cacheData.lookupName(acName);
+	        ActivityContextHandle ach = (ActivityContextHandle) cacheData.lookupName(acName);
 	        
 	        if (log.isDebugEnabled()) {
-	        	log.debug("lookup of aci name "+acName+" result is "+acId+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
+	        	log.debug("lookup of aci name "+acName+" result is "+ach+" . Tx is "+sleeContainer.getTransactionManager().getTransaction());
 	        }
 	        
-            if (acId == null) {
+            if (ach == null) {
         		return null;
         	}       	
-        	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(acId, true);
+        	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
         	if (ac == null) {
         		cacheData.unbindName(acName);
         		throw new FacilityException("name found but unable to retrieve activity context");
         	}
-        	return new ActivityContextInterfaceImpl(ac);        
+        	
+        	/*if(acName.equals("Test2004NullActivity_Initial_Binding_2")) {
+        		lookup("com.opencloud.sleetck.lib.resource.events.TCKResourceEventY.Y1");
+        	}*/
+        	return new ActivityContextInterfaceImpl(ac);
+        	        	        
         } catch (Exception e) {
         	throw new FacilityException("Failed to look-up ac name binding", e);
         }

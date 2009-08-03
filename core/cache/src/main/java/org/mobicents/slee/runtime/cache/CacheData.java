@@ -17,7 +17,7 @@ public class CacheData {
 	private Node node;
 	protected final Fqn nodeFqn;
 	private boolean isRemoved;
-	private Cache jBossCache;
+	private final Cache jBossCache;
 	
 	protected CacheData(Fqn nodeFqn, Cache jBossCache) {		
 		this.nodeFqn = nodeFqn;		
@@ -82,4 +82,11 @@ public class CacheData {
 		return node;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	protected Cache getCache() {
+		return jBossCache;
+	}
 }

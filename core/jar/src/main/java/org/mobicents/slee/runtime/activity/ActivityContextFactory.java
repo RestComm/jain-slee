@@ -28,25 +28,9 @@ public interface ActivityContextFactory {
 	/**
 	 * Retrieves the {@link ActivityContext} for the specified {@link ActivityContextHandle}.
 	 * @param ach
-	 * @param updateAccessTime indicates if the ac last access time should be updated
 	 * @return null if no such activity context exists
 	 */
-    public ActivityContext getActivityContext(ActivityContextHandle ach, boolean updateAccessTime);
-    
-    /**
-     * Retrieves the {@link ActivityContext} for the specified string id. Use only when there is no other possibility, since it may involve deserialization of the {@link ActivityContextHandle}
-     * @param acId
-     * @param updateAccessTime indicates if the ac last access time should be updated
-     * @return null if no such activity context exists
-     */
-    public ActivityContext getActivityContext(String acId, boolean updateAccessTime);
-    
-    /**
-     * Retrieves the {@link ActivityContextHandle} mapped to the specified ac id.
-     * @param acId
-     * @return
-     */
-    public ActivityContextHandle getActivityContextHandle(String acId);
+    public ActivityContext getActivityContext(ActivityContextHandle ach);
     
     /**
      * Removes the {@link ActivityContext} for the specified {@link ActivityContextHandle}.
@@ -73,10 +57,5 @@ public interface ActivityContextFactory {
      * @return Set of all registered SLEE activity context handles
      */
     public Set<ActivityContextHandle> getAllActivityContextsHandles();
-    
-    /**
-     * @return Set of all registered SLEE activity context ids
-     */
-    public Set<String> getAllActivityContextsIds();
     
 }

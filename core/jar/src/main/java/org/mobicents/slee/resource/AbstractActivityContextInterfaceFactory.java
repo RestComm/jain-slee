@@ -29,9 +29,21 @@ public class AbstractActivityContextInterfaceFactory implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * 
+	 */
 	private transient SleeContainer sleeContainer;
+	
+	/**
+	 * 
+	 */
 	private final ResourceAdaptorTypeID resourceAdaptorTypeID;
 
+	/**
+	 * 
+	 * @param sleeContainer
+	 * @param resourceAdaptorTypeID
+	 */
 	protected AbstractActivityContextInterfaceFactory(
 			SleeContainer sleeContainer,
 			ResourceAdaptorTypeID resourceAdaptorTypeID) {
@@ -66,7 +78,7 @@ public class AbstractActivityContextInterfaceFactory implements Serializable {
 						.createExternalActivityContextHandle(
 								raEntity.getName(), handle);
 				ActivityContext ac = sleeContainer.getActivityContextFactory()
-						.getActivityContext(ach, true);
+						.getActivityContext(ach);
 				if (ac != null) {
 					return new ActivityContextInterfaceImpl(ac);
 				}

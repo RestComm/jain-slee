@@ -121,7 +121,7 @@ public class TimerFacilityImpl implements TimerFacility {
 		aciImpl.getActivityContext().attachTimer(timerID);
 		
 		// schedule timer task
-		TimerFacilityTimerTaskData taskData = new TimerFacilityTimerTaskData(timerID, aciImpl.getActivityContext().getActivityContextId(), address, startTime, period, numRepetitions, timerOptions);
+		TimerFacilityTimerTaskData taskData = new TimerFacilityTimerTaskData(timerID, aciImpl.getActivityContext().getActivityContextHandle(), address, startTime, period, numRepetitions, timerOptions);
     	scheduler.schedule(new TimerFacilityTimerTask(taskData));
 
 		// If we started a tx for this operation, we commit it now
@@ -161,7 +161,7 @@ public class TimerFacilityImpl implements TimerFacility {
 			if (task != null) {
 				// detach this timer from the ac
 				ActivityContext ac = sleeContainer.getActivityContextFactory()
-						.getActivityContext(task.getTimerFacilityTimerTaskData().getAcID(),true);
+						.getActivityContext(task.getTimerFacilityTimerTaskData().getActivityContextHandle());
 				// FIXME is the exception requested?
 				if (ac == null)
 					throw new FacilityException("Can't find ac in cache!");
@@ -234,7 +234,7 @@ public class TimerFacilityImpl implements TimerFacility {
 		
 		if (taskData != null) {
 			try {
-				return new ActivityContextInterfaceImpl(sleeContainer.getActivityContextFactory().getActivityContext(taskData.getAcID(), true));
+				return new ActivityContextInterfaceImpl(sleeContainer.getActivityContextFactory().getActivityContext(taskData.getActivityContextHandle()));
 			} catch (Exception e) {
 				throw new FacilityException(e.getMessage(),e);
 			}

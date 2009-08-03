@@ -7,6 +7,7 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -29,18 +30,18 @@ public class ActivityEndEventPostProcessor {
 	 * this is a SLEE Originated Invocation Sequence containing at most one SLEE
 	 * Originated Invocation of type "Remove Only"
 	 * 
-	 * @param acID the {@link ActivityContext} id of the activity which is ending
+	 * @param ach the {@link ActivityContext} id of the activity which is ending
 	 * @return
 	 * @throws SystemException
 	 */
-	public void process(String acId,SleeTransactionManager txMgr, ActivityContextFactory acf)	throws SystemException {
+	public void process(ActivityContextHandle ach,SleeTransactionManager txMgr, ActivityContextFactory acf)	throws SystemException {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Handling an activity end event on AC "+ acId);
+			logger.debug("Handling an activity end event on AC "+ ach);
 		}
 
 		boolean loopAgain = false;
-		Iterator iter = null;
+		Iterator<?> iter = null;
 
 		do {
 
@@ -57,11 +58,11 @@ public class ActivityEndEventPostProcessor {
 				txMgr.begin();
 				
 				// 2. load ac
-				ac = (ActivityContext) acf.getActivityContext(acId,false);
+				ac = (ActivityContext) acf.getActivityContext(ach);
 				
 				// 3. get sbbs attached, once is enough since when activity ended no new attachments can be done
 				if (iter == null) {
-					iter = ac.getSbbAttachmentSet().values().iterator();
+					iter = ac.getSbbAttachmentSet().iterator();
 				}
 				 
 				if (iter.hasNext()) {
@@ -73,11 +74,11 @@ public class ActivityEndEventPostProcessor {
 						// silently ignore, the sbb entity may be removed concurrently, we don't care
 					}
 					if (logger.isDebugEnabled()) {
-						logger.debug("Dettaching sbb entity " + sbbEntityId	+ " on handle activity end event for ac " + acId);
+						logger.debug("Dettaching sbb entity " + sbbEntityId	+ " on handle activity end event for ac " + ach);
 					}
 					if (sbbEntity != null) {
 						// 4.2. if sbb entity found then detach from ac
-						sbbEntity.afterACDetach(acId);
+						sbbEntity.afterACDetach(ach);
 						// 4.3. get the sbb entity root
 						if (sbbEntity.isRootSbbEntity()) {
 							rootSbbEntity = sbbEntity;
@@ -107,7 +108,7 @@ public class ActivityEndEventPostProcessor {
 				}
 
 			} catch (Exception e) {
-				logger.error("Failure while handling ActivityEndEvent for ac with handle "+acId, e);
+				logger.error("Failure while handling ActivityEndEvent for ac with handle "+ach, e);
 				caught = e;
 				loopAgain = true;
 			} finally {

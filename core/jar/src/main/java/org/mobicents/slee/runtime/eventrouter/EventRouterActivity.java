@@ -3,13 +3,14 @@ package org.mobicents.slee.runtime.eventrouter;
 import java.util.concurrent.ExecutorService;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 public class EventRouterActivity {
 
 	/**
 	 * 
 	 */
-	private final String acId;
+	private final ActivityContextHandle ach;
 	
 	/**
 	 * 
@@ -31,9 +32,9 @@ public class EventRouterActivity {
 	 */
 	private EventContextImpl currentEventContext;
 	
-	public EventRouterActivity(String acId, PendingAttachementsMonitor pendingAttachementsMonitor, SleeContainer sleeContainer) {
-		this.acId = acId;
-		this.eventQueueManager = new ActivityEventQueueManager(acId,sleeContainer);
+	public EventRouterActivity(ActivityContextHandle ach, PendingAttachementsMonitor pendingAttachementsMonitor, SleeContainer sleeContainer) {
+		this.ach = ach;
+		this.eventQueueManager = new ActivityEventQueueManager(ach,sleeContainer);
 		this.pendingAttachementsMonitor = pendingAttachementsMonitor;
 	}
 	
@@ -53,8 +54,8 @@ public class EventRouterActivity {
 		return pendingAttachementsMonitor;
 	}
 	
-	public String getActivityContextId() {
-		return acId;
+	public ActivityContextHandle getActivityContextHandle() {
+		return ach;
 	}
 	
 	public EventContextImpl getCurrentEventContext() {
@@ -68,8 +69,8 @@ public class EventRouterActivity {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == this.getClass()) {
-			return ((EventRouterActivity) obj).acId
-					.equals(this.acId);
+			return ((EventRouterActivity) obj).ach
+					.equals(this.ach);
 		} else {
 			return false;
 		}
@@ -77,7 +78,7 @@ public class EventRouterActivity {
 
 	@Override
 	public int hashCode() {
-		return acId.hashCode();
+		return ach.hashCode();
 	}
 	
 }

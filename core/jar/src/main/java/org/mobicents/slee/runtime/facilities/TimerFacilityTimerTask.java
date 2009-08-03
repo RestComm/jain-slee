@@ -175,18 +175,18 @@ public class TimerFacilityTimerTask extends TimerTask {
 					data.setLastTick(System.currentTimeMillis());
 
 					final ActivityContext ac = sleeContainer.getActivityContextFactory()
-					.getActivityContext(data.getAcID(),true);
+					.getActivityContext(data.getActivityContextHandle());
 
 					// the AC can be null in the edge case when the activity was removed while the basic timer is firing an event
 					//   and thus the timer cancelation came a bit late
 					if (ac == null) {
-						logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getAcID()+" is gone.");
+						logger.warn("Cannot fire timer event with id "+data.getTaskID()+" , because the underlying aci with id "+data.getActivityContextHandle()+" is gone.");
 						timerFacility.cancelTimer(data.getTimerID());
 					} else {
 						if (logger.isDebugEnabled()) {
 							logger
 							.debug("Posting timer event on event router queue. Activity context:  "
-									+ ac.getActivityContextId()
+									+ ac.getActivityContextHandle()
 									+ " remainingRepetitions: "
 									+ data.getRemainingRepetitions());
 						}

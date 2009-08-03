@@ -58,8 +58,9 @@ public class TimerTasksCacheData extends CacheData {
 
 	public Set getTaskDatas() {
 		Set result = new HashSet();
+		Node childNode = null;
 		for (Object obj : getNode().getChildren()) {
-			Node childNode = (Node) obj;
+			childNode = (Node) obj;
 			// add the task, not the timer id
 			result.add(childNode.get(CACHE_NODE_MAP_KEY));
 		}

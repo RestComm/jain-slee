@@ -73,7 +73,7 @@ public class NullActivityContextInterfaceFactoryImpl implements
         }
         NullActivityImpl nullActivityImpl = (NullActivityImpl) nullActivity;
         ActivityContextHandle ach = ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityImpl.getHandle());
-        ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
+        ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
         if (ac == null) {
         	throw new UnrecognizedActivityException(nullActivity);
         }

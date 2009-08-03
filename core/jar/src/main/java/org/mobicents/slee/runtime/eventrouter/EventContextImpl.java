@@ -91,14 +91,14 @@ public class EventContextImpl implements EventContext {
 			SleeContainer sleeContainer) {
 		this.deferredEvent = deferredEvent;
 		this.sleeContainer = sleeContainer;
-		this.eventContextID = new EventContextID(deferredEvent.getActivityContextId(),deferredEvent.getEvent());
+		this.eventContextID = new EventContextID(deferredEvent.getActivityContextHandle(),deferredEvent.getEvent());
 	}
 
 	public ActivityContextInterface getActivityContextInterface() {
 		// perhaps we should cache this aci if it becomes frequently called
 		return new ActivityContextInterfaceImpl(sleeContainer
 				.getActivityContextFactory().getActivityContext(
-						deferredEvent.getActivityContextId(), true));
+						deferredEvent.getActivityContextHandle()));
 	}
 
 	public Address getAddress() {

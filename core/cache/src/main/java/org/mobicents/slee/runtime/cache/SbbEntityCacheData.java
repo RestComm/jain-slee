@@ -32,6 +32,7 @@ public class SbbEntityCacheData extends CacheData {
 	private static final String PARENT_SBB_ENTITY_ID_NODE_MAP_KEY = "parent-sbbeid";
 	private static final String PARENT_CHILD_RELATION_NODE_MAP_KEY = "parent-chdrel-name";
 	private static final String ROOT_SBB_ID_NODE_MAP_KEY = "root-sbbid";
+	private static final String CREATION_DATE_NODE_MAP_KEY = "date";
 	private static final String SERVICE_CONVERGENCE_NAME_NODE_MAP_KEY = "convergence-name";
 	private static final String SBB_ID_NODE_MAP_KEY = "sbbid";
 	private static final String PRIORITY_NODE_MAP_KEY = "priority";
@@ -128,17 +129,12 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public Set getActivityContexts() {
-		Node attachedACsCacheNode = getNode().getChild(
+		final Node attachedACsCacheNode = getNode().getChild(
 				ATTACHED_ACs_CHILD_NODE_FQN);
 		if (attachedACsCacheNode == null) {
 			return Collections.EMPTY_SET;
 		} else {
-			Set result = new HashSet();
-			for (Object obj : attachedACsCacheNode.getChildren()) {
-				Node child = (Node) obj;
-				result.add(child.getFqn().getLastElement());
-			}
-			return result;
+			return new HashSet(attachedACsCacheNode.getChildrenNames());			
 		}
 	}
 
@@ -303,4 +299,11 @@ public class SbbEntityCacheData extends CacheData {
 
 	private static final Object MAP_VALUE = new Object();
 
+	public void setCreationDate(Long creationDate) {
+		getNode().put(CREATION_DATE_NODE_MAP_KEY, creationDate);
+	}
+
+	public Long getCreationDate() {
+		return (Long) getNode().get(CREATION_DATE_NODE_MAP_KEY);
+	}
 }

@@ -9,6 +9,7 @@ import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.UnrecognizedActivityHandleException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -58,13 +59,27 @@ public class SleeEndpointEndActivityNotTransactedExecutor {
 			}
 		};
 		
-		boolean runInThisThread = false;
+		Transaction tx = null;
 		try {
-			runInThisThread = txManager.getTransaction() == null;
+			tx = txManager.getTransaction();
+			if (tx != null) {
+				txManager.suspend();
+			}
+			runnable.run();
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
-		
+		finally {
+			if (tx != null) {
+				try {
+					txManager.resume(tx);
+				}
+				catch (Throwable e) {
+					throw new SLEEException(e.getMessage(),e);
+				}
+			}
+		}
+		/*
 		if (runInThisThread) {
 			runnable.run();
 		}
@@ -85,7 +100,7 @@ public class SleeEndpointEndActivityNotTransactedExecutor {
 			} catch (Throwable e) {
 				throw new SLEEException(e.getMessage(),e);
 			}
-		}
+		}*/
 	}
 	
 }

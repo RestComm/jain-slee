@@ -151,11 +151,7 @@ public class TransactionContext {
 				logger.debug("Executing after commit actions");
 			}
 			executeActions(afterCommitActions);
-		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No after commit actions to execute");
-			}
-		}
+		} 
 	}
 
 	/**
@@ -168,10 +164,6 @@ public class TransactionContext {
 				logger.debug("Executing after commit priority actions");
 			}
 			executeActions(afterCommitPriorityActions);
-		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No after commit priority actions to execute");
-			}
 		}
 	}
 
@@ -185,11 +177,7 @@ public class TransactionContext {
 				logger.debug("Executing rollback actions");
 			}
 			executeActions(afterRollbackActions);
-		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No rollback actions to execute");
-			}
-		}
+		} 
 	}
 
 	/**
@@ -202,11 +190,7 @@ public class TransactionContext {
 				logger.debug("Executing before commit actions");
 			}
 			executeActions(beforeCommitActions);
-		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No before commit actions to execute");
-			}
-		}
+		} 
 	}
 	
 	/**
@@ -219,11 +203,7 @@ public class TransactionContext {
 				logger.debug("Executing before commit priority actions");
 			}
 			executeActions(beforeCommitPriorityActions);
-		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("No before commit priority actions to execute");
-			}
-		}
+		} 
 	}
 
 	private void executeActions(List<TransactionalAction> actions) {

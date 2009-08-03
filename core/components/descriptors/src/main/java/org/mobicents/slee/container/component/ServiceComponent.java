@@ -1,11 +1,3 @@
-/**
- * Start time:16:00:31 2009-01-25<br>
- * Project: mobicents-jainslee-server-core<br>
- * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
- */
 package org.mobicents.slee.container.component;
 
 import java.util.HashSet;
@@ -22,6 +14,8 @@ import javax.slee.management.ServiceDescriptor;
 import javax.slee.management.ServiceUsageMBean;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 
 /**
  * Start time:16:00:31 2009-01-25<br>
@@ -61,6 +55,11 @@ public class ServiceComponent extends SleeComponent {
 	 */
 	private ConcurrentHashMap<SbbID, Object> alarmNotificationSources =
 		new ConcurrentHashMap<SbbID, Object>();
+	
+	/**
+	 * the time in milliseconds this component was created
+	 */
+	private final long creationTime = System.currentTimeMillis();
 	
 	/**
 	 * 
@@ -144,6 +143,14 @@ public class ServiceComponent extends SleeComponent {
 	}
 
 	/**
+	 * Retrieves the time in milliseconds this component was created
+	 * @return
+	 */
+	public long getCreationTime() {
+		return creationTime;
+	}
+	
+	/**
 	 * Retrieves the set of sbbs used by this service
 	 * 
 	 * @param componentRepository
@@ -170,6 +177,24 @@ public class ServiceComponent extends SleeComponent {
 		}
 	}
 
+	/**
+	 * Retrieves the set of ra entity links referenced by the sbbs related with the service.
+	 * @param componentRepository
+	 * @return
+	 */
+	public Set<String> getResourceAdaptorEntityLinks(ComponentRepository componentRepository) {
+		Set<String> result = new HashSet<String>();
+		for (SbbID sbbID : getSbbIDs(componentRepository)) {
+			SbbComponent sbbComponent = componentRepository.getComponentByID(sbbID);
+			for (MResourceAdaptorTypeBinding raTypeBinding : sbbComponent.getDescriptor().getResourceAdaptorTypeBindings()) {
+				for (MResourceAdaptorEntityBinding raEntityBinding : raTypeBinding.getResourceAdaptorEntityBinding()) {
+					result.add(raEntityBinding.getResourceAdaptorEntityLink());
+				}
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * Retrieves the {@link SbbComponent} the service defines as root
 	 * 
@@ -221,5 +246,10 @@ public class ServiceComponent extends SleeComponent {
 			alarmNotificationSources.clear();
 			alarmNotificationSources = null;
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return getServiceID().toString();
 	}
 }

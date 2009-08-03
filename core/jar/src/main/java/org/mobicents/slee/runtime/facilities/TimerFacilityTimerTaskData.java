@@ -8,6 +8,7 @@ import javax.slee.facilities.TimerOptions;
 
 import org.mobicents.slee.core.timers.PeriodicScheduleStrategy;
 import org.mobicents.slee.core.timers.TimerTaskData;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
  * TODO
@@ -24,7 +25,7 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 	/**
 	 * 
 	 */
-	private final String acID;
+	private final ActivityContextHandle ach;
 
 	/**
      * 
@@ -66,11 +67,11 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 	 * @param numRepetitions
 	 * @param timerOptions
 	 */
-	public TimerFacilityTimerTaskData(TimerID timerID, String acID,
+	public TimerFacilityTimerTaskData(TimerID timerID, ActivityContextHandle ach,
 			Address address, long startTime, long period, int numRepetitions,
 			TimerOptions timerOptions) {
 		super(timerID, startTime, period,PeriodicScheduleStrategy.atFixedRate);
-		this.acID = acID;
+		this.ach = ach;
 		this.address = address;
 		this.numRepetitions = numRepetitions;
 		this.timerOptions = timerOptions;
@@ -84,8 +85,8 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 	 * 
 	 * @return
 	 */
-	public String getAcID() {
-		return acID;
+	public ActivityContextHandle getActivityContextHandle() {
+		return ach;
 	}
 
 	/**
@@ -170,7 +171,7 @@ public class TimerFacilityTimerTaskData extends TimerTaskData implements Seriali
 	@Override
 	public String toString() {
 		return "TimerFacilityTimerTaskData[ timerID = " + getTimerID()
-				+ " , acID = " + acID + " , address = " + address
+				+ " , ach = " + ach + " , address = " + address
 				+ " , timerOptions = " + timerOptions + " , startTime = "
 				+ getStartTime() + " , numRepetitions = " + numRepetitions
 				+ " , executions = " + executions

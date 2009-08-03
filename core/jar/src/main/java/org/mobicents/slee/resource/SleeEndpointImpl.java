@@ -181,7 +181,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 		ActivityContextHandle ach = ActivityContextHandlerFactory
 		.createExternalActivityContextHandle(raEntity.getName(), handle);
 		// get ac
-		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
+		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
 		if (ac != null) {
 			// end the activity
 			ac.endActivity();		
@@ -292,7 +292,7 @@ public class SleeEndpointImpl implements SleeEndpoint {
 			Object event, Address address, ReceivableService receivableService, int eventFlags) throws ActivityIsEndingException, SLEEException {
 		ActivityContextHandle ach = ActivityContextHandlerFactory.createExternalActivityContextHandle(raEntity.getName(),handle);        
 		// get ac
-    	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach,true);
+    	ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
     	if (ac == null) {
     		throw new UnrecognizedActivityHandleException(handle.toString());
     	}
@@ -317,12 +317,12 @@ public class SleeEndpointImpl implements SleeEndpoint {
 				.createExternalActivityContextHandle(raEntity.getName(), handle);
 
 		// get ac
-		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach, false);
+		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
 		if (ac != null) {
 			try {
 				// suspend activity
 				final Transaction transaction = tm.getTransaction();
-				final ActivityEventQueueManager eventQueue = sleeContainer.getEventRouter().getEventRouterActivity(ac.getActivityContextId()).getEventQueueManager();
+				final ActivityEventQueueManager eventQueue = sleeContainer.getEventRouter().getEventRouterActivity(ac.getActivityContextHandle()).getEventQueueManager();
 				eventQueue.createBarrier(transaction);
 				TransactionalAction action = new TransactionalAction() {
 					public void execute() {
