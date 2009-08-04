@@ -16,9 +16,9 @@ public class MobicentsCache {
 
 	private static Logger logger = Logger.getLogger(MobicentsCache.class);
 
-	private final Cache jBossCache;
+	private final Cache<?,?> jBossCache;
 
-	public MobicentsCache(Cache jBossCache, TransactionManager txManager) {
+	public MobicentsCache(Cache<?,?> jBossCache, TransactionManager txManager) {
 		this.jBossCache = jBossCache;
 		//this.jBossCache.addInterceptor(new MobicentsCommandInterceptor(txManager), 0);
 		logger.info("SLEE Cache created.");
@@ -55,23 +55,6 @@ public class MobicentsCache {
 	 */
 	public ActivityContextNamingFacilityCacheData getActivityContextNamingFacilityCacheData() {
 		return new ActivityContextNamingFacilityCacheData(jBossCache);
-	}
-
-	/**
-	 * Retrieves an instance of an {@link NullActivityFactoryCacheData}, the
-	 * cache proxy for the Null Activity Factory
-	 * 
-	 * @return
-	 */
-	public NullActivityFactoryCacheData getNullActivityFactoryCacheData() {
-		return new NullActivityFactoryCacheData(jBossCache);
-	}
-
-	public ProfileManagementCacheData getProfileManagementCacheData()
-	{
-		ProfileManagementCacheData pmcd = new ProfileManagementCacheData(jBossCache);
-		pmcd.create();
-		return pmcd;
 	}
 
 	/**

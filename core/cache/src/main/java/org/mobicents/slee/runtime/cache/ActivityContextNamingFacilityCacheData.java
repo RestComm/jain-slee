@@ -21,10 +21,6 @@ import org.jboss.cache.Node;
 public class ActivityContextNamingFacilityCacheData extends CacheData {
 
 	/**
-	 * root fqn
-	 */
-	private final static Fqn parentNodeFqn = Fqn.ROOT;
-	/**
 	 * the name of the cache node that holds all data
 	 */
 	public static final String CACHE_NODE_NAME = "aci-names";
@@ -36,7 +32,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @param txManager
 	 */
 	protected ActivityContextNamingFacilityCacheData(Cache jBossCache) {
-		super(Fqn.fromRelativeElements(parentNodeFqn, CACHE_NODE_NAME),
+		super(Fqn.fromElements(CACHE_NODE_NAME),
 				jBossCache);
 	}
 
@@ -48,12 +44,11 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 */
 	public void bindName(Object ach, String name)
 			throws NameAlreadyBoundException {
-		Node node = getNode();
-		Fqn childNodeFqn = Fqn.fromElements(name);
-		if (node.hasChild(childNodeFqn)) {
+		final Node node = getNode();
+		if (node.hasChild(name)) {
 			throw new NameAlreadyBoundException("name already bound");
 		} else {
-			node.addChild(childNodeFqn).put(CACHE_NODE_MAP_KEY, ach);
+			node.addChild(Fqn.fromElements(name)).put(CACHE_NODE_MAP_KEY, ach);
 		}
 	}
 
@@ -64,14 +59,13 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @throws NameNotBoundException
 	 */
 	public Object unbindName(String name) throws NameNotBoundException {
-		Node node = getNode();
-		Fqn childNodeFqn = Fqn.fromElements(name);
-		Node childNode = node.getChild(childNodeFqn);
+		final Node node = getNode();
+		final Node childNode = node.getChild(name);
 		if (childNode == null) {
 			throw new NameNotBoundException("name not bound");
 		} else {
-			Object ach = childNode.get(CACHE_NODE_MAP_KEY);
-			node.removeChild(childNodeFqn);
+			final Object ach = childNode.get(CACHE_NODE_MAP_KEY);
+			node.removeChild(name);
 			return ach;
 		}
 	}
@@ -82,7 +76,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * @return
 	 */
 	public Object lookupName(String name) {
-		Node childNode = getNode().getChild(Fqn.fromElements(name));
+		final Node childNode = getNode().getChild(name);
 		if (childNode == null) {
 			return null;
 		} else {
@@ -98,11 +92,11 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 
 		Map result = new HashMap();
 		Node childNode = null;
-		Object key = null;
+		Object name = null;
 		for (Object obj : getNode().getChildren()) {
 			childNode = (Node) obj;
-			key = childNode.getFqn().getLastElement();
-			result.put(key, childNode.get(key));
+			name = childNode.getFqn().getLastElement();
+			result.put(name, childNode.get(CACHE_NODE_MAP_KEY));
 		}
 		return result;
 	}

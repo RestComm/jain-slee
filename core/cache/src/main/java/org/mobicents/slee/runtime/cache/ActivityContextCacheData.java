@@ -2,7 +2,6 @@ package org.mobicents.slee.runtime.cache;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,36 +24,101 @@ public class ActivityContextCacheData extends CacheData {
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
 	 */
-	public final static Fqn parentNodeFqn = Fqn.fromElements("ac");
+	public final static String parentNodeFqn = "ac";
 
 	// --- child cache nodes naming
 
+	private static final String ATTACHED_SBBs_NODE_NAME = "attached-sbbs";
+
+	private static final String ATTACHED_TIMERS_NODE_NAME = "attached-timers";
+
+	private static final String NAMES_BOUND_NODE_NAME = "names-bound";
+
+	private static final String CMP_ATTRIBUTES_NODE_NAME = "cmp-attributes";
+
+	private static final String IS_ENDING_NODE_NAME = "is-ending";
+
+	private static final String IS_CHECKING_REFS_NODE_NAME = "is-checking-refs";
+
+
 	private static final Fqn ATTACHED_SBBs_FQN = Fqn
-			.fromElements("attached-sbbs");
+			.fromElements(ATTACHED_SBBs_NODE_NAME);
 
 	private static final Fqn ATTACHED_TIMERS_FQN = Fqn
-			.fromElements("attached-timers");
+			.fromElements(ATTACHED_TIMERS_NODE_NAME);
 
-	private static final Fqn NAMES_BOUND_FQN = Fqn.fromElements("names-bound");
+	private static final Fqn NAMES_BOUND_FQN = Fqn.fromElements(NAMES_BOUND_NODE_NAME);
 
 	private static final Fqn CMP_ATTRIBUTES_FQN = Fqn
-			.fromElements("cmp-attributes");
+			.fromElements(CMP_ATTRIBUTES_NODE_NAME);
 	
 	private static final Fqn IS_ENDING_FQN = Fqn
-	.fromElements("is-ending");
+	.fromElements(IS_ENDING_NODE_NAME);
 
 	private static final Fqn IS_CHECKING_REFS_FQN = Fqn
-	.fromElements("is-checking-refs");
+	.fromElements(IS_CHECKING_REFS_NODE_NAME);
 	
 	private static final Object CMP_ATTRIBUTES_NODE_MAP_KEY = new Object();
 
+	private Node _attachedSbbsNode;
+	
+	private Node getAttachedSbbsNode(boolean createIfNotExists) {
+		if (_attachedSbbsNode == null) {
+			final Node node = getNode();
+			_attachedSbbsNode = node.getChild(ATTACHED_SBBs_NODE_NAME);
+			if (_attachedSbbsNode == null && createIfNotExists) {
+				_attachedSbbsNode = node.addChild(ATTACHED_SBBs_FQN);
+			}
+		}
+		return _attachedSbbsNode;
+	}
+	
+	private Node _attachedTimersNode;
+	
+	private Node getAttachedTimersNode(boolean createIfNotExists) {
+		if (_attachedTimersNode == null) {
+			final Node node = getNode();
+			_attachedTimersNode = node.getChild(ATTACHED_TIMERS_NODE_NAME);
+			if (_attachedTimersNode == null && createIfNotExists) {
+				_attachedTimersNode = node.addChild(ATTACHED_TIMERS_FQN);
+			}
+		}
+		return _attachedTimersNode;
+	}
+	
+	private Node _namesBoundNode;
+	
+	private Node getNamesBoundNode(boolean createIfNotExists) {
+		if (_namesBoundNode == null) {
+			final Node node = getNode();
+			_namesBoundNode = node.getChild(NAMES_BOUND_NODE_NAME);
+			if (_namesBoundNode == null && createIfNotExists) {
+				_namesBoundNode = node.addChild(NAMES_BOUND_FQN);
+			}
+		}
+		return _namesBoundNode;
+	}
+	
+	private Node _cmpAttributesNode;
+	
+	private Node getCmpAttributesNode(boolean createIfNotExists) {
+		if (_cmpAttributesNode == null) {
+			final Node node = getNode();
+			_cmpAttributesNode = node.getChild(CMP_ATTRIBUTES_NODE_NAME);
+			if (_cmpAttributesNode == null && createIfNotExists) {
+				_cmpAttributesNode = node.addChild(CMP_ATTRIBUTES_FQN);
+			}
+		}
+		return _cmpAttributesNode;
+	}
+	
 	/**
 	 * 
 	 * @param activityContextHandle
 	 */
 	protected ActivityContextCacheData(Object activityContextHandle,
 			Cache jBossCache) {
-		super(Fqn.fromRelativeElements(parentNodeFqn, activityContextHandle),
+		super(Fqn.fromElements(parentNodeFqn, activityContextHandle),
 				jBossCache);
 	}
 
@@ -90,7 +154,7 @@ public class ActivityContextCacheData extends CacheData {
 	}
 
 	public boolean isEnding() {
-		return getNode().hasChild(IS_ENDING_FQN);
+		return getNode().hasChild(IS_ENDING_NODE_NAME);
 	}
 	
 	
@@ -106,7 +170,7 @@ public class ActivityContextCacheData extends CacheData {
 		}
 		else {
 			if (isEnding()) {
-				getNode().removeChild(IS_ENDING_FQN);
+				getNode().removeChild(IS_ENDING_NODE_NAME);
 				return true;
 			}
 			else {
@@ -116,7 +180,7 @@ public class ActivityContextCacheData extends CacheData {
 	}
 	
 	public boolean isCheckingReferences() {
-		return getNode().hasChild(IS_CHECKING_REFS_FQN);
+		return getNode().hasChild(IS_CHECKING_REFS_NODE_NAME);
 	}
 	
 	public boolean setCheckingReferences(boolean value) {
@@ -131,7 +195,7 @@ public class ActivityContextCacheData extends CacheData {
 		}
 		else {
 			if (isEnding()) {
-				getNode().removeChild(IS_CHECKING_REFS_FQN);
+				getNode().removeChild(IS_CHECKING_REFS_NODE_NAME);
 				return true;
 			}
 			else {
@@ -147,10 +211,9 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return true if it was attached, false if already was attached
 	 */
 	public boolean attachSbbEntity(String sbbEntityId) {
-		Fqn fqn = Fqn.fromRelativeElements(ATTACHED_SBBs_FQN, sbbEntityId);
-		Node node = getNode();
-		if (!node.hasChild(fqn)) {
-			node.addChild(fqn);
+		final Node node = getAttachedSbbsNode(true);
+		if (!node.hasChild(sbbEntityId)) {
+			node.addChild(Fqn.fromElements(sbbEntityId));
 			return true;
 		} else {
 			return false;
@@ -163,13 +226,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param sbbEntityId
 	 */
 	public boolean detachSbbEntity(String sbbEntityId) {
-		Node childNode = getNode().getChild(ATTACHED_SBBs_FQN);
-		if (childNode != null) {
-			return childNode.removeChild(Fqn.fromElements(sbbEntityId));
-		}
-		else {
-			return false;
-		}
+		final Node node  = getAttachedSbbsNode(false);
+		return node != null ? node.removeChild(sbbEntityId) : false;		
 	}
 
 	/**
@@ -178,12 +236,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return false is there are no sbb entities attached, true otherwise
 	 */
 	public boolean noSbbEntitiesAttached() {
-		Node childNode = getNode().getChild(ATTACHED_SBBs_FQN);
-		if (childNode == null || childNode.getChildrenNames().size() == 0) {
-			return true;
-		} else {
-			return false;
-		}
+		final Node node  = getAttachedSbbsNode(false);
+		return node != null ? node.isLeaf() : true;		
 	}
 
 	/**
@@ -192,14 +246,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return
 	 */
 	public Set getSbbEntitiesAttached() {
-		Set result = null;
-		Node childNode = getNode().getChild(ATTACHED_SBBs_FQN);
-		if (childNode == null) {
-			result = Collections.EMPTY_SET;
-		} else {
-			result = childNode.getChildrenNames();
-		}
-		return result;
+		final Node node  = getAttachedSbbsNode(false);
+		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;		
 	}
 
 	/**
@@ -208,8 +256,10 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param timerID
 	 */
 	public void attachTimer(TimerID timerID) {
-		getNode().addChild(
-				Fqn.fromRelativeElements(ATTACHED_TIMERS_FQN, timerID));
+		final Node node = getAttachedTimersNode(true);
+		if (!node.hasChild(timerID)) {
+			node.addChild(Fqn.fromElements(timerID));
+		}
 	}
 
 	/**
@@ -218,12 +268,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param timerID
 	 */
 	public boolean detachTimer(TimerID timerID) {
-		Node childNode = getNode().getChild(ATTACHED_TIMERS_FQN);
-		if (childNode == null) {
-			return false;
-		} else {
-			return childNode.removeChild(Fqn.fromElements(timerID));
-		}
+		final Node node = getAttachedTimersNode(false);
+		return node != null ? node.removeChild(timerID) : false;			
 	}
 
 	/**
@@ -232,12 +278,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return false is there are no timers attached, true otherwise
 	 */
 	public boolean noTimersAttached() {
-		Node childNode = getNode().getChild(ATTACHED_TIMERS_FQN);
-		if (childNode == null || childNode.getChildrenNames().size() == 0) {
-			return true;
-		} else {
-			return false;
-		}
+		final Node node = getAttachedTimersNode(false);
+		return node != null ? node.isLeaf() : true;		
 	}
 
 	/**
@@ -245,15 +287,9 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @return
 	 */
-	public Set getAttachedTimersCopy() {
-		Set result = null;
-		Node childNode = getNode().getChild(ATTACHED_TIMERS_FQN);
-		if (childNode == null) {
-			result = Collections.EMPTY_SET;
-		} else {
-			result = new HashSet(childNode.getChildrenNames());			
-		}
-		return result;
+	public Set getAttachedTimers() {
+		final Node node = getAttachedTimersNode(false);
+		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;								
 	}
 
 	/**
@@ -262,7 +298,10 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param name
 	 */
 	public void nameBound(String name) {
-		getNode().addChild(Fqn.fromRelativeElements(NAMES_BOUND_FQN, name));
+		final Node node = getNamesBoundNode(true);
+		if (!node.hasChild(name)) {
+			node.addChild(Fqn.fromElements(name));
+		}
 	}
 
 	/**
@@ -271,12 +310,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param name
 	 */
 	public boolean nameUnbound(String name) {
-		Node childNode = getNode().getChild(NAMES_BOUND_FQN);
-		if (childNode == null) {
-			return false;
-		} else {
-			return childNode.removeChild(Fqn.fromElements(name));
-		}
+		final Node node = getNamesBoundNode(false);
+		return node != null ? node.removeChild(name) : false;
 	}
 
 	/**
@@ -285,12 +320,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return false is there are no names bound, true otherwise
 	 */
 	public boolean noNamesBound() {
-		Node childNode = getNode().getChild(NAMES_BOUND_FQN);
-		if (childNode == null || childNode.getChildren().size() == 0) {
-			return true;
-		} else {
-			return false;
-		}
+		final Node node = getNamesBoundNode(false);
+		return node != null ? node.isLeaf() : true;
 	}
 
 	/**
@@ -299,14 +330,8 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return
 	 */
 	public Set getNamesBoundCopy() {
-		Set result = null;
-		Node childNode = getNode().getChild(NAMES_BOUND_FQN);
-		if (childNode == null) {
-			result = Collections.EMPTY_SET;
-		} else {
-			result = new HashSet(childNode.getChildrenNames());
-		}
-		return result;
+		final Node node = getNamesBoundNode(false);
+		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}
 
 	/**
@@ -316,11 +341,10 @@ public class ActivityContextCacheData extends CacheData {
 	 * @param attrValue
 	 */
 	public void setCmpAttribute(String attrName, Object attrValue) {
-		Node node = getNode();
-		Fqn cmpNodeFqn = Fqn.fromRelativeElements(CMP_ATTRIBUTES_FQN, attrName);
-		Node cmpNode = node.getChild(cmpNodeFqn);
+		final Node node = getCmpAttributesNode(true);
+		Node cmpNode = node.getChild(attrName);
 		if (cmpNode == null) {
-			cmpNode = node.addChild(cmpNodeFqn);
+			cmpNode = node.addChild(Fqn.fromElements(attrName));
 		}
 		cmpNode.put(CMP_ATTRIBUTES_NODE_MAP_KEY, attrValue);
 	}
@@ -332,13 +356,19 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return
 	 */
 	public Object getCmpAttribute(String attrName) {
-		Object result = null;
-		Fqn cmpNodeFqn = Fqn.fromRelativeElements(CMP_ATTRIBUTES_FQN, attrName);
-		Node cmpNode = getNode().getChild(cmpNodeFqn);
-		if (cmpNode != null) {
-			result = cmpNode.get(CMP_ATTRIBUTES_NODE_MAP_KEY);
+		final Node node = getCmpAttributesNode(false);
+		if(node == null) {
+			return null;
 		}
-		return result;
+		else {
+			final Node cmpNode = node.getChild(attrName);
+			if (cmpNode != null) {
+				return cmpNode.get(CMP_ATTRIBUTES_NODE_MAP_KEY);
+			}
+			else {
+				return null;
+			}		
+		}
 	}
 
 	/**
@@ -347,20 +377,20 @@ public class ActivityContextCacheData extends CacheData {
 	 * @return
 	 */
 	public Map getCmpAttributesCopy() {
-		Map result = null;
-		Node cmpsNode = getNode().getChild(CMP_ATTRIBUTES_FQN);
-		if (cmpsNode == null) {
-			result = Collections.EMPTY_MAP;
-		} else {
-			result = new HashMap();
+		final Node node = getCmpAttributesNode(false);
+		if(node == null) {
+			return Collections.EMPTY_MAP;
+		}
+		else {
+			Map result = new HashMap();
 			Node cmpNode = null;
-			for (Object obj : cmpsNode.getChildren()) {
+			for (Object obj : node.getChildren()) {
 				cmpNode = (Node) obj;
 				result.put(cmpNode.getFqn().getLastElement(), cmpNode
 						.get(CMP_ATTRIBUTES_NODE_MAP_KEY));
 			}
+			return result;
 		}
-		return result;
 	}
 
 }

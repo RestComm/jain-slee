@@ -95,14 +95,11 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 			if (result == null) {				
 				// try in dependencies
 				for (URLClassLoaderDomain dependency : dependencies) {
-					result = dependency.cache.get(name);
-					if (result == null) {
-						try {
-							result = dependency.loadClass(name, resolve, visited,false);
-						} catch (Throwable e) {
-							// ignore
-						}
-					}
+					try {
+						result = dependency.loadClass(name, resolve, visited,false);
+					} catch (Throwable e) {
+						// ignore
+					}					
 					if (result != null) {
 						break;
 					}

@@ -28,8 +28,16 @@ public class ServiceCacheData extends CacheData {
 	/**
 	 * the fqn of the child node that holds the child sbb entities
 	 */
-	private static Fqn CHILD_OBJ_FQN = Fqn.fromElements("childs");
-
+	private static String CHILD_OBJ_NAME = "childs";
+	private static Fqn CHILD_OBJ_FQN = Fqn.fromElements(CHILD_OBJ_NAME);
+	private Node _childsNode;
+	private Node getChildsNode() {
+		if (_childsNode == null) {
+			_childsNode = getNode().getChild(CHILD_OBJ_NAME);
+		}
+		return _childsNode;
+	}
+	
 	/**
 	 * the node map key that points to the child sbb entity
 	 */
@@ -38,16 +46,26 @@ public class ServiceCacheData extends CacheData {
 	/**
 	 * the fqn of the node that holds all service cache child nodes
 	 */
-	private final static Fqn parentNodeFqn = Fqn.fromElements("service");
+	private final static String parentNodeFqn = "service";
 
 	/**
 	 * 
 	 * @param serviceID
 	 */
 	protected ServiceCacheData(ServiceID serviceID, Cache jBossCache) {
-		super(Fqn.fromRelativeElements(parentNodeFqn, serviceID), jBossCache);
+		super(Fqn.fromElements(parentNodeFqn, serviceID), jBossCache);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.cache.CacheData#create()
+	 */
+	@Override
+	public void create() {
+		super.create();
+		// on creation create also the child node to hold root sbb entities
+		_childsNode = getNode().addChild(CHILD_OBJ_FQN);
+	}
+	
 	/**
 	 * Defines the service state.
 	 * 
@@ -73,8 +91,7 @@ public class ServiceCacheData extends CacheData {
 	 * @param childSbbEntityId
 	 */
 	public void addChild(String convergenceName, String childSbbEntityId) {
-		getNode().addChild(
-				Fqn.fromRelativeElements(CHILD_OBJ_FQN, convergenceName)).put(
+		getChildsNode().addChild(Fqn.fromElements(convergenceName)).put(
 				NODE_MAP_KEY_CHILD_SBB_ENTITY_ID, childSbbEntityId);
 	}
 
@@ -86,8 +103,7 @@ public class ServiceCacheData extends CacheData {
 	 * @return
 	 */
 	public boolean hasChild(String convergenceName) {
-		return getNode().hasChild(
-				Fqn.fromRelativeElements(CHILD_OBJ_FQN, convergenceName));
+		return getChildsNode().hasChild(convergenceName);
 	}
 
 	/**
@@ -97,8 +113,7 @@ public class ServiceCacheData extends CacheData {
 	 * @return true if a child was found and removed
 	 */
 	public boolean removeChild(String convergenceName) {
-		return getNode().removeChild(
-				Fqn.fromRelativeElements(CHILD_OBJ_FQN, convergenceName));
+		return getChildsNode().removeChild(convergenceName);
 	}
 
 	/**
@@ -109,8 +124,8 @@ public class ServiceCacheData extends CacheData {
 	 */
 	public Set getChildSbbEntities() {
 
-		Node childsNode = getNode().getChild(CHILD_OBJ_FQN);
-		if (childsNode != null) {
+		final Node childsNode = getChildsNode();
+		if (!childsNode.isLeaf()) {
 			Set result = new HashSet();
 			Node childNode = null;
 			for (Object obj : childsNode.getChildren()) {
@@ -131,8 +146,7 @@ public class ServiceCacheData extends CacheData {
 	 * @return
 	 */
 	public String getChild(String convergenceName) {
-		Node childNode = getNode().getChild(
-				Fqn.fromRelativeElements(CHILD_OBJ_FQN, convergenceName));
+		Node childNode = getChildsNode().getChild(convergenceName);
 		return childNode != null ? (String) childNode
 				.get(NODE_MAP_KEY_CHILD_SBB_ENTITY_ID) : null;
 	}

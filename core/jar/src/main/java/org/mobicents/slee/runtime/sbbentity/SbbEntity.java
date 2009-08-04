@@ -110,7 +110,6 @@ public class SbbEntity {
 		setSbbId(sbbID);
 		setServiceId(svcId);
 		setServiceConvergenceName(convergenceName);
-		setCreationDate();
 
 		this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
 				getServiceId(), getSbbId());
@@ -126,14 +125,6 @@ public class SbbEntity {
 			throw new RuntimeException(s);
 		}
 
-	}
-
-	private void setCreationDate() {
-		cacheData.setCreationDate(Long.valueOf(System.nanoTime()));
-	}
-	
-	public Long getCreationDate() {
-		return cacheData.getCreationDate();
 	}
 
 	/**

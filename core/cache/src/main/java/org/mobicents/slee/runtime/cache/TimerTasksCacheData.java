@@ -1,6 +1,7 @@
 package org.mobicents.slee.runtime.cache;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,10 +20,6 @@ import org.jboss.cache.Node;
 public class TimerTasksCacheData extends CacheData {
 
 	/**
-	 * root fqn
-	 */
-	private final static Fqn parentNodeFqn = Fqn.ROOT;
-	/**
 	 * the name of the cache node that holds all data
 	 */
 	private static final String CACHE_NODE_NAME = "timertasks";
@@ -34,7 +31,7 @@ public class TimerTasksCacheData extends CacheData {
 	 * @param txManager
 	 */
 	protected TimerTasksCacheData(Cache jBossCache) {
-		super(Fqn.fromRelativeElements(parentNodeFqn, CACHE_NODE_NAME),
+		super(Fqn.fromElements(CACHE_NODE_NAME),
 				jBossCache);
 	}
 
@@ -44,11 +41,11 @@ public class TimerTasksCacheData extends CacheData {
 	}
 
 	public boolean removeTaskData(Serializable taskID) {
-		return getNode().removeChild(Fqn.fromElements(taskID));
+		return getNode().removeChild(taskID);
 	}
 
 	public Object getTaskData(Serializable taskID) {
-		Node childNode = getNode().getChild(Fqn.fromElements(taskID));
+		final Node childNode = getNode().getChild(taskID);
 		if (childNode == null) {
 			return null;
 		} else {
@@ -57,13 +54,19 @@ public class TimerTasksCacheData extends CacheData {
 	}
 
 	public Set getTaskDatas() {
-		Set result = new HashSet();
-		Node childNode = null;
-		for (Object obj : getNode().getChildren()) {
-			childNode = (Node) obj;
-			// add the task, not the timer id
-			result.add(childNode.get(CACHE_NODE_MAP_KEY));
+		final Node node = getNode();
+		if (!node.isLeaf()) {
+			Set result = new HashSet();
+			Node childNode = null;
+			for (Object obj : node.getChildren()) {
+				childNode = (Node) obj;
+				// add the task, not the timer id
+				result.add(childNode.get(CACHE_NODE_MAP_KEY));
+			}
+			return result;
 		}
-		return result;
+		else {
+			return Collections.EMPTY_SET;
+		}
 	}
 }

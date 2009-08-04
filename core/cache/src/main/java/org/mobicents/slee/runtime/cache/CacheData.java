@@ -16,11 +16,12 @@ public class CacheData {
 	
 	private Node node;
 	protected final Fqn nodeFqn;
+	
 	private boolean isRemoved;
 	private final Cache jBossCache;
 	
 	protected CacheData(Fqn nodeFqn, Cache jBossCache) {		
-		this.nodeFqn = nodeFqn;		
+		this.nodeFqn = nodeFqn;	
 		this.jBossCache = jBossCache;
 		this.node = this.jBossCache.getRoot().getChild(nodeFqn);
 		if (logger.isDebugEnabled()) {

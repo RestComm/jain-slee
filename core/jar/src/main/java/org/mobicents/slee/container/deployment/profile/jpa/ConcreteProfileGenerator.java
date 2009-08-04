@@ -92,7 +92,8 @@ public class ConcreteProfileGenerator {
 			ProfileSpecificationDescriptorImpl profileDescriptor = profileComponent
 					.getDescriptor();
 
-			logger.info("Profile combination for "
+			if (logger.isDebugEnabled())
+				logger.debug("Profile combination for "
 					+ profileComponent.getProfileSpecificationID() + " = "
 					+ this.profileCombination);
 
@@ -187,7 +188,8 @@ public class ConcreteProfileGenerator {
 
 			profileConcreteClass.getClassFile().setVersionToJava5();
 
-			logger.info("Writing PROFILE CONCRETE CLASS to: " + deployDir);
+			if (logger.isDebugEnabled())
+				logger.debug("Writing PROFILE CONCRETE CLASS to: " + deployDir);
 
 			profileConcreteClass.writeFile(deployDir);
 

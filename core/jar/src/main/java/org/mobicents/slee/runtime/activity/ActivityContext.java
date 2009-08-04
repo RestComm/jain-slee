@@ -278,7 +278,7 @@ public class ActivityContext {
 	 *         this ac.
 	 */
 	public Set getAttachedTimersCopy() {
-		return cacheData.getAttachedTimersCopy();
+		return cacheData.getAttachedTimers();
 	}
 	
 	// Spec Sec 7.3.4.1 Step 10. "The SLEE notifies the SLEE Facilities that
@@ -288,7 +288,7 @@ public class ActivityContext {
 		TimerFacilityImpl timerFacility = sleeContainer.getTimerFacility();
 		// Iterate through the attached timers, telling the timer facility to
 		// remove them
-		for (Object obj : cacheData.getAttachedTimersCopy()) {
+		for (Object obj : cacheData.getAttachedTimers()) {
 			timerFacility.cancelTimer((TimerID)obj);
 		}
 	}

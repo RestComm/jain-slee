@@ -1,10 +1,11 @@
 package org.mobicents.slee.runtime.cache;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
+import org.jboss.cache.Node;
 
 /**
  * 
@@ -19,7 +20,7 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
 	 */
-	private final static Fqn parentNodeFqn = ActivityContextCacheData.parentNodeFqn;
+	private final static Fqn parentNodeFqn = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
 
 	/**
 	 * 
@@ -36,11 +37,8 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 * @return
 	 */
 	public Set getActivityContextHandles() {
-		Set result = new HashSet();
-		for (Object obj :  getNode().getChildrenNames()) {
-			result.add(obj);
-		}
-		return result;
+		final Node node = getNode();
+		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}
 
 }

@@ -70,19 +70,12 @@ public class SbbEntityComparator implements Comparator<String> {
 					return 1;
 				}
 			} else {
-				int result = sbb2a.getPriority() - sbb1a.getPriority();
-				if (result == 0) {
-					// the older one wins
-					result = (int) (sbb1a.getCreationDate().longValue() - sbb2a
-							.getCreationDate().longValue());
-					if (result == 0) {
-						// id string compare, cause a 0 result means one entity is not added to set
-						result = sbb1a.getSbbEntityId().compareTo(sbb2a.getSbbEntityId());
-						System.out.println("SbbEntity id comparing result is "+result+" for sbb entity "+sbb1a.getSbbEntityId()+" and "+sbb2a.getSbbEntityId());
-					}
+				if (sbb1a.getPriority() > sbb2a.getPriority()) {
+					return -1;
 				}
-				
-				return result;
+				else {
+					return 1;
+				}				
 			}
 		}
 	}
