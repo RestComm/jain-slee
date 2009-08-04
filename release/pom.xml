@@ -8,7 +8,7 @@
 	<parent>
 		<artifactId>mobicents</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>8</version>
+		<version>12</version>
 	</parent>
 	
 	<artifactId>sources-checkout</artifactId>
@@ -21,10 +21,9 @@
 		<checkout.password></checkout.password>
 		
 		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
-		<mmc.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/branches/servers/jain-slee/1.x.y/tools/mmc</mmc.connectionURL>
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
-		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/branches/servers/jain-slee/1.x.y/examples/sip-services</example.sipservices.connectionURL>
-		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/branches/servers/jain-slee/1.x.y/examples/sip-wake-up</example.sipwakeup.connectionURL>
+		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</example.sipservices.connectionURL>
+		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</example.sipwakeup.connectionURL>
 		
 	</properties>
 	
@@ -53,26 +52,6 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								${core.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>mmc-checkout</id>
-						<goals>
-							<goal>checkout</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<skipCheckoutIfExists>true</skipCheckoutIfExists>
-							<checkoutDirectory>
-								${checkout.basedir}/tools/mmc
-							</checkoutDirectory>
-							<connectionUrl>
-								${mmc.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -166,25 +145,6 @@
 							<scmVersionType>revision</scmVersionType>
 							<connectionUrl>
 								${core.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>mmc-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/tools/mmc
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${mmc.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>

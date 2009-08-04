@@ -6,7 +6,7 @@
 	<property name="example.dirs" value="sip-services,sip-wake-up"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
-	<property name="jboss.version" value="5.0.0.GA"/>
+	<property name="jboss.version" value="5.1.0.GA"/>
 	<property name="release.version" value="2.0.0-SNAPSHOT"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
     <property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
@@ -81,11 +81,11 @@
 	</target>
 
 	<target name="copy-extra-jbossas-files">
-		<!-- <copy failonerror="true" file="${ant.file.mobicents.release}/../jbossjta-properties.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jbossjta-properties.xml" overwrite="true" /> -->
-		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" />
+		<!-- <copy failonerror="true" file="${ant.file.mobicents.release}/../jbossjta-properties.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jbossjta-properties.xml" overwrite="true" /> 
+		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-components,build-core,build-mmc,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-components,build-core,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		
 		<tstamp>
@@ -93,12 +93,12 @@
 		</tstamp>
 		<delete dir="." includes="mobicents-jainslee-server-${release.version}-*.zip"/>
 		<antcall target="zip-jboss">
-			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-jboss-${jboss.version}-${time.stamp}.zip" />
+			<param name="zip.filename" value="mobicents-jainslee-${release.version}-jboss-${jboss.version}.zip" />
 			<param name="jboss.home" value="${jboss.home}" />
 		</antcall>
-		<antcall target="build-src-zip">
-			<param name="zip.filename" value="mobicents-jainslee-server-${release.version}-${time.stamp}-src.zip" />
-		</antcall>
+		<!--antcall target="build-src-zip">
+			<param name="zip.filename" value="mobicents-jainslee-${release.version}-src.zip" />
+		</antcall-->
 		<delete dir="${jboss.home}" failonerror="true" />
 		<antcall target="clean"/>
 	</target>
@@ -237,7 +237,7 @@
 	</target>
 
 	<target name="checksum">
-		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}.asc" forceOverwrite="yes"/>
+		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}" forceOverwrite="yes"/>
 	</target>
 
 	<!-- get components -->
@@ -245,7 +245,7 @@
 	<condition property="components.checkedout">
 		<and>
 			<available file="${ant.file.mobicents.release}/../checkout/core/.svn/entries" />
-			<available file="${ant.file.mobicents.release}/../checkout/mmc/.svn/entries" />
+			<!--available file="${ant.file.mobicents.release}/../checkout/mmc/.svn/entries" /-->
 			<available file="${ant.file.mobicents.release}/../checkout/resources/sip11/.svn/entries" />
 			<available file="${ant.file.mobicents.release}/../checkout/examples/sip-services/.svn/entries" />
 			<available file="${ant.file.mobicents.release}/../checkout/examples/sip-services/.svn/entries" />									
