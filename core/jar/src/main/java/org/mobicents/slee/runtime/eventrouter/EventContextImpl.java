@@ -3,8 +3,8 @@ package org.mobicents.slee.runtime.eventrouter;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
@@ -35,11 +35,6 @@ public class EventContextImpl implements EventContext {
 	 * but since the app can specify its own timeout value ...
 	 */
 	private static final int DEFAULT_TIMEOUT = 10000;
-
-	/**
-	 * the timer used to control timeouts for event context suspension
-	 */
-	private static final Timer timer = new Timer();
 
 	/**
 	 * the container
@@ -78,9 +73,9 @@ public class EventContextImpl implements EventContext {
 	private final Set<String> sbbEntitiesThatHandledEvent = new HashSet<String>();
 
 	/**
-	 * the timer task controlling the suspension timeout
+	 * the scheduled future for the task controlling the suspension timeout
 	 */
-	private SuspensionTimerTask timerTask;
+	private ScheduledFuture<?> scheduledFuture;
 	
 	/**
 	 * transactional action action to change state
@@ -221,8 +216,8 @@ public class EventContextImpl implements EventContext {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				// cancel timer task
-				timerTask.cancel();
-				timerTask = null;
+				scheduledFuture.cancel(false);
+				scheduledFuture = null;
 				// send events frozen to event router again, will be processed only after this one ends
 				for (DeferredEvent deferredEvent : barriedEvents) {
 					eventRouter.routeEvent(deferredEvent);
@@ -256,8 +251,7 @@ public class EventContextImpl implements EventContext {
 		return eventContextID;
 	}
 	
-	private class SuspensionTimerTask extends TimerTask {
-		@Override
+	private class SuspensionTimerTask implements Runnable {
 		public void run() {
 			try {
 				resume();
@@ -294,10 +288,8 @@ public class EventContextImpl implements EventContext {
 				barriedEvents = new LinkedList<DeferredEvent>();
 				// set state as suspended
 				suspended = true;
-				// schedule timer task
-				timerTask = new SuspensionTimerTask();
-				// schedule task in timer
-				timer.schedule(timerTask,timeout);
+				// schedule task directly in timer facility scheduler's executor, no need to be fault tolerant
+				scheduledFuture = sleeContainer.getTimerFacility().getScheduler().getExecutor().schedule(new SuspensionTimerTask(),timeout,TimeUnit.MILLISECONDS);
 				break;
 			case resume:
 				resume();

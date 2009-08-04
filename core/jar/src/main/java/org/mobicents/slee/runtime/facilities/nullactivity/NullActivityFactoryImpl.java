@@ -16,16 +16,10 @@ import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityFactory;
 import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
-import org.mobicents.slee.runtime.cache.NullActivityFactoryCacheData;
 
 /**
  * Implementation of the null activity factory.
@@ -40,14 +34,10 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 	private SleeContainer sleeContainer;
 
 	private static Logger logger = Logger.getLogger(NullActivityFactoryImpl.class);
-
-	private final NullActivityFactoryCacheData cacheData;
 	
 	public NullActivityFactoryImpl(SleeContainer serviceContainer)
 			throws Exception {
 		this.sleeContainer = serviceContainer;
-		cacheData = sleeContainer.getCache().getNullActivityFactoryCacheData();
-		cacheData.create();
 	}
 
 	/*
@@ -101,50 +91,11 @@ public class NullActivityFactoryImpl implements NullActivityFactory {
 		
 		if (logger.isDebugEnabled()) {
 			logger
-					.debug("NullActivityFactory.createNullActivity() Creating null activity "
+					.debug("NullActivityFactory.createNullActivity() Created null activity "
 							+ nullActivity);
 		}
 		
-		// put in cache
-		cacheData.addNullActivityId(nullActivityHandle.getId());
-		
 		return nullActivity;
-
-	}
-
-	public void activityEnded(NullActivityHandle nullActivityHandle) {
-		try {
-			// remove from cache
-			cacheData.removeNullActivityId(nullActivityHandle.getId());
-		}
-		catch (Exception e) {
-			logger.error("failed to remove null activity", e);
-		}
-	}
-	
-	public void restart() throws Exception {
-		sleeContainer.getTransactionManager().mandateTransaction();
-		if (logger.isDebugEnabled())
-			logger.debug("NullActivityFactory.restart()");
-		// Restore the cached image
-		ActivityContextFactoryImpl acf = sleeContainer.getActivityContextFactory();
-		for (String id : cacheData.getNullActivityIds()) {
-			
-			if (logger.isDebugEnabled())
-				logger
-					.debug("NullActivityFactory.restart(): restoring null activity "
-							+ id);
-			// recreate handle
-			NullActivityHandle nullActivityHandle = new NullActivityHandle(id);
-			// get an activity context for it
-			acf.createActivityContext(ActivityContextHandlerFactory.createNullActivityContextHandle(nullActivityHandle));
-		}
-	}
-	
-	@Override
-	public String toString() {
-		return 	"Null Activity Factory: " +
-				"\n+-- Null Activities: " + cacheData.getNullActivityIds().size();
 	}
 
 }

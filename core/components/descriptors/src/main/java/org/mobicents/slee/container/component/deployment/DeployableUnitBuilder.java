@@ -181,16 +181,20 @@ public class DeployableUnitBuilder {
 			Set<SleeComponent> duComponentsSet = deployableUnit
 					.getDeployableUnitComponents();
 
-			// now that all components are built we need to , if that's the case
+			// now that all components are built we need to
 			for (SleeComponent sleeComponent : duComponentsSet) {
 				// check if all
 				// dependencies are available
 				checkDependencies(sleeComponent, deployableUnit);
 				// build its class loader
 				createClassLoader(sleeComponent);
-				// load the provided classes for the component
+			}
+
+			// load the provided classes for the component
+			for (SleeComponent sleeComponent : duComponentsSet) {
 				loadAndSetNonGeneratedComponentClasses(sleeComponent);
 			}
+			
 			//boolean secEnabled = SleeContainer.isSecurityEnabled();
 			// validate each component
 			for (SleeComponent sleeComponent : duComponentsSet) {

@@ -54,6 +54,14 @@ public class TimerFacilityImpl implements TimerFacility {
 		scheduler = new FaultTolerantScheduler(16,sleeContainer.getCache().getTimerFacilityCacheData(), sleeContainer.getTransactionManager(),new TimerFacilityTimerTaskFactory());
 	}
 
+	/**
+	 * Retrieves 
+	 * @return the scheduler
+	 */
+	public FaultTolerantScheduler getScheduler() {
+		return scheduler;
+	}
+	
 	/*
 	 * One shot timer
 	 * 

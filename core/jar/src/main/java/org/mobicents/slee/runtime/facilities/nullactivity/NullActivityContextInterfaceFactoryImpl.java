@@ -30,7 +30,6 @@ import javax.slee.management.SleeState;
 import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 
-import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
@@ -46,9 +45,7 @@ public class NullActivityContextInterfaceFactoryImpl implements
         NullActivityContextInterfaceFactory {
     
     private SleeContainer sleeContainer ;
-     
-    private static Logger logger = Logger.getLogger(NullActivityContextInterfaceFactoryImpl.class);
-    
+         
     public NullActivityContextInterfaceFactoryImpl(SleeContainer svcContainer) {
         this.sleeContainer = svcContainer;
     }
@@ -66,8 +63,8 @@ public class NullActivityContextInterfaceFactoryImpl implements
         
         if (nullActivity == null ) 
             throw new NullPointerException ("null NullActivity ! huh!!");
+        
         if ( sleeContainer.getSleeState() == SleeState.STOPPING) {
-            logger.debug("Trying to create null activity in stopping state!");
             return null;
             
         }

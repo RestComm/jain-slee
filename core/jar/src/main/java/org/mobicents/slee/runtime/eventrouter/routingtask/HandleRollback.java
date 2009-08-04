@@ -1,6 +1,5 @@
 package org.mobicents.slee.runtime.eventrouter.routingtask;
 
-import javax.slee.ActivityContextInterface;
 import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
 
@@ -37,8 +36,6 @@ public class HandleRollback {
 	public boolean handleRollback(SbbObject sbbObject,
 			Exception e, ClassLoader contextClassLoader,SleeTransactionManager txMgr) throws TransactionRequiredLocalException, SystemException {
 		
-		txMgr.mandateTransaction();
-
 		boolean invokeSbbRolledBack = false;
 
 		if (e != null && e instanceof RuntimeException) {

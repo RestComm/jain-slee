@@ -32,7 +32,6 @@ import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.eventrouter.RollbackDeferredEventAction;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
-import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityComparator;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
@@ -321,15 +320,9 @@ public class ActivityContext {
 	 *            sbb entity to attach.
 	 * @return true if the SBB Entity is attached successfully, otherwise when
 	 *         the SBB Entitiy has already been attached before, return false
-	 * @throws javax.slee.TransactionRequiredLocalException
-	 * @throws javax.slee.TransactionRolledbackLocalException
-	 * @throws javax.slee.SLEEException
 	 */
 
-	public boolean attachSbbEntity(String sbbEntityId)
-			throws javax.slee.TransactionRequiredLocalException {
-
-		sleeContainer.getTransactionManager().mandateTransaction();
+	public boolean attachSbbEntity(String sbbEntityId) {
 
 		boolean attached = cacheData.attachSbbEntity(sbbEntityId);
 		if (attached) {
@@ -540,8 +533,7 @@ public class ActivityContext {
 			break;
 		
 		case NULL:
-			// null activity, warn the factory
-			sleeContainer.getNullActivityFactory().activityEnded((NullActivityHandle)activityContextHandle.getActivityHandle());
+			// do nothing
 			break;
 			
 		case PTABLE:

@@ -26,7 +26,7 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;

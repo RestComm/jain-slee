@@ -9,7 +9,6 @@ import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * The context of event routing stored in the transaction
@@ -79,10 +78,8 @@ public class EventRoutingTransactionData {
 	 * Puts the data into tx context
 	 */
 	public void putInTransactionContext() throws TransactionRequiredLocalException {
-		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
-		txManager.mandateTransaction();
 		try {
-			txManager.getTransactionContext().getData().put(TRANSACTION_CONTEXT_KEY,this);
+			sleeContainer.getTransactionManager().getTransactionContext().getData().put(TRANSACTION_CONTEXT_KEY,this);
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
@@ -93,20 +90,16 @@ public class EventRoutingTransactionData {
 	 * @return  null if there is no event routing tx data for the active tx
 	 */
 	public static EventRoutingTransactionData getFromTransactionContext() throws TransactionRequiredLocalException {
-		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
-		txManager.mandateTransaction();
 		try {
-			return (EventRoutingTransactionData) txManager.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
+			return (EventRoutingTransactionData) sleeContainer.getTransactionManager().getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
 	}
 
 	public void removeFromTransactionContext() {
-		final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
-		txManager.mandateTransaction();
 		try {
-			txManager.getTransactionContext().getData().remove(TRANSACTION_CONTEXT_KEY);
+			sleeContainer.getTransactionManager().getTransactionContext().getData().remove(TRANSACTION_CONTEXT_KEY);
 		} catch (SystemException e) {
 			throw new SLEEException(e.getMessage(),e);
 		}

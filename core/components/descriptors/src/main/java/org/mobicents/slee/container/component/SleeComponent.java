@@ -79,15 +79,7 @@ public abstract class SleeComponent {
 	 * @param classLoader
 	 */
 	public void setClassLoader(ComponentClassLoader classLoader) {
-		this.classLoader = classLoader;
-		if (classPool != null) {
-			classPool.clean();
-		}
-		classPool = new ClassPool();
-		// add class path for domain and dependencies
-		addDomainLoadersToJavassistPool(new HashSet<URLClassLoaderDomain>(),classLoaderDomain);
-		// add class path also for slee 
-		classPool.appendClassPath(new LoaderClassPath(classLoaderDomain.getSleeClassLoader()));
+		this.classLoader = classLoader;		
 	}
 
 	private void addDomainLoadersToJavassistPool(Set<URLClassLoaderDomain> visitedDomains, URLClassLoaderDomain domain) {
@@ -121,20 +113,21 @@ public abstract class SleeComponent {
 	}
 
 	/**
-	 * Sets the component javassist class pool
-	 * 
-	 * @param classPool
-	 */
-	public void setClassPool(ClassPool classPool) {
-		this.classPool = classPool;
-	}
-
-	/**
 	 * Retrieves the component javassist class pool
 	 * 
 	 * @return
 	 */
 	public ClassPool getClassPool() {
+		if (classPool == null) {
+			if (classLoader == null) {
+				throw new IllegalStateException("can't init javassit classpool, there is no class loader set for the component");
+			}
+			classPool = new ClassPool();
+			// add class path for domain and dependencies
+			addDomainLoadersToJavassistPool(new HashSet<URLClassLoaderDomain>(),classLoaderDomain);
+			// add class path also for slee 
+			classPool.appendClassPath(new LoaderClassPath(classLoaderDomain.getSleeClassLoader()));
+		}		
 		return classPool;
 	}
 

@@ -212,15 +212,11 @@ public class Service {
 	 * 
 	 * @param convergenceName
 	 */
-	public SbbEntity addChild(String convergenceName) throws CreateException {
+	public SbbEntity addChild(String convergenceName) {
 
 		if (logger.isDebugEnabled()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(getServiceID().toString() + " adding convergence name "+convergenceName);
-			}
+			logger.debug(getServiceID().toString() + " adding convergence name "+convergenceName);
 		}
-
-		sleeContainer.getTransactionManager().mandateTransaction();
 
 		// create root sbb entity
 		SbbEntity sbbEntity = SbbEntityFactory.createRootSbbEntity(getRootSbbID(),
