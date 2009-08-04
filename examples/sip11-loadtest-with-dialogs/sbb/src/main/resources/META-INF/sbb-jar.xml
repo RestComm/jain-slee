@@ -6,12 +6,6 @@
         <sbb-name>SimpleCallSetupTerminatedByServerWithDialogsTestSBB</sbb-name>
         <sbb-vendor>org.mobicents</sbb-vendor>
         <sbb-version>1.0</sbb-version>
-       
-        <library-ref>
-        	<library-name>jain-sip</library-name>
-        	<library-vendor>javax.sip</library-vendor>
-        	<library-version>1.2</library-version>
-    	</library-ref>
     	
         <sbb-classes>
             <sbb-abstract-class>

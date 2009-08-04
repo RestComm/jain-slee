@@ -1,0 +1,353 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
+                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+
+<sbb-jar>
+
+	<sbb id="sip-proxy-sbb">
+		<description>JAIN SIP Proxy SBB</description>
+		<sbb-name>ProxySbb</sbb-name>
+		<sbb-vendor>mobicents</sbb-vendor>
+		<sbb-version>1.1</sbb-version>
+
+		<!-- Delegate to this child SBB if we need to do registrations -->
+		<sbb-ref>
+			<sbb-name>SipRegistrarSbb</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.2</sbb-version>
+			<sbb-alias>RegistrarSbb</sbb-alias>
+		</sbb-ref>
+
+		<sbb-ref>
+			<sbb-name>LocationSbb</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.2</sbb-version>
+			<sbb-alias>LocationSbb</sbb-alias>
+		</sbb-ref>
+
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>
+					org.mobicents.slee.services.sip.proxy.ProxySbb
+				</sbb-abstract-class-name>
+				<cmp-field>
+					<cmp-field-name>configuration</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>forwardedInviteViaHeader</cmp-field-name>
+				</cmp-field>
+				<cmp-field>
+					<cmp-field-name>serverTransactionTerminated</cmp-field-name>
+				</cmp-field>
+
+				<get-child-relation-method>
+					<sbb-alias-ref>RegistrarSbb</sbb-alias-ref>
+					<get-child-relation-method-name>
+						getRegistrarSbbChildRelation
+					</get-child-relation-method-name>
+					<default-priority>0</default-priority>
+				</get-child-relation-method>
+
+				<get-child-relation-method>
+					<sbb-alias-ref>LocationSbb</sbb-alias-ref>
+					<get-child-relation-method-name>
+						getLocationSbbChildRelation
+					</get-child-relation-method-name>
+					<default-priority>0</default-priority>
+				</get-child-relation-method>
+			</sbb-abstract-class>
+			<!--
+				<sbb-usage-parameters-interface>
+				<sbb-usage-parameters-interface-name>org.mobicents.slee.services.sip.proxy.ProxySbbUsage</sbb-usage-parameters-interface-name>
+				</sbb-usage-parameters-interface>
+			-->
+			<sbb-activity-context-interface>
+				<sbb-activity-context-interface-name>
+					org.mobicents.slee.services.sip.proxy.ProxySbbActivityContextInterface
+				</sbb-activity-context-interface-name>
+			</sbb-activity-context-interface>
+
+		</sbb-classes>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>InviteEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.INVITE</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ByeEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.BYE</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>CancelEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.CANCEL</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>AckEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.ACK</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>MessageEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.MESSAGE</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>OptionsEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.OPTIONS</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>RegisterEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.REGISTER</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>InfoRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.PROVISIONAL</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>SuccessRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.SUCCESS</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<!--
+			event event-direction="Receive" initial-event="False">
+			<event-name>RedirRespEvent</event-name> <event-type-ref>
+			<event-type-name> javax.sip.message.Response.REDIRECTION
+			</event-type-name> <event-type-vendor>javax.sip</event-type-vendor>
+			<event-type-version>1.1</event-type-version> </event-type-ref>
+			<initial-event-selector-method-name> callIDSelect
+			</initial-event-selector-method-name> </event
+		-->
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ClientErrorRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.CLIENT_ERROR</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ServerErrorRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.SERVER_ERROR</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>GlobalFailureRespEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Response.GLOBAL_FAILURE</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>TransactionTimeoutEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.Timeout.TRANSACTION</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-selector-method-name>
+				callIDSelect
+			</initial-event-selector-method-name>
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ServiceStarted</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+			</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.ActivityEndEvent
+				</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+		<!--
+			<event event-direction="Receive" initial-event="False">
+			<event-name>TimeEvent</event-name> <event-type-ref> <event-type-name>
+			javax.slee.facilities.TimerEvent </event-type-name>
+			<event-type-vendor>javax.slee</event-type-vendor>
+			<event-type-version>1.0</event-type-version> </event-type-ref>
+
+			</event>
+		-->
+
+
+
+		<env-entry>
+			<description>
+				name of MBean that holds this configuration
+			</description>
+			<env-entry-name>configuration-MBEAN</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>only_human</env-entry-value>
+		</env-entry>
+		<env-entry>
+			<description>accepted uri schemes</description>
+			<env-entry-name>configuration-URI-SCHEMES</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>sip;sips</env-entry-value>
+		</env-entry>
+		<env-entry>
+			<description>Local domain names</description>
+			<env-entry-name>configuration-LOCAL-DOMAINS</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>nist.gov;mobicents.org</env-entry-value>
+		</env-entry>
+		<!--
+			<env-entry> <description>List of must pass through
+			hosts</description>
+			<env-entry-name>configuration-MUST-PASS</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>somehost.mobicents.org;someother.nist.gov</env-entry-value>
+			</env-entry>
+		-->
+		<env-entry>
+			<description>
+				number of seconds after ctimer will fire
+			</description>
+			<env-entry-name>configuration-C-TIMEOUT</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>180</env-entry-value>
+		</env-entry>
+		<env-entry>
+			<description>Maxmimum registration time [s]</description>
+			<env-entry-name>configuration-MAX-EXPIRES</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>3600</env-entry-value>
+		</env-entry>
+		<env-entry>
+			<description>Minimum registration time [s]</description>
+			<env-entry-name>configuration-MIN-EXPIRES</env-entry-name>
+			<env-entry-type>java.lang.String</env-entry-type>
+			<env-entry-value>60</env-entry-value>
+		</env-entry>
+
+
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					JAIN SIP
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					javax.sip
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.2
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jainsip/1.2/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jainsip/1.2/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					SipRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+
+
+	</sbb>
+
+</sbb-jar>
+

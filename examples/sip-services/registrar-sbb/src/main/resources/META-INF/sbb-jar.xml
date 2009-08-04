@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
+                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+
+<sbb-jar>
+	<sbb id="sip-registrar-sbb">
+		<description>JAIN SIP Registrar SBB</description>
+		<sbb-name>SipRegistrarSbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.2</sbb-version>
+
+		<sbb-ref>
+			<sbb-name>LocationSbb</sbb-name>
+			<sbb-vendor>org.mobicents</sbb-vendor>
+			<sbb-version>1.2</sbb-version>
+			<sbb-alias>LocationSbb</sbb-alias>
+		</sbb-ref>
+
+
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>
+					org.mobicents.slee.services.sip.registrar.RegistrarSbb
+				</sbb-abstract-class-name>
+				<get-child-relation-method>
+					<sbb-alias-ref>LocationSbb</sbb-alias-ref>
+					<get-child-relation-method-name>
+						getLocationSbbChildRelation
+					</get-child-relation-method-name>
+					<default-priority>0</default-priority>
+				</get-child-relation-method>
+			</sbb-abstract-class>
+		</sbb-classes>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>RegisterEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.sip.message.Request.REGISTER</event-type-name>
+				<event-type-vendor>net.java.slee</event-type-vendor>
+				<event-type-version>1.2</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>ServiceStarted</event-name>
+			<event-type-ref>
+				<event-type-name>javax.slee.serviceactivity.ServiceStartedEvent</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+
+		<event event-direction="Receive" initial-event="False">
+			<event-name>ActivityEndEvent</event-name>
+			<event-type-ref>
+				<event-type-name>javax.slee.ActivityEndEvent</event-type-name>
+				<event-type-vendor> javax.slee </event-type-vendor>
+				<event-type-version> 1.0 </event-type-version>
+			</event-type-ref>
+		</event>
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					JAIN SIP
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					javax.sip
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.2
+				</resource-adaptor-type-version>
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jainsip/1.2/acifactory
+			</activity-context-interface-factory-name>
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jainsip/1.2/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					SipRA
+				</resource-adaptor-entity-link>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
+
+	</sbb>
+
+</sbb-jar>
