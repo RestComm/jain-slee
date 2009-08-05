@@ -90,8 +90,8 @@ public class JPAProfileTableFramework {
       properties.setProperty(Environment.USE_REFLECTION_OPTIMIZER, "false");
       properties.setProperty(Environment.BYTECODE_PROVIDER, "javassist");
       properties.setProperty(Environment.STATEMENT_BATCH_SIZE, "0");
-      properties.setProperty(Environment.SHOW_SQL, "true");
-      properties.setProperty(Environment.FORMAT_SQL, "true");
+      properties.setProperty(Environment.SHOW_SQL, "false");
+      properties.setProperty(Environment.FORMAT_SQL, "false");
 
       PersistenceUnitInfoImpl pi = new PersistenceUnitInfoImpl(pumd,
           properties, Thread.currentThread().getContextClassLoader(),
