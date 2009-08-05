@@ -38,6 +38,7 @@ import org.mobicents.slee.container.component.profile.ProfileAttribute;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.component.profile.ProfileEntityFactory;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
+import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -565,8 +566,10 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			pumd.setJtaDataSource("java:/DefaultDS");
 			pumd.setExcludeUnlistedClasses(false);
 
-			Map pumdProps = new HashMap();
-			pumdProps.put(Environment.HBM2DDL_AUTO, "create-drop");
+      boolean persistProfiles = MobicentsManagement.persistProfiles;
+
+      Map pumdProps = new HashMap();
+      pumdProps.put(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
 			pumdProps.put(Environment.DIALECT,
 					"org.hibernate.dialect.HSQLDialect");
 
@@ -610,7 +613,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 					"persistence.unit:unitName=#" + pumd.getName());
 			properties.setProperty(Environment.SESSION_FACTORY_NAME,
 					"persistence.unit:unitName=#" + pumd.getName());
-			properties.setProperty(Environment.HBM2DDL_AUTO, "create-drop");
+			properties.setProperty(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
 			properties.setProperty(Environment.USE_REFLECTION_OPTIMIZER,
 					"false");
 			properties.setProperty(Environment.BYTECODE_PROVIDER, "javassist");

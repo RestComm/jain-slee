@@ -76,4 +76,13 @@ public class MobicentsManagement extends ServiceMBeanSupport implements Mobicent
 	  logger.warn("Setting event router executors to "+eventRouterExecutors+". If called with server running a stop and start is need to apply changes.");
   }
   
+  public static boolean persistProfiles;
+
+  public boolean getPersistProfiles() {
+    return persistProfiles;
+  }
+
+  public void setPersistProfiles(boolean persist) {
+    persistProfiles = persist;
+  }
 }

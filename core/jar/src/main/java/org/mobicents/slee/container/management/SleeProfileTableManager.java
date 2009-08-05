@@ -26,6 +26,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileEntityFramework;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileTable;
+import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileTableFramework;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -46,7 +48,8 @@ public class SleeProfileTableManager {
 	private final static SleeProfileClassCodeGenerator sleeProfileClassCodeGenerator = new SleeProfileClassCodeGenerator();
 	private SleeContainer sleeContainer = null;
 
-	// FIXME: Alex this has to be moved into cache structure
+	private JPAProfileTableFramework jpaPTF = null;
+	
 	/**
 	 * This map contains mapping - profieltable name ---> profile table concrete
 	 * object. see 10.2.4 section of JSLEE 1.1 specs - there can be only single
@@ -62,6 +65,7 @@ public class SleeProfileTableManager {
 			throw new NullPointerException("Parameter must not be null");
 		this.sleeContainer = sleeContainer;
 		this.nameToProfileTableMap=new ConcurrentHashMap<String, ProfileTableImpl>(); // this.sleeContainer.getCache().getProfileManagementCacheData();
+		this.jpaPTF = new JPAProfileTableFramework(this);
 
 	}
 
@@ -88,6 +92,7 @@ public class SleeProfileTableManager {
 			ProfileEntityFramework profileEntityFramework = new JPAProfileEntityFramework(component);
 			profileEntityFramework.install();
 			sleeProfileClassCodeGenerator.process(component);
+      jpaPTF.loadProfileTables(component);
 		} catch (DeploymentException de) {
 			throw de;
 		} catch (Throwable t) {
@@ -374,6 +379,9 @@ public class SleeProfileTableManager {
 		} catch (Throwable e) {
 			throw new SLEEException(e.getMessage(),e);
 		}
+
+		jpaPTF.storeProfileTable( new JPAProfileTable(profileTable) );
+
 		return profileTable;
 	}
 
@@ -383,10 +391,20 @@ public class SleeProfileTableManager {
 	 * @throws NullPointerException
 	 * @throws UnrecognizedProfileTableNameException
 	 */
-	public void removeProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException {
-		ProfileTableImpl profileTable = getProfileTable(profileTableName);
-		nameToProfileTableMap.remove(profileTableName);
-		profileTable.remove();
+	public void removeProfileTable(final String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException {
+	  ProfileTableImpl profileTable = getProfileTable(profileTableName);
+	  TransactionalAction action = new TransactionalAction() {
+	    public void execute() {
+	      nameToProfileTableMap.remove(profileTableName);
+	    }
+	  };
+	  try {
+	    sleeContainer.getTransactionManager().addAfterCommitAction(action);
+	  } catch (SystemException e) {
+	    throw new SLEEException(e.getMessage(),e);
+	  }
+	  profileTable.remove();
+	  jpaPTF.removeProfileTable(profileTable.getProfileTableName());
 	}
 
 	/**

@@ -54,6 +54,22 @@ public interface MobicentsManagementMBean extends ServiceMBean {
 			int eventRouterExecutors);
 	
 	/**
+	 * Retrieves the flag to indicate if profiles should be persisted between server restart.
+	 * 
+	 * @return
+	 */
+  public boolean getPersistProfiles();
+  
+	/**
+	 * 
+	 * Defines if profiles should be persisted between server restart.
+	 * 
+	 * @param persist
+	 * @return
+	 */
+	public void setPersistProfiles(boolean persist);
+	
+	/**
 	 * 
 	 * @return string representation of container's version.
 	 */

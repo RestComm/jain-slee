@@ -106,7 +106,8 @@
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class, registerDirectly=true)</annotation>
 		<property name="entitiesRemovalDelay">1</property>
 		<property name="monitoringUncommittedAcAttachs">true</property>
-		<property name="eventRouterExecutors">313</property>				
+		<property name="eventRouterExecutors">313</property>
+    <property name="persistProfiles">true</property>				
 	</bean>
 	
 	<!-- JBOSS CACHE 3 -->
