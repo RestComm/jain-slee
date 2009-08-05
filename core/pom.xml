@@ -143,7 +143,7 @@
 						<exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>																		
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-jainslee-server-core</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-core</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		

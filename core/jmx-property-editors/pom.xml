@@ -50,7 +50,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>mobicents-slee-core-jmx-prop-editors</finalName>
+		<finalName>mobicents-slee-core-jmx-property-editors</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
