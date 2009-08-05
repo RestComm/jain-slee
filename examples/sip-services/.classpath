@@ -11,6 +11,8 @@
   <classpathentry kind="src" path="proxy-sbb/src/main/resources"/>
   <classpathentry kind="src" path="proxy-sbb-with-initial-invite/src/main/resources"/>
   <classpathentry kind="src" path="proxy-sbb-without-initial-invite/src/main/resources"/>
+  <classpathentry kind="src" path="proxy-with-initial-invite-services-DU/src/main/resources"/>
+  <classpathentry kind="src" path="proxy-without-initial-invite-services-DU/src/main/resources"/>
   <classpathentry kind="src" path="registrar-sbb/src/main/java"/>
   <classpathentry kind="src" path="registrar-sbb/src/main/resources"/>
   <classpathentry kind="var" path="M2_REPO/antlr/antlr/2.7.6/antlr-2.7.6.jar"/>

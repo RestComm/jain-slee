@@ -103,7 +103,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-examples-sip-wake-up</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-example-sip-wake-up</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		

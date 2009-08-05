@@ -24,8 +24,8 @@
 	</modules>
 	
 	<properties>
-		<mobicents.tools.mavenplugin.du.version>2.0.0-SNAPSHOT</mobicents.tools.mavenplugin.du.version>
-		<mobicents.tools.mavenplugin.library.version>1.0.0-SNAPSHOT</mobicents.tools.mavenplugin.library.version>
+		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA1</mobicents.tools.mavenplugin.du.version>
+		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 	
@@ -120,7 +120,7 @@
 						<exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>																		
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-jainslee-ra-sip11</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-ra-sip11</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		

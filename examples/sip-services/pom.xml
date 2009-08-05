@@ -139,7 +139,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-examples-sip-services</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-example-sip-services</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		

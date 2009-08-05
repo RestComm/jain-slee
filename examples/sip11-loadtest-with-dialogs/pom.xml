@@ -66,7 +66,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-slee-examples-sip11-loadtest-with-dialogs</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-example-sip11-loadtest-with-dialogs</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>		
