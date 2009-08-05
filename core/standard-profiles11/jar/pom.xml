@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>standard-profiles-parent</artifactId>
-		<version>2.0.0-SNAPSHOT</version>
+		<version>2.0.0.BETA1</version>
 	</parent>
 	
 	<artifactId>standard-profiles11-jar</artifactId>
