@@ -9,16 +9,16 @@
 	
 	<groupId>org.mobicents.servers.jainslee.core</groupId>
 	<artifactId>parent</artifactId>
-	<version>2.0.0-SNAPSHOT</version>
+	<version>2.0.0.BETA1</version>
 	
 	<packaging>pom</packaging>
 	
 	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
 	
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.0.0.BETA1</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.0.0.BETA1</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.0.0.BETA1</url>
 	</scm>
 
 	<modules>
