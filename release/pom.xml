@@ -20,10 +20,10 @@
 		<checkout.username>ze carlos</checkout.username>
 		<checkout.password></checkout.password>
 		
-		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
-		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
-		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</example.sipservices.connectionURL>
-		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</example.sipwakeup.connectionURL>
+		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.0.0.BETA1</core.connectionURL>
+		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/2.0.0.BETA1</ra.sip11.connectionURL>
+		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/2.0.0.BETA1</example.sipservices.connectionURL>
+		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-wake-up/2.0.0.BETA1</example.sipwakeup.connectionURL>
 		
 	</properties>
 	

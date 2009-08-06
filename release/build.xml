@@ -7,7 +7,7 @@
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
-	<property name="release.version" value="2.0.0-SNAPSHOT"/>
+	<property name="release.version" value="2.0.0.BETA1"/>
 	<property name="jboss.distro.zip.path" value="jboss-${jboss.version}.zip"/>
     <property name="jboss.home.relative.path" value="jboss-${jboss.version}/"/>
     <property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>

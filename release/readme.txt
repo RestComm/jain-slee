@@ -25,11 +25,6 @@ How to use?
 (*) Starting the server - run this from the command line:
  jboss-5.X.Y.GA/bin/run.sh  (UNIX)
  jboss-5.X.Y.GA\bin\run.bat (Windows)
- 
- To verify that the SLEE server started successfully, open your favorite web browser and point it to
-  http://localhost:8080/management-console
- You should see a nice web application indicating that Mobicents is Running. 
- There is a lot more to the Management Console; look around and see what's in store for you.
 
 (*) Deploy and undeploy Resource Adaptors
 
