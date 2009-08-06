@@ -17,11 +17,6 @@
 			<version>${mobicents.resources.sip11.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.mobicents.resources</groupId>
-			<artifactId>sip11-ra</artifactId>
-			<version>${mobicents.resources.sip11.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>jar</artifactId>
 			<version>${mobicents.core.jar.version}</version>
