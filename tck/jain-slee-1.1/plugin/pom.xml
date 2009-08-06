@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
 			<artifactId>jar</artifactId>
-			<version>${pom.version}</version>
+			<version>2.0.0.BETA1</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
