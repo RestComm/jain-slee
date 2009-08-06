@@ -20,6 +20,7 @@
 	</modules>
 	
 	<properties>
+		<mobicents.resources.sip11.version>2.0.0.BETA1</mobicents.resources.sip11.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA1</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
 		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>

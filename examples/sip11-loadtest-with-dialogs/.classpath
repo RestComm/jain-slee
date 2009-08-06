@@ -7,11 +7,9 @@
   <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-ri/1.2.108/jain-sip-ri-1.2.108.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-events/2.0.0-SNAPSHOT/sip11-events-2.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-library/2.0.0-SNAPSHOT/sip11-library-2.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ra/2.0.0-SNAPSHOT/sip11-ra-2.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ratype/2.0.0-SNAPSHOT/sip11-ratype-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-events/2.0.0.BETA1/sip11-events-2.0.0.BETA1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-library/2.0.0.BETA1/sip11-library-2.0.0.BETA1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ratype/2.0.0.BETA1/sip11-ratype-2.0.0.BETA1.jar"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -13,8 +13,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
-			<artifactId>sip11-ra</artifactId>
-			<version>${pom.version}</version>
+			<artifactId>sip11-ratype</artifactId>
+			<version>${mobicents.resources.sip11.version}</version>
 		</dependency>
 	</dependencies>
 	
