@@ -51,6 +51,7 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services</tagBase>
+						<preparationGoals>clean install</preparationGoals>
 					</configuration>
 					</plugin>
 				</plugins>
