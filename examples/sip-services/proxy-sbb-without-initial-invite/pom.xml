@@ -19,7 +19,7 @@
 				<executions>
 					<execution>
 						<id>unpack</id>
-						<phase>compile</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>unpack</goal>
 						</goals>
