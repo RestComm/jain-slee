@@ -11,7 +11,7 @@
 	
 	<artifactId>sources-checkout</artifactId>
 	<groupId>org.mobicents.slee.release</groupId>
-	<version>2.0.0.BETA1</version>
+	<version>2.0.0-SNAPSHOT</version>
 	
 	<properties>
 		<checkout.basedir>${basedir}/checkout</checkout.basedir>
@@ -230,9 +230,9 @@
 	</profiles>	
 
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/release/2.0.0.BETA1</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/release/2.0.0.BETA1</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/release/2.0.0.BETA1</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/release</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/release</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/release</url>
 	</scm>
 	
 </project>
