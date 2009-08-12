@@ -19,10 +19,6 @@
 		<module>du3</module>
 		<module>test</module>
 	</modules>
-
-	<properties>
-		<mobicents.tools.mavenplugin.du.version>1.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
-	</properties>
 	
 	<build>
 		<finalName>mobicents-slee-core-${pom.artifactId}</finalName>
