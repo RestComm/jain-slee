@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+<event-jar>
+		<library-ref>
+			<library-name>commons-httpclient</library-name>
+			<library-vendor>commons-httpclient</library-vendor>
+			<library-version>3.1</library-version>
+		</library-ref>
+		
+	<event-definition>
+		<event-type-name>net.java.client.slee.resource.http.event.ResponseEvent</event-type-name>
+		<event-type-vendor>net.java.client.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>net.java.client.slee.resource.http.event.ResponseEvent</event-class-name>
+	</event-definition>
+</event-jar>
+
+
