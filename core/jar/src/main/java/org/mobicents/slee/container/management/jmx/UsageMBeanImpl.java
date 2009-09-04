@@ -14,12 +14,36 @@ import javax.management.StandardMBean;
 import javax.slee.InvalidStateException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
+import javax.slee.management.ProfileTableNotification;
+import javax.slee.management.ResourceAdaptorEntityNotification;
+import javax.slee.management.SbbNotification;
+import javax.slee.management.SubsystemNotification;
 import javax.slee.usage.UsageMBean;
 import javax.slee.usage.UsageNotification;
 
 public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 		NotificationBroadcaster {
 
+	private static final MBeanNotificationInfo[] notificationInfo = initNotificationInfo();
+	
+	/**
+	 * Initiates the notification info for usage mbeans
+	 * @return
+	 */
+	private static MBeanNotificationInfo[] initNotificationInfo() {
+		String[] notificationTypes = new String[] { 
+				ProfileTableNotification.USAGE_NOTIFICATION_TYPE,
+				ResourceAdaptorEntityNotification.USAGE_NOTIFICATION_TYPE,
+				SbbNotification.USAGE_NOTIFICATION_TYPE,
+				SubsystemNotification.USAGE_NOTIFICATION_TYPE
+				};
+		MBeanNotificationInfo[] mbeanNotificationInfo = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
+				notificationTypes, UsageNotification.class.getName(),
+				"JAIN SLEE 1.1 Usage MBean Notification") };
+
+		return mbeanNotificationInfo;
+	}
+		
 	private InstalledUsageParameterSet usageParameterSet;
 	private UsageMBeanImplParent parent;
 	private final NotificationSource notificationSource;
@@ -92,15 +116,13 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 					listener, filter, handback));
 		}
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.management.NotificationBroadcaster#getNotificationInfo()
+	 */
 	public MBeanNotificationInfo[] getNotificationInfo() {
-		String[] notificationTypes = new String[] { notificationSource
-				.getUsageNotificationType() };
-		MBeanNotificationInfo[] mbeanNotificationInfo = new MBeanNotificationInfo[] { new MBeanNotificationInfo(
-				notificationTypes, UsageNotification.class.getName(),
-				"JAIN SLEE 1.1 Usage MBean notification") };
-
-		return mbeanNotificationInfo;
+		return notificationInfo;
 	}
 
 	public void removeNotificationListener(NotificationListener listener)
