@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.deployment.jboss;
 
+import org.jboss.classloading.spi.metadata.ClassLoadingMetaData;
+import org.jboss.classloading.spi.metadata.ClassLoadingMetaData10;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.deployers.vfs.spi.deployer.AbstractVFSParsingDeployer;
@@ -16,15 +18,13 @@ public class SLEEParserDeployer extends AbstractVFSParsingDeployer<SLEEDeploymen
   {
     super(SLEEDeploymentMetaData.class);
     setSuffix(".jar");
-    setStage(DeploymentStages.DESCRIBE);
+    setStage(DeploymentStages.PRE_DESCRIBE);
     
     logger.info("Mobicents SLEE Parser Deployer initialized.");
   }
 
   protected SLEEDeploymentMetaData parse(VFSDeploymentUnit vfsDU, VirtualFile virtualFile, SLEEDeploymentMetaData sdmd) throws Exception
   {    
-    //logger.info("»»» SLEEParserDeployer »» protected SLEEDeploymentMetaData parse(VFSDeploymentUnit vfsDU, VirtualFile virtualFile, SLEEDeploymentMetaData sdmd)");
-    
     return new SLEEDeploymentMetaData(vfsDU);
   }
 
@@ -45,6 +45,22 @@ public class SLEEParserDeployer extends AbstractVFSParsingDeployer<SLEEDeploymen
 
     if(_sdmd.componentType == SLEEDeploymentMetaData.ComponentType.DU)
     {
+      ClassLoadingMetaData classLoadingMetaData = du.getAttachment(ClassLoadingMetaData.class);
+
+      if(logger.isTraceEnabled()) {
+        logger.trace("Got Classloading MetaData: " + classLoadingMetaData);
+      }
+      
+      classLoadingMetaData = new ClassLoadingMetaData10();
+      classLoadingMetaData.setName(du.getSimpleName());
+      classLoadingMetaData.setIncludedPackages("");
+
+      if(logger.isTraceEnabled()) {
+        logger.trace("Set Classloading MetaData: " + classLoadingMetaData);
+      }
+      
+      du.addAttachment(ClassLoadingMetaData.class, classLoadingMetaData);
+      
       return _sdmd;
     }
 

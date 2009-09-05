@@ -230,11 +230,7 @@ public class SbbContextImpl implements SbbContext, Serializable {
 	}
 
 	public Tracer getTracer(String tracerName) throws NullPointerException, IllegalArgumentException, SLEEException {
-		if (tracerName == null) {
-			throw new NullPointerException("Tracer name must not be null!");
-
-		}
-
+		
 		try {
 			TracerImpl.checkTracerName(tracerName, this.notificationSource);
 		} catch (InvalidArgumentException e1) {

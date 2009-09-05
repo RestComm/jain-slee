@@ -9,9 +9,9 @@
 
 package org.mobicents.slee.container.management.jmx;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
@@ -136,10 +136,6 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 			throw new NullPointerException("NotificationSource must not be null!");
 		}
 		
-		if(tracerName == null)
-		{
-			throw new NullPointerException("TracerName must not be null!");
-		}
 		if(!this.isNotificationSourceDefined(src))
 		{
 			throw new UnrecognizedNotificationSourceException("Notification source not recognized: "+src);
@@ -206,11 +202,6 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 			throw new NullPointerException("NotificationSource must nto be null!");
 		}
 		
-		if(tracerName == null)
-		{
-			throw new NullPointerException("TracerName must not be null!");
-		}
-		
 		if(lvl == null)
 		{
 			throw new NullPointerException("TraceLevel must not be null!");
@@ -275,10 +266,6 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 			throw new NullPointerException("NotificationSource must nto be null!");
 		}
 		
-		if(tracerName == null)
-		{
-			throw new NullPointerException("TracerName must not be null!");
-		}
 		if(!this.isNotificationSourceDefined(src))
 		{
 			throw new UnrecognizedNotificationSourceException("Notification source not recognized: "+src);
@@ -339,7 +326,7 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 	
 	// 1.1 TracerImpl are. We define internal private class to hide details :)
 
-	private Map<NotificationSource, TracerStorage> tracerStorage = new HashMap<NotificationSource, TracerStorage>();
+	private Map<NotificationSource, TracerStorage> tracerStorage = new ConcurrentHashMap<NotificationSource, TracerStorage>();
 
 	/**
 	 * This checks if tracer name is ok. It must not be null;
@@ -462,7 +449,7 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 
 		try {
 			return ts.createTracer(tracerName, createdBySource);
-		} catch (InvalidArgumentException e) {
+		} catch (Throwable e) {
 			throw new ManagementException("",e);
 		}
 

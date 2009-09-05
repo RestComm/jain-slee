@@ -48,12 +48,12 @@ import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.AddressPlan;
+import javax.slee.facilities.Tracer;
 import javax.slee.resource.FireableEventType;
 
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.DialogForkedEvent;
 
-import org.apache.log4j.Logger;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.SleeSipProviderImpl;
@@ -87,8 +87,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	// Forging kit?
 	protected SleeSipProviderImpl provider = null;
 
-	protected static final Logger logger = Logger.getLogger(DialogWrapper.class);
-
+	private static Tracer tracer;
+	
 	// ######################
 	// # STRICTLY FORK AREA #
 	// ######################
@@ -136,6 +136,11 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 	public DialogWrapper(SleeSipProviderImpl provider, SipResourceAdaptor ra) {
 		this.provider = provider;
 		this.ra = ra;
+		
+		if (tracer == null) {
+			tracer = ra.getRaContext().getTracer(DialogWrapper.class.getSimpleName());
+		}
+		
 		// TODO: Come up with something way better, we cant hash on
 		// dialogId, since it changes
 		// We cant make ID inside change, since this would make Container to
@@ -162,8 +167,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				if (wrappedDialog.getApplicationData() instanceof DialogWrapper) {
 					throw new IllegalArgumentException("Dialog to wrap has alredy a wrapper!!!");
 				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Overwriting application data present - " + wrappedDialog.getApplicationData());
+					if (tracer.isFineEnabled()) {
+						tracer.fine("Overwriting application data present - " + wrappedDialog.getApplicationData());
 					}
 				}
 
@@ -594,7 +599,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 
 						forgedMessage.addLast((javax.sip.header.Header) forgedHeader);
 					} catch (ParseException e) {
-						logger.error("Failed to generate header on [" + headerName + "]. To copy value [" + origHeader
+						tracer.severe("Failed to generate header on [" + headerName + "]. To copy value [" + origHeader
 								+ "]\n", e);
 						throw new SipException("Major failure", e);
 					}
@@ -612,7 +617,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				forgedMessage.setContent(new String(copy), (ContentTypeHeader) forgedMessage
 						.getHeader(ContentTypeHeader.NAME));
 			} catch (ParseException e) {
-				logger.error("Failed to set content on forged message. To copy value [" + new String(copy) + "] Type ["
+				tracer.severe("Failed to set content on forged message. To copy value [" + new String(copy) + "] Type ["
 						+ forgedMessage.getHeader(ContentTypeHeader.NAME) + "]\n", e);
 			}
 		}
@@ -627,8 +632,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 		while (it.hasNext()) {
 			String p_name = (String) it.next();
 			if (toOmmit.contains(p_name) || forgedHeader.getParameter(p_name) != null) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Ommiting parameter on [" + name + "]. To copy value ["
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Ommiting parameter on [" + name + "]. To copy value ["
 							+ origHeader.getParameter(p_name) + "]\nValue in forged ["
 							+ forgedHeader.getParameter(p_name) + "]");
 				}
@@ -636,7 +641,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				try {
 					forgedHeader.setParameter(p_name, origHeader.getParameter(p_name));
 				} catch (ParseException e) {
-					logger.error("Failed to pass parameter on [" + name + "]. To copy value ["
+					tracer.severe("Failed to pass parameter on [" + name + "]. To copy value ["
 							+ origHeader.getParameter(p_name) + "]\nValue in forged ["
 							+ forgedHeader.getParameter(p_name) + "]", e);
 				}
@@ -665,8 +670,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			cancelTransaction.sendRequest();
 			return cancelTransaction;
 		} catch (NullPointerException npe) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(npe);
+			if (tracer.isFineEnabled()) {
+				tracer.fine(npe.getMessage(),npe);
 			}
 			throw new SipException("Possibly fialed to obtain client transaction or no INVITE transaction present");
 		} catch (Exception e) {
@@ -983,17 +988,17 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 					forgedResponse.addLast(contactHeader);
 				}else
 				{
-					if(logger.isDebugEnabled())
+					if(tracer.isFineEnabled())
 					{
-						logger.debug("Failed to obtain contact address for AS, can not compute AS contact.");
+						tracer.fine("Failed to obtain contact address for AS, can not compute AS contact.");
 					}
 				}
 				
 			}else
 			{
-				if(logger.isDebugEnabled())
+				if(tracer.isFineEnabled())
 				{
-					logger.debug("There is no via header, can not compute AS contact.");
+					tracer.fine("There is no via header, can not compute AS contact.");
 				}
 			}
 		}
@@ -1170,10 +1175,10 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 
 				}else
 				{
-					if(logger.isDebugEnabled())
+					if(tracer.isFineEnabled())
 					{
 						//THis is triggered anyway....
-						logger.debug("No need to fill request headers, route set and other state should be maintaned by stack: "+this);
+						tracer.fine("No need to fill request headers, route set and other state should be maintaned by stack: "+this);
 					}
 				}
 
@@ -1229,8 +1234,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 					this.fetchData(response);
 					this.ra.addClientDialogMaping(this.wrappedDialog.getLocalTag() + "_" + this.wrappedDialog.getCallId().getCallId(), getActivityHandle());
 				}
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received 1xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received 1xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 				// FIXME: fire on this, original message
@@ -1250,8 +1255,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				}
 				this.fetchData(response);
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received 2xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received 2xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 				// FIXME: fire on this, original message
@@ -1263,8 +1268,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			} else if (statusCode < 700) {
 
 				this.forkState = DialogForkState.END;
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received failure message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received failure message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 				// FIXME: fire on this, original message
@@ -1278,8 +1283,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				terminateFork(null);
 
 			} else {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received strange message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received strange message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 			}
@@ -1288,8 +1293,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 
 			if (100 <= statusCode && statusCode < 200) {
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received 1xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received 1xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 				if (toTag == null) {
@@ -1312,7 +1317,9 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 					child.fetchData(response);
 					// FIXME: fire on child, original message
 					FireableEventType eventID = this.ra.eventIdCache.getEventId(this.ra.getRaContext().getEventLookupFacility(), response);
-					logger.info("Received 1xx message: " + statusCode + ". ToTag:" + toTag + "EventId:" + eventID);
+					if (tracer.isFineEnabled()) {
+						tracer.fine("Received 1xx message: " + statusCode + ". ToTag:" + toTag + "EventId:" + eventID);
+					}
 					ResponseEventWrapper REW = new ResponseEventWrapper(this.provider, (ClientTransaction) respEvent.getClientTransaction().getApplicationData(), this, response);
 					this.ra.fireEvent(REW, child.getActivityHandle(), eventID, new javax.slee.Address(AddressPlan.SIP, ((FromHeader) response.getHeader(FromHeader.NAME))
 							.getAddress().toString()),false);
@@ -1338,8 +1345,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			} else if (statusCode < 300) {
 
 				this.forkState = DialogForkState.END;
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received 2xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received 2xx message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 				//toTag must not be null, but just in case.
@@ -1359,7 +1366,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 					if (child != this)
 						this.forkInitialActivityHandle = child.getActivityHandle();
 					else {
-						logger.error("Local: " + localToTag + " : " + toTag + " MSG:\n" + response);
+						tracer.severe("Local: " + localToTag + " : " + toTag + " MSG:\n" + response);
 					}
 
 					// FIXME: fire on child, original message
@@ -1390,7 +1397,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 					firedByDialogWrapper = true;
 				}else
 				{
-					logger.error("Received 2xx reponse without toTag, this is error.");
+					tracer.severe("Received 2xx reponse without toTag, this is error.");
 				}
 
 				// just in case
@@ -1398,8 +1405,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			} else if (statusCode < 700) {
 
 				this.forkState = DialogForkState.END;
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received failure message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received failure message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 				// FIXME: fire on this, original message
@@ -1411,8 +1418,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				terminateFork(null);
 
 			} else {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Received strange message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Received strange message: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState + ". On dialog: "
 							+ this.toString());
 				}
 			}
@@ -1426,8 +1433,8 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 
 				// if 1xx+, 3xx+ we ignore it  - as it indicates error response to another dialog, we dont care for.
 				if (statusCode < 200 || statusCode > 300) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("Received late message, action IGNORE: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState
+					if (tracer.isFineEnabled()) {
+						tracer.fine("Received late message, action IGNORE: " + statusCode + ". ToTag:" + toTag + ". Fork state old:" + oldForkState + " - new" + this.forkState
 								+ ". On dialog: " + this.toString());
 					}
 
@@ -1470,7 +1477,7 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			// logger.info("DOING FORGE FOR: \n"+response);
 			if (cseq.getMethod().equals(Request.INVITE) && (statusCode < 300 && statusCode >= 200)) {
 				if (requestURI == null) {
-					logger.error("Cannot ack on reqeust that has empty contact!!!!");
+					tracer.severe("Cannot ack on reqeust that has empty contact!!!!");
 					return;
 				}
 
@@ -1626,9 +1633,9 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 				
 			}else
 			{
-				if(logger.isDebugEnabled())
+				if(tracer.isFineEnabled())
 				{
-					logger.debug("There is no via header, can not compute AS contact. Skipping computation of request route.");
+					tracer.fine("There is no via header, can not compute AS contact. Skipping computation of request route.");
 				}
 				return;
 			}
@@ -1674,9 +1681,9 @@ public class DialogWrapper implements DialogActivity, WrapperSuperInterface {
 			
 		}else
 		{
-			if(logger.isDebugEnabled())
+			if(tracer.isFineEnabled())
 			{
-				logger.debug("There is no listening point, for transport: "+transport+", can not compute AS contact.");
+				tracer.fine("There is no listening point, for transport: "+transport+", can not compute AS contact.");
 			}
 		}
 		

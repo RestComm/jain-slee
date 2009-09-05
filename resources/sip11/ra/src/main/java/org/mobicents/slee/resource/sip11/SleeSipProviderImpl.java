@@ -32,12 +32,12 @@ import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
+import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SleeSipProvider;
 
-import org.apache.log4j.Logger;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ServerTransactionWrapper;
@@ -51,8 +51,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	protected SipStack stack = null;
 	protected SipResourceAdaptor ra = null;
 	protected SipProvider provider = null;
-	protected static final Logger logger = Logger.getLogger(SleeSipProviderImpl.class);
-
+	protected final Tracer tracer;
+	
 	public SleeSipProviderImpl(AddressFactory addressFactory,
 			HeaderFactory headerFactory, MessageFactory messageFactory,
 			SipStack stack, SipResourceAdaptor ra, SipProvider provider) {
@@ -63,6 +63,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		this.stack = stack;
 		this.ra = ra;
 		this.provider = provider;
+		this.tracer = ra.getRaContext().getTracer(SleeSipProviderImpl.class.getSimpleName());
 	}
 
 	public AddressFactory getAddressFactory() {
@@ -86,16 +87,16 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 				uri.setPort(lp.getPort());
 				uri.setTransportParam(transport);
 			} catch (ParseException e) {
-				logger.error("Failed parsing LP info. Failed to parse listening point for transport ["
+				tracer.severe("Failed parsing LP info. Failed to parse listening point for transport ["
 								+ transport + "] [" + lp + "]",e);
 			}
 			return uri;
 
 		} else {
 			
-			if (logger.isDebugEnabled()) {
-				logger
-						.debug("Failed parsing LP info. No listening point for transport ["
+			if (tracer.isFineEnabled()) {
+				tracer
+						.fine("Failed parsing LP info. No listening point for transport ["
 								+ transport + "] [" + lp + "]");
 			}
 			
@@ -165,8 +166,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 				&& lp.getPort() == uri.getPort()) {
 			return true;
 		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Passed uri not local? Passed URI[" + uri
+			if (tracer.isFineEnabled()) {
+				tracer
+						.fine("Passed uri not local? Passed URI[" + uri
 						+ "] doesnt match lp[" + lp + "]");
 			}
 			
@@ -373,7 +375,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			} else if (stw instanceof ClientTransactionWrapper) {
 				dw.addOngoingTransaction((ClientTransactionWrapper) stw);
 			} else {
-				logger.error("Unknown type " + stw.getClass() + " of SIP Transaction, can't add to dialog wrapper");
+				tracer.severe("Unknown type " + stw.getClass() + " of SIP Transaction, can't add to dialog wrapper");
 			}
 		ra.addActivity(dw.getActivityHandle(), dw);
 

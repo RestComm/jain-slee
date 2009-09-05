@@ -56,7 +56,7 @@ public class TracerFrameworkTest extends TestCase {
 			assertNotNull("Tracer name must not be null", t.getTracerName());
 			assertTrue("Root tracer name must be: \"\"", t.getTracerName().compareTo("") == 0);
 			assertNotNull("tracer level must not be null", t.getTraceLevel());
-			assertTrue("tracer level must not be equal to INFO", t.getTraceLevel().equals(TraceLevel.INFO));
+			assertTrue("tracer level must be equal to INFO", t.getTraceLevel().equals(TraceLevel.INFO));
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Got exception: " + e);
@@ -99,7 +99,7 @@ public class TracerFrameworkTest extends TestCase {
 
 				assertNotNull("Tracer name must not be null", t.getTracerName());
 				assertNotNull("tracer level must not be null", t.getTraceLevel());
-				assertTrue("tracer level must not be equal to INFO", t.getTraceLevel().equals(TraceLevel.INFO));
+				assertTrue("tracer level must be equal to INFO", t.getTraceLevel().equals(TraceLevel.INFO));
 
 				t = ts.createTracer(t.getParentTracerName(), false);
 				if (t == null) {
@@ -149,7 +149,8 @@ public class TracerFrameworkTest extends TestCase {
 			// now orgMobicents and orgMobicentsXXX have sever trace level
 			assertEquals("Trace level of tracer has not been changed to severe.", TraceLevel.SEVERE, orgMobicents.getTraceLevel());
 			assertEquals("Trace level of child has not been changed to severe", TraceLevel.SEVERE, orgMobicentsTest.getTraceLevel());
-			assertEquals("Trace level of parent tracer must be equal to root tracer, only its immediate children may have severe level", org.getTraceLevel(), TraceLevel.INFO);
+			assertFalse("Trace level of parent tracer must be equal to root tracer, only its immediate children may have severe level", org.getTraceLevel() == TraceLevel.SEVERE);
+			this.ts.unsetTracerLevel(orgMobicents.getTracerName());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Got exception: " + e);

@@ -9,6 +9,7 @@ import javax.slee.facilities.Tracer;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.TraceNotification;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 
@@ -19,363 +20,345 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
  * Implementation of Tracer object that allows slee comopnents to send
  * notification on some interesting ocasions.
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
- *         </a>
+ * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski</a>
+ * @author martins
  */
 public class TracerImpl implements Tracer {
-	private static final Logger logger = Logger.getLogger(Tracer.class);
-	private String tracerName = null;
-	private boolean isRoot = false;
+
+	public static final TraceLevel DEFAULT_TRACE_LEVEL = TraceLevel.INFO;
+
+	public final static String ROOT_TRACER_NAME = "";
+
+	private enum SpecificLevel { finer, config }
+	
+	private SpecificLevel specificLevel = null;
+	
+	private final Logger logger;
+	
+	private final MNotificationSource notificationSource;
+	
+	private final TraceMBeanImpl traceMBean;
+
+	private final String name;
+	
+	private final String parentName;
+		
 	private boolean requestedBySource = false;
 
-	// Default for root tracer
-	private TraceLevel traceLevel = TraceLevel.INFO;
-	private boolean explicitlySetTracerLevel = false;
-	private MNotificationSource notificationSource = null;
-	/**
-	 * This reference us ised in case of removal of trace level, in that case it
-	 * is inherited from parent, there is always parent. This reference is only
-	 * null in case of root tracer
-	 */
-	private TracerImpl parentTracer = null;
-	private TraceMBeanImpl traceFacility = null;
-
 	/**
 	 * 
-	 * Creates tracer that is in tree. This will use parent tracer levels.
+	 */
+	public TracerImpl(MNotificationSource notificationSource, TraceMBeanImpl traceMBean) {
+		this(ROOT_TRACER_NAME, null, notificationSource, traceMBean);
+		// specs require every root logger must have INFO level, but we don't
+		// want that if log4j config imposes a WARN, ERROR or OFF level, even if
+		// in that case we don't comply with the specs. this means tck will not
+		// pass if log4j logger says INFO is not enabled (e.g. WARN level set)
+		if (this.logger.isInfoEnabled()) {
+			this.logger.setLevel(Level.INFO);
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public TracerImpl(String name, String parentName, MNotificationSource notificationSource, TraceMBeanImpl traceMBean) {
+		this.name = name;
+		this.parentName = parentName;
+		this.logger = Logger.getLogger(tracerNameToLog4JLoggerName(name, notificationSource.getNotificationSource()));
+		this.notificationSource = notificationSource;
+		this.traceMBean = traceMBean;
+	}
+	
+	/**
+	 * Generates the log4j logger name for the tracer with specified named and notification source.
 	 * 
 	 * @param tracerName
-	 *            - fqdn name of this tracer
 	 * @param notificationSource
-	 *            - notification source
-	 * @param parentTracer
-	 *            - parent, we need it to get
+	 * @return
 	 */
-	public TracerImpl(String tracerName, MNotificationSource notificationSource, TracerImpl parentTracer, TraceMBeanImpl traceFacility) {
-		super();
-		this.tracerName = tracerName;
-		this.notificationSource = notificationSource;
-		this.parentTracer = parentTracer;
-		this.traceFacility = traceFacility;
-		this.setExplicitlySetTracerLevel(false);
+	private String tracerNameToLog4JLoggerName(String tracerName, NotificationSource notificationSource) {
+		return "javax.slee."+notificationSource.toString() + ( tracerName.equals(ROOT_TRACER_NAME) ? "" : ("." + tracerName) );
 	}
-
-	/**
-	 * THis is used to create root tracer.
-	 * 
-	 * @param notficationSource
+	
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#config(java.lang.String)
 	 */
-	public TracerImpl(MNotificationSource notficationSource, TraceMBeanImpl traceFacility) {
-		super();
-		this.tracerName = "";
-		this.isRoot = true;
-		this.traceLevel = TraceLevel.INFO;
-		this.setExplicitlySetTracerLevel(false);
-		this.notificationSource = notficationSource;
-		this.traceFacility = traceFacility;
-
+	public void config(String message) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.CONFIG, message, null);
+		logger.info(message);		
 	}
-
-	boolean isRoot() {
-		return isRoot;
+	
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#config(java.lang.String, java.lang.Throwable)
+	 */
+	public void config(String message, Throwable t)
+			throws NullPointerException, FacilityException {
+		sendNotification(TraceLevel.CONFIG, message, t);
+		logger.info(message,t);		
 	}
-
-	boolean isRequestedBySource() {
-		return requestedBySource;
+	
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#fine(java.lang.String)
+	 */
+	public void fine(String message) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.FINE, message, null);
+		logger.debug(message);
+		
 	}
-
-	void setRequestedBySource(boolean requestedBySource) {
-		this.requestedBySource = requestedBySource;
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#fine(java.lang.String, java.lang.Throwable)
+	 */
+	public void fine(String message, Throwable t) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.FINE, message, t);
+		logger.debug(message,t);		
 	}
-
-	boolean isExplicitlySetTracerLevel() {
-		return explicitlySetTracerLevel;
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#finer(java.lang.String)
+	 */
+	public void finer(String message) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.FINER, message, null);
+		logger.debug(message);
+		
 	}
-
-	void setExplicitlySetTracerLevel(boolean explicitlySetTracerLevel) {
-		this.explicitlySetTracerLevel = explicitlySetTracerLevel;
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#finer(java.lang.String, java.lang.Throwable)
+	 */
+	public void finer(String message, Throwable t) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.FINER, message, t);
+		logger.debug(message,t);
 	}
-
-	void setTraceLevel(TraceLevel traceLevel) {
-
-		// FIXME: add check for root ?
-		this.traceLevel = traceLevel;
-		this.setExplicitlySetTracerLevel(true);
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#finest(java.lang.String)
+	 */
+	public void finest(String message) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.FINEST, message, null);
+		logger.trace(message);
+		
 	}
-
-	void unsetTraceLevel() throws InvalidArgumentException {
-
-		this.setExplicitlySetTracerLevel(false);
-		this.traceLevel = this.parentTracer.getTraceLevel();
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#finest(java.lang.String, java.lang.Throwable)
+	 */
+	public void finest(String message, Throwable t)
+			throws NullPointerException, FacilityException {
+		sendNotification(TraceLevel.FINEST, message, t);
+		logger.trace(message,t);		
 	}
-
-	// Tracer Interface methods
-
-	public void config(String trace) throws NullPointerException, FacilityException {
-		if (!isConfigEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
+	
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#getParentTracerName()
+	 */
+	public String getParentTracerName() {
+		return parentName;	
 	}
+	
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#getTraceLevel()
+	 */
+	public TraceLevel getTraceLevel() throws FacilityException {
+		final Level level = logger.getEffectiveLevel();
+		
+		if (level != null) {
+			switch (level.toInt()) {
+			case Level.DEBUG_INT:
+				if (specificLevel == SpecificLevel.finer) {
+					return TraceLevel.FINER;
+				}
+				else {
+					return TraceLevel.FINE;
+				}
+			case Level.INFO_INT:
+				if (specificLevel == SpecificLevel.config) {
+					return TraceLevel.CONFIG;
+				}
+				else {
+					return TraceLevel.INFO;
+				}
+			case Level.WARN_INT:
+				specificLevel = null;
+				return TraceLevel.WARNING;
+			case Level.ERROR_INT:
+				specificLevel = null;
+				return TraceLevel.SEVERE;
+			case Level.TRACE_INT:
+				specificLevel = null;
+				return TraceLevel.FINEST;
+			case Level.OFF_INT:
+				specificLevel = null;
+				return TraceLevel.OFF;
+			default:
+				break;
+			}
+		};
 
-	public void config(String trace, Throwable cause) throws NullPointerException, FacilityException {
-		if (!isConfigEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.CONFIG, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
+		specificLevel = null;
+		return DEFAULT_TRACE_LEVEL;
+		
 	}
-
-	public void fine(String trace) throws NullPointerException, FacilityException {
-		if (!isFineEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#getTracerName()
+	 */
+	public String getTracerName() {
+		return name;
 	}
-
-	public void fine(String trace, Throwable cause) throws NullPointerException, FacilityException {
-		if (!isFineEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
+	
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#info(java.lang.String)
+	 */
+	public void info(String message) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.INFO, message, null);
+		logger.info(message);
+		
 	}
-
-	public void finer(String trace) throws NullPointerException, FacilityException {
-		if (!isFinerEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#info(java.lang.String, java.lang.Throwable)
+	 */
+	public void info(String message, Throwable t) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.INFO, message, t);
+		logger.info(message,t);
+		
 	}
-
-	public void finer(String trace, Throwable cause) throws NullPointerException, FacilityException {
-		if (!isFinerEnabled()) {
-			return;
-		}
-
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINER, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
-	}
-
-	public void finest(String trace) throws NullPointerException, FacilityException {
-		if (!isFinestEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
-	}
-
-	public void finest(String trace, Throwable cause) throws NullPointerException, FacilityException {
-		if (!isFinestEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.FINEST, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
-	}
-
-	public void info(String trace) throws NullPointerException, FacilityException {
-		if (!isInfoEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-	}
-
-	public void info(String trace, Throwable cause) throws NullPointerException, FacilityException {
-		if (!isInfoEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.INFO, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-	}
-
-	public void severe(String trace) throws NullPointerException, FacilityException {
-		if (!isSevereEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-	}
-
-	public void severe(String trace, Throwable cause) throws NullPointerException, FacilityException {
-		if (!isSevereEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), TraceLevel.SEVERE, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
-	}
-
-	public void trace(TraceLevel level, String trace) throws NullPointerException, IllegalArgumentException, FacilityException {
-		if (!isTraceable(level)) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), level, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, null,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-	}
-
-	public void trace(TraceLevel level, String trace, Throwable cause) throws NullPointerException, IllegalArgumentException, FacilityException {
-		if (!isTraceable(level)) {
-			return;
-		}
-
-		this.createTrace(this.notificationSource.getNotificationSource(), level, this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace, cause,
-				this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
-	}
-
-	public void warning(String trace) throws NullPointerException, FacilityException {
-		if (!isWarningEnabled()) {
-			return;
-		}
-		this.createTrace(this.notificationSource.getNotificationSource(), this.getTraceLevel(), this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				null, this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
-	}
-
-	public void warning(String trace, Throwable cause) throws NullPointerException, FacilityException {
-		if (!isWarningEnabled()) {
-
-			return;
-		}
-
-		this.createTrace(this.notificationSource.getNotificationSource(), this.getTraceLevel(), this.notificationSource.getNotificationSource().getTraceNotificationType(), this.tracerName, trace,
-				cause, this.notificationSource.getNextSequence(), System.currentTimeMillis());
-
-	}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isConfigEnabled()
+	 */
 	public boolean isConfigEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.CONFIG);
 	}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isFineEnabled()
+	 */
 	public boolean isFineEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.FINE);
 	}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isFinerEnabled()
+	 */
 	public boolean isFinerEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.FINER);
 	}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isFinestEnabled()
+	 */
 	public boolean isFinestEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.FINEST);
 	}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isInfoEnabled()
+	 */
 	public boolean isInfoEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.INFO);
 	}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isSevereEnabled()
+	 */
 	public boolean isSevereEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.SEVERE);
 	}
-
-	public boolean isTraceable(TraceLevel toTrace) throws NullPointerException, FacilityException {
-
-		if (toTrace == null) {
-			throw new NullPointerException("Passed trace level must not be null.");
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isTraceable(javax.slee.facilities.TraceLevel)
+	 */
+	public boolean isTraceable(TraceLevel traceLevel) throws NullPointerException,
+			FacilityException {
+		if (traceLevel == null) {
+			throw new NullPointerException("null trace level");
 		}
-
-		return !this.getTraceLevel().isHigherLevel(toTrace);
+		return !this.getTraceLevel().isHigherLevel(traceLevel);
 	}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#isWarningEnabled()
+	 */
 	public boolean isWarningEnabled() throws FacilityException {
 		return isTraceable(TraceLevel.WARNING);
 	}
-
-	public String getParentTracerName() {
-		if (this.isRoot) {
-			// we are root, its ok to return null
-			return null;
-		} else {
-			return this.parentTracer.getTracerName();
-		}
-
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#severe(java.lang.String)
+	 */
+	public void severe(String message) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.SEVERE, message, null);
+		logger.error(message);		
 	}
-
-	public TraceLevel getTraceLevel() throws FacilityException {
-		// FIXME: is this correct
-		if (this.isExplicitlySetTracerLevel() || this.isRoot)
-			return this.traceLevel;
-		else
-			return this.parentTracer.getTraceLevel();
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#severe(java.lang.String, java.lang.Throwable)
+	 */
+	public void severe(String message, Throwable t)
+			throws NullPointerException, FacilityException {
+		sendNotification(TraceLevel.SEVERE, message, t);
+		logger.error(message,t);
 	}
-
-	public String getTracerName() {
-		return this.tracerName;
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#trace(javax.slee.facilities.TraceLevel, java.lang.String)
+	 */
+	public void trace(TraceLevel traceLevel, String message)
+			throws NullPointerException, IllegalArgumentException,
+			FacilityException {
+		sendNotification(traceLevel, message, null);
+		logger.log(tracerToLog4JLevel(traceLevel), message);		
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#trace(javax.slee.facilities.TraceLevel, java.lang.String, java.lang.Throwable)
+	 */
+	public void trace(TraceLevel traceLevel, String message, Throwable t)
+			throws NullPointerException, IllegalArgumentException,
+			FacilityException {
+		sendNotification(traceLevel, message, t);
+		logger.log(tracerToLog4JLevel(traceLevel), message,t);
+		
+	}
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#warning(java.lang.String)
+	 */
+	public void warning(String message) throws NullPointerException,
+			FacilityException {
+		sendNotification(TraceLevel.WARNING, message, null);
+		logger.warn(message);		
+	}
+	/* (non-Javadoc)
+	 * @see javax.slee.facilities.Tracer#warning(java.lang.String, java.lang.Throwable)
+	 */
+	public void warning(String message, Throwable t)
+			throws NullPointerException, FacilityException {
+		sendNotification(TraceLevel.WARNING, message, t);
+		logger.warn(message,t);		
+	}
+	
 	/**
 	 * THis is internaly called, by 1.1 tracers
 	 * 
 	 * @param src
 	 */
-	void createTrace(NotificationSource src, javax.slee.facilities.TraceLevel lvl, String traceType, String tracerName, String msg, Throwable cause, long seq, long timeStamp) {
-
-		// Here we know that this trace level is logable;
-
-		TraceNotification traceNotification = new TraceNotification(traceType, this.traceFacility, src, tracerName, lvl, msg, cause, seq, timeStamp);
-		dumpMessage(traceNotification);
-		this.traceFacility.sendNotification(traceNotification);
-	}
-
-	private void dumpMessage(TraceNotification traceNotification) {
-		String msg = "[" + traceNotification.getTracerName() + "] " + traceNotification.getMessage();
-		
-		TraceLevel lvl = traceNotification.getTraceLevel();
-		
-		if (lvl.isFinest()) {
-			logger.trace(msg,traceNotification.getCause());
-		
-		} else if (lvl.isFiner()) {
-			logger.trace(msg,traceNotification.getCause());
-	
-		} else if (lvl.isFine()) {
-			logger.debug(msg,traceNotification.getCause());
-
-		} else if (lvl.isConfig()) {
-			logger.info(msg,traceNotification.getCause());
-
-		} else if (lvl.isInfo()) {
-			logger.info(msg,traceNotification.getCause());
-
-		} else if (lvl.isWarning()) {
-			logger.warn(msg,traceNotification.getCause());
-
-		} else if (lvl.isSevere()) {
-			logger.error(msg,traceNotification.getCause());
+	void sendNotification(javax.slee.facilities.TraceLevel level, String message, Throwable t) {
+		if (!isTraceable(level)) {
+			return;
 		}
+		traceMBean.sendNotification(new TraceNotification(notificationSource.getNotificationSource().getTraceNotificationType(), traceMBean, notificationSource.getNotificationSource(), getTracerName(), level, message, t, notificationSource.getNextSequence(), System.currentTimeMillis()));
 	}
-
+	
 	/**
-	 * This checks if tracer name is ok. It must not be null;
+	 * This checks if the specified tracer name is ok.
 	 * 
-	 * @param split
-	 * @throws IllegalArgumentException
+	 * @param tracerName
+	 * @param notificationSource
+	 * @throws NullPointerException
+	 * @throws InvalidArgumentException
 	 */
-	public static void checkTracerName(String tracerName, NotificationSource notificationSource) throws InvalidArgumentException {
+	public static void checkTracerName(String tracerName, NotificationSource notificationSource) throws NullPointerException,InvalidArgumentException {
 
-		if (tracerName.compareTo("") == 0) {
+		if (tracerName.equals("")) {
 			// This is root
 			return;
 		}
 
-		// String[] splitName = tracerName.split("\\.");
 		StringTokenizer stringTokenizer = new StringTokenizer(tracerName, ".", true);
-
-		//int fqdnPartIndex = 0;
-
-		// if(splitName.length==0)
-		// {
-		// throw new IllegalArgumentException("Passed tracer:" + tracerName +
-		// ", name for source: " + notificationSource + ", is illegal");
-		// }
 
 		String lastToken = null;
 
@@ -386,32 +369,98 @@ public class TracerImpl implements Tracer {
 				lastToken = token;
 			}
 
-			if (lastToken.compareTo(token) == 0 && token.compareTo(".") == 0) {
+			if (lastToken.equals(token) && token.equals(".")) {
 				throw new InvalidArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
 			}
 
-//			if (token.compareTo(".") != 0) {
-//				for (int charIndex = 0; charIndex < token.length(); charIndex++) {
-//					Character c = token.charAt(charIndex);
-//					if (c.isLetter(c) || c.isDigit(c)) {
-//						// Its ok?
-//					} else {
-//						throw new IllegalArgumentException("Passed tracer:" + tracerName + " Token[" + token + "], name for source: " + notificationSource
-//								+ ", is illegal, contains illegal character index: " + charIndex+", character: "+c+", character value: "+c.charValue());
-//					}
-//
-//				}
-//
-//				fqdnPartIndex++;
-//			}
 			lastToken = token;
 
 		}
 
-		if (lastToken.compareTo(".") == 0) {
+		if (lastToken.equals(".")) {
 			throw new IllegalArgumentException("Passed tracer:" + tracerName + ", name for source: " + notificationSource + ", is illegal");
 		}
 
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Tracer{ notificationSource = "+notificationSource.getNotificationSource()+" , name = "+getTracerName()+" , parent = "+getParentTracerName()+" , level = "+getTraceLevel()+" }";
+	}
 
+	private Level tracerToLog4JLevel(TraceLevel traceLevel) {
+		if (traceLevel.isFine() || traceLevel.isFiner()) {
+			return Level.DEBUG;
+		}
+		if (traceLevel.isInfo() || traceLevel.isConfig()) {
+			return Level.INFO;
+		}
+		if (traceLevel.isFinest()) {
+			return Level.TRACE;
+		}
+		if(traceLevel.isWarning()) {
+			return Level.WARN;
+		}
+		if(traceLevel.isSevere()) {
+			return Level.ERROR;
+		}
+		if(traceLevel.isOff()) {
+			return Level.OFF;
+		}
+		return Level.INFO;
+	}
+	
+	/**
+	 * @param level
+	 */
+	public void setTraceLevel(TraceLevel level) {
+		if (level.isConfig()) {
+			specificLevel = SpecificLevel.config;
+		}
+		else if (level.isFiner()) {
+			specificLevel = SpecificLevel.finer;
+		}
+		logger.setLevel(tracerToLog4JLevel(level));
+	}
+
+	/**
+	 * 
+	 */
+	public void unsetTraceLevel() {
+		logger.setLevel(null);
+		specificLevel = null;
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean isExplicitlySetTracerLevel() {
+		if (getParentTracerName() == null) {
+			// root
+			return false;
+		}
+		else {
+			// get level set in log4j
+			return logger.getLevel() != null;
+		}
+	}
+	
+	/**
+	 * Sets 
+	 * @param requestedBySource the requestedBySource to set
+	 */
+	public void setRequestedBySource(boolean requestedBySource) {
+		this.requestedBySource = requestedBySource;
+	}
+	
+	/**
+	 * Retrieves 
+	 * @return the requestedBySource
+	 */
+	public boolean isRequestedBySource() {
+		return requestedBySource;
+	}
 }

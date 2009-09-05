@@ -14,14 +14,26 @@
 	<version>2.0.0-SNAPSHOT</version>
 	
 	<properties>
+	
 		<checkout.basedir>${basedir}/checkout</checkout.basedir>
 		<checkout.username>ze carlos</checkout.username>
 		<checkout.password />
+		<tag.version>2.0.0.BETA2</tag.version>
+
+		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
+		<!-- <core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/${tag.version}</core.connectionURL>-->
+
+		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
+		<!-- <ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/${tag.version}</ra.sip11.connectionURL>-->
+
+		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-client</ra.httpclient.connectionURL>
+		<!-- <ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/${tag.version}</ra.httpclient.connectionURL>-->
 		
-		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/2.0.0.BETA1</core.connectionURL>
-		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/2.0.0.BETA1</ra.sip11.connectionURL>
-		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/2.0.0.BETA1</example.sipservices.connectionURL>
-		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-wake-up/2.0.0.BETA1</example.sipwakeup.connectionURL>
+		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</example.sipservices.connectionURL>
+		<!-- <example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/${tag.version}</example.sipservices.connectionURL>--> 
+
+		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</example.sipwakeup.connectionURL>
+		<!-- <example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-wake-up/${tag.version}</example.sipwakeup.connectionURL>-->
 		
 	</properties>
 	
@@ -70,6 +82,26 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								${ra.sip11.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-httpclient-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/http-client
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.httpclient.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -162,6 +194,25 @@
 							<scmVersionType>revision</scmVersionType>
 							<connectionUrl>
 								${ra.sip11.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-httpclient-update</id>
+						<goals>
+							<goal>update</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<basedir>
+								${checkout.basedir}/resources/http-client
+							</basedir>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<connectionUrl>
+								${ra.httpclient.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>

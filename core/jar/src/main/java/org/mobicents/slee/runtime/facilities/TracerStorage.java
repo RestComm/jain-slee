@@ -1,9 +1,8 @@
 package org.mobicents.slee.runtime.facilities;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.slee.InvalidArgumentException;
 import javax.slee.facilities.TraceLevel;
@@ -23,17 +22,19 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
  * 
  */
 public class TracerStorage {
-	private Map<String, TracerImpl> tracers = new HashMap<String, TracerImpl>();
-	private MNotificationSource notificationSource = null;
-	private TraceMBeanImpl traceFacility = null;
+	
+	private final ConcurrentHashMap<String, TracerImpl> tracers = new ConcurrentHashMap<String, TracerImpl>();
+	
+	private final MNotificationSource notificationSource;
+	
+	private final TraceMBeanImpl traceFacility;
 
 	public TracerStorage(NotificationSource notificationSource, TraceMBeanImpl traceFacility) {
 		super();
 		this.notificationSource = new MNotificationSource(notificationSource);
 		this.traceFacility = traceFacility;
-		TracerImpl rootTracer = new TracerImpl(this.notificationSource, this.traceFacility);
-		
-		tracers.put("", rootTracer);
+		TracerImpl rootTracer = new TracerImpl(this.notificationSource, this.traceFacility);		
+		tracers.put(rootTracer.getTracerName(), rootTracer);
 	}
 
 	public void setTracerLevel(TraceLevel lvl, String tracerName) throws InvalidArgumentException {
@@ -43,7 +44,7 @@ public class TracerStorage {
 			throw new InvalidArgumentException("No tracer definition with name: " + tracerName + ", for notification source: " + this.notificationSource + ". See section 13.3 of JSLEE 1.1 specs");
 		}
 		TracerImpl tracer = this.tracers.get(tracerName);
-		if (tracer.isRoot()) {
+		if (tracer.getParentTracerName() == null) {
 			throw new InvalidArgumentException("Can not set root tracer level for source: " + this.notificationSource + ". See section 13.3 of JSLEE 1.1 specs");
 		}
 		tracer.setTraceLevel(lvl);
@@ -55,7 +56,7 @@ public class TracerStorage {
 			throw new InvalidArgumentException("No tracer definition with name: " + tracerName + ", for notification source: " + this.notificationSource + ". See section 13.3 of JSLEE 1.1 specs");
 		}
 		TracerImpl tracer = this.tracers.get(tracerName);
-		if (tracer.isRoot()) {
+		if (tracer.getParentTracerName() == null) {
 			throw new InvalidArgumentException("Can not unset root tracer level for source: " + this.notificationSource + ". See section 13.3 of JSLEE 1.1 specs");
 		}
 		tracer.unsetTraceLevel();
@@ -119,8 +120,10 @@ public class TracerStorage {
 		// FIXME: this is double check, in some cases.
 		TracerImpl.checkTracerName(tracerName, this.notificationSource.getNotificationSource());
 		
-		//Biut more efficient for cases we do hold tracers
-		if (!tracers.containsKey(tracerName)) {
+		TracerImpl t = tracers.get(tracerName);
+		if (t == null) {
+			// FIXME do we really need to create parents?
+			
 			String[] split = tracerName.split("\\.");
 			String parentName = null;
 			String currentName = "";
@@ -141,14 +144,14 @@ public class TracerStorage {
 					continue;
 				}
 
-				TracerImpl parent = tracers.get(parentName);
-				TracerImpl child = new TracerImpl(currentName, this.notificationSource, parent, this.traceFacility);
-				this.tracers.put(currentName, child);
-
-
+				t = new TracerImpl(currentName, parentName, this.notificationSource, this.traceFacility);
+				TracerImpl u = this.tracers.putIfAbsent(t.getTracerName(), t);
+				if (u != null) {
+					t = u;
+				}
+				
 			}
 		}
-		TracerImpl t = this.tracers.get(tracerName);
 
 		if (requestedBySource)
 			t.setRequestedBySource(requestedBySource);

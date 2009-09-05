@@ -198,10 +198,6 @@ public class ProfileContextImpl implements ProfileContext {
 	 */
 	public Tracer getTracer(String tracerName) throws NullPointerException, IllegalArgumentException, SLEEException
 	{
-		if (tracerName == null) {
-			throw new NullPointerException("TracerName must not be null");
-		}
-		
 		doGeneralChecks();
 		
 		try {

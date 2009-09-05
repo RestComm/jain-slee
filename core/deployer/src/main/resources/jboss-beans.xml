@@ -1,45 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--
-    SLEE  Deployer
--COMMENT- >
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
-   < !-COMMENT- SLEE Structure -COMMENT- >
-   <bean name="SLEEStructure" class="org.mobicents.slee.container.deployment.jboss.SLEEStructure" />
-       <!-COMMENT-property name="sleeFilter">
-          <bean name="SleeFilter" class="org.jboss.virtual.plugins.vfs.helpers.SuffixMatchFilter">
-             <constructor><parameter class="java.lang.String">.jar</parameter></constructor>
-          </bean>
-       </property>
-       <property name="contextInfoOrder">350</property>
-   </bean-COMMENT- >
+  <bean name="SleeParserDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEParserDeployer">
+  </bean>
 
-   < !-COMMENT- SLEE parser -COMMENT- >
-   <bean name="SLEEParserDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEDeployer" />
-
-   < !-COMMENT- SLEE deployer -COMMENT- >
-   <bean name="SLEEDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEERealDeployer">
-   	<constructor><parameter><inject bean="JMXKernel" property="serviceController"/></parameter></constructor>
-   </bean>
-
-< !-COMMENT-
-   <bean name="SLEEScriptClient" class="org.jboss.varia.deployment.LegacyBeanShellScriptClient">
-      <constructor><parameter><inject bean="MainDeployer"/></parameter></constructor>
-   </bean>
--COMMENT- >
-
-</deployment-->
-
-<deployment xmlns="urn:jboss:bean-deployer:2.0">
-
- <bean name="SleeParserDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEParserDeployer">
-   <!--demand>Mobicents.JAINSLEE.JSLEEDeployer</demand-->
- </bean>
-
- <bean name="SleeDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEDeployer">
- <constructor><parameter><inject bean="JMXKernel" property="serviceController"/></parameter></constructor>
-   <!--demand>Mobicents.JAINSLEE.JSLEEDeployer</demand-->
- </bean>
+  <bean name="SleeDeployer" class="org.mobicents.slee.container.deployment.jboss.SLEEDeployer">
+    <constructor><parameter><inject bean="JMXKernel" property="serviceController"/></parameter></constructor>
+  </bean>
   
 </deployment>
