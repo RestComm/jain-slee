@@ -1,0 +1,329 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "docbookV4.5/docbookx.dtd" []>
+<section id="mgcpra-MGCP_Resource_Adapter">
+  <title>MGCP Resource Adapter</title>
+  <para>This section provides information about the Media Gateway Control Protocol (MGCP)  Resource Adapter.  </para>
+  <note>
+    <para>Before reading this information, you should be familiar with the requirements of the <ulink url="http://tools.ietf.org/html/rfc3435">MGCP protocol</ulink> and the  <ulink url="http://tools.ietf.org/html/rfc3660">basic MGCP packages</ulink>.</para>
+  </note>
+  <section>
+    <title>Activities</title>
+<!--In this section, provide the reader with information about any Activity objects, and any extensions available to the Activity objects.  Because of the long naming standards for many java classes, it is better to list these on a single line.  I did consider a table, but I think the interface names would wrap, and look awkward.  I think the best option here might be to use a <variablelist> for each primary activity object.  Then use a <formalpara>, with the <title> being the name of each major extension.  An example is provided for reference.-->    <para>An activity object represents a set of related events in a RA resource.  This RA Type defines the following Activity objects:</para>
+<!--This example is taken from the MGCP RA.  Delete the content that is not relevant to your adapter.-->    <variablelist>
+      <title>MGCP Activity Objects</title>
+      <varlistentry>
+        <term>
+          <classname role="XML">net.java.slee.resource.mgcp.MgcpConnectionActivity</classname>
+        </term>
+        <listitem>
+          <para>Controls the management of a  connection including  creation, modification, destruction and state audit.  This activity ends implicitly when a DeleteConnection (MGCP server role) or DeleteConnectionResponse (MGCP Call Agent role) event is received. </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname role="JAVA">net.java.slee.resource.mgcp.MgcpEndpointActivity</classname>
+        </term>
+        <listitem>
+          <para>Controls the management of an  endpoint including event detection and signal generation, and configuration and state audit.  Because a MGCP endpoint does not have a lifecycle, this activity does not end implicitly on MGCP events.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+  <section>
+    <title>Interface</title>
+    <para>The interface consists of the following methods:</para>
+    <variablelist>
+      <title>Interface Methods</title>
+      <varlistentry>
+        <term>
+          <classname role="JAVA">public void addJainMgcpListener(JainMgcpListener jainMgcpListener) throws java.util.TooManyListenersException</classname>
+        </term>
+        <listitem>
+          <para>Adds a JAIN MGCP Listener to the list of Event Listeners registered on an implementation of the <interfacename>JainMgcpProvider</interfacename> interface.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname role="JAVA">public JainMgcpStack getJainMgcpStack()</classname>
+        </term>
+        <listitem>
+          <para>Returns an object reference to the underlying JAIN MGCP Stack to which this JAIN MGCP Provider is bound.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname role="JAVA">public void removeJainMgcpListener(JainMgcpListener jainMgcpListener)</classname>
+        </term>
+        <listitem>
+          <para>Removes a JAIN MGCP Listener from the list of Event Listeners registered on an implementation of the <interfacename>JainMgcpProvider</interfacename> interface. If the object reference to the JainMgcpListener does not correspond to a registered Listener, this method simply returns.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname role="JAVA">public void sendMgcpEvents(JainMgcpEvent[] jainMgcpEvents) throws java.lang.IllegalArgumentException</classname>
+        </term>
+        <listitem>
+          <para>Sends a list of MGCP commands and responses into the MGCP stack. The use of a list is intended to facilitate &quot;piggybacking&quot; of messages, all of whose destinations are the same. Specific vendor implementations may impose restrictions on the number of command and response messages, the sequencing of those messages, and other such limitations on the usage of this method.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+    <formalpara>
+      <title>Extensions</title>
+      <para>Extensions are the methods used to create and/or retrieve [RA Name] RA Activity Objects.  Extensions also provide useful methods that generate valid and unique [RA Name] event identifiers  while honoring  the RA entity domain. </para>
+    </formalpara>
+    <variablelist>
+      <title>Interface Extensions</title>
+      <varlistentry>
+        <term>
+          <classname>public MgcpConnectionActivity getConnectionActivity(ConnectionIdentifier connectionIdentifier,EndpointIdentifier endpointIdentifier)</classname>
+        </term>
+        <listitem>
+          <para>Retrieves a connection activity for the specified ConnectionIdentifier. The activity is created if does not exists. </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname>public MgcpConnectionActivity getConnectionActivity(int transactionHandle,EndpointIdentifier endpointIdentifier)</classname>
+        </term>
+        <listitem>
+          <para>Retrieves a connection activity for an unknown ConnectionIdentifier,  used when sending <classname>CreateConnection</classname> events and receive further related messages from a Mgcp Server. The activity is created if does not exists. The transactionHandle will be used by the Resource Adaptor to learn the returned ConnectionIdentifier and deliver the response in this activity.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname>public MgcpEndpointActivity getEndpointActivity(EndpointIdentifier endpointIdentifier)</classname>
+        </term>
+        <listitem>
+          <para>Retrieves an endpoint activity for the specified EndpointIdentifier. The activity is created if does not exists.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname>public int getUniqueTransactionHandler()</classname>
+        </term>
+        <listitem>
+          <para>Retrieves an unique transaction handler to be used on mgcp messages.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname>public CallIdentifier getUniqueCallIdentifier()</classname>
+        </term>
+        <listitem>
+          <para>Retrieves an unique valid CallIdentifier to be used on mgcp commands.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <classname>public RequestIdentifier getUniqueRequestIdentifier()</classname>
+        </term>
+        <listitem>
+          <para>Retrieves an unique valid RequestIdentifier to be used on NotificationRequest commands.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+  <section>
+    <title>Events</title>
+    <para>Events defined for this RA originate from the net.java.slee.resource.mgcp 1.0 package.</para>
+    <para>The events use two different activity objects:</para>
+    <itemizedlist>
+      <listitem>
+        <para><classname>net.java.slee.resource.mgcp.MgcpConnectionActivity</classname></para>
+      </listitem>
+      <listitem>
+        <para><classname>net.java.slee.resource.mgcp.MgcpEndpointActivity</classname></para>
+      </listitem>
+    </itemizedlist>
+    <table frame="all" pgwide="1">
+      <title>MgcpConnectionActivity Events </title>
+      <tgroup cols="2" colsep="1">
+        <colspec colnum="1"/>
+        <colspec colnum="2"/>
+        <thead>
+          <row>
+            <entry>Event Name</entry>
+            <entry>Class Name</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>
+              <classname>CREATE_CONNECTION</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.CreateConnection</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>CREATE_CONNECTION_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.CreateConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>MODIFY_CONNECTION</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.ModifyConnection</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>MODIFY_CONNECTION_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.ModifyConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>DELETE_CONNECTION</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.DeleteConnection</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>DELETE_CONNECTION_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.DeleteConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>AUDIT_CONNECTION</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditConnection</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>AUDIT_CONNECTION_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>TRANSACTION_TIMEOUT</classname>
+            </entry>
+            <entry>
+              <classname>net.java.slee.resource.mgcp.message.TransactionTimeout</classname>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+    <table frame="all" pgwide="1">
+      <title>MgcpEndpointActivity Events </title>
+      <tgroup cols="2" colsep="1">
+        <colspec colnum="1"/>
+        <colspec colnum="2"/>
+        <thead>
+          <row>
+            <entry>Event Name</entry>
+            <entry>Class Name</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>
+              <classname>AUDIT_ENDPOINT</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditEndpoint</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>AUDIT_ENDPOINT_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditEndpointResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>ENDPOINT_CONFIGURATION</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.ModifyConnection</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>ENDPOINT_CONFIGURATION_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.ModifyConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>NOTIFICATION_REQUEST</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.DeleteConnection</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>NOTIFICATION_REQUEST_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.DeleteConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>NOTIFY</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditConnection</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>NOTIFY_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>RESTART_IN_PROGRESS</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>RESTART_IN_PROGRESS_RESPONSE</classname>
+            </entry>
+            <entry>
+              <classname>jain.protocol.ip.mgcp.message.AuditConnectionResponse</classname>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <classname>TRANSACTION_TIMEOUT</classname>
+            </entry>
+            <entry>
+              <classname>net.java.slee.resource.mgcp.message.TransactionTimeout</classname>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</section>
