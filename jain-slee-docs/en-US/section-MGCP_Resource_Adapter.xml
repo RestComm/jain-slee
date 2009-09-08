@@ -326,4 +326,219 @@
       </tgroup>
     </table>
   </section>
+  <section>
+    <title>Examples</title>
+    <para>The following examples provide a starting point for creating connections, and handling responses with the MGCP RA.</para>
+    <example>
+      <title>Create a Connection to a New Conference</title>
+      <programlisting role="JAVA">// create call identifier to be used on this connection
+CallIdentifier callIdentifier = mgcpProvider.getUniqueCallIdentifier();
+
+// save call identifier in cmp
+setCallIdentifier(callIdentifier);
+
+// create command to create new connection in a conference,
+// first user so asks a free endpoint using $
+CreateConnection createConnection = new CreateConnection(this,
+      callIdentifier, new EndpointIdentifier(&quot;$&quot;, mgcpServerDomain),
+        ConnectionMode.Confrnce);
+
+// set remote sdp if it was provided
+if (remoteSdp != null) {
+    try {
+        createConnection
+         .setRemoteConnectionDescriptor(new ConnectionDescriptor(
+         remoteSdp));
+        } catch (ConflictingParameterException ex) {
+                logger.error(e);
+                return;
+        }
+    }
+
+// set transaction handler
+int transactionHandler = mgcpProvider.getUniqueTransactionHandler();
+createConnection.setTransactionHandle(transactionHandler);
+
+// create activity using transactionHandler - we don&apos;t know yet
+// the ConnectionIdentifier - and attach to it&apos;s aci
+MgcpConnectionActivity activity = mgcpProvider
+  .getConnectionActivity(transactionHandler);
+        SbbLocalObject sbbLocalObject = this.sbbContext.getSbbLocalObject();
+     try {
+         ActivityContextInterface activityAci = mgcpAcif
+          .getActivityContextInterface(activity);
+         activityAci.attach(sbbLocalObject);
+         } catch (Exception e) {
+             logger.error(e);
+
+// release activity, it will not be used
+            activity.release();
+            return;
+         }
+
+// send command
+        JainMgcpEvent[] events = { createConnection };
+        mgcpProvider.sendMgcpEvents(events);</programlisting>
+    </example>
+    <example>
+      <title>Create a Connection to Two Endpoints</title>
+      <programlisting role="JAVA">// create call identifier to be used on this connection
+CallIdentifier callIdentifier = mgcpProvider.getUniqueCallIdentifier(); 
+
+// create command to create new connection        
+CreateConnection createConnection = new CreateConnection(this,
+      callIdentifier,
+      new EndpointIdentifier(&quot;endpoint1&quot;, mgcpServerHost),
+      ConnectionMode.SendRecv);          
+
+// set second endpoint
+try {createConnection.setSecondEndpointIdentifier(new
+  EndpointIdentifier(&quot;endpoint2&quot;, mgcpServerHost));
+    } catch (ConflictingParameterException e) {
+        logger.error(e);
+        return;
+    }
+
+// set transaction handler
+int transactionHandler = mgcpProvider.getUniqueTransactionHandler();
+createConnection.setTransactionHandle(transactionHandler);
+
+// create activity and attach to it&apos;s aci
+MgcpConnectionActivity activity = MgcpProvider.
+  getConnectionActivity(transactionHandler);
+SbbLocalObject sbbLocalObject = this.sbbContext.getSbbLocalObject();
+try {
+      ActivityContextInterface activityAci = 
+        mgcpAcif.getActivityContextInterface(activity);
+      activityAci.attach(sbbLocalObject);
+     } catch (Exception e) {                
+         logger.error(e);
+
+// release activity, it will not be used
+         activity.release();
+         return;
+     }
+
+// send command
+JainMgcpEvent[] events = {createConnection};
+mgcpProvider.sendMgcpEvents(events);</programlisting>
+    </example>
+    <example>
+      <title>Handle the Response and Deletion of a Connection</title>
+      <programlisting role="JAVA">public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci) {
+       
+  if (logger.isInfoEnabled()) {
+      logger.info(&quot;onCreateConnectionResponse(event=&quot; + event + &quot;)&quot;);
+  }
+            
+  if(event.getReturnCode().equals(ReturnCode.Transaction_
+     Executed_Normally)) {
+       
+// create and attach to endpoint aci to learn about notification events 
+// such as dtmf or announcement playing
+     MgcpEndpointActivity activity =  mgcpProvider.
+       getEndpointActivity(event.getSpecificEndpointIdentifier());
+     SbbLocalObject sbbLocalObject = this.sbbContext.getSbbLocalObject();
+         try {ActivityContextInterface activityAci = 
+              mgcpAcif.getActivityContextInterface(activity);
+              activityAci.attach(sbbLocalObject);
+             } catch (Exception e) {
+              logger.error(&quot;failed to attach to endpoint activity&quot;,e);
+// release activity
+              if (activity != null) {
+                  activity.release();
+             }   
+// create command to delete connection
+             DeleteConnection deleteConnection = 
+               new DeleteConnection(this,getCallIdentifier(),event.
+                 getSpecificEndpointIdentifier(), 
+                 event.getConnectionIdentifier());
+// set transaction handler
+             int transactionHandler = mgcpProvider.
+               getUniqueTransactionHandler();
+             deleteConnection.setTransactionHandle(transactionHandler);
+// send command
+                JainMgcpEvent[] events = {deleteConnection};
+                mgcpProvider.sendMgcpEvents(events);
+                return;
+             }
+           
+// store the connection and endpoint identifier in a cmp
+        setConnectionIdentifier(event.getConnectionIdentifier());
+        setEndpointIdentifier(event.getSpecificEndpointIdentifier());
+           
+// store server local sdp data
+        String localSdp = event.getLocalConnectionDescriptor().toString();
+        setLocalSdpDataCMP(localSdp);
+           
+// TODO send 200 ok with sdp back to sip ua
+           
+     }
+else {
+     logger.error(&quot;create connection didn&apos;t succeed&quot;);
+     }
+}</programlisting>
+    </example>
+    <example>
+      <title>Play an Announcement in an Endpoint</title>
+      <programlisting role="JAVA">public void play(String url, EndpointIdentifier endpointIdentifier, ConnectionIdentifier connectionIdentifier) {
+
+   if (logger.isInfoEnabled()) {
+       logger.info(&quot;play(url=&quot; + url + &quot;)&quot;);
+   }
+
+// consider we are already attached to the endpoint activity   
+// create notification request event
+
+   NotificationRequest notificationRequest = new NotificationRequest(new 
+    Object(),endpointIdentifier,mgcpProvider.
+    getUniqueRequestIdentifier());
+
+// to ask a announcement we add an announcement (ann) event to signal 
+// requests, we can use a connection identifier to play in just one 
+// connection of the endpoint
+
+   EventName[] signalRequests = {new EventName(PackageName.Announcement,
+    MgcpEvent.ann.withParm(url),connectionIdentifier)};
+   notificationRequest.setSignalRequests(signalRequests);
+       
+// to learn when the announcement played or not we add events of and oc, 
+// which mean operation failure and operation complete, both with an 
+// action to be notified immediately
+
+   RequestedAction[] actions = new RequestedAction[] 
+      {RequestedAction.NotifyImmediately}; RequestedEvent[] 
+       requestedEvents = {
+                new RequestedEvent(new EventName(PackageName.Announcement,
+                 MgcpEvent.oc,connectionIdentifier),actions),
+                new RequestedEvent(new EventName(PackageName.Announcement,
+                 MgcpEvent.of,connectionIdentifier),actions)
+                         };
+   notificationRequest.setRequestedEvents(requestedEvents);
+       
+// set tx handle and send event
+        notificationRequest.setTransactionHandle(mgcpProvider.
+         getUniqueTransactionHandler());
+        JainMgcpEvent[] events = {notificationRequest};
+        mgcpProvider.sendMgcpEvents(events);
+}</programlisting>
+    </example>
+    <example>
+      <title>Stop Announcement</title>
+      <programlisting role="JAVA"/>
+    </example>
+    <example>
+      <title>Request a DTMF Using a Digitmap Regular Expression While an Announcement is Played</title>
+      <programlisting role="JAVA"/>
+    </example>
+    <example>
+      <title>Handle DTMF Notification</title>
+      <para><warning>
+          <title>Object Source Parameter Requirement</title>
+          <para>When replying to a  MGCP Command event,  it is critical that the Response constructor&apos;s Object source parameter is specified as the command event&apos;s getSource() Object.  An IllegalArgumentException is thrown when sending the response event if this condition is not met. </para>
+          <para>Because the JAIN MGCP API can not correlate the command and response in multiple gateway/Call Agent scenarios,  the constructor&apos;s object source parameter must be explicitly stated. </para>
+        </warning></para>
+      <programlisting role="JAVA"/>
+    </example>
+  </section>
 </section>
