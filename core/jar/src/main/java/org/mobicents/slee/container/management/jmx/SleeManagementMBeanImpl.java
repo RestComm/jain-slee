@@ -759,9 +759,9 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 				startupTime = System.currentTimeMillis() - startupTime;
 				long startupSec = startupTime / 1000;
 				long startupMillis = startupTime % 1000;
-				timerSt = "in " + startupSec + "s:" + startupMillis + "ms ";
+				timerSt = " in " + startupSec + "s:" + startupMillis + "ms";
 			}
-			logger.info(generateMessageWithLogo("started " + timerSt));
+			logger.info(generateMessageWithLogo("started" + timerSt));
 
 		} else if (newState == SleeState.STOPPED) {
 			logger.info(generateMessageWithLogo("stopped"));
