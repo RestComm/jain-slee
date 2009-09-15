@@ -9,7 +9,7 @@ import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
 import javax.slee.connection.SleeConnection;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * Implementation of the SleeConnection as specified in

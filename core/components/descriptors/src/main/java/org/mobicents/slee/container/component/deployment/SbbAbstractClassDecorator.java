@@ -24,7 +24,7 @@ import javassist.expr.MethodCall;
 import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 
@@ -51,7 +51,7 @@ public class SbbAbstractClassDecorator {
     /**
      * Logger to logg information
      */
-    private static Logger logger = null;
+    private static final Logger logger = Logger.getLogger(SbbAbstractClassDecorator.class);
 
     /**
      * the sbb concrete methods written by the SBB developer
@@ -65,10 +65,6 @@ public class SbbAbstractClassDecorator {
      */
     private boolean isAbstractSbbClassDecorated = false;
     
-    static {
-        logger = Logger.getLogger(SbbAbstractClassDecorator.class);
-    }
-
     /**
      * Constructor
      */

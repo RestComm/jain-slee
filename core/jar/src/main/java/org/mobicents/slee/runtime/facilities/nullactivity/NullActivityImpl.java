@@ -28,7 +28,7 @@ import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.nullactivity.NullActivity;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 
@@ -48,7 +48,7 @@ public class NullActivityImpl implements NullActivity, Serializable {
 
 	private final NullActivityHandle handle;
 
-	private static Logger logger = Logger.getLogger(NullActivityImpl.class);
+	private static final Logger logger = Logger.getLogger(NullActivityImpl.class);
 
 	private static final SleeContainer sleeContainer = SleeContainer
 			.lookupFromJndi();

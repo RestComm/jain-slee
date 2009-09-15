@@ -7,7 +7,8 @@ import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.slee.connection.SleeConnection;
 import javax.slee.connection.SleeConnectionFactory;
-import org.jboss.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 /**
  * Implementation of the SleeConnectionFactory as specified in

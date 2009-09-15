@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.container.service.Service;
@@ -22,7 +22,7 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 public class RootSbbEntitiesRemovalTask extends TimerTask {
 
-	private static Logger logger = Logger
+	private static final Logger logger = Logger
 			.getLogger(RootSbbEntitiesRemovalTask.class);
 
 	// static map with scheduled tasks

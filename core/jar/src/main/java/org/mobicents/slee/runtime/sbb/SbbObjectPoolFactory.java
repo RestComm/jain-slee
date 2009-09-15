@@ -17,8 +17,7 @@ import java.security.PrivilegedAction;
 import javax.slee.ServiceID;
 
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.jboss.logging.Logger;
-import org.mobicents.slee.container.SleeContainer;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.SbbComponent;
 

@@ -24,9 +24,8 @@ import javax.slee.TransactionRolledbackLocalException;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTransactionData;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -113,7 +112,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
      */
     private SleeContainer sleeContainer;
 
-    private static Logger logger;
+    private static final Logger logger = Logger.getLogger(SbbLocalObjectImpl.class);
 
     private boolean rollbackOnly;
 
@@ -122,10 +121,6 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
      * valid)
      */
     private boolean isRemoved;
-
-    static {
-        logger = Logger.getLogger(SbbLocalObjectImpl.class);
-    }
 
     public SbbLocalObjectImpl() {
     }
@@ -162,7 +157,7 @@ public class SbbLocalObjectImpl implements SbbLocalObject,
             try {
                 // Check if the object is in the cache or not is not 
                 // enough to determine if sbbCreate should be called
-                sbbEntity.assignAndActivateSbbObject();
+                sbbEntity.assignSbbObject();
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

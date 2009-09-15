@@ -1,6 +1,5 @@
 package org.mobicents.slee.resource;
 
-import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
@@ -28,7 +27,7 @@ import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;

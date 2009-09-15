@@ -1,9 +1,6 @@
 package org.mobicents.slee.container.component.deployment;
 
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javassist.CannotCompileException;
 import javassist.CtClass;
@@ -15,7 +12,7 @@ import javassist.expr.MethodCall;
 import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;

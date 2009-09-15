@@ -2,7 +2,7 @@ package org.mobicents.slee.container.deployment;
 
 import javax.slee.management.DeploymentException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.SbbComponent;
 
 /**

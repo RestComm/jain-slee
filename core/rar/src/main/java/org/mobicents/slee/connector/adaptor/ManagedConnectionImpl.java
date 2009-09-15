@@ -1,5 +1,6 @@
 package org.mobicents.slee.connector.adaptor;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.connector.server.EventInvocation;
 import org.mobicents.slee.connector.server.RemoteSleeService;
 import java.io.PrintWriter;
@@ -20,7 +21,6 @@ import javax.slee.EventTypeID;
 import javax.slee.UnrecognizedEventException;
 import javax.slee.connection.ExternalActivityHandle;
 import javax.transaction.xa.XAResource;
-import org.jboss.logging.Logger;
 
 /**
  * Implementation of the ManagedConnection interface according to the JCA1.0

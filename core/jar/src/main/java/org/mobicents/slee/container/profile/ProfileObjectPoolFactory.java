@@ -1,7 +1,7 @@
 package org.mobicents.slee.container.profile;
 
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * Implements the methods invoked by the object pool to create new PRofile Objects

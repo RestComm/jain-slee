@@ -9,25 +9,15 @@
 
 package org.mobicents.slee.runtime.facilities;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.management.NotCompliantMBeanException;
 import javax.slee.ComponentID;
-import javax.slee.InvalidArgumentException;
-import javax.slee.SLEEException;
 import javax.slee.UnrecognizedComponentException;
 import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.Level;
 import javax.slee.facilities.TraceFacility;
-import javax.slee.facilities.TraceLevel;
-import javax.slee.facilities.Tracer;
-import javax.slee.management.ManagementException;
-import javax.slee.management.NotificationSource;
 import javax.slee.management.ProfileTableNotification;
 import javax.slee.management.ResourceAdaptorEntityNotification;
 import javax.slee.management.SbbNotification;
@@ -35,7 +25,7 @@ import javax.slee.management.SubsystemNotification;
 import javax.slee.management.TraceNotification;
 import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
@@ -53,12 +43,8 @@ public class TraceFacilityImpl implements TraceFacility {
 	private TraceMBeanImpl traceMBeanImpl; // The MBean for this trace facility.
 	private HashSet<String> notificationTypes;
 
-	private static Logger log;
-
-	static {
-		log = Logger.getLogger(TraceFacilityImpl.class);
-	}
-
+	private static Logger log = Logger.getLogger(TraceFacilityImpl.class);
+	
 	/*
 	 * @return Returns the traceMBeanImpl.
 	 */

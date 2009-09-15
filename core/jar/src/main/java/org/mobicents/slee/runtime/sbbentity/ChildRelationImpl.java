@@ -20,9 +20,8 @@ import javax.slee.SLEEException;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.transaction.SystemException;
-import javax.transaction.TransactionRequiredException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
@@ -150,10 +149,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         
         try {            
         	//All checked exceptions (i.e. CreateException) are propagated to the caller
-            if(childSbbEntity.getSbbObject() == null){
-            	childSbbEntity.assignAndCreateSbbObject();
-            }    	        	
-        	
+           childSbbEntity.assignSbbObject();
+           
         } catch ( CreateException e) {
             //          All RuntimeExceptions are dealt with here
             if ( logger.isDebugEnabled())

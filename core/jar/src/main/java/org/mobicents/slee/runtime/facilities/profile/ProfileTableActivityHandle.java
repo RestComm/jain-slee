@@ -24,7 +24,7 @@ public class ProfileTableActivityHandle implements ActivityHandle, Serializable 
 	}
     
 	public boolean equals(Object obj) {
-		if ((obj != null) && (obj.getClass() == this.getClass())) {
+		if (obj != null && obj.getClass() == this.getClass()) {
 			return this.profileTable.equals(((ProfileTableActivityHandle) obj).profileTable);
 		} else {
 			return false;
@@ -36,6 +36,11 @@ public class ProfileTableActivityHandle implements ActivityHandle, Serializable 
 	}
     
 	public String getProfileTable() {
+		return profileTable;
+	}
+	
+	@Override
+	public String toString() {
 		return profileTable;
 	}
 }

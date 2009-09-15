@@ -20,11 +20,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
-
-import org.jboss.logging.Logger;
 
 /**
  * @author Ivelin Ivanov
