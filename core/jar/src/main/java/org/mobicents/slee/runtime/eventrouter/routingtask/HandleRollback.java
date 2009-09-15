@@ -50,43 +50,35 @@ public class HandleRollback {
 				}
 				// Invoke sbbExceptionThrown method but only if it was a sbb method that threw the RuntimeException
 
-				ClassLoader oldClassLoader = Thread.currentThread()
-						.getContextClassLoader();
-				
-				try {
-					Thread.currentThread().setContextClassLoader(
-							contextClassLoader);
+				// FIXME removed change of class loading here, check it does no harm
 					
-					if (logger.isDebugEnabled()) {
-						logger.debug("Calling sbbExceptionThrown");
-					}
-					try {
-						sbbObject.sbbExceptionThrown(e);
-					} catch (Exception ex) {
-
-						// If method throws an exception , just log it.
-						if (logger.isDebugEnabled()) {
-							logger.debug("Threw an exception while invoking sbbExceptionThrown ",ex);
-						}
-					}
-
-					// Spec section 6.10.1
-					// The sbbRolledBack method is only invoked on SBB objects
-					// in the Ready state.
-					invokeSbbRolledBack = sbbObject.getState() == SbbObjectState.READY;
-
-					// now we move the object to the does not exist state
-					// (6.9.3)
-					sbbObject.setState(SbbObjectState.DOES_NOT_EXIST);
-					
-					if (logger.isDebugEnabled()) {
-						logger.debug("handleRollback done");
-					}
-					
-				} finally {
-					Thread.currentThread()
-							.setContextClassLoader(oldClassLoader);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Calling sbbExceptionThrown");
 				}
+				try {
+					sbbObject.sbbExceptionThrown(e);
+				} catch (Exception ex) {
+
+					// If method throws an exception , just log it.
+					if (logger.isDebugEnabled()) {
+						logger.debug("Threw an exception while invoking sbbExceptionThrown ",ex);
+					}
+				}
+
+				// Spec section 6.10.1
+				// The sbbRolledBack method is only invoked on SBB objects
+				// in the Ready state.
+				invokeSbbRolledBack = sbbObject.getState() == SbbObjectState.READY;
+
+				// now we move the object to the does not exist state
+				// (6.9.3)
+				sbbObject.setState(SbbObjectState.DOES_NOT_EXIST);
+
+				if (logger.isDebugEnabled()) {
+					logger.debug("handleRollback done");
+				}
+					
+				
 			}
 
 		} else {
@@ -98,15 +90,8 @@ public class HandleRollback {
 
 			// We do this block if either the invocation sequence completed successfully OR only a checked exception was thrown
 
-			if (sbbObject != null && sbbObject.getSbbContext().getRollbackOnly()) {
-				
-				if (logger.isDebugEnabled()) {
-					logger.debug("object is set rollbackonly=true");
-					// The SBB signaled that a rollback is needed. run the rollback method.
-					logger.debug("sbb rolled back context "
-							+ sbbObject.getSbbContext());
-				}
-				
+			if (sbbObject != null && txMgr.getRollbackOnly()) {
+								
 				// Spec section 6.10.1
 				// The sbbRolledBack method is only invoked on SBB objects in the Ready state.
 				invokeSbbRolledBack = sbbObject.getState() == SbbObjectState.READY;

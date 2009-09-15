@@ -107,11 +107,13 @@ public class PendingAttachementsMonitor {
 		}
 		
 		public void execute() {
-			// if map exists then remove the tx
-			txsModifyingAttachs.remove(transactionId);
-			// there may be a event router executor thread waiting for this tx to end so we need to signal its monitor			
-			synchronized (monitor) {
-				monitor.notify();
+			if (txsModifyingAttachs != null) {
+				// if map exists then remove the tx
+				txsModifyingAttachs.remove(transactionId);
+				// there may be a event router executor thread waiting for this tx to end so we need to signal its monitor			
+				synchronized (monitor) {
+					monitor.notify();
+				}
 			}
 		}
 	}

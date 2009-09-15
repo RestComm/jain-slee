@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.slee.EventTypeID;
-import javax.slee.SbbID;
-import javax.slee.ServiceID;
 
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
@@ -29,13 +27,8 @@ public class SbbEntityCacheData extends CacheData {
 
 	// node map keys
 
-	private static final String PARENT_SBB_ENTITY_ID_NODE_MAP_KEY = "parent-sbbeid";
-	private static final String PARENT_CHILD_RELATION_NODE_MAP_KEY = "parent-chdrel-name";
-	private static final String ROOT_SBB_ID_NODE_MAP_KEY = "root-sbbid";
-	private static final String SERVICE_CONVERGENCE_NAME_NODE_MAP_KEY = "convergence-name";
-	private static final String SBB_ID_NODE_MAP_KEY = "sbbid";
+	private static final String SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY = "idata";
 	private static final String PRIORITY_NODE_MAP_KEY = "priority";
-	private static final String SERVICE_ID_NODE_MAP_KEY = "serviceid";
 	private static final String EVENT_MASK_CHILD_NODE_MAP_KEY = "event-mask";
 
 	private static final String CMP_FIELDS_CHILD_NODE_NAME = "cmp-fields";
@@ -106,20 +99,12 @@ public class SbbEntityCacheData extends CacheData {
 		super(Fqn.fromElements(parentNodeFqn, sbbEntityId), jBossCache);
 	}
 
-	public ServiceID getServiceId() {
-		return (ServiceID) getNode().get(SERVICE_ID_NODE_MAP_KEY);
+	public Object getSbbEntityImmutableData() {
+		return getNode().get(SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY);
 	}
 
-	public void setServiceId(ServiceID svcId) {
-		getNode().put(SERVICE_ID_NODE_MAP_KEY, svcId);
-	}
-
-	public void setServiceConvergenceName(String convergenceName) {
-		getNode().put(SERVICE_CONVERGENCE_NAME_NODE_MAP_KEY, convergenceName);
-	}
-
-	public String getServiceConvergenceName() {
-		return (String) getNode().get(SERVICE_CONVERGENCE_NAME_NODE_MAP_KEY);
+	public void setSbbEntityImmutableData(Object obj) {
+		getNode().put(SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY, obj);
 	}
 
 	public void attachActivityContext(Object ac) {
@@ -136,11 +121,11 @@ public class SbbEntityCacheData extends CacheData {
 	public Set getMaskedEventTypes(Object ac) {
 		final Node node = getEventMasksChildNode(false);
 		if (node == null) {
-			return Collections.EMPTY_SET;
+			return null;
 		}
 		else {
 			final Node childNode = node.getChild(ac);
-			return childNode == null ? Collections.EMPTY_SET : (Set) childNode.get(EVENT_MASK_CHILD_NODE_MAP_KEY);
+			return childNode == null ? null : (Set) childNode.get(EVENT_MASK_CHILD_NODE_MAP_KEY);
 		}
 	}
 
@@ -181,65 +166,12 @@ public class SbbEntityCacheData extends CacheData {
 		return (node == null) ? Collections.EMPTY_SET : node.getChildrenNames();			
 	}
 
-	public String getRootSbbId() {
-		return (String) getNode().get(ROOT_SBB_ID_NODE_MAP_KEY);
-	}
-
-	public void setRootSbbId(String rootSbbEntityId) {
-		getNode().put(ROOT_SBB_ID_NODE_MAP_KEY, rootSbbEntityId);
-	}
-
 	public Byte getPriority() {
 		return (Byte) getNode().get(PRIORITY_NODE_MAP_KEY);
 	}
 
 	public void setPriority(Byte priority) {
 		getNode().put(PRIORITY_NODE_MAP_KEY, priority);
-	}
-
-	public SbbID getSbbId() {
-		return (SbbID) getNode().get(SBB_ID_NODE_MAP_KEY);
-	}
-
-	public void setSbbId(SbbID sbbId) {
-		getNode().put(SBB_ID_NODE_MAP_KEY, sbbId);
-	}
-
-	/**
-	 * Retreives the name of the child relation of the parent this sbb entity
-	 * belongs.
-	 * 
-	 * @return
-	 */
-	public String getParentChildRelation() {
-		return (String) getNode().get(PARENT_CHILD_RELATION_NODE_MAP_KEY);
-	}
-
-	/**
-	 * Sets the parent child relation name.
-	 * 
-	 * @param name
-	 */
-	public void setParentChildRelation(String parentChildRelation) {
-		getNode().put(PARENT_CHILD_RELATION_NODE_MAP_KEY, parentChildRelation);
-	}
-
-	/**
-	 * Retreives the id of the parent sbb entity.
-	 * 
-	 * @return
-	 */
-	public String getParentSbbEntityId() {
-		return (String) getNode().get(PARENT_SBB_ENTITY_ID_NODE_MAP_KEY);
-	}
-
-	/**
-	 * Sets the parent sbb entity id.
-	 * 
-	 * @param name
-	 */
-	public void setParentSbbEntityId(String parentSbbEntityId) {
-		getNode().put(PARENT_SBB_ENTITY_ID_NODE_MAP_KEY, parentSbbEntityId);
 	}
 
 	public void setCmpField(String cmpField, Object cmpValue) {

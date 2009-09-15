@@ -5,6 +5,11 @@ import javax.slee.RolledBackContext;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.service.ServiceFactory;
+import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.RolledBackContextImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
@@ -17,6 +22,8 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 public class HandleSbbRollback {
 
 	private static final Logger logger = Logger.getLogger(HandleSbbRollback.class);
+	
+	private final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 	
 	/**
 	 * 
@@ -39,7 +46,7 @@ public class HandleSbbRollback {
 	 */
 	public void handleSbbRolledBack(SbbEntity sbbEntity, SbbObject sbbObject, DeferredEvent de, ActivityContextInterface aci,
 			ClassLoader contextClassLoader,
-			boolean removeRolledBack,SleeTransactionManager txMgr) {
+			boolean removeRolledBack,SleeTransactionManager txMgr, boolean keepSbbEntityIfTxRollbacks) {
 		// Sanity checks
 		if ((sbbEntity == null && sbbObject == null)
 				|| (sbbEntity != null && sbbObject != null)) {
@@ -67,26 +74,36 @@ public class HandleSbbRollback {
 
 			// Only start new tx if there's a target sbb entity (6.10.1)
 			if (sbbEntity != null) {
-				String sbbId = sbbEntity.getSbbEntityId();
 				txMgr.begin();
+				if(EventRoutingTransactionData.getFromTransactionContext()==null){
+					createERTD = true;
+					EventRoutingTransactionData ertd= new EventRoutingTransactionData(de,aci);
+					ertd.putInTransactionContext();
+				}
 				// we have to refresh the sbb entity by reading it frmo the
 				// cache
 				try {
-					sbbEntity = SbbEntityFactory.getSbbEntity(sbbId);
-					if(EventRoutingTransactionData.getFromTransactionContext()==null)
-					{
-						createERTD = true;
-						EventRoutingTransactionData ertd= new EventRoutingTransactionData(de,aci);
-						ertd.putInTransactionContext();
-					}
+					sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntity.getSbbEntityId());
 				} catch (Exception e) {
-					// sbb entity does not exists, recreate it but set tx for a rollback
-					txMgr.setRollbackOnly();
+					// sbb entity does not exists, recreate it
 					if (sbbEntity.isRootSbbEntity()) {
-						sbbEntity = SbbEntityFactory.createRootSbbEntity(sbbEntity.getSbbId(), sbbEntity.getServiceId(), sbbEntity.getServiceConvergenceName());
+						ServiceComponent serviceComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(sbbEntity.getServiceId());
+						final Service service = ServiceFactory.getService(serviceComponent);
+						sbbEntity = service.addChild(sbbEntity.getServiceConvergenceName());
 					}
 					else {
 						sbbEntity = SbbEntityFactory.createSbbEntity(sbbEntity.getSbbId(), sbbEntity.getServiceId(), sbbEntity.getParentSbbEntityId(), sbbEntity.getParentChildRelation(), sbbEntity.getRootSbbId(), sbbEntity.getServiceConvergenceName());
+					}
+					if(keepSbbEntityIfTxRollbacks) {
+						// recreate attachment too
+						ActivityContext ac = ((org.mobicents.slee.runtime.activity.ActivityContextInterface)aci).getActivityContext();
+						if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
+							sbbEntity.afterACAttach(ac.getActivityContextHandle());
+						}
+					}
+					else {
+						// the sbb entity recreated should not be kept
+						txMgr.setRollbackOnly();
 					}
 				}
 			}
@@ -116,7 +133,7 @@ public class HandleSbbRollback {
 					pool.invalidateObject(sbbEntity.getSbbObject());
 				}
 
-				sbbEntity.assignAndActivateSbbObject();
+				sbbEntity.assignSbbObject();
 				sbbObject = sbbEntity.getSbbObject();
 				sbbObject.sbbLoad();
 			}
@@ -132,9 +149,7 @@ public class HandleSbbRollback {
 
 			if (sbbEntity != null) {
 				sbbObject.sbbStore();
-			}
-
-			if (sbbEntity != null) {
+			
 				try {
 					if (txMgr.getRollbackOnly()) {
 						txMgr.rollback();
@@ -179,8 +194,9 @@ public class HandleSbbRollback {
 				logger.error("Failed to commit transaction", e2);
 				throw new RuntimeException("Failed to commit tx ", e2);
 			}
-
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
+			finally {
+				Thread.currentThread().setContextClassLoader(oldClassLoader);
+			}
 		}
 	}
 	

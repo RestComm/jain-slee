@@ -147,9 +147,8 @@ public class SbbEntityFactory {
 		};
 
 		// create sbb entity
-		final SbbEntity sbbEntity = new SbbEntity(sbbeId, parentSbbEntityId,
-				parentChildRelation, rootSbbEntityId, sbbId, convergenceName,
-				svcId);
+		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, parentSbbEntityId, parentChildRelation, rootSbbEntityId, convergenceName);
+		final SbbEntity sbbEntity = new SbbEntity(sbbeId, sbbEntityImmutableData);
 
 		// store it in the tx, we need to do it due to sbb local object and
 		// current storing in sbb entity per tx

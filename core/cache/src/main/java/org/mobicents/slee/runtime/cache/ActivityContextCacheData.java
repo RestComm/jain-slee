@@ -185,8 +185,9 @@ public class ActivityContextCacheData extends CacheData {
 	
 	public boolean setCheckingReferences(boolean value) {
 		if (value) {
-			if (!isEnding()) {
-				getNode().addChild(IS_CHECKING_REFS_FQN);
+			Node node = getNode();
+			if (!node.hasChild(IS_CHECKING_REFS_NODE_NAME)) {
+				node.addChild(IS_CHECKING_REFS_FQN);
 				return true;
 			}
 			else {
@@ -194,8 +195,9 @@ public class ActivityContextCacheData extends CacheData {
 			}
 		}
 		else {
-			if (isEnding()) {
-				getNode().removeChild(IS_CHECKING_REFS_NODE_NAME);
+			Node node = getNode();
+			if (node.hasChild(IS_CHECKING_REFS_NODE_NAME)) {
+				node.removeChild(IS_CHECKING_REFS_NODE_NAME);
 				return true;
 			}
 			else {

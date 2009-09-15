@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -80,8 +79,12 @@ public class SbbEntity {
 	// cache data
 	protected SbbEntityCacheData cacheData;
 
-	private boolean isRemoved;
-
+	private boolean removed;
+	private final boolean created;
+	
+	// this is in cache data but we need to have it here also, to rebuild an sbb entity that was never really created due to tx rollback
+	private transient SbbEntityImmutableData sbbEntityImmutableData;
+			
 	/**
 	 * Call this constructor when there's no cached image and the Sbb entity is
 	 * being created for the first time.
@@ -92,39 +95,20 @@ public class SbbEntity {
 	 * @param convergenceName
 	 * @param svcId
 	 */
-	SbbEntity(String sbbEntityId, String parentSbbEntityId,
-			String parentChildRelationName, String rootSbbEntityId,
-			SbbID sbbID, String convergenceName, ServiceID svcId)
+	SbbEntity(String sbbEntityId, SbbEntityImmutableData sbbEntityImmutableData)
 			throws Exception {
-
-		if (sbbID == null)
-			throw new NullPointerException("Null sbbID");
 
 		this.sbbeId = sbbEntityId;
 		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
 		cacheData.create();
-
-		setParentSbbEntityId(parentSbbEntityId);
-		setParentChildRelation(parentChildRelationName);
-		setRootSbbId(rootSbbEntityId);
-		setSbbId(sbbID);
-		setServiceId(svcId);
-		setServiceConvergenceName(convergenceName);
-
+		cacheData.setSbbEntityImmutableData(sbbEntityImmutableData);
+		this.sbbEntityImmutableData = sbbEntityImmutableData;
+		
 		this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
-				getServiceId(), getSbbId());
+				sbbEntityImmutableData.getServiceID(), sbbEntityImmutableData.getSbbID());
 		this.sbbComponent = sleeContainer.getComponentRepositoryImpl()
-				.getComponentByID(getSbbId());
-		if (this.sbbComponent == null) {
-			String s = "Sbb component/descriptor not found for sbbID["
-					+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "],\n"
-					+ "  Transaction[ID:"
-					+ sleeContainer.getTransactionManager().getTransaction()
-					+ "]";
-			log.warn(s);
-			throw new RuntimeException(s);
-		}
-
+				.getComponentByID(sbbEntityImmutableData.getSbbID());
+		this.created = true;		
 	}
 
 	/**
@@ -146,37 +130,25 @@ public class SbbEntity {
 
 		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
 		if (cacheData.exists()) {
-
+			this.sbbEntityImmutableData = (SbbEntityImmutableData) cacheData.getSbbEntityImmutableData();
 			this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
 					getServiceId(), getSbbId());
 			this.sbbComponent = sleeContainer.getComponentRepositoryImpl()
 					.getComponentByID(getSbbId());
-			if (this.sbbComponent == null) {
-				String s = "Sbb component/descriptor not found for sbbID["
-						+ getSbbId() + "],\n" + "  sbbEntityID[" + sbbeId + "]";
-				log.warn(s);
-				throw new RuntimeException(s);
-			}
+			this.created = false;
 		} else {
 			throw new IllegalStateException("Sbb entity " + sbbEntityId
 					+ " not found");
 		}
+		
 	}
 
 	public ServiceID getServiceId() {
-		return cacheData.getServiceId();
-	}
-
-	private void setServiceId(ServiceID svcId) {
-		cacheData.setServiceId(svcId);
-	}
-
-	private void setServiceConvergenceName(String convergenceName) {
-		cacheData.setServiceConvergenceName(convergenceName);
+		return sbbEntityImmutableData.getServiceID();
 	}
 
 	public String getServiceConvergenceName() {
-		return cacheData.getServiceConvergenceName();
+		return sbbEntityImmutableData.getConvergenceName();
 	}
 
 	/**
@@ -385,24 +357,16 @@ public class SbbEntity {
 	}
 
 	public void afterACAttach(ActivityContextHandle ach) {
-
-		// add event mask entry
-		Collection<MEventEntry> mEventEntries = sbbComponent.getDescriptor()
-				.getEventEntries().values();
-		HashSet<EventTypeID> maskedEvents = null;
-		if (mEventEntries != null) {
-			maskedEvents = new HashSet<EventTypeID>();
-			for (MEventEntry mEventEntry : mEventEntries) {
-				if (mEventEntry.isMaskOnAttach()) {
-					maskedEvents.add(mEventEntry.getEventReference()
-							.getComponentID());
-				}
-			}
-		}
+		
 		// add to cache
 		cacheData.attachActivityContext(ach);
-		cacheData.updateEventMask(ach, maskedEvents);
 
+		// update event mask
+		Set<EventTypeID> maskedEvents = sbbComponent.getDescriptor().getDefaultEventMask();
+		if (maskedEvents != null && !maskedEvents.isEmpty()) {
+			cacheData.updateEventMask(ach, new HashSet<EventTypeID>(maskedEvents));
+		}
+		
 		if (log.isDebugEnabled()) {
 			log.debug("attached sbb entity " + sbbeId + " to ac " + ach
 					+ " , events added to current mask " + maskedEvents);
@@ -420,19 +384,7 @@ public class SbbEntity {
 	}
 
 	public Set getMaskedEventTypes(ActivityContextHandle ach) {
-
-		Set eventMaskSet = cacheData.getMaskedEventTypes(ach);
-
-		if (log.isDebugEnabled()) {
-			log.debug("event mask for sbb entity " + sbbeId + " and ac " + ach
-					+ " --> " + eventMaskSet);
-		}
-
-		if (eventMaskSet == null) {
-			return Collections.EMPTY_SET;
-		} else {
-			return eventMaskSet;
-		}
+		return cacheData.getMaskedEventTypes(ach);
 	}
 
 	public void setEventMask(ActivityContextHandle ach, String[] eventMask)
@@ -502,15 +454,11 @@ public class SbbEntity {
 	}
 
 	public String getRootSbbId() {
-		return cacheData.getRootSbbId();
+		return sbbEntityImmutableData.getRootSbbEntityID();
 	}
 
 	public boolean isRootSbbEntity() {
 		return getParentSbbEntityId() == null;
-	}
-
-	private void setRootSbbId(String rootSbbEntityId) {
-		cacheData.setRootSbbId(rootSbbEntityId);
 	}
 
 	public int getAttachmentCount() {
@@ -611,7 +559,7 @@ public class SbbEntity {
 		}
 		try {
 			if (this.sbbObject == null) {
-				this.assignAndActivateSbbObject();
+				this.assignSbbObject();
 			}
 			sbbObject.sbbStore();
 			removeAndReleaseSbbObject();
@@ -667,11 +615,7 @@ public class SbbEntity {
 	}
 
 	public SbbID getSbbId() {
-		return cacheData.getSbbId();
-	}
-
-	private void setSbbId(SbbID sbbId) {
-		cacheData.setSbbId(sbbId);
+		return sbbEntityImmutableData.getSbbID();
 	}
 
 	/**
@@ -789,47 +733,6 @@ public class SbbEntity {
 		// remove data from tx context
 		data.removeFromTransactionContext();
 		
-	}
-
-	/**
-	 * Assigns the sbb entity to a sbb object, and then invoke sbbActivate()
-	 * 
-	 * @throws Exception
-	 */
-	public void assignAndActivateSbbObject() throws Exception {
-		try {
-			// get one object from the pool
-			this.sbbObject = (SbbObject) this.pool.borrowObject();
-			// invoke the appropriate sbb life-cycle methods
-			this.sbbObject.sbbActivate();
-			this.sbbObject.setSbbEntity(this);
-			this.sbbObject.setState(SbbObjectState.READY);
-		} catch (Exception e) {
-			log.error("Failed to assign and activate sbb object", e);
-			throw e;
-		}
-	}
-
-	/**
-	 * Assigns the sbb entity to a sbb object, and then invoke sbbCreate() and
-	 * sbbPostCreate()
-	 * 
-	 * @throws Exception
-	 */
-	public void assignAndCreateSbbObject() throws Exception {
-		try {
-			// get one object from the pool
-			this.sbbObject = (SbbObject) this.pool.borrowObject();
-			// invoke the appropriate sbb life-cycle methods
-			this.sbbObject.setSbbEntity(this);
-			this.sbbObject.sbbCreate();
-			this.sbbObject.setState(SbbObjectState.READY);
-			this.sbbObject.sbbPostCreate();
-		} catch (Exception e) {
-			log.error("Failed to assign and create sbb object", e);
-			removeFromCache();
-			throw e;
-		}
 	}
 
 	/**
@@ -992,7 +895,7 @@ public class SbbEntity {
 	 * @return Returns the isRemoved.
 	 */
 	public boolean isRemoved() {
-		return isRemoved;
+		return removed;
 	}
 
 	/**
@@ -1005,7 +908,7 @@ public class SbbEntity {
 		}
 
 		cacheData.remove();
-		isRemoved = true;
+		removed = true;
 	}
 
 	/**
@@ -1015,16 +918,7 @@ public class SbbEntity {
 	 * @return
 	 */
 	public String getParentChildRelation() {
-		return cacheData.getParentChildRelation();
-	}
-
-	/**
-	 * Sets the parent child relation name.
-	 * 
-	 * @param name
-	 */
-	private void setParentChildRelation(String parentChildRelation) {
-		cacheData.setParentChildRelation(parentChildRelation);
+		return sbbEntityImmutableData.getParentChildRelationName();
 	}
 
 	/**
@@ -1033,16 +927,7 @@ public class SbbEntity {
 	 * @return
 	 */
 	public String getParentSbbEntityId() {
-		return cacheData.getParentSbbEntityId();
-	}
-
-	/**
-	 * Sets the parent sbb entity id.
-	 * 
-	 * @param name
-	 */
-	private void setParentSbbEntityId(String parentSbbEntityId) {
-		cacheData.setParentSbbEntityId(parentSbbEntityId);
+		return sbbEntityImmutableData.getParentSbbEntityID();
 	}
 
 	// It removes the SBB entity from the ChildRelation object that the SBB
@@ -1084,5 +969,41 @@ public class SbbEntity {
 	@Override
 	public String toString() {
 		return "SbbEntity:"+sbbeId;
+	}
+
+	/**
+	 * Assigns an sbb object to this sbb entity.
+	 * 
+	 * @throws Exception
+	 */
+	public void assignSbbObject() throws Exception {
+		
+		try {
+			// get one object from the pool
+			this.sbbObject = (SbbObject) this.pool.borrowObject();
+			// invoke the appropriate sbb life-cycle methods
+			this.sbbObject.setSbbEntity(this);
+			if (created) {
+				this.sbbObject.sbbCreate();
+				this.sbbObject.setState(SbbObjectState.READY);
+				this.sbbObject.sbbPostCreate();
+			}
+			else {
+				this.sbbObject.sbbActivate();
+				this.sbbObject.setState(SbbObjectState.READY);
+			}
+			// TODO turn this on and remove elsewhere the method is used
+			// sbbObject.sbbLoad();
+		} catch (Exception e) {
+			log.error("Failed to assign and create sbb object", e);
+			if (created) {
+				removeFromCache();
+			}
+			throw e;
+		}
+	}
+	
+	public boolean isCreated() {
+		return created;
 	}
 }

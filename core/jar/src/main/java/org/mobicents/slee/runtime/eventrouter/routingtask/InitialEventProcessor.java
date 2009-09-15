@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import javax.slee.Address;
 import javax.slee.InitialEventSelector;
+import javax.slee.SLEEException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
 
@@ -14,14 +15,11 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
-import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceFactory;
 import org.mobicents.slee.runtime.activity.ActivityContext;
-import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
-import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectPool;
@@ -32,185 +30,11 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 public class InitialEventProcessor {
 
 	private static final Logger logger = Logger.getLogger(InitialEventProcessor.class);
-	
-	private static final HandleRollback handleRollback = new HandleRollback();
-	private static final HandleSbbRollback handleSbbRollback = new HandleSbbRollback();
+
 	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-	/**
-	 * Process the initial events of a service. This method possibly creates new
-	 * Sbbs. The container keeps a factory that creates new Sbbs keyed on the
-	 * convergence name of the service.
-	 */
-	public void processInitialEvents(ServiceComponent serviceComponent, DeferredEvent deferredEvent, SleeTransactionManager txMgr, ActivityContextFactory activityContextFactory)
-			throws Exception {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Initial event processing for " + serviceComponent+" and "+deferredEvent);
-		}
-		
-		Exception caught = null;
-		SbbEntity sbbEntity = null;
-		SbbObject sbbObject = null;
-		ClassLoader invokerClassLoader = null;
-		ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		
-		EventRouterThreadLocals.setInvokingService(serviceComponent.getServiceID());
-		
-		try {
-		
-			txMgr.begin();
-
-			try {
-
-				/*
-				 * Start of SLEE originated invocation sequence
-				 * ============================================ We run a SLEE
-				 * originated invocation sequence here for every service that
-				 * this might be an intial event for
-				 */
-
-				/*
-				 * Use the initial event select to compute the convergence names
-				 * for the service. This is a method that is provided by the
-				 * service deployment. The names set is composed by only one
-				 * convergence name the error is due an error in the pseudocode
-				 */
-				final Service service = ServiceFactory.getService(serviceComponent);			
-				if (service.getState().isActive()) {
-
-					String name = null;
-					try {
-						name = computeConvergenceName(deferredEvent,serviceComponent);
-					} catch (Throwable e) {
-						logger.error("Failed to compute convergance name for "+serviceComponent+" and "+deferredEvent,e);
-					}
-
-					if (name != null) {
-
-						if (!service.containsConvergenceName(name)) {
-
-							if (logger.isDebugEnabled()) {
-								logger.debug("Computed convergence name for "+serviceComponent+" and "+deferredEvent+" is "
-										+ name + ", creating sbb entity and attaching to activity context.");
-							}
-							
-							// Create a new root sbb entity
-							sbbEntity = service.addChild(name);
-							// change class loader
-							invokerClassLoader = serviceComponent.getRootSbbComponent().getClassLoader();
-							Thread.currentThread().setContextClassLoader(
-									invokerClassLoader);
-							// invoke sbb lifecycle methods on sbb entity creation
-							try {
-								sbbEntity.assignAndCreateSbbObject();								
-								sbbObject = sbbEntity.getSbbObject();
-							} catch (Exception ex) {
-								sbbObject = sbbEntity.getSbbObject();
-								if (sbbObject != null) {
-									try {
-										sbbEntity.removeAndReleaseSbbObject();
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
-								throw ex;
-							}
-							// attach sbb entity on AC
-							ActivityContext ac = activityContextFactory.getActivityContext(deferredEvent.getActivityContextHandle());
-							if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
-								// do the reverse on the sbb entity
-								sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
-							}
-							// passivate sbb object
-							try {
-								sbbEntity.passivateAndReleaseSbbObject();
-								sbbObject = sbbEntity.getSbbObject();
-							} catch (Exception ex) {
-								sbbObject = sbbEntity.getSbbObject();
-								if (sbbObject != null) {
-									try {
-										sbbEntity.removeAndReleaseSbbObject();										
-									} catch (Exception e) {
-										logger.error(e.getMessage(),e);
-									}
-								}								
-								throw ex;
-							}
-						} else {
-							
-							if (logger.isDebugEnabled()) {
-								logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is "
-										+ name + ", sbb entity already exists, attaching to activity context (if not attached yet)");
-							}
-							// get sbb entity id for this convergence name
-							String rootSbbEntityId = service.getRootSbbEntityId(name);
-							// attach sbb entity on AC
-							if (activityContextFactory.getActivityContext(deferredEvent.getActivityContextHandle()).attachSbbEntity(rootSbbEntityId)) {
-								// do the reverse on the sbb entity
-								SbbEntityFactory.getSbbEntity(rootSbbEntityId)
-								.afterACAttach(deferredEvent.getActivityContextHandle());
-							}
-						}
-
-					} else {
-						if (logger.isDebugEnabled()) {
-							logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is null, either the root sbb is not interested in the event or an error occurred.");
-						}
-					}
-				}
-				
-			} catch (Exception e) {
-				logger.error("Caught an error! ", e);
-				caught = e;
-			}
-
-			boolean invokeSbbRolledBack = handleRollback.handleRollback(sbbObject, caught, invokerClassLoader, txMgr);
-			
-			if (sbbEntity == null && invokeSbbRolledBack) {
-				// If there is no entity associated then the invokeSbbRolledBack is
-				// handle in
-				// the same tx, otherwise in a new tx (6.10.1)
-				handleSbbRollback.handleSbbRolledBack(null, sbbObject, null, null, invokerClassLoader, false, txMgr);
-				/* original code was, confirm in specs that at this time we should not send event object and aci
-				 * 
-					handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
-							invokerClassLoader, false);
-				 */
-			}
-						
-			// commit or rollback the tx. if the setRollbackOnly flag is set then this will trigger rollback action.			
-			try {
-				txMgr.commit();
-			} catch (Exception e) {
-				logger.error("failed to commit transaction, invoking sbbRolledBack",e);
-				invokeSbbRolledBack = true;
-			}
-			
-			// We may need to run sbbRolledBack for invocation sequence 1 in another tx
-			if (sbbEntity != null && invokeSbbRolledBack) {
-				handleSbbRollback.handleSbbRolledBack(sbbEntity, sbbObject, null, null, invokerClassLoader, false, txMgr);
-				/* original code was, confirm in specs that at this time we should not send event object and aci
-				 * 
-				handleSbbRolledBack(sbbEntity, sbbObject, deferredEvent,
-						invokerClassLoader, false);
-						*/
-			}
-						
-		} catch (Exception e) {
-			logger.error("Failed to process initial event for "
-					+ serviceComponent + " and "+deferredEvent, e);
-		}
-		
-		EventRouterThreadLocals.setInvokingService(null);
-		
-		if (invokerClassLoader != null) {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
-	}
 
 	private static final String NULL_STRING = "null";
-	
+
 	/**
 	 * Compute a convergence name for the Sbb for the given Slee event.
 	 * Convergence names are used to instantiate the Sbb. I really ought to move
@@ -223,12 +47,12 @@ public class InitialEventProcessor {
 	 */
 	private String computeConvergenceName(DeferredEvent sleeEvent,
 			ServiceComponent serviceComponent) throws Exception {
-		
+
 		final SbbComponent sbbComponent = serviceComponent.getRootSbbComponent();
 		MEventEntry mEventEntry = sbbComponent.getDescriptor().getEventEntries().get(sleeEvent.getEventTypeId());
 		InitialEventSelectorImpl selector = new InitialEventSelectorImpl(
 				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextHandle(), mEventEntry.getInitialEventSelects(), mEventEntry.getInitialEventSelectorMethod(), sleeEvent
-						.getAddress());
+				.getAddress());
 
 		/*
 		 * An initial-event-selector-method-name element. This element is
@@ -252,11 +76,11 @@ public class InitialEventProcessor {
 			selector.setInitialEvent(true);
 
 			SbbObjectPool pool = sleeContainer.getSbbPoolManagement().getObjectPool(serviceComponent.getServiceID(),
-							sbbComponent.getSbbID());
+					sbbComponent.getSbbID());
 			SbbObject sbbObject = (SbbObject) pool.borrowObject();
 			SbbConcrete concreteSbb = (SbbConcrete) sbbObject.getSbbConcrete();
 
-			Class[] argtypes = new Class[] { InitialEventSelector.class };
+			Class<?>[] argtypes = new Class[] { InitialEventSelector.class };
 			Method m = sbbComponent.getConcreteSbbClass().getMethod(
 					selector.getSelectMethodName(), argtypes);
 			Object[] args = new Object[] { selector };
@@ -268,13 +92,9 @@ public class InitialEventProcessor {
 				selector = (InitialEventSelectorImpl) m.invoke(concreteSbb,
 						args);
 				if (selector == null) {
-					logger
-							.debug("Sbb returned null. So its not interested in this event");
 					return null;
 				}
 				if (!selector.isInitialEvent()) {
-					logger
-							.debug("Sbb has determined it will not attend to this event");
 					return null;
 				}
 
@@ -361,38 +181,25 @@ public class InitialEventProcessor {
 		 * i.e. same as setting PossibleInitialEvent to false.
 		 */
 		if (selector.isAddressProfileSelected()) {
-			ProfileSpecificationID addressProfileId = sbbComponent.getDescriptor().getAddressProfileSpecRef();
-
+			
 			if (selector.getAddress() == null) {
 				buff.append(NULL_STRING);
 			} else {
+				ProfileSpecificationID addressProfileId = sbbComponent.getDescriptor().getAddressProfileSpecRef();
 				ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(addressProfileId);
-				if (profileSpecificationComponent == null) {
-					// FIXME this can be checked in deploy
-					throw new Exception("Could not find address profile ! "
-							+ addressProfileId);
-				}
-				SleeProfileTableManager sleeProfileManager = sleeContainer.getSleeProfileTableManager();
+			
 				String addressProfileTable = serviceComponent.getDescriptor().getMService().getAddressProfileTable();
-				// Cannot find an address profile table spec. ( is this the same
-				// as
-				// the second condtion above?
-				if (logger.isDebugEnabled()) {
-					logger
-							.debug("addressProfileTable = "
-									+ addressProfileTable);
-				}
+				// Cannot find an address profile table spec. 
 				if (addressProfileTable == null) {
-					// FIXME this can be checked in deploy
-					throw new Exception(
-							"null address profile table in service !");
+					throw new SLEEException("null address profile table in service !");
 				}
-				ProfileTableImpl profileTable = sleeProfileManager.getProfileTable(addressProfileTable);
+				ProfileTableImpl profileTable = sleeContainer.getSleeProfileTableManager().getProfileTable(addressProfileTable);
 				Collection<ProfileID> profileIDs = profileTable.getProfilesByAttribute(profileSpecificationComponent.isSlee11() ? "address" : "addresses", selector.getAddress(), profileSpecificationComponent.isSlee11());
 				if (profileIDs.isEmpty())
-					throw new Exception("Could not find the specified profile");
+					// no profiles located
+					return null;
 				else {
-					buff.append(profileIDs.iterator().next().toString());
+					buff.append(profileIDs.iterator().next());
 				}				
 			}
 
@@ -403,11 +210,87 @@ public class InitialEventProcessor {
 
 		buff.append(customName);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("computed convergence name = " + buff.toString());
-			logger.debug("selector = " + selector);
-		}
 		return buff.toString();
 	}
+
+	public SbbEntity processInitialEvent(ServiceComponent serviceComponent,
+			DeferredEvent deferredEvent, SleeTransactionManager txMgr,
+			ActivityContext ac) {
+
+		SbbEntity sbbEntity = null;
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Initial event processing for " + serviceComponent+" and "+deferredEvent);
+		}
+
+		/*
+		 * Start of SLEE originated invocation sequence
+		 * ============================================ We run a SLEE
+		 * originated invocation sequence here for every service that
+		 * this might be an intial event for
+		 */
+
+		/*
+		 * Use the initial event select to compute the convergence names
+		 * for the service. This is a method that is provided by the
+		 * service deployment. The names set is composed by only one
+		 * convergence name the error is due an error in the pseudocode
+		 */
+		final Service service = ServiceFactory.getService(serviceComponent);			
+		if (service.getState().isActive()) {
+
+			String name = null;
+			
+			try {
+				name = computeConvergenceName(deferredEvent,serviceComponent);
+			}
+			catch (Exception e) {
+				logger.error("Failed to compute convergance name: "+e.getMessage(),e);
+			}
+			
+			if (name != null) {
+
+				if (!service.containsConvergenceName(name)) {
+
+					if (logger.isDebugEnabled()) {
+						logger.debug("Computed convergence name for "+serviceComponent+" and "+deferredEvent+" is "
+								+ name + ", creating sbb entity and attaching to activity context.");
+					}
+
+					// Create a new root sbb entity
+					sbbEntity = service.addChild(name);
+
+					// attach sbb entity on AC
+					if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
+						// do the reverse on the sbb entity
+						sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
+					}
+
+				} else {
+
+					if (logger.isDebugEnabled()) {
+						logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is "
+								+ name + ", sbb entity already exists, attaching to activity context (if not attached yet)");
+					}
+					// get sbb entity id for this convergence name
+					sbbEntity = SbbEntityFactory.getSbbEntity(service.getRootSbbEntityId(name));
+					// attach sbb entity on AC
+					if (ac.attachSbbEntity(sbbEntity.getSbbEntityId())) {
+						// do the reverse on the sbb entity
+						sbbEntity.afterACAttach(deferredEvent.getActivityContextHandle());
+					}
+				}
+
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Computed convergence name for "+service+" and "+deferredEvent+" is null, either the root sbb is not interested in the event or an error occurred.");
+				}
+			}
+		}
+		
+		return sbbEntity;
+
+	}
+	
 	
 }

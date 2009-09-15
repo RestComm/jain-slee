@@ -9,6 +9,7 @@ import javax.slee.ServiceID;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.eventrouter.ActivityEndEventImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 
@@ -24,46 +25,71 @@ public class NextSbbEntityFinder {
 
 	private static final Logger logger = Logger
 			.getLogger(NextSbbEntityFinder.class);
-	
+		
+	static class Result {
+		
+		final SbbEntity sbbEntity;
+		final boolean deliverEvent;
+		
+		Result(SbbEntity sbbEntity, boolean deliverEvent) {
+			super();
+			this.sbbEntity = sbbEntity;
+			this.deliverEvent = deliverEvent;
+		}
+	}
+		
 	/**
-	 * 
-	 * Finds the next sbb entity to possibly deliver an event of the specified
-	 * event type {@link EventTypeID}, in the specified {@link ActivityContext}.
-	 * 
-	 * The next sbb entity is the one attached with highest priority, didn't
-	 * handle the event yet, and of course, the related sbb descriptor declares
-	 * receiving the event type.
+	 * Retrieves the next sbb entity to handle the event.
 	 * 
 	 * @param ac
 	 * @param eventTypeID
-	 * @return
+	 * @param service
+	 * @param sbbEntitiesThatHandledCurrentEvent
+	 * @return Result that indicates the next sbb entity to handle the event,
+	 *         note that sbb entities that are not entitled to *deliver* the
+	 *         event (service id is set or the event is not defined in sbb
+	 *         descriptor) will only be returned in case event is activity end
+	 *         event.
 	 */
-	public SbbEntity next(ActivityContext ac,
+	public Result next(ActivityContext ac,
 			EventTypeID eventTypeID, ServiceID service, Set<String> sbbEntitiesThatHandledCurrentEvent) {
-
+		
 		String sbbEntityId = null;
 		SbbEntity sbbEntity = null;
-
+		MEventEntry mEventEntry = null;
+		
+		boolean activityEndEvent = eventTypeID == ActivityEndEventImpl.EVENT_TYPE_ID;
+		
 		// get the highest priority sbb from sbb entities attached to AC
-		for (Iterator iter = ac.getSortedSbbAttachmentSet(sbbEntitiesThatHandledCurrentEvent).iterator(); iter
+		for (Iterator<?> iter = ac.getSortedSbbAttachmentSet(sbbEntitiesThatHandledCurrentEvent).iterator(); iter
 				.hasNext();) {
 			sbbEntityId = (String) iter.next();
 			try {
 				sbbEntity = SbbEntityFactory.getSbbEntity(sbbEntityId);
 				if (service != null && !service.equals(sbbEntity.getServiceId())) {
-					continue;
+					if (!activityEndEvent) {
+						continue;
+					}
+					else {
+						return new Result(sbbEntity, false);						
+					}
 				}
 				// check event is allowed to be handled by the sbb
-				MEventEntry mEventEntry = sbbEntity.getSbbComponent().getDescriptor().getEventEntries().get(eventTypeID);
+				mEventEntry = sbbEntity.getSbbComponent().getDescriptor().getEventEntries().get(eventTypeID);
 				if (mEventEntry != null && mEventEntry.isReceived()) {
-					return sbbEntity;
+					return new Result(sbbEntity, true);					
 				} else {
-					if (logger.isDebugEnabled()) {
-						logger
-								.debug("Event is not received by sbb descriptor of entity "
-										+ sbbEntityId + ", skipping...");
+					if (!activityEndEvent) {
+						if (logger.isDebugEnabled()) {
+							logger
+							.debug("Event is not received by sbb descriptor of entity "
+									+ sbbEntityId + ", will not deliver event to sbb entity ...");
+						}
+						continue;
 					}
-					continue;
+					else {
+						return new Result(sbbEntity, false);						
+					}
 				}
 			} catch (IllegalStateException e) {
 				// ignore, sbb entity has been removed
@@ -74,4 +100,5 @@ public class NextSbbEntityFinder {
 		return null;
 
 	}
+
 }

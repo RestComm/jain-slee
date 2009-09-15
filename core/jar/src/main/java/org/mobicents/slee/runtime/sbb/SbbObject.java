@@ -11,7 +11,7 @@ import javax.slee.Sbb;
 import javax.slee.ServiceID;
 import javax.slee.TransactionRequiredLocalException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.SbbComponent;
@@ -93,19 +93,33 @@ public class SbbObject implements Serializable {
 
 		// set sbb context
 		this.sbbContext = new SbbContextImpl(this);
-		if (log.isDebugEnabled()) {
-			log.debug("---> invoking setSbbContext() for " + sbbComponent);
+		
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSetSbbContext()) {
+			if (log.isDebugEnabled()) {
+				log.debug("---> invoking setSbbContext() for " + sbbComponent);
+			}
+			// before invoking setSbbContext we my need to save the service id in the
+			// thread, so the alarm facility can retreive it
+			boolean invokingServiceSet = EventRouterThreadLocals
+			.getInvokingService() != null;
+			if (!invokingServiceSet) {
+				EventRouterThreadLocals.setInvokingService(serviceID);
+			}
+			try {
+				this.sbbConcrete.setSbbContext(this.sbbContext);
+			} finally {
+				if (!invokingServiceSet) {
+					EventRouterThreadLocals.setInvokingService(null);
+				}
+			}
+			if (log.isDebugEnabled()) {
+				log.debug("<--- invoked setSbbContext() for " + sbbComponent);
+			}
 		}
-		// before invoking setSbbContext we need to save the service id in the
-		// thread, so the alarm facility can retreive it
-		EventRouterThreadLocals.setInvokingService(serviceID);
-		try {
-			this.sbbConcrete.setSbbContext(this.sbbContext);
-		} finally {
-			EventRouterThreadLocals.setInvokingService(null);
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("<--- invoked setSbbContext() for " + sbbComponent);
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of setSbbContext(), it has no body");
+			}
 		}
 	}
 
@@ -181,53 +195,66 @@ public class SbbObject implements Serializable {
 
 	/**
 	 * @see javax.slee.Sbb#unsetSbbContext()
-	 */
+	 */	
 	public void unsetSbbContext() {
+		
 		this.sbbContext = null;
+		
 		if (this.getState() != SbbObjectState.POOLED) {
 			if (log.isDebugEnabled())
 				log
-						.error("unsetSbbContext: should be called from pooled state current state is "
-								+ this.getState());
+				.error("unsetSbbContext: should be called from pooled state current state is "
+						+ this.getState());
 		}
-		if (log.isDebugEnabled())
-			log.debug("unsetSbbContext " + this.sbbComponent.getSbbID());
 
-		final ClassLoader oldClassLoader = SleeContainerUtils
-				.getCurrentThreadClassLoader();
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeUnsetSbbContext()) {
 
-		// FIXME - hat if the sbbDescriptor is null?
-		// What if the sbb object is not associated with an entity
-		// This is the case if failure occurs in sbbCreate
+			if (log.isDebugEnabled())
+				log.debug("unsetSbbContext " + this.sbbComponent.getSbbID());
 
-		try {
-			final ClassLoader cl = this.sbbComponent.getClassLoader();
-			if (System.getSecurityManager()!=null)
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
-						Thread.currentThread().setContextClassLoader(cl);
-						return null;
+			final ClassLoader oldClassLoader = SleeContainerUtils
+			.getCurrentThreadClassLoader();
 
-					}
-				});
-			else
-				Thread.currentThread().setContextClassLoader(cl);
-			if (this.sbbConcrete != null)
-				this.sbbConcrete.unsetSbbContext();
+			// FIXME - hat if the sbbDescriptor is null?
+			// What if the sbb object is not associated with an entity
+			// This is the case if failure occurs in sbbCreate
 
-		} finally {
-			if (System.getSecurityManager()!=null)
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
-						Thread.currentThread().setContextClassLoader(
-								oldClassLoader);
-						return null;
+			try {
+				final ClassLoader cl = this.sbbComponent.getClassLoader();
+				if (System.getSecurityManager()!=null){
 
-					}
-				});
-			else
-				Thread.currentThread().setContextClassLoader(oldClassLoader);
+					AccessController.doPrivileged(new PrivilegedAction() {
+						public Object run() {
+							Thread.currentThread().setContextClassLoader(cl);
+							return null;
 
+						}
+					});
+				}
+				else
+					Thread.currentThread().setContextClassLoader(cl);
+				if (this.sbbConcrete != null)
+					this.sbbConcrete.unsetSbbContext();
+
+			} finally {
+				if (System.getSecurityManager()!=null)
+					AccessController.doPrivileged(new PrivilegedAction() {
+						public Object run() {
+							Thread.currentThread().setContextClassLoader(
+									oldClassLoader);
+							return null;
+
+						}
+					});
+				else
+					Thread.currentThread().setContextClassLoader(oldClassLoader);
+
+			}
+		}
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of unsetSbbContext(), it has no body");
+			}
 		}
 
 	}
@@ -252,9 +279,16 @@ public class SbbObject implements Serializable {
 					.warn("sbbCreate: should be pooled state was "
 							+ this.getState());
 		}
-		this.invocationState = SbbInvocationState.INVOKING_SBB_CREATE;
-		this.sbbConcrete.sbbCreate();
-		this.invocationState = SbbInvocationState.NOT_INVOKING;
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbCreate()) {
+			this.invocationState = SbbInvocationState.INVOKING_SBB_CREATE;
+			this.sbbConcrete.sbbCreate();
+			this.invocationState = SbbInvocationState.NOT_INVOKING;
+		}
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbCreate(), it has no body");
+			}
+		}
 
 	}
 
@@ -273,10 +307,16 @@ public class SbbObject implements Serializable {
 	 * 
 	 */
 	public void sbbPostCreate() throws CreateException {
-		this.invocationState = SbbInvocationState.INVOKING_SBB_POSTCREATE;
-		this.sbbConcrete.sbbPostCreate();
-		this.invocationState = SbbInvocationState.NOT_INVOKING;
-
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbPostCreate()) {
+			this.invocationState = SbbInvocationState.INVOKING_SBB_POSTCREATE;
+			this.sbbConcrete.sbbPostCreate();
+			this.invocationState = SbbInvocationState.NOT_INVOKING;
+		}
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbPostCreate(), it has no body");
+			}
+		}
 	}
 
 	/**
@@ -284,14 +324,21 @@ public class SbbObject implements Serializable {
 	 */
 	public void sbbActivate() {
 
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbActivate()");
-		}
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbActivate()) {
+			if (log.isDebugEnabled()) {
+				log.debug(this.toString() + ".sbbActivate()");
+			}
 
-		if (this.getState() != SbbObjectState.POOLED) {
-			log.warn("wrong state -- expected POOLED  was " + this.getState());
+			if (this.getState() != SbbObjectState.POOLED) {
+				log.warn("wrong state -- expected POOLED  was " + this.getState());
+			}
+			this.sbbConcrete.sbbActivate();
 		}
-		this.sbbConcrete.sbbActivate();
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbActivate(), it has no body");
+			}
+		}
 	}
 
 	/**
@@ -299,11 +346,18 @@ public class SbbObject implements Serializable {
 	 */
 	public void sbbPassivate() {
 
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbPassivate()");
-		}
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbPassivate()) {
+			if (log.isDebugEnabled()) {
+				log.debug(this.toString() + ".sbbPassivate()");
+			}
 
-		this.sbbConcrete.sbbPassivate();
+			this.sbbConcrete.sbbPassivate();
+		}
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbPassivate(), it has no body");
+			}
+		}
 	}
 
 	/**
@@ -312,19 +366,25 @@ public class SbbObject implements Serializable {
 	 */
 	public void sbbLoad() throws TransactionRequiredLocalException {
 
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbLoad()");
-		}
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbLoad()) {
+			if (log.isDebugEnabled()) {
+				log.debug(this.toString() + ".sbbLoad()");
+			}
 
-		sleeContainer.getTransactionManager().mandateTransaction();
-		if (this.getState() != SbbObjectState.READY) {
-			log.warn("sbbLoad called from wrong state should be READY was "
-					+ this.getState());
+			sleeContainer.getTransactionManager().mandateTransaction();
+			if (this.getState() != SbbObjectState.READY) {
+				log.warn("sbbLoad called from wrong state should be READY was "
+						+ this.getState());
+			}
+			this.invocationState = SbbInvocationState.INVOKING_SBB_LOAD;
+			this.sbbConcrete.sbbLoad();
+			this.invocationState = SbbInvocationState.NOT_INVOKING;
 		}
-		this.invocationState = SbbInvocationState.INVOKING_SBB_LOAD;
-		this.sbbConcrete.sbbLoad();
-		this.invocationState = SbbInvocationState.NOT_INVOKING;
-
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbLoad(), it has no body");
+			}
+		}
 	}
 
 	/*
@@ -334,23 +394,143 @@ public class SbbObject implements Serializable {
 	 */
 	public void sbbStore() {
 
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbStore()");
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbStore()) {
+			if (log.isDebugEnabled()) {
+				log.debug(this.toString() + ".sbbStore()");
+			}
+
+			sleeContainer.getTransactionManager().mandateTransaction();
+
+			if (this.getState() != SbbObjectState.READY) {
+				log.warn("sbbStore called from wrong state should be READY was "
+						+ this.getState());
+
+			}
+
+			final ClassLoader oldClassLoader = SleeContainerUtils
+			.getCurrentThreadClassLoader();
+			if (this.sbbConcrete != null) {
+				final ClassLoader cl = this.sbbComponent.getClassLoader();
+				try {
+					if (System.getSecurityManager()!=null)
+						AccessController.doPrivileged(new PrivilegedAction() {
+							public Object run() {
+								Thread.currentThread().setContextClassLoader(cl);
+								return null;
+							}
+						});
+					else
+						Thread.currentThread().setContextClassLoader(cl);
+
+					if (this.sbbConcrete != null) {
+						this.invocationState = SbbInvocationState.INVOKING_SBB_STORE;
+						this.sbbConcrete.sbbStore();
+						this.invocationState = SbbInvocationState.NOT_INVOKING;
+						if (log.isDebugEnabled()) {
+							log.debug("Called sbbStore!");
+						}
+					} else {
+						log.error("sbbStore not called: concrete sbb is null");
+					}
+
+				} finally {
+					if (System.getSecurityManager()!=null)
+						AccessController.doPrivileged(new PrivilegedAction() {
+							public Object run() {
+								Thread.currentThread().setContextClassLoader(
+										oldClassLoader);
+								return null;
+							}
+						});
+					else
+						Thread.currentThread()
+						.setContextClassLoader(oldClassLoader);
+
+				}
+
+			}
+		}
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbStore(), it has no body");
+			}
+		}
+	}
+
+	public void sbbExceptionThrown(Exception exception) {
+
+		boolean invoke = sbbComponent.getAbstractSbbClassInfo().isInvokeSbbExceptionThrown();
+		
+		Object eventObject = null;
+		ActivityContextInterface aci = null;
+
+		if (invoke) {
+			EventRoutingTransactionData ertd = EventRoutingTransactionData
+			.getFromTransactionContext();
+			if (ertd != null) {
+				eventObject = ertd.getEventBeingDelivered().getEvent();
+				aci = ertd.getAciReceivingEvent();
+			}
+
+			if (log.isDebugEnabled()) {
+				log.debug(this.toString() + ".sbbExceptionThrown() : exception="
+						+ exception + " , eventObject=" + eventObject + " , aci="
+						+ aci);
+			}
+		}
+		
+		getSbbContext().setRollbackOnly();
+
+		if (invoke) {
+			this.sbbConcrete.sbbExceptionThrown(exception, eventObject, aci);
+		}
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbExceptionThrown(), it has no body");
+			}
 		}
 
-		sleeContainer.getTransactionManager().mandateTransaction();
+	}
 
-		if (this.getState() != SbbObjectState.READY) {
-			log.warn("sbbStore called from wrong state should be READY was "
-					+ this.getState());
+	public void sbbRolledBack(RolledBackContext sbbRolledBackContext) {
 
-		}
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbRolledBack()) {
+			if (log.isDebugEnabled()) {
+				log.debug(this.toString() + ".sbbRolledBack() : rolledBackContext="
+						+ sbbRolledBackContext);
+			}
 
-		final ClassLoader oldClassLoader = SleeContainerUtils
-				.getCurrentThreadClassLoader();
-		if (this.sbbConcrete != null) {
-			final ClassLoader cl = this.sbbComponent.getClassLoader();
+			ClassLoader oldClassLoader = Thread.currentThread()
+			.getContextClassLoader();
 			try {
+				Thread.currentThread().setContextClassLoader(
+						this.sbbComponent.getClassLoader());
+
+				this.sbbConcrete.sbbRolledBack(sbbRolledBackContext);
+			} finally {
+				Thread.currentThread().setContextClassLoader(oldClassLoader);
+			}
+		}
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbRolledBack(), it has no body");
+			}
+		}
+
+	}
+
+	public void sbbRemove() {
+
+		if (sbbComponent.getAbstractSbbClassInfo().isInvokeSbbRemove()) {
+			if (log.isDebugEnabled()) {
+				log.debug(this.toString() + ".sbbRemove()");
+			}
+
+			final ClassLoader oldClassLoader = SleeContainerUtils
+			.getCurrentThreadClassLoader();
+			try {
+
+				final ClassLoader cl = this.sbbComponent.getClassLoader();
 				if (System.getSecurityManager()!=null)
 					AccessController.doPrivileged(new PrivilegedAction() {
 						public Object run() {
@@ -362,14 +542,11 @@ public class SbbObject implements Serializable {
 					Thread.currentThread().setContextClassLoader(cl);
 
 				if (this.sbbConcrete != null) {
-					this.invocationState = SbbInvocationState.INVOKING_SBB_STORE;
-					this.sbbConcrete.sbbStore();
-					this.invocationState = SbbInvocationState.NOT_INVOKING;
-					if (log.isDebugEnabled()) {
-						log.debug("Called sbbStore!");
-					}
+					this.sbbConcrete.sbbRemove();
 				} else {
-					log.error("sbbStore not called: concrete sbb is null");
+					if (log.isDebugEnabled())
+						log
+						.debug("sbbRemove on the concrete sbb not called: concrete sbb is null");
 				}
 
 			} finally {
@@ -382,99 +559,14 @@ public class SbbObject implements Serializable {
 						}
 					});
 				else
-					Thread.currentThread()
-							.setContextClassLoader(oldClassLoader);
+					Thread.currentThread().setContextClassLoader(oldClassLoader);
 
 			}
-
 		}
-	}
-
-	public void sbbExceptionThrown(Exception exception) {
-
-		Object eventObject = null;
-		ActivityContextInterface aci = null;
-
-		EventRoutingTransactionData ertd = EventRoutingTransactionData
-				.getFromTransactionContext();
-		if (ertd != null) {
-			eventObject = ertd.getEventBeingDelivered().getEvent();
-			aci = ertd.getAciReceivingEvent();
-		}
-
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbExceptionThrown() : exception="
-					+ exception + " , eventObject=" + eventObject + " , aci="
-					+ aci);
-		}
-
-		getSbbContext().setRollbackOnly();
-
-		this.sbbConcrete.sbbExceptionThrown(exception, eventObject, aci);
-
-	}
-
-	public void sbbRolledBack(RolledBackContext sbbRolledBackContext) {
-
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbRolledBack() : rolledBackContext="
-					+ sbbRolledBackContext);
-		}
-
-		ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(
-					this.sbbComponent.getClassLoader());
-
-			this.sbbConcrete.sbbRolledBack(sbbRolledBackContext);
-		} finally {
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-		}
-
-	}
-
-	public void sbbRemove() {
-
-		if (log.isDebugEnabled()) {
-			log.debug(this.toString() + ".sbbRemove()");
-		}
-
-		final ClassLoader oldClassLoader = SleeContainerUtils
-				.getCurrentThreadClassLoader();
-		try {
-
-			final ClassLoader cl = this.sbbComponent.getClassLoader();
-			if (System.getSecurityManager()!=null)
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
-						Thread.currentThread().setContextClassLoader(cl);
-						return null;
-					}
-				});
-			else
-				Thread.currentThread().setContextClassLoader(cl);
-
-			if (this.sbbConcrete != null) {
-				this.sbbConcrete.sbbRemove();
-			} else {
-				if (log.isDebugEnabled())
-					log
-							.debug("sbbRemove on the concrete sbb not called: concrete sbb is null");
+		else {
+			if (log.isDebugEnabled()) {
+				log.debug("Skipping invocation of sbbRemove(), it has no body");
 			}
-
-		} finally {
-			if (System.getSecurityManager()!=null)
-				AccessController.doPrivileged(new PrivilegedAction() {
-					public Object run() {
-						Thread.currentThread().setContextClassLoader(
-								oldClassLoader);
-						return null;
-					}
-				});
-			else
-				Thread.currentThread().setContextClassLoader(oldClassLoader);
-
 		}
 
 	}
@@ -491,7 +583,6 @@ public class SbbObject implements Serializable {
 
 		} catch (Exception ex) {
 
-			ex.printStackTrace();
 			log.error("unexpected exception creating concrete class!", ex);
 			throw new RuntimeException(
 					"Unexpected exception creating concrete class for "

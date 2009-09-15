@@ -17,6 +17,7 @@ import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -72,6 +73,11 @@ public class EventContextImpl implements EventContext {
 	 */
 	private final Set<String> sbbEntitiesThatHandledEvent = new HashSet<String>();
 
+	/**
+	 * the ordered list containing all active services that will process this event as initial
+	 */
+	private final LinkedList<ServiceComponent> activeServicesToProcessEventAsInitial = new LinkedList<ServiceComponent>();
+	
 	/**
 	 * the scheduled future for the task controlling the suspension timeout
 	 */
@@ -247,6 +253,10 @@ public class EventContextImpl implements EventContext {
 		return sbbEntitiesThatHandledEvent;
 	}
 
+	public LinkedList<ServiceComponent> getActiveServicesToProcessEventAsInitial() {
+		return activeServicesToProcessEventAsInitial;
+	}
+	
 	public EventContextID getEventContextID() {
 		return eventContextID;
 	}

@@ -32,6 +32,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
+import org.mobicents.slee.container.component.sbb.AbstractSbbClassInfo;
 import org.mobicents.slee.container.component.security.PermissionHolder;
 import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
@@ -90,6 +91,11 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 */
 	private Map<EventTypeID, EventHandlerMethod> eventHandlerMethods = null;
 
+	/**
+	 * info about the abstract sbb class
+	 */
+	private AbstractSbbClassInfo abstractSbbClassInfo = null;
+	
 	/**
 	 * 
 	 * @param descriptor
@@ -402,5 +408,22 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 		sbbLocalInterfaceClass = null;
 		sbbLocalInterfaceConcreteClass = null;
 		specsDescriptor = null;
+	}
+	
+	/**
+	 *  
+	 * @return the abstractSbbClassInfo
+	 */
+	public AbstractSbbClassInfo getAbstractSbbClassInfo() {
+		return abstractSbbClassInfo;
+	}
+	
+	/**
+	 *  
+	 * @param abstractSbbClassInfo the abstractSbbClassInfo to set
+	 */
+	public void setAbstractSbbClassInfo(
+			AbstractSbbClassInfo abstractSbbClassInfo) {
+		this.abstractSbbClassInfo = abstractSbbClassInfo;
 	}
 }

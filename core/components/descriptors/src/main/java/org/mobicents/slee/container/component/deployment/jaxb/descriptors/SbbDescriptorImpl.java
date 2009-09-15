@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -92,6 +94,11 @@ public class SbbDescriptorImpl {
 	 */
     private Map<String,MSbbCMPField> cmpFields;
 
+    /**
+     * this is the default set of masked event types, used when an sbb entity related with this sbb attaches to an aci
+     */
+    private Set<EventTypeID> defaultEventMask;
+    
 	public SbbDescriptorImpl(MSbb sbb,
 			MSecurityPermissions sbbJarSecurityPermissions, boolean isSlee11)
 			throws DeploymentException {
@@ -123,8 +130,6 @@ public class SbbDescriptorImpl {
 				}
 			}
 			else {
-				// FIXME emmartins: not sure that defining the standard profile spec when the alias ref is not present is correct,
-				// but test tests/events/eventrouting/Test1108081Test1.xml defines no address profile spec ref and uses it
 				if (isSlee11) {
 					this.addressProfileSpecRef = new ProfileSpecificationID("AddressProfileSpec","javax.slee","1.1");
 				}
@@ -212,6 +217,22 @@ public class SbbDescriptorImpl {
 		      }
 		    }
 		    
+		    // build default event mask for this sbb entities
+		 	Collection<MEventEntry> mEventEntries = getEventEntries().values();
+			HashSet<EventTypeID> maskedEvents = null;
+			if (mEventEntries != null) {
+				maskedEvents = new HashSet<EventTypeID>();
+				for (MEventEntry mEventEntry : mEventEntries) {
+					if (mEventEntry.isMaskOnAttach()) {
+						maskedEvents.add(mEventEntry.getEventReference()
+								.getComponentID());
+					}
+				}
+			}
+			if (maskedEvents != null && !maskedEvents.isEmpty()) {
+				defaultEventMask = Collections.unmodifiableSet(maskedEvents);
+			}
+		    
 			buildDependenciesSet();
 		} catch (DeploymentException e) {
 			throw e;
@@ -222,16 +243,17 @@ public class SbbDescriptorImpl {
 
 	private void buildDependenciesSet() {
 
-    this.dependenciesSet.addAll(eventEntries.keySet());
-    
-	  for (MSbbRef sbbRef : sbbRefs) {
+		this.dependenciesSet.addAll(eventEntries.keySet());
+		this.dependenciesSet.add(addressProfileSpecRef);
+
+		for (MSbbRef sbbRef : sbbRefs) {
 			this.dependenciesSet.add(sbbRef.getComponentID());
 		}
 
 		for (MProfileSpecRef profileSpecRef : profileSpecRefs) {
 			this.dependenciesSet.add(profileSpecRef.getComponentID());
 		}
-		
+
 		for (MLibraryRef libraryRef : libraryRefs) {
 			this.dependenciesSet.add(libraryRef.getComponentID());
 		}
@@ -239,7 +261,7 @@ public class SbbDescriptorImpl {
 		for (MResourceAdaptorTypeBinding binding : resourceAdaptorTypeBindings) {
 			this.dependenciesSet.add(binding.getResourceAdaptorTypeRef());
 		}
-		
+
 		// FIXME: EJB's do not have component ID... what gives?
 		// for(MEjbRef ejbRef : ejbRefs)
 		// {
@@ -360,5 +382,13 @@ public class SbbDescriptorImpl {
 	 */
 	public Map<String, MSbbCMPField> getCmpFields() {
 		return cmpFields;
+	}
+	
+	/**
+	 * Retrieves the default set of event types masked, for sbb entities attaching to acis
+	 * @return the defaultEventMask
+	 */
+	public Set<EventTypeID> getDefaultEventMask() {
+		return defaultEventMask;
 	}
 }

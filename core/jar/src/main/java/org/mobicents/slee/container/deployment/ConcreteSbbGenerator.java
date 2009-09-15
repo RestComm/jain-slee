@@ -25,6 +25,7 @@ import javassist.NotFoundException;
 
 import javax.slee.EventTypeID;
 import javax.slee.SLEEException;
+import javax.slee.Sbb;
 import javax.slee.SbbLocalObject;
 import javax.slee.management.DeploymentException;
 
@@ -36,6 +37,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MG
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbAbstractClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
+import org.mobicents.slee.container.component.sbb.AbstractSbbClassInfo;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.sbb.SbbAbstractMethodHandler;
 import org.mobicents.slee.runtime.sbb.SbbConcrete;
@@ -135,6 +137,9 @@ public class ConcreteSbbGenerator {
 			} catch (NotFoundException nfe) {
 				throw new DeploymentException(nfe.getMessage(), nfe);
 			}
+			
+			generateAbstractSbbClassInfo();
+			
 			try {
 				ConcreteClassGeneratorUtils.createInterfaceLinks(
 						sbbConcreteClass, new CtClass[] { pool
@@ -442,6 +447,41 @@ public class ConcreteSbbGenerator {
 			throw new DeploymentException(
 					"concrete sbb class generation failed and I don't know why, bug bug ?!? :)");
 		}
+	}
+
+	/**
+	 * Generates info that indicates if a method from {@link Sbb} interface
+	 * should be invoked or not, in runtime.
+	 */
+	private void generateAbstractSbbClassInfo() {
+
+		CtClass sbbClass = null;
+		try {
+			sbbClass = pool.get(Sbb.class.getName());
+		} catch (NotFoundException e) {
+			throw new SLEEException(e.getMessage(), e);
+		}
+
+		AbstractSbbClassInfo abstractSbbClassInfo = new AbstractSbbClassInfo();
+
+		for (CtMethod sbbClassMethod : sbbClass.getDeclaredMethods()) {
+			for (CtMethod sbbAbstractClassMethod : sbbAbstractClass
+					.getMethods()) {
+				if (sbbAbstractClassMethod.getName().equals(
+						sbbClassMethod.getName())
+						&& sbbAbstractClassMethod.getSignature().equals(
+								sbbClassMethod.getSignature())) {
+					// match, save info
+					abstractSbbClassInfo.setInvokeInfo(sbbAbstractClassMethod
+							.getMethodInfo().getName(), !sbbAbstractClassMethod
+							.isEmpty());
+					break;
+				}
+			}
+		}
+
+		sbbComponent.setAbstractSbbClassInfo(abstractSbbClassInfo);
+
 	}
 
 	/**
