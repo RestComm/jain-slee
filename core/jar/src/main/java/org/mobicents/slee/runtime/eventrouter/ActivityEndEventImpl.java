@@ -17,6 +17,8 @@ public class ActivityEndEventImpl implements ActivityEndEvent {
 	
 	/**
 	 *	the event type id for this event
+	 *  NOTE: do not build other instances of this event type id since 
+	 *  the event router depends on that, i.e., uses == in some conditional choices
 	 */
 	public static final EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.ActivityEndEvent",
 			"javax.slee", "1.0");

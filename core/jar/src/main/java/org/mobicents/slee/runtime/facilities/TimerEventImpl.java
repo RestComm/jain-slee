@@ -30,6 +30,8 @@ public class TimerEventImpl implements TimerEvent {
 
 	/**
 	 *	the event type id key for this event
+	 *  NOTE: do not build other instances of this event type id since 
+	 *  the event router depends on that, i.e., uses == in some conditional choices
 	 */	
 	public static EventTypeID EVENT_TYPE_ID = new EventTypeID("javax.slee.facilities.TimerEvent",
 			"javax.slee", "1.0");
