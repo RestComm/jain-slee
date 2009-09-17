@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+<event-jar>
+
+	<library-ref>
+		<library-name>library-mgcp</library-name>
+		<library-vendor>library-mgcp</library-vendor>
+		<library-version>2.0</library-version>
+	</library-ref>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.CREATE_CONNECTION
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.CreateConnection
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.CreateConnectionResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.MODIFY_CONNECTION
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.ModifyConnection
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.MODIFY_CONNECTION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.ModifyConnectionResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.DELETE_CONNECTION
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.DeleteConnection
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.DeleteConnectionResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.AUDIT_CONNECTION
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.AuditConnection
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.AUDIT_CONNECTION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.AuditConnectionResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.AUDIT_ENDPOINT
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.AuditEndpoint
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.AUDIT_ENDPOINT_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.AuditEndpointResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.EndpointConfiguration
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.EndpointConfigurationResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFICATION_REQUEST
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.NotificationRequest
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.NotificationRequestResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFY
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.Notify
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFY_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.NotifyResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.RESTART_IN_PROGRESS
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.RestartInProgress
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.RESTART_IN_PROGRESS_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			jain.protocol.ip.mgcp.message.RestartInProgressResponse
+		</event-class-name>
+	</event-definition>
+
+	<event-definition>
+		<event-type-name>
+			net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>
+			net.java.slee.resource.mgcp.event.TransactionTimeout
+		</event-class-name>
+	</event-definition>
+</event-jar>
