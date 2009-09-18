@@ -306,8 +306,14 @@ public class SbbManagement {
 							.debug("setupSbbEnvironment: Binding a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef());
 				}
 				try {
-					NonSerializableFactory.rebind(subContext, lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
-					//subContext.bind(lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
+					Object raSbbInterface = raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef());
+					if (raSbbInterface != null) {
+						NonSerializableFactory.rebind(subContext, lastTok,raSbbInterface);
+						//subContext.bind(lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
+					}
+					else {
+						throw new DeploymentException("Unable to retrieve the RA interface for RA entity "+raEntity.getName()+" and RAType " +raTypeBinding.getResourceAdaptorTypeRef());
+					}					
 				} catch (NameAlreadyBoundException e) {
 					logger.warn(
 							"setupSbbEnvironment: Unable to bind a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef(), e);
