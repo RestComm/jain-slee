@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<packaging>pom</packaging>
+	
+	<packaging>jainslee-du</packaging>
 
 	<parent>
 		<artifactId>mgcp-parent</artifactId>
@@ -9,10 +10,8 @@
 	</parent>
 
 	<artifactId>mgcp-ra-DU</artifactId>
-	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
-
+	
 	<dependencies>
-		<!-- components -->
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>mgcp-library</artifactId>
@@ -22,19 +21,16 @@
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>mgcp-events</artifactId>
 			<version>${pom.version}</version>
-
 		</dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>mgcp-ratype</artifactId>
 			<version>${pom.version}</version>
-
 		</dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>mgcp-ra</artifactId>
 			<version>${pom.version}</version>
-
 		</dependency>
 	</dependencies>
 

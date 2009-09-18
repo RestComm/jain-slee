@@ -8,6 +8,12 @@
 	</parent>
 
 	<artifactId>mgcp-events</artifactId>
-	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
+	<dependencies>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>mgcp-library</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+	</dependencies>
 </project>

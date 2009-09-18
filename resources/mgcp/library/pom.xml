@@ -11,9 +11,7 @@
 	</parent>
 	
 	<artifactId>mgcp-library</artifactId>
-	
-	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
-	
+		
 	<dependencies>
 		<dependency>
 			<groupId>jain</groupId>

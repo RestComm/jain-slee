@@ -8,7 +8,6 @@
 	</parent>
 
 	<artifactId>mgcp-ratype</artifactId>
-	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
 
 	<dependencies>
 		<dependency>
@@ -16,8 +15,9 @@
 			<artifactId>jain-slee</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>jain</groupId>
-			<artifactId>jain-mgcp-ri</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>mgcp-events</artifactId>
+			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
 

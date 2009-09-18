@@ -113,10 +113,7 @@
 					<excludePoms />
 					<classpathExcludes>
 						<exclude>xml-apis:xml-apis</exclude>
-						<exclude>jtidy:jtidy</exclude>
-						<exclude>org.jboss.jbossas:jboss-as-system:5.0.0.CR2</exclude>
-						<exclude>org.jboss.jbossas:jboss-as-deployment:5.0.0.CR2</exclude>
-						<exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>																		
+						<exclude>jtidy:jtidy</exclude>																		
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
 					<eclipseProjectName>mobicents-slee-ra-mgcp</eclipseProjectName>
