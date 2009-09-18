@@ -51,6 +51,7 @@ import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.UnrecognizedActivityException;
+import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.mgcp.MgcpActivityContextInterfaceFactory;
@@ -58,8 +59,6 @@ import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
-
-import org.apache.log4j.Logger;
 
 /**
  * On INVITE this example creates the Connection on endpoint media/test/Loopback/1. On BYE it calls DeleteConnection on
@@ -90,7 +89,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	private JainMgcpProvider mgcpProvider;
 	private MgcpActivityContextInterfaceFactory mgcpAcif;
 
-	private Logger logger = Logger.getLogger(CRCXEndpointSbb.class);
+	private Tracer logger;
 
 	/** Creates a new instance of CallSbb */
 	public CRCXEndpointSbb() {
@@ -112,7 +111,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 			daci = acif.getActivityContextInterface((DialogActivity) dialog);
 			daci.attach(sbbContext.getSbbLocalObject());
 		} catch (Exception e) {
-			logger.error("Error during dialog creation", e);
+			logger.severe("Error during dialog creation", e);
 			respond(evt, Response.SERVER_INTERNAL_ERROR);
 			return;
 		}
@@ -238,7 +237,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 			Response response = messageFactory.createResponse(cause, request);
 			tx.sendResponse(response);
 		} catch (Exception e) {
-			logger.warn("Unexpected error: ", e);
+			logger.warning("Unexpected error: ", e);
 		}
 	}
 
@@ -274,6 +273,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 
 	public void setSbbContext(SbbContext sbbContext) {
 		this.sbbContext = sbbContext;
+		this.logger = sbbContext.getTracer(CRCXEndpointSbb.class.getSimpleName());
 		try {
 			Context ctx = (Context) new InitialContext().lookup("java:comp/env");
 
@@ -290,7 +290,7 @@ public abstract class CRCXEndpointSbb implements Sbb {
 			mgcpAcif = (MgcpActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainmgcp/2.0/acifactory/demo");
 
 		} catch (Exception ne) {
-			logger.error("Could not set SBB context:", ne);
+			logger.severe("Could not set SBB context:", ne);
 		}
 	}
 
@@ -299,6 +299,8 @@ public abstract class CRCXEndpointSbb implements Sbb {
 	public abstract void setConnectionIdentifier(String connectionIdentifier);
 
 	public void unsetSbbContext() {
+		this.sbbContext = null;
+		this.logger = null;
 	}
 
 	public void sbbCreate() throws CreateException {

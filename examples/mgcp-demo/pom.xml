@@ -12,17 +12,14 @@
 	<version>2.0.0-SNAPSHOT</version>    
     
     <packaging>pom</packaging>
-    <name>Mobicents JSLEE Server Examples :: ${pom.artifactId}</name>
-    
-    <url>http://maven.apache.org</url>
-    
+        
     <modules>
 	    <module>slee</module>
 		<module>web</module>		
     </modules>
     
 	<properties>
-		<mobicents.resources.sip11.version>2.0.0.BETA1</mobicents.resources.sip11.version>
+		<mobicents.resources.sip11.version>2.0.0-SNAPSHOT</mobicents.resources.sip11.version>
 		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
 		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
@@ -36,17 +33,23 @@
 				<artifactId>jain-slee</artifactId>
 				<version>1.1</version>
 			</dependency>
+			<dependency>
+				<groupId>org.mobicents.resources</groupId>
+				<artifactId>sip11-ratype</artifactId>
+				<version>${mobicents.resources.sip11.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.resources</groupId>
+				<artifactId>mgcp-ratype</artifactId>
+				<version>${mobicents.resources.mgcp.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>	
     
     <profiles>
 		<profile>
 			<id>maven-release</id>
-			<!-- need to include those ones for maven releases -->
-    		<modules>
-    			<module>proxy-with-initial-invite-services-DU</module>
-    			<module>proxy-without-initial-invite-services-DU</module>
-    		</modules>
+			
 			<build>
 				<plugins>
 					<plugin>
@@ -55,7 +58,6 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/mgcp-demo</tagBase>
-						<preparationGoals>clean install</preparationGoals>
 					</configuration>
 					</plugin>
 				</plugins>

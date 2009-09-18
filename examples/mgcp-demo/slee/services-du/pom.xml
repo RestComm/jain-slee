@@ -1,45 +1,44 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
+    
+    <packaging>jainslee-du</packaging>
     
     <parent>
-	<artifactId>mgcp-demo-slee</artifactId>
-	<groupId>org.mobicents.examples</groupId>
-	<version>2.0.0-SNAPSHOT</version>  
+		<artifactId>mgcp-demo-slee</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>2.0.0-SNAPSHOT</version>  
     </parent>
     
     <artifactId>zmgcp-demo-services-DU</artifactId>
-   
-    <name>MGCP :: ${pom.artifactId}</name>
-    
-    <dependencies>
-        <dependency>
-	    <artifactId>mgcp-demo-call-sbb</artifactId>
-	    <groupId>${pom.groupId}</groupId>
-            <version>${pom.version}</version>
-        </dependency>
-	<dependency>
-		<artifactId>mgcp-demo-crcx-sbb</artifactId>
-		<groupId>${pom.groupId}</groupId>
-		<version>${pom.version}</version>
-        </dependency>
-	<dependency>
-		<artifactId>mgcp-demo-crcx-endpoint-sbb</artifactId>
-		<groupId>${pom.groupId}</groupId>
-		<version>${pom.version}</version>
-        </dependency>
-	<dependency>
-		<artifactId>mgcp-demo-mdcx-sbb</artifactId>
-		<groupId>${pom.groupId}</groupId>
-		<version>${pom.version}</version>
-        </dependency>	
-	<dependency>
-		<artifactId>mgcp-demo-rqnt-sbb</artifactId>
-		<groupId>${pom.groupId}</groupId>
-		<version>${pom.version}</version>
-        </dependency>	
-    </dependencies>
+
+	<dependencies>
+		<dependency>
+			<artifactId>mgcp-demo-call-sbb</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>mgcp-demo-crcx-sbb</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>mgcp-demo-crcx-endpoint-sbb</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>mgcp-demo-mdcx-sbb</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>mgcp-demo-rqnt-sbb</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+	</dependencies>
     
     <build>
         <plugins>

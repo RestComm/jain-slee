@@ -3,53 +3,22 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-	<artifactId>mgcp-demo-slee</artifactId>
-	<groupId>org.mobicents.examples</groupId>
-	<version>2.0.0-SNAPSHOT</version>  
+		<artifactId>mgcp-demo-slee</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>2.0.0-SNAPSHOT</version>  
     </parent>
     
     <artifactId>mgcp-demo-rqnt-sbb</artifactId>
-    <name>MGCP :: ${pom.artifactId}</name>
     
     <dependencies>
 	    <dependency>	
 		    <artifactId>mgcp-ratype</artifactId>
 		    <groupId>org.mobicents.resources</groupId>
-		    <version>${mobicents.resources.mgcp.version}</version>
 	    </dependency>        
 	    <dependency>
 		    <groupId>org.mobicents.resources</groupId>
-		    <artifactId>sip11-ra</artifactId>
-		    <version>${mobicents.resources.sip11.version}</version>
-	</dependency>
+		    <artifactId>sip11-ratype</artifactId>
+		</dependency>
     </dependencies>	  
-    
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <excludes>
-                    <exclude>org/**</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>org/**</include>
-                </includes>
-            </resource>		
-        </resources>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>RELEASE</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
     
 </project>

@@ -29,11 +29,9 @@ import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
+import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.sip.SleeSipProvider;
-
-import org.apache.log4j.Logger;
-
 
 /**
  * This SBB just acts as decision maker. For 1010 the INVITE event is routed to
@@ -56,7 +54,7 @@ public abstract class CallSbb implements Sbb {
 
 	private MessageFactory messageFactory;
 
-	private Logger logger = Logger.getLogger(CallSbb.class);
+	private Tracer logger;
 
 	/** Creates a new instance of CallSbb */
 	public CallSbb() {
@@ -98,7 +96,7 @@ public abstract class CallSbb implements Sbb {
 			aci.attach(child);
 			aci.detach(sbbContext.getSbbLocalObject());
 		} catch (Exception e) {
-			logger.error("Unexpected error: ", e);
+			logger.severe("Unexpected error: ", e);
 		}
 	}
 
@@ -109,12 +107,13 @@ public abstract class CallSbb implements Sbb {
 			Response response = messageFactory.createResponse(cause, request);
 			tx.sendResponse(response);
 		} catch (Exception e) {
-			logger.warn("Unexpected error: ", e);
+			logger.warning("Unexpected error: ", e);
 		}
 	}
 
 	public void setSbbContext(SbbContext sbbContext) {
 		this.sbbContext = sbbContext;
+		this.logger = sbbContext.getTracer(CallSbb.class.getSimpleName());
 		try {
 			Context ctx = (Context) new InitialContext().lookup("java:comp/env");
 
@@ -124,7 +123,7 @@ public abstract class CallSbb implements Sbb {
 			messageFactory = provider.getMessageFactory();
 
 		} catch (Exception ne) {
-			logger.error("Could not set SBB context:", ne);
+			logger.severe("Could not set SBB context:", ne);
 		}
 	}
 
@@ -137,6 +136,8 @@ public abstract class CallSbb implements Sbb {
 	public abstract ChildRelation getRQNTSbbChild();
 
 	public void unsetSbbContext() {
+		this.sbbContext = null;
+		this.logger = null;
 	}
 
 	public void sbbCreate() throws CreateException {

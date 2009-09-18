@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="slee/mdcx-sbb/src/main/resources"/>
-  <classpathentry kind="src" path="slee/mdcx-sbb/src/main/java"/>
   <classpathentry kind="src" path="slee/call-sbb/src/main/java"/>
   <classpathentry kind="src" path="slee/call-sbb/src/main/resources"/>
-  <classpathentry kind="src" path="slee/rqnt-sbb/src/main/resources"/>
-  <classpathentry kind="src" path="slee/rqnt-sbb/src/main/java"/>
-  <classpathentry kind="src" path="slee/crcx-sbb/src/main/resources"/>
-  <classpathentry kind="src" path="slee/crcx-sbb/src/main/java"/>
   <classpathentry kind="src" path="slee/crcx-endpoint-sbb/src/main/java"/>
   <classpathentry kind="src" path="slee/crcx-endpoint-sbb/src/main/resources"/>
+  <classpathentry kind="src" path="slee/crcx-sbb/src/main/resources"/>
+  <classpathentry kind="src" path="slee/crcx-sbb/src/main/java"/>
+  <classpathentry kind="src" path="slee/mdcx-sbb/src/main/resources"/>
+  <classpathentry kind="src" path="slee/mdcx-sbb/src/main/java"/>
+  <classpathentry kind="src" path="slee/rqnt-sbb/src/main/resources"/>
+  <classpathentry kind="src" path="slee/rqnt-sbb/src/main/java"/>
   <classpathentry kind="src" path="slee/services-du/src/main/resources"/>
   <classpathentry kind="src" path="web/src/main/resources"/>
+  <classpathentry kind="var" path="M2_REPO/concurrent/concurrent/1.3.4/concurrent-1.3.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/jain/jain-mgcp-ri/1.0/jain-mgcp-ri-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-api/1.2/jain-sip-api-1.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-ri/1.2.108/jain-sip-ri-1.2.108.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/jain/mobicents-mgcp-impl/2.0.0.RC4/mobicents-mgcp-impl-2.0.0.RC4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/mgcp-events/2.0.0-SNAPSHOT/mgcp-events-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/mgcp-library/2.0.0-SNAPSHOT/mgcp-library-2.0.0-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/mgcp-ratype/2.0.0-SNAPSHOT/mgcp-ratype-2.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-events/2.0.0.BETA1/sip11-events-2.0.0.BETA1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-library/2.0.0.BETA1/sip11-library-2.0.0.BETA1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ra/2.0.0.BETA1/sip11-ra-2.0.0.BETA1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ratype/2.0.0.BETA1/sip11-ratype-2.0.0.BETA1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-events/2.0.0-SNAPSHOT/sip11-events-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-library/2.0.0-SNAPSHOT/sip11-library-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ratype/2.0.0-SNAPSHOT/sip11-ratype-2.0.0-SNAPSHOT.jar"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="output" path="target/classes"/>
 </classpath>

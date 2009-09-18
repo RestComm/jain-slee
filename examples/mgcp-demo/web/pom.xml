@@ -2,16 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-	  <artifactId>mgcp-demo-parent</artifactId>
-	<groupId>org.mobicents.examples</groupId>
-	<version>2.0.0-SNAPSHOT</version>    
-    
+	  	<artifactId>mgcp-demo-parent</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>2.0.0-SNAPSHOT</version>    
 	</parent>
 
 	<artifactId>mgcp-demo-web</artifactId>
 
 	<packaging>war</packaging>
-	<name>Mobicents Media Server Examples :: ${pom.artifactId} :: audio</name>
 
 	<build>
 		<finalName>mgcp-demo-audio</finalName>
