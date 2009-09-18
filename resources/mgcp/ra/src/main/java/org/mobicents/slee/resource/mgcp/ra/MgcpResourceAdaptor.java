@@ -138,8 +138,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	}
 
 	public Object getResourceAdaptorInterface(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.mgcpProvider;
 	}
 
 	public void queryLiveness(ActivityHandle arg0) {
