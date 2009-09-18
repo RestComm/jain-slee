@@ -75,7 +75,7 @@ import net.java.slee.resource.sip.SleeSipProvider;
  */
 public abstract class RQNTSbb implements Sbb {
 
-	public final static String ENDPOINT_NAME = "media/trunk/Announcement/$";
+	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 
@@ -94,6 +94,9 @@ public abstract class RQNTSbb implements Sbb {
 	// MGCP
 	private JainMgcpProvider mgcpProvider;
 	private MgcpActivityContextInterfaceFactory mgcpAcif;
+
+	public static final int MGCP_PEER_PORT = 2427;
+	public static final int MGCP_PORT = 2727;
 
 	private Tracer logger;
 
@@ -125,7 +128,8 @@ public abstract class RQNTSbb implements Sbb {
 		// respond(evt, Response.RINGING);
 
 		CallIdentifier callID = mgcpProvider.getUniqueCallIdentifier();
-		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS + ":2729");
+		this.setCallIdentifier(callID.toString());
+		EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS + ":" + MGCP_PEER_PORT);
 
 		CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
 
@@ -163,11 +167,11 @@ public abstract class RQNTSbb implements Sbb {
 
 		ReturnCode status = event.getReturnCode();
 
-		this.setEndpointName(event.getSpecificEndpointIdentifier().getLocalEndpointName());
-		logger.info("***&& " + this.getEndpointName());
-
 		switch (status.getValue()) {
 		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+
+			this.setEndpointName(event.getSpecificEndpointIdentifier().getLocalEndpointName());
+			logger.info("***&& " + this.getEndpointName());
 
 			ConnectionIdentifier connectionIdentifier = event.getConnectionIdentifier();
 
@@ -190,27 +194,25 @@ public abstract class RQNTSbb implements Sbb {
 			}
 			ContactHeader contact = headerFactory.createContactHeader(contactAddress);
 
-			EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":2729");
+			EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
+					+ MGCP_PEER_PORT);
 
 			NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 					.getUniqueRequestIdentifier());
 
-			EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(HELLO_WORLD),
-					connectionIdentifier) };
+			EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(HELLO_WORLD)) };
 			notificationRequest.setSignalRequests(signalRequests);
 
 			RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
 			RequestedEvent[] requestedEvents = {
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier),
-							actions),
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier),
-							actions) };
+					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of), actions) };
 
 			notificationRequest.setRequestedEvents(requestedEvents);
 			notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
 
-			NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS, JBOSS_BIND_ADDRESS, 2728);
+			NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS, JBOSS_BIND_ADDRESS, MGCP_PORT);
 			notificationRequest.setNotifiedEntity(notifiedEntity);
 
 			// MgcpEndpointActivity endpointActivity = null;
@@ -260,6 +262,20 @@ public abstract class RQNTSbb implements Sbb {
 	public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
 		logger.info("onNotificationRequestResponse");
 
+		ReturnCode status = event.getReturnCode();
+
+		switch (status.getValue()) {
+		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+			logger.info("The Announcement should have been started");
+			break;
+		default:
+			ReturnCode rc = event.getReturnCode();
+			logger.severe("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
+
+			// TODO : Send DLCX to MMS. Send BYE to UA
+			break;
+		}
+
 	}
 
 	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
@@ -286,10 +302,10 @@ public abstract class RQNTSbb implements Sbb {
 	// }
 
 	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
-		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":2729");
-		DeleteConnection deleteConnection = new DeleteConnection(this, endpointID);
-
-		deleteConnection.setConnectionIdentifier(new ConnectionIdentifier(this.getConnectionIdentifier()));
+		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
+				+ MGCP_PEER_PORT);
+		DeleteConnection deleteConnection = new DeleteConnection(this, new CallIdentifier(this.getCallIdentifier()),
+				endpointID, new ConnectionIdentifier(this.getConnectionIdentifier()));
 
 		deleteConnection.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
