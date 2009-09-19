@@ -65,6 +65,7 @@ import javax.slee.facilities.Tracer;
 import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.mgcp.MgcpActivityContextInterfaceFactory;
 import net.java.slee.resource.mgcp.MgcpConnectionActivity;
+import net.java.slee.resource.mgcp.MgcpEndpointActivity;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
@@ -215,19 +216,18 @@ public abstract class RQNTSbb implements Sbb {
 			NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS, JBOSS_BIND_ADDRESS, MGCP_PORT);
 			notificationRequest.setNotifiedEntity(notifiedEntity);
 
-			// MgcpEndpointActivity endpointActivity = null;
-			// try {
-			// endpointActivity = mgcpProvider.getEndpointActivity(endpointID);
-			// ActivityContextInterface epnAci =
-			// mgcpAcif.getActivityContextInterface(endpointActivity);
-			// epnAci.attach(sbbContext.getSbbLocalObject());
-			// } catch (FactoryException ex) {
-			// ex.printStackTrace();
-			// } catch (NullPointerException ex) {
-			// ex.printStackTrace();
-			// } catch (UnrecognizedActivityException ex) {
-			// ex.printStackTrace();
-			// }
+			MgcpEndpointActivity endpointActivity = null;
+			try {
+				endpointActivity = mgcpProvider.getEndpointActivity(endpointID);
+				ActivityContextInterface epnAci = mgcpAcif.getActivityContextInterface(endpointActivity);
+				epnAci.attach(sbbContext.getSbbLocalObject());
+			} catch (FactoryException ex) {
+				ex.printStackTrace();
+			} catch (NullPointerException ex) {
+				ex.printStackTrace();
+			} catch (UnrecognizedActivityException ex) {
+				ex.printStackTrace();
+			}
 
 			mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
 
@@ -281,17 +281,21 @@ public abstract class RQNTSbb implements Sbb {
 	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
 		logger.info("onNotifyRequest");
 
+		NotificationRequestResponse response = new NotificationRequestResponse(event.getSource(),
+				ReturnCode.Transaction_Executed_Normally);
+		response.setTransactionHandle(event.getTransactionHandle());
+
+		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { response });
+
 		EventName[] observedEvents = event.getObservedEvents();
 
 		for (EventName observedEvent : observedEvents) {
 			if (observedEvent.getEventIdentifier().intValue() == MgcpEvent.REPORT_ON_COMPLETION) {
-				NotificationRequestResponse response = new NotificationRequestResponse(event.getSource(),
-						ReturnCode.Transaction_Executed_Normally);
-				response.setTransactionHandle(event.getTransactionHandle());
-
-				mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { response });
-
 				logger.info("Announcemnet Completed NTFY received");
+			} else if (observedEvent.getEventIdentifier().intValue() == MgcpEvent.REPORT_FAILURE) {
+				logger.info("Announcemnet Failed received");
+
+				// TODO : Send DLCX and Send BYE to UA
 			}
 		}
 
@@ -305,7 +309,7 @@ public abstract class RQNTSbb implements Sbb {
 		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
 				+ MGCP_PEER_PORT);
 		DeleteConnection deleteConnection = new DeleteConnection(this, new CallIdentifier(this.getCallIdentifier()),
-				endpointID, new ConnectionIdentifier(this.getConnectionIdentifier()));
+				endpointID);
 
 		deleteConnection.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { deleteConnection });
