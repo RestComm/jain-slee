@@ -48,6 +48,7 @@ import javax.slee.AddressPlan;
 import javax.slee.facilities.Tracer;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.EventFlags;
 import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.InvalidConfigurationException;
@@ -66,6 +67,7 @@ import org.mobicents.mgcp.stack.JainMgcpStackImpl;
  * 
  * @author Oleg Kulikov
  * @author eduardomartins
+ * @author amit bhayani
  */
 public class MgcpResourceAdaptor implements ResourceAdaptor {
 
@@ -90,6 +92,19 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	private static final String MGCP_BIND_PORT = "jain.mgcp.PORT";
 
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
+
+	/**
+	 * tells the RA if an event with a specified ID should be filtered or not
+	 */
+	private final EventIDFilter eventIDFilter = new EventIDFilter();
+
+	private static final int EVENT_FLAGS = getEventFlags();
+
+	private static int getEventFlags() {
+		int eventFlags = EventFlags.REQUEST_EVENT_UNREFERENCED_CALLBACK;
+		EventFlags.setRequestProcessingFailedCallback(eventFlags);
+		return eventFlags;
+	}
 
 	public void activityEnded(ActivityHandle arg0) {
 		// TODO Auto-generated method stub
@@ -233,19 +248,17 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		}
 	}
 
-	public void serviceActive(ReceivableService arg0) {
-		// TODO Auto-generated method stub
+	public void serviceActive(ReceivableService receivableService) {
+		eventIDFilter.serviceActive(receivableService);
 
 	}
 
-	public void serviceInactive(ReceivableService arg0) {
-		// TODO Auto-generated method stub
-
+	public void serviceInactive(ReceivableService receivableService) {
+		eventIDFilter.serviceInactive(receivableService);
 	}
 
-	public void serviceStopping(ReceivableService arg0) {
-		// TODO Auto-generated method stub
-
+	public void serviceStopping(ReceivableService receivableService) {
+		eventIDFilter.serviceStopping(receivableService);
 	}
 
 	public void setResourceAdaptorContext(ResourceAdaptorContext raContext) {
@@ -456,6 +469,15 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			} else {
 				processEndpointMgcpEvent(deleteConnection.getEndpointIdentifier(),
 						"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response);
+
+				List<MgcpConnectionActivity> connActivities = this.mgcpProvider
+						.getConnectionActivities(deleteConnection.getEndpointIdentifier());
+
+				for (MgcpConnectionActivity connActivitiy : connActivities) {
+					processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(connActivitiy
+							.getConnectionIdentifier()), connActivitiy.getEndpointIdentifier(), response
+							.getTransactionHandle(), "net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response);
+				}
 			}
 
 			break;
@@ -583,24 +605,51 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		// get connection activity handle, create activity if does not exists
 		MgcpConnectionActivityHandle handle = mgcpActivityManager.getMgcpConnectionActivityHandle(connectionIdentifier,
 				endpointIdentifier, transactionHandle);
-		if (handle == null) {
-			MgcpConnectionActivity newConnectionActivity = this.mgcpProvider.getConnectionActivity(
-					connectionIdentifier, endpointIdentifier, false);
-			handle = (MgcpConnectionActivityHandle) mgcpActivityManager.getActivityHandle(newConnectionActivity);
-		}
-		// fire event
-		fireEvent(eventName, handle, eventObject);
-		// end activity if delete connection request or response
-		// && !isProvisional(((DeleteConnectionResponse)
-		// eventObject).getReturnCode()) removed this check from IF
-		if ((eventObject instanceof DeleteConnection) || ((eventObject instanceof DeleteConnectionResponse))) {
-			try {
-				// send activity end event to the container
-				getSleeEndpoint().endActivity(handle);
-			} catch (Exception e) {
-				tracer.severe("Failed to end activity with handle " + handle, e);
+		if (handle != null) {
+			// fire event
+			fireEvent(eventName, handle, eventObject);
+
+			if ((eventObject instanceof DeleteConnection) || ((eventObject instanceof DeleteConnectionResponse))) {
+				try {
+					// send activity end event to the container
+					getSleeEndpoint().endActivity(handle);
+				} catch (Exception e) {
+					tracer.severe("Failed to end activity with handle " + handle, e);
+				}
+			}
+		} else {
+			FireableEventType eventID = eventIdCache.getEventId(this.resourceAdaptorContext.getEventLookupFacility(),
+					eventName);
+
+			if (this.eventIDFilter.isInitialEvent(eventID)) {
+				MgcpConnectionActivityImpl newConnectionActivity = (MgcpConnectionActivityImpl) this.mgcpProvider
+						.getConnectionActivity(connectionIdentifier, endpointIdentifier, true);
+
+				if (newConnectionActivity != null) {
+					handle = newConnectionActivity.getActivityHandle();
+					fireEvent(eventName, handle, eventObject);
+
+					if ((eventObject instanceof DeleteConnection)
+							|| ((eventObject instanceof DeleteConnectionResponse))) {
+						try {
+							// send activity end event to the container
+							getSleeEndpoint().endActivity(handle);
+						} catch (Exception e) {
+							tracer.severe("Failed to end activity with handle " + handle, e);
+						}
+					}
+
+				}
+
+			} else {
+				if (tracer.isInfoEnabled()) {
+
+					tracer.info("No MgcpConnectionActivity found for transactionHandle " + transactionHandle
+							+ " Not firirng event " + eventName);
+				}
 			}
 		}
+
 	}
 
 	/**
@@ -612,21 +661,46 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	private void processEndpointMgcpEvent(EndpointIdentifier endpointIdentifier, String eventName, Object eventObject) {
 		// fire on endpoint activity
 		MgcpEndpointActivityHandle handle = new MgcpEndpointActivityHandle(endpointIdentifier.toString());
-		if (!mgcpActivityManager.containsMgcpEndpointActivityHandle(handle)) {
-			// mgcpActivityManager.putMgcpEndpointActivity(handle, new
-			// MgcpEndpointActivityImpl(this, endpointIdentifier));
-			handle = (MgcpEndpointActivityHandle) this.mgcpActivityManager.getActivityHandle(this.mgcpProvider
-					.getEndpointActivity(endpointIdentifier, false));
-		}
-		fireEvent(eventName, handle, eventObject);
+		if (mgcpActivityManager.containsMgcpEndpointActivityHandle(handle)) {
+			fireEvent(eventName, handle, eventObject);
 
-		// end activity if delete connection request or response
-		if (eventObject instanceof DeleteConnection || eventObject instanceof DeleteConnectionResponse) {
-			try {
-				// send activity end event to the container
-				getSleeEndpoint().endActivity(handle);
-			} catch (Exception e) {
-				tracer.severe("Failed to end activity with handle " + handle, e);
+			// end activity if delete connection request or response
+			if (eventObject instanceof DeleteConnection || eventObject instanceof DeleteConnectionResponse) {
+				try {
+					// send activity end event to the container
+					getSleeEndpoint().endActivity(handle);
+				} catch (Exception e) {
+					tracer.severe("Failed to end activity with handle " + handle, e);
+				}
+			}
+		} else {
+
+			FireableEventType eventID = eventIdCache.getEventId(this.resourceAdaptorContext.getEventLookupFacility(),
+					eventName);
+
+			if (this.eventIDFilter.isInitialEvent(eventID)) {
+				MgcpEndpointActivityImpl mgcpEndpointActivity = (MgcpEndpointActivityImpl) this.mgcpProvider
+						.getEndpointActivity(endpointIdentifier, true);
+				if (mgcpEndpointActivity != null) {
+					handle = mgcpEndpointActivity.getActivityHandle();
+					fireEvent(eventName, handle, eventObject);
+
+					// end activity if delete connection request or response
+					if (eventObject instanceof DeleteConnection || eventObject instanceof DeleteConnectionResponse) {
+						try {
+							// send activity end event to the container
+							getSleeEndpoint().endActivity(handle);
+						} catch (Exception e) {
+							tracer.severe("Failed to end activity with handle " + handle, e);
+						}
+					}
+
+				}
+			} else {
+				if (tracer.isInfoEnabled()) {
+					tracer.info("No MgcpEndpointActivity found for EndpointIdentifier " + endpointIdentifier
+							+ " Not firirng event " + eventName);
+				}
 			}
 		}
 	}
@@ -639,33 +713,12 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	private void processCreateConnectionMgcpEvent(CreateConnection createConnection) {
 		// fire on new connection activity
 
-		MgcpConnectionActivity newConnectionActivity = this.mgcpProvider.getConnectionActivity(createConnection
-				.getTransactionHandle(), createConnection.getEndpointIdentifier(), false);
-		MgcpConnectionActivityHandle handle = (MgcpConnectionActivityHandle) mgcpActivityManager
-				.getActivityHandle(newConnectionActivity);
+		MgcpConnectionActivityImpl newConnectionActivity = (MgcpConnectionActivityImpl) this.mgcpProvider
+				.getConnectionActivity(createConnection.getTransactionHandle(), createConnection
+						.getEndpointIdentifier(), true);
+		MgcpConnectionActivityHandle handle = newConnectionActivity.getActivityHandle();
 
 		fireEvent("net.java.slee.resource.mgcp.CREATE_CONNECTION", handle, createConnection);
-	}
-
-	private void fireEvent(String eventName, ActivityHandle handle, Object event) {
-
-		FireableEventType eventID = eventIdCache.getEventId(this.resourceAdaptorContext.getEventLookupFacility(),
-				eventName);
-
-		if (eventID == null) {
-			tracer.severe("Event id for " + eventID + " is unknown, cant fire!!!");
-		} else {
-			if (tracer.isFineEnabled()) {
-				tracer.fine("Firing event " + event + " on handle " + handle);
-			}
-
-			try {
-				this.getSleeEndpoint().fireEvent(handle, eventID, event, address, null);
-			} catch (Exception e) {
-				tracer.severe("Error firing event.", e);
-			}
-
-		}
 	}
 
 	protected SleeEndpoint getSleeEndpoint() {
@@ -733,6 +786,45 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		if (handle != null) {
 			endActivity(handle);
 		}
+	}
+
+	private void fireEvent(String eventName, ActivityHandle handle, Object event) {
+
+		FireableEventType eventID = eventIdCache.getEventId(this.resourceAdaptorContext.getEventLookupFacility(),
+				eventName);
+
+		if (eventID == null) {
+			tracer.severe("Event id for " + eventID + " is unknown, cant fire!!!");
+		} else {
+			this.fireEvent(event, handle, eventID, address, true, false);
+		}
+	}
+
+	private boolean fireEvent(Object event, ActivityHandle handle, FireableEventType eventID, Address address,
+			boolean useFiltering, boolean transacted) {
+
+		if (useFiltering && eventIDFilter.filterEvent(eventID)) {
+			if (tracer.isFineEnabled()) {
+				tracer.fine("Event " + eventID + " filtered");
+			}
+		} else {
+			if (tracer.isFineEnabled()) {
+				tracer.fine("Firing event " + event + " on handle " + handle);
+			}
+			try {
+				if (transacted) {
+					this.resourceAdaptorContext.getSleeEndpoint().fireEventTransacted(handle, eventID, event, address,
+							null, EVENT_FLAGS);
+				} else {
+					this.resourceAdaptorContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null,
+							EVENT_FLAGS);
+				}
+				return true;
+			} catch (Exception e) {
+				tracer.severe("Error firing event.", e);
+			}
+		}
+		return false;
 	}
 
 }

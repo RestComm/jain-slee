@@ -94,24 +94,25 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 				endpointIdentifier, transactionHandle);
 		if (handle != null) {
 			return ra.getMgcpActivityManager().getMgcpConnectionActivity(handle);
-		} else {
+		} else if (startActivity) {
 			MgcpConnectionActivityImpl activity = new MgcpConnectionActivityImpl(transactionHandle, endpointIdentifier,
 					ra);
 			handle = ra.getMgcpActivityManager().putMgcpConnectionActivity(activity);
-			if (startActivity) {
-				try {
-					ra.getSleeEndpoint().startActivity(handle, activity);
-				} catch (Exception e) {
-					String msg = "Failed to start activity";
-					tracer.severe(msg, e);
-					if (handle != null) {
-						ra.getMgcpActivityManager().removeMgcpActivity(handle);
-					}
-					activity = null;
+
+			try {
+				ra.getSleeEndpoint().startActivity(handle, activity);
+			} catch (Exception e) {
+				String msg = "Failed to start activity";
+				tracer.severe(msg, e);
+				if (handle != null) {
+					ra.getMgcpActivityManager().removeMgcpActivity(handle);
 				}
+				activity = null;
 			}
 			return activity;
 		}
+
+		return null;
 
 	}
 
@@ -128,21 +129,21 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 		MgcpEndpointActivityImpl activity = ra.getMgcpActivityManager().getMgcpEndpointActivity(handle);
 		if (activity != null) {
 			return activity;
-		} else {
+		} else if (startActivity) {
 			activity = new MgcpEndpointActivityImpl(ra, endpointIdentifier);
 			ra.getMgcpActivityManager().putMgcpEndpointActivity(activity);
-			if (startActivity) {
-				try {
-					ra.getSleeEndpoint().startActivity(handle, activity);
-				} catch (Exception e) {
-					String msg = "Failed to start activity";
-					tracer.severe(msg, e);
-					ra.getMgcpActivityManager().removeMgcpActivity(handle);
-					activity = null;
-				}
+
+			try {
+				ra.getSleeEndpoint().startActivity(handle, activity);
+			} catch (Exception e) {
+				String msg = "Failed to start activity";
+				tracer.severe(msg, e);
+				ra.getMgcpActivityManager().removeMgcpActivity(handle);
+				activity = null;
 			}
 			return activity;
 		}
+		return null;
 	}
 
 	public void addJainMgcpListener(JainMgcpListener arg0) throws TooManyListenersException {
