@@ -292,8 +292,7 @@ public class TracerFrameworkTest extends TestCase {
 	private class FakeTraceMBeanImpl extends TraceMBeanImpl {
 
 		public FakeTraceMBeanImpl() throws NotCompliantMBeanException {
-			super();
-			// TODO Auto-generated constructor stub
+			super(null);
 		}
 
 		private String expectedNotificationType = null;

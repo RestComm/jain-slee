@@ -33,12 +33,6 @@ public interface EventRouter {
 	 * @param eventContextImpl
 	 */
 	public void resumeEventContext(EventContextImpl eventContextImpl);
-
-	/**
-	 * The activity has started so the event router may init related runtime resources
-	 * @param ach
-	 */
-	public void activityStarted(ActivityContextHandle ach);
 	
 	/**
 	 * The activity has ended so the event router may close related runtime resources 

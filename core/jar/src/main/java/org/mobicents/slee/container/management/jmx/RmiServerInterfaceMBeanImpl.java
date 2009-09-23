@@ -1,16 +1,16 @@
 package org.mobicents.slee.container.management.jmx;
 
+import javax.management.NotCompliantMBeanException;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jboss.logging.Logger;
-import org.jboss.system.ServiceMBeanSupport;
+import org.apache.log4j.Logger;
 import org.jboss.util.naming.Util;
 import org.mobicents.slee.connector.server.RemoteSleeService;
 import org.mobicents.slee.connector.server.RemoteSleeServiceImpl;
 import org.mobicents.slee.container.rmi.RMIServerImpl;
 
-public class RmiServerInterfaceMBeanImpl extends ServiceMBeanSupport implements
+public class RmiServerInterfaceMBeanImpl extends MobicentsServiceMBeanSupport implements
 		RmiServerInterfaceMBeanImplMBean {
 
 	private final static Logger logger = Logger
@@ -18,6 +18,14 @@ public class RmiServerInterfaceMBeanImpl extends ServiceMBeanSupport implements
 
 	private RMIServerImpl rmiServer;
 
+	/**
+	 * @throws NotCompliantMBeanException 
+	 * 
+	 */
+	public RmiServerInterfaceMBeanImpl() throws NotCompliantMBeanException {
+		super(RmiServerInterfaceMBeanImplMBean.class);
+	}
+	
 	protected void startService() throws Exception {
 		if (logger.isDebugEnabled()) {
 			logger.debug("RmiServerInterfaceMBeanImpl started......");

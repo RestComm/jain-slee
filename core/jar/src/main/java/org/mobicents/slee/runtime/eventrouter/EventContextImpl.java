@@ -298,8 +298,8 @@ public class EventContextImpl implements EventContext {
 				barriedEvents = new LinkedList<DeferredEvent>();
 				// set state as suspended
 				suspended = true;
-				// schedule task directly in timer facility scheduler's executor, no need to be fault tolerant
-				scheduledFuture = sleeContainer.getTimerFacility().getScheduler().getExecutor().schedule(new SuspensionTimerTask(),timeout,TimeUnit.MILLISECONDS);
+				// schedule task 
+				scheduledFuture = sleeContainer.getNonClusteredScheduler().schedule(new SuspensionTimerTask(),timeout,TimeUnit.MILLISECONDS);
 				break;
 			case resume:
 				resume();

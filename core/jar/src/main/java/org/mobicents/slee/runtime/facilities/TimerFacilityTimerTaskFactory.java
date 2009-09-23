@@ -1,8 +1,8 @@
 package org.mobicents.slee.runtime.facilities;
 
-import org.mobicents.slee.core.timers.TimerTask;
-import org.mobicents.slee.core.timers.TimerTaskData;
-import org.mobicents.slee.core.timers.TimerTaskFactory;
+import org.mobicents.timers.TimerTask;
+import org.mobicents.timers.TimerTaskData;
+import org.mobicents.timers.TimerTaskFactory;
 
 public class TimerFacilityTimerTaskFactory implements TimerTaskFactory {
 

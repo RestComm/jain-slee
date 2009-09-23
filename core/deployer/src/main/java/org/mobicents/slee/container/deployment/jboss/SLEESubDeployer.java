@@ -428,7 +428,8 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     }
     catch (Exception e)
     {
-      return false;
+    	logger.error(e.getMessage(),e);
+    	return false;
     }
     
     return true;

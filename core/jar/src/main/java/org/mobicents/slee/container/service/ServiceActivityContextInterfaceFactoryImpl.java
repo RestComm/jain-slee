@@ -31,6 +31,7 @@ import javax.slee.serviceactivity.ServiceActivityContextInterfaceFactory;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
@@ -46,6 +47,16 @@ public class ServiceActivityContextInterfaceFactoryImpl implements
 
 	public static String JNDI_NAME = "activitycontextinterfacefactory";
 
+	private final ActivityContextFactory acFactory;
+		
+	/**
+	 * @param acFactory
+	 */
+	public ServiceActivityContextInterfaceFactoryImpl(
+			SleeContainer sleeContainer) {
+		this.acFactory = sleeContainer.getActivityContextFactory();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -58,7 +69,7 @@ public class ServiceActivityContextInterfaceFactoryImpl implements
 
 		ActivityContextHandle ach = ActivityContextHandlerFactory
 		.createServiceActivityContextHandle(new ServiceActivityHandle(((ServiceActivityImpl) serviceActivityImpl).getServiceID()));
-		ActivityContext ac = SleeContainer.lookupFromJndi().getActivityContextFactory().getActivityContext(ach);
+		ActivityContext ac = acFactory.getActivityContext(ach);
 		if (ac == null) {
 			throw new UnrecognizedActivityException(serviceActivityImpl);
 		}

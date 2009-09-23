@@ -6,9 +6,9 @@ import javax.slee.resource.EventFlags;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.core.timers.TimerTask;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.timers.TimerTask;
 
 public class TimerFacilityTimerTask extends TimerTask {
 

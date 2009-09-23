@@ -61,6 +61,17 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		logger.info("SLEE Transaction Manager created.");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#getRealTransactionManager()
+	 */
+	public TransactionManager getRealTransactionManager() {
+		return transactionManager;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#displayOngoingSleeTransactions()
+	 */
 	public String displayOngoingSleeTransactions() {
 		if (logger.isDebugEnabled()) {		
 			String msg = "---------+ Begin dump of SLEE TX map: +--------------------------";
@@ -74,6 +85,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#getRollbackOnly()
+	 */
 	public boolean getRollbackOnly() throws SystemException {
 		Transaction tx = getTransaction();
 		if (tx == null) {
@@ -84,6 +99,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		//return tx.getStatus() == Status.STATUS_MARKED_ROLLBACK || (tx.getStatus() == Status.STATUS_ACTIVE && getTransactionContext().getRollbackOnly());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#mandateTransaction()
+	 */
 	public void mandateTransaction() throws TransactionRequiredLocalException {
 		
 		Transaction tx = null;
@@ -109,6 +128,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#requireTransaction()
+	 */
 	public boolean requireTransaction() {
 		try {
 			Transaction tx = getTransaction();
@@ -129,6 +152,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#requireTransactionEnd(boolean, boolean)
+	 */
 	public void requireTransactionEnd(boolean terminateTx, boolean doRollback) throws IllegalStateException, SecurityException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
 		if (terminateTx) {
 			if (doRollback) {
@@ -145,6 +172,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransactionManager#asSleeTransaction(javax.transaction.Transaction)
+	 */
 	public SleeTransaction asSleeTransaction(Transaction transaction)
 			throws NullPointerException, IllegalArgumentException,
 			SystemException {
@@ -160,6 +191,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		throw new IllegalArgumentException("unexpected transaction class type "+transaction.getClass());
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransactionManager#asyncCommit(javax.slee.transaction.CommitListener)
+	 */
 	public void asyncCommit(CommitListener commitListener) throws IllegalStateException,
 			SecurityException {
 		try {
@@ -177,6 +212,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransactionManager#asyncRollback(javax.slee.transaction.RollbackListener)
+	 */
 	public void asyncRollback(RollbackListener rollbackListener)
 			throws IllegalStateException, SecurityException {
 		try {
@@ -194,12 +233,20 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransactionManager#beginSleeTransaction()
+	 */
 	public SleeTransaction beginSleeTransaction() throws NotSupportedException,
 			SystemException {
 		begin();
 		return getSleeTransaction();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransactionManager#getSleeTransaction()
+	 */
 	public SleeTransaction getSleeTransaction() throws SystemException {
 		Transaction transaction = getTransaction();
 		if (transaction != null) {
@@ -210,6 +257,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#begin()
+	 */
 	public void begin() throws NotSupportedException, SystemException {
 		// begin transaction
 		transactionManager.begin();
@@ -225,6 +276,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#commit()
+	 */
 	public void commit() throws RollbackException, HeuristicMixedException,
 			HeuristicRollbackException, SecurityException,
 			IllegalStateException, SystemException {
@@ -235,6 +290,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		transactionManager.commit();		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#getStatus()
+	 */
 	public int getStatus() throws SystemException {
 		int status = transactionManager.getStatus();				
 		// this code was hack to trap setRollbackOnly() due to jboss cache, don't remove it may be needed again
@@ -249,6 +308,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		return status;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#getTransaction()
+	 */
 	public Transaction getTransaction() throws SystemException {
 		if (transactionManager != null) {
 			return transactionManager.getTransaction();
@@ -258,6 +321,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#resume(javax.transaction.Transaction)
+	 */
 	public void resume(Transaction transaction) throws InvalidTransactionException,
 			IllegalStateException, SystemException {
 		if (transactionManager != null) {
@@ -271,6 +338,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}	
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#rollback()
+	 */
 	public void rollback() throws IllegalStateException, SecurityException,
 			SystemException {
 		if (logger.isDebugEnabled()) {
@@ -279,6 +350,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		transactionManager.rollback();			
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#setRollbackOnly()
+	 */
 	public void setRollbackOnly() throws IllegalStateException, SystemException {
 		if (transactionManager != null) {
 			transactionManager.setRollbackOnly();
@@ -292,6 +367,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#setTransactionTimeout(int)
+	 */
 	public void setTransactionTimeout(int seconds) throws SystemException {
 		if (transactionManager != null) {
 			transactionManager.setTransactionTimeout(seconds);	
@@ -301,6 +380,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		}			
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.TransactionManager#suspend()
+	 */
 	public Transaction suspend() throws SystemException {
 		if (transactionManager != null) {
 			if (logger.isDebugEnabled()) {
@@ -321,6 +404,10 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 	
 	// --- TX CONTEXT AND ACTION METHODS
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#getTransactionContext()
+	 */
 	public TransactionContext getTransactionContext() throws SystemException {
 		Transaction tx = getTransaction();
 		if (tx == null) {
@@ -334,25 +421,45 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 		return tc;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#addAfterCommitAction(org.mobicents.slee.runtime.transaction.TransactionalAction)
+	 */
 	public void addAfterCommitAction(TransactionalAction action)
 			throws SystemException {
 		getTransactionContext().getAfterCommitActions().add(action);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#addAfterCommitPriorityAction(org.mobicents.slee.runtime.transaction.TransactionalAction)
+	 */
 	public void addAfterCommitPriorityAction(TransactionalAction action)
 			throws SystemException {
 		getTransactionContext().getAfterCommitPriorityActions().add(action);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#addAfterRollbackAction(org.mobicents.slee.runtime.transaction.TransactionalAction)
+	 */
 	public void addAfterRollbackAction(TransactionalAction action) throws SystemException {
 		getTransactionContext().getAfterRollbackActions().add(action);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#addBeforeCommitAction(org.mobicents.slee.runtime.transaction.TransactionalAction)
+	 */
 	public void addBeforeCommitAction(TransactionalAction action)
 			throws SystemException {
 		getTransactionContext().getBeforeCommitActions().add(action);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#addBeforeCommitPriorityAction(org.mobicents.slee.runtime.transaction.TransactionalAction)
+	 */
 	public void addBeforeCommitPriorityAction(TransactionalAction action)
 	throws SystemException {
 		getTransactionContext().getBeforeCommitPriorityActions().add(action);

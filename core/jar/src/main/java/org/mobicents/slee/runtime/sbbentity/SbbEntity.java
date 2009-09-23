@@ -26,6 +26,7 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.LogMessageFactory;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.SbbComponent.EventHandlerMethod;
@@ -99,7 +100,7 @@ public class SbbEntity {
 			throws Exception {
 
 		this.sbbeId = sbbEntityId;
-		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
+		cacheData = new SbbEntityCacheData(sbbEntityId,sleeContainer.getCluster().getMobicentsCache());
 		cacheData.create();
 		cacheData.setSbbEntityImmutableData(sbbEntityImmutableData);
 		this.sbbEntityImmutableData = sbbEntityImmutableData;
@@ -128,7 +129,7 @@ public class SbbEntity {
 
 		this.sbbeId = sbbEntityId;
 
-		cacheData = sleeContainer.getCache().getSbbEntityCacheData(sbbEntityId);
+		cacheData = new SbbEntityCacheData(sbbEntityId,sleeContainer.getCluster().getMobicentsCache());
 		if (cacheData.exists()) {
 			this.sbbEntityImmutableData = (SbbEntityImmutableData) cacheData.getSbbEntityImmutableData();
 			this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
@@ -418,11 +419,11 @@ public class SbbEntity {
 		cacheData.setEventMask(ach, maskedEvents);
 
 		if (log.isDebugEnabled()) {
-			log.debug("set event mask " + maskedEvents + " for sbb entity "
-					+ sbbeId + " and ac " + ach);
+			log.debug(LogMessageFactory.newLogMessage(ach, sbbeId,"New event mask = " + maskedEvents));
 		}
+		
 	}
-
+	
 	public Set getActivityContexts() {
 		Set result = cacheData.getActivityContexts();
 		return result == null ? Collections.EMPTY_SET : result;
@@ -435,8 +436,7 @@ public class SbbEntity {
 		Set maskedEvents = (Set) cacheData.getMaskedEventTypes(ach);
 
 		if (log.isDebugEnabled()) {
-			log.debug("set event mask " + maskedEvents + " for sbb entity "
-					+ sbbeId + " and ac " + ach);
+			log.debug(LogMessageFactory.newLogMessage(ach, sbbeId,"Current event mask = " + maskedEvents));			
 		}
 
 		if (maskedEvents == null || maskedEvents.isEmpty()) {

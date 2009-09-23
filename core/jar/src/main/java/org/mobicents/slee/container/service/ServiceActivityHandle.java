@@ -31,7 +31,7 @@ public class ServiceActivityHandle implements ActivityHandle, Serializable {
 	}
 	
 	public int hashCode() {
-		return serviceid.toString().hashCode();
+		return serviceid.hashCode();
 	}
     
 	@Override

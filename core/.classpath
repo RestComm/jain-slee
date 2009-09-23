@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
   <classpathentry kind="src" path="ant-tasks/src/main/java"/>
-  <classpathentry kind="src" path="cache/src/test/java"/>
   <classpathentry kind="src" path="cache/src/main/java"/>
-  <classpathentry kind="src" path="components/descriptors/src/test/java"/>
+  <classpathentry kind="src" path="cache/src/test/java"/>
   <classpathentry kind="src" path="components/descriptors/src/main/java"/>
+  <classpathentry kind="src" path="components/descriptors/src/test/java"/>
   <classpathentry kind="src" path="components/du/src/main/resources"/>
   <classpathentry kind="src" path="components/du11/src/main/resources"/>
   <classpathentry kind="src" path="components/event/src/main/resources"/>
   <classpathentry kind="src" path="components/event11/src/main/resources"/>
   <classpathentry kind="src" path="components/jar/src/main/java"/>
   <classpathentry kind="src" path="components/library/src/main/resources"/>
-  <classpathentry kind="src" path="components/src/main/java"/>
   <classpathentry kind="src" path="components/src/main/resources"/>
+  <classpathentry kind="src" path="components/src/main/java"/>
   <classpathentry kind="src" path="components/profile/src/main/resources"/>
   <classpathentry kind="src" path="components/profile11/src/main/resources"/>
   <classpathentry kind="src" path="components/ra/src/main/resources"/>
@@ -25,26 +25,28 @@
   <classpathentry kind="src" path="components/service11/src/main/resources"/>
   <classpathentry kind="src" path="components/test-du/du1/du/src/main/resources"/>
   <classpathentry kind="src" path="components/test-du/du1/events/src/main/resources"/>
+  <classpathentry kind="src" path="components/test-du/du1/profiles/src/main/resources"/>
   <classpathentry kind="src" path="components/test-du/du1/sbb1/src/main/java"/>
   <classpathentry kind="src" path="components/test-du/du1/sbb1/src/main/resources"/>
   <classpathentry kind="src" path="components/test-du/du1/sbb2/src/main/resources"/>
   <classpathentry kind="src" path="components/test-du/du1/sbb2/src/main/java"/>
   <classpathentry kind="src" path="components/test-du/du2/du/src/main/resources"/>
-  <classpathentry kind="src" path="components/test-du/du2/sbb2/src/main/java"/>
   <classpathentry kind="src" path="components/test-du/du2/sbb2/src/main/resources"/>
+  <classpathentry kind="src" path="components/test-du/du2/sbb2/src/main/java"/>
   <classpathentry kind="src" path="components/test-du/du3/du/src/main/resources"/>
   <classpathentry kind="src" path="components/test-du/du3/sbb/src/main/resources"/>
   <classpathentry kind="src" path="components/test-du/du3/sbb/src/main/java"/>
   <classpathentry kind="src" path="components/test-du/test/src/test/java"/>
   <classpathentry kind="src" path="deployer/src/main/java"/>
   <classpathentry kind="src" path="deployer/src/main/resources"/>
-  <classpathentry kind="src" path="jar/src/main/java"/>
-  <classpathentry kind="src" path="jar/src/main/resources"/>
   <classpathentry kind="src" path="jar/src/test/java"/>
-  <classpathentry kind="src" path="jmx-property-editors/src/test/java"/>
+  <classpathentry kind="src" path="jar/src/main/resources"/>
+  <classpathentry kind="src" path="jar/src/main/java"/>
   <classpathentry kind="src" path="jmx-property-editors/src/main/java"/>
+  <classpathentry kind="src" path="jmx-property-editors/src/test/java"/>
   <classpathentry kind="src" path="rar/src/main/java"/>
-  <classpathentry kind="src" path="sar/src/main/resources"/>
+  <classpathentry kind="src" path="server-all-beans/src/main/resources"/>
+  <classpathentry kind="src" path="server-default-beans/src/main/resources"/>
   <classpathentry kind="src" path="standard-events/du/src/main/resources"/>
   <classpathentry kind="src" path="standard-events/jar/src/main/resources"/>
   <classpathentry kind="src" path="standard-events11/du/src/main/resources"/>
@@ -53,7 +55,6 @@
   <classpathentry kind="src" path="standard-profiles/jar/src/main/resources"/>
   <classpathentry kind="src" path="standard-profiles11/du/src/main/resources"/>
   <classpathentry kind="src" path="standard-profiles11/jar/src/main/resources"/>
-  <classpathentry kind="src" path="timers/src/main/java"/>
   <classpathentry kind="src" path="transaction/src/test/java"/>
   <classpathentry kind="src" path="transaction/src/main/java"/>
   <classpathentry kind="var" path="M2_REPO/ant/ant/1.6.5/ant-1.6.5.jar"/>
@@ -62,7 +63,7 @@
   <classpathentry kind="var" path="M2_REPO/bcel/bcel/5.1/bcel-5.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-jxpath/commons-jxpath/1.2/commons-jxpath-1.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.0.jboss/commons-logging-1.1.0.jboss.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.4/commons-pool-1.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/concurrent/concurrent/1.3.4/concurrent-1.3.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
@@ -82,7 +83,7 @@
   <classpathentry kind="var" path="M2_REPO/jboss/jbossws/jboss-jaxws/3.0.1-native-2.0.4.GA/jboss-jaxws-3.0.1-native-2.0.4.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/profiler/jvmti/jboss-profiler-jvmti/1.0.0.CR5/jboss-profiler-jvmti-1.0.0.CR5.jar"/>
   <classpathentry kind="var" path="M2_REPO/jboss/web/servlet-api/2.1.1.GA/servlet-api-2.1.1.GA.jar"/>
-  <classpathentry kind="var" path="M2_REPO/jgroups/jgroups/2.6.7.GA/jgroups-2.6.7.GA.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jgroups/jgroups/2.6.10.GA/jgroups-2.6.10.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/jpl-pattern/jpl-pattern/1.0/jpl-pattern-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/jpl-util/jpl-util/1.0/jpl-util-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.1/junit-4.1.jar"/>
@@ -127,7 +128,7 @@
   <classpathentry kind="var" path="M2_REPO/org/jboss/javaee/jboss-jca-api/1.5.0.GA/jboss-jca-api-1.5.0.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/javaee/jboss-jms-api/1.1.0.GA/jboss-jms-api-1.1.0.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/javaee/jboss-transaction-api/1.0.1.GA/jboss-transaction-api-1.0.1.GA.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/jboss-common-core/2.2.10.GA/jboss-common-core-2.2.10.GA.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/jboss-common-core/2.2.14.GA/jboss-common-core-2.2.14.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jboss-mdr/2.0.1.GA/jboss-mdr-2.0.1.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jboss-reflect/2.0.2.GA/jboss-reflect-2.0.2.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jboss-vfs/2.1.2.GA/jboss-vfs-2.1.2.GA.jar"/>
@@ -163,6 +164,9 @@
   <classpathentry kind="var" path="M2_REPO/org/jboss/ws/native/jbossws-native-jaxrpc/3.0.4.GA/jbossws-native-jaxrpc-3.0.4.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/ws/native/jbossws-native-jaxws/3.1.2.GA/jbossws-native-jaxws-3.1.2.GA.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/ws/native/jbossws-native-saaj/3.1.2.GA/jbossws-native-saaj-3.1.2.GA.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/cluster/cache/1.0.0BETA1-SNAPSHOT/cache-1.0.0BETA1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/cluster/core/1.0.0BETA1-SNAPSHOT/core-1.0.0BETA1-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/cluster/timers/1.0.0BETA1-SNAPSHOT/timers-1.0.0BETA1-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.4.2/slf4j-api-1.4.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/oswego-concurrent/concurrent/1.3.4-jboss-update1/concurrent-1.3.4-jboss-update1.jar"/>
   <classpathentry kind="var" path="M2_REPO/qdox/qdox/1.6.1/qdox-1.6.1.jar"/>

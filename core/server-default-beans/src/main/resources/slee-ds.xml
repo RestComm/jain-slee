@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+  <!-- ====================================================================
+    ConnectionManager setup for the Mobicents JCA adapter                
+    This file activates the adaptor defined in mobicents.rar             
+    See the following sources for more information on JCA in JBoss:      
+      http://docs.jboss.com/jbossas/admindevel326/html/ch7.chapt.html#ch7.genericjca.sect
+      http://www.jboss.org/wiki/Wiki.jsp?page=HowDoIDeployMyResourceAdapter
+      http://wiki.jboss.org/wiki/Wiki.jsp?page=DSdotXML
+      ===================================================================== -->
+  
+  <connection-factories>
+      
+      <tx-connection-factory>
+          
+          <jndi-name>MobicentsConnectionFactory</jndi-name>
+          
+          <local-transaction/>
+    
+          <rar-name>mobicents.sar#mobicents.rar</rar-name>
+
+          <connection-definition>javax.slee.connection.SleeConnectionFactory</connection-definition>
+
+          <config-property name="SleeJndiName" type="java.lang.String">jnp://${jboss.bind.address}:1099/SleeService</config-property>
+          <depends>slee:service=SleeManagement</depends>
+          
+      </tx-connection-factory>
+      
+  </connection-factories>

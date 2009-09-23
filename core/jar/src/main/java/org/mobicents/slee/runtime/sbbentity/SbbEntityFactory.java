@@ -12,6 +12,7 @@
  */
 package org.mobicents.slee.runtime.sbbentity;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -24,6 +25,7 @@ import javax.transaction.TransactionRequiredException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.MobicentsUUIDGenerator;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.runtime.cache.SbbEntityFactoryCacheData;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -54,7 +56,7 @@ public class SbbEntityFactory {
 	private static final SleeContainer sleeContainer = SleeContainer
 			.lookupFromJndi();
 
-	protected static final SbbEntityLockFacility lockFacility = new SbbEntityLockFacility();
+	protected static final SbbEntityLockFacility lockFacility = new SbbEntityLockFacility(sleeContainer);
 
 	/**
 	 * Creates a new non root sbb entity.
@@ -122,30 +124,11 @@ public class SbbEntityFactory {
 		final SleeTransactionManager txManager = sleeContainer
 				.getTransactionManager();
 
-		// create lock
-		ReentrantLock lock = new ReentrantLock();
-		lock.lock();
-
-		// put lock
-		final ReentrantLock anotherLock = lockFacility.putIfAbsent(sbbeId,
-				lock);
-		if (anotherLock != null) {
-			// concurrent sbb entity creation
-			// switch lock
-			lock.unlock();
-			lock = anotherLock;
-			lockOrFail(lock,sbbeId);
-			// we hold the lock now
-			try {
-				return getSbbEntity(sbbeId);
-			} catch (IllegalStateException e) {
-				// it seems the concurrent sbb entity creation rolledback
-				if (logger.isDebugEnabled()) {
-					logger.debug(e.getMessage(),e);
-				}				
-			}
-		};
-
+		// get lock
+		final ReentrantLock lock = lockFacility.get(sbbeId);
+		lockOrFail(lock,sbbeId);
+		// we hold the lock now
+				
 		// create sbb entity
 		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, parentSbbEntityId, parentChildRelation, rootSbbEntityId, convergenceName);
 		final SbbEntity sbbEntity = new SbbEntity(sbbeId, sbbEntityImmutableData);
@@ -380,6 +363,20 @@ public class SbbEntityFactory {
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug(Thread.currentThread()+" acquired lock "+lock+" for sbb entity with id "+sbbeId);
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static Set<String> getSbbEntityIDs() {
+		final SbbEntityFactoryCacheData cacheData = new SbbEntityFactoryCacheData(sleeContainer.getCluster());
+		if (cacheData.exists()) {
+			return cacheData.getSbbEntities();
+		}
+		else {
+			return null;
 		}
 	}
 }

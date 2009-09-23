@@ -237,7 +237,7 @@ public class SbbContextImpl implements SbbContext, Serializable {
 			throw new IllegalArgumentException(e1);
 		}
 		try {
-			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(this.notificationSource, tracerName, true);
+			return sleeContainer.getTraceMBean().createTracer(this.notificationSource, tracerName, true);
 		} catch (ManagementException e) {
 
 			// e.printStackTrace();

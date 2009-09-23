@@ -7,9 +7,10 @@ import java.util.Set;
 
 import javax.slee.facilities.TimerID;
 
-import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
+import org.mobicents.cache.CacheData;
+import org.mobicents.cluster.MobicentsCluster;
 
 /**
  * 
@@ -116,10 +117,10 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @param activityContextHandle
 	 */
-	protected ActivityContextCacheData(Object activityContextHandle,
-			Cache jBossCache) {
+	public ActivityContextCacheData(Object activityContextHandle,
+			MobicentsCluster cluster) {
 		super(Fqn.fromElements(parentNodeFqn, activityContextHandle),
-				jBossCache);
+				cluster.getMobicentsCache());
 	}
 
 	/**
@@ -257,10 +258,14 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @param timerID
 	 */
-	public void attachTimer(TimerID timerID) {
+	public boolean attachTimer(TimerID timerID) {
 		final Node node = getAttachedTimersNode(true);
 		if (!node.hasChild(timerID)) {
 			node.addChild(Fqn.fromElements(timerID));
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 

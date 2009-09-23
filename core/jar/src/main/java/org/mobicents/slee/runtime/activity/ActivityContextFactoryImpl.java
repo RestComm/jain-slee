@@ -2,16 +2,13 @@ package org.mobicents.slee.runtime.activity;
 
 import java.util.Set;
 
-import javax.slee.SLEEException;
 import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.ActivityFlags;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.cache.ActivityContextCacheData;
 import org.mobicents.slee.runtime.cache.ActivityContextFactoryCacheData;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * Activity context factory -- return an activity context given an activity or
@@ -39,10 +36,8 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	
 	public ActivityContextFactoryImpl(SleeContainer sleeContainer) {		
 		this.sleeContainer = sleeContainer;		
-		cacheData = sleeContainer.getCache().getActivityContextFactoryCacheData();
-		if (!cacheData.exists()) {
-			cacheData.create();
-		}
+		cacheData = new ActivityContextFactoryCacheData(sleeContainer.getCluster());
+		cacheData.create();		
 	}
 	
 	public ActivityContext createActivityContext(final ActivityContextHandle ach) throws ActivityAlreadyExistsException {
@@ -52,7 +47,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	public ActivityContext createActivityContext(final ActivityContextHandle ach, int activityFlags) throws ActivityAlreadyExistsException {
 		
 		// create ac
-		ActivityContextCacheData activityContextCacheData = sleeContainer.getCache().getActivityContextCacheData(ach);
+		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
 		if (activityContextCacheData.exists()) {
 			throw new ActivityAlreadyExistsException(ach.toString());
 		}
@@ -60,19 +55,6 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		ActivityContext ac = new ActivityContext(ach,activityContextCacheData,tracksIdleTime(ach),Integer.valueOf(activityFlags));
 		if (logger.isDebugEnabled()) {
 			logger.debug("Created ac "+ac+" for handle "+ach);
-		}
-		// warn event router about it
-		sleeContainer.getEventRouter().activityStarted(ach);
-		// add rollback tx action to remove state created
-		TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				sleeContainer.getEventRouter().activityEnded(ach);				
-			}
-		};
-		try {
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		} catch (SystemException e) {
-			throw new SLEEException("failed to add rollback action to remove activity runtime resources",e);
 		}
 		return ac;
 	}
@@ -82,7 +64,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 	}
 
 	public ActivityContext getActivityContext(ActivityContextHandle ach) {
-		ActivityContextCacheData activityContextCacheData = sleeContainer.getCache().getActivityContextCacheData(ach);
+		ActivityContextCacheData activityContextCacheData = new ActivityContextCacheData(ach, sleeContainer.getCluster());
 		if (activityContextCacheData.exists()) {
 			return new ActivityContext(ach,activityContextCacheData,tracksIdleTime(ach));
 		}
@@ -108,18 +90,7 @@ public class ActivityContextFactoryImpl implements ActivityContextFactory {
 		ac.activityEnded();
 		// remove runtime resources
 		sleeContainer.getEventRouter().activityEnded(ach);
-		// add rollback tx action to recreate state removed
-		TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				sleeContainer.getEventRouter().activityStarted(ach);				
-			}
-		};	
-		try {
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		} catch (SystemException e) {
-			throw new SLEEException("failed to add rollback action to readd aruntime activity resources",e);
-		}
-		
+				
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activity context with handle "+ac.getActivityContextHandle()+" removed");
 		}

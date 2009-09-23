@@ -11,7 +11,7 @@ import javax.slee.resource.ActivityHandle;
  * @author martins
  *
  */
-public class NullActivityHandle implements ExternalActivityHandle, ActivityHandle, Serializable {
+public class NullActivityHandle implements ExternalActivityHandle, ActivityHandle {
 
     /**
 	 * 

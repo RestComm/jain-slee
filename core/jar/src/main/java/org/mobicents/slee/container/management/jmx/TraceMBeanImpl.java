@@ -27,12 +27,11 @@ import javax.slee.management.TraceMBean;
 import javax.slee.management.UnrecognizedNotificationSourceException;
 import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
-import org.jboss.system.ServiceMBeanSupport;
-import org.mobicents.slee.container.SleeContainer;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
 import org.mobicents.slee.runtime.facilities.TracerStorage;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -40,25 +39,33 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  * 
  * @author M. Ranganathan
  * @author baranowb
+ * @author martins
  */
-public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImplMBean {
+@SuppressWarnings("deprecation")
+public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements TraceMBeanImplMBean {
 
-	private TraceFacilityImpl traceFacility;
-
-	private static Logger logger;
-
-	static {
-		logger = Logger.getLogger(TraceMBeanImpl.class);
-	}
-
+	private static final Logger logger = Logger.getLogger(TraceMBeanImpl.class);
+	
+	private final TraceFacilityImpl traceFacility;
+	private final SleeTransactionManager sleeTransactionManager;
+	
 	/**
-	 * Creates the trace mbean and registers itself in JNDI.
+	 * Creates the trace mbean.
 	 * 
 	 * @throws NotCompliantMBeanException
 	 */
-	public TraceMBeanImpl() throws NotCompliantMBeanException {
+	public TraceMBeanImpl(SleeTransactionManager sleeTransactionManager) throws NotCompliantMBeanException {
 		super(TraceMBeanImplMBean.class);
 		this.traceFacility = new TraceFacilityImpl(this);
+		this.sleeTransactionManager = sleeTransactionManager;
+	}
+	
+	/**
+	 *  
+	 * @return the traceFacility
+	 */
+	public TraceFacilityImpl getTraceFacility() {
+		return traceFacility;
 	}
 
 	@Override
@@ -119,16 +126,6 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 	 * context. The name is fixed by the SLEE 1.0 spec, section 13.8
 	 */
 	public static final String JNDI_NAME = "trace";
-
-	protected void startService() throws Exception {
-		SleeContainer.registerFacilityWithJndi(JNDI_NAME, this.traceFacility);
-		logger.info("TraceMBean started");
-	}
-
-	protected void stopService() throws Exception {
-		SleeContainer.unregisterFacilityWithJndi(JNDI_NAME);
-		logger.info("TraceMBean stopped");
-	}
 
 	public TraceLevel getTraceLevel(NotificationSource src, String tracerName) throws NullPointerException, InvalidArgumentException, UnrecognizedNotificationSourceException, ManagementException {
 		if(src == null)
@@ -227,23 +224,20 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 			
 			
 			try {
-				if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
+				if(sleeTransactionManager.getTransaction()!=null)
 				{
 					final TraceLevel _oldLevel=ts.getTracerLevel(tracerName);
 					TransactionalAction action = new TransactionalAction() {
 						TraceLevel oldLevel = _oldLevel;
-				
-						String name = tracerName;
 						public void execute() {
 							try {
 								ts.setTracerLevel(oldLevel, tracerName);
 							} catch (InvalidArgumentException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error(e.getMessage(),e);
 							}
 						}
 					};
-					SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+					sleeTransactionManager.addAfterRollbackAction(action);
 				}
 			} catch (SystemException e) {
 				
@@ -287,23 +281,20 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 			
 			
 			try {
-				if(SleeContainer.lookupFromJndi().getTransactionManager().getTransaction()!=null)
+				if(sleeTransactionManager.getTransaction()!=null)
 				{
 					final TraceLevel _oldLevel=ts.getTracerLevel(tracerName);
 					TransactionalAction action = new TransactionalAction() {
 						TraceLevel oldLevel = _oldLevel;
-				
-						String name = tracerName;
 						public void execute() {
 							try {
 								ts.setTracerLevel(oldLevel, tracerName);
 							} catch (InvalidArgumentException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								logger.error(e.getMessage(),e);
 							}
 						}
 					};
-					SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+					sleeTransactionManager.addAfterRollbackAction(action);
 				}
 			} catch (SystemException e) {
 				
@@ -368,13 +359,12 @@ public class TraceMBeanImpl extends ServiceMBeanSupport implements TraceMBeanImp
 			if (token.compareTo(".") != 0) {
 				for (int charIndex = 0; charIndex < token.length(); charIndex++) {
 					Character c = token.charAt(charIndex);
-					if (c.isLetter(c) || c.isDigit(c)) {
+					if (Character.isLetter(c) || Character.isDigit(c)) {
 						// Its ok?
 					} else {
 						throw new IllegalArgumentException("Passed tracer:" + tracerName + " Token[" + token + "], name for source: " + notificationSource
 								+ ", is illegal, contains illegal character: " + charIndex);
 					}
-
 				}
 
 				fqdnPartIndex++;

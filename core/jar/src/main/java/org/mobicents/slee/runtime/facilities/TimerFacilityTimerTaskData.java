@@ -6,8 +6,8 @@ import javax.slee.Address;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
 
-import org.mobicents.slee.core.timers.PeriodicScheduleStrategy;
-import org.mobicents.slee.core.timers.TimerTaskData;
+import org.mobicents.timers.PeriodicScheduleStrategy;
+import org.mobicents.timers.TimerTaskData;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**

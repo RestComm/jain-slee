@@ -5,20 +5,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.slee.ComponentID;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.ResourceAdaptorID;
-import javax.slee.resource.ResourceAdaptorTypeID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.component.ComponentRepositoryImpl;
-import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -170,7 +168,7 @@ public class DeployableUnit {
 	 */
 	public Collection<String> getExternalDependencies() {
 		// Take all dependencies...
-		Collection<String> externalDependencies = dependencies;
+		Collection<String> externalDependencies = new HashSet<String>(dependencies);
 
 		// Remove those which are contained in this DU
 		externalDependencies.removeAll(componentIDs);
@@ -510,17 +508,6 @@ public class DeployableUnit {
 						cPreUninstallActions.add(new Object[] {
 								"unbindLinkName", linkName });
 
-						// FIXME: Not tested! Make sure it works...
-						ComponentRepositoryImpl componentRepository = SleeContainer.lookupFromJndi().getComponentRepositoryImpl();
-						ResourceAdaptorComponent raComponent = componentRepository.getComponentByID(componentID);
-
-						if( raComponent != null)
-						{
-    					for (ResourceAdaptorTypeID resourceAdaptorTypeID : raComponent.getSpecsDescriptor().getResourceAdaptorTypes())
-    					{
-                this.componentIDs.add(linkName + "_@_" + resourceAdaptorTypeID);
-    					}
-						}
 					}
 
 					// Add the Deactivate and Remove RA Entity actions to the Pre-Uninstall Actions

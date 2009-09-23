@@ -302,7 +302,7 @@ public class DeployableComponent
             {
               for(MResourceAdaptorEntityBinding raEntityBinding : raTypeBinding.getResourceAdaptorEntityBinding())
               {
-                String raLink = raEntityBinding.getResourceAdaptorEntityLink() + "_@_" + getComponentIdAsString( raTypeBinding.getResourceAdaptorTypeRef() );
+                String raLink = raEntityBinding.getResourceAdaptorEntityLink();
                 
                 // Add the dependency
                 dc.dependencies.add( raLink );

@@ -157,7 +157,7 @@ public class SleeProfileTableManager {
 			facilitiesCtx = (Context) sleeCtx.lookup("facilities");
 		}
 		
-		ProfileAlarmFacilityImpl alarmFacility = new ProfileAlarmFacilityImpl(this.sleeContainer.getAlarmFacility());
+		ProfileAlarmFacilityImpl alarmFacility = new ProfileAlarmFacilityImpl(this.sleeContainer.getAlarmMBean());
 		// FIXME: Alexandre: This should be AlarmFacility.JNDI_NAME. Any problem if already bound?
 		try
 		{
@@ -371,8 +371,12 @@ public class SleeProfileTableManager {
 		}
 		// create object pool
 		sleeContainer.getProfileObjectPoolManagement().createObjectPool(profileTable, sleeContainer.getTransactionManager());
-		// start activity
-		profileTable.startActivity();
+		
+		// start activity if master of the cluster
+		if(sleeContainer.getCluster().isHeadMember()) {
+			profileTable.startActivity();
+		}
+		
 		// add default profile
 		try {
 			profileTable.createDefaultProfile();

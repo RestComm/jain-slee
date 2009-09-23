@@ -15,7 +15,7 @@ import java.security.Policy;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.management.StandardMBean;
+import javax.management.NotCompliantMBeanException;
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.InvalidStateException;
@@ -30,7 +30,6 @@ import javax.slee.management.DependencyException;
 import javax.slee.management.DeployableUnitDescriptor;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentException;
-import javax.slee.management.DeploymentMBean;
 import javax.slee.management.LibraryID;
 import javax.slee.management.ManagementException;
 import javax.slee.management.UnrecognizedDeployableUnitException;
@@ -68,24 +67,24 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  *         method getDescriptor(DeplyableUnit) if no descriptor has been found
  * @author Eduardo Martins
  */
-public class DeploymentMBeanImpl extends StandardMBean implements
-		DeploymentMBean {
+public class DeploymentMBeanImpl extends MobicentsServiceMBeanSupport implements
+		DeploymentMBeanImplMBean {
 
 	private File tempDUJarsDeploymentRoot;
 
 	private final static Logger logger = Logger
-			.getLogger(DeploymentMBeanImpl.class);
+			.getLogger(DeploymentMBeanImpl.class);	
 
 	/**
 	 * builds DUs
 	 */
 	private final DeployableUnitBuilder deployableUnitBuilder = new DeployableUnitBuilder();
 
-	public DeploymentMBeanImpl() throws Exception {
-		super(DeploymentMBean.class);
+	public DeploymentMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+		super(sleeContainer,DeploymentMBeanImplMBean.class);
 		this.tempDUJarsDeploymentRoot = createTempDUJarsDeploymentRoot();
 	}
-
+	
 	/**
 	 * 
 	 * Sets the root directory that will be used for unpacking DU jars.
@@ -117,7 +116,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			DeploymentException, ManagementException {		
 
 		try {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			final SleeContainer sleeContainer = getSleeContainer();
 			final SleeTransactionManager sleeTransactionManager = sleeContainer
 					.getTransactionManager();
 			final ComponentRepositoryImpl componentRepositoryImpl = sleeContainer
@@ -325,7 +324,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 		logger.info("Uninstalling " +deployableUnitID);
 
-		final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		final SleeContainer sleeContainer = getSleeContainer();
 		final SleeTransactionManager sleeTransactionManager = sleeContainer
 				.getTransactionManager();
 		final ServiceManagement serviceManagement = sleeContainer
@@ -421,13 +420,13 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 								.getResourceAdaptorTypeID());
 						logger.info("Uninstalled " + component);
 					}
-
+					
 					for (EventTypeID componentID : deployableUnit
 							.getEventTypeComponents().keySet()) {
 						componentRepositoryImpl.removeComponent(componentID);
 						logger.info("Uninstalled " + componentID);
 					}
-
+					
 					for (LibraryID componentID : deployableUnit
 							.getLibraryComponents().keySet()) {
 						removeSecurityPermissions(componentRepositoryImpl.getComponentByID(componentID), false);
@@ -553,7 +552,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 
 		boolean duExists = true;
 		try {
-			if (SleeContainer.lookupFromJndi().getDeployableUnitManagement()
+			if (getSleeContainer().getDeployableUnitManagement()
 					.getDeployableUnit(deployableUnitID) == null) {
 				duExists = false;
 			}
@@ -574,7 +573,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 	 */
 	public DeployableUnitID[] getDeployableUnits() throws ManagementException {
 		try {
-			return SleeContainer.lookupFromJndi().getDeployableUnitManagement()
+			return getSleeContainer().getDeployableUnitManagement()
 					.getDeployableUnits();
 		} catch (Throwable e) {
 			throw new ManagementException("failed to get deployable units", e);
@@ -591,7 +590,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getSbbs()");
 			}
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getSbbIDs().toArray(new SbbID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -608,7 +607,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getEventTypes()");
 			}
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getEventComponentIDs().toArray(new EventTypeID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -626,7 +625,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getProfileSpecifications()");
 			}
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getProfileSpecificationIDs().toArray(
 							new ProfileSpecificationID[0]);
 		} catch (Throwable ex) {
@@ -644,7 +643,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getServices()");
 			}
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getServiceIDs().toArray(new ServiceID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -662,7 +661,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getResourceAdaptorTypes()");
 			}
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getResourceAdaptorTypeIDs().toArray(
 							new ResourceAdaptorTypeID[0]);
 		} catch (Throwable ex) {
@@ -680,7 +679,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getResourceAdaptors()");
 			}
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getResourceAdaptorIDs().toArray(new ResourceAdaptorID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -697,7 +696,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			ManagementException {
 
 		try {
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getReferringComponents(componentId);
 		} catch (NullPointerException ex) {
 			throw ex;
@@ -726,7 +725,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getDescriptor " + deployableUnitID);
 			}
-			DeployableUnit du = SleeContainer.lookupFromJndi()
+			DeployableUnit du = getSleeContainer()
 					.getDeployableUnitManagement().getDeployableUnit(
 							deployableUnitID);
 			if (du != null) {
@@ -754,8 +753,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		if (duIds == null)
 			throw new NullPointerException("Null arg!");
 
-		final DeployableUnitManagement deployableUnitManagement = SleeContainer
-				.lookupFromJndi().getDeployableUnitManagement();
+		final DeployableUnitManagement deployableUnitManagement = getSleeContainer().getDeployableUnitManagement();
 		try {
 			Set<DeployableUnitDescriptor> result = new HashSet<DeployableUnitDescriptor>();
 			for (DeployableUnitID deployableUnitID : deployableUnitManagement
@@ -786,10 +784,8 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			logger.debug("getDescriptor: componentID " + componentID);
 		}
 
-		ComponentDescriptor componentDescriptor = null;
 		try {
-			ComponentRepositoryImpl componentRepositoryImpl = SleeContainer
-					.lookupFromJndi().getComponentRepositoryImpl();
+			ComponentRepositoryImpl componentRepositoryImpl = getSleeContainer().getComponentRepositoryImpl();
 			SleeComponent component = null;
 			if (componentID instanceof EventTypeID) {
 				component = componentRepositoryImpl
@@ -856,7 +852,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		if (deployableUnitID == null)
 			throw new NullPointerException("null deployableUnitID");
 		try {
-			return SleeContainer.lookupFromJndi().getDeployableUnitManagement()
+			return getSleeContainer().getDeployableUnitManagement()
 					.getDeployableUnit(deployableUnitID) != null;
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -873,7 +869,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 		if (componentID == null)
 			throw new NullPointerException("null componentID");
 		try {
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.isInstalled(componentID);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -885,7 +881,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getLibraries()");
 			}
-			return SleeContainer.lookupFromJndi().getComponentRepositoryImpl()
+			return getSleeContainer().getComponentRepositoryImpl()
 					.getLibraryIDs().toArray(new LibraryID[0]);
 		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
@@ -904,8 +900,7 @@ public class DeploymentMBeanImpl extends StandardMBean implements
 			if (logger.isDebugEnabled()) {
 				logger.debug("getSbbs(serviceID)");
 			}
-			ComponentRepository componentRepository = SleeContainer
-					.lookupFromJndi().getComponentRepositoryImpl();
+			ComponentRepository componentRepository = getSleeContainer().getComponentRepositoryImpl();
 			ServiceComponent serviceComponent = componentRepository
 					.getComponentByID(serviceID);
 			if (serviceComponent != null) {

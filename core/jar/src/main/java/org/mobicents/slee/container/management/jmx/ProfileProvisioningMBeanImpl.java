@@ -44,7 +44,6 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
-import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
@@ -60,24 +59,21 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
  * @author martins
  */
-public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements ProfileProvisioningMBeanImplMBean {
+public class ProfileProvisioningMBeanImpl extends MobicentsServiceMBeanSupport implements ProfileProvisioningMBeanImplMBean {
 
 	private static final Logger logger = Logger.getLogger(ProfileProvisioningMBeanImpl.class);
 
-	// private SleeProfileManager profileManager;
 	private SleeProfileTableManager sleeProfileManagement = null;
-	private SleeContainer sleeContainer = null;
 	private SleeTransactionManager sleeTransactionManagement = null;
 	
 	/**
 	 * 
 	 * @throws NotCompliantMBeanException
 	 */
-	public ProfileProvisioningMBeanImpl() throws NotCompliantMBeanException {
-		super(ProfileProvisioningMBeanImplMBean.class);
-		this.sleeContainer = SleeContainer.lookupFromJndi();
-		this.sleeTransactionManagement = this.sleeContainer.getTransactionManager();
-		this.sleeProfileManagement = this.sleeContainer.getSleeProfileTableManager();
+	public ProfileProvisioningMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+		super(sleeContainer,ProfileProvisioningMBeanImplMBean.class);
+		this.sleeTransactionManagement = getSleeContainer().getTransactionManager();
+		this.sleeProfileManagement = getSleeContainer().getSleeProfileTableManager();
 	}
 
 	/*
@@ -187,7 +183,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 					}									
 				}
 			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);				
+			sleeTransactionManagement.addAfterRollbackAction(rollbackAction);				
 			return profileMBean;			
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(),e);
@@ -216,6 +212,8 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 			throw new InvalidArgumentException(e.getMessage());
 		}
 		
+		final SleeContainer sleeContainer = getSleeContainer();
+		
 		if (sleeContainer.getSleeState() != SleeState.RUNNING)
 			return;
 
@@ -223,10 +221,9 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 		if (component == null)
 			throw new UnrecognizedProfileSpecificationException();
 
-		final SleeTransactionManager transactionManager = sleeContainer.getTransactionManager();
 		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
 		
-		boolean terminateTx = transactionManager.requireTransaction();
+		boolean terminateTx = sleeTransactionManagement.requireTransaction();
 		boolean doRollback = true;		
 		try {
 			Thread.currentThread().setContextClassLoader(component.getClassLoader());
@@ -312,7 +309,7 @@ public class ProfileProvisioningMBeanImpl extends ServiceMBeanSupport implements
 				throw new UnrecognizedProfileNameException(profileName);
 			}
 			ObjectName objectName = AbstractProfileMBeanImpl.getObjectName(profileTable.getProfileTableName(), profileName);
-			if (!sleeContainer.getMBeanServer().isRegistered(objectName)) {
+			if (!getSleeContainer().getMBeanServer().isRegistered(objectName)) {
 				createAndRegisterProfileMBean(profileName, profileTable);				
 			}
 			rb = false;

@@ -14,15 +14,12 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>transaction</artifactId>
-			<version>${pom.version}</version>
-			<scope>compile</scope>
+			<groupId>org.mobicents.cluster</groupId>
+			<artifactId>core</artifactId>
 		</dependency>
-
 		<dependency>
-			<groupId>org.jboss.cache</groupId>
-			<artifactId>jbosscache-core</artifactId>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -41,16 +38,7 @@
   				<excludePoms />
   				<classpathExcludes>
   					<exclude>xml-apis:xml-apis</exclude>
-  					<exclude>jtidy:jtidy</exclude>
-  					<exclude>
-  						org.jboss.jbossas:jboss-as-system:5.0.0.CR2
-  					</exclude>
-  					<exclude>
-  						org.jboss.jbossas:jboss-as-deployment:5.0.0.CR2
-  					</exclude>
-  					<exclude>
-  						org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2
-  					</exclude>
+  					<exclude>jtidy:jtidy</exclude>  					
   				</classpathExcludes>
   				<resolveTransitiveDependencies>
   					true

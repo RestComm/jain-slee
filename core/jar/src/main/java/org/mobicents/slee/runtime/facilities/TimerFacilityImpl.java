@@ -11,10 +11,10 @@ import javax.slee.facilities.TimerOptions;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.core.timers.FaultTolerantScheduler;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.timers.FaultTolerantScheduler;
 
 /**
  * Implementation of the SLEE timer facility. timer is the timer object
@@ -51,7 +51,7 @@ public class TimerFacilityImpl implements TimerFacility {
 	
 	public TimerFacilityImpl(SleeContainer sleeContainer) {
 		this.sleeContainer = sleeContainer;
-		scheduler = new FaultTolerantScheduler(16,sleeContainer.getCache().getTimerFacilityCacheData(), sleeContainer.getTransactionManager(),new TimerFacilityTimerTaskFactory());
+		scheduler = new FaultTolerantScheduler("timer-facility",16,sleeContainer.getCluster(),(byte)10, sleeContainer.getTransactionManager().getRealTransactionManager(),new TimerFacilityTimerTaskFactory());
 	}
 
 	/**
@@ -170,10 +170,9 @@ public class TimerFacilityImpl implements TimerFacility {
 				// detach this timer from the ac
 				ActivityContext ac = sleeContainer.getActivityContextFactory()
 						.getActivityContext(task.getTimerFacilityTimerTaskData().getActivityContextHandle());
-				// FIXME is the exception requested?
-				if (ac == null)
-					throw new FacilityException("Can't find ac in cache!");
-				ac.detachTimer(timerID);				
+				if (ac != null) {					
+					ac.detachTimer(timerID);
+				}
 			}
 			doRollback = false;
 		} finally {
@@ -238,8 +237,7 @@ public class TimerFacilityImpl implements TimerFacility {
 		
 		sleeContainer.getTransactionManager().mandateTransaction();
 		
-		TimerFacilityTimerTaskData taskData = (TimerFacilityTimerTaskData) scheduler.getCacheData().getTaskData(timerID);
-		
+		TimerFacilityTimerTaskData taskData = (TimerFacilityTimerTaskData) scheduler.getTimerTaskData(timerID);
 		if (taskData != null) {
 			try {
 				return new ActivityContextInterfaceImpl(sleeContainer.getActivityContextFactory().getActivityContext(taskData.getActivityContextHandle()));
@@ -247,12 +245,14 @@ public class TimerFacilityImpl implements TimerFacility {
 				throw new FacilityException(e.getMessage(),e);
 			}
 		}
-		return null;		
+		else {
+			return null;		
+		}
 	}
 	
 	@Override
 	public String toString() {
 		return 	"Timer Facility: " +
-				"\n+-- " + scheduler;
+				"\n+-- " + scheduler.toDetailedString();
 	}
 }

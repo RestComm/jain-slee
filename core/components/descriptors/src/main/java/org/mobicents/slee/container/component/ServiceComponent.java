@@ -76,6 +76,14 @@ public class ServiceComponent extends SleeComponent {
 	public ConcurrentHashMap<SbbID, Object> getAlarmNotificationSources() {
 		return alarmNotificationSources;
 	}
+
+	/**
+	 * Retrieves the default priority for root sbb entities
+	 * @return
+	 */
+	public byte getDefaultPriority() {
+		return descriptor.getMService().getDefaultPriority();
+	}
 	
 	/**
 	 * Retrieves the service descriptor

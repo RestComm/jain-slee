@@ -1,0 +1,110 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<packaging>pom</packaging>
+	
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>parent</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>install-cluster</artifactId>
+
+	<name>
+		Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}
+	</name>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-all</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.mobicents.cluster</groupId>
+									<artifactId>server-all-beans</artifactId>
+									<type>zip</type>
+									<classifier>beans</classifier>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/all</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unpack-default</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.mobicents.cluster</groupId>
+									<artifactId>server-default-beans</artifactId>
+									<type>zip</type>
+									<classifier>beans</classifier>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/default</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>deploy</id>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<copy todir="${jboss.home}/server/all/deploy">
+									<fileset dir="${project.build.directory}/all" >										
+										<include name="mobicents-cluster/**" />
+									</fileset>									
+								</copy>
+								<copy todir="${jboss.home}/server/default/deploy">
+									<fileset dir="${project.build.directory}/default" >										
+										<include name="mobicents-cluster/**" />
+									</fileset>										
+								</copy>
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>undeploy</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete failonerror="false" includeemptydirs="true">
+									<fileset dir="${jboss.home}/server/all/deploy/mobicents-cluster" />
+								</delete>
+								<delete failonerror="false" includeemptydirs="true">
+									<fileset dir="${jboss.home}/server/default/deploy/mobicents-cluster" />
+								</delete>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+		
+</project>

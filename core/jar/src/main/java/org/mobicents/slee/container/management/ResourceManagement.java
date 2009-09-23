@@ -144,7 +144,7 @@ public class ResourceManagement {
 										+ entityName + " already exists! RA ID: " + id);
 					}
 					
-					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
 					ResourceAdaptorEntityNotification notificationSource = new ResourceAdaptorEntityNotification(entityName);
 					traceMBeanImpl.registerNotificationSource(notificationSource);
 					ResourceAdaptorEntity raEntity =null;

@@ -6,9 +6,10 @@ import java.util.Map;
 import javax.slee.facilities.NameAlreadyBoundException;
 import javax.slee.facilities.NameNotBoundException;
 
-import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
+import org.mobicents.cache.CacheData;
+import org.mobicents.cluster.MobicentsCluster;
 
 /**
  * 
@@ -31,9 +32,9 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 * 
 	 * @param txManager
 	 */
-	protected ActivityContextNamingFacilityCacheData(Cache jBossCache) {
+	public ActivityContextNamingFacilityCacheData(MobicentsCluster cluster) {
 		super(Fqn.fromElements(CACHE_NODE_NAME),
-				jBossCache);
+				cluster.getMobicentsCache());
 	}
 
 	/**

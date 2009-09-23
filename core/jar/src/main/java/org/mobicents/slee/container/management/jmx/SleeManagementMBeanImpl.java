@@ -1,6 +1,5 @@
 package org.mobicents.slee.container.management.jmx;
 
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -8,6 +7,7 @@ import java.util.concurrent.Future;
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
@@ -15,26 +15,21 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
-import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.ManagementException;
 import javax.slee.management.SleeManagementMBean;
 import javax.slee.management.SleeState;
 import javax.slee.management.SleeStateChangeNotification;
 import javax.slee.management.UnrecognizedSubsystemException;
-import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
-import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.Version;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
-import org.mobicents.slee.runtime.activity.ActivityContextState;
 import org.mobicents.slee.runtime.activity.ActivityType;
-import org.mobicents.slee.runtime.cache.MobicentsCache;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -47,16 +42,12 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  */
 public class SleeManagementMBeanImpl extends StandardMBean implements
 		SleeManagementMBeanImplMBean {
-
+	
 	private MBeanServer mbeanServer;
-
-	private ObjectName alarmMBean;
-
+	
 	private ObjectName activityManagementMBean;
 
 	private ObjectName sbbEntitiesMBean;
-
-	private ObjectName traceMBean;
 
 	private static Logger logger;
 
@@ -71,10 +62,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	private ObjectName rmiServerInterfaceMBean;
 
 	private ObjectName resourceManagementMBean;
-
-	private SleeTransactionManager sleeTransactionManager;
-
-	private MobicentsCache mobicentsCache;
 
 	private NotificationBroadcasterSupport notificationBroadcaster = new NotificationBroadcasterSupport();
 
@@ -115,10 +102,11 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * 
 	 * @throws Exception
 	 */
-	public SleeManagementMBeanImpl() throws Exception {
+	public SleeManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
 		super(SleeManagementMBeanImplMBean.class);
 		startupTime = System.currentTimeMillis();
 		logger.info(generateMessageWithLogo("starting"));
+		this.sleeContainer = sleeContainer;
 	}
 
 	/**
@@ -152,7 +140,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 					"SLEE is already in an active state");
 		try {
 			startSleeContainer();
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
 			throw new ManagementException(ex.getMessage(), ex);
 		}
 	}
@@ -257,16 +245,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.SleeManagementMBean#getTraceMBean()
 	 */
 	public ObjectName getTraceMBean() {
-		return this.traceMBean;
-	}
-
-	/**
-	 * set the ObjectName of the TraceMBean
-	 * 
-	 * @see javax.slee.management.SleeManagementMBean#setTraceMBean()
-	 */
-	public void setTraceMBean(ObjectName newTM) {
-		this.traceMBean = newTM;
+		return sleeContainer.getTraceMBean().getObjectName();
 	}
 
 	// /**
@@ -299,25 +278,13 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * @see javax.slee.management.SleeManagementMBean#getAlarmMBean()
 	 */
 	public ObjectName getAlarmMBean() {
-		return this.alarmMBean;
+		return sleeContainer.getAlarmMBean().getObjectName();
 	}
-
-	/**
-	 * set the ObjectName of the AlarmMBean
-	 * 
-	 * @see javax.slee.management.SleeManagementMBean#setAlarmMBean()
-	 */
-	public void setAlarmMBean(ObjectName newAM) {
-		this.alarmMBean = newAM;
-	}
-
+	
 	public ObjectName preRegister(MBeanServer mbs, ObjectName oname)
 			throws Exception {
 		this.mbeanServer = mbs;
 		this.objectName = oname;
-		this.sleeContainer = new SleeContainer(mbeanServer,
-				sleeTransactionManager, mobicentsCache);
-
 		return oname;
 	}
 
@@ -408,7 +375,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 * Start the SleeContainer and initialize the necessary resources
 	 * 
 	 */
-	protected void startSleeContainer() throws Exception {
+	protected void startSleeContainer() throws Throwable {
 
 		changeSleeState(SleeState.STARTING);
 		boolean created = sleeContainer.getTransactionManager()
@@ -428,10 +395,17 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			}
 			changeSleeState(SleeState.RUNNING);
 			startResourceAdaptors();
-			startServiceActivities();
-			startProfileTableActivities();
+			if (sleeContainer.getCluster().isHeadMember()) {
+				// only one node can do it
+				sleeContainer.getServiceManagement().startActiveServicesActivities();		
+				if (logger.isDebugEnabled()) {
+					logger.debug("starting all profile table activities");
+				}
+				sleeContainer.getSleeProfileTableManager()
+						.startAllProfileTableActivities();
+			}			
 			rollback = false;
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
 			logger.error("Error starting SLEE container", ex);
 			throw ex;
 		} finally {
@@ -477,12 +451,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		}
 
 	}
-
-	private void startServiceActivities() throws NullPointerException,
-			UnrecognizedServiceException, ManagementException, SystemException {
-		sleeContainer.getServiceManagement().startActiveServicesActivities();
-	}
-
+	
 	/**
 	 * Stop the service container and clean up the resources it used.
 	 * 
@@ -525,7 +494,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	private void endAllServiceAndProfileTableActivities() {
 		
 		logger.info("Ending all service and profile table activities...");
-		
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 		boolean rb = true;
 		try {
 			
@@ -624,6 +593,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		
 		logger.info("Stopping all active resource adaptors ...");
 		
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 		final ResourceManagement resourceManagement = sleeContainer
 		.getResourceManagement();
 		
@@ -709,7 +679,10 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		Runnable acStateChecker = new Runnable() {
 			public void run() {
-				endAllServiceAndProfileTableActivities();
+				if (sleeContainer.getCluster().isHeadMember()) {
+					// only one node can do it
+					endAllServiceAndProfileTableActivities();
+				}	
 				stopResourceAdaptors();
 				changeSleeState(SleeState.STOPPED);
 			}
@@ -719,7 +692,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			// if jboss as is shutting down then we wait till servers stops
 			Boolean inShutdown = (Boolean) mbeanServer.getAttribute(
 					new ObjectName("jboss.system:type=Server"), "InShutdown");
-			Future future = exec.submit(acStateChecker);
+			Future<?> future = exec.submit(acStateChecker);
 			if (inShutdown) {
 				future.get();
 			}
@@ -730,15 +703,6 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 							e);
 		}
 
-	}
-
-	private void startProfileTableActivities()
-			throws ActivityAlreadyExistsException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("starting all profile table activities");
-		}
-		sleeContainer.getSleeProfileTableManager()
-				.startAllProfileTableActivities();
 	}
 
 	/**
@@ -762,10 +726,12 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 				timerSt = " in " + startupSec + "s:" + startupMillis + "ms";
 			}
 			logger.info(generateMessageWithLogo("started" + timerSt));
-
-		} else if (newState == SleeState.STOPPED) {
-			logger.info(generateMessageWithLogo("stopped"));
-		}
+		} 
+		else {
+			if (newState == SleeState.STOPPED) {
+				logger.info(generateMessageWithLogo("stopped"));				
+			}			
+		}		
 	}
 
 	public void setFullSleeStop(boolean b) {
@@ -805,24 +771,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	public void setRmiServerInterfaceMBean(ObjectName rmiServerInterfaceMBean) {
 		this.rmiServerInterfaceMBean = rmiServerInterfaceMBean;
 	}
-
-	public SleeTransactionManager getSleeTransactionManager() {
-		return sleeTransactionManager;
-	}
-
-	public void setSleeTransactionManager(
-			SleeTransactionManager sleeTransactionManager) {
-		this.sleeTransactionManager = sleeTransactionManager;
-	}
-
-	public MobicentsCache getMobicentsCache() {
-		return mobicentsCache;
-	}
-
-	public void setMobicentsCache(MobicentsCache mobicentsCache) {
-		this.mobicentsCache = mobicentsCache;
-	}
-
+	
 	// ah ah
 
 	private static final String rLogo = " ><><><><><><><><>< ";

@@ -58,7 +58,7 @@ public class ActivityContextNamingFacilityImpl implements
      */
     public ActivityContextNamingFacilityImpl(SleeContainer sleeContainer) {
     	this.sleeContainer = sleeContainer;
-    	cacheData = sleeContainer.getCache().getActivityContextNamingFacilityCacheData();
+    	cacheData = new ActivityContextNamingFacilityCacheData(sleeContainer.getCluster());
     	cacheData.create();
     }
 

@@ -3,9 +3,10 @@ package org.mobicents.slee.runtime.cache;
 import java.util.Collections;
 import java.util.Set;
 
-import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
+import org.mobicents.cache.CacheData;
+import org.mobicents.cluster.MobicentsCluster;
 
 /**
  * 
@@ -26,8 +27,8 @@ public class ActivityContextFactoryCacheData extends CacheData {
 	 * 
 	 * @param activityContextId
 	 */
-	protected ActivityContextFactoryCacheData(Cache jBossCache) {
-		super(parentNodeFqn, jBossCache);
+	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
+		super(parentNodeFqn, cluster.getMobicentsCache());
 	}
 
 	/**

@@ -53,7 +53,7 @@ public class MobicentsManagement extends ServiceMBeanSupport implements Mobicent
 	 }
   }
   
-  public static boolean monitoringUncommittedAcAttachs;
+  public static Boolean monitoringUncommittedAcAttachs;
   
   public boolean isMonitoringUncommittedAcAttachs() {
 	  return MobicentsManagement.monitoringUncommittedAcAttachs;
@@ -61,19 +61,24 @@ public class MobicentsManagement extends ServiceMBeanSupport implements Mobicent
 
   public void setMonitoringUncommittedAcAttachs(
 		  boolean monitoringUncommittedAcAttachs) {
+	  if (MobicentsManagement.monitoringUncommittedAcAttachs != null) {
+		  logger.warn("Setting event router monitoring of uncommitted activity context attaches to "+monitoringUncommittedAcAttachs+". If called with server running a stop and start is need to apply changes.");
+	  }	  
 	  MobicentsManagement.monitoringUncommittedAcAttachs = monitoringUncommittedAcAttachs;
-	  logger.warn("Setting event router monitoring of uncommitted activity context attaches to "+monitoringUncommittedAcAttachs+". If called with server running a stop and start is need to apply changes.");
   }
 
-  public static int eventRouterExecutors;
+  public static Integer eventRouterExecutors;
   
   public int getEventRouterExecutors() {
 	return MobicentsManagement.eventRouterExecutors;
   }
   
   public void setEventRouterExecutors(int eventRouterExecutors) {
+	  if (MobicentsManagement.eventRouterExecutors != null) {
+		  logger.warn("Setting event router executors to "+eventRouterExecutors+". If called with server running a stop and start is need to apply changes.");
+	  }	  
 	  MobicentsManagement.eventRouterExecutors = eventRouterExecutors;
-	  logger.warn("Setting event router executors to "+eventRouterExecutors+". If called with server running a stop and start is need to apply changes.");
+	  
   }
   
   public static boolean persistProfiles;
@@ -83,6 +88,6 @@ public class MobicentsManagement extends ServiceMBeanSupport implements Mobicent
   }
 
   public void setPersistProfiles(boolean persist) {
-    persistProfiles = persist;
+	  persistProfiles = persist;
   }
 }

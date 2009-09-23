@@ -18,7 +18,6 @@ import javax.slee.nullactivity.NullActivity;
 import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
-import org.jboss.system.ServiceMBeanSupport;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
@@ -39,7 +38,7 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
  * 
  */
 @SuppressWarnings("unchecked")
-public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
+public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		implements ActivityManagementMBeanImplMBean {
 
 	// Name convention is to conform to other mbeans - also ServiceMBeanSupport
@@ -52,11 +51,9 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 	private long maxActivityIdleTime = 600 * 1000;
 
-	private ActivityContextFactoryImpl acFactory = null;
+	private final ActivityContextFactoryImpl acFactory;
 
-	private org.mobicents.slee.runtime.transaction.SleeTransactionManager txMgr = null;
-
-	private SleeContainer container = null;
+	private final org.mobicents.slee.runtime.transaction.SleeTransactionManager txMgr;
 
 	private TimerTask currentQuestioner = null;
 
@@ -65,9 +62,10 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	private static Logger logger = Logger
 			.getLogger(ActivityManagementMBeanImpl.class);
 
-	public ActivityManagementMBeanImpl() throws NotCompliantMBeanException {
-		// super(ActivityManagementMBeanImpl.class);
-		
+	public ActivityManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+		super(sleeContainer,ActivityManagementMBeanImpl.class);
+		this.acFactory = sleeContainer.getActivityContextFactory();
+		txMgr = sleeContainer.getTransactionManager();
 	}
 
 	// === PROPERTIES
@@ -639,7 +637,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 	}
 
 	public Map retrieveNamesToActivityContextIDMappings() {
-		ActivityContextNamingFacilityImpl naming = (ActivityContextNamingFacilityImpl) container
+		ActivityContextNamingFacilityImpl naming = (ActivityContextNamingFacilityImpl) getSleeContainer()
 				.getActivityContextNamingFacility();
 
 		boolean createdTx = false;
@@ -665,15 +663,11 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 
 	// == Some helpers
 	private void prepareBean() {
-		if (this.acFactory == null) {
-			this.container = SleeContainer.lookupFromJndi();
-			this.acFactory = container.getActivityContextFactory();
-			this.txMgr = container.getTransactionManager();
+		if (currentQuestioner == null) {
 			this.currentQuestioner = new PeriodicLivelinessScanner();
 			this.queryRunner.schedule(this.currentQuestioner,
 					this.querryInterval);
 		}
-
 	}
 
 	// TimerClass to run periodic livelines querry - here is decided which ac
@@ -726,6 +720,7 @@ public class ActivityManagementMBeanImpl extends ServiceMBeanSupport
 						// want to query it
 						return;
 					}
+					final SleeContainer container = getSleeContainer();
 					ResourceAdaptorEntity raEntity = container.getResourceManagement()
 					.getResourceAdaptorEntity(
 							ach.getActivitySource());

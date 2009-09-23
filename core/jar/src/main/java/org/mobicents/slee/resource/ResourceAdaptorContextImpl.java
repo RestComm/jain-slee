@@ -111,7 +111,7 @@ public class ResourceAdaptorContextImpl implements ResourceAdaptorContext {
 			throw new IllegalArgumentException(e1);
 		}
 		try {
-			return this.sleeContainer.getTraceFacility().getTraceMBeanImpl().createTracer(raEntity.getNotificationSource(), tracerName, true);
+			return this.sleeContainer.getTraceMBean().createTracer(raEntity.getNotificationSource(), tracerName, true);
 		} catch (ManagementException e) {
 			throw new SLEEException("Failed to crate tracer: "+tracerName,e);
 		}

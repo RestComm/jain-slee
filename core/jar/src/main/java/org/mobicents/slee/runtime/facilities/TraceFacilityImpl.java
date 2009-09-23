@@ -76,7 +76,7 @@ public class TraceFacilityImpl implements TraceFacility {
 		}
 	}
 
-	public TraceFacilityImpl(TraceMBeanImpl traceMB) throws NotCompliantMBeanException {
+	public TraceFacilityImpl(TraceMBeanImpl traceMB) {
 		this.notificationTypes = new HashSet<String>();
 		
 		this.traceLevelTable = new Hashtable<ComponentID, MTraceLevel>();

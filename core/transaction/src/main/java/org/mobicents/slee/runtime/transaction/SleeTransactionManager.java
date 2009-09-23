@@ -39,6 +39,7 @@ import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
+import javax.transaction.TransactionManager;
 
 /** 
  * 
@@ -138,5 +139,11 @@ public interface SleeTransactionManager extends javax.slee.transaction.SleeTrans
      * @return String - a list of ongoing SLEE transactions
      */
     public String displayOngoingSleeTransactions();
+
+    /**
+     * Retrieves the underlying transaction manager.
+     * @return
+     */
+    public TransactionManager getRealTransactionManager();
     
 }

@@ -389,6 +389,6 @@ public class SbbDescriptorImpl {
 	 * @return the defaultEventMask
 	 */
 	public Set<EventTypeID> getDefaultEventMask() {
-		return defaultEventMask;
+		return defaultEventMask == null ? null : new HashSet<EventTypeID>(defaultEventMask);
 	}
 }

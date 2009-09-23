@@ -123,7 +123,7 @@ public class ResourceAdaptorEntity {
 		this.sleeContainer = sleeContainer;
 		this.notificationSource = notificationSource;
 		this.alarmFacility = new DefaultAlarmFacilityImpl(notificationSource,
-				this.sleeContainer.getAlarmFacility());
+				this.sleeContainer.getAlarmMBean());
 		// create ra object
 		ClassLoader currentClassLoader = Thread.currentThread()
 				.getContextClassLoader();
@@ -400,7 +400,7 @@ public class ResourceAdaptorEntity {
 		}
 		object.raUnconfigure();
 		object.unsetResourceAdaptorContext();
-		this.sleeContainer.getTraceFacility().getTraceMBeanImpl()
+		this.sleeContainer.getTraceMBean()
 				.deregisterNotificationSource(this.getNotificationSource());
 		state = null;
 	}

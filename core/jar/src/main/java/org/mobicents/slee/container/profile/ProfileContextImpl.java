@@ -208,7 +208,7 @@ public class ProfileContextImpl implements ProfileContext {
 		}
 
 		try {
-			return profileTable.getSleeContainer().getTraceFacility().getTraceMBeanImpl().createTracer(this.profileTable.getProfileTableNotification().getNotificationSource(), tracerName, true);
+			return profileTable.getSleeContainer().getTraceMBean().createTracer(this.profileTable.getProfileTableNotification().getNotificationSource(), tracerName, true);
 		}
 		catch (Exception e) {
 			throw new SLEEException("Failed to obtain tracer",e);

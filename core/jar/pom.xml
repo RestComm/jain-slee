@@ -14,9 +14,8 @@
 	<dependencies>
 		
 		<dependency>
-			<groupId>${pom.groupId}</groupId>
-           	<artifactId>timers</artifactId>
-           	<version>${pom.version}</version>           	
+			<groupId>org.mobicents.cluster</groupId>
+			<artifactId>timers</artifactId>		         	
 		</dependency>
 		
 		<dependency>

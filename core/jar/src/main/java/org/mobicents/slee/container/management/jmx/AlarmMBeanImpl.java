@@ -15,15 +15,16 @@
 package org.mobicents.slee.container.management.jmx;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.management.MBeanNotificationInfo;
+import javax.management.NotCompliantMBeanException;
 import javax.slee.ComponentID;
 import javax.slee.SbbID;
 import javax.slee.UnrecognizedComponentException;
@@ -36,11 +37,9 @@ import javax.slee.management.NotificationSource;
 import javax.slee.management.UnrecognizedNotificationSourceException;
 import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
-import org.jboss.system.ServiceMBeanSupport;
-import org.jboss.util.id.UID;
-import org.mobicents.slee.container.SleeContainer;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -51,7 +50,8 @@ import org.mobicents.slee.runtime.transaction.TransactionalAction;
  * @author Tim
  * 
  */
-public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImplMBean {
+@SuppressWarnings("deprecation")
+public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements AlarmMBeanImplMBean {
 
 	public static String JNDI_NAME = "alarm";
 	private static Logger log = Logger.getLogger(AlarmMBeanImpl.class);
@@ -59,24 +59,27 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 	private Map<AlarmPlaceHolder, NotificationSource> placeHolderToNotificationSource = new HashMap<AlarmPlaceHolder, NotificationSource>();
 	private Map<String, AlarmPlaceHolder> alarmIdToAlarm = new HashMap<String, AlarmPlaceHolder>();
 
-	private SleeContainer sleeContainer = null;
+	private final SleeTransactionManager sleeTransactionManager;
+	private final TraceMBeanImpl traceMBean;
+		
+	/**
+	 * @param sleeTransactionManager
+	 * @param traceMBean
+	 */
+	public AlarmMBeanImpl(SleeTransactionManager sleeTransactionManager,
+			TraceMBeanImpl traceMBean) throws NotCompliantMBeanException {
+		super(AlarmMBeanImplMBean.class);
+		this.sleeTransactionManager = sleeTransactionManager;
+		this.traceMBean = traceMBean;
+	}
 	
-	protected void startService() throws Exception {
-		SleeContainer.registerFacilityWithJndi(JNDI_NAME, this);
-		this.sleeContainer = SleeContainer.lookupFromJndi();
-	}
-
-	protected void stopService() throws Exception {
-		SleeContainer.unregisterFacilityWithJndi(JNDI_NAME);
-	}
-
 	public boolean clearAlarm(String alarmID) throws NullPointerException, ManagementException {
 		if (alarmID == null) {
 			throw new NullPointerException("AlarmID must not be null");
 		}
 
 		AlarmPlaceHolder aph = alarmIdToAlarm.remove(alarmID);
-		NotificationSource notificationSource = placeHolderToNotificationSource.remove(aph);
+		placeHolderToNotificationSource.remove(aph);
 		if (aph == null) {
 			return false;
 		} else {
@@ -294,9 +297,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 					return this.raiseAlarm(notificationSource, alarmType, instanceID, level, message, cause);
 				}
 			} else {
-				// FIXME: something better?
-				UID uid = new UID();
-				Alarm a = new Alarm(uid.getID() + "", notificationSource.getNotificationSource(), alarmType, instanceID, level, message, cause, System.currentTimeMillis());
+				Alarm a = new Alarm(UUID.randomUUID().toString(), notificationSource.getNotificationSource(), alarmType, instanceID, level, message, cause, System.currentTimeMillis());
 				AlarmPlaceHolder aph = new AlarmPlaceHolder(notificationSource, alarmType, instanceID, a);
 				this.alarmIdToAlarm.put(a.getAlarmID(), aph);
 				// this.placeHolderToAlarm.put(aph, a);
@@ -324,7 +325,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 	 */
 	private void mandateSource(NotificationSource src) throws UnrecognizedNotificationSourceException
 	{
-		if(!this.sleeContainer.getTraceFacility().getTraceMBeanImpl().isNotificationSourceDefined(src))
+		if(!traceMBean.isNotificationSourceDefined(src))
 		{
 			throw new UnrecognizedNotificationSourceException("Notification source is not present: "+src);
 		}
@@ -476,7 +477,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 				registeredComps.remove(sbbID);
 			}
 		};
-		SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+		sleeTransactionManager.addAfterRollbackAction(action);
 
 	}
 
@@ -488,7 +489,7 @@ public class AlarmMBeanImpl extends ServiceMBeanSupport implements AlarmMBeanImp
 					registeredComps.put(sbbID, registeredComp);
 				}
 			};
-			SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+			sleeTransactionManager.addAfterRollbackAction(action);
 		}
 
 	}

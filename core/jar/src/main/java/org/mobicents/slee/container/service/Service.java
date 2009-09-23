@@ -1,13 +1,11 @@
 package org.mobicents.slee.container.service;
 
-import java.util.Collection;
+import java.util.Set;
 
-import javax.slee.CreateException;
 import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
-import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.EventFlags;
 import javax.transaction.SystemException;
 
@@ -42,11 +40,7 @@ public class Service {
 	
 	// --- service
 	
-	private byte defaultPriority;
-
 	private final ServiceComponent serviceComponent;
-
-	private final ServiceID serviceID; 
 	
 	private final ServiceCacheData cacheData;
 	
@@ -60,37 +54,26 @@ public class Service {
 	 * @throws RuntimeException
 	 */
 
-	protected Service(ServiceComponent serviceComponent, boolean initCachedData) throws RuntimeException {
+	protected Service(ServiceComponent serviceComponent) throws RuntimeException {
 		
 		if (serviceComponent == null)
 			throw new NullPointerException("null descriptor or container");
 		
-		try {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Service.Service(): creating service "
-						+ serviceComponent);
-			}
-
-			this.serviceComponent = serviceComponent;
-			this.serviceID = serviceComponent.getServiceID();
-			this.defaultPriority = serviceComponent.getDescriptor().getMService().getDefaultPriority();	
-			this.cacheData = sleeContainer.getCache().getServiceCacheData(serviceComponent.getServiceID());
-			if (initCachedData && !cacheData.exists()) {
-				cacheData.create();
-			}
-			
-		} catch (Exception ex) {
-			String s = "Exception encountered while loading service ";
-			logger.error(s, ex);
-			throw new RuntimeException(s, ex);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Service.Service(): creating service "
+					+ serviceComponent);
 		}
-	}
+
+		this.serviceComponent = serviceComponent;
+		this.cacheData = new ServiceCacheData(serviceComponent.getServiceID(),sleeContainer.getCluster().getMobicentsCache());
+		cacheData.create();			
+	}	
 	
 	/**
 	 * get the default priority.
 	 */
 	public byte getDefaultPriority() {
-		return this.defaultPriority;
+		return serviceComponent.getDefaultPriority();
 	}
 	
 	/**
@@ -106,7 +89,7 @@ public class Service {
 	 * was created.
 	 */
 	public ServiceID getServiceID() {
-		return this.serviceID;
+		return serviceComponent.getServiceID();
 	}
 
 	/**
@@ -192,7 +175,7 @@ public class Service {
 	 * 
 	 *  
 	 */
-	public Collection getChildObj() {
+	public Set<String> getChildObj() {
 		return cacheData.getChildSbbEntities();
 	}
 
@@ -221,10 +204,12 @@ public class Service {
 		// create root sbb entity
 		SbbEntity sbbEntity = SbbEntityFactory.createRootSbbEntity(getRootSbbID(),
 				this.getServiceID(), convergenceName);
-		// set default priority
-		sbbEntity.setPriority(getDefaultPriority());
-		// store in cache
-		cacheData.addChild(convergenceName, sbbEntity.getSbbEntityId());
+		if (sbbEntity.isCreated()) {
+			// set default priority
+			sbbEntity.setPriority(getDefaultPriority());
+			// store in service's cache data
+			cacheData.addChild(convergenceName, sbbEntity.getSbbEntityId());
+		}
 
 		return sbbEntity;
 	}
@@ -262,18 +247,11 @@ public class Service {
 	 * these Services to their previous operational state.
 	 *  
 	 */
-	public void startActivity() throws SystemException {
+	public void startActivity() {
 
 		// create ac for the activity
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(getServiceID()));
-		ActivityContext ac = null;
-		try {
-			ac = sleeContainer.getActivityContextFactory().createActivityContext(ach);
-		} catch (ActivityAlreadyExistsException e) {
-			final String msg = "service activity already exists";
-			logger.error(msg,e);
-			throw new SystemException(msg);
-		}
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceComponent.getServiceID()));
+		ActivityContext ac = sleeContainer.getActivityContextFactory().createActivityContext(ach);
 		
 		if (logger.isDebugEnabled()) {
 			logger
@@ -314,7 +292,7 @@ public class Service {
 	 */
 	public void endActivity() {
 
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(getServiceID()));
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceComponent.getServiceID()));
 		if (logger.isDebugEnabled()) {
 			logger.debug("ending service activity "+ach);
 		}
@@ -323,7 +301,7 @@ public class Service {
 			ac.endActivity();
 		}
 		else {
-			logger.error("unable tofind and end ac "+ach);
+			logger.error("unable to find and end ac "+ach);
 		}
 	}
 	

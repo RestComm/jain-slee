@@ -214,7 +214,7 @@ public class ActivityContext {
 	 * 
 	 * @return Set containing String objects that are names of this ac
 	 */
-	public Set getNamingBindingCopy() {
+	public Set<String> getNamingBindingCopy() {
 		return cacheData.getNamesBoundCopy();
 	}
 	
@@ -246,11 +246,16 @@ public class ActivityContext {
 	 *            timer id to attach.
 	 * 
 	 */
-	public void attachTimer(TimerID timerID) {
-		cacheData.attachTimer(timerID);		
-		// cancel a possible check for unreferenced activity, no need to
-		// waste time in checkingif the flags requested such process 
-		cacheData.setCheckingReferences(false);
+	public boolean attachTimer(TimerID timerID) {
+		if (cacheData.attachTimer(timerID)) {		
+			// cancel a possible check for unreferenced activity, no need to
+			// waste time in checkingif the flags requested such process 
+			cacheData.setCheckingReferences(false);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	/**
@@ -277,7 +282,7 @@ public class ActivityContext {
 	 * @return Set containing TimerID objects representing timers attached to
 	 *         this ac.
 	 */
-	public Set getAttachedTimersCopy() {
+	public Set<TimerID> getAttachedTimersCopy() {
 		return cacheData.getAttachedTimers();
 	}
 	
@@ -395,7 +400,7 @@ public class ActivityContext {
 		return orderSbbSet;
 	}	
 	
-	public Set getSbbAttachmentSet() {
+	public Set<String> getSbbAttachmentSet() {
 		return cacheData.getSbbEntitiesAttached();	
 	}
 	

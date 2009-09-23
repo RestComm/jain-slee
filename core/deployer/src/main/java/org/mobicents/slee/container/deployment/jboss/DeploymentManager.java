@@ -3,7 +3,9 @@ package org.mobicents.slee.container.deployment.jboss;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -14,17 +16,14 @@ import javax.slee.InvalidStateException;
 import javax.slee.management.DeployableUnitID;
 import javax.slee.management.DeploymentMBean;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
-import javax.slee.management.ResourceAdaptorEntityState;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.management.ServiceManagementMBean;
 import javax.slee.management.UnrecognizedLinkNameException;
-import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.jboss.deployment.DeploymentException;
 import org.jboss.logging.Logger;
 import org.jboss.mx.loading.RepositoryClassLoader;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.resource.ResourceAdaptorEntity;
 
 /**
  * This class represents the Manager responsible for executing deployment actions
@@ -76,11 +75,14 @@ public class DeploymentManager {
 	private ConcurrentHashMap<DeployableUnit, Collection<String>> actionsToAvoidByDU = new ConcurrentHashMap<DeployableUnit, Collection<String>>();
 
 	public long waitTimeBetweenOperations = 250;
-
+	
+	private final SleeStateJMXMonitor sleeStateJMXMonitor;
+	
 	/**
 	 * Constructor.
 	 */
 	private DeploymentManager() {
+		sleeStateJMXMonitor = new SleeStateJMXMonitor(this);
 	}
 
 	/**
@@ -152,40 +154,32 @@ public class DeploymentManager {
 			String[] entityNames = sleeContainer.getResourceManagement()
 					.getResourceAdaptorEntities();
 
-			for (int i = 0; i < entityNames.length; i++) {
-				ResourceAdaptorEntity rae = sleeContainer
-						.getResourceManagement().getResourceAdaptorEntity(
-								entityNames[i]);
-
-				if (rae != null && rae.getState() == ResourceAdaptorEntityState.ACTIVE)
-				{
-					ResourceAdaptorTypeID[] raTypeIds = rae.getComponent().getSpecsDescriptor().getResourceAdaptorTypes();
-
-					for(ResourceAdaptorTypeID raTypeId : raTypeIds )
-					{
-					  String[] entityLinks = sleeContainer.getResourceManagement().getLinkNames(rae.getName());
-
-					  for (String entityLink : entityLinks)
-					  {
-						  newDeployedComponents.add(entityLink + "_@_" + raTypeId);
-					  }
-					}
-				}
+			for (String entityName : entityNames) {
+				newDeployedComponents.addAll(Arrays.asList(sleeContainer.getResourceManagement().getLinkNames(entityName)));
 			}
-
+			
 			// All good.. Make the temp the good one.
 			deployedComponents = newDeployedComponents;
 		} catch (Exception e) {
 			logger.warn("Failure while updating deployed components.", e);
 		}
 	}
-
+	
 	/**
 	 * Method for installing a Deployable Unit into SLEE.
 	 * @param du the Deployable Unit to install.
 	 * @throws Exception
 	 */
 	public void installDeployableUnit(DeployableUnit du) throws Exception {
+		
+		if (!sleeStateJMXMonitor.isSleeRunning()) {
+			
+			logger.warn("Unable to INSTALL " + du.getDeploymentInfoShortName()
+					+ " right now. Waiting for SLEE to be in RUNNING state.");
+			waitingForInstallDUs.add(du);
+			return;
+		}
+		
 		// Update the deployed components from SLEE
 		updateDeployedComponents();
 
@@ -239,6 +233,14 @@ public class DeploymentManager {
 	 * @throws Exception
 	 */
 	public void uninstallDeployableUnit(DeployableUnit du) throws Exception {
+		
+		if (!sleeStateJMXMonitor.isSleeRunning()) {
+			logger.warn("Unable to UNINSTALL " + du.getDeploymentInfoShortName()
+					+ " right now. Waiting for SLEE to be in RUNNING state.");
+			waitingForUninstallDUs.add(du);
+			return;
+		}
+		
 		// Update the deployed components from SLEE
 		updateDeployedComponents();
 
@@ -534,4 +536,36 @@ public class DeploymentManager {
 
 		return output;
 	}
+	
+	/**
+	 * Callback for {@link SleeStateJMXMonitor}, to learn when SLEE is running.
+	 */
+	public void sleeIsRunning() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Got notified that SLEE is now in running state");
+		}
+
+		// process all DUs that are on hold
+		Set<DeployableUnit> duSet = new HashSet<DeployableUnit>(waitingForUninstallDUs);
+		waitingForUninstallDUs.clear();
+		for (DeployableUnit du : duSet) {
+			try {
+				uninstallDeployableUnit(du);						
+			} catch (Exception e) {
+				logger.error("Failed to uninstall DU on hold, after SLEE is running",e);
+			}
+		}
+		duSet = new HashSet<DeployableUnit>(waitingForInstallDUs);
+		waitingForInstallDUs.clear();
+		for (DeployableUnit du : duSet) {
+			try {
+				installDeployableUnit(du);
+			} catch (Exception e) {
+				logger.error("Failed to install DU on hold, after SLEE is running",e);
+			}
+		}
+	}				
+	
+	
+	
 }

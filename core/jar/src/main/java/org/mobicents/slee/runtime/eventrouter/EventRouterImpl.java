@@ -1,13 +1,17 @@
 package org.mobicents.slee.runtime.eventrouter;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.slee.SLEEException;
 import javax.slee.management.SleeState;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.LogMessageFactory;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.eventrouter.routingtask.EventRoutingTask;
@@ -45,6 +49,8 @@ public class EventRouterImpl implements EventRouter {
 	
 	public EventRouterImpl(SleeContainer container, int executors, boolean monitorPendingAcAttachments) {
 		this.container = container;		
+		final long period = 60*60*1000;  
+		container.getNonClusteredScheduler().scheduleAtFixedRate(new LocalResourcesGarbageCollectionTimerTask(), period, period, TimeUnit.MILLISECONDS);
 		config(executors, monitorPendingAcAttachments);
 		logger
 				.info("Mobicents JAIN SLEE Event Router started. Event Executors: "
@@ -72,17 +78,6 @@ public class EventRouterImpl implements EventRouter {
 
 	public void activityEnded(ActivityContextHandle ach) {
 		activities.remove(ach);
-	}
-
-	public void activityStarted(ActivityContextHandle ach) {
-		PendingAttachementsMonitor pendingAttachementsMonitor = null;
-		if (monitorPendingACAttachements) {
-			pendingAttachementsMonitor = new PendingAttachementsMonitor();
-		}
-		EventRouterActivity era = new EventRouterActivity(ach,pendingAttachementsMonitor,container);
-		if (activities.putIfAbsent(ach,era) == null) {
-			era.setExecutorService(mapExecutor(ach));
-		}
 	}
 	
 	/*
@@ -123,7 +118,20 @@ public class EventRouterImpl implements EventRouter {
 	}
 	
 	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach) {		
-		return activities.get(ach);
+		EventRouterActivity era = activities.get(ach);
+		if (era == null) {
+			PendingAttachementsMonitor pendingAttachementsMonitor = null;
+			if (monitorPendingACAttachements) {
+				pendingAttachementsMonitor = new PendingAttachementsMonitor();
+			}
+			final EventRouterActivity newEra = new EventRouterActivity(ach,pendingAttachementsMonitor,container);
+			era = activities.putIfAbsent(ach,newEra);
+			if (era == null) {
+				era = newEra;
+				era.setExecutorService(mapExecutor(ach));
+			}
+		}
+		return era;
 	}
 
 	public void resumeEventContext(EventContextImpl eventContextImpl) {
@@ -132,5 +140,37 @@ public class EventRouterImpl implements EventRouter {
 	
 	public DeferredEventReferencesManagement getDeferredEventReferencesManagement() {
 		return eventReferencesManagement;
+	}
+		
+	/**
+	 * Runnable to remove event router local resources for activities that are already gone
+	 */
+	private class LocalResourcesGarbageCollectionTimerTask implements Runnable {
+		
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
+		public void run() {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Running Event Router's activities local resources garbage collection task");
+			}
+			try {
+				final Set<ActivityContextHandle> set = new HashSet<ActivityContextHandle>(activities.keySet());
+				if (logger.isDebugEnabled()) {
+					logger.debug("Current Event Router's activities local resources: "+set);
+				}
+				set.removeAll(container.getActivityContextFactory().getAllActivityContextsHandles());
+				for (ActivityContextHandle ach : set) {
+					if (logger.isDebugEnabled()) {
+						logger.debug(LogMessageFactory.newLogMessage(ach, "Removing the event router local resources for the activity"));
+					}
+					activities.remove(ach);
+				}	
+			}
+			catch (Throwable e) {
+				logger.error("Failure in event router activity resources garbage collection",e);
+			}
+		}
 	}
 }

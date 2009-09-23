@@ -6,9 +6,10 @@ import java.util.Set;
 
 import javax.slee.EventTypeID;
 
-import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
+import org.mobicents.cache.CacheData;
+import org.mobicents.cache.MobicentsCache;
 
 /**
  * 
@@ -23,7 +24,7 @@ public class SbbEntityCacheData extends CacheData {
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
 	 */
-	private final static String parentNodeFqn = "sbb-entity";
+	public final static String parentNodeFqn = "sbb-entity";
 
 	// node map keys
 
@@ -95,8 +96,8 @@ public class SbbEntityCacheData extends CacheData {
 	 * 
 	 * @param sbbEntityId
 	 */
-	protected SbbEntityCacheData(String sbbEntityId, Cache jBossCache) {
-		super(Fqn.fromElements(parentNodeFqn, sbbEntityId), jBossCache);
+	public SbbEntityCacheData(String sbbEntityId, MobicentsCache cache) {
+		super(Fqn.fromElements(parentNodeFqn, sbbEntityId), cache);
 	}
 
 	public Object getSbbEntityImmutableData() {

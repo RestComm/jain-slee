@@ -202,39 +202,44 @@ public class ServiceManagement {
 							"Unrecognized service " + serviceID);
 				}
 
+				final boolean doFullActivation = sleeContainer.getCluster().isHeadMember();
+					
 				final Service service = getServiceFromServiceComponent(serviceComponent);
-
-				if (service.getState().equals(ServiceState.ACTIVE)) {
+				
+				if (service.getState() == ServiceState.ACTIVE && doFullActivation) {
 					throw new InvalidStateException("Service " + serviceID
 							+ " already active");
 				}
 
-				// check sbb ra entity links
-				Set<String> referencedRAEntityLinksWhichNotExists = getReferencedRAEntityLinksWhichNotExists(serviceComponent);
-				if (!referencedRAEntityLinksWhichNotExists.isEmpty()) {
-					throw new InvalidLinkNameBindingStateException(referencedRAEntityLinksWhichNotExists.iterator().next());
-				}
-				
-				// If there was a deactivate before we have sbb entities
-				// pending,
-				// remove those first
-				RootSbbEntitiesRemovalTask task = RootSbbEntitiesRemovalTask
-						.getTask(serviceID);
-				if (task != null) {
-					task.run();
-					if (logger.isDebugEnabled()) {
-						logger
-								.debug("Found timer task running to remove remaining sbb entities. Executing now...");
+				// if we are in a cluster we don't need to change state or fire service started event
+				if (doFullActivation) {
+					// check sbb ra entity links
+					Set<String> referencedRAEntityLinksWhichNotExists = getReferencedRAEntityLinksWhichNotExists(serviceComponent);
+					if (!referencedRAEntityLinksWhichNotExists.isEmpty()) {
+						throw new InvalidLinkNameBindingStateException(referencedRAEntityLinksWhichNotExists.iterator().next());
 					}
-				}
 
-				// change service state
-				service.setState(ServiceState.ACTIVE);
-				
-				// only create activity if slee is already running, otherwise
-				// slee will do it by itself when state changes
-				if (sleeContainer.getSleeState() == SleeState.RUNNING) {
-					service.startActivity();
+					// If there was a deactivate before we have sbb entities
+					// pending,
+					// remove those first
+					RootSbbEntitiesRemovalTask task = RootSbbEntitiesRemovalTask
+					.getTask(serviceID);
+					if (task != null) {
+						task.run();
+						if (logger.isDebugEnabled()) {
+							logger
+							.debug("Found timer task running to remove remaining sbb entities. Executing now...");
+						}
+					}
+
+					// change service state
+					service.setState(ServiceState.ACTIVE);
+
+					// only create activity if slee is already running, otherwise
+					// slee will do it by itself when state changes
+					if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+						service.startActivity();
+					}
 				}
 				
 				// lets cache some info in the event components this service refer
@@ -343,25 +348,28 @@ public class ServiceManagement {
 					logger.debug(serviceID.toString() + " state = "
 							+ service.getState());
 
-				if (service.getState() == ServiceState.STOPPING)
-					throw new InvalidStateException("Service is STOPPING");
+				final boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
+				// only really deactivate the service if we are not in a cluster
+				if (!clustered) {
+					if (service.getState() == ServiceState.STOPPING)
+						throw new InvalidStateException("Service is STOPPING");
 
-				if (service.getState() == ServiceState.INACTIVE) {
-					throw new InvalidStateException(
-							"Service already deactivated");
-				}
+					if (service.getState() == ServiceState.INACTIVE) {
+						throw new InvalidStateException(
+						"Service already deactivated");
+					}
 
-				service.setState(ServiceState.STOPPING);
-				
-				// only end activity if slee is running, otherwise
-				// slee already did it
-				if (sleeContainer.getSleeState() == SleeState.RUNNING) {
-					service.endActivity();
-				}
-				else {
-					service.setState(ServiceState.INACTIVE);					
-				}
+					service.setState(ServiceState.STOPPING);
 
+					// only end activity if slee is running, otherwise
+					// slee already did it
+					if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+						service.endActivity();
+					}
+					else {
+						service.setState(ServiceState.INACTIVE);					
+					}
+				}
 				// remove runtime cache related wih this service
 				for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
 					if (mEventEntry.isInitialEvent()) {
@@ -587,7 +595,13 @@ public class ServiceManagement {
 			logger.debug("Installing Service " + serviceComponent);
 		}
 
-		ServiceFactory.createService(serviceComponent);
+		final boolean doFullInstall = sleeContainer.getCluster().isHeadMember();
+
+		if (doFullInstall) {
+			ServiceFactory.createService(serviceComponent);
+		}
+		
+		// FIXME what about clustering and usage mbean ???
 		
 		// creates and registers the service usage mbean
 		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(serviceComponent);
@@ -607,7 +621,7 @@ public class ServiceManagement {
 		
 			// register notification sources for all sbbs
 			//
-			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
 			for (final SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
 				
 				SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbID);
@@ -619,9 +633,7 @@ public class ServiceManagement {
 					action = new TransactionalAction() {
 						public void execute() {
 							// remove notification sources for all sbbs
-							TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-							traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
-						
+							traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));						
 						}
 					};
 					sleeContainer.getTransactionManager().addAfterRollbackAction(action);
@@ -670,26 +682,30 @@ public class ServiceManagement {
 		final Service service = this
 				.getService(serviceComponent.getServiceID());
 		
-		if (!service.getState().isInactive()) {
-			throw new InvalidStateException(serviceComponent.toString()+" is not inactive");
-		}
-		// Remove and probably run task which will remove sbb entities
-		// if it hadnt done it already
-		RootSbbEntitiesRemovalTask task = RootSbbEntitiesRemovalTask
-				.getTask(serviceComponent.getServiceID());
-		if (task != null) {
-			task.run();
-			if (logger.isDebugEnabled()) {
-				logger
-						.debug("Found timer task running to remove remaining sbb entities. Executing now...");
-			}
-		} else {
-			if (logger.isDebugEnabled()) {
-				logger.debug("NO TASK TO RUN ON SERVICE UNINSTALL FOR "
-						+ serviceComponent.getServiceID());
-			}
-		}
+		final boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
 
+		if (!clustered) { 
+			if (!service.getState().isInactive()) {
+				throw new InvalidStateException(serviceComponent.toString()+" is not inactive");
+			}
+			// Remove and probably run task which will remove sbb entities
+			// if it hadnt done it already
+			RootSbbEntitiesRemovalTask task = RootSbbEntitiesRemovalTask
+			.getTask(serviceComponent.getServiceID());
+			if (task != null) {
+				task.run();
+				if (logger.isDebugEnabled()) {
+					logger
+					.debug("Found timer task running to remove remaining sbb entities. Executing now...");
+				}
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("NO TASK TO RUN ON SERVICE UNINSTALL FOR "
+							+ serviceComponent.getServiceID());
+				}
+			}
+		}
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Closing Usage MBean of service "
 					+ serviceComponent.getServiceID());
@@ -713,7 +729,7 @@ public class ServiceManagement {
 		
 		
 			// register notification sources for all sbbs
-			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
 			for (final SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
 				
 				
@@ -722,12 +738,11 @@ public class ServiceManagement {
 				{
 					traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
 			
-			// add rollback action to re-add state removed
+					// add rollback action to re-add state removed
 					TransactionalAction action = new TransactionalAction() {
 						public void execute() {
 					// remove notification sources for all sbbs
-							TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
-							traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
+						traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
 						}
 					
 					};
@@ -743,12 +758,13 @@ public class ServiceManagement {
 					sleeContainer.getTransactionManager());
 		}
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing Service " + serviceComponent.getServiceID()
-					+ " from cache and active services set");
+		if(!clustered){
+			if (logger.isDebugEnabled()) {
+				logger.debug("Removing Service " + serviceComponent.getServiceID()
+						+ " from cache and active services set");
+			}
+			service.removeFromCache();
 		}
-		
-		service.removeFromCache();
 	}
 
 	public void endActiveServicesActivities() throws NullPointerException, ManagementException, UnrecognizedServiceException {

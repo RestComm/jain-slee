@@ -34,6 +34,8 @@
 package org.mobicents.slee.container;
 
 import java.io.File;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 
@@ -48,12 +50,13 @@ import javax.slee.profile.ProfileFacility;
 
 import org.apache.log4j.Logger;
 import org.jboss.mx.util.MBeanProxy;
+import org.jboss.mx.util.MBeanServerLocator;
 import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
+import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.management.DeployableUnitManagement;
-import org.mobicents.slee.container.deployment.ConcreteClassGeneratorUtils;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.SbbManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
@@ -67,12 +70,10 @@ import org.mobicents.slee.container.rmi.RmiServerInterfaceMBean;
 import org.mobicents.slee.container.service.ServiceActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.container.service.ServiceActivityFactoryImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl;
-import org.mobicents.slee.runtime.cache.MobicentsCache;
 import org.mobicents.slee.runtime.eventrouter.EventRouter;
 import org.mobicents.slee.runtime.eventrouter.EventRouterImpl;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
-import org.mobicents.slee.runtime.facilities.TraceFacilityImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileFacilityImpl;
@@ -137,11 +138,11 @@ public class SleeContainer {
 
 	private static SleeContainer sleeContainer;
 	private final SleeTransactionManager sleeTransactionManager;
-	private final MobicentsCache cache;
-
+	private final MobicentsCluster cluster;
+	
 	// FIELDS
 	// mbean server where the container's mbeans are registred
-	private MBeanServer mbeanServer;
+	private final MBeanServer mbeanServer;
 	/** The lifecycle state of the SLEE */
 	private SleeState sleeState;
 	// the class that actually posts events to the SBBs.
@@ -153,16 +154,18 @@ public class SleeContainer {
 	// for external access to slee
 	private RmiServerInterfaceMBean rmiServerInterfaceMBeanImpl;
 	// component managers
-	private ComponentRepositoryImpl componentRepositoryImpl;
-	private ServiceManagement serviceManagement;
+	private final ComponentRepositoryImpl componentRepositoryImpl;
+	private final ServiceManagement serviceManagement;
 	
-	//private SleeProfileManager sleeProfileManager;
-	private SleeProfileTableManager sleeProfileTableManager;
-	private ResourceManagement resourceManagement;
-	private SbbManagement sbbManagement;
+	private final SleeProfileTableManager sleeProfileTableManager;
+	private final ResourceManagement resourceManagement;
+	private final SbbManagement sbbManagement;
 	// object pool management
-	private SbbObjectPoolManagement sbbPoolManagement;
-	private ProfileObjectPoolManagement profileObjectPoolManagement;
+	private final SbbObjectPoolManagement sbbPoolManagement;
+	private final ProfileObjectPoolManagement profileObjectPoolManagement;
+	// non clustered scheduler
+	private ScheduledExecutorService nonClusteredScheduler; 
+	private static final int NON_CLUSTERED_SCHEDULER_THREADS = 8;
 	
 	/**
 	 * where DUs are stored
@@ -170,19 +173,19 @@ public class SleeContainer {
 	private final DeployableUnitManagement deployableUnitManagement = new DeployableUnitManagement();
 	
 	// slee factories
-	private ActivityContextFactoryImpl activityContextFactory;
-	private NullActivityContextInterfaceFactoryImpl nullActivityContextInterfaceFactory;
-	private NullActivityFactoryImpl nullActivityFactory;
-	private ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
-	private ServiceActivityContextInterfaceFactoryImpl serviceActivityContextInterfaceFactory;
-	private ServiceActivityFactoryImpl serviceActivityFactory;
+	private final ActivityContextFactoryImpl activityContextFactory;
+	private final NullActivityContextInterfaceFactoryImpl nullActivityContextInterfaceFactory;
+	private final NullActivityFactoryImpl nullActivityFactory;
+	private final ProfileTableActivityContextInterfaceFactoryImpl profileTableActivityContextInterfaceFactory;
+	private final ServiceActivityContextInterfaceFactoryImpl serviceActivityContextInterfaceFactory;
+	private final ServiceActivityFactoryImpl serviceActivityFactory;
 	// slee facilities
-	private ActivityContextNamingFacilityImpl activityContextNamingFacility;
-	private AlarmMBeanImpl alarmFacility;
-	private ProfileFacilityImpl profileFacility;
-	private TimerFacilityImpl timerFacility;
-	private TraceFacilityImpl traceFacility;
-	
+	private final ActivityContextNamingFacilityImpl activityContextNamingFacility;
+	private final AlarmMBeanImpl alarmMBeanImpl;
+	private final TraceMBeanImpl traceMBeanImpl;
+	private final ProfileFacilityImpl profileFacility;
+	private final TimerFacilityImpl timerFacility;
+		
 	private final MobicentsUUIDGenerator uuidGenerator = MobicentsUUIDGenerator.getInstance(); 
 		
 	// LIFECYLE RELATED
@@ -192,15 +195,49 @@ public class SleeContainer {
 	 * SleeManagementMBean to get the whole thing running.
 	 * 
 	 */
-	public SleeContainer(MBeanServer mbserver, SleeTransactionManager sleeTransactionManager, MobicentsCache cache) throws Exception {
+	public SleeContainer(SleeTransactionManager sleeTransactionManager, MobicentsCluster cluster, AlarmMBeanImpl alarmMBeanImpl, TraceMBeanImpl traceMBeanImpl) throws Exception {
+		
+		if (sleeTransactionManager == null) {
+			throw new NullPointerException("null slee transaction manager");
+		}
+		if (cluster == null) {
+			throw new NullPointerException("null cluster");
+		}
+		if (alarmMBeanImpl == null) {
+			throw new NullPointerException("null alarm mbean");
+		}
+		if (traceMBeanImpl == null) {
+			throw new NullPointerException("null trace mbean");
+		}
 		// created in STOPPED state and remain so until started
 		this.sleeState = SleeState.STOPPED;
-		this.mbeanServer = mbserver;
+		this.mbeanServer = MBeanServerLocator.locateJBoss();
 		this.sleeTransactionManager = sleeTransactionManager;
-		this.cache = cache;
+		this.cluster = cluster;
+		this.alarmMBeanImpl = alarmMBeanImpl;
+		this.traceMBeanImpl = traceMBeanImpl;
 		// Force this property to allow invocation of getters.
 		// http://code.google.com/p/mobicents/issues/detail?id=63
 		System.setProperty("jmx.invoke.getters", "true");
+		
+		this.componentRepositoryImpl = new ComponentRepositoryImpl();
+		this.serviceManagement = new ServiceManagement(this);
+		this.sleeProfileTableManager = new SleeProfileTableManager(this);
+		this.sbbManagement = new SbbManagement(this);
+		this.resourceManagement = new ResourceManagement(this);
+		this.activityContextFactory = new ActivityContextFactoryImpl(this);
+		this.activityContextNamingFacility = new ActivityContextNamingFacilityImpl(this);
+		this.nullActivityFactory = new NullActivityFactoryImpl(this);
+		this.nullActivityContextInterfaceFactory = new NullActivityContextInterfaceFactoryImpl(
+				this);
+		this.profileTableActivityContextInterfaceFactory = new ProfileTableActivityContextInterfaceFactoryImpl(this);
+		this.timerFacility = new TimerFacilityImpl(this);
+		this.profileFacility = new ProfileFacilityImpl(this);
+		this.serviceActivityFactory = new ServiceActivityFactoryImpl(this);
+		this.serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl(this);
+		this.sbbPoolManagement = new SbbObjectPoolManagement(this);
+		this.profileObjectPoolManagement = new ProfileObjectPoolManagement(this);
+
 	}
 
 	/**
@@ -223,48 +260,33 @@ public class SleeContainer {
 		Util.createSubcontext(ctx, "factory");
 		Util.createSubcontext(ctx, "nullactivitycontextinterfacefactory");
 
-		// Force class loading of ConcreteClassGeneratorUtils to initilize the
-		// static pool
-		ConcreteClassGeneratorUtils.class.getClass();
+		// TODO possibly make nthreads configurable?
+		this.nonClusteredScheduler = new ScheduledThreadPoolExecutor(NON_CLUSTERED_SCHEDULER_THREADS);
 
-		this.componentRepositoryImpl = new ComponentRepositoryImpl();
-		this.serviceManagement = new ServiceManagement(this);
-		//this.sleeProfileManager = new SleeProfileManager(this);
-		this.sleeProfileTableManager = new SleeProfileTableManager(this);
-		this.sbbManagement = new SbbManagement(this);
-		this.resourceManagement = new ResourceManagement(this);
-		this.activityContextFactory = new ActivityContextFactoryImpl(this);
 		this.router = new EventRouterImpl(this,MobicentsManagement.eventRouterExecutors,MobicentsManagement.monitoringUncommittedAcAttachs);
-		this.activityContextNamingFacility = new ActivityContextNamingFacilityImpl(this);
+
 		JndiRegistrationManager.registerWithJndi("slee/facilities", "activitycontextnaming",
 				activityContextNamingFacility);
-		this.nullActivityFactory = new NullActivityFactoryImpl(this);
-		this.nullActivityContextInterfaceFactory = new NullActivityContextInterfaceFactoryImpl(
-				this);
 		JndiRegistrationManager.registerWithJndi("slee/nullactivity",
 				"nullactivitycontextinterfacefactory",
 				nullActivityContextInterfaceFactory);
-		
 		JndiRegistrationManager.registerWithJndi("slee/nullactivity", "nullactivityfactory",
 				nullActivityFactory);
-		this.profileTableActivityContextInterfaceFactory = new ProfileTableActivityContextInterfaceFactoryImpl();
 		JndiRegistrationManager.registerWithJndi("slee/facilities",
 				ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME,
 				profileTableActivityContextInterfaceFactory);
-		this.timerFacility = new TimerFacilityImpl(this);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", TimerFacilityImpl.JNDI_NAME,
 				timerFacility);
-		this.profileFacility = new ProfileFacilityImpl(this);
 		JndiRegistrationManager.registerWithJndi("slee/facilities", ProfileFacilityImpl.JNDI_NAME,
 				profileFacility);
-		this.serviceActivityFactory = new ServiceActivityFactoryImpl();
 		JndiRegistrationManager.registerWithJndi("slee/serviceactivity/",
 				ServiceActivityFactoryImpl.JNDI_NAME, serviceActivityFactory);
-		this.serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl();
 		JndiRegistrationManager.registerWithJndi("slee/serviceactivity/",
 				ServiceActivityContextInterfaceFactoryImpl.JNDI_NAME,
 				serviceActivityContextInterfaceFactory);
-
+		JndiRegistrationManager.registerWithJndi("slee/facilities", AlarmMBeanImpl.JNDI_NAME, alarmMBeanImpl);
+		JndiRegistrationManager.registerWithJndi("slee/facilities", TraceMBeanImpl.JNDI_NAME, traceMBeanImpl.getTraceFacility());
+				
 		registerWithJndi();
 		
 		startRMIServer(rmiServerInterfaceMBean);
@@ -273,10 +295,8 @@ public class SleeContainer {
 		// jboss jmx console can pass it as an argument.
 		new SleePropertyEditorRegistrator().register();	
 		
-		this.sbbPoolManagement = new SbbObjectPoolManagement(sleeContainer);
 		this.sbbPoolManagement.register();
 		
-		this.profileObjectPoolManagement = new ProfileObjectPoolManagement(sleeContainer);
 		this.profileObjectPoolManagement.register();
 	}
 
@@ -292,6 +312,8 @@ public class SleeContainer {
 		Context ctx = new InitialContext();
 		Util.unbind(ctx, JVM_ENV + CTX_SLEE);
 		stopRMIServer();
+		nonClusteredScheduler.shutdown();
+		nonClusteredScheduler = null;
 	}
 
 	/**
@@ -324,7 +346,7 @@ public class SleeContainer {
 				+ resourceManagement + "\n"
 				+ sbbPoolManagement + "\n"
 				+ timerFacility + "\n"
-				+ traceFacility + "\n"
+				+ traceMBeanImpl + "\n"
 				+ sleeProfileTableManager + "\n"
 				+ profileObjectPoolManagement + "\n"
 				+ activityContextFactory + "\n"
@@ -350,6 +372,15 @@ public class SleeContainer {
 	 */
 	public ComponentRepositoryImpl getComponentRepositoryImpl() {
 		return componentRepositoryImpl;
+	}
+	
+	/**
+	 * Retrieves the container's non clustered scheduler.
+	 * 
+	 * @return the nonClusteredScheduler
+	 */
+	public ScheduledExecutorService getNonClusteredScheduler() {
+		return nonClusteredScheduler;
 	}
 	
 	/**
@@ -422,13 +453,6 @@ public class SleeContainer {
 	}
 
 	public ProfileTableActivityContextInterfaceFactoryImpl getProfileTableActivityContextInterfaceFactory() {
-		if (profileTableActivityContextInterfaceFactory == null) {
-			try {
-				profileTableActivityContextInterfaceFactory = (ProfileTableActivityContextInterfaceFactoryImpl) lookupFacilityInJndi(ProfileTableActivityContextInterfaceFactoryImpl.JNDI_NAME);
-			} catch (NamingException e) {
-				logger.error("failed to lookup factory", e);
-			}
-		}
 		return profileTableActivityContextInterfaceFactory;
 	}
 
@@ -436,6 +460,14 @@ public class SleeContainer {
 		return this.serviceActivityContextInterfaceFactory;
 	}
 
+	/**
+	 *  
+	 * @return the serviceActivityFactory
+	 */
+	public ServiceActivityFactoryImpl getServiceActivityFactory() {
+		return serviceActivityFactory;
+	}
+	
 	// GETTERS -- slee facilities
 
 	public javax.slee.facilities.ActivityContextNamingFacility getActivityContextNamingFacility() {
@@ -443,39 +475,35 @@ public class SleeContainer {
 	}
 	
 	/**
-	 * Return AlarmMBean impl object, which encapsualtes all AlarmFacitlity object
+	 * 
 	 * @return
 	 */
-	public AlarmMBeanImpl getAlarmFacility() {
-		if (alarmFacility == null) {
-			// lookup from jndi
-			try {
-				alarmFacility = (AlarmMBeanImpl) lookupFacilityInJndi(AlarmMBeanImpl.JNDI_NAME);
-			} catch (NamingException e) {
-				logger.error("failed to lookup alarm facility", e);
-			}
-		}
-		return alarmFacility;
+	public AlarmMBeanImpl getAlarmMBean() {
+		return alarmMBeanImpl;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public ProfileFacility getProfileFacility() {
 		return profileFacility;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public TimerFacilityImpl getTimerFacility() {
 		return timerFacility;
 	}
 
-	public TraceFacilityImpl getTraceFacility() {
-		if (traceFacility == null) {
-			// lookup from jndi
-			try {
-				traceFacility = (TraceFacilityImpl) lookupFacilityInJndi(TraceMBeanImpl.JNDI_NAME);
-			} catch (NamingException e) {
-				logger.error("failed to lookup trace facility", e);
-			}
-		}
-		return traceFacility;
+	/**
+	 * 
+	 * @return
+	 */
+	public TraceMBeanImpl getTraceMBean() {
+		return traceMBeanImpl;
 	}
 	
 	// GETTERS -- slee runtime
@@ -507,8 +535,8 @@ public class SleeContainer {
 	 * The cache which manages the container's HA and FT data 
 	 * @return
 	 */
-	public MobicentsCache getCache() {
-		return cache;
+	public MobicentsCluster getCluster() {
+		return cluster;
 	}
 	
 	/**
@@ -578,39 +606,6 @@ public class SleeContainer {
 					ex);
 			return null;
 		}
-	}
-
-	/**
-	 * Convenience method for registering SLEE facilities with JNDI
-	 * 
-	 * @param facilityName
-	 * @param facility
-	 */
-	public static void registerFacilityWithJndi(String facilityName,
-			Object facility) {
-		JndiRegistrationManager.registerWithJndi("slee/facilities", facilityName, facility);
-	}
-
-	/**
-	 * Convenience method for unregistering SLEE facilities with JNDI
-	 * 
-	 * @param facilityName
-	 * @param facility
-	 */
-	public static void unregisterFacilityWithJndi(String facilityName) {
-		JndiRegistrationManager.unregisterWithJndi("slee/facilities/" + facilityName);
-	}
-
-	/**
-	 * Convenience method for unregistering SLEE facilities with JNDI
-	 * 
-	 * @param facilityName
-	 * @param facility
-	 * @throws NamingException
-	 */
-	private static Object lookupFacilityInJndi(String facilityName)
-			throws NamingException {
-		return JndiRegistrationManager.getFromJndi("slee/facilities/" + facilityName);
 	}
 
 	private void registerWithJndi() {

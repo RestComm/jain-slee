@@ -132,14 +132,12 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		// register tracer
 		try {
 			
-
-			TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+			final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
 			traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(profileTableName));
 
 			TransactionalAction action2 = new TransactionalAction() {
 				public void execute() {
 					// remove notification sources for profile table
-					TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
 					traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
 				}
 			};
@@ -647,7 +645,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		TransactionalAction commitAction = new TransactionalAction() {
 			public void execute() {
 				// remove notification sources for profile table
-				TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceFacility().getTraceMBeanImpl();
+				TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
 				traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
 				// close uncommitted mbeans
 				closeUncommittedProfileMBeans();					

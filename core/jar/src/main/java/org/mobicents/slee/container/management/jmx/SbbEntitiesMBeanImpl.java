@@ -13,8 +13,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
-import javax.management.StandardMBean;
 import javax.slee.ServiceID;
 import javax.slee.management.ManagementException;
 import javax.slee.management.ServiceState;
@@ -28,24 +26,11 @@ import org.mobicents.slee.runtime.sbbentity.ChildRelationImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 
-public class SbbEntitiesMBeanImpl extends StandardMBean implements
+public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implements
 		SbbEntitiesMBeanImplMBean {
-	public final String OBJECT_NAME = "slee:name=SbbEntitiesMBean";
-
-	private ObjectName objectName;
-
-	public SbbEntitiesMBeanImpl() throws NotCompliantMBeanException {
-		super(SbbEntitiesMBeanImplMBean.class);
-		try {
-			objectName = new ObjectName(OBJECT_NAME);
-		} catch (Exception ex) {
-			throw new NotCompliantMBeanException("Object name is malformed : "
-					+ OBJECT_NAME);
-		}
-	}
-
-	public ObjectName getObjectName() {
-		return this.objectName;
+	
+	public SbbEntitiesMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+		super(sleeContainer,SbbEntitiesMBeanImplMBean.class);		
 	}
 
 	public Object[] retrieveSbbEntitiesBySbbId(String sbbId) {
@@ -82,7 +67,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 	private Set<String> retrieveAllSbbEntitiesIds() throws SystemException, NullPointerException, ManagementException, NotSupportedException {
 		Set<String> result = new HashSet<String>();
 
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		final SleeContainer sleeContainer = getSleeContainer();
 
 		try {
 			sleeContainer.getTransactionManager().begin();
@@ -137,7 +122,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 	private Object[] sbbEntityToArray(SbbEntity entity) {
 		Object[] info = new Object[10];
 		try {
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			SleeContainer sleeContainer = getSleeContainer();
 			sleeContainer.getTransactionManager().begin();
 			if (entity == null)
 				return null;
@@ -183,7 +168,7 @@ public class SbbEntitiesMBeanImpl extends StandardMBean implements
 
 	public void removeSbbEntity(String sbbeId) {
 		try {
-			SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			SleeContainer sleeContainer = getSleeContainer();
 			sleeContainer.getTransactionManager().begin();
 			SbbEntityFactory.removeSbbEntity(getSbbEntityById(sbbeId), true);
 			sleeContainer.getTransactionManager().commit();

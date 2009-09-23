@@ -11,17 +11,16 @@ package org.mobicents.slee.container.management.jmx;
 
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-import javax.management.StandardMBean;
 import javax.slee.InvalidArgumentException;
 import javax.slee.InvalidStateException;
 import javax.slee.ServiceID;
 import javax.slee.UnrecognizedServiceException;
 import javax.slee.management.InvalidLinkNameBindingStateException;
 import javax.slee.management.ManagementException;
-import javax.slee.management.ServiceManagementMBean;
 import javax.slee.management.ServiceState;
 
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.ServiceManagement;
 
 /**
  * Implementation of the ServiceManagementMBean
@@ -29,14 +28,16 @@ import org.mobicents.slee.container.SleeContainer;
  * @author M. Ranganathan
  * @author Eduardo Martins
  */
-public class ServiceManagementMBeanImpl extends StandardMBean implements
-		ServiceManagementMBean {
+public class ServiceManagementMBeanImpl extends MobicentsServiceMBeanSupport implements
+		ServiceManagementMBeanImplMBean {
 
-	public ServiceManagementMBeanImpl() throws NotCompliantMBeanException {
-		super(ServiceManagementMBean.class);
-
+	private final ServiceManagement serviceManagement;
+	
+	public ServiceManagementMBeanImpl(SleeContainer sleeContainer) throws NotCompliantMBeanException {
+		super(sleeContainer,ServiceManagementMBeanImplMBean.class);
+		this.serviceManagement = sleeContainer.getServiceManagement();
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see javax.slee.management.ServiceManagementMBean#activate(javax.slee.ServiceID)
 	 */
@@ -44,7 +45,7 @@ public class ServiceManagementMBeanImpl extends StandardMBean implements
 			UnrecognizedServiceException, InvalidStateException,
 			InvalidLinkNameBindingStateException, ManagementException {	
 		try {
-			SleeContainer.lookupFromJndi().getServiceManagement().activate(serviceID);
+			serviceManagement.activate(serviceID);
 		}
 		catch (NullPointerException e) {
 			throw e;
@@ -72,8 +73,7 @@ public class ServiceManagementMBeanImpl extends StandardMBean implements
 	InvalidStateException, InvalidLinkNameBindingStateException,
 	ManagementException {
 		try {
-			SleeContainer.lookupFromJndi().getServiceManagement().activate(
-					serviceIDs);
+			serviceManagement.activate(serviceIDs);
 		}
 		catch (NullPointerException e) {
 			throw e;
@@ -98,58 +98,46 @@ public class ServiceManagementMBeanImpl extends StandardMBean implements
 	public void deactivate(ServiceID serviceID) throws NullPointerException,
 			UnrecognizedServiceException, InvalidStateException,
 			ManagementException {
-
-		SleeContainer.lookupFromJndi().getServiceManagement().deactivate(
-				serviceID);
+		serviceManagement.deactivate(serviceID);
 	}
 
 	public void deactivate(ServiceID[] serviceIDs) throws NullPointerException,
 			InvalidArgumentException, UnrecognizedServiceException,
 			InvalidStateException, ManagementException {
-
-		SleeContainer.lookupFromJndi().getServiceManagement().deactivate(
-				serviceIDs);
+		serviceManagement.deactivate(serviceIDs);
 	}
 
 	public void deactivateAndActivate(ServiceID arg0, ServiceID arg1)
 			throws NullPointerException, InvalidArgumentException,
 			UnrecognizedServiceException, InvalidStateException,
 			ManagementException {
-
-		SleeContainer.lookupFromJndi().getServiceManagement()
-				.deactivateAndActivate(arg0, arg1);
+		serviceManagement.deactivateAndActivate(arg0, arg1);
 	}
 
 	public void deactivateAndActivate(ServiceID[] arg0, ServiceID[] arg1)
 			throws NullPointerException, InvalidArgumentException,
 			UnrecognizedServiceException, InvalidStateException,
 			ManagementException {
-
-		SleeContainer.lookupFromJndi().getServiceManagement()
-				.deactivateAndActivate(arg0, arg1);
+		serviceManagement.deactivateAndActivate(arg0, arg1);
 	}
 
 	public ObjectName getServiceUsageMBean(ServiceID serviceID)
 			throws NullPointerException, UnrecognizedServiceException,
 			ManagementException {
-
-		return SleeContainer.lookupFromJndi().getServiceManagement()
-				.getServiceUsageMBean(serviceID);
+		return serviceManagement.getServiceUsageMBean(serviceID);
 	}
 
 	public ServiceID[] getServices(ServiceState serviceState)
 			throws NullPointerException, ManagementException {
 
-		return SleeContainer.lookupFromJndi().getServiceManagement()
-				.getServices(serviceState);
+		return serviceManagement.getServices(serviceState);
 	}
 
 	public ServiceState getState(ServiceID serviceID)
 			throws NullPointerException, UnrecognizedServiceException,
 			ManagementException {
 
-		return SleeContainer.lookupFromJndi().getServiceManagement().getState(
-				serviceID);
+		return serviceManagement.getState(serviceID);
 	}
 
 }

@@ -13,7 +13,7 @@ import javax.slee.facilities.Level;
 import javax.slee.management.DeploymentException;
 import javax.transaction.SystemException;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Logger;
 import org.jboss.naming.NonSerializableFactory;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
@@ -37,6 +37,7 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
  * @author martins
  * 
  */
+@SuppressWarnings("deprecation")
 public class SbbManagement {
 
 	private static final Logger logger = Logger.getLogger(SbbManagement.class);
@@ -87,9 +88,9 @@ public class SbbManagement {
 		}
 				
 		// Set 1.0 Trace to off
-		sleeContainer.getTraceFacility().setTraceLevelOnTransaction(
+		sleeContainer.getTraceMBean().getTraceFacility().setTraceLevelOnTransaction(
 				sbbComponent.getSbbID(), Level.OFF);
-		sleeContainer.getAlarmFacility().registerComponent(
+		sleeContainer.getAlarmMBean().registerComponent(
 				sbbComponent.getSbbID());
 		
 	}
@@ -216,7 +217,7 @@ public class SbbManagement {
 		String alarm = "java:slee/facilities/alarm";
 		try {
 			//This has to be checked, to be sure sbb have it under correct jndi binding
-			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),sleeContainer.getAlarmFacility());
+			AlarmFacility sbbAlarmFacility = new SbbAlarmFacilityImpl(sbbComponent.getSbbID(),sleeContainer.getAlarmMBean());
 			newCtx.bind("alarm", sbbAlarmFacility);
 		} catch (NameAlreadyBoundException ex) {
 		}
@@ -511,9 +512,9 @@ public class SbbManagement {
 			logger.debug("Uninstalling "+sbbComponent);
 
 		// remove sbb from trace and alarm facilities
-		sleeContainer.getTraceFacility().unSetTraceLevel(
+		sleeContainer.getTraceMBean().getTraceFacility().unSetTraceLevel(
 				sbbComponent.getSbbID());
-		sleeContainer.getAlarmFacility().unRegisterComponent(
+		sleeContainer.getAlarmMBean().unRegisterComponent(
 				sbbComponent.getSbbID());
 		
 		if (logger.isDebugEnabled()) {

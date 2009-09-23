@@ -7,9 +7,10 @@ import java.util.Set;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
 
-import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
+import org.mobicents.cache.CacheData;
+import org.mobicents.cache.MobicentsCache;
 
 /**
  * 
@@ -52,18 +53,23 @@ public class ServiceCacheData extends CacheData {
 	 * 
 	 * @param serviceID
 	 */
-	protected ServiceCacheData(ServiceID serviceID, Cache jBossCache) {
-		super(Fqn.fromElements(parentNodeFqn, serviceID), jBossCache);
+	public ServiceCacheData(ServiceID serviceID, MobicentsCache cache) {
+		super(Fqn.fromElements(parentNodeFqn, serviceID), cache);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.cache.CacheData#create()
 	 */
 	@Override
-	public void create() {
-		super.create();
-		// on creation create also the child node to hold root sbb entities
-		_childsNode = getNode().addChild(CHILD_OBJ_FQN);
+	public boolean create() {
+		if (super.create()) {
+			// on creation create also the child node to hold root sbb entities
+			_childsNode = getNode().addChild(CHILD_OBJ_FQN);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	/**
@@ -122,7 +128,7 @@ public class ServiceCacheData extends CacheData {
 	 * 
 	 * @return
 	 */
-	public Set getChildSbbEntities() {
+	public Set<String> getChildSbbEntities() {
 
 		final Node childsNode = getChildsNode();
 		if (!childsNode.isLeaf()) {

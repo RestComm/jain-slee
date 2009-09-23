@@ -49,13 +49,22 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 
 	public static final String JNDI_NAME = "factory";
 
+	private final SleeContainer sleeContainer;	
+	
+	/**
+	 * @param sleeContainer
+	 */
+	public ServiceActivityFactoryImpl(SleeContainer sleeContainer) {
+		this.sleeContainer = sleeContainer;
+	}
+
 	/* (non-Javadoc)
 	 * @see javax.slee.serviceactivity.ServiceActivityFactory#getActivity()
 	 */
 	public ServiceActivity getActivity()
 			throws TransactionRequiredLocalException, FactoryException {
 
-		SleeTransactionManager stm = SleeContainer.lookupFromJndi().getTransactionManager();
+		SleeTransactionManager stm = sleeContainer.getTransactionManager();
 		stm.mandateTransaction();
 		
 		ServiceID serviceID = EventRouterThreadLocals.getInvokingService();
@@ -66,11 +75,11 @@ public class ServiceActivityFactoryImpl implements ServiceActivityFactory,
 		return getActivity(serviceID);
 	}
 
-	public static ServiceActivity getActivity(ServiceID serviceID)
+	public ServiceActivity getActivity(ServiceID serviceID)
 			throws FactoryException {
 
 		try {
-			return SleeContainer.lookupFromJndi().getServiceManagement()
+			return sleeContainer.getServiceManagement()
 					.getService(serviceID).getServiceActivity();
 		} catch (Exception ex) {
 			throw new FactoryException("cannot get service activity for "

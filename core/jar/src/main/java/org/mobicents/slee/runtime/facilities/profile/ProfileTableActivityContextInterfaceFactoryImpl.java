@@ -16,7 +16,6 @@ import javax.slee.UnrecognizedActivityException;
 import javax.slee.profile.ProfileTableActivity;
 import javax.slee.profile.ProfileTableActivityContextInterfaceFactory;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
-import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -36,10 +35,15 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 
 	public static String JNDI_NAME = "profiletableactivitycontextinterfacefactory";
 
-	public ProfileTableActivityContextInterfaceFactoryImpl() {
-
+	private final SleeContainer serviceContainer;
+	
+	/**
+	 * 
+	 */
+	public ProfileTableActivityContextInterfaceFactoryImpl(SleeContainer serviceContainer) {
+		this.serviceContainer = serviceContainer;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -56,7 +60,6 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 
 		}
 
-		SleeContainer serviceContainer = SleeContainer.lookupFromJndi();
 		serviceContainer.getTransactionManager().mandateTransaction();
 		try {
 			// check if this is an assigned profile table
