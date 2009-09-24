@@ -19,12 +19,6 @@
 			<artifactId>transaction</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>cache</artifactId>
-			<version>${pom.version}</version>
-		</dependency>
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
@@ -136,10 +130,7 @@
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>							
-								<copy todir="${jboss.home}/docs/licenses/mobicents">
-									<fileset file="LICENSES/*" />
-								</copy>
+							<tasks>															
 								<copy todir="${jboss.home}/server/default/deploy">
 									<fileset dir="target/${build.finalName}-beans.dir">
 										<include name="${build.finalName}/**" />
@@ -159,9 +150,6 @@
 								<delete failonerror="false" includeemptydirs="true">
 									<fileset
 										dir="${jboss.home}/server/default/deploy/${build.finalName}" />
-								</delete>
-								<delete failonerror="false" includeemptydirs="true">
-									<fileset dir="${jboss.home}/docs/licenses/mobicents" />
 								</delete>
 							</tasks>
 						</configuration>
