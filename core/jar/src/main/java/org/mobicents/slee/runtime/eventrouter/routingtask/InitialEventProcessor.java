@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 import javax.slee.Address;
-import javax.slee.InitialEventSelector;
 import javax.slee.SLEEException;
 import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileSpecificationID;
@@ -31,9 +30,16 @@ public class InitialEventProcessor {
 
 	private static final Logger logger = Logger.getLogger(InitialEventProcessor.class);
 
-	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	private final SleeContainer sleeContainer;
 
 	private static final String NULL_STRING = "null";
+
+	/**
+	 * @param sleeContainer
+	 */
+	public InitialEventProcessor(SleeContainer sleeContainer) {
+		this.sleeContainer = sleeContainer;
+	}
 
 	/**
 	 * Compute a convergence name for the Sbb for the given Slee event.
@@ -79,16 +85,14 @@ public class InitialEventProcessor {
 					sbbComponent.getSbbID());
 			SbbObject sbbObject = (SbbObject) pool.borrowObject();
 			SbbConcrete concreteSbb = (SbbConcrete) sbbObject.getSbbConcrete();
-
-			Class<?>[] argtypes = new Class[] { InitialEventSelector.class };
-			Method m = sbbComponent.getConcreteSbbClass().getMethod(
-					selector.getSelectMethodName(), argtypes);
+			
 			Object[] args = new Object[] { selector };
 
 			ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
 			try {
 				Thread.currentThread().setContextClassLoader(
 						sbbComponent.getClassLoader());
+				final Method m = sbbComponent.getInitialEventSelectorMethods().get(selector.getSelectMethodName());
 				selector = (InitialEventSelectorImpl) m.invoke(concreteSbb,
 						args);
 				if (selector == null) {

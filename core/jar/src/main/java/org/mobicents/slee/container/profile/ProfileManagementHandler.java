@@ -1,10 +1,7 @@
 package org.mobicents.slee.container.profile;
 
-import javax.slee.CreateException;
 import javax.slee.SLEEException;
-import javax.slee.profile.ProfileContext;
 import javax.slee.profile.ProfileID;
-import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
@@ -76,49 +73,6 @@ public class ProfileManagementHandler {
 		}
 
 		profileObject.getProfileEntity().setDirty(true);
-	}
-
-	public static void profileInitialize(ProfileObject profileObject) {
-		
-	}
-
-	public static void profileLoad(ProfileObject profileObject) {
-		
-	}
-
-	public static void profileStore(ProfileObject profileObject) {
-		
-	}
-
-	public static void profileVerify(ProfileObject profileObject)
-			throws ProfileVerificationException {
-	
-	}
-
-	public static void profileActivate(ProfileObject profileObject) {
-	
-	}
-
-	public static void profilePassivate(ProfileObject profileObject) {
-	
-	}
-
-	public static void profilePostCreate(ProfileObject profileObject)
-			throws CreateException {
-	
-	}
-
-	public static void profileRemove(ProfileObject profileObject) {
-		
-	}
-
-	public static void setProfileContext(ProfileObject profileObject,
-			ProfileContext profileContext) {
-		
-	}
-
-	public static void unsetProfileContext(ProfileObject profileObject) {
-		
 	}
 
 	// Usage methods. Here we can be static for sure. Rest must be tested.

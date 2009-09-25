@@ -40,6 +40,8 @@ import javassist.bytecode.annotation.StringMemberValue;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.profile.ProfileCallRecorderTransactionData;
+import org.mobicents.slee.container.profile.ProfileCmpHandler;
+import org.mobicents.slee.container.profile.ProfileManagementHandler;
 import org.mobicents.slee.container.security.Utility;
 
 /**
@@ -60,8 +62,8 @@ public class ClassGeneratorUtils {
 
   public static final String _PLO_PO_ALLOCATION = "";//"allocateProfileObject();";
 
-  public static final String CMP_HANDLER = "org.mobicents.slee.container.profile.ProfileCmpHandler";
-  public static final String MANAGEMENT_HANDLER = "org.mobicents.slee.container.profile.ProfileManagementHandler";
+  public static final String CMP_HANDLER = ProfileCmpHandler.class.getName();
+  public static final String MANAGEMENT_HANDLER = ProfileManagementHandler.class.getName();
 
   /**
    * Creates a class with the desired name and linked to the mentioned interfaces.

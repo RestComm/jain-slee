@@ -7,8 +7,6 @@ import javax.slee.resource.ActivityFlags;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.cache.ActivityContextCacheData;
-import org.mobicents.slee.runtime.cache.ActivityContextFactoryCacheData;
 
 /**
  * Activity context factory -- return an activity context given an activity or

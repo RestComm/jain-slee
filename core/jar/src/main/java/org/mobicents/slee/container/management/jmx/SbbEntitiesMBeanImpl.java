@@ -101,13 +101,11 @@ public class SbbEntitiesMBeanImpl extends MobicentsServiceMBeanSupport implement
 
 		try {
 			SbbEntity sbbEntity = SbbEntityFactory.getSbbEntityWithoutLock(sbbEntityId);
-			for (MGetChildRelationMethod method : sbbEntity.getSbbComponent().getDescriptor().getGetChildRelationMethods().values()) {
-				ChildRelationImpl childRelationImpl = sbbEntity
-						.getChildRelation(method.getChildRelationMethodName());
+			for (MGetChildRelationMethod method : sbbEntity.getSbbComponent().getDescriptor().getGetChildRelationMethodsCollection()) {
+				ChildRelationImpl childRelationImpl = sbbEntity.getChildRelation(method.getChildRelationMethodName());
 				if (childRelationImpl != null) {
-					for (String childSbbEntityId : (Set<String>) childRelationImpl
-							.getSbbEntitySet()) {
-						result.addAll(getChildSbbEntities(sbbEntityId));
+					for (String childSbbEntityId : childRelationImpl.getSbbEntitySet()) {
+						result.addAll(getChildSbbEntities(childSbbEntityId));
 					}
 				}
 			}

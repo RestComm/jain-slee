@@ -27,7 +27,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.cache.ActivityContextNamingFacilityCacheData;
 
 /*
  * Ranga - Initial and refactored for Tx isolation.
@@ -187,9 +186,6 @@ public class ActivityContextNamingFacilityImpl implements
         		throw new FacilityException("name found but unable to retrieve activity context");
         	}
         	
-        	/*if(acName.equals("Test2004NullActivity_Initial_Binding_2")) {
-        		lookup("com.opencloud.sleetck.lib.resource.events.TCKResourceEventY.Y1");
-        	}*/
         	return new ActivityContextInterfaceImpl(ac);
         	        	        
         } catch (Exception e) {

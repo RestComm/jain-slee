@@ -1,4 +1,4 @@
-package org.mobicents.slee.runtime.cache;
+package org.mobicents.slee.runtime.sbbentity;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,6 +10,7 @@ import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
 import org.mobicents.cache.CacheData;
 import org.mobicents.cache.MobicentsCache;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
  * 
@@ -119,14 +120,14 @@ public class SbbEntityCacheData extends CacheData {
 		}
 	}
 
-	public Set getMaskedEventTypes(Object ac) {
+	public Set<EventTypeID> getMaskedEventTypes(Object ac) {
 		final Node node = getEventMasksChildNode(false);
 		if (node == null) {
 			return null;
 		}
 		else {
 			final Node childNode = node.getChild(ac);
-			return childNode == null ? null : (Set) childNode.get(EVENT_MASK_CHILD_NODE_MAP_KEY);
+			return childNode == null ? null : (Set<EventTypeID>) childNode.get(EVENT_MASK_CHILD_NODE_MAP_KEY);
 		}
 	}
 
@@ -162,9 +163,16 @@ public class SbbEntityCacheData extends CacheData {
 		}
 	}
 
-	public Set getActivityContexts() {
+	public Set<ActivityContextHandle> getActivityContexts() {
 		final Node node = getAttachedACsChildNode(false);
-		return (node == null) ? Collections.EMPTY_SET : node.getChildrenNames();			
+		Set<ActivityContextHandle> result = null;
+		if (node != null) {
+			result = node.getChildrenNames();
+		}
+		if (result == null) {
+			result = Collections.emptySet();
+		}
+		return result;			
 	}
 
 	public Byte getPriority() {
@@ -266,18 +274,18 @@ public class SbbEntityCacheData extends CacheData {
 		}		
 	}
 
-	public Set getAllChildSbbEntities() {
+	public Set<String> getAllChildSbbEntities() {
 		Node childRelationsNode = getChildRelationsChildNode(false);
 		if (childRelationsNode == null || childRelationsNode.isLeaf()) {
-			return Collections.EMPTY_SET;
+			return Collections.emptySet();
 		}
 		else {
-			Set result = new HashSet();
+			Set<String> result = new HashSet<String>();
 			Node childRelationNode = null;
 			for (Object obj : childRelationsNode.getChildren()) {
 				childRelationNode = (Node) obj;
 				for (Object sbbEntityId : childRelationNode.getKeys()) {
-					result.add(sbbEntityId);
+					result.add((String) sbbEntityId);
 				}
 			}
 			return result;

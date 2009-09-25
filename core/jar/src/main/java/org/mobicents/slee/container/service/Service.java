@@ -16,7 +16,6 @@ import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
-import org.mobicents.slee.runtime.cache.ServiceCacheData;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;

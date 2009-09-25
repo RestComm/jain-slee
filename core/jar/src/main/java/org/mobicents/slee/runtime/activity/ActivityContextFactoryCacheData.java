@@ -1,4 +1,4 @@
-package org.mobicents.slee.runtime.cache;
+package org.mobicents.slee.runtime.activity;
 
 import java.util.Collections;
 import java.util.Set;
@@ -16,28 +16,28 @@ import org.mobicents.cluster.MobicentsCluster;
  * 
  */
 
-public class SbbEntityFactoryCacheData extends CacheData {
+public class ActivityContextFactoryCacheData extends CacheData {
 
 	/**
 	 * the fqn of the node that holds all activity context cache child nodes
 	 */
-	private final static Fqn parentNodeFqn = Fqn.fromElements(SbbEntityCacheData.parentNodeFqn);
+	private final static Fqn parentNodeFqn = Fqn.fromElements(ActivityContextCacheData.parentNodeFqn);
 
 	/**
 	 * 
-	 * @param cluster
+	 * @param activityContextId
 	 */
-	public SbbEntityFactoryCacheData(MobicentsCluster cluster) {
+	public ActivityContextFactoryCacheData(MobicentsCluster cluster) {
 		super(parentNodeFqn, cluster.getMobicentsCache());
 	}
 
 	/**
-	 * Retrieves a set containing sbb entity ids in the factory
+	 * Retrieves a set containing all activity context handles in the factory's
 	 * cache data
 	 * 
 	 * @return
 	 */
-	public Set<String> getSbbEntities() {
+	public Set getActivityContextHandles() {
 		final Node node = getNode();
 		return node != null ? node.getChildrenNames() : Collections.EMPTY_SET;
 	}

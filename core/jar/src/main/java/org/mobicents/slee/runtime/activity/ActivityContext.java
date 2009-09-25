@@ -22,7 +22,6 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityImpl;
-import org.mobicents.slee.runtime.cache.ActivityContextCacheData;
 import org.mobicents.slee.runtime.eventrouter.ActivityEventQueueManager;
 import org.mobicents.slee.runtime.eventrouter.CommitDeferredEventAction;
 import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;

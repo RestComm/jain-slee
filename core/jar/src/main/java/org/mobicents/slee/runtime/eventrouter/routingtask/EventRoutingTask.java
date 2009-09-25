@@ -57,7 +57,7 @@ public class EventRoutingTask implements Runnable {
 	/**
 	 * processing logic to handle an event as initial
 	 */
-	private static final InitialEventProcessor initialEventProcessor = new InitialEventProcessor();
+	private static final InitialEventProcessor initialEventProcessor = new InitialEventProcessor(container);
 	
 	/**
 	 * processing logic after a timer event has been routed

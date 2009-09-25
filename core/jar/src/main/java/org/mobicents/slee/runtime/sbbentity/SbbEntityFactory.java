@@ -25,7 +25,6 @@ import javax.transaction.TransactionRequiredException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.MobicentsUUIDGenerator;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.cache.SbbEntityFactoryCacheData;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**

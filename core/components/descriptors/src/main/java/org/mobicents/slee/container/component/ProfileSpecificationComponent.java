@@ -28,6 +28,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
+import org.mobicents.slee.container.component.profile.ProfileConcreteClassInfo;
 import org.mobicents.slee.container.component.profile.ProfileAttribute;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.container.component.security.PermissionHolder;
@@ -128,6 +129,11 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 	private ProfileSpecificationDescriptor specsDescriptor = null;
 
 	/**
+	 * info about the profile concrete class
+	 */
+	private ProfileConcreteClassInfo profileConcreteClassInfo = null;
+	
+	/**
 	 * 
 	 * @param descriptor
 	 */
@@ -222,6 +228,23 @@ public class ProfileSpecificationComponent extends SleeComponentWithUsageParamet
 		return profileAbstractClass;
 	}
 
+	/**
+	 *  
+	 * @return the profileConcreteClassInfo
+	 */
+	public ProfileConcreteClassInfo getProfileConcreteClassInfo() {
+		return profileConcreteClassInfo;
+	}
+	
+	/**
+	 *  
+	 * @param profileConcreteClassInfo the profileConcreteClassInfo to set
+	 */
+	public void setProfileConcreteClassInfo(
+			ProfileConcreteClassInfo profileConcreteClassInfo) {
+		this.profileConcreteClassInfo = profileConcreteClassInfo;
+	}
+	
 	/**
 	 * Retrieves a unmodifiable map of {@link ProfileAttribute}, the key of this map is the attribute name 
 	 * @return

@@ -23,7 +23,6 @@
 
 	<modules>
 		<module>transaction</module>
-		<module>cache</module>
 		<module>components</module>
 		<module>jmx-property-editors</module>
 		<module>jar</module>

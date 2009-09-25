@@ -1,4 +1,4 @@
-package org.mobicents.slee.runtime.cache;
+package org.mobicents.slee.container.service;
 
 import java.util.Collections;
 import java.util.HashSet;

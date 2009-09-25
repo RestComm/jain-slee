@@ -125,7 +125,7 @@ public class TimerFacilityImpl implements TimerFacility {
 		}
 
 		// Attach to activity context
-		ActivityContextInterfaceImpl aciImpl = (ActivityContextInterfaceImpl) aci;
+		org.mobicents.slee.runtime.activity.ActivityContextInterface aciImpl = (org.mobicents.slee.runtime.activity.ActivityContextInterface) aci;
 		aciImpl.getActivityContext().attachTimer(timerID);
 		
 		// schedule timer task

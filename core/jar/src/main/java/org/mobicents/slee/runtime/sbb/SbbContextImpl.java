@@ -140,7 +140,7 @@ public class SbbContextImpl implements SbbContext, Serializable {
 			throw new IllegalStateException("Wrong state! SbbEntity is not assigned");
 		}
 		sleeContainer.getTransactionManager().mandateTransaction();
-		ActivityContextHandle ach = ((ActivityContextInterfaceImpl) aci).getActivityContext().getActivityContextHandle();
+		ActivityContextHandle ach = ((org.mobicents.slee.runtime.activity.ActivityContextInterface) aci).getActivityContext().getActivityContextHandle();
 		if (!sbbObject.getSbbEntity().isAttached(ach))
 			throw new NotAttachedException("ACI not attached to SBB");
 
@@ -200,7 +200,7 @@ public class SbbContextImpl implements SbbContext, Serializable {
 		}
 
 		sleeContainer.getTransactionManager().mandateTransaction();
-		ActivityContextHandle ach = ((ActivityContextInterfaceImpl) aci).getActivityContext().getActivityContextHandle();
+		ActivityContextHandle ach = ((org.mobicents.slee.runtime.activity.ActivityContextInterface) aci).getActivityContext().getActivityContextHandle();
 
 		if (!sbbObject.getSbbEntity().isAttached(ach))
 			throw new NotAttachedException("ACI is not attached to SBB ");

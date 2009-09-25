@@ -9,6 +9,7 @@
 package org.mobicents.slee.container.component;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
+import javax.slee.InitialEventSelector;
 import javax.slee.SbbID;
 import javax.slee.management.ComponentDescriptor;
 import javax.slee.management.DependencyException;
@@ -90,6 +92,11 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 * the event handler methods for this sbb component
 	 */
 	private Map<EventTypeID, EventHandlerMethod> eventHandlerMethods = null;
+	
+	/**
+	 * the event handler methods for this sbb component
+	 */
+	private Map<String, Method> initialEventSelectorMethods = null;
 
 	/**
 	 * info about the abstract sbb class
@@ -195,26 +202,9 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 */
 	public void setConcreteSbbClass(Class<?> concreteSbbClass) {
 		this.concreteSbbClass = concreteSbbClass;
-		// build the map of event handler methods
-		eventHandlerMethods = new HashMap<EventTypeID, EventHandlerMethod>();
-		for (MEventEntry eventEntry : getDescriptor().getEventEntries().values()) {
-			if (eventEntry.isReceived()) {
-				String eventHandlerMethodName = "on" + eventEntry.getEventName();
-				for (Method method : concreteSbbClass.getMethods()) {
-					if (method.getName().equals(eventHandlerMethodName)) {
-						EventHandlerMethod eventHandlerMethod = new EventHandlerMethod(method);
-						if (method.getParameterTypes().length == 3) {
-							eventHandlerMethod.setHasEventContextParam(true);
-						}
-						if (getDescriptor().getSbbActivityContextInterface() != null) {
-							eventHandlerMethod.setHasCustomACIParam(true);
-						}
-						eventHandlerMethods.put(eventEntry.getEventReference().getComponentID(), eventHandlerMethod);
-						break;
-					}
-				}
-			}
-		}
+		// build the map of event handler methods, and IES methods, this actualy can be done in one step but its clearer that way, isnt it ?
+		buildEventHandlerRefs();
+		buildInitialEventSelectorRefs();
 	}
 
 	/**
@@ -344,7 +334,34 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	public Map<EventTypeID, EventHandlerMethod> getEventHandlerMethods() {
 		return eventHandlerMethods;
 	}
-
+	
+	/**
+	 * Retrieves the evetn handler methods for this sbb component, mapped by
+	 * event type id
+	 * 
+	 * @return
+	 */
+	public Map<String, Method> getInitialEventSelectorMethods() {
+		return initialEventSelectorMethods;
+	}
+	
+	/**
+	 *  
+	 * @return the abstractSbbClassInfo
+	 */
+	public AbstractSbbClassInfo getAbstractSbbClassInfo() {
+		return abstractSbbClassInfo;
+	}
+	
+	/**
+	 *  
+	 * @param abstractSbbClassInfo the abstractSbbClassInfo to set
+	 */
+	public void setAbstractSbbClassInfo(
+			AbstractSbbClassInfo abstractSbbClassInfo) {
+		this.abstractSbbClassInfo = abstractSbbClassInfo;
+	}
+	
 	/**
 	 * Sbb event handler method wrapper to deliver an event to the sbb
 	 * component.
@@ -410,20 +427,43 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 		specsDescriptor = null;
 	}
 	
-	/**
-	 *  
-	 * @return the abstractSbbClassInfo
-	 */
-	public AbstractSbbClassInfo getAbstractSbbClassInfo() {
-		return abstractSbbClassInfo;
+	private void buildEventHandlerRefs()
+	{ 
+		eventHandlerMethods = new HashMap<EventTypeID, EventHandlerMethod>();
+		for (MEventEntry eventEntry : getDescriptor().getEventEntries().values()) {
+			if (eventEntry.isReceived()) {
+				String eventHandlerMethodName = "on" + eventEntry.getEventName();
+				for (Method method : concreteSbbClass.getMethods()) {
+					if (method.getName().equals(eventHandlerMethodName)) {
+						EventHandlerMethod eventHandlerMethod = new EventHandlerMethod(method);
+						if (method.getParameterTypes().length == 3) {
+							eventHandlerMethod.setHasEventContextParam(true);
+						}
+						if (getDescriptor().getSbbActivityContextInterface() != null) {
+							eventHandlerMethod.setHasCustomACIParam(true);
+						}
+						eventHandlerMethods.put(eventEntry.getEventReference().getComponentID(), eventHandlerMethod);
+						break;
+					}
+				}
+			}
+		}
+	}
+	private void buildInitialEventSelectorRefs()
+	{
+		initialEventSelectorMethods = new HashMap<String, Method>();
+		Class<?>[] argtypes = new Class[] { InitialEventSelector.class };
+		for (MEventEntry eventEntry : getDescriptor().getEventEntries().values()) {
+			if (eventEntry.isReceived() && eventEntry.isInitialEvent() && eventEntry.getInitialEventSelectorMethod() != null && !this.initialEventSelectorMethods.containsKey(eventEntry.getInitialEventSelectorMethod())) {
+			
+				for (Method method : concreteSbbClass.getMethods()) {
+					if (method.getName().equals(eventEntry.getInitialEventSelectorMethod()) && Arrays.equals(method.getParameterTypes(),argtypes)) {
+						this.initialEventSelectorMethods.put(eventEntry.getInitialEventSelectorMethod(), method);
+						break;
+					}
+				}
+			}
+		}
 	}
 	
-	/**
-	 *  
-	 * @param abstractSbbClassInfo the abstractSbbClassInfo to set
-	 */
-	public void setAbstractSbbClassInfo(
-			AbstractSbbClassInfo abstractSbbClassInfo) {
-		this.abstractSbbClassInfo = abstractSbbClassInfo;
-	}
 }

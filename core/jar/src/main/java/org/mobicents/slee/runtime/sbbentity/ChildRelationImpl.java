@@ -373,7 +373,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         return localObjects.toArray(a);
     }
      
-    public Set getSbbEntitySet(){
+    public Set<String> getSbbEntitySet(){
     	return new HashSet<String>(sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod));
     }
 

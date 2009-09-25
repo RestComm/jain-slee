@@ -39,7 +39,6 @@ import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
-import org.mobicents.slee.runtime.cache.SbbEntityCacheData;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.EventContextID;
 import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
@@ -245,7 +244,7 @@ public class SbbEntity {
 				ProfileLocalObjectCmpValue profileLocalObjectCmpValue = (ProfileLocalObjectCmpValue) cmpWrapper
 						.getValue();
 				try {
-					ProfileTableImpl profileTable = this.sleeContainer
+					ProfileTableImpl profileTable = sleeContainer
 							.getSleeProfileTableManager().getProfileTable(
 									profileLocalObjectCmpValue
 											.getProfileTableName());
@@ -424,16 +423,15 @@ public class SbbEntity {
 		
 	}
 	
-	public Set getActivityContexts() {
-		Set result = cacheData.getActivityContexts();
-		return result == null ? Collections.EMPTY_SET : result;
+	public Set<ActivityContextHandle> getActivityContexts() {
+		return cacheData.getActivityContexts();		
 	}
 
 	private static final String[] emptyStringArray = {};
 
 	public String[] getEventMask(ActivityContextHandle ach) {
 
-		Set maskedEvents = (Set) cacheData.getMaskedEventTypes(ach);
+		Set<EventTypeID> maskedEvents = cacheData.getMaskedEventTypes(ach);
 
 		if (log.isDebugEnabled()) {
 			log.debug(LogMessageFactory.newLogMessage(ach, sbbeId,"Current event mask = " + maskedEvents));			
@@ -443,9 +441,9 @@ public class SbbEntity {
 			return emptyStringArray;
 		} else {
 			String[] events = new String[maskedEvents.size()];
-			Iterator evMaskIt = maskedEvents.iterator();
+			Iterator<EventTypeID> evMaskIt = maskedEvents.iterator();
 			for (int i = 0; evMaskIt.hasNext(); i++) {
-				EventTypeID eventTypeId = (EventTypeID) evMaskIt.next();
+				EventTypeID eventTypeId = evMaskIt.next();
 				events[i] = sbbComponent.getDescriptor().getEventEntries().get(
 						eventTypeId).getEventName();
 			}
@@ -465,14 +463,12 @@ public class SbbEntity {
 		int attachmentCount = getActivityContexts().size();
 		// needs to add all children attachement counts too
 		for (MGetChildRelationMethod getChildRelationMethod : this.sbbComponent
-				.getDescriptor().getGetChildRelationMethods().values()) {
+				.getDescriptor().getGetChildRelationMethodsCollection()) {
 			// (re)create child relation obj
 			ChildRelationImpl childRelationImpl = new ChildRelationImpl(
 					getChildRelationMethod, this);
 			// iterate all sbb entities in this child relation
-			for (Iterator i = childRelationImpl.getSbbEntitySet().iterator(); i
-					.hasNext();) {
-				String childSbbEntityID = (String) i.next();
+			for (String childSbbEntityID : childRelationImpl.getSbbEntitySet()) {
 				// recreated the sbb entity
 				SbbEntity childSbbEntity = SbbEntityFactory
 						.getSbbEntityWithoutLock(childSbbEntityID);
@@ -538,8 +534,8 @@ public class SbbEntity {
 		}
 
 		// removes the SBB entity from all Activity Contexts.
-		for (Iterator i = this.getActivityContexts().iterator(); i.hasNext();) {
-			ActivityContextHandle ach = (ActivityContextHandle) i.next();
+		for (Iterator<ActivityContextHandle> i = this.getActivityContexts().iterator(); i.hasNext();) {
+			ActivityContextHandle ach = i.next();
 			// get ac
 			ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
 			// remove the sbb entity from the attachment set.
@@ -577,7 +573,7 @@ public class SbbEntity {
 		}
 
 		// gather all entities in child relations from cache
-		Set childSbbEntities = cacheData.getAllChildSbbEntities();
+		Set<String> childSbbEntities = cacheData.getAllChildSbbEntities();
 
 		// remove this entity data from cache
 		removeFromCache();
@@ -805,7 +801,7 @@ public class SbbEntity {
 		MGetChildRelationMethod getChildRelationMethod = null;
 		// get the child relation metod from the sbb component
 		if ((getChildRelationMethod = this.sbbComponent.getDescriptor()
-				.getGetChildRelationMethods().get(accessorName)) != null) {
+				.getGetChildRelationMethodsMap().get(accessorName)) != null) {
 			// this is a valid name of a child relation for this entity
 			return new ChildRelationImpl(getChildRelationMethod, this);
 		} else {
@@ -824,13 +820,13 @@ public class SbbEntity {
 	public void asSbbActivityContextInterface(ActivityContextInterface aci) {
 		try {
 			ActivityContextInterfaceImpl aciImpl = (ActivityContextInterfaceImpl) aci;
-			Class aciclass = this.getSbbComponent()
+			Class<?> aciclass = this.getSbbComponent()
 					.getActivityContextInterfaceConcreteClass();
 			if (aciclass != null) {
 
-				Class[] argTypes = new Class[] { aciImpl.getClass(),
+				Class<?>[] argTypes = new Class[] { aciImpl.getClass(),
 						SbbComponent.class };
-				Constructor cons = aciclass.getConstructor(argTypes);
+				Constructor<?> cons = aciclass.getConstructor(argTypes);
 				Object retval = cons.newInstance(new Object[] { aciImpl,
 						this.getSbbComponent() });
 				SbbConcrete sbbConcrete = (SbbConcrete) this.getSbbObject()
@@ -865,7 +861,7 @@ public class SbbEntity {
 	}
 
 	public SbbLocalObjectImpl createSbbLocalObject() {
-		Class sbbLocalClass;
+		Class<?> sbbLocalClass;
 		if (log.isDebugEnabled())
 			log.debug("createSbbLocalObject " + this.getSbbComponent());
 
@@ -875,7 +871,7 @@ public class SbbEntity {
 				log.debug("creatingCustom local class "
 						+ sbbLocalClass.getName());
 			Object[] objs = { this };
-			Class[] types = { SbbEntity.class };
+			Class<?>[] types = { SbbEntity.class };
 			try {
 				return (SbbLocalObjectImpl) sbbLocalClass.getConstructor(types)
 						.newInstance(objs);

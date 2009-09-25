@@ -14,6 +14,7 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.profile.ProfileConcreteClassInfo;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.component.profile.ProfileEntityFactory;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
@@ -101,6 +102,11 @@ public class ProfileObject {
 	private boolean persisted;
 	
 	/**
+	 * used to filter invocations to profile concrete
+	 */
+	private final ProfileConcreteClassInfo profileConcreteClassInfo;
+	
+	/**
 	 * 
 	 * @param profileTable
 	 * @param profileSpecificationId
@@ -119,6 +125,8 @@ public class ProfileObject {
 		
 		this.profileReentrant = component.getDescriptor().getProfileAbstractClass() == null ? false : this.profileTable.getProfileSpecificationComponent().getDescriptor().getProfileAbstractClass().getReentrant();
 		this.readOnlyProfileTable = component.getDescriptor().getReadOnly();
+		this.profileConcreteClassInfo = component.getProfileConcreteClassInfo();
+		
 		this.isSlee11 = profileTable.getProfileSpecificationComponent().isSlee11();
 		
 		try {
@@ -152,69 +160,61 @@ public class ProfileObject {
 			throw new IllegalStateException("Wrong state: " + this.state + ",on profile set context operation, for profile table: "
 					+ this.profileTable.getProfileTableName() + " with specification: " + this.profileTable.getProfileSpecificationComponent().getProfileSpecificationID());
 		}
-		
-		final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
 
-		// FIXME: is this needed ?
-		try
-		{
-			final ClassLoader cl = this.profileTable.getProfileSpecificationComponent().getClassLoader();
-			
-			if (System.getSecurityManager()!=null)
-			{
-				AccessController.doPrivileged(new PrivilegedAction()
-				{
-					public Object run()
-					{
-						Thread.currentThread().setContextClassLoader(cl);
-						return null;
-					}
-				});
-			}
-			else
-			{
-				Thread.currentThread().setContextClassLoader(cl);
-			}
-						
-			try
-			{
-				this.profileContext = profileContext;
-				this.profileContext.setProfileObject(this);
-				if (isSlee11) {
-					try {
-						profileConcrete.setProfileContext(profileContext);
-					}
-					catch (RuntimeException e) {
-						runtimeExceptionOnProfileInvocation(e);
+		this.profileContext = profileContext;
+		this.profileContext.setProfileObject(this);
+		
+		if (profileConcreteClassInfo.isInvokeSetProfileContext()) {
+			final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
+
+			try {
+				final ClassLoader cl = this.profileTable.getProfileSpecificationComponent().getClassLoader();
+
+				if (System.getSecurityManager()!=null) {
+					AccessController.doPrivileged(new PrivilegedAction() {
+						public Object run() {
+							Thread.currentThread().setContextClassLoader(cl);
+							return null;
+						}
+					});
+				}
+				else {
+					Thread.currentThread().setContextClassLoader(cl);
+				}
+
+				try {
+					if (isSlee11) {
+						try {
+							profileConcrete.setProfileContext(profileContext);
+						}
+						catch (RuntimeException e) {
+							runtimeExceptionOnProfileInvocation(e);
+						}
 					}
 				}
-				
-				state = ProfileObjectState.POOLED;
+				catch (Exception e) {
+					if (logger.isDebugEnabled())
+						logger.debug("Exception encountered while setting profile context for profile table: "
+								+ this.profileTable.getProfileTableName() + " with specification: " + this.profileTable.getProfileSpecificationComponent().getProfileSpecificationID(), e);
+				}			
 			}
-			catch (Exception e) {
-				if (logger.isDebugEnabled())
-					logger.debug("Exception encountered while setting profile context for profile table: "
-							+ this.profileTable.getProfileTableName() + " with specification: " + this.profileTable.getProfileSpecificationComponent().getProfileSpecificationID(), e);
-			}			
-		}
-		finally
-		{
-			if (System.getSecurityManager()!=null)
-			{
-				AccessController.doPrivileged(new PrivilegedAction()
-				{
-					public Object run()
-					{
-						Thread.currentThread().setContextClassLoader(oldClassLoader);
-						return null;
-					}
-				});
-			}
-			else
-			{
-				Thread.currentThread().setContextClassLoader(oldClassLoader);
+			finally {
+				if (System.getSecurityManager()!=null) {
+					AccessController.doPrivileged(new PrivilegedAction() {
+						public Object run() {
+							Thread.currentThread().setContextClassLoader(oldClassLoader);
+							return null;
+						}
+					});
+				}
+				else {
+					Thread.currentThread().setContextClassLoader(oldClassLoader);
+				}
 			}
 		}
+		
+		state = ProfileObjectState.POOLED;
+
 	}
 	
 	/**
@@ -254,12 +254,14 @@ public class ProfileObject {
 			// change state
 			this.state = ProfileObjectState.PROFILE_INITIALIZATION;
 			// invoke life cycle method on profile
-			try {
-				profileConcrete.profileInitialize();
+			if (profileConcreteClassInfo.isInvokeProfileInitialize()) {
+				try {
+					profileConcrete.profileInitialize();
+				}
+				catch (RuntimeException e) {
+					runtimeExceptionOnProfileInvocation(e);
+				}				
 			}
-			catch (RuntimeException e) {
-				runtimeExceptionOnProfileInvocation(e);
-			}				
 		}
 		else {
 			// load the default profile entity
@@ -292,12 +294,14 @@ public class ProfileObject {
 		this.state = ProfileObjectState.READY;
 		
 		if (isSlee11) {
-			try {
-				this.profileConcrete.profilePostCreate();
+			if (profileConcreteClassInfo.isInvokeProfilePostCreate()) {
+				try {
+					this.profileConcrete.profilePostCreate();
+				}
+				catch (RuntimeException e) {
+					runtimeExceptionOnProfileInvocation(e);
+				}	
 			}
-			catch (RuntimeException e) {
-				runtimeExceptionOnProfileInvocation(e);
-			}	
 		}		
 	}
 	
@@ -334,12 +338,14 @@ public class ProfileObject {
 			throw new SLEEException(this.toString());
 		}
 		if (isSlee11) {
-			try {
-				profileConcrete.profileActivate();
+			if (profileConcreteClassInfo.isInvokeProfileActivate()) {
+				try {
+					profileConcrete.profileActivate();
+				}
+				catch (RuntimeException e) {
+					runtimeExceptionOnProfileInvocation(e);
+				}	
 			}
-			catch (RuntimeException e) {
-				runtimeExceptionOnProfileInvocation(e);
-			}	
 		}
 		this.state = ProfileObjectState.READY;
 	}
@@ -379,12 +385,14 @@ public class ProfileObject {
 			profileEntitySnapshot = cloneEntity(profileEntity);
 			profileEntitySnapshot.setReadOnly(true);;						
 		}
-		try {
-			this.profileConcrete.profileLoad();
+		if (profileConcreteClassInfo.isInvokeProfileLoad()) {
+			try {
+				this.profileConcrete.profileLoad();
+			}
+			catch (RuntimeException e) {
+				runtimeExceptionOnProfileInvocation(e);
+			}	
 		}
-		catch (RuntimeException e) {
-			runtimeExceptionOnProfileInvocation(e);
-		}	
 	}
 
 	/**
@@ -405,11 +413,13 @@ public class ProfileObject {
 
 		if(!isSlee11 || profileEntity.getProfileName() != null) {
 			// only invoke when it is a slee 1.0 profile or a non default slee 1.1 profile
-			try {
-				profileConcrete.profileVerify();
-			}
-			catch (RuntimeException e) {
-				runtimeExceptionOnProfileInvocation(e);
+			if (profileConcreteClassInfo.isInvokeProfileVerify()) {
+				try {
+					profileConcrete.profileVerify();
+				}
+				catch (RuntimeException e) {
+					runtimeExceptionOnProfileInvocation(e);
+				}
 			}
 		}
 	}
@@ -445,12 +455,14 @@ public class ProfileObject {
 			return;
 		}
 		
-		try {
-			profileConcrete.profileStore();
+		if (profileConcreteClassInfo.isInvokeProfileStore()) {
+			try {
+				profileConcrete.profileStore();
+			}
+			catch (RuntimeException e) {
+				runtimeExceptionOnProfileInvocation(e);
+			}
 		}
-		catch (RuntimeException e) {
-			runtimeExceptionOnProfileInvocation(e);
-		}		
 	}
 	
 	/**
@@ -475,12 +487,14 @@ public class ProfileObject {
 				state = ProfileObjectState.DOES_NOT_EXIST;
 			}
 			
-			if (isSlee11) {
-				try {
-					profileConcrete.profilePassivate();
-				}
-				catch (RuntimeException e) {
-					runtimeExceptionOnProfileInvocation(e);
+			if (profileConcreteClassInfo.isInvokeProfilePassivate()) {
+				if (isSlee11) {
+					try {
+						profileConcrete.profilePassivate();
+					}
+					catch (RuntimeException e) {
+						runtimeExceptionOnProfileInvocation(e);
+					}
 				}
 			}
 			
@@ -505,12 +519,14 @@ public class ProfileObject {
 		}
 				
 		if (isSlee11 && invokeConcreteSbb) {
-			try {
-				profileConcrete.profileRemove();
+			if (profileConcreteClassInfo.isInvokeProfileRemove()) {
+				try {
+					profileConcrete.profileRemove();
+				}
+				catch (RuntimeException e) {
+					runtimeExceptionOnProfileInvocation(e);
+				}			
 			}
-			catch (RuntimeException e) {
-				runtimeExceptionOnProfileInvocation(e);
-			}			
 		}
 		
 		if (profileTable.doesFireEvents() && profileEntity.getProfileName() != null && profileEntitySnapshot != null) {
@@ -547,26 +563,20 @@ public class ProfileObject {
 			logger.debug("[unsetProfileContext] "+this);
 		}
 
-		if (state == ProfileObjectState.POOLED) {
+		if (state == ProfileObjectState.POOLED  && profileConcreteClassInfo.isInvokeUnsetProfileContext()) {
 
 			final ClassLoader oldClassLoader = SleeContainerUtils.getCurrentThreadClassLoader();
-
-			// FIXME: is this needed ?
-			try
-			{
+			try	{
 				final ClassLoader cl = profileTable.getProfileSpecificationComponent().getClassLoader();
-				if (System.getSecurityManager()!=null)
-				{
+				if (System.getSecurityManager()!=null) {
 					AccessController.doPrivileged(new PrivilegedAction() {
-						public Object run()
-						{
+						public Object run()	{
 							Thread.currentThread().setContextClassLoader(cl);
 							return null;
 						}
 					});
 				}
-				else
-				{
+				else {
 					Thread.currentThread().setContextClassLoader(cl);
 				}
 
@@ -581,20 +591,16 @@ public class ProfileObject {
 				profileContext.setProfileObject(null);
 				state = ProfileObjectState.DOES_NOT_EXIST;
 			}
-			finally
-			{
-				if (System.getSecurityManager()!=null)
-				{
+			finally {
+				if (System.getSecurityManager()!=null) {
 					AccessController.doPrivileged(new PrivilegedAction() {
-						public Object run()
-						{
+						public Object run() {
 							Thread.currentThread().setContextClassLoader(oldClassLoader);
 							return null;
 						}
 					});
 				}
-				else
-				{
+				else {
 					Thread.currentThread().setContextClassLoader(oldClassLoader);
 				}
 			}

@@ -87,8 +87,12 @@ public class SbbDescriptorImpl {
 	/**
 	 * references sbb abstract class map of get child relation methods
 	 */
-	private Map<String, MGetChildRelationMethod> getChildRelationMethods;
-
+	private final Map<String, MGetChildRelationMethod> getChildRelationMethodsMap;
+	/**
+	 * values() of the map above 
+	 */
+	private final Collection<MGetChildRelationMethod> getChildRelationMethodsCollection;
+	
 	/**
 	 * cmp fields mapped by field name and with sbb alias dereferenced (for sbb local object cmps)
 	 */
@@ -174,9 +178,9 @@ public class SbbDescriptorImpl {
 
 			// lets prepare child relation and profile cmp methods with aliases
 			// dereferenced, for optimized runtime performance
-			this.getChildRelationMethods = sbbClasses.getSbbAbstractClass()
+			this.getChildRelationMethodsMap = sbbClasses.getSbbAbstractClass()
 					.getChildRelationMethods();
-			for (MGetChildRelationMethod mGetChildRelationMethod : getChildRelationMethods
+			for (MGetChildRelationMethod mGetChildRelationMethod : getChildRelationMethodsMap
 					.values()) {
 				for (MSbbRef mSbbRef : sbbRefs) {
 					if (mGetChildRelationMethod.getSbbAliasRef().equals(
@@ -187,6 +191,7 @@ public class SbbDescriptorImpl {
 					}
 				}
 			}
+			this.getChildRelationMethodsCollection = getChildRelationMethodsMap.values();
 			this.getProfileCMPMethods = sbbClasses.getSbbAbstractClass()
 					.getProfileCMPMethods();
 			for (MGetProfileCMPMethod mGetProfileCMPMethod : getProfileCMPMethods
@@ -364,10 +369,18 @@ public class SbbDescriptorImpl {
 	 * @see MSbbAbstractClass#getChildRelationMethods()
 	 * @return
 	 */
-	public Map<String, MGetChildRelationMethod> getGetChildRelationMethods() {
-		return getChildRelationMethods;
+	public Map<String, MGetChildRelationMethod> getGetChildRelationMethodsMap() {
+		return getChildRelationMethodsMap;
 	}
 
+	/**
+	 *  
+	 * @return the getChildRelationMethodsCollection
+	 */
+	public Collection<MGetChildRelationMethod> getGetChildRelationMethodsCollection() {
+		return getChildRelationMethodsCollection;
+	}
+	
 	/**
 	 * @see MSbbAbstractClass#getGetProfileCMPMethods()
 	 * @return

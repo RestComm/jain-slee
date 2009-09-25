@@ -19,12 +19,6 @@
 			<artifactId>transaction</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
-			<artifactId>cache</artifactId>
-			<version>${pom.version}</version>
-		</dependency>
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>

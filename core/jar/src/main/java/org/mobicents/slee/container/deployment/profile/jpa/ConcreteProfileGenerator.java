@@ -3,11 +3,13 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 import java.beans.Introspector;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javassist.CannotCompileException;
 import javassist.CtClass;
@@ -28,6 +30,7 @@ import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.component.profile.ProfileAttribute;
+import org.mobicents.slee.container.component.profile.ProfileConcreteClassInfo;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.deployment.ClassUtils;
 import org.mobicents.slee.container.deployment.profile.ClassGeneratorUtils;
@@ -132,6 +135,8 @@ public class ConcreteProfileGenerator {
 				}
 			}
 
+			generateProfileConcreteClassInfo(profileConcreteClass);
+			
 			// add profile object field and getter/setter
 			CtField fProfileObject = ClassGeneratorUtils
 					.addField(ClassGeneratorUtils.getClass(ProfileObject.class
@@ -144,14 +149,18 @@ public class ConcreteProfileGenerator {
 			generateConstructors(profileConcreteClass);
 
 			// Profile Management methods for JAIN SLEE 1.1
-			Map<String, CtMethod> profileManagementMethods = ClassUtils
-					.getInterfaceMethodsFromInterface(ClassGeneratorUtils
-							.getClass(Profile.class.getName()));
+			Map<String, CtMethod> profileManagementMethods = new HashMap<String, CtMethod>();
 
-			// Profile Management methods for JAIN SLEE 1.0
-			profileManagementMethods.putAll(ClassUtils
+			// only add Profile Management methods for JAIN SLEE 1.0 that are implemented by SLEE
+			for (Object object : ClassUtils
 					.getInterfaceMethodsFromInterface(ClassGeneratorUtils
-							.getClass(ProfileManagement.class.getName())));
+							.getClass(ProfileManagement.class.getName())).entrySet()) {
+				Entry entry = (Entry) object;
+				CtMethod ctMethod = (CtMethod) entry.getValue();
+				if (ctMethod.getName().equals("markProfileDirty") || ctMethod.getName().equals("isProfileDirty") || ctMethod.getName().equals("isProfileValid")) {
+					profileManagementMethods.put((String) entry.getKey(),ctMethod);
+				}				
+			}
 
 			// Check for a Profile Management Interface
 			Class<?> profileManagementInterface = this.profileComponent
@@ -178,7 +187,7 @@ public class ConcreteProfileGenerator {
 					.getInterfaceMethodsFromInterface(ClassGeneratorUtils
 							.getClass(this.profileComponent
 									.getProfileCmpInterfaceClass().getName()));
-			generateBusinessMethods(profileConcreteClass,
+			generateManagementHandlerDelegationMethods(profileConcreteClass,
 					profileManagementMethods, cmpInterfaceMethods);
 
 			if (profileComponent.getUsageParametersInterface() != null) {
@@ -266,7 +275,7 @@ public class ConcreteProfileGenerator {
 		}
 	}
 
-	private void generateBusinessMethods(CtClass profileConcreteClass,
+	private void generateManagementHandlerDelegationMethods(CtClass profileConcreteClass,
 			Map<String, CtMethod> methods,
 			Map<String, CtMethod> cmpInterfaceMethods) {
 		// boolean useInterceptor = true;
@@ -323,10 +332,10 @@ public class ConcreteProfileGenerator {
 					// else ignore... we are using default interceptor.
 				}
 			}
-
+			
 			try {
 				ClassGeneratorUtils.generateDelegateMethod(
-						profileConcreteClass, entry.getValue(), interceptor,
+						profileConcreteClass,method, interceptor,
 						true);
 			} catch (Exception e) {
 				throw new SLEEException(e.getMessage(), e);
@@ -508,4 +517,41 @@ public class ConcreteProfileGenerator {
 
 	}
 
+	/**
+	 * Generates info that indicates if a method from {@link Profile} interface
+	 * should be invoked or not, in runtime. Note that all methods from {@link ProfileManagement}
+	 * that we are interested are all contained in {@link Profile} interface.
+	 */
+	private void generateProfileConcreteClassInfo(CtClass profileConcreteClass) {
+
+		final ClassPool pool = profileComponent.getClassPool();
+		
+		CtClass profileClass = null;
+		try {
+			profileClass = pool.get(Profile.class.getName());
+		} catch (NotFoundException e) {
+			throw new SLEEException(e.getMessage(), e);
+		}
+
+		ProfileConcreteClassInfo profileConcreteClassInfo = new ProfileConcreteClassInfo();
+
+		for (CtMethod method : profileClass.getDeclaredMethods()) {
+			for (CtMethod profileConcreteMethod : profileConcreteClass
+					.getMethods()) {
+				if (profileConcreteMethod.getName().equals(
+						method.getName())
+						&& profileConcreteMethod.getSignature().equals(
+								method.getSignature())) {
+					// match, save info
+					profileConcreteClassInfo.setInvokeInfo(profileConcreteMethod
+							.getMethodInfo().getName(), !profileConcreteMethod
+							.isEmpty());
+					break;
+				}
+			}
+		}
+
+		profileComponent.setProfileConcreteClassInfo(profileConcreteClassInfo);
+
+	}
 }
