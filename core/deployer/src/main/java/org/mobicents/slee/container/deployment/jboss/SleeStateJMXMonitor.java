@@ -76,7 +76,12 @@ public class SleeStateJMXMonitor implements NotificationListener {
 	private void registerSleeManagementMBeanNotificationListener(MBeanServer server, ObjectName sleeManagementMbeanObjectName) throws ListenerNotFoundException, InstanceNotFoundException, MalformedObjectNameException, NullPointerException, ReflectionException, MBeanException {
 		if(!registredSleeManagementMBeanNotificationListener) {
 			// ok, we don't need to know when an mbean registers in server anymore
-			server.removeNotificationListener(ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate"), this);
+			try {
+				server.removeNotificationListener(ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate"), this);
+			}
+			catch (Throwable e) {
+				logger.warn(e.getMessage(),e);
+			}
 			// but we need to learn when slee state changes
 			server.addNotificationListener(sleeManagementMbeanObjectName, this, null, null);
 			registredSleeManagementMBeanNotificationListener = true;
@@ -108,11 +113,11 @@ public class SleeStateJMXMonitor implements NotificationListener {
 	 * @see javax.management.NotificationListener#handleNotification(javax.management.Notification, java.lang.Object)
 	 */
 	public void handleNotification(final Notification notification, Object handback) {
-		synchronized (this) {
-			// do in a new thread to avoid txs from mbean server
-			Runnable runnable = new Runnable() {			
-				public void run() {
-
+		
+		// do in a new thread to avoid txs from mbean server
+		Runnable runnable = new Runnable() {			
+			public void run() {
+				synchronized (SleeStateJMXMonitor.this) {
 					if (notification instanceof SleeStateChangeNotification) {
 						if (logger.isDebugEnabled()) {
 							logger.debug("received slee state change jmx notification "+notification);
@@ -136,8 +141,9 @@ public class SleeStateJMXMonitor implements NotificationListener {
 						}
 					}				
 				}
-			};
-			new Thread(runnable).start();
-		}
+			}
+		};
+		new Thread(runnable).start();
 	}
+
 }
