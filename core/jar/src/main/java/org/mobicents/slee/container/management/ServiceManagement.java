@@ -624,8 +624,9 @@ public class ServiceManagement {
 			final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
 			for (final SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
 				
-				SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbID);
-				if(sbbComponent.isSlee11())
+			  // Tracer must be available for both 1.1 and 1.0 sbb components
+				//SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbID);
+				//if(sbbComponent.isSlee11())
 				{
 					traceMBeanImpl.registerNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
 					
@@ -732,9 +733,9 @@ public class ServiceManagement {
 			final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
 			for (final SbbID sbbID : serviceComponent.getSbbIDs(componentRepositoryImpl)) {
 				
-				
-				SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbID);
-				if(sbbComponent.isSlee11())
+			  // Tracer must be available for both 1.1 and 1.0 sbb components
+				//SbbComponent sbbComponent = componentRepositoryImpl.getComponentByID(sbbID);
+				//if(sbbComponent.isSlee11())
 				{
 					traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));
 			
