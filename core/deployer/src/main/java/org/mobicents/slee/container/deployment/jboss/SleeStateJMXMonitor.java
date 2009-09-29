@@ -1,4 +1,5 @@
 package org.mobicents.slee.container.deployment.jboss;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanException;
@@ -28,7 +29,7 @@ public class SleeStateJMXMonitor implements NotificationListener {
 	
 	private final DeploymentManager deploymentManager;
 
-	private boolean sleeRunning = false;
+  private SleeState sleeState = SleeState.STOPPED;
 
 	/**
 	 * @param deploymentManager
@@ -46,30 +47,25 @@ public class SleeStateJMXMonitor implements NotificationListener {
 	 * 
 	 * @return
 	 */
-	public boolean isSleeRunning() {
+	public SleeState getSleeState() {
 		synchronized (this) {
-			if (sleeRunning) {
-				return true;
-			}
-			else {
-				if(!registredSleeManagementMBeanNotificationListener) {
-					try {
-						// find mbean server
-						final MBeanServer server = MBeanServerLocator.locateJBoss();
-						// register for notifications when an mbean is registered on server
-						server.addNotificationListener(ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate"), this, null, null);
-						// check slee mngmnt mbean is registred
-						final ObjectName sleeManagementMbeanObjectName = ObjectName.getInstance(SleeManagementMBean.OBJECT_NAME);
-						if (server.isRegistered(sleeManagementMbeanObjectName) && !registredSleeManagementMBeanNotificationListener) {
-							registerSleeManagementMBeanNotificationListener(server, sleeManagementMbeanObjectName);						
-						}
-						// else we wait for notification regarding its registration					
-					} catch (Throwable e) {
-						logger.error(e.getMessage(),e);
+			if(!registredSleeManagementMBeanNotificationListener) {
+				try {
+					// find mbean server
+					final MBeanServer server = MBeanServerLocator.locateJBoss();
+					// register for notifications when an mbean is registered on server
+					server.addNotificationListener(ObjectName.getInstance("JMImplementation:type=MBeanServerDelegate"), this, null, null);
+					// check slee mngmnt mbean is registred
+					final ObjectName sleeManagementMbeanObjectName = ObjectName.getInstance(SleeManagementMBean.OBJECT_NAME);
+					if (server.isRegistered(sleeManagementMbeanObjectName) && !registredSleeManagementMBeanNotificationListener) {
+						registerSleeManagementMBeanNotificationListener(server, sleeManagementMbeanObjectName);						
 					}
+					// else we wait for notification regarding its registration					
+				} catch (Throwable e) {
+					logger.error(e.getMessage(),e);
 				}
-				return false;
 			}
+			return this.sleeState;
 		}
 	}
 	
@@ -87,27 +83,21 @@ public class SleeStateJMXMonitor implements NotificationListener {
 			registredSleeManagementMBeanNotificationListener = true;
 			// check if slee state is running
 			SleeState sleeState = (SleeState) server.invoke(sleeManagementMbeanObjectName,"getState",EMPTY_OBJECT_ARRAY,EMPTY_STRING_ARRAY);
-			if (sleeState == SleeState.RUNNING) {
-				setSleeRunning(true);
-			}	
+			setSleeState(sleeState);
 		}
 	}		
 
-	
-	/*
-	 * 
-	 */
-	private void setSleeRunning(boolean sleeRunning) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("setSleeRunning: value = "+sleeRunning);
-		}
-		if (this.sleeRunning != sleeRunning) {
-			this.sleeRunning = sleeRunning;
-			if (sleeRunning) {
-				deploymentManager.sleeIsRunning();
-			}				
-		}
-	}
+  private void setSleeState(SleeState sleeState) {
+    if (logger.isDebugEnabled()) {
+      logger.debug("setSleeState: value = "+sleeState.toString());
+    }
+    if (this.sleeState != sleeState) {
+      this.sleeState = sleeState;
+      if (sleeState == SleeState.RUNNING) {
+        deploymentManager.sleeIsRunning();
+      }       
+    }
+  }
 	
 	/* (non-Javadoc)
 	 * @see javax.management.NotificationListener#handleNotification(javax.management.Notification, java.lang.Object)
@@ -123,7 +113,7 @@ public class SleeStateJMXMonitor implements NotificationListener {
 							logger.debug("received slee state change jmx notification "+notification);
 						}
 						SleeStateChangeNotification sscn = (SleeStateChangeNotification) notification;
-						setSleeRunning(sscn.getNewState() == SleeState.RUNNING);						
+			      setSleeState(sscn.getNewState());
 					}	
 					else if (notification instanceof MBeanServerNotification) {
 						MBeanServerNotification mbsn = (MBeanServerNotification) notification;

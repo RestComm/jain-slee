@@ -18,6 +18,7 @@ import javax.slee.management.DeploymentMBean;
 import javax.slee.management.ResourceAdaptorEntityAlreadyExistsException;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.management.ServiceManagementMBean;
+import javax.slee.management.SleeState;
 import javax.slee.management.UnrecognizedLinkNameException;
 
 import org.jboss.deployment.DeploymentException;
@@ -172,10 +173,11 @@ public class DeploymentManager {
 	 */
 	public void installDeployableUnit(DeployableUnit du) throws Exception {
 		
-		if (!sleeStateJMXMonitor.isSleeRunning()) {
+	  SleeState state = sleeStateJMXMonitor.getSleeState();
+		if (state != SleeState.RUNNING) {
 			
 			logger.warn("Unable to INSTALL " + du.getDeploymentInfoShortName()
-					+ " right now. Waiting for SLEE to be in RUNNING state.");
+					+ " right now. Waiting for SLEE to be in RUNNING state (" + state + ").");
 			waitingForInstallDUs.add(du);
 			return;
 		}
@@ -234,9 +236,10 @@ public class DeploymentManager {
 	 */
 	public void uninstallDeployableUnit(DeployableUnit du) throws Exception {
 		
-		if (!sleeStateJMXMonitor.isSleeRunning()) {
+	  SleeState state = sleeStateJMXMonitor.getSleeState();
+		if (state != SleeState.RUNNING && state != SleeState.STOPPING) {
 			logger.warn("Unable to UNINSTALL " + du.getDeploymentInfoShortName()
-					+ " right now. Waiting for SLEE to be in RUNNING state.");
+					+ " right now. Waiting for SLEE to be in RUNNING/STOPPING state (" + state + ").");
 			waitingForUninstallDUs.add(du);
 			return;
 		}
@@ -260,6 +263,9 @@ public class DeploymentManager {
 			// Set the DU as not installed
 			du.setInstalled(false);
 
+			// Remove if it was present in waiting list
+			waitingForUninstallDUs.remove(du);
+			
 			// Update the deployed components from SLEE
 			updateDeployedComponents();
 
@@ -284,13 +290,16 @@ public class DeploymentManager {
 				// If it is ready for being uninstalled, follow the same procedure
 				if (waitingDU.isReadyToUninstall()) {
 					// Get and Run the actions needed for uninstalling this DU
-					sciAction(waitingDU.getUninstallActions(), du);
+					//sciAction(waitingDU.getUninstallActions(), du);
+
+				  // Schedule removal
+          SLEESubDeployer.INSTANCE.stop(new DeployableUnitWrapper(waitingDU.getURL()));
 
 					// Set the DU as not installed
-					waitingDU.setInstalled(false);
+					// waitingDU.setInstalled(false);
 
 					// Update the deployed components from SLEE
-					updateDeployedComponents();
+					// updateDeployedComponents();
 
 					// Remove the DU from the waiting list.
 					waitingForUninstallDUs.remove(waitingDU);

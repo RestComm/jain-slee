@@ -11,6 +11,7 @@ import java.util.jar.JarFile;
 import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
+import javax.slee.InvalidStateException;
 
 import org.jboss.deployment.DeploymentException;
 import org.jboss.deployment.SubDeployerSupport;
@@ -386,12 +387,7 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
 				logger.debug("Failed to add old UCL to list.", e1);
 			}
   
-  		// FIXME: alex: checking if it's ok with JB5...
-  		boolean oldIsServerShuttingDown = isServerShuttingDown;
-  		isServerShuttingDown = true;
-  			
-      if( isServerShuttingDown )
-      {
+      if( isServerShuttingDown ) {
         doStop( fileName );
       }
       else
@@ -399,8 +395,6 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
         // Schedule removal in a recurring task
   			timer.scheduleAtFixedRate(new UndeploymentTask(fileName), 0, getWaitTimeBetweenOperations());
   		}
-      
-      isServerShuttingDown = oldIsServerShuttingDown;
 		}
 	}
 
@@ -428,7 +422,16 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     }
     catch (Exception e)
     {
-    	logger.error(e.getMessage(),e);
+      Throwable cause = e.getCause();
+      if(cause instanceof InvalidStateException) {
+        logger.warn(cause.getLocalizedMessage() + "... WAITING ..."); 
+      }
+      else if (e instanceof DeploymentException){
+        throw new IllegalStateException(e.getLocalizedMessage(), e);
+      }
+      else {
+        logger.error(e.getMessage(), e);
+      }
     	return false;
     }
     
@@ -606,6 +609,10 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
         if( doStop(filename) || elapsedTime > 60 * 60 * 1000 + MobicentsManagement.entitiesRemovalDelay )
           this.cancel();
         
+      }
+      catch (IllegalStateException ise) {
+        // This only happens when there are dependents. Let's cancel, it'll return.
+        this.cancel();
       }
       catch (Exception ignore) 
       {

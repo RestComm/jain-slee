@@ -559,4 +559,8 @@ public class DeployableUnit {
 			}
 		}
 	}
+
+  public URL getURL() {
+    return diURL;
+  }
 }
