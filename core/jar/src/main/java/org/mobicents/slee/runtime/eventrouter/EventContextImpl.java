@@ -92,7 +92,7 @@ public class EventContextImpl implements EventContext {
 			SleeContainer sleeContainer) {
 		this.deferredEvent = deferredEvent;
 		this.sleeContainer = sleeContainer;
-		this.eventContextID = new EventContextID(deferredEvent.getActivityContextHandle(),deferredEvent.getEvent());
+		this.eventContextID = new EventContextID(deferredEvent.getActivityContextHandle(),deferredEvent.getEvent(),deferredEvent.getEventTypeId());
 	}
 
 	public ActivityContextInterface getActivityContextInterface() {

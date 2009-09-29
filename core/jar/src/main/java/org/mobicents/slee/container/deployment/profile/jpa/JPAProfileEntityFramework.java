@@ -32,13 +32,11 @@ import org.hibernate.ejb.HibernatePersistence;
 import org.hibernate.ejb.QueryImpl;
 import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.profile.ProfileAttribute;
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.component.profile.ProfileEntityFactory;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
-import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -57,9 +55,6 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			.getLogger(JPAProfileEntityFramework.class);
 
 	private static final String DEFAULT_PROFILE_NAME = "";
-
-	private static final SleeContainer sleeContainer = SleeContainer
-			.lookupFromJndi();
 
 	/**
 	 * the concrete jpa profile entity class of the framework
@@ -98,13 +93,19 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 	 */
 	private ProfileEntityFactory profileEntityFactory;
 
+	private final SleeTransactionManager sleeTransactionManager;
+	
+	private final Configuration configuration;
+
 	/**
 	 * 
 	 * @param component
 	 */
-	public JPAProfileEntityFramework(ProfileSpecificationComponent component) {
+	public JPAProfileEntityFramework(ProfileSpecificationComponent component, Configuration configuration, SleeTransactionManager sleeTransactionManager) {
 		this.component = component;
 		this.component.setProfileEntityFramework(this);
+		this.sleeTransactionManager = sleeTransactionManager;
+		this.configuration = configuration;
 	}
 
 	// GETTERS / SETTERS
@@ -493,7 +494,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 	public void install() {
 		synchronized (this) {
 			// generate profile entity & related classes
-			new ConcreteProfileEntityGenerator(component, this)
+			new ConcreteProfileEntityGenerator(component,this)
 					.generateClasses();
 
 			// this one is just a runtime optimization for faster query building
@@ -529,8 +530,6 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 	 */
 	public void uninstall() {
 		synchronized (this) {
-			SleeTransactionManager sleeTransactionManager = sleeContainer
-					.getTransactionManager();
 			Transaction tx = null;
 			try {
 				tx = sleeTransactionManager.suspend();
@@ -563,15 +562,13 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			PersistenceUnitMetaData pumd = new PersistenceUnitMetaData();
 
 			pumd.setProvider("org.hibernate.ejb.HibernatePersistence");
-			pumd.setJtaDataSource("java:/DefaultDS");
+		    pumd.setJtaDataSource(configuration.getHibernateDatasource());
+
 			pumd.setExcludeUnlistedClasses(false);
 
-      boolean persistProfiles = MobicentsManagement.persistProfiles;
-
       Map pumdProps = new HashMap();
-      pumdProps.put(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
-			pumdProps.put(Environment.DIALECT,
-					"org.hibernate.dialect.HSQLDialect");
+      pumdProps.put(Environment.HBM2DDL_AUTO, configuration.isPersistProfiles() ? "update" : "create-drop");
+      pumdProps.put(Environment.DIALECT,configuration.getHibernateDialect());	
 
 			pumd.setProperties(pumdProps);
 			pumd.setName("JSLEEProfiles"
@@ -587,7 +584,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 
 			Properties properties = new Properties();
 
-			properties.setProperty(Environment.DATASOURCE, "java:/DefaultDS");
+			properties.setProperty(Environment.DATASOURCE,configuration.getHibernateDatasource());
 			properties
 					.setProperty(Environment.TRANSACTION_STRATEGY,
 							"org.hibernate.ejb.transaction.JoinableCMTTransactionFactory");
@@ -604,8 +601,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			properties.setProperty(
 					"hibernate.jndi.java.naming.factory.initial",
 					"org.jnp.interfaces.NamingContextFactory");
-			properties.setProperty(Environment.DIALECT,
-					"org.hibernate.dialect.HSQLDialect");
+			properties.setProperty(Environment.DIALECT,configuration.getHibernateDialect());
 			// FIXME: Should be Environment.JACC_CONTEXTID but it's
 			// hibernate.jacc_context_id vs hibernate.jacc.ctx.id. Bug?
 			properties.setProperty("hibernate.jacc.ctx.id", "persistence.xml");
@@ -613,7 +609,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 					"persistence.unit:unitName=#" + pumd.getName());
 			properties.setProperty(Environment.SESSION_FACTORY_NAME,
 					"persistence.unit:unitName=#" + pumd.getName());
-			properties.setProperty(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
+			properties.setProperty(Environment.HBM2DDL_AUTO, configuration.isPersistProfiles() ? "update" : "create-drop");
 			properties.setProperty(Environment.USE_REFLECTION_OPTIMIZER,
 					"false");
 			properties.setProperty(Environment.BYTECODE_PROVIDER, "javassist");
@@ -637,7 +633,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 			Transaction tx = null;
 
 			try {
-				tx = sleeContainer.getTransactionManager().suspend();
+				tx = sleeTransactionManager.suspend();
 				this.entityManagerFactory = hp
 						.createContainerEntityManagerFactory(pi, null);
 			} catch (Exception e) {
@@ -646,7 +642,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 				logger.error("Failure creating Persistence Unit.", t);
 			} finally {
 				if (tx != null)
-					sleeContainer.getTransactionManager().resume(tx);
+					sleeTransactionManager.resume(tx);
 			}
 
 		} catch (Exception e) {
@@ -678,7 +674,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 		// look in tx
 		Map transactionContextData = null;
 		try {
-			transactionContextData = sleeContainer.getTransactionManager()
+			transactionContextData = sleeTransactionManager
 					.getTransactionContext().getData();
 		} catch (Throwable e1) {
 			throw new SLEEException(e1.getMessage(), e1);
@@ -703,7 +699,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 				}
 			};
 			try {
-				sleeContainer.getTransactionManager().addBeforeCommitAction(
+				sleeTransactionManager.addBeforeCommitAction(
 						action);
 			} catch (Throwable e1) {
 				throw new SLEEException(e1.getMessage(), e1);

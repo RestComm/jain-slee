@@ -559,9 +559,9 @@ public class ResourceAdaptorEntity {
 	public void eventProcessingSucceed(DeferredEvent deferredEvent) {
 		object.eventProcessingSuccessful(deferredEvent
 				.getActivityContextHandle().getActivityHandle(),
-				getFireableEventType(deferredEvent), deferredEvent.getEvent(),
+				getFireableEventType(deferredEvent.getEventTypeId()), deferredEvent.getEvent(),
 				deferredEvent.getAddress(),
-				getReceivableService(deferredEvent), deferredEvent
+				getReceivableService(deferredEvent.getService()), deferredEvent
 						.getEventFlags());
 	}
 
@@ -579,30 +579,29 @@ public class ResourceAdaptorEntity {
 	public void eventProcessingFailed(DeferredEvent deferredEvent,
 			FailureReason failureReason) {
 		object.eventProcessingFailed(deferredEvent.getActivityContextHandle()
-				.getActivityHandle(), getFireableEventType(deferredEvent),
+				.getActivityHandle(), getFireableEventType(deferredEvent.getEventTypeId()),
 				deferredEvent.getEvent(), deferredEvent.getAddress(),
-				getReceivableService(deferredEvent), deferredEvent
+				getReceivableService(deferredEvent.getService()), deferredEvent
 						.getEventFlags(), failureReason);
 	}
 
-	private FireableEventType getFireableEventType(DeferredEvent deferredEvent) {
+	public FireableEventType getFireableEventType(EventTypeID eventTypeID) {
 		FireableEventType eventType = null;
 		try {
 			eventType = resourceAdaptorContext.getEventLookupFacility()
-					.getFireableEventType(deferredEvent.getEventTypeId());
+					.getFireableEventType(eventTypeID);
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
 		return eventType;
 	}
 
-	private ReceivableService getReceivableService(DeferredEvent deferredEvent) {
+	public ReceivableService getReceivableService(ServiceID serviceID) {
 		ReceivableService receivableService = null;
-		if (deferredEvent.getService() != null) {
+		if (serviceID != null) {
 			try {
 				receivableService = resourceAdaptorContext
-						.getServiceLookupFacility().getReceivableService(
-								deferredEvent.getService());
+						.getServiceLookupFacility().getReceivableService(serviceID);
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
@@ -618,9 +617,9 @@ public class ResourceAdaptorEntity {
 	 */
 	public void eventUnreferenced(DeferredEvent deferredEvent) {
 		object.eventUnreferenced(deferredEvent.getActivityContextHandle()
-				.getActivityHandle(), getFireableEventType(deferredEvent),
+				.getActivityHandle(), getFireableEventType(deferredEvent.getEventTypeId()),
 				deferredEvent.getEvent(), deferredEvent.getAddress(),
-				getReceivableService(deferredEvent), deferredEvent
+				getReceivableService(deferredEvent.getService()), deferredEvent
 						.getEventFlags());
 	}
 

@@ -29,6 +29,8 @@ public class SbbEntityCacheData extends CacheData {
 
 	// node map keys
 
+	private static final Boolean MISC_NODE_MAP_KEY = Boolean.TRUE;
+
 	private static final String SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY = "idata";
 	private static final String PRIORITY_NODE_MAP_KEY = "priority";
 	private static final String EVENT_MASK_CHILD_NODE_MAP_KEY = "event-mask";
@@ -183,23 +185,23 @@ public class SbbEntityCacheData extends CacheData {
 		getNode().put(PRIORITY_NODE_MAP_KEY, priority);
 	}
 
-	public void setCmpField(String cmpField, Object cmpValue) {
+	public void setCmpField(String cmpField, CmpWrapper cmpValue) {
 		final Node node = getCmpFieldsChildNode(true);
 		Node childNode = node.getChild(cmpField);
 		if (childNode == null) {
 			childNode = node.addChild(Fqn.fromElements(cmpField));
 		}
-		childNode.put(OBJECT, cmpValue);
+		childNode.put(MISC_NODE_MAP_KEY, cmpValue);
 	}
 
-	public Object getCmpField(String cmpField) {
+	public CmpWrapper getCmpField(String cmpField) {
 		final Node node = getCmpFieldsChildNode(false);
 		if (node == null) {
 			return null;
 		}
 		final Node childNode = node.getChild(cmpField);
 		if (childNode != null) {
-			return childNode.get(OBJECT);
+			return (CmpWrapper) childNode.get(MISC_NODE_MAP_KEY);
 		}
 		else {
 			return null;
@@ -250,7 +252,7 @@ public class SbbEntityCacheData extends CacheData {
 		if (childNode == null) {
 			childNode = node.addChild(Fqn.fromElements(getChildRelationMethod));
 		}
-		childNode.put(sbbEntityId, OBJECT);
+		childNode.put(sbbEntityId, MISC_NODE_MAP_KEY);
 	}
 
 	public boolean childRelationHasSbbEntity(Object getChildRelationMethod,
@@ -291,7 +293,5 @@ public class SbbEntityCacheData extends CacheData {
 			return result;
 		}
 	}
-
-	private static final Object OBJECT = new Object();
 
 }

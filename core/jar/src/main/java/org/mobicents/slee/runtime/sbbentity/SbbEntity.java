@@ -1,11 +1,11 @@
 package org.mobicents.slee.runtime.sbbentity;
 
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -288,7 +288,7 @@ public class SbbEntity {
 		sleeContainer.getTransactionManager().mandateTransaction();
 
 		CmpType cmpType = null;
-		Object cmpValue = null;
+		Serializable cmpValue = null;
 
 		// TODO optimize by adding the cmp type to the generated setter method?
 		if (object instanceof SbbLocalObject) {
@@ -350,7 +350,7 @@ public class SbbEntity {
 					.getProfileTableName(), profileLocalObjectConcreteImpl.getProfileName());
 		} else {
 			cmpType = CmpType.normal;
-			cmpValue = object;
+			cmpValue = (Serializable) object;
 		}
 		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldName, cmpType, cmpValue);
 		cacheData.setCmpField(cmpFieldName, cmpWrapper);

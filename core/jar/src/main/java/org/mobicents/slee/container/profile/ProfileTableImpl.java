@@ -129,22 +129,30 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		
 		this.fireEvents = component.getDescriptor().getEventsEnabled();
 		this.transactionView = new ProfileTableTransactionView(this);
-		// register tracer
-		try {
-			
-			final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
-			traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(profileTableName));
-
-			TransactionalAction action2 = new TransactionalAction() {
-				public void execute() {
-					// remove notification sources for profile table
-					traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
-				}
-			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action2);
-		}catch (SystemException e) {
-			throw new SLEEException("Failure to register Tracer", e);
+	}
+	
+	private boolean traceRegistred = false;
+	
+	public void registerTracer() {
+		
+		if (!traceRegistred) {
+			// register tracer
+			try {
+				final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
+				traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(profileTableName));
+				TransactionalAction action2 = new TransactionalAction() {
+					public void execute() {
+						// remove notification sources for profile table
+						traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
+					}
+				};
+				sleeContainer.getTransactionManager().addAfterRollbackAction(action2);
+			}catch (SystemException e) {
+				throw new SLEEException("Failure to register Tracer", e);
+			}
+			traceRegistred = true;
 		}
+
 	}
 	
 	/**
@@ -738,9 +746,20 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * @return
 	 */
 	private ActivityContextHandle getActivityContextHandle() {
-		return ActivityContextHandlerFactory
-		.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
-				profileTableName));
+		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()
+				&& !sleeContainer.getSleeProfileTableManager()
+						.getJPAConfiguration().isClusteredProfiles()) {
+			// special scenario, we run in a cluster but without clustered
+			// profiles, so the activity must be unique for each cluster node
+			return ActivityContextHandlerFactory
+					.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
+							profileTableName, sleeContainer.getCluster()
+									.getLocalAddress()));
+		} else {
+			return ActivityContextHandlerFactory
+					.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
+							profileTableName));
+		}		
 	}
 	
 	/**

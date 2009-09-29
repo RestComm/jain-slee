@@ -59,7 +59,7 @@ public class ActivityContextCacheData extends CacheData {
 	private static final Fqn IS_CHECKING_REFS_FQN = Fqn
 	.fromElements(IS_CHECKING_REFS_NODE_NAME);
 	
-	private static final Object CMP_ATTRIBUTES_NODE_MAP_KEY = new Object();
+	private static final Boolean CMP_ATTRIBUTES_NODE_MAP_KEY = Boolean.TRUE;
 
 	private Node _attachedSbbsNode;
 	

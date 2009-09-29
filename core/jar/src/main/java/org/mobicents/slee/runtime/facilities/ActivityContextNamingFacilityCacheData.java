@@ -26,7 +26,7 @@ public class ActivityContextNamingFacilityCacheData extends CacheData {
 	 */
 	public static final String CACHE_NODE_NAME = "aci-names";
 
-	private static final Object CACHE_NODE_MAP_KEY = new Object();
+	private static final Boolean CACHE_NODE_MAP_KEY = Boolean.TRUE;
 
 	/**
 	 * 

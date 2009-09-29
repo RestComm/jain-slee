@@ -57,6 +57,7 @@ import org.jboss.virtual.VFSUtils;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.management.DeployableUnitManagement;
+import org.mobicents.slee.container.deployment.profile.jpa.Configuration;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.SbbManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
@@ -134,8 +135,6 @@ public class SleeContainer {
 		return deployPath;
 	}
 
-
-
 	private static SleeContainer sleeContainer;
 	private final SleeTransactionManager sleeTransactionManager;
 	private final MobicentsCluster cluster;
@@ -195,7 +194,7 @@ public class SleeContainer {
 	 * SleeManagementMBean to get the whole thing running.
 	 * 
 	 */
-	public SleeContainer(SleeTransactionManager sleeTransactionManager, MobicentsCluster cluster, AlarmMBeanImpl alarmMBeanImpl, TraceMBeanImpl traceMBeanImpl) throws Exception {
+	public SleeContainer(SleeTransactionManager sleeTransactionManager, MobicentsCluster cluster, AlarmMBeanImpl alarmMBeanImpl, TraceMBeanImpl traceMBeanImpl, Configuration configuration) throws Exception {
 		
 		if (sleeTransactionManager == null) {
 			throw new NullPointerException("null slee transaction manager");
@@ -208,6 +207,9 @@ public class SleeContainer {
 		}
 		if (traceMBeanImpl == null) {
 			throw new NullPointerException("null trace mbean");
+		}
+		if (configuration == null) {
+			throw new NullPointerException("null jpa configuration");
 		}
 		// created in STOPPED state and remain so until started
 		this.sleeState = SleeState.STOPPED;
@@ -222,7 +224,7 @@ public class SleeContainer {
 		
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
-		this.sleeProfileTableManager = new SleeProfileTableManager(this);
+		this.sleeProfileTableManager = new SleeProfileTableManager(this,configuration);
 		this.sbbManagement = new SbbManagement(this);
 		this.resourceManagement = new ResourceManagement(this);
 		this.activityContextFactory = new ActivityContextFactoryImpl(this);

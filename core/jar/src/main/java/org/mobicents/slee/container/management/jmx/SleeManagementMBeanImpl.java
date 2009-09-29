@@ -395,7 +395,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			}
 			changeSleeState(SleeState.RUNNING);
 			startResourceAdaptors();
-			if (sleeContainer.getCluster().isHeadMember()) {
+			if (sleeContainer.getCluster().getMobicentsCache().isLocalMode() || sleeContainer.getCluster().isHeadMember()) {
 				// only one node can do it
 				sleeContainer.getServiceManagement().startActiveServicesActivities();		
 				if (logger.isDebugEnabled()) {

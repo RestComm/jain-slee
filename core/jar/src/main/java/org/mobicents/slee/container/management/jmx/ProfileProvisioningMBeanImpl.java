@@ -232,6 +232,9 @@ public class ProfileProvisioningMBeanImpl extends MobicentsServiceMBeanSupport i
 		} catch (ProfileTableAlreadyExistsException e) {
 			throw e;
 		} catch (Throwable e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(e.getMessage(),e);
+			}
 			throw new ManagementException(e.getMessage(),e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentClassLoader);			

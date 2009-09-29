@@ -2,6 +2,7 @@ package org.mobicents.slee.container.deployment.profile.jpa;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.slee.SLEEException;
+import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTableAlreadyExistsException;
 import javax.transaction.Transaction;
 
@@ -22,10 +24,10 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.ejb.HibernatePersistence;
 import org.jboss.jpa.deployment.PersistenceUnitInfoImpl;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.management.SleeProfileTableManager;
-import org.mobicents.slee.container.management.jmx.MobicentsManagement;
+import org.mobicents.slee.container.profile.ProfileTableImpl;
+import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
  * 
@@ -43,8 +45,14 @@ public class JPAProfileTableFramework {
   private boolean isInitialized = false;
   private static Boolean isLoading = false;
 
-  public JPAProfileTableFramework(SleeProfileTableManager sptm) {
+  private final SleeTransactionManager sleeTransactionManager;
+
+  private final Configuration configuration;
+  
+  public JPAProfileTableFramework(SleeProfileTableManager sptm,SleeTransactionManager sleeTransactionManager,Configuration configuration) {
     this.sptm = sptm;
+    this.sleeTransactionManager = sleeTransactionManager;
+    this.configuration = configuration;
   }
 
   private void createPersistenceUnit()
@@ -54,15 +62,14 @@ public class JPAProfileTableFramework {
       PersistenceUnitMetaData pumd = new PersistenceUnitMetaData();
 
       pumd.setProvider("org.hibernate.ejb.HibernatePersistence");
-      pumd.setJtaDataSource("java:/DefaultDS");
+      pumd.setJtaDataSource(configuration.getHibernateDatasource());
       pumd.setExcludeUnlistedClasses(false);
 
-      boolean persistProfiles = MobicentsManagement.persistProfiles;
+      boolean persistProfiles = configuration.isPersistProfiles();
 
       Map pumdProps = new HashMap();
       pumdProps.put(Environment.HBM2DDL_AUTO, persistProfiles ? "update" : "create-drop");
-      pumdProps.put(Environment.DIALECT, "org.hibernate.dialect.HSQLDialect");
-
+      pumdProps.put(Environment.DIALECT,configuration.getHibernateDialect());
       pumd.setProperties(pumdProps);
       pumd.setName("mobicents-profile-persistence-pu");
 
@@ -73,14 +80,15 @@ public class JPAProfileTableFramework {
 
       Properties properties = new Properties();
 
-      properties.setProperty(Environment.DATASOURCE, "java:/DefaultDS");
+      properties.setProperty(Environment.DATASOURCE,configuration.getHibernateDatasource());
+    		  
       properties.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.ejb.transaction.JoinableCMTTransactionFactory");
       properties.setProperty(Environment.CONNECTION_PROVIDER, "org.hibernate.ejb.connection.InjectedDataSourceConnectionProvider");
       properties.setProperty("hibernate.jndi.java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
       properties.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.HashtableCacheProvider");
       properties.setProperty(Environment.TRANSACTION_MANAGER_STRATEGY, "org.hibernate.transaction.JBossTransactionManagerLookup");
       properties.setProperty("hibernate.jndi.java.naming.factory.initial", "org.jnp.interfaces.NamingContextFactory");
-      properties.setProperty(Environment.DIALECT, "org.hibernate.dialect.HSQLDialect");
+      properties.setProperty(Environment.DIALECT,configuration.getHibernateDialect());
       // FIXME: Should be Environment.JACC_CONTEXTID but it's
       // hibernate.jacc_context_id vs hibernate.jacc.ctx.id. Bug?
       properties.setProperty("hibernate.jacc.ctx.id", "persistence.xml");
@@ -101,7 +109,7 @@ public class JPAProfileTableFramework {
       Transaction tx = null;
 
       try {
-        tx = SleeContainer.lookupFromJndi().getTransactionManager().suspend();
+        tx = sleeTransactionManager.suspend();
         entityManagerFactory = hp.createContainerEntityManagerFactory(pi, null);
         isInitialized = true;        
       } catch (Exception e) {
@@ -110,7 +118,7 @@ public class JPAProfileTableFramework {
         logger.error("Failure creating Persistence Unit for profile persistency.", t);
       } finally {
         if (tx != null)
-          SleeContainer.lookupFromJndi().getTransactionManager().resume(tx);
+          sleeTransactionManager.resume(tx);
       }
     }
     catch (Exception e) {
@@ -118,7 +126,7 @@ public class JPAProfileTableFramework {
     }
   }
 
-  public void storeProfileTable(JPAProfileTable profileTable) {
+  public void storeProfileTable(ProfileTableImpl profileTable) {
     if(isLoading) {
       return;
     }
@@ -131,7 +139,8 @@ public class JPAProfileTableFramework {
 
     try {
       em = entityManagerFactory.createEntityManager();
-      em.persist(profileTable);
+      em.persist(new JPAProfileTable(profileTable));
+      em.flush();
     }
     finally {
       if(em != null) {
@@ -151,8 +160,8 @@ public class JPAProfileTableFramework {
     try {
       em = entityManagerFactory.createEntityManager();
 
-      Query q = em.createQuery("DELETE FROM " + JPAProfileTable.class.getName() + " x WHERE x.profileTableName = :profileTableName")
-      .setParameter("profileTableName", profileTableName);
+      Query q = em.createNamedQuery(JPAProfileTable.JPA_NAMED_QUERY_DELETE_TABLE)
+      	.setParameter("profileTableName", profileTableName);
 
       q.executeUpdate();
     }
@@ -174,8 +183,9 @@ public class JPAProfileTableFramework {
     try {
       em = entityManagerFactory.createEntityManager();
 
-      Query q = em.createQuery("UPDATE " + JPAProfileTable.class.getName() + " x SET x.profileTableName = :newProfileTableName WHERE x.profileTableName = :oldProfileTableName")
-      .setParameter("newProfileTableName", newProfileTableName).setParameter("oldProfileTableName", oldProfileTableName);
+      Query q = em.createNamedQuery(JPAProfileTable.JPA_NAMED_QUERY_RENAME_TABLE)
+      	.setParameter("newProfileTableName", newProfileTableName)
+      	.setParameter("oldProfileTableName", oldProfileTableName);
 
       q.executeUpdate();
     }
@@ -187,43 +197,127 @@ public class JPAProfileTableFramework {
     }
   }
 
+  public ProfileSpecificationID getProfileSpecificationID(String profileTableName) {
+	  
+	  EntityManager em = null;
+	    
+	    try {	  
+	      
+	      em = entityManagerFactory.createEntityManager();
+	  
+	      Query q = em.createNamedQuery(JPAProfileTable.JPA_NAMED_QUERY_FIND_TABLE_BY_NAME)
+	      	.setParameter("profileTableName", profileTableName);
+	  
+	      List<JPAProfileTable> tables = q.getResultList();
+	      if (tables.isEmpty()) {
+	    	  return null;
+	      }
+	      else {
+	    	  // single result only, since profile table name is primary key
+	    	  return tables.get(0).getProfileSpecId();
+	      }
+	    }
+	    finally {
+	      if(em != null) {
+	        em.close();
+	      }
+	    }
+	    
+  }
+  
   public void loadProfileTables(ProfileSpecificationComponent component) throws SLEEException, ProfileTableAlreadyExistsException {
-    if(logger.isDebugEnabled()) {
+   
+	if(logger.isDebugEnabled()) {
       logger.debug("Loading from backend storage profile tables for " + component.getProfileSpecificationID());
     }
 
-    EntityManager em = null;
-    
-    try {
-      
-      if(!isInitialized) {
-        createPersistenceUnit();
-      }
-      
-      em = entityManagerFactory.createEntityManager();
+	for(String profileTableName : _getProfileTableNames(component.getProfileSpecificationID())) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("Table [" + profileTableName + "] found in storage.");
+		}
+		synchronized (isLoading) {
+			isLoading = true;
+			// ask for the profile table, the manager will build the local object
+			try {
+				sptm.loadProfileTableLocally(profileTableName, component);
+			}
+			catch (Throwable e) {
+				if(logger.isDebugEnabled()) {
+					logger.debug("Unable to load profile table named "+profileTableName,e);
+				}
+			}
+			isLoading = false;
+		}
+	}
+  }
+
+  /**
+   * Retrieves profile table names from database
+   * @return
+   */
+  public Set<String> getProfileTableNames() {
+	  return _getProfileTableNames(null);
+  }
   
-      Query q = em.createQuery("SELECT x FROM " + JPAProfileTable.class.getName() + " x WHERE x.profileSpecId = :profileSpecId")
-      .setParameter("profileSpecId", component.getProfileSpecificationID().toString());
+  /**
+   * Retrieves profile table names from database, which are bound to the specified {@link ProfileSpecificationID}
+   * @return
+   */
+  public Set<String> getProfileTableNames(ProfileSpecificationID profileSpecificationID) {	  
+	  return _getProfileTableNames(profileSpecificationID);
+  }
   
-      List<JPAProfileTable> tables = q.getResultList();
+  /**
+   * @return
+   */
+  public Set<String> _getProfileTableNames(ProfileSpecificationID profileSpecificationID) {
+	  
+	  Set<String> resultSet = null;
+	  
+	  EntityManager em = null;
+	    
+	    try {
+	      
+	    	if(!isInitialized) {
+	    		createPersistenceUnit();
+	    	}
+
+	    	em = entityManagerFactory.createEntityManager();
+
+	    	Query q = null;
+	    	if (profileSpecificationID == null) {
+	    		q = em.createNamedQuery(JPAProfileTable.JPA_NAMED_QUERY_SELECT_ALL_TABLES);
+	    	}
+	    	else {
+	    		q = em.createNamedQuery(JPAProfileTable.JPA_NAMED_QUERY_SELECT_TABLES_BY_PROFILE_SPEC_ID)
+	    		.setParameter("profileSpecId", profileSpecificationID);
+	    	}
+	    	List<JPAProfileTable> resultList = q.getResultList();	  
+	    	if (resultList.isEmpty()) {
+	    		resultSet = Collections.emptySet();
+	    	}
+	    	else {
+	    		resultSet = new HashSet<String>();
+	    		for(JPAProfileTable result : resultList) {
+	    			resultSet.add(result.getProfileTableName());	  	        
+	    		} 
+	    	}	      	      
+	    }
+	    finally {
+	    	if(em != null) {
+	    		em.close();
+	    		em = null;
+	    	}
+	    }
+
+	    return resultSet;
+  }
   
-      for(JPAProfileTable table : tables) {
-        if(logger.isDebugEnabled()) {
-          logger.debug("Table [" + table.getProfileTableName() + "] found in storage.");
-        }
-        synchronized (isLoading) {
-          isLoading = true;
-          sptm.addProfileTable(table.getProfileTableName(), component);
-          isLoading = false;
-        }
-      }
-    }
-    finally {
-      if(em != null) {
-        em.close();
-        em = null;
-      }
-    }
+  /**
+   * @return
+   */
+  public Configuration getConfiguration() {
+	  return configuration;
   }
 
 }

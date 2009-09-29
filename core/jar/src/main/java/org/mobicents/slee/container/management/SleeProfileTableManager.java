@@ -1,10 +1,6 @@
 package org.mobicents.slee.container.management;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.Context;
@@ -25,8 +21,8 @@ import org.mobicents.slee.container.component.ProfileSpecificationComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.container.deployment.profile.SleeProfileClassCodeGenerator;
+import org.mobicents.slee.container.deployment.profile.jpa.Configuration;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileEntityFramework;
-import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileTable;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileTableFramework;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
@@ -48,7 +44,6 @@ public class SleeProfileTableManager {
 	private final static SleeProfileClassCodeGenerator sleeProfileClassCodeGenerator = new SleeProfileClassCodeGenerator();
 	private SleeContainer sleeContainer = null;
 
-	private JPAProfileTableFramework jpaPTF = null;
 	
 	/**
 	 * This map contains mapping - profieltable name ---> profile table concrete
@@ -57,15 +52,18 @@ public class SleeProfileTableManager {
 	 * 
 	 */
 	//private ConcurrentHashMap nameToProfileTableMap = new ConcurrentHashMap();
-	private ConcurrentHashMap<String, ProfileTableImpl> nameToProfileTableMap;
+	private ConcurrentHashMap<String, ProfileTableImpl> profileTablesLocalObjects;
 
-	public SleeProfileTableManager(SleeContainer sleeContainer) {
-		super();
+	private final Configuration configuration;
+	private final JPAProfileTableFramework jpaPTF;
+	
+	public SleeProfileTableManager(SleeContainer sleeContainer, Configuration configuration) {
 		if (sleeContainer == null)
 			throw new NullPointerException("Parameter must not be null");
 		this.sleeContainer = sleeContainer;
-		this.nameToProfileTableMap=new ConcurrentHashMap<String, ProfileTableImpl>(); // this.sleeContainer.getCache().getProfileManagementCacheData();
-		this.jpaPTF = new JPAProfileTableFramework(this);
+		this.profileTablesLocalObjects = new ConcurrentHashMap<String, ProfileTableImpl>(); // this.sleeContainer.getCache().getProfileManagementCacheData();
+		this.configuration = configuration;
+		this.jpaPTF = new JPAProfileTableFramework(this,sleeContainer.getTransactionManager(),configuration);
 
 	}
 
@@ -89,10 +87,10 @@ public class SleeProfileTableManager {
 		try {
 			this.createJndiSpace(component);
 			// FIXME: we wont use trace and alarm in 1.0 way wont we?
-			ProfileEntityFramework profileEntityFramework = new JPAProfileEntityFramework(component);
+			ProfileEntityFramework profileEntityFramework = new JPAProfileEntityFramework(component,configuration,sleeContainer.getTransactionManager());
 			profileEntityFramework.install();
 			sleeProfileClassCodeGenerator.process(component);
-      jpaPTF.loadProfileTables(component);
+			jpaPTF.loadProfileTables(component);			
 		} catch (DeploymentException de) {
 			throw de;
 		} catch (Throwable t) {
@@ -232,15 +230,121 @@ public class SleeProfileTableManager {
 	public ProfileTableImpl getProfileTable(String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException {
 
 		if (profileTableName == null) throw new NullPointerException("profile table name is null");
-
-		ProfileTableImpl ptc = (ProfileTableImpl) this.nameToProfileTableMap.get(profileTableName);
-		if (ptc == null)
+		
+		ProfileTableImpl profileTable = null;
+		if (sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+			// no replication, table may only exist in local resources
+			profileTable = profileTablesLocalObjects.get(profileTableName);
+			if (profileTable == null) {
+				throw new UnrecognizedProfileTableNameException();
+			}
+		}
+		else {
+			if (!jpaPTF.getConfiguration().isClusteredProfiles()) {
+				// profiles are not clustered, table may only exist in local resources
+				profileTable = profileTablesLocalObjects.get(profileTableName);
+				if (profileTable == null) {
+					throw new UnrecognizedProfileTableNameException();
+				}
+			}
+			else {
+				// profiles are clustered, table may exist "remotely" and not in local resources, due to runtime creation in another cluster node, we need to go to database first
+				final ProfileSpecificationID profileSpecificationID = jpaPTF.getProfileSpecificationID(profileTableName);
+				if (profileSpecificationID != null) {
+					// exists in database
+					profileTable = profileTablesLocalObjects.get(profileTableName);
+					if (profileTable == null) {
+						// local resource does not exists, create it
+						ProfileSpecificationComponent component = sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationID);
+						if (component != null) {
+							profileTable = addProfileTableLocally(createProfileTableInstance(profileTableName, component),false, false);
+						}
+					}
+				}
+				else {
+					// does not exists in database, ensure it is not in local objects
+					profileTablesLocalObjects.remove(profileTableName);
+				}
+			}
+		}
+		
+		if (profileTable == null)
 			throw new UnrecognizedProfileTableNameException();
 		else
-			return ptc;
+			return profileTable;
 
 	}
 
+	private ProfileTableImpl createProfileTableInstance(String profileTableName, ProfileSpecificationComponent component) {
+		if (component.getProfileTableConcreteClass() == null) {
+			return new ProfileTableImpl(profileTableName, component, sleeContainer); 
+		}
+		else {
+			try {
+				return (ProfileTableImpl)component.getProfileTableConcreteClass().getConstructor(String.class, ProfileSpecificationComponent.class, SleeContainer.class).newInstance(profileTableName, component, sleeContainer);
+			} catch (Throwable e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
+	}
+	
+	private ProfileTableImpl addProfileTableLocally(final ProfileTableImpl newProfileTable, boolean startActivity, boolean storeInFramework) throws SLEEException {
+		ProfileTableImpl profileTable = profileTablesLocalObjects.putIfAbsent(newProfileTable.getProfileTableName(), newProfileTable);
+		if (profileTable == null) {			
+			// new profile table object was inserted
+			profileTable = newProfileTable;
+			newProfileTable.registerTracer();
+			// add tx action to remove local object if tx rollbacks
+			TransactionalAction action1 = new TransactionalAction() {
+				public void execute() {
+					profileTablesLocalObjects.remove(newProfileTable.getProfileTableName());				
+				}
+			};
+			try {
+				sleeContainer.getTransactionManager().addAfterRollbackAction(action1);
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+			
+			// register usage mbean
+			newProfileTable.registerUsageMBean();
+			TransactionalAction action3 = new TransactionalAction() {
+				public void execute() {
+					newProfileTable.unregisterUsageMBean();				
+				}
+			};
+			try {
+				sleeContainer.getTransactionManager().addAfterRollbackAction(action3);
+			} catch (SystemException e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+			// create object pool
+			sleeContainer.getProfileObjectPoolManagement().createObjectPool(newProfileTable, sleeContainer.getTransactionManager());
+			
+			// the next 2 operations needs to be done before creating default profile, since
+			// that operation may set tx as rollback, and if that happens
+			// cache data (actually this limitation comes from jboss cache) or jpa
+			// can't be initiated
+			
+			// start activity
+			if (startActivity) {
+				newProfileTable.startActivity();
+			}
+			if(storeInFramework) {
+				// store it in jpa		
+				jpaPTF.storeProfileTable( profileTable );
+			}
+			
+			// create default profile
+			try {
+				newProfileTable.createDefaultProfile();
+			} catch (Throwable e) {
+				throw new SLEEException(e.getMessage(),e);
+			}
+		}
+		return profileTable;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -248,23 +352,13 @@ public class SleeProfileTableManager {
 	public SleeContainer getSleeContainer() {
 		return sleeContainer;
 	}
-
-	/**
-	 * 
-	 * @param profileSpecificationId
-	 * @return
-	 */
-	public ProfileSpecificationComponent getProfileSpecificationComponent(ProfileSpecificationID profileSpecificationId) {
-		// FIXME: we posbily dont need this.
-		return this.sleeContainer.getComponentRepositoryImpl().getComponentByID(profileSpecificationId);
-	}
 	
 	/**
 	 * 
 	 * @return
 	 */
 	public Collection<String> getDeclaredProfileTableNames() {
-		return Collections.unmodifiableSet(new HashSet(this.nameToProfileTableMap.keySet()));
+		return jpaPTF.getProfileTableNames();
 	}
 
 	/**
@@ -278,50 +372,25 @@ public class SleeProfileTableManager {
 		if (this.sleeContainer.getComponentRepositoryImpl().getComponentByID(id) == null) {
 			throw new UnrecognizedProfileSpecificationException("No such profile specification: " + id);
 		}
-		ArrayList<String> names = new ArrayList<String>();
-
-		// FIXME: this will fail if done async to change, is this ok ?
-		Iterator<String> it = this.getDeclaredProfileTableNames().iterator();
-		while (it.hasNext()) {
-			String name = it.next();
-			if (((ProfileTableImpl) this.nameToProfileTableMap.get(name)).getProfileSpecificationComponent().getProfileSpecificationID().equals(id)) {
-				names.add(name);
-			}
-		}
-
-		return names;
+		
+		return jpaPTF.getProfileTableNames(id);	
 	}
 
 	/**
 	 * 
 	 */
 	public void startAllProfileTableActivities() {
-		for (Object key : this.getDeclaredProfileTableNames()) {
-			ProfileTableImpl pt = (ProfileTableImpl) this.nameToProfileTableMap.get((String)key);
-			pt.startActivity();
-		}
-	}
-	
-	/**
-	 * 
-	 * @param profileTableName
-	 * @param component
-	 * @return
-	 * @throws SLEEException
-	 */
-	private ProfileTableImpl createProfileTableInstance(String profileTableName, ProfileSpecificationComponent component) throws SLEEException {
-		ProfileTableImpl profileTable = null;
-		if (component.getProfileTableConcreteClass() == null) {
-			profileTable = new ProfileTableImpl(profileTableName, component, sleeContainer); 
-		}
-		else {
+		for (String profileTableName : this.getDeclaredProfileTableNames()) {
 			try {
-				profileTable = (ProfileTableImpl)component.getProfileTableConcreteClass().getConstructor(String.class, ProfileSpecificationComponent.class, SleeContainer.class).newInstance(profileTableName, component, sleeContainer);
-			} catch (Throwable e) {
-				throw new SLEEException(e.getMessage(),e);
+				ProfileTableImpl pt = getProfileTable(profileTableName);
+				pt.startActivity();
+			}
+			catch (Throwable e) {
+				if (logger.isDebugEnabled()){
+					logger.debug("Not starting activity for profile table named "+profileTableName+". The profile spec component is not deployed.");
+				}
 			}
 		}
-		return profileTable;
 	}
 	
 	/**
@@ -341,52 +410,9 @@ public class SleeProfileTableManager {
 		catch (UnrecognizedProfileTableNameException e) {
 			// expected
 		}
-		// create instance
-		final ProfileTableImpl profileTable = createProfileTableInstance(profileTableName, component);
-		// map it
-		this.nameToProfileTableMap.put(profileTableName, profileTable);
 		
-		TransactionalAction action1 = new TransactionalAction() {
-			public void execute() {
-				nameToProfileTableMap.remove(profileTableName);				
-			}
-		};
-		try {
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action1);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
-		
-		// register usage mbean
-		profileTable.registerUsageMBean();
-		TransactionalAction action3 = new TransactionalAction() {
-			public void execute() {
-				profileTable.unregisterUsageMBean();				
-			}
-		};
-		try {
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action3);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
-		// create object pool
-		sleeContainer.getProfileObjectPoolManagement().createObjectPool(profileTable, sleeContainer.getTransactionManager());
-		
-		// start activity if master of the cluster
-		if(sleeContainer.getCluster().isHeadMember()) {
-			profileTable.startActivity();
-		}
-		
-		// add default profile
-		try {
-			profileTable.createDefaultProfile();
-		} catch (Throwable e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
-
-		jpaPTF.storeProfileTable( new JPAProfileTable(profileTable) );
-
-		return profileTable;
+		return addProfileTableLocally(createProfileTableInstance(profileTableName, component),true,true);
+				
 	}
 
 	/**
@@ -399,7 +425,7 @@ public class SleeProfileTableManager {
 	  ProfileTableImpl profileTable = getProfileTable(profileTableName);
 	  TransactionalAction action = new TransactionalAction() {
 	    public void execute() {
-	      nameToProfileTableMap.remove(profileTableName);
+	      profileTablesLocalObjects.remove(profileTableName);
 	    }
 	  };
 	  try {
@@ -429,5 +455,27 @@ public class SleeProfileTableManager {
 	public String toString() {
 		return "Profile Table Manager: " 
 			+ "\n+-- Profile Tables: " + getDeclaredProfileTableNames();
+	}
+
+	/**
+	 * @param profileTableName
+	 * @param component
+	 */
+	public void loadProfileTableLocally(String profileTableName,
+			ProfileSpecificationComponent component) throws IllegalArgumentException {
+		if(jpaPTF.getProfileTableNames(component.getProfileSpecificationID()).contains(profileTableName)) {
+			boolean startActivity = sleeContainer.getCluster().isHeadMember();
+			addProfileTableLocally(createProfileTableInstance(profileTableName, component), startActivity, false);			
+		}
+		else {
+			throw new IllegalArgumentException("Either profile table named "+profileTableName+" does not exists or its component is not the specified one");
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	public Configuration getJPAConfiguration() {
+		return jpaPTF.getConfiguration();
 	}
 }

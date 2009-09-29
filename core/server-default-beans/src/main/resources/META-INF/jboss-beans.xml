@@ -39,6 +39,13 @@
 		<demand>Mobicents.JAINSLEE.TraceMBean</demand>
 	</bean>
 
+	<bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+		<property name="persistProfiles">true</property>
+		<property name="clusteredProfiles">false</property>
+		<property name="hibernateDatasource">java:/DefaultDS</property>
+		<property name="hibernateDialect">org.hibernate.dialect.HSQLDialect</property>
+	</bean>
+	
 	<bean name="Mobicents.JAINSLEE.Container" class="org.mobicents.slee.container.SleeContainer">
 		<constructor>
 			<parameter>
@@ -52,6 +59,9 @@
 			</parameter>
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.TraceMBean" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" />
 			</parameter>
 		</constructor>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>

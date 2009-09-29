@@ -8,7 +8,6 @@
         <classpath>
             <path name="" />
             <path name="" suffixes=".rar" />
-            <path name="" suffixes=".xml" />
             <path name="lib" suffixes=".jar" />
         </classpath>
     </context>

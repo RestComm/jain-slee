@@ -1,7 +1,5 @@
 package org.mobicents.slee.runtime.activity;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,6 +10,9 @@ import javax.slee.ServiceID;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.Marshaler;
 
+import org.apache.log4j.Logger;
+import org.jboss.serial.io.JBossObjectInputStream;
+import org.jboss.serial.io.JBossObjectOutputStream;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
@@ -30,6 +31,7 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
  */
 public class ActivityContextHandle implements Serializable {
 
+	private static final transient Logger logger = Logger.getLogger(ActivityContextHandle.class);
 	
 	/**
 	 * 
@@ -150,45 +152,81 @@ public class ActivityContextHandle implements Serializable {
 		return toString;
 	}
 	
-	private void writeObject(ObjectOutputStream stream) throws IOException
-	{
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		
+		// write activity type and source
 		stream.defaultWriteObject();
-        if(activityType == ActivityType.RA)
-        {
-            ResourceAdaptorEntity entity = getResourceManagement().getResourceAdaptorEntity(activitySource);
-            if(entity == null || entity.getMarshaler() == null)
-            {
-                throw new IOException("Either Entity for source: "+this.activitySource+" does not exist or entity does not provide marshaler!");
+        
+		// now write the activity handle
+		if(activityType == ActivityType.RA) {
+            final ResourceAdaptorEntity entity = getResourceManagement().getResourceAdaptorEntity(activitySource);
+            final Marshaler marshaler = entity.getMarshaler();
+            if(marshaler != null) {
+            	//FIXME: Here we possibly should use some optimized buffers, but for now its enough.
+            	marshaler.marshalHandle(this.activityHandle, stream);
             }
-            Marshaler marshaler = entity.getMarshaler();
-            //FIXME: Here we possibly should use some optimized buffers, but for now its enough.
-            DataOutputStream dos = new DataOutputStream(stream);
-            marshaler.marshalHandle(this.activityHandle, dos);
-        }else
-        {
+            else {
+            	// serialize it using jboss serialization
+            	JBossObjectOutputStream out = null;
+            	try {
+            		out = new JBossObjectOutputStream(stream);
+            		out.writeObject(this.activityHandle);
+            		out.close();
+            	}
+            	catch(Throwable e) {
+            		if (out != null)  {
+            			try {
+            				out.close();
+            			} catch (IOException e1) {
+            				logger.error(e.getMessage(),e);
+            			}  
+            		}
+            		throw new SLEEException("Failed to marshall activity handle using jboss serialization.", e);
+            	}
+            }
+        } 
+        else {
+        	// not an external activity, write object in stream
             stream.writeObject(this.activityHandle);
         }
 	}
 	
-	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException
-	{
+	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
+		
+		
 		stream.defaultReadObject();
-		if(activityType == ActivityType.RA)
-		{
+		
+		if(activityType == ActivityType.RA) {
 			ResourceAdaptorEntity entity = getResourceManagement().getResourceAdaptorEntity(activitySource);
-			if(entity == null || entity.getMarshaler() == null)
-			{
-				throw new IOException("Either Entity for source: "+this.activitySource+" does nto exist or entity does not provide marshaler!");
-			}
 			Marshaler marshaler = entity.getMarshaler();
-			DataInputStream dis = new DataInputStream(stream);
-			this.activityHandle=marshaler.unmarshalHandle(dis);
-		}else
-		{
+			if (marshaler != null) {
+				// use ra entity marshaller to read the handle
+				this.activityHandle=marshaler.unmarshalHandle(stream);
+			}
+			else {
+				// use jboss serialization to read the handle
+				JBossObjectInputStream in = null;
+				try {
+					in = new JBossObjectInputStream(stream);
+					this.activityHandle = (ActivityHandle) in.readObject();
+					in.close();
+				}
+				catch(Throwable e) {
+					if (in != null)  {
+						try {
+							in.close();
+						} catch (IOException e1) {
+							logger.error(e.getMessage(),e);
+						}    
+					}
+					throw new SLEEException("Failed to unmarshall activity handle using jboss serialization.", e);		       	  
+				}
+			}
+		}
+		else {
+			// not an external activity, read object from stream
 			this.activityHandle=(ActivityHandle) stream.readObject();
 		}
 	}
-
-
 
 }

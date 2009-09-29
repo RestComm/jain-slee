@@ -16,9 +16,9 @@ public class CmpWrapper implements Serializable {
 	
 	private final String name;
 	private final CmpType type;
-	private Object value;
+	private Serializable value;
 	
-	public CmpWrapper(String name, CmpType type,Object value) {		
+	public CmpWrapper(String name, CmpType type,Serializable value) {		
 		this.name = name;
 		this.type = type;
 		this.value = value;
@@ -32,11 +32,11 @@ public class CmpWrapper implements Serializable {
 		return type;
 	}
 	
-	public Object getValue() {
+	public Serializable getValue() {
 		return value;
 	}
 	
-	public void setValue(Object value) {
+	public void setValue(Serializable value) {
 		this.value = value;
 	}
 	

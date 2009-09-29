@@ -1,5 +1,7 @@
 package org.mobicents.slee.runtime.sbbentity;
 
+import java.io.Serializable;
+
 import javax.slee.profile.ProfileLocalObject;
 
 /**
@@ -8,7 +10,12 @@ import javax.slee.profile.ProfileLocalObject;
  * @author martins
  *
  */
-public class ProfileLocalObjectCmpValue {
+public class ProfileLocalObjectCmpValue implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private final String profileTableName;
 	
