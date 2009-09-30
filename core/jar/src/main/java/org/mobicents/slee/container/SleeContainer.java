@@ -81,6 +81,7 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileFacilityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityContextInterfaceFactoryImpl;
 import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.usage.UsageMBeansConfiguration;
 import org.mobicents.slee.util.JndiRegistrationManager;
 
 /**
@@ -187,6 +188,8 @@ public class SleeContainer {
 		
 	private final MobicentsUUIDGenerator uuidGenerator = MobicentsUUIDGenerator.getInstance(); 
 		
+	private final UsageMBeansConfiguration usageMBeansConfiguration;
+	
 	// LIFECYLE RELATED
 
 	/**
@@ -194,7 +197,7 @@ public class SleeContainer {
 	 * SleeManagementMBean to get the whole thing running.
 	 * 
 	 */
-	public SleeContainer(SleeTransactionManager sleeTransactionManager, MobicentsCluster cluster, AlarmMBeanImpl alarmMBeanImpl, TraceMBeanImpl traceMBeanImpl, Configuration configuration) throws Exception {
+	public SleeContainer(SleeTransactionManager sleeTransactionManager, MobicentsCluster cluster, AlarmMBeanImpl alarmMBeanImpl, TraceMBeanImpl traceMBeanImpl, Configuration profilesConfiguration, UsageMBeansConfiguration usageMBeansConfiguration) throws Exception {
 		
 		if (sleeTransactionManager == null) {
 			throw new NullPointerException("null slee transaction manager");
@@ -208,8 +211,11 @@ public class SleeContainer {
 		if (traceMBeanImpl == null) {
 			throw new NullPointerException("null trace mbean");
 		}
-		if (configuration == null) {
-			throw new NullPointerException("null jpa configuration");
+		if (profilesConfiguration == null) {
+			throw new NullPointerException("null profiles configuration");
+		}
+		if (usageMBeansConfiguration == null) {
+			throw new NullPointerException("null usage mBeans configuration");
 		}
 		// created in STOPPED state and remain so until started
 		this.sleeState = SleeState.STOPPED;
@@ -218,13 +224,14 @@ public class SleeContainer {
 		this.cluster = cluster;
 		this.alarmMBeanImpl = alarmMBeanImpl;
 		this.traceMBeanImpl = traceMBeanImpl;
+		this.usageMBeansConfiguration = usageMBeansConfiguration;
 		// Force this property to allow invocation of getters.
 		// http://code.google.com/p/mobicents/issues/detail?id=63
 		System.setProperty("jmx.invoke.getters", "true");
 		
 		this.componentRepositoryImpl = new ComponentRepositoryImpl();
 		this.serviceManagement = new ServiceManagement(this);
-		this.sleeProfileTableManager = new SleeProfileTableManager(this,configuration);
+		this.sleeProfileTableManager = new SleeProfileTableManager(this,profilesConfiguration);
 		this.sbbManagement = new SbbManagement(this);
 		this.resourceManagement = new ResourceManagement(this);
 		this.activityContextFactory = new ActivityContextFactoryImpl(this);
@@ -547,6 +554,14 @@ public class SleeContainer {
 	 */
 	public MBeanServer getMBeanServer() {
 		return mbeanServer;
+	}
+	
+	/**
+	 *  
+	 * @return the usageMBeansConfiguration
+	 */
+	public UsageMBeansConfiguration getUsageMBeansConfiguration() {
+		return usageMBeansConfiguration;
 	}
 	
 	// RMI RELATED

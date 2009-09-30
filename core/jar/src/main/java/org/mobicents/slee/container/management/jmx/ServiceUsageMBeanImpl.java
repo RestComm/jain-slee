@@ -11,6 +11,7 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +42,8 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
+import org.mobicents.slee.runtime.usage.AbstractUsageParameterSet;
+import org.mobicents.slee.runtime.usage.cluster.UsageMBeanCacheData;
 
 /**
  * 
@@ -69,7 +72,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * This is the service ID for this service usage mbean.
 	 * 
 	 */
-	private ServiceID serviceID;
+	private final ServiceID serviceID;
 
 	/**
 	 * the sbb usage mbeans registred by this service usage mbean
@@ -80,13 +83,18 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * the usage notification manager mbeans per sbb id
 	 */
 	private ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl> notificationManagers = new ConcurrentHashMap<SbbID, UsageNotificationManagerMBeanImpl>();
-
-	public ServiceUsageMBeanImpl(ServiceComponent serviceComponent)
+	
+	/**
+	 * Container we run in.
+	 */
+	private final SleeContainer sleeContainer;
+	
+	public ServiceUsageMBeanImpl(ServiceComponent serviceComponent, SleeContainer sleeContainer)
 			throws NotCompliantMBeanException, MalformedObjectNameException,
 			NullPointerException {
 		super(ServiceUsageMBean.class);
 		this.serviceID = serviceComponent.getServiceID();
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+		this.sleeContainer = sleeContainer;
 		try {
 			sleeContainer.getMBeanServer().registerMBean(this, getObjectName());
 		} catch (Throwable e) {
@@ -156,8 +164,32 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			InvalidArgumentException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
 		_createUsageParameterSet(sbbId, null, false);
+		//This method is called always for deployment of elements which may use usage 
+		//params, now lets check if we have some parameter sets in cluster	
+		checkClusteredParameters(sbbId);
 	}
+	
+	private void checkClusteredParameters(SbbID sbbId) throws NullPointerException, ManagementException, UnrecognizedSbbException, InvalidArgumentException {
+		if (sleeContainer.getUsageMBeansConfiguration().isClusteredUsageMBeans()) {
+			SbbNotification sbbNotification = new SbbNotification(serviceID,sbbId);
+			Collection<String> existingParamNames = UsageMBeanCacheData.getExistingSets(sbbNotification,this.sleeContainer.getCluster().getMobicentsCache());
 
+			for(String eParamName:existingParamNames)
+			{
+				SbbUsageMBeanMapKey mapKey = new SbbUsageMBeanMapKey(sbbId, eParamName);
+				if (!this.usageMBeans.containsKey(mapKey))
+				{
+					try{
+						_createUsageParameterSet(sbbId,eParamName,false);
+					}catch(UsageParameterSetNameAlreadyExistsException e)
+					{						
+						logger.error(e.getMessage(),e);									
+					}
+				}
+			}
+		}		
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -172,8 +204,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
-
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
@@ -218,12 +248,13 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			currentThread.setContextClassLoader(sbbComponent.getClassLoader());
 			// create the actual usage parameter instance and map it in the
 			// mbean
-			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass.newInstance();
+			SbbNotification sbbNotification = new SbbNotification(serviceID,
+					sbbId);
+			AbstractUsageParameterSet installedUsageParameterSet = (AbstractUsageParameterSet) AbstractUsageParameterSet.newInstance(usageParameterClass, sbbNotification, name, sleeContainer);
 			// create and register the usage mbean
 			Class<?> usageParameterMBeanClass = sbbComponent
 					.getUsageParametersMBeanImplConcreteClass();
-			SbbNotification sbbNotification = new SbbNotification(serviceID,
-					sbbId);
+			
 			Constructor<?> constructor = null;
 			if (sbbComponent.isSlee11()) {
 				constructor = usageParameterMBeanClass
@@ -244,7 +275,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			sleeContainer.getMBeanServer().registerMBean(usageMbean,
 					usageParameterMBeanObjectName);
 			// set the usage param data related with the mbean
-			installedUsageParameterSet.setName(name);
+		
 			installedUsageParameterSet.setUsageMBean(usageMbean);
 			usageMbean.setUsageParameter(installedUsageParameterSet);
 			// store the mbean
@@ -352,8 +383,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
 
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
 				.getComponentByID(sbbId);
@@ -388,6 +417,13 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 					usageMbean.getObjectName());
 			if (name == null && sbbComponent.isSlee11()) {
 				removeNotificationManager(sbbId);
+			}
+			//FIXME: not sure if getClusterMembers() will include local address?
+			boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
+			if( !clustered)
+			{
+				//we are last, lets clear cache
+				usageMbean.getUsageParameter().remove();
 			}
 		} catch (Throwable e) {
 			// rollback changes
@@ -429,9 +465,8 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
-
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
+		
+		checkClusteredParameters(sbbId);
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
 				.getComponentByID(sbbId);
@@ -508,8 +543,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
 
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
 				.getComponentByID(sbbId);
@@ -541,7 +574,18 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		}
 		
 		if (bean == null || bean.getObjectName() == null) {
-			throw new UnrecognizedUsageParameterSetNameException(name);
+			if(sleeContainer.getUsageMBeansConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(new SbbNotification(serviceID, sbbId), name,sleeContainer.getCluster().getMobicentsCache()))
+			{
+				try {
+					_createUsageParameterSet(sbbId, name, true);
+					return _getSbbUsageMBean(sbbId, name);
+				} catch (Exception e) {
+					throw new ManagementException("Failed to recreate usage parameter set: "+name+", for: "+new SbbNotification(serviceID, sbbId),e);
+				}
+			}else
+			{
+				throw new UnrecognizedUsageParameterSetNameException(name);				
+			}
 		} else {
 			return bean.getObjectName();
 		}
@@ -565,8 +609,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
 
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
 				.getComponentByID(sbbId);
@@ -578,6 +620,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 						"no usage parameter interface for " + sbbId);
 			}
 		}
+		checkClusteredParameters(sbbId);
 		// get service component and check if the sbb belongs to the service
 		ServiceComponent serviceComponent = sleeContainer
 				.getComponentRepositoryImpl().getComponentByID(getService());
@@ -606,6 +649,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	public synchronized void resetAllUsageParameters()
 			throws ManagementException {
 		try {
+			//FIXME: hmm, how to check here for clustered... ghmp
 			for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
 				usageMBeanImpl.resetAllUsageParameters();
 			}
@@ -618,7 +662,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		if (logger.isDebugEnabled()) {
 			logger.debug("Unregistring Usage MBean of service " + serviceID);
 		}
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 		final MBeanServer mbeanServer = sleeContainer.getMBeanServer();
 		try {
 			mbeanServer.unregisterMBean(getObjectName());
@@ -652,8 +695,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 		if (sbbId == null)
 			throw new NullPointerException("Sbb ID is null!");
-
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
 		// get the sbb component
 		SbbComponent sbbComponent = sleeContainer.getComponentRepositoryImpl()
@@ -758,19 +799,19 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 	/**
 	 * Convenience method to retrieve the default
-	 * {@link InstalledUsageParameterSet} for the specified sbb
+	 * {@link AbstractUsageParameterSet} for the specified sbb
 	 * 
 	 * @param sbbID
 	 * @return
 	 * @throws UnrecognizedUsageParameterSetNameException
 	 */
-	public InstalledUsageParameterSet getDefaultInstalledUsageParameterSet(
+	public AbstractUsageParameterSet getDefaultInstalledUsageParameterSet(
 			SbbID sbbID) {
 		return _getInstalledUsageParameterSet(sbbID, null);
 	}
 
 	/**
-	 * Convenience method to retrieve the {@link InstalledUsageParameterSet} for
+	 * Convenience method to retrieve the {@link AbstractUsageParameterSet} for
 	 * the specified sbb and name
 	 * 
 	 * @param sbbID
@@ -778,13 +819,13 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 	 * @return
 	 * @throws UnrecognizedUsageParameterSetNameException
 	 */
-	public InstalledUsageParameterSet getInstalledUsageParameterSet(
+	public AbstractUsageParameterSet getInstalledUsageParameterSet(
 			SbbID sbbID, String name)
 			throws UnrecognizedUsageParameterSetNameException {
 		if (name == null) {
 			throw new NullPointerException("null name");
 		}
-		InstalledUsageParameterSet installedUsageParameterSet = _getInstalledUsageParameterSet(
+		AbstractUsageParameterSet installedUsageParameterSet = _getInstalledUsageParameterSet(
 				sbbID, name);
 		if (installedUsageParameterSet == null) {
 			throw new UnrecognizedUsageParameterSetNameException(name);
@@ -792,7 +833,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		return installedUsageParameterSet;
 	}
 
-	private InstalledUsageParameterSet _getInstalledUsageParameterSet(
+	private AbstractUsageParameterSet _getInstalledUsageParameterSet(
 			SbbID sbbID, String name) {
 		if (sbbID == null) {
 			throw new NullPointerException("null sbb id");
@@ -800,7 +841,20 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 		SbbUsageMBeanMapKey mapKey = new SbbUsageMBeanMapKey(sbbID, name);
 		UsageMBeanImpl usageMBean = usageMBeans.get(mapKey);
 		if (usageMBean == null) {
-			return null;
+			if(sleeContainer.getUsageMBeansConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(new SbbNotification(serviceID, sbbID), name,sleeContainer.getCluster().getMobicentsCache()))
+			{
+				try {
+					checkClusteredParameters(sbbID);
+					return _getInstalledUsageParameterSet(sbbID,name);
+				} catch (Exception e) {
+					logger.error(e.getMessage(),e);
+				} 
+				//FIXME: or throw runtime?
+				return null;
+			}else
+			{
+				return null;
+			}
 		} else {
 			return usageMBean.getUsageParameter();
 		}
@@ -833,8 +887,6 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 
 	private void removeNotificationManager(SbbID sbbId)
 			throws ManagementException {
-
-		SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
 		UsageNotificationManagerMBeanImpl usageMbean = null;
 		try {

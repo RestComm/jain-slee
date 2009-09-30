@@ -2,6 +2,7 @@ package org.mobicents.slee.container.management.jmx;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,6 +23,8 @@ import javax.slee.usage.UsageNotificationManagerMBean;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.SleeComponentWithUsageParametersInterface;
+import org.mobicents.slee.runtime.usage.AbstractUsageParameterSet;
+import org.mobicents.slee.runtime.usage.cluster.UsageMBeanCacheData;
 
 /**
  * Abstract class code for a "parent" usage mbean, such as the
@@ -34,6 +37,8 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 		UsageMBeanImplParent, 
 		Serializable {
 
+	
+	//FIXME: maybe part of this logic should be moved to UsageManagement class?
 	/**
 	 * 
 	 */
@@ -47,7 +52,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	private ObjectName objectName;
 
 	/**
-	 * the child name param usage mbeans registred by this mbean
+	 * the child name param usage mbeans registred by this mbean, holds paramName->bean mapping.
 	 */
 	private ConcurrentHashMap<String, UsageMBeanImpl> usageMBeans = new ConcurrentHashMap<String, UsageMBeanImpl>();
 
@@ -192,7 +197,29 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	public void createUsageParameterSet() throws NullPointerException,
 			InvalidArgumentException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
-		_createUsageParameterSet(null, false);
+		_createUsageParameterSet(null);
+		
+		//This method is called always for deployment of elements which may use usage 
+		//params, now lets check if we have some parameter sets in cluster
+		checkClusteredParameters();		
+	}
+
+	private void checkClusteredParameters() throws NullPointerException, ManagementException {
+		if (sleeContainer.getUsageMBeansConfiguration().isClusteredUsageMBeans()) {
+			Collection<String> existingParamNames = UsageMBeanCacheData.getExistingSets(this.notificationSource,this.sleeContainer.getCluster().getMobicentsCache());
+			for(String eParamName:existingParamNames)
+			{
+				if(!this.usageMBeans.containsKey(eParamName))
+				{
+					try{
+						_createUsageParameterSet(eParamName);
+					}catch(UsageParameterSetNameAlreadyExistsException e)
+					{
+						//we can ignore, this should not happen
+					}
+				}
+			}
+		}		
 	}
 
 	/**
@@ -217,11 +244,10 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			throw new InvalidArgumentException(
 					"The lenght of the Usage Parameter Set Name is zero!");
 
-		_createUsageParameterSet(paramSetName, true);
+		_createUsageParameterSet(paramSetName);
 	}
 
-	private synchronized void _createUsageParameterSet(String name,
-			boolean failIfSbbHasNoUsageParamSet) throws NullPointerException,
+	private synchronized void _createUsageParameterSet(String name) throws NullPointerException,
 			UsageParameterSetNameAlreadyExistsException, ManagementException {
 
 		ensureMBeanIsNotClosed();
@@ -247,7 +273,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			currentThread.setContextClassLoader(component.getClassLoader());
 			// create the actual usage parameter instance and map it in the
 			// mbean
-			InstalledUsageParameterSet installedUsageParameterSet = (InstalledUsageParameterSet) usageParameterClass.newInstance();
+			AbstractUsageParameterSet installedUsageParameterSet = (AbstractUsageParameterSet) AbstractUsageParameterSet.newInstance(usageParameterClass, notificationSource, name, sleeContainer);
 			// create and register the usage mbean
 			Class<?> usageParameterMBeanClass = component
 					.getUsageParametersMBeanImplConcreteClass();
@@ -264,7 +290,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			sleeContainer.getMBeanServer().registerMBean(usageMbean,
 					usageParameterMBeanObjectName);
 			// set the usage param data related with the mbean
-			installedUsageParameterSet.setName(name);
+			
 			installedUsageParameterSet.setUsageMBean(usageMbean);
 			usageMbean.setUsageParameter(installedUsageParameterSet);
 			// store the mbean
@@ -331,7 +357,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	/*
 	 * verifies a name for an usage mbean
 	 */
-	private boolean isValidUsageParameterName(String str) {
+	private static boolean isValidUsageParameterName(String str) {
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			if (!(Character.isDigit(c) || Character.isLetter(c) || (c <= '\u007e' && c >= '\u0020'))) {
@@ -393,7 +419,21 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			usageMBeanImpl = defaultUsageMBean;
 		}
 		if (usageMBeanImpl == null) {
-			throw new UnrecognizedUsageParameterSetNameException(name);
+			
+			if(sleeContainer.getUsageMBeansConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(notificationSource, name,sleeContainer.getCluster().getMobicentsCache()))
+			{
+				try {
+					_createUsageParameterSet(name);
+					return _getUsageMBean(name);
+				} catch (NullPointerException e) {
+					throw new ManagementException("Failed recreating usage param bean!",e);
+				} catch (UsageParameterSetNameAlreadyExistsException e) {
+					throw new ManagementException("Failed recreating usage param bean!",e);
+				}
+			}else
+			{
+				throw new UnrecognizedUsageParameterSetNameException(name);	
+			}
 		} else {
 			return usageMBeanImpl.getObjectName();
 		}
@@ -422,7 +462,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	public String[] getUsageParameterSets() throws ManagementException {
 		
 		ensureMBeanIsNotClosed();
-		
+		checkClusteredParameters();
 		return getUsageParameterNamesSet().toArray(new String[0]);
 	}
 
@@ -431,7 +471,11 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	 * @return
 	 */
 	public Set<String> getUsageParameterNamesSet() {
-		
+		try {
+			checkClusteredParameters();
+		} catch (Throwable e) {
+			getLogger().error(e.getMessage(),e);			
+		}
 		return usageMBeans.keySet();
 	}
 
@@ -459,6 +503,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			UnrecognizedUsageParameterSetNameException, ManagementException {
 		if (paramSetName == null)
 			throw new NullPointerException("usage param set is null");
+		//FIXME: should we recreate beans here as well ?
 		_removeUsageParameterSet(paramSetName,true);
 	}
 
@@ -488,11 +533,18 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 			if (name == null) {
 				removeNotificationManager();
 			}
+			//FIXME: Here possibly we should mark to be remove, or remove and throw exception o demands...?
+			boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
+			if( !clustered)
+			{
+				//we are last, lets clear cache
+				usageMbean.getUsageParameter().remove();
+			}
 		} catch (Throwable e) {
 			// rollback changes
 			if (usageMbean != null) {
 				if (name != null) {
-					// remove from this mbean map
+					// add to this mbean map
 					usageMbean = this.usageMBeans.put(name, usageMbean);
 				} else {
 					defaultUsageMBean = usageMbean;
@@ -519,7 +571,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	public void resetAllUsageParameters() throws ManagementException {
 		
 		ensureMBeanIsNotClosed();
-		
+		checkClusteredParameters();
 		try {
 			for (UsageMBeanImpl usageMBeanImpl : usageMBeans.values()) {
 				usageMBeanImpl.resetAllUsageParameters();
@@ -582,11 +634,11 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 
 	/**
 	 * Convenience method to retrieve the default
-	 * {@link InstalledUsageParameterSet}
+	 * {@link AbstractUsageParameterSet}
 	 * 
 	 * @return
 	 */
-	public InstalledUsageParameterSet getDefaultInstalledUsageParameterSet() {
+	public AbstractUsageParameterSet getDefaultInstalledUsageParameterSet() {
 		if (defaultUsageMBean != null) {
 			return defaultUsageMBean.getUsageParameter();
 		} else {
@@ -595,20 +647,32 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 	}
 
 	/**
-	 * Convenience method to retrieve the {@link InstalledUsageParameterSet} for
+	 * Convenience method to retrieve the {@link AbstractUsageParameterSet} for
 	 * the specified param set name.
 	 * 
 	 * @param name
 	 * @return
 	 */
-	public InstalledUsageParameterSet getInstalledUsageParameterSet(String name) {
+	public AbstractUsageParameterSet getInstalledUsageParameterSet(String name) {
 
 		if (name == null) {
 			return getDefaultInstalledUsageParameterSet();
 		} else {
 			UsageMBeanImpl usageMBean = usageMBeans.get(name);
 			if (usageMBean == null) {
-				return null;
+				if(sleeContainer.getUsageMBeansConfiguration().isClusteredUsageMBeans() && UsageMBeanCacheData.setExists(notificationSource, name,sleeContainer.getCluster().getMobicentsCache()))
+				{
+					try {
+						_createUsageParameterSet(name);
+						return getInstalledUsageParameterSet(name);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					} 
+
+				}else
+				{
+					return null;
+				}
 			} else {
 				return usageMBean.getUsageParameter();
 			}

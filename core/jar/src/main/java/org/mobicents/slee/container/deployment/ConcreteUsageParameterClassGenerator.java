@@ -24,43 +24,34 @@ package org.mobicents.slee.container.deployment;
 
 import java.beans.Introspector;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import javassist.CannotCompileException;
 import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import javassist.Modifier;
+import javassist.NotFoundException;
 
 import javax.slee.usage.SampleStatistics;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.deployment.ClassPool;
-import org.mobicents.slee.container.management.jmx.InstalledUsageParameterSet;
-import org.mobicents.slee.container.management.jmx.UsageMBeanImpl;
+import org.mobicents.slee.runtime.usage.AbstractUsageParameterSet;
 
 /**
  * @author M.Ranganathan
  * @author martins
- *  
+ * @author baranowb 
  */
 public class ConcreteUsageParameterClassGenerator {
 
     private static Logger logger = Logger.getLogger(ConcreteUsageParameterClassGenerator.class);
 
-    private static final String NAME_FIELD = "name";
+    private static final String _METHOD_INCREMENT_="incrementParameter";
+    private static final String _METHOD_GET_PARAMETER_="getParameter";
+    private static final String _METHOD_SAMPLE_="sampleParameter";
+    private static final String _METHOD_GET_SAMPLE_="getParameterSampleStatistics";
+    private static final String _METHOD_GET_PARAM_NAMES_="getParameterNames";
 
-    public static final String SET_NAME = "setName";
-
-    public static final String GET_NAME = "getName";
-
-    private static final String USAGE_PARAMETER_MBEAN_FIELD = "usageMBean";
-
-    public static final String SET_USAGE_PARAMETER_MBEAN = "setUsageMBean";
-
-    public static final String GET_USAGE_PARAMETER_MBEAN = "getUsageMBean";
     
     private final ClassPool classPool;
 
@@ -76,46 +67,30 @@ public class ConcreteUsageParameterClassGenerator {
     	this.classPool = classPool;
     }
 
-    public Class<?> generateConcreteUsageParameterClass() throws Exception {
-        
-    	CtClass usageParamInterface = classPool.get(usageParameterInterfaceName);
+	public Class<?> generateConcreteUsageParameterClass() throws Exception {
+		CtClass usageParamInterface = classPool.get(usageParameterInterfaceName);
 
-        String concreteClassName = usageParameterInterfaceName + "Impl";       
-        
-        CtClass implClassInterface = classPool.get(InstalledUsageParameterSet.class.getName());
-        
-        CtMethod[] methods = usageParamInterface.getMethods();
-        
-        CtClass ctClass = classPool.makeClass(concreteClassName);
-		
-        try {
-                   
-            //Generates the implements link
+		String concreteClassName = usageParameterInterfaceName + "Impl";
+
+		CtClass abstractSuperClass = classPool.get(AbstractUsageParameterSet.class.getName());
+
+		CtMethod[] methods = usageParamInterface.getMethods();
+
+		CtClass ctClass = classPool.makeClass(concreteClassName);
+
+		try {
+			//Generates the implements link
             ConcreteClassGeneratorUtils.createInterfaceLinks(ctClass,
-                    new CtClass[] { usageParamInterface, implClassInterface });
-            // generate the "usage mbean" field, getter and setter
-            CtField ctField = new CtField(classPool.get(UsageMBeanImpl.class
-                    .getName()), USAGE_PARAMETER_MBEAN_FIELD, ctClass);
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);            
-            generateUsageMBeanSetter(ctClass);
-            generateUsageMBeanGetter(ctClass);
-            // generate the "name" field, getter and setter
-            ctField = new CtField(classPool.get(String.class.getName()),
-                    NAME_FIELD, ctClass);
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            generateNameSetter(ctClass);
-            generateNameGetter(ctClass);
-            // generate concrete methods for each usage param
+                    new CtClass[] { usageParamInterface });
+            ConcreteClassGeneratorUtils.createInheritanceLink(ctClass, abstractSuperClass);
+			
             for (int i = 0; i < methods.length; i++) {
                 generateConcreteMethod(ctClass, methods[i]);
             }
-            // generate reset method
-            generateResetMethod(ctClass);
-            // generate constructor
-            createDefaultConstructor(ctClass);
-            // write file
+            
+            generateParamNamesGetter(abstractSuperClass,ctClass);
+            //generateResetMethod(ctClass);
+         // write file
             ctClass.writeFile(deploymentDir);
             if (logger.isDebugEnabled())
                 logger.debug("UsageParameterGenerator Writing file "
@@ -123,86 +98,39 @@ public class ConcreteUsageParameterClassGenerator {
             Class<?> retval = Thread.currentThread().getContextClassLoader()
                     .loadClass(concreteClassName);
             return retval;
-        } finally {
-            
-            ctClass.defrost();
-        }
-    }
+		} finally {
 
-    private void generateUsageMBeanSetter(CtClass concreteClass)
-            throws Exception {
-
-        String body = "public void " + SET_USAGE_PARAMETER_MBEAN + " ( "
-                + UsageMBeanImpl.class.getName() + " usageMbean ) { this."
-                + USAGE_PARAMETER_MBEAN_FIELD + "= usageMbean; }";
-        CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
-        concreteClass.addMethod(ctMethod);
-    }
-
-    private void generateUsageMBeanGetter(CtClass concreteClass)
-            throws Exception {
-        String body = "public " + UsageMBeanImpl.class.getName() + " "
-                + GET_USAGE_PARAMETER_MBEAN + "() {";
-        body += "return " + USAGE_PARAMETER_MBEAN_FIELD + "; }";
-        CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
-        concreteClass.addMethod(ctMethod);
-
-    }
-   
-    private void generateNameGetter(CtClass concreteClass) throws Exception {
-        String body = "public " + String.class.getName()
-                + " getName() { return " + NAME_FIELD + "; } ";
-        CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
-        concreteClass.addMethod(ctMethod);
-    }
-
-    private void generateNameSetter(CtClass concreteClass) throws Exception {
-        String body = "public void " + SET_NAME + "( "
-                + java.lang.String.class.getName() + " n) { " + NAME_FIELD
-                + " = n   ; } ";
-        CtMethod ctMethod = CtNewMethod.make(body, concreteClass);
-        concreteClass.addMethod(ctMethod);
-    }
-
-    private void createDefaultConstructor(CtClass concreteClass) {
-
-        CtConstructor defaultConstructor = new CtConstructor(null,
-                concreteClass);
-        String constructorBody = "{ this.reset(); }";
-        try {
-            defaultConstructor.setBody(constructorBody);
-            concreteClass.addConstructor(defaultConstructor);
-            logger.debug("DefaultConstructor created");
-        } catch (CannotCompileException e) {
-            //Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
+			ctClass.defrost();
+		}
+	}
     
+  
 
-    /**
-     * Reset the usage parameters.
-     */
-    private void generateResetMethod(CtClass ctClass) throws Exception {
-        String body = "public synchronized void reset() {";
-        for (Iterator<String> it = this.generatedFields.iterator(); it.hasNext();) {
-            String generatedField = (String) it.next();
-            if ( generatedField.endsWith("Max")) {
-                body += generatedField + " = Long.MIN_VALUE  ; ";
-            } else if ( generatedField.endsWith("Min")) {
-                body += generatedField + " = Long.MAX_VALUE ; ";
-            } else 
-                body += generatedField + " = 0; ";
-        }
-        body += "}";
-        if ( logger.isDebugEnabled()) {
-            logger.debug("generateResetMethod(): body = " + body);
-        }
-        CtMethod newMethod = CtNewMethod.make(body, ctClass);
-        ctClass.addMethod(newMethod);
-    }
+    private void generateParamNamesGetter(CtClass declaring, CtClass destination) throws NotFoundException, CannotCompileException {
+		//little helper method, it is used on init, only once.
+    	CtMethod abstractMethod = declaring.getDeclaredMethod(_METHOD_GET_PARAM_NAMES_);
+    	CtMethod concreteMethod = CtNewMethod.copy(abstractMethod,
+    			destination, null);
+		String body="{";
+		body += java.util.HashSet.class.getName()+" ret = new "+java.util.HashSet.class.getName()+"();";
+		for(String fieldName : this.generatedFields)
+		{
+			body +="ret.add(\""+fieldName+"\");";
+		}
+		
+		
+		body += "return ($r)ret;";
+		body += "}";
+		
+		 if (logger.isDebugEnabled()) {
+	        	logger.debug("Adding get usage param names getter with source "+body);
+	        }
+		 
+		 concreteMethod.setBody(body);
+		 destination.addMethod(concreteMethod);
+	}
 
+	
     /**
      * @param method
      * @return
@@ -224,23 +152,8 @@ public class ConcreteUsageParameterClassGenerator {
             
         	paramName = Introspector.decapitalize(methodName.substring("increment".length()));
             
-            CtField ctField = new CtField(CtClass.longType, paramName + "Value",
-                    ctClass);
-
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Value");
-
-            ctField = new CtField(CtClass.longType, paramName + "Sum", ctClass);
-
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Sum");
             
-            ctField = new CtField(CtClass.longType, paramName + "Count", ctClass);
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Count");
+            this.generatedFields.add(paramName);
 
         } else if (methodName.startsWith("sample")) {
             /*
@@ -253,40 +166,8 @@ public class ConcreteUsageParameterClassGenerator {
             
             paramName = Introspector.decapitalize(methodName.substring("sample".length()));
             
-            CtField ctField = new CtField(CtClass.longType, paramName + "Value",
-                    ctClass);
-
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Value");
-
-            ctField = new CtField(CtClass.doubleType, paramName + "Mean", ctClass);
-
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Mean");
-
-            ctField = new CtField(CtClass.longType, paramName + "Min", ctClass);
-
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Min");
-
-            ctField = new CtField(CtClass.longType, paramName + "Max", ctClass);
-
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Max");
-
-            ctField = new CtField(CtClass.longType, paramName + "Count", ctClass);
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Count");
-            
-            ctField = new CtField(CtClass.doubleType, paramName + "Sum", ctClass);
-            ctField.setModifiers(Modifier.PRIVATE);
-            ctClass.addField(ctField);
-            this.generatedFields.add(paramName + "Sum");
+           
+            this.generatedFields.add(paramName);
 
         } else
             return; // TODO -- should I throw exception here ?
@@ -304,37 +185,17 @@ public class ConcreteUsageParameterClassGenerator {
         if (methodName.startsWith("increment")) {
 
             body += "public synchronized void " + methodName + "( long longValue ) { ";
-            // code for notification propagation here.
-
-            body += "this." + paramName + "Count += 	longValue;";
-            body += "this." + paramName + "Sum += longValue;";
-            body += "this." + paramName + "Value = longValue;";
-
-            // sendUsageNotification (long value, long seqno, String
-            // usageParameterSetName, String usageParameterName, boolean
-            // isCounter)
-
-            body += "this." + USAGE_PARAMETER_MBEAN_FIELD
-                    + ".sendUsageNotification(" + "this." + paramName + "Sum, "
-                    + "this." + paramName + "Count, " + "this." + NAME_FIELD
-                    + "," + "\"" + paramName + "\"" + ","
-                    + Boolean.TRUE.toString() + ");";
+            body +="super."+_METHOD_INCREMENT_+"(\""+paramName+"\",longValue);";
 
             body += "}";
 
-            getterBody += "public synchronized long get" + methodName.substring("increment".length())
+            getterBody += "public long get" + methodName.substring("increment".length())
                     + "( boolean reset) { ";
-            getterBody += "long tempCount = this." + paramName + "Count;";
-            getterBody += "if (reset == true) {this." + paramName + "Count=0;";
-            getterBody += "this." + paramName + "Sum = 0;";
-            getterBody += "this." + paramName + "Value = 0;}";
-            //getterBody += "this." + paramName + "Min = Long.MAX_VALUE ;";
-            //getterBody += "this." + paramName + "Max = Long.MIN_VALUE ;}";
-            getterBody += "return tempCount;";
+            getterBody +="return super."+_METHOD_GET_PARAMETER_+"(\""+paramName+"\",reset);";
             getterBody += "}";
             
             getter11Body += "public long get" + methodName.substring("increment".length())
-            + "() { return get" + methodName.substring("increment".length())+ "(false); }";
+            + "() { return super."+_METHOD_GET_PARAMETER_+"(\""+paramName+"\",false); }";
 
         } else if (methodName.startsWith("sample")) {
             /*
@@ -345,45 +206,17 @@ public class ConcreteUsageParameterClassGenerator {
              * parameter through the SLEE’s management interface.
              */
 
-            body += "public synchronized void " + methodName + "( long longValue ) { ";
-            body += "this." + paramName + "Sum += longValue;";
-            body += "this." + paramName + "Mean = this." + paramName + "Sum / (this." + paramName + "Count+1);";
-            body += " if ( this." + paramName + "Max <  longValue ) this."
-                    + paramName + "Max = longValue;";
-            body += " if ( this." + paramName + "Min >  longValue ) this."
-                    + paramName + "Min = longValue;";
-            body += "this." + paramName + "Count++;";
-            
-            // sendUsageNotification (long value, long seqno, String
-            // usageParameterSetName, String usageParameterName, boolean
-            // isCounter)
-
-            body += "this." + USAGE_PARAMETER_MBEAN_FIELD
-                    + ".sendUsageNotification( longValue, "
-                    + "this." + paramName + "Count, " + "this." + NAME_FIELD
-                    + "," + "\"" + paramName + "\"" + ","
-                    + Boolean.FALSE.toString() + ");";
-
+            body += "public void " + methodName + "( long longValue ) { ";
+            body += "super."+_METHOD_SAMPLE_+"(\""+paramName+"\",longValue);";
             body += "}";
 
-            getterBody += "public synchronized " + SampleStatistics.class.getName() + " get"
+            getterBody += "public " + SampleStatistics.class.getName() + " get"
                     + methodName.substring("sample".length()) + "( boolean reset) { ";
-            getterBody += SampleStatistics.class.getName() + " tempValue"
-                    + "= new " + SampleStatistics.class.getName()
-                    + "(this." + paramName + "Count, " + "this." + paramName
-                    + "Min, " + "this." + paramName + "Max, " + "this."
-                    + paramName + "Mean);";
-            getterBody += "if (reset == true) {this." + paramName + "Count=0;";
-            getterBody += "this." + paramName + "Sum = 0;";
-            getterBody += "this." + paramName + "Mean = 0;";
-            getterBody += "this." + paramName + "Value = 0;";
-            getterBody += "this." + paramName + "Min = Long.MAX_VALUE ;";
-            getterBody += "this." + paramName + "Max = Long.MIN_VALUE ;}";
-            getterBody += "return tempValue;";
+            getterBody += "return super."+_METHOD_GET_SAMPLE_+"(\""+paramName+"\",reset);";
             getterBody += "}";
             
             getter11Body += "public " + SampleStatistics.class.getName() + " get" + methodName.substring("sample".length())
-            + "() { return get" + methodName.substring("sample".length())+ "(false); }";          
+            + "() { return super."+_METHOD_GET_SAMPLE_+"(\""+paramName+"\",false); }";          
             
         } else {
             return;
@@ -407,6 +240,8 @@ public class ConcreteUsageParameterClassGenerator {
         CtMethod setterMethod = CtNewMethod.make(body, ctClass);
         ctClass.addMethod(setterMethod);
     }
-
+   // private void generateResetMethod(CtClass ctClass) throws Exception {
+    //	
+    //}
 }
 

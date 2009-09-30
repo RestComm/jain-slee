@@ -21,6 +21,8 @@ import javax.slee.management.SubsystemNotification;
 import javax.slee.usage.UsageMBean;
 import javax.slee.usage.UsageNotification;
 
+import org.mobicents.slee.runtime.usage.AbstractUsageParameterSet;
+
 public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 		NotificationBroadcaster {
 
@@ -44,7 +46,7 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 		return mbeanNotificationInfo;
 	}
 		
-	private InstalledUsageParameterSet usageParameterSet;
+	private AbstractUsageParameterSet usageParameterSet;
 	private UsageMBeanImplParent parent;
 	private final NotificationSource notificationSource;
 	private ObjectName objectName;
@@ -68,11 +70,11 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 	}
 	
 	public void setUsageParameter(
-			InstalledUsageParameterSet usageParameterSet) {
+			AbstractUsageParameterSet usageParameterSet) {
 		this.usageParameterSet = usageParameterSet;
 	}
 	
-	public InstalledUsageParameterSet getUsageParameter() {
+	public AbstractUsageParameterSet getUsageParameter() {
 		return usageParameterSet;
 	}
 	
@@ -95,7 +97,7 @@ public class UsageMBeanImpl extends StandardMBean implements UsageMBean,
 	}
 
 	public String getUsageParameterSet() throws ManagementException {
-		return usageParameterSet.getName();
+		return usageParameterSet.getParameterSetName();
 	}
 
 	public void resetAllUsageParameters() throws ManagementException {

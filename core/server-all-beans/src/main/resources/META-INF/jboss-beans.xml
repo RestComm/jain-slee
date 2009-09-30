@@ -54,6 +54,10 @@
 		<property name="hibernateDialect">org.hibernate.dialect.PostgreSQLDialect</property>
 	</bean>
 	
+	<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
+		<property name="clusteredUsageMBeans">false</property>		
+	</bean>
+	
 	<bean name="Mobicents.JAINSLEE.Container" class="org.mobicents.slee.container.SleeContainer">
 		<constructor>
 			<parameter>
@@ -71,6 +75,9 @@
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" />
 				<!-- <inject bean="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" /> -->
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.UsageMbeans.Config" />
 			</parameter>
 		</constructor>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>

@@ -40,7 +40,6 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.EventTypeComponent;
-import org.mobicents.slee.container.component.SbbComponent;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
@@ -604,7 +603,7 @@ public class ServiceManagement {
 		// FIXME what about clustering and usage mbean ???
 		
 		// creates and registers the service usage mbean
-		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(serviceComponent);
+		final ServiceUsageMBeanImpl serviceUsageMBean = new ServiceUsageMBeanImpl(serviceComponent,sleeContainer);
 		// add rollback action to remove state created
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
@@ -718,7 +717,7 @@ public class ServiceManagement {
 			TransactionalAction action = new TransactionalAction() {
 				public void execute() {
 					try {
-						new ServiceUsageMBeanImpl(serviceComponent);									
+						new ServiceUsageMBeanImpl(serviceComponent,sleeContainer);									
 					}
 					catch (Throwable e) {
 						logger.error(e.getMessage(),e);
