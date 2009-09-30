@@ -19,6 +19,7 @@ import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTable;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
+import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -155,6 +156,8 @@ public abstract class TimerExampleSbb implements javax.slee.Sbb {
 			javax.slee.serviceactivity.ServiceStartedEvent event,
 			ActivityContextInterface aci) {
 		
+		getDefaultSbbUsageParameterSet().incrementEventCount(1L);
+		
 		tracer.info("Service activated, creating profile and setting 5 minute timer.");
 
 		// get profile table (create if needed)
@@ -208,6 +211,9 @@ public abstract class TimerExampleSbb implements javax.slee.Sbb {
 	}
 
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
+		
+		getDefaultSbbUsageParameterSet().incrementEventCount(1L);
+		
 		// get profile and trace its name and 
 		ProfileLocalObject profileLocalObject = getProfile();
 		tracer.info("Timer event received, CMP field has a profile with name "+profileLocalObject.getProfileName()+" in table with name "+profileLocalObject.getProfileTableName()+". It stores "+((TimerExampleProfileCMP)profileLocalObject).getValue());
@@ -224,4 +230,7 @@ public abstract class TimerExampleSbb implements javax.slee.Sbb {
 		}
 	}
 
+	public abstract TimerExampleUsageParameter getDefaultSbbUsageParameterSet();
+	public abstract TimerExampleUsageParameter getSbbUsageParameterSet(String name) throws UnrecognizedUsageParameterSetNameException;
+	
 }

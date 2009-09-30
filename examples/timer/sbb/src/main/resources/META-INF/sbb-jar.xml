@@ -23,6 +23,12 @@
 					<cmp-field-name>profile</cmp-field-name>
 				</cmp-field>				
 			</sbb-abstract-class>
+			<sbb-usage-parameters-interface>
+				<sbb-usage-parameters-interface-name>
+					org.mobicents.slee.example.TimerExampleUsageParameter
+				</sbb-usage-parameters-interface-name>
+				<usage-parameter name="eventCount" notifications-enabled="False"/>
+			</sbb-usage-parameters-interface>			
 		</sbb-classes>
 
 		<event event-direction="Receive" initial-event="True">
