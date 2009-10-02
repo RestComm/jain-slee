@@ -17,7 +17,7 @@
 	<!-- DTDs have to be parsed one by one, additionaly there are elements with the same name but with different content... -->
 	<modules>
 		<!-- Library has to go first, it removes whole src -->
-		<module>library</module>
+		<!-- <module>library</module>
 		<module>du11</module>
 		<module>event11</module>
 		<module>ratype11</module>
@@ -25,7 +25,6 @@
 		<module>profile11</module>
 		<module>sbb11</module>
 		<module>service11</module>
-		
 		<module>du</module>
 		<module>event</module>
 		<module>ratype</module>
@@ -33,8 +32,9 @@
 		<module>profile</module>
 		<module>sbb</module>
 		<module>service</module>
-		<!-- Jar has to go last -->
 		<module>jar</module>
+		-->
+		<!-- Jar has to go last -->
 		<module>descriptors</module>
 		<module>test-du</module>
 	</modules>

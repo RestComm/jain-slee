@@ -39,7 +39,7 @@
 
 		<dependency>
 			<groupId>jboss.jbossts</groupId>
-			<artifactId>jbossjta</artifactId>
+			<artifactId>jbossjts</artifactId>
 		</dependency>
 
 		<!-- tests -->
@@ -57,8 +57,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>jboss.jbossts</groupId>
-			<artifactId>jbossjts</artifactId>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
 			<scope>test</scope>
 		</dependency>
 

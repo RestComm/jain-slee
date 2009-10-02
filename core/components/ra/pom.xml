@@ -89,7 +89,7 @@
 							<removeOldOutput>true</removeOldOutput>
 							<forceRegenerate>true</forceRegenerate>
 							<removeOldOutput>false</removeOldOutput>
-							<generateDirectory>../jar/src/main/java</generateDirectory>
+							<generateDirectory>${basedir}/../jar/src/main/java</generateDirectory>
 						</configuration>
 					</execution>
 				</executions>

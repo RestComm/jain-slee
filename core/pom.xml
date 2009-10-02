@@ -3,8 +3,8 @@
 	
 	<parent>
 		<groupId>org.mobicents</groupId>
-		<artifactId>mobicents</artifactId>
-		<version>9</version>
+		<artifactId>mobicents-parent</artifactId>
+		<version>2.0-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>org.mobicents.servers.jainslee.core</groupId>
@@ -44,7 +44,6 @@
 		<slee.name>Mobicents JAIN SLEE Server</slee.name>
 		<slee.vendor>JBoss, a Red Hat division</slee.vendor>
 		<slee.version>${pom.version}</slee.version>
-		<jboss.version>5.1.0.GA</jboss.version>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.0.0BETA1-SNAPSHOT</mobicents.cluster.version>
 		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
@@ -73,48 +72,6 @@
 				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>server-default-beans</artifactId>
 				<version>${mobicents.cluster.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-				<artifactId>jboss-as-component-matrix</artifactId>
-				<version>${jboss.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-  			<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-  				<artifactId>jboss-as-cluster</artifactId>
-				<version>${jboss.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-				<artifactId>jboss-as-jmx</artifactId>
-				<version>${jboss.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-            	<artifactId>jboss-as-j2se</artifactId>
-				<version>${jboss.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-  				<artifactId>jboss-as-system-jmx</artifactId>
-				<version>${jboss.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.jbossas</groupId>
-				<artifactId>jboss-as-server</artifactId>
-				<version>${jboss.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.slee</groupId>
-				<artifactId>jain-slee</artifactId>
-				<version>1.1</version>
-			</dependency>			
-			<dependency>
-				<groupId>jboss.jbossts</groupId>
-				<artifactId>jbossjta</artifactId>
-				<version>4.4.0.GA</version>
 			</dependency>			
 		</dependencies>
 	</dependencyManagement>
