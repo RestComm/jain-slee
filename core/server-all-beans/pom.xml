@@ -40,6 +40,18 @@
 
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
+			<artifactId>fault-tolerant-ra-api</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>fault-tolerant-ra-impl</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+				
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
 			<artifactId>jar</artifactId>
 			<version>${pom.version}</version>
 		</dependency>

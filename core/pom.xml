@@ -25,6 +25,7 @@
 		<module>transaction</module>
 		<module>components</module>
 		<module>jmx-property-editors</module>
+		<module>fault-tolerant-ra</module>
 		<module>jar</module>
 		<module>rar</module>
 		<module>ant-tasks</module>	
