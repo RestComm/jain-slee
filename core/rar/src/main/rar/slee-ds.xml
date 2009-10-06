@@ -22,7 +22,7 @@
           <connection-definition>javax.slee.connection.SleeConnectionFactory</connection-definition>
 
           <config-property name="SleeJndiName" type="java.lang.String">jnp://${jboss.bind.address}:1099/SleeService</config-property>
-          <depends>slee:service=SleeManagement</depends>
+          <depends>javax.slee.management:name=SleeManagement</depends>
           
       </tx-connection-factory>
       
