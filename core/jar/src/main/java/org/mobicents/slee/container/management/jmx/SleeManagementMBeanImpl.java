@@ -25,6 +25,7 @@ import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.Version;
+import org.mobicents.slee.container.deployment.jboss.DeploymentManager;
 import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.resource.ResourceAdaptorObjectState;
 import org.mobicents.slee.runtime.activity.ActivityContext;
@@ -458,7 +459,9 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 	 */
 	protected void stopSleeContainer() throws Exception {
 
-		changeSleeState(SleeState.STOPPING);
+    DeploymentManager.INSTANCE.sleeIsStopping();
+
+    changeSleeState(SleeState.STOPPING);
 
 		logger.info(generateMessageWithLogo("stopping"));
 

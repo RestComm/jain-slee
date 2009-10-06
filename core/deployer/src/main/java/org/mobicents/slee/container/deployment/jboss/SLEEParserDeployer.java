@@ -9,31 +9,31 @@ import org.jboss.deployers.vfs.spi.structure.VFSDeploymentUnit;
 import org.jboss.logging.Logger;
 import org.jboss.virtual.VirtualFile;
 
+/**
+ * 
+ * JAIN SLEE Parser Deployer for JBoss AS 5.x
+ *
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ */
 public class SLEEParserDeployer extends AbstractVFSParsingDeployer<SLEEDeploymentMetaData>
 {
 
   private static Logger logger = Logger.getLogger( SLEEParserDeployer.class );
 
-  public SLEEParserDeployer()
-  {
+  public SLEEParserDeployer() {
     super(SLEEDeploymentMetaData.class);
     setSuffix(".jar");
     setStage(DeploymentStages.PRE_DESCRIBE);
-    
+
     logger.info("Mobicents SLEE Parser Deployer initialized.");
   }
 
-  protected SLEEDeploymentMetaData parse(VFSDeploymentUnit vfsDU, VirtualFile virtualFile, SLEEDeploymentMetaData sdmd) throws Exception
-  {    
+  protected SLEEDeploymentMetaData parse(VFSDeploymentUnit vfsDU, VirtualFile virtualFile, SLEEDeploymentMetaData sdmd) throws Exception {    
     return new SLEEDeploymentMetaData(vfsDU);
   }
 
-  protected SLEEDeploymentMetaData parse(DeploymentUnit du, String str1, String str2, SLEEDeploymentMetaData sdmd) throws Exception
-  {
-    //logger.info("»»» SLEEParserDeployer »» protected SLEEDeploymentMetaData parse(VFSDeploymentUnit vfsDU, VirtualFile virtualFile, SLEEDeploymentMetaData sdmd)");
-
-    if(logger.isTraceEnabled())
-    {
+  protected SLEEDeploymentMetaData parse(DeploymentUnit du, String str1, String str2, SLEEDeploymentMetaData sdmd) throws Exception {
+    if(logger.isTraceEnabled()) {
       logger.trace("SLEEParserDeployer 'parse' called:");
       logger.trace("du................." + du);
       logger.trace("str1..............." + str1);
@@ -43,14 +43,13 @@ public class SLEEParserDeployer extends AbstractVFSParsingDeployer<SLEEDeploymen
 
     SLEEDeploymentMetaData _sdmd = new SLEEDeploymentMetaData(du);
 
-    if(_sdmd.componentType == SLEEDeploymentMetaData.ComponentType.DU)
-    {
+    if(_sdmd.componentType == SLEEDeploymentMetaData.ComponentType.DU) {
       ClassLoadingMetaData classLoadingMetaData = du.getAttachment(ClassLoadingMetaData.class);
 
       if(logger.isTraceEnabled()) {
         logger.trace("Got Classloading MetaData: " + classLoadingMetaData);
       }
-      
+
       classLoadingMetaData = new ClassLoadingMetaData10();
       classLoadingMetaData.setName(du.getSimpleName());
       classLoadingMetaData.setIncludedPackages("");
@@ -58,9 +57,9 @@ public class SLEEParserDeployer extends AbstractVFSParsingDeployer<SLEEDeploymen
       if(logger.isTraceEnabled()) {
         logger.trace("Set Classloading MetaData: " + classLoadingMetaData);
       }
-      
+
       du.addAttachment(ClassLoadingMetaData.class, classLoadingMetaData);
-      
+
       return _sdmd;
     }
 

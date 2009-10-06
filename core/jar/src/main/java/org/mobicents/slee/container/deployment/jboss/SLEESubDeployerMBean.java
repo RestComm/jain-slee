@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.deployment.jboss;
 
+import java.net.URL;
+
 import javax.management.ObjectName;
 
 import org.jboss.deployment.DeploymentException;
@@ -17,25 +19,20 @@ import org.jboss.mx.util.ObjectNameFactory;
 public interface SLEESubDeployerMBean extends SubDeployerExtMBean {
 
   // The default ObjectName
-  public static final ObjectName OBJECT_NAME =
-     ObjectNameFactory.create("jboss.system:service=SLEESubDeployer");
-  
+  public static final ObjectName OBJECT_NAME = ObjectNameFactory.create("jboss.system:service=SLEESubDeployer");
+
   String showStatus() throws DeploymentException;
 
   public void setWaitTimeBetweenOperations(long waitTime);
 
   public long getWaitTimeBetweenOperations();
 
-  public boolean accepts(DeployableUnitWrapper du) throws DeploymentException;
+  public boolean accepts(URL deployableUnitURL) throws DeploymentException;
 
-  public void init(DeployableUnitWrapper du) throws DeploymentException;
-  
-  public void create(DeployableUnitWrapper du) throws DeploymentException;
+  public void init(URL deployableUnitURL) throws DeploymentException;
 
-  public void start(DeployableUnitWrapper du) throws DeploymentException;
+  public void start(URL deployableUnitURL) throws DeploymentException;
 
-  public void stop(DeployableUnitWrapper du) throws DeploymentException;
-
-  public void destroy(DeployableUnitWrapper du) throws DeploymentException;
+  public void stop(URL deployableUnitURL) throws DeploymentException;
 
 }

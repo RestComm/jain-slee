@@ -9,6 +9,12 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * 
+ * Entity Resolver for JAIN SLEE DTDs used by Deployer 
+ *
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
+ */
 public class SLEEDeployerEntityResolver implements EntityResolver {
 
   private Hashtable<String, URL> resources = null;
@@ -50,12 +56,10 @@ public class SLEEDeployerEntityResolver implements EntityResolver {
   {
     URL url = this.getClass().getClassLoader().getResource(resourceName);
 
-    if (url != null)
-    {
+    if (url != null) {
       resources.put(publicID, url);
     }
-    else
-    {
+    else {
       throw new IllegalStateException("Cannot find resource:" + resourceName);
     }
   }
@@ -73,16 +77,15 @@ public class SLEEDeployerEntityResolver implements EntityResolver {
   public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException
   {
     URL resourceURL = resources.get(publicId);
-    
-    if(resourceURL != null)
-    {
+
+    if(resourceURL != null) {
       InputStream resourceStream = resourceURL.openStream();
       InputSource is = new InputSource(resourceStream);
       is.setPublicId(publicId);
       is.setSystemId(resourceURL.toExternalForm());
       return is;
     }
-    
+
     return null;
   }
 }
