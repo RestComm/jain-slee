@@ -541,7 +541,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     }
 
     DiameterActivityImpl activity = (DiameterActivityImpl) getActivity(handle);
-    if(activity.terminateAfterProcessing) {
+    if(activity.isTerminateAfterProcessing()) {
       this.sleeEndpoint.endActivity(handle);
     }
   }
