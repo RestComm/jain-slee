@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mobicents.servers.diameter.resources</groupId>
+		<artifactId>base-common-parent</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>base-common-events</artifactId>
+
+	<name>Mobicents :: Diameter Resources :: ${pom.artifactId}</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.mobicents.servers.diameter</groupId>
+			<artifactId>mobicents-diameter-mux-jar</artifactId>
+			<version>${mobicents.diameter.mux.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.servers.diameter</groupId>
+			<artifactId>jdiameter-api</artifactId>
+			<version>${mobicents.diameter.jdiameter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.servers.diameter</groupId>
+			<artifactId>jdiameter-impl</artifactId>
+			<version>${mobicents.diameter.jdiameter.version}</version>
+		</dependency>
+	</dependencies>
+</project>
