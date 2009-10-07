@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd">
+
+<resource-adaptor-type-jar>
+
+  <description />
+
+  <resource-adaptor-type>
+
+    <description>Diameter Sh Client Resource Adaptor Type</description>
+
+    <resource-adaptor-type-name>Diameter Sh-Client</resource-adaptor-type-name>
+    <resource-adaptor-type-vendor>java.net</resource-adaptor-type-vendor>
+    <resource-adaptor-type-version>0.8.1</resource-adaptor-type-version>
+
+    <resource-adaptor-type-classes>
+      <activity-type>
+        <activity-type-name>net.java.slee.resource.diameter.sh.client.ShClientActivity</activity-type-name>
+      </activity-type>
+      <activity-type>
+        <activity-type-name>net.java.slee.resource.diameter.sh.client.ShClientSubscriptionActivity</activity-type-name>
+      </activity-type>
+      <activity-context-interface-factory-interface>
+        <activity-context-interface-factory-interface-name>net.java.slee.resource.diameter.sh.client.ShClientActivityContextInterfaceFactory</activity-context-interface-factory-interface-name>
+      </activity-context-interface-factory-interface>
+      <resource-adaptor-interface>
+        <resource-adaptor-interface-name>net.java.slee.resource.diameter.sh.client.ShClientProvider</resource-adaptor-interface-name>
+      </resource-adaptor-interface>
+    </resource-adaptor-type-classes>
+
+    <event-type-ref>
+      <event-type-name>net.java.slee.resource.diameter.sh.events.UserDataAnswer</event-type-name>
+      <event-type-vendor>java.net</event-type-vendor>
+      <event-type-version>0.8</event-type-version>
+    </event-type-ref>
+
+    <event-type-ref>
+      <event-type-name>net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer</event-type-name>
+      <event-type-vendor>java.net</event-type-vendor>
+      <event-type-version>0.8</event-type-version>
+    </event-type-ref>
+
+    <event-type-ref>
+      <event-type-name>net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer</event-type-name>
+      <event-type-vendor>java.net</event-type-vendor>
+      <event-type-version>0.8</event-type-version>
+    </event-type-ref>
+
+    <event-type-ref>
+      <event-type-name>net.java.slee.resource.diameter.sh.events.PushNotificationRequest</event-type-name>
+      <event-type-vendor>java.net</event-type-vendor>
+      <event-type-version>0.8</event-type-version>
+    </event-type-ref>
+  </resource-adaptor-type>
+
+</resource-adaptor-type-jar>

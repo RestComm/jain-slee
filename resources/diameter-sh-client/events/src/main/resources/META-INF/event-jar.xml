@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+<event-jar>
+  <description>Diameter Sh Client Events</description>
+
+  <library-ref>
+    <library-name>diameter.sh.common</library-name>
+    <library-vendor>java.net</library-vendor>
+    <library-version>1.0</library-version>
+  </library-ref>
+
+  <event-definition>
+    <event-type-name>net.java.slee.resource.diameter.sh.events.UserDataAnswer</event-type-name>
+    <event-type-vendor>java.net</event-type-vendor>
+    <event-type-version>0.8</event-type-version>
+    <event-class-name>net.java.slee.resource.diameter.sh.events.UserDataAnswer</event-class-name>
+  </event-definition>
+
+  <event-definition>
+    <event-type-name>net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer</event-type-name>
+    <event-type-vendor>java.net</event-type-vendor>
+    <event-type-version>0.8</event-type-version>
+    <event-class-name>net.java.slee.resource.diameter.sh.events.ProfileUpdateAnswer</event-class-name>
+  </event-definition>
+
+  <event-definition>
+    <event-type-name>net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer</event-type-name>
+    <event-type-vendor>java.net</event-type-vendor>
+    <event-type-version>0.8</event-type-version>
+    <event-class-name>net.java.slee.resource.diameter.sh.events.SubscribeNotificationsAnswer</event-class-name>
+  </event-definition>
+
+  <event-definition>
+    <event-type-name>net.java.slee.resource.diameter.sh.events.PushNotificationRequest</event-type-name>
+    <event-type-vendor>java.net</event-type-vendor>
+    <event-type-version>0.8</event-type-version>
+    <event-class-name>net.java.slee.resource.diameter.sh.events.PushNotificationRequest</event-class-name>
+  </event-definition>
+</event-jar>
