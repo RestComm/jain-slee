@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?> <!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+
+<scenario name="Basic UAS responder">
+
+ <recv request="INVITE" crlf="true">
+ 	<action>
+    	<ereg regexp=".*" search_in="hdr" header="CSeq:" check_it="true" assign_to="1" /> 
+  </action>
+ 
+ </recv>
+
+
+ <send>
+   <![CDATA[
+
+     SIP/2.0 100 Trying
+     [last_Via:]
+     [last_From:]
+     [last_To:]
+     [last_Call-ID:]
+     [last_CSeq:]
+     Content-Length: 0
+
+   ]]>
+ </send>
+ 
+ <recv request="CANCEL" crlf="true">
+ </recv>
+
+
+ <send>
+   <![CDATA[
+
+     SIP/2.0 200 OK
+     [last_Via:]
+     [last_From:]
+     [last_To:]
+     [last_Call-ID:]
+     [last_CSeq:]
+     Content-Length: 0
+
+   ]]>
+ </send>
+ 
+ <send>
+   <![CDATA[
+
+     SIP/2.0 487 Request Terminated
+     [last_Via:]
+     [last_From:]
+     [last_To:]
+     [last_Call-ID:]
+     CSeq :[$1]
+     Content-Length: 0
+
+   ]]>
+ </send>
+  
+ <recv request="ACK" crlf="true">
+ </recv>
+ <pause milliseconds="4000"/>
+
+
+ <ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200"/>
+
+ <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+
+</scenario> 
