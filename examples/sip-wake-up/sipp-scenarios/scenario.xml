@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+<scenario name="Register UAC">
+
+	<!-- register -->
+
+	<send retrans="5000">
+    <![CDATA[
+    
+      REGISTER sip:mobicents.org SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]1
+      From: "Some Sleepy User" <sip:ua[call_number]@mobicents.org>;tag=[call_number]
+      To: "ua[call_number]" <sip:ua[call_number]@mobicents.org>
+      Call-ID: [call_id]
+      CSeq: 1 REGISTER
+      Contact: sip:ua[call_number]@[local_ip]:[local_port]
+      Max-Forwards: 70
+      Expires: 120
+      Content-Length: 0
+
+    ]]>
+	</send>
+
+	<recv response="100" optional="true" />
+
+	<recv response="200" optional="false" />
+
+	<pause milliseconds="1000" />
+
+	<!-- send message -->
+
+	<send retrans="5000">
+    <![CDATA[
+    
+    MESSAGE sip:wakeup@mobicents.org SIP/2.0
+    Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]1
+    From: "Some Sleepy User" <sip:ua[call_number]@mobicents.org>;tag=[call_number]
+    To: "Wake Up Service" <sip:wakeup@mobicents.org>
+    Call-ID: [call_id]
+    CSeq: 1 MESSAGE
+    Max-Forwards: 70
+    Content-Type: text/plain
+    Content-Length: 26
+    
+    WAKE UP IN 10s! MSG: BANG!
+
+    ]]>
+	</send>
+
+	<recv response="100" optional="true" />
+
+	<recv response="200" optional="false" />
+
+	<!-- receive wake up message -->
+
+	<recv request="MESSAGE" timeout="15000" />
+	
+	<send>
+	<![CDATA[
+      		
+    SIP/2.0 200 OK
+    [last_Via:]
+    [last_From:]
+    [last_To:]
+    [last_Call-ID:]
+    [last_CSeq:]
+    [last_Contact:]
+    Max-Forwards: 70
+    Content-Length: 0
+      		
+ 	]]>
+	</send>
+
+	<!-- unregister -->
+
+	<pause milliseconds="1000" />
+
+	<send retrans="5000">
+    <![CDATA[
+    
+    REGISTER sip:mobicents.org SIP/2.0
+    Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]2
+    From: "Some Sleepy User" <sip:ua[call_number]@mobicents.org>;tag=[call_number]
+    To: "ua[call_number]" <sip:ua[call_number]@mobicents.org>
+    Call-ID: [call_id]
+    CSeq: 4 REGISTER
+    Contact: sip:ua[call_number]@[local_ip]:[local_port]
+    Max-Forwards: 70
+    Expires: 0
+    Content-Length: 0
+
+    ]]>
+	</send>
+
+	<recv response="200" optional="false" />
+
+</scenario>
