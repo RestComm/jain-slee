@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?> <!DOCTYPE scenario SYSTEM "sipp.dtd">
+
+
+<scenario name="Basic Sipstone UAC">
+
+	<send rtd="false">
+   <![CDATA[
+
+    MESSAGE sip:ua[call_number]@mobicents.org SIP/2.0
+    Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]1
+    From: "ua[call_number]" <sip:ua[call_number]@[local_ip]:[local_port]>;tag=[call_number]
+    To: "Fork Sbb" <sip:forksbb@mobicents.org>
+    Call-ID: [call_id]
+    CSeq: 1 MESSAGE
+    Max-Forwards: 70
+    Content-Length: 0
+    
+   ]]>
+	</send>
+
+	<recv response="200" />
+
+	<recv request="INVITE" rrs="true">
+		<action>
+			<ereg regexp=".*" search_in="hdr" header="Via:" check_it="true"
+				assign_to="6" />
+			<ereg regexp=".*" search_in="hdr" header="CSeq:" check_it="true"
+				assign_to="7" />
+		</action>
+	</recv>
+
+	<!--  Here we have to respond as two different UAS ua1 from -->
+	<pause milliseconds="300" />
+	
+	<send rtd="false">
+     <![CDATA[
+  
+        SIP/2.0 180 Ringing
+        [last_Via:]
+        [last_From:]
+        [last_To:];tag=[call_number]-orig
+        [last_Call-ID:]
+        [last_CSeq:]
+        Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
+        Max-Forwards: 70
+        Contact: <sip:[local_ip]:5085;transport=[transport]>
+        Content-Length: 0
+  
+      ]]>
+	</send>
+
+	<pause milliseconds="800" />
+
+	<send rtd="false">
+     <![CDATA[
+  
+        SIP/2.0 180 Ringing
+        [last_Via:]
+        [last_From:]
+        [last_To:];tag=[call_number]-fork
+        [last_Call-ID:]
+        [last_CSeq:]
+        Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
+        Max-Forwards: 70
+        Contact: <sip:[local_ip]:5095;transport=[transport]>
+        Content-Length: 0
+  
+      ]]>
+	</send>
+
+	<pause milliseconds="5000" />
+	
+	<!-- the winner is ... -->
+	
+	<send rtd="false" crlf="true">
+    <![CDATA[
+
+       SIP/2.0 200 OK
+      [last_Via:]
+      [last_From:]
+       [last_To:];tag=[call_number]-fork
+      [last_Call-ID:]
+      [last_CSeq:]
+      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
+      Contact: <sip:[local_ip]:5085;transport=[transport]>
+      Content-Type: application/sdp
+      Max-Forwards: 70
+      Content-Length: [len]
+
+      v=0
+      o=user1 53655765 2353687637 IN IP4 127.0.0.1
+      s=-
+      t=0 0
+      c=IN IP4 [media_ip]
+      m=audio [media_port] RTP/AVP 0
+      a=rtpmap:0 PCMU/8000
+
+    ]]>
+	</send>
+
+	<recv request="ACK" rtd="false" timeout="1000" />
+	
+	<!-- WAIT 10s, since OK transaction lingers and swallows other legs -->
+	<pause milliseconds="10000" />
+
+	<send retrans="100000" crlf="true">
+    <![CDATA[
+
+      SIP/2.0 200 OK
+      Via: [$6]
+      [last_From:]
+      [last_To:];tag=[call_number]-orig
+      [last_Call-ID:]
+      CSeq: [$7]
+      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
+      Contact: <sip:[local_ip]:5095;transport=[transport]>
+      Content-Type: application/sdp
+      Max-Forwards: 70
+      Content-Length: [len]
+
+      v=0
+      o=user1 53655765 2353687637 IN IP4 127.0.0.1
+      s=-
+      t=0 0
+      c=IN IP4 [media_ip]
+      m=audio [media_port] RTP/AVP 0
+      a=rtpmap:0 PCMU/8000
+
+    ]]>
+	</send>
+
+	<recv request="ACK" rtd="false" />
+
+	<recv request="BYE" rtd="true" rrs="true">
+		<action>
+			<ereg regexp="-orig$" search_in="hdr" header="To:" check_it="true" assign_to="9" />
+			<assign assign_to="9" value="0" />
+		</action>
+	</recv>
+	
+	<send>
+    <![CDATA[
+
+      SIP/2.0 200 OK
+      [last_Via:]
+      [last_From:]
+      [last_To:]
+      [last_Call-ID:]
+      [last_CSeq:]
+      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
+      Contact: <sip:[local_ip]:5085;transport=[transport]>
+      Max-Forwards: 70
+      Content-Length: [len]
+    ]]>
+	</send>
+
+	<recv request="BYE" timeout="10000">
+		<action>
+			<ereg regexp="-fork$" search_in="hdr" header="To:" check_it="true" assign_to="10" />
+			<assign assign_to="10" value="0" />	
+		</action>
+	</recv>
+	
+	<send retrans="500">
+    <![CDATA[
+
+      SIP/2.0 200 OK
+      [last_Via:]
+      [last_From:]
+      [last_To:]
+      [last_Call-ID:]
+      [last_CSeq:]
+      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
+      Contact: <sip:[local_ip]:5085;transport=[transport]>
+      Max-Forwards: 70
+      Content-Length: [len]
+    ]]>
+	</send>
+
+</scenario> 
