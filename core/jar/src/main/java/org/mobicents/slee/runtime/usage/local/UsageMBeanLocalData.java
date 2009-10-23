@@ -112,18 +112,21 @@ public class UsageMBeanLocalData implements UsageMBeanData {
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.usage.UsageMBeanData#remove()
 	 */
-	public void remove() {
-		Map<String,UsageParamSetLocalData> notificationSourceUsageParamSets = notificationSourceUsageParamSetsMap.get(notificationSource);
+	public boolean remove() {
+		final Map<String,UsageParamSetLocalData> notificationSourceUsageParamSets = notificationSourceUsageParamSetsMap.get(notificationSource);
 		if (notificationSourceUsageParamSets != null) {
-			notificationSourceUsageParamSets.remove(usageParameterSetName);
-		}		
+			return notificationSourceUsageParamSets.remove(usageParameterSetName) != null;
+		}	
+		else {
+			return false;
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.runtime.usage.UsageMBeanData#setParameter(java.lang.String, org.mobicents.slee.runtime.usage.UsageParameter)
 	 */
 	public void setParameter(String parameterName, UsageParameter usageParameter) {
-		Map<String,UsageParamSetLocalData> notificationSourceUsageParamSets = notificationSourceUsageParamSetsMap.get(notificationSource);
+		final Map<String,UsageParamSetLocalData> notificationSourceUsageParamSets = notificationSourceUsageParamSetsMap.get(notificationSource);
 		if (notificationSourceUsageParamSets != null) {
 			UsageParamSetLocalData data = notificationSourceUsageParamSets.get(usageParameterSetName);
 			if (data != null) {

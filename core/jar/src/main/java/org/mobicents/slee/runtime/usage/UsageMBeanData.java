@@ -32,7 +32,7 @@ public interface UsageMBeanData {
 	/**
 	 * 
 	 */
-	void remove();
+	boolean remove();
 
 	/**
 	 * @return
