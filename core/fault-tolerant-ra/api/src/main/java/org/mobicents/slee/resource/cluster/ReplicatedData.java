@@ -6,19 +6,21 @@ package org.mobicents.slee.resource.cluster;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.slee.resource.ActivityHandle;
+
 /**
- * A container for {@link SerializableActivityHandle}, which are replicated in
+ * A container for serializable activity handles, which are replicated in
  * the SLEE cluster, but don't require any failover.
  * 
  * @author martins
  * 
  */
-public interface ReplicatedData<K extends SerializableActivityHandle, V extends Serializable> {
+public interface ReplicatedData<K extends Serializable & ActivityHandle, V extends Serializable> {
 
 	/**
 	 * Retrieves a set with data belonging to the cluster member.
 	 * 
-	 * Note that this may be a very expensive operation.
+	 * Note that this is a VERY expensive operation, with respect to performance.
 	 * 
 	 * @return
 	 */
@@ -53,10 +55,10 @@ public interface ReplicatedData<K extends SerializableActivityHandle, V extends 
 
 	/**
 	 * Removes the specified handle from replicated data.
-	 * 
 	 * @param handle
+	 * @return true if the node existed and was removed
 	 */
-	public void remove(K handle);
+	public boolean remove(K handle);
 
 	/**
 	 * Retrieves all handles being replicated, including the ones "belonging" to

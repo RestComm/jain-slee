@@ -6,6 +6,8 @@ package org.mobicents.slee.resource.cluster;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.slee.resource.ActivityHandle;
+
 import org.jboss.cache.Fqn;
 import org.mobicents.cache.CacheData;
 import org.mobicents.cluster.MobicentsCluster;
@@ -14,7 +16,7 @@ import org.mobicents.cluster.MobicentsCluster;
  * @author martins
  * 
  */
-public class ActivityHandleParentCacheData<K extends SerializableActivityHandle, V extends Serializable>
+public class ActivityHandleParentCacheData<K extends Serializable & ActivityHandle, V extends Serializable>
 		extends CacheData {
 
 	/**

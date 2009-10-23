@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.slee.resource.ActivityHandle;
+
 import org.jgroups.Address;
 import org.mobicents.cluster.MobicentsCluster;
 
@@ -15,7 +17,7 @@ import org.mobicents.cluster.MobicentsCluster;
  * @author martins
  * 
  */
-public class ReplicatedDataImpl<K extends SerializableActivityHandle, V extends Serializable>
+public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V extends Serializable>
 		implements ReplicatedData<K, V> {
 
 	/**
@@ -65,10 +67,7 @@ public class ReplicatedDataImpl<K extends SerializableActivityHandle, V extends 
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.ReplicatedActivities#getLocalHandles
-	 * ()
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#getLocalHandles()
 	 */
 	public Set<K> getLocalHandles() {
 		Set<K> set = new HashSet<K>();
@@ -90,10 +89,7 @@ public class ReplicatedDataImpl<K extends SerializableActivityHandle, V extends 
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.ReplicatedActivities#put(org.mobicents
-	 * .slee.resource.cluster.SerializableActivityHandle, java.io.Serializable)
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#put(java.io.Serializable, java.io.Serializable)
 	 */
 	public boolean put(K handle, V activity) {
 		final ActivityHandleClusteredCacheData<K, V> handleCacheData = new ActivityHandleClusteredCacheData<K, V>(
@@ -107,10 +103,7 @@ public class ReplicatedDataImpl<K extends SerializableActivityHandle, V extends 
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.ReplicatedActivities#get(org.mobicents
-	 * .slee.resource.cluster.SerializableActivityHandle)
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#get(java.io.Serializable)
 	 */
 	public V get(K handle) {
 		final ActivityHandleClusteredCacheData<K, V> handleCacheData = new ActivityHandleClusteredCacheData<K, V>(
@@ -120,10 +113,7 @@ public class ReplicatedDataImpl<K extends SerializableActivityHandle, V extends 
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.ReplicatedActivities#contains(org
-	 * .mobicents.slee.resource.cluster.SerializableActivityHandle)
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#contains(java.io.Serializable)
 	 */
 	public boolean contains(K handle) {
 		return new ActivityHandleClusteredCacheData<K, V>(cacheData, handle,
@@ -132,22 +122,16 @@ public class ReplicatedDataImpl<K extends SerializableActivityHandle, V extends 
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.ReplicatedActivities#remove(org.mobicents
-	 * .slee.resource.cluster.SerializableActivityHandle)
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#remove(java.io.Serializable)
 	 */
-	public void remove(K handle) {
-		new ActivityHandleClusteredCacheData<K, V>(cacheData, handle, cluster)
+	public boolean remove(K handle) {
+		return new ActivityHandleClusteredCacheData<K, V>(cacheData, handle, cluster)
 				.remove();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.ReplicatedActivities#getReplicatedHandles
-	 * ()
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#getReplicatedHandles()
 	 */
 	public Set<K> getReplicatedHandles() {
 		return cacheData.getAllHandles();

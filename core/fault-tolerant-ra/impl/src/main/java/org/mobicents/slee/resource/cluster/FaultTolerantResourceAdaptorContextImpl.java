@@ -5,6 +5,8 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
+import javax.slee.resource.ActivityHandle;
+
 import org.mobicents.cluster.MobicentsCluster;
 
 /**
@@ -13,7 +15,7 @@ import org.mobicents.cluster.MobicentsCluster;
  * @author martins
  * 
  */
-public class FaultTolerantResourceAdaptorContextImpl<K extends SerializableActivityHandle, V extends Serializable>
+public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable & ActivityHandle, V extends Serializable>
 		implements FaultTolerantResourceAdaptorContext<K, V> {
 
 	private static final String REPLICATED_DATA_WITH_FAILOVER_NAME = "ra-data-fo";
@@ -40,10 +42,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends SerializableActiv
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
-	 * #getFailOverReplicatedActivities()
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicatedDataWithFailover()
 	 */
 	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover() {
 		if (replicatedDataWithFailover == null) {
@@ -55,10 +54,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends SerializableActiv
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
-	 * #getReplicatedActivities()
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicateData()
 	 */
 	public ReplicatedData<K, V> getReplicateData() {
 		if (replicatedData == null) {
@@ -70,10 +66,7 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends SerializableActiv
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext
-	 * #isLocal()
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#isLocal()
 	 */
 	public boolean isLocal() {
 		return cluster.getMobicentsCache().isLocalMode();

@@ -5,6 +5,8 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
+import javax.slee.resource.ActivityHandle;
+
 import org.jboss.cache.Fqn;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.cluster.cache.ClusteredCacheData;
@@ -13,7 +15,7 @@ import org.mobicents.cluster.cache.ClusteredCacheData;
  * @author martins
  * 
  */
-public class ActivityHandleClusteredCacheData<K extends SerializableActivityHandle, V extends Serializable>
+public class ActivityHandleClusteredCacheData<K extends Serializable & ActivityHandle, V extends Serializable>
 		extends ClusteredCacheData {
 
 	private final static Boolean HANDLE_NODE_DATA_MAP_KEY = Boolean.TRUE;

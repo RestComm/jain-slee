@@ -5,13 +5,15 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
+import javax.slee.resource.ActivityHandle;
+
 import org.mobicents.cluster.MobicentsCluster;
 
 /**
  * @author martins
  * 
  */
-public class ReplicatedDataWithFailoverImpl<K extends SerializableActivityHandle, V extends Serializable>
+public class ReplicatedDataWithFailoverImpl<K extends Serializable & ActivityHandle, V extends Serializable>
 		extends ReplicatedDataImpl<K, V> implements
 		ReplicatedDataWithFailover<K, V> {
 
@@ -34,7 +36,6 @@ public class ReplicatedDataWithFailoverImpl<K extends SerializableActivityHandle
 
 	/*
 	 * (non-Javadoc)
-	 * 
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedDataImpl#remove()
 	 */
 	@Override

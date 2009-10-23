@@ -5,6 +5,8 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
+import javax.slee.resource.ActivityHandle;
+
 /**
  * Fault tolerant context for a {@link FaultTolerantResourceAdaptor}, gives
  * access to replicated data and information of the SLEE cluster.
@@ -12,7 +14,7 @@ import java.io.Serializable;
  * @author martins
  * 
  */
-public interface FaultTolerantResourceAdaptorContext<K extends SerializableActivityHandle, V extends Serializable> {
+public interface FaultTolerantResourceAdaptorContext<K extends Serializable & ActivityHandle, V extends Serializable> {
 
 	/**
 	 * Indicates if the resource adaptor object is running in a local or cluster
