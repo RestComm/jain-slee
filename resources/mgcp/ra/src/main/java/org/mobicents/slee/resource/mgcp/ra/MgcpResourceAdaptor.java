@@ -753,6 +753,74 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		return (rval > 299);
 	}
 
+	private ActivityHandle getActivityHandle(JainMgcpCommandEvent event) {
+		ActivityHandle handle = null;
+
+		switch (event.getObjectIdentifier()) {
+
+		case Constants.CMD_AUDIT_CONNECTION:
+
+			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(((AuditConnection) event)
+					.getConnectionIdentifier(), event.getEndpointIdentifier(), event.getTransactionHandle());
+			break;
+
+		case Constants.CMD_AUDIT_ENDPOINT:
+			handle = new MgcpEndpointActivityHandle(((AuditEndpoint) event).getEndpointIdentifier().toString());
+			if (!mgcpActivityManager.containsActivityHandle(handle)) {
+				handle = null;
+			}
+			break;
+
+		case Constants.CMD_CREATE_CONNECTION:
+			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(null, event.getEndpointIdentifier(), event
+					.getTransactionHandle());
+			break;
+
+		case Constants.CMD_DELETE_CONNECTION:
+			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(((DeleteConnection) event)
+					.getConnectionIdentifier(), event.getEndpointIdentifier(), event.getTransactionHandle());
+			break;
+
+		case Constants.CMD_ENDPOINT_CONFIGURATION:
+			handle = new MgcpEndpointActivityHandle(((EndpointConfiguration) event).getEndpointIdentifier().toString());
+			if (!mgcpActivityManager.containsActivityHandle(handle)) {
+				handle = null;
+			}
+			break;
+
+		case Constants.CMD_MODIFY_CONNECTION:
+			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(((ModifyConnection) event)
+					.getConnectionIdentifier(), event.getEndpointIdentifier(), event.getTransactionHandle());
+			break;
+
+		case Constants.CMD_NOTIFICATION_REQUEST:
+			handle = new MgcpEndpointActivityHandle(((NotificationRequest) event).getEndpointIdentifier().toString());
+			if (!mgcpActivityManager.containsActivityHandle(handle)) {
+				handle = null;
+			}
+			break;
+
+		case Constants.CMD_NOTIFY:
+			handle = new MgcpEndpointActivityHandle(((Notify) event).getEndpointIdentifier().toString());
+			if (!mgcpActivityManager.containsActivityHandle(handle)) {
+				handle = null;
+			}
+			break;
+
+		case Constants.CMD_RESTART_IN_PROGRESS:
+			handle = new MgcpEndpointActivityHandle(((RestartInProgress) event).getEndpointIdentifier().toString());
+			if (!mgcpActivityManager.containsActivityHandle(handle)) {
+				handle = null;
+			}
+			break;
+
+		default:
+			tracer.severe("Unexpected event type: " + event.getObjectIdentifier());
+			break;
+		}
+		return handle;
+	}
+
 	/**
 	 * Processes a timeout occurred in a sent {@link JainMgcpCommandEvent} event transaction, to prevent further
 	 * failures the activity will end after the RA fires the {@link TransactionTimeout} event.
