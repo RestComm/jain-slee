@@ -11,13 +11,13 @@ public class TimeoutEventWrapper extends TimeoutEvent {
 	 * 
 	 */
 	private static final long serialVersionUID = 8699229560432305798L;
+	
 	public TimeoutEventWrapper(Object source, ClientTransaction tx, Timeout timeOut) {
 		super(source, tx, timeOut);
-		// TODO Auto-generated constructor stub
 	}
+	
 	public TimeoutEventWrapper(Object source, ServerTransaction tx, Timeout timeOut) {
 		super(source, tx, timeOut);
-		// TODO Auto-generated constructor stub
 	}
 
 }

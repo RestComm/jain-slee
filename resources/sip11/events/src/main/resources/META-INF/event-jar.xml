@@ -6,7 +6,7 @@
         <library-name>jain-sip</library-name>
         <library-vendor>javax.sip</library-vendor>
         <library-version>1.2</library-version>
-    </library-ref>
+    </library-ref> 
 
 	<!-- Responses Fired on ClientTransaction/DialogActivity -->
 	<event-definition>

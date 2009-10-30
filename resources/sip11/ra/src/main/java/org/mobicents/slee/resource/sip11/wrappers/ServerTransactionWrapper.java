@@ -1,124 +1,208 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.ParseException;
+
 import javax.sip.Dialog;
 import javax.sip.InvalidArgumentException;
-import javax.sip.ObjectInUseException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
-import javax.sip.TransactionState;
+import javax.sip.Transaction;
+import javax.sip.header.ToHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
+import javax.slee.Address;
+import javax.slee.AddressPlan;
+import javax.slee.facilities.Tracer;
 
-import org.mobicents.slee.resource.sip11.SipActivityHandle;
+import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
+import org.mobicents.slee.resource.sip11.TransactionActivityHandle;
 
-public class ServerTransactionWrapper extends SuperTransactionWrapper implements ServerTransaction,
-		WrapperSuperInterface {
+/**
+ * 
+ * A wrapper for {@link ServerTransaction}
+ *
+ */
+public class ServerTransactionWrapper extends TransactionWrapper implements ServerTransaction {
 
-	public ServerTransactionWrapper(ServerTransaction wrappedTransaction) {
-		if (wrappedTransaction.getApplicationData() != null) {
-			if (wrappedTransaction.getApplicationData() instanceof ServerTransactionWrapper) {
-				throw new IllegalArgumentException("ServerTransaction to wrap has alredy a wrapper!!!");
-			}
-		}
-		this.wrappedTransaction = wrappedTransaction;
-		this.wrappedTransaction.setApplicationData(this);
-		super.sipActivityHandle = new SipActivityHandle(wrappedTransaction.getBranchId() + "_"
-				+ wrappedTransaction.getRequest().getMethod());
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-	}
-
-	public ServerTransactionWrapper() {
-	}
-
-	public void enableRetransmissionAlerts() throws SipException {
-		((ServerTransaction) wrappedTransaction).enableRetransmissionAlerts();
-	}
-
-	public void sendResponse(Response arg0) throws SipException, InvalidArgumentException {
-		((ServerTransaction) wrappedTransaction).sendResponse(arg0);
-		String method = this.getRequest().getMethod();
-		int statusCode = arg0.getStatusCode();
-		if (method.equals(Request.CANCEL) && (statusCode < 300 && statusCode > 199)) {
-			Dialog dialog = getDialog();
-			if (dialog!=null && dialog.getState() == null)
-				dialog.delete();
-		}
-	}
-
-	public Dialog getDialog() {
-		if (this.wrappedTransaction.getDialog() != null
-				&& this.wrappedTransaction.getDialog().getApplicationData() != null) {
-			return (DialogWrapper) this.wrappedTransaction.getDialog().getApplicationData();
-		}
-		return null;
-	}
-
-	public String getBranchId() {
-		if(wrappedTransaction==null)
-			return null;
-		return wrappedTransaction.getBranchId();
-	}
-
-	public Request getRequest() {
-		if(wrappedTransaction==null)
-			return null;
-		return wrappedTransaction.getRequest();
-	}
-
-	public int getRetransmitTimer() throws UnsupportedOperationException {
-		if(wrappedTransaction==null)
-			return -1;
-		return wrappedTransaction.getRetransmitTimer();
-	}
-
-	public TransactionState getState() {
-		if(wrappedTransaction==null)
-			return null;
-		return wrappedTransaction.getState();
-	}
-
-	public void setRetransmitTimer(int arg0) throws UnsupportedOperationException {
-		if(wrappedTransaction==null)
-			return;
-		wrappedTransaction.setRetransmitTimer(arg0);
-	}
-
-	public void terminate() throws ObjectInUseException {
-		if(wrappedTransaction==null)
-			return ;
-		wrappedTransaction.terminate();
-	}
-
-	public String toString() {
-
+	/**
+	 * 
+	 */
+	private final boolean ackTransaction;
 		
-		String ret = "";
-		ret+="ServerTransaction BR[" + this.getBranchId() + "] ";
-		//Causes NPE, not even sure why. Values are not null.
-		//ret+="METHOD[" + this.getRequest()==null?null:this.getRequest().getMethod() + "] ";
-		//ret+="STATE["+ this.wrappedTransaction==null?null: this.wrappedTransaction.getState()+ "]";
-		return ret;
-
+	private transient Address eventFiringAddress;
+	
+	private static Tracer tracer;
+	
+	private transient ServerTransaction wrappedTransaction;
+	
+	/**
+	 * 
+	 * @param wrappedTransaction
+	 * @param ra
+	 */
+	public ServerTransactionWrapper(ACKDummyTransaction wrappedTransaction, SipResourceAdaptor ra) {
+		this(wrappedTransaction,ra,true);
+	}
+	
+	/**
+	 * 
+	 * @param wrappedTransaction
+	 * @param ra
+	 */
+	public ServerTransactionWrapper(ServerTransaction wrappedTransaction, SipResourceAdaptor ra) {
+		this(wrappedTransaction,ra,false);
 	}
 
 	/**
-	 * Returns SipActviitytHandle for invite request. Should be called only by
-	 * cancel
+	 * 
+	 * @param wrappedTransaction
+	 * @param ra
+	 * @param ackTransaction
+	 */
+	private ServerTransactionWrapper(ServerTransaction wrappedTransaction, SipResourceAdaptor ra, boolean ackTransaction) {
+		super(new TransactionActivityHandle(wrappedTransaction.getBranchId()));
+		this.ackTransaction = ackTransaction;
+		this.wrappedTransaction = wrappedTransaction;
+		this.wrappedTransaction.setApplicationData(this);
+		if (tracer == null) {
+			tracer = ra.getTracer(ServerTransactionWrapper.class.getSimpleName());
+		}
+	}
+	
+	@Override
+	public void setResourceAdaptor(SipResourceAdaptor ra) {
+		super.setResourceAdaptor(ra);
+		if (tracer == null) {
+			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
+		}
+	}
+	
+	@Override
+	public Transaction getWrappedTransaction() {
+		return wrappedTransaction;
+	}
+	
+	/**
 	 * 
 	 * @return
 	 */
-	public SipActivityHandle getInviteHandle() {
-		String id = this.sipActivityHandle.getID();
-		id = id.replace("_" + this.wrappedTransaction.getRequest().getMethod(), "_" + Request.INVITE).intern();
-		return new SipActivityHandle(id);
+	public ServerTransaction getWrappedServerTransaction() {
+		return wrappedTransaction;
 	}
-
-	public void cleanup() {
-		if(this.wrappedTransaction!=null)
-		{
-			this.wrappedTransaction.setApplicationData(null);
-			this.wrappedTransaction = null;
+	
+	/**
+	 * For future use on sip transaction fail over.
+	 * @param wrappedTransaction
+	 */
+	public void setWrappedServerTransaction(ServerTransaction wrappedTransaction) {
+		this.wrappedTransaction = wrappedTransaction;
+	}
+	
+	@Override
+	public boolean isAckTransaction() {
+		return ackTransaction;
+	}
+	
+	/*
+	 * Helper to validate the wrapped transaction, before interacting with it.
+	 */
+	private void validateWrappedTransaction() throws IllegalStateException {
+		if (wrappedTransaction == null) {
+			throw new IllegalStateException();
 		}
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.WrapperSuperInterface#getEventFiringAddress()
+	 */
+	public Address getEventFiringAddress() {
+		if (eventFiringAddress == null) {
+			eventFiringAddress = new Address(AddressPlan.SIP,
+					((ToHeader) wrappedTransaction.getRequest().getHeader(ToHeader.NAME))
+					.getAddress().toString());
+		}
+		return eventFiringAddress;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.sip.ServerTransaction#enableRetransmissionAlerts()
+	 */
+	public void enableRetransmissionAlerts() throws SipException {
+		validateWrappedTransaction();
+		wrappedTransaction.enableRetransmissionAlerts();
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.sip.ServerTransaction#sendResponse(javax.sip.message.Response)
+	 */
+	public void sendResponse(Response arg0) throws SipException, InvalidArgumentException {
+		
+		validateWrappedTransaction();
+		
+		final Dialog d = wrappedTransaction.getDialog();
+		if (d != null) {
+			final DialogWrapper dw = (DialogWrapper) d.getApplicationData();
+			if (dw != null) {
+				final int statusCode = arg0.getStatusCode();
+				if (this.getRequest().getMethod().equals(Request.CANCEL) && (statusCode < 300 && statusCode > 199) && dw.getState() == null ) {
+					dw.delete();
+				}
+				else if (d.getLocalTag() == null) {
+					// a new dialog which local tag is not yet known by jain sip stack, add the tag to the response 
+					try {
+						((ToHeader)arg0.getHeader(ToHeader.NAME)).setTag(dw.getLocalTag());
+					} catch (ParseException e) {
+						throw new SipException(e.getMessage(),e);
+					}
+				}
+			}
+		}
+		
+		if (tracer.isInfoEnabled()) {
+			tracer.info(toString()+" sending response:\n"+arg0);
+		}
+		wrappedTransaction.sendResponse(arg0);			
+	}
+
+	@Override
+	public String toString() {
+		final String id = wrappedTransaction == null ? String.valueOf(null) : wrappedTransaction.getBranchId(); 
+		return new StringBuilder("ServerTransaction[").append(id).append(']').toString();		
+	}
+
+	// SERIALIZATION
+
+	private void writeObject(ObjectOutputStream stream) throws IOException {
+		// write everything not static or transient
+		stream.defaultWriteObject();
+        if (ackTransaction) {
+        	stream.writeObject(wrappedTransaction.getRequest());
+        }
+        else {
+        	stream.writeUTF(wrappedTransaction.getBranchId());
+        }
+	}
+	
+	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
+		stream.defaultReadObject();
+		if (ackTransaction) {
+			wrappedTransaction = new ACKDummyTransaction((Request) stream.readObject());
+		}
+		else {
+			final String branchId = stream.readUTF();
+			// TODO get tx from stack by branch id
+		}
+		activityHandle.setActivity(this);	
+	}
 }

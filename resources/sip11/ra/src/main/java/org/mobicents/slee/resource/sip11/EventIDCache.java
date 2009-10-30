@@ -59,17 +59,17 @@ public class EventIDCache {
 		FireableEventType eventID = null;
 		if (inDialogActivity) {
 			eventID = getEventId(eventLookupFacility,
-					INDIALOG_REQUEST_EVENT_PREFIX + requestMethod);
+					new StringBuilder(INDIALOG_REQUEST_EVENT_PREFIX).append(requestMethod).toString());
 			if (eventID == null) {
 				eventID = getEventId(eventLookupFacility,
-						INDIALOG_REQUEST_EVENT_PREFIX + SIP_EXTENSION_REQUEST_EVENT_NAME_SUFIX);
+						new StringBuilder(INDIALOG_REQUEST_EVENT_PREFIX).append(SIP_EXTENSION_REQUEST_EVENT_NAME_SUFIX).toString());
 			}
 		} else {
 			eventID = getEventId(eventLookupFacility,
-					OUT_OF_DIALOG_REQUEST_EVENT_PREFIX + requestMethod);
+					new StringBuilder(OUT_OF_DIALOG_REQUEST_EVENT_PREFIX).append(requestMethod).toString());
 			if (eventID == null) {
 				eventID = getEventId(eventLookupFacility,
-						OUT_OF_DIALOG_REQUEST_EVENT_PREFIX + SIP_EXTENSION_REQUEST_EVENT_NAME_SUFIX);
+						new StringBuilder(OUT_OF_DIALOG_REQUEST_EVENT_PREFIX).append(SIP_EXTENSION_REQUEST_EVENT_NAME_SUFIX).toString());
 			}
 		}
 		return eventID;
@@ -104,8 +104,7 @@ public class EventIDCache {
 		}
 
 		// in dialog responses use the 1.1 event id prefix
-		return getEventId(eventLookupFacility, RESPONSE_EVENT_PREFIX
-				+ statusCodeName);
+		return getEventId(eventLookupFacility, new StringBuilder(RESPONSE_EVENT_PREFIX).append(statusCodeName).toString());
 	}
 
 	/**

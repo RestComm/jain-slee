@@ -1,6 +1,8 @@
 package org.mobicents.slee.resource.sip11;
 
+import gov.nist.javax.sip.Utils;
 import gov.nist.javax.sip.address.SipUri;
+import gov.nist.javax.sip.message.SIPRequest;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,7 +29,9 @@ import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
 import javax.sip.header.CallIdHeader;
+import javax.sip.header.FromHeader;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
@@ -40,9 +44,15 @@ import net.java.slee.resource.sip.SleeSipProvider;
 
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
+import org.mobicents.slee.resource.sip11.wrappers.ClientDialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ServerTransactionWrapper;
-import org.mobicents.slee.resource.sip11.wrappers.SuperTransactionWrapper;
 
+/**
+ * 
+ * @author B.Baranowski
+ * @author martins
+ * 
+ */
 public class SleeSipProviderImpl implements SleeSipProvider {
 
 	protected AddressFactory addressFactory = null;
@@ -52,7 +62,16 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	protected SipResourceAdaptor ra = null;
 	protected SipProvider provider = null;
 	protected final Tracer tracer;
-	
+
+	/**
+	 * 
+	 * @param addressFactory
+	 * @param headerFactory
+	 * @param messageFactory
+	 * @param stack
+	 * @param ra
+	 * @param provider
+	 */
 	public SleeSipProviderImpl(AddressFactory addressFactory,
 			HeaderFactory headerFactory, MessageFactory messageFactory,
 			SipStack stack, SipResourceAdaptor ra, SipProvider provider) {
@@ -63,71 +82,119 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		this.stack = stack;
 		this.ra = ra;
 		this.provider = provider;
-		this.tracer = ra.getRaContext().getTracer(SleeSipProviderImpl.class.getSimpleName());
+		this.tracer = ra.getTracer(SleeSipProviderImpl.class.getSimpleName());
 	}
 
-	public AddressFactory getAddressFactory() {
+	/**
+	 * 
+	 * @return
+	 */
+	public SipProvider getRealProvider() {
+		return provider;
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.java.slee.resource.sip.SleeSipProvider#getAddressFactory()
+	 */
+	public AddressFactory getAddressFactory() {
 		return this.addressFactory;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.java.slee.resource.sip.SleeSipProvider#getHeaderFactory()
+	 */
 	public HeaderFactory getHeaderFactory() {
-
 		return this.headerFactory;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#getLocalSipURI(java.lang.String
+	 * )
+	 */
 	public SipURI getLocalSipURI(String transport) {
 
-		ListeningPoint lp = this.provider.getListeningPoint(transport);
-		SipURI uri = null;
+		final ListeningPoint lp = this.provider.getListeningPoint(transport);
 		if (lp != null) {
 			try {
-				uri = new SipUri();
+				final SipURI uri = new SipUri();
 				uri.setHost(lp.getIPAddress());
 				uri.setPort(lp.getPort());
 				uri.setTransportParam(transport);
+				return uri;
 			} catch (ParseException e) {
-				tracer.severe("Failed parsing LP info. Failed to parse listening point for transport ["
-								+ transport + "] [" + lp + "]",e);
+				tracer.severe(
+						"Failed parsing LP info. Failed to parse listening point for transport ["
+								+ transport + "] [" + lp + "]", e);
+				return null;
 			}
-			return uri;
-
 		} else {
-			
 			if (tracer.isFineEnabled()) {
 				tracer
 						.fine("Failed parsing LP info. No listening point for transport ["
 								+ transport + "] [" + lp + "]");
 			}
-			
 			return null;
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#getLocalVia(java.lang.String,
+	 * java.lang.String)
+	 */
 	public ViaHeader getLocalVia(String transport, String branch) {
-		try {
-			SipURI uri = this.getLocalSipURI(transport);
-			if (uri == null) {
-				return null;
+		final ListeningPoint lp = provider.getListeningPoint(transport);
+		if (lp != null) {
+			try {
+				return headerFactory.createViaHeader(lp.getIPAddress(), lp
+						.getPort(), lp.getTransport(), branch);
+			} catch (ParseException e) {
+				tracer.severe(e.getMessage(), e);
+			} catch (InvalidArgumentException e) {
+				tracer.severe(e.getMessage(), e);
 			}
-
-			return this.headerFactory.createViaHeader(uri.getHost(), uri
-					.getPort(), transport, branch);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-
 		return null;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws InvalidArgumentException
+	 * @throws ParseException
+	 */
+	public ViaHeader getLocalVia() throws ParseException,
+			InvalidArgumentException {
+		final ListeningPoint lp = provider.getListeningPoints()[0];
+		return headerFactory.createViaHeader(lp.getIPAddress(), lp.getPort(),
+				lp.getTransport(), null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.java.slee.resource.sip.SleeSipProvider#getMessageFactory()
+	 */
 	public MessageFactory getMessageFactory() {
 		return this.messageFactory;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#isLocalHostname(java.lang.
+	 * String)
+	 */
 	public boolean isLocalHostname(String host) {
 
 		try {
@@ -140,14 +207,12 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 				if (tmp != null)
 					stackAddresses.add(tmp);
 			}
-			
-			for(InetAddress ia:addresses)
-			{
-				if(stackAddresses.contains(ia))
+
+			for (InetAddress ia : addresses) {
+				if (stackAddresses.contains(ia))
 					return true;
 			}
-			
-			
+
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -156,6 +221,13 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#isLocalSipURI(javax.sip.address
+	 * .SipURI)
+	 */
 	public boolean isLocalSipURI(SipURI uri) {
 
 		// XXX: InetAddress api is
@@ -167,278 +239,334 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			return true;
 		} else {
 			if (tracer.isFineEnabled()) {
-				tracer
-						.fine("Passed uri not local? Passed URI[" + uri
+				tracer.fine("Passed uri not local? Passed URI[" + uri
 						+ "] doesnt match lp[" + lp + "]");
 			}
-			
+
 			return false;
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#addListeningPoint(javax.sip.ListeningPoint)
+	 */
 	public void addListeningPoint(ListeningPoint arg0)
 			throws ObjectInUseException, TransportAlreadySupportedException {
-
 		throw new UnsupportedOperationException("No dynamic change to LP");
-
 	}
 
 	public void addSipListener(SipListener arg0)
 			throws TooManyListenersException {
-
 		throw new TooManyListenersException(
 				"RA can be the only Listener for this stack!!");
-
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#getListeningPoint()
+	 */
 	@SuppressWarnings("deprecation")
 	public ListeningPoint getListeningPoint() {
-
 		return this.provider.getListeningPoint();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#getListeningPoint(java.lang.String)
+	 */
 	public ListeningPoint getListeningPoint(String arg0) {
-
-		
 		return this.provider.getListeningPoint(arg0);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#getListeningPoints()
+	 */
 	public ListeningPoint[] getListeningPoints() {
-
 		return this.provider.getListeningPoints();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#getNewCallId()
+	 */
 	public CallIdHeader getNewCallId() {
 		return this.provider.getNewCallId();
 	}
 
-	public ServerTransaction getNewServerTransaction(Request arg0)
-			throws TransactionAlreadyExistsException,
-			TransactionUnavailableException {
-		return this.getNewServerTransaction(arg0,null,true);
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#getSipStack()
+	 */
 	public SipStack getSipStack() {
-
-		throw new UnsupportedOperationException(
-		"This operation is not supported yet");
+		throw new UnsupportedOperationException();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#removeListeningPoint(javax.sip.ListeningPoint)
+	 */
 	public void removeListeningPoint(ListeningPoint arg0)
 			throws ObjectInUseException {
-
-		throw new UnsupportedOperationException(
-				"This operation is not supported yet");
-
+		throw new UnsupportedOperationException();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#removeSipListener(javax.sip.SipListener)
+	 */
 	public void removeSipListener(SipListener arg0) {
-		throw new UnsupportedOperationException(
-				"This operation is not supported yet");
-
+		throw new UnsupportedOperationException();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#sendRequest(javax.sip.message.Request)
+	 */
 	public void sendRequest(Request arg0) throws SipException {
-
 		this.provider.sendRequest(arg0);
-
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#sendResponse(javax.sip.message.Response)
+	 */
 	public void sendResponse(Response arg0) throws SipException {
 		this.provider.sendResponse(arg0);
-
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#setAutomaticDialogSupportEnabled(boolean)
+	 */
 	public void setAutomaticDialogSupportEnabled(boolean arg0) {
 		this.provider.setAutomaticDialogSupportEnabled(arg0);
-
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.sip.SipProvider#setListeningPoint(javax.sip.ListeningPoint)
+	 */
 	public void setListeningPoint(ListeningPoint arg0)
 			throws ObjectInUseException {
+		throw new UnsupportedOperationException();
+	}
 
-		throw new UnsupportedOperationException(
-				"This operation is not supported yet");
-	}
-	
-	public ClientTransaction getNewClientTransaction(Request request,
-			boolean createActivity) throws 
-			TransactionUnavailableException {
-		
-		ClientTransaction ct = provider.getNewClientTransaction(request);
-		ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct);
-		DialogWrapper dw = null;
-		if (ct.getDialog() != null
-				&& ct.getDialog().getApplicationData() instanceof DialogWrapper) {
-			dw = (DialogWrapper) ct.getDialog().getApplicationData();
-			dw.addOngoingTransaction(ctw);
-		}
-			
-		// add transaction to activities if it's dialog not exists and is an activity
-		// considering that if dw exists then it's an activity 
-		if (dw == null) {
-			if(createActivity) {
-				ra.addActivity(ctw.getActivityHandle(), ctw);				
-			}
-		}
-				
-		return ctw;
-	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * javax.sip.SipProvider#getNewClientTransaction(javax.sip.message.Request)
+	 */
 	public ClientTransaction getNewClientTransaction(Request request)
 			throws TransactionUnavailableException {
 
-		return this.getNewClientTransaction(request,true);
-		
+		final ClientTransaction ct = provider.getNewClientTransaction(request);
+		final ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct,
+				ra);
+		ctw.setActivity(true);
+
+		final Dialog d = ct.getDialog();
+		if (d != null) {
+			final DialogWrapper dw = (DialogWrapper) d.getApplicationData();
+			if (dw != null) {
+				dw.addOngoingTransaction(ctw);
+			}
+		}
+
+		if (!ra.addSuspendedActivity(ctw, tracer.isFineEnabled())) {
+			throw new TransactionUnavailableException(
+					"Failed to create activity");
+		}
+
+		return ctw;
 	}
 
 	/**
-	 * getNewServerTransaction
+	 * Creates a new {@link ClientTransactionWrapper} bound to a
+	 * {@link DialogWrapper}, which is not an activity in SLEE.
 	 * 
+	 * @param dialogWrapper
 	 * @param request
-	 *            Request
-	 * @return ServerTransaction
-	 * @throws TransactionAlreadyExistsException
+	 * @return
 	 * @throws TransactionUnavailableException
 	 */
-	public ServerTransaction getNewServerTransaction(Request request, ServerTransaction serverTransaction,
-			boolean createActivityInSlee) throws TransactionAlreadyExistsException,
+	public ClientTransactionWrapper getNewDialogActivityClientTransaction(
+			DialogWrapper dialogWrapper, Request request)
+			throws TransactionUnavailableException {
+		final ClientTransaction ct = provider.getNewClientTransaction(request);
+		final ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct,
+				ra);
+		dialogWrapper.addOngoingTransaction(ctw);
+		return ctw;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * javax.sip.SipProvider#getNewServerTransaction(javax.sip.message.Request)
+	 */
+	public ServerTransaction getNewServerTransaction(Request request)
+			throws TransactionAlreadyExistsException,
 			TransactionUnavailableException {
+
 		// TODO: add checks for wrapper
 
-		if(serverTransaction == null) {
-			serverTransaction = provider.getNewServerTransaction(request);
-		}
-		ServerTransactionWrapper stw = new ServerTransactionWrapper(serverTransaction);
-		
-		DialogWrapper dw = null;
-		if (serverTransaction.getDialog() != null
-				&& serverTransaction.getDialog().getApplicationData() instanceof DialogWrapper) {
-			dw = (DialogWrapper) serverTransaction.getDialog().getApplicationData();
+		final ServerTransaction st = provider.getNewServerTransaction(request);
+		ServerTransactionWrapper stw = new ServerTransactionWrapper(st, ra);
+
+		final Dialog d = st.getDialog();
+		final DialogWrapper dw = (d == null ? null : (DialogWrapper) d
+				.getApplicationData());
+		if (dw != null) {
 			dw.addOngoingTransaction(stw);
-		}
-		
-		// add transaction to activities if its dialog does not exists or is not an activity
-		// considering that if dw exists then it's an activity 
-		
-		if (dw == null) {
-			if (createActivityInSlee) {
-				ra.addActivity(stw.getActivityHandle(), stw);
+		} else {
+			// SLEE 1.1 specs: D.4
+			// ServerTransaction Activity objects are created automatically when
+			// the resource adaptor receives an
+			// incoming SIP request. The activity ends when a final response is
+			// sent on the ServerTransaction.
+			stw.setActivity(true);
+			if (!ra.addSuspendedActivity(stw, tracer.isFineEnabled())) {
+				throw new TransactionUnavailableException(
+						"Failed to create activity.");
 			}
 		}
-		
+
 		return stw;
 	}
 
-	/**
-	 * @param transaction
-	 *            - object implementing <b>javax.sip.Transaction</b> interface
-	 *            for which dialog should be obtained
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return Newly created dialog for transaction object.
-	 * @throws TransactionAlreadyExistsException
-	 * @throws TransactionUnavailableException
+	 * @see javax.sip.SipProvider#getNewDialog(javax.sip.Transaction)
 	 */
 	public Dialog getNewDialog(Transaction transaction) throws SipException {
-
-		// TODO: add checks for wrapper
-
-		return this.getNewDialog(transaction, null, true);
-	}
-
-	public Dialog getNewDialog(Transaction transaction, SipActivityHandle forkMaster, boolean makeWrapper) throws SipException {
-
-		// TODO: add checks for wrapper
-
-		SuperTransactionWrapper stw = (SuperTransactionWrapper) transaction;
-		Transaction t = (Transaction) stw.getWrappedTransaction();
-		Dialog d = provider.getNewDialog(t);
-		if (makeWrapper) {
-			DialogWrapper dw = getNewDialogActivity(d, forkMaster, stw);
-
-			//if (!d.isServer()) {
-			//	ra.addClientDialogMaping(d.getLocalTag() + "_" + d.getCallId().getCallId(), dw.getActivityHandle());
-			//}
+		if (transaction.getClass() == ServerTransactionWrapper.class) {
+			final ServerTransactionWrapper stw = (ServerTransactionWrapper) transaction;
+			final ServerTransaction st = stw.getWrappedServerTransaction();
+			final Dialog d = provider.getNewDialog(st);
+			// some hacking in jsip, we need a dialog id now and the real dialog
+			// does not have a local tag
+			final String localTag = Utils.getInstance().generateTag();
+			final String dialogId = ((SIPRequest) st.getRequest()).getDialogId(
+					true, localTag);
+			final DialogWrapper dw = new DialogWrapper(d, dialogId, localTag,ra);
+			dw.addOngoingTransaction(stw);
+			ra.addSuspendedActivity(dw, tracer.isFineEnabled());
+			return dw;
+		} else if (transaction.getClass() == ClientTransactionWrapper.class) {
+			// this is not efficient, but should not be used anyway and saves
+			// more code scenarios
+			final Request r = transaction.getRequest();
+			final DialogWrapper dw = _getNewDialog(
+					((FromHeader) r.getHeader(FromHeader.NAME)).getAddress(),
+					Utils.getInstance().generateTag(),
+					((ToHeader) r.getHeader(ToHeader.NAME)).getAddress(), null);
+			dw.addOngoingTransaction((ClientTransactionWrapper) transaction);
 			return dw;
 		} else {
-			return d;
+			throw new IllegalArgumentException("unknown transaction class");
 		}
 	}
 
-	public DialogWrapper getNewDialogActivity(Dialog d, SipActivityHandle forkMaster, SuperTransactionWrapper stw) {
-		//FIXME: this is a bit dangerous, we should hide this method ^
-		
-		// Here dialog exists, we just need another wrapper for this activity
-		DialogWrapper dw = new DialogWrapper(d, forkMaster, this, ra);
-		if (stw != null)
-			if (stw instanceof ServerTransactionWrapper) {
-				dw.addOngoingTransaction((ServerTransactionWrapper) stw);
-			} else if (stw instanceof ClientTransactionWrapper) {
-				dw.addOngoingTransaction((ClientTransactionWrapper) stw);
-			} else {
-				tracer.severe("Unknown type " + stw.getClass() + " of SIP Transaction, can't add to dialog wrapper");
-			}
-		ra.addActivity(dw.getActivityHandle(), dw);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#getNewDialog(javax.sip.address
+	 * .Address, javax.sip.address.Address)
+	 */
+	public DialogActivity getNewDialog(Address from, Address to)
+			throws SipException {
+		if (from == null) {
+			throw new IllegalArgumentException("From address cant be null");
+		}
+		if (to == null) {
+			throw new IllegalArgumentException("To address cant be null");
+		}
+		return _getNewDialog(from, gov.nist.javax.sip.Utils.getInstance()
+				.generateTag(), to, null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#getNewDialog(net.java.slee
+	 * .resource.sip.DialogActivity, boolean)
+	 */
+	public DialogActivity getNewDialog(DialogActivity incomingDialog,
+			boolean useSameCallId) throws SipException {
+
+		if (incomingDialog == null || !incomingDialog.isServer()) {
+			throw new IllegalArgumentException(
+					"Incoming dialog is either null or is UAC dialog!!");
+		}
+		CallIdHeader callIdHeader = null;
+		if (useSameCallId) {
+			callIdHeader = incomingDialog.getCallId();
+		}
+
+		return _getNewDialog(incomingDialog.getRemoteParty(), Utils.getInstance().generateTag(), incomingDialog.getLocalParty(), callIdHeader);
+	}
+
+	/**
+	 * 
+	 * @param from
+	 * @param to
+	 * @param callIdHeader
+	 * @return
+	 * @throws SipException
+	 */
+	private DialogWrapper _getNewDialog(Address from, String localTag,
+			Address to, CallIdHeader callIdHeader) throws SipException {
+
+		final DialogWrapper dw = new ClientDialogWrapper(from, localTag,
+				to, (callIdHeader == null ? provider.getNewCallId()
+						: callIdHeader), ra);
+
+		if (!ra.addSuspendedActivity(dw, tracer.isFineEnabled())) {
+			throw new SipException("Failed to create activity.");
+		}
 
 		return dw;
 	}
 
-	public DialogActivity getNewDialog(Address from, Address to) throws SipException {
-		if (from == null) {
-		throw new IllegalArgumentException("From address cant be null");
-		}
-
-		if (to == null) {
-		throw new IllegalArgumentException("To address cant be null");
-		}
-
-			return getNewDialog(from, to, null);
-		}
-
-	public DialogActivity getNewDialog(DialogActivity incomingDialog,
-			boolean useSameCallId) throws SipException {
-
-			if (incomingDialog == null || !incomingDialog.isServer()) {
-				throw new IllegalArgumentException("Incoming dialog is either null or is UAC dialog!!");
-			}
-			CallIdHeader callIdHeader = null;
-			if (useSameCallId) {
-				callIdHeader = incomingDialog.getCallId();
-			}
-			
-			 
-			DialogWrapper dw = (DialogWrapper) getNewDialog(incomingDialog.getRemoteParty(),incomingDialog.getLocalParty(), callIdHeader);
-
-
-			return dw;
-	}
-
-	private DialogActivity getNewDialog(Address from, Address to, CallIdHeader callIdHeader) throws SipException {
-
-			DialogWrapper dw = new DialogWrapper(this, ra);
-			dw.setFromAddress(from);
-			dw.setToAddress(to);
-			ra.addActivity(dw.getActivityHandle(), dw);
-			
-			if(callIdHeader == null) {
-				callIdHeader = provider.getNewCallId();
-			}
-				dw.setCallIdToReUse(callIdHeader);
-
-			return dw;
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#acceptCancel(net.java.slee
+	 * .resource.sip.CancelRequestEvent, boolean)
+	 */
 	public boolean acceptCancel(CancelRequestEvent cancelEvent, boolean isProxy) {
 
 		if (cancelEvent.getMatchingTransaction() != null) {
+			// FIXME: no delay may cause unexpected behaviour?
 			try {
 
 				Response response = this.getMessageFactory().createResponse(
 						Response.OK, cancelEvent.getRequest());
 				cancelEvent.getServerTransaction().sendResponse(response);
-
+				Thread.sleep(50);
 			} catch (Exception e) {
 				// specs doesn't provide any throws clause
-				throw new RuntimeException(e.getMessage(),e);
+				throw new RuntimeException(e.getMessage(), e);
 			}
 
 			if (!isProxy)
@@ -452,7 +580,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 
 				} catch (Exception e) {
 					// specs doesn't provide any throws clause
-					throw new RuntimeException(e.getMessage(),e);
+					throw new RuntimeException(e.getMessage(), e);
 				}
 			return true;
 		} else {
@@ -463,24 +591,32 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 							.createResponse(
 									Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
 									cancelEvent.getRequest());
-
+					Thread.sleep(50);
 					// provider.sendResponse(txDoesNotExistsResponse);
 					cancelEvent.getServerTransaction().sendResponse(
 							txDoesNotExistsResponse);
+					Thread.sleep(50);
 				} catch (Exception e) {
 					// specs doesn't provide any throws clause
-					throw new RuntimeException(e.getMessage(),e);
+					throw new RuntimeException(e.getMessage(), e);
 				}
 			}
 			return false;
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.SleeSipProvider#forwardForkedResponse(javax
+	 * .sip.ServerTransaction, javax.sip.message.Response)
+	 */
 	public DialogActivity forwardForkedResponse(
 			ServerTransaction origServerTransaction, Response response)
 			throws SipException {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO
+		throw new UnsupportedOperationException();
 	}
 
 }

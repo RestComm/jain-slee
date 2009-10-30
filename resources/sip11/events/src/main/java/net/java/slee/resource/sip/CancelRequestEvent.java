@@ -38,4 +38,11 @@ public class CancelRequestEvent extends RequestEvent {
 		return this.matchingTransaction;
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder("CancelRequestEvent[ cancelST = ").append(getServerTransaction())
+			.append(", inviteST = ").append(matchingTransaction)
+			.append(", inviteDialog = ").append(getDialog())
+			.append(" ]").toString();
+	}
 }

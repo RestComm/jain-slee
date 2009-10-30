@@ -16,8 +16,17 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>javax.sip</groupId>
-			<artifactId>jain-sip-ri</artifactId>		
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>sip11-jain-sip-ha</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.ha.javax.sip</groupId>
+			<artifactId>mobicents-jain-sip-ha-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.ha.javax.sip</groupId>
+			<artifactId>mobicents-jain-sip-jboss5</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.sip</groupId>

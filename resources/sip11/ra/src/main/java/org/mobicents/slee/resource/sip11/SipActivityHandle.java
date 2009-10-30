@@ -1,52 +1,63 @@
-/*
- * Created on Mar 7, 2005
- * 
- * The Open SLEE Project
- * 
- * A SLEE for the People
- * 
- * The source code contained in this file is in in the public domain.          
- * It can be used in any project or product without prior permission, 	      
- * license or royalty payments. There is no claim of correctness and
- * NO WARRANTY OF ANY KIND provided with this code.
- */
 package org.mobicents.slee.resource.sip11;
+
+import java.io.Serializable;
 
 import javax.slee.resource.ActivityHandle;
 
-
+import org.mobicents.slee.resource.sip11.wrappers.Wrapper;
 
 /**
+ * Base class for SIP RA activity handles, which provides a link to the related activity object.
  * 
- * TODO Class Description
- * 
- * @author F.Moggia
+ * @author martins
+ *
  */
-public class SipActivityHandle implements ActivityHandle {
+public class SipActivityHandle implements ActivityHandle, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * the activity related with the handle
+	 */
+	private transient Wrapper activity;
+
+	/**
+	 * the ra object that owns the handle
+	 */
+	private transient SipResourceAdaptor ra;
 	
-	private final String id;
+	/**
+	 * Retrieves the activity related with the handle. 
+	 * @return
+	 */
+	public Wrapper getActivity() {
+		return activity;
+	}
+
+	/**
+	 * Sets the activity related with the handle.
+	 * @param activity
+	 */
+	public void setActivity(Wrapper activity) {
+		this.activity = activity;
+	}
 	
-	public SipActivityHandle(String id) {
-		this.id = id;
+	/**
+	 * Retrieves the ra object that owns the handle. 
+	 * @return
+	 */
+	public SipResourceAdaptor getResourceAdaptor() {
+		return ra;
 	}
-
-	public boolean equals(Object obj) {
-		if (obj != null && obj.getClass() == this.getClass()) {
-			return this.id.equals(((SipActivityHandle)obj).id);
-		} else
-			return false;
+	
+	/**
+	 * Sets the ra object that owns the handle.
+	 * @param ra
+	 */
+	public void setResourceAdaptor(SipResourceAdaptor ra) {
+		this.ra = ra;
 	}
-
-	public int hashCode() {
-		return id.hashCode();
-	}
-
-	public String toString() {
-		return id;
-	}
-
-	public String getID() {
-		return id;
-	}
-
 }

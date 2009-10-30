@@ -11,12 +11,6 @@
 		<resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
 		<resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
 		<resource-adaptor-type-version>1.2</resource-adaptor-type-version>
-
-		<library-ref>
-			<library-name>jain-sip</library-name>
-			<library-vendor>javax.sip</library-vendor>
-			<library-version>1.2</library-version>
-		</library-ref>
     
 		<resource-adaptor-type-classes>
 

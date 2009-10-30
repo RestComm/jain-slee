@@ -3,7 +3,9 @@
 	<ra-entity
 		resource-adaptor-id="ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]"
 		entity-name="SipRA">
-		<properties file="" />
+		<properties>
+			<property name="javax.sip.PORT" type="java.lang.Integer" value="5060" /> 
+		</properties>
 		<ra-link name="SipRA" />
 	</ra-entity>
 </deploy-config>

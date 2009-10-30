@@ -8,8 +8,6 @@ import javax.sip.TransactionTerminatedEvent;
 public class TransactionTerminatedEventWrapper extends
 		TransactionTerminatedEvent {
 
-	
-
 	/**
 	 * 
 	 */
@@ -17,12 +15,10 @@ public class TransactionTerminatedEventWrapper extends
 
 	public TransactionTerminatedEventWrapper(Object source, ClientTransaction tx) {
 		super(source, tx);
-		// TODO Auto-generated constructor stub
 	}
 
 	public TransactionTerminatedEventWrapper(Object source, ServerTransaction tx) {
 		super(source, tx);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public String toString() {
@@ -33,10 +29,11 @@ public class TransactionTerminatedEventWrapper extends
 		else
 			tx=super.getClientTransaction();
 		
-		return "[TransactionTerminatedEventWrapper ISSERVER[" + (super.getServerTransaction()!=null) + "] BRANCHID[" +tx.getBranchId()
-				 + "] STATE["
-				+ tx.getState() + "] METHOD["+tx.getRequest().getMethod()+"] DIALOG{ " + tx.getDialog()
-				+ " } ]";
+		return new StringBuilder("[TransactionTerminatedEventWrapper ISSERVER[").append((super.getServerTransaction()!=null))
+			.append("] BRANCHID[").append(tx.getBranchId())
+			.append("] STATE[").append(tx.getState())
+			.append("] METHOD[").append(tx.getRequest().getMethod())
+			.append("] DIALOG{ ").append(tx.getDialog()).append(" } ]").toString();
 	}
 	
 }
