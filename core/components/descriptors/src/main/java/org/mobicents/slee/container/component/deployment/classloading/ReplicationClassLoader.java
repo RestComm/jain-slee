@@ -1,16 +1,19 @@
 package org.mobicents.slee.container.component.deployment.classloading;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.mobicents.slee.util.concurrent.ConcurrentHashSet;
 
 
 public class ReplicationClassLoader extends ClassLoader {
 
 	/**
-	 * the set of domains that are involved in replication
+	 * the domains that are involved in replication
 	 */
-	private Set<URLClassLoaderDomain> domains = new HashSet<URLClassLoaderDomain>();
+	private ConcurrentHashMap<URLClassLoaderDomain, ConcurrentHashSet<String>> domains = new ConcurrentHashMap<URLClassLoaderDomain, ConcurrentHashSet<String>>();
 
 	/**
 	 * local cache of classes, avoids always searching domain
@@ -18,11 +21,16 @@ public class ReplicationClassLoader extends ClassLoader {
 	private ConcurrentHashMap<String, Class<?>> cache = new ConcurrentHashMap<String, Class<?>>();
 	
 	public void addDomain(URLClassLoaderDomain domain) {
-		domains.add(domain);
+		domains.put(domain, new ConcurrentHashSet<String>());
 	}
 	
 	public void removeDomain(URLClassLoaderDomain domain) {
-		domains.remove(domain);
+		Set<String> classes = domains.remove(domain);
+		if (classes != null) {
+			for (String name : classes) {
+				cache.remove(name);
+			}
+		}
 	}
 	
 	@Override
@@ -35,13 +43,15 @@ public class ReplicationClassLoader extends ClassLoader {
 			
 			Set<URLClassLoaderDomain> visited = new HashSet<URLClassLoaderDomain>();
 			boolean lookInSlee = true;
-			for (URLClassLoaderDomain domain : domains) {
+			for (Map.Entry<URLClassLoaderDomain, ConcurrentHashSet<String>> entry : domains.entrySet()) {
+				final URLClassLoaderDomain domain = entry.getKey();
 				try {
 					result = domain.loadClass(name, resolve, visited, lookInSlee);
 				} catch (Throwable e) {
 					// ignore
 				}					
 				if (result != null) {
+					entry.getValue().add(name);
 					break;
 				}
 				if (lookInSlee == true) {
