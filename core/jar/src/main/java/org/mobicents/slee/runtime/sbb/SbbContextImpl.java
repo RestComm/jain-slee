@@ -216,16 +216,12 @@ public class SbbContextImpl implements SbbContext, Serializable {
 	 * rollback.
 	 */
 	public void setRollbackOnly() throws TransactionRequiredLocalException, SLEEException {
-		SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+		final SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
 		sleeTransactionManager.mandateTransaction();
-
-		logger.debug("in setRollbackOnly on " + this);
-
 		try {
 			sleeTransactionManager.setRollbackOnly();
-
 		} catch (SystemException e) {
-			throw new SLEEException("tx manager failure!");
+			throw new SLEEException("failed to mark tx for rollback",e);
 		}
 	}
 

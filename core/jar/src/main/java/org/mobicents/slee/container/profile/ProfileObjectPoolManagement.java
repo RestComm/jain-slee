@@ -108,11 +108,7 @@ public class ProfileObjectPoolManagement implements ProfileObjectPoolManagementM
 					}
 				}
 			};
-			try {
-				sleeTransactionManager.addAfterRollbackAction(action);
-			} catch (Throwable e) {
-				logger.error(e.getMessage(),e);
-			}
+			sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);			
 		}
 	}
 
@@ -164,11 +160,7 @@ public class ProfileObjectPoolManagement implements ProfileObjectPoolManagementM
 		};
 		
 		if (sleeTransactionManager != null) {
-			try {
-				sleeTransactionManager.addAfterCommitAction(action);
-			} catch (Throwable e) {
-				logger.error(e.getMessage(),e);
-			}
+			sleeTransactionManager.getTransactionContext().getAfterCommitActions().add(action);			
 		}
 		else {
 			action.execute();

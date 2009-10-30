@@ -1,5 +1,6 @@
 package org.mobicents.slee.runtime.activity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,13 +11,12 @@ import javax.slee.ServiceID;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.Marshaler;
 
-import org.apache.log4j.Logger;
 import org.jboss.serial.io.JBossObjectInputStream;
 import org.jboss.serial.io.JBossObjectOutputStream;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.runtime.eventrouter.EventRouterActivity;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityHandle;
 import org.mobicents.slee.runtime.facilities.nullactivity.NullActivityImpl;
 import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
@@ -30,30 +30,20 @@ import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityImpl;
  * 
  */
 public class ActivityContextHandle implements Serializable {
-
-	private static final transient Logger logger = Logger.getLogger(ActivityContextHandle.class);
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static transient ResourceManagement _resourceManagement;
-	private static ResourceManagement getResourceManagement() {
-		if (_resourceManagement == null) {
-			_resourceManagement = SleeContainer.lookupFromJndi().getResourceManagement();
-		}
-		return _resourceManagement;
-	}
-	
-	//in case of RA, this wont be serializable, and even if it is, we must use RA.Marshaler ?
+			
 	private transient ActivityHandle activityHandle;
-	private String activitySource;
-	private ActivityType activityType;
+	private final String activitySource;
+	private final ActivityType activityType;
 	
 	private transient int hashcode = 0;
 	private transient String toString = null;
-	
-	protected ActivityContextHandle(ActivityType activityType,
+		                       	
+	public ActivityContextHandle(ActivityType activityType,
 			String activitySource, ActivityHandle activityHandle) {
 		this.activityHandle = activityHandle;
 		this.activitySource = activitySource;
@@ -119,9 +109,9 @@ public class ActivityContextHandle implements Serializable {
 		switch (activityType) {
 		case RA:
 			try {
-				activity = getResourceManagement().getResourceAdaptorEntity(
+				activity = SleeContainer.lookupFromJndi().getResourceManagement().getResourceAdaptorEntity(
 						activitySource).getResourceAdaptorObject().getActivity(
-						getActivityHandle());
+						activityHandle);
 			} catch (Exception e) {
 				throw new SLEEException(e.getMessage(), e);
 			}
@@ -131,7 +121,7 @@ public class ActivityContextHandle implements Serializable {
 			break;
 		case PTABLE:
 			activity = new ProfileTableActivityImpl(
-					(ProfileTableActivityHandle) getActivityHandle());
+					(ProfileTableActivityHandle) activityHandle);
 			break;
 		case SERVICE:			
 			final ServiceID serviceID  = ((ServiceActivityHandle)activityHandle).getServiceID();
@@ -147,85 +137,69 @@ public class ActivityContextHandle implements Serializable {
 	@Override
 	public String toString() {
 		if (toString == null) {
-			toString = "ACH=" + activityType + ">"+ activitySource + ">" + activityHandle; 
+			toString = new StringBuilder ("ACH=").append(activityType).append('>').append(activitySource).append('>').append(activityHandle).toString(); 
 		}
 		return toString;
 	}
 	
+	// serialization
+	
 	private void writeObject(ObjectOutputStream stream) throws IOException {
 		
-		// write activity type and source
 		stream.defaultWriteObject();
-        
-		// now write the activity handle
-		if(activityType == ActivityType.RA) {
-            final ResourceAdaptorEntity entity = getResourceManagement().getResourceAdaptorEntity(activitySource);
-            final Marshaler marshaler = entity.getMarshaler();
-            if(marshaler != null) {
-            	//FIXME: Here we possibly should use some optimized buffers, but for now its enough.
-            	marshaler.marshalHandle(this.activityHandle, stream);
-            }
-            else {
-            	// serialize it using jboss serialization
-            	JBossObjectOutputStream out = null;
-            	try {
-            		out = new JBossObjectOutputStream(stream);
-            		out.writeObject(this.activityHandle);
-            		out.close();
-            	}
-            	catch(Throwable e) {
-            		if (out != null)  {
-            			try {
-            				out.close();
-            			} catch (IOException e1) {
-            				logger.error(e.getMessage(),e);
-            			}  
-            		}
-            		throw new SLEEException("Failed to marshall activity handle using jboss serialization.", e);
-            	}
-            }
-        } 
-        else {
-        	// not an external activity, write object in stream
-            stream.writeObject(this.activityHandle);
-        }
+		
+		if (activityType == ActivityType.RA) {
+			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			final EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(this);
+			byte[] bytes = null;
+			if (era != null) {
+				bytes = era.getActivityHandleBytes();
+			}
+			if (bytes == null) {
+				// need to marshall the handle, but this happens at most once per AS instance
+				final ResourceAdaptorEntity raEntity = sleeContainer.getResourceManagement().getResourceAdaptorEntity(activitySource);
+				final Marshaler marshaler = raEntity.getMarshaler();
+				int bufferSize = marshaler != null ? marshaler.getEstimatedHandleSize(activityHandle) : 1024;
+				final ByteArrayOutputStream baos =  new ByteArrayOutputStream(bufferSize);
+				final JBossObjectOutputStream jboos = new JBossObjectOutputStream(baos);
+				if (marshaler != null) {
+					marshaler.marshalHandle(activityHandle,jboos);
+				}
+				else {
+					jboos.writeObject(activityHandle);
+				}
+				bytes = baos.toByteArray();
+				jboos.close();					
+				if (era != null) {
+					// cache bytes in local activity resources
+					era.setActivityHandleBytes(bytes);
+				}
+			}
+			stream.write(bytes);
+		}
+		else {
+			stream.writeObject(activityHandle);
+		}
 	}
-	
+			
 	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
-		
-		
+				
 		stream.defaultReadObject();
 		
-		if(activityType == ActivityType.RA) {
-			ResourceAdaptorEntity entity = getResourceManagement().getResourceAdaptorEntity(activitySource);
-			Marshaler marshaler = entity.getMarshaler();
+		if (activityType == ActivityType.RA) {
+			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+			final ResourceAdaptorEntity raEntity = sleeContainer.getResourceManagement().getResourceAdaptorEntity(activitySource);
+			final Marshaler marshaler = raEntity.getMarshaler();
 			if (marshaler != null) {
-				// use ra entity marshaller to read the handle
-				this.activityHandle=marshaler.unmarshalHandle(stream);
+				activityHandle = marshaler.unmarshalHandle(stream);
 			}
 			else {
-				// use jboss serialization to read the handle
-				JBossObjectInputStream in = null;
-				try {
-					in = new JBossObjectInputStream(stream);
-					this.activityHandle = (ActivityHandle) in.readObject();
-					in.close();
-				}
-				catch(Throwable e) {
-					if (in != null)  {
-						try {
-							in.close();
-						} catch (IOException e1) {
-							logger.error(e.getMessage(),e);
-						}    
-					}
-					throw new SLEEException("Failed to unmarshall activity handle using jboss serialization.", e);		       	  
-				}
+				final ObjectInputStream jbois = new JBossObjectInputStream(stream);
+				activityHandle = (ActivityHandle) jbois.readObject();
 			}
 		}
 		else {
-			// not an external activity, read object from stream
-			this.activityHandle=(ActivityHandle) stream.readObject();
+			activityHandle = (ActivityHandle) stream.readObject();
 		}
 	}
 

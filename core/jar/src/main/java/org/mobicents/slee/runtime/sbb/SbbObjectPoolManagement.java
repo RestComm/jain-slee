@@ -110,11 +110,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 					}
 				}
 			};
-			try {
-				sleeTransactionManager.addAfterRollbackAction(action);
-			} catch (Throwable e) {
-				logger.error(e.getMessage(),e);
-			}
+			sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);			
 		}
 	}
 
@@ -174,11 +170,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 					createObjectPool(serviceID,sbbComponent);
 				}
 			};
-			try {
-				sleeTransactionManager.addAfterRollbackAction(action);
-			} catch (Throwable e) {
-				logger.error(e.getMessage(),e);
-			}
+			sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);			
 		}
 	}
 

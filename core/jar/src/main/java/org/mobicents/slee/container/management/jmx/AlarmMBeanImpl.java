@@ -35,7 +35,6 @@ import javax.slee.management.AlarmNotification;
 import javax.slee.management.ManagementException;
 import javax.slee.management.NotificationSource;
 import javax.slee.management.UnrecognizedNotificationSourceException;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
@@ -465,7 +464,7 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 
 	}
 
-	public void registerComponent(final SbbID sbbID) throws SystemException {
+	public void registerComponent(final SbbID sbbID) {
 		if (log.isDebugEnabled()) {
 			log.debug("Registering component with alarm facility: " + sbbID);
 		}
@@ -477,11 +476,11 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 				registeredComps.remove(sbbID);
 			}
 		};
-		sleeTransactionManager.addAfterRollbackAction(action);
+		sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);
 
 	}
 
-	public void unRegisterComponent(final SbbID sbbID) throws SystemException {
+	public void unRegisterComponent(final SbbID sbbID) {
 		final RegisteredComp registeredComp = this.registeredComps.remove(sbbID);
 		if (registeredComp != null) {
 			TransactionalAction action = new TransactionalAction() {
@@ -489,7 +488,7 @@ public class AlarmMBeanImpl extends MobicentsServiceMBeanSupport implements Alar
 					registeredComps.put(sbbID, registeredComp);
 				}
 			};
-			sleeTransactionManager.addAfterRollbackAction(action);
+			sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);
 		}
 
 	}

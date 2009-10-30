@@ -1,7 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="urn:jboss:bean-deployer:2.0">
+	
+	<bean name="Mobicents.JAINSLEE.CacheConfig" class="org.jboss.cache.config.Configuration">  
+         
+      <property name="runtimeConfig">
+         <bean name="MobicentsJAINSLEEJBossCacheRuntimeConfig" class="org.jboss.cache.config.RuntimeConfig">
+            <property name="transactionManager">
+               <inject bean="RealTransactionManager"/>
+            </property>
+         </bean>
+      </property>
+      
+      <property name="isolationLevel">REPEATABLE_READ</property>
+      <property name="cacheMode">LOCAL</property>
+      <property name="lockParentForChildInsertRemove">false</property>
+      <property name="lockAcquisitionTimeout">15000</property>
+      <property name="useLockStriping">false</property>
+      
+      <demand>RealTransactionManager</demand>
+   </bean>
+   
+	<bean name="Mobicents.JAINSLEE.Cache" class="org.mobicents.cache.MobicentsCache">
+		<constructor>
+          <parameter class="org.jboss.cache.config.Configuration"><inject bean="Mobicents.JAINSLEE.CacheConfig"/></parameter> 
+     	</constructor>		
+     	<demand>Mobicents.JAINSLEE.CacheConfig</demand>	
+	</bean>
 
+	<bean name="Mobicents.JAINSLEE.JBossCacheJmxWrapper" class="org.jboss.cache.jmx.CacheJmxWrapper">
+      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss.cache:service=MobicentsSleeCache",exposedInterface=org.jboss.cache.jmx.CacheJmxWrapperMBean.class,registerDirectly=true)</annotation>
+      <constructor>
+          <parameter><value-factory bean="Mobicents.JAINSLEE.Cache" method="getJBossCache"/></parameter>
+      </constructor>
+      <demand>Mobicents.JAINSLEE.Cache</demand>	      
+   </bean>
+   	
+	<bean name="Mobicents.JAINSLEE.Cluster" class="org.mobicents.cluster.DefaultMobicentsCluster">
+		<constructor>
+			<parameter><inject bean="Mobicents.JAINSLEE.Cache"/></parameter>
+			<parameter><inject bean="RealTransactionManager"/></parameter>
+			<parameter><null/></parameter>
+		</constructor>	
+		<demand>Mobicents.JAINSLEE.Cache</demand>
+		<demand>RealTransactionManager</demand>					
+	</bean>
+	
 	<bean name="Mobicents.JAINSLEE.TransactionManagerMBean"
 		class="org.mobicents.slee.runtime.transaction.SleeTransactionManagerImpl"
 		autowire-candidate="false">
@@ -44,6 +88,7 @@
 		<property name="clusteredProfiles">false</property>
 		<property name="hibernateDatasource">java:/DefaultDS</property>
 		<property name="hibernateDialect">org.hibernate.dialect.HSQLDialect</property>
+		<depends>jboss.jca:service=DataSourceBinding,name=DefaultDS</depends>
 	</bean>
 	
 	<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
@@ -56,7 +101,7 @@
 				<inject bean="Mobicents.JAINSLEE.TransactionManagerMBean" />
 			</parameter>
 			<parameter>
-				<inject bean="Mobicents.Cluster" />
+				<inject bean="Mobicents.JAINSLEE.Cluster" />
 			</parameter>
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.AlarmMBean" />
@@ -72,7 +117,7 @@
 			</parameter>
 		</constructor>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
-		<demand>Mobicents.Cluster</demand>
+		<demand>Mobicents.JAINSLEE.Cluster</demand>
 		<demand>Mobicents.JAINSLEE.AlarmMBean</demand>
 		<demand>Mobicents.JAINSLEE.TraceMBean</demand>
 	</bean>
@@ -90,7 +135,7 @@
 
 	<bean name="Mobicents.JAINSLEE.RmiServerInterfaceMBean"
 		class="org.mobicents.slee.container.management.jmx.RmiServerInterfaceMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:service=RmiServerInterfaceMBean",exposedInterface=org.mobicents.slee.container.management.jmx.RmiServerInterfaceMBeanImplMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=RmiServerInterfaceMBean",exposedInterface=org.mobicents.slee.container.management.jmx.RmiServerInterfaceMBeanImplMBean.class,registerDirectly=true)</annotation>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.ServiceManagementMBean"
@@ -128,7 +173,7 @@
 
 	<bean name="Mobicents.JAINSLEE.SbbEntitiesMBean"
 		class="org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=SbbEntitiesMBean",exposedInterface=org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImplMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=SbbEntitiesMBean",exposedInterface=org.mobicents.slee.container.management.jmx.SbbEntitiesMBeanImplMBean.class,registerDirectly=true)</annotation>
 		<constructor>
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.Container" />
@@ -139,7 +184,7 @@
 
 	<bean name="Mobicents.JAINSLEE.ActivityManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=ActivityManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=ActivityManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean.class,registerDirectly=true)</annotation>
 		<constructor>
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.Container" />
@@ -150,11 +195,12 @@
 
 	<bean name="Mobicents.JAINSLEE.MobicentsManagement"
 		class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
 		<property name="entitiesRemovalDelay">1</property>
 		<property name="monitoringUncommittedAcAttachs">true</property>
 		<property name="eventRouterExecutors">64</property>
 		<property name="persistProfiles">true</property>
+		<property name="loadClassesFirstFromAS">true</property>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.SleeManagement"
@@ -204,15 +250,21 @@
 		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
 	</bean>
 
+	<bean name="Mobicents.JAINSLEE.DeployerMBean"
+		class="org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBeanImpl">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=DeployerMBean",exposedInterface=org.mobicents.slee.container.deployment.jboss.DeploymentManagerMBean.class,registerDirectly=true)</annotation>
+		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
+	</bean>
+	
 	<bean name="Mobicents.JAINSLEE.LogManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.log.MobicentsLogManagerMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=LogManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.log.MobicentsLogManagerMBeanImplMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=LogManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.log.MobicentsLogManagerMBeanImplMBean.class,registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.PolicyManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.PolicyMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="slee:name=PolicyManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.PolicyMBeanImplMBean.class,registerDirectly=true)</annotation>
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=PolicyManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.PolicyMBeanImplMBean.class,registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
 		<property name="useMPolicy">true</property>
 	</bean>

@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -32,9 +32,14 @@ public class PendingAttachementsMonitor {
 
 	private final Object monitor = new Object();
 	
+	private final SleeTransactionManager txManager;
+	
+	public PendingAttachementsMonitor(SleeTransactionManager txManager) {
+		this.txManager = txManager;
+	}
+	
 	private void txModifyingAttachs(boolean attach) throws SystemException {
 		
-		SleeTransactionManager txManager = SleeContainer.lookupFromJndi().getTransactionManager();
 		String txId = txManager.getTransaction().toString();
 		
 		// get the current value of the attachment
@@ -45,8 +50,9 @@ public class PendingAttachementsMonitor {
 			txsModifyingAttachs.put(txId, state);
 			// set tx action to remove tx after it ends
 			WhenTransactionEndsAction txAction = new WhenTransactionEndsAction(txId);
-			txManager.addAfterCommitAction(txAction);
-			txManager.addAfterRollbackAction(txAction);
+			TransactionContext transactionContext = txManager.getTransactionContext();
+			transactionContext.getAfterCommitActions().add(txAction);
+			transactionContext.getAfterRollbackActions().add(txAction);			
 		}
 		else {
 			// state already exists

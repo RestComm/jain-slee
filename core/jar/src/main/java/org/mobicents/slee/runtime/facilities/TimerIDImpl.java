@@ -26,8 +26,6 @@ import java.io.Serializable;
 
 import javax.slee.facilities.TimerID;
 
-import org.mobicents.slee.container.MobicentsUUIDGenerator;
-
 /**
  * An implementation of timer ID.
  *
@@ -38,10 +36,12 @@ public class TimerIDImpl implements TimerID, Serializable {
 	 */
 	private static final long serialVersionUID = -230916225922881179L;
 	private String id;
-    TimerIDImpl() {
-        id = MobicentsUUIDGenerator.getInstance().createUUID();       
+    
+	TimerIDImpl(String id) {
+        this.id = id;       
     }
-    public boolean equals(Object obj) {
+    
+	public boolean equals(Object obj) {
     	if ((obj != null) && (obj.getClass() == this.getClass())) {
     		return this.id.equals(((TimerIDImpl)obj).id);
     	}

@@ -26,7 +26,6 @@ import javax.slee.profile.ReadOnlyProfileException;
 import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.profile.UnrecognizedQueryNameException;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -137,19 +136,15 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		
 		if (!traceRegistred) {
 			// register tracer
-			try {
-				final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
-				traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(profileTableName));
-				TransactionalAction action2 = new TransactionalAction() {
-					public void execute() {
-						// remove notification sources for profile table
-						traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
-					}
-				};
-				sleeContainer.getTransactionManager().addAfterRollbackAction(action2);
-			}catch (SystemException e) {
-				throw new SLEEException("Failure to register Tracer", e);
-			}
+			final TraceMBeanImpl traceMBeanImpl = sleeContainer.getTraceMBean();
+			traceMBeanImpl.registerNotificationSource(new ProfileTableNotification(profileTableName));
+			TransactionalAction action2 = new TransactionalAction() {
+				public void execute() {
+					// remove notification sources for profile table
+					traceMBeanImpl.deregisterNotificationSource(new ProfileTableNotification(profileTableName));
+				}
+			};
+			sleeContainer.getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action2);
 			traceRegistred = true;
 		}
 
@@ -659,11 +654,8 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 				closeUncommittedProfileMBeans();					
 			}
 		};
-		try {
-			sleeContainer.getTransactionManager().addAfterCommitAction(commitAction);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
+		sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(commitAction);
+		
 
 		endActivity();
 

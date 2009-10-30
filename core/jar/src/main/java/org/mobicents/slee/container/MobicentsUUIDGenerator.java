@@ -1,32 +1,24 @@
 package org.mobicents.slee.container;
 
-import java.io.ObjectStreamException;
+import java.rmi.server.UID;
 import java.util.UUID;
 
 public class MobicentsUUIDGenerator {
 
-private static final MobicentsUUIDGenerator INSTANCE = new MobicentsUUIDGenerator();
+	private final boolean localMode; 
 	
-	private MobicentsUUIDGenerator() {
+	public MobicentsUUIDGenerator(boolean localMode) {
+		this.localMode = localMode;
 		// some id generators initialize on fist call
 		createUUID();
 	}
-	
-	public static MobicentsUUIDGenerator getInstance() {		
-		return INSTANCE;
-	}
-	
-	// solves serialization of singleton
-	private Object readResolve() throws ObjectStreamException {
-        return INSTANCE;
-    }
-
-    // solves cloning of singleton
-    protected Object clone() throws CloneNotSupportedException {
-            throw new CloneNotSupportedException();
-    }
-    
+	    
     public String createUUID() {
-    	return UUID.randomUUID().toString(); 
+    	if (localMode) {
+    		return new UID().toString();
+    	}
+    	else {
+    		return UUID.randomUUID().toString();
+    	}
     }
 }

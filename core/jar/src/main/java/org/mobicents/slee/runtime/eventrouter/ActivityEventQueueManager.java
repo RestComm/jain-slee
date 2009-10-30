@@ -107,49 +107,39 @@ public class ActivityEventQueueManager {
 		}
 	}
 
-	
-	public void commitAndNotSuspended(DeferredEvent dE) {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("committing event of type " + dE.getEventTypeId()
-					+ " for "
-					+ dE.getActivityContextHandle());
-		}
-
-		if (pendingEvents.remove(dE)) {
-			// confirmed it was a pending event
-			if (dE.getEventTypeId().equals(
-					ActivityEndEventImpl.EVENT_TYPE_ID)) {
-				// store it
-				activityEndEvent = dE;
-				// check we can route it
-				if (pendingEvents.isEmpty()) {
-					// no pending events
-					if (activityEndEventQueued.compareAndSet(false, true)) {
-						// between element removal and check if it's empty there
-						// is no sync so we need to ensure only one thread
-						// routes the activity end event
-						sleeContainer.getEventRouter().routeEvent(dE);
-					}
-				}
-			} else {
-				// route the event
-				sleeContainer.getEventRouter().routeEvent(dE);
-				// perhaps we need to route a frozen activity end event too
-				routeActivityEndEventIfNeeded();
-			}
-		} else {
-			// processing of the event failed
-			dE.eventProcessingFailed(FailureReason.OTHER_REASON);
-		}
-	}
-
 	/**
 	 * Signals the manager that the event was committed, and thus can be routed.
 	 * 
 	 * @param dE
 	 */
 	public void commit(DeferredEvent dE) {
+		commit(dE,true);
+	}
+	
+	/**
+	 * Similar as doing pending() and commit() of an event in a single step.
+	 * @param dE
+	 */
+	public void fireNotTransacted(DeferredEvent dE) {
+		// manage event references
+		DeferredEventReferencesManagement eventReferencesManagement = sleeContainer.getEventRouter().getDeferredEventReferencesManagement();
+		if (EventFlags.hasRequestEventReferenceReleasedCallback(dE.getEventFlags())) {
+			eventReferencesManagement.manageReferencesForEvent(dE);
+		}
+		else {
+			eventReferencesManagement.eventReferencedByActivity(dE.getEvent(), dE.getActivityContextHandle());
+		}
+		commit(dE,false);
+	}
+	
+	private void commit(DeferredEvent dE, boolean isPendingEvent) {
+		if (isPendingEvent) {
+			if (!pendingEvents.remove(dE)) {
+				// processing of the event failed
+				dE.eventProcessingFailed(FailureReason.OTHER_REASON);
+				return;
+			}
+		}	
 		if (eventBarriers.isEmpty()) {
 			// barriers are not set, proceed with commit of event
 			commitAndNotSuspended(dE);
@@ -166,6 +156,35 @@ public class ActivityEventQueueManager {
 					commitAndNotSuspended(dE);
 				}
 			}
+		}
+	}
+
+	private void commitAndNotSuspended(DeferredEvent dE) {
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("committing event of type " + dE.getEventTypeId()
+					+ " for "
+					+ dE.getActivityContextHandle());
+		}
+
+		if (dE.getEventTypeId() == ActivityEndEventImpl.EVENT_TYPE_ID) {
+			// store it
+			activityEndEvent = dE;
+			// check we can route it
+			if (pendingEvents.isEmpty()) {
+				// no pending events
+				if (activityEndEventQueued.compareAndSet(false, true)) {
+					// between element removal and check if it's empty there
+					// is no sync so we need to ensure only one thread
+					// routes the activity end event
+					sleeContainer.getEventRouter().routeEvent(dE);
+				}
+			}
+		} else {
+			// route the event
+			sleeContainer.getEventRouter().routeEvent(dE);
+			// perhaps we need to route a frozen activity end event too
+			routeActivityEndEventIfNeeded();
 		}
 	}
 	

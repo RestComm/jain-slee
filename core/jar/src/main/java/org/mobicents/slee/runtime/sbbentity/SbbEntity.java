@@ -50,6 +50,7 @@ import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
 import org.mobicents.slee.runtime.sbb.SbbObjectPool;
 import org.mobicents.slee.runtime.sbb.SbbObjectState;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 
 /**
  * 
@@ -352,6 +353,7 @@ public class SbbEntity {
 			cmpType = CmpType.normal;
 			cmpValue = (Serializable) object;
 		}
+		
 		CmpWrapper cmpWrapper = new CmpWrapper(cmpFieldName, cmpType, cmpValue);
 		cacheData.setCmpField(cmpFieldName, cmpWrapper);
 	}
@@ -383,7 +385,7 @@ public class SbbEntity {
 		}
 	}
 
-	public Set getMaskedEventTypes(ActivityContextHandle ach) {
+	public Set<EventTypeID> getMaskedEventTypes(ActivityContextHandle ach) {
 		return cacheData.getMaskedEventTypes(ach);
 	}
 
@@ -462,18 +464,11 @@ public class SbbEntity {
 	public int getAttachmentCount() {
 		int attachmentCount = getActivityContexts().size();
 		// needs to add all children attachement counts too
-		for (MGetChildRelationMethod getChildRelationMethod : this.sbbComponent
-				.getDescriptor().getGetChildRelationMethodsCollection()) {
-			// (re)create child relation obj
-			ChildRelationImpl childRelationImpl = new ChildRelationImpl(
-					getChildRelationMethod, this);
-			// iterate all sbb entities in this child relation
-			for (String childSbbEntityID : childRelationImpl.getSbbEntitySet()) {
-				// recreated the sbb entity
-				SbbEntity childSbbEntity = SbbEntityFactory
-						.getSbbEntityWithoutLock(childSbbEntityID);
-				attachmentCount += childSbbEntity.getAttachmentCount();
-			}
+		for (String sbbEntityId : cacheData.getAllChildSbbEntities()) {
+			// recreated the sbb entity
+			SbbEntity childSbbEntity = SbbEntityFactory
+					.getSbbEntityWithoutLock(sbbEntityId);
+			attachmentCount += childSbbEntity.getAttachmentCount();			
 		}
 		return attachmentCount;
 	}
@@ -660,30 +655,26 @@ public class SbbEntity {
 		EventRoutingTransactionData data = new EventRoutingTransactionData(
 				sleeEvent, activityContextInterface);
 		data.getInvokedSbbEntities().add(sbbeId);
-		data.putInTransactionContext();
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		txContext.setEventRoutingTransactionData(data);
 		// invoke method
 		try {
 
 			//This is required. Since domain chain may indicate RA for instance, or SLEE deployer. If we dont do that test: tests/runtime/security/Test1112012Test.xml and second one, w
 			//will fail because domain of SLEE tck ra is too restrictive (or we have bad desgin taht allows this to happen?)
-			if(System.getSecurityManager()!=null)
-			{
-				AccessController.doPrivileged(new PrivilegedExceptionAction(){
-
+			if(System.getSecurityManager()!=null) {
+				AccessController.doPrivileged(new PrivilegedExceptionAction<Object>(){
 				public Object run() throws IllegalAccessException, InvocationTargetException{
 					eventHandlerMethod.getEventHandlerMethod().invoke(
 							sbbObject.getSbbConcrete(), parameters);
 					return null;
 				}});
-			
-			}else
-			{
+			}
+			else {
 				eventHandlerMethod.getEventHandlerMethod().invoke(
 						sbbObject.getSbbConcrete(), parameters);
 			}
-	
-		} catch(PrivilegedActionException pae)
-		{
+		} catch(PrivilegedActionException pae) {
 			Throwable cause = pae.getException();
 			if(cause instanceof  IllegalAccessException)
 			 {
@@ -706,11 +697,9 @@ public class SbbEntity {
 			{
 				pae.printStackTrace();
 			}
-		}catch(IllegalAccessException iae)
-		{
+		} catch(IllegalAccessException iae) {
 			throw new RuntimeException(iae);
-		}catch(InvocationTargetException ite)
-		{
+		} catch(InvocationTargetException ite) {
 			Throwable realException = ite.getCause();
 			if (realException instanceof RuntimeException) {
 				RuntimeException re = (RuntimeException) realException;
@@ -722,12 +711,11 @@ public class SbbEntity {
 				Exception re = (Exception) realException;
 				throw re;
 			}
-		}catch(Exception e)
-		{
-			e.printStackTrace();
+		} catch(Exception e) {
+			log.error(e.getMessage(),e);
 		}
 		// remove data from tx context
-		data.removeFromTransactionContext();
+		txContext.setEventRoutingTransactionData(null);
 		
 	}
 
@@ -855,7 +843,7 @@ public class SbbEntity {
 	public void checkReEntrant() throws SLEEException {
 		if ((!this.getSbbComponent().getDescriptor().getSbbAbstractClass()
 				.isReentrant())
-				&& EventRoutingTransactionData.getFromTransactionContext()
+				&& ((EventRoutingTransactionData) sleeContainer.getTransactionManager().getTransactionContext().getEventRoutingTransactionData())
 						.getInvokedSbbEntities().contains(sbbeId))
 			throw new SLEEException(" re-entrancy not allowed ");
 	}

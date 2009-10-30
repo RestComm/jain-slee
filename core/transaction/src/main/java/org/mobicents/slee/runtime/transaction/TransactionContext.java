@@ -1,14 +1,3 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source VoIP Platform      *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- *  Created on 2005-5-28                             *
- *                                                 *
- ***************************************************/
-
 package org.mobicents.slee.runtime.transaction;
 
 import java.util.ArrayList;
@@ -40,10 +29,7 @@ import org.apache.log4j.Logger;
  */
 public class TransactionContext {
 
-	private static Logger logger = Logger.getLogger(TransactionContext.class);
-
-	// this code was hack to trap setRollbackOnly() due to jboss cache, don't remove it may be needed again
-	//private boolean rollbackOnly = false;
+	private static final Logger logger = Logger.getLogger(TransactionContext.class);
 	
 	/**
 	 * {@link TransactionalAction}s which should be executed first after transaction commit succeeds
@@ -73,8 +59,26 @@ public class TransactionContext {
 	/**
 	 * transaction data
 	 */
+	@SuppressWarnings("unchecked")
 	private Map data;
 
+	/**
+	 * place holder for event routing data related with a tx
+	 */
+	private Object eventRoutingTransactionData;
+	
+	/**
+	 * indicates if the tx context should do traces or not
+	 */
+	private boolean trace;
+	
+	/**
+	 * 
+	 */
+	public TransactionContext() {
+		trace = logger.isTraceEnabled();
+	}
+	
 	/**
 	 * Retrieves the list of actions which should be executed after commit succeeds 
 	 * @return
@@ -132,6 +136,7 @@ public class TransactionContext {
 
 	// ------- DATA MANAGEMENT
 
+	@SuppressWarnings("unchecked")
 	public Map getData() {
 		if (data == null) {
 			data = new HashMap();
@@ -145,12 +150,12 @@ public class TransactionContext {
 	 * Executes actions scheduled after commit succeeds
 	 */
 	protected void executeAfterCommitActions() {
-
 		if (afterCommitActions != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Executing after commit actions");
+			if (trace) {
+				logger.trace("Executing after commit actions");
 			}
-			executeActions(afterCommitActions);
+			executeActions(afterCommitActions,trace);
+			afterCommitActions = null;
 		} 
 	}
 
@@ -158,25 +163,25 @@ public class TransactionContext {
 	 * Executes actions scheduled to run first after commit succeeds
 	 */
 	protected void executeAfterCommitPriorityActions() {
-
 		if (afterCommitPriorityActions != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Executing after commit priority actions");
+			if (trace) {
+				logger.trace("Executing after commit priority actions");
 			}
-			executeActions(afterCommitPriorityActions);
+			executeActions(afterCommitPriorityActions,trace);
+			afterCommitPriorityActions = null;
 		}
 	}
 
 	/**
 	 * Executes actions scheduled for after a rollback
 	 */
-	protected void executeAfterRollbackActions() {
-		
+	protected void executeAfterRollbackActions() {		
 		if (afterRollbackActions != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Executing rollback actions");
+			if (trace) {
+				logger.trace("Executing rollback actions");
 			}
-			executeActions(afterRollbackActions);
+			executeActions(afterRollbackActions,trace);
+			afterRollbackActions = null;
 		} 
 	}
 
@@ -184,38 +189,33 @@ public class TransactionContext {
 	 * Executes actions scheduled for before commit
 	 */
 	protected void executeBeforeCommitActions() {
-		
 		if (beforeCommitActions != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Executing before commit actions");
+			if (trace) {
+				logger.trace("Executing before commit actions");
 			}
-			executeActions(beforeCommitActions);
+			executeActions(beforeCommitActions,trace);
+			beforeCommitActions = null;
 		} 
 	}
 	
 	/**
 	 * Executes actions scheduled for before commit at first
 	 */
-	protected void executeBeforeCommitPriorityActions() {
-		
+	protected void executeBeforeCommitPriorityActions() {		
 		if (beforeCommitPriorityActions != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Executing before commit priority actions");
+			if (trace) {
+				logger.trace("Executing before commit priority actions");
 			}
-			executeActions(beforeCommitPriorityActions);
+			executeActions(beforeCommitPriorityActions,trace);
+			beforeCommitPriorityActions = null;
 		} 
 	}
 
-	private void executeActions(List<TransactionalAction> actions) {
-		
+	private void executeActions(List<TransactionalAction> actions,boolean trace) {
 		for (TransactionalAction action : actions) {
-			if (logger.isDebugEnabled())
-				logger.debug("Executing action:" + action);
-			try {
-				action.execute();
-			} catch (Throwable t) {
-				throw new RuntimeException("Failed while executing action", t);
-			}
+			if (trace)
+				logger.trace("Executing action:" + action);
+			action.execute();
 		}
 	}
 
@@ -223,25 +223,16 @@ public class TransactionContext {
 	 * Cleanups any state the entry has created.
 	 */
 	protected void cleanup() {
-		afterCommitActions = null;
-		afterCommitPriorityActions = null;
-		afterRollbackActions = null;
-		beforeCommitActions = null;
-		beforeCommitPriorityActions = null;
 		data = null;
+		eventRoutingTransactionData = null;
 	}
-	
-	// this code was hack to trap setRollbackOnly() in the tx context, due to jboss cache, don't remove it may be needed again
-	/*
-	protected boolean getRollbackOnly() {
-		
-		return rollbackOnly;
+
+	public Object getEventRoutingTransactionData() {
+		return eventRoutingTransactionData;
 	}
-	
-	protected void setRollbackOnly() {
-		
-		rollbackOnly = true;;
+
+	public void setEventRoutingTransactionData(Object eventRoutingTransactionData) {
+		this.eventRoutingTransactionData = eventRoutingTransactionData;
 	}
-	*/
 	
 }

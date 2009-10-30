@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ServiceComponent;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -150,19 +151,14 @@ public class EventContextImpl implements EventContext {
 			if (transactionalAction == null) {
 				transactionalAction = new EventContextStateChange();
 				transactionalAction.op = EventContextStateChangeOp.resume;
-				try {
-					sleeContainer.getTransactionManager().addAfterCommitAction(transactionalAction);
-					TransactionalAction rollbackAction = new TransactionalAction() {
-						public void execute() {
-							transactionalAction = null;							
-						}
-					};
-					sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
-				} catch (SystemException e) {
-					transactionalAction = null;
-					throw new SLEEException(
-							"unable to add tx action to change event context state", e);
-				}
+				TransactionContext transactionContext = sleeContainer.getTransactionManager().getTransactionContext();
+				transactionContext.getAfterCommitActions().add(transactionalAction);
+				TransactionalAction rollbackAction = new TransactionalAction() {
+					public void execute() {
+						transactionalAction = null;							
+					}
+				};
+				transactionContext.getAfterRollbackActions().add(rollbackAction);				
 			}
 			else {
 				throw new IllegalStateException();
@@ -192,13 +188,15 @@ public class EventContextImpl implements EventContext {
 					transactionalAction.op = EventContextStateChangeOp.suspend;
 					transactionalAction.timeout = timeout;
 					transactionalAction.tx = sleeContainer.getTransactionManager().getTransaction();
-					sleeContainer.getTransactionManager().addAfterCommitAction(transactionalAction);
+					TransactionContext transactionContext = sleeContainer.getTransactionManager().getTransactionContext();
+					transactionContext.getAfterCommitActions().add(transactionalAction);
 					TransactionalAction rollbackAction = new TransactionalAction() {
 						public void execute() {
 							transactionalAction = null;							
 						}
 					};
-					sleeContainer.getTransactionManager().addAfterRollbackAction(rollbackAction);
+					transactionContext.getAfterRollbackActions().add(rollbackAction);	
+										
 				} catch (SystemException e) {
 					transactionalAction = null;
 					throw new SLEEException(

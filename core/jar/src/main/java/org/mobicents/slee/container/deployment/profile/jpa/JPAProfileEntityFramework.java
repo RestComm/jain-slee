@@ -38,6 +38,7 @@ import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.container.component.profile.ProfileEntityFactory;
 import org.mobicents.slee.container.component.profile.ProfileEntityFramework;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -667,19 +668,13 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 	private EntityManager getEntityManager() {
 
 		if (txDataKey == null) {
-			txDataKey = "jpapef.em."
-					+ component.getProfileSpecificationID().toString();
+			txDataKey = new StringBuilder("jpapef.em.").append(component.getProfileSpecificationID()).toString();
 		}
 
+		final TransactionContext txContext = sleeTransactionManager.getTransactionContext();
 		// look in tx
-		Map transactionContextData = null;
-		try {
-			transactionContextData = sleeTransactionManager
-					.getTransactionContext().getData();
-		} catch (Throwable e1) {
-			throw new SLEEException(e1.getMessage(), e1);
-		}
-
+		Map transactionContextData = txContext.getData();
+		
 		EntityManager result = (EntityManager) transactionContextData
 				.get(txDataKey);
 		if (result == null) {
@@ -698,12 +693,7 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 					}
 				}
 			};
-			try {
-				sleeTransactionManager.addBeforeCommitAction(
-						action);
-			} catch (Throwable e1) {
-				throw new SLEEException(e1.getMessage(), e1);
-			}
+			txContext.getAfterRollbackActions().add(action);
 		}
 		return result;
 	}

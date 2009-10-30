@@ -50,6 +50,7 @@ import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -261,12 +262,12 @@ public class ServiceManagement {
 						}					
 					}
 				};
-				transactionManager.addAfterRollbackAction(action);
+				transactionManager.getTransactionContext().getAfterRollbackActions().add(action);
 				
 				rb = false;
 				logger.info("Activated " + serviceID);
 								
-			} catch (SystemException e) {
+			} catch (IllegalStateException e) {
 				throw new SLEEException(e.getMessage(),e);
 			} finally {
 
@@ -388,7 +389,7 @@ public class ServiceManagement {
 						}					
 					}
 				};
-				transactionManager.addAfterRollbackAction(action);
+				transactionManager.getTransactionContext().getAfterRollbackActions().add(action);
 				
 				rb = false;
 
@@ -615,7 +616,8 @@ public class ServiceManagement {
 				}
 			}
 		};
-		sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		txContext.getAfterRollbackActions().add(action);
 
 		
 			// register notification sources for all sbbs
@@ -636,7 +638,7 @@ public class ServiceManagement {
 							traceMBeanImpl.deregisterNotificationSource(new SbbNotification(serviceComponent.getServiceID(),sbbID));						
 						}
 					};
-					sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+					txContext.getAfterRollbackActions().add(action);
 				}
 				
 				//this might be used not only by 1.1 sbbs...
@@ -706,6 +708,8 @@ public class ServiceManagement {
 			}
 		}
 		
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("Closing Usage MBean of service "
 					+ serviceComponent.getServiceID());
@@ -724,7 +728,7 @@ public class ServiceManagement {
 					}
 				}
 			};
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+			txContext.getAfterRollbackActions().add(action);			
 		}
 		
 		
@@ -746,7 +750,7 @@ public class ServiceManagement {
 						}
 					
 					};
-					sleeContainer.getTransactionManager().addAfterRollbackAction(action);
+					txContext.getAfterRollbackActions().add(action);					
 				}
 			}
 		

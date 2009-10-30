@@ -62,6 +62,29 @@
 			<version>${pom.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.mobicents.cluster</groupId>
+			<artifactId>cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.cluster</groupId>
+			<artifactId>timers</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.cluster</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.cache</groupId>
+			<artifactId>jbosscache-core</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>jgroups</groupId>
+			<artifactId>jgroups</artifactId>
+		</dependency>
+		
 		<!-- jslee -->
 		<dependency>
 			<groupId>javax.slee</groupId>

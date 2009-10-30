@@ -71,7 +71,7 @@ public class DeployableUnitBuilder {
 	 * @throws DeploymentException
 	 */
 	public DeployableUnit build(String url, File deploymentRoot,
-			ComponentRepository componentRepository)
+			ComponentRepository componentRepository, boolean loadClassesFirstFromAS)
 			throws DeploymentException, AlreadyDeployedException,
 			MalformedURLException {
 
@@ -142,7 +142,7 @@ public class DeployableUnitBuilder {
 			for (String jarFileName : deployableUnitDescriptor.getJarEntries()) {
 				for (SleeComponent sleeComponent : duComponentBuilder
 						.buildComponents(jarFileName, deployableUnitJar,
-								deployableUnit.getDeploymentDir())) {
+								deployableUnit.getDeploymentDir(),loadClassesFirstFromAS)) {
 					sleeComponent.setDeployableUnit(deployableUnit);
 					if (componentRepository.isInstalled(sleeComponent
 							.getComponentID())) {

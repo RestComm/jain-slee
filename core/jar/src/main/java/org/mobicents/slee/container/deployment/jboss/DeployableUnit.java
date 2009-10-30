@@ -426,41 +426,23 @@ public class DeployableUnit {
 
           // The properties for this RA
           ConfigProperties props = new ConfigProperties();
-
-          // FIXME: Alexandre: Add properties handling.
-
-          /*Element propsNode = (Element) propsNodeList.item(0);
-
-					// Do we have any properties at all?
-					if (propsNode != null) {
-						String propsFilename;
-
-						// Do we have a properties file to load?
-						if ((propsFilename = ((Element) propsNode)
-								.getAttribute("file")) != null
-								&& !propsFilename.equals("")) {
-							// Get the entry from the jar
-							JarEntry propsFile = componentJarFile
-									.getJarEntry("META-INF/" + propsFilename);
-
-							// Load it.
-							props.load(componentJarFile
-									.getInputStream(propsFile));
-						}
-
-						// Select the property elements
-						NodeList propsList = propsNode
-								.getElementsByTagName("property");
-
-						// For each element, add it to the Properties object
-						for (int j = 0; j < propsList.getLength(); j++) {
-							Element property = (Element) propsList.item(j);
-
-							// If the property already exists, it will be overwritten.
-							props.put(property.getAttribute("name"), property
-									.getAttribute("value"));
-						}
-					}*/
+          Element propsNode = (Element) propsNodeList.item(0);
+          // Do we have any properties at all?
+          if (propsNode != null) {
+        	  // Select the property elements
+        	  NodeList propsList = propsNode.getElementsByTagName("property");
+        	  // For each element, add it to the Properties object
+        	  for (int j = 0; j < propsList.getLength(); j++) {
+        		  Element property = (Element) propsList.item(j);
+        		  String propertyName = property.getAttribute("name");
+        		  String propertyType = property.getAttribute("type");
+        		  String propertyValue = property.getAttribute("value");
+							props.addProperty(new ConfigProperties.Property(
+									propertyName, propertyType,
+									ConfigProperties.Property.toObject(
+											propertyType, propertyValue)));
+        	  }
+          }
 
           // Create the Resource Adaptor ID
           cidpe.setAsText(raEntity.getAttribute("resource-adaptor-id"));

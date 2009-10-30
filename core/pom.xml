@@ -29,15 +29,11 @@
 		<module>jar</module>
 		<module>rar</module>
 		<module>ant-tasks</module>	
-		<module>install-cluster</module>	
 		<module>server-resources</module>
 		<module>server-default-beans</module>
 		<module>server-all-beans</module>
 		<module>deployer</module>
-		<module>standard-events</module>
-		<module>standard-events11</module>
-		<module>standard-profiles</module>
-		<module>standard-profiles11</module>		
+		<module>standard-components</module>	
 	</modules>
 
 	<properties>
@@ -60,19 +56,14 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.cluster</groupId>
+				<artifactId>cache</artifactId>
+				<version>${mobicents.cluster.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.cluster</groupId>
 				<artifactId>timers</artifactId>
 				<version>${mobicents.cluster.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
-				<artifactId>server-all-beans</artifactId>
-				<version>${mobicents.cluster.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.mobicents.cluster</groupId>
-				<artifactId>server-default-beans</artifactId>
-				<version>${mobicents.cluster.version}</version>
-			</dependency>			
+			</dependency>		
 		</dependencies>
 	</dependencyManagement>
 			

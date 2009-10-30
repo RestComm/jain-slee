@@ -465,8 +465,7 @@ public class SbbObject implements Serializable {
 		ActivityContextInterface aci = null;
 
 		if (invoke) {
-			EventRoutingTransactionData ertd = EventRoutingTransactionData
-			.getFromTransactionContext();
+			EventRoutingTransactionData ertd = (EventRoutingTransactionData) sleeContainer.getTransactionManager().getTransactionContext().getEventRoutingTransactionData();
 			if (ertd != null) {
 				eventObject = ertd.getEventBeingDelivered().getEvent();
 				aci = ertd.getAciReceivingEvent();

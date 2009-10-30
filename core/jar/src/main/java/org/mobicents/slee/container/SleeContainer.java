@@ -56,6 +56,7 @@ import org.jboss.virtual.VFS;
 import org.jboss.virtual.VFSUtils;
 import org.mobicents.cluster.MobicentsCluster;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
+import org.mobicents.slee.container.component.deployment.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.management.DeployableUnitManagement;
 import org.mobicents.slee.container.deployment.profile.jpa.Configuration;
 import org.mobicents.slee.container.management.ResourceManagement;
@@ -186,9 +187,11 @@ public class SleeContainer {
 	private final ProfileFacilityImpl profileFacility;
 	private final TimerFacilityImpl timerFacility;
 		
-	private final MobicentsUUIDGenerator uuidGenerator = MobicentsUUIDGenerator.getInstance(); 
+	private final MobicentsUUIDGenerator uuidGenerator; 
 		
 	private final UsageMBeansConfiguration usageMBeansConfiguration;
+	
+	private ReplicationClassLoader replicationClassLoader;
 	
 	// LIFECYLE RELATED
 
@@ -222,6 +225,9 @@ public class SleeContainer {
 		this.mbeanServer = MBeanServerLocator.locateJBoss();
 		this.sleeTransactionManager = sleeTransactionManager;
 		this.cluster = cluster;
+		this.replicationClassLoader = new ReplicationClassLoader();
+		cluster.getMobicentsCache().setReplicationClassLoader(replicationClassLoader);
+		this.uuidGenerator = new MobicentsUUIDGenerator(cluster.getMobicentsCache().isLocalMode());
 		this.alarmMBeanImpl = alarmMBeanImpl;
 		this.traceMBeanImpl = traceMBeanImpl;
 		this.usageMBeansConfiguration = usageMBeansConfiguration;
@@ -390,6 +396,14 @@ public class SleeContainer {
 	 */
 	public ScheduledExecutorService getNonClusteredScheduler() {
 		return nonClusteredScheduler;
+	}
+	
+	/**
+	 * Retrieves the class loader used in data replication.
+	 * @return
+	 */
+	public ReplicationClassLoader getReplicationClassLoader() {
+		return replicationClassLoader;
 	}
 	
 	/**

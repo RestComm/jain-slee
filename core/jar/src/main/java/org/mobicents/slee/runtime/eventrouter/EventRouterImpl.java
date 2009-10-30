@@ -122,7 +122,7 @@ public class EventRouterImpl implements EventRouter {
 		if (era == null) {
 			PendingAttachementsMonitor pendingAttachementsMonitor = null;
 			if (monitorPendingACAttachements) {
-				pendingAttachementsMonitor = new PendingAttachementsMonitor();
+				pendingAttachementsMonitor = new PendingAttachementsMonitor(container.getTransactionManager());
 			}
 			final EventRouterActivity newEra = new EventRouterActivity(ach,pendingAttachementsMonitor,container);
 			era = activities.putIfAbsent(ach,newEra);

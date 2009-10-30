@@ -18,6 +18,7 @@ import org.mobicents.slee.runtime.sbb.SbbObjectState;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 
 public class HandleSbbRollback {
 
@@ -69,17 +70,14 @@ public class HandleSbbRollback {
 		ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
 		
-		boolean createERTD = false;
+		TransactionContext txContext = null;
 		try {
 
 			// Only start new tx if there's a target sbb entity (6.10.1)
 			if (sbbEntity != null) {
 				txMgr.begin();
-				if(EventRoutingTransactionData.getFromTransactionContext()==null){
-					createERTD = true;
-					EventRoutingTransactionData ertd= new EventRoutingTransactionData(de,aci);
-					ertd.putInTransactionContext();
-				}
+				txContext = txMgr.getTransactionContext();				
+				txContext.setEventRoutingTransactionData(new EventRoutingTransactionData(de,aci));
 				// we have to refresh the sbb entity by reading it frmo the
 				// cache
 				try {
@@ -155,10 +153,7 @@ public class HandleSbbRollback {
 						txMgr.rollback();
 					}
 					else {
-						if(createERTD)
-						{
-							EventRoutingTransactionData.getFromTransactionContext().removeFromTransactionContext();
-						}
+						txContext.setEventRoutingTransactionData(null);
 						txMgr.commit();
 					}
 				} catch (SystemException ex) {					

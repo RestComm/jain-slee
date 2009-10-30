@@ -116,7 +116,7 @@ public class TimerFacilityImpl implements TimerFacility {
 		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
 		boolean startedTx = txMgr.requireTransaction();
 
-		TimerIDImpl timerID = new TimerIDImpl();
+		TimerIDImpl timerID = new TimerIDImpl(sleeContainer.getUuidGenerator().createUUID());
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("setTimer: timerID = "+timerID+" , startTime = " + startTime + " period = "

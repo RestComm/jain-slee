@@ -25,7 +25,7 @@ public class Du2Test extends MicrocontainerTest {
 		File root = new File(url.toURI()).getParentFile();
 		DeployableUnitBuilder builder = new DeployableUnitBuilder();
 		try {
-			builder.build(root.toURL().toString()+"components-test-du-2.jar", root, componentRepository);
+			builder.build(root.toURL().toString()+"components-test-du-2.jar", root, componentRepository,true);
 		}
 		catch (DeploymentException e) {
 			getLog().debug("got expected exception",e);

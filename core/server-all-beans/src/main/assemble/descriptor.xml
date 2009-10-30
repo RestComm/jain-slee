@@ -15,8 +15,6 @@
 
 	<dependencySets>
 		<dependencySet>
-			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}
-			</outputFileNameMapping>
 			<outputDirectory>/lib</outputDirectory>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<useProjectArtifact>false</useProjectArtifact>

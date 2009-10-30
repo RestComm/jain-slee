@@ -58,7 +58,7 @@ public interface MobicentsManagementMBean extends ServiceMBean {
 	 * 
 	 * @return
 	 */
-  public boolean getPersistProfiles();
+	public boolean getPersistProfiles();
   
 	/**
 	 * 

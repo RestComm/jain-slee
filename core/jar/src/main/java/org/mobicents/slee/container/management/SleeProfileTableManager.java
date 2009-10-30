@@ -13,7 +13,6 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.profile.ProfileTableAlreadyExistsException;
 import javax.slee.profile.UnrecognizedProfileSpecificationException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -26,6 +25,7 @@ import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileEntityFrame
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileTableFramework;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -294,18 +294,15 @@ public class SleeProfileTableManager {
 			// new profile table object was inserted
 			profileTable = newProfileTable;
 			newProfileTable.registerTracer();
+			final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 			// add tx action to remove local object if tx rollbacks
 			TransactionalAction action1 = new TransactionalAction() {
 				public void execute() {
 					profileTablesLocalObjects.remove(newProfileTable.getProfileTableName());				
 				}
 			};
-			try {
-				sleeContainer.getTransactionManager().addAfterRollbackAction(action1);
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
-			
+			txContext.getAfterRollbackActions().add(action1);
+						
 			// register usage mbean
 			newProfileTable.registerUsageMBean();
 			TransactionalAction action3 = new TransactionalAction() {
@@ -313,11 +310,8 @@ public class SleeProfileTableManager {
 					newProfileTable.unregisterUsageMBean();				
 				}
 			};
-			try {
-				sleeContainer.getTransactionManager().addAfterRollbackAction(action3);
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
+			txContext.getAfterRollbackActions().add(action3);
+			
 			// create object pool
 			sleeContainer.getProfileObjectPoolManagement().createObjectPool(newProfileTable, sleeContainer.getTransactionManager());
 			
@@ -429,8 +423,8 @@ public class SleeProfileTableManager {
 	    }
 	  };
 	  try {
-	    sleeContainer.getTransactionManager().addAfterCommitAction(action);
-	  } catch (SystemException e) {
+	    sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(action);
+	  } catch (IllegalStateException e) {
 	    throw new SLEEException(e.getMessage(),e);
 	  }
 	  profileTable.remove();

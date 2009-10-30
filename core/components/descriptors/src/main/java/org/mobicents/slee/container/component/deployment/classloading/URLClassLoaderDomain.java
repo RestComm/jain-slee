@@ -30,14 +30,16 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 	 */
 	private ClassLoader sleeClassLoader;
 	
+	private final boolean firstLoadFromSlee;
 	/**
 	 * 
 	 * @param urls
 	 * @param sleeClassLoader
 	 */
-	public URLClassLoaderDomain(URL[] urls, ClassLoader sleeClassLoader) {
+	public URLClassLoaderDomain(URL[] urls, ClassLoader sleeClassLoader, boolean firstLoadFromSlee) {
 		super(urls);
 		this.sleeClassLoader = sleeClassLoader;
+		this.firstLoadFromSlee = firstLoadFromSlee;
 	}
 	
 	/**
@@ -82,9 +84,9 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 				// cycle
 				throw new ClassNotFoundException(name);
 			}
-			
-			 // try slee shared class loader?
-			if (loadFromSlee) {
+						
+			if (loadFromSlee && firstLoadFromSlee) {
+				// for this lookup go to slee classloader and we must do it first
 				try {
 					result = sleeClassLoader.loadClass(name);
 				} catch (Throwable e) {
@@ -93,7 +95,7 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 			}
 			
 			if (result == null) {				
-				// try in dependencies
+				// not found or not tried, try in dependencies
 				for (URLClassLoaderDomain dependency : dependencies) {
 					try {
 						result = dependency.loadClass(name, resolve, visited,false);
@@ -106,11 +108,29 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 				}
 				
 				if (result == null) {
-					// finally try locally
-					result = super.loadClass(name, resolve);
+					// not found
+					if (firstLoadFromSlee || !loadFromSlee) {
+						// lookup is done first in slee or not done at all, so this is final try,
+						// and either it is found or exception will be thrown
+						result = super.loadClass(name, resolve);
+					}
+					else {
+						// if it fails slee is last place to lookup, no exception allowed here
+						try {
+							result = super.loadClass(name, resolve);
+						} catch (Throwable e) {
+							// ignore, we will lookup in the parent next
+						}	
+					}
 				}	
 			}
-			 
+			
+			if (result == null) {
+				// if not found yet the only way to be here is in mode where
+				// slee is not searched first and slee should be searched
+				result = sleeClassLoader.loadClass(name);
+			}
+			
 			cache.put(name, result);						
 		}
 		

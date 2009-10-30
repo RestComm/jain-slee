@@ -1,7 +1,6 @@
 package org.mobicents.slee.runtime.transaction;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.slee.transaction.CommitListener;
 import javax.slee.transaction.RollbackListener;
@@ -16,13 +15,12 @@ import javax.transaction.xa.XAResource;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
 
+/**
+ * Implementation of the {@link SleeTransaction}.
+ * @author martins
+ *
+ */
 public class SleeTransactionImpl implements SleeTransaction {
-
-	/**
-	 * thread pool for async commit/rollback operations
-	 */
-	private static final ExecutorService executorService = Executors
-			.newCachedThreadPool();
 
 	/**
 	 * the wrapped JBossTS transaction
@@ -39,27 +37,59 @@ public class SleeTransactionImpl implements SleeTransaction {
 	 */
 	private final SleeTransactionManagerImpl transactionManager;
 
-	private boolean asyncOperationInitiated = false;
+	/**
+	 * the tx context, stored here too to support suspend/resume op 
+	 */
+	private final TransactionContext txContext; 
 	
+	/**
+	 * controls thread access safety
+	 */
+	private AtomicBoolean asyncOperationInitiated = new AtomicBoolean(false);
+	
+	/**
+	 * 
+	 * @param transaction
+	 * @param txContext
+	 * @param transactionManager
+	 */
 	public SleeTransactionImpl(TransactionImple transaction,
-			SleeTransactionManagerImpl transactionManager) {
+			TransactionContext txContext, SleeTransactionManagerImpl transactionManager) {
 		this.transaction = transaction;
 		this.transactionId = transaction.get_uid().toString();
+		this.txContext = txContext;
 		this.transactionManager = transactionManager;
 	}
 
+	/**
+	 * Retrieves the tx context.
+	 * @return
+	 */
+	public TransactionContext getTransactionContext() {
+		return txContext;
+	}
+	
+	/**
+	 * Retrieves the real jta transaction
+	 * @return
+	 */
+	TransactionImple getWrappedTransaction() {
+		return transaction;
+	}
+	
 	/**
 	 * Some operations require that the transaction be suspended
 	 * @throws SystemException
 	 */
 	private void suspendIfAssoaciatedWithThread() throws SystemException {
 		// if there is a tx associated with this thread and it is this one
-		// then suspend it to dissociate the thread
-		SleeTransaction currentThreadTransaction = transactionManager
+		// then suspend it to dissociate the thread (dumb feature?!?! of jboss ts)
+		final SleeTransaction currentThreadTransaction = transactionManager
 				.getSleeTransaction();
 		if (currentThreadTransaction != null
 				&& currentThreadTransaction.equals(this)) {
-			transactionManager.suspend();
+			// lets use the real tx manager directly, to avoid any other procedures
+			transactionManager.getRealTransactionManager().suspend();
 		}		
 	}
 	
@@ -74,37 +104,52 @@ public class SleeTransactionImpl implements SleeTransaction {
 			SecurityException {
 		try {
 			int status = transaction.getStatus();
-			if (asyncOperationInitiated || (status != Status.STATUS_ACTIVE
+			if (asyncOperationInitiated.getAndSet(true) || (status != Status.STATUS_ACTIVE
 					&& status != Status.STATUS_MARKED_ROLLBACK)) {
 				throw new IllegalStateException(
 						"There is no active tx, tx is in state: " + status);
 			}
-			asyncOperationInitiated = true;
 			suspendIfAssoaciatedWithThread();
 		} catch (SystemException e) {
 			throw new IllegalStateException(e);
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransaction#asyncCommit(javax.slee.transaction.CommitListener)
+	 */
 	public void asyncCommit(CommitListener commitListener)
 			throws IllegalStateException, SecurityException {
 		beforeAsyncOperation();
-		executorService.submit(new AsyncTransactionCommitRunnable(
+		transactionManager.getExecutorService().submit(new AsyncTransactionCommitRunnable(
 				commitListener, transaction));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransaction#asyncRollback(javax.slee.transaction.RollbackListener)
+	 */
 	public void asyncRollback(RollbackListener rollbackListener)
 			throws IllegalStateException, SecurityException {
 		beforeAsyncOperation();
-		executorService.submit(new AsyncTransactionRollbackRunnable(
+		transactionManager.getExecutorService().submit(new AsyncTransactionRollbackRunnable(
 				rollbackListener, transaction));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransaction#delistResource(javax.transaction.xa.XAResource, int)
+	 */
 	public boolean delistResource(XAResource arg0, int arg1)
 			throws IllegalStateException, SystemException {
 		return transaction.delistResource(arg0, arg1);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.transaction.SleeTransaction#enlistResource(javax.transaction.xa.XAResource)
+	 */
 	public boolean enlistResource(XAResource arg0)
 			throws IllegalStateException, RollbackException {
 		try {
@@ -116,14 +161,16 @@ public class SleeTransactionImpl implements SleeTransaction {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.Transaction#commit()
+	 */
 	public void commit() throws RollbackException, HeuristicMixedException,
 			HeuristicRollbackException, SecurityException,
 			IllegalStateException, SystemException {	
-		
-		if (asyncOperationInitiated) {
+		if (asyncOperationInitiated.get()) {
 			throw new IllegalStateException();
 		}
-		
 		try {
 			transaction.commit();		
 		}
@@ -132,21 +179,31 @@ public class SleeTransactionImpl implements SleeTransaction {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.Transaction#getStatus()
+	 */
 	public int getStatus() throws SystemException {
 		return transaction.getStatus();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.Transaction#registerSynchronization(javax.transaction.Synchronization)
+	 */
 	public void registerSynchronization(Synchronization sync)
 			throws RollbackException, IllegalStateException, SystemException {
 		transaction.registerSynchronization(sync);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.Transaction#rollback()
+	 */
 	public void rollback() throws IllegalStateException, SystemException {
-		
-		if (asyncOperationInitiated) {
+		if (asyncOperationInitiated.get()) {
 			throw new IllegalStateException();
 		}
-		
 		try {
 			transaction.rollback();		
 		}
@@ -155,6 +212,10 @@ public class SleeTransactionImpl implements SleeTransaction {
 		}		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.transaction.Transaction#setRollbackOnly()
+	 */
 	public void setRollbackOnly() throws IllegalStateException, SystemException {
 		transaction.setRollbackOnly();
 	}

@@ -5,7 +5,9 @@ import java.security.PrivilegedAction;
 import java.util.LinkedList;
 import java.util.Set;
 
+import javax.slee.EventTypeID;
 import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -142,7 +144,10 @@ public class EventRoutingTask implements Runnable {
 					}
 				}
 				else {
-					eventContextImpl.getActiveServicesToProcessEventAsInitial().addAll(eventTypeComponent.getActiveServicesWhichDefineEventAsInitial());
+					Set<ServiceComponent> services = eventTypeComponent.getActiveServicesWhichDefineEventAsInitial();
+					if (services != null) {
+						eventContextImpl.getActiveServicesToProcessEventAsInitial().addAll(services);
+					}
 				}
 			}
 			else {
@@ -181,6 +186,7 @@ public class EventRoutingTask implements Runnable {
 			Set<String> sbbEntitiesThatHandledCurrentEvent;
 			boolean deliverEvent; 
 			boolean rollbackTx;
+			boolean rollbackOnlySet;
 			
 			do {
 				
@@ -198,6 +204,7 @@ public class EventRoutingTask implements Runnable {
 				caught = null;
 				deliverEvent = true;
 				rollbackTx = true;
+				rollbackOnlySet = false;
 				
 				try {
 
@@ -316,7 +323,7 @@ public class EventRoutingTask implements Runnable {
 								sbbObject.sbbLoad();
 
 								// GET AND CHECK EVENT MASK FOR THIS SBB ENTITY
-								Set<?> eventMask = sbbEntity.getMaskedEventTypes(de.getActivityContextHandle());
+								Set<EventTypeID> eventMask = sbbEntity.getMaskedEventTypes(de.getActivityContextHandle());
 								if (eventMask == null || !eventMask.contains(de.getEventTypeId())) {
 
 									// TIME TO INVOKE THE EVENT HANDLER METHOD
@@ -337,11 +344,11 @@ public class EventRoutingTask implements Runnable {
 									// check to see if the transaction is marked for
 									// rollback if it is then we need to get out of
 									// here soon as we can.
-									if (txMgr.getRollbackOnly()) {
-										throw new Exception("The transaction is marked for rollback");
+									rollbackOnlySet = txMgr.getRollbackOnly();
+									if (!rollbackOnlySet) {
+										// TODO understand why the invoking state is not changed if rollback is set
+										sbbObject.setSbbInvocationState(SbbInvocationState.NOT_INVOKING);
 									}
-
-									sbbObject.setSbbInvocationState(SbbInvocationState.NOT_INVOKING);
 
 								} else {
 									if (debugLogging) {
@@ -351,40 +358,42 @@ public class EventRoutingTask implements Runnable {
 								}
 							}
 							
-							// IF IT'S AN ACTIVITY END EVENT DETACH SBB ENTITY HERE
-							if (de.getEventTypeId() == ActivityEndEventImpl.EVENT_TYPE_ID && eventContextImpl.getSbbEntitiesThatHandledEvent().contains(sbbEntity.getSbbEntityId())) {
-								if (debugLogging) {
-									logger
-											.debug("The event is an activity end event, detaching ac="+de.getActivityContextHandle()+" , sbbEntity="+sbbEntity.getSbbEntityId());
+							if (!rollbackOnlySet) {
+								// IF IT'S AN ACTIVITY END EVENT DETACH SBB ENTITY HERE
+								if (de.getEventTypeId() == ActivityEndEventImpl.EVENT_TYPE_ID && eventContextImpl.getSbbEntitiesThatHandledEvent().contains(sbbEntity.getSbbEntityId())) {
+									if (debugLogging) {
+										logger
+										.debug("The event is an activity end event, detaching ac="+de.getActivityContextHandle()+" , sbbEntity="+sbbEntity.getSbbEntityId());
+									}
+									ac.detachSbbEntity(sbbEntity.getSbbEntityId());
+									sbbEntity.afterACDetach(de.getActivityContextHandle());
 								}
-								ac.detachSbbEntity(sbbEntity.getSbbEntityId());
-								sbbEntity.afterACDetach(de.getActivityContextHandle());
-							}
 
-							// CHECK IF WE CAN CLAIM THE ROOT SBB ENTITY
-							if (rootSbbEntityId != null) {
-								if (SbbEntityFactory.getSbbEntity(rootSbbEntityId).getAttachmentCount() != 0) {
-									if (debugLogging) {
-										logger
-												.debug("Not removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
+								// CHECK IF WE CAN CLAIM THE ROOT SBB ENTITY
+								if (rootSbbEntityId != null) {
+									if (SbbEntityFactory.getSbbEntity(rootSbbEntityId).getAttachmentCount() != 0) {
+										if (debugLogging) {
+											logger
+											.debug("Not removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
+										}
+										// the root sbb entity is not be claimed
+										rootSbbEntityId = null;
 									}
-									// the root sbb entity is not be claimed
-									rootSbbEntityId = null;
-								}
-							} else {
-								// it's a root sbb
-								if (!sbbEntity.isRemoved() && sbbEntity.getAttachmentCount() == 0) {
-									if (debugLogging) {
-										logger
-												.debug("Removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
+								} else {
+									// it's a root sbb
+									if (!sbbEntity.isRemoved() && sbbEntity.getAttachmentCount() == 0) {
+										if (debugLogging) {
+											logger
+											.debug("Removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
+										}
+										// If it's the same entity then this is an
+										// "Op and
+										// Remove Invocation Sequence"
+										// so we do the remove in the same
+										// invocation
+										// sequence as the Op
+										SbbEntityFactory.removeSbbEntityWithCurrentClassLoader(sbbEntity,true);
 									}
-									// If it's the same entity then this is an
-									// "Op and
-									// Remove Invocation Sequence"
-									// so we do the remove in the same
-									// invocation
-									// sequence as the Op
-									SbbEntityFactory.removeSbbEntityWithCurrentClassLoader(sbbEntity,true);
 								}
 							}
 						}
@@ -587,22 +596,19 @@ public class EventRoutingTask implements Runnable {
 					logger.error("Unhandled Throwable in event router: ", t);
 				} finally {
 					try {
-						if (txMgr.getTransaction() != null) {
+						// FIXME this should not be possible, check if this is ever called by tck!!!
+						final Transaction forgottenTx = txMgr.getTransaction();
+						if (forgottenTx != null) {
+							logger
+							.error("HOUSTON WE HAVE A PROBLEM! Transaction "+forgottenTx+" left open in event routing.");
 							if (rollbackTx) {
-								logger
-										.error("Rolling back tx in routeTheEvent.");
 								txMgr.rollback();
 							} else {
-								logger
-										.error("Transaction left open in routeTheEvent! It has to be pinned down and fixed! Debug information follows.");
-								logger.error(txMgr
-										.displayOngoingSleeTransactions());
 								txMgr.commit();
 							}
 						}
 					} catch (SystemException se) {
-
-						logger.error("Failure in TX operation", se);
+						logger.error(se.getMessage(), se);
 					}
 					if (sbbEntity != null) {
 						if (debugLogging) {

@@ -12,7 +12,7 @@
 	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
 			
 	<dependencies>
-		
+			
 		<dependency>
 			<groupId>org.mobicents.cluster</groupId>
 			<artifactId>timers</artifactId>		         	
@@ -26,12 +26,6 @@
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-           	<artifactId>cache</artifactId>
-           	<version>${pom.version}</version>           	
-		</dependency>
-		
-		<dependency>
-			<groupId>${pom.groupId}</groupId>
            	<artifactId>descriptors</artifactId>
            	<version>${pom.version}</version>           	
 		</dependency>
@@ -40,6 +34,12 @@
 			<groupId>${pom.groupId}</groupId>
            	<artifactId>jmx-property-editors</artifactId>
            	<version>${pom.version}</version>           	
+		</dependency>
+		
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>fault-tolerant-ra-impl</artifactId>
+			<version>${pom.version}</version>   
 		</dependency>
 		
 		<!-- jboss -->

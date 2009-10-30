@@ -33,6 +33,8 @@ import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContextImpl;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityType;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
@@ -160,7 +162,7 @@ public class ResourceAdaptorEntity {
 		} else {
 			allowedEventTypes = null;
 		}
-		// set ra context and configure it
+		// set ra context
 		try {
 			object.setResourceAdaptorContext(resourceAdaptorContext);
 		} catch (InvalidStateException e) {
@@ -170,6 +172,12 @@ public class ResourceAdaptorEntity {
 							e);
 			throw new SLEEException(e.getMessage(), e);
 		}
+		if (object instanceof FaultTolerantResourceAdaptor) {
+			// set fault tolerant context, it is a ft ra
+			FaultTolerantResourceAdaptor ftObject = (FaultTolerantResourceAdaptor) object;
+			ftObject.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),ftObject));
+		}
+		// configure
 		object.raConfigure(entityProperties);
 		// process to inactive state
 		this.state = ResourceAdaptorEntityState.INACTIVE;
@@ -343,7 +351,10 @@ public class ResourceAdaptorEntity {
 	 */
 	private void scheduleAllActivitiesEnd() throws TransactionRequiredLocalException {
 
-		if (hasActivites(null)) {
+		// for fault tolerant RAs we only schedule the end of all activities if current mode is local or in it is the head member of the cluster.
+		boolean skipActivityEnding = object instanceof FaultTolerantResourceAdaptor && !sleeContainer.getCluster().isHeadMember();
+		
+		if (!skipActivityEnding && hasActivites(null)) {
 			logger.info("RA entity "+name+" activities end scheduled.");
 			timerTask = new EndAllActivitiesRAEntityTimerTask(this,sleeContainer);
 		}
@@ -399,6 +410,9 @@ public class ResourceAdaptorEntity {
 						+ this.state);
 		}
 		object.raUnconfigure();
+		if (object instanceof FaultTolerantResourceAdaptor) {
+			((FaultTolerantResourceAdaptor) object).unsetFaultTolerantResourceAdaptorContext();
+		}
 		object.unsetResourceAdaptorContext();
 		this.sleeContainer.getTraceMBean()
 				.deregisterNotificationSource(this.getNotificationSource());

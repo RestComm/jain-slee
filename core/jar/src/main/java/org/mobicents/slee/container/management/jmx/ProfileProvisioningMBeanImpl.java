@@ -51,6 +51,7 @@ import org.mobicents.slee.container.management.SleeProfileTableManager;
 import org.mobicents.slee.container.profile.AbstractProfileMBeanImpl;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -120,8 +121,9 @@ public class ProfileProvisioningMBeanImpl extends MobicentsServiceMBeanSupport i
 						profileTable.removeUncommittedProfileMBean(profileMBean);						
 					}
 				};
-				sleeTransactionManagement.addAfterCommitAction(action);
-				sleeTransactionManagement.addAfterRollbackAction(action);
+				final TransactionContext txContext = sleeTransactionManagement.getTransactionContext();
+				txContext.getAfterCommitActions().add(action);
+				txContext.getAfterRollbackActions().add(action);
 				// indicate profile creation
 				profileMBean.createProfile();
 				rollback = false;
@@ -183,7 +185,7 @@ public class ProfileProvisioningMBeanImpl extends MobicentsServiceMBeanSupport i
 					}									
 				}
 			};
-			sleeTransactionManagement.addAfterRollbackAction(rollbackAction);				
+			sleeTransactionManagement.getTransactionContext().getAfterRollbackActions().add(rollbackAction);				
 			return profileMBean;			
 		} catch (Throwable e) {
 			throw new ManagementException(e.getMessage(),e);

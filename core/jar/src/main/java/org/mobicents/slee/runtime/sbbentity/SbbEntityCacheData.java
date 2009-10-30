@@ -29,27 +29,11 @@ public class SbbEntityCacheData extends CacheData {
 
 	// node map keys
 
-	private static final Boolean MISC_NODE_MAP_KEY = Boolean.TRUE;
+	private static final Boolean MISC_NODE_MAP_VALUE = Boolean.TRUE;
 
 	private static final String SBB_ENTITY_IMMUTABLE_DATA_NODE_MAP_KEY = "idata";
 	private static final String PRIORITY_NODE_MAP_KEY = "priority";
-	private static final String EVENT_MASK_CHILD_NODE_MAP_KEY = "event-mask";
-
-	private static final String CMP_FIELDS_CHILD_NODE_NAME = "cmp-fields";
-	private static final Fqn CMP_FIELDS_CHILD_NODE_FQN = 
-		Fqn.fromElements(CMP_FIELDS_CHILD_NODE_NAME);
-	private Node _cmpFieldsChildNode;
-	private Node getCmpFieldsChildNode(boolean createIfNotExists) {
-		if (_cmpFieldsChildNode == null) {
-			final Node node = getNode();
-			_cmpFieldsChildNode = node.getChild(CMP_FIELDS_CHILD_NODE_NAME);
-			if (_cmpFieldsChildNode == null && createIfNotExists) {
-				_cmpFieldsChildNode = node.addChild(CMP_FIELDS_CHILD_NODE_FQN);
-			}
-		}
-		return _cmpFieldsChildNode;
-	}
-	
+		
 	private static final String ATTACHED_ACs_CHILD_NODE_NAME = "ac";
 	private static final Fqn ATTACHED_ACs_CHILD_NODE_FQN = 
 		Fqn.fromElements(ATTACHED_ACs_CHILD_NODE_NAME);
@@ -63,21 +47,6 @@ public class SbbEntityCacheData extends CacheData {
 			}
 		}
 		return _attachedACsChildNode;
-	}
-
-	private static final String EVENT_MASKS_CHILD_NODE_NAME = "event-mask";
-	private static final Fqn EVENT_MASKS_CHILD_NODE_FQN = 
-		Fqn.fromElements(EVENT_MASKS_CHILD_NODE_NAME);
-	private Node _eventMasksChildNode;
-	private Node getEventMasksChildNode(boolean createIfNotExists) {
-		if (_eventMasksChildNode == null) {
-			final Node node = getNode();
-			_eventMasksChildNode = node.getChild(EVENT_MASKS_CHILD_NODE_NAME);
-			if (_eventMasksChildNode == null && createIfNotExists) {
-				_eventMasksChildNode = node.addChild(EVENT_MASKS_CHILD_NODE_FQN);
-			}
-		}
-		return _eventMasksChildNode;
 	}
 	
 	protected static final String CHILD_RELATIONs_CHILD_NODE_NAME = "chd-rel";
@@ -93,6 +62,36 @@ public class SbbEntityCacheData extends CacheData {
 			}
 		}
 		return _childRelationsChildNode;
+	}
+	
+	private static final String EVENT_MASKS_CHILD_NODE_NAME = "event-mask";
+	private static final Fqn EVENT_MASKS_CHILD_NODE_FQN = 
+		Fqn.fromElements(EVENT_MASKS_CHILD_NODE_NAME);
+	private Node<ActivityContextHandle,Set<EventTypeID>> _eventMasksChildNode;
+	private Node<ActivityContextHandle,Set<EventTypeID>> getEventMasksChildNode(boolean createIfNotExists) {
+		if (_eventMasksChildNode == null) {
+			final Node node = getNode();
+			_eventMasksChildNode = node.getChild(EVENT_MASKS_CHILD_NODE_NAME);
+			if (_eventMasksChildNode == null && createIfNotExists) {
+				_eventMasksChildNode = node.addChild(EVENT_MASKS_CHILD_NODE_FQN);
+			}
+		}
+		return _eventMasksChildNode;
+	}
+	
+	private static final String CMP_FIELDS_CHILD_NODE_NAME = "cmp-fields";
+	private static final Fqn CMP_FIELDS_CHILD_NODE_FQN = 
+		Fqn.fromElements(CMP_FIELDS_CHILD_NODE_NAME);
+	private Node<String,CmpWrapper> _cmpFieldsChildNode;
+	private Node<String,CmpWrapper> getCmpFieldsChildNode(boolean createIfNotExists) {
+		if (_cmpFieldsChildNode == null) {
+			final Node node = getNode();
+			_cmpFieldsChildNode = node.getChild(CMP_FIELDS_CHILD_NODE_NAME);
+			if (_cmpFieldsChildNode == null && createIfNotExists) {
+				_cmpFieldsChildNode = node.addChild(CMP_FIELDS_CHILD_NODE_FQN);
+			}
+		}
+		return _cmpFieldsChildNode;
 	}
 	
 	/**
@@ -112,56 +111,45 @@ public class SbbEntityCacheData extends CacheData {
 	}
 
 	public void attachActivityContext(Object ac) {
-		getAttachedACsChildNode(true).addChild(Fqn.fromElements(ac));
+		getAttachedACsChildNode(true).put(ac, MISC_NODE_MAP_VALUE);
 	}
 
 	public void detachActivityContext(Object ac) {
 		final Node node  = getAttachedACsChildNode(false);
 		if (node != null) {
-			node.removeChild(ac);
+			node.remove(ac);
 		}
 	}
 
-	public Set<EventTypeID> getMaskedEventTypes(Object ac) {
-		final Node node = getEventMasksChildNode(false);
+	public Set<EventTypeID> getMaskedEventTypes(ActivityContextHandle ac) {
+		final Node<ActivityContextHandle,Set<EventTypeID>> node = getEventMasksChildNode(false);
 		if (node == null) {
 			return null;
 		}
 		else {
-			final Node childNode = node.getChild(ac);
-			return childNode == null ? null : (Set<EventTypeID>) childNode.get(EVENT_MASK_CHILD_NODE_MAP_KEY);
+			return node.get(ac); 
 		}
 	}
 
-	public void setEventMask(Object ac, Set eventMask) {
+	public void setEventMask(ActivityContextHandle ac, Set<EventTypeID> eventMask) {
 		if (eventMask != null && !eventMask.isEmpty()) {
-			final Node eventMasksChildNode = getEventMasksChildNode(true);
-			Node childNode = eventMasksChildNode.getChild(ac);
-			if (childNode == null) {
-				childNode = eventMasksChildNode.addChild(Fqn.fromElements(ac));
-			}
-			childNode.put(EVENT_MASK_CHILD_NODE_MAP_KEY, eventMask);
+			getEventMasksChildNode(true).put(ac,eventMask);
 		} else {
-			final Node eventMasksChildNode = getEventMasksChildNode(false);
+			final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(false);
 			if (eventMasksChildNode != null) {
-				eventMasksChildNode.removeChild(ac);
+				eventMasksChildNode.remove(ac);
 			}
 		}
 	}
 
-	public void updateEventMask(Object ac, Set<EventTypeID> maskedEvents) {
-		final Node eventMasksChildNode = getEventMasksChildNode(true);
-		Node childNode = eventMasksChildNode.getChild(ac);
-		if (childNode == null) {
-			childNode = eventMasksChildNode.addChild(Fqn.fromElements(ac));
-			childNode.put(EVENT_MASK_CHILD_NODE_MAP_KEY, maskedEvents);
-		} else {
-			Set set = (Set) childNode.get(EVENT_MASK_CHILD_NODE_MAP_KEY);
-			if (set == null) {
-				childNode.put(EVENT_MASK_CHILD_NODE_MAP_KEY, maskedEvents);
-			} else {
-				set.addAll(maskedEvents);
-			}
+	public void updateEventMask(ActivityContextHandle ac, Set<EventTypeID> maskedEvents) {
+		final Node<ActivityContextHandle,Set<EventTypeID>> eventMasksChildNode = getEventMasksChildNode(true);
+		Set<EventTypeID> currentMaskedEvents = eventMasksChildNode.get(ac);
+		if (currentMaskedEvents == null) {
+			eventMasksChildNode.put(ac,maskedEvents);
+		}
+		else {
+			currentMaskedEvents.addAll(maskedEvents);
 		}
 	}
 
@@ -169,9 +157,9 @@ public class SbbEntityCacheData extends CacheData {
 		final Node node = getAttachedACsChildNode(false);
 		Set<ActivityContextHandle> result = null;
 		if (node != null) {
-			result = node.getChildrenNames();
+			result = node.getKeys();
 		}
-		if (result == null) {
+		else {
 			result = Collections.emptySet();
 		}
 		return result;			
@@ -184,78 +172,57 @@ public class SbbEntityCacheData extends CacheData {
 	public void setPriority(Byte priority) {
 		getNode().put(PRIORITY_NODE_MAP_KEY, priority);
 	}
-
+	
 	public void setCmpField(String cmpField, CmpWrapper cmpValue) {
-		final Node node = getCmpFieldsChildNode(true);
-		Node childNode = node.getChild(cmpField);
-		if (childNode == null) {
-			childNode = node.addChild(Fqn.fromElements(cmpField));
-		}
-		childNode.put(MISC_NODE_MAP_KEY, cmpValue);
+		final Node<String,CmpWrapper> node = getCmpFieldsChildNode(true);
+		node.put(cmpField,cmpValue);
 	}
 
 	public CmpWrapper getCmpField(String cmpField) {
-		final Node node = getCmpFieldsChildNode(false);
+		final Node<String,CmpWrapper> node = getCmpFieldsChildNode(false);
 		if (node == null) {
 			return null;
-		}
-		final Node childNode = node.getChild(cmpField);
-		if (childNode != null) {
-			return (CmpWrapper) childNode.get(MISC_NODE_MAP_KEY);
 		}
 		else {
-			return null;
+			return node.get(cmpField);
 		}
 	}
-
-	public Set getChildRelationSbbEntities(Object getChildRelationMethod) {
+	
+	public Set<String> getChildRelationSbbEntities(String getChildRelationMethod) {
 		final Node node = getChildRelationsChildNode(false);
 		if (node == null) {
-			return Collections.EMPTY_SET;
+			return Collections.emptySet();
 		}
 		final Node childNode = node.getChild(getChildRelationMethod);
 		if (childNode == null) {
-			return Collections.EMPTY_SET;
+			return Collections.emptySet();
 		} else {
-			return childNode.getKeys();
+			return childNode.getChildrenNames();
 		}
 	}
 
-	public int childRelationSbbEntitiesSize(Object getChildRelationMethod) {
-		final Node node = getChildRelationsChildNode(false);
-		if (node == null) {
-			return 0;
-		}
-		Node childNode = node.getChild(getChildRelationMethod);
-		if (childNode == null) {
-			return 0;
-		} else {
-			return childNode.dataSize();
-		}
-	}
-
-	public void removeChildRelationSbbEntity(Object getChildRelationMethod,
+	public void removeChildRelationSbbEntity(String getChildRelationMethod,
 			String sbbEntityId) {
 		final Node node = getChildRelationsChildNode(false);
 		if (node != null) {
 			final Node childNode = node.getChild(getChildRelationMethod);
 			if (childNode != null) {
-				childNode.remove(sbbEntityId);
+				childNode.removeChild(sbbEntityId);
 			}
 		}
 	}
 
-	public void addChildRelationSbbEntity(Object getChildRelationMethod,
+	public void addChildRelationSbbEntity(String getChildRelationMethod,
 			String sbbEntityId) {
 		final Node node = getChildRelationsChildNode(true);
 		Node childNode = node.getChild(getChildRelationMethod);
 		if (childNode == null) {
 			childNode = node.addChild(Fqn.fromElements(getChildRelationMethod));
 		}
-		childNode.put(sbbEntityId, MISC_NODE_MAP_KEY);
+		childNode.addChild(Fqn.fromElements(sbbEntityId));
 	}
 
-	public boolean childRelationHasSbbEntity(Object getChildRelationMethod,
+	public boolean childRelationHasSbbEntity(String getChildRelationMethod,
 			String sbbEntityId) {
 		final Node node = getChildRelationsChildNode(false);
 		if (node == null) {
@@ -265,15 +232,8 @@ public class SbbEntityCacheData extends CacheData {
 		if (childNode == null) {
 			return false;
 		} else {
-			return childNode.get(sbbEntityId) != null;
+			return childNode.hasChild(sbbEntityId);
 		}
-	}
-
-	public void removeChildRelation(Object getChildRelationMethod) {
-		final Node node = getChildRelationsChildNode(false);
-		if (node != null) {
-			node.removeChild(getChildRelationMethod);
-		}		
 	}
 
 	public Set<String> getAllChildSbbEntities() {
@@ -286,7 +246,7 @@ public class SbbEntityCacheData extends CacheData {
 			Node childRelationNode = null;
 			for (Object obj : childRelationsNode.getChildren()) {
 				childRelationNode = (Node) obj;
-				for (Object sbbEntityId : childRelationNode.getKeys()) {
+				for (Object sbbEntityId : childRelationNode.getChildrenNames()) {
 					result.add((String) sbbEntityId);
 				}
 			}

@@ -9,7 +9,6 @@ import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileVerificationException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.resource.EventFlags;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainerUtils;
@@ -707,11 +706,7 @@ public class ProfileObject {
 					profileTable.setDefaultProfileEntity(cloneEntity(profileEntity));
 				}
 			};
-			try {
-				profileTable.getSleeContainer().getTransactionManager().addAfterCommitAction(action);				
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(), e);
-			}
+			profileTable.getSleeContainer().getTransactionManager().getTransactionContext().getAfterCommitActions().add(action);				
 			return profileEntity;
 		}		
 	}

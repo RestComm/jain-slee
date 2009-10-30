@@ -237,7 +237,7 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 							}
 						}
 					};
-					sleeTransactionManager.addAfterRollbackAction(action);
+					sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);
 				}
 			} catch (SystemException e) {
 				
@@ -294,7 +294,7 @@ public class TraceMBeanImpl extends MobicentsServiceMBeanSupport implements Trac
 							}
 						}
 					};
-					sleeTransactionManager.addAfterRollbackAction(action);
+					sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);
 				}
 			} catch (SystemException e) {
 				

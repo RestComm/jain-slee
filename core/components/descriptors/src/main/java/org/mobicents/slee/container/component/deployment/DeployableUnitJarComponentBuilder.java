@@ -68,7 +68,7 @@ public class DeployableUnitJarComponentBuilder {
 	 * @throws DeploymentException
 	 */
 	public List<SleeComponent> buildComponents(String componentJarFileName,
-			JarFile deployableUnitJar, File deploymentDir) throws DeploymentException {
+			JarFile deployableUnitJar, File deploymentDir, boolean loadClassesFirstFromAS) throws DeploymentException {
 
 		// extract the component jar from the DU jar, to the temp du dir
 		File extractedFile = extractFile(componentJarFileName,
@@ -106,7 +106,7 @@ public class DeployableUnitJarComponentBuilder {
 				// create class loader domain shared by all components
 				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
 						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
-								.getContextClassLoader());
+								.getContextClassLoader(),loadClassesFirstFromAS);
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
@@ -124,7 +124,7 @@ public class DeployableUnitJarComponentBuilder {
 				// create class loader domain shared by all components
 				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
 						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
-								.getContextClassLoader());
+								.getContextClassLoader(),loadClassesFirstFromAS);
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
@@ -160,7 +160,7 @@ public class DeployableUnitJarComponentBuilder {
 					libraryComponents.add(component);
 				}
 				// create shared url domain
-				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(classLoaderDomainURLs.toArray(new URL[classLoaderDomainURLs.size()]),Thread.currentThread().getContextClassLoader());
+				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(classLoaderDomainURLs.toArray(new URL[classLoaderDomainURLs.size()]),Thread.currentThread().getContextClassLoader(),loadClassesFirstFromAS);
 				// add it to each component
 				for (LibraryComponent component : libraryComponents) {
 					component.setClassLoaderDomain(classLoaderDomain);
@@ -170,7 +170,7 @@ public class DeployableUnitJarComponentBuilder {
 				// create class loader domain shared by all components
 				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
 						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
-								.getContextClassLoader());
+								.getContextClassLoader(),loadClassesFirstFromAS);
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile.getInputStream(componentDescriptor);
 				EventTypeDescriptorFactory descriptorFactory = new EventTypeDescriptorFactory();
@@ -187,7 +187,7 @@ public class DeployableUnitJarComponentBuilder {
 				// create class loader domain shared by all components
 				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
 						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
-								.getContextClassLoader());
+								.getContextClassLoader(),loadClassesFirstFromAS);
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);
@@ -205,7 +205,7 @@ public class DeployableUnitJarComponentBuilder {
 				// create class loader domain shared by all components
 				URLClassLoaderDomain classLoaderDomain = new URLClassLoaderDomain(
 						new URL[] { componentJarDeploymentDir.toURL() }, Thread.currentThread()
-								.getContextClassLoader());
+								.getContextClassLoader(),loadClassesFirstFromAS);
 				// parse descriptor
 				componentDescriptorInputStream = componentJarFile
 				.getInputStream(componentDescriptor);

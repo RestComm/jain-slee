@@ -75,7 +75,7 @@ public class SbbLocalObjectInterceptor {
 
         SbbConcrete sbbConcrete = (SbbConcrete) proxy;
         String sbbEntityId = sbbConcrete.getSbbEntity().getSbbEntityId();
-        LinkedList<String> invokedsbbEntities = EventRoutingTransactionData.getFromTransactionContext().getInvokedSbbEntities();
+        LinkedList<String> invokedsbbEntities = ((EventRoutingTransactionData) sleeContainer.getTransactionManager().getTransactionContext().getEventRoutingTransactionData()).getInvokedSbbEntities();
         try {
             final Method meth = proxy.getClass().getMethod(methodName, types);
             invokedsbbEntities.add(sbbEntityId);

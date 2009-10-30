@@ -11,7 +11,6 @@ package org.mobicents.slee.container.management.jmx;
 import javax.management.NotificationBroadcaster;
 import javax.slee.management.AlarmMBean;
 
-import org.jboss.system.Service;
 import org.jboss.system.ServiceMBean;
 
 /**

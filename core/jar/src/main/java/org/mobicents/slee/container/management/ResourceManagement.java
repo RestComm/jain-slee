@@ -37,6 +37,7 @@ import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorComponent;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.deployment.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorTypeBinding;
 import org.mobicents.slee.container.deployment.ResourceAdaptorClassCodeGenerator;
@@ -44,6 +45,7 @@ import org.mobicents.slee.container.deployment.ResourceAdaptorTypeClassCodeGener
 import org.mobicents.slee.container.management.jmx.ResourceUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.resource.ResourceAdaptorEntity;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -919,12 +921,7 @@ public class ResourceManagement {
 				
 			}
 		};
-		try {
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
-		
+		sleeContainer.getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action);				
 	}
 
 	/**
@@ -932,37 +929,65 @@ public class ResourceManagement {
 	 * @param component
 	 * @throws DeploymentException 
 	 */
-	public void installResourceAdaptor(ResourceAdaptorComponent component) throws DeploymentException {
+	public void installResourceAdaptor(final ResourceAdaptorComponent component) throws DeploymentException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Installing " + component);
 
 		}
 		new ResourceAdaptorClassCodeGenerator().process(component);
+		// if we are in cluster mode we need to add the RA class loader domain to the replication class loader
+		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
+			replicationClassLoader.addDomain(component.getClassLoaderDomain());
+			final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+			if (txContext != null) {
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						replicationClassLoader.removeDomain(component.getClassLoaderDomain());
+					}
+				};
+				txContext.getAfterRollbackActions().add(action);
+			}
+		}
 	}
 
 	/**
 	 * Uninstalls the specified {@link ResourceAdaptorTypeComponent} from the container
 	 * @param component
 	 */
-	public void uninstallResourceAdaptorType(
-			ResourceAdaptorTypeComponent component) {
+	public void uninstallResourceAdaptorType(final ResourceAdaptorTypeComponent component) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Uninstalling " + component);
 
 		}
 		final ResourceAdaptorTypeID resourceAdaptorTypeID = component.getResourceAdaptorTypeID();
-		final Set<ResourceAdaptorEntity> raEntities = getResourceAdaptorEntitiesPerType().remove(resourceAdaptorTypeID);
-		TransactionalAction action = new TransactionalAction() {
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		TransactionalAction action1 = new TransactionalAction() {
 			public void execute() {
-				getResourceAdaptorEntitiesPerType().put(
-						resourceAdaptorTypeID,
-						raEntities);				
+				getResourceAdaptorEntitiesPerType().remove(resourceAdaptorTypeID);
 			}
 		};
-		try {
-			sleeContainer.getTransactionManager().addAfterRollbackAction(action);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
+		if (txContext != null) {
+			txContext.getAfterCommitActions().add(action1);
+		}
+		else {
+			action1.execute();
+		}		
+		
+		// if we are in cluster mode we need to remove the RA class loader domain from the replication class loader
+		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
+			TransactionalAction action2 = new TransactionalAction() {
+				public void execute() {
+					replicationClassLoader.removeDomain(component.getClassLoaderDomain());
+				}
+			};
+			if (txContext != null) {
+				txContext.getAfterCommitActions().add(action2);
+			}
+			else {
+				action2.execute();
+			}
 		}
 		
 	}

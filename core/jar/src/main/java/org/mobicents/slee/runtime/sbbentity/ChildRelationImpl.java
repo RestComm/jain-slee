@@ -55,8 +55,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     
     private HashSet<SbbLocalObject> getLocalObjects() {
         HashSet<SbbLocalObject> localObjects = new HashSet<SbbLocalObject>();
-        for (Iterator it = sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod).iterator(); it.hasNext();) {
-            String sbbEntityId = (String) it.next();
+        for (String sbbEntityId : sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName())) {
             localObjects.add(SbbEntityFactory.getSbbEntity(sbbEntityId).createSbbLocalObject());
         }
         return localObjects;
@@ -95,7 +94,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
             return false;
         SbbLocalObjectImpl sbblocal = (SbbLocalObjectImpl) object;
         String sbbEntityId = sbblocal.getSbbEntityId();
-        return sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod, sbbEntityId);
+        return sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbEntityId);
     }
 
     /*
@@ -170,7 +169,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
             childSbbEntity.trashObject();
         } 
         
-        sbbEntity.cacheData.addChildRelationSbbEntity(getChildRelationMethod,childSbbEntity.getSbbEntityId());
+        sbbEntity.cacheData.addChildRelationSbbEntity(getChildRelationMethod.getChildRelationMethodName(),childSbbEntity.getSbbEntityId());
         sbbEntity.addChildWithSbbObject(childSbbEntity);
         return childSbbEntity.createSbbLocalObject();
     }
@@ -181,7 +180,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
      * @see java.util.Collection#size()
      */
     public int size() {
-        return sbbEntity.cacheData.childRelationSbbEntitiesSize(getChildRelationMethod);
+        return sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName()).size();
     }
 
     /*
@@ -266,7 +265,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         
         SbbLocalObjectImpl sbbLocalObjectImpl = (SbbLocalObjectImpl)object;
         	       
-        if (sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod, sbbLocalObjectImpl.getSbbEntityId())) {
+        if (sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbLocalObjectImpl.getSbbEntityId())) {
         	sbbLocalObjectImpl.remove();
         	return true;
         }
@@ -310,7 +309,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         
         for ( Iterator it = c.iterator(); it.hasNext(); ) {
             SbbLocalObjectConcrete sbbLocalInterface = ( SbbLocalObjectConcrete) it.next();
-            if (!sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod, sbbLocalInterface.getSbbEntityId())) {                        	
+            if (!sbbEntity.cacheData.childRelationHasSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbLocalInterface.getSbbEntityId())) {                        	
             	if(logger.isDebugEnabled()) {
                 	logger.debug("containsAll : collection = " + c + " > "+sbbLocalInterface.getSbbEntityId()+" not in child relation");
                 }
@@ -374,12 +373,11 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     }
      
     public Set<String> getSbbEntitySet(){
-    	return new HashSet<String>(sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod));
+    	return new HashSet<String>(sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName()));
     }
 
 	public void removeChild(String sbbEntityId) {
-		sbbEntity.cacheData.removeChildRelationSbbEntity(getChildRelationMethod, sbbEntityId);
-		
+		sbbEntity.cacheData.removeChildRelationSbbEntity(getChildRelationMethod.getChildRelationMethodName(), sbbEntityId);
 	}
     
 	// --- ITERATOR

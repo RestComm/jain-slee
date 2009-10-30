@@ -90,4 +90,15 @@ public class MobicentsManagement extends ServiceMBeanSupport implements Mobicent
   public void setPersistProfiles(boolean persist) {
 	  persistProfiles = persist;
   }
+  
+  public static boolean loadClassesFirstFromAS = true;
+  
+  public boolean getLoadClassesFirstFromAS() {
+	  return MobicentsManagement.loadClassesFirstFromAS;
+  }
+
+  public void setLoadClassesFirstFromAS(boolean value) {
+	  MobicentsManagement.loadClassesFirstFromAS = value;
+  }
+  
 }

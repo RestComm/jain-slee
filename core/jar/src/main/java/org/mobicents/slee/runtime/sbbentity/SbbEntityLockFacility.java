@@ -88,9 +88,10 @@ public class SbbEntityLockFacility {
 		 */
 		public void run() {
 			try {
-				final Set<String> set = new HashSet<String>(locks.keySet());
-				set.removeAll(SbbEntityFactory.getSbbEntityIDs());
-				for (String sbbEntityId : set) {
+				final Set<String> lockSet = new HashSet<String>(locks.keySet());
+				final Set<String> sbbEntities = SbbEntityFactory.getSbbEntityIDs();
+				lockSet.removeAll(sbbEntities);
+				for (String sbbEntityId : lockSet) {
 					locks.remove(sbbEntityId);
 				}	
 			}

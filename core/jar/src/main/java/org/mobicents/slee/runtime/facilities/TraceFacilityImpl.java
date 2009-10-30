@@ -12,7 +12,6 @@ package org.mobicents.slee.runtime.facilities;
 import java.util.HashSet;
 import java.util.Hashtable;
 
-import javax.management.NotCompliantMBeanException;
 import javax.slee.ComponentID;
 import javax.slee.UnrecognizedComponentException;
 import javax.slee.facilities.FacilityException;
@@ -109,7 +108,7 @@ public class TraceFacilityImpl implements TraceFacility {
 				}
 			}
 		};
-		SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+		SleeContainer.lookupFromJndi().getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action);
 	}
 
 	public void setTraceLevel(ComponentID componentId, Level newLevel) {
@@ -131,7 +130,7 @@ public class TraceFacilityImpl implements TraceFacility {
 					traceLevelTable.put(componentId, level);
 				}
 			};
-			SleeContainer.lookupFromJndi().getTransactionManager().addAfterRollbackAction(action);
+			SleeContainer.lookupFromJndi().getTransactionManager().getTransactionContext().getAfterRollbackActions().add(action);
 		}
 	}
 

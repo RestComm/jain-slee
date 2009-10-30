@@ -19,6 +19,7 @@ import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ComponentRepositoryImpl;
 import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
 import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.deployment.classloading.ReplicationClassLoader;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MResourceAdaptorEntityBinding;
@@ -30,6 +31,7 @@ import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.facilities.SbbAlarmFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * Manages sbbs in container
@@ -58,7 +60,7 @@ public class SbbManagement {
 	 *            the descriptor of the sbb to install
 	 * @throws Exception
 	 */
-	public void installSbb(SbbComponent sbbComponent)
+	public void installSbb(final SbbComponent sbbComponent)
 			throws Exception {
 
 		if (logger.isDebugEnabled()) {
@@ -92,6 +94,17 @@ public class SbbManagement {
 				sbbComponent.getSbbID(), Level.OFF);
 		sleeContainer.getAlarmMBean().registerComponent(
 				sbbComponent.getSbbID());
+		// if we are in cluster mode we need to add the sbb class loader domain to the replication class loader
+		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
+			replicationClassLoader.addDomain(sbbComponent.getClassLoaderDomain());
+			TransactionalAction action = new TransactionalAction() {
+				public void execute() {
+					replicationClassLoader.removeDomain(sbbComponent.getClassLoaderDomain());
+				}
+			};
+			sleeTransactionManager.getTransactionContext().getAfterRollbackActions().add(action);
+		}
 		
 	}
 
@@ -501,7 +514,7 @@ public class SbbManagement {
 		}
 	}
 	
-	public void uninstallSbb(SbbComponent sbbComponent)
+	public void uninstallSbb(final SbbComponent sbbComponent)
 			throws SystemException, Exception, NamingException {
 
 		final SleeTransactionManager sleeTransactionManager = sleeContainer
@@ -520,6 +533,17 @@ public class SbbManagement {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Removed SBB " + sbbComponent.getSbbID()
 					+ " from trace and alarm facilities");
+		}
+		
+		// if we are in cluster mode we need to remove the sbb class loader domain from the replication class loader
+		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()) {
+			final ReplicationClassLoader replicationClassLoader = sleeContainer.getReplicationClassLoader();
+			TransactionalAction action2 = new TransactionalAction() {
+				public void execute() {
+					replicationClassLoader.removeDomain(sbbComponent.getClassLoaderDomain());
+				}
+			};
+			sleeTransactionManager.getTransactionContext().getAfterCommitActions().add(action2);
 		}
 
 	}

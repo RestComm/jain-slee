@@ -25,7 +25,7 @@ public class Du3Test extends MicrocontainerTest {
 		URL url = Thread.currentThread().getContextClassLoader().getResource("Du3Test.class");
 		File root = new File(url.toURI()).getParentFile();
 		DeployableUnitBuilder builder = new DeployableUnitBuilder();
-		DeployableUnit du = builder.build(root.toURL().toString()+"components-test-du-3.jar", root, componentRepository);
+		DeployableUnit du = builder.build(root.toURL().toString()+"components-test-du-3.jar", root, componentRepository, true);
 		du.undeploy();
 	}
 }

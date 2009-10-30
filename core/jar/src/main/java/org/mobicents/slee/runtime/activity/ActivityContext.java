@@ -33,7 +33,7 @@ import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityComparator;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -87,20 +87,23 @@ public class ActivityContext {
 		this.cacheData.create();
 		this.cacheData.putObject(NODE_MAP_KEY_ACTIVITY_FLAGS, activityFlags);
 		
-		TransactionalAction action = new TransactionalAction() {
+		final TransactionalAction action = new TransactionalAction() {
 			public void execute() {
 				updateLastAccessTime(activityContextHandle);				
 			}
 		};
-		try {
-			sleeContainer.getTransactionManager().addAfterCommitAction(action);
-			// then we need to schedule check for it
-			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags) && activityContextHandle.getActivityType() == ActivityType.NULL) {
-				scheduleCheckForUnreferencedActivity();
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		if (txContext != null) {
+			txContext.getAfterCommitActions().add(action);
+			if (ActivityFlags.hasRequestSleeActivityGCCallback(activityFlags) || activityContextHandle.getActivityType() == ActivityType.NULL) {
+				// we need to schedule check for an unreferenced activity
+				scheduleCheckForUnreferencedActivity(txContext);
 			}
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}	
+		}
+		else {
+			// no tx
+			action.execute();
+		}		
 	}
 	
 	public ActivityContext(ActivityContextHandle activityContextHandle, ActivityContextCacheData cacheData, boolean updateAccessTime) {
@@ -229,11 +232,7 @@ public class ActivityContext {
 	public boolean removeNameBinding(String aciName) {
 		boolean removed = cacheData.nameUnbound(aciName);
 		if (removed && ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
-			try {
-				scheduleCheckForUnreferencedActivity();
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
+			scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());			
 		}
 		return removed;
 	}
@@ -266,11 +265,7 @@ public class ActivityContext {
 	public boolean detachTimer(TimerID timerID) {
 		boolean detached = cacheData.detachTimer(timerID);
 		if (detached && ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
-			try {
-				scheduleCheckForUnreferencedActivity();
-			} catch (SystemException e) {
-				throw new SLEEException(e.getMessage(),e);
-			}
+			scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());			
 		}
 		return detached;
 	}
@@ -302,19 +297,16 @@ public class ActivityContext {
 	 * point.
 	 * 
 	 */
-	private void removeFromCache() {
+	private void removeFromCache(TransactionContext txContext) {
 		cacheData.remove();
-		// Beyond here we dont stamp this one
+		// Beyond here we dont time stamp this one
+		final Long lastAccesstime = timeStamps.remove(activityContextHandle);
 		TransactionalAction action = new TransactionalAction() {
 			public void execute() {
-				ActivityContext.timeStamps.remove(activityContextHandle);
+				ActivityContext.timeStamps.put(activityContextHandle,lastAccesstime);
 			}
 		};
-		try {
-			sleeContainer.getTransactionManager().addAfterCommitAction(action);
-		} catch (SystemException e) {
-			logger.error(e.getMessage(),e);
-		}
+		txContext.getAfterRollbackActions().add(action);		
 	}
 
 	/**
@@ -360,11 +352,7 @@ public class ActivityContext {
 		
 		if (detached) {
 			if (ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
-				try {
-					scheduleCheckForUnreferencedActivity();
-				} catch (SystemException e) {
-					throw new SLEEException(e.getMessage(),e);
-				}
+				scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());				
 			}
 			PendingAttachementsMonitor pendingAttachementsMonitor = getEventRouterActivity().getPendingAttachementsMonitor();
 			if (pendingAttachementsMonitor != null) {
@@ -428,7 +416,7 @@ public class ActivityContext {
 	
 
 	public String toString() {
-		return  "ActivityContext{ handle = "+activityContextHandle+" }";
+		return new StringBuilder("ActivityContext{ handle = ").append(activityContextHandle).append(" }").toString();
 	}
 	
 	// emmartins: added to split null activity end related logic
@@ -482,15 +470,12 @@ public class ActivityContext {
 		else {
 			// cancel a possible check for unreferenced activity, no need to
 			// waste time in checking if the flags requested such process 
-			if (cacheData.setCheckingReferences(false)) {
-				try {
-					scheduleCheckForUnreferencedActivity();
-				} catch (SystemException e) {
-					throw new SLEEException(e.getMessage(),e);
-				}	
+			final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+			if (cacheData.setCheckingReferences(false) && txContext != null) {
+				scheduleCheckForUnreferencedActivity(txContext);					
 			}
 			// fire event
-			fireDeferredEvent(new DeferredEvent(eventTypeId,event,this,address,serviceID,eventFlags,getEventRouterActivity(),sleeContainer));			
+			fireDeferredEvent(new DeferredEvent(eventTypeId,event,this,address,serviceID,eventFlags,getEventRouterActivity(),sleeContainer),txContext);			
 		}      
 	}
 	
@@ -502,7 +487,7 @@ public class ActivityContext {
 			logger.debug("Ending ac "+this);
 		}
 		if (cacheData.setEnding(true)) {
-			fireDeferredEvent(new DeferredActivityEndEvent(this,getEventRouterActivity(),sleeContainer));	
+			fireDeferredEvent(new DeferredActivityEndEvent(this,getEventRouterActivity(),sleeContainer),sleeContainer.getTransactionManager().getTransactionContext());	
 		}	
 	}
 	
@@ -512,6 +497,7 @@ public class ActivityContext {
 		removeNamingBindings();
 		removeFromTimers(); // Spec 7.3.4.1 Step 10
 		
+		TransactionContext txContext = null;
 		// check activity type
 		switch (activityContextHandle.getActivityType()) {
 		
@@ -528,12 +514,9 @@ public class ActivityContext {
 					}					
 				}
 			};
-			try {
-				sleeContainer.getTransactionManager().addAfterCommitAction(action);
-			} catch (Throwable e) {
-				logger.error("error adding tx action to tx manager, to inform ra entity of activity end, executing action now",e);
-				action.execute();
-			}			
+			txContext = sleeContainer.getTransactionManager().getTransactionContext();
+			txContext.getAfterCommitActions().add(action);
+						
 			break;
 		
 		case NULL:
@@ -566,26 +549,29 @@ public class ActivityContext {
 			throw new SLEEException("Unknown activity type " + activityContextHandle.getActivityType());
 		}
 		
-		removeFromCache();
+		if (txContext == null) {
+			txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		}
+		removeFromCache(txContext);
 	}
 	
-	private void fireDeferredEvent(DeferredEvent dE) {
-		// put event as pending in ac event queue manager
-		ActivityEventQueueManager aeqm = dE.getEventRouterActivity().getEventQueueManager();
+	private void fireDeferredEvent(DeferredEvent dE,TransactionContext txContext) {
+		final ActivityEventQueueManager aeqm = dE.getEventRouterActivity().getEventQueueManager();
 		if (aeqm != null) {
-			aeqm.pending(dE);
-			// add tx actions to commit or rollback
-			final SleeTransactionManager txManager = sleeContainer.getTransactionManager();
-			try {
-				txManager.addAfterCommitPriorityAction(
-						new CommitDeferredEventAction(dE, aeqm));
-				txManager.addAfterRollbackAction(
+			if (txContext != null) {
+				final CommitDeferredEventAction commitAction = new CommitDeferredEventAction(dE, aeqm);
+				// put event as pending in ac event queue manager
+				aeqm.pending(dE);
+				// add tx actions to commit or rollback
+				txContext.getAfterCommitPriorityActions().add(commitAction);
+				txContext.getAfterRollbackActions().add(
 						new RollbackDeferredEventAction(dE,
 								this.activityContextHandle));
-			} catch (SystemException e) {
-				aeqm.rollback(dE);
-				throw new SLEEException("failed to add tx actions to commit and rollback event firing",e);
-			}			
+			}
+			else {
+				// commit event, there is no tx
+				aeqm.fireNotTransacted(dE);
+			}
 		} else {
 			throw new SLEEException("unable to find ACs event queue manager");
 		}		
@@ -618,14 +604,18 @@ public class ActivityContext {
 	// keys related with the procedure to check of the ac is unreferenced
 	private static final String NODE_MAP_KEY_ActivityUnreferenced1stCheck = "unref-check-1";
 	
-	private void scheduleCheckForUnreferencedActivity() throws SystemException {
+	private String activityUnreferenced1stCheckKey = null;
+	
+	private void scheduleCheckForUnreferencedActivity(final TransactionContext txContext) {
 		
 		if (!isEnding()) {
 			
-			String activityUnreferenced1stCheckKey = activityContextHandle + NODE_MAP_KEY_ActivityUnreferenced1stCheck;
-			Map txLocalData = sleeContainer.getTransactionManager().getTransactionContext().getData();
+			if (activityUnreferenced1stCheckKey == null) {
+				activityUnreferenced1stCheckKey = new StringBuilder(String.valueOf(activityContextHandle)).append(NODE_MAP_KEY_ActivityUnreferenced1stCheck).toString();
+			}
+			final Map txLocalData = txContext.getData();
 			// schedule check only once at time
-			if (txLocalData.get(activityUnreferenced1stCheckKey) != null) {
+			if (txLocalData.containsKey(activityUnreferenced1stCheckKey)) {
 				return;
 			}
 			else {
@@ -639,15 +629,15 @@ public class ActivityContext {
 			
 			TransactionalAction implicitEndCheck = new TransactionalAction() {
 				public void execute() {
-					unreferencedActivity1stCheck();
+					unreferencedActivity1stCheck(txContext);
 				}
 			};
 			
-			sleeContainer.getTransactionManager().addBeforeCommitAction(implicitEndCheck);
+			txContext.getBeforeCommitActions().add(implicitEndCheck);
 		}	
 	}
 	
-	private void unreferencedActivity1stCheck() {
+	private void unreferencedActivity1stCheck(TransactionContext txContext) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("1st check for unreferenced activity on ac "+this.getActivityContextHandle());
 		}
@@ -667,11 +657,7 @@ public class ActivityContext {
 						.submit(new UnreferencedActivity2ndCheckTask(getActivityContextHandle()));
 					}
 				};
-				try {
-					sleeContainer.getTransactionManager().addAfterCommitAction(action);
-				} catch (SystemException e) {
-					logger.error(e.getMessage(),e);
-				}
+				txContext.getAfterCommitActions().add(action);				
 			}
 		}
 	}

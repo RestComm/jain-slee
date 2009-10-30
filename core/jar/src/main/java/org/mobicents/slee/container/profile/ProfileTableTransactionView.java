@@ -6,10 +6,10 @@ import javax.slee.CreateException;
 import javax.slee.SLEEException;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.profile.UnrecognizedProfileNameException;
-import javax.transaction.SystemException;
 
 import org.mobicents.slee.container.component.profile.ProfileEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
@@ -42,11 +42,7 @@ public class ProfileTableTransactionView {
 		final SleeTransactionManager txManager = profileTable
 				.getSleeContainer().getTransactionManager();
 		txManager.mandateTransaction();
-		try {
-			return txManager.getTransactionContext().getData();
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(), e);
-		}
+		return txManager.getTransactionContext().getData();		
 	}
 
 	/**
@@ -173,12 +169,9 @@ public class ProfileTableTransactionView {
 				}
 			}
 		};
-		try {
-			txManager.addAfterRollbackAction(afterRollbackAction);
-			txManager.addBeforeCommitPriorityAction(beforeCommitAction);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(), e);
-		}
+		final TransactionContext txContext = txManager.getTransactionContext();
+		txContext.getAfterRollbackActions().add(afterRollbackAction);
+		txContext.getBeforeCommitActions().add(beforeCommitAction);		
 	}
 
 	/**

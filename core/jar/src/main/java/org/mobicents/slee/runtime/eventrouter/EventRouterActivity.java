@@ -13,6 +13,11 @@ public class EventRouterActivity {
 	private final ActivityContextHandle ach;
 	
 	/**
+	 * byte array form of the ac handle
+	 */
+	private byte[] activityHandleBytes;
+	
+	/**
 	 * 
 	 */
 	private ExecutorService executorService;
@@ -58,6 +63,14 @@ public class EventRouterActivity {
 		return ach;
 	}
 	
+	public byte[] getActivityHandleBytes() {
+		return activityHandleBytes;
+	}
+	
+	public void setActivityHandleBytes(byte[] activityHandleBytes) {
+		this.activityHandleBytes = activityHandleBytes;
+	}
+	
 	public EventContextImpl getCurrentEventContext() {
 		return currentEventContext;
 	}
@@ -80,5 +93,5 @@ public class EventRouterActivity {
 	public int hashCode() {
 		return ach.hashCode();
 	}
-	
+		
 }

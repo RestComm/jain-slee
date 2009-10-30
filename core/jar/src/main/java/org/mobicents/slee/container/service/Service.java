@@ -2,7 +2,6 @@ package org.mobicents.slee.container.service;
 
 import java.util.Set;
 
-import javax.slee.SLEEException;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
@@ -143,11 +142,7 @@ public class Service {
 				}
 			}
 		};
-		try {
-			sleeContainer.getTransactionManager().addAfterCommitAction(action);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
+		sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(action);		
 	}
 
 	/**

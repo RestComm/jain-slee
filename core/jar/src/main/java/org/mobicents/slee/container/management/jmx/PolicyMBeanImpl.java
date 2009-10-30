@@ -8,15 +8,9 @@
  */
 package org.mobicents.slee.container.management.jmx;
 
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.Policy;
-import java.security.PrivilegedAction;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.jboss.system.ServiceMBeanSupport;
-import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.security.PolicyFile;
 
 /**

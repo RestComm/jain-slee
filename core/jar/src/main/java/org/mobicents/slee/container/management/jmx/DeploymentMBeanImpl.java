@@ -148,7 +148,7 @@ public class DeploymentMBeanImpl extends MobicentsServiceMBeanSupport implements
 					sleeTransactionManager.begin();
 					// build du
 					deployableUnit = deployableUnitBuilder.build(url,
-							tempDUJarsDeploymentRoot, componentRepositoryImpl);
+							tempDUJarsDeploymentRoot, componentRepositoryImpl,MobicentsManagement.loadClassesFirstFromAS);
 					// install each component built
 					for (LibraryComponent component : deployableUnit
 							.getLibraryComponents().values()) {

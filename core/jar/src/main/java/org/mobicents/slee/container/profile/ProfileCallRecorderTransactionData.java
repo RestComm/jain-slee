@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 
 /**
  * 
@@ -73,81 +74,73 @@ public class ProfileCallRecorderTransactionData {
 			logger.debug("Recording call to profile. Key[" + key + "]");
 		}
 		
-		try
+		final TransactionContext txContext = sleeTransactionManager.getTransactionContext();
+		ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) txContext.getData().get(TRANSACTION_CONTEXT_KEY);
+
+		// If data does not exist, create it
+		if (data == null) {
+			data = new ProfileCallRecorderTransactionData();
+			txContext.getData().put(TRANSACTION_CONTEXT_KEY, data);
+		}
+
+		if (!po.isProfileReentrant())
 		{
-			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManager.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
-			
-			// If data does not exist, create it
-			if (data == null) {
-				data = new ProfileCallRecorderTransactionData();
-				sleeTransactionManager.getTransactionContext().getData().put(TRANSACTION_CONTEXT_KEY, data);
+			// we need to check
+			if (data.invokedProfiles.contains(key) && data.invokedProfiles.getLast().compareTo(key) != 0) {
+				throw new SLEEException("Detected loopback call. Call sequence: " + data.invokedProfiles);
 			}
-			
-			if (!po.isProfileReentrant())
-			{
-				// we need to check
-				if (data.invokedProfiles.contains(key) && data.invokedProfiles.getLast().compareTo(key) != 0) {
-					throw new SLEEException("Detected loopback call. Call sequence: " + data.invokedProfiles);
-				}
-				data.invokedProfiles.add(key);
-				data.invokedProfileTablesNames.add(po.getProfileTable().getProfileTableName());
-			}
+			data.invokedProfiles.add(key);
+			data.invokedProfileTablesNames.add(po.getProfileTable().getProfileTableName());
 		}
-		catch (SystemException e) {
-			throw new SLEEException("Failed to verify reentrancy due to some system level errror.", e);
-		}
+
 	}
 
 	public static void removeProfileCall(ProfileObject po) throws SLEEException
 	{
-    SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
-    
-    try {
-      if(sleeTransactionManager.getTransaction() == null) {
-        return;
-      }
-    }
-    catch ( SystemException se ) {
-      throw new SLEEException("Unable to verify SLEE Transaction.", se);
-    }
-    
-    String key = makeKey(po);
-    
+		SleeTransactionManager sleeTransactionManager = sleeContainer.getTransactionManager();
+
+		try {
+			if(sleeTransactionManager.getTransaction() == null) {
+				return;
+			}
+		}
+		catch ( SystemException se ) {
+			throw new SLEEException("Unable to verify SLEE Transaction.", se);
+		}
+
+		String key = makeKey(po);
+
 		if (logger.isDebugEnabled()) {
-      logger.debug("Removing call to profile. Key[" + key + "]");
+			logger.debug("Removing call to profile. Key[" + key + "]");
 		}
-		
-		try
+
+		final TransactionContext txContext = sleeTransactionManager.getTransactionContext();
+		ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) txContext.getData().get(TRANSACTION_CONTEXT_KEY);
+
+		if (data == null) {
+			throw new SLEEException("No Profile call recorder in memory, this is a bug.");
+		}
+
+		if (!po.isProfileReentrant())
 		{
-			ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) sleeTransactionManager.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
-			
-			if (data == null) {
-				throw new SLEEException("No Profile call recorder in memory, this is a bug.");
-			}
-			
-			if (!po.isProfileReentrant())
+			// we need to check
+			String lastKey = data.invokedProfiles.getLast();
+			if (lastKey.compareTo(key) != 0)
 			{
-				// we need to check
-				String lastKey = data.invokedProfiles.getLast();
-				if (lastKey.compareTo(key) != 0)
+				// logger.error("Last called profile does not match current: " + key + ", last call: " + lastKey + ". Please report this, it is a bug.");
+				throw new SLEEException("Last called profile does not match current: " + key + ", last call: " + lastKey);
+			}
+			else
+			{
+				data.invokedProfiles.removeLast();
+				data.invokedProfileTablesNames.removeLast();
+				if (data.invokedProfiles.isEmpty())
 				{
-					// logger.error("Last called profile does not match current: " + key + ", last call: " + lastKey + ". Please report this, it is a bug.");
-					throw new SLEEException("Last called profile does not match current: " + key + ", last call: " + lastKey);
-				}
-				else
-				{
-					data.invokedProfiles.removeLast();
-					data.invokedProfileTablesNames.removeLast();
-					if (data.invokedProfiles.isEmpty())
-					{
-						sleeTransactionManager.getTransactionContext().getData().remove(TRANSACTION_CONTEXT_KEY);
-					}
+					txContext.getData().remove(TRANSACTION_CONTEXT_KEY);
 				}
 			}
 		}
-		catch (SystemException e) {
-			throw new SLEEException("Failed to verify reentrancy due to some system level errror.", e);
-		}
+
 	}
 
 	public static MNotificationSource getCurrentNotificationSource() throws TransactionRequiredLocalException, SLEEException
@@ -155,26 +148,17 @@ public class ProfileCallRecorderTransactionData {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Trying to get Notification source for profile table.");
 		}
-		
-		SleeTransactionManager sleeTransactionManaget = sleeContainer.getTransactionManager();
-		ProfileCallRecorderTransactionData data;
-		
-		try
-		{
-			data = (ProfileCallRecorderTransactionData) sleeTransactionManaget.getTransactionContext().getData().get(TRANSACTION_CONTEXT_KEY);
-			if (data == null) {
-				throw new SLEEException("No Profile call recorder in memory, this is a bug.");
-			}
 
-			//IF data is present, there is something in it.
-			String tableName = data.invokedProfileTablesNames.getLast();
-			//FIXME: should we create new object? or lookup table? Lets do lookup
-			ProfileTableImpl profileTable = sleeContainer.getSleeProfileTableManager().getProfileTable(tableName);
-			
-			return profileTable.getProfileTableNotification();
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
+		ProfileCallRecorderTransactionData data = (ProfileCallRecorderTransactionData) txContext.getData().get(TRANSACTION_CONTEXT_KEY);
+		if (data == null) {
+			throw new SLEEException("No Profile call recorder in memory, this is a bug.");
 		}
-		catch (SystemException e) {
-			throw new SLEEException("Failed to fetch notification source due to some system level error.", e);
+
+		//IF data is present, there is something in it.
+		String tableName = data.invokedProfileTablesNames.getLast();
+		try {	
+			return sleeContainer.getSleeProfileTableManager().getProfileTable(tableName).getProfileTableNotification();			
 		}
 		catch (UnrecognizedProfileTableNameException e) {
 			throw new SLEEException("Failed to fetch notification source due to some system level error.", e);

@@ -1,15 +1,3 @@
-/*
- * Created on Feb 3, 2005
- * 
- * The Mobicents Open SLEE Project
- * 
- * A SLEE for the People
- * 
- * The source code contained in this file is in in the public domain.          
- * It can be used in any project or product without prior permission, 	      
- * license or royalty payments. There is no claim of correctness and
- * NO WARRANTY OF ANY KIND provided with this code.
- */
 package org.mobicents.slee.runtime.sbbentity;
 
 import java.util.Set;
@@ -23,9 +11,8 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionRequiredException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.MobicentsUUIDGenerator;
 import org.mobicents.slee.container.SleeContainer;
-import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
+import org.mobicents.slee.runtime.transaction.TransactionContext;
 
 /**
  * 
@@ -49,7 +36,7 @@ public class SbbEntityFactory {
 	 * @return
 	 */
 	private static String genId() {
-		return MobicentsUUIDGenerator.getInstance().createUUID();
+		return sleeContainer.getUuidGenerator().createUUID();
 	}
 
 	private static final SleeContainer sleeContainer = SleeContainer
@@ -120,8 +107,7 @@ public class SbbEntityFactory {
 			String parentChildRelation, String rootSbbEntityId,
 			String convergenceName) throws Exception {
 		
-		final SleeTransactionManager txManager = sleeContainer
-				.getTransactionManager();
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 
 		// get lock
 		final ReentrantLock lock = lockFacility.get(sbbeId);
@@ -134,19 +120,14 @@ public class SbbEntityFactory {
 
 		// store it in the tx, we need to do it due to sbb local object and
 		// current storing in sbb entity per tx
-		storeSbbEntityInTx(sbbEntity, txManager);
+		storeSbbEntityInTx(sbbEntity, txContext);
 
 		// add tx actions to unlock it when the tx ends
-		try {
-			SbbEntityUnlockTransactionalAction rollbackAction = new SbbEntityUnlockTransactionalAction(sbbEntity,lock,true,true);
-			SbbEntityUnlockTransactionalAction commitAction = new SbbEntityUnlockTransactionalAction(sbbEntity,lock,true,false);
-			txManager.addAfterRollbackAction(rollbackAction);
-			txManager.addAfterCommitAction(commitAction);
-		}
-		catch (Throwable e) {
-			throw new SLEEException(e.getMessage(),e);
-		}
-
+		SbbEntityUnlockTransactionalAction rollbackAction = new SbbEntityUnlockTransactionalAction(sbbEntity,lock,true,true);
+		SbbEntityUnlockTransactionalAction commitAction = new SbbEntityUnlockTransactionalAction(sbbEntity,lock,true,false);
+		txContext.getAfterRollbackActions().add(rollbackAction);
+		txContext.getAfterCommitActions().add(commitAction);
+		
 		return sbbEntity;
 	}
 
@@ -192,10 +173,10 @@ public class SbbEntityFactory {
 		 * *per transaction* cache
 		 */
 
-		SleeTransactionManager txMgr = sleeContainer.getTransactionManager();
+		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 		
 		// Look for it in the per transaction cache
-		SbbEntity sbbEntity = getSbbEntityFromTx(sbbeId, txMgr);
+		SbbEntity sbbEntity = getSbbEntityFromTx(sbbeId, txContext);
 		
 		if (sbbEntity == null) {
 			// not found in tx
@@ -211,12 +192,8 @@ public class SbbEntityFactory {
 					lockOrFail(lock,sbbeId);
 					rollbackAction.setReentrantLock(lock);
 					commitAction.setReentrantLock(lock);
-					try {
-						txMgr.addAfterRollbackAction(rollbackAction);
-						txMgr.addAfterCommitAction(commitAction);
-					} catch (SystemException e) {
-						throw new SLEEException(e.getMessage(), e);
-					}
+					txContext.getAfterRollbackActions().add(rollbackAction);
+					txContext.getAfterCommitActions().add(commitAction);					
 				}
 			}
 			
@@ -232,7 +209,7 @@ public class SbbEntityFactory {
 									
 			// store it in the tx, we need to do it due to sbb local object and
 			// current storing in sbb entity per tx
-			storeSbbEntityInTx(sbbEntity, txMgr);
+			storeSbbEntityInTx(sbbEntity, txContext);
 		}
 		return sbbEntity;
 	}
@@ -310,17 +287,12 @@ public class SbbEntityFactory {
 	 * 
 	 * @param sbbEntity
 	 * @param txManager
-	 * @throws SystemException
 	 */
 	@SuppressWarnings("unchecked")
 	private static void storeSbbEntityInTx(SbbEntity sbbEntity,
-			SleeTransactionManager txManager) {
-		try {
-			txManager.getTransactionContext().getData().put(
-					sbbEntity.getSbbEntityId(), sbbEntity);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(), e);
-		}
+			TransactionContext txContext) {
+		txContext.getData().put(
+					sbbEntity.getSbbEntityId(), sbbEntity);		
 	}
 
 	/**
@@ -328,16 +300,11 @@ public class SbbEntityFactory {
 	 * @param sbbeId
 	 * @param txManager
 	 * @return
-	 * @throws SystemException
 	 */
 	private static SbbEntity getSbbEntityFromTx(String sbbeId,
-			SleeTransactionManager txManager) {
-		try {
-			return (SbbEntity) txManager.getTransactionContext().getData().get(
-					sbbeId);
-		} catch (SystemException e) {
-			throw new SLEEException(e.getMessage(), e);
-		}
+			TransactionContext txContext) {
+		return (SbbEntity) txContext.getData().get(
+					sbbeId);		
 	}
 	
 	/**
