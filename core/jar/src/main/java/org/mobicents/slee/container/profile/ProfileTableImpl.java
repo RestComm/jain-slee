@@ -620,6 +620,10 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		return result;
 	}
 
+	public void rename(String newProfileTableName) {
+	  component.getProfileEntityFramework().renameProfileTable(this.profileTableName, newProfileTableName);
+	}
+
 	/**
 	 * Triggers remove operation on this profile table.
 	 * 

@@ -472,18 +472,37 @@ public class JPAProfileEntityFramework implements ProfileEntityFramework {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.mobicents.slee.container.component.profile.ProfileEntityFramework
-	 * #removeprofile
-	 * (org.mobicents.slee.container.component.profile.ProfileEntity)
-	 */
-	public void removeprofile(ProfileEntity profileEntity) {
-		EntityManager em = getEntityManager();
-		em.remove(profileEntity);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.mobicents.slee.container.component.profile.ProfileEntityFramework
+     * #removeprofile
+     * (org.mobicents.slee.container.component.profile.ProfileEntity)
+     */
+    public void removeprofile(ProfileEntity profileEntity) {
+        EntityManager em = getEntityManager();
+        em.remove(profileEntity);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.mobicents.slee.container.component.profile.ProfileEntityFramework
+     * #removeprofile
+     * (org.mobicents.slee.container.component.profile.ProfileEntity)
+     */
+    public void renameProfileTable(String oldProfileTableName, String newProfileTableName) {
+
+      EntityManager em = getEntityManager();
+
+      final Query q = em.createQuery(
+              "UPDATE " + profileEntityClassName + " SET tableName = ?1 WHERE tableName = ?2")
+              .setParameter(1, newProfileTableName).setParameter(2, oldProfileTableName);
+
+      q.executeUpdate();
+    }
 
 	/*
 	 * (non-Javadoc)

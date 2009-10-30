@@ -94,9 +94,16 @@ public interface ProfileEntityFramework {
 
 	/**
 	 * 
-	 * @param profileEntity
-	 */
-	public void removeprofile(ProfileEntity profileEntity);
+     * @param profileEntity
+     */
+    public void removeprofile(ProfileEntity profileEntity);
+
+    /**
+     * 
+     * @param oldProfileTableName
+     * @param newProfileTableName
+     */
+    public void renameProfileTable(String oldProfileTableName, String newProfileTableName);
 
 	/**
 	 * 

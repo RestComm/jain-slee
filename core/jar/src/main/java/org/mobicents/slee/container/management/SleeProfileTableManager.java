@@ -440,9 +440,14 @@ public class SleeProfileTableManager {
 	 * @throws UnrecognizedProfileTableNameException
 	 */
 	public void renameProfileTable(String oldProfileTableName, String newProfileTableName) throws ProfileTableAlreadyExistsException, NullPointerException, UnrecognizedProfileTableNameException {
-		ProfileSpecificationComponent component = getProfileTable(oldProfileTableName).getProfileSpecificationComponent();
-		removeProfileTable(oldProfileTableName);
-		addProfileTable(newProfileTableName, component);		
+	  // Get the old table
+	  ProfileTableImpl oldProfileTable = getProfileTable(oldProfileTableName);
+	  // Create the new one
+	  addProfileTable(newProfileTableName, oldProfileTable.getProfileSpecificationComponent());
+	  // Move contents
+	  oldProfileTable.rename(newProfileTableName);
+	  // Remove the old one
+	  removeProfileTable(oldProfileTableName);		
 	}
 
 	@Override
