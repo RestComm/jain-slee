@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>Mobicents Servlet Connector</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+	<listener>
+		<listener-class>
+			org.mobicents.slee.resource.http.HttpServletRaSessionListener
+		</listener-class>
+	</listener> 		
+	<servlet>
+		<servlet-name>${servlet-name}</servlet-name>
+		<servlet-class>
+			org.mobicents.slee.resource.http.HttpServletRaServlet
+		</servlet-class>
+        <init-param>
+            <param-name>ra-entry-point-jndi-name</param-name>
+            <param-value>java:slee/resources/HttpServletRA/http-servlet-resource-entry-point</param-value>
+        </init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>mobicents</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>	
+</web-app>

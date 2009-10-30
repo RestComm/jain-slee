@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd">
+
+<resource-adaptor-type-jar>
+	<description />
+
+	<resource-adaptor-type>
+
+		<description>Http Servlet RA Type</description>
+		<resource-adaptor-type-name>HttpServletResourceAdaptorType</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+
+		<resource-adaptor-type-classes>
+
+			<!--
+				JSLEE v1.1 Specification, Early Draft Review Page 288:
+				"Zero or more activity-type elements.
+				The Java types of all the resource adaptor type?s Activity objects must be declared. Each
+				activity-type element declares one of these Java types. Each activity-type
+				element contains the following sub-elements:
+				* A description element.
+				This is an optional informational element. This element should document the
+				conditions that end Activity objects of this Java type.
+				* An activity-type-name element.
+				This element identifies the name of the Java type. The Java type must be either
+				an interface or a class." 
+			-->
+
+			<activity-type>
+				<activity-type-name>net.java.slee.resource.http.HttpSessionActivity</activity-type-name>
+			</activity-type>
+			<activity-type>
+				<activity-type-name>net.java.slee.resource.http.HttpServletRequestActivity</activity-type-name>
+			</activity-type>
+			<!--
+				JSLEE v1.1 Specification, Early Draft Review Page 289:
+				"An activity-context-interface-factory-interface element.
+				This element must be declared if one or more activity types have been declared.
+				It contains the following sub-elements:
+				· A description element.
+				This is an optional informational element.
+				· An activity-context-interface-factory-interfacename
+				element.
+				This element identifies the interface name of the Activity Context Interface
+				Factory of the resource adaptor type." 
+			-->
+
+			<activity-context-interface-factory-interface>
+				<activity-context-interface-factory-interface-name>
+					net.java.slee.resource.http.HttpServletRaActivityContextInterfaceFactory
+				</activity-context-interface-factory-interface-name>
+			</activity-context-interface-factory-interface>
+
+			<!--
+				JSLEE v1.1 Specification, Early Draft Review Page 289:
+				"A resource-adaptor-interface element.
+				This element is optional. It specifies the Java type of the resource adaptor interface. Each
+				resource adaptor of this resource adaptor type provides an implementation of this resource
+				adaptor interface, An SBB can bind an object of this Java type into its JNDI component
+				environment using a resource-adaptor-entity-binding element in the
+				SBB deployment descriptor. The resource-adaptor-interface element contains
+				the following sub-elements:
+				* A description element.
+				This is an optional informational element.
+				* A resource-adaptor-interface-name element.
+				This element specifies the Java type of the resource adaptor interface." 
+			-->
+
+			<resource-adaptor-interface>
+				<resource-adaptor-interface-name>
+					net.java.slee.resource.http.HttpServletRaSbbInterface
+				</resource-adaptor-interface-name>
+			</resource-adaptor-interface>
+
+		</resource-adaptor-type-classes>
+
+		<!--
+			JSLEE v1.1 Specification, Early Draft Review Page 289:
+			"Zero or more event-type-ref elements.
+			Each event type that the resource type may fire must have an event-type-ref element.
+			An event-type-ref element references an event type. It contains following
+			the sub-elements:
+			* An event-type-name element
+			* An event-type-vendor element
+			* An event-type-version element.
+			These elements uniquely identify an event type declared in an eventdefinition
+			element specified in another deployment descriptor. An eventdefinition
+			element declares an event type (see Section 8.1.7)" 
+		-->
+
+
+		<!--
+			Command-Name                         Abbrev.   Code       	Reference
+			Abort-Session-Request                ASR       274           8.5.1
+		-->
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.HEAD</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>	
+
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.GET</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.POST</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.PUT</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>			
+
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.DELETE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.OPTIONS</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>	
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.session.TRACE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.HEAD</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>	
+
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.GET</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.POST</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.PUT</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>			
+
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.DELETE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.OPTIONS</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>	
+	
+	<event-type-ref>
+		<event-type-name>net.java.slee.resource.http.events.incoming.request.TRACE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+
+	</resource-adaptor-type>
+</resource-adaptor-type-jar>
