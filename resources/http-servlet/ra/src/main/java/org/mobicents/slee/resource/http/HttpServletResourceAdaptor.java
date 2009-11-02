@@ -133,6 +133,7 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 	public void raActive() {
 		// register in manager
 		HttpServletResourceEntryPointManager.putResourceEntryPoint(name, this);
+		this.httpRaSbbinterface = new HttpServletRaSbbInterfaceImpl(this);
 	}
 
 	/*
@@ -149,6 +150,8 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 	 * @see javax.slee.resource.ResourceAdaptor#raInactive()
 	 */
 	public void raInactive() {
+		
+		this.httpRaSbbinterface = null;
 		// unregister from manager
 		HttpServletResourceEntryPointManager.removeResourceEntryPoint(name);
 	}
@@ -448,28 +451,35 @@ public class HttpServletResourceAdaptor implements ResourceAdaptor,
 			return;
 		}
 
+		boolean createActivity = true;
 		if (session == null) {
 			// create request activity
 			activity = new HttpServletRequestActivityImpl();
 		} else {
 			activity = new HttpSessionActivityImpl(session.getId());
-			if (session.getResourceEntryPoint() == null) {
-				// we have a session but its not activity yet, add it
-				try {
-					sleeEndpoint.startActivity(activity, activity);
-					session.setResourceEntryPoint(this.name);
-				} catch (ActivityAlreadyExistsException e) {
-					if (logger.isFineEnabled()) {
-						logger.fine("Failed to add activity " + activity, e);
-					}
-					// proceed, may be due to fail over
-				} catch (Throwable e) {
-					logger.severe("Failed to add activity " + activity, e);
-					return;
-				}
+			if (session.getResourceEntryPoint() != null) {
+				createActivity = false;
 			}
 		}
 
+		if(createActivity)
+		{
+			// we have a session but its not activity yet, add it
+			try {
+				if(session!=null)
+					session.setResourceEntryPoint(this.name);
+				sleeEndpoint.startActivity(activity, activity);
+				
+			} catch (ActivityAlreadyExistsException e) {
+				if (logger.isFineEnabled()) {
+					logger.fine("Failed to add activity " + activity, e);
+				}
+				// proceed, may be due to fail over
+			} catch (Throwable e) {
+				logger.severe("Failed to add activity " + activity, e);
+				return;
+			}
+		}
 		// PathInfo can be empty string and creation of Address will throw
 		// exception
 		// for empty String hence hardcoding prefix /pathInfo
