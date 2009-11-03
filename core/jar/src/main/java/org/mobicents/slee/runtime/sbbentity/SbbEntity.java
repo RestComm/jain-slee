@@ -222,7 +222,7 @@ public class SbbEntity {
 						.getValue();
 				final EventRouterActivity eventRouterActivity = sleeContainer
 						.getEventRouter().getEventRouterActivity(
-								eventContextID.getActivityContextHandle());
+								eventContextID.getActivityContextHandle(),true);
 				if (eventRouterActivity != null) {
 					EventContextImpl eventContextImpl = eventRouterActivity
 							.getCurrentEventContext();

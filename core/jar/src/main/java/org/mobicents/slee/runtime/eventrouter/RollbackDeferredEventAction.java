@@ -30,7 +30,10 @@ public class RollbackDeferredEventAction implements TransactionalAction, Seriali
 	}
 	
 	public void execute() {				
-		sleeContainer.getEventRouter().getEventRouterActivity(ach).getEventQueueManager().rollback(de);						
+		final EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(ach,false);
+		if (era != null) {
+			era.getEventQueueManager().rollback(de);						
+		}
 	}
 	
 }

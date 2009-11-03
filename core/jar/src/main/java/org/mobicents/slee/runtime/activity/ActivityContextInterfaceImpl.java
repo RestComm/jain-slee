@@ -135,8 +135,7 @@ public class ActivityContextInterfaceImpl implements ActivityContextInterface {
 			//            	JSLEE 1.0 Spec, Section 8.5.8 excerpt:
 			//        		The SLEE delivers the event to an SBB entity that stays attached once. The SLEE may deliver the
 			//        		event to the same SBB entity more than once if it has been detached and then re -attached. 
-			EventContextImpl eventContextImpl = sleeContainer.getEventRouter().getEventRouterActivity(
-					getActivityContext().getActivityContextHandle()).getCurrentEventContext();
+			EventContextImpl eventContextImpl = activityContext.getEventRouterActivity().getCurrentEventContext();
 			if (eventContextImpl != null && eventContextImpl.getSbbEntitiesThatHandledEvent().remove(sbbeId)) {
 				if (logger.isDebugEnabled()) {
 					logger

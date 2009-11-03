@@ -146,7 +146,7 @@ public class RootSbbEntitiesRemovalTask extends TimerTask {
 							final ActivityContextHandle ach = (ActivityContextHandle) obj;
 
 							try {
-								EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(ach);
+								final EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(ach,false);
 								if (era != null) {
 
 									Runnable r = new Runnable() {

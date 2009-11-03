@@ -150,7 +150,7 @@ public class ActivityContextHandle implements Serializable {
 		
 		if (activityType == ActivityType.RA) {
 			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			final EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(this);
+			final EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(this,false);
 			byte[] bytes = null;
 			if (era != null) {
 				bytes = era.getActivityHandleBytes();

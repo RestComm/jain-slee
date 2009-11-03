@@ -117,9 +117,9 @@ public class EventRouterImpl implements EventRouter {
 		}
 	}
 	
-	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach) {		
+	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach, boolean create) {		
 		EventRouterActivity era = activities.get(ach);
-		if (era == null) {
+		if (era == null && create) {
 			PendingAttachementsMonitor pendingAttachementsMonitor = null;
 			if (monitorPendingACAttachements) {
 				pendingAttachementsMonitor = new PendingAttachementsMonitor(container.getTransactionManager());

@@ -12,11 +12,12 @@ import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 public interface EventRouter {
 
 	/**
-	 * Retrieves the event router activity object for the {@link ActivityContext} with the specified id
-	 * 
+	 * Retrieves the event router activity object for the {@link ActivityContext} with the specified handle
+	 * @param ach
+	 * @param create indicates if the event router activity should be created, when it doesn't exist
 	 * @return
 	 */
-	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach);
+	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach, boolean create);
 
 	/**
 	 * Requests the routing of a {@link DeferredEvent}

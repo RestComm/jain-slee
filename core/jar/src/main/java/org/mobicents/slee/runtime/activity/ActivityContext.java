@@ -578,7 +578,7 @@ public class ActivityContext {
 	}
 	
 	public EventRouterActivity getEventRouterActivity() {
-		return sleeContainer.getEventRouter().getEventRouterActivity(activityContextHandle);
+		return sleeContainer.getEventRouter().getEventRouterActivity(activityContextHandle,true);
 	}
 	
 	// UNREF CHECK PROCESS
