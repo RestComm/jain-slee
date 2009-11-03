@@ -21,6 +21,7 @@ import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
+import javax.slee.serviceactivity.ServiceStartedEvent;
 
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
@@ -55,6 +56,10 @@ public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb implem
     		timerOptions.setPreserveMissed(TimerPreserveMissed.ALL);
     	}
     	return timerOptions;
+    }
+    
+    public void onServiceStartedEvent(ServiceStartedEvent event, ActivityContextInterface aci) {
+    	sbbContext.getTracer(getClass().getSimpleName()).warning("Service activated, now execute SIPP script.");
     }
     
 	public void onInviteEvent(javax.sip.RequestEvent requestEvent, ActivityContextInterface aci) {

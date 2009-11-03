@@ -12,7 +12,19 @@
                 <sbb-abstract-class-name>org.mobicents.slee.example.loadtest.sip11.SimpleCallSetupTerminatedByServerWithDialogsTestSbb</sbb-abstract-class-name>
             </sbb-abstract-class>
         </sbb-classes>
-            	
+        
+        <event event-direction="Receive" initial-event="True">
+			<event-name>ServiceStartedEvent</event-name>
+			<event-type-ref>
+				<event-type-name>
+					javax.slee.serviceactivity.ServiceStartedEvent
+			</event-type-name>
+				<event-type-vendor>javax.slee</event-type-vendor>
+				<event-type-version>1.1</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+		    	
         <event event-direction="Receive" initial-event="True">
             <event-name>InviteEvent</event-name>
             <event-type-ref>
