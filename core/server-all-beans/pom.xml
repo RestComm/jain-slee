@@ -91,7 +91,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>mobicents.sar</finalName>
+		<finalName>mobicents-slee</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -113,6 +113,15 @@
 									<overWrite>true</overWrite>
 									<outputDirectory>src/main/resources</outputDirectory>
 									<destFileName>mobicents.rar</destFileName>
+								</artifactItem>
+								<artifactItem>
+									<groupId>${pom.groupId}</groupId>
+									<artifactId>standard-components-du</artifactId>
+									<version>${pom.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>src/main/resources</outputDirectory>
+									<destFileName>standard-components-du.jar</destFileName>
 								</artifactItem>
 							</artifactItems>							
 						</configuration>
@@ -167,6 +176,12 @@
 						</goals>
 						<configuration>
 							<tasks>
+								<delete failonerror="false">
+									<fileset dir="${basedir}/src/main/resources">
+										<include name="mobicents.rar"/>
+										<include name="standard-components-du.jar"/>
+									</fileset>
+								</delete>
 								<delete failonerror="false" includeemptydirs="true">
 									<fileset
 										dir="${jboss.home}/server/all/deploy/${build.finalName}" />

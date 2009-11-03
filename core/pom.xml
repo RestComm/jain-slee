@@ -29,11 +29,11 @@
 		<module>jar</module>
 		<module>rar</module>
 		<module>ant-tasks</module>	
+		<module>standard-components</module>
 		<module>server-resources</module>
 		<module>server-default-beans</module>
 		<module>server-all-beans</module>
-		<module>deployer</module>
-		<module>standard-components</module>	
+		<module>deployer</module>	
 	</modules>
 
 	<properties>
@@ -42,9 +42,6 @@
 		<slee.version>${pom.version}</slee.version>
 		<!-- OTHER MOBICENTS COMPONENTS VERSIONS -->
 		<mobicents.cluster.version>1.0.0BETA1-SNAPSHOT</mobicents.cluster.version>
-		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
-		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
-		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -88,33 +85,6 @@
 	</profiles>
 	
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.2-beta-4</version>
-				</plugin>
-				<plugin>
-					<groupId>org.mobicents.tools</groupId>
-					<artifactId>maven-du-plugin</artifactId>
-					<version>${mobicents.tools.mavenplugin.du.version}</version>
-					<extensions>true</extensions>
-				</plugin>
-				<plugin>
-					<groupId>org.mobicents.tools</groupId>
-					<artifactId>maven-eclipse-plugin</artifactId>
-					<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
-					<extensions>true</extensions>
-				</plugin>
-				<plugin>
-					<groupId>org.mobicents.tools</groupId>
-					<artifactId>maven-library-plugin</artifactId>
-					<version>${mobicents.tools.mavenplugin.library.version}</version>
-					<extensions>true</extensions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>

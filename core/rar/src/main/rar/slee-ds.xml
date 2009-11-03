@@ -17,7 +17,7 @@
           
           <local-transaction/>
     
-          <rar-name>mobicents.sar#mobicents.rar</rar-name>
+          <rar-name>mobicents.rar</rar-name>
 
           <connection-definition>javax.slee.connection.SleeConnectionFactory</connection-definition>
 
