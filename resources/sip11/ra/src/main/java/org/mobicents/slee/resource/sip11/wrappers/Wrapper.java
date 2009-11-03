@@ -30,9 +30,7 @@ public abstract class Wrapper implements Serializable {
 	 * Sets the resource adaptor object, which owns the wrapper.
 	 * @param ra
 	 */
-	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		activityHandle.setResourceAdaptor(ra);
-	}
+	public abstract void setResourceAdaptor(SipResourceAdaptor ra);
 	
 	/**
 	 * Indicates if the wrapper is an activity.

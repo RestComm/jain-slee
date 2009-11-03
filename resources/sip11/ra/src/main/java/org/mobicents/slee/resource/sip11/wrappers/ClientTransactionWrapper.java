@@ -58,7 +58,6 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 
 	@Override
 	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		super.setResourceAdaptor(ra);
 		if (tracer == null) {
 			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
 		}
@@ -147,7 +146,7 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 		//hack to add this tx as cancelable, in case someone use x send, instead of dialog.send(ctx);
 		validateWrappedTransaction();
 		final String method = this.wrappedTransaction.getRequest().getMethod();
-		final DialogWrapper dw = (DialogWrapper) getDialog();
+		final DialogWrapper dw = getDialogWrapper();
 		if((method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)) && dw != null) {
 			dw.lastCancelableTransactionId = this.getBranchId();
 		}
@@ -195,13 +194,24 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 	private void writeObject(ObjectOutputStream stream) throws IOException {
 		// write everything not static or transient
 		stream.defaultWriteObject();
-        stream.writeUTF(wrappedTransaction.getBranchId());
+        //stream.writeUTF(wrappedTransaction.getBranchId());
 	}
 	
 	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
-		final String branchId = stream.readUTF();
+		//final String branchId = stream.readUTF();
 		// TODO get tx from stack by branch id
 		activityHandle.setActivity(this);
 	}
+	
+	@Override
+	public void terminated() {
+		if (isActivity()) {
+			final DialogWrapper dw = getDialogWrapper();
+			if (dw != null) {
+				dw.removeOngoingTransaction(this);
+			}
+		}
+	}
+	
 }

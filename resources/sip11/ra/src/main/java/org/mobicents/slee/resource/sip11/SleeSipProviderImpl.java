@@ -379,12 +379,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 				ra);
 		ctw.setActivity(true);
 
-		final Dialog d = ct.getDialog();
-		if (d != null) {
-			final DialogWrapper dw = (DialogWrapper) d.getApplicationData();
-			if (dw != null) {
-				dw.addOngoingTransaction(ctw);
-			}
+		final DialogWrapper dw = ctw.getDialogWrapper();
+		if (dw != null) {
+			dw.addOngoingTransaction(ctw);
 		}
 
 		if (!ra.addSuspendedActivity(ctw, tracer.isFineEnabled())) {
@@ -429,9 +426,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		final ServerTransaction st = provider.getNewServerTransaction(request);
 		ServerTransactionWrapper stw = new ServerTransactionWrapper(st, ra);
 
-		final Dialog d = st.getDialog();
-		final DialogWrapper dw = (d == null ? null : (DialogWrapper) d
-				.getApplicationData());
+		final DialogWrapper dw = stw.getDialogWrapper();
 		if (dw != null) {
 			dw.addOngoingTransaction(stw);
 		} else {

@@ -132,7 +132,6 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	
 	@Override
 	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		super.setResourceAdaptor(ra);
 		this.ra = ra;
 		this.provider = ra.getProviderWrapper();
 		if (tracer == null) {
@@ -679,8 +678,8 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		return new StringBuilder("DialogWrapper Id[").append(this.getDialogId())
 			.append("] Handle[").append(this.getActivityHandle())
 			.append("] State[").append(this.getState())
-			.append("] OngoingCTX[").append(this.ongoingClientTransactions.size())
-			.append("] OngoingSTX[").append(this.ongoingServerTransactions.size()).append("]")
+			.append("] OngoingCTX[").append(this.ongoingClientTransactions.keySet())
+			.append("] OngoingSTX[").append(this.ongoingServerTransactions.keySet()).append("]")
 			.toString();
 	}
 

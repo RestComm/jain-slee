@@ -147,7 +147,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	 */
 	public static final int DEFAULT_EVENT_FLAGS = EventFlags.REQUEST_PROCESSING_FAILED_CALLBACK;
 		
-	private static final int ACTIVITY_FLAGS = ActivityFlags.NO_FLAGS; //.REQUEST_ENDED_CALLBACK;
+	private static final int ACTIVITY_FLAGS = ActivityFlags.NO_FLAGS;
 	
 	public SipResourceAdaptor() {
 		// Those values are defualt
@@ -199,12 +199,12 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		final boolean fineTrace = tracer.isFineEnabled();
 
 		// get server tx wrapper		
-		final ServerTransactionWrapper cancelSTW = getServerTransactionWrapper(req,false,fineTrace);
+		final ServerTransactionWrapper cancelSTW = getServerTransactionWrapper(req,fineTrace);
 		// get canceled invite stw
 		final ServerTransaction inviteST = ((SIPServerTransaction)cancelSTW.getWrappedServerTransaction()).getCanceledInviteTransaction();
 		final ServerTransactionWrapper inviteSTW = inviteST != null ? (ServerTransactionWrapper) inviteST.getApplicationData() : null;
 		// get dialog
-		final DialogWrapper dw = (DialogWrapper) cancelSTW.getDialog();
+		final DialogWrapper dw = cancelSTW.getDialogWrapper();
 		Wrapper activity = dw;
 		if (activity != null) {
 			// ensure the dw is linked to the ra
@@ -261,11 +261,10 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	/**
 	 * 
 	 * @param requestEvent
-	 * @param createAckTx
 	 * @param fineTrace
 	 * @return
 	 */
-	private ServerTransactionWrapper getServerTransactionWrapper(RequestEvent requestEvent, boolean createAckTx, boolean fineTrace) {
+	private ServerTransactionWrapper getServerTransactionWrapper(RequestEvent requestEvent, boolean fineTrace) {
 		ServerTransactionWrapper stw = null;
 		final ServerTransaction st = requestEvent.getServerTransaction();
 		if (st != null) {
@@ -274,7 +273,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				// new server tx which needs to be wrapped
 				stw = new ServerTransactionWrapper(st,this);
 				if (fineTrace) {
-					tracer.fine("New server transaction "+st);
+					tracer.fine("New server transaction "+stw);
 				}
 			}
 			else {
@@ -293,18 +292,10 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				}
 			}
 			else {
-				// an ack server tx, we need to create a dummy tx if there is no dialog
-				if (createAckTx) {
-					// create fake ack server transaction
-					stw = new ServerTransactionWrapper(new ACKDummyTransaction(requestEvent.getRequest()),this);
-					if (fineTrace) {
-						tracer.fine("New ACK server transaction "+st);
-					}
-				}
-				else {
-					if (fineTrace) {
-						tracer.fine("Discarding event "+requestEvent.getRequest().getMethod()+" since an ack server tx should not be created (no dialog and event is going to filtered)");
-					}
+				// create fake ack server transaction
+				stw = new ServerTransactionWrapper(new ACKDummyTransaction(requestEvent.getRequest()),this);
+				if (fineTrace) {
+						tracer.fine("New ACK server transaction "+stw);
 				}
 			}
 		}
@@ -324,23 +315,13 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		final Dialog d = req.getDialog();
 		final DialogWrapper dw = (d == null ? null : (DialogWrapper) d.getApplicationData());
 				
-		// get server tx wrapper, if it is an ack we only create its wrapper in case the dialog activity does not exists
-		final boolean createAck  = dw != null; 
-		final ServerTransactionWrapper stw = getServerTransactionWrapper(req,createAck,fineTrace);
-		if (stw == null) {
-			return;
-		}
+		// get server tx wrapper
+		final ServerTransactionWrapper stw = getServerTransactionWrapper(req,fineTrace);
 		
 		Wrapper activity = dw;
-		boolean requestEventUnreferenced = false;
 		if (activity == null) {
 			activity = stw;
 			stw.setActivity(true);
-			if (stw.isAckTransaction()) {
-				// for ack txs, which are activities, we need to end them after
-				// event is unreferenced
-				requestEventUnreferenced = true;
-			}
 			if (!addActivity(activity, false,fineTrace)) {
 				sendErrorResponse(req.getServerTransaction(), req.getRequest(),
 						Response.SERVER_INTERNAL_ERROR,
@@ -356,7 +337,8 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		}
 		
 		int eventFlags = DEFAULT_EVENT_FLAGS;
-		if (requestEventUnreferenced) {
+		if (stw.isAckTransaction()) {
+			// ack txs are not terminated by stack, so we need to rely on the event release callback
 			eventFlags = EventFlags.setRequestEventReferenceReleasedCallback(eventFlags);
 		}				
 		
@@ -370,10 +352,8 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 						"Failed to deliver request event to JAIN SLEE container");
 			}
 			else {
-				if (requestEventUnreferenced) {
-					// end the ack tx here 
-					processTransactionTerminated(new TransactionTerminatedEvent(sipStack, stw.getWrappedServerTransaction()));					
-				}
+				// stack won't do it for us
+				processTransactionTerminated(stw);
 			}
 		}	
 	}
@@ -534,8 +514,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			tew = new TimeoutEventWrapper(providerWrapper,(ClientTransaction) tw, arg0.getTimeout());
 		}
 		
-		final Dialog d = t.getDialog();
-		final DialogWrapper dw = (d == null ? null : (DialogWrapper) d.getApplicationData());
+		final DialogWrapper dw = tw.getDialogWrapper();
 		if (dw != null) {
 			dw.setResourceAdaptor(this);
 			// fire tx terminated event on dialog
@@ -557,10 +536,10 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			TransactionTerminatedEvent txTerminatedEvent) {
 
 		Transaction t = null;
-		if (!txTerminatedEvent.isServerTransaction()) {
-			t = txTerminatedEvent.getClientTransaction();
-		} else {
+		if (txTerminatedEvent.isServerTransaction()) {
 			t = txTerminatedEvent.getServerTransaction();
+		} else {
+			t = txTerminatedEvent.getClientTransaction();			
 		}
 		
 		if (tracer.isInfoEnabled()) {
@@ -568,12 +547,19 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		}
 		
 		final TransactionWrapper tw = (TransactionWrapper) t.getApplicationData();		
-		if (tw != null && tw.isActivity()) {
+		if (tw != null) {
+			processTransactionTerminated(tw);
+		}
+	}
+
+	private void processTransactionTerminated(TransactionWrapper tw) {
+		tw.terminated();
+		if (tw.isActivity()) {
 			tw.setResourceAdaptor(this);
 			sendActivityEndEvent(tw);
 		}
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see javax.sip.SipListener#processDialogTerminated(javax.sip.DialogTerminatedEvent)
@@ -919,26 +905,26 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 
 		if(event instanceof ResponseEventWrapper) {
 			final ResponseEventWrapper rew = (ResponseEventWrapper) event;
-			ClientTransactionWrapper ctw  = (ClientTransactionWrapper) rew.getClientTransaction();		
+			final ClientTransactionWrapper ctw  = (ClientTransactionWrapper) rew.getClientTransaction();		
 			if (!ctw.isActivity()) {
 				// a client tx that is not activity must be removed here
-				final DialogWrapper dw = (DialogWrapper) ctw.getDialog();
-				dw.removeOngoingTransaction(ctw);
+				ctw.getDialogWrapper().removeOngoingTransaction(ctw);
 			}	
 		}
 		else if(event instanceof RequestEventWrapper) {
 			final RequestEventWrapper rew = (RequestEventWrapper) event;
-			ServerTransactionWrapper stw = (ServerTransactionWrapper) rew.getServerTransaction();
-			final Request r = rew.getRequest();
-			if (r.getMethod().equals(Request.CANCEL)) {
-				// lets be a good citizen and reply if no sbb has done
-				if (stw.getState() != TransactionState.TERMINATED) {
-					processCancelNotHandled(stw,r);
-				}
+			final ServerTransactionWrapper stw = (ServerTransactionWrapper) rew.getServerTransaction();
+			if (stw.isAckTransaction()) {
+				processTransactionTerminated(stw);
 			}
-			else if (stw.isActivity() && stw.isAckTransaction()) {
-				// ack txs which are activities are not terminated by stack (those exist only in the RA) 
-				processTransactionTerminated(new TransactionTerminatedEvent(sipStack, stw.getWrappedServerTransaction()));
+			else {
+				final Request r = rew.getRequest();
+				if (r.getMethod().equals(Request.CANCEL)) {
+					// lets be a good citizen and reply if no sbb has done
+					if (stw.getState() != TransactionState.TERMINATED) {
+						processCancelNotHandled(stw,r);
+					}
+				}
 			}
 		}
 	}

@@ -55,7 +55,7 @@ public class DialogWithIdActivityHandle extends SipActivityHandle implements Ser
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DialogWithIdActivityHandle other = (DialogWithIdActivityHandle) obj;
+		final DialogWithIdActivityHandle other = (DialogWithIdActivityHandle) obj;
 		if (!dialogId.equals(other.dialogId)) {
 			return false;
 		}		

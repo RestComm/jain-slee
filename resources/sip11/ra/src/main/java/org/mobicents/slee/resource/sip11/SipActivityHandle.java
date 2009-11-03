@@ -25,11 +25,6 @@ public class SipActivityHandle implements ActivityHandle, Serializable {
 	private transient Wrapper activity;
 
 	/**
-	 * the ra object that owns the handle
-	 */
-	private transient SipResourceAdaptor ra;
-	
-	/**
 	 * Retrieves the activity related with the handle. 
 	 * @return
 	 */
@@ -45,19 +40,4 @@ public class SipActivityHandle implements ActivityHandle, Serializable {
 		this.activity = activity;
 	}
 	
-	/**
-	 * Retrieves the ra object that owns the handle. 
-	 * @return
-	 */
-	public SipResourceAdaptor getResourceAdaptor() {
-		return ra;
-	}
-	
-	/**
-	 * Sets the ra object that owns the handle.
-	 * @param ra
-	 */
-	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		this.ra = ra;
-	}
 }

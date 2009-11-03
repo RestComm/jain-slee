@@ -60,6 +60,20 @@ public abstract class TransactionWrapper extends Wrapper implements Transaction 
 		this.activity = activity;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public DialogWrapper getDialogWrapper() {
+		final Dialog dialog = getAndValidateWrappedTransaction().getDialog();
+		return dialog != null ? (DialogWrapper) dialog.getApplicationData() : null;
+	}
+	
+	/**
+	 * callback invoked when the underlying tx was terminated
+	 */
+	public abstract void terminated();
+	
 	// javax.sip.Transaction interface
 	
 	/*
@@ -88,8 +102,7 @@ public abstract class TransactionWrapper extends Wrapper implements Transaction 
 	 * @see javax.sip.Transaction#getDialog()
 	 */
 	public Dialog getDialog() {
-		final Dialog dialog = getAndValidateWrappedTransaction().getDialog();
-		return dialog != null ? (DialogWrapper) dialog.getApplicationData() : null;
+		return getDialogWrapper();
 	}
 	
 	/*

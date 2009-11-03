@@ -332,8 +332,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 				this.getDialogId()).append("] Handle[").append(
 				this.getActivityHandle()).append("] State[").append(
 				this.getState()).append("] OngoingCTX[").append(
-				this.ongoingClientTransactions.size()).append("] OngoingSTX[")
-				.append(this.ongoingServerTransactions.size()).append("]")
+				this.ongoingClientTransactions.keySet()).append("] OngoingSTX[")
+				.append(this.ongoingServerTransactions.keySet()).append("]")
 				.toString();
 	}
 

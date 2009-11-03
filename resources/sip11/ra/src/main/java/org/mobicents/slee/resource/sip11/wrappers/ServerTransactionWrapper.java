@@ -58,7 +58,7 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	 * @param ra
 	 */
 	public ServerTransactionWrapper(ServerTransaction wrappedTransaction, SipResourceAdaptor ra) {
-		this(wrappedTransaction,ra,false);
+		this(wrappedTransaction,ra,wrappedTransaction.getRequest().getMethod().equals(Request.ACK));
 	}
 
 	/**
@@ -79,7 +79,6 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	
 	@Override
 	public void setResourceAdaptor(SipResourceAdaptor ra) {
-		super.setResourceAdaptor(ra);
 		if (tracer == null) {
 			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
 		}
@@ -186,23 +185,31 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	private void writeObject(ObjectOutputStream stream) throws IOException {
 		// write everything not static or transient
 		stream.defaultWriteObject();
-        if (ackTransaction) {
+        /*if (ackTransaction) {
         	stream.writeObject(wrappedTransaction.getRequest());
         }
         else {
         	stream.writeUTF(wrappedTransaction.getBranchId());
-        }
+        }*/
 	}
 	
 	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
 		stream.defaultReadObject();
-		if (ackTransaction) {
+		/*if (ackTransaction) {
 			wrappedTransaction = new ACKDummyTransaction((Request) stream.readObject());
 		}
 		else {
 			final String branchId = stream.readUTF();
 			// TODO get tx from stack by branch id
-		}
+		}*/
 		activityHandle.setActivity(this);	
+	}
+	
+	@Override
+	public void terminated() {
+		final DialogWrapper dw = getDialogWrapper();
+		if (dw != null) {
+			dw.removeOngoingTransaction(this);
+		}
 	}
 }
