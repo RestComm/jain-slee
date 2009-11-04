@@ -274,7 +274,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
 
       this.raProvider = new ShClientProviderImpl(this);
 
-      this.activities = new ConcurrentHashMap();
+      this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
 
       initStack();
 
@@ -349,7 +349,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
 
       String[] appIdsStrings  = appIdsStr.split(",");
 
-      List appIds = new ArrayList<ApplicationId>();
+      List<ApplicationId> appIds = new ArrayList<ApplicationId>();
 
       for(String appId : appIdsStrings) {
         String[] vendorAndAppId = appId.split(":");
