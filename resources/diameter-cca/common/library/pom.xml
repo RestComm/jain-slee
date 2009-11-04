@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<packaging>jainslee-library</packaging>
+	
+	<parent>
+    <groupId>org.mobicents.servers.diameter.resources</groupId>
+  	<artifactId>cca-common-parent</artifactId>
+  	<version>2.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>cca-common-library</artifactId>
+
+	<name>Mobicents :: Diameter Resources :: ${pom.artifactId}</name>
+	
+	<dependencies>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>cca-common-events</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>cca-common-ratype</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>cca-common-ra</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+
+    <!-- runtime - deps for other jain slee 1.1 libraries -->
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>base-common-library</artifactId>
+      <version>${mobicents.diameter.resources.base-common.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.mobicents.tools</groupId>
+				<artifactId>maven-library-plugin</artifactId>
+				<version>${mobicents.tools.mavenplugin.library.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<library-name>diameter.cca.common</library-name>
+					<library-vendor>java.net</library-vendor>
+					<library-version>1.0</library-version>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>
