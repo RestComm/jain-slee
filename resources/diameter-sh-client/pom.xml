@@ -31,21 +31,7 @@
     <mobicents.diameter.mux.version>1.1.0.GA-SNAPSHOT</mobicents.diameter.mux.version>
     <mobicents.diameter.resources.base-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.base-common.version>
     <mobicents.diameter.resources.sh-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.sh-common.version>
-    <!-- Other Mobicents Components Versions -->
-    <mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
-    <mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
-    <mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>javax.slee</groupId>
-        <artifactId>jain-slee</artifactId>
-        <version>1.1</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+   </properties>
 
   <profiles>
   <profile>
@@ -114,7 +100,6 @@
       <plugin>
         <artifactId>maven-eclipse-plugin</artifactId>
         <groupId>org.mobicents.tools</groupId>
-        <version>${mobicents.tools.mavenplugin.eclipse.version}</version>
         <inherited>false</inherited>
         <executions />
         <configuration>
@@ -122,9 +107,6 @@
           <classpathExcludes>
             <exclude>xml-apis:xml-apis</exclude>
             <exclude>jtidy:jtidy</exclude>
-            <exclude>org.jboss.jbossas:jboss-as-system:5.0.0.CR2</exclude>
-            <exclude>org.jboss.jbossas:jboss-as-deployment:5.0.0.CR2</exclude>
-            <exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>
           </classpathExcludes>
           <resolveTransitiveDependencies>true</resolveTransitiveDependencies>
           <eclipseProjectName>mobicents-slee-ra-diameter-sh-client</eclipseProjectName>
