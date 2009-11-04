@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+  <ra-entity resource-adaptor-id="ResourceAdaptorID[name=XMPPResourceAdaptor,vendor=org.mobicents,version=2.0]" entity-name="XMPPRA">
+    <properties />
+    <ra-link name="XMPPRA" />
+  </ra-entity>
+</deploy-config>

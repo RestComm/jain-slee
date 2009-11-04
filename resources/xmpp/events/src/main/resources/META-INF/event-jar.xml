@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.1//EN" "http://java.sun.com/dtd/slee-event-jar_1_1.dtd">
+
+<!-- 	
+	PLEASE NOTE THAT EACH EVENT MUST HAVE
+	<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+	IF NOT THE RA WILL NOT DELIVER THE EVENT.
+	WHY? CHECK  public void processEvent(Object event); on XMPPResourceAdaptor.java
+-->
+
+<event-jar>
+
+	<library-ref>
+        <library-name>smack</library-name>
+        <library-vendor>org.mobicents</library-vendor>
+        <library-version>2.0</library-version>
+    </library-ref> 
+    
+	<event-definition>
+		<event-type-name>org.jivesoftware.smack.packet.Message</event-type-name>
+		<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.jivesoftware.smack.packet.Message</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.jivesoftware.smack.packet.Presence</event-type-name>
+		<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.jivesoftware.smack.packet.Presence</event-class-name>
+	</event-definition>
+	 
+	<event-definition>
+		<event-type-name>org.jivesoftware.smackx.packet.DiscoverInfo</event-type-name>
+		<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.jivesoftware.smackx.packet.DiscoverInfo</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.jivesoftware.smackx.packet.DiscoverItems</event-type-name>
+		<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.jivesoftware.smackx.packet.DiscoverItems</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.jivesoftware.smack.packet.IQ</event-type-name>
+		<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.jivesoftware.smack.packet.IQ</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.jivesoftware.smackx.packet.IQBasedAvatar</event-type-name>
+		<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.jivesoftware.smackx.packet.IQBasedAvatar</event-class-name>
+	</event-definition>
+	
+	<event-definition>
+		<event-type-name>org.jivesoftware.smack.packet.Registration</event-type-name>
+		<event-type-vendor>org.jivesoftware.smack</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+		<event-class-name>org.jivesoftware.smack.packet.Registration</event-class-name>
+	</event-definition>
+
+</event-jar>
+
+
