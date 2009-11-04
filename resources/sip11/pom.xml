@@ -69,7 +69,9 @@
 											<fileset dir="${basedir}/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
-												<include name="*.properties" />
+												<!-- currently not handled correctly by du plugin
+												 <include name="*.properties" />
+												 -->
 											</fileset>
 										</copy>
 										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/resources/sip11/du-management.xml" />
