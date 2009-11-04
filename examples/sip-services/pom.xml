@@ -26,9 +26,6 @@
 	<properties>
 		<mobicents.core.jar.version>2.0.0-SNAPSHOT</mobicents.core.jar.version>
 		<mobicents.resources.sip11.version>2.0.0-SNAPSHOT</mobicents.resources.sip11.version>
-		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
-		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
-		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 		<!-- define which location service to use -->
 		<!-- location.service.className>org.mobicents.slee.services.sip.location.jpa.JPALocationService</location.service.className-->
 		<location.service.className>org.mobicents.slee.services.sip.location.nonha.NonHALocationService</location.service.className>
@@ -129,7 +126,6 @@
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
    				<groupId>org.mobicents.tools</groupId>
-    			<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
