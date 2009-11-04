@@ -52,7 +52,7 @@ grant codeBase "file:${jboss.defined.home}/server/default/work/-" {
    permission java.security.AllPermission;
 };
 
-grant codeBase "file:${jboss.defined.home}/server/default/deploy/mobicents.sar/lib/-" {
+grant codeBase "file:${jboss.defined.home}/server/default/deploy/mobicents-slee/lib/-" {
 	permission java.security.AllPermission;
 };
 grant codeBase "file:${jboss.defined.home}/server/default/deploy/-" {
@@ -62,7 +62,7 @@ grant codeBase "file:${jboss.defined.home}/server/default/deploy/-" {
 };
 
 //Strictly for tck
-grant codeBase "file:${jboss.defined.home}/server/default/deploy/tck-plugin-2.0.0-SNAPSHOT-bean.jar" {
+grant codeBase "file:${jboss.defined.home}/server/default/deploy/mobicents-slee-tck-plugin-bean.jar" {
 	permission java.security.AllPermission;
 };
 
