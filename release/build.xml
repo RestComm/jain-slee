@@ -2,8 +2,8 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="sip11,http-client"/>
-	<property name="example.dirs" value="sip-services,sip-wake-up"/>
+	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp,mgcp,diameter-base,diameter-sh-client"/>
+	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
@@ -114,8 +114,8 @@
 	</target>
 
 	<target name="cleanup-jboss">
-		<antcall target="delete-all-jboss-config"/>
-		<antcall target="delete-default-jboss-config"/>
+		<!--antcall target="delete-all-jboss-config"/>
+		<antcall target="delete-default-jboss-config"/-->
 		<delete dir="${jboss.home}/server/minimal" />
 		<delete dir="${jboss.home}/server/standard" />
 		<delete dir="${jboss.home}/server/web" />		
