@@ -50,7 +50,9 @@
 											<fileset dir="${basedir}/du/target">
 												<include name="**.jar" />
 												<include name="*.xml" />
-												<include name="*.properties" />
+												<!-- currently not handled correctly by du plugin
+												 <include name="*.properties" />
+												 -->
 											</fileset>
 											<fileset dir="${basedir}/war/target">
 												<include name="*.war" />
