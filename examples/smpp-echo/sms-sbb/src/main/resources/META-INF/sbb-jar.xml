@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.0//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_0.dtd">
+<sbb-jar>
+    <sbb id="sms-echo">
+        <description>SMPP Demo</description>
+        <sbb-name>EchoSbb</sbb-name>
+        <sbb-vendor>org.mobicents</sbb-vendor>
+        <sbb-version>1.0</sbb-version>
+        <sbb-alias>EchoSbb</sbb-alias>
+        <sbb-classes>
+            <sbb-abstract-class reentrant="False">
+                <sbb-abstract-class-name>org.mobicents.examples.smpp.EchoSbb</sbb-abstract-class-name>
+            </sbb-abstract-class>
+        </sbb-classes>
+        <event event-direction="Receive" initial-event="True" mask-on-attach="False">
+            <event-name>SmsMessage</event-name>
+            <event-type-ref>
+                <event-type-name>net.java.slee.resource.smpp.DELIVER_SM</event-type-name>
+                <event-type-vendor>net.java</event-type-vendor>
+                <event-type-version>3.4</event-type-version>
+            </event-type-ref>
+            <initial-event-select variable="ActivityContext" />
+        </event>
+        <event event-direction="Receive" initial-event="False" mask-on-attach="False">
+            <event-name>SmsReport</event-name>
+            <event-type-ref>
+                <event-type-name>net.java.slee.resource.smpp.SUBMIT_SM_RESP</event-type-name>
+                <event-type-vendor>net.java</event-type-vendor>
+                <event-type-version>3.4</event-type-version>
+            </event-type-ref>
+        </event>
+        <resource-adaptor-type-binding>
+            <resource-adaptor-type-ref>
+                <resource-adaptor-type-name>SMPPResourceAdaptorType</resource-adaptor-type-name>
+                <resource-adaptor-type-vendor>net.java</resource-adaptor-type-vendor>
+                <resource-adaptor-type-version>3.4</resource-adaptor-type-version>
+            </resource-adaptor-type-ref>
+            <activity-context-interface-factory-name>slee/resources/smpp/3.4/factoryprovider</activity-context-interface-factory-name>
+            <resource-adaptor-entity-binding>
+                <resource-adaptor-object-name>slee/resources/smpp/3.4/smppinterface</resource-adaptor-object-name>
+                <resource-adaptor-entity-link>SmppRA</resource-adaptor-entity-link>
+            </resource-adaptor-entity-binding>
+        </resource-adaptor-type-binding>
+    </sbb>
+</sbb-jar>
