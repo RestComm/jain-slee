@@ -17,23 +17,27 @@ import net.java.slee.resource.smpp.Transaction;
  */
 public class TransactionHandle implements SmppActivityHandle {
     
-    private int id;
+    private Transaction tx;
     
-    public TransactionHandle(int id) {
-        this.id = id;
+    /** Creates a new instance of ServerTransactionHandle */
+    public TransactionHandle(Transaction tx) {
+        this.tx = tx;
     }
        
+    @Override
     public boolean equals(Object o) {
     	if (o != null && o.getClass() == this.getClass()) {
-			return ((TransactionHandle)o).id == this.id;
+			return ((TransactionHandle)o).tx.getId() == this.tx.getId();
 		}
 		else {
 			return false;
 		}
     }
        
+    @Override
     public int hashCode() {
-        return id;
+        return tx.getId();
     }       
+  
     
 }

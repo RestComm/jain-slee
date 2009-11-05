@@ -14,11 +14,14 @@
 
 package org.mobicents.slee.resource.smpp.ra;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import net.java.slee.resource.smpp.ClientTransaction;
 import net.java.slee.resource.smpp.Dialog;
 import net.java.slee.resource.smpp.SmppProvider;
 
 //import org.apache.log4j.Logger;
+import net.java.slee.resource.smpp.Transaction;
 
 /**
  *
@@ -26,9 +29,10 @@ import net.java.slee.resource.smpp.SmppProvider;
  */
 public class SmppProviderImpl implements SmppProvider {
     
+    protected HashMap dialogs = new HashMap();        
     private SmppResourceAdaptor resourceAdaptor;
     
-    //private Logger logger = Logger.getLogger(SmppProviderImpl.class);
+//    private Logger logger = Logger.getLogger(SmppProviderImpl.class);
     
     /** Creates a new instance of SmppProviderImpl */
     public SmppProviderImpl(SmppResourceAdaptor resourceAdaptor) {
@@ -41,10 +45,31 @@ public class SmppProviderImpl implements SmppProvider {
      * @see net.java.slee.resource.sms.ratype.Smsprovider#getDialog(String String).
      */
     public Dialog getDialog(String origination, String destination) {
-        return resourceAdaptor.getDialogHandle(origination, destination);
+        String key = origination + "#" + destination;
+        if (dialogs.containsKey(key)) {
+            return (Dialog) dialogs.get(key);
+        }
+        
+        SmppDialogImpl dialog = new SmppDialogImpl(resourceAdaptor, origination, destination);
+        dialogs.put(key, dialog);
+        
+        resourceAdaptor.createDialogHandle(dialog);
+        return dialog;
     }
+
     
     protected ClientTransaction getClientTransaction(int id) {
-        return (ClientTransaction) resourceAdaptor.getActivity(new TransactionHandle(id));
+        System.out.println("Search tx: " + id);
+        Iterator list = dialogs.values().iterator();
+        while (list.hasNext()) {
+            SmppDialogImpl dialog = (SmppDialogImpl) list.next();
+            System.out.println("Checking " + dialog);
+            Transaction tx = dialog.getTransaction(id);
+            if (tx != null) {
+                return (ClientTransaction)tx;
+            }
+            System.out.println("Not found");
+        }
+        return null;
     }
 }

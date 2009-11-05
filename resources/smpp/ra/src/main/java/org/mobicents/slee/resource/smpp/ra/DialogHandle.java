@@ -9,26 +9,25 @@
 
 package org.mobicents.slee.resource.smpp.ra;
 
+import net.java.slee.resource.smpp.Dialog;
+
 /**
  *
  * @author Oleg Kulikov
  */
 public class DialogHandle  implements SmppActivityHandle {
     
-    private final String orig;
-    private final String dest;
+    private Dialog dialog;
     
-    public DialogHandle(String orig,String dest) {
-        this.orig = orig;
-        this.dest = dest;
+    public DialogHandle(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     
     @Override
     public boolean equals(Object o) {
     	if (o != null && o.getClass() == this.getClass()) {
-			final DialogHandle other = (DialogHandle) o;
-    		return this.dest.equals(other.dest) && this.orig.equals(other.orig);
+			return ((DialogHandle)o).dialog.getId().equals(this.dialog.getId());
 		}
 		else {
 			return false;
@@ -37,7 +36,8 @@ public class DialogHandle  implements SmppActivityHandle {
        
     @Override
     public int hashCode() {
-        return orig.hashCode()*31+dest.hashCode();
+        return dialog.getId().hashCode();
     }       
+
     
 }

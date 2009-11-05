@@ -34,7 +34,6 @@ public class AbstractTransaction extends SmppActivityImpl implements Transaction
     	this.id = id;
         this.dialog = dialog;
         timer.schedule(new Terminator(this), TTL * 1000, TTL * 1000);
-        super.setActivityHandle(new TransactionHandle(id));
     }
 
     /**

@@ -58,13 +58,6 @@ public class SmppDialogImpl extends SmppActivityImpl implements Dialog {
     	this.resourceAdaptor = resourceAdaptor;
         this.localAddress = localAddress;
         this.remoteAddress = remoteAddress;
-        super.setActivityHandle(new DialogHandle(localAddress,remoteAddress));
-    }
-    
-    /**
-     * Inits the dialog.
-     */
-    public void init() {
     	this.lastActivity = new Date();
         this.timer = new Timer();
         this.timer.schedule(new TimerTask() {
@@ -73,7 +66,7 @@ public class SmppDialogImpl extends SmppActivityImpl implements Dialog {
             }
         }, TTL * 1000, TTL * 1000);
     }
-    
+        
     /**
      * (Non Java-doc)
      *
@@ -240,6 +233,7 @@ public class SmppDialogImpl extends SmppActivityImpl implements Dialog {
         //}
     }
 
+    @Override
     public String toString() {
         return "SmppDialogImpl id = " + localAddress + "#" + remoteAddress; 
     }
