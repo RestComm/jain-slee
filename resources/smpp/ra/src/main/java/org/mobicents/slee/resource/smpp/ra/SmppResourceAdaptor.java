@@ -240,7 +240,11 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
 
     public void activityEnded(ActivityHandle activityHandle) {
         // remove the handle from the list of activities
-        activities.remove(activityHandle);
+        Object activity = activities.remove(activityHandle);
+        if (activity != null) {
+            handlers.remove(activity.toString());
+        }
+        sleeEndpoint.endActivity(activityHandle);
     }
 
     public void activityUnreferenced(ActivityHandle activityHandle) {
@@ -273,7 +277,6 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
         }
 
         final Address address = new Address(AddressPlan.E164_MOBILE, event.getMessage().getOriginator());
-
         try {
             sleeEndpoint.fireEvent(handle, eventType, event, address, null, EVENT_FLAGS);
             tracer.info("Firde event: " + eventName);
