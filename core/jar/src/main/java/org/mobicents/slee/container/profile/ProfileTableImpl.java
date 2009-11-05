@@ -27,6 +27,7 @@ import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 import javax.slee.profile.UnrecognizedQueryNameException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ProfileSpecificationComponent;
@@ -619,9 +620,29 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		
 		return result;
 	}
-
+	/**
+	 * This method renames Profile Table in backend storage. NOTE: It should not be called directly, use SleeProfileTableManager instead!
+	 * @param newProfileTableName
+	 */
 	public void rename(String newProfileTableName) {
+		//we have to do this like that cause once JPA is done, those profiles wont exist, since we do UPDATE of a table name, not a copy
+		//thus no profiles will be returned on this call later on. ouch :)
+	  Collection<ProfileID> profileIDs = this.getProfiles();
 	  component.getProfileEntityFramework().renameProfileTable(this.profileTableName, newProfileTableName);
+	  //here we remove beans.
+	  for(ProfileID pid: profileIDs)
+	  {
+		  try{
+			AbstractProfileMBeanImpl.close(pid.getProfileTableName(), pid.getProfileName());  
+		  }catch(Exception e)
+		  {
+			 if(logger.isEnabledFor(Level.WARN))
+			 {
+				 logger.warn("Unexpected behaviour on MBean deregistration.", e);
+			 }
+		  }
+	  }
+	  
 	}
 
 	/**

@@ -446,7 +446,8 @@ public class SleeProfileTableManager {
 	  addProfileTable(newProfileTableName, oldProfileTable.getProfileSpecificationComponent());
 	  // Move contents
 	  oldProfileTable.rename(newProfileTableName);
-	  // Remove the old one
+	  // Remove the old one - this wont remove profiles/mbeans, since they are already part of new table, this has to be done
+	  // above.
 	  removeProfileTable(oldProfileTableName);		
 	}
 
