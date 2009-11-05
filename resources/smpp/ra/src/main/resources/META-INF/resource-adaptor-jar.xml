@@ -40,7 +40,7 @@
         <config-property>
             <config-property-name>systemId</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
-            <config-property-value>1</config-property-value>
+            <config-property-value>smppclient1</config-property-value>
         </config-property>
         <config-property>
             <config-property-name>systemType</config-property-name>
@@ -50,7 +50,7 @@
         <config-property>
             <config-property-name>password</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
-            <config-property-value>1</config-property-value>
+            <config-property-value>password</config-property-value>
         </config-property>
         <config-property>
             <config-property-name>addressTon</config-property-name>
