@@ -14,8 +14,9 @@
 
 package org.mobicents.slee.resource.smpp.ra;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+
 import net.java.slee.resource.smpp.ClientTransaction;
 import net.java.slee.resource.smpp.Dialog;
 import net.java.slee.resource.smpp.SmppProvider;
@@ -29,7 +30,7 @@ import net.java.slee.resource.smpp.Transaction;
  */
 public class SmppProviderImpl implements SmppProvider {
     
-    protected HashMap dialogs = new HashMap();        
+    protected ConcurrentHashMap dialogs = new ConcurrentHashMap();        
     private SmppResourceAdaptor resourceAdaptor;
     
 //    private Logger logger = Logger.getLogger(SmppProviderImpl.class);
