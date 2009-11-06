@@ -21,6 +21,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
+import javax.sip.Transaction;
 import javax.sip.TransactionState;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
@@ -457,6 +458,7 @@ public abstract class ProxySbb implements Sbb {
 			if (activity instanceof ServerTransaction) {
 				ServerTransaction stx = (ServerTransaction) activity;
 				Request req = stx.getRequest();
+				//FIXME: add something  more sophisticated.
 				if (!req.getMethod().equals(Request.CANCEL)
 						&& req.getMethod().equals(clientTransaction.getRequest().getMethod()))
 					return stx;
@@ -503,16 +505,13 @@ public abstract class ProxySbb implements Sbb {
 	private void processRequest(ServerTransaction serverTransaction,
 			Request request, ActivityContextInterface ac) {
 		
-		ac.detach(sbbContext.getSbbLocalObject());
+		//ac.detach(sbbContext.getSbbLocalObject());
 		
 		if (logger.isInfoEnabled())
 			logger.info("processing request: method = \n"
 					+ request.getMethod().toString());
 		
-		// log.error("===> REQUEST METHOD["+request.getMethod()+"]
-		// CALLID["+((CallID)request.getHeader(CallID.NAME)).getCallId()+"]
-		// TO["+((ToHeader)request.getHeader(ToHeader.NAME)).getAddress()+"]
-		// BRANCH["+serverTransaction.getBranchId()+"]");
+
 		try {
 
 			if (getServerTransactionTerminated()) {
@@ -546,7 +545,7 @@ public abstract class ProxySbb implements Sbb {
 	private void processResponse(ClientTransaction clientTransaction,
 			Response response, ActivityContextInterface ac) {
 				
-		ac.detach(sbbContext.getSbbLocalObject());
+		//ac.detach(sbbContext.getSbbLocalObject());
 		
 		if (logger.isInfoEnabled())
 			logger.info("processing response: status = \n"
@@ -614,8 +613,11 @@ public abstract class ProxySbb implements Sbb {
 			headerFactory = provider.getHeaderFactory();
 			addressFactory = provider.getAddressFactory();
 			acif = (SipActivityContextInterfaceFactory) myEnv.lookup("java:comp/env/slee/resources/jainsip/1.2/acifactory");
-		} catch (NamingException ne) {
-			logger.error("Could not set SBB context: ", ne);
+//			this.proxyMachine = new ProxyMachine(getProxyConfigurator(), getLocationSbb(),
+//					this.addressFactory, this.headerFactory,
+//					this.messageFactory, this.provider);
+		} catch (Exception ne) {
+			logger.error("Could not create SBB properly: ", ne);
 		}
 	}
 
