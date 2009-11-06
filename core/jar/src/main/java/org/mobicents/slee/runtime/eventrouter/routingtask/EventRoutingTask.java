@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import javax.slee.EventTypeID;
+import javax.slee.resource.FailureReason;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
@@ -135,8 +136,20 @@ public class EventRoutingTask implements Runnable {
 				// event context not set, create it 
 				eventContextImpl = new EventContextImpl(de,container);
 				de.getEventRouterActivity().setCurrentEventContext(eventContextImpl);
-				// setup initial event processing
+				
 				EventTypeComponent eventTypeComponent = container.getComponentRepositoryImpl().getComponentByID(de.getEventTypeId());
+				if (eventTypeComponent == null) {
+					logger.error("Unable to route event, the related component is not installed");
+					try {
+						de.eventProcessingFailed(FailureReason.OTHER_REASON);
+					}
+					catch (Exception e) {
+						// ignore, this should mean we are in shutdown
+					}
+					return;
+				}
+				
+				// setup initial event processing
 				if (de.getService() != null) {
 					ServiceComponent serviceComponent = container.getComponentRepositoryImpl().getComponentByID(de.getService());
 					if (eventTypeComponent.getActiveServicesWhichDefineEventAsInitial().contains(serviceComponent)) {
