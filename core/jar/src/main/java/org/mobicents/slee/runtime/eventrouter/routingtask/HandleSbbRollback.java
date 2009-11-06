@@ -161,16 +161,19 @@ public class HandleSbbRollback {
 				}
 			}
 		} catch (Exception e) {
-			// If an exception is thrown here we just log it and don't retry
-			if (sbbObject != null && sbbEntity != null) {
-				sbbObject = sbbEntity.getSbbObject();
-				sbbObject.setState(SbbObjectState.DOES_NOT_EXIST);
-			}
-			logger
-					.error(
-							"Exception thrown in attempting to invoke sbbRolledBack",
-							e);
-			sbbObject.sbbExceptionThrown(e);
+			if (sbbObject != null ) {
+				if(sbbEntity != null)
+				{
+					sbbObject = sbbEntity.getSbbObject();
+					sbbObject.setState(SbbObjectState.DOES_NOT_EXIST);	
+				}
+				logger
+				.error(
+						"Exception thrown in attempting to invoke sbbRolledBack",
+						e);
+	
+				sbbObject.sbbExceptionThrown(e);
+ 			}
 		} finally {
 			try {
 				if (txMgr.getTransaction() != null) {

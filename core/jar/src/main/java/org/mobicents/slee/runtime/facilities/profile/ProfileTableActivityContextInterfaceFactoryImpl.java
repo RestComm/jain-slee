@@ -69,10 +69,10 @@ public class ProfileTableActivityContextInterfaceFactoryImpl implements
 			throw new FactoryException(e.getMessage());
 		}
 
-		ActivityContextHandle ach = ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableActivity.getProfileTableName()));
+		ActivityContextHandle ach = ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableActivity.getProfileTableName(),serviceContainer));
         ActivityContext ac = serviceContainer.getActivityContextFactory().getActivityContext(ach);
         if (ac == null) {
-        	throw new UnrecognizedActivityException(profileTableActivity);
+        	throw new UnrecognizedActivityException("No resource for: "+profileTableActivity.getProfileTableName(),profileTableActivity);
         }
         
 		return new ActivityContextInterfaceImpl(ac);

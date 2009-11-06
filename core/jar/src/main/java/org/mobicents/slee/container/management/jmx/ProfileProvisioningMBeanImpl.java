@@ -719,7 +719,7 @@ public class ProfileProvisioningMBeanImpl extends MobicentsServiceMBeanSupport i
 			if (!profileTable.profileExists(profileName)) {
 				throw new UnrecognizedProfileNameException("There is no such profile: " + profileName + ", in profile table: " + profileTableName);
 			}
-			profileTable.removeProfile(profileName, true);
+			profileTable.removeProfile(profileName, true, false);
 			if(!sleeTransactionManagement.getRollbackOnly()) {
 				rb = false;
 			}

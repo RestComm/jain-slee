@@ -163,7 +163,7 @@ public class ProfileTableTransactionView {
 						profileObject.fireAddOrUpdatedEventIfNeeded();
 						profileObject.profilePassivate();
 					} else {
-						profileObject.profileRemove(true);
+						profileObject.profileRemove(true, false);
 					}
 					pool.returnObject(profileObject);
 				}

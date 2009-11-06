@@ -2,11 +2,13 @@
  * Start time:11:43:35 2009-01-20<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
+ * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
+
+import java.io.Serializable;
 
 import javax.slee.SbbID;
 
@@ -15,12 +17,16 @@ import javax.slee.SbbID;
  * Start time:11:43:35 2009-01-20<br>
  * Project: mobicents-jainslee-server-core<br>
  * 
- * @author <a href="mailto:baranowb@gmail.com">baranowb - Bartosz Baranowski
+ * @author <a href="mailto:baranowb@gmail.com">Bartosz Baranowski
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MGetChildRelationMethod {
+public class MGetChildRelationMethod implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5123911596278960115L;
 	private String description=null;
 	private String sbbAliasRef=null;
 	private String childRelationMethodName=null;

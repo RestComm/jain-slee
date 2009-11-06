@@ -111,7 +111,7 @@ public class SleeProfileTableManager {
 		
 		for(String profileTableName:profileTableNames) {
 			try {
-				this.removeProfileTable(profileTableName);
+				this.removeProfileTable(profileTableName, true);
 			} catch (Throwable e) {
 				throw new SLEEException(e.getMessage(),e);
 			}
@@ -416,22 +416,28 @@ public class SleeProfileTableManager {
 	 * @throws UnrecognizedProfileTableNameException
 	 */
 	public void removeProfileTable(final String profileTableName) throws NullPointerException, UnrecognizedProfileTableNameException {
-	  ProfileTableImpl profileTable = getProfileTable(profileTableName);
-	  TransactionalAction action = new TransactionalAction() {
-	    public void execute() {
-	      profileTablesLocalObjects.remove(profileTableName);
-	    }
-	  };
-	  try {
-	    sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(action);
-	  } catch (IllegalStateException e) {
-	    throw new SLEEException(e.getMessage(),e);
-	  }
-	  profileTable.remove();
-	  jpaPTF.removeProfileTable(profileTable.getProfileTableName());
+	  removeProfileTable(profileTableName, false);
 	}
 
-	/**
+    private void removeProfileTable(final String profileTableName, boolean isUninstall) throws NullPointerException, UnrecognizedProfileTableNameException {
+      ProfileTableImpl profileTable = getProfileTable(profileTableName);
+      TransactionalAction action = new TransactionalAction() {
+        public void execute() {
+          profileTablesLocalObjects.remove(profileTableName);
+        }
+      };
+      try {
+        sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(action);
+      } catch (IllegalStateException e) {
+        throw new SLEEException(e.getMessage(),e);
+      }
+      profileTable.remove(isUninstall);
+      if(!isUninstall) {
+        jpaPTF.removeProfileTable(profileTable.getProfileTableName());
+      }
+    }
+
+    /**
 	 * 
 	 * @param oldProfileTableName
 	 * @param newProfileTableName

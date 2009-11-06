@@ -507,7 +507,7 @@ public class ProfileObject {
 	/**
 	 * 
 	 */
-	public void profileRemove(boolean invokeConcreteSbb) {
+	public void profileRemove(boolean invokeConcreteSbb, boolean isUninstall) {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("[profileRemove] "+this);
@@ -538,7 +538,7 @@ public class ProfileObject {
 					event.getProfileAddress(), null, EventFlags.NO_FLAGS);
 		}
 		
-		if(profileEntity.getProfileName() != null) {
+		if(profileEntity.getProfileName() != null && !isUninstall) {
 			profileEntityFramework.removeprofile(profileEntity);
 		}
 		else {

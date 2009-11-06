@@ -284,7 +284,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 
 		checkProfileSpecIsNotReadOnly();
 		
-		return this.removeProfile(profileName,true);
+		return this.removeProfile(profileName,true,false);
 	}
 
 	/**
@@ -295,7 +295,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * @throws TransactionRequiredLocalException
 	 * @throws SLEEException
 	 */
-	public boolean removeProfile(String profileName, boolean invokeConcreteSbb)
+	public boolean removeProfile(String profileName, boolean invokeConcreteSbb, boolean isUninstall)
 			throws TransactionRequiredLocalException, SLEEException {
 		
 		if (logger.isDebugEnabled()) {
@@ -306,7 +306,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		ProfileObject profileObject = getProfile(profileName);
 		if (profileObject != null) {
 			// remove using object
-			profileObject.profileRemove(invokeConcreteSbb);
+			profileObject.profileRemove(invokeConcreteSbb, isUninstall);
 			// close mbean if exists
 			AbstractProfileMBeanImpl.close(profileTableName,profileName);	
 			return true;
@@ -650,7 +650,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * 
 	 * @throws UnrecognizedProfileTableNameException
 	 */
-	public void remove() throws SLEEException {
+	public void remove(boolean isUninstall) throws SLEEException {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("removeProfileTable: removing profileTable="
@@ -661,12 +661,12 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 		for (ProfileID profileID : getProfiles()) {
 			// don't invoke the profile concrete object, to avoid evil profile lifecycle impls 
 			// that rollbacks tx, as Test1110251Test
-			this.removeProfile(profileID.getProfileName(), false);
+			this.removeProfile(profileID.getProfileName(), false, isUninstall);
 		}
 
 		// remove default profile
 		if (getDefaultProfileEntity() != null) {
-			this.removeProfile(null, false);
+			this.removeProfile(null, false, false);
 		}
 		
 		// add action after commit to remove tracer and close uncommitted mbeans
@@ -755,7 +755,7 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * 
 	 */
 	public ProfileTableActivity getActivity() {
-		return new ProfileTableActivityImpl(new ProfileTableActivityHandle(this.profileTableName));
+		return new ProfileTableActivityImpl(new ProfileTableActivityHandle(this.profileTableName, sleeContainer));
 	}
 	
 	/**
@@ -763,20 +763,9 @@ public class ProfileTableImpl implements ProfileTable, Serializable {
 	 * @return
 	 */
 	private ActivityContextHandle getActivityContextHandle() {
-		if (!sleeContainer.getCluster().getMobicentsCache().isLocalMode()
-				&& !sleeContainer.getSleeProfileTableManager()
-						.getJPAConfiguration().isClusteredProfiles()) {
-			// special scenario, we run in a cluster but without clustered
-			// profiles, so the activity must be unique for each cluster node
-			return ActivityContextHandlerFactory
+		return ActivityContextHandlerFactory
 					.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
-							profileTableName, sleeContainer.getCluster()
-									.getLocalAddress()));
-		} else {
-			return ActivityContextHandlerFactory
-					.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(
-							profileTableName));
-		}		
+							profileTableName,sleeContainer));		
 	}
 	
 	/**

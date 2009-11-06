@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.slee.resource.ActivityHandle;
 
 import org.jgroups.Address;
+import org.mobicents.slee.container.SleeContainer;
 
 /**
  * Handle for a profile table activity.
@@ -23,14 +24,16 @@ public class ProfileTableActivityHandle implements ActivityHandle, Serializable 
 
 	private final Address clusterLocalAddress; 
 	
-	public ProfileTableActivityHandle(String profileTable) {
+	public ProfileTableActivityHandle(String profileTable, SleeContainer sleeContainer) {
 		this.profileTable = profileTable;
-		this.clusterLocalAddress = null;
-	}
-    
-	public ProfileTableActivityHandle(String profileTable, Address clusterLocalAddress) {
-		this.profileTable = profileTable;
-		this.clusterLocalAddress = clusterLocalAddress;
+		if (!sleeContainer.getSleeProfileTableManager().getJPAConfiguration().isClusteredProfiles()) {
+			// special scenario, we may run in a cluster but without clustered
+			// profiles, so the activity must be unique for each cluster node
+			this.clusterLocalAddress = sleeContainer.getCluster().getLocalAddress();
+		}
+		else  {
+			this.clusterLocalAddress = null;
+		}
 	}
 	
 	public boolean equals(Object obj) {

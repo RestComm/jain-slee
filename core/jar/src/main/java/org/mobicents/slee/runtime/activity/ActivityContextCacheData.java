@@ -117,7 +117,7 @@ public class ActivityContextCacheData extends CacheData {
 	 * 
 	 * @param activityContextHandle
 	 */
-	public ActivityContextCacheData(Object activityContextHandle,
+	public ActivityContextCacheData(ActivityContextHandle activityContextHandle,
 			MobicentsCluster cluster) {
 		super(Fqn.fromElements(parentNodeFqn, activityContextHandle),
 				cluster.getMobicentsCache());
