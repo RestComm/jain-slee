@@ -40,6 +40,8 @@ grant codeBase "file:${jboss.defined.home}/server/lib/-" {
    permission java.security.AllPermission;
 };
 
+// ********** DEFAULT config ****************
+
 grant codeBase "file:${jboss.defined.home}/server/default/lib/-" {
    permission java.security.AllPermission;
 };
@@ -66,9 +68,6 @@ grant codeBase "file:${jboss.defined.home}/server/default/deploy/mobicents-slee-
 	permission java.security.AllPermission;
 };
 
-//*******************************************************
-// Trusted Specific JBoss Code (REAL URL Version)
-//*******************************************************
 grant codeBase "file:${jboss.defined.home}/server/default/deploy/http-invoker.sar/invoker.war/-" {
    permission javax.management.MBeanPermission "*", "addNotificationListener,getAttribute";
    permission java.lang.RuntimePermission "getClassLoader";
@@ -142,6 +141,106 @@ grant codeBase "file:${jboss.defined.home}/server/default/conf/-" {
  permission java.security.AllPermission;
 };
 
+// ********** DEFAULT config ****************
+
+grant codeBase "file:${jboss.defined.home}/server/all/lib/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deployers/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/work/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/mobicents-slee/lib/-" {
+	permission java.security.AllPermission;
+};
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/-" {
+	permission java.security.AllPermission;
+
+
+};
+
+//Strictly for tck
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/mobicents-slee-tck-plugin-bean.jar" {
+	permission java.security.AllPermission;
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/http-invoker.sar/invoker.war/-" {
+   permission javax.management.MBeanPermission "*", "addNotificationListener,getAttribute";
+   permission java.lang.RuntimePermission "getClassLoader";
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jmx-console.war/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jmx-remoting.sar/-" {
+   permission javax.management.MBeanTrustPermission "register";
+   permission java.net.SocketPermission "*", "accept,listen,resolve";
+   permission java.lang.RuntimePermission "getClassLoader";
+   permission java.security.AllPermission;
+};
+
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jbossweb.sar/jsf-libs/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jboss-local-jdbc.rar/-" {
+   permission java.lang.RuntimePermission "getClassLoader";
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jboss-local-jdbc.rar!/jboss-local-jdbc.jar" {
+   permission java.lang.RuntimePermission "getClassLoader";
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/management/console-mgr.sar/-" {
+   permission javax.management.MBeanTrustPermission "register";
+   permission javax.management.MBeanPermission "*", "addNotificationListener,getAttribute";
+   permission org.jboss.naming.JndiPermission "<<ALL BINDINGS>>","*";
+   permission java.io.FilePermission "<<ALL FILES>>", "read";
+   permission java.lang.RuntimePermission "getClassLoader";
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/uuid-key-generator.sar/-" {
+   permission javax.management.MBeanTrustPermission "register";
+   permission javax.management.MBeanPermission "*", "getAttribute";
+   permission org.jboss.naming.JndiPermission "<<ALL BINDINGS>>","lookup,rebind,unbind";
+   permission java.lang.RuntimePermission "getClassLoader";
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jbossweb.sar/-" {
+   permission java.security.AllPermission;
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jms-ra.rar!/jms-ra.jar" {
+   permission java.lang.RuntimePermission "setContextClassLoader";
+   permission java.lang.RuntimePermission "getClassLoader";
+   permission org.jboss.naming.JndiPermission "<<ALL BINDINGS>>","lookup";
+   permission java.io.FilePermission "${jboss.defined.home}/lib/jboss-aop.jar", "read";
+   permission javax.management.MBeanPermission "*", "getAttribute,invoke,setAttribute";
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/jms-ra.rar/jms-ra.jar!/" {
+   permission java.lang.RuntimePermission "setContextClassLoader";
+   permission java.lang.RuntimePermission "getClassLoader";
+   permission org.jboss.naming.JndiPermission "<<ALL BINDINGS>>","lookup";
+   permission java.io.FilePermission "${jboss.defined.home}/lib/jboss-aop.jar", "read";
+   permission javax.management.MBeanPermission "*", "getAttribute,invoke,setAttribute";
+};
+
+grant codeBase "file:${jboss.defined.home}/server/all/deploy/quartz-ra.rar!/quartz-ra.jar" {
+ permission java.security.AllPermission;
+};
+
+//5.1.0 has jars in conf....
+grant codeBase "file:${jboss.defined.home}/server/all/conf/-" {
+ permission java.security.AllPermission;
+};
 
 //****************************************************************
 //  Default block of permissions
