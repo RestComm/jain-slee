@@ -2,7 +2,7 @@
 <project name="mobicents.release" default="release" basedir=".">
 
 	<property environment="sys"/>
-	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp,mgcp,diameter-base,diameter-sh-client"/>
+	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp,mgcp,diameter-base,diameter-sh-client,diameter-cca"/>
 	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
@@ -247,8 +247,15 @@
 			<available file="${ant.file.mobicents.release}/../checkout/core/.svn/entries" />
 			<!--available file="${ant.file.mobicents.release}/../checkout/mmc/.svn/entries" /-->
 			<available file="${ant.file.mobicents.release}/../checkout/resources/sip11/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/resources/xmpp/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/resources/mgcp/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/resources/smpp/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/resources/diameter-base/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/resources/diameter-sh-client/.svn/entries" />
+			<available file="${ant.file.mobicents.release}/../checkout/resources/diameter-cca/.svn/entries" />
 			<available file="${ant.file.mobicents.release}/../checkout/examples/sip-services/.svn/entries" />
 			<available file="${ant.file.mobicents.release}/../checkout/examples/sip-services/.svn/entries" />									
+			<available file="${ant.file.mobicents.release}/../checkout/examples/google-talk-bot/.svn/entries" />									
 		</and>
 	</condition>
 
