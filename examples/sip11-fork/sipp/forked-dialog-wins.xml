@@ -154,7 +154,7 @@
     ]]>
 	</send>
 
-	<recv request="BYE" timeout="10000">
+	<recv request="BYE" timeout="20000">
 		<action>
 			<ereg regexp="-fork$" search_in="hdr" header="To:" check_it="true" assign_to="10" />
 			<assign assign_to="10" value="0" />	

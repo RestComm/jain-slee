@@ -129,7 +129,7 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 				try {
 					dialog.sendAck(dialog.createAck(cSeqHeader.getSeqNumber()));
 				} catch (Throwable e) {
-					logger.severe(e.getMessage(),e);
+					logger.severe("Failed to send ack",e);
 				}
 			}
 			break;
