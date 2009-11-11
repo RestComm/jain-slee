@@ -214,4 +214,17 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#clear()
+	 */
+	@Override
+	public void clear() {
+		super.clear();
+		if (wrappedTransaction != null) {
+			wrappedTransaction.setApplicationData(null);
+			wrappedTransaction = null;
+		}		
+		eventFiringAddress = null;
+		association = null;
+	}
 }

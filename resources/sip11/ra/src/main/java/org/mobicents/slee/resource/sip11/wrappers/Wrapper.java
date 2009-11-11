@@ -99,4 +99,10 @@ public abstract class Wrapper implements Serializable {
 	public void setApplicationData(Object arg0) {
 		throw new SecurityException();
 	}
+	
+	public void clear() {
+		activityHandle.setActivity(null);
+		activityHandle = null;
+	}
+	
 }

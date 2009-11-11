@@ -31,39 +31,28 @@ public class LateResponseHandler {
 	 * @param resp
 	 * @param infoTrace
 	 */
-	public static void processLateResponse(ResponseEvent resp, SipResourceAdaptor ra) {
+	public static void processLateInDialogResponse(ResponseEvent resp, SipResourceAdaptor ra) {
 	
 		if (tracer == null) {
 			tracer = ra.getTracer(LateResponseHandler.class.getSimpleName());
 		}
 				
-		final int _statusCode = resp.getResponse().getStatusCode();
-		final String callId = ((CallID) resp.getResponse().getHeader(CallID.NAME)).getCallId();
-		final String _method = ((CSeq) resp.getResponse().getHeader(CSeq.NAME)).getMethod();
-		final String branchId = ((Via) resp.getResponse().getHeaders(Via.NAME).next()).getBranch();
-		final String toTag = ((ToHeader) resp.getResponse().getHeader(ToHeader.NAME)).getTag();
+		final String method = ((CSeq) resp.getResponse().getHeader(CSeq.NAME)).getMethod();
 
 		if (tracer.isInfoEnabled()) {
-			tracer.info("ClientTransaction is null, possibly a late 2xx. ToTag[" + toTag + "] Dialog[" + resp.getDialog() + "] CALLID[" + callId + "] BRANCH[" + branchId
-					+ "] METHOD[" + _method + "] CODE[" + _statusCode + "]");
+			tracer.info("ClientTransaction is null, possibly a late 2xx. ToTag[" + ((ToHeader) resp.getResponse().getHeader(ToHeader.NAME)).getTag() + "] Dialog[" + resp.getDialog() + "] CALLID[" + ((CallID) resp.getResponse().getHeader(CallID.NAME)).getCallId() + "] BRANCH[" + ((Via) resp.getResponse().getHeaders(Via.NAME).next()).getBranch()
+					+ "] METHOD[" + method + "] CODE[" + resp.getResponse().getStatusCode() + "]");
 		}
 
-		if ((Utils.getDialogCreatingMethods().contains(_method))) {
+		if ((Utils.getDialogCreatingMethods().contains(method))) {
 
 			if (tracer.isFineEnabled()) {
-				tracer.fine("No Handle for dialog with such from and callId, using default. CALLID[" + callId + "] BRANCH[" + branchId + "] METHOD[" + _method
-						+ "] CODE[" + _statusCode + "]");
+				tracer.fine("No Handle for dialog with such from and callId, using default. CALLID[" + ((CallID) resp.getResponse().getHeader(CallID.NAME)).getCallId() + "] BRANCH[" + ((Via) resp.getResponse().getHeaders(Via.NAME).next()).getBranch() + "] METHOD[" + method
+						+ "] CODE[" + resp.getResponse().getStatusCode() + "]");
 			}
 			doTerminateOnLate2xx(resp,ra);
 			
-		} else {
-			if (tracer.isFineEnabled()) {
-				tracer.fine("===> ClientTransaction is NULL, along with dialog - RTR ? CALLID[" + callId + "] BRANCH[" + branchId + "] METHOD[" + _method + "] CODE["
-						+ _statusCode + "]");
-			}
-
-			// FIXME:, add default termiantion of late 2xx??
-		}		
+		}
 	}
 	
 	/**
@@ -91,7 +80,7 @@ public class LateResponseHandler {
 			// logger.info("DOING FORGE FOR: \n"+response);
 			if (cseq.getMethod().equals(Request.INVITE) && (statusCode < 300 && statusCode >= 200)) {
 				if (requestURI == null) {
-					tracer.severe("Cannot ack on reqeust that has empty contact!!!!");
+					tracer.severe("Cannot ack on request that has empty contact!!!!");
 					return;
 				}
 

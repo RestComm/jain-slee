@@ -712,14 +712,13 @@ public class ClientDialogWrapper extends DialogWrapper {
 							+ oldForkState + " - new" + data.getForkState()
 							+ ". On dialog: " + this.toString());
 				}
-				FireableEventType eventID = this.ra.eventIdCache.getEventId(
-						this.ra.getEventLookupFacility(), response);
+				FireableEventType eventID = ra.getEventIdCache().getEventId(
+						ra.getEventLookupFacility(), response);
 				ResponseEventWrapper REW = new ResponseEventWrapper(
 						this.provider, (ClientTransaction) respEvent
 								.getClientTransaction().getApplicationData(),
 						this, response);
-				this.ra.fireEvent(fineTrace, REW, this.activityHandle, this.getEventFiringAddress(), eventID,
-						SipResourceAdaptor.DEFAULT_EVENT_FLAGS, false);
+				fireEvent(fineTrace, REW, this.activityHandle, this.getEventFiringAddress(), eventID);
 				firedByDialogWrapper = true;
 				terminateFork(null);
 
@@ -762,8 +761,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 					}
 					child.fetchData(response);
 					// FIXME: fire on child, original message
-					FireableEventType eventID = this.ra.eventIdCache
-							.getEventId(this.ra.getEventLookupFacility(),
+					FireableEventType eventID = ra.getEventIdCache()
+							.getEventId(ra.getEventLookupFacility(),
 									response);
 					if (fineTrace) {
 						tracer.fine("Received 1xx message: " + statusCode
@@ -773,8 +772,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 							this.provider, (ClientTransaction) respEvent
 									.getClientTransaction()
 									.getApplicationData(), this, response);
-					this.ra.fireEvent(fineTrace, REW, child.activityHandle,child.getEventFiringAddress(), eventID,
-							SipResourceAdaptor.DEFAULT_EVENT_FLAGS, false);
+					fireEvent(fineTrace, REW, child.activityHandle,child.getEventFiringAddress(), eventID);
 					firedByDialogWrapper = true;
 				} else {
 					// We create fake dialog that - as a child of master
@@ -789,8 +787,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 							.getActivityHandle());
 
 					// FIXME: fire on original, dialog forked
-					FireableEventType eventID = this.ra.eventIdCache
-							.getDialogForkEventId(this.ra
+					FireableEventType eventID = ra.getEventIdCache()
+							.getDialogForkEventId(ra
 									.getEventLookupFacility());
 
 					DialogForkedEvent REW = new DialogForkedEvent(
@@ -798,8 +796,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 									.getClientTransaction()
 									.getApplicationData(), this, child,
 							response);
-					this.ra.fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID,
-							SipResourceAdaptor.DEFAULT_EVENT_FLAGS, false);
+					fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID);
 					firedByDialogWrapper = true;
 				}
 
@@ -837,15 +834,14 @@ public class ClientDialogWrapper extends DialogWrapper {
 					}
 
 					// FIXME: fire on child, original message
-					FireableEventType eventID = this.ra.eventIdCache
+					FireableEventType eventID = ra.getEventIdCache()
 							.getEventId(this.ra.getEventLookupFacility(),
 									response);
 					ResponseEventWrapper REW = new ResponseEventWrapper(
 							this.provider, (ClientTransaction) respEvent
 									.getClientTransaction()
 									.getApplicationData(), this, response);
-					this.ra.fireEvent(fineTrace, REW, child.activityHandle, child.getEventFiringAddress(), eventID,
-							SipResourceAdaptor.DEFAULT_EVENT_FLAGS, false);
+					fireEvent(fineTrace, REW, child.activityHandle, child.getEventFiringAddress(), eventID);
 					firedByDialogWrapper = true;
 
 				} else if (toTag != null) {
@@ -864,7 +860,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 							.getActivityHandle());
 					child.fetchData(response);
 					// FIXME: fire on child, original message
-					FireableEventType eventID = this.ra.eventIdCache
+					FireableEventType eventID = ra.getEventIdCache()
 							.getDialogForkEventId(this.ra
 									.getEventLookupFacility());
 					DialogForkedEvent REW = new DialogForkedEvent(
@@ -872,8 +868,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 									.getClientTransaction()
 									.getApplicationData(), this, child,
 							response);
-					this.ra.fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID,
-							SipResourceAdaptor.DEFAULT_EVENT_FLAGS, false);
+					fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID);
 					firedByDialogWrapper = true;
 				} else {
 					tracer
@@ -892,14 +887,12 @@ public class ClientDialogWrapper extends DialogWrapper {
 							+ ". On dialog: " + this.toString());
 				}
 				// FIXME: fire on this, original message
-				FireableEventType eventID = this.ra.eventIdCache.getEventId(
-						this.ra.getEventLookupFacility(), response);
+				FireableEventType eventID = ra.getEventIdCache().getEventId(ra.getEventLookupFacility(), response);
 				ResponseEventWrapper REW = new ResponseEventWrapper(
 						this.provider, (ClientTransaction) respEvent
 								.getClientTransaction().getApplicationData(),
 						this, response);
-				this.ra.fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID,
-						SipResourceAdaptor.DEFAULT_EVENT_FLAGS, false);
+				fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID);
 				firedByDialogWrapper = true;
 				terminateFork(null);
 
@@ -952,6 +945,27 @@ public class ClientDialogWrapper extends DialogWrapper {
 		// not needed till we have some sort of early dialog replication
 		// updateReplicatedState();
 		return firedByDialogWrapper;
+	}
+
+	/**
+	 * @param fineTrace
+	 * @param event
+	 * @param activityHandle
+	 * @param eventFiringAddress
+	 * @param eventID
+	 */
+	private void fireEvent(boolean fineTrace, Object event,
+			SipActivityHandle activityHandle,
+			javax.slee.Address eventFiringAddress, FireableEventType eventType) {
+		if (ra.getEventIDFilter().filterEvent(eventType)) {
+			tracer.fine("Event "+eventType+" filtered.");
+			return;
+		}
+		try {
+			ra.getSleeEndpoint().fireEvent(activityHandle, eventType, event, eventFiringAddress, null,SipResourceAdaptor.DEFAULT_EVENT_FLAGS);
+		} catch (Throwable e) {
+			tracer.severe("Failed to fire event",e);
+		}
 	}
 
 	/**
@@ -1098,6 +1112,15 @@ public class ClientDialogWrapper extends DialogWrapper {
 		this.wrappedDialog.setApplicationData(this);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#clear()
+	 */
+	@Override
+	public void clear() {
+		super.clear();
+		data = null;
+	}
+	
 	// serialization
 	
 	private void writeObject(ObjectOutputStream stream) throws IOException {

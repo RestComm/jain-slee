@@ -792,6 +792,25 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#clear()
+	 */
+	@Override
+	public void clear() {
+		super.clear();
+		if (wrappedDialog != null) {
+			wrappedDialog.setApplicationData(null);
+			wrappedDialog = null;
+		}		
+		ra = null;
+		provider = null;
+		ongoingClientTransactions = null;
+		ongoingServerTransactions = null;
+		localTag = null;
+		lastCancelableTransactionId = null;
+		eventFiringAddress = null;
+	}
+	
 	static final String[] EMPTY_STRING_ARRAY = {};
 	
 	private void writeObject(ObjectOutputStream stream) throws IOException {
