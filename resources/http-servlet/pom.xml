@@ -55,6 +55,9 @@
 											<fileset dir="${basedir}/war/target">
 												<include name="*.war" />
 											</fileset>
+											<fileset dir="${basedir}/common/target">
+												<include name="*.jar" />
+											</fileset>
 										</copy>
 										<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/resources/http-servlet/du-management.xml" />
 										<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/resources/http-servlet">
