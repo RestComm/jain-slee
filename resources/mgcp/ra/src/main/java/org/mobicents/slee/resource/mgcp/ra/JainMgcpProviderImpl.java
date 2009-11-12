@@ -1,5 +1,6 @@
 package org.mobicents.slee.resource.mgcp.ra;
 
+import jain.protocol.ip.mgcp.DeleteProviderException;
 import jain.protocol.ip.mgcp.JainMgcpCommandEvent;
 import jain.protocol.ip.mgcp.JainMgcpEvent;
 import jain.protocol.ip.mgcp.JainMgcpListener;
@@ -184,6 +185,23 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 
 	public RequestIdentifier getUniqueRequestIdentifier() {
 		return provider.getUniqueRequestIdentifier();
+	}
+	
+	/**
+	 * This method removes ra proxy provider from stack, effectivly closing it and freeing resources.
+	 */
+	void delete() {
+		if(this.provider!=null)
+		{
+			this.provider.removeJainMgcpListener(this.listener);
+			try {
+				this.provider.getJainMgcpStack().deleteProvider(this.provider);
+			} catch (DeleteProviderException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 	private class MgcpStackListener implements JainMgcpExtendedListener {

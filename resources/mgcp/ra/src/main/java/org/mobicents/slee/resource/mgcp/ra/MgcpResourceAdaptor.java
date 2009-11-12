@@ -84,6 +84,10 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	// private JainMgcpProvider mgcpProvider;
 	private final EventIDCache eventIdCache = new EventIDCache();
 
+	/**
+	 * This is local proxy of provider. Created and managed by RA, 
+	 * it callbacks RA on events when it processes it and are ready to fire into SLEE.
+	 */
 	private JainMgcpProviderImpl mgcpProvider;
 
 	private transient SleeEndpoint sleeEndpoint = null;
@@ -211,9 +215,10 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	public void raInactive() {
 
 		try {
-			// this.mgcpProvider.removeJainMgcpListener(this);
-			// this.stack.deleteProvider(mgcpProvider);
-
+			
+			
+			this.mgcpProvider.delete();
+			//stack is closed automaticly after above.
 			this.stack = null;
 			this.mgcpProvider = null;
 		} catch (Throwable ex) {
