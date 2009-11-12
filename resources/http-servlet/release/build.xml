@@ -11,6 +11,7 @@
 
 	<target name="deploy-jmx">
 		<copy overwrite="true" todir="${deploy.dir}" file="${home}/_mobicents-slee-ra-http-servlet-common.jar" />
+		<sleep seconds="2"/>
 		<ant antfile="${home}/du-management.xml" target="deploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
