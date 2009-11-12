@@ -46,6 +46,7 @@ import java.util.List;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.facilities.Tracer;
+import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.EventFlags;
@@ -92,6 +93,8 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	private static final String MGCP_BIND_PORT = "jain.mgcp.PORT";
 
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
+	
+	public static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;//.NO_FLAGS;
 
 	/**
 	 * tells the RA if an event with a specified ID should be filtered or not
@@ -106,9 +109,12 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		return eventFlags;
 	}
 
-	public void activityEnded(ActivityHandle arg0) {
-		// TODO Auto-generated method stub
+	public void activityEnded(ActivityHandle handle) {
+		mgcpActivityManager.removeMgcpActivity(handle);		
 
+		if (this.tracer.isFineEnabled()) {
+			this.tracer.fine("Activity with handle " + handle + " ended");
+		}
 	}
 
 	public void activityUnreferenced(ActivityHandle arg0) {
@@ -156,8 +162,8 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		return this.mgcpProvider;
 	}
 
-	public void queryLiveness(ActivityHandle arg0) {
-		// TODO Auto-generated method stub
+	public void queryLiveness(ActivityHandle handle) {
+		//Object activity = mgcpActivityManager.getActivity(handle);
 
 	}
 
@@ -666,7 +672,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 
 			// end activity if delete connection request or response
 			if (eventObject instanceof DeleteConnection || eventObject instanceof DeleteConnectionResponse) {
-				try {
+				try {					
 					// send activity end event to the container
 					getSleeEndpoint().endActivity(handle);
 				} catch (Exception e) {

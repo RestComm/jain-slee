@@ -70,7 +70,7 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 			handle = ra.getMgcpActivityManager().putMgcpConnectionActivity(activity);
 			if (startActivity) {
 				try {
-					ra.getSleeEndpoint().startActivity(handle, activity);
+					ra.getSleeEndpoint().startActivity(handle, activity, MgcpResourceAdaptor.ACTIVITY_FLAGS);
 				} catch (Exception e) {
 					String msg = "Failed to start activity";
 					tracer.severe(msg, e);
@@ -100,7 +100,7 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 			handle = ra.getMgcpActivityManager().putMgcpConnectionActivity(activity);
 
 			try {
-				ra.getSleeEndpoint().startActivity(handle, activity);
+				ra.getSleeEndpoint().startActivity(handle, activity, MgcpResourceAdaptor.ACTIVITY_FLAGS);
 			} catch (Exception e) {
 				String msg = "Failed to start activity";
 				tracer.severe(msg, e);
@@ -134,7 +134,7 @@ public class JainMgcpProviderImpl implements JainMgcpProvider {
 			ra.getMgcpActivityManager().putMgcpEndpointActivity(activity);
 
 			try {
-				ra.getSleeEndpoint().startActivity(handle, activity);
+				ra.getSleeEndpoint().startActivity(handle, activity, MgcpResourceAdaptor.ACTIVITY_FLAGS);
 			} catch (Exception e) {
 				String msg = "Failed to start activity";
 				tracer.severe(msg, e);
