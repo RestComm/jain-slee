@@ -11,42 +11,42 @@
 
 	<target name="deploy-jmx">
 		<copy overwrite="true" todir="${deploy.dir}" file="${home}/_mobicents-slee-ra-http-servlet-common.jar" />
+		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents.war" />
 		<sleep seconds="2"/>
 		<ant antfile="${home}/du-management.xml" target="deploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
 			<property name="jnpPort" value="${jnpPort}" />
-		</ant>
-		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents.war" />		
+		</ant>				
 	</target>
 
 	<target name="undeploy-jmx">
-		<delete file="${deploy.dir}/mobicents.war" />
 		<ant antfile="${home}/du-management.xml" target="undeploy-jmx" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 			<property name="jnpHost" value="${jnpHost}" />
 			<property name="jnpPort" value="${jnpPort}" />
 		</ant>		
+		<delete file="${deploy.dir}/mobicents.war" />
 		<delete file="${deploy.dir}/_mobicents-slee-ra-http-servlet-common.jar" />		
 	</target>
 
 	<target name="deploy">
 		<copy overwrite="true" todir="${deploy.dir}" file="${home}/_mobicents-slee-ra-http-servlet-common.jar" />
+		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents.war" />
 		<ant antfile="${home}/du-management.xml" target="deploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>
-		<copy overwrite="true" todir="${deploy.dir}" file="${home}/mobicents.war" />
 	</target>
 
 	<target name="undeploy">
-		<delete file="${deploy.dir}/mobicents.war" />
 		<ant antfile="${home}/du-management.xml" target="undeploy" inheritAll="false">
 			<property name="jboss.home" value="${jboss.home}" />
 			<property name="node" value="${jboss.config}" />
 		</ant>		
+		<delete file="${deploy.dir}/mobicents.war" />
 		<delete file="${deploy.dir}/_mobicents-slee-ra-http-servlet-common.jar" />
 	</target>
 

@@ -2,7 +2,9 @@
 <deploy-config>
   <ra-entity resource-adaptor-id="ResourceAdaptorID[name=HttpServletResourceAdaptor,vendor=org.mobicents,version=1.0]" entity-name="HttpServletRA">
     <properties>
+   		<!-- uncomment and set with custom servlet name 
    		<property name="name" type="java.lang.String" value="${servlet-name}" />
+   		-->
     </properties>
     <ra-link name="HttpServletRA" />
   </ra-entity>

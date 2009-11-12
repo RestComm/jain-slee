@@ -22,5 +22,24 @@
                 </resource-adaptor-class-name>
             </resource-adaptor-class>
         </resource-adaptor-classes>
+        
+        <config-property>
+            <config-property-name>name</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>${servlet-name}</config-property-value>
+        </config-property>
+        
     </resource-adaptor>
+    
+    <security-permissions>
+        <description>
+            Security permissions that allow this RA to connect to arbitrary sockets.
+        </description>
+        <security-permission-spec>
+            grant {
+                   permission java.net.SocketPermission "*", "connect,resolve";
+                  };
+        </security-permission-spec>
+    </security-permissions>
+    
 </resource-adaptor-jar>
