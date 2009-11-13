@@ -728,7 +728,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
           ShClientSessionImpl clientSession = null;
 
           if(args != null && args.length > 0 && (args[0] instanceof Request || (args[0] instanceof Message && ((Message)args[0]).isRequest()))) {
-            Request request = (Request) args[0];
+        	  Message request = (Message) args[0];
             clientSession = new ShClientSessionImpl(request.getSessionId(),this,sessionFactory,this);
           }
           else {
