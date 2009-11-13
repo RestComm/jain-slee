@@ -244,7 +244,6 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
         if (activity != null) {
             handlers.remove(activity.toString());
         }
-        sleeEndpoint.endActivity(activityHandle);
     }
 
     public void activityUnreferenced(ActivityHandle activityHandle) {
@@ -738,7 +737,9 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
 
     public void raStopping() {
         isBound = false;
-        linkMonitorThread.interrupt();
+        if (linkMonitorThread != null) {
+        	linkMonitorThread.interrupt();
+        }
     }
 
     public void raUnconfigure() {
