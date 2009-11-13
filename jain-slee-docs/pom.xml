@@ -11,8 +11,8 @@
 <!--Note to Eduardo.  When you/if you want to convert your docs over to the entity driven version (like I suggested in the email), you can remove the all- prefix from the name of the <docname> and <bookname> :) -->
   <properties>
     <translation>en-US</translation>
-    <docname>all-JAIN_SLEE_Server_User_Guide</docname>
-    <bookname>all-JAIN_SLEE_Server_User_Guide</bookname>
+    <docname>JAIN_SLEE_Server_User_Guide</docname>
+    <bookname>JAIN_SLEE_Server_User_Guide</bookname>
   </properties> 
 
   <repositories>
