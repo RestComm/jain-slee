@@ -157,7 +157,7 @@ public class SmppDialogImpl extends SmppActivityImpl implements Dialog {
      */
     public ClientTransaction createSubmitSmTransaction() {
         lastActivity = new Date();
-        final ClientSubmitSmTransactionImpl tx = new ClientSubmitSmTransactionImpl(GENERATOR++, 
+        final ClientSubmitSmTransactionImpl tx = new ClientSubmitSmTransactionImpl((int)System.currentTimeMillis(), 
                 this);
         final AbstractTransaction anotherTx = createTransaction(tx);
         return anotherTx == null ? tx : (ClientTransaction) anotherTx;
