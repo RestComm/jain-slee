@@ -723,10 +723,11 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
 
     public AppSession getNewSession(String sessionId, Class<? extends AppSession> aClass, ApplicationId applicationId, Object[] args) {
       try {
+    	  //FIXME: add proper handling for SessionId
         if (aClass == ClientShSession.class) {
           ShClientSessionImpl clientSession = null;
 
-          if(args != null && args.length > 1 && args[0] instanceof Request) {
+          if(args != null && args.length > 0 && (args[0] instanceof Request || (args[0] instanceof Message && ((Message)args[0]).isRequest()))) {
             Request request = (Request) args[0];
             clientSession = new ShClientSessionImpl(request.getSessionId(),this,sessionFactory,this);
           }
@@ -880,7 +881,7 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
       ClientShSession session = null;
 
       try {
-        session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, null, ClientShSession.class, EMPTY_OBJECT_ARRAY);
+        session = ((ISessionFactory) stack.getSessionFactory()).getNewAppSession(null, null, ClientShSession.class, new Object[]{((DiameterMessageImpl)pushNotificationRequest).getGenericData()});
 
         if (session == null) {
           tracer.severe("Failure creating Sh-Client Subscription Session (null).");

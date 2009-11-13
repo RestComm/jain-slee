@@ -174,6 +174,7 @@ public class ShClientSubscriptionActivityImpl extends DiameterActivityImpl imple
       throw new AvpNotAllowedException("Message validation failed.", e, e.getAvpCode(), e.getVendorId());
     }
     catch (Exception e) {
+      //FIXME: extent this exception to add trace....
       throw new IOException("Failed to send message, due to: " + e.getLocalizedMessage());
     }
   }
