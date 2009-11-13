@@ -87,7 +87,7 @@
 
       <resource-adaptor-entity-binding>
         <resource-adaptor-object-name>slee/resources/diameter-sh-client-ra-interface</resource-adaptor-object-name>
-        <resource-adaptor-entity-link>ShClient</resource-adaptor-entity-link>
+        <resource-adaptor-entity-link>DiameterShClient</resource-adaptor-entity-link>
       </resource-adaptor-entity-binding>
     </resource-adaptor-type-binding>
 
