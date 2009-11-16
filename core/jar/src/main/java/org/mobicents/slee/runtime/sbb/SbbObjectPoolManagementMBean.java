@@ -12,7 +12,7 @@ public interface SbbObjectPoolManagementMBean {
 	/**
 	 * Object name where this MBean is accessible 
 	 */
-	public static final String MBEAN_NAME = "slee:service=SbbObjectPoolManagement";
+	public static final String MBEAN_NAME = "org.mobicents.slee:service=SbbObjectPoolManagement";
 	
 	/**
 	 * Retrieves current config parameter.

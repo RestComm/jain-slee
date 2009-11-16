@@ -105,7 +105,7 @@ public class SleeContainer {
 
 	// static init code
 	static {
-		// establish the location of mobicents.sar
+		// establish the location of mobicents in JBoss AS deploy folder
 		try {
 			java.net.URL url = VFSUtils.getCompatibleURL(VFS.getRoot(SleeContainer.class.getClassLoader()
 					.getResource("..")));
@@ -115,7 +115,7 @@ public class SleeContainer {
 		} catch (Exception e) {
 			logger
 					.error(
-							"Failed to establish path to Mobicents root deployment directory (mobicents.sar)",
+							"Failed to establish path to Mobicents root deployment directory",
 							e);
 			deployPath = null;
 		}
@@ -225,7 +225,7 @@ public class SleeContainer {
 		this.mbeanServer = MBeanServerLocator.locateJBoss();
 		this.sleeTransactionManager = sleeTransactionManager;
 		this.cluster = cluster;
-		this.replicationClassLoader = new ReplicationClassLoader();
+		this.replicationClassLoader = new ReplicationClassLoader(this.getClass().getClassLoader(),MobicentsManagement.loadClassesFirstFromAS);
 		cluster.getMobicentsCache().setReplicationClassLoader(replicationClassLoader);
 		this.uuidGenerator = new MobicentsUUIDGenerator(cluster.getMobicentsCache().isLocalMode());
 		this.alarmMBeanImpl = alarmMBeanImpl;

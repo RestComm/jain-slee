@@ -12,7 +12,7 @@ public interface ProfileObjectPoolManagementMBean {
 	/**
 	 * Object name where this MBean is accessible 
 	 */
-	public static final String MBEAN_NAME = "slee:service=ProfileObjectPoolManagement";
+	public static final String MBEAN_NAME = "org.mobicents.slee:service=ProfileObjectPoolManagement";
 	
 	/**
 	 * Retrieves current config parameter.

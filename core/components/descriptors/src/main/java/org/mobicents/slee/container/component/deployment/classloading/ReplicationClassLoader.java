@@ -20,6 +20,24 @@ public class ReplicationClassLoader extends ClassLoader {
 	 */
 	private ConcurrentHashMap<String, Class<?>> cache = new ConcurrentHashMap<String, Class<?>>();
 	
+	/**
+	 * the slee class loader
+	 */
+	private final ClassLoader sleeClassLoader;
+	
+	private final boolean firstLoadFromSlee;
+	
+	/**
+	 * @param sleeClassLoader
+	 * @param firstLoadFromSlee
+	 */
+	public ReplicationClassLoader(ClassLoader sleeClassLoader,
+			boolean firstLoadFromSlee) {
+		super();
+		this.sleeClassLoader = sleeClassLoader;
+		this.firstLoadFromSlee = firstLoadFromSlee;
+	}
+
 	public void addDomain(URLClassLoaderDomain domain) {
 		domains.put(domain, new ConcurrentHashSet<String>());
 	}
@@ -41,24 +59,36 @@ public class ReplicationClassLoader extends ClassLoader {
 
 		if (result == null) {
 			
-			Set<URLClassLoaderDomain> visited = new HashSet<URLClassLoaderDomain>();
-			boolean lookInSlee = true;
-			for (Map.Entry<URLClassLoaderDomain, ConcurrentHashSet<String>> entry : domains.entrySet()) {
-				final URLClassLoaderDomain domain = entry.getKey();
+			if (firstLoadFromSlee) {
 				try {
-					result = domain.loadClass(name, resolve, visited, lookInSlee);
+					result = sleeClassLoader.loadClass(name);
 				} catch (Throwable e) {
 					// ignore
-				}					
-				if (result != null) {
-					entry.getValue().add(name);
-					break;
-				}
-				if (lookInSlee == true) {
-					lookInSlee = false;
+				}		
+			}
+			
+			if (result == null) {
+				Set<URLClassLoaderDomain> visited = new HashSet<URLClassLoaderDomain>();
+				for (Map.Entry<URLClassLoaderDomain, ConcurrentHashSet<String>> entry : domains.entrySet()) {
+					final URLClassLoaderDomain domain = entry.getKey();
+					try {
+						result = domain.loadClass(name, resolve, visited, false);
+						entry.getValue().add(name);
+						break;
+					} catch (Throwable e) {
+						// ignore
+					}			
 				}
 			}
-				
+			
+			if (result == null && !firstLoadFromSlee) {
+				try {
+					result = sleeClassLoader.loadClass(name);
+				} catch (Throwable e) {
+					// ignore
+				}		
+			}
+			
 			if (result == null) {
 				throw new ClassNotFoundException(name);
 			}

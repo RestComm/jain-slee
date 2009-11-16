@@ -28,7 +28,7 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 	/**
 	 * the slee class loader
 	 */
-	private ClassLoader sleeClassLoader;
+	private final ClassLoader sleeClassLoader;
 	
 	private final boolean firstLoadFromSlee;
 	/**
