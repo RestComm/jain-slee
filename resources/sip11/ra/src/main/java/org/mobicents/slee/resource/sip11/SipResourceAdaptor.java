@@ -204,11 +204,15 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		final ServerTransaction inviteST = ((SIPServerTransaction)cancelSTW.getWrappedServerTransaction()).getCanceledInviteTransaction();
 		final ServerTransactionWrapper inviteSTW = inviteST != null ? (ServerTransactionWrapper) inviteST.getApplicationData() : null;
 		// get dialog
-		final DialogWrapper dw = cancelSTW.getDialogWrapper();
+		final Dialog d = cancelSTW.getWrappedServerTransaction().getDialog();
+		final DialogWrapper dw = (d == null ? null : (DialogWrapper) d.getApplicationData());
 		Wrapper activity = dw;
 		if (activity != null) {
-			// ensure the dw is linked to the ra
-			dw.setResourceAdaptor(this);
+			if (!inLocalMode()) {
+				// ensure the dw is linked to the ra and wrapped dialog
+				dw.setResourceAdaptor(this);
+				dw.setWrappedDialog(d);
+			}
 			// add tx
 			dw.addOngoingTransaction(cancelSTW);
 		}
@@ -341,8 +345,11 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			}
 		}
 		else {
-			// ensure the dw is linked to the ra
-			dw.setResourceAdaptor(this);
+			if (!inLocalMode()) {
+				// ensure the dw is linked to the ra and wrapped dialog
+				dw.setResourceAdaptor(this);
+				dw.setWrappedDialog(d);
+			}
 			// add tx to dialog
 			dw.addOngoingTransaction(stw);
 		}
@@ -411,8 +418,11 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		final Dialog d = responseEvent.getDialog();
 		final DialogWrapper dw = (d == null ? null : (DialogWrapper) d.getApplicationData());
 		if (dw != null) {
-			// ensure dw is linked to this ra object
-			dw.setResourceAdaptor(this);
+			if (!inLocalMode()) {
+				// ensure the dw is linked to the ra and wrapped dialog
+				dw.setResourceAdaptor(this);
+				dw.setWrappedDialog(d);
+			}
 		}
 		boolean requestEventUnreferenced = false;
 		final ClientTransaction ct = responseEvent.getClientTransaction();
@@ -552,13 +562,18 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			tew = new TimeoutEventWrapper(providerWrapper,(ClientTransaction) tw, arg0.getTimeout());
 		}
 		
-		final DialogWrapper dw = tw.getDialogWrapper();
+		final Dialog d = tw.getWrappedTransaction().getDialog();
+		final DialogWrapper dw = (d != null ? (DialogWrapper) d.getApplicationData() : null);
 		final FireableEventType eventType = eventIdCache.getTransactionTimeoutEventId(
 				eventLookupFacility, dw != null);
 		if (!eventIDFilter.filterEvent(eventType)) {
 			Wrapper activity = tw.isActivity() ? tw : dw;
 			if (dw != null) {
-				dw.setResourceAdaptor(this);
+				if (!inLocalMode()) {
+					// ensure the dw is linked to the ra and wrapped dialog
+					dw.setResourceAdaptor(this);
+					dw.setWrappedDialog(d);
+				}
 			}
 			try {
 				sleeEndpoint.fireEvent(activity.getActivityHandle(), eventType, tew, activity.getEventFiringAddress(), null,DEFAULT_EVENT_FLAGS);
@@ -617,7 +632,11 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		if (d!= null) {
 			DialogWrapper dw = (DialogWrapper) d.getApplicationData();
 			if (dw != null) {
-				dw.setResourceAdaptor(this);
+				if (!inLocalMode()) {
+					// ensure the dw is linked to the ra and wrapped dialog
+					dw.setResourceAdaptor(this);
+					dw.setWrappedDialog(d);
+				}
 				processDialogTerminated(dw);
 			} else {
 				if (tracer.isFineEnabled()) {

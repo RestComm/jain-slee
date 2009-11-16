@@ -80,7 +80,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	/**
 	 * the wrapped dialog
 	 */
-	protected Dialog wrappedDialog;
+	protected transient Dialog wrappedDialog;
 	
 	/**
 	 * the local tag of the dialog, for certain cases it is out of sync with wrapped dialog, because the wrapped dialog may be created without one assigned 
@@ -839,4 +839,19 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		ongoingServerTransactions = new ConcurrentHashMap<String, ServerTransaction>(1);		
 		activityHandle.setActivity(this);
 	}
+	
+	/**
+	 * @return the wrappedDialog
+	 */
+	public Dialog getWrappedDialog() {
+		return wrappedDialog;
+	}
+	
+	/**
+	 * @param wrappedDialog the wrappedDialog to set
+	 */
+	public void setWrappedDialog(Dialog wrappedDialog) {
+		this.wrappedDialog = wrappedDialog;
+	}
+	
 }

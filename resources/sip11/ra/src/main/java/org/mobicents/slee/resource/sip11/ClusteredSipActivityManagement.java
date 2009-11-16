@@ -3,6 +3,7 @@ package org.mobicents.slee.resource.sip11;
 import javax.sip.Dialog;
 
 import org.mobicents.ha.javax.sip.ClusteredSipStack;
+import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.Wrapper;
 
 /**
@@ -44,7 +45,12 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 		else {
 			Dialog d = sipStack.getDialog(((DialogWithIdActivityHandle)handle).getDialogId());
 			if (d != null) {
-				return (Wrapper) d.getApplicationData();
+				final DialogWrapper dw = (DialogWrapper) d.getApplicationData();
+				if (dw.getWrappedDialog() == null) {
+					// unserialized wrapper, lets link with dialog d again
+					dw.setWrappedDialog(d);
+				}
+				return dw;
 			}
 			else {
 				// maybe it is still in the handle
