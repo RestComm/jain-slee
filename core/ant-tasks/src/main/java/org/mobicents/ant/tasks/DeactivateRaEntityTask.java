@@ -21,12 +21,15 @@ public class DeactivateRaEntityTask implements SubTask {
 			Object result = slee.invokeOperation(
 					SleeCommandInterface.DEACTIVATE_RA_ENTITY_OPERATION,
 					entityName, null, null);
+			
+			Thread.currentThread().sleep(3000);
 
 			if (result == null) {
 				logger.info("No response");
 			} else {
 				logger.info(result.toString());
 			}
+			
 		} catch (java.lang.SecurityException seEx) {
 			throw new BuildException(seEx);
 		} catch (Exception ex) {

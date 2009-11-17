@@ -21,6 +21,8 @@ public class DeactivateServiceTask implements SubTask {
 					SleeCommandInterface.DEACTIVATE_SERVICE_OPERATION,
 					componentID, null, null);
 
+			Thread.currentThread().sleep(3000);
+			
 			if (result == null) {
 				logger.info("No response");
 			} else {
