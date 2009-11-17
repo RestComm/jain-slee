@@ -15,7 +15,7 @@
   <name>Mobicents :: Diameter Resources :: ${pom.artifactId}</name>
 
   <modules>
-	<module>common</module>
+    <module>common</module>
     <module>events</module>
     <module>ratype</module>
     <module>ra</module>
@@ -24,10 +24,10 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.jdiameter.version>1.5.3.0-build316-SNAPSHOT</mobicents.diameter.jdiameter.version>
-    <mobicents.diameter.mux.version>1.1.1.GA-SNAPSHOT</mobicents.diameter.mux.version>
+    <mobicents.diameter.jdiameter.version>1.5.3.0-build315</mobicents.diameter.jdiameter.version>
+    <mobicents.diameter.mux.version>1.1.0.GA</mobicents.diameter.mux.version>
     <mobicents.diameter.resources.base-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.base-common.version>
-	<mobicents.diameter.resources.cca-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.cca-common.version>
+    <mobicents.diameter.resources.cca-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.cca-common.version>
   </properties>
 
   <dependencyManagement>

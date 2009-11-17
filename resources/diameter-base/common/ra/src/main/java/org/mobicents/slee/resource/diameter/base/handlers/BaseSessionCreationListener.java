@@ -68,9 +68,7 @@ public interface BaseSessionCreationListener {
    * Makes RA fire event with certain name.
    * 
    * @param sessionId
-   * @param name
-   * @param request
-   * @param answer
+   * @param message
    */
   public void fireEvent(String sessionId, Message message);
 
