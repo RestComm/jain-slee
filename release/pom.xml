@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>mobicents-parent</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>2.0-SNAPSHOT</version>
+		<version>2.0</version>
 	</parent>
 	
 	<artifactId>sources-checkout</artifactId>
@@ -20,45 +20,45 @@
 		<checkout.password />
 		<tag.version>2.0.0.BETA2</tag.version>
 
+		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/${tag.version}</core.connectionURL>
+		
+		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/${tag.version}</ra.diameter-base.connectionURL>
+		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/${tag.version}</ra.diameter-cca.connectionURL>
+		<ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-client/${tag.version}</ra.diameter-sh-client.connectionURL>
+		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/${tag.version}</ra.httpclient.connectionURL>
+		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-servlet/${tag.version}</ra.http-servlet.connectionURL>
+		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mgcp/${tag.version}</ra.mgcp.connectionURL>
+		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/${tag.version}</ra.sip11.connectionURL>
+		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp/${tag.version}</ra.smpp.connectionURL>	
+		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp/${tag.version}</ra.xmpp.connectionURL>
+		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/google-talk-bot/${tag.version}</example.google-talk-bot.connectionURL>		
+		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/${tag.version}</example.sipservices.connectionURL> 
+		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-wake-up/${tag.version}</example.sipwakeup.connectionURL>
+
+		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/cluster/${tag.version}</cluster.connectionURL>
+		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ha/${tag.version}</jain-sip-ha.connectionURL>
+		
+		<!-- 
 		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
-		<!-- <core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/${tag.version}</core.connectionURL>-->
-
-		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
-		<!-- <ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/${tag.version}</ra.sip11.connectionURL>-->
-
-		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-client</ra.httpclient.connectionURL>
-		<!-- <ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/${tag.version}</ra.httpclient.connectionURL>-->
-		
-		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</example.sipservices.connectionURL>
-		<!-- <example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/${tag.version}</example.sipservices.connectionURL>--> 
-
-		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</example.sipwakeup.connectionURL>
-		<!-- <example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-wake-up/${tag.version}</example.sipwakeup.connectionURL>-->
-		
-		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-servlet</ra.http-servlet.connectionURL>
-		<!-- <ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-servlet/${tag.version}</ra.http-servlet.connectionURL>-->
-		
-		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xmpp</ra.xmpp.connectionURL>
-		<!-- <ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp/${tag.version}</ra.xmpp.connectionURL>-->
-		
-		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/google-talk-bot</example.google-talk-bot.connectionURL>
-		<!-- <example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/google-talk-bot/${tag.version}</example.google-talk-bot.connectionURL>-->
-		
-		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp</ra.smpp.connectionURL>
-		<!-- <ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp/${tag.version}</ra.smpp.connectionURL>-->
-		
-		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mgcp</ra.mgcp.connectionURL>
-		<!-- <ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mgcp/${tag.version}</ra.mgcp.connectionURL>-->
 		
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-base</ra.diameter-base.connectionURL>
-		<!-- <ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/${tag.version}</ra.diameter-base.connectionURL>-->
-		
-		<ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-sh-client</ra.diameter-sh-client.connectionURL>
-		<!-- <ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-client/${tag.version}</ra.diameter-sh-client.connectionURL>-->
-
 		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</ra.diameter-cca.connectionURL>
-		<!-- <ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/${tag.version}</ra.diameter-cca.connectionURL>-->
-
+		<ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-sh-client</ra.diameter-sh-client.connectionURL>
+		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-client</ra.httpclient.connectionURL>		
+		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-servlet</ra.http-servlet.connectionURL>
+		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mgcp</ra.mgcp.connectionURL>
+		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
+		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp</ra.smpp.connectionURL>		
+		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xmpp</ra.xmpp.connectionURL>
+		
+		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/google-talk-bot</example.google-talk-bot.connectionURL>
+		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</example.sipservices.connectionURL>
+		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</example.sipwakeup.connectionURL>
+		
+		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/cluster</cluster.connectionURL>
+		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>				
+		-->
+		
 	</properties>
 	
 	<profiles>
@@ -86,6 +86,46 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								${core.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>cluster-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/cluster
+							</checkoutDirectory>
+							<connectionUrl>
+								${cluster.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>jain-sip-ha-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/jain-sip-ha
+							</checkoutDirectory>
+							<connectionUrl>
+								${jain-sip-ha.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -359,6 +399,44 @@
 							<scmVersionType>revision</scmVersionType>
 							<connectionUrl>
 								${core.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>cluster-update</id>
+						<goals>
+							<goal>update</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<basedir>
+								${checkout.basedir}/cluster
+							</basedir>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<connectionUrl>
+								${cluster.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>jain-sip-ha-update</id>
+						<goals>
+							<goal>update</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<basedir>
+								${checkout.basedir}/jain-sip-ha
+							</basedir>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<connectionUrl>
+								${jain-sip-ha.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
