@@ -15,7 +15,7 @@
 	  <dependency>
       <groupId>${pom.groupId}</groupId>
       <artifactId>base-common-events</artifactId>
-      <version>${mobicents.diameter.resources.base-common.version}</version>
+      <version>${pom.version}</version>
     </dependency>
   </dependencies>
 
