@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>sh-common-events</artifactId>
-			<version>${mobicents.diameter.resources.sh-common.version}</version>
+			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
 
