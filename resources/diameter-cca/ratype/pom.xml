@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>cca-common-ratype</artifactId>
-			<version>${mobicents.diameter.resources.cca-common.version}</version>
+			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
 

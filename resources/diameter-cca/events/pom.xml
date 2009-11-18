@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>cca-common-events</artifactId>
-			<version>${mobicents.diameter.resources.cca-common.version}</version>
+			<version>${pom.version}</version>
 		</dependency>
 	</dependencies>
 
