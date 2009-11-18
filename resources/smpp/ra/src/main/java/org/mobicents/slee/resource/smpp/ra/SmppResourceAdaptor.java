@@ -278,7 +278,9 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
         final Address address = new Address(AddressPlan.E164_MOBILE, event.getMessage().getOriginator());
         try {
             sleeEndpoint.fireEvent(handle, eventType, event, address, null, EVENT_FLAGS);
-            tracer.info("Firde event: " + eventName);
+            if (tracer.isInfoEnabled()) {
+            	tracer.info("Fired event: " + eventName);
+            }
         } catch (Throwable e) {
             tracer.severe("Failed to fire event", e);
         }
@@ -410,7 +412,9 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
 
             case SMPPPacket.ENQUIRE_LINK_RESP:
                 lastEnquireLinkResp = System.currentTimeMillis();
-                tracer.info("Enquare link response packet received");
+                if(tracer.isFineEnabled()) {
+                	tracer.fine("Enquire link response packet received");
+                }
                 break;
 
             case SMPPPacket.DELIVER_SM: {
@@ -644,11 +648,9 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
                     EnquireLink sm = (EnquireLink) smscConnection.newInstance(SMPPPacket.ENQUIRE_LINK);
                     smscConnection.sendRequest(sm);
 
-                    //if (logger.isDebugEnabled()) {
-                    //    logger.debug("Send enquire link for " + bootstrapContext.getEntityName());
-                    //}
-
-                    tracer.info("Send enquire link for " + raContext.getEntityName());
+                    if (tracer.isFineEnabled()) {
+                    	tracer.fine("Send enquire link for " + raContext.getEntityName());
+                    }
 
                     Thread.currentThread().sleep(enquireLinkInterval);
                 } catch (NotBoundException nbe) {
@@ -664,7 +666,7 @@ public class SmppResourceAdaptor implements ResourceAdaptor, ConnectionObserver 
                 } catch (BadCommandIDException ex) {
                     //should never happen
                 } catch (VersionException ex) {
-                    ex.printStackTrace();
+                   tracer.severe("Failed to enquire link",ex);
                 }
             }
         }
