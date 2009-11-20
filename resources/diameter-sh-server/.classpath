@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+  <classpathentry kind="src" path="ra/src/main/java"/>
+  <classpathentry kind="src" path="ratype/src/main/java"/>
+  <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jboss/jboss-common/4.2.3.GA/jboss-common-4.2.3.GA.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jboss/jboss-jmx/4.2.3.GA/jboss-jmx-4.2.3.GA.jar"/>
+  <classpathentry kind="var" path="M2_REPO/jboss/jboss-system/4.2.3.GA/jboss-system-4.2.3.GA.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/jdiameter-api/1.5.3.0-build350-SNAPSHOT/jdiameter-api-1.5.3.0-build350-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/jdiameter-impl/1.5.3.0-build350-SNAPSHOT/jdiameter-impl-1.5.3.0-build350-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/mobicents-diameter-mux-jar/1.1.1.GA-SNAPSHOT/mobicents-diameter-mux-jar-1.1.1.GA-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/base-common-events/2.0.0-SNAPSHOT/base-common-events-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/base-common-library/2.0.0-SNAPSHOT/base-common-library-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/base-common-ra/2.0.0-SNAPSHOT/base-common-ra-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/base-common-ratype/2.0.0-SNAPSHOT/base-common-ratype-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/sh-common-events/2.0.0-SNAPSHOT/sh-common-events-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/sh-common-library/2.0.0-SNAPSHOT/sh-common-library-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/sh-common-ra/2.0.0-SNAPSHOT/sh-common-ra-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/diameter/resources/sh-common-ratype/2.0.0-SNAPSHOT/sh-common-ratype-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-log4j12/1.5.8/slf4j-log4j12-1.5.8.jar"/>
+  <classpathentry kind="var" path="M2_REPO/picocontainer/picocontainer/1.2/picocontainer-1.2.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="output" path="target/classes"/>
+</classpath>
