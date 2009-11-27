@@ -19,22 +19,17 @@
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
-			<artifactId>mgcp-demo-crcx-sbb</artifactId>
+			<artifactId>mgcp-demo-recorder-sbb</artifactId>
 			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
-			<artifactId>mgcp-demo-crcx-endpoint-sbb</artifactId>
+			<artifactId>mgcp-demo-conference-sbb</artifactId>
 			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
-			<artifactId>mgcp-demo-mdcx-sbb</artifactId>
-			<groupId>${pom.groupId}</groupId>
-			<version>${pom.version}</version>
-		</dependency>
-		<dependency>
-			<artifactId>mgcp-demo-rqnt-sbb</artifactId>
+			<artifactId>mgcp-demo-ivr-sbb</artifactId>
 			<groupId>${pom.groupId}</groupId>
 			<version>${pom.version}</version>
 		</dependency>

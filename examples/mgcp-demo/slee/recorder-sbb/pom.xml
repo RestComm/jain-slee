@@ -8,12 +8,16 @@
 		<artifactId>mgcp-demo-slee</artifactId>
 		<groupId>org.mobicents.examples</groupId>
 		<version>2.0.0-SNAPSHOT</version>
-
 	</parent>
 
-	<artifactId>mgcp-demo-call-sbb</artifactId>
-	<name>MGCP Demo Call Sbb</name>
+	<artifactId>mgcp-demo-recorder-sbb</artifactId>
+	<name>MGCP Demo Recorder Sbb</name>
+
 	<dependencies>
+		<dependency>
+			<artifactId>mgcp-ratype</artifactId>
+			<groupId>org.mobicents.resources</groupId>
+		</dependency>
 		<dependency>
 			<groupId>org.mobicents.resources</groupId>
 			<artifactId>sip11-ratype</artifactId>

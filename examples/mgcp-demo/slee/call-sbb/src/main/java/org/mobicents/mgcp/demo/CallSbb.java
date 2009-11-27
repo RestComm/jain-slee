@@ -34,18 +34,16 @@ import javax.slee.facilities.Tracer;
 import net.java.slee.resource.sip.SleeSipProvider;
 
 /**
- * This SBB just acts as decision maker. For 1010 the INVITE event is routed to
- * CRCXSbb
+ * This SBB just acts as decision maker. For 1010 the INVITE event is routed to CRCXSbb
  * 
  * @author Oleg Kulikov
- * @author amit.bhayani
+ * @author amit bhayani
  */
 public abstract class CallSbb implements Sbb {
 
-	public final static String CRCX_CONNECTIONID_DEMO = "2010";
-	public final static String CRCX_ENDPOINTID_DEMO = "2011";
-	public final static String MDCX_DEMO = "2012";
-	public final static String RQNT_DEMO = "2013";
+	public final static String IVR_DEMO = "2010";
+	public final static String RECORDER_DEMO = "2011";
+	public final static String CONFERENCE_DEMO = "2012";
 
 	private SbbContext sbbContext;
 
@@ -69,24 +67,24 @@ public abstract class CallSbb implements Sbb {
 		logger.info("Incoming call " + from + " " + to);
 
 		String destination = to.toString();
-		if (destination.indexOf(CRCX_CONNECTIONID_DEMO) > 0) {
-			ChildRelation relation = getCRCXSbbChild();
+		if (destination.indexOf(IVR_DEMO) > 0) {
+			ChildRelation relation = getIVRSbbChild();
 			forwardEvent(relation, aci, evt);
-		} else if (destination.indexOf(CRCX_ENDPOINTID_DEMO) > 0) {
-			ChildRelation relation = getCRCXEndpointSbbChild();
+		} else if (destination.indexOf(RECORDER_DEMO) > 0) {
+			ChildRelation relation = getRecorderSbb();
 			forwardEvent(relation, aci, evt);
-		} else if (destination.indexOf(MDCX_DEMO) > 0) {
-			ChildRelation relation = getMDCXSbbChild();
-			forwardEvent(relation, aci, evt);
-		} else if (destination.indexOf(RQNT_DEMO) > 0) {
-			ChildRelation relation = getRQNTSbbChild();
+		} else if (destination.indexOf(CONFERENCE_DEMO) > 0) {
+			ChildRelation relation = getConferenceSbbChild();
 			forwardEvent(relation, aci, evt);
 		} else {
-			logger.info("MGCP Demo can understand only " + CRCX_CONNECTIONID_DEMO + ", " + CRCX_ENDPOINTID_DEMO
-					+ " and " + MDCX_DEMO + " dialed numbers");
+			logger.info("MGCP Demo can understand only " + IVR_DEMO + ", " + RECORDER_DEMO + " and " + CONFERENCE_DEMO
+					+ " dialed numbers");
+			respond(evt, Response.SERVICE_UNAVAILABLE);
+			return;
+
 		}
-		return;
 		// respond(evt, Response.RINGING);
+
 	}
 
 	private void forwardEvent(ChildRelation relation, ActivityContextInterface aci, RequestEvent evt) {
@@ -127,13 +125,11 @@ public abstract class CallSbb implements Sbb {
 		}
 	}
 
-	public abstract ChildRelation getCRCXSbbChild();
+	public abstract ChildRelation getRecorderSbb();
 
-	public abstract ChildRelation getCRCXEndpointSbbChild();
+	public abstract ChildRelation getConferenceSbbChild();
 
-	public abstract ChildRelation getMDCXSbbChild();
-
-	public abstract ChildRelation getRQNTSbbChild();
+	public abstract ChildRelation getIVRSbbChild();
 
 	public void unsetSbbContext() {
 		this.sbbContext = null;
