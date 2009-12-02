@@ -1,11 +1,17 @@
 package org.mobicents.slee.container.component.deployment.classloading;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+//import org.apache.log4j.Logger;
+
+import sun.misc.CompoundEnumeration;
 
 /**
  * An extension of {@link URLClassLoader} to support multiple parents.
@@ -15,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class URLClassLoaderDomain extends java.net.URLClassLoader {
 
+	//private static final Logger logger = Logger.getLogger(URLClassLoaderDomain.class);
+	
 	/**
 	 * the set of dependencies for the domain
 	 */
@@ -89,6 +97,7 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 				// for this lookup go to slee classloader and we must do it first
 				try {
 					result = sleeClassLoader.loadClass(name);
+					//logger.info(toString()+" loaded class "+name+" from SLEE");
 				} catch (Throwable e) {
 					// ignore
 				}
@@ -113,6 +122,7 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 						// lookup is done first in slee or not done at all, so this is final try,
 						// and either it is found or exception will be thrown
 						result = super.loadClass(name, resolve);
+						//logger.info(toString()+" loaded class "+name+" locally");			
 					}
 					else {
 						// if it fails slee is last place to lookup, no exception allowed here
@@ -133,6 +143,9 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 			
 			cache.put(name, result);						
 		}
+		/*else {
+			logger.info(toString()+" loaded class "+name+" from cache");			
+		}*/
 		
 		if (resolve) {
 			resolveClass(result);
@@ -166,7 +179,30 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 		cache.clear();
 		dependencies.clear();
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see java.net.URLClassLoader#findResource(java.lang.String)
+	 */
+	@Override
+	public URL findResource(String name) {
+		URL url = super.findResource(name);
+		if (url == null) {
+			url = sleeClassLoader.getResource(name);
+		}
+		return url;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.net.URLClassLoader#findResources(java.lang.String)
+	 */
+	@Override
+	public Enumeration<URL> findResources(String name) throws IOException {
+		final Enumeration[] tmp = new Enumeration[2];
+		tmp[0] = super.findResources(name);
+		tmp[1] = sleeClassLoader.getResources(name);
+		return new CompoundEnumeration(tmp);
+	}
+	
 	@Override
 	public String toString() {
 		return "URLClassLoaderDomain( urls= "+Arrays.asList(getURLs()) + " )\n";

@@ -297,13 +297,13 @@ public class SbbManagement {
 									+ raTypeComponent + "]");
 
 				NameParser parser = ctx.getNameParser("");
-				Name local = parser.parse(raObjectName);
-				int tokenCount = local.size();
+				Name name = parser.parse("java:comp/env/"+raObjectName);
+				int tokenCount = name.size();
 
-				Context subContext = envCtx;
+				Context subContext = new InitialContext();
 
 				for (int i = 0; i < tokenCount - 1; i++) {
-					String nextTok = local.get(i);
+					String nextTok = name.get(i);
 					try {
 						subContext.lookup(nextTok);
 					} catch (NameNotFoundException nfe) {
@@ -312,18 +312,16 @@ public class SbbManagement {
 						subContext = (Context) subContext.lookup(nextTok);
 					}
 				}
-				String lastTok = local.get(tokenCount - 1);
 				// Bind the resource adaptor instance to where the Sbb expects
 				// to find it.
 				if (logger.isDebugEnabled()) {
 					logger
-							.debug("setupSbbEnvironment: Binding a JNDI reference to sbb interface of "+raTypeBinding.getResourceAdaptorTypeRef());
+							.debug("setupSbbEnvironment: Binding ra entity named "+raEntity.getName()+" sbb interface for "+raTypeBinding.getResourceAdaptorTypeRef()+", to JNDI context "+name);
 				}
 				try {
 					Object raSbbInterface = raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef());
 					if (raSbbInterface != null) {
-						NonSerializableFactory.rebind(subContext, lastTok,raSbbInterface);
-						//subContext.bind(lastTok, raEntity.getResourceAdaptorInterface(raTypeBinding.getResourceAdaptorTypeRef()));
+						NonSerializableFactory.rebind(name,raSbbInterface);
 					}
 					else {
 						throw new DeploymentException("Unable to retrieve the RA interface for RA entity "+raEntity.getName()+" and RAType " +raTypeBinding.getResourceAdaptorTypeRef());

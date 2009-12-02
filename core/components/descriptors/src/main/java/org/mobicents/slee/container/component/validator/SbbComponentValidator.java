@@ -154,20 +154,18 @@ public class SbbComponentValidator implements Validator {
 
 			// now lets test abstract methods, we have to remove all of them by
 			// now?
-			if (abstractMehotds.size() > 0 || superClassesAbstractMethod.size() > 0) {
+			if (abstractMehotds.size() > 0) {
 				valid = false;
 				if(logger.isEnabledFor(Level.ERROR))
 				logger
 						.error(this.component.getDescriptor().getSbbID()
-								+ " : violates sbb constraints, it declares more abstract methods than SLEE is bound to implement. Methods directly from class: "
-								+ Arrays.toString(abstractMehotds.keySet().toArray()) + ", methods from super classes: "
-								+ Arrays.toString(superClassesAbstractMethod.keySet().toArray()));
-				
-
+								+ " : violates sbb constraints, the sbb abstract class declares more abstract methods than SLEE is bound to implement: "
+								+ Arrays.toString(abstractMehotds.keySet().toArray()));
+								
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 			valid = false;
 
 		}
