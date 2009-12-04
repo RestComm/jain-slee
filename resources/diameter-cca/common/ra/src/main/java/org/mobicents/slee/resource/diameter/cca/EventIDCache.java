@@ -22,7 +22,7 @@ import org.jdiameter.api.Message;
 
 /**
  * 
- * Caches event IDs for the Diameter Sh RAs.
+ * Caches event IDs for the Diameter CCA RAs.
  *
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>

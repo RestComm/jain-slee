@@ -848,12 +848,10 @@ public class DiameterShClientResourceAdaptor implements ResourceAdaptor, Diamete
     }
 
     /**
-     * This method is for internal use only, it creates activities for
-     * requests that do not fall in certain app range or no activitis were
-     * found <br>
-     * It should distinguish between initial requests, requests with
-     * diferent domains etc. - respo for createing XXXServerSession or basic
-     * diameter activity lies in this method
+     * This method is for internal use only, it creates activities for requests that 
+     * do not fall in certain app range or no activities were found <br>
+     * It should distinguish between initial requests, requests with different domains etc. 
+     * Answer for creating XXXServerSession or basic diameter activity lies in this method
      * 
      * @param message
      * @return

@@ -27,8 +27,8 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.jdiameter.version>1.5.3.0-build315</mobicents.diameter.jdiameter.version>
-    <mobicents.diameter.mux.version>1.1.0.GA</mobicents.diameter.mux.version>
+    <mobicents.diameter.jdiameter.version>1.5.3.0-build350-SNAPSHOT</mobicents.diameter.jdiameter.version>
+    <mobicents.diameter.mux.version>1.1.1.GA-SNAPSHOT</mobicents.diameter.mux.version>
   </properties>
 
   <profiles>

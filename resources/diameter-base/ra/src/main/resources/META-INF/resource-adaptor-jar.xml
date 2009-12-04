@@ -34,7 +34,7 @@
       <description>List of supported Accounting Application Ids in form of {vendor}:{application-id}, separated by comma (',')</description>
       <config-property-name>acctApplicationIds</config-property-name>
       <config-property-type>java.lang.String</config-property-type>
-      <config-property-value>0:0, 193:19302</config-property-value>
+      <config-property-value>0:3, 193:19302</config-property-value>
     </config-property>
 
   </resource-adaptor>

@@ -13,7 +13,7 @@
     <resource-adaptor-version>0.8.1</resource-adaptor-version>
 
     <resource-adaptor-type-ref>
-      <resource-adaptor-type-name>DiameterCCA</resource-adaptor-type-name>
+      <resource-adaptor-type-name>Diameter CCA</resource-adaptor-type-name>
       <resource-adaptor-type-vendor>java.net</resource-adaptor-type-vendor>
       <resource-adaptor-type-version>0.8.1</resource-adaptor-type-version>
     </resource-adaptor-type-ref>
@@ -26,7 +26,7 @@
 
     <config-property>
       <description>List of supported Authorization Application Ids in form of {vendor}:{application-id}, separated by comma (',')</description>
-      <config-property-name>acctApplicationIds</config-property-name>
+      <config-property-name>authApplicationIds</config-property-name>
       <config-property-type>java.lang.String</config-property-type>
       <config-property-value>0:4</config-property-value>
     </config-property>

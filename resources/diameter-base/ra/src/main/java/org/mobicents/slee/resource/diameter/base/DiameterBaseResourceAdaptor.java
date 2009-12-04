@@ -281,7 +281,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
       this.raProvider = new DiameterProviderImpl(this);
 
-      this.activities = new ConcurrentHashMap();
+      this.activities = new ConcurrentHashMap<ActivityHandle, DiameterActivity>();
 
       // Initialize the protocol stack
       initStack();
@@ -299,11 +299,11 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
       this.proxySessionFactory = new SessionFactory() {
 
         public <T extends AppSession> T getNewAppSession(ApplicationId applicationId, Class<? extends AppSession> userSession) throws InternalException {
-          return (T)sessionFactory.getNewAppSession(applicationId, userSession);
+          return sessionFactory.getNewAppSession(applicationId, userSession);
         }
 
         public <T extends AppSession> T getNewAppSession(String sessionId, ApplicationId applicationId, Class<? extends AppSession> userSession) throws InternalException {
-          return (T)sessionFactory.getNewAppSession(sessionId, applicationId, userSession);
+          return sessionFactory.getNewAppSession(sessionId, applicationId, userSession);
         }
 
         public RawSession getNewRawSession() throws InternalException {
@@ -409,7 +409,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
 
       String[] appIdsStrings  = appIdsStr.split(",");
 
-      List appIds = new ArrayList<ApplicationId>();
+      List<ApplicationId> appIds = new ArrayList<ApplicationId>();
 
       for(String appId : appIdsStrings) {
         String[] vendorAndAppId = appId.split(":");
@@ -849,7 +849,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
    * @see org.mobicents.slee.resource.diameter.base.handlers.BaseSessionCreationListener#sessionCreated(org.jdiameter.api.auth.ServerAuthSession)
    */
   public void sessionCreated(ServerAuthSession session) {
-    DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, null, null);
+    DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
 
     AuthServerSessionActivityImpl activity = new AuthServerSessionActivityImpl(msgFactory, avpFactory, session, null, null, sleeEndpoint);
 
@@ -863,7 +863,7 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
    * @see org.mobicents.slee.resource.diameter.base.handlers.BaseSessionCreationListener#sessionCreated(org.jdiameter.api.auth.ClientAuthSession)
    */
   public void sessionCreated(ClientAuthSession session) {
-    DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, null, null);
+    DiameterMessageFactoryImpl msgFactory = new DiameterMessageFactoryImpl(session.getSessions().get(0), stack, new DiameterIdentity[]{});
 
     AuthClientSessionActivityImpl activity = new AuthClientSessionActivityImpl(msgFactory, avpFactory, session, null, null, sleeEndpoint);
 
@@ -1261,6 +1261,10 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
           return true;
         }
         else if((vendorSpecificAvp = message.getAvps().getAvp(DiameterAvpCodes.VENDOR_SPECIFIC_APPLICATION_ID)) != null) {
+          // 6.11.  Vendor-Specific-Application-Id AVP
+          // The Vendor-Specific-Application-Id AVP (AVP Code 260) is of type Grouped and is used to 
+          // advertise support of a vendor-specific Diameter Application.
+          // Exactly one of the Auth-Application-Id and Acct-Application-Id AVPs MAY be present.
           return vendorSpecificAvp.getGrouped().getAvp(type) != null;
         }
       }

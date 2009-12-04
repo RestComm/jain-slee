@@ -80,7 +80,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
 
   // Config Properties Names ---------------------------------------------
 
-  private static final String ACCT_APPLICATION_IDS = "acctApplicationIds";
+  private static final String AUTH_APPLICATION_IDS = "authApplicationIds";
   private static final String DEFAULT_VALIDITY_TIME = "defaultValidityTime";
   private static final String DEFAULT_TX_TIMER_VALUE = "defaultTxTimerValue";
 
@@ -305,7 +305,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
       tracer.fine("Diameter CCA RA :: raConfigure");
     }
 
-    parseApplicationIds((String) properties.getProperty(ACCT_APPLICATION_IDS).getValue());
+    parseApplicationIds((String) properties.getProperty(AUTH_APPLICATION_IDS).getValue());
 
     Property dvtProp = properties.getProperty(DEFAULT_VALIDITY_TIME);
     defaultValidityTime = (Long) (dvtProp != null ? dvtProp.getValue() : defaultValidityTime);
