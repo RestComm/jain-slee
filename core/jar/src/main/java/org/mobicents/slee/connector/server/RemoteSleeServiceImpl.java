@@ -87,10 +87,9 @@ public class RemoteSleeServiceImpl implements RemoteSleeService {
 		if (eventTypeComponent == null) {
 			throw new UnrecognizedEventException("event type not installed");
 		}
-		if (!event.getClass().isAssignableFrom(
-				eventTypeComponent.getEventTypeClass())) {
+			if (!eventTypeComponent.getEventTypeClass().isAssignableFrom(event.getClass())) {
 			throw new UnrecognizedEventException(
-					"the class of the event object fired is not assignable to the event class of the event type");
+					"the class of the event object fired is not assignable to the event class of the event type.\n EventClass: "+event.getClass()+", component class: "+eventTypeComponent.getEventTypeClass());
 		}
 
 		if (!(activityHandle instanceof NullActivityHandle)) {
