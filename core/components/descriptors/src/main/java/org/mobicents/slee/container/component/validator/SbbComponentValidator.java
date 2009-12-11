@@ -812,7 +812,7 @@ public class SbbComponentValidator implements Validator {
 			if (this.component.isSlee11() && sbbLocalInterfaceClass.getPackage() == null) {
 				passed = false;
 				errorBuffer = appendToBuffer(this.component.getAbstractSbbClass() + "SbbLocalInterface: " + sbbLocalInterfaceClass.getName()
-						+ " is nto defined in package", "6.5", errorBuffer);
+						+ " is not defined in package", "6.5", errorBuffer);
 			}
 
 			if (!Modifier.isPublic(sbbLocalInterfaceClassModifiers)) {
@@ -840,8 +840,18 @@ public class SbbComponentValidator implements Validator {
 
 				}
 
-				Method methodFromSbbClass = ClassUtils.getMethodFromMap(methodToCheck.getName(), methodToCheck.getParameterTypes(),
-						sbbAbstractClassConcreteMethods, sbbAbstractClassConcreteFromSuperClasses);
+				Method methodFromSbbClass = ClassUtils
+						.getMethodFromMap(
+								methodToCheck.getName(),
+								methodToCheck.getParameterTypes(),
+								sbbAbstractClassConcreteMethods,
+								sbbAbstractClassConcreteFromSuperClasses,
+								ClassUtils
+										.getAbstractMethodsFromSuperClasses(this.component
+												.getAbstractSbbClass()),
+								ClassUtils
+										.getAbstractMethodsFromClass(this.component
+												.getAbstractSbbClass()));
 
 				if (methodFromSbbClass == null) {
 
@@ -858,7 +868,7 @@ public class SbbComponentValidator implements Validator {
 				// this side
 				// FIXME: Note that we dont check modifier, is this corerct
 
-				if (!(methodFromSbbClass.getName().compareTo(methodToCheck.getName()) == 0)
+				if (!methodFromSbbClass.getName().equals(methodToCheck.getName())
 						|| !methodFromSbbClass.getReturnType().equals(methodToCheck.getReturnType())
 						|| !Arrays.equals(methodFromSbbClass.getParameterTypes(), methodToCheck.getParameterTypes())
 						|| !Arrays.equals((Object[]) methodFromSbbClass.getExceptionTypes(), (Object[]) methodToCheck.getExceptionTypes())) {
