@@ -487,6 +487,10 @@ public class DeployableUnitBuilder {
 					}
 				}
 			}
+		} catch (NoClassDefFoundError e) {
+			throw new DeploymentException("Component "
+					+ sleeComponent.getComponentID()
+					+ " requires a class that was not found", e);
 		} catch (ClassNotFoundException e) {
 			throw new DeploymentException("Component "
 					+ sleeComponent.getComponentID()

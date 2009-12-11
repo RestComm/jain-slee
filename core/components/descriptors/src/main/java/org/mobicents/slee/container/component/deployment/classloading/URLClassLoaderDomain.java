@@ -92,7 +92,9 @@ public class URLClassLoaderDomain extends java.net.URLClassLoader {
 				// cycle
 				throw new ClassNotFoundException(name);
 			}
-						
+			
+			//logger.info(toString()+" loading class "+name);
+
 			if (loadFromSlee && firstLoadFromSlee) {
 				// for this lookup go to slee classloader and we must do it first
 				try {
