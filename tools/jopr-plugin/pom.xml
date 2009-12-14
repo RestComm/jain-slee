@@ -161,6 +161,54 @@
 			<artifactId>ant</artifactId>
 			<version>1.6.5</version>
 		</dependency>
+		
+		<!-- JBoss Dependencies -->
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system</artifactId>
+			<version>5.1.0.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-system-jmx</artifactId>
+			<version>5.1.0.GA</version>
+		</dependency>
+		<!-- TODO: Add jboss-client.jar  (if needed) -->
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jboss-common-core</artifactId>
+			<version>2.2.14.GA</version> <!-- TODO: Update to 2.2.16.GA ? -->
+		</dependency>
+		<!-- TODO: Add jboss-integration-5.1.0.SP1-sources.jar (if needed) -->
+		<dependency>
+			<groupId>org.jboss.javaee</groupId>
+			<artifactId>jboss-javaee</artifactId>
+			<version>5.0.1.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging-spi</artifactId>
+			<version>2.1.0.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.remoting</groupId>
+			<artifactId>jboss-remoting</artifactId>
+			<version>2.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.security</groupId>
+			<artifactId>jboss-security-spi</artifactId>
+			<version>2.0.3.SP1</version> <!-- TODO: Update to 2.0.4 ? -->
+		</dependency>
+		<!-- TODO: Add jboss-serialization.jar (if needed) -->
+		<!-- TODO: Add jboss-transaction-client.jar (if needed) -->
+		<!-- TODO: Add jmx-invoker-adaptor-client.jar (if needed) -->
+		<dependency>
+			<groupId>org.jboss.naming</groupId>
+			<artifactId>jnp-client</artifactId>
+			<version>5.0.3.GA</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
@@ -218,10 +266,22 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+   				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>																		
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>mobicents-slee-jopr</eclipseProjectName>
+				</configuration>
+			</plugin>
 		</plugins>
-
-
-
 
 	</build>
 </project>

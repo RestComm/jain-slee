@@ -166,9 +166,9 @@
 			discovery="ResourceAdaptorDiscoveryComponent"
 			description="Resource Adaptor">
 
-			<metric property="entities" displayName="Entites Active"
+			<metric property="entities" displayName="Entities Active"
 				measurementType="dynamic" displayType="summary"
-				description="Number of currently active Entites irrespective of Entites State" />
+				description="Number of currently active Entities irrespective of Entities State" />
 			<metric property="ratype" dataType="trait"
 				displayType="summary" displayName="Resource Adaptor Type"
 				defaultInterval="86400" />
