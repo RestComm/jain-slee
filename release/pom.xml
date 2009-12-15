@@ -27,6 +27,10 @@
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/${tag.version}</ra.diameter-base.connectionURL>
 		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/${tag.version}</ra.diameter-cca.connectionURL>
 		<ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-client/${tag.version}</ra.diameter-sh-client.connectionURL>
+		<ra.diameter-sh-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-server/${tag.version}</ra.diameter-sh-server.connectionURL>
+		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-ro/${tag.version}</ra.diameter-ro.connectionURL>
+		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rf/${tag.version}</ra.diameter-rf.connectionURL>
+		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cx-dx/${tag.version}</ra.diameter-cx-dx.connectionURL>
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/${tag.version}</ra.httpclient.connectionURL>
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-servlet/${tag.version}</ra.http-servlet.connectionURL>
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mgcp/${tag.version}</ra.mgcp.connectionURL>
@@ -47,6 +51,10 @@
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-base</ra.diameter-base.connectionURL>
 		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</ra.diameter-cca.connectionURL>
 		<ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-sh-client</ra.diameter-sh-client.connectionURL>
+		<ra.diameter-sh-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-sh-server</ra.diameter-sh-server.connectionURL>
+		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-ro</ra.diameter-ro.connectionURL>
+		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rf</ra.diameter-rf.connectionURL>
+		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cx-dx</ra.diameter-cx-dx.connectionURL>
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-client</ra.httpclient.connectionURL>		
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-servlet</ra.http-servlet.connectionURL>
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mgcp</ra.mgcp.connectionURL>
@@ -275,6 +283,26 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>ra-diameter-cca-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/diameter-cca
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.diameter-cca.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
 						<id>ra-diameter-sh-client-checkout</id>
 						<goals>
 							<goal>checkout</goal>
@@ -295,7 +323,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>ra-diameter-cca-checkout</id>
+						<id>ra-diameter-sh-server-checkout</id>
 						<goals>
 							<goal>checkout</goal>
 						</goals>
@@ -305,10 +333,70 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/resources/diameter-cca
+								${checkout.basedir}/resources/diameter-sh-server
 							</checkoutDirectory>
 							<connectionUrl>
-								${ra.diameter-cca.connectionURL}
+								${ra.diameter-sh-server.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-diameter-ro-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/diameter-ro
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.diameter-ro.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-diameter-rf-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/diameter-rf
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.diameter-rf.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-diameter-cx-dx-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/diameter-cx-dx
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.diameter-cx-dx.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -579,6 +667,25 @@
 						</configuration>
 					</execution>
 					<execution>
+						<id>ra-diameter-cca-update</id>
+						<goals>
+							<goal>update</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<basedir>
+								${checkout.basedir}/resources/diameter-cca
+							</basedir>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<connectionUrl>
+								${ra.diameter-cca.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
 						<id>ra-diameter-sh-client-update</id>
 						<goals>
 							<goal>update</goal>
@@ -598,19 +705,76 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>ra-diameter-cca-update</id>
+						<id>ra-diameter-sh-server-update</id>
 						<goals>
 							<goal>update</goal>
 						</goals>
 						<phase>validate</phase>
 						<configuration>
 							<basedir>
-								${checkout.basedir}/resources/diameter-cca
+								${checkout.basedir}/resources/diameter-sh-server
 							</basedir>
 							<scmVersion>HEAD</scmVersion>
 							<scmVersionType>revision</scmVersionType>
 							<connectionUrl>
-								${ra.diameter-cca.connectionURL}
+								${ra.diameter-sh-server.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-diameter-ro-update</id>
+						<goals>
+							<goal>update</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<basedir>
+								${checkout.basedir}/resources/diameter-ro
+							</basedir>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<connectionUrl>
+								${ra.diameter-ro.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-diameter-rf-update</id>
+						<goals>
+							<goal>update</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<basedir>
+								${checkout.basedir}/resources/diameter-rf
+							</basedir>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<connectionUrl>
+								${ra.diameter-rf.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-diameter-cx-dx-update</id>
+						<goals>
+							<goal>update</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<basedir>
+								${checkout.basedir}/resources/diameter-cx-dx
+							</basedir>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<connectionUrl>
+								${ra.diameter-cx-dx.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
