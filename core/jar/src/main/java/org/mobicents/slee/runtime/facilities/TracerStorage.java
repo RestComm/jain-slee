@@ -112,17 +112,11 @@ public class TracerStorage {
 	 * @param tracerName
 	 * @param requestedBySource
 	 * @return
-	 * @throws IllegalArgumentException
 	 */
-	public Tracer createTracer(String tracerName, boolean requestedBySource) throws InvalidArgumentException {
+	public Tracer createTracer(String tracerName, boolean requestedBySource) {
 	
-
-		// FIXME: this is double check, in some cases.
-		TracerImpl.checkTracerName(tracerName, this.notificationSource.getNotificationSource());
-		
 		TracerImpl t = tracers.get(tracerName);
 		if (t == null) {
-			// FIXME do we really need to create parents?
 			
 			String[] split = tracerName.split("\\.");
 			String parentName = null;
@@ -136,20 +130,18 @@ public class TracerStorage {
 					parentName = currentName;
 					currentName = currentName + "." + s;
 				}
-				// This could happen when we have org.mobicents tracers create,
-				// and now request org.mobicents.Foo
-				if (this.tracers.containsKey(currentName))
-				{
-					
+				t = tracers.get(currentName);
+				if (t != null) {
+					// already exists
 					continue;
 				}
-
-				t = new TracerImpl(currentName, parentName, this.notificationSource, this.traceFacility);
-				TracerImpl u = this.tracers.putIfAbsent(t.getTracerName(), t);
-				if (u != null) {
-					t = u;
+				else {
+					t = new TracerImpl(currentName, parentName, this.notificationSource, this.traceFacility);
+					final TracerImpl u = tracers.putIfAbsent(t.getTracerName(), t);
+					if (u != null) {
+						t = u;
+					}
 				}
-				
 			}
 		}
 
