@@ -96,8 +96,7 @@ public class SbbEntity {
 	 * @param convergenceName
 	 * @param svcId
 	 */
-	SbbEntity(String sbbEntityId, SbbEntityImmutableData sbbEntityImmutableData)
-			throws Exception {
+	SbbEntity(String sbbEntityId, SbbEntityImmutableData sbbEntityImmutableData) {
 
 		this.sbbeId = sbbEntityId;
 		cacheData = new SbbEntityCacheData(sbbEntityId,sleeContainer.getCluster().getMobicentsCache());
@@ -107,15 +106,13 @@ public class SbbEntity {
 		
 		this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
 				sbbEntityImmutableData.getServiceID(), sbbEntityImmutableData.getSbbID());
-		this.sbbComponent = sleeContainer.getComponentRepositoryImpl()
-				.getComponentByID(sbbEntityImmutableData.getSbbID());
+		this.sbbComponent = pool.getSbbComponent();
 		this.created = true;		
 	}
 
 	/**
-	 * Constructors an already existing sbb entity from the treecache given it's
-	 * id. Note that we do not add a transactional action for this constructor.
-	 * 
+	 * Constructors an already existing sbb entity from the cache given it's
+	 * id. 
 	 * @param sbbeId
 	 * @throws RuntimeException
 	 *             if recreation from cache is not possible, i.e., does not
@@ -134,8 +131,7 @@ public class SbbEntity {
 			this.sbbEntityImmutableData = (SbbEntityImmutableData) cacheData.getSbbEntityImmutableData();
 			this.pool = sleeContainer.getSbbPoolManagement().getObjectPool(
 					getServiceId(), getSbbId());
-			this.sbbComponent = sleeContainer.getComponentRepositoryImpl()
-					.getComponentByID(getSbbId());
+			this.sbbComponent = pool.getSbbComponent();
 			this.created = false;
 		} else {
 			throw new IllegalStateException("Sbb entity " + sbbEntityId
@@ -204,7 +200,7 @@ public class SbbEntity {
 				else if (sbbEntity.isRemoved())
 					return null;
 				else {
-					return sbbEntity.createSbbLocalObject();
+					return sbbEntity.getSbbLocalObject();
 				}
 
 			case aci:
@@ -848,23 +844,36 @@ public class SbbEntity {
 			throw new SLEEException(" re-entrancy not allowed ");
 	}
 
-	public SbbLocalObjectImpl createSbbLocalObject() {
-		Class<?> sbbLocalClass;
-		if (log.isDebugEnabled())
-			log.debug("createSbbLocalObject " + this.getSbbComponent());
+	/**
+	 * TODO improve with sbb local object storage		
+	 * @return
+	 */
+	public SbbLocalObjectImpl getSbbLocalObject() {
+		
+		if (log.isTraceEnabled())
+			log.trace("getSbbLocalObject()");
 
 		// The concrete class generated in ConcreteLocalObjectGenerator
-		if ((sbbLocalClass = sbbComponent.getSbbLocalInterfaceConcreteClass()) != null) {
+		final Class<?> sbbLocalClass = sbbComponent.getSbbLocalInterfaceConcreteClass();
+		if (sbbLocalClass != null) {
 			if (log.isDebugEnabled())
 				log.debug("creatingCustom local class "
 						+ sbbLocalClass.getName());
 			Object[] objs = { this };
-			Class<?>[] types = { SbbEntity.class };
+			Constructor<?> constructor = sbbComponent.getSbbLocalObjectClassConstructor();
+			if (constructor == null) {
+				final Class<?>[] types = { SbbEntity.class };
+				try {
+					constructor = sbbLocalClass.getConstructor(types);
+				} catch (Throwable e) {
+					throw new SLEEException("Unable to retrieve sbb local object generated class constructor",e);
+				}
+				sbbComponent.setSbbLocalObjectClassConstructor(constructor);
+			}
 			try {
-				return (SbbLocalObjectImpl) sbbLocalClass.getConstructor(types)
-						.newInstance(objs);
-			} catch (Exception e) {
-				throw new RuntimeException(
+				return (SbbLocalObjectImpl) constructor.newInstance(objs);
+			} catch (Throwable e) {
+				throw new SLEEException(
 						"Failed to create Sbb Local Interface.", e);
 			}
 		} else {

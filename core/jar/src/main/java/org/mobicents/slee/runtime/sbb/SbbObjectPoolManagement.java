@@ -125,7 +125,7 @@ public class SbbObjectPoolManagement implements SbbObjectPoolManagementMBean {
 				new SbbObjectPoolFactory(serviceID,sbbComponent), config);
 		final ObjectPool objectPool = poolFactory.createPool();
 		final SbbObjectPool oldObjectPool = pools.put(new ObjectPoolMapKey(serviceID,sbbComponent.getSbbID()),
-				new SbbObjectPool(objectPool));
+				new SbbObjectPool(sbbComponent,serviceID,objectPool));
 		if (oldObjectPool != null) {
 			// there was an old pool, close it
 			try {

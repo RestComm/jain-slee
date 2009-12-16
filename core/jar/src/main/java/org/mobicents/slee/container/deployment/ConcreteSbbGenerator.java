@@ -360,42 +360,24 @@ public class ConcreteSbbGenerator {
 			}
 			if (sbbLocalInterfaceClass != null
 					&& !sbbLocalInterfaceClass.getName().equals(
-							"javax.slee.SbbLocalObject")) {
-				// check if the concrete class has already been generated.
-				// if that the case, the guess is that the concrete class is a
-				// safe
-				// one
-				// and so it is not generated again
-				// avoid also problems of class already loaded from the class
-				// loader
-				if (true /*
-							 * !SbbDeployer.concreteClassesGenerated
-							 * .contains(sbbAbstractClassName)
-							 */) {
-					try {
-						CtClass sbbLocalInterface = pool
-								.get(sbbLocalInterfaceClass.getName());
-						ConcreteSbbLocalObjectGenerator concreteSbbLocalObjectGenerator = new ConcreteSbbLocalObjectGenerator(
-								sbbLocalInterfaceClass.getName(),
-								sbbAbstractClassName, this.deployDir, pool);
-						Class concreteSbbLocalObjectClass = concreteSbbLocalObjectGenerator
-								.generateSbbLocalObjectConcreteClass();
-						// set the sbb Local object class in the descriptor
-						sbbComponent
-								.setSbbLocalInterfaceConcreteClass(concreteSbbLocalObjectClass);
+					"javax.slee.SbbLocalObject")) {
+				try {
+					pool.get(sbbLocalInterfaceClass.getName());
+					ConcreteSbbLocalObjectGenerator concreteSbbLocalObjectGenerator = new ConcreteSbbLocalObjectGenerator(
+							sbbLocalInterfaceClass.getName(),
+							sbbAbstractClassName, this.deployDir, pool);
+					Class<?> concreteSbbLocalObjectClass = concreteSbbLocalObjectGenerator
+					.generateSbbLocalObjectConcreteClass();
+					// set the sbb Local object class in the descriptor
+					sbbComponent
+					.setSbbLocalInterfaceConcreteClass(concreteSbbLocalObjectClass);
 
-					} catch (NotFoundException nfe) {
-						String s = "sbb Local Object concrete class not created for interface "
-								+ sbbLocalInterfaceClass.getName();
-						throw new DeploymentException(s, nfe);
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug(sbbLocalInterfaceClass.getName()
-								+ " concrete class already "
-								+ "generated. No generated a second time.");
-					}
+				} catch (NotFoundException nfe) {
+					String s = "sbb Local Object concrete class not created for interface "
+						+ sbbLocalInterfaceClass.getName();
+					throw new DeploymentException(s, nfe);
 				}
+
 			}
 			// if there is no interface defined in the descriptor for sbb local
 			// object
@@ -424,7 +406,7 @@ public class ConcreteSbbGenerator {
 				throw new DeploymentException(s, e);
 			}
 
-			Class clazz = null;
+			Class<?> clazz = null;
 			try {
 				clazz = Thread.currentThread().getContextClassLoader()
 						.loadClass(sbbConcreteClassName);

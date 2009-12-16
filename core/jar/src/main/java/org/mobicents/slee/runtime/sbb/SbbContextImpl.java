@@ -39,7 +39,6 @@ import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextInterfaceImpl;
 import org.mobicents.slee.runtime.facilities.TracerImpl;
-import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 
 /**
@@ -93,7 +92,8 @@ public class SbbContextImpl implements SbbContext, Serializable {
 	private static final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
 
 	/** The SBB entity to which I am assigned. */
-	private SbbObject sbbObject;
+	private final SbbObject sbbObject;
+	
 	/**
 	 * Notification source for this Sbb
 	 */
@@ -166,20 +166,11 @@ public class SbbContextImpl implements SbbContext, Serializable {
 
 	public SbbLocalObject getSbbLocalObject() throws TransactionRequiredLocalException, IllegalStateException, SLEEException {
 		sleeContainer.getTransactionManager().mandateTransaction();
-		if (this.sbbObject == null || this.sbbObject.getSbbEntity() == null || this.sbbObject.getState() != SbbObjectState.READY)
+		
+		if (this.sbbObject.getState() != SbbObjectState.READY)
 			throw new IllegalStateException("Bad state : " + this.sbbObject.getState());
-		Class sbbLocalClass;
-		if ((sbbLocalClass = sbbObject.getSbbComponent().getSbbLocalInterfaceConcreteClass()) != null) {
-			Object[] objs = { sbbObject.getSbbEntity() };
-			Class[] types = { SbbEntity.class };
-			try {
-				return (SbbLocalObject) sbbLocalClass.getConstructor(types).newInstance(objs);
-			} catch (Exception e) {
-				throw new RuntimeException("Failed to create Sbb Local Interface.", e);
-			}
-		} else {
-			return new SbbLocalObjectImpl(this.sbbObject.getSbbEntity());
-		}
+		
+		return sbbObject.getSbbEntity().getSbbLocalObject();
 	}
 
 	public ServiceID getService() throws SLEEException {

@@ -56,7 +56,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
     private HashSet<SbbLocalObject> getLocalObjects() {
         HashSet<SbbLocalObject> localObjects = new HashSet<SbbLocalObject>();
         for (String sbbEntityId : sbbEntity.cacheData.getChildRelationSbbEntities(getChildRelationMethod.getChildRelationMethodName())) {
-            localObjects.add(SbbEntityFactory.getSbbEntity(sbbEntityId).createSbbLocalObject());
+            localObjects.add(SbbEntityFactory.getSbbEntityWithoutLock(sbbEntityId).getSbbLocalObject());
         }
         return localObjects;
     }
@@ -171,7 +171,7 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         
         sbbEntity.cacheData.addChildRelationSbbEntity(getChildRelationMethod.getChildRelationMethodName(),childSbbEntity.getSbbEntityId());
         sbbEntity.addChildWithSbbObject(childSbbEntity);
-        return childSbbEntity.createSbbLocalObject();
+        return childSbbEntity.getSbbLocalObject();
     }
 
     /*
@@ -429,8 +429,8 @@ public class ChildRelationImpl implements ChildRelation, Serializable {
         
         public Object next() {
             nextEntity = myIterator.next();
-            SbbEntity childSbbEntity = SbbEntityFactory.getSbbEntity(nextEntity);
-            this.nextSbbLocalObject = childSbbEntity.createSbbLocalObject();
+            SbbEntity childSbbEntity = SbbEntityFactory.getSbbEntityWithoutLock(nextEntity);
+            this.nextSbbLocalObject = childSbbEntity.getSbbLocalObject();
             sbbEntity.addChildWithSbbObject(childSbbEntity);
             return nextSbbLocalObject;
         }

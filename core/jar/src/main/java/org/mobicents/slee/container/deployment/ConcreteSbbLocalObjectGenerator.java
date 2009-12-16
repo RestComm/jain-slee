@@ -1,17 +1,3 @@
-/***************************************************
- *                                                 *
- *  Mobicents: The Open Source JSLEE Platform      *
- *                                                 *
- *  Distributable under LGPL license.              *
- *  See terms of license at gnu.org.               *
- *                                                 *
- ***************************************************/
-/*
- * ConcreteSbbLocalObjectGenerator.java
- * 
- * Created on Dec 6, 2004
- *
- */
 package org.mobicents.slee.container.deployment;
 
 import java.io.IOException;
@@ -28,9 +14,9 @@ import javassist.Modifier;
 import javassist.NotFoundException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.SleeContainerUtils;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 import org.mobicents.slee.container.deployment.interceptors.SbbLocalObjectInterceptor;
+import org.mobicents.slee.runtime.sbb.SbbConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectConcrete;
 import org.mobicents.slee.runtime.sbb.SbbLocalObjectImpl;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
@@ -40,14 +26,14 @@ import org.mobicents.slee.runtime.sbbentity.SbbEntity;
  * 
  * @author DERUELLE Jean <a
  *         href="mailto:jean.deruelle@gmail.com">jean.deruelle@gmail.com </a>
- *  
+ * @author martins 
  */
 public class ConcreteSbbLocalObjectGenerator {
 
     /**
-     * Logger to logg information
+     * Logger to log information
      */
-    private static Logger logger = null;
+    private static final Logger logger = Logger.getLogger(ConcreteSbbLocalObjectGenerator.class);
 
     private final String sbbLocalObjectName;
     
@@ -74,10 +60,6 @@ public class ConcreteSbbLocalObjectGenerator {
      * The concrete sbb local object class
      */
     protected CtClass concreteSbbLocalObject = null;
-
-    static {
-        logger = Logger.getLogger(ConcreteSbbLocalObjectGenerator.class);
-    }
     
     public ConcreteSbbLocalObjectGenerator(String sbbLocalObjectName, String sbbAbstractClassName, String deployPath,
             ClassPool pool) {
@@ -153,11 +135,7 @@ public class ConcreteSbbLocalObjectGenerator {
             Map interfaceMethods = ClassUtils
                     .getInterfaceMethodsFromInterface(sbbLocalObjectInterface);
 
-            generateConcreteMethods(interfaceMethods, sbbAbstractClassName);
-            //Generates the methods to implement from the interface
-            generateEqualsMethod();
-            //generates the class
-            generateGetSbbEntityId();
+            generateConcreteMethods(interfaceMethods, sbbAbstractClassName);           
 
             try {
             	concreteSbbLocalObject.writeFile(deployPath);
@@ -272,37 +250,6 @@ public class ConcreteSbbLocalObjectGenerator {
         }
     }
 
-    private void generateEqualsMethod() {
-        // Override the equals method in the genrated class.
-        String methodToAdd = "public boolean equals(Object other) { "
-                + "return this.getClass().equals(other.getClass() ) && "
-                + "this.getSbbEntityId().equals((("
-                + SbbLocalObjectConcrete.class.getName()
-                + ")other).getSbbEntityId());" + "}";
-        try {
-            CtMethod methodTest = CtNewMethod.make(methodToAdd,
-                    concreteSbbLocalObject);
-            concreteSbbLocalObject.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-            cce.printStackTrace();
-            logger.error("cannot generate method ", cce);
-            throw new RuntimeException("error generating method ", cce);
-        }
-    }
-
-    private void generateGetSbbEntityId() {
-        String methodToAdd = "public String getSbbEntityId() { return this.getSbbEntity().getSbbEntityId(); }";
-        try {
-            CtMethod methodTest = CtNewMethod.make(methodToAdd,
-                    concreteSbbLocalObject);
-            concreteSbbLocalObject.addMethod(methodTest);
-        } catch (CannotCompileException cce) {
-            cce.printStackTrace();
-            logger.error("cannot generate method ", cce);
-            throw new RuntimeException("error generating method ", cce);
-        }
-    }
-
     /**
      * Generates the concrete methods of the class
      * 
@@ -325,7 +272,9 @@ public class ConcreteSbbLocalObjectGenerator {
             // The following methods are implemented in the superclass
 
             if (interfaceMethod.getName().equals("isIdentical")
-                    || interfaceMethod.getName().equals("getSbbPriority")
+            		|| interfaceMethod.getName().equals("equals")
+            		|| interfaceMethod.getName().equals("hashCode")
+            		|| interfaceMethod.getName().equals("getSbbPriority")
                     || interfaceMethod.getName().equals("remove")
                     || interfaceMethod.getName().equals("setSbbPriority"))
                 continue;
@@ -370,7 +319,7 @@ public class ConcreteSbbLocalObjectGenerator {
 
             // We need to do this in a type neutral way !
             methodToAdd += "getSbbEntity().checkReEntrant();";
-            methodToAdd = methodToAdd + Object.class.getName() + " concrete = "
+            methodToAdd = methodToAdd + SbbConcrete.class.getName() + " concrete = "
                     + " getSbbEntity().getSbbObject().getSbbConcrete();";
 
             //These methods are delegated to superclass.
@@ -391,25 +340,25 @@ public class ConcreteSbbLocalObjectGenerator {
                     if (parameterTypes[argNumber].isPrimitive()) {
                         CtClass ptype = parameterTypes[argNumber];
                         if (ptype.equals(CtClass.intType)) {
-                            methodToAdd += "new Integer (" + "arg_" + argNumber
+                            methodToAdd += "Integer.valueOf(" + "arg_" + argNumber
                                     + ");";
                         } else if (ptype.equals(CtClass.booleanType)) {
-                            methodToAdd += "new Boolean (" + "arg_" + argNumber
+                            methodToAdd += "Boolean.valueOf(" + "arg_" + argNumber
                                     + ");";
                         } else if (ptype.equals(CtClass.longType)) {
-                            methodToAdd += "new Long (" + "arg_" + argNumber
+                            methodToAdd += "Long.valueOf(" + "arg_" + argNumber
                                     + ");";
                         } else if (ptype.equals(CtClass.shortType)) {
-                            methodToAdd += "new Short (" + "arg_" + argNumber
+                            methodToAdd += "Short.valueOf(" + "arg_" + argNumber
                                     + ");";
                         } else if (ptype.equals(CtClass.floatType)) {
-                            methodToAdd += "new Float (" + "arg_" + argNumber
+                            methodToAdd += "Float.valueOf(" + "arg_" + argNumber
                                     + ");";
                         } else if (ptype.equals(CtClass.doubleType)) {
-                            methodToAdd += "new Double (" + "arg_" + argNumber
+                            methodToAdd += "Double.valueOf(" + "arg_" + argNumber
                                     + ");";
                         } else if (ptype.equals(CtClass.charType)) {
-                            methodToAdd += "new Character(" + "arg_"
+                            methodToAdd += "Character.valueOf(" + "arg_"
                                     + argNumber + ");";
                         }
                     } else {
@@ -438,10 +387,7 @@ public class ConcreteSbbLocalObjectGenerator {
                             methodToAdd += "Character.TYPE;";
                         }
                     } else {
-                    	methodToAdd += SleeContainerUtils.class.getName() + ".getCurrentThreadClassLoader().loadClass("
-                        + parameterTypes[i].getName() + ".class.getName()); "; //.class
-                                                                         // ; "
-                                                                         // ;
+                    	methodToAdd += parameterTypes[i].getName() + ".class; ";
                     }
                 }
             }

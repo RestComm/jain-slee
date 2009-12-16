@@ -8,6 +8,7 @@
  */
 package org.mobicents.slee.container.component;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -109,6 +110,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 	 */
 	public SbbComponent(SbbDescriptorImpl descriptor) {
 		this.descriptor = descriptor;
+		isolateSecurityPermissionsInLocalInterface = descriptor.getSbbLocalInterface()==null ? false : descriptor.getSbbLocalInterface().isIsolateSecurityPermissions();
 	}
 
 	/**
@@ -424,6 +426,7 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 		}
 		sbbLocalInterfaceClass = null;
 		sbbLocalInterfaceConcreteClass = null;
+		sbbLocalObjectClassConstructor = null;
 		specsDescriptor = null;
 	}
 	
@@ -464,6 +467,44 @@ public class SbbComponent extends SleeComponentWithUsageParametersInterface {
 				}
 			}
 		}
+	}
+
+	/**
+	 * cached value of the isolate security permissions property of the sbb
+	 * local interface in the sbb descriptor
+	 */
+	private final boolean isolateSecurityPermissionsInLocalInterface;
+
+	/**
+	 * Provides a shortcut to the value of the isolate security permissions
+	 * property of the sbb local interface in the sbb descriptor.
+	 * 
+	 * @return the isolateSecurityPermissionsInLocalInterface
+	 */
+	public boolean isolateSecurityPermissionsInLocalInterface() {
+		return isolateSecurityPermissionsInLocalInterface;
+	}
+	
+	/**
+	 * the constructor for the SLEE generated implementation class of the custom sbb local object interface
+	 */
+	private Constructor<?> sbbLocalObjectClassConstructor;
+	
+	/**
+	 * Retrieves the constructor for the SLEE generated implementation class of the custom sbb local object interface.
+	 * @return the sbbLocalObjectClassConstructor
+	 */
+	public Constructor<?> getSbbLocalObjectClassConstructor() {
+		return sbbLocalObjectClassConstructor;
+	}
+	
+	/**
+	 * Sets the constructor for the SLEE generated implementation class of the custom sbb local object interface.
+	 * @param sbbLocalObjectClassConstructor the sbbLocalObjectClassConstructor to set
+	 */
+	public void setSbbLocalObjectClassConstructor(
+			Constructor<?> sbbLocalObjectClassConstructor) {
+		this.sbbLocalObjectClassConstructor = sbbLocalObjectClassConstructor;
 	}
 	
 }

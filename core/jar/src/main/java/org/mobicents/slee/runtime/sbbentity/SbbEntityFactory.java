@@ -58,15 +58,20 @@ public class SbbEntityFactory {
 	public static SbbEntity createSbbEntity(SbbID sbbId, ServiceID svcId,
 			String parentSbbEntityId, String parentChildRelation,
 			String rootSbbEntityId, String convergenceName) {
+		
+		final String sbbeId = genId();
+		
+		// no lock needed, this is a non root sbb entity creation, which is done only by holding parent root sbb entity lock
+		
+		// create sbb entity
+		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, parentSbbEntityId, parentChildRelation, rootSbbEntityId, convergenceName);
+		final SbbEntity sbbEntity = new SbbEntity(sbbeId, sbbEntityImmutableData);
 
-		try {
-			final String sbbeId = genId();
-			return _createSbbEntity(sbbeId, sbbId, svcId, parentSbbEntityId,
-					parentChildRelation, rootSbbEntityId, convergenceName);
-		} catch (Throwable ex) {
-			throw new SLEEException(
-					"Exception in creating non root sbb entity!", ex);
-		}
+		// store it in the tx, we need to do it due to sbb local object and
+		// current storing in sbb entity per tx
+		storeSbbEntityInTx(sbbEntity, sleeContainer.getTransactionManager().getTransactionContext());
+
+		return sbbEntity;		
 	}
 
 	/**
@@ -79,34 +84,8 @@ public class SbbEntityFactory {
 	 */
 	public static SbbEntity createRootSbbEntity(SbbID sbbId, ServiceID svcId,
 			String convergenceName) {
-
-		try {
-			final String sbbeId = genId();
-			return _createSbbEntity(sbbeId, sbbId, svcId, null, null, sbbeId,
-					convergenceName);
-		} catch (Throwable ex) {
-			throw new SLEEException("Exception in creating root sbb entity!",
-					ex);
-		}
-	}
-
-	/**
-	 * 
-	 * @param sbbeId
-	 * @param sbbId
-	 * @param svcId
-	 * @param parentSbbEntityId
-	 * @param parentChildRelation
-	 * @param rootSbbEntityId
-	 * @param convergenceName
-	 * @return
-	 * @throws Exception
-	 */
-	private static SbbEntity _createSbbEntity(final String sbbeId, SbbID sbbId,
-			ServiceID svcId, String parentSbbEntityId,
-			String parentChildRelation, String rootSbbEntityId,
-			String convergenceName) throws Exception {
 		
+		final String sbbeId = genId();
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 
 		// get lock
@@ -115,7 +94,7 @@ public class SbbEntityFactory {
 		// we hold the lock now
 				
 		// create sbb entity
-		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, parentSbbEntityId, parentChildRelation, rootSbbEntityId, convergenceName);
+		final SbbEntityImmutableData sbbEntityImmutableData = new SbbEntityImmutableData(sbbId, svcId, null, null, sbbeId, convergenceName);
 		final SbbEntity sbbEntity = new SbbEntity(sbbeId, sbbEntityImmutableData);
 
 		// store it in the tx, we need to do it due to sbb local object and
@@ -130,7 +109,6 @@ public class SbbEntityFactory {
 		
 		return sbbEntity;
 	}
-
 
 	/**
 	 * 
@@ -179,32 +157,26 @@ public class SbbEntityFactory {
 		SbbEntity sbbEntity = getSbbEntityFromTx(sbbeId, txContext);
 		
 		if (sbbEntity == null) {
-			// not found in tx
-			SbbEntityUnlockTransactionalAction rollbackAction = null;
-			SbbEntityUnlockTransactionalAction commitAction = null;
-			
-			if (useLock) {
-				rollbackAction = new SbbEntityUnlockTransactionalAction(false,true);
-				commitAction = new SbbEntityUnlockTransactionalAction(false,false);
-				
-				final ReentrantLock lock = lockFacility.get(sbbeId);
-				if (lock != null) {
-					lockOrFail(lock,sbbeId);
-					rollbackAction.setReentrantLock(lock);
-					commitAction.setReentrantLock(lock);
-					txContext.getAfterRollbackActions().add(rollbackAction);
-					txContext.getAfterCommitActions().add(commitAction);					
-				}
-			}
 			
 			if (logger.isDebugEnabled())
 				logger.debug("Loading sbb entity " + sbbeId + " from cache");
 			
+			// not found in tx, get from cache
 			sbbEntity = new SbbEntity(sbbeId);
 			
-			if (useLock) {
-				rollbackAction.setSbbEntity(sbbEntity);
-				commitAction.setSbbEntity(sbbEntity);
+			if (useLock) {				
+				if (!sbbEntity.isRootSbbEntity()) {
+					// locks the root sbb entity
+					_getSbbEntity(sbbEntity.getRootSbbId(),true);
+				}				
+				else {
+					final ReentrantLock lock = lockFacility.get(sbbeId);
+					if (lock != null) {
+						lockOrFail(lock,sbbeId);
+						txContext.getAfterRollbackActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,true));
+						txContext.getAfterCommitActions().add(new SbbEntityUnlockTransactionalAction(sbbEntity,lock,false,false));					
+					}
+				}
 			}
 									
 			// store it in the tx, we need to do it due to sbb local object and

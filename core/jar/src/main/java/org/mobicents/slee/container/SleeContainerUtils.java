@@ -52,16 +52,36 @@ public class SleeContainerUtils {
 		return buff.toString();
 	}
 
+	/**
+	 * Retrieves the current thread {@link ClassLoader}, securely. 
+	 * @return
+	 */
 	public static ClassLoader getCurrentThreadClassLoader() {
 		if (System.getSecurityManager()!=null)
-			return (ClassLoader) AccessController
-					.doPrivileged(new PrivilegedAction() {
-						public Object run() {
+			return AccessController
+					.doPrivileged(new PrivilegedAction<ClassLoader>() {
+						public ClassLoader run() {
 							return Thread.currentThread()
 									.getContextClassLoader();
 						}
 					});
 		else
 			return Thread.currentThread().getContextClassLoader();
+	}
+
+	/**
+	 * Sets the current thread class loader securely
+	 * @param classLoader
+	 */
+	public static void setCurrentThreadClassLoader(final ClassLoader classLoader) {
+		if (System.getSecurityManager() != null)
+            AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                public Object run() {
+                    Thread.currentThread().setContextClassLoader(classLoader);
+                    return null;
+                }
+            });
+        else
+            Thread.currentThread().setContextClassLoader(classLoader);
 	}
 }

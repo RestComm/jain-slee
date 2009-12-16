@@ -384,7 +384,7 @@ public class EventRoutingTask implements Runnable {
 
 								// CHECK IF WE CAN CLAIM THE ROOT SBB ENTITY
 								if (rootSbbEntityId != null) {
-									if (SbbEntityFactory.getSbbEntity(rootSbbEntityId).getAttachmentCount() != 0) {
+									if (SbbEntityFactory.getSbbEntityWithoutLock(rootSbbEntityId).getAttachmentCount() != 0) {
 										if (debugLogging) {
 											logger
 											.debug("Not removing sbb entity "+sbbEntity.getSbbEntityId()+" , the attachment count is not 0");
@@ -474,7 +474,7 @@ public class EventRoutingTask implements Runnable {
 						caught = null;
 
 						try {
-							rootSbbEntity = SbbEntityFactory.getSbbEntity(rootSbbEntityId);
+							rootSbbEntity = SbbEntityFactory.getSbbEntityWithoutLock(rootSbbEntityId);
 							SbbEntityFactory.removeSbbEntity(rootSbbEntity,true);
 						} catch (Exception e) {
 							logger.error("Failure while routing event; third phase. Event Posting ["+ de + "]", e);
