@@ -299,11 +299,11 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
       this.proxySessionFactory = new SessionFactory() {
 
         public <T extends AppSession> T getNewAppSession(ApplicationId applicationId, Class<? extends AppSession> userSession) throws InternalException {
-          return sessionFactory.getNewAppSession(applicationId, userSession);
+          return (T)sessionFactory.getNewAppSession(applicationId, userSession);
         }
 
         public <T extends AppSession> T getNewAppSession(String sessionId, ApplicationId applicationId, Class<? extends AppSession> userSession) throws InternalException {
-          return sessionFactory.getNewAppSession(sessionId, applicationId, userSession);
+          return (T)sessionFactory.getNewAppSession(sessionId, applicationId, userSession);
         }
 
         public RawSession getNewRawSession() throws InternalException {
