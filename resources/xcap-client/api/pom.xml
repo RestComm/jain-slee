@@ -2,30 +2,24 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<artifactId>sip-presence-parent</artifactId>
-		<groupId>org.mobicents.servers.sippresence</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<artifactId>mobicents-slee-ra-xcap-client</artifactId>
+		<groupId>org.mobicents.resources</groupId>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>xcap-client-api</artifactId>
+	<groupId>org.mobicents</groupId>
 				
 	<dependencies>
 		<dependency>
-			<artifactId>commons</artifactId>
-			<groupId>org.mobicents.servers.xdm</groupId>
-			<version>${pom.version}</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.0.1</version>
 		</dependency>
 		<dependency>
-			<groupId>sun-jaxb</groupId>
-			<artifactId>jaxb-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>sun-jaxb</groupId>
-			<artifactId>jaxb-impl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	

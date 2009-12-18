@@ -1,12 +1,11 @@
 package org.mobicents.slee.resource.xcapclient.handler;
 
-import java.util.List;
+import java.net.URI;
 
+import org.apache.http.Header;
 import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptor;
 import org.mobicents.slee.resource.xcapclient.XCAPResourceAdaptorActivityHandle;
-import org.openxdm.xcap.client.RequestHeader;
-import org.openxdm.xcap.client.Response;
-import org.openxdm.xcap.common.key.XcapUriKey;
+import org.mobicents.xcap.client.XcapResponse;
 
 /**
  * Handles an async put if ETag matches none request, using String content.
@@ -21,17 +20,17 @@ public class AsyncPutIfNoneMatchStringContentHandler extends AbstractAsyncHandle
 	protected String eTag;
 
 	public AsyncPutIfNoneMatchStringContentHandler(XCAPClientResourceAdaptor ra,
-			XCAPResourceAdaptorActivityHandle handle, XcapUriKey key,
-			String eTag, String mimetype, String content, List<RequestHeader> additionalRequestHeaders) {
-		super(ra, handle, key, additionalRequestHeaders);
+			XCAPResourceAdaptorActivityHandle handle,URI uri,
+			String eTag, String mimetype, String content, Header[] additionalRequestHeaders) {
+		super(ra, handle, uri, additionalRequestHeaders);
 		this.mimetype = mimetype;
 		this.content = content;
 		this.eTag = eTag;
 	}
 
 	@Override
-	protected Response doRequest() throws Exception {
-		return ra.getClient().putIfNoneMatch(key, eTag, mimetype, content, additionalRequestHeaders);
+	protected XcapResponse doRequest() throws Exception {
+		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content, additionalRequestHeaders);
 	}
 
 }

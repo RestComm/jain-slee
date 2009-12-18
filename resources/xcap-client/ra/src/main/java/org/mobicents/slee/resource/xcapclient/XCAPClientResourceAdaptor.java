@@ -10,20 +10,17 @@ import javax.slee.EventTypeID;
 import javax.slee.facilities.EventLookupFacility;
 import javax.slee.facilities.Tracer;
 import javax.slee.resource.ActivityHandle;
-import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.ConfigProperties;
 import javax.slee.resource.FailureReason;
 import javax.slee.resource.FireableEventType;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
+import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 
-import org.mobicents.slee.resource.xcapclient.ResponseEvent;
-import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptorSbbInterface;
-import org.mobicents.slee.resource.xcapclient.XCAPResourceAdaptorActivityHandle;
-import org.openxdm.xcap.client.XCAPClient;
-import org.openxdm.xcap.client.XCAPClientImpl;
+import org.mobicents.xcap.client.XcapClient;
+import org.mobicents.xcap.client.impl.XcapClientImpl;
 
 /** 
  * @author Eduardo Martins
@@ -31,23 +28,15 @@ import org.openxdm.xcap.client.XCAPClientImpl;
  * @version 2.0
  * 
  */
-
 public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAdaptor,
 		Serializable {
     
  	private static final long serialVersionUID = 1L;
-	//private static transient Logger logger = Logger.getLogger(XCAPClientResourceAdaptor.class);   
-    
-    private String XCAP_SERVER_HOST;
-    private int XCAP_SERVER_PORT;
-    private String XCAP_SERVER_ROOT;
    
-    //private ResourceAdaptorState state;    
     private  ConcurrentHashMap<XCAPResourceAdaptorActivityHandle, AsyncActivityImpl> activities;    
     
     private  XCAPClientResourceAdaptorSbbInterface sbbInterface;
-  //private transient XCAPClientActivityContextInterfaceFactory acif;
-    private  XCAPClient client;
+    private  XcapClient client;
     private  ExecutorService executorService = Executors.newCachedThreadPool();
     
     // XCAP RA context:
@@ -61,78 +50,10 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
     // Event fired:
     private FireableEventType responseEvent;
    
-    public XCAPClientResourceAdaptor() { }
-    
-    public String getServerHost() {
-        return XCAP_SERVER_HOST;
-    }
-    
-    public void setServerHost(String serverHost) {
-        this.XCAP_SERVER_HOST = serverHost;
-    }
-    
-    public Integer getServerPort() {
-        return Integer.valueOf(XCAP_SERVER_PORT);
-    }
-    
-    public void setServerPort(Integer port) {
-        this.XCAP_SERVER_PORT = port.intValue();
-    }
-    
-    public String getXcapRoot() {
-        return XCAP_SERVER_ROOT;
-    }
-    
-    public void setXcapRoot(String xcapRoot) {
-        this.XCAP_SERVER_ROOT = xcapRoot;
-    }
-    
-//    public void entityCreated(ResourceAdaptorContext ctx) throws Exception {
-//    	//TODO
-//	    if (tracer.isFineEnabled()) {
-//	    	tracer.fine("entityCreated");
-//	    }
-//	    this.init(ctx);
-//	}
-
-//	public void entityRemoved() {
-//		//TODO
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("entityRemoved");
-//	    }
-//	}
-
-//	public void entityActivated() throws Exception {
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("entityActivated");
-//	    }
-//	    
-//	    try {
-//	    	this.configure();
-//	    } catch (InvalidStateException e1) {
-//	    	logger.warn(e1);
-//	    }
-//	    this.start();
-//        
-//	}
-
-//	public void entityDeactivating() {
-//		//TODO
-//		if (tracer.isFineEnabled()) {
-//			tracer.fine("entityDeactivating");
-//		}
-//		this.stopping();
-//
-//	}
-
-//	public void entityDeactivated() {
-//		if (tracer.isFineEnabled()) {
-//			tracer.fine("entityDeactivating");
-//		}
-//		this.stop();
-//	}
-
-	//done
+	/**
+	 * 
+	 * @param ah
+	 */
 	public void endActivity(ActivityHandle ah) {
 		if (tracer.isFineEnabled()) {
 			tracer.fine("endActivity");
@@ -141,14 +62,17 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 		if (activities.containsKey(ah)) {
 			// tell slee to end the activity
 			try {
-				//this.sleeEndpoint.activityEnding(ah);
 				this.sleeEndpoint.endActivity(ah);
 			} catch (Exception e) {
 				tracer.severe("unable to end activity: ",e);
 			}
 		}
 	}
-	//done
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#activityEnded(javax.slee.resource.ActivityHandle)
+	 */
 	public void activityEnded(ActivityHandle ah) {		
 		if (tracer.isFineEnabled()) {
 			tracer.fine("activityEnded( handle = "+ah+")");
@@ -157,20 +81,32 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	    activities.remove(ah);
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#activityUnreferenced(javax.slee.resource.ActivityHandle)
+	 */
 	public void activityUnreferenced(ActivityHandle ah) {		
 		// ignore
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#queryLiveness(javax.slee.resource.ActivityHandle)
+	 */
 	public void queryLiveness(ActivityHandle ah) {
+		if (tracer.isFineEnabled()) {
+			tracer.fine("queryLiveness( handle = "+ah+")");
+		}
 		// guard against activity leaks:
 		if (!activities.contains(ah)) {
 			raContext.getSleeEndpoint().endActivity(ah);
 		}			
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#getActivity(javax.slee.resource.ActivityHandle)
+	 */
 	public Object getActivity(ActivityHandle ah) {
 	    if (tracer.isFineEnabled()) {
 	    	tracer.fine("get Activity with ActivityHandle "+ah.toString());
@@ -179,7 +115,10 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	    return activities.get(ah);
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#getActivityHandle(java.lang.Object)
+	 */
 	public ActivityHandle getActivityHandle(Object arg0) {
 		if (tracer.isFineEnabled()) {
 			tracer.fine("getActivityHandle");
@@ -193,166 +132,26 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	    }
 	}
 
-//	public Object getSBBResourceAdaptorInterface(String arg0) {
-//		if (logger.isDebugEnabled()) {
-//			logger.debug("getSBBResourceAdaptorInterface");
-//		}
-//		return this.sbbInterface;
-//	}
-
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#getMarshaler()
+	 */
 	public Marshaler getMarshaler() {
-		//TODO
-		if (tracer.isFineEnabled()) {
-			tracer.fine("getMarshaler");
-		}
 		return null;
 	}
-
-//	public void serviceInstalled(String arg0, int[] arg1, String[] arg2) {				
-//		// EVENT FILTERING IS NO GOOD FOR THIS RA	
-//	}
-//
-//	public void serviceActivated(String arg0) {		
-//		// EVENT FILTERING IS NO GOOD FOR THIS RA
-//	}
-//
-//	public void serviceDeactivated(String arg0) {
-//		// EVENT FILTERING IS NO GOOD FOR THIS RA
-//	}
-//
-//	public void serviceUninstalled(String arg0) {	
-//		// EVENT FILTERING IS NO GOOD FOR THIS RA
-//	}
-
-//	public void init(ResourceAdaptorContext raContext) throws Exception {
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("init");
-//	    }	    
-//		this.raContext = raContext;
-//        this.sleeEndpoint = raContext.getSleeEndpoint();        
-//        try {
-//        	//this.responseEventID = raContext.getEventLookupFacility().getEventID("ResponseEvent", "org.mobicents", "1.0");
-//        	
-//        } catch (Exception e) {
-//        	throw new Exception(e.getMessage());
-//        }
-//         TODO use JSLEE 1.1 facilities
-//        state = ResourceAdaptorState.UNCONFIGURED;
-//    }
-
-//	public void configure() throws InvalidStateException {
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("configure");
-//	    }
-//	    if (this.state != ResourceAdaptorState.UNCONFIGURED) {
-//			throw new InvalidStateException("Cannot configure RA wrong state: " + this.state);
-//        }				    						
-//		state = ResourceAdaptorState.CONFIGURED;			
-//	}
-	
-//	public void start() throws Exception {
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("start");
-//	    }
-//	        SleeContainer container = SleeContainer.lookupFromJndi();
-//			ResourceAdaptorEntity resourceAdaptorEntity =container.getResourceManagement().
-//			getResourceAdaptorEntity(this.raContext.getEntityName());
-//			
-//			ResourceAdaptorTypeID raTypeId = resourceAdaptorEntity
-//                .getInstalledResourceAdaptor().getRaType().getResourceAdaptorTypeID();			
 			
-//			this.acif = new XCAPClientActivityContextInterfaceFactoryImpl(
-//                resourceAdaptorEntity.getServiceContainer(),
-//                this.raContext.getEntityName());
-			//resourceAdaptorEntity.getServiceContainer().getActivityContextInterfaceFactories().put(raTypeId, this.acif);			
-//			if (this.acif != null) {
-//				String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif)
-//				.getJndiName();
-//				int begind = jndiName.indexOf(':');
-//				int toind = jndiName.lastIndexOf('/');
-//				String prefix = jndiName.substring(begind + 1, toind);
-//				String name = jndiName.substring(toind + 1);
-//				if (logger.isDebugEnabled()) {
-//					logger.debug("jndiName prefix =" + prefix + "; jndiName = " + name);
-//				}
-//				SleeContainer.registerWithJndi(prefix, name, this.acif);
-//			}
-			
-//		}
 	/**
-	 * Stops this resource adaptor.
-	 *
+	 * Receives an Event and sends it to the SLEE
+	 * @param event
+	 * @param handle
 	 */
-//	public void stop() {
-//	   
-//		if (logger.isDebugEnabled()) {
-//	    	logger.debug("stop");
-//	    }
-//	    
-//		// end all activities
-//	    synchronized(activities) {	    
-//	    	for(XCAPResourceAdaptorActivityHandle handle : activities.keySet()) {   		
-//	    		endActivity(handle);
-//	    	}
-//	    }
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("All activities ended.");
-//	    }
-//	    
-//	    try {
-//	    	if (this.acif != null) {
-//	    		String jndiName = ((ResourceAdaptorActivityContextInterfaceFactory) this.acif).getJndiName();
-//	    		//remove "java:" prefix
-//	    		int begind = jndiName.indexOf(':');
-//	    		String javaJNDIName = jndiName.substring(begind + 1);
-//	    		SleeContainer.unregisterWithJndi(javaJNDIName);
-//	    	}	    	
-//        } catch (Exception e) {
-//            logger.error("Can't unbind naming context",e);
-//        }
-
-//        this.sbbInterface = null;
-//        this.client.shutdown();
-//        this.client = null;
-//        this.executorService.shutdown();
-//        this.executorService = null;
-        
-//        if (logger.isDebugEnabled()) {
-//        	logger.debug("XCAP Client RA Resource Adaptor stopped.");
-//        }
-//	}
-//
-//	public void stopping() {
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("stopping");
-//	    }
-//		//state = ResourceAdaptorState.STOPPING;
-//	}
-
-//	public Object getActivityContextInterfaceFactory() {
-//	    if (logger.isDebugEnabled()) {
-//	    	logger.debug("getActivityContextInterfaceFactory");
-//	    }
-//		return acif;
-//	}
-
-//	public void setResourceAdaptorEntity( ResourceAdaptorEntity resourceAdaptorEntity) {
-//	    //TODO
-//		if (logger.isDebugEnabled()) {
-//	    	logger.debug("setResourceAdaptorEntity");
-//	    }
-//	}
-	        
-    /* Receives an Event and sends it to the SLEE */
-	//done
-    public void processResponseEvent(ResponseEvent event, XCAPResourceAdaptorActivityHandle handle){
+	public void processResponseEvent(ResponseEvent event, XCAPResourceAdaptorActivityHandle handle){
         
     	if (tracer.isFineEnabled()) {    		            		
     		tracer.fine("NEW RESPONSE EVENT");        
     	}
                         
         try {                	
-        	//sleeEndpoint.fireEvent(handle, event, responseEventID, null);
             sleeEndpoint.fireEvent(handle,responseEvent, event, null, null);
         } catch (Exception e) {           
             tracer.severe("unable to fire event",e);
@@ -366,20 +165,15 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
     /**
      * @return Returns the sleeEndpoint.
      */
-    //done
     public SleeEndpoint getSleeEndpoint() {
-        if (tracer.isFineEnabled()) {
-        	tracer.fine("Returning the SLEE Endpoint handle");
-        }
-        return sleeEndpoint;
+       return sleeEndpoint;
     }
  
     /**
      * 
      * @return the XCAP client API handle
      */
-    //done
-	public XCAPClient getClient() {
+	public XcapClient getClient() {
 		return client;
 	}
     
@@ -387,7 +181,6 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	 * 
 	 * @return the executor service for this RA
 	 */
-	//done
 	public ExecutorService getExecutorService() {
 		return executorService;
 	}
@@ -397,7 +190,6 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 	 * @param activityHandle
 	 * @param activity
 	 */
-	//done
 	public void addActivity(XCAPResourceAdaptorActivityHandle activityHandle,
 			AsyncActivityImpl activity) {
 		activities.put(activityHandle, activity);
@@ -408,153 +200,174 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
      * @param tracerName
      * @return
      */
-	//done
-    public Tracer getTracer(String tracerName) {
+	public Tracer getTracer(String tracerName) {
             return this.tracer;
     }
     
     /**
      * 
-     * @return the resource adaptor context.
+     * @return
      */
-    //done
-    public ResourceAdaptorContext getXCAPResourceAdaptorContext()
-    {
+    public ResourceAdaptorContext getXCAPResourceAdaptorContext() {
     	return this.raContext;
     }
 
-    // JAIN SLEE 1.1 XCAP RA Callbacks:
-    
-    //done
+    // JAIN SLEE 1.1 XCAP RA Callbacks:   
+
+    /*
+     * (non-Javadoc)
+     * @see javax.slee.resource.ResourceAdaptor#administrativeRemove(javax.slee.resource.ActivityHandle)
+     */
 	public void administrativeRemove(ActivityHandle arg0) {
-    // not done for this RA
-		
+		activities.remove(arg0);
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#eventProcessingFailed(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int, javax.slee.resource.FailureReason)
+	 */
 	public void eventProcessingFailed(ActivityHandle ah,
 			FireableEventType arg1, Object arg2, Address ad,
 			ReceivableService arg4, int arg5, FailureReason fr) {
 		
-		if (tracer.isFineEnabled()) {
-			tracer.fine("Event processing failed for:\n"+
-					"Activity Handle: "+ah+
-					"Address: "+ad+" with\n"+
-					"Failure Reason: "+fr);
-		}
-		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#eventProcessingSuccessful(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int)
+	 */
 	public void eventProcessingSuccessful(ActivityHandle ah,
 			FireableEventType arg1, Object arg2, Address ad,
 			ReceivableService arg4, int arg5) {
-		
-		if (tracer.isFineEnabled()) {
-			tracer.fine("Event processing successful for:\n"+
-					"Activity Handle: "+ah+
-					"Address: "+ad+" with\n");
-		}
-		
+				
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#eventUnreferenced(javax.slee.resource.ActivityHandle, javax.slee.resource.FireableEventType, java.lang.Object, javax.slee.Address, javax.slee.resource.ReceivableService, int)
+	 */
 	public void eventUnreferenced(ActivityHandle arg0, FireableEventType arg1,
 			Object arg2, Address arg3, ReceivableService arg4, int arg5) {
-		// TODO Auto-generated method stub
 		
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#getResourceAdaptorInterface(java.lang.String)
+	 */
 	public Object getResourceAdaptorInterface(String arg0) {
-		// TODO Auto-generated method stub
 		return this.sbbInterface;
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#raActive()
+	 */
 	public void raActive() {
 		// init client
-		try {
-			client = new XCAPClientImpl(XCAP_SERVER_HOST,XCAP_SERVER_PORT,XCAP_SERVER_ROOT);
-		} catch (InterruptedException e) {
-			tracer.severe("Unable to init XCAP Client API");
-			e.printStackTrace();
-		}
+		client = new XcapClientImpl();
 		// create sbb interface
-		 sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
+		sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
 		activities = new ConcurrentHashMap<XCAPResourceAdaptorActivityHandle, AsyncActivityImpl>();
 		executorService = Executors.newCachedThreadPool();
 		sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
-		tracer.info("XCAP Client RA entity has been activated.");
-		
-		
+		tracer.info("XCAP Client RA entity named "+raContext.getEntityName()+" activated.");		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#raConfigurationUpdate(javax.slee.resource.ConfigProperties)
+	 */
 	public void raConfigurationUpdate(ConfigProperties arg0) {
 		//no configuration
 		
 	}
  
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#raConfigure(javax.slee.resource.ConfigProperties)
+	 */
 	public void raConfigure(ConfigProperties arg0) {
 		//no config
 		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#raInactive()
+	 */
 	public void raInactive() {
-		// end all activities
-	    synchronized(activities) {	    
-	    	for(XCAPResourceAdaptorActivityHandle handle : activities.keySet()) {   		
-	    		endActivity(handle);
-	    	}
-	    }
-		activities.clear();
 		activities = null;
 		client.shutdown();
 		client=null;
 		executorService.shutdown();
 		executorService = null;
-		sbbInterface = null;
-		
+		sbbInterface = null;		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#raStopping()
+	 */
 	public void raStopping() {
-		// not implmented for this RA
-		
+		// end all activities
+	    synchronized(activities) {	    
+	    	for(XCAPResourceAdaptorActivityHandle handle : activities.keySet()) {   		
+	    		endActivity(handle);
+	    	}
+	    }		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#raUnconfigure()
+	 */
 	public void raUnconfigure() {
 		// not impl for this RA
 		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#raVerifyConfiguration(javax.slee.resource.ConfigProperties)
+	 */
 	public void raVerifyConfiguration(ConfigProperties arg0)
 			throws InvalidConfigurationException {
 		// no verification for this RA.
 		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#serviceActive(javax.slee.resource.ReceivableService)
+	 */
 	public void serviceActive(ReceivableService arg0) {
 		// no event filtering
 		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#serviceInactive(javax.slee.resource.ReceivableService)
+	 */
 	public void serviceInactive(ReceivableService arg0) {
 		//no event filtering
 		
 	}
 
-	//done
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#serviceStopping(javax.slee.resource.ReceivableService)
+	 */
 	public void serviceStopping(ReceivableService arg0) {
 		//no event filtering
 		
 	}
-    // done
+    
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#setResourceAdaptorContext(javax.slee.resource.ResourceAdaptorContext)
+	 */
 	public void setResourceAdaptorContext(javax.slee.resource.ResourceAdaptorContext raContext) {
 		this.raContext = raContext; 
 		this.tracer = raContext.getTracer("XCAPClientResourceAdaptor");
@@ -564,18 +377,20 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
         
         try {
         	this.responseEvent = eventLookupFacility.getFireableEventType
-        	(new EventTypeID("ResponseEvent", "org.mobicents", "1.0"));
+        	(new EventTypeID("ResponseEvent", "org.mobicents", "2.0"));
             }
 				catch(Exception e)
 				{
 					if(tracer.isWarningEnabled())
-						tracer.warning("Could not look up Response Event");
-					e.printStackTrace();
+						tracer.warning("Could not look up Response Event",e);
 				}	
 	}
-	//done
-	public void unsetResourceAdaptorContext()
-	{
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.slee.resource.ResourceAdaptor#unsetResourceAdaptorContext()
+	 */
+	public void unsetResourceAdaptorContext() {
 		this.raContext = null;
 		this.tracer = null;
 		this.sleeEndpoint = null;

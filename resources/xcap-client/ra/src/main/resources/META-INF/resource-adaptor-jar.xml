@@ -7,12 +7,12 @@
        <description>XCAP Client Resource Adaptor</description>
        <resource-adaptor-name>XCAPClientResourceAdaptor</resource-adaptor-name>
        <resource-adaptor-vendor>org.mobicents</resource-adaptor-vendor>
-       <resource-adaptor-version>1.0</resource-adaptor-version>
+       <resource-adaptor-version>2.0</resource-adaptor-version>
 
        <resource-adaptor-type-ref>
             <resource-adaptor-type-name>XCAPClientResourceAdaptorType</resource-adaptor-type-name>
             <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
-            <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+            <resource-adaptor-type-version>2.0</resource-adaptor-type-version>
        </resource-adaptor-type-ref>
        
         <resource-adaptor-classes>
@@ -22,27 +22,6 @@
                 </resource-adaptor-class-name>
             </resource-adaptor-class>
         </resource-adaptor-classes>
-        
-        <config-property>
-        	<description>server host of the xcap server</description>
-            <config-property-name>serverHost</config-property-name>
-            <config-property-type>java.lang.String</config-property-type>
-            <config-property-value>${serverHost}</config-property-value>
-        </config-property>
-        
-        <config-property>
-        	<description>server port of the xcap server</description>
-            <config-property-name>serverPort</config-property-name>
-            <config-property-type>java.lang.Integer</config-property-type>
-            <config-property-value>${serverPort}</config-property-value>
-        </config-property>
-        
-        <config-property>
-        	<description>xcap root relative path on the xcap server</description>
-            <config-property-name>xcapRoot</config-property-name>
-            <config-property-type>java.lang.String</config-property-type>
-            <config-property-value>${xcapRoot}</config-property-value>
-        </config-property>
               
     </resource-adaptor>
 </resource-adaptor-jar>

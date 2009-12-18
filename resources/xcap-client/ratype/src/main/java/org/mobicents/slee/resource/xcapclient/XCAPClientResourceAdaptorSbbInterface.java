@@ -3,7 +3,7 @@ package org.mobicents.slee.resource.xcapclient;
 import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.StartActivityException;
 
-import org.openxdm.xcap.client.XCAPClient;
+import org.mobicents.xcap.client.XcapClient;
 
 /**
  * This is the XCAP Client Resource Adaptor's Interface that Sbbs can use.
@@ -14,7 +14,7 @@ import org.openxdm.xcap.client.XCAPClient;
  * 
  */
 
-public interface XCAPClientResourceAdaptorSbbInterface extends XCAPClient {
+public interface XCAPClientResourceAdaptorSbbInterface extends XcapClient {
 	
 	public AsyncActivity createActivity() throws ActivityAlreadyExistsException, StartActivityException;
 	

@@ -1,18 +1,17 @@
-package org.openxdm.xcap.client;
+package org.mobicents.xcap.client;
 
 import java.io.IOException;
-import java.util.List;
+import java.net.URI;
 
-import org.apache.commons.httpclient.HttpException;
-import org.openxdm.xcap.common.key.XcapUriKey;
-import org.openxdm.xcap.common.resource.AttributeResource;
-import org.openxdm.xcap.common.resource.ElementResource;
+import org.apache.http.Header;
+import org.apache.http.HttpException;
+import org.apache.http.client.ClientProtocolException;
 
-public interface XCAPClient {
+public interface XcapClient {
 
 	/**
 	 * 
-	 * Sets the username and passowrd for authentication in the server. 
+	 * Sets the username and password for authentication in the server. 
 	 * 
 	 * @param userName
 	 * @param password
@@ -20,17 +19,9 @@ public interface XCAPClient {
 	public void setAuthenticationCredentials(String userName, String password);
 	
 	/**
-	 * Turns on or off the request authentication.
-	 * 
-	 * @param value
+	 * Unsets the authentication credentials.
 	 */
-	public void setDoAuthentication(boolean value);
-	
-	/**
-	 * Indicates if the client is set to do authentication on server.
-	 * @return
-	 */
-	public boolean getDoAuthentication();
+	public void unsetAuthenticationCredentials();
 	
 	/**
 	 * Shutdown the client.
@@ -39,19 +30,19 @@ public interface XCAPClient {
 
 	/**
 	 * Retrieves the XML resource from the XCAP server, for the specified key.
-	 * @param key
+	 * @param uri
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	public Response get(XcapUriKey key, List<RequestHeader> additionalRequestHeaders) throws HttpException, IOException;
+	public XcapResponse get(URI uri, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException;
 
 	/**
 	 * Puts the specified content in the XCAP Server, in the XCAP URI pointed by
 	 * the key.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param mimetype
 	 *            the mimetype of the content to put, for document each XCAP App
 	 *            Usage defines their own mimetype, but for elements and attributes
@@ -60,17 +51,17 @@ public interface XCAPClient {
 	 * @param content
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response put(XcapUriKey key, String mimetype, String content, List<RequestHeader> additionalRequestHeaders)
-			throws HttpException, IOException;
+	public XcapResponse put(URI uri, String mimetype, String content, Header[] additionalRequestHeaders)
+			throws ClientProtocolException, IOException;
 
 	/**
 	 * Puts the specified content in the XCAP Server, in the XCAP URI pointed by
 	 * the key.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param mimetype
 	 *            the mimetype of the content to put, for document each XCAP App
 	 *            Usage defines their own mimetype, but for elements and attributes
@@ -79,17 +70,17 @@ public interface XCAPClient {
 	 * @param content
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response put(XcapUriKey key, String mimetype, byte[] content, List<RequestHeader> additionalRequestHeaders)
-			throws HttpException, IOException;
+	public XcapResponse put(URI uri, String mimetype, byte[] content, Header[] additionalRequestHeaders)
+			throws ClientProtocolException, IOException;
 
 	/**
 	 * Puts the specified content in the XCAP Server, in the XCAP URI pointed by
 	 * the key, if the specified ETag matches the current one on the server.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param eTag
 	 * @param mimetype
 	 *            the mimetype of the content to put, for document each XCAP App
@@ -99,17 +90,17 @@ public interface XCAPClient {
 	 * @param content
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response putIfMatch(XcapUriKey key, String eTag, String mimetype,
-			String content, List<RequestHeader> additionalRequestHeaders) throws HttpException, IOException;
+	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
+			String content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException;
 
 	/**
 	 * Puts the specified content in the XCAP Server, in the XCAP URI pointed by
 	 * the key, if the specified ETag matches the current one on the server.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param eTag
 	 * @param mimetype
 	 *            the mimetype of the content to put, for document each XCAP App
@@ -119,18 +110,18 @@ public interface XCAPClient {
 	 * @param content
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response putIfMatch(XcapUriKey key, String eTag, String mimetype,
-			byte[] content, List<RequestHeader> additionalRequestHeaders) throws HttpException, IOException;
+	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
+			byte[] content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException;
 
 	/**
 	 * Puts the specified content in the XCAP Server, in the XCAP URI pointed by
 	 * the key, if the specified ETag does not matches the current one on the
 	 * server.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param eTag
 	 * @param mimetype
 	 *            the mimetype of the content to put, for document each XCAP App
@@ -140,18 +131,18 @@ public interface XCAPClient {
 	 * @param content
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response putIfNoneMatch(XcapUriKey key, String eTag,
-			String mimetype, String content, List<RequestHeader> additionalRequestHeaders) throws HttpException, IOException;
+	public XcapResponse putIfNoneMatch(URI uri, String eTag,
+			String mimetype, String content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException;
 
 	/**
 	 * Puts the specified content in the XCAP Server, in the XCAP URI pointed by
 	 * the key, if the specified ETag does not matches the current one on the
 	 * server.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param eTag
 	 * @param mimetype
 	 *            the mimetype of the content to put, for document each XCAP App
@@ -161,49 +152,49 @@ public interface XCAPClient {
 	 * @param content
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response putIfNoneMatch(XcapUriKey key, String eTag,
-			String mimetype, byte[] content, List<RequestHeader> additionalRequestHeaders) throws HttpException, IOException;
+	public XcapResponse putIfNoneMatch(URI uri, String eTag,
+			String mimetype, byte[] content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException;
 
 	/**
 	 * Deletes the content related the specified XCAP URI key.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response delete(XcapUriKey key, List<RequestHeader> additionalRequestHeaders) throws HttpException, IOException;
+	public XcapResponse delete(URI uri, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException;
 
 	/**
 	 * Deletes the content related the specified XCAP URI key, if the specified
 	 * ETag matches the current one on the server.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param eTag
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response deleteIfMatch(XcapUriKey key, String eTag, List<RequestHeader> additionalRequestHeaders)
-			throws HttpException, IOException;
+	public XcapResponse deleteIfMatch(URI uri, String eTag, Header[] additionalRequestHeaders)
+			throws ClientProtocolException, IOException;
 
 	/**
 	 * Deletes the content related the specified XCAP URI key, if the specified
 	 * ETag does not matches the current one on the server.
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param eTag
 	 * @param additionalRequestHeaders a list containing {@link RequestHeader}s to add in the XCAP request
 	 * @return
-	 * @throws HttpException
+	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public Response deleteIfNoneMatch(XcapUriKey key, String eTag, List<RequestHeader> additionalRequestHeaders)
-			throws HttpException, IOException;
+	public XcapResponse deleteIfNoneMatch(URI uri, String eTag, Header[] additionalRequestHeaders)
+			throws ClientProtocolException, IOException;
 
 }

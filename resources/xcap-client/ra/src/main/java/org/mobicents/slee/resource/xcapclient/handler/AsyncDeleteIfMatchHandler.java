@@ -1,12 +1,11 @@
 package org.mobicents.slee.resource.xcapclient.handler;
 
-import java.util.List;
+import java.net.URI;
 
+import org.apache.http.Header;
 import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptor;
 import org.mobicents.slee.resource.xcapclient.XCAPResourceAdaptorActivityHandle;
-import org.openxdm.xcap.client.RequestHeader;
-import org.openxdm.xcap.client.Response;
-import org.openxdm.xcap.common.key.XcapUriKey;
+import org.mobicents.xcap.client.XcapResponse;
 
 /**
  * Handles an async delete if ETag match request.
@@ -19,15 +18,15 @@ public class AsyncDeleteIfMatchHandler extends AbstractAsyncHandler {
 	protected String eTag;
 
 	public AsyncDeleteIfMatchHandler(XCAPClientResourceAdaptor ra,
-			XCAPResourceAdaptorActivityHandle handle, XcapUriKey key,
-			String eTag, List<RequestHeader> additionalRequestHeaders) {
-		super(ra, handle, key, additionalRequestHeaders);
+			XCAPResourceAdaptorActivityHandle handle, URI uri,
+			String eTag, Header[] additionalRequestHeaders) {
+		super(ra, handle, uri, additionalRequestHeaders);
 		this.eTag = eTag;
 	}
 
 	@Override
-	protected Response doRequest() throws Exception {
-		return ra.getClient().deleteIfMatch(key, eTag, additionalRequestHeaders);
+	protected XcapResponse doRequest() throws Exception {
+		return ra.getClient().deleteIfMatch(uri, eTag, additionalRequestHeaders);
 	}
 
 }

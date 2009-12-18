@@ -8,7 +8,7 @@
         <description>XCAP Client Resource Adaptor Type</description>
         <resource-adaptor-type-name>XCAPClientResourceAdaptorType</resource-adaptor-type-name>
         <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
-        <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+        <resource-adaptor-type-version>2.0</resource-adaptor-type-version>
         <resource-adaptor-type-classes>
             <activity-type>
                 <activity-type-name>
@@ -30,7 +30,7 @@
         <event-type-ref>
             <event-type-name>ResponseEvent</event-type-name>
             <event-type-vendor>org.mobicents</event-type-vendor>
-            <event-type-version>1.0</event-type-version>
+            <event-type-version>2.0</event-type-version>
         </event-type-ref>       
 
     </resource-adaptor-type>

@@ -5,25 +5,21 @@
 	<parent>
 		<artifactId>mobicents-slee-ra-xcap-client</artifactId>
 		<groupId>org.mobicents.resources</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>mobicents-slee-ra-xcap-client-library</artifactId>
 		
 	<dependencies>
 		<dependency>
-			<groupId>org.mobicents.servers.sippresence</groupId>
+			<groupId>org.mobicents</groupId>
 			<artifactId>xcap-client-api</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-httpclient</groupId>
-			<artifactId>commons-httpclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mobicents.servers.xdm</groupId>
-			<artifactId>commons</artifactId>
-			<version>${pom.version}</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.0.1</version>
 		</dependency>
 	</dependencies>
 	
@@ -44,7 +40,7 @@
                 <configuration>
 					<library-name>xcap-client-library</library-name>
 					<library-vendor>org.mobicents.resources</library-vendor>
-					<library-version>1.0</library-version>
+					<library-version>2.0</library-version>
 				</configuration>
 			</plugin>
 		</plugins>

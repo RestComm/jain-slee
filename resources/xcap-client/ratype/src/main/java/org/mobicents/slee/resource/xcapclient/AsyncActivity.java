@@ -1,9 +1,8 @@
 package org.mobicents.slee.resource.xcapclient;
 
-import java.util.List;
+import java.net.URI;
 
-import org.openxdm.xcap.client.RequestHeader;
-import org.openxdm.xcap.common.key.XcapUriKey;
+import org.apache.http.Header;
 
 /**
  * Activity object for doing async requests on the XCAP Client RA.
@@ -15,10 +14,10 @@ public interface AsyncActivity {
 
 	/**
 	 * Retrieves the XML resource from the XCAP server.
-	 * @param key
+	 * @param uri
 	 * @param additionalRequestHeaders
 	 */
-	public void get(XcapUriKey key, List<RequestHeader> additionalRequestHeaders);
+	public void get(URI uri, Header[] additionalRequestHeaders);
 
 	/**
 	 * Puts the specified content in the XCAP server.
@@ -26,8 +25,8 @@ public interface AsyncActivity {
 	 * @param mimetype
 	 * @param content
 	 */
-	public void put(XcapUriKey key, String mimetype, String content,
-			List<RequestHeader> additionalRequestHeaders);
+	public void put(URI uri, String mimetype, String content,
+			Header[] additionalRequestHeaders);
 
 	/**
 	 * Puts the specified content in the XCAP server.
@@ -35,8 +34,8 @@ public interface AsyncActivity {
 	 * @param mimetype
 	 * @param content
 	 */
-	public void put(XcapUriKey key, String mimetype, byte[] content,
-			List<RequestHeader> additionalRequestHeaders);
+	public void put(URI uri, String mimetype, byte[] content,
+			Header[] additionalRequestHeaders);
 
 	/**
 	 * Puts the specified content in the XCAP Server, if the ETag matches with
@@ -46,8 +45,8 @@ public interface AsyncActivity {
 	 * @param mimetype
 	 * @param content
 	 */
-	public void putIfMatch(XcapUriKey key, String eTag, String mimetype,
-			String content, List<RequestHeader> additionalRequestHeaders);
+	public void putIfMatch(URI uri, String eTag, String mimetype,
+			String content, Header[] additionalRequestHeaders);
 
 	/**
 	 * Puts the specified content in the XCAP Server, if the ETag matches with
@@ -57,8 +56,8 @@ public interface AsyncActivity {
 	 * @param mimetype
 	 * @param content
 	 */
-	public void putIfMatch(XcapUriKey key, String eTag, String mimetype,
-			byte[] content, List<RequestHeader> additionalRequestHeaders);
+	public void putIfMatch(URI uri, String eTag, String mimetype,
+			byte[] content, Header[] additionalRequestHeaders);
 
 	/**
 	 * Puts the specified content in the XCAP Server, if the ETag doesn't match
@@ -68,8 +67,8 @@ public interface AsyncActivity {
 	 * @param mimetype
 	 * @param content
 	 */
-	public void putIfNoneMatch(XcapUriKey key, String eTag, String mimetype,
-			String content, List<RequestHeader> additionalRequestHeaders);
+	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
+			String content, Header[] additionalRequestHeaders);
 
 	/**
 	 * Puts the specified content in the XCAP Server, if the ETag doesn't match
@@ -79,14 +78,14 @@ public interface AsyncActivity {
 	 * @param mimetype
 	 * @param content
 	 */
-	public void putIfNoneMatch(XcapUriKey key, String eTag, String mimetype,
-			byte[] content, List<RequestHeader> additionalRequestHeaders);
+	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
+			byte[] content, Header[] additionalRequestHeaders);
 
 	/**
 	 * Deletes the resource in the XCAP Server.
 	 */
-	public void delete(XcapUriKey key,
-			List<RequestHeader> additionalRequestHeaders);
+	public void delete(URI uri,
+			Header[] additionalRequestHeaders);
 
 	/**
 	 * Deletes the resource in the XCAP Server, if the ETag matches the one in
@@ -94,8 +93,8 @@ public interface AsyncActivity {
 	 * 
 	 * @param eTag
 	 */
-	public void deleteIfMatch(XcapUriKey key, String eTag,
-			List<RequestHeader> additionalRequestHeaders);
+	public void deleteIfMatch(URI uri, String eTag,
+			Header[] additionalRequestHeaders);
 
 	/**
 	 * Deletes the resource in the XCAP Server, if the ETag doesn't match the
@@ -103,8 +102,8 @@ public interface AsyncActivity {
 	 * 
 	 * @param eTag
 	 */
-	public void deleteIfNoneMatch(XcapUriKey key, String eTag,
-			List<RequestHeader> additionalRequestHeaders);
+	public void deleteIfNoneMatch(URI uri, String eTag,
+			Header[] additionalRequestHeaders);
 
 	/**
 	 * Ends this activity;

@@ -1,12 +1,11 @@
 package org.mobicents.slee.resource.xcapclient.handler;
 
-import java.util.List;
+import java.net.URI;
 
+import org.apache.http.Header;
 import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptor;
 import org.mobicents.slee.resource.xcapclient.XCAPResourceAdaptorActivityHandle;
-import org.openxdm.xcap.client.RequestHeader;
-import org.openxdm.xcap.client.Response;
-import org.openxdm.xcap.common.key.XcapUriKey;
+import org.mobicents.xcap.client.XcapResponse;
 
 /**
  * Handles an async get request.
@@ -17,14 +16,14 @@ import org.openxdm.xcap.common.key.XcapUriKey;
 public class AsyncGetHandler extends AbstractAsyncHandler {
 
 	public AsyncGetHandler(XCAPClientResourceAdaptor ra,
-			XCAPResourceAdaptorActivityHandle handle, XcapUriKey key,
-			List<RequestHeader> additionalRequestHeaders) {
-		super(ra, handle, key, additionalRequestHeaders);
+			XCAPResourceAdaptorActivityHandle handle, URI uri,
+			Header[] additionalRequestHeaders) {
+		super(ra, handle, uri, additionalRequestHeaders);
 	}
 
 	@Override
-	protected Response doRequest() throws Exception {
-		return ra.getClient().get(key, additionalRequestHeaders);
+	protected XcapResponse doRequest() throws Exception {
+		return ra.getClient().get(uri, additionalRequestHeaders);
 	}
 
 }

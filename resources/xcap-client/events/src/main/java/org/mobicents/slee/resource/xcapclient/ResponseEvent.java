@@ -2,7 +2,7 @@ package org.mobicents.slee.resource.xcapclient;
 
 import java.io.Serializable;
 
-import org.openxdm.xcap.client.Response;
+import org.mobicents.xcap.client.XcapResponse;
 
 public final class ResponseEvent implements Serializable {
 
@@ -11,11 +11,11 @@ public final class ResponseEvent implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Response response = null;
+	private XcapResponse response = null;
 	private Exception exception = null;
 	private int id;
 	
-	public ResponseEvent(Response response) {
+	public ResponseEvent(XcapResponse response) {
 		this.response = response;
 		id = response.hashCode()*31+"null".hashCode();
 	}
@@ -25,7 +25,7 @@ public final class ResponseEvent implements Serializable {
 		id = "null".hashCode()*31+exception.hashCode();
 	}
 	
-	public Response getResponse() {
+	public XcapResponse getResponse() {
 		return response;
 	}
 	
