@@ -271,7 +271,6 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 		activities = new ConcurrentHashMap<XCAPResourceAdaptorActivityHandle, AsyncActivityImpl>();
 		executorService = Executors.newCachedThreadPool();
 		sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
-		tracer.info("XCAP Client RA entity named "+raContext.getEntityName()+" activated.");		
 	}
 
 	/*
