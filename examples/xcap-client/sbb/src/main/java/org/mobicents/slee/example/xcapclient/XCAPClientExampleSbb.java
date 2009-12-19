@@ -3,14 +3,14 @@ package org.mobicents.slee.example.xcapclient;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.LinkedList;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.slee.ActivityContextInterface;
-import javax.slee.ActivityEndEvent;
 import javax.slee.RolledBackContext;
 import javax.slee.SLEEException;
 import javax.slee.SbbContext;
@@ -20,33 +20,29 @@ import javax.slee.UnrecognizedActivityException;
 import javax.slee.facilities.Tracer;
 import javax.slee.resource.ActivityAlreadyExistsException;
 import javax.slee.resource.StartActivityException;
-import javax.slee.serviceactivity.ServiceActivity;
-import javax.slee.serviceactivity.ServiceActivityFactory;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.httpclient.HttpException;
 import org.mobicents.slee.resource.xcapclient.AsyncActivity;
 import org.mobicents.slee.resource.xcapclient.ResponseEvent;
 import org.mobicents.slee.resource.xcapclient.XCAPClientActivityContextInterfaceFactory;
 import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptorSbbInterface;
-import org.openxdm.xcap.client.Response;
+import org.mobicents.xcap.client.XcapResponse;
+import org.mobicents.xcap.client.uri.DocumentSelectorBuilder;
+import org.mobicents.xcap.client.uri.ElementSelectorBuilder;
+import org.mobicents.xcap.client.uri.UriBuilder;
 import org.openxdm.xcap.client.appusage.resourcelists.jaxb.EntryType;
 import org.openxdm.xcap.client.appusage.resourcelists.jaxb.ListType;
 import org.openxdm.xcap.client.appusage.resourcelists.jaxb.ObjectFactory;
-import org.openxdm.xcap.client.appusage.resourcelists.key.ResourceListsUserElementUriKey;
-import org.openxdm.xcap.common.key.UserDocumentUriKey;
-import org.openxdm.xcap.common.key.UserElementUriKey;
 import org.openxdm.xcap.common.resource.ElementResource;
-import org.openxdm.xcap.common.uri.ElementSelector;
-import org.openxdm.xcap.common.uri.ElementSelectorStep;
-import org.openxdm.xcap.common.uri.ElementSelectorStepByAttr;
 import org.openxdm.xcap.common.xml.XMLValidator;
 
 public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 
 	private SbbContext sbbContext = null; 	
+	
+	private static final UserProfileJmxProvisioningUtil userProfileProvisioning = new UserProfileJmxProvisioningUtil();
 	
 	/**
 	 * static jaxb context for example pojos
@@ -78,8 +74,9 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		}		 
 		try {
 			myEnv = (Context) new InitialContext().lookup("java:comp/env");           
-			ra = (XCAPClientResourceAdaptorSbbInterface) myEnv.lookup("slee/resources/xcapclient/1.0/sbbrainterface");
-			acif = (XCAPClientActivityContextInterfaceFactory) myEnv.lookup("slee/resources/xcapclient/1.0/acif");  
+			ra = (XCAPClientResourceAdaptorSbbInterface) myEnv.lookup("slee/resources/xcapclient/2.0/sbbrainterface");
+			ra.setAuthenticationCredentials(userName, "password");
+			acif = (XCAPClientActivityContextInterfaceFactory) myEnv.lookup("slee/resources/xcapclient/2.0/acif");  
 		}
 		catch (NamingException e) {
 			log.severe("unable to set sbb context",e);
@@ -112,6 +109,8 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		log.info("service started...");
 		
 		try {
+			userProfileProvisioning.initRmiAdaptor("jnp://127.0.0.1:1099");
+			userProfileProvisioning.createUser(userName, "password");
 			syncTest();
 			asyncTest();
 		}
@@ -121,10 +120,15 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
         						
 	}	
 	
-	public void syncTest() throws HttpException, IOException, JAXBException {
+	public void syncTest() throws IOException, JAXBException, URISyntaxException {
 					
-		// create uri		
-		UserDocumentUriKey docKey = new UserDocumentUriKey("resource-lists",userName,documentName);
+		// create doc uri		
+		String documentSelector = DocumentSelectorBuilder.getUserDocumentSelectorBuilder("resource-lists", userName, documentName).toPercentEncodedString(); 
+		UriBuilder uriBuilder = new UriBuilder()
+			.setSchemeAndAuthority("http://127.0.0.1:8080")
+			.setXcapRoot("/mobicents")
+			.setDocumentSelector(documentSelector);
+		URI documentURI = uriBuilder.toURI();
 		
 		// the doc to put
 		String initialDocument =
@@ -144,7 +148,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 			"</resource-lists>";	
 		
 		// put the document and get sync response
-		Response response = ra.put(docKey,"application/resource-lists+xml",initialDocument,null);
+		XcapResponse response = ra.put(documentURI,"application/resource-lists+xml",initialDocument,null);
 		
 		// check put response
 		if (response != null) {
@@ -158,17 +162,16 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		}
 					
 		// let's create an uri selecting an element
-		LinkedList<ElementSelectorStep> elementSelectorSteps = new LinkedList<ElementSelectorStep>();
-		ElementSelectorStep step1 = new ElementSelectorStep("resource-lists");
-		ElementSelectorStep step2 = new ElementSelectorStepByAttr("list","name","friends");
-		ElementSelectorStep step3 = new ElementSelectorStepByAttr("entry","uri","sip:alice@example.com");
-		elementSelectorSteps.add(step1);
-		elementSelectorSteps.addLast(step2);
-		elementSelectorSteps.addLast(step3);
-		UserElementUriKey elemKey = new UserElementUriKey("resource-lists",userName,documentName,new ElementSelector(elementSelectorSteps),null);		
+		// create uri
+		String elementSelector = new ElementSelectorBuilder()
+			.appendStepByName("resource-lists")
+			.appendStepByAttr("list","name","friends")
+			.appendStepByAttr("entry","uri","sip:alice@example.com")
+			.toPercentEncodedString();
+		URI elementURI = uriBuilder.setElementSelector(elementSelector).toURI();
 		
 		// put the element and get sync response
-		response = ra.put(elemKey,ElementResource.MIMETYPE,element,null);
+		response = ra.put(elementURI,ElementResource.MIMETYPE,element,null);
 		
 		// check put response
 		if (response != null) {
@@ -182,11 +185,11 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		}
 				
 		// get the document and check content is ok
-		response = ra.get(docKey,null);
+		response = ra.get(documentURI,null);
 		
 		// check get response		
 		if (response != null) {
-			if(response.getCode() == 200 && XMLValidator.weaklyEquals((String)response.getContent(),finalDocument)) {
+			if(response.getCode() == 200 && XMLValidator.weaklyEquals((String)response.getEntity().getContentAsString(),finalDocument)) {
 				log.info("document retreived in xcap server and content is the expected...");
 				log.info("sync test suceed :)");
 			} else {
@@ -198,7 +201,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 							
 	}
 	
-	public void asyncTest() throws ActivityAlreadyExistsException, NullPointerException, UnrecognizedActivityException, TransactionRequiredLocalException, TransactionRolledbackLocalException, HttpException, SLEEException, IllegalStateException, JAXBException, IOException, StartActivityException {
+	public void asyncTest() throws ActivityAlreadyExistsException, NullPointerException, UnrecognizedActivityException, TransactionRequiredLocalException, TransactionRolledbackLocalException, SLEEException, IllegalStateException, JAXBException, IOException, StartActivityException, URISyntaxException {
 		
 		// now we will use marshalling and unmarshalling too
 						
@@ -210,20 +213,25 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		entry.setUri("sip:winniethepooh@disney.com");
 		listType.getListOrExternalOrEntry().add(entry);
 		
-		// create the key selecting the new element
-		LinkedList<ElementSelectorStep> elementSelectorSteps = new LinkedList<ElementSelectorStep>();
-		ElementSelectorStep step1 = new ElementSelectorStep("resource-lists");
-		ElementSelectorStep step2 = new ElementSelectorStepByAttr("list","name","enemies");
-		elementSelectorSteps.add(step1);
-		elementSelectorSteps.addLast(step2);
-		ResourceListsUserElementUriKey key = new ResourceListsUserElementUriKey(userName,documentName,new ElementSelector(elementSelectorSteps),null);		
+		// create the uri selecting the new element
+		String elementSelector = new ElementSelectorBuilder()
+			.appendStepByName("resource-lists")
+			.appendStepByAttr("list","name","enemies")
+			.toPercentEncodedString();
+		String documentSelector = DocumentSelectorBuilder.getUserDocumentSelectorBuilder("resource-lists", userName, documentName).toPercentEncodedString();
+		UriBuilder uriBuilder = new UriBuilder()
+		.setSchemeAndAuthority("http://127.0.0.1:8080")
+		.setXcapRoot("/mobicents")
+		.setDocumentSelector(documentSelector)
+		.setElementSelector(elementSelector);
+		URI uri = uriBuilder.toURI();
 		
 		// marshall content to byte array
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		jAXBContext.createMarshaller().marshal(listType, baos);
 		
 		// lets put the element using the sync interface
-		Response response = ra.put(key,ElementResource.MIMETYPE,baos.toByteArray(),null);
+		XcapResponse response = ra.put(uri,ElementResource.MIMETYPE,baos.toByteArray(),null);
 		// check put response
 		if (response != null) {
 			if(response.getCode() == 201) {
@@ -245,7 +253,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		aci.attach(sbbContext.getSbbLocalObject());
 		
 		// send request
-		activity.get(key,null);
+		activity.get(uri,null);
 		
 		// the response will be asyncronous
 	}
@@ -258,12 +266,12 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		log.info("onResponseEvent(event="+event+",aci="+aci+")");
 		
 		// check put response
-		Response response = event.getResponse();
+		XcapResponse response = event.getResponse();
 		if (response != null) {
 			if(response.getCode() == 200) {
 				log.info("list element retreived from xcap server...");
 				// let's unmarshall content 
-				StringReader stringReader = new StringReader(response.getContent());
+				StringReader stringReader = new StringReader(response.getEntity().getContentAsString());
 				ListType listType = null;
 				try {
 					listType = (ListType) jAXBContext.createUnmarshaller().unmarshal(stringReader);
@@ -298,9 +306,16 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 			log.severe("unable to create list element in xcap server...");
 		}
 		
+		String documentSelector = DocumentSelectorBuilder.getUserDocumentSelectorBuilder("resource-lists", userName, documentName).toPercentEncodedString(); 
+		UriBuilder uriBuilder = new UriBuilder()
+			.setSchemeAndAuthority("http://127.0.0.1:8080")
+			.setXcapRoot("/mobicents")
+			.setDocumentSelector(documentSelector);
+				
 		try {
 			// delete the document
-			ra.delete(new UserDocumentUriKey("resource-lists",userName,documentName),null);	
+			URI documentURI = uriBuilder.toURI();
+			ra.delete(documentURI,null);	
 		}
 		catch (Exception e) {
 			log.severe("failed to delete document",e);
@@ -310,6 +325,12 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		AsyncActivity activity = (AsyncActivity)aci.getActivity();
 		if (activity != null) {
 			activity.endActivity();
+		}
+		
+		try {
+			userProfileProvisioning.removeUser(userName);
+		} catch (Throwable e) {
+			log.severe("failed to remove user profile",e);
 		}
 		
 	}	

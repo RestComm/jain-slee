@@ -9,7 +9,7 @@
 
 		<sbb-name>XCAPClientExampleSBB</sbb-name>
 		<sbb-vendor>org.mobicents</sbb-vendor>
-		<sbb-version>1.0</sbb-version>
+		<sbb-version>2.0</sbb-version>
 
 		<library-ref>
 			<library-name>xcap-client-library</library-name>
@@ -38,13 +38,13 @@
 			<initial-event-select variable="ActivityContext" />
 		</event>
 
-		<event event-direction="Receive" initial-event="false"
+		<event event-direction="Receive" initial-event="False"
 			mask-on-attach="False">
 			<event-name>ResponseEvent</event-name>
 			<event-type-ref>
 				<event-type-name>ResponseEvent</event-type-name>
 				<event-type-vendor>org.mobicents</event-type-vendor>
-				<event-type-version>1.0</event-type-version>
+				<event-type-version>2.0</event-type-version>
 			</event-type-ref>
 			<initial-event-select variable="ActivityContext" />
 		</event>
@@ -60,15 +60,15 @@
 					org.mobicents
 				</resource-adaptor-type-vendor>
 				<resource-adaptor-type-version>
-					1.0
+					2.0
 				</resource-adaptor-type-version>
 			</resource-adaptor-type-ref>
 			<activity-context-interface-factory-name>
-				slee/resources/xcapclient/1.0/acif
+				slee/resources/xcapclient/2.0/acif
 			</activity-context-interface-factory-name>
 			<resource-adaptor-entity-binding>
 				<resource-adaptor-object-name>
-					slee/resources/xcapclient/1.0/sbbrainterface
+					slee/resources/xcapclient/2.0/sbbrainterface
 				</resource-adaptor-object-name>
 				<resource-adaptor-entity-link>
 					XCAPClientRA
