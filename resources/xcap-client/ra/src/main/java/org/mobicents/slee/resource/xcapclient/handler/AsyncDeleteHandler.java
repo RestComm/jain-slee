@@ -3,6 +3,7 @@ package org.mobicents.slee.resource.xcapclient.handler;
 import java.net.URI;
 
 import org.apache.http.Header;
+import org.apache.http.auth.Credentials;
 import org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptor;
 import org.mobicents.slee.resource.xcapclient.XCAPResourceAdaptorActivityHandle;
 import org.mobicents.xcap.client.XcapResponse;
@@ -16,14 +17,15 @@ import org.mobicents.xcap.client.XcapResponse;
 public class AsyncDeleteHandler extends AbstractAsyncHandler {
 
 	public AsyncDeleteHandler(XCAPClientResourceAdaptor ra,
-			XCAPResourceAdaptorActivityHandle handle,URI uri,
-			Header[] additionalRequestHeaders) {
-		super(ra, handle, uri, additionalRequestHeaders);
+			XCAPResourceAdaptorActivityHandle handle, URI uri,
+			Header[] additionalRequestHeaders, Credentials credentials) {
+		super(ra, handle, uri, additionalRequestHeaders, credentials);
 	}
 
 	@Override
 	protected XcapResponse doRequest() throws Exception {
-		return ra.getClient().delete(uri, additionalRequestHeaders);
+		return ra.getClient()
+				.delete(uri, additionalRequestHeaders, credentials);
 	}
 
 }

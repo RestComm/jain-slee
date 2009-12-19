@@ -24,6 +24,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.mobicents.slee.resource.xcapclient.AsyncActivity;
 import org.mobicents.slee.resource.xcapclient.ResponseEvent;
 import org.mobicents.slee.resource.xcapclient.XCAPClientActivityContextInterfaceFactory;
@@ -63,7 +65,8 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 	
 	private String userName = "sip:bob@example.com";
 	private String documentName = "index";
-			
+	private Credentials credentials = new UsernamePasswordCredentials(userName,"password");
+	
 	/**
 	 * Called when an sbb object is instantied and enters the pooled state.
 	 */
@@ -75,7 +78,6 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		try {
 			myEnv = (Context) new InitialContext().lookup("java:comp/env");           
 			ra = (XCAPClientResourceAdaptorSbbInterface) myEnv.lookup("slee/resources/xcapclient/2.0/sbbrainterface");
-			ra.setAuthenticationCredentials(userName, "password");
 			acif = (XCAPClientActivityContextInterfaceFactory) myEnv.lookup("slee/resources/xcapclient/2.0/acif");  
 		}
 		catch (NamingException e) {
@@ -148,7 +150,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 			"</resource-lists>";	
 		
 		// put the document and get sync response
-		XcapResponse response = ra.put(documentURI,"application/resource-lists+xml",initialDocument,null);
+		XcapResponse response = ra.put(documentURI,"application/resource-lists+xml",initialDocument,null,credentials);
 		
 		// check put response
 		if (response != null) {
@@ -171,7 +173,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		URI elementURI = uriBuilder.setElementSelector(elementSelector).toURI();
 		
 		// put the element and get sync response
-		response = ra.put(elementURI,ElementResource.MIMETYPE,element,null);
+		response = ra.put(elementURI,ElementResource.MIMETYPE,element,null,credentials);
 		
 		// check put response
 		if (response != null) {
@@ -185,7 +187,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		}
 				
 		// get the document and check content is ok
-		response = ra.get(documentURI,null);
+		response = ra.get(documentURI,null,credentials);
 		
 		// check get response		
 		if (response != null) {
@@ -231,7 +233,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		jAXBContext.createMarshaller().marshal(listType, baos);
 		
 		// lets put the element using the sync interface
-		XcapResponse response = ra.put(uri,ElementResource.MIMETYPE,baos.toByteArray(),null);
+		XcapResponse response = ra.put(uri,ElementResource.MIMETYPE,baos.toByteArray(),null,credentials);
 		// check put response
 		if (response != null) {
 			if(response.getCode() == 201) {
@@ -253,7 +255,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		aci.attach(sbbContext.getSbbLocalObject());
 		
 		// send request
-		activity.get(uri,null);
+		activity.get(uri,null,credentials);
 		
 		// the response will be asyncronous
 	}
@@ -315,7 +317,7 @@ public abstract class XCAPClientExampleSbb implements javax.slee.Sbb {
 		try {
 			// delete the document
 			URI documentURI = uriBuilder.toURI();
-			ra.delete(documentURI,null);	
+			ra.delete(documentURI,null,credentials);	
 		}
 		catch (Exception e) {
 			log.severe("failed to delete document",e);

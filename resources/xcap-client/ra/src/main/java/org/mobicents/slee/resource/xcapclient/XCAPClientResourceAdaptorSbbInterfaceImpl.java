@@ -9,6 +9,7 @@ import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.StartActivityException;
 
 import org.apache.http.Header;
+import org.apache.http.auth.Credentials;
 import org.apache.http.client.ClientProtocolException;
 import org.mobicents.xcap.client.XcapResponse;
 
@@ -16,89 +17,213 @@ import org.mobicents.xcap.client.XcapResponse;
  * 
  * @author emmartins
  * @author aayush.bhatnagar
- *
+ * 
  */
-public class XCAPClientResourceAdaptorSbbInterfaceImpl implements XCAPClientResourceAdaptorSbbInterface {
-    
+public class XCAPClientResourceAdaptorSbbInterfaceImpl implements
+		XCAPClientResourceAdaptorSbbInterface {
+
 	private final XCAPClientResourceAdaptor ra;
-	
+
 	private static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;
-	
-	public XCAPClientResourceAdaptorSbbInterfaceImpl(XCAPClientResourceAdaptor ra) {
+
+	public XCAPClientResourceAdaptorSbbInterfaceImpl(
+			XCAPClientResourceAdaptor ra) {
 		this.ra = ra;
 	}
 
-	public AsyncActivity createActivity() throws ActivityAlreadyExistsException, StartActivityException {
-			// generate id	
-			final String id = UUID.randomUUID().toString();
-			// create handle
-			final XCAPResourceAdaptorActivityHandle handle = new XCAPResourceAdaptorActivityHandle(id);    		
-			// create activity
-			final AsyncActivityImpl activity = new AsyncActivityImpl(ra,handle);
-			// start activity
-			this.ra.getSleeEndpoint().startActivitySuspended(handle, activity,ACTIVITY_FLAGS);
-			this.ra.addActivity(handle, activity);
-			return activity;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.resource.xcapclient.XCAPClientResourceAdaptorSbbInterface
+	 * #createActivity()
+	 */
+	public AsyncActivity createActivity()
+			throws ActivityAlreadyExistsException, StartActivityException {
+		// generate id
+		final String id = UUID.randomUUID().toString();
+		// create handle
+		final XCAPResourceAdaptorActivityHandle handle = new XCAPResourceAdaptorActivityHandle(
+				id);
+		// create activity
+		final AsyncActivityImpl activity = new AsyncActivityImpl(ra, handle);
+		// start activity
+		this.ra.getSleeEndpoint().startActivitySuspended(handle, activity,
+				ACTIVITY_FLAGS);
+		this.ra.addActivity(handle, activity);
+		return activity;
 	}
 
-	public XcapResponse delete(URI uri, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException {
-		return ra.getClient().delete(uri, additionalRequestHeaders);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#delete(java.net.URI,
+	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 */
+	public XcapResponse delete(URI uri, Header[] additionalRequestHeaders,
+			Credentials credentials) throws ClientProtocolException,
+			IOException {
+		return ra.getClient()
+				.delete(uri, additionalRequestHeaders, credentials);
 	}
 
-	public XcapResponse deleteIfMatch(URI uri, String eTag, Header[] additionalRequestHeaders)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#deleteIfMatch(java.net.URI,
+	 * java.lang.String, org.apache.http.Header[],
+	 * org.apache.http.auth.Credentials)
+	 */
+	public XcapResponse deleteIfMatch(URI uri, String eTag,
+			Header[] additionalRequestHeaders, Credentials credentials)
 			throws ClientProtocolException, IOException {
-		return ra.getClient().deleteIfMatch(uri, eTag, additionalRequestHeaders);
+		return ra.getClient().deleteIfMatch(uri, eTag,
+				additionalRequestHeaders, credentials);
 	}
 
-	public XcapResponse deleteIfNoneMatch(URI uri, String eTag, Header[] additionalRequestHeaders)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#deleteIfNoneMatch(java.net.URI,
+	 * java.lang.String, org.apache.http.Header[],
+	 * org.apache.http.auth.Credentials)
+	 */
+	public XcapResponse deleteIfNoneMatch(URI uri, String eTag,
+			Header[] additionalRequestHeaders, Credentials credentials)
 			throws ClientProtocolException, IOException {
-		return ra.getClient().deleteIfNoneMatch(uri, eTag, additionalRequestHeaders);
+		return ra.getClient().deleteIfNoneMatch(uri, eTag,
+				additionalRequestHeaders, credentials);
 	}
 
-	public XcapResponse get(URI uri, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException {
-		return ra.getClient().get(uri, additionalRequestHeaders);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#get(java.net.URI,
+	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 */
+	public XcapResponse get(URI uri, Header[] additionalRequestHeaders,
+			Credentials credentials) throws ClientProtocolException,
+			IOException {
+		return ra.getClient().get(uri, additionalRequestHeaders, credentials);
 	}
 
-	public XcapResponse put(URI uri, String mimetype, String content, Header[] additionalRequestHeaders)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#put(java.net.URI,
+	 * java.lang.String, java.lang.String, org.apache.http.Header[],
+	 * org.apache.http.auth.Credentials)
+	 */
+	public XcapResponse put(URI uri, String mimetype, String content,
+			Header[] additionalRequestHeaders, Credentials credentials)
 			throws ClientProtocolException, IOException {
-		return ra.getClient().put(uri, mimetype, content, additionalRequestHeaders);
+		return ra.getClient().put(uri, mimetype, content,
+				additionalRequestHeaders, credentials);
 	}
 
-	public XcapResponse put(URI uri, String mimetype, byte[] content, Header[] additionalRequestHeaders)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#put(java.net.URI,
+	 * java.lang.String, byte[], org.apache.http.Header[],
+	 * org.apache.http.auth.Credentials)
+	 */
+	public XcapResponse put(URI uri, String mimetype, byte[] content,
+			Header[] additionalRequestHeaders, Credentials credentials)
 			throws ClientProtocolException, IOException {
-		return ra.getClient().put(uri, mimetype, content, additionalRequestHeaders);
+		return ra.getClient().put(uri, mimetype, content,
+				additionalRequestHeaders, credentials);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#putIfMatch(java.net.URI,
+	 * java.lang.String, java.lang.String, java.lang.String,
+	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 */
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
-			String content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException {
-		return ra.getClient().putIfMatch(uri, eTag, mimetype, content, additionalRequestHeaders);
+			String content, Header[] additionalRequestHeaders,
+			Credentials credentials) throws ClientProtocolException,
+			IOException {
+		return ra.getClient().putIfMatch(uri, eTag, mimetype, content,
+				additionalRequestHeaders, credentials);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#putIfMatch(java.net.URI,
+	 * java.lang.String, java.lang.String, byte[], org.apache.http.Header[],
+	 * org.apache.http.auth.Credentials)
+	 */
 	public XcapResponse putIfMatch(URI uri, String eTag, String mimetype,
-			byte[] content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException {
-		return ra.getClient().putIfMatch(uri, eTag, mimetype, content, additionalRequestHeaders);
+			byte[] content, Header[] additionalRequestHeaders,
+			Credentials credentials) throws ClientProtocolException,
+			IOException {
+		return ra.getClient().putIfMatch(uri, eTag, mimetype, content,
+				additionalRequestHeaders, credentials);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#putIfNoneMatch(java.net.URI,
+	 * java.lang.String, java.lang.String, java.lang.String,
+	 * org.apache.http.Header[], org.apache.http.auth.Credentials)
+	 */
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
-			String content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException {
-		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content, additionalRequestHeaders);
+			String content, Header[] additionalRequestHeaders,
+			Credentials credentials) throws ClientProtocolException,
+			IOException {
+		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content,
+				additionalRequestHeaders, credentials);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#putIfNoneMatch(java.net.URI,
+	 * java.lang.String, java.lang.String, byte[], org.apache.http.Header[],
+	 * org.apache.http.auth.Credentials)
+	 */
 	public XcapResponse putIfNoneMatch(URI uri, String eTag, String mimetype,
-			byte[] content, Header[] additionalRequestHeaders) throws ClientProtocolException, IOException {
-		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content, additionalRequestHeaders);
+			byte[] content, Header[] additionalRequestHeaders,
+			Credentials credentials) throws ClientProtocolException,
+			IOException {
+		return ra.getClient().putIfNoneMatch(uri, eTag, mimetype, content,
+				additionalRequestHeaders, credentials);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mobicents.xcap.client.XcapClient#shutdown()
+	 */
 	public void shutdown() {
-		throw new UnsupportedOperationException("shutdown of ra interface not supported");
+		throw new UnsupportedOperationException(
+				"shutdown of ra interface not supported");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.xcap.client.XcapClient#unsetAuthenticationCredentials()
+	 */
 	public void unsetAuthenticationCredentials() {
 		ra.getClient().unsetAuthenticationCredentials();
 	}
-	
-	public void setAuthenticationCredentials(String userName, String password) {
-		ra.getClient().setAuthenticationCredentials(userName, password);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.xcap.client.XcapClient#setAuthenticationCredentials(org
+	 * .apache.http.auth.Credentials)
+	 */
+	public void setAuthenticationCredentials(Credentials credentials) {
+		ra.getClient().setAuthenticationCredentials(credentials);
 	}
-	
+
 }

@@ -1,5 +1,7 @@
 package org.mobicents.slee.resource.xcapclient;
 
+import java.io.Serializable;
+
 import javax.slee.resource.ActivityHandle;
 
 /**
@@ -8,9 +10,14 @@ import javax.slee.resource.ActivityHandle;
  * 
  */
 
-public class XCAPResourceAdaptorActivityHandle implements ActivityHandle {
+public class XCAPResourceAdaptorActivityHandle implements ActivityHandle, Serializable {
 	
-	private String id;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private final String id;
 	
     public XCAPResourceAdaptorActivityHandle(String id){
         this.id = id;
@@ -29,8 +36,10 @@ public class XCAPResourceAdaptorActivityHandle implements ActivityHandle {
 		}
     }    
     
+    private final static String PREFIX = "xcapActivityHandle:id=";
+    
     public String toString() {
-        return "activityHandle:id="+id;
+        return new StringBuilder(PREFIX).append(id).toString();
     }
     
     public int hashCode() {
