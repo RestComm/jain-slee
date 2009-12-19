@@ -263,7 +263,8 @@ public class SbbEntityFactory {
 	@SuppressWarnings("unchecked")
 	private static void storeSbbEntityInTx(SbbEntity sbbEntity,
 			TransactionContext txContext) {
-		txContext.getData().put(
+		if (txContext != null)
+			txContext.getData().put(
 					sbbEntity.getSbbEntityId(), sbbEntity);		
 	}
 
@@ -275,8 +276,8 @@ public class SbbEntityFactory {
 	 */
 	private static SbbEntity getSbbEntityFromTx(String sbbeId,
 			TransactionContext txContext) {
-		return (SbbEntity) txContext.getData().get(
-					sbbeId);		
+		return txContext != null ? (SbbEntity) txContext.getData().get(
+					sbbeId) : null;		
 	}
 	
 	/**

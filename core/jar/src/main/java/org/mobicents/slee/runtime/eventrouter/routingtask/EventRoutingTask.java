@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import javax.slee.EventTypeID;
+import javax.slee.SLEEException;
 import javax.slee.resource.FailureReason;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -412,11 +413,18 @@ public class EventRoutingTask implements Runnable {
 						}
 						
 					} catch (Exception e) {
-						logger.error("Failure while routing "+de, e);
+						logger.error("Caught exception while routing "+de, e);
 						if (sbbEntity != null) {
 							sbbObject = sbbEntity.getSbbObject();
 						}
 						caught = e;
+					} catch (Throwable e) {
+						// not an exception, wrap it in exception so sbb learns about it
+						logger.error("Caught throwable while routing "+de, e);
+						if (sbbEntity != null) {
+							sbbObject = sbbEntity.getSbbObject();
+						}
+						caught = new SLEEException("Caught throwable!",e);
 					} 
 										
 					// do a final check to see if there is another SBB to
