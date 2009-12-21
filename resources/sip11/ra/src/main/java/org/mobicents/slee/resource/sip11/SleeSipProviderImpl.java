@@ -455,11 +455,15 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			final ServerTransactionWrapper stw = (ServerTransactionWrapper) transaction;
 			final ServerTransaction st = stw.getWrappedServerTransaction();
 			final Dialog d = provider.getNewDialog(st);
-			// some hacking in jsip, we need a dialog id now and the real dialog
-			// does not have a local tag
-			final String localTag = Utils.getInstance().generateTag();
-			final String dialogId = ((SIPRequest) st.getRequest()).getDialogId(
+			String localTag = d.getLocalTag();
+			String dialogId = d.getDialogId();
+			if (localTag == null) {
+				// some hacking in jsip, we need a dialog id now and the real dialog
+				// does not have a local tag
+				localTag = Utils.getInstance().generateTag();
+				dialogId = ((SIPRequest) st.getRequest()).getDialogId(
 					true, localTag);
+			}
 			final DialogWrapper dw = new DialogWrapper(d, dialogId, localTag,ra);
 			dw.addOngoingTransaction(stw);
 			ra.addSuspendedActivity(dw, tracer.isFineEnabled());
