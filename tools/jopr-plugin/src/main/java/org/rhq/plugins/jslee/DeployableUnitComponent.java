@@ -1,5 +1,9 @@
 package org.rhq.plugins.jslee;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.Set;
+
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
@@ -14,7 +18,15 @@ import org.rhq.core.domain.configuration.Configuration;
 import org.rhq.core.domain.configuration.PropertyList;
 import org.rhq.core.domain.configuration.PropertyMap;
 import org.rhq.core.domain.configuration.PropertySimple;
+import org.rhq.core.domain.content.PackageType;
+import org.rhq.core.domain.content.transfer.ContentResponseResult;
+import org.rhq.core.domain.content.transfer.DeployPackageStep;
+import org.rhq.core.domain.content.transfer.DeployPackagesResponse;
+import org.rhq.core.domain.content.transfer.RemovePackagesResponse;
+import org.rhq.core.domain.content.transfer.ResourcePackageDetails;
 import org.rhq.core.domain.measurement.AvailabilityType;
+import org.rhq.core.pluginapi.content.ContentFacet;
+import org.rhq.core.pluginapi.content.ContentServices;
 import org.rhq.core.pluginapi.inventory.DeleteResourceFacet;
 import org.rhq.core.pluginapi.inventory.InvalidPluginConfigurationException;
 import org.rhq.core.pluginapi.inventory.ResourceComponent;
@@ -24,7 +36,7 @@ import org.rhq.core.pluginapi.operation.OperationResult;
 import org.rhq.plugins.jslee.utils.MBeanServerUtils;
 
 public class DeployableUnitComponent implements ResourceComponent<JainSleeServerComponent>, OperationFacet,
-		DeleteResourceFacet {
+		DeleteResourceFacet, ContentFacet {
 	private final Log log = LogFactory.getLog(this.getClass());
 
 	private ResourceContext<JainSleeServerComponent> resourceContext;
@@ -109,6 +121,47 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
 				this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
 		deploymentMBean.uninstall(this.deployableUnitID);
 
+	}
+
+	public DeployPackagesResponse deployPackages(Set<ResourcePackageDetails> packages, ContentServices contentServices) {
+		
+		log.info("DeployableUnitComponent.deployPackages()");
+		
+		String resourceTypeName = this.resourceContext.getResourceType().getName();
+
+		if (packages.size() != 1) {
+			log.warn("Request to update " + resourceTypeName + " file contained multiple packages: " + packages);
+			DeployPackagesResponse response = new DeployPackagesResponse(ContentResponseResult.FAILURE);
+			response.setOverallRequestErrorMessage("Only one " + resourceTypeName + " can be updated at a time.");
+			return response;
+		}
+		
+		ResourcePackageDetails packageDetails = packages.iterator().next();
+		
+		 log.info("Updating DU file ' ' using [" + packageDetails + "]...");
+
+		return null;
+	}
+
+	public Set<ResourcePackageDetails> discoverDeployedPackages(PackageType arg0) {
+		log.info("DeployableUnitComponent.discoverDeployedPackages() "+ arg0.getDisplayName());
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<DeployPackageStep> generateInstallationSteps(ResourcePackageDetails arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public RemovePackagesResponse removePackages(Set<ResourcePackageDetails> arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public InputStream retrievePackageBits(ResourcePackageDetails arg0) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

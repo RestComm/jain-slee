@@ -1,0 +1,13 @@
+<projectDescription>
+  <name>mobicents-slee-jopr-as-5-plugin</name>
+  <comment>A plugin for managing Mobicents JAIN SLEE on JBoss 5 servers</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>

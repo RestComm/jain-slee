@@ -32,6 +32,7 @@ public class ApplicationServerPluginConfigurationProperties {
 	public static final String CREDENTIALS = "credentials";
 	public static final String HOME_DIR = "homeDir";
 	public static final String SERVER_HOME_DIR = "serverHomeDir";
+	public static final String SERVER_TMP_DIR = "serverTmpDir";
 	public static final String JAVA_HOME = "javaHome";
 	public static final String BIND_ADDRESS = "bindAddress";
 	public static final String START_SCRIPT_CONFIG_PROP = "startScript";

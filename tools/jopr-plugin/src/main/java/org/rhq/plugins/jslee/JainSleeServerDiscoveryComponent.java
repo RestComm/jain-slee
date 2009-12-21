@@ -248,6 +248,9 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 			pluginConfiguration.put(new PropertySimple(ApplicationServerPluginConfigurationProperties.BIND_ADDRESS,
 					cmdLine.getSystemProperties().getProperty(JBossProperties.BIND_ADDRESS)));
 
+			pluginConfiguration.put(new PropertySimple(ApplicationServerPluginConfigurationProperties.SERVER_TMP_DIR,
+					cmdLine.getSystemProperties().getProperty(JBossProperties.SERVER_TEMP_DIR)));
+
 			JBossASDiscoveryUtils.UserInfo userInfo = JBossASDiscoveryUtils.getJmxInvokerUserInfo(configDir);
 			if (userInfo != null) {
 				pluginConfiguration.put(new PropertySimple(ApplicationServerPluginConfigurationProperties.PRINCIPAL,
@@ -404,7 +407,7 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 			PropertyList logEventSources = pluginConfig
 					.getList(LogFileEventResourceComponentHelper.LOG_EVENT_SOURCES_CONFIG_PROP);
 
-			//TODO : Not sure why I get this null
+			// TODO : Not sure why I get this null
 			if (logEventSources != null) {
 				logEventSources.add(serverLogEventSource);
 			}

@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
+<!DOCTYPE plugin [
+
+<!ENTITY deploymentContentConfigProps '
+    
+<configuration>
+        <c:group name="deployment" displayName="Deployment Options">
+           <c:simple-property name="deployExploded" displayName="Deploy Exploded?" type="boolean" required="true"
+                              default="false">
+                <c:description>
+                    Should the archive be deployed in exploded form (i.e. as a directory)?
+                </c:description>
+           </c:simple-property>
+           <c:simple-property name="deployFarmed" type="boolean" required="true" default="false">
+                <c:description>
+                    Should the application be deployed as a farmed deployment (i.e. to the farm directory, rather than
+                    the deploy directory)? This option should only be set to Yes if this application server instance is
+                    a node in a cluster, otherwise the application creation will fail. If set to Yes, the Deploy
+                    Exploded property must be set to No, since exploded deployments to farm via the Profile Service are
+                    currently not supported.
+                </c:description>
+           </c:simple-property>
+        </c:group>
+    </configuration>
+'>
+
+]>
+
 <plugin name="Mobicents-JSLEE" displayName="Mobicents JSLEE Server 2.x"
 	package="org.rhq.plugins.jslee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -114,8 +141,31 @@
 		<service name="DeployableUnits" class="DeployableUnitComponent"
 			discovery="DeployableUnitDiscoveryComponent"
 			description="Deployable Units" createDeletePolicy="both"
-			creationDataType="configuration">
+			creationDataType="content">
 
+			<plugin-configuration>
+				<c:group name="general" displayName="General">
+					<c:simple-property name="deploymentName"
+						description="The name of this DU" readOnly="true" />
+					<c:simple-property name="filename" readOnly="true" />
+				</c:group>
+				<c:group name="advanced" displayName="Advanced"
+					hiddenByDefault="true">
+					<c:simple-property name="extension" default="jar"
+						readOnly="true" />
+					<c:simple-property name="descriptionTemplate"
+						default="Enterprise Application" readOnly="true" />
+					<c:simple-property name="deploymentTypeName"
+						default="JavaEEApplication" readOnly="true">
+						<c:description>
+							The name of the item from the
+							org.jboss.deployers.spi.management.KnownDeploymentTypes
+							enum corresponding to this deployment's
+							type.
+						</c:description>
+					</c:simple-property>
+				</c:group>
+			</plugin-configuration>
 			<operation name="listComponents"
 				displayName="List Component IDs"
 				description="Get the component identifiers of the components installed with this deployable unit">
@@ -136,6 +186,11 @@
 					</c:list-property>
 				</results>
 			</operation>
+
+			<content name="file" displayName="DU File"
+				category="deployable" isCreationType="true">
+				&deploymentContentConfigProps;
+			</content>
 		</service>
 
 		<service name="Service" class="ServiceComponent"

@@ -283,6 +283,15 @@ public class JBossInstanceInfo {
 			this.sysProps.setProperty(JBossProperties.SERVER_HOME_DIR, serverBaseDir + File.separator + serverName);
 		}
 
+		// temp
+		if (!this.sysProps.containsKey(JBossProperties.SERVER_TEMP_DIR)) {
+			String serverHomeDir = this.sysProps.getProperty(JBossProperties.SERVER_HOME_DIR);
+			this.sysProps.setProperty(JBossProperties.SERVER_TEMP_DIR, (serverHomeDir + File.separator + "tmp"));
+			log.info("set JBossProperties.SERVER_TEMP_DIR to "+ this.sysProps.getProperty(JBossProperties.SERVER_TEMP_DIR));
+		} else{
+			log.info("It already has JBossProperties.SERVER_TEMP_DIR");
+		}
+
 		// Let us put mobicents dir here
 		String mobicentsJSleeHome = this.sysProps.getProperty(JBossProperties.SERVER_HOME_DIR) + File.separator
 				+ "deploy" + File.separator + "mobicents-slee";
