@@ -76,6 +76,8 @@ public abstract class ConferenceSbb implements Sbb {
 	public static final int MGCP_PEER_PORT = 2427;
 	public static final int MGCP_PORT = 2727;
 
+	public final static String CONFERENCE_DEMO = "2012";
+
 	private SbbContext sbbContext;
 
 	// SIP
@@ -124,6 +126,7 @@ public abstract class ConferenceSbb implements Sbb {
 		EndpointIdentifier endpointID = this.getEndpointIdentifier();
 		CallIdentifier callID = this.getCallIdentifier();
 		if (endpointID == null) {
+			logger.info("This is new Conference");
 			endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS + ":" + MGCP_PEER_PORT);
 			fromVsConnIdMap = new HashMap();
 
@@ -131,6 +134,8 @@ public abstract class ConferenceSbb implements Sbb {
 
 			callID = this.mgcpProvider.getUniqueCallIdentifier();
 			this.setCallIdentifier(callID);
+		} else {
+			logger.info("Conference has already begun at endpoint " + endpointID);
 		}
 
 		CreateConnection createConnection = new CreateConnection(this, callID, endpointID, ConnectionMode.SendRecv);
@@ -175,12 +180,15 @@ public abstract class ConferenceSbb implements Sbb {
 		Iterator itr = fromVsConnIdMap.keySet().iterator();
 		while (itr.hasNext()) {
 			String fromUri = (String) itr.next();
-			int txId = (Integer) fromVsConnIdMap.get(fromUri);
+			Object obj = fromVsConnIdMap.get(fromUri);
 
-			if (event.getTransactionHandle() == txId) {
-				txn = this.getTxIdVsServerTxMap().remove(txId);
-				fromVsConnIdMap.put(fromUri, event.getConnectionIdentifier());
-				break;
+			if (obj instanceof Integer) {
+				int txId = (Integer) obj;
+				if (event.getTransactionHandle() == txId) {
+					txn = this.getTxIdVsServerTxMap().remove(txId);
+					fromVsConnIdMap.put(fromUri, event.getConnectionIdentifier());
+					break;
+				}
 			}
 		}
 
@@ -190,6 +198,8 @@ public abstract class ConferenceSbb implements Sbb {
 
 		switch (status.getValue()) {
 		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+			
+			this.setEndpointIdentifier(event.getSpecificEndpointIdentifier());
 
 			String sdp = event.getLocalConnectionDescriptor().toString();
 
@@ -268,9 +278,16 @@ public abstract class ConferenceSbb implements Sbb {
 		Object event = ies.getEvent();
 
 		if (event instanceof RequestEvent) {
-			// If we have reached here means call is to 2012
-			ies.setCustomName("2012");
+			Request request = ((RequestEvent) event).getRequest();
+
+			ToHeader to = (ToHeader) request.getHeader(ToHeader.NAME);
+			String destination = to.toString();
+			if (destination.indexOf(CONFERENCE_DEMO) > 0) {
+				ies.setCustomName("2012");
+				return ies;
+			}
 		}
+		ies.setInitialEvent(false);
 		return ies;
 	}
 

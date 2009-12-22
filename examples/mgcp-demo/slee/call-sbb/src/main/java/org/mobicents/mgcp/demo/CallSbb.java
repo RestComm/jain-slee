@@ -74,17 +74,14 @@ public abstract class CallSbb implements Sbb {
 			ChildRelation relation = getRecorderSbb();
 			forwardEvent(relation, aci, evt);
 		} else if (destination.indexOf(CONFERENCE_DEMO) > 0) {
-			ChildRelation relation = getConferenceSbbChild();
-			forwardEvent(relation, aci, evt);
+			//This should have been taken care
+			return;
 		} else {
 			logger.info("MGCP Demo can understand only " + IVR_DEMO + ", " + RECORDER_DEMO + " and " + CONFERENCE_DEMO
 					+ " dialed numbers");
 			respond(evt, Response.SERVICE_UNAVAILABLE);
 			return;
-
 		}
-		// respond(evt, Response.RINGING);
-
 	}
 
 	private void forwardEvent(ChildRelation relation, ActivityContextInterface aci, RequestEvent evt) {
@@ -127,7 +124,7 @@ public abstract class CallSbb implements Sbb {
 
 	public abstract ChildRelation getRecorderSbb();
 
-	public abstract ChildRelation getConferenceSbbChild();
+	//public abstract ChildRelation getConferenceSbbChild();
 
 	public abstract ChildRelation getIVRSbbChild();
 

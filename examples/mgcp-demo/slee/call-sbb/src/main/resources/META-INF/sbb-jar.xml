@@ -15,13 +15,6 @@
 			<sbb-version>1.0</sbb-version>
 			<sbb-alias>RecorderSbb</sbb-alias>
 		</sbb-ref>
-
-		<sbb-ref>
-			<sbb-name>ConferenceSbb</sbb-name>
-			<sbb-vendor>org.mobicents</sbb-vendor>
-			<sbb-version>1.0</sbb-version>
-			<sbb-alias>ConferenceSbb</sbb-alias>
-		</sbb-ref>
 		<sbb-ref>
 			<sbb-name>IVRSbb</sbb-name>
 			<sbb-vendor>org.mobicents</sbb-vendor>
@@ -38,13 +31,6 @@
 					<sbb-alias-ref>RecorderSbb</sbb-alias-ref>
 					<get-child-relation-method-name>
 						getRecorderSbb
-					</get-child-relation-method-name>
-					<default-priority>0</default-priority>
-				</get-child-relation-method>
-				<get-child-relation-method>
-					<sbb-alias-ref>ConferenceSbb</sbb-alias-ref>
-					<get-child-relation-method-name>
-						getConferenceSbbChild
 					</get-child-relation-method-name>
 					<default-priority>0</default-priority>
 				</get-child-relation-method>
