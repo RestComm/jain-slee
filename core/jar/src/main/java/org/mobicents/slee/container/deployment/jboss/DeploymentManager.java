@@ -71,7 +71,7 @@ public class DeploymentManager {
   // Actions using ServiceManagementMBean
   private Collection<String> serviceActions = Arrays.asList(new String[] { "activate", "deactivate" });
 
-  private Collection<String> deployActions = Arrays.asList(new String[] { "install", "activate", 
+  private Collection<String> deployActions = Arrays.asList(new String[] { "activate", 
       "bindLinkName", "createResourceAdaptorEntity", "activateResourceAdaptorEntity" });
 
   private ConcurrentHashMap<DeployableUnit, Collection<String>> actionsToAvoidByDU = new ConcurrentHashMap<DeployableUnit, Collection<String>>();
@@ -417,7 +417,7 @@ public class DeploymentManager {
         else if (e.getCause() instanceof UnrecognizedLinkNameException && action.equals("unbindLinkName")) {
           // ignore this... someone has already removed the link.
         }
-        else if (!action.equals("install") && deployActions.contains(action)) {
+        else if (deployActions.contains(action)) {
           logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e);
         }
         else {
