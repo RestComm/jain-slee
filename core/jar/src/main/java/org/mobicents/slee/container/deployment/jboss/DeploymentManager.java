@@ -222,38 +222,20 @@ public class DeploymentManager {
         logger.info(du.getDeploymentInfoShortName() + " wasn't deployed. Removing from waiting list.");
       }
     }
+    // Check if DU components are still present 
+    else if (!du.areComponentsStillPresent()) {
+      logger.info(du.getDeploymentInfoShortName() + " components already removed. Removing DU info.");
+      
+      // Process internals of undeployment...
+      processInternalUndeploy(du);
+    }
     // Check if the DU is ready to be uninstalled
     else if (du.isReadyToUninstall()) {
       // Get and Run the actions needed for uninstalling this DU
       sciAction(du.getUninstallActions(), du);
 
-      // Set the DU as not installed
-      du.setInstalled(false);
-
-      // Remove if it was present in waiting list
-      waitingForUninstallDUs.remove(du);
-
-      // Update the deployed components from SLEE
-      updateDeployedComponents();
-
-      // Go through the remaining DUs waiting for uninstallation
-      Iterator<DeployableUnit> duIt = waitingForUninstallDUs.iterator();
-
-      while (duIt.hasNext()) {
-        DeployableUnit waitingDU = duIt.next();
-
-        // If it is ready for being uninstalled, follow the same procedure
-        if (waitingDU.isReadyToUninstall()) {
-          // Schedule removal
-          SLEESubDeployer.INSTANCE.stop(waitingDU.getURL());
-
-          // Remove the DU from the waiting list. If it fails, will go back.
-          waitingForUninstallDUs.remove(waitingDU);
-
-          // Let's start all over.. :)
-          duIt = waitingForUninstallDUs.iterator();
-        }
-      }
+      // Process internals of undeployment...
+      processInternalUndeploy(du);
     }
     else {
       // Have we been her already? If so, don't flood user with log messages...
@@ -269,6 +251,43 @@ public class DeploymentManager {
     }
   }
 
+  /**
+   * Sets the DU as not installed and remove it from waiting list if present there.
+   * Also, tries to undeploy DU's waiting for dependencies to be removed.
+   * 
+   * @param du the DeployableUnit that was just removed
+   * @throws Exception
+   */
+  private void processInternalUndeploy(DeployableUnit du) throws Exception {
+    // Set the DU as not installed
+    du.setInstalled(false);
+
+    // Remove if it was present in waiting list
+    waitingForUninstallDUs.remove(du);
+
+    // Update the deployed components from SLEE
+    updateDeployedComponents();
+
+    // Go through the remaining DUs waiting for uninstallation
+    Iterator<DeployableUnit> duIt = waitingForUninstallDUs.iterator();
+
+    while (duIt.hasNext()) {
+      DeployableUnit waitingDU = duIt.next();
+
+      // If it is ready for being uninstalled, follow the same procedure
+      if (waitingDU.isReadyToUninstall()) {
+        // Schedule removal
+        SLEESubDeployer.INSTANCE.stop(waitingDU.getURL());
+
+        // Remove the DU from the waiting list. If it fails, will go back.
+        waitingForUninstallDUs.remove(waitingDU);
+
+        // Let's start all over.. :)
+        duIt = waitingForUninstallDUs.iterator();
+      }
+    }
+  }
+  
   /**
    * Method for performing the actions needed for (un)deployment.
    * @param actions the array of strings containing the actions to perform.

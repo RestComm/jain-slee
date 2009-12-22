@@ -522,4 +522,16 @@ public class DeployableUnit {
   public URL getURL() {
     return diURL;
   }
+  
+  public boolean areComponentsStillPresent() {
+    Collection<String> presentComponents = DeploymentManager.INSTANCE.getDeployedComponents();
+
+    for(String cId : this.componentIDs) {
+      if(!presentComponents.contains(cId)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }
