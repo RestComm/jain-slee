@@ -391,9 +391,9 @@ public class DeploymentManager {
             actionToAvoid = "removeResourceAdaptorEntity";
           }
 
-          Collection actionsToAvoid;
+          Collection<String> actionsToAvoid;
           if ((actionsToAvoid = actionsToAvoidByDU.get(du)) == null) {
-            actionsToAvoid = new ArrayList();
+            actionsToAvoid = new ArrayList<String>();
 
             // Add it to the list of actions to skip on undeploy
             actionsToAvoid.add(actionToAvoid);
@@ -417,7 +417,7 @@ public class DeploymentManager {
         else if (e.getCause() instanceof UnrecognizedLinkNameException && action.equals("unbindLinkName")) {
           // ignore this... someone has already removed the link.
         }
-        else if (deployActions.contains(action)) {
+        else if (!action.equals("install") && deployActions.contains(action)) {
           logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e);
         }
         else {
