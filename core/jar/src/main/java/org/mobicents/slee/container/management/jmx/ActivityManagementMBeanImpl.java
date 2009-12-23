@@ -336,12 +336,13 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		HashMap sbbEntityIdToSbbID = new HashMap();
 
 		while (it.hasNext()) {
-			ActivityContextHandle ach = it.next();
-			ActivityContext ac = this.acFactory.getActivityContext(ach);
+			ActivityContextHandle achOrig = it.next();
+			JmxActivityContextHandle ach = ActivityContextHandleSerializer.encode(achOrig);
+			ActivityContext ac = this.acFactory.getActivityContext(achOrig);
 			if (ac == null) {
 				continue;
 			}
-			Object activity = ach.getActivity();
+			Object activity = achOrig.getActivity();
 			if (activity != null) {  
 				
 				switch (criteria) {
@@ -473,17 +474,20 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 				+ ac.getActivityContextHandle() + "]");
 		Object[] o = new Object[ARRAY_SIZE];
 
-		o[ActivityManagementMBeanImplMBean.AC_ID] = ac.getActivityContextHandle();
+		ActivityContextHandle achOrig = ac.getActivityContextHandle();
+		JmxActivityContextHandle ach = ActivityContextHandleSerializer.encode(achOrig);
+		
+		o[ActivityManagementMBeanImplMBean.AC_ID] = ach;
 		logger.debug("======[getDetails]["
 				+ o[ActivityManagementMBeanImplMBean.AC_ID] + "]["
 				+ ac.hashCode() + "]");
 		
-		ActivityContextHandle ach = ac.getActivityContextHandle();
+		
 		if (ach.getActivityType() == ActivityType.RA) {
 			o[RA] = ach.getActivitySource();
 		}
 		
-		o[ACTIVITY_CLASS] = ach.getActivity().getClass().getName();
+		o[ACTIVITY_CLASS] = achOrig.getActivity().getClass().getName();
 		logger.debug("======[getDetails][ACTIVITY_CLASS][" + o[ACTIVITY_CLASS]
 				+ "]");
 		// Date d = new Date(ac.getLastAccessTime());
@@ -568,7 +572,7 @@ public class ActivityManagementMBeanImpl extends MobicentsServiceMBeanSupport
 		Object[] ret = null;
 		try {
 			createdTx = txMgr.requireTransaction();
-			ret = listWithCriteria(true, true, LIST_BY_RAENTITY, entityName);
+			ret = listWithCriteria(false, true, LIST_BY_RAENTITY, entityName);
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		} finally {

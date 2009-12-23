@@ -145,62 +145,62 @@ public class ActivityContextHandle implements Serializable {
 	// serialization
 	
 	private void writeObject(ObjectOutputStream stream) throws IOException {
-		
-		stream.defaultWriteObject();
-		
-		if (activityType == ActivityType.RA) {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			final EventRouterActivity era = sleeContainer.getEventRouter().getEventRouterActivity(this,false);
-			byte[] bytes = null;
-			if (era != null) {
-				bytes = era.getActivityHandleBytes();
-			}
-			if (bytes == null) {
-				// need to marshall the handle, but this happens at most once per AS instance
-				final ResourceAdaptorEntity raEntity = sleeContainer.getResourceManagement().getResourceAdaptorEntity(activitySource);
-				final Marshaler marshaler = raEntity.getMarshaler();
-				int bufferSize = marshaler != null ? marshaler.getEstimatedHandleSize(activityHandle) : 1024;
-				final ByteArrayOutputStream baos =  new ByteArrayOutputStream(bufferSize);
-				final JBossObjectOutputStream jboos = new JBossObjectOutputStream(baos);
-				if (marshaler != null) {
-					marshaler.marshalHandle(activityHandle,jboos);
-				}
-				else {
-					jboos.writeObject(activityHandle);
-				}
-				bytes = baos.toByteArray();
-				jboos.close();					
-				if (era != null) {
-					// cache bytes in local activity resources
-					era.setActivityHandleBytes(bytes);
-				}
-			}
-			stream.write(bytes);
-		}
-		else {
-			stream.writeObject(activityHandle);
-		}
-	}
-			
+
+	  stream.defaultWriteObject();
+
+	  if (activityType == ActivityType.RA) {
+	    byte[] bytes = null;
+	    final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	    final EventRouterActivity era = sleeContainer != null ? sleeContainer.getEventRouter().getEventRouterActivity(this,false) : null;
+	    if (era != null) {
+	      bytes = era.getActivityHandleBytes();
+	    }
+	    if (bytes == null) {
+	      // need to marshall the handle, but this happens at most once per AS instance
+	      final ResourceAdaptorEntity raEntity = sleeContainer != null ? sleeContainer.getResourceManagement().getResourceAdaptorEntity(activitySource) : null;
+	      final Marshaler marshaler = raEntity != null ? raEntity.getMarshaler() : null;
+	      int bufferSize = marshaler != null ? marshaler.getEstimatedHandleSize(activityHandle) : 1024;
+	      final ByteArrayOutputStream baos =  new ByteArrayOutputStream(bufferSize);
+	      final JBossObjectOutputStream jboos = new JBossObjectOutputStream(baos);
+	      if (marshaler != null) {
+	        marshaler.marshalHandle(activityHandle,jboos);
+	      }
+	      else {
+	        jboos.writeObject(activityHandle);
+	      }
+	      bytes = baos.toByteArray();
+	      jboos.close(); 
+	      if (era != null) {
+	        // cache bytes in local activity resources
+	        era.setActivityHandleBytes(bytes);
+	      }
+	    }
+	    stream.write(bytes);
+	  }
+	  else {
+	    stream.writeObject(activityHandle);
+	  }
+	} 
+
 	private void readObject(ObjectInputStream stream)  throws IOException, ClassNotFoundException {
-				
-		stream.defaultReadObject();
-		
-		if (activityType == ActivityType.RA) {
-			final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
-			final ResourceAdaptorEntity raEntity = sleeContainer.getResourceManagement().getResourceAdaptorEntity(activitySource);
-			final Marshaler marshaler = raEntity.getMarshaler();
-			if (marshaler != null) {
-				activityHandle = marshaler.unmarshalHandle(stream);
-			}
-			else {
-				final ObjectInputStream jbois = new JBossObjectInputStream(stream);
-				activityHandle = (ActivityHandle) jbois.readObject();
-			}
-		}
-		else {
-			activityHandle = (ActivityHandle) stream.readObject();
-		}
-	}
+
+	  stream.defaultReadObject();
+
+	  if (activityType == ActivityType.RA) {
+	    final SleeContainer sleeContainer = SleeContainer.lookupFromJndi();
+	    final ResourceAdaptorEntity raEntity = sleeContainer != null ? sleeContainer.getResourceManagement().getResourceAdaptorEntity(activitySource) : null;
+	    final Marshaler marshaler = raEntity != null ? raEntity.getMarshaler() : null;
+	    if (marshaler != null) {
+	      activityHandle = marshaler.unmarshalHandle(stream);
+	    }
+	    else {
+	      final ObjectInputStream jbois = new JBossObjectInputStream(stream);
+	      activityHandle = (ActivityHandle) jbois.readObject();
+	    }
+	  }
+	  else {
+	    activityHandle = (ActivityHandle) stream.readObject();
+	  }
+	} 
 
 }
