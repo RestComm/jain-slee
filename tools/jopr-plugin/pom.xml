@@ -232,6 +232,12 @@
 			<version>5.0.3.GA</version>
 		</dependency>
 
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-server</artifactId>
+      <version>5.1.0.GA</version>
+      <classifier>jmx-invoker-adaptor-client</classifier>
+    </dependency>
 
 	</dependencies>
 

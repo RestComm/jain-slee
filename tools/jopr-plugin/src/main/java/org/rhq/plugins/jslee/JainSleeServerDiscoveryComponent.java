@@ -249,8 +249,7 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 					cmdLine.getSystemProperties().getProperty(JBossProperties.BIND_ADDRESS)));
 
 			pluginConfiguration.put(new PropertySimple(ApplicationServerPluginConfigurationProperties.SERVER_TMP_DIR,
-					cmdLine.getSystemProperties().getProperty(JBossProperties.SERVER_TEMP_DIR)));
-
+			    cmdLine.getSystemProperties().getProperty(JBossProperties.SERVER_TEMP_DIR)));
 			JBossASDiscoveryUtils.UserInfo userInfo = JBossASDiscoveryUtils.getJmxInvokerUserInfo(configDir);
 			if (userInfo != null) {
 				pluginConfiguration.put(new PropertySimple(ApplicationServerPluginConfigurationProperties.PRINCIPAL,
@@ -310,7 +309,7 @@ public class JainSleeServerDiscoveryComponent implements ResourceDiscoveryCompon
 		String sleeVersion = (String) connection.getAttribute(sleemanagement, "SleeVersion");
 		String sleeVendor = (String) connection.getAttribute(sleemanagement, "SleeVendor");
 
-		String description = sleeName + "#" + sleeVersion + "#" + sleeVendor;
+		String description = sleeName + " v" + sleeVersion + " by " + sleeVendor;
 
 		// TODO : DO we care if its RHQ Server?
 		// File deployDir = new File(absoluteConfigPath, "deploy");

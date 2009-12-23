@@ -23,11 +23,10 @@ public class ServiceDiscoveryComponent implements ResourceDiscoveryComponent<Jai
 
 	private final Log log = LogFactory.getLog(this.getClass());
 	
-	public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> context)
-			throws InvalidPluginConfigurationException, Exception {
+	public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
 
 		log.info("discoverResources() called");
-		Set<DiscoveredResourceDetails> discoveredEndpoints = new HashSet<DiscoveredResourceDetails>();
+		Set<DiscoveredResourceDetails> discoveredServices = new HashSet<DiscoveredResourceDetails>();
 		ObjectName servicemanagement = new ObjectName(ServiceManagementMBean.OBJECT_NAME);
 
 		MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
@@ -42,26 +41,28 @@ public class ServiceDiscoveryComponent implements ResourceDiscoveryComponent<Jai
 		ServiceID[] stoppingServices = (ServiceID[]) connection.invoke(servicemanagement, "getServices",
 				new Object[] { ServiceState.STOPPING }, new String[] { ServiceState.class.getName() });
 
-		addService(activeServices, discoveredEndpoints, context.getResourceType());
-		addService(inactiveServices, discoveredEndpoints, context.getResourceType());
-		addService(stoppingServices, discoveredEndpoints, context.getResourceType());
+		addService(activeServices, discoveredServices, context.getResourceType());
+		addService(inactiveServices, discoveredServices, context.getResourceType());
+		addService(stoppingServices, discoveredServices, context.getResourceType());
 
-		
-		log.info("discovered "+discoveredEndpoints.size()+" number of Services");
-		return discoveredEndpoints;
+		log.info("Discovered " + discoveredServices.size() + " JAIN SLEE Services");
+		return discoveredServices;
 	}
 
-	private void addService(ServiceID[] services, Set<DiscoveredResourceDetails> discoveredServices,
-			ResourceType resourceType) {
+	private void addService(ServiceID[] services, Set<DiscoveredResourceDetails> discoveredServices, ResourceType resourceType) {
 		for (ServiceID serviceID : services) {
-			String key = serviceID.getName() + serviceID.getVendor() + serviceID.getVersion();
-			String description = serviceID.getName() + "#" + serviceID.getVendor() + "#" + serviceID.getVersion();
+			String key = serviceID.toString();
+			String description = serviceID.toString();
 
-			DiscoveredResourceDetails discoveredService = new DiscoveredResourceDetails(resourceType, key, serviceID
-					.getName(), serviceID.getVersion(), description, null, null);
+			// Create new Service resource
+			DiscoveredResourceDetails discoveredService = new DiscoveredResourceDetails(resourceType, key, serviceID.getName(), 
+			    serviceID.getVersion(), description, null, null);
+			
+			// Add properties to Service resource
 			discoveredService.getPluginConfiguration().put(new PropertySimple("name", serviceID.getName()));
 			discoveredService.getPluginConfiguration().put(new PropertySimple("version", serviceID.getVersion()));
 			discoveredService.getPluginConfiguration().put(new PropertySimple("vendor", serviceID.getVendor()));
+			
 			discoveredServices.add(discoveredService);
 		}
 	}

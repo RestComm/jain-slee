@@ -1,403 +1,309 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE plugin [
-
-<!ENTITY deploymentContentConfigProps '
-    
-<configuration>
-        <c:group name="deployment" displayName="Deployment Options">
-           <c:simple-property name="deployExploded" displayName="Deploy Exploded?" type="boolean" required="true"
-                              default="false">
-                <c:description>
-                    Should the archive be deployed in exploded form (i.e. as a directory)?
-                </c:description>
-           </c:simple-property>
-           <c:simple-property name="deployFarmed" type="boolean" required="true" default="false">
-                <c:description>
-                    Should the application be deployed as a farmed deployment (i.e. to the farm directory, rather than
-                    the deploy directory)? This option should only be set to Yes if this application server instance is
-                    a node in a cluster, otherwise the application creation will fail. If set to Yes, the Deploy
-                    Exploded property must be set to No, since exploded deployments to farm via the Profile Service are
-                    currently not supported.
-                </c:description>
-           </c:simple-property>
-        </c:group>
-    </configuration>
-'>
-
-]>
-
 <plugin name="Mobicents-JSLEE" displayName="Mobicents JSLEE Server 2.x"
-	package="org.rhq.plugins.jslee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	description="Supports management and monitoring of Mobicents JAIN SLEE Server"
-	xmlns="urn:xmlns:rhq-plugin" xmlns:c="urn:xmlns:rhq-configuration">
+  package="org.rhq.plugins.jslee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  description="Supports management and monitoring of Mobicents JAIN SLEE Server"
+  xmlns="urn:xmlns:rhq-plugin" xmlns:c="urn:xmlns:rhq-configuration">
+
+  <depends plugin="JMX" useClasses="true" />
+
+  <server name="Mobicents JSLEE Server" classLoader="instance" class="JainSleeServerComponent"
+    discovery="JainSleeServerDiscoveryComponent" description="Mobicents JAIN SLEE Server 2.x.y" supportsManualAdd="true">
+
+    <plugin-configuration>
+      <c:group name="connectionInfo">
+        <c:simple-property name="namingURL" displayName="Naming Provider URL" description="The JBoss Naming Provider (JNP) URL with which to connect to the JBoss AS or EAP instance (e.g. jnp://127.0.0.1:1099)." />
+        <c:simple-property name="principal" required="false" description="The name of the principal (i.e. user) to authenticate." />
+        <c:simple-property name="credentials" type="password" required="false" description="The credentials (i.e. password) that should be used to authenticate the principal." />
+        <c:simple-property name="homeDir" displayName="JBoss Home Directory" type="directory" readOnly="true" description="The absolute path to the directory where JBoss AS or EAP is installed (e.g. /opt/jboss-5.1.0.GA)." />
+        <c:simple-property name="serverHomeDir" type="directory" readOnly="true" description="The path to the configuration directory under which this instance operates (e.g. /opt/jboss-5.2.0.GA/server/default); if the path is not absolute, then it will be resolved relative to {homeDir}." />
+        <c:simple-property name="serverName" required="false" description="The name of the server configuration (e.g. minimal, default, or all); if not specified, it will default to the last path component of {serverHomeDir}." default="default" />
+      </c:group>
+    </plugin-configuration>
+
+    <process-scan name="jbossas" query="process|basename|match=^java.*,arg|org.jboss.Main|match=.*" />
+
+    <operation name="sleeState" displayName="Change Slee State" description="Start/Stop or Shutdown Mobicents SLEE Server. To Shutdown, the Mobicents JSLEE Server should be first Stopped">
+      <parameters>
+        <c:simple-property name="action" default="stop">
+          <c:property-options>
+            <c:option value="start" name="start" />
+            <c:option value="stop" name="stop" />
+            <c:option value="shutdown" name="shutdown" />
+          </c:property-options>
+        </c:simple-property>
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
+    <operation name="queryActivityContextLiveness" description="Queries Activity Context for liveness.">
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
+    <operation name="listActivityContexts" displayName="List all Activity Context" description="List all Activity Context details in this server">
+
+      <results>
+        <c:notes>...</c:notes>
+        <c:list-property name="result">
+          <c:map-property required="false" name="element">
+            <c:simple-property required="false" name="ActivityHandle" />
+            <c:simple-property required="false" name="Class" />
+            <c:simple-property required="false" name="LastAccessTime" />
+            <c:simple-property name="ResourceAdaptor" />
+            <!-- List within Map still not supported. We will add when its available -->
+            <!-- c:list-property
+              name="SbbAttachments">
+              <c:map-property
+              name="SbbAttachment" -->
+            <c:simple-property name="SbbAttachmentValue" />
+            <!-- /c:map-property>
+              
+              </c:list-property>
+              <c:list-property name="NamesBoundTo">
+              <c:map-property
+              name="NameBoundTo" -->
+            <c:simple-property name="NameBoundToValue" />
+            <!-- /c:map-property>
+              </c:list-property>
+              <c:list-property name="Timers">
+              <c:map-property name="Timer" -->
+            <c:simple-property name="TimerValue" />
+            <!-- /c:map-property>
+              </c:list-property>
+              <c:list-property
+              name="DataProperties">
+              <c:map-property
+              name="DataProperty" -->
+            <c:simple-property name="DataPropertyValue" />
+            <!-- /c:map-property>
+              </c:list-property-->
+          </c:map-property>
+        </c:list-property>
+      </results>
+    </operation>
+
+    <metric property="state" displayName="State" dataType="trait" displayType="summary" />
+
+    <service name="DeployableUnits" class="DeployableUnitComponent" discovery="DeployableUnitDiscoveryComponent" description="Deployable Units" createDeletePolicy="both" creationDataType="content">
+      <plugin-configuration>
+        <c:group name="general" displayName="General">
+          <c:simple-property name="deploymentName" description="The name of this DU" readOnly="true" />
+          <c:simple-property name="filename" readOnly="true" />
+        </c:group>
+        <c:group name="advanced" displayName="Advanced" hiddenByDefault="true">
+          <c:simple-property name="extension" default="jar" readOnly="true" />
+          <c:simple-property name="descriptionTemplate" default="Enterprise Application" readOnly="true" />
+          <c:simple-property name="deploymentTypeName" default="JavaEEApplication" readOnly="true">
+            <c:description>
+              The name of the item from the org.jboss.deployers.spi.management.KnownDeploymentTypes enum corresponding to this deployment's type.
+            </c:description>
+          </c:simple-property>
+        </c:group>
+     </plugin-configuration>
+
+      <operation name="listComponents" displayName="List Component IDs" description="Get the component identifiers of the components installed with this deployable unit">
+        <results>
+          <c:notes>...</c:notes>
+          <c:list-property name="result">
+            <c:map-property required="false" name="element">
+              <c:simple-property required="false" name="Name" />
+              <c:simple-property required="false" name="Vendor" />
+              <c:simple-property required="false" name="Version" />
+            </c:map-property>
+          </c:list-property>
+        </results>
+      </operation>
+
+      <content name="file" displayName="DU File" category="deployable" isCreationType="true">
+        <configuration>
+          <c:group name="deployment" displayName="Deployment Options">
+            <c:simple-property name="hardDeploy" displayName="Hard Deploy?" type="boolean" required="true" default="false">
+              <c:description>Should the archive be deployed in hard mode form (i.e. copied to deploy folder, will survive server restart, but no info on deploy success)?</c:description>
+            </c:simple-property>
+            <c:simple-property name="deployFarmed" type="boolean" required="true" default="false">
+              <c:description>
+                Should the application be deployed as a farmed deployment (i.e. to the farm directory, rather than
+                the deploy directory)? This option should only be set to Yes if this application server instance is
+                a node in a cluster, otherwise the application creation will fail. If set to Yes, the Deploy
+                Exploded property must be set to No, since exploded deployments to farm via the Profile Service are
+                currently not supported.
+              </c:description>
+            </c:simple-property>
+          </c:group>
+        </configuration>
+      </content>
+    </service>
+
+    <!-- JAIN SLEE Service Component -->
+    <service name="Service" class="ServiceComponent" discovery="ServiceDiscoveryComponent" description="Services">
+    
+      <!-- Operation for Activating/Deactivating Services -->
+      <operation name="changeServiceState" description="Activate / DeActivate Service.">
+        <parameters>
+          <c:simple-property name="action" default="activate">
+            <c:property-options>
+              <c:option value="activate" name="Activate" />
+              <c:option value="deactivate" name="Deactivate" />
+            </c:property-options>
+          </c:simple-property>
+        </parameters>
+        <results>
+          <c:simple-property name="result" />
+        </results>
+      </operation>
+
+      <!-- Operation for Retrieving SBB Entities for Service -->
+      <operation name="retrieveSbbEntities" description="Retrieve current SBB Entities for this Service">
+        <results>
+          <c:notes>...</c:notes>
+          <c:list-property name="result">
+            <c:map-property required="false" name="element">
+              <c:simple-property required="false" name="SBB Entity Id" />
+              <c:simple-property required="false" name="Parent SBB Entity Id" />
+              <c:simple-property required="false" name="Priority" />
+              <c:simple-property required="false" name="Attachment Count" />
+            </c:map-property>
+          </c:list-property>
+        </results>
+      </operation>
+
+      <!-- Metric to show service state over time -->
+      <metric property="state" displayName="State Code" dataType="trait" displayType="summary" />
+    </service>
+
+    <!-- JAIN SLEE SBB Component -->
+    <service name="Sbb" class="SbbComponent" discovery="SbbDiscoveryComponent" description="SBBs">
+      <!-- Metric to show service state over time -->
+      <metric property="state" displayName="State Code" dataType="trait" displayType="summary" />
+      <!-- Metric to show sbb entities for this service over time -->
+      <metric property="SbbEntitiesCount" displayName="SBB Entities Count" dataType="trait" displayType="summary" />
+    </service>
+
+    <!-- JAIN SLEE Resource Adaptor Component -->
+    <service name="ResourceAdaptor" class="ResourceAdaptorComponent" discovery="ResourceAdaptorDiscoveryComponent"   description="Resource Adaptors">
+
+      <metric property="entities" displayName="Entities Active" measurementType="dynamic" displayType="summary" description="Number of currently active Entities irrespective of Entities State" />
+      <metric property="ratype" dataType="trait" displayType="summary" displayName="Resource Adaptor Type" defaultInterval="86400" />
+
+      <resource-configuration>
+        <c:list-property name="properties">
+          <c:map-property name="propertyDefinition">
+            <c:simple-property name="propertyName" displayName="Property Name" summary="true" description="name of the property" />
+            <c:simple-property name="propertyType" displayName="Type" summary="true" description="Java type of the property">
+              <c:property-options>
+                <c:option value="java.lang.String" />
+                <c:option value="java.lang.Integer" />
+                <c:option value="java.lang.Long" />
+              </c:property-options>
+            </c:simple-property>
+            <c:simple-property name="propertyValue" displayName="Value" summary="true" description="Property value" />
+          </c:map-property>
+        </c:list-property>
+      </resource-configuration>
+
+      <service name="ResourceAdaptorEntity" class="RAEntityComponent" discovery="RAEntityDiscoveryComponent"
+        description="Resource Adaptor Entity" createDeletePolicy="both" creationDataType="configuration">
 
 
-	<depends plugin="JMX" useClasses="true" />
+        <operation name="changeRaEntityState" description="Activate / DeActivate RA Entity. To Remove RA Entity, use Delete Resource">
+          <parameters>
+            <c:simple-property name="action" default="activate">
+              <c:property-options>
+                <c:option value="activate" name="Activate" />
+                <c:option value="deactivate" name="Deactivate" />
+              </c:property-options>
+            </c:simple-property>
+          </parameters>
+          <results>
+            <c:simple-property name="result" />
+          </results>
+        </operation>
 
-	<server name="Mobicents JSLEE Server" classLoader="instance"
-		class="JainSleeServerComponent"
-		discovery="JainSleeServerDiscoveryComponent"
-		description="Mobicents JAIN SLEE Server 2.x.y"
-		supportsManualAdd="true">
+        <operation name="listActivityContexts" displayName="List Activity Context" description="List Activity Context details for this Resource Adaptor Entity">
 
-		<plugin-configuration>
-			<c:group name="connectionInfo">
-				<c:simple-property name="namingURL"
-					displayName="Naming Provider URL"
-					description="The JBoss Naming Provider (JNP) URL with which to connect to the JBoss AS or EAP instance (e.g. jnp://127.0.0.1:1099)." />
-				<c:simple-property name="principal" required="false"
-					description="The name of the principal (i.e. user) to authenticate." />
-				<c:simple-property name="credentials" type="password"
-					required="false"
-					description="The credentials (i.e. password) that should be used to authenticate the principal." />
-				<c:simple-property name="homeDir"
-					displayName="JBoss Home Directory" type="directory" readOnly="true"
-					description="The absolute path to the directory where JBoss AS or EAP is installed (e.g. /opt/jboss-5.1.0.GA)." />
-				<c:simple-property name="serverHomeDir" type="directory"
-					readOnly="true"
-					description="The path to the configuration directory under which this instance
-                                               operates (e.g. /opt/jboss-5.2.0.GA/server/default); if the path is not absolute,
-                                               then it will be resolved relative to {homeDir}." />
-				<c:simple-property name="serverName" required="false"
-					description="The name of the server configuration (e.g. minimal, default, or all);
-                                               if not specified, it will default to the last path component of {serverHomeDir}."
-					default="default" />
-			</c:group>
+          <results>
+            <c:notes>...</c:notes>
+            <c:list-property name="result">
+              <c:map-property required="false" name="element">
+                <c:simple-property required="false" name="ActivityHandle" />
+                <c:simple-property required="false" name="Class" />
+                <c:simple-property required="false" name="LastAccessTime" />
+                <c:simple-property name="ResourceAdaptor" />
 
-		</plugin-configuration>
+                <!-- List within Map still not supported. We will add when its available -->
+                <!-- c:list-property name="SbbAttachments">
+                  <c:map-property name="SbbAttachment" -->
+                <c:simple-property name="SbbAttachmentValue" />
+                <!-- /c:map-property>
+                  
+                  </c:list-property>
+                  <c:list-property name="NamesBoundTo">
+                  <c:map-property name="NameBoundTo" -->
+                <c:simple-property name="NameBoundToValue" />
+                <!-- /c:map-property>
+                  </c:list-property>
+                  <c:list-property name="Timers">
+                  <c:map-property name="Timer" -->
+                <c:simple-property name="TimerValue" />
+                <!-- /c:map-property>
+                  </c:list-property>
+                  <c:list-property name="DataProperties">
+                  <c:map-property name="DataProperty" -->
+                <c:simple-property name="DataPropertyValue" />
+                <!-- /c:map-property>
+                  </c:list-property-->
+              </c:map-property>
+            </c:list-property>
+          </results>
+        </operation>
 
-		<process-scan name="jbossas"
-			query="process|basename|match=^java.*,arg|org.jboss.Main|match=.*" />
+        <metric property="state" displayName="State" dataType="trait" displayType="summary" />
+        <metric property="activites" displayName="Activites Live" measurementType="dynamic" displayType="summary" description="Number of currently live Activities" />
 
-		<operation name="sleeState"
-			description="Start/Stop or Shutdown Mobicents SLEE Server. To Shutdown, the Mobicents JSLEE Server should be first Stopped">
-			<parameters>
-				<c:simple-property name="action" default="stop">
-					<c:property-options>
-						<c:option value="start" name="start" />
-						<c:option value="stop" name="stop" />
-						<c:option value="shutdown" name="shutdown" />
-					</c:property-options>
-				</c:simple-property>
-			</parameters>
-			<results>
-				<c:simple-property name="result" />
-			</results>
-		</operation>
+        <resource-configuration>
+          <c:simple-property name="entityName" displayName="Entity Name" />
+          <c:list-property name="properties">
+            <c:map-property name="propertyDefinition">
+              <c:simple-property name="propertyName" displayName="Property Name" summary="true" description="name of the property" />
+              <c:simple-property name="propertyType" displayName="Type" summary="true" description="Java type of the property">
+                <c:property-options>
+                  <c:option value="java.lang.String" />
+                  <c:option value="java.lang.Integer" />
+                  <c:option value="java.lang.Long" />
+                </c:property-options>
+              </c:simple-property>
+              <c:simple-property name="propertyValue" displayName="Value" summary="true" description="Property value" />
+            </c:map-property>
+          </c:list-property>
+        </resource-configuration>
 
-		<operation name="listActivityContexts"
-			displayName="List all Activity Context"
-			description="List all Activity Context details in this server">
+        <service name="ResourceAdaptorEntityLink" class="RAEntityLinkComponent" discovery="RAEntityLinkDiscoveryComponent"
+          description="Resource Adaptor Entity Link" createDeletePolicy="both" creationDataType="configuration">
 
-			<results>
-				<c:notes>This is Note Note Note Note</c:notes>
-				<c:list-property name="result">
-					<c:map-property required="false" name="element">
-						<c:simple-property required="false"
-							name="ActivityHandle" />
-						<c:simple-property required="false"
-							name="Class" />
-						<c:simple-property required="false"
-							name="LastAccessTime" />
-						<c:simple-property name="ResourceAdaptor" />
+          <operation name="listBoundSbbs" displayName="List bound Sbbs" description="List all Sbb bound to this link">
+            <results>
+              <c:notes>...</c:notes>
+              <c:list-property name="result">
+                <c:map-property required="false" name="element">
+                  <c:simple-property required="false" name="SbbName" />
+                  <c:simple-property required="false" name="SbbVendeor" />
+                  <c:simple-property required="false" name="SbbVersion" />
+                </c:map-property>
+              </c:list-property>
+            </results>
+          </operation>
 
-						<!-- List within Map still not supported. We will add when its available -->
-						<!-- c:list-property
-							name="SbbAttachments">
-							<c:map-property
-							name="SbbAttachment" -->
-						<c:simple-property name="SbbAttachmentValue" />
-						<!-- /c:map-property>
-							
-							</c:list-property>
-							<c:list-property name="NamesBoundTo">
-							<c:map-property
-							name="NameBoundTo" -->
-						<c:simple-property name="NameBoundToValue" />
-						<!-- /c:map-property>
-							</c:list-property>
-							<c:list-property name="Timers">
-							<c:map-property name="Timer" -->
-						<c:simple-property name="TimerValue" />
-						<!-- /c:map-property>
-							</c:list-property>
-							<c:list-property
-							name="DataProperties">
-							<c:map-property
-							name="DataProperty" -->
-						<c:simple-property name="DataPropertyValue" />
-						<!-- /c:map-property>
-							</c:list-property-->
-					</c:map-property>
-				</c:list-property>
-			</results>
-		</operation>
-
-		<metric property="state" displayName="State" dataType="trait"
-			displayType="summary" />
-
-		<service name="DeployableUnits" class="DeployableUnitComponent"
-			discovery="DeployableUnitDiscoveryComponent"
-			description="Deployable Units" createDeletePolicy="both"
-			creationDataType="content">
-
-			<plugin-configuration>
-				<c:group name="general" displayName="General">
-					<c:simple-property name="deploymentName"
-						description="The name of this DU" readOnly="true" />
-					<c:simple-property name="filename" readOnly="true" />
-				</c:group>
-				<c:group name="advanced" displayName="Advanced"
-					hiddenByDefault="true">
-					<c:simple-property name="extension" default="jar"
-						readOnly="true" />
-					<c:simple-property name="descriptionTemplate"
-						default="Enterprise Application" readOnly="true" />
-					<c:simple-property name="deploymentTypeName"
-						default="JavaEEApplication" readOnly="true">
-						<c:description>
-							The name of the item from the
-							org.jboss.deployers.spi.management.KnownDeploymentTypes
-							enum corresponding to this deployment's
-							type.
-						</c:description>
-					</c:simple-property>
-				</c:group>
-			</plugin-configuration>
-			<operation name="listComponents"
-				displayName="List Component IDs"
-				description="Get the component identifiers of the components installed with this deployable unit">
-
-				<results>
-					<c:notes>This is Note Note Note Note</c:notes>
-					<c:list-property name="result">
-						<c:map-property required="false"
-							name="element">
-							<c:simple-property required="false"
-								name="Name" />
-							<c:simple-property required="false"
-								name="Vendor" />
-							<c:simple-property required="false"
-								name="Version" />
-
-						</c:map-property>
-					</c:list-property>
-				</results>
-			</operation>
-
-			<content name="file" displayName="DU File"
-				category="deployable" isCreationType="true">
-				&deploymentContentConfigProps;
-			</content>
-		</service>
-
-		<service name="Service" class="ServiceComponent"
-			discovery="ServiceDiscoveryComponent" description="Services">
-
-			<operation name="changeServiceState"
-				description="Activate / DeActivate Service.">
-				<parameters>
-					<c:simple-property name="action"
-						default="activate">
-						<c:property-options>
-							<c:option value="activate" name="Activate" />
-							<c:option value="deactivate"
-								name="DeActivate" />
-						</c:property-options>
-					</c:simple-property>
-				</parameters>
-				<results>
-					<c:simple-property name="result" />
-				</results>
-			</operation>
-
-			<metric property="state" displayName="State Code"
-				dataType="trait" displayType="summary" />
-		</service>
-
-		<service name="ResourceAdaptor" class="ResourceAdaptorComponent"
-			discovery="ResourceAdaptorDiscoveryComponent"
-			description="Resource Adaptor">
-
-			<metric property="entities" displayName="Entities Active"
-				measurementType="dynamic" displayType="summary"
-				description="Number of currently active Entities irrespective of Entities State" />
-			<metric property="ratype" dataType="trait"
-				displayType="summary" displayName="Resource Adaptor Type"
-				defaultInterval="86400" />
-
-
-			<resource-configuration>
-
-				<c:list-property name="properties">
-					<c:map-property name="propertyDefinition">
-						<c:simple-property name="propertyName"
-							displayName="Property Name" summary="true"
-							description="name of the property" />
-						<c:simple-property name="propertyType"
-							displayName="Type" summary="true"
-							description="Java type of the property">
-							<c:property-options>
-								<c:option value="java.lang.String" />
-								<c:option value="java.lang.Integer" />
-								<c:option value="java.lang.Long" />
-							</c:property-options>
-						</c:simple-property>
-						<c:simple-property name="propertyValue"
-							displayName="Value" summary="true" description="Property value" />
-					</c:map-property>
-				</c:list-property>
-			</resource-configuration>
-
-			<service name="ResourceAdaptorEntity"
-				class="RAEntityComponent" discovery="RAEntityDiscoveryComponent"
-				description="Resource Adaptor Entity" createDeletePolicy="both"
-				creationDataType="configuration">
-
-
-				<operation name="changeRaEntityState"
-					description="Activate / DeActivate RA Entity. To Remove RA Entity, use Delete Resource">
-					<parameters>
-						<c:simple-property name="action"
-							default="activate">
-							<c:property-options>
-								<c:option value="activate"
-									name="Activate" />
-								<c:option value="deactivate"
-									name="DeActivate" />
-							</c:property-options>
-						</c:simple-property>
-					</parameters>
-					<results>
-						<c:simple-property name="result" />
-					</results>
-				</operation>
-
-				<operation name="listActivityContexts"
-					displayName="List Activity Context"
-					description="List Activity Context details for this Resource Adaptor Entity">
-
-					<results>
-						<c:notes>This is Note Note Note Note</c:notes>
-						<c:list-property name="result">
-							<c:map-property required="false"
-								name="element">
-								<c:simple-property required="false"
-									name="ActivityHandle" />
-								<c:simple-property required="false"
-									name="Class" />
-								<c:simple-property required="false"
-									name="LastAccessTime" />
-								<c:simple-property
-									name="ResourceAdaptor" />
-
-								<!-- List within Map still not supported. We will add when its available -->
-								<!-- c:list-property
-									name="SbbAttachments">
-									<c:map-property
-									name="SbbAttachment" -->
-								<c:simple-property
-									name="SbbAttachmentValue" />
-								<!-- /c:map-property>
-									
-									</c:list-property>
-									<c:list-property name="NamesBoundTo">
-									<c:map-property
-									name="NameBoundTo" -->
-								<c:simple-property
-									name="NameBoundToValue" />
-								<!-- /c:map-property>
-									</c:list-property>
-									<c:list-property name="Timers">
-									<c:map-property name="Timer" -->
-								<c:simple-property name="TimerValue" />
-								<!-- /c:map-property>
-									</c:list-property>
-									<c:list-property
-									name="DataProperties">
-									<c:map-property
-									name="DataProperty" -->
-								<c:simple-property
-									name="DataPropertyValue" />
-								<!-- /c:map-property>
-									</c:list-property-->
-							</c:map-property>
-						</c:list-property>
-					</results>
-				</operation>
-
-				<metric property="state" displayName="State"
-					dataType="trait" displayType="summary" />
-				<metric property="activites"
-					displayName="Activites Live" measurementType="dynamic"
-					displayType="summary"
-					description="Number of currently live Activities" />
-
-				<resource-configuration>
-					<c:simple-property name="entityName"
-						displayName="Entity Name" />
-					<c:list-property name="properties">
-						<c:map-property name="propertyDefinition">
-							<c:simple-property name="propertyName"
-								displayName="Property Name" summary="true"
-								description="name of the property" />
-							<c:simple-property name="propertyType"
-								displayName="Type" summary="true"
-								description="Java type of the property">
-								<c:property-options>
-									<c:option value="java.lang.String" />
-									<c:option value="java.lang.Integer" />
-									<c:option value="java.lang.Long" />
-								</c:property-options>
-							</c:simple-property>
-							<c:simple-property name="propertyValue"
-								displayName="Value" summary="true" description="Property value" />
-						</c:map-property>
-					</c:list-property>
-				</resource-configuration>
-
-				<service name="ResourceAdaptorEntityLink"
-					class="RAEntityLinkComponent"
-					discovery="RAEntityLinkDiscoveryComponent"
-					description="Resource Adaptor Entity Link"
-					createDeletePolicy="both" creationDataType="configuration">
-
-					<operation name="listBoundSbbs"
-						displayName="List bound Sbbs"
-						description="List all Sbb bound to this link">
-
-						<results>
-							<c:notes>
-								This is Note Note Note Note
-							</c:notes>
-							<c:list-property name="result">
-								<c:map-property required="false"
-									name="element">
-									<c:simple-property required="false"
-										name="SbbName" />
-									<c:simple-property required="false"
-										name="SbbVendeor" />
-									<c:simple-property required="false"
-										name="SbbVersion" />
-								</c:map-property>
-							</c:list-property>
-						</results>
-					</operation>
-
-
-					<resource-configuration>
-						<c:simple-property name="linkName"
-							displayName="Link Name" />
-					</resource-configuration>
-				</service>
-
-			</service>
-
-
-
-		</service>
-
-	</server>
+          <resource-configuration>
+            <c:simple-property name="linkName" displayName="Link Name" />
+          </resource-configuration>
+        </service>
+    
+      </service>
+    </service>
+  </server>
 </plugin>

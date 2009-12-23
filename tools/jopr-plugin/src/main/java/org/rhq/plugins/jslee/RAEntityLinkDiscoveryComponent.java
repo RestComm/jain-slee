@@ -55,7 +55,7 @@ public class RAEntityLinkDiscoveryComponent implements ResourceDiscoveryComponen
 			discoveredLinks.add(discoveredEntity);
 		}
 
-		log.info("discovered " + discoveredLinks.size() + " number of Services");
+		log.info("Discovered " + discoveredLinks.size() + "  Resource Adaptor Entity Links.");
 		return discoveredLinks;
 
 	}

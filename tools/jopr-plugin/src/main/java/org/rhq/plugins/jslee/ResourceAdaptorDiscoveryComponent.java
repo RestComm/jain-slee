@@ -38,8 +38,8 @@ public class ResourceAdaptorDiscoveryComponent implements ResourceDiscoveryCompo
 		ResourceAdaptorID[] ras = deploymentMBean.getResourceAdaptors();
 
 		for (ResourceAdaptorID raID : ras) {
-			String key = raID.getName() + raID.getVendor() + raID.getVersion();
-			String description = raID.getName() + "#" + raID.getVendor() + "#" + raID.getVersion();
+			String key = raID.toString();
+			String description = raID.toString();
 
 			DiscoveredResourceDetails discoveredService = new DiscoveredResourceDetails(context.getResourceType(), key,
 					raID.getName(), raID.getVersion(), description, null, null);

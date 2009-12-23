@@ -42,12 +42,13 @@ public class DeployableUnitDiscoveryComponent implements ResourceDiscoveryCompon
 			DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(deployableUnitID);
 
 			String key = deployableUnitID.getURL();
-			String[] elements = key.split(System.getProperty("file.separator"));
+			
+			// replace needed for Windows OS as \ needs to be escaped
+			String[] elements = key.split(System.getProperty("file.separator").replaceAll("\\\\", "\\\\\\\\"));
 			String lastElement = elements[(elements.length - 1)];
 			String name = lastElement.substring(0, lastElement.lastIndexOf("."));
 
-			String description = name + " Deployed on : " + deployableUnitDescriptor.getDeploymentDate() + " URL = "
-					+ key;
+			String description = name + " -- Deployed on : " + deployableUnitDescriptor.getDeploymentDate();
 
 			DiscoveredResourceDetails discoveredDu = new DiscoveredResourceDetails(context.getResourceType(), key,
 					name, null, description, null, null);

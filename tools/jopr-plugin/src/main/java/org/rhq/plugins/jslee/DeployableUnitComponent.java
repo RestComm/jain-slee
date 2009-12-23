@@ -35,133 +35,139 @@ import org.rhq.core.pluginapi.operation.OperationFacet;
 import org.rhq.core.pluginapi.operation.OperationResult;
 import org.rhq.plugins.jslee.utils.MBeanServerUtils;
 
-public class DeployableUnitComponent implements ResourceComponent<JainSleeServerComponent>, OperationFacet,
-		DeleteResourceFacet, ContentFacet {
-	private final Log log = LogFactory.getLog(this.getClass());
+public class DeployableUnitComponent implements ResourceComponent<JainSleeServerComponent>, OperationFacet, DeleteResourceFacet, ContentFacet {
+  private final Log log = LogFactory.getLog(this.getClass());
 
-	private ResourceContext<JainSleeServerComponent> resourceContext;
-	private DeployableUnitID deployableUnitID = null;
-	private MBeanServerUtils mbeanUtils = null;
+  private ResourceContext<JainSleeServerComponent> resourceContext;
+  private DeployableUnitID deployableUnitID = null;
+  private MBeanServerUtils mbeanUtils = null;
 
-	private ObjectName deploymentObjName;
+  private ObjectName deploymentObjName;
 
-	public void start(ResourceContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException,
-			Exception {
-		log.info("DeployableUnitComponent.start");
+  public void start(ResourceContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
+    log.info("DeployableUnitComponent.start");
 
-		this.resourceContext = context;
-		this.deploymentObjName = new ObjectName(DeploymentMBean.OBJECT_NAME);
+    this.resourceContext = context;
+    this.deploymentObjName = new ObjectName(DeploymentMBean.OBJECT_NAME);
 
-		this.mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
+    this.mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
 
-		String url = this.resourceContext.getPluginConfiguration().getSimple("url").getStringValue();
-		this.deployableUnitID = new DeployableUnitID(url);
-	}
+    String url = this.resourceContext.getPluginConfiguration().getSimple("url").getStringValue();
+    this.deployableUnitID = new DeployableUnitID(url);
+  }
 
-	public void stop() {
-		log.info("DeployableUnitComponent.stop");
-	}
+  public void stop() {
+    log.info("DeployableUnitComponent.stop");
+  }
 
-	public AvailabilityType getAvailability() {
-		log.info("getAvailability");
-		try {
-			MBeanServerConnection connection = this.mbeanUtils.getConnection();
-			DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(
-					connection, this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
+  public AvailabilityType getAvailability() {
+    log.info("getAvailability");
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
 
-			DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(this.deployableUnitID);
+      DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(this.deployableUnitID);
+      deployableUnitDescriptor.getDeploymentDate();
+    }
+    catch (Exception e) {
+      log.error("getAvailability failed for DeployableUnitID = " + this.deployableUnitID);
 
-		} catch (Exception e) {
-			log.error("getAvailability failed for DeployableUnitID = " + this.deployableUnitID);
+      return AvailabilityType.DOWN;
+    }
 
-			return AvailabilityType.DOWN;
-		}
+    return AvailabilityType.UP;
+  }
 
-		return AvailabilityType.UP;
-	}
+  public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
+    log.info("DeployableUnitComponent.invokeOperation() with name = " + name);
 
-	public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException,
-			Exception {
-		log.info("DeployableUnitComponent.invokeOperation() with name = " + name);
+    // List the DU Components IDs
+    if ("listComponents".equals(name)) {
+      return doListComponents();
+    }
+    else {
+      throw new UnsupportedOperationException("Operation [" + name + "] is not supported.");
+    }
+  }
 
-		OperationResult result = new OperationResult();
-		if ("listComponents".equals(name)) {
-			MBeanServerConnection connection = this.mbeanUtils.getConnection();
-			DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(
-					connection, this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
+  public void deleteResource() throws Exception {
+    MBeanServerConnection connection = this.mbeanUtils.getConnection();
+    DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
+        this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
+    deploymentMBean.uninstall(this.deployableUnitID);
+  }
 
-			DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(this.deployableUnitID);
+  public DeployPackagesResponse deployPackages(Set<ResourcePackageDetails> packages, ContentServices contentServices) {
 
-			ComponentID[] components = deployableUnitDescriptor.getComponents();
+    log.info("DeployableUnitComponent.deployPackages()");
 
-			PropertyList columnList = new PropertyList("result");
+    String resourceTypeName = this.resourceContext.getResourceType().getName();
 
-			for (ComponentID componentID : components) {
-				PropertyMap col = new PropertyMap("element");
+    if (packages.size() != 1) {
+      log.warn("Request to update " + resourceTypeName + " file contained multiple packages: " + packages);
+      DeployPackagesResponse response = new DeployPackagesResponse(ContentResponseResult.FAILURE);
+      response.setOverallRequestErrorMessage("Only one " + resourceTypeName + " can be updated at a time.");
+      return response;
+    }
 
-				col.put(new PropertySimple("Name", componentID.getName()));
-				col.put(new PropertySimple("Vendor", componentID.getVendor()));
-				col.put(new PropertySimple("Version", componentID.getVersion()));
+    ResourcePackageDetails packageDetails = packages.iterator().next();
 
-				columnList.add(col);
+    log.info("Updating DU file ' ' using [" + packageDetails + "]...");
 
-			}
+    return null;
+  }
 
-			result.getComplexResults().put(columnList);
-		} else {
-			throw new UnsupportedOperationException("Operation [" + name + "] is not supported yet.");
-		}
+  public Set<ResourcePackageDetails> discoverDeployedPackages(PackageType packageType) {
+    log.info("DeployableUnitComponent.discoverDeployedPackages() "+ packageType.getDisplayName());
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-		return result;
-	}
+  public List<DeployPackageStep> generateInstallationSteps(ResourcePackageDetails arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	public void deleteResource() throws Exception {
-		MBeanServerConnection connection = this.mbeanUtils.getConnection();
-		DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
-				this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
-		deploymentMBean.uninstall(this.deployableUnitID);
+  public RemovePackagesResponse removePackages(Set<ResourcePackageDetails> arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	}
+  public InputStream retrievePackageBits(ResourcePackageDetails arg0) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	public DeployPackagesResponse deployPackages(Set<ResourcePackageDetails> packages, ContentServices contentServices) {
-		
-		log.info("DeployableUnitComponent.deployPackages()");
-		
-		String resourceTypeName = this.resourceContext.getResourceType().getName();
+  private OperationResult doListComponents() throws Exception {
+    OperationResult result = new OperationResult();
 
-		if (packages.size() != 1) {
-			log.warn("Request to update " + resourceTypeName + " file contained multiple packages: " + packages);
-			DeployPackagesResponse response = new DeployPackagesResponse(ContentResponseResult.FAILURE);
-			response.setOverallRequestErrorMessage("Only one " + resourceTypeName + " can be updated at a time.");
-			return response;
-		}
-		
-		ResourcePackageDetails packageDetails = packages.iterator().next();
-		
-		 log.info("Updating DU file ' ' using [" + packageDetails + "]...");
+    MBeanServerConnection connection = this.mbeanUtils.getConnection();
+    DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(
+        connection, this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
 
-		return null;
-	}
+    DeployableUnitDescriptor deployableUnitDescriptor = deploymentMBean.getDescriptor(this.deployableUnitID);
 
-	public Set<ResourcePackageDetails> discoverDeployedPackages(PackageType arg0) {
-		log.info("DeployableUnitComponent.discoverDeployedPackages() "+ arg0.getDisplayName());
-		// TODO Auto-generated method stub
-		return null;
-	}
+    ComponentID[] components = deployableUnitDescriptor.getComponents();
 
-	public List<DeployPackageStep> generateInstallationSteps(ResourcePackageDetails arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    // The pretty table we are building as result
+    PropertyList columnList = new PropertyList("result");
 
-	public RemovePackagesResponse removePackages(Set<ResourcePackageDetails> arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    // Add the components
+    for (ComponentID componentID : components) {
+      PropertyMap col = new PropertyMap("element");
 
-	public InputStream retrievePackageBits(ResourcePackageDetails arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+      col.put(new PropertySimple("Name", componentID.getName()));
+      col.put(new PropertySimple("Vendor", componentID.getVendor()));
+      col.put(new PropertySimple("Version", componentID.getVersion()));
+
+      columnList.add(col);
+    }
+
+    result.getComplexResults().put(columnList);
+
+    return result;
+  }
+
 
 }

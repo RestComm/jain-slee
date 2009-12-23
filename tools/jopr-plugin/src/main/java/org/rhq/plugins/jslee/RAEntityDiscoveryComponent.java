@@ -20,41 +20,38 @@ import org.rhq.plugins.jslee.utils.MBeanServerUtils;
 
 public class RAEntityDiscoveryComponent implements ResourceDiscoveryComponent<ResourceAdaptorComponent> {
 
-	private final Log log = LogFactory.getLog(this.getClass());
+  private final Log log = LogFactory.getLog(this.getClass());
 
-	public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<ResourceAdaptorComponent> context)
-			throws InvalidPluginConfigurationException, Exception {
+  public Set<DiscoveredResourceDetails> discoverResources(ResourceDiscoveryContext<ResourceAdaptorComponent> context) throws InvalidPluginConfigurationException, Exception {
 
-		log.info("RAEntityDiscoveryComponent.discoverResources() called");
-		Set<DiscoveredResourceDetails> discoveredRAEntities = new HashSet<DiscoveredResourceDetails>();
+    log.info("RAEntityDiscoveryComponent.discoverResources() called");
+    Set<DiscoveredResourceDetails> discoveredRAEntities = new HashSet<DiscoveredResourceDetails>();
 
-		MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
-		MBeanServerConnection connection = mbeanUtils.getConnection();
+    MBeanServerUtils mbeanUtils = context.getParentResourceComponent().getMBeanServerUtils();
+    MBeanServerConnection connection = mbeanUtils.getConnection();
 
-		ObjectName resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
+    ObjectName resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
 
-		ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
-				.newProxyInstance(connection, resourceManagement, javax.slee.management.ResourceManagementMBean.class,
-						false);
+    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+        connection, resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
-		ResourceAdaptorID raID = context.getParentResourceComponent().getResourceAdaptorID();
-		String[] raEntities = resourceManagementMBean.getResourceAdaptorEntities(raID);
+    ResourceAdaptorID raID = context.getParentResourceComponent().getResourceAdaptorID();
+    String[] raEntities = resourceManagementMBean.getResourceAdaptorEntities(raID);
 
-		for (String entityName : raEntities) {
-			String description = "RA Entity : " + entityName + " For ResourceAdaptor : " + raID.getName() + "#"
-					+ raID.getVendor() + "#" + raID.getVersion();
+    for (String entityName : raEntities) {
+      String description = "RA Entity : " + entityName + " For ResourceAdaptor : " + raID.toString();
 
-			DiscoveredResourceDetails discoveredEntity = new DiscoveredResourceDetails(context.getResourceType(),
-					entityName, entityName+" Entity", raID.getVersion(), description, null, null);
-			discoveredEntity.getPluginConfiguration().put(new PropertySimple("entityName", entityName));
-			discoveredEntity.getPluginConfiguration().put(new PropertySimple("name", raID.getName()));
-			discoveredEntity.getPluginConfiguration().put(new PropertySimple("version", raID.getVersion()));
-			discoveredEntity.getPluginConfiguration().put(new PropertySimple("vendor", raID.getVendor()));
-			discoveredRAEntities.add(discoveredEntity);
-		}
+      DiscoveredResourceDetails discoveredEntity = new DiscoveredResourceDetails(context.getResourceType(),
+          entityName, entityName+" Entity", raID.getVersion(), description, null, null);
+      discoveredEntity.getPluginConfiguration().put(new PropertySimple("entityName", entityName));
+      discoveredEntity.getPluginConfiguration().put(new PropertySimple("name", raID.getName()));
+      discoveredEntity.getPluginConfiguration().put(new PropertySimple("version", raID.getVersion()));
+      discoveredEntity.getPluginConfiguration().put(new PropertySimple("vendor", raID.getVendor()));
+      discoveredRAEntities.add(discoveredEntity);
+    }
 
-		log.info("discovered " + discoveredRAEntities.size() + " number of Services");
-		return discoveredRAEntities;
-	}
+    log.info("discovered " + discoveredRAEntities.size() + " number of Services");
+    return discoveredRAEntities;
+  }
 
 }

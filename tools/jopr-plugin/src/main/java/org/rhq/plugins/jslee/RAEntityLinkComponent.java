@@ -25,105 +25,107 @@ import org.rhq.plugins.jslee.utils.ResourceAdaptorUtils;
 
 public class RAEntityLinkComponent implements ResourceAdaptorUtils, DeleteResourceFacet, OperationFacet {
 
-	private final Log log = LogFactory.getLog(this.getClass());
+  private final Log log = LogFactory.getLog(this.getClass());
 
-	private ResourceContext<RAEntityComponent> resourceContext;
-	private String raEntityLinkName;
-	private String raEntityName;
-	private ResourceAdaptorID raId = null;
-	private MBeanServerUtils mbeanUtils = null;
-	private SbbID[] boundSbbs = null;
+  private ResourceContext<RAEntityComponent> resourceContext;
+  private String raEntityLinkName;
+  private String raEntityName;
+  private ResourceAdaptorID raId = null;
+  private MBeanServerUtils mbeanUtils = null;
+  private SbbID[] boundSbbs = null;
 
-	private ConfigProperties configProperties = null;
+  private ConfigProperties configProperties = null;
 
-	private ObjectName resourceManagement;
+  private ObjectName resourceManagement;
 
-	public ResourceAdaptorID getResourceAdaptorID() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  public ResourceAdaptorID getResourceAdaptorID() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-	public void start(ResourceContext context) throws InvalidPluginConfigurationException, Exception {
-		log.info("RAEntityComponent.start");
+  public void start(ResourceContext context) throws InvalidPluginConfigurationException, Exception {
+    log.info("RAEntityComponent.start");
 
-		this.resourceContext = context;
-		this.resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
+    this.resourceContext = context;
+    this.resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
 
-		this.mbeanUtils = ((RAEntityComponent) context.getParentResourceComponent()).getMBeanServerUtils();
+    this.mbeanUtils = ((RAEntityComponent) context.getParentResourceComponent()).getMBeanServerUtils();
 
-		this.raEntityLinkName = this.resourceContext.getPluginConfiguration().getSimple("linkName").getStringValue();
-		this.raEntityName = ((RAEntityComponent) context.getParentResourceComponent()).getRAEntityName();
-		this.raId = ((RAEntityComponent) context.getParentResourceComponent()).getResourceAdaptorID();
-	}
+    this.raEntityLinkName = this.resourceContext.getPluginConfiguration().getSimple("linkName").getStringValue();
+    this.raEntityName = ((RAEntityComponent) context.getParentResourceComponent()).getRAEntityName();
+    this.raId = ((RAEntityComponent) context.getParentResourceComponent()).getResourceAdaptorID();
+  }
 
-	public void stop() {
-		// TODO Auto-generated method stub
+  public void stop() {
+    // TODO Auto-generated method stub
+  }
 
-	}
+  public AvailabilityType getAvailability() {
+    log.info("RAEntityLinkComponent.getAvailability");
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
-	public AvailabilityType getAvailability() {
-		log.info("RAEntityLinkComponent.getAvailability");
-		try {
-			MBeanServerConnection connection = this.mbeanUtils.getConnection();
-			ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
-					.newProxyInstance(connection, this.resourceManagement,
-							javax.slee.management.ResourceManagementMBean.class, false);
+      this.boundSbbs = resourceManagementMBean.getBoundSbbs(this.raEntityLinkName);
 
-			this.boundSbbs = resourceManagementMBean.getBoundSbbs(this.raEntityLinkName);
+    }
+    catch (Exception e) {
+      log.error("getAvailability failed for RAEntityLinkComponent Link = " + this.raEntityLinkName);
 
-		} catch (Exception e) {
-			log.error("getAvailability failed for RAEntityLinkComponent Link = " + this.raEntityLinkName);
+      return AvailabilityType.DOWN;
+    }
 
-			return AvailabilityType.DOWN;
-		}
+    return AvailabilityType.UP;
+  }
 
-		return AvailabilityType.UP;
-	}
+  public MBeanServerUtils getMBeanServerUtils() {
+    return this.mbeanUtils;
+  }
 
-	public MBeanServerUtils getMBeanServerUtils() {
-		return this.mbeanUtils;
-	}
+  public void deleteResource() throws Exception {
+    MBeanServerConnection connection = this.mbeanUtils.getConnection();
+    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+        connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
-	public void deleteResource() throws Exception {
-		MBeanServerConnection connection = this.mbeanUtils.getConnection();
-		ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
-				.newProxyInstance(connection, this.resourceManagement,
-						javax.slee.management.ResourceManagementMBean.class, false);
+    resourceManagementMBean.unbindLinkName(this.raEntityLinkName);
+  }
 
-		resourceManagementMBean.unbindLinkName(this.raEntityLinkName);
+  public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException, Exception {
+    log.info("RAEntityLinkComponent.invokeOperation() with name = " + name);
+    OperationResult result = new OperationResult();
 
-	}
+    if ("listBoundSbbs".equals(name)) {
+      result = doListBoundSBBs();
+    }
+    else {
+      throw new UnsupportedOperationException("Operation [" + name + "] is not supported yet.");
+    }
 
-	public OperationResult invokeOperation(String name, Configuration parameters) throws InterruptedException,
-			Exception {
-		log.info("RAEntityLinkComponent.invokeOperation() with name = " + name);
-		OperationResult result = new OperationResult();
+    return result;
+  }
 
-		if ("listBoundSbbs".equals(name)) {
-			MBeanServerConnection connection = this.mbeanUtils.getConnection();
-			ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
-					.newProxyInstance(connection, this.resourceManagement,
-							javax.slee.management.ResourceManagementMBean.class, false);
+  private OperationResult doListBoundSBBs() throws Exception {
+    MBeanServerConnection connection = this.mbeanUtils.getConnection();
+    ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+        connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
 
-			SbbID[] sbbIds = resourceManagementMBean.getBoundSbbs(this.raEntityLinkName);
+    SbbID[] sbbIds = resourceManagementMBean.getBoundSbbs(this.raEntityLinkName);
 
-			PropertyList columnList = new PropertyList("result");
+    PropertyList columnList = new PropertyList("result");
 
-			for (SbbID sbbID : sbbIds) {
-				PropertyMap col = new PropertyMap("element");
-				col.put(new PropertySimple("SbbName", sbbID.getName()));
-				col.put(new PropertySimple("SbbVendeor", sbbID.getVendor()));
-				col.put(new PropertySimple("SbbVersion", sbbID.getVersion()));
+    for (SbbID sbbID : sbbIds) {
+      PropertyMap col = new PropertyMap("element");
+      col.put(new PropertySimple("SbbName", sbbID.getName()));
+      col.put(new PropertySimple("SbbVendeor", sbbID.getVendor()));
+      col.put(new PropertySimple("SbbVersion", sbbID.getVersion()));
 
-				columnList.add(col);
-			}
+      columnList.add(col);
+    }
 
-			result.getComplexResults().put(columnList);
+    OperationResult result = new OperationResult();
+    result .getComplexResults().put(columnList);
 
-		} else {
-			throw new UnsupportedOperationException("Operation [" + name + "] is not supported yet.");
-		}
-
-		return result;
-	}
+    return result;
+  }
 }
