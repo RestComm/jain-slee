@@ -125,14 +125,20 @@ public class SLEEDeployer extends AbstractSimpleVFSRealDeployer<SLEEDeploymentMe
   }
 
   public void sleeIsRunning() {
+    int failCount = 0;
     for(URL deployableUnitURL : this.waitingList) {
       try {
         callSubDeployer(deployableUnitURL);
         deployableUnits.add(deployableUnitURL);
       }
       catch (Exception e) {
+        failCount++;
         logger.error("Failure during deployment procedures.", e);
       }
+    }
+
+    if(this.waitingList.size() > 0) {
+      logger.info("><><><><><><><><>< Deployment of JAIN SLEE deployable-units complete. " + (failCount == 0 ? "No" : failCount) + " failures. ><><><><><><><><><");
     }
 
     // This should suffice for sync deployments

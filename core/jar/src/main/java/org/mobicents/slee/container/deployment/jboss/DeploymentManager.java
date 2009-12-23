@@ -468,38 +468,7 @@ public class DeploymentManager {
   }
 
   /**
-   * Callback for {@link SleeStateJMXMonitor}, to learn when SLEE is running.
-   */
-  public void sleeIsRunning() {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Got notified that SLEE is now in running state");
-    }
-
-    // process all DUs that are on hold
-    Set<DeployableUnit> duSet = new HashSet<DeployableUnit>(waitingForUninstallDUs);
-    waitingForUninstallDUs.clear();
-    for (DeployableUnit du : duSet) {
-      try {
-        uninstallDeployableUnit(du);            
-      }
-      catch (Exception e) {
-        logger.error("Failed to uninstall DU on hold, after SLEE is running",e);
-      }
-    }
-    duSet = new HashSet<DeployableUnit>(waitingForInstallDUs);
-    waitingForInstallDUs.clear();
-    for (DeployableUnit du : duSet) {
-      try {
-        installDeployableUnit(du);
-      }
-      catch (Exception e) {
-        logger.error("Failed to install DU on hold, after SLEE is running",e);
-      }
-    }
-  }
-
-  /**
-   * Callback for {@link SleeStateJMXMonitor}, to learn when SLEE is running.
+   * Callback for {@link SleeStateJMXMonitor}, to learn when SLEE is stopping.
    */
   public void sleeIsStopping() {
     if (logger.isDebugEnabled()) {
@@ -515,7 +484,7 @@ public class DeploymentManager {
           uninstallDeployableUnit(du);            
         }
         catch (DeploymentException de) {
-          // ignore, this has been dealed before
+          // ignore, this has been dealt before
         }
         catch (Exception e) {
           logger.error("Failed to uninstall DU on hold, while SLEE is stopping",e);
