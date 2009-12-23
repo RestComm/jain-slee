@@ -1,0 +1,89 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+	<section id="install_alternatives">
+		<title>Install Alternatives</title>
+		
+		<variablelist>
+		    <varlistentry>
+		        <term>Binary Release</term>
+		        <listitem>
+		            <para>The binary release is a zip file containing an already built binary release of Mobicents JAIN SLEE</para>
+		        </listitem>
+		    </varlistentry>
+		    <varlistentry>
+		        <term>Release Source Building</term>
+		        <listitem>
+		            <para>As an alternative to the binary release, it is possible to download a specific release source code and build a binary from it.</para>
+		        </listitem>
+		    </varlistentry>
+		    <varlistentry>
+		        <term>Trunk Source Building</term>
+		        <listitem>
+		            <para>Similar as the Release Source Building, but done on the trunk (current development) source code.</para>
+		        </listitem>
+		    </varlistentry>
+		    <varlistentry>
+		        <term>Binary Release Snapshot</term>
+		        <listitem>
+		            <para>The binary release snapshot is a build of the trunk source code done daily and upoaded to a public web site.</para>
+		        </listitem>
+		    </varlistentry>		    
+		</variablelist>
+
+		<section id="binary_release">
+			<title>Binary Release</title>
+			<para>You can download the Binary zip files from <ulink url="http://sourceforge.net/projects/mobicents/files/Mobicents JAIN SLEE Server"/>.</para>
+			<procedure>
+				<para>In this form of installation, simply unzip the downloaded zip file to the directory of your choice on any operating system that supports the zip format.</para>
+  				<step>
+				    <title>Unzip the release file</title>
+				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named mobicents-jainslee-&THIS.VERSION;.zip to the /mobicents directory.</para>
+				    <screen>
+				    [usr]$ cd /mobicents
+				    [usr]$ jar -xvf mobicents-jainslee-&THIS.VERSION;.zip
+					</screen>
+  				</step>
+				<step>
+			    	<title>Setting up JBOSS_HOME Environment Variable</title>
+				    <para> You should now have a directory called mobicents-jainslee-&THIS.VERSION;. Next you need to set your JBOSS_HOME environment variables. This is discussed in <xref linkend="jboss_home_setup"/>.</para>
+				</step>
+			</procedure>      
+		</section>	
+
+		<section id="binary_release_snapshot">
+			<title>Binary Release Snapshot</title>
+			<para>You can download the Binary Snapshot zip files from <ulink url="http://hudson.jboss.org/hudson/view/Mobicents/job/MobicentsSleeRelease/"/>. The installation is similar to the <xref linkend="binary_release"/> one.</para>
+		</section>	
+		
+		<section id="release_source_building">
+			<title>Release Source Building</title>
+			<procedure>
+				<step>
+				    <title>Downloading the source code</title>
+				    <important>
+				    	<para>Subversion is used to manage its source code. Instructions for using Suversion, including install, can be found at <ulink url="http://svnbook.red-bean.com" /></para>
+				    </important>
+				    <para>Use SVN to checkout the specific release source, the base URL is http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/ , then add the specific release version, lets consider &THIS.VERSION;.</para>
+				    <screen>[usr]$ svn co http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/&THIS.VERSION; mobicents-slee-core-&THIS.VERSION;</screen>				    
+  				</step>
+				<step>
+				    <title>Building the source code</title>
+				    <important>
+				    	<para>Apache Ant 1.6 (or higher) and Maven 2.0.9 (or higher) is used to build the release. Instructions for using Ant and Maven2, including install, can be found at <ulink url="http://ant.apache.org" /> and <ulink url="http://maven.apache.org" /></para>
+				    </important>
+				    <para>Use Ant to build the binary.</para>
+				    <screen>
+				    [usr]$ cd mobicents-slee-core-&THIS.VERSION;
+				    [usr]$ ant
+				    </screen>
+				    <para>Onde the process finishes you should have a mobicents-jainslee-&THIS.VERSION;.zip file, installation is the same as for <xref linkend="binary_release"/>.</para>
+  				</step>
+			</procedure>      
+		</section>	
+		
+		<section id="trunk_source_building">
+			<title>Trunk Source Building</title>
+			<para>Similar process as for <xref linkend="release_source_building"/>, the only change is the SVN source code URL, which is http://mobicents.googlecode.com/svn/trunk/servers/jain-slee.</para>
+		</section>	
+	
+	</section>

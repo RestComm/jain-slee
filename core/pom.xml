@@ -68,6 +68,7 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
+				<module>docs</module>	
 			</modules>
 			<build>
 				<plugins>
