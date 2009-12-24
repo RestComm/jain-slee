@@ -18,6 +18,7 @@
 		<module>call-sbb</module>
 		<module>recorder-sbb</module>
 		<module>conference-sbb</module>
+		<module>tts-sbb</module>
 		<module>ivr-sbb</module>
 		<module>services-du</module>
 	</modules>

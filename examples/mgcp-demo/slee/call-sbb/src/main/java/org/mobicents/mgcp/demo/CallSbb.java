@@ -44,6 +44,7 @@ public abstract class CallSbb implements Sbb {
 	public final static String IVR_DEMO = "2010";
 	public final static String RECORDER_DEMO = "2011";
 	public final static String CONFERENCE_DEMO = "2012";
+	public final static String TTS_DEMO = "2013";
 
 	private SbbContext sbbContext;
 
@@ -74,8 +75,11 @@ public abstract class CallSbb implements Sbb {
 			ChildRelation relation = getRecorderSbb();
 			forwardEvent(relation, aci, evt);
 		} else if (destination.indexOf(CONFERENCE_DEMO) > 0) {
-			//This should have been taken care
+			// This should have been taken care
 			return;
+		} else if (destination.indexOf(TTS_DEMO) > 0) {
+			ChildRelation relation = getTTSSbbChild();
+			forwardEvent(relation, aci, evt);
 		} else {
 			logger.info("MGCP Demo can understand only " + IVR_DEMO + ", " + RECORDER_DEMO + " and " + CONFERENCE_DEMO
 					+ " dialed numbers");
@@ -124,9 +128,11 @@ public abstract class CallSbb implements Sbb {
 
 	public abstract ChildRelation getRecorderSbb();
 
-	//public abstract ChildRelation getConferenceSbbChild();
+	// public abstract ChildRelation getConferenceSbbChild();
 
 	public abstract ChildRelation getIVRSbbChild();
+
+	public abstract ChildRelation getTTSSbbChild();
 
 	public void unsetSbbContext() {
 		this.sbbContext = null;
