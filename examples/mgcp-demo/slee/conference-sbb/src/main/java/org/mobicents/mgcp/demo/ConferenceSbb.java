@@ -63,6 +63,8 @@ import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
 
+import org.mobicents.mgcp.demo.events.CustomEvent;
+
 /**
  * 
  * @author amit bhayani
@@ -198,7 +200,7 @@ public abstract class ConferenceSbb implements Sbb {
 
 		switch (status.getValue()) {
 		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
-			
+
 			this.setEndpointIdentifier(event.getSpecificEndpointIdentifier());
 
 			String sdp = event.getLocalConnectionDescriptor().toString();
@@ -231,6 +233,12 @@ public abstract class ConferenceSbb implements Sbb {
 			response.setHeader(contact);
 			try {
 				txn.sendResponse(response);
+
+				if (fromVsConnIdMap.size() == 1) {
+					CustomEvent cutEvent = new CustomEvent(this.getEndpointIdentifier().getLocalEndpointName(), this
+							.getCallIdentifier().toString());
+					fireConferenceInitiate(cutEvent, aci, null);
+				}
 			} catch (InvalidArgumentException ex) {
 				ex.printStackTrace();
 			} catch (SipException ex) {
@@ -258,7 +266,7 @@ public abstract class ConferenceSbb implements Sbb {
 			ConnectionIdentifier connId = (ConnectionIdentifier) this.getFromVsConnIdMap().remove(fromURI);
 
 			// EndpointIdentifier endpointID = new EndpointIdentifier(ENDPOINT_NAME, JBOSS_BIND_ADDRESS+":2729");
-			EndpointIdentifier endpointID = getMgcpConnectionActivity().getEndpointIdentifier();
+			EndpointIdentifier endpointID = this.getEndpointIdentifier();
 			DeleteConnection deleteConnection = new DeleteConnection(this, this.getCallIdentifier(), endpointID, connId);
 
 			deleteConnection.setTransactionHandle(this.mgcpProvider.getUniqueTransactionHandler());
@@ -268,11 +276,23 @@ public abstract class ConferenceSbb implements Sbb {
 
 			Response response = messageFactory.createResponse(Response.OK, request);
 			tx.sendResponse(response);
+
+			if (this.getFromVsConnIdMap().size() == 0) {
+				CustomEvent cutEvent = new CustomEvent(this.getEndpointIdentifier().getLocalEndpointName(), this
+						.getCallIdentifier().toString());
+				fireConferenceTerminate(cutEvent, getMgcpConnectionACI(), null);
+			}
+
 		} catch (Exception e) {
 			logger.severe("Error while sending DLCX", e);
 		}
-
 	}
+
+	public abstract void fireConferenceInitiate(CustomEvent event, ActivityContextInterface aci,
+			javax.slee.Address address);
+
+	public abstract void fireConferenceTerminate(CustomEvent event, ActivityContextInterface aci,
+			javax.slee.Address address);
 
 	public InitialEventSelector callIDSelect(InitialEventSelector ies) {
 		Object event = ies.getEvent();
@@ -302,11 +322,11 @@ public abstract class ConferenceSbb implements Sbb {
 		}
 	}
 
-	private MgcpConnectionActivity getMgcpConnectionActivity() {
+	private ActivityContextInterface getMgcpConnectionACI() {
 		ActivityContextInterface[] activities = sbbContext.getActivities();
 		for (ActivityContextInterface activity : activities) {
 			if (activity.getActivity() instanceof MgcpConnectionActivity) {
-				return (MgcpConnectionActivity) activity.getActivity();
+				return activity;
 			}
 		}
 		return null;

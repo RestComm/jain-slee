@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+  <classpathentry kind="src" path="slee/conf-leg-sbb/src/main/resources"/>
+  <classpathentry kind="src" path="slee/conf-leg-sbb/src/main/java"/>
   <classpathentry kind="src" path="slee/recorder-sbb/src/main/resources"/>
   <classpathentry kind="src" path="slee/recorder-sbb/src/main/java"/>
+  <classpathentry kind="src" path="slee/events/src/main/resources"/>
+  <classpathentry kind="src" path="slee/events/src/main/java"/>
   <classpathentry kind="src" path="slee/ivr-sbb/src/main/resources"/>
   <classpathentry kind="src" path="slee/ivr-sbb/src/main/java"/>
   <classpathentry kind="src" path="slee/call-sbb/src/main/java"/>

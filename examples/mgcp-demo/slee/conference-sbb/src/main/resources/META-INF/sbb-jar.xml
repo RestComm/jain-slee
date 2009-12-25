@@ -25,7 +25,7 @@
 				</cmp-field>
 				<cmp-field>
 					<cmp-field-name>txIdVsServerTxMap</cmp-field-name>
-				</cmp-field>				
+				</cmp-field>
 			</sbb-abstract-class>
 		</sbb-classes>
 
@@ -58,6 +58,28 @@
 					net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE
 				</event-type-name>
 				<event-type-vendor>net.java</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Fire">
+			<event-name>ConferenceInitiate</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.mgcp.demo.events.INITIATE
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+		</event>
+
+		<event event-direction="Fire">
+			<event-name>ConferenceTerminate</event-name>
+			<event-type-ref>
+				<event-type-name>
+					org.mobicents.mgcp.demo.events.TERMINATE
+				</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
 		</event>

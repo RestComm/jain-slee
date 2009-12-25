@@ -86,18 +86,18 @@ public abstract class IVRSbb implements Sbb {
 	private final static String DTMF_1 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf1.wav";
 	private final static String DTMF_2 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf2.wav";
 	private final static String DTMF_3 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf3.wav";
-	private final static String DTMF_4 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/dtmf4.wav";
-	private final static String DTMF_5 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/dtmf5.wav";
-	private final static String DTMF_6 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/dtmf6.wav";
-	private final static String DTMF_7 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/dtmf7.wav";
-	private final static String DTMF_8 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/dtmf8.wav";
-	private final static String DTMF_9 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/dtmf9.wav";
-	private final static String STAR = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/star.wav";
-	private final static String POUND = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/pound.wav";
-	private final static String A = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/A.wav";
-	private final static String B = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/B.wav";
-	private final static String C = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/C.wav";
-	private final static String D = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/D.wav";
+	private final static String DTMF_4 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf4.wav";
+	private final static String DTMF_5 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf5.wav";
+	private final static String DTMF_6 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf6.wav";
+	private final static String DTMF_7 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf7.wav";
+	private final static String DTMF_8 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf8.wav";
+	private final static String DTMF_9 = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-dtmf9.wav";
+	private final static String STAR = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-star.wav";
+	private final static String POUND = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-pound.wav";
+	private final static String A = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-A.wav";
+	private final static String B = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-B.wav";
+	private final static String C = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-C.wav";
+	private final static String D = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-D.wav";
 
 	private SbbContext sbbContext;
 
