@@ -38,10 +38,10 @@
   				<step>
 				    <title>Unzip the release file</title>
 				    <para>Unzip the file to extract the archive contents into the location of your choice. You can do this using the JDK jar tool (or any other ZIP extraction tool). In the example below we are assuming you downloaded the zip file was named mobicents-jainslee-&THIS.VERSION;.zip to the /mobicents directory.</para>
-				    <screen>
+				    <programlisting>
 				    [usr]$ cd /mobicents
 				    [usr]$ jar -xvf mobicents-jainslee-&THIS.VERSION;.zip
-					</screen>
+					</programlisting>
   				</step>
 				<step>
 			    	<title>Setting up JBOSS_HOME Environment Variable</title>
@@ -64,7 +64,7 @@
 				    	<para>Subversion is used to manage its source code. Instructions for using Suversion, including install, can be found at <ulink url="http://svnbook.red-bean.com" /></para>
 				    </important>
 				    <para>Use SVN to checkout the specific release source, the base URL is http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/ , then add the specific release version, lets consider &THIS.VERSION;.</para>
-				    <screen>[usr]$ svn co http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/&THIS.VERSION; mobicents-slee-core-&THIS.VERSION;</screen>				    
+				    <programlisting>[usr]$ svn co http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/core/&THIS.VERSION; mobicents-slee-core-&THIS.VERSION;</programlisting>				    
   				</step>
 				<step>
 				    <title>Building the source code</title>
@@ -72,10 +72,10 @@
 				    	<para>Apache Ant 1.6 (or higher) and Maven 2.0.9 (or higher) is used to build the release. Instructions for using Ant and Maven2, including install, can be found at <ulink url="http://ant.apache.org" /> and <ulink url="http://maven.apache.org" /></para>
 				    </important>
 				    <para>Use Ant to build the binary.</para>
-				    <screen>
+				    <programlisting>
 				    [usr]$ cd mobicents-slee-core-&THIS.VERSION;
 				    [usr]$ ant
-				    </screen>
+				    </programlisting>
 				    <para>Onde the process finishes you should have a mobicents-jainslee-&THIS.VERSION;.zip file, installation is the same as for <xref linkend="binary_release"/>.</para>
   				</step>
 			</procedure>      

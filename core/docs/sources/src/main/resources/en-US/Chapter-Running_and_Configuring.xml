@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="configuration_and_running">
+
+	<title>Configurating and Running &THIS.PLATFORM; JAIN SLEE</title>
+
+	<section id="server_profiles">
+		<title>Server Profiles</title>
+		<para>&THIS.PLATFORM; JAIN SLEE reuses &JEE.PLATFORM; server profiles to expose different configurations for different needs:</para>
+		<variablelist>
+		    <varlistentry>
+		        <term>Default Profile</term>
+		        <listitem>
+		            <para>The <application>default</application> profile is proper for standalone or pure high availability. It provides the best performance per cluster node, with linear scaling, but there is no state replication in the cluster, which means that there is no support for failover, neither there is any kind of state gravitation (one node sending state so another node continues its work.</para>
+		        </listitem>
+		    </varlistentry>
+		    <varlistentry>
+		        <term>All Profile</term>
+		        <listitem>
+		            <para>The <application>all</application> profile is proper for more flexible high availability and failover support. Performance per node decreases but the cluster does state replication or gravitation.</para>
+		        </listitem>
+		    </varlistentry>
+		</variablelist>
+		<para>Profiles can be selected when starting the server, see <xref linkend="running"/> for detailed instructions.</para>		
+	</section>
+	
+	<section id="running">
+		<title>Running &THIS.PLATFORM; JAIN SLEE</title>
+		<para>Starting or stopping &THIS.PLATFORM; JAIN SLEE is no different than starting or stopping &JEE.PLATFORM;</para>
+		<section
+			id="starting">
+			<title>Starting</title>
+			<para>Once installed, you can run server(s) by executing the run.sh (Unix) or run.bat (Microsoft Windows) startup scripts in the <filename>&lt;install_directory&gt;/bin</filename> directory (on Unix or Windows).</para>
+			<section
+			id="starting_paramaters">
+				<title>Starting Parameters</title>
+				<variablelist>
+		    		<varlistentry>
+				   	    <term>Server Profile</term>
+				        <listitem>
+				            <para>To specify the server profile use <command>-c profile_name</command>, for instance, to use the <application>all</application> profile then start the server with <command>-c all</command></para>
+				            <important><para>If not specified the <application>default</application> profile is used.</para></important>
+		    		    </listitem>
+					</varlistentry>
+				    <varlistentry>
+				    	<term>IP / Host</term>
+		        		<listitem>
+				            <para>To specify the IP/Host which the server binds, use <command>-b IP</command>, for instance, to use the 192.168.0.1 IP then start the server with <command>-b 192.168.0.1</command></para>
+				            <important><para>If not specified then <application>127.0.0.1</application> is used.</para></important>
+				        </listitem>
+				    </varlistentry>
+				</variablelist>
+			</section>	
+		</section>
+		<section
+			id="stopping">
+			<title>Stopping</title>
+			<para>You can shut down the server(s) you can run server(s) by executing the <command>shutdown.sh -s</command> (Unix) or <command>shutdown.bat -s</command> (Microsoft Windows) scripts in the <filename>&lt;install_directory&gt;/bin</filename> directory (on Unix or Windows). Note that if you properly stop the server, you will see the following three lines as the last output in the Unix terminal or Command Prompt:</para>
+			<screen><![CDATA[[Server] Shutdown complete
+Shutdown complete
+Halting VM]]></screen>
+		</section>	
+	</section>	
+	
+	<section id="configuration">
+		<title>Configuring &THIS.PLATFORM; JAIN SLEE</title>
+		<para>Configuration is done through an XML descriptor for each <xref linkend="server_profiles" />. The XML file is named <filename>jboss-beans.xml</filename> and is located at <filename>$JBOSS_HOME/server/profile_name/deploy/mobicents-slee/META-INF</filename>, where <application>profile_name</application> is the server profile name.</para>
+		<section id="profiles_configuration">
+			<title>Configuring JAIN SLEE Profiles</title>
+			<para>JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile. &THIS.PLATFORM; JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API (JPA) Datasource, through Hibernate. There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+<bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+	<property name="persistProfiles">true</property>
+	<property name="clusteredProfiles">false</property>
+	<property name="hibernateDatasource">java:/DefaultDS</property>
+	<property name="hibernateDialect">org.hibernate.dialect.HSQLDialect</property>
+	<depends>jboss.jca:service=DataSourceBinding,name=DefaultDS</depends>
+</bean>
+<bean name="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+	<property name="persistProfiles">true</property>
+	<property name="clusteredProfiles">true</property>
+	<property name="hibernateDatasource">java:/PostgresDS</property>
+	<property name="hibernateDialect">org.hibernate.dialect.PostgreSQLDialect</property>
+</bean>]]>
+			</programlisting>
+			<important>
+				<para>One can change those configurations or create additional ones. For new ones ensure that the name attribute of the bean element is unique</para>
+			</important>
+			<table frame="all" pgwide="1">
+			  	<title>JAIN SLEE Profiles Bean Configuration</title>
+				<tgroup colsep="1" cols="3">
+			    	<colspec colnum="1" colname="c0"/>
+				    <colspec colnum="2" colname="c1"/>
+				    <colspec colnum="3" colname="c2"/>
+				    <thead>
+						<row>
+					        <entry>Property Name</entry>
+				    	    <entry>Property Type</entry>
+					    	<entry>Description</entry>
+	      				</row>
+				    </thead>
+				    <tbody>
+					      <row>
+					      	<entry>persistProfiles</entry>
+				    	    <entry>boolean</entry>
+				       		<entry>if true profile changes are persisted into the data source</entry>
+					      </row>
+					      <row>
+					        <entry>clusteredProfiles</entry>
+					        <entry>boolean</entry>
+					        <entry>if true then the container is aware there is a shared data source and that updates may be done by other nodes (e.g. delete a JAIN SLEE profile table</entry>
+					      </row>
+				    	  <row>
+				  		    <entry>hibernateDatasource</entry>
+				  		    <entry>String</entry>
+				    	    <entry>the name of the Java Datasource deployed in the &JEE.PLATFORM;</entry>
+					      </row>
+					      <row>
+					        <entry>hibernateDialect</entry>
+					        <entry>String</entry>
+					        <entry>the java class name of the hibernate dialect to use, related with the selected datasource</entry>
+				    	  </row>
+			    	</tbody>
+			  	</tgroup>
+			</table>
+			<para>To switch the active configuration simply change the parameter injected in the bean named <application>Mobicents.JAINSLEE.Container</application>.</para>
+		</section>
+		<section id="usageparams_configuration">
+			<title>Configuring JAIN SLEE Usage Params</title>
+			<para>JAIN SLEE Usage Params are usage statistics of several JAIN SLEE concepts, such as the SBB, Service, Resource Adaptor or Profile Table. Configuration for JAIN SLEE Usage Params is done through a JBoss Microcontainer Bean:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
+	<property name="clusteredUsageMBeans">false</property>		
+</bean>]]>
+			</programlisting>
+			<para>There is a single property to configure, named clusteredUsageMBeans, with a boolean value. Set this property to true if usage param values should be shared by all cluster nodes. This option means a significant performance penalty, but makes it possible to learn the current values for whole cluster by chekcing a single node. Use only if there is no other solution such as a management client that gets each node values and then does appropriate calculations.</para>
+		</section>
+		<section id="runtime_configuration">
+			<title>Runtime Configuration</title>
+			<warning><para>This configuration greatly affects performance or correctness of the container behavior, this is truly for advanced users that know the internals of the container.</para></warning>
+			<para>&THIS.PLATFORM; JAIN SLEE runtime configuration is done through the following JBoss Microcontainer Bean:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
+<bean name="Mobicents.JAINSLEE.MobicentsManagement"
+	class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
+	<property name="entitiesRemovalDelay">1</property>
+	<property name="monitoringUncommittedAcAttachs">true</property>
+	<property name="eventRouterExecutors">64</property>
+	<property name="loadClassesFirstFromAS">true</property>
+</bean>]]>
+			</programlisting>
+			<table frame="all" pgwide="1">
+			  	<title>JAIN SLEE Runtime Configuration</title>
+				<tgroup colsep="1" cols="3">
+			    	<colspec colnum="1" colname="c0"/>
+				    <colspec colnum="2" colname="c1"/>
+				    <colspec colnum="3" colname="c2"/>
+				    <thead>
+						<row>
+					        <entry>Property Name</entry>
+				    	    <entry>Property Type</entry>
+					    	<entry>Description</entry>
+	      				</row>
+				    </thead>
+				    <tbody>
+					      <row>
+					      	<entry>entitiesRemovalDelay</entry>
+				    	    <entry>int</entry>
+				       		<entry>the number of minutes before the container force the ending of sbb entities from a service being deactivated</entry>
+					      </row>
+					      <row>
+					        <entry>monitoringUncommittedAcAttachs</entry>
+					        <entry>boolean</entry>
+					        <entry>if true then the container monitors uncommitted attachements to Activity Contexts (AC), and holds access to those ACs till the attachements are committed, or rollback</entry>
+					      </row>
+				    	  <row>
+				  		    <entry>eventRouterExecutors</entry>
+				  		    <entry>int</entry>
+				    	    <entry>the number of threads routing events in parallel</entry>
+					      </row>
+					      <row>
+					        <entry>loadClassesFirstFromAS</entry>
+					        <entry>boolean</entry>
+					        <entry>if true a classloader always looks for classes first in the container own classloader, which shares and imports classes from &JEE.PLATFORM;</entry>
+				    	  </row>
+			    	</tbody>
+			  	</tgroup>
+			</table>
+		</section>		
+	</section>		
+</chapter>

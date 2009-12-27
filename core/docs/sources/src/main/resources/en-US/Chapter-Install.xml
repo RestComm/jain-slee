@@ -42,6 +42,11 @@
 	
 	<xi:include href="&THIS.PLATFORM.INSTALL_SECTION;"
 		xmlns:xi="http://www.w3.org/2001/XInclude" />	
-			
+	
+	<section id="uninstall">
+		<title>Uninstall &THIS.PLATFORM; JAIN SLEE</title>
+		<para>To uninstall simply delete the directory containing &THIS.PLATFORM; JAIN SLEE.</para>
+	</section>			
+	
 </chapter>
 

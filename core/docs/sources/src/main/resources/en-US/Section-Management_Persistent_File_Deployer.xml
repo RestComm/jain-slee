@@ -1,0 +1,68 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="management_persistent_file_deployer">
+	<title>Persistent Deployable Unit Management</title>
+	<para>&THIS.PLATFORM; JAIN SLEE provides a file deployer that greatly simplifies the management of JAIN SLEE deployable unit jars, i.e. installation of enclosed JAIN SLEE components, automatically (de)activates services contained, and handles resource adaptor entities creation, removal, (de)activation and links (un)binding. All operations are persistent, which means that unlike management done through JMX, these survive server shutdowns.</para>
+	<section id="management_persistent_du_install">
+		<title>Persistent Deployable Unit Install</title>					
+		<para>To install a deployable unit jar simply copy the file to <filename>$JBOSS_HOME/server/profile_name/deploy/</filename>, where <application>profile_name</application> is the server profile name. Child directories can be used.</para>		
+	</section>							
+	<section id="management_persistent_du_uninstall">
+		<title>Persistent Deployable Unit Uninstall</title>
+		<para>To uninstall a deployable unit jar simply delete the file.</para>					
+	</section>							
+	<section id="management_persistent_deployer_additional_behavior">
+		<title>Beyond Deployable Unit (Un)Install</title>
+		<variablelist>
+			<para>The file deployer provides additional behavior then simply (un)install deployable unit jars, as done through the JAIN SLEE 1.1 DeploymentMBean:</para>					
+	  		<varlistentry>
+		   	    <term>Service (De)Activation</term>
+		        <listitem>
+		            <para>All services contained in the deployable unit jar are activated after the install, and deactivated prior to uninstall, or server shutdown.</para>
+	   		    </listitem>
+			</varlistentry>
+		    <varlistentry>
+		   	    <term>Dependencies Management</term>
+		        <listitem>
+		            <para>The deployer puts the deployable unit install on hold till all the dependencies of components contained are installed/activated. On uninstall, it waits for the uninstall of all components which dependend on components inside the deployable unit. After a install or unistall the deployer always evaluates operations on hold.</para>
+	   		    </listitem>
+			</varlistentry>				    
+		</variablelist>
+	</section>
+	<section id="management_persistent_deployer_deploy-config_extension">
+		<title>Deploy-Config Extension</title>
+		<variablelist>
+			<para>A deployable unit jar may include a deploy-config.xml file in its META-INF directory, this file provides additional management actions for persistent install/uninstall operations:</para>
+	   		<varlistentry>
+		   	    <term>Resource Adaptor Entity Management</term>
+		        <listitem>
+		            <para>It is possible to specify RA entities, and the container will create and activate the RA entities after the deployable unit install. On uninstall the container will deactivate and remove those RA entities too.</para>
+    		    </listitem>
+			</varlistentry>
+		    <varlistentry>
+		    	<term>Resource Adaptor Links Management</term>
+	       		<listitem>
+		            <para>It is possible to specify RA links, and the container will bind those after the deployable unit install. On uninstall the container will unbind those RA links too. The links are set for resource adaptor entities created in the deploy-config.xml file.</para>
+		        </listitem>
+		    </varlistentry>
+		</variablelist>
+		
+		<programlisting language="XML" role="XML"><![CDATA[
+<ra-entity
+	resource-adaptor-id="ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]"
+	entity-name="SipRA">
+	<properties>
+		<property name="javax.sip.PORT" type="java.lang.Integer" value="5060" /> 
+	</properties>
+	<ra-link name="SipRA" />
+</ra-entity>]]>
+		</programlisting>
+				
+		<para>The deploy-config.xml example above defines a resource adaptor entity named <literal>SipRa</literal>, to be created for the resource adaptor with id <literal>ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]</literal>, and with a single config property named <literal>javax.sip.PORT</literal> of type <literal>java.lang.Integer</literal> and with value <literal>5060</literal>. Additionally, a resource adaptor link named <literal>SipRa</literal> should be bound to the resource adaptor entity.</para>
+				
+		<para>After the deployable install, the resource adaptor entity is created, then activated, and finally the resource adaptor link is bound. Before the deployable unit uninstall, or server shutdown, first the link is unbound, then the resource adaptor entity is deactivated, and finally the same resource adaptor entity is removed.</para>    
+					
+	</section>
+	
+</section>

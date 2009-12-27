@@ -15,7 +15,14 @@
 	<xi:include
 		xmlns:xi="http://www.w3.org/2001/XInclude"
 		href="Chapter-Install.xml" />
-		<xi:include
+	<xi:include
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="Chapter-Running_and_Configuring.xml" />
+	<xi:include
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="Chapter-Management.xml" />
+	
+	<xi:include
 		href="Common_Content/Java_Development_Kit-Installing_Configuring_and_Running.xml"
 		xmlns:xi="http://www.w3.org/2001/XInclude" />
 	<xi:include
