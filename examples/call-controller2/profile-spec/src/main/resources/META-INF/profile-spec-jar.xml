@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE profile-spec-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Profile Specification 1.1//EN" "http://java.sun.com/dtd/slee-profile-spec-jar_1_1.dtd">
+<profile-spec-jar>
+	<profile-spec>
+		<description />
+		<profile-spec-name>CallControlProfileCMP</profile-spec-name>
+		<profile-spec-vendor>org.mobicents</profile-spec-vendor>
+		<profile-spec-version>0.1</profile-spec-version>
+		
+		<profile-classes>
+			<profile-cmp-interface>
+				<profile-cmp-interface-name>org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP</profile-cmp-interface-name>
+				<!-- <profile-index unique="True">userAddress</profile-index>  -->
+				<cmp-field>
+				<cmp-field-name>userAddress</cmp-field-name>
+					<index-hint query-operator="equals"/>
+				</cmp-field>
+			</profile-cmp-interface>
+			<profile-abstract-class>
+				<profile-abstract-class-name>org.mobicents.slee.examples.callcontrol.profile.CallControlProfileManagementImpl</profile-abstract-class-name>
+			</profile-abstract-class>
+		</profile-classes>
+		
+	</profile-spec>
+</profile-spec-jar>
