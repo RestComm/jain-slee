@@ -16,7 +16,13 @@
 			<para>By default, the JMX Agent listens to port 1099, and is only available at the host/ip which the server is bound.</para>
 		</important>
 	</section>
-		
+	
+	<section id="management_snmp_agent">
+		<title>SNMP Agent</title>
+		<para>&JEE.PLATFORM; provides an SNMP Agent, which can be used to ...</para>
+		<important><para>TODO</para></important>
+	</section>
+			
 	<section id="management_components">
 		<title>Managing JAIN SLEE Components</title>
 		
@@ -60,6 +66,7 @@
 			<para>The JMX Console is simple but the MBeans operations were made considering its invocation by management clients, not people using browsers. &MANAGEMENT.PLATFORM; was developed to become Red Hat's Middleware Administration Tool, providing an unified interface and extensible model, to be used to control, monitor and manage servers individually, and clusters.</para>
 			<important><para>Include &MANAGEMENT.PLATFORM; Console Guide.</para></important>
 		</section>
+
 
 	</section>
 				
