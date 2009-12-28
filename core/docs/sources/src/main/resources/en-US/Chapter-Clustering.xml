@@ -1,0 +1,69 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="clustering">
+
+	<title>High Availability abd Fault Tolerance</title>
+
+	<para>&THIS.PLATFORM; JAIN SLEE supports clustering, be it simple high availability or complete fault tolerance support, achieved through replication of the container state.</para>
+	
+	<para>&THIS.PLATFORM; JAIN SLEE also exposes a clustering API for JAIN SLEE Resource Adaptors, the components which live outside the container.</para>
+	
+	<section id="container_clustering">
+		<title>&THIS.PLATFORM; JAIN SLEE Cluster</title>
+		
+		<variablelist>
+			<para>&THIS.PLATFORM; JAIN SLEE clustering is defined by the server profile used to run the container:</para>					
+		   	<varlistentry>
+			 	<term><literal>default</literal></term>
+			    <listitem>
+			       <para>this configuration provides no state replication, thus useful for pure high availability cluster setups</para>
+		   	    </listitem>
+			</varlistentry>
+			<varlistentry>
+		   	    <term><literal>all</literal></term>
+		        <listitem>				            
+		        	<para>this configuration provides state replication, thus useful for fault tolerance cluster setups.</para>
+		   		 </listitem>
+			</varlistentry>				    
+		</variablelist>
+		
+		<important>
+			<para>&THIS.PLATFORM; JAIN SLEE reuses &JEE.PLATFORM; clustering framework, and if all nodes of a cluster are in same network then the underlying &JEE.PLATFORM; clustering will handle automatically the discovery of new cluster nodes and join these to the cluster. For not so simple setups refer to &JEE.PLATFORM; clustering documentation.</para>
+		</important>
+		
+		<section id="container_clustering_components_management">
+			<title>Managing Components in &THIS.PLATFORM; JAIN SLEE Cluster</title>
+		
+			<variablelist>
+				<para>&THIS.PLATFORM; JAIN SLEE clustering does not requires special components management, simply (un)deploy components in all cluster nodes, and even in fault tolerance setups the cluster will properly handle such operations. But there is special behavior to be aware, for fault tolerance setups:</para>					
+		  	 	<varlistentry>
+				 	<term><literal>Service activation</literal></term>
+				    <listitem>
+				       <para>JAIN SLEE Service Started Events are only fired on the first cluster node started</para>
+			   	    </listitem>
+				</varlistentry>
+				<varlistentry>
+			   	    <term><literal>Service deactivation</literal></term>
+			        <listitem>				            
+			        	<para>only the last node will force the service's sbb entities removal</para>
+			   		 </listitem>
+				</varlistentry>		
+				<varlistentry>
+			   	    <term><literal>Resource Adaptor Entity deactivation</literal></term>
+			        <listitem>				            
+		 		       	<para>only the last node will force the removal of all its activities</para>
+		 	  		 </listitem>
+				</varlistentry>				    
+			</variablelist>
+		</section>
+	</section>
+		
+	<section id="fault_tolerant_ra_api">
+		<title>Fault Tolerant Resource Adaptor API</title>
+		<para>TODO</para>
+	</section>
+						
+</chapter>
+
