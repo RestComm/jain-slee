@@ -60,10 +60,8 @@
 		</section>
 	</section>
 		
-	<section id="fault_tolerant_ra_api">
-		<title>Fault Tolerant Resource Adaptor API</title>
-		<para>TODO</para>
-	</section>
+	<xi:include href="Section-Clustering_Fault_Tolerant_RA.xml"
+			xmlns:xi="http://www.w3.org/2001/XInclude" />
 						
 </chapter>
 
