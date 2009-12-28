@@ -24,7 +24,7 @@
 			<varlistentry>
 		   	    <term><literal>all</literal></term>
 		        <listitem>				            
-		        	<para>this configuration provides state replication, thus useful for fault tolerance cluster setups.</para>
+		        	<para>this configuration provides state replication, thus useful for fault tolerance cluster setups. All activity context and sbb entity data is replicated across the cluster, and there is timers fail over, i.e, all timers running in a node that leaves the cluster are recreated and run in another node. Events are not failed over, due to performance constraints, which means that an event fired and not yet routed will be lost if its cluster node fails</para>
 		   		 </listitem>
 			</varlistentry>				    
 		</variablelist>
