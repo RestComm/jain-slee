@@ -230,16 +230,16 @@ public abstract class RecorderSbb implements Sbb {
 
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
-
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath)) };
+		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath),
+				connectionIdentifier) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of), actions), };
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions), };
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
@@ -306,16 +306,16 @@ public abstract class RecorderSbb implements Sbb {
 
 				NotificationRequest notificationRequest = new NotificationRequest(this, event.getEndpointIdentifier(),
 						mgcpProvider.getUniqueRequestIdentifier());
-				
+
 				NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS, JBOSS_BIND_ADDRESS, MGCP_PORT);
 				notificationRequest.setNotifiedEntity(notifiedEntity);
 				notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
-				
+
 				ConnectionIdentifier connId = new ConnectionIdentifier(this.getConnectionIdentifier());
 
-				EventName[] signalRequests = { new EventName(AUPackage.AU, AUMgcpEvent.aupr.withParm("recorded.wav")) };
+				EventName[] signalRequests = { new EventName(AUPackage.AU, AUMgcpEvent.aupr.withParm("recorded.wav"), connId) };
 				notificationRequest.setSignalRequests(signalRequests);
-				
+
 				mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
 
 				break;

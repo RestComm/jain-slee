@@ -246,33 +246,34 @@ public abstract class IVRSbb implements Sbb {
 
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
-
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath)) };
+		
+		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		
+		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath), connectionIdentifier) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf0), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf1), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf2), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf3), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf4), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf5), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf6), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf7), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf8), actions),
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf0, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf1, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf2, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf3, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf4, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf5, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf6, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf7, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf8, connectionIdentifier), actions),
 
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf9), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfA), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfB), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfC), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfD), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfStar), actions),
-				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfHash), actions) };
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf9, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfA, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfB, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfC, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfD, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfStar, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfHash, connectionIdentifier), actions) };
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
@@ -409,7 +410,6 @@ public abstract class IVRSbb implements Sbb {
 			}
 		}
 	}
-
 
 	public void onCallTerminated(RequestEvent evt, ActivityContextInterface aci) {
 		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
