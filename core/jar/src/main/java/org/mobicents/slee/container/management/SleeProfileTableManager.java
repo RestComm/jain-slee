@@ -24,7 +24,12 @@ import org.mobicents.slee.container.deployment.profile.jpa.Configuration;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileEntityFramework;
 import org.mobicents.slee.container.deployment.profile.jpa.JPAProfileTableFramework;
 import org.mobicents.slee.container.profile.ProfileTableImpl;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextHandle;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.facilities.ProfileAlarmFacilityImpl;
+import org.mobicents.slee.runtime.facilities.profile.ProfileTableActivityHandle;
 import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
@@ -374,10 +379,15 @@ public class SleeProfileTableManager {
 	 * 
 	 */
 	public void startAllProfileTableActivities() {
+		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
 		for (String profileTableName : this.getDeclaredProfileTableNames()) {
 			try {
 				ProfileTableImpl pt = getProfileTable(profileTableName);
-				pt.startActivity();
+				ActivityContextHandle ach  = ActivityContextHandlerFactory.createProfileTableActivityContextHandle(new ProfileTableActivityHandle(profileTableName, sleeContainer));
+				ActivityContext ac = acf.getActivityContext(ach);
+				if (ac == null) {
+					pt.startActivity();
+				}
 			}
 			catch (Throwable e) {
 				if (logger.isDebugEnabled()){

@@ -5,8 +5,7 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
-import javax.slee.resource.ActivityHandle;
-
+import org.jgroups.Address;
 import org.mobicents.cluster.MobicentsCluster;
 
 /**
@@ -15,7 +14,7 @@ import org.mobicents.cluster.MobicentsCluster;
  * @author martins
  * 
  */
-public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable & ActivityHandle, V extends Serializable>
+public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V extends Serializable>
 		implements FaultTolerantResourceAdaptorContext<K, V> {
 
 	private static final String REPLICATED_DATA_WITH_FAILOVER_NAME = "ra-data-fo";
@@ -72,6 +71,35 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable & Ac
 		return cluster.getMobicentsCache().isLocalMode();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#isHeadMember()
+	 */
+	public boolean isHeadMember() {
+		return cluster.isHeadMember();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#isSingleMember()
+	 */
+	public boolean isSingleMember() {
+		return cluster.isSingleMember();
+	}
+	
+	private static final Address[] EMPTY_ADDRESS_ARRAY = {};
+	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getMembers()
+	 */
+	public MemberAddress[] getMembers() {
+		final Address[] addresses = cluster.getClusterMembers().toArray(EMPTY_ADDRESS_ARRAY);
+		final MemberAddressImpl[] members = new MemberAddressImpl[addresses.length];
+		for (int i = 0;i<members.length;i++) {
+			members[i] = new MemberAddressImpl(addresses[i]);
+		}
+		return members;
+	}
+	
 	/**
 	 * Removes all replicated data
 	 */

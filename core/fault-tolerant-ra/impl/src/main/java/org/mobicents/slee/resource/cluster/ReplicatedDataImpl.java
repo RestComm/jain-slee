@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.slee.resource.ActivityHandle;
-
 import org.jgroups.Address;
 import org.mobicents.cluster.MobicentsCluster;
 
@@ -17,7 +15,7 @@ import org.mobicents.cluster.MobicentsCluster;
  * @author martins
  * 
  */
-public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V extends Serializable>
+public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 		implements ReplicatedData<K, V> {
 
 	/**
@@ -28,7 +26,7 @@ public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V exten
 	/**
 	 * 
 	 */
-	private final ActivityHandleParentCacheData<K, V> cacheData;
+	private final ReplicatedDataCacheData<K, V> cacheData;
 
 	/**
 	 * @param cacheData
@@ -36,7 +34,7 @@ public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V exten
 	 */
 	public ReplicatedDataImpl(String name, String raEntity,
 			MobicentsCluster cluster) {
-		cacheData = new ActivityHandleParentCacheData<K, V>(name, raEntity,
+		cacheData = new ReplicatedDataCacheData<K, V>(name, raEntity,
 				cluster);
 		cacheData.create();
 		this.cluster = cluster;
@@ -46,7 +44,7 @@ public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V exten
 	 * 
 	 * @return the cacheData
 	 */
-	ActivityHandleParentCacheData<K, V> getCacheData() {
+	ReplicatedDataCacheData<K, V> getCacheData() {
 		return cacheData;
 	}
 
@@ -67,14 +65,14 @@ public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V exten
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#getLocalHandles()
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#getLocalKeyset()
 	 */
-	public Set<K> getLocalHandles() {
+	public Set<K> getLocalKeyset() {
 		Set<K> set = new HashSet<K>();
-		ActivityHandleClusteredCacheData<K, V> handleCacheData = null;
+		ReplicatedDataKeyClusteredCacheData<K, V> handleCacheData = null;
 		Address handleCacheDataClusterNode = null;
-		for (K handle : cacheData.getAllHandles()) {
-			handleCacheData = new ActivityHandleClusteredCacheData<K, V>(
+		for (K handle : cacheData.getAllKeys()) {
+			handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
 					cacheData, handle, cluster);
 			handleCacheDataClusterNode = handleCacheData
 					.getClusterNodeAddress();
@@ -91,12 +89,12 @@ public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V exten
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#put(java.io.Serializable, java.io.Serializable)
 	 */
-	public boolean put(K handle, V activity) {
-		final ActivityHandleClusteredCacheData<K, V> handleCacheData = new ActivityHandleClusteredCacheData<K, V>(
-				cacheData, handle, cluster);
-		boolean created = handleCacheData.create();
-		if (activity != null) {
-			handleCacheData.setActivity(activity);
+	public boolean put(K key, V value) {
+		final ReplicatedDataKeyClusteredCacheData<K, V> keyCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
+				cacheData, key, cluster);
+		boolean created = keyCacheData.create();
+		if (value != null) {
+			keyCacheData.setValue(value);
 		}
 		return created;
 	}
@@ -105,18 +103,18 @@ public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V exten
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#get(java.io.Serializable)
 	 */
-	public V get(K handle) {
-		final ActivityHandleClusteredCacheData<K, V> handleCacheData = new ActivityHandleClusteredCacheData<K, V>(
-				cacheData, handle, cluster);
-		return handleCacheData.exists() ? handleCacheData.getActivity() : null;
+	public V get(K key) {
+		final ReplicatedDataKeyClusteredCacheData<K, V> handleCacheData = new ReplicatedDataKeyClusteredCacheData<K, V>(
+				cacheData, key, cluster);
+		return handleCacheData.exists() ? handleCacheData.getValue() : null;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#contains(java.io.Serializable)
 	 */
-	public boolean contains(K handle) {
-		return new ActivityHandleClusteredCacheData<K, V>(cacheData, handle,
+	public boolean contains(K key) {
+		return new ReplicatedDataKeyClusteredCacheData<K, V>(cacheData, key,
 				cluster).exists();
 	}
 
@@ -124,17 +122,17 @@ public class ReplicatedDataImpl<K extends Serializable & ActivityHandle, V exten
 	 * (non-Javadoc)
 	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#remove(java.io.Serializable)
 	 */
-	public boolean remove(K handle) {
-		return new ActivityHandleClusteredCacheData<K, V>(cacheData, handle, cluster)
+	public boolean remove(K key) {
+		return new ReplicatedDataKeyClusteredCacheData<K, V>(cacheData, key, cluster)
 				.remove();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#getReplicatedHandles()
+	 * @see org.mobicents.slee.resource.cluster.ReplicatedData#getKeyset()
 	 */
-	public Set<K> getReplicatedHandles() {
-		return cacheData.getAllHandles();
+	public Set<K> getKeyset() {
+		return cacheData.getAllKeys();
 	}
 
 }

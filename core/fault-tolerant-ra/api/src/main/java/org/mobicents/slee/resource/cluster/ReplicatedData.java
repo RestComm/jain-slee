@@ -6,16 +6,14 @@ package org.mobicents.slee.resource.cluster;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.slee.resource.ActivityHandle;
-
 /**
- * A container for serializable activity handles, which are replicated in
+ * A container for serializable data, which are replicated in
  * the SLEE cluster, but don't require any failover.
  * 
  * @author martins
  * 
  */
-public interface ReplicatedData<K extends Serializable & ActivityHandle, V extends Serializable> {
+public interface ReplicatedData<K extends Serializable, V extends Serializable> {
 
 	/**
 	 * Retrieves a set with data belonging to the cluster member.
@@ -24,48 +22,48 @@ public interface ReplicatedData<K extends Serializable & ActivityHandle, V exten
 	 * 
 	 * @return
 	 */
-	public Set<K> getLocalHandles();
+	public Set<K> getLocalKeyset();
 
 	/**
-	 * Put the handle, with the specified activity (may be null for Set like
+	 * Put the key, with the specified value (may be null for Set like
 	 * usage) into replicate data.
 	 * 
-	 * @param handle
-	 * @param activity
+	 * @param key
+	 * @param value
 	 * @return
 	 */
-	public boolean put(K handle, V activity);
+	public boolean put(K key, V value);
 
 	/**
-	 * Retrieves the activity stored along the specified handle. Note that this
-	 * method may return null but the handle exist (follow up of a put(K,null)).
+	 * Retrieves the value stored for the specified key. Note that this
+	 * method may return null but the key exist (follow up of a put(K,null)).
 	 * 
-	 * @param handle
+	 * @param key
 	 * @return
 	 */
-	public V get(K handle);
+	public V get(K key);
 
 	/**
-	 * Tests if the specified handle is in replicated data.
+	 * Tests if the specified key is in replicated data.
 	 * 
-	 * @param handle
+	 * @param key
 	 * @return
 	 */
-	public boolean contains(K handle);
+	public boolean contains(K key);
 
 	/**
-	 * Removes the specified handle from replicated data.
-	 * @param handle
+	 * Removes the specified key from replicated data.
+	 * @param key
 	 * @return true if the node existed and was removed
 	 */
-	public boolean remove(K handle);
+	public boolean remove(K key);
 
 	/**
-	 * Retrieves all handles being replicated, including the ones "belonging" to
+	 * Retrieves all key being replicated, including the ones "belonging" to
 	 * other cluster nodes.
 	 * 
 	 * @return
 	 */
-	public Set<K> getReplicatedHandles();
+	public Set<K> getKeyset();
 
 }

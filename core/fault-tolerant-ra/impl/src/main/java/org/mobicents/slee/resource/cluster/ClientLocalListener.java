@@ -5,8 +5,6 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
-import javax.slee.resource.ActivityHandle;
-
 import org.jboss.cache.Fqn;
 import org.jgroups.Address;
 import org.mobicents.cluster.cache.ClusteredCacheData;
@@ -15,18 +13,18 @@ import org.mobicents.cluster.cache.ClusteredCacheData;
  * @author martins
  * 
  */
-public class ClientLocalListener<K extends Serializable & ActivityHandle, V extends Serializable>
+public class ClientLocalListener<K extends Serializable, V extends Serializable>
 		implements org.mobicents.cluster.ClientLocalListener {
 
 	private final FaultTolerantResourceAdaptor<K, V> ra;
-	private final ActivityHandleParentCacheData<K, V> baseCacheData;
+	private final ReplicatedDataCacheData<K, V> baseCacheData;
 
 	/**
 	 * @param ra
 	 * @param baseFqn
 	 */
 	public ClientLocalListener(FaultTolerantResourceAdaptor<K, V> ra,
-			ActivityHandleParentCacheData<K, V> baseCacheData) {
+			ReplicatedDataCacheData<K, V> baseCacheData) {
 		this.ra = ra;
 		this.baseCacheData = baseCacheData;
 	}

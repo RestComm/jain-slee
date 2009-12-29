@@ -534,7 +534,7 @@ public abstract class AbstractUsageMBeanImplParent extends StandardMBean impleme
 				removeNotificationManager();
 			}
 			//FIXME: Here possibly we should mark to be remove, or remove and throw exception o demands...?
-			boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
+			boolean clustered = !sleeContainer.getCluster().isSingleMember(); 
 			if( !clustered)
 			{
 				//we are last, lets clear cache

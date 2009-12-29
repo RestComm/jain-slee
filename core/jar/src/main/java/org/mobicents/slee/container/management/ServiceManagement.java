@@ -45,7 +45,11 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.ME
 import org.mobicents.slee.container.management.jmx.ServiceUsageMBeanImpl;
 import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.service.Service;
+import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.service.ServiceFactory;
+import org.mobicents.slee.runtime.activity.ActivityContext;
+import org.mobicents.slee.runtime.activity.ActivityContextFactory;
+import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.facilities.MNotificationSource;
 import org.mobicents.slee.runtime.sbb.SbbObjectPoolManagement;
 import org.mobicents.slee.runtime.sbbentity.RootSbbEntitiesRemovalTask;
@@ -348,7 +352,7 @@ public class ServiceManagement {
 					logger.debug(serviceID.toString() + " state = "
 							+ service.getState());
 
-				final boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
+				final boolean clustered = !sleeContainer.getCluster().isSingleMember(); 
 				// only really deactivate the service if we are not in a cluster
 				if (!clustered) {
 					if (service.getState() == ServiceState.STOPPING)
@@ -684,7 +688,7 @@ public class ServiceManagement {
 		final Service service = this
 				.getService(serviceComponent.getServiceID());
 		
-		final boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
+		final boolean clustered = !sleeContainer.getCluster().isSingleMember(); 
 
 		if (!clustered) { 
 			if (!service.getState().isInactive()) {
@@ -779,9 +783,13 @@ public class ServiceManagement {
 	}
 	
 	public void startActiveServicesActivities() throws NullPointerException, ManagementException, UnrecognizedServiceException, SystemException {
+		ActivityContextFactory acf = sleeContainer.getActivityContextFactory();
 		for (ServiceID serviceID : getServices(ServiceState.ACTIVE)) {
 			Service service = getService(serviceID);
-			service.startActivity();
+			ActivityContext ac = acf.getActivityContext(ActivityContextHandlerFactory.createServiceActivityContextHandle(new ServiceActivityHandle(serviceID)));
+			if (ac == null) {
+				service.startActivity();
+			}
 		}
 	}
 	

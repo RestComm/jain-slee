@@ -625,18 +625,14 @@ public class SleeContainer {
 	 * Return the SleeContainer instance registered in the JVM scope of JNDI
 	 */
 	public static SleeContainer lookupFromJndi() {
-		try {
-			if (sleeContainer != null)
-				return sleeContainer;
-			else {
-				sleeContainer = (SleeContainer) JndiRegistrationManager.getFromJndi("slee/" + JNDI_NAME);
-				return sleeContainer;
-			}
-		} catch (Exception ex) {
-			logger.error("Unexpected error: Cannot retrieve SLEE Container!",
-					ex);
-			return null;
+		if (sleeContainer == null) {
+			try {
+				sleeContainer = (SleeContainer) JndiRegistrationManager.getFromJndi("slee/" + JNDI_NAME);					
+			} catch (Throwable ex) {
+				logger.error("Unexpected error: Cannot retrieve SLEE Container!",ex);					
+			}			
 		}
+		return sleeContainer;		
 	}
 
 	private void registerWithJndi() {

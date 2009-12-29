@@ -115,6 +115,7 @@ public class ResourceAdaptorEntity {
 	 * @throws InvalidConfigurationException
 	 * @throws InvalidArgumentException
 	 */
+	@SuppressWarnings("unchecked")
 	public ResourceAdaptorEntity(String name,
 			ResourceAdaptorComponent component,
 			ConfigProperties entityProperties, SleeContainer sleeContainer,
@@ -351,8 +352,8 @@ public class ResourceAdaptorEntity {
 	 */
 	private void scheduleAllActivitiesEnd() throws TransactionRequiredLocalException {
 
-		// for fault tolerant RAs we only schedule the end of all activities if current mode is local or in it is the head member of the cluster.
-		boolean skipActivityEnding = object instanceof FaultTolerantResourceAdaptor && !sleeContainer.getCluster().isHeadMember();
+		// schedule the end of all activities if the node is the single member of the cluster
+		boolean skipActivityEnding = !sleeContainer.getCluster().isSingleMember();
 		
 		if (!skipActivityEnding && hasActivites(null)) {
 			logger.info("RA entity "+name+" activities end scheduled.");
@@ -404,6 +405,7 @@ public class ResourceAdaptorEntity {
 	 * 
 	 * @throws InvalidStateException
 	 */
+	@SuppressWarnings("unchecked")
 	public void remove() throws InvalidStateException {
 		if (!this.state.isInactive()) {
 			throw new InvalidStateException("entity " + name + " is in state: "

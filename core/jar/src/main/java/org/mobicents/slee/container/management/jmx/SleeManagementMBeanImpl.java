@@ -396,7 +396,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			}
 			changeSleeState(SleeState.RUNNING);
 			startResourceAdaptors();
-			if (sleeContainer.getCluster().getMobicentsCache().isLocalMode() || sleeContainer.getCluster().isHeadMember()) {
+			if (sleeContainer.getCluster().isHeadMember()) {
 				// only one node can do it
 				sleeContainer.getServiceManagement().startActiveServicesActivities();		
 				if (logger.isDebugEnabled()) {
@@ -682,7 +682,7 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		Runnable acStateChecker = new Runnable() {
 			public void run() {
-				if (sleeContainer.getCluster().isHeadMember()) {
+				if (sleeContainer.getCluster().isSingleMember()) {
 					// only one node can do it
 					endAllServiceAndProfileTableActivities();
 				}	

@@ -237,7 +237,6 @@
 		<property name="entitiesRemovalDelay">1</property>
 		<property name="monitoringUncommittedAcAttachs">true</property>
 		<property name="eventRouterExecutors">64</property>
-		<property name="persistProfiles">true</property>
 		<property name="loadClassesFirstFromAS">true</property>
 	</bean>
 

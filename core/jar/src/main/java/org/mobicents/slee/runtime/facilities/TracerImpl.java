@@ -78,7 +78,11 @@ public class TracerImpl implements Tracer {
 	 * @return
 	 */
 	private String tracerNameToLog4JLoggerName(String tracerName, NotificationSource notificationSource) {
-		return "javax.slee."+notificationSource.toString() + ( tracerName.equals(ROOT_TRACER_NAME) ? "" : ("." + tracerName) );
+		final StringBuilder sb = new StringBuilder("javax.slee.").append(notificationSource.toString());
+		if(!tracerName.equals(ROOT_TRACER_NAME)) {
+			sb.append('.').append(tracerName);
+		}
+		return sb.toString();
 	}
 	
 	/* (non-Javadoc)

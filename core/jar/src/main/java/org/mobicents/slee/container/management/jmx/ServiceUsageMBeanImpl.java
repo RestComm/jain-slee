@@ -418,8 +418,7 @@ public class ServiceUsageMBeanImpl extends StandardMBean implements
 			if (name == null && sbbComponent.isSlee11()) {
 				removeNotificationManager(sbbId);
 			}
-			//FIXME: not sure if getClusterMembers() will include local address?
-			boolean clustered = sleeContainer.getCluster().getClusterMembers().size() > 1; 
+			boolean clustered = !sleeContainer.getCluster().isSingleMember(); 
 			if( !clustered)
 			{
 				//we are last, lets clear cache

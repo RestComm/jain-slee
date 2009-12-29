@@ -5,7 +5,6 @@ package org.mobicents.slee.resource.cluster;
 
 import java.io.Serializable;
 
-import javax.slee.resource.ActivityHandle;
 import javax.slee.resource.ResourceAdaptor;
 
 /**
@@ -15,16 +14,16 @@ import javax.slee.resource.ResourceAdaptor;
  * @author martins
  * 
  */
-public interface FaultTolerantResourceAdaptor<K extends Serializable & ActivityHandle, V extends Serializable>
+public interface FaultTolerantResourceAdaptor<K extends Serializable, V extends Serializable>
 		extends ResourceAdaptor {
 
 	/**
 	 * Callback from SLEE when the local RA was selected to recover the state
-	 * for a activity handle, which was owned by a cluster member that failed
+	 * for a replicated data key, which was owned by a cluster member that failed
 	 * 
-	 * @param activityHandle
+	 * @param key
 	 */
-	public void failOver(K activityHandle);
+	public void failOver(K key);
 
 	/**
 	 * Invoked by SLEE to provide the fault tolerant context.

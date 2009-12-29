@@ -6,8 +6,6 @@ package org.mobicents.slee.resource.cluster;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.slee.resource.ActivityHandle;
-
 import org.jboss.cache.Fqn;
 import org.mobicents.cache.CacheData;
 import org.mobicents.cluster.MobicentsCluster;
@@ -16,7 +14,7 @@ import org.mobicents.cluster.MobicentsCluster;
  * @author martins
  * 
  */
-public class ActivityHandleParentCacheData<K extends Serializable & ActivityHandle, V extends Serializable>
+public class ReplicatedDataCacheData<K extends Serializable, V extends Serializable>
 		extends CacheData {
 
 	/**
@@ -25,7 +23,7 @@ public class ActivityHandleParentCacheData<K extends Serializable & ActivityHand
 	 * @param raEntity
 	 * @param mobicentsCluster
 	 */
-	public ActivityHandleParentCacheData(String rootName, String raEntity,
+	public ReplicatedDataCacheData(String rootName, String raEntity,
 			MobicentsCluster mobicentsCluster) {
 		super(Fqn.fromElements(rootName, raEntity), mobicentsCluster
 				.getMobicentsCache());
@@ -36,16 +34,16 @@ public class ActivityHandleParentCacheData<K extends Serializable & ActivityHand
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public Set<K> getAllHandles() {
+	public Set<K> getAllKeys() {
 		return getNode().getChildrenNames();
 	}
 
 	/**
 	 * 
-	 * @param handle
+	 * @param key
 	 * @return
 	 */
-	public boolean containsHandle(K handle) {
-		return getNode().hasChild(handle);
+	public boolean containsKey(K key) {
+		return getNode().hasChild(key);
 	}
 }

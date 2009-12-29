@@ -81,16 +81,6 @@ public class MobicentsManagement extends ServiceMBeanSupport implements Mobicent
 	  
   }
   
-  public static boolean persistProfiles;
-
-  public boolean getPersistProfiles() {
-    return persistProfiles;
-  }
-
-  public void setPersistProfiles(boolean persist) {
-	  persistProfiles = persist;
-  }
-  
   public static boolean loadClassesFirstFromAS = true;
   
   public boolean getLoadClassesFirstFromAS() {

@@ -91,6 +91,12 @@
 		<depends>jboss.jca:service=DataSourceBinding,name=DefaultDS</depends>
 	</bean>
 	
+	<bean name="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+		<property name="persistProfiles">true</property>
+		<property name="clusteredProfiles">false</property>
+		<property name="hibernateDatasource">java:/PostgresDS</property>
+		<property name="hibernateDialect">org.hibernate.dialect.PostgreSQLDialect</property>
+	</bean>
 	<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
 		<property name="clusteredUsageMBeans">false</property>		
 	</bean>
@@ -199,7 +205,6 @@
 		<property name="entitiesRemovalDelay">1</property>
 		<property name="monitoringUncommittedAcAttachs">true</property>
 		<property name="eventRouterExecutors">64</property>
-		<property name="persistProfiles">true</property>
 		<property name="loadClassesFirstFromAS">true</property>
 	</bean>
 
