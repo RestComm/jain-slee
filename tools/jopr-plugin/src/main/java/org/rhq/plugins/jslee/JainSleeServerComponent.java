@@ -68,6 +68,7 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
 
     this.resourceContext = resourceContext;
 
+    this.deployFolder = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "deploy";
     // Connect to the JBAS instance's Profile Service and JMX MBeanServer.
 
     Configuration pluginConfig = resourceContext.getPluginConfiguration();
@@ -165,11 +166,11 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
       log.info("JainSleeServerComponent.createContentBasedResource archiveName = " + archiveName);
 
       Configuration deployTimeConfig = createResourceReport.getPackageDetails().getDeploymentTimeConfiguration();
-      boolean deployFarmed = deployTimeConfig.getSimple("deployFarmed").getBooleanValue();
-      log.info("JainSleeServerComponent.createContentBasedResource deployFarmed = " + deployFarmed);
+      //boolean deployFarmed = deployTimeConfig.getSimple("deployFarmed").getBooleanValue();
+      //log.info("JainSleeServerComponent.createContentBasedResource deployFarmed = " + deployFarmed);
 
-      boolean hardDeploy = deployTimeConfig.getSimple("hardDeploy").getBooleanValue();
-      log.info("JainSleeServerComponent.createContentBasedResource hardDeploy = " + deployTimeConfig.getSimple("hardDeploy").getBooleanValue());
+      boolean persistentDeploy = deployTimeConfig.getSimple("persistentDeploy").getBooleanValue();
+      log.info("JainSleeServerComponent.createContentBasedResource persistentDeploy = " + persistentDeploy);
 
       // Validate file name
       if (!archiveName.toLowerCase().endsWith(".jar")) {
@@ -208,22 +209,21 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
 
       String depKey = null;
       
-      if(!hardDeploy) {
+      if(!persistentDeploy) {
         DeployableUnitID deployableUnitID = deploymentMBean.install(contentCopy.toURI().toURL().toString());
         log.info("Deployed "+ deployableUnitID );
 
         depKey = deployableUnitID.getURL();
       }
       else {
-        String deployDir = pluginConfiguration.getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + "/deploy";
-        File destination = new File(deployDir + "/" + archiveName);
+        File destination = new File(this.deployFolder + File.separator + archiveName);
         copyFile(contentCopy, destination);
 
         // Since toURL is deprecated
         depKey = destination.toURI().toURL().toString();
       }
 
-      String[] elements = depKey.split(System.getProperty("file.separator"));
+      String[] elements = depKey.split(System.getProperty("file.separator").replaceAll("\\\\", "\\\\\\\\"));
       String lastElement = elements[(elements.length - 1)];
       String name = lastElement.substring(0, lastElement.lastIndexOf("."));
 
@@ -412,5 +412,11 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
         destination.close();
       }
     }
+  }
+
+  private String deployFolder;
+  
+  public String getDeployFolderPath() {
+    return this.deployFolder;
   }
 }

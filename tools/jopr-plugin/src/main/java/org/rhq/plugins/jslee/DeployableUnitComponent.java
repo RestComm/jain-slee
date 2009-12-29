@@ -1,6 +1,9 @@
 package org.rhq.plugins.jslee;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +36,7 @@ import org.rhq.core.pluginapi.inventory.ResourceComponent;
 import org.rhq.core.pluginapi.inventory.ResourceContext;
 import org.rhq.core.pluginapi.operation.OperationFacet;
 import org.rhq.core.pluginapi.operation.OperationResult;
+import org.rhq.plugins.jslee.jbossas5.ApplicationServerPluginConfigurationProperties;
 import org.rhq.plugins.jslee.utils.MBeanServerUtils;
 
 public class DeployableUnitComponent implements ResourceComponent<JainSleeServerComponent>, OperationFacet, DeleteResourceFacet, ContentFacet {
@@ -44,6 +48,8 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
 
   private ObjectName deploymentObjName;
 
+  private String deployPathIdentifier;
+  
   public void start(ResourceContext<JainSleeServerComponent> context) throws InvalidPluginConfigurationException, Exception {
     log.info("DeployableUnitComponent.start");
 
@@ -54,6 +60,8 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
 
     String url = this.resourceContext.getPluginConfiguration().getSimple("url").getStringValue();
     this.deployableUnitID = new DeployableUnitID(url);
+
+    this.deployPathIdentifier = resourceContext.getParentResourceComponent().getDeployFolderPath();
   }
 
   public void stop() {
@@ -92,10 +100,17 @@ public class DeployableUnitComponent implements ResourceComponent<JainSleeServer
   }
 
   public void deleteResource() throws Exception {
-    MBeanServerConnection connection = this.mbeanUtils.getConnection();
-    DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
-        this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
-    deploymentMBean.uninstall(this.deployableUnitID);
+    if(deployableUnitID.getURL().contains(deployPathIdentifier.replaceAll("\\\\", "/"))) {
+      if(!new File(new URL(deployableUnitID.getURL()).toURI()).delete()) {
+        throw new IOException("File '" + deployableUnitID.getURL() + "' could not be deleted. Does it exists?");
+      }
+    }
+    else {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection,
+          this.deploymentObjName, javax.slee.management.DeploymentMBean.class, false);
+      deploymentMBean.uninstall(this.deployableUnitID);
+    }
   }
 
   public DeployPackagesResponse deployPackages(Set<ResourcePackageDetails> packages, ContentServices contentServices) {
