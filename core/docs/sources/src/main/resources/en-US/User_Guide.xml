@@ -28,6 +28,9 @@
 		xmlns:xi="http://www.w3.org/2001/XInclude"
 		href="Chapter-Clustering.xml" />
 	<xi:include
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		href="Chapter-Advanced_Topics.xml" />
+	<xi:include
 		href="Common_Content/Java_Development_Kit-Installing_Configuring_and_Running.xml"
 		xmlns:xi="http://www.w3.org/2001/XInclude" />
 	<xi:include
