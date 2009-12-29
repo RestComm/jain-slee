@@ -471,6 +471,8 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			ctw.setResourceAdaptor(this);
 			// get address where to fire event
 			address = ctw.getEventFiringAddress();
+			//FIXME: determine if we should check here if dw is also an activity and fire on it.
+			//specs do not cover this. See SleeSipProviderImpl.getNewDialog(Transaction);
 			if (!ctw.isActivity()) {
 				handle = dw.getActivityHandle();
 				// (client tx that has a final response and is not an activity must be

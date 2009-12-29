@@ -471,12 +471,33 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		} else if (transaction.getClass() == ClientTransactionWrapper.class) {
 			// this is not efficient, but should not be used anyway and saves
 			// more code scenarios
+			//FIXME: make ctw.isActivity == false, since dialog becomes transaction, specs dont cover this.
+			//lets stick with ctw as response handler, dw will get state, but RA impl will fire on ctw handle.
+			final ClientTransactionWrapper ctw = (ClientTransactionWrapper) transaction;
+			final Dialog d = provider.getNewDialog(ctw.getWrappedTransaction());
 			final Request r = transaction.getRequest();
+			final FromHeader fh = (FromHeader)r.getHeader(FromHeader.NAME);
+			String localTag = d.getLocalTag();
+			if(localTag == null)
+			{
+				localTag = Utils.getInstance().generateTag();
+				try {
+					
+					fh.setTag(localTag);
+				} catch (ParseException e) {
+					throw new SipException("Failed to set local tag.", e);
+				}
+			}
+			
 			final DialogWrapper dw = _getNewDialog(
-					((FromHeader) r.getHeader(FromHeader.NAME)).getAddress(),
-					Utils.getInstance().generateTag(),
+					fh.getAddress(),
+					localTag,
 					((ToHeader) r.getHeader(ToHeader.NAME)).getAddress(), null);
+			//set wrapped dialog first.
+			dw.setWrappedDialog(d);
+			d.setApplicationData(dw);
 			dw.addOngoingTransaction((ClientTransactionWrapper) transaction);
+
 			return dw;
 		} else {
 			throw new IllegalArgumentException("unknown transaction class");
