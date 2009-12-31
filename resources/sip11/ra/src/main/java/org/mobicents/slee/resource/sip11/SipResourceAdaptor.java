@@ -79,17 +79,23 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 
 	private static final String STACK_NAME_BIND = "javax.sip.STACK_NAME";
 
+	private static final String LOAD_BALANCER_HEART_BEAT_SERVICE_CLASS = "org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName";
+	
+	private static final String BALANCERS = "org.mobicents.ha.javax.sip.BALANCERS";
+	
+	private static final String OUTBOUND_PROXY = "javax.sip.OUTBOUND_PROXY";
+	
 	// Config Properties Values -------------------------------------------
 	
 	private int port;
-
 	private Set<String> transports = new HashSet<String>();
 	private String transportsProperty;
-
 	private String stackName;
-	
 	private String stackAddress;
-
+	private String sipBalancerHeartBeatServiceClassName;
+	private String balancers;
+	private String outbondProxy;
+	
 	/**
 	 * allowed transports
 	 */
@@ -827,6 +833,15 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			properties.setProperty(STACK_NAME_BIND, this.stackName);
 			properties.setProperty(TRANSPORTS_BIND, transportsProperty);
 			properties.setProperty(SIP_PORT_BIND, Integer.toString(this.port));
+			if (sipBalancerHeartBeatServiceClassName != null) {
+				properties.setProperty(LOAD_BALANCER_HEART_BEAT_SERVICE_CLASS, sipBalancerHeartBeatServiceClassName);
+			}
+			if (balancers != null) {
+				properties.setProperty(BALANCERS, balancers);
+			}
+			if (outbondProxy != null) {
+				properties.setProperty(OUTBOUND_PROXY, outbondProxy);
+			}
 			// define impl of the cache  of the HA stack
 			properties.setProperty(ClusteredSipStack.CACHE_CLASS_NAME_PROPERTY,SipResourceAdaptorMobicentsSipCache.class.getName());
 			this.sipFactory = SipFactory.getInstance();
@@ -1035,10 +1050,26 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		this.port = (Integer) properties.getProperty(SIP_PORT_BIND).getValue();
 
 		this.stackAddress = (String) properties.getProperty(SIP_BIND_ADDRESS).getValue();
-		if (this.stackAddress.equals("null")) {
+		if (this.stackAddress.equals("")) {
 			this.stackAddress = System.getProperty("jboss.bind.address");				
 		}
 
+		this.sipBalancerHeartBeatServiceClassName = (String) properties.getProperty(LOAD_BALANCER_HEART_BEAT_SERVICE_CLASS).getValue();
+		if (this.sipBalancerHeartBeatServiceClassName.equals("")) {
+			this.sipBalancerHeartBeatServiceClassName = null;				
+		}
+		else {
+			this.balancers = (String) properties.getProperty(BALANCERS).getValue();
+			if (this.balancers.equals("")) {
+				throw new IllegalArgumentException("invalid "+BALANCERS+" property value");
+			}
+		}
+		
+		this.outbondProxy = (String) properties.getProperty(OUTBOUND_PROXY).getValue();
+		if (this.outbondProxy.equals("")) {
+			this.outbondProxy = null;				
+		}
+		
 		this.transportsProperty = (String) properties.getProperty(TRANSPORTS_BIND).getValue();
 		for (String transport : this.transportsProperty.split(",")) {
 			this.transports.add(transport);
@@ -1071,7 +1102,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			Integer port = (Integer) properties.getProperty(SIP_PORT_BIND).getValue();
 			// get host
 			String stackAddress = (String) properties.getProperty(SIP_BIND_ADDRESS).getValue();
-			if (stackAddress.equals("null")) {
+			if (stackAddress.equals("")) {
 				stackAddress = System.getProperty("jboss.bind.address");				
 			}
 			// try to open socket
@@ -1094,6 +1125,12 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			}
 			if (!validTransports) {
 				throw new IllegalArgumentException(TRANSPORTS_BIND+" config property with invalid value: "+transports);
+			}
+			// get balancer heart beat class name
+			String sipBalancerHeartBeatServiceClassName = (String) properties.getProperty(LOAD_BALANCER_HEART_BEAT_SERVICE_CLASS).getValue();
+			if (!sipBalancerHeartBeatServiceClassName.equals("")) {
+				// check class is available
+				Class.forName(sipBalancerHeartBeatServiceClassName);				
 			}
 		}
 		catch (Throwable e) {

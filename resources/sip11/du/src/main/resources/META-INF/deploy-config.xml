@@ -4,7 +4,18 @@
 		resource-adaptor-id="ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]"
 		entity-name="SipRA">
 		<properties>
-			<property name="javax.sip.PORT" type="java.lang.Integer" value="5060" /> 
+			<property name="javax.sip.PORT" type="java.lang.Integer" value="5060" />
+			<property name="javax.sip.STACK_NAME" type="java.lang.String" value="SipRA" />
+			<!-- uncomment and set properties to bind to a load balancer 
+			<property name="org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName"
+				 type="java.lang.String"
+				 value="org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceImpl" />
+			<property name="org.mobicents.ha.javax.sip.BALANCERS" type="java.lang.String" value="127.0.0.1:5060" />
+			-->
+			<!-- when using a load balancer you may want to set a predefined outbind proxy in the stack,
+			so all messages go first to such host, such as the internal port of the mobicents sip balancer 
+			<property name="javax.sip.OUTBOUND_PROXY" type="java.lang.String" value="127.0.0.1:5065" />
+			 -->
 		</properties>
 		<ra-link name="SipRA" />
 	</ra-entity>

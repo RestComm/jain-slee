@@ -43,9 +43,26 @@
 		</dependencies>
 	</dependencyManagement>
 	
+	<properties>
+		<docs.profile>mobicents</docs.profile>
+		<docs.ra.name>SIP11</docs.ra.name>
+		<docs.ra.dirname>sip11</docs.ra.dirname>
+		<docs.bookid>SIP11</docs.bookid>
+	</properties>
+			
 	<profiles>
 		<profile>
+			<id>jbcp</id>
+			<properties>
+				<docs.profile>jbcp</docs.profile>
+			</properties>
+		</profile>
+			
+		<profile>
 			<id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
@@ -75,6 +92,10 @@
 												<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>
+										<!-- copy docs -->
+										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/sip11/docs">
+											<fileset dir="${basedir}/docs/jdocbook-${docs.profile}/target/docbook/publish" />
+										</copy>
 									</tasks>
 								</configuration>
 							</execution>
@@ -86,6 +107,7 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
+				<module>docs</module>
 			</modules>
 			<build>
 				<plugins>
@@ -113,7 +135,6 @@
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
    				<groupId>org.mobicents.tools</groupId>
-    			<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
@@ -121,9 +142,6 @@
 					<classpathExcludes>
 						<exclude>xml-apis:xml-apis</exclude>
 						<exclude>jtidy:jtidy</exclude>
-						<exclude>org.jboss.jbossas:jboss-as-system:5.0.0.CR2</exclude>
-						<exclude>org.jboss.jbossas:jboss-as-deployment:5.0.0.CR2</exclude>
-						<exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>																		
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
 					<eclipseProjectName>mobicents-slee-ra-sip11</eclipseProjectName>

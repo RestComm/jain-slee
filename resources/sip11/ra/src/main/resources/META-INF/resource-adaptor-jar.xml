@@ -27,16 +27,17 @@
         </resource-adaptor-classes>
         
         <config-property>
+        	<description>The port to which the RA should listen.</description>
             <config-property-name>javax.sip.PORT</config-property-name>
             <config-property-type>java.lang.Integer</config-property-type>
             <config-property-value>5060</config-property-value>
         </config-property>
         
         <config-property>
-        	<description>IP/HOST to which SIP RAs stack should attach - if "null" it will cause RA to pick up Container bind address address</description>
+        	<description>IP/HOST to which SIP RAs stack should attach - if not specified it will cause RA to pick up Container bind address address</description>
             <config-property-name>javax.sip.IP_ADDRESS</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
-            <config-property-value>null</config-property-value>
+            <config-property-value></config-property-value>
         </config-property>
         
         <config-property>
@@ -47,10 +48,31 @@
         </config-property>
         
         <config-property>
-        	<description/>
+        	<description>An user friendly name to identify the underlying stack implementation to the property value i.e. the RA entity name. The stack name property should contain no spaces. This property is mandatory and must be provided when creating the RA entity.</description>
             <config-property-name>javax.sip.STACK_NAME</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
             <config-property-value>default</config-property-value>
+        </config-property>
+        
+        <config-property>
+        	<description>The name of the class responsible for the hear beats exchanged with the SIP Balancer - if not specified the JAIN SIP HA stack won't use such feature.</description>
+            <config-property-name>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value></config-property-value>
+        </config-property>
+        
+        <config-property>
+        	<description>List of SIP balancers, in the form of "HOST:PORT", separated by ";", it is only used if the heart beat service property is defined.</description>
+            <config-property-name>org.mobicents.ha.javax.sip.BALANCERS</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value></config-property-value>
+        </config-property>
+        
+        <config-property>
+        	<description>Sets the outbound proxy of the SIP Stack.  The  format for this string is "ipaddress:port/transport" i.e. 129.1.22.333:5060/UDP. This property is optional.</description>
+            <config-property-name>javax.sip.OUTBOUND_PROXY</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value></config-property-value>
         </config-property>
         
     </resource-adaptor>
