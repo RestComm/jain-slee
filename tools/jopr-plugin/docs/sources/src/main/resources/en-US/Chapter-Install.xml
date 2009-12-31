@@ -1,0 +1,173 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter
+	id="install">
+
+	<title>Installing &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
+
+	<section id="preinstall_requirements_and_prerequisites">
+		<title>Pre-Install Requirements and Prerequisites</title>
+		<para>Ensure that the following requirements have been met before continuing with the install.</para>
+		<section id="hardware_requirements">
+			<title>Hardware Requirements</title>
+			<variablelist>
+				<varlistentry>
+					<term>Sufficient Disk Space</term>
+					<listitem><para>Once unzipped, the &MANAGEMENT.PLATFORM; binary release requires <emphasis>at least</emphasis> 300MB of free disk space.  Keep in mind that disk space requirements may change from release to release.</para></listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Anything Java Itself Will Run On</term>
+					<listitem>
+						<para>The &MANAGEMENT.PLATFORM; platform will run on the same hardware that the &JEE.PLATFORM; runs on, but it is recommended at least 2GB or 4GB of RAM memory, for 32 or 64 bit Operating Systems.</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>	
+		</section>
+		<section id="software_prerequisites">
+			<title>Software Prerequisites</title>
+			<variablelist>	
+				<varlistentry>
+					<term>JDK 5 or Higher</term>
+					<listitem>
+						<para>A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 5 or higher is required in order to run the &MANAGEMENT.PLATFORM;. Note that &JEE.PLATFORM; is a runtime dependency, but comes bundled with the binary distribution.</para>
+						
+						<para>For instructions on how to install the JDK, refer to <xref linkend="jdk-installing_configuring_and_running"/>.</para>							
+					</listitem>
+					<term>External Database</term>
+					<listitem>
+						<para>In order to run &MANAGEMENT.PLATFORM;, an external database must be installed.</para>
+						
+						<warning>
+							<title>Use of Embedded H2 database</title>
+							<para>&MANAGEMENT.PLATFORM; is distributed with a Java embedded database called "H2", so if you are just running &MANAGEMENT.PLATFORM; to test it out and play with it, you can use that and not install an external database. But this Embedded H2 database is to be considered only for demo'ing and testing purposes. For production systems, you will need to install an external database.</para>
+						</warning>
+						
+						<variablelist>
+							<title>The supported databases are:</title>
+							<varlistentry>
+								<term>PostgreSQL</term>
+								<listitem>
+									<para>Postgres versions 8.2.4 and higher are supported.</para>
+								</listitem>
+							</varlistentry>
+							<varlistentry>
+								<term>Oracle</term>
+								<listitem>
+									<para>Oracle versions 10g and 11g are supported.</para>
+								</listitem>
+							</varlistentry>
+						</variablelist>
+						
+						<para>After installing the database, make note of the <acronym>JDBC</acronym> <acronym>URL</acronym>, username and password for the database. This information is required during the &MANAGEMENT.PLATFORM; Server installation.</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>		
+		</section>
+	</section>
+	
+	<section id="install_alternatives">
+		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
+		<para>Follow the &MANAGEMENT.PLATFORM; <ulink url="http://jboss.org/community/docs/DOC-12828">installation instructions</ulink> to install the latest version of &MANAGEMENT.PLATFORM;.</para>
+		
+		<para>In order to install the &THIS.PLATFORM; JAIN SLEE Plugin, two options are available:</para>
+		
+		<variablelist>
+			<varlistentry>
+				<term>Using the GUI</term>
+				<listitem>
+					<para>Int the &MANAGEMENT.PLATFORM; GUI, in the top menu, head to <menuchoice><guimenu>Administration</guimenu><guisubmenu>System Configuration</guisubmenu><guimenuitem>Plugins</guimenuitem></menuchoice>:</para>
+					
+					<figure>
+						<title>Accessing Plugins Menu</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/img-jopr_plugins_menu.png" format="PNG"/>
+							</imageobject>
+							<textobject>
+								<para>Accessing Plugins Menu</para>
+							</textobject>
+						</mediaobject>
+					</figure>
+					
+					<para>On the <guilabel>Agent Plugins</guilabel> tab (selected by default), on the bottom of the page, click on <guibutton>Add...</guibutton>, browse to the &MANAGEMENT.PLATFORM; plugin <acronym>JAR</acronym> file and select it. It will be listed for upload, as it can be seen in the following figure:</para>
+					
+					<figure>
+						<title>Uploading Plugin</title>
+						<mediaobject>
+							<imageobject>
+								<imagedata fileref="images/img-jopr_upload_plugin.png" format="PNG"/>
+							</imageobject>
+							<textobject>
+								<para>Uploading Plugin</para>
+							</textobject>
+						</mediaobject>
+					</figure>
+
+					<para>Finally, click on the <guibutton>Upload</guibutton> button and the plugin will be deployed. Click on <guibutton>Scan for Updates</guibutton> and it should be shown in the list as "Mobicents JSLEE Server 2.x".</para>
+
+					<para>If the agent is not running, start it and it will automatically download the new plugin. If it was already running, you should run the following command in it's console to download/update the plugin:</para>
+					
+					<screen>&gt; plugins update</screen>
+				</listitem>
+			</varlistentry>
+			<para> </para>
+			<varlistentry>
+				<term>Copying the JAR File</term>
+				<listitem>
+					<para>The plugin can be deployed simply by copying it to the right folder, by following these steps:</para>
+					<orderedlist>
+						<listitem>
+							<para>Stop the &MANAGEMENT.PLATFORM; server and agent if they are running.</para>
+						</listitem>
+						<listitem>
+							<para>Copy the mobicents-slee-jopr-as-5-plugin-<emphasis>&lt;version&gt;</emphasis>.jar to the jopr-server/jbossas/server/default/deploy/rhq.ear/rhq-downloads/rhq-plugins/ directory, and it will be automatically deployed.</para>
+						</listitem>
+						<listitem>
+							<para>Start the &MANAGEMENT.PLATFORM; server.</para>
+						</listitem>
+						<listitem>
+							<para>Start the &MANAGEMENT.PLATFORM; agent.</para>
+						</listitem>
+					</orderedlist>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		
+		<para>After the plugin is installed, the server must be added to the managed resources. Choose <menuchoice><guimenu>Overview</guimenu><guisubmenu>Auto Discovery Queue</guisubmenu></menuchoice>:</para>
+		<figure>
+			<title>Accessing Auto Discovery Queue Menu</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_auto_discovery_menu.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Accessing Auto Discovery Queue Menu</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		
+		<para>Check the option referring to JAIN SLEE Server (as in the figure below), and click on <guibutton>IMPORT</guibutton> button.</para>
+		
+		<figure>
+			<title>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_import_resources.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		
+		<para>Now the server is being can be managed and monitored with &MANAGEMENT.PLATFORM;.</para>
+	</section>
+	
+	<!-- TODO -->
+	<!--section id="uninstall">
+		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
+		<para>To uninstall simply delete the directory containing &THIS.PLATFORM; JAIN SLEE.</para>
+	</section-->
+	
+</chapter>

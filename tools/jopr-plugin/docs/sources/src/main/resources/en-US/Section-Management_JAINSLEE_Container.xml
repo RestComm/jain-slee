@@ -1,0 +1,185 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="management_slee_top">
+	<title>Managing and Monitoring JAIN SLEE Container</title>
+	<section id="management_slee_state">
+		<title>View JAIN SLEE Server Version and State</title>
+		<para>In the top, at the summary section the Type, Version and State of the server is shown.</para>
+		
+		<figure>
+			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Summary View.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_summary.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Summary View.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_availability">
+		<title>Monitor JAIN SLEE Availability over time</title>
+		<para>By accessing the <guilabel>MONITOR</guilabel> tab it's possible to see a graph showing the availability of the server over time.</para>
+		
+		<figure>
+			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Plugin Availability View.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_availability.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Plugin Availability View.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_installed_components">
+		<title>View installed JAIN SLEE Components</title>
+		<para>By accessing the <guilabel>INVENTORY</guilabel> tab a table presenting the installed components and deployable units is shown.</para>
+		
+		<figure>
+			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Plugin Inventory View.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_inventory.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Plugin Inventory View.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_install_uninstall_dus">
+		<title>Install/Uninstall JAIN SLEE Deployable Units</title>
+		<para>In the <guilabel>INVENTORY</guilabel> tab it's possible to Install/Uninstall JAIN SLEE Deployable Units.</para>
+		
+		<section id="install_du">
+			<title>Install JAIN SLEE Deployable Units</title>
+			
+			<para>In order to install a deployable unit, select <guilabel>DeployableUnits</guilabel> on the <guilabel>Create New:</guilabel> option box and click <guibutton>OK</guibutton>, the following page will be shown:</para>
+			
+			<figure>
+				<title>Installing a Deployable Unit with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/img-jopr_slee_install_du.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Installing a Deployable Unit with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin..</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			
+			<para>Click on <guibutton>Add...</guibutton>, select the Deployable Unit to be installed anc click <guibutton>Upload</guibutton> to confirm and close this browser window.</para>
+			
+			<para>Back on the main window for installing the <acronym>DU</acronym>, select either to do a persistent deploy (copy file to deploy folder) or not (simply call <command>install</command> on the DU).</para>
+			
+			<important>
+				<title>Persistent vs JMX Deployment</title>
+				<para>When doing a persistent deployment, further installation actions are automatically performed by the &THIS.PLATFORM; JAIN SLEE Deployer. If the <acronym>DU</acronym> is not deployed in a persistent way (<acronym>JMX</acronym>), component installation actions (such as Resource Adaptor entities creation, activation, Service activation) should be performed manually.</para>
+			</important>
+
+			<para>To confirm the deployment, click <guibutton>CREATE</guibutton>. The success of the operation should be displayed on the main view.</para>
+		</section>
+		<section id="uninstall_du">
+			<title>Uninstall JAIN SLEE Deployable Units</title>
+			
+			<para>To uninstall a deployable unit, simply check the desired installed deployable unit on the <guilabel>INVENTORY</guilabel> tab and press <guibutton>DELETE</guibutton>. A confirmation dialog be displayed. The success of the operation will be shown on the main view.</para>
+			
+			<figure>
+				<title>Uninstalling a Deployable Unit with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/img-jopr_slee_uninstall_du.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Uninstalling a Deployable Unit with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			
+			<important>
+				<title>Persistent vs JMX Undeployment</title>
+				<para>When undeploying a <acronym>DU</acronym> it's automatically detected either if it is to do a Persistent (file is deleted from the deploy folder!) or a non Persistent undeployment, where only the <command>uninstall</command> command is called on the <acronym>DU</acronym>, requiring prior uninstalling actions (eg: remove <acronym>RA</acronym> Links and Entities) to have already been performed.</para>
+			</important>						
+		</section>
+	</section>
+	<section id="management_slee_op_changestate">
+		<title>Start/Stop/Shutdown &THIS.PLATFORM; JAIN SLEE Server</title>
+		<para>Under the <guilabel>OPERATIONS</guilabel> tab, an operation for Changing the JAIN SLEE container state can be found: <guilabel>Change Slee State</guilabel>.</para>
+		
+		<para>Clicking on the operation, a new pane opens so the parameters can be selected:</para>
+		
+		<figure>
+			<title>Changing JAIN SLEE State.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_op_sleestate.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Changing JAIN SLEE State.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		
+		<variablelist>
+			<title>Change Slee State Parameters</title>
+			<varlistentry>
+				<term>Action (required)</term>
+				<listitem>
+					<itemizedlist>
+						<listitem>
+							<para>start - Changes SLEE State to RUNNING state.</para>
+						</listitem>
+						<listitem>
+							<para>stop - Changes SLEE State to STOPPED state.</para>
+						</listitem>
+						<listitem>
+							<para>shutdown - Completely shutsdown SLEE. Requires to be in STOPPED state.</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		
+		<note>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</note>					
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown under <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+	</section>
+	<section id="management_slee_op_list_acs">
+		<title>List All Activity Contexts</title>
+		<para>For monitoring purposes it is possible to have all JAIN SLEE Activity Contexts listed. This can be done with <guilabel>List all Activity Context</guilabel> operation, under <guilabel>OPERATIONS</guilabel> tab.</para>
+		
+		<para>This action takes no parameters.</para>
+		
+		<note>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</note>					
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown under <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+
+		<para>The result is presented in the following form:</para>
+
+		<figure>
+			<title>Sample result of invoking List All Activity Contexts.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_op_acs_result.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Sample result of invoking List All Activity Contexts.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_op_query_acs">
+		<title>Query Activity Context Liveness</title>
+		<para>In order to clean dead Activities, it's possible to query Activity Context for their liveness. This can be done using <guilabel>Query Activity Context Liveness</guilabel> operation, under <guilabel>OPERATIONS</guilabel> tab.</para>
+		
+		<para>This action takes no parameters.</para>
+		
+		<note>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</note>					
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown under <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+	</section>
+</section>

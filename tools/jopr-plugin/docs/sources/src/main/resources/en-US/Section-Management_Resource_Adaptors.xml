@@ -1,0 +1,126 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="management_slee_ra_top">
+	<title>Managing and Monitoring JAIN SLEE Resource Adaptors</title>
+	<section id="management_slee_ra_summary">
+		<title>View JAIN SLEE Resource Adaptor Summary</title>
+		<para>In the top, at the summary section, some details regarding the Resource Adaptor can be seen, such as the Component ID (under <guilabel>Description</guilabel>), the Resource Adaptor Type it implements and its Parent Component (JSLEE Server).</para>
+		
+		<figure>
+			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Resource Adaptor Summary View.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_ra_summary.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Resource Adaptor Summary View.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_ra_availability">
+		<title>Monitor JAIN SLEE RA Availability over time</title>
+		<para>By accessing the <guilabel>MONITOR</guilabel> tab it's possible to see a graph showing the availability of the Resource Adaptor over time.</para>
+	</section>
+	<section id="management_slee_ra_entities_monitor">
+		<title>Monitor JAIN SLEE RA Active Entities over time</title>
+		<para>Under the <guilabel>MONITOR</guilabel> tab it's also possible to view how many Entities from this RA have been active over time.</para>
+		
+		<figure>
+			<title>Monitoring JAIN SLEE Resource Adaptor Availability and Active Entities.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_ra_availability.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Monitoring JAIN SLEE Resource Adaptor Availability and Active Entities.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_ra_create_remove_entities">
+		<title>View, Create and Remove Resource Adaptor Entities</title>
+		<para>In the <guilabel>INVENTORY</guilabel> tab it's possible to View, Create and Remove Resource Adaptor Entities.</para>
+		
+		<figure>
+			<title>Resource Adaptor Entities Listing</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_ra_inventory.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Resource Adaptor Entities Listing</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+		
+		<section id="management_slee_ra_create_entity">
+			<title>Create a Resource Adaptor Entity</title>
+			
+			<para>To create a RA Entity, select <guilabel>ResourceAdaptorEntity</guilabel> on the <guilabel>Create New:</guilabel> option box and click <guibutton>OK</guibutton>, the following page will be shown:</para>
+			
+			<figure>
+				<title>Create New Resource Adaptor Entity</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/img-jopr_slee_ra_new_entity.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Create New Resource Adaptor Entity</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			
+			<para>Fill the <guilabel>Resource Name</guilabel> and <guilabel>Entity Name</guilabel> with the desired new entity name. If desired, provide extra properties for the entity under the Properties table by clicking <guibutton>Add New</guibutton>, which will present the following screen:</para>
+
+			<figure>
+				<title>Add Property to New Resource Adaptor Entity</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/img-jopr_slee_ra_new_entity_properties.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Add Property to New Resource Adaptor Entity</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+
+			<para>After adding the properties, click the <guibutton>SUBMIT</guibutton> button and the new RA Entity will be created. The success of the operation will be shown in the main view.</para>
+		</section>
+		
+		<section id="management_slee_ra_remove_entity">
+			<title>Remove a Resource Adaptor Entity</title>
+			
+			<para>To remove a RA Entity, check it on the <guilabel>INVENTORY</guilabel> tab and click the on the <guibutton>DELETE</guibutton> button. A confirmation dialog be displayed. The success of the operation will be shown in the main view.</para>
+
+			<figure>
+				<title>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/img-jopr_slee_ra_remove_entity.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+		</section>
+	</section>
+	<section id="management_slee_ra_configuration">
+		<title>Configure a Resource Adaptor</title>
+		<para>Under the <guilabel>CONFIGURATION</guilabel> tab Resource Adaptor properties can be defined, changed and or removed.</para>
+		
+		<figure>
+			<title>Configuring Resource Adaptor Properties.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_ra_configuration.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Configuring Resource Adaptor Properties.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+</section>

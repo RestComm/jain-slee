@@ -1,0 +1,62 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<section id="management_slee_ra_entity_links_top">
+	<title>Managing and Monitoring JAIN SLEE Resource Adaptor Entity Links</title>
+	<section id="management_slee_ra_entity_link_summary">
+		<title>View Resource Adaptor Entity Summary</title>
+		<para>In the top, at the summary section, some details regarding the Resource Adaptor Entity Link can be seen, such as the Resource Adaptor Entity it belongs to (in <guilabel>Description</guilabel>).</para>
+		
+		<figure>
+			<title>Resource Adaptor Entity Summary View.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_ra_entity_link_summary.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Resource Adaptor Entity Summary View.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_ra_entity_link_availability">
+		<title>Monitor JAIN SLEE RA Entity Link Availability over time</title>
+		<para>By accessing the <guilabel>MONITOR</guilabel> tab it's possible to see a graph showing the availability of the Resource Adaptor Entity Link over time.</para>
+
+		<figure>
+			<title>Monitoring JAIN SLEE Resource Adaptor Entity Link Availability.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_ra_entity_availability.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Monitoring JAIN SLEE Resource Adaptor Entity Link Availability.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+	<section id="management_slee_ra_entity_link_op_listboundsbbs">
+		<title>List SBBs bound to RA Entity Link</title>
+		<para>In the <guilabel>OPERATIONS</guilabel> tab, an operation to list all SBBs bound to a specific link is available, named <guilabel>List bound Sbbs</guilabel>.</para>
+		
+		<para>This action takes no parameters.</para>
+		
+		<note>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</note>					
+
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown under <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+
+		<para>The result is presented in the following form:</para>
+
+		<figure>
+			<title>Sample result of invoking List bound Sbbs on RA Entity Link.</title>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/img-jopr_slee_ra_entity_link_op_listboundsbbs.png" format="PNG"/>
+				</imageobject>
+				<textobject>
+					<para>Sample result of invoking List bound Sbbs on RA Entity Link.</para>
+				</textobject>
+			</mediaobject>
+		</figure>
+	</section>
+</section>
