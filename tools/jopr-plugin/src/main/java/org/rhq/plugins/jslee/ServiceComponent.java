@@ -135,17 +135,15 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
     // The pretty table we are building as result
     PropertyList columnList = new PropertyList("result");
 
-    for(SbbEntity sbbEntity : getServiceSbbEntities()) {
-      if(sbbEntity.getServiceId().equals(this.serviceId)) {
-        PropertyMap col = new PropertyMap("element");
+    for(Object[] sbbEntity : getServiceSbbEntities()) {
+      PropertyMap col = new PropertyMap("element");
 
-        col.put(new PropertySimple("SBB Entity Id", sbbEntity.getSbbEntityId()));
-        col.put(new PropertySimple("Parent SBB Entity Id", sbbEntity.getParentSbbEntityId()));
-        col.put(new PropertySimple("Priority", sbbEntity.getPriority()));
-        col.put(new PropertySimple("Attachment Count", sbbEntity.getAttachmentCount()));
+      col.put(new PropertySimple("SBB Entity Id", sbbEntity[0] == null ? "-" : sbbEntity[0]));
+      col.put(new PropertySimple("Parent SBB Entity Id", sbbEntity[1] == null ? "-" : sbbEntity[1]));
+      col.put(new PropertySimple("Priority", sbbEntity[4] == null ? "-" : sbbEntity[4]));
+      col.put(new PropertySimple("Attachment Count", sbbEntity[9] == null ? "-" : ((String[])sbbEntity[9]).length));
 
-        columnList.add(col);
-      }
+      columnList.add(col);
     }
 
     OperationResult result = new OperationResult();
@@ -160,17 +158,17 @@ public class ServiceComponent implements ResourceComponent<JainSleeServerCompone
    * @return an ArrayList of SbbEntity
    * @throws Exception
    */
-  private ArrayList<SbbEntity> getServiceSbbEntities() throws Exception {
+  private ArrayList<Object[]> getServiceSbbEntities() throws Exception {
     MBeanServerConnection connection = this.mbeanUtils.getConnection();
     ObjectName sbbEntitiesMBeanObj = new ObjectName("org.mobicents.slee:name=SbbEntitiesMBean");
     SbbEntitiesMBeanImplMBean sbbEntititesMBean = (SbbEntitiesMBeanImplMBean) MBeanServerInvocationHandler.newProxyInstance(
         connection, sbbEntitiesMBeanObj, SbbEntitiesMBeanImplMBean.class, false);
     Object[] objs = sbbEntititesMBean.retrieveAllSbbEntities();
 
-    ArrayList<SbbEntity> list = new ArrayList<SbbEntity>();
+    ArrayList<Object[]> list = new ArrayList<Object[]>();
     for(Object obj : objs) {
-      SbbEntity sbbEntity = (SbbEntity)obj; 
-      if(sbbEntity.getServiceId().equals(this.serviceId)) {
+      Object[] sbbEntity = (Object[])obj; 
+      if(sbbEntity[7] != null && sbbEntity[7].equals(this.serviceId)) {
         list.add(sbbEntity);
       }
     }
