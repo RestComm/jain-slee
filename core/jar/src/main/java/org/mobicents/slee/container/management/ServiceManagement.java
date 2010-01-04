@@ -244,6 +244,13 @@ public class ServiceManagement {
 					if (sleeContainer.getSleeState() == SleeState.RUNNING) {
 						service.startActivity();
 					}
+				}else
+				{
+					//NOTE: cluster
+					//we will get here on node_zero+1. do we need more actions here?
+					// change service state
+					service.setState(ServiceState.ACTIVE);
+					//activity; we dont start, it exists if service is installed
 				}
 				
 				// lets cache some info in the event components this service refer
@@ -373,6 +380,13 @@ public class ServiceManagement {
 					else {
 						service.setState(ServiceState.INACTIVE);					
 					}
+				}else
+				{
+					//NOTE: cluster
+					//we will get here on node_zero+1. do we need more actions here?
+					// change service state
+					service.notifyLocalInactivation();
+					//activity; we dont stop, it exists if service is installed, dies on last node
 				}
 				// remove runtime cache related wih this service
 				for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {

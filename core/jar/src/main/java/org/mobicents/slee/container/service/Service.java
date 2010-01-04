@@ -325,4 +325,23 @@ public class Service {
 		return sb.toString();
 	}
 
+	public void notifyLocalInactivation() {
+		final ResourceManagement resourceManagement = sleeContainer
+				.getResourceManagement();
+
+		TransactionalAction action = new TransactionalAction() {
+			public void execute() {
+				ServiceID serviceID = getServiceID();
+				for (String raEntityName : resourceManagement
+						.getResourceAdaptorEntities()) {
+
+					resourceManagement.getResourceAdaptorEntity(raEntityName)
+							.serviceInactive(serviceID);
+
+				}
+			}
+		};
+
+	}
+
 }
