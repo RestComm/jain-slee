@@ -26,19 +26,24 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-					<groupId>org.mobicents.ha.javax.sip</groupId>
-					<artifactId>mobicents-jain-sip-ha-core</artifactId>
-					<version>0.4-SNAPSHOT</version>
+				<groupId>org.mobicents.ha.javax.sip</groupId>
+				<artifactId>mobicents-jain-sip-ha-core</artifactId>
+				<version>0.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
-					<groupId>org.mobicents.ha.javax.sip</groupId>
-					<artifactId>mobicents-jain-sip-jboss5</artifactId>
-					<version>0.4-SNAPSHOT</version>
+				<groupId>org.mobicents.ha.javax.sip</groupId>
+				<artifactId>mobicents-jain-sip-jboss5</artifactId>
+				<version>0.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
-					<groupId>org.mobicents.servers.jainslee.core</groupId>
-					<version>2.0.0.BETA2</version>
-					<artifactId>jar</artifactId>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<version>2.0.0.BETA2</version>
+				<artifactId>jar</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.tools</groupId>
+				<artifactId>sip-balancer</artifactId>
+				<version>1.0.BETA10-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -134,7 +139,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
-   				<groupId>org.mobicents.tools</groupId>
+				<groupId>org.mobicents.tools</groupId>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>

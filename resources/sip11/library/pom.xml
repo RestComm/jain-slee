@@ -39,7 +39,6 @@
 		<dependency>
 			<groupId>org.mobicents.tools</groupId>
 			<artifactId>sip-balancer</artifactId>
-			<version>1.0.BETA10-SNAPSHOT</version>			
 		</dependency>
 	</dependencies>
 	
