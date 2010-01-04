@@ -90,7 +90,6 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	private int port;
 	private Set<String> transports = new HashSet<String>();
 	private String transportsProperty;
-	private String stackName;
 	private String stackAddress;
 	private String sipBalancerHeartBeatServiceClassName;
 	private String balancers;
@@ -830,7 +829,8 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			properties.load(getClass().getResourceAsStream("sipra.properties"));
 			// now load config properties
 			properties.setProperty(SIP_BIND_ADDRESS, this.stackAddress);
-			properties.setProperty(STACK_NAME_BIND, this.stackName);
+			// setting the ra entity name as the stack name
+			properties.setProperty(STACK_NAME_BIND, raContext.getEntityName());
 			properties.setProperty(TRANSPORTS_BIND, transportsProperty);
 			properties.setProperty(SIP_PORT_BIND, Integer.toString(this.port));
 			if (sipBalancerHeartBeatServiceClassName != null) {
@@ -1045,8 +1045,6 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			tracer.fine("Configuring RA.");
 		}
 		
-		this.stackName = "SipResourceAdaptorStack_" + (String) properties.getProperty(STACK_NAME_BIND).getValue();
-
 		this.port = (Integer) properties.getProperty(SIP_PORT_BIND).getValue();
 
 		this.stackAddress = (String) properties.getProperty(SIP_BIND_ADDRESS).getValue();
@@ -1075,7 +1073,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			this.transports.add(transport);
 		}
 
-		tracer.info("RA bound to " + this.stackName + ":" + this.port);
+		tracer.info("RA entity named "+raContext.getEntityName()+" bound to port " + this.port);
 		
 	}
 	
@@ -1085,9 +1083,11 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	 */
 	public void raUnconfigure() {		
 		this.port = -1;
-		this.stackName = null;
 		this.stackAddress = null;
-		this.transports.clear();		
+		this.transports.clear();
+		this.balancers = null;
+		this.outbondProxy = null;
+		this.sipBalancerHeartBeatServiceClassName= null;
 	}
 	
 	/*

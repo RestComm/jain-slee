@@ -10,17 +10,18 @@
 		<para>Ensure that the following requirements have been met before continuing with the install.</para>
 		<section id="hardware_requirements">
 			<title>Hardware Requirements</title>
-			<para>TODO</para>
+			<para>The Resource Adaptor hardware's main concern is RAM memory and Java Heap size, the more the better. For instance, while the underlying &THIS.PLATFORM; JAIN SLEE may run with 1GB of RAM, 8GB is needed to achieve performance higher than 400 new calls per second.</para>
+			<para>Of course, memory is only needed to store the Resource Adaptor state, the faster the CPU more calls per second are supported, yet no particular CPU is a real requirement to use the RA.</para>
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<para>TODO</para>		
+			<para>The RA requires &THIS.PLATFORM; JAIN SLEE properly set.</para>		
 		</section>
 	</section>	
 	
 	<section id="source_code">
 		<title>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor Source Code</title>
-		<para>TODO</para>
+		<para></para>
 		
 		<section id="release_source_building">
 			<title>Release Source Code Building</title>
@@ -40,8 +41,8 @@
 				    </important>
 				    <para>Use Ant to build the binary.</para>
 				    <programlisting>
-				    [usr]$ cd slee-ra-&THIS.RA.DIRNAME;-&THIS.VERSION;
-				    [usr]$ mvn install
+[usr]$ cd slee-ra-&THIS.RA.DIRNAME;-&THIS.VERSION;
+[usr]$ mvn install
 				    </programlisting>
 				    <para>Once the process finishes you should have the <literal>deployable-unit</literal> jar file in the <filename>target</filename> directory, if &THIS.PLATFORM; JAIN SLEE is installed and environment variable JBOSS_HOME is pointing to its underlying &JEE.PLATFORM; directory, then the deployable unit jar will also be deployed in the container.</para>
   				</step>
@@ -57,12 +58,16 @@
 	
 	<section id="install">
 		<title>Installing &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
-		<para>TODO</para>
+		<para>To install the Resource Adaptor simply execute provided ant script <filename>build.xml</filename> default target:</para>
+		<programlisting>[usr]$ ant</programlisting>
+		<para>The script will copy the RA deployable unit jar to the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to deploy to another server profile use the argument <literal>-Dnode=</literal>.</para>		
 	</section>
 	
 	<section id="uninstall">
 		<title>Uninstalling &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
-		<para>TODO</para>
+		<para>To uninstall the Resource Adaptor simply execute provided ant script <filename>build.xml</filename> <literal>undeploy</literal> target:</para>
+		<programlisting>[usr]$ ant undeploy</programlisting>
+		<para>The script will delete the RA deployable unit jar from the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to undeploy from another server profile use the argument <literal>-Dnode=</literal>.</para>
 	</section>			
 	
 </chapter>
