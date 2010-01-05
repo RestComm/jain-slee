@@ -1,10 +1,13 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <chapter
 	id="install">
 
-	<title>Installing &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
+	<title>Installing &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin</title>
 
 	<section id="preinstall_requirements_and_prerequisites">
 		<title>Pre-Install Requirements and Prerequisites</title>
@@ -26,43 +29,41 @@
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<variablelist>	
-				<varlistentry>
-					<term>JDK 5 or Higher</term>
-					<listitem>
-						<para>A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 5 or higher is required in order to run the &MANAGEMENT.PLATFORM;. Note that &JEE.PLATFORM; is a runtime dependency, but comes bundled with the binary distribution.</para>
-						
-						<para>For instructions on how to install the JDK, refer to <xref linkend="jdk-installing_configuring_and_running"/>.</para>							
-					</listitem>
-					<term>External Database</term>
-					<listitem>
-						<para>In order to run &MANAGEMENT.PLATFORM;, an external database must be installed.</para>
-						
-						<warning>
-							<title>Use of Embedded H2 database</title>
-							<para>&MANAGEMENT.PLATFORM; is distributed with a Java embedded database called "H2", so if you are just running &MANAGEMENT.PLATFORM; to test it out and play with it, you can use that and not install an external database. But this Embedded H2 database is to be considered only for demo'ing and testing purposes. For production systems, you will need to install an external database.</para>
-						</warning>
-						
-						<variablelist>
-							<title>The supported databases are:</title>
-							<varlistentry>
-								<term>PostgreSQL</term>
-								<listitem>
-									<para>Postgres versions 8.2.4 and higher are supported.</para>
-								</listitem>
-							</varlistentry>
-							<varlistentry>
-								<term>Oracle</term>
-								<listitem>
-									<para>Oracle versions 10g and 11g are supported.</para>
-								</listitem>
-							</varlistentry>
-						</variablelist>
-						
-						<para>After installing the database, make note of the <acronym>JDBC</acronym> <acronym>URL</acronym>, username and password for the database. This information is required during the &MANAGEMENT.PLATFORM; Server installation.</para>
-					</listitem>
-				</varlistentry>
-			</variablelist>		
+			<variablelist>
+        <varlistentry>
+          <term>JDK 5 or Higher</term>
+          <listitem>
+            <para>A working installation of the Java Development Kit (<acronym>JDK</acronym>) version 5 or higher is required in order to run the &MANAGEMENT.PLATFORM;. Note that &JEE.PLATFORM; is a runtime dependency, but comes bundled with the binary distribution.</para>
+            <para>For instructions on how to install the JDK, refer to <!--This is part of imports,safe to ignore?--> <xref linkend="jdk-installing_configuring_and_running"/>.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>External Database</term>
+          <listitem>
+            <para>In order to run &MANAGEMENT.PLATFORM;, an external database must be installed.</para>
+            <warning>
+              <title>Use of Embedded H2 database</title>
+              <para>&MANAGEMENT.PLATFORM; is distributed with a Java embedded database called &quot;H2&quot;, so if you are just running &MANAGEMENT.PLATFORM; to test it out and play with it, you can use that and not install an external database. But this Embedded H2 database is to be considered only for demo&apos;ing and testing purposes. For production systems, you will need to install an external database.</para>
+            </warning>
+            <variablelist>
+              <title>The supported databases are:</title>
+              <varlistentry>
+                <term>PostgreSQL</term>
+                <listitem>
+                  <para>Postgres versions 8.2.4 and higher are supported.</para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term>Oracle</term>
+                <listitem>
+                  <para>Oracle versions 10g and 11g are supported.</para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+            <para>After installing the database, make note of the <acronym>JDBC</acronym> <acronym>URL</acronym>, username and password for the database. This information is required during  the &MANAGEMENT.PLATFORM; Server installation.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
 		</section>
 	</section>
 	
@@ -70,13 +71,13 @@
 		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
 		<para>Follow the &MANAGEMENT.PLATFORM; <ulink url="http://jboss.org/community/docs/DOC-12828">installation instructions</ulink> to install the latest version of &MANAGEMENT.PLATFORM;.</para>
 		
-		<para>In order to install the &THIS.PLATFORM; JAIN SLEE Plugin, two options are available:</para>
+		<para> &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin, may be installed in two ways:</para>
 		
 		<variablelist>
 			<varlistentry>
 				<term>Using the GUI</term>
 				<listitem>
-					<para>Int the &MANAGEMENT.PLATFORM; GUI, in the top menu, head to <menuchoice><guimenu>Administration</guimenu><guisubmenu>System Configuration</guisubmenu><guimenuitem>Plugins</guimenuitem></menuchoice>:</para>
+					<para>In the &MANAGEMENT.PLATFORM; GUI, in the top menu, head to <menuchoice><guimenu>Administration</guimenu><guisubmenu>System Configuration</guisubmenu><guimenuitem>Plugins</guimenuitem></menuchoice>:</para>
 					
 					<figure>
 						<title>Accessing Plugins Menu</title>
@@ -90,7 +91,7 @@
 						</mediaobject>
 					</figure>
 					
-					<para>On the <guilabel>Agent Plugins</guilabel> tab (selected by default), on the bottom of the page, click on <guibutton>Add...</guibutton>, browse to the &MANAGEMENT.PLATFORM; plugin <acronym>JAR</acronym> file and select it. It will be listed for upload, as it can be seen in the following figure:</para>
+					<para>On the <guilabel>Agent Plugins</guilabel> tab (selected by default), on the bottom of the page, click  <guibutton>Add...</guibutton>, browse to the &MANAGEMENT.PLATFORM; plugin <acronym>JAR</acronym> file and select it. It will be listed for upload, as it can be seen in the following figure:</para>
 					
 					<figure>
 						<title>Uploading Plugin</title>
@@ -104,14 +105,13 @@
 						</mediaobject>
 					</figure>
 
-					<para>Finally, click on the <guibutton>Upload</guibutton> button and the plugin will be deployed. Click on <guibutton>Scan for Updates</guibutton> and it should be shown in the list as "Mobicents JSLEE Server 2.x".</para>
+					<para>Finally, click the <guibutton>Upload</guibutton> button and the plugin will be deployed. Click <guibutton>Scan for Updates</guibutton> and it should be shown in the list as "Mobicents JSLEE Server 2.x".</para>
 
 					<para>If the agent is not running, start it and it will automatically download the new plugin. If it was already running, you should run the following command in it's console to download/update the plugin:</para>
 					
 					<screen>&gt; plugins update</screen>
 				</listitem>
 			</varlistentry>
-			<para> </para>
 			<varlistentry>
 				<term>Copying the JAR File</term>
 				<listitem>
@@ -147,7 +147,7 @@
 			</mediaobject>
 		</figure>
 		
-		<para>Check the option referring to JAIN SLEE Server (as in the figure below), and click on <guibutton>IMPORT</guibutton> button.</para>
+		<para>Check the option referring to JAIN SLEE Server (as in the figure below), and click <guibutton>IMPORT</guibutton> button.</para>
 		
 		<figure>
 			<title>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</title>
@@ -166,7 +166,7 @@
 	
 	<!-- TODO -->
 	<!--section id="uninstall">
-		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
+		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin</title>
 		<para>To uninstall simply delete the directory containing &THIS.PLATFORM; JAIN SLEE.</para>
 	</section-->
 	

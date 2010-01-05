@@ -7,21 +7,21 @@
 	<title>Managing &THIS.PLATFORM; JAIN SLEE with &MANAGEMENT.PLATFORM;</title>
 
 	<section id="main_view">
-		<title>&MANAGEMENT.PLATFORM; JAIN SLEE Plugin Main View</title>
-		<para>This section describes the main view of &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</para>
+		<title>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Main View</title>
+		<para>This section describes the main view of &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
 		
-		<para>In order to access this go to the top menu and select <menuchoice><guimenu>Resources</guimenu><guisubmenu>Servers</guisubmenu></menuchoice>. A list should be presented, where JAIN SLEE server is present. Click on it to access it.</para>
+		<para>In order to access this, go to the top menu and select <menuchoice><guimenu>Resources</guimenu><guisubmenu>Servers</guisubmenu></menuchoice>. A list should be presented, where <acronym>JAIN SLEE</acronym> server is present. Click it to access server details.</para>
 		
 		<para>You should have something similar to the following figure:</para>
 
 		<figure>
-			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Plugin Main View.</title>
+			<title>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Main View.</title>
 			<mediaobject>
 				<imageobject>
 					<imagedata fileref="images/img-jopr_slee_main_view.png" format="PNG"/>
 				</imageobject>
 				<textobject>
-					<para>&MANAGEMENT.PLATFORM; JAIN SLEE Plugin Main View</para>
+					<para>&MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin Main View</para>
 				</textobject>
 			</mediaobject>
 		</figure>
@@ -36,7 +36,7 @@
 				<para>Resource Adaptors</para>
 			</listitem>
 			<listitem>
-				<para>SBBs</para>
+				<para><acronym>SBB</acronym>s</para>
 			</listitem>
 			<listitem>
 				<para>Services</para>

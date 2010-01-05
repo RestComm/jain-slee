@@ -1,5 +1,8 @@
 <?xml version='1.0'?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
 <section id="management_slee_du_top">
 	<title>Managing and Monitoring JAIN SLEE Deployable Units</title>
@@ -46,9 +49,9 @@
 		
 		<para>This action takes no parameters.</para>
 		
-		<note>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</note>					
+		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>					
 
-		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown under <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
 
 		<para>The result is presented in the following form:</para>
 

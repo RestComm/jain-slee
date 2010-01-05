@@ -5,7 +5,7 @@
 	<title>Managing and Monitoring JAIN SLEE Service Building Blocks (SBBs)</title>
 	<section id="management_slee_sbb_summary">
 		<title>View SBB Summary</title>
-		<para>In the top, at the summary section, some details regarding the SBB can be seen, such as the Component ID (under <guilabel>Description</guilabel>), the Version, the State Code (UP/DOWN) and its Parent Component (JSLEE Server).</para>
+		<para>In the top, at the summary section, some details regarding the SBB can be seen, such as the Component ID (in <guilabel>Description</guilabel>), the Version, the State Code (UP/DOWN) and its Parent Component (JSLEE Server).</para>
 		
 		<figure>
 			<title>SBB Summary View.</title>

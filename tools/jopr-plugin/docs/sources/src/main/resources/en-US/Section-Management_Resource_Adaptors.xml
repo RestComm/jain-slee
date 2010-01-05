@@ -5,7 +5,7 @@
 	<title>Managing and Monitoring JAIN SLEE Resource Adaptors</title>
 	<section id="management_slee_ra_summary">
 		<title>View JAIN SLEE Resource Adaptor Summary</title>
-		<para>In the top, at the summary section, some details regarding the Resource Adaptor can be seen, such as the Component ID (under <guilabel>Description</guilabel>), the Resource Adaptor Type it implements and its Parent Component (JSLEE Server).</para>
+		<para>In the top, at the summary section, some details regarding the Resource Adaptor can be seen, such as the Component ID (in <guilabel>Description</guilabel>), the Resource Adaptor Type it implements and its Parent Component (JSLEE Server).</para>
 		
 		<figure>
 			<title>&MANAGEMENT.PLATFORM; JAIN SLEE Resource Adaptor Summary View.</title>
@@ -72,7 +72,7 @@
 				</mediaobject>
 			</figure>
 			
-			<para>Fill the <guilabel>Resource Name</guilabel> and <guilabel>Entity Name</guilabel> with the desired new entity name. If desired, provide extra properties for the entity under the Properties table by clicking <guibutton>Add New</guibutton>, which will present the following screen:</para>
+			<para>Fill the <guilabel>Resource Name</guilabel> and <guilabel>Entity Name</guilabel> with the desired new entity name. If desired, provide extra properties for the entity in the Properties table by clicking <guibutton>Add New</guibutton>, which will present the following screen:</para>
 
 			<figure>
 				<title>Add Property to New Resource Adaptor Entity</title>
@@ -95,13 +95,13 @@
 			<para>To remove a RA Entity, check it on the <guilabel>INVENTORY</guilabel> tab and click the on the <guibutton>DELETE</guibutton> button. A confirmation dialog be displayed. The success of the operation will be shown in the main view.</para>
 
 			<figure>
-				<title>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</title>
+				<title>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</title>
 				<mediaobject>
 					<imageobject>
 						<imagedata fileref="images/img-jopr_slee_ra_remove_entity.png" format="PNG"/>
 					</imageobject>
 					<textobject>
-						<para>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; JAIN SLEE Plugin.</para>
+						<para>Removing a Resource Adaptor Entity with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
 					</textobject>
 				</mediaobject>
 			</figure>
