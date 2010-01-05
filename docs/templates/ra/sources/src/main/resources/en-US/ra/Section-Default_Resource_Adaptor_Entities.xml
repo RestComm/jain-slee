@@ -9,6 +9,8 @@
 
 	<title>Default Resource Adaptor Entities</title>
 
-	<para>TODO</para>
+	<para>TODO Enumerate the RA Entities created on the RA deploy and list the configuration used for each.</para>
+
+	<para>TODO Enumerate also each RA Link bound for the default RA Entities, and provide an example of the XML needed in SBBs descriptors, to use it.</para>
 	
 </section>

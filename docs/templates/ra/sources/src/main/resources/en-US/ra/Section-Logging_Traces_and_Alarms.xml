@@ -7,8 +7,16 @@
 
 <section id="ra_logging_traces_and_alarms">
 
-	<title>Logging, Traces and Alarms</title>
+	<title>Traces and Alarms</title>
 
-	<para>TODO</para>
+	<section id="ra_tracers">
+		<title>Tracers</title>
+		<para>TODO Enumerate the Tracers used by the RA.</para>
+	</section>	
+	
+	<section id="ra_alarms">
+		<title>Alarms</title>
+		<para>TODO Enumerate the Alarms used by the RA.</para>
+	</section>
 	
 </section>

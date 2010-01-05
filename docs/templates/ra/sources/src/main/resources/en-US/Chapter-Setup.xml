@@ -14,7 +14,7 @@
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<para>TODO</para>		
+			<para>The RA requires &THIS.PLATFORM; JAIN SLEE properly set.</para>		
 		</section>
 	</section>	
 	
@@ -57,12 +57,20 @@
 	
 	<section id="install">
 		<title>Installing &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
-		<para>TODO</para>
+		<para>To install the Resource Adaptor simply execute provided ant script <filename>build.xml</filename> default target:</para>
+		<programlisting>
+		[usr]$ ant
+		</programlisting>
+		<para>The script will copy the RA deployable unit jar to the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to deploy to another server profile use the argument <literal>-Dnode=</literal>.</para>
 	</section>
 	
 	<section id="uninstall">
 		<title>Uninstalling &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
-		<para>TODO</para>
+		<para>To uninstall the Resource Adaptor simply execute provided ant script <filename>build.xml</filename> <literal>undeploy</literal> target:</para>
+		<programlisting>
+		[usr]$ ant undeploy
+		</programlisting>
+		<para>The script will delete the RA deployable unit jar from the <literal>default</literal> &THIS.PLATFORM; JAIN SLEE server profile deploy directory, to undeploy from another server profile use the argument <literal>-Dnode=</literal>.</para>
 	</section>			
 	
 </chapter>
