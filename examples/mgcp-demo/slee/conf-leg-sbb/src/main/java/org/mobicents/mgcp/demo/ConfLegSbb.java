@@ -57,7 +57,7 @@ public abstract class ConfLegSbb implements Sbb {
 	public final static String ENDPOINT_NAME = "/mobicents/media/IVR/$";
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
-	
+
 	public final static String SONG = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/ulaw-fashion.wav";
 
 	public static final int MGCP_PEER_PORT = 2427;
@@ -123,7 +123,7 @@ public abstract class ConfLegSbb implements Sbb {
 					+ this.getConnectionIdentifier());
 
 			sendRQNT(SONG, true);
-			
+
 			break;
 		default:
 			logger.severe("CRCX Response returned " + status);
@@ -135,16 +135,16 @@ public abstract class ConfLegSbb implements Sbb {
 
 		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
 				.getUniqueRequestIdentifier());
-
-		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath)) };
+		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath),
+				connectionIdentifier) };
 		notificationRequest.setSignalRequests(signalRequests);
 
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
 
-		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
 		RequestedEvent[] requestedEvents = {
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc), actions),
-				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of), actions) };
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions) };
 
 		notificationRequest.setRequestedEvents(requestedEvents);
 		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());

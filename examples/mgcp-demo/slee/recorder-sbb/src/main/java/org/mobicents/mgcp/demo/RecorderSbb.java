@@ -60,6 +60,10 @@ import javax.slee.RolledBackContext;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.UnrecognizedActivityException;
+import javax.slee.facilities.TimerEvent;
+import javax.slee.facilities.TimerFacility;
+import javax.slee.facilities.TimerID;
+import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.mgcp.JainMgcpProvider;
@@ -103,6 +107,8 @@ public abstract class RecorderSbb implements Sbb {
 
 	public static final int MGCP_PEER_PORT = 2427;
 	public static final int MGCP_PORT = 2727;
+
+	private TimerFacility timerFacility = null;
 
 	/** Creates a new instance of CallSbb */
 	public RecorderSbb() {
@@ -267,6 +273,33 @@ public abstract class RecorderSbb implements Sbb {
 		logger.info(" NotificationRequest sent");
 	}
 
+	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
+		logger.info("****** RecorderSbb Recieved TimerEvent ******* ");
+		this.setBye(true);
+		sendRQNT("recorded.wav", false);
+	}
+
+	/**
+	 * This method sets the Timer Object for passed ACI
+	 * 
+	 * @param ac
+	 */
+	private void setTimer(ActivityContextInterface ac) {
+		TimerOptions options = new TimerOptions();
+		options.setPersistent(true);
+
+		// Set the timer on ACI
+		TimerID timerID = this.timerFacility.setTimer(ac, null, System.currentTimeMillis() + 30000, options);
+
+		this.setTimerID(timerID);
+	}
+
+	private void cancelTimer() {
+		if (this.getTimerID() != null) {
+			timerFacility.cancelTimer(this.getTimerID());
+		}
+	}
+
 	public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
 		logger.info("onNotificationRequestResponse");
 
@@ -302,21 +335,27 @@ public abstract class RecorderSbb implements Sbb {
 			case MgcpEvent.REPORT_ON_COMPLETION:
 				logger.info("Announcemnet Completed NTFY received");
 
-				// TODO : Begin Recording here
+				if (!this.getBye()) {
+					// TODO : Begin Recording here
 
-				NotificationRequest notificationRequest = new NotificationRequest(this, event.getEndpointIdentifier(),
-						mgcpProvider.getUniqueRequestIdentifier());
+					NotificationRequest notificationRequest = new NotificationRequest(this, event
+							.getEndpointIdentifier(), mgcpProvider.getUniqueRequestIdentifier());
 
-				NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS, JBOSS_BIND_ADDRESS, MGCP_PORT);
-				notificationRequest.setNotifiedEntity(notifiedEntity);
-				notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
+					NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS, JBOSS_BIND_ADDRESS,
+							MGCP_PORT);
+					notificationRequest.setNotifiedEntity(notifiedEntity);
+					notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
 
-				ConnectionIdentifier connId = new ConnectionIdentifier(this.getConnectionIdentifier());
+					ConnectionIdentifier connId = new ConnectionIdentifier(this.getConnectionIdentifier());
 
-				EventName[] signalRequests = { new EventName(AUPackage.AU, AUMgcpEvent.aupr.withParm("recorded.wav"), connId) };
-				notificationRequest.setSignalRequests(signalRequests);
+					EventName[] signalRequests = { new EventName(AUPackage.AU, AUMgcpEvent.aupr
+							.withParm("recorded.wav"), connId) };
+					notificationRequest.setSignalRequests(signalRequests);
 
-				mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
+					mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
+
+					setTimer(aci);
+				}
 
 				break;
 			case MgcpEvent.REPORT_FAILURE:
@@ -343,6 +382,8 @@ public abstract class RecorderSbb implements Sbb {
 
 			Response response = messageFactory.createResponse(Response.OK, request);
 			tx.sendResponse(response);
+
+			cancelTimer();
 		} catch (Exception e) {
 			logger.severe("Error while sending OK for BYE", e);
 		}
@@ -408,6 +449,8 @@ public abstract class RecorderSbb implements Sbb {
 			mgcpProvider = (JainMgcpProvider) ctx.lookup("slee/resources/jainmgcp/2.0/provider/demo");
 			mgcpAcif = (MgcpActivityContextInterfaceFactory) ctx.lookup("slee/resources/jainmgcp/2.0/acifactory/demo");
 
+			timerFacility = (TimerFacility) ctx.lookup("slee/facilities/timer");
+
 		} catch (Exception ne) {
 			logger.severe("Could not set SBB context:", ne);
 		}
@@ -424,6 +467,16 @@ public abstract class RecorderSbb implements Sbb {
 	public abstract String getEndpointName();
 
 	public abstract void setEndpointName(String endpointName);
+
+	// 'timerID' CMP field setter
+	public abstract void setTimerID(TimerID value);
+
+	// 'timerID' CMP field getter
+	public abstract TimerID getTimerID();
+
+	public abstract void setBye(boolean bye);
+
+	public abstract boolean getBye();
 
 	public void unsetSbbContext() {
 		this.sbbContext = null;

@@ -80,7 +80,7 @@ public abstract class TTSSbb implements Sbb {
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 	
-	public final static String WELCOME = "Hello World. This is Mobicents Media Server Text To Speech Demo";
+	public final static String WELCOME = "Hello World. This is Mobicents Media Server Text To Speech Demo. Press any button on your touch dial phone.";
 	
 	private final static String DTMF_0 = "You have pressed Zero";
 	private final static String DTMF_1 = "You have pressed One";
