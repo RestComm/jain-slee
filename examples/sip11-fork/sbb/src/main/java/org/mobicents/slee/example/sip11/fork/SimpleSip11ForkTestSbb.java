@@ -59,6 +59,10 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 	
 	public void onMessageRequest(RequestEvent event, ActivityContextInterface aci) {
 
+		if (logger.isInfoEnabled()) {
+			logger.info("onMessageRequest: activity = " + aci.getActivity());
+		}
+		
 		final Request request = event.getRequest();
 		final ServerTransaction st = event.getServerTransaction();
 		
@@ -103,6 +107,10 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 
 	public void on2xxResponse(ResponseEvent event, ActivityContextInterface aci) {
 		
+		if (logger.isInfoEnabled()) {
+			logger.info("on2xxResponse: activity = " + aci.getActivity() + " , event = " + event.getResponse().getStatusCode());
+		}
+		
 		final Response response = event.getResponse();
 
 		final CSeqHeader cSeqHeader = (CSeqHeader) event.getResponse().getHeader(CSeqHeader.NAME);
@@ -140,7 +148,7 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 	public void onDialogForkEvent(DialogForkedEvent event, ActivityContextInterface aci) {
 		
 		if (logger.isInfoEnabled()) {
-			logger.info(" DialogForkedEvent: activity = " + aci.getActivity() + " , other = " + event.getForkedDialog() + " , event = " + event.getResponse().getStatusCode());
+			logger.info("DialogForkedEvent: activity = " + aci.getActivity() + " , other = " + event.getForkedDialog() + " , event = " + event.getResponse().getStatusCode());
 		}
 
 		if (getServiceState() == ServiceState.SENT_INVITE) {
@@ -216,6 +224,7 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 				Object activity = aci.getActivity();
 				if (activity instanceof DialogActivity) {
 					DialogActivity dialog = (DialogActivity) activity;
+					logger.info("Sending BYE to attached dialog "+dialog);
 					try {
 						Request byeRequest = dialog.createRequest(Request.BYE);
 						dialog.sendRequest(byeRequest);
