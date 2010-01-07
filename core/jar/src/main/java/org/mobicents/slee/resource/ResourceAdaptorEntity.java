@@ -173,10 +173,9 @@ public class ResourceAdaptorEntity {
 							e);
 			throw new SLEEException(e.getMessage(), e);
 		}
-		if (object instanceof FaultTolerantResourceAdaptor) {
+		if (object.isFaultTolerant()) {
 			// set fault tolerant context, it is a ft ra
-			FaultTolerantResourceAdaptor ftObject = (FaultTolerantResourceAdaptor) object;
-			ftObject.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),ftObject));
+			object.setFaultTolerantResourceAdaptorContext(new FaultTolerantResourceAdaptorContextImpl(name,sleeContainer.getCluster(),(FaultTolerantResourceAdaptor) object.getResourceAdaptorObject()));
 		}
 		// configure
 		object.raConfigure(entityProperties);
@@ -412,8 +411,8 @@ public class ResourceAdaptorEntity {
 						+ this.state);
 		}
 		object.raUnconfigure();
-		if (object instanceof FaultTolerantResourceAdaptor) {
-			((FaultTolerantResourceAdaptor) object).unsetFaultTolerantResourceAdaptorContext();
+		if (object.isFaultTolerant()) {
+			object.unsetFaultTolerantResourceAdaptorContext();
 		}
 		object.unsetResourceAdaptorContext();
 		this.sleeContainer.getTraceMBean()

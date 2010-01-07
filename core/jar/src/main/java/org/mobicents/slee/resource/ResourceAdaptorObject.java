@@ -1,5 +1,7 @@
 package org.mobicents.slee.resource;
 
+import java.io.Serializable;
+
 import javax.slee.Address;
 import javax.slee.InvalidStateException;
 import javax.slee.resource.ActivityHandle;
@@ -11,6 +13,9 @@ import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
+
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 
 /**
  * A wrapper for an ra object, managing its state and configuration
@@ -86,7 +91,26 @@ public class ResourceAdaptorObject {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
 	}
-
+	/**
+	 * Sets the ft ra context. 
+	 * 
+	 * @param context
+	 *            the context to provide to the ra object
+	 * @throws IllegalArgumentException
+	 *             if the ra object is not fault tolerant
+	 */
+	public void setFaultTolerantResourceAdaptorContext(FaultTolerantResourceAdaptorContext<Serializable, Serializable> context)
+			throws IllegalArgumentException {
+		//FIXME: we dont check for state?
+			if(isFaultTolerant())
+			{
+				((FaultTolerantResourceAdaptor<Serializable, Serializable>)this.object).setFaultTolerantResourceAdaptorContext(context);
+			}else
+			{
+				throw new IllegalArgumentException("RA Object is not fault tolerant!");
+			}
+		
+	}
 	/**
 	 * Configures the ra.
 	 * 
@@ -232,7 +256,21 @@ public class ResourceAdaptorObject {
 			throw new InvalidStateException("ra object is in state " + state);
 		}
 	}
-
+	/**
+	 * Unsets the ft context of the ra object.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if the ra object is not in fault tolerant
+	 */
+	public void unsetFaultTolerantResourceAdaptorContext() throws IllegalArgumentException {
+		if(isFaultTolerant())
+		{
+			((FaultTolerantResourceAdaptor<Serializable, Serializable>)this.object).unsetFaultTolerantResourceAdaptorContext();
+		}else
+		{
+			throw new IllegalArgumentException("RA Object is not fault tolerant!");
+		}
+	}
 	/**
 	 * @see ResourceAdaptor#getResourceAdaptorInterface(ResourceAdaptorTypeID)
 	 */
@@ -364,4 +402,12 @@ public class ResourceAdaptorObject {
     	}
     }
 
+    public boolean isFaultTolerant()
+    {
+    	return (this.object instanceof FaultTolerantResourceAdaptor);
+    }
+    ResourceAdaptor getResourceAdaptorObject()
+    {
+    	return object;
+    }
 }
