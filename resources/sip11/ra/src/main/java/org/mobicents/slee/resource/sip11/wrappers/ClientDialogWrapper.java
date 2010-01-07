@@ -766,7 +766,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 									response);
 					if (fineTrace) {
 						tracer.fine("Received 1xx message: " + statusCode
-								+ ". ToTag:" + toTag + "EventId:" + eventID);
+								+ ". ToTag:" + toTag + "EventId:" + (eventID == null?"null":eventID.getEventType()));
 					}
 					ResponseEventWrapper REW = new ResponseEventWrapper(
 							this.provider, (ClientTransaction) respEvent
@@ -958,7 +958,10 @@ public class ClientDialogWrapper extends DialogWrapper {
 			SipActivityHandle activityHandle,
 			javax.slee.Address eventFiringAddress, FireableEventType eventType) {
 		if (ra.getEventIDFilter().filterEvent(eventType)) {
-			tracer.fine("Event "+eventType+" filtered.");
+			if(fineTrace)
+			{
+				tracer.info("Event "+(eventType==null?"null":eventType.getEventType())+" filtered.");
+			}
 			return;
 		}
 		try {
@@ -1000,6 +1003,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 			if (data.getRequestURI() == null
 					|| (contact != null && !data.getRequestURI().equals(contact
 							.getAddress().getURI()))) {
+				//FIXME: it can be gov.nist.javax.sip.address.GenericURI or TelURI!!, we must check, its an error condition and report.
 				data.setRequestURI((SipURI) contact.getAddress().getURI());
 			}
 

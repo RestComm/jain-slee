@@ -249,7 +249,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		final FireableEventType eventType = eventIdCache.getEventId(eventLookupFacility, REW.getRequest(), activity.isDialog());
 		if (eventIDFilter.filterEvent(eventType)) {
 			if (fineTrace) {
-				tracer.fine("Event " + eventType + " filtered");
+				tracer.fine("Event " + (eventType == null?"null":eventType.getEventType()) + " filtered");
 			}
 			// event filtered
 			processCancelNotHandled(cancelSTW,req.getRequest());
@@ -370,7 +370,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		
 		if (eventIDFilter.filterEvent(eventType)) {
 			if (fineTrace) {
-				tracer.fine("Event " + eventType + " filtered");
+				tracer.fine("Event " + (eventType==null?"null":eventType.getEventType()) + " filtered");
 			}
 			// event was filtered
 			if (!stw.isAckTransaction()) {
@@ -502,7 +502,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			boolean fineTrace = tracer.isFineEnabled();
 			if (eventIDFilter.filterEvent(eventType)) {
 				if (fineTrace) {
-					tracer.fine("Event " + eventType + " filtered");
+					tracer.fine("Event " + (eventType == null?"null":eventType.getEventType()) + " filtered");
 				}
 				// event filtered
 				if (requestEventUnreferenced) {
@@ -624,10 +624,12 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		if (tw.isActivity()) {
 			tw.setResourceAdaptor(this);
 			sendActivityEndEvent(tw);
-		}
-		else {
+		} //FIXME: change to tw.isClientTransaction();
+		else if(tw instanceof ServerTransaction){
+			//NOTE: its safe, cause STX will terminated AFTER we do some action in SBB event handler
 			tw.clear();
 		}
+		//NOTE: CTX is handled in eventUnreferenced due to race between TX term and processing in SBB
 	}
 	
 	/*

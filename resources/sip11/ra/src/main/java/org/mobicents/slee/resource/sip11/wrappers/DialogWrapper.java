@@ -192,6 +192,10 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @see net.java.slee.resource.sip.DialogActivity#getAssociatedServerTransaction(javax.sip.ClientTransaction)
 	 */
 	public ServerTransaction getAssociatedServerTransaction(ClientTransaction ct) {
+		if(ct == null)
+		{
+			throw new NullPointerException("Passed Client Transaction is null!");
+		}
 		if (!hasOngoingClientTransaction(ct.getBranchId())) {
 			return null;
 		}
