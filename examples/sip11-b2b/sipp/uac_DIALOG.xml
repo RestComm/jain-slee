@@ -2,22 +2,22 @@
 
 
 <scenario name="Basic Sipstone UAC">
-
+	
+	<!--Route: sip:127.0.0.1:5060-->
 	<send retrans="500">
    <![CDATA[
 
-     INVITE sip:[service]@[remote_ip]:5090 SIP/2.0
+     INVITE sip:[field2]@[remote_ip]:5090 SIP/2.0
      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[call_number]
-     From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
-     To: sut <sip:[service]@[remote_ip]:5090>
+     From: [field0] <sip:[field1]@[local_ip]:[local_port]>;tag=[call_number]
+     To: [field2] <sip:[field3]@[remote_ip]:[remote_port]>
      Call-ID: [call_id]
      CSeq: 1 INVITE
-     Contact: sip:sipp@[local_ip]:[local_port]
+     Contact: <sip:[field1]@[local_ip]:[local_port];transport=[transport]>
      Max-Forwards: 70
-     Subject: Performance Test
+     Subject: [field4]
+     Route: sip:[remote_ip]:[remote_port]
      Content-Type: application/sdp
-     Route: sip:127.0.0.1:5060
-     Route: sip:127.0.0.1:5090
      Content-Length: [len]
 
      v=0
@@ -45,44 +45,42 @@
 	<send>
    <![CDATA[
 
-     ACK sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+     ACK sip:[field2]@[remote_ip]:5090 SIP/2.0
      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
-     From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
-     To: sut <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+     From: [field0] <sip:[field1]@[local_ip]:[local_port]>;tag=[call_number]
+     To: [field2] <sip:[field3]@[remote_ip]:[remote_port]>[peer_tag_param]
      Call-ID: [call_id]
      CSeq: 1 ACK
-     Contact: sip:sipp@[local_ip]:[local_port]
+     Contact: <sip:[field1]@[local_ip]:[local_port];transport=[transport]>
      Max-Forwards: 70
-     Route: sip:127.0.0.1:5060
-     Route: sip:127.0.0.1:5090
-     Subject: Performance Test
+     Route: sip:[remote_ip]:[remote_port]
+     Subject: [field4]
      Content-Length: 0
 
    ]]>
 	</send>
 
-	<pause milliseconds="500"/>
+	<pause milliseconds="60000"/>
 
-	<send retrans="500">
+	<send retrans="500"  crlf="true">
    <![CDATA[
 
-     BYE sip:[service]@[remote_ip]:[remote_port] SIP/2.0
+     BYE sip:[field2]@[remote_ip]:5090 SIP/2.0
      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
      From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
      To: sut <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
      Call-ID: [call_id]
      CSeq: 2 BYE
-     Contact: sip:sipp@[local_ip]:[local_port]
+     Contact: <sip:[field1]@[local_ip]:[local_port];transport=[transport]>
      Max-Forwards: 70
-     Route: sip:127.0.0.1:5060
-     Route: sip:127.0.0.1:5090
-     Subject: Performance Test
+     Route: sip:[remote_ip]:[remote_port]
+     Subject: [field4]
      Content-Length: 0
 
    ]]>
 	</send>
 
-	<recv response="200" crlf="true">
+	<recv response="200">
 	</recv>
 
 	<ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200" />

@@ -3,7 +3,7 @@
 
 <scenario name="Basic UAS responder">
 
-	<recv request="INVITE" crlf="true">
+	<recv request="INVITE">
 	</recv>
 
 
@@ -16,7 +16,8 @@
      [last_To:];tag=[call_number]
      [last_Call-ID:]
      [last_CSeq:]
-     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
+     [last_Subject:]
+     Contact: <sip:[field3]@[local_ip]:[local_port];transport=[transport]>
      Content-Length: 0
 
    ]]>
@@ -31,7 +32,8 @@
      [last_To:];tag=[call_number]
      [last_Call-ID:]
      [last_CSeq:]
-     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
+     [last_Subject:]
+     Contact: <sip:[field3]@[local_ip]:[local_port];transport=[transport]>
      Content-Type: application/sdp
      Content-Length: [len]
 
@@ -46,10 +48,10 @@
    ]]>
 	</send>
 
-	<recv request="ACK" optional="true" rtd="true" crlf="true">
+	<recv request="ACK" optional="true" rtd="true">
 	</recv>
 
-	<recv request="BYE">
+	<recv request="BYE" timeout="90000"  crlf="true">
 	</recv>
 
 	<send>
@@ -61,7 +63,8 @@
      [last_To:]
      [last_Call-ID:]
      [last_CSeq:]
-     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
+     [last_Subject:]
+     Contact: <sip:[field3]@[local_ip]:[local_port];transport=[transport]>
      Content-Length: 0
 
    ]]>
