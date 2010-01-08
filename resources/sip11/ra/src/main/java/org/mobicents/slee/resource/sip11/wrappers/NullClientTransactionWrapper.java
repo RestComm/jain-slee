@@ -57,7 +57,13 @@ public class NullClientTransactionWrapper extends TransactionWrapper {
 	 */
 	@Override
 	public boolean isAckTransaction() { return false; }
-
+	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.TransactionWrapper#isClientTransaction()
+	 */
+	@Override
+	public boolean isClientTransaction() { return true; }
+	
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#setResourceAdaptor(org.mobicents.slee.resource.sip11.SipResourceAdaptor)
 	 */

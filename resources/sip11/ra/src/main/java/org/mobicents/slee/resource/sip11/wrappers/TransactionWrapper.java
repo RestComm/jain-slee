@@ -74,6 +74,12 @@ public abstract class TransactionWrapper extends Wrapper implements Transaction 
 	 */
 	public abstract void terminated();
 	
+	/**
+	 * Indicates if it is a client transaction, avoiding the check of class types 
+	 * @return
+	 */
+	public abstract boolean isClientTransaction();
+	
 	// javax.sip.Transaction interface
 	
 	/*

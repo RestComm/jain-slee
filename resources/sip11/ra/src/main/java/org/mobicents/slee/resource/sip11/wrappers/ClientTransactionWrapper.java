@@ -89,6 +89,14 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 		return false;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.TransactionWrapper#isClientTransaction()
+	 */
+	@Override
+	public boolean isClientTransaction() {
+		return true;
+	}
+	
 	@Override
 	public Address getEventFiringAddress() {
 		if (eventFiringAddress == null) {

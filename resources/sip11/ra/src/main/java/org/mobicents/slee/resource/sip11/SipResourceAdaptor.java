@@ -1,11 +1,14 @@
 package org.mobicents.slee.resource.sip11;
 
+import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -26,10 +29,16 @@ import javax.sip.Transaction;
 import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.AddressFactory;
+import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
+import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.RouteHeader;
+import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
@@ -409,6 +418,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	public void processResponse(ResponseEvent responseEvent) {
 		
 		final boolean infoTrace = tracer.isInfoEnabled();
+		final boolean fineTrace = tracer.isFineEnabled();
 		
 		if (infoTrace) {
 			tracer.info("Received Response:\n"+responseEvent.getResponse());
@@ -439,34 +449,49 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				// tricky, it may be a late response for a dialog fork, an early dialog that died in another node
 				// or it may be a client tx retransmission or lost in a cluster member which went down, lets find out
 				final String localTag = fromHeader.getTag();
-				if (localTag == null) {
-					// no dialog, lets try to fire the event on a recreated dummy transaction
-					final String branchId = ((ViaHeader)response.getHeaders(ViaHeader.NAME).next()).getBranch();
-					handle = new TransactionActivityHandle(branchId);
-					// create the activity
-					try {
-						sleeEndpoint.startActivity(handle, new NullClientTransactionWrapper(handle));
+				if (localTag != null && isDialogConfirmation(response)) {
+					// dialog was not found, but we have a tag and it's a dialog confirmation
+					final DialogWithoutIdActivityHandle masterHandle = new DialogWithoutIdActivityHandle(((CallIdHeader) response.getHeader(CallIdHeader.NAME)).getCallId(), localTag, null);
+					if (activityManagement.get(masterHandle) != null) {
+						// and we found the master, it's a late response, ack and bye
+						if (fineTrace) {
+							tracer.fine("Received a 2xx response without a client transaction, but found a master dialog so it's a late fork response, sending ack and bye.");
+						}
+						processLateDialogFork2xxResponse(response);
+						return;
 					}
-					catch (Throwable e) {
-						// silently ignore exception, it may already exist
-					}
-					// essential to terminate the activity in slee					
-					requestEventUnreferenced = response.getStatusCode() > 199;
 				}
-				else {
-					// there is not much we can do right now, the stack does not replicates early dialogs so we lost all ra data
-					// lets consider this a late dialog fork response, any leaked state will be claimed when the container queries
-					// activity liveness
-					LateResponseHandler.processLateInDialogResponse(responseEvent, this);
-					return;
+				if (fineTrace) {
+					tracer.fine("Received "+response.getStatusCode()+" response without a client transaction, and didn't found a master dialog, firing event in a dummy client transaction.");
 				}
+				//fire the event on a recreated dummy transaction
+				final String branchId = ((ViaHeader)response.getHeaders(ViaHeader.NAME).next()).getBranch();
+				handle = new TransactionActivityHandle(branchId);
+				Wrapper activity = new NullClientTransactionWrapper(handle);
+				// create the activity
+				try {
+					sleeEndpoint.startActivity(handle,activity,ACTIVITY_FLAGS);
+					activityManagement.put(handle, activity);
+				}
+				catch (Throwable e) {
+					// silently ignore exception, it may already exist
+				}
+				// essential to terminate the activity in slee					
+				requestEventUnreferenced = response.getStatusCode() > 199;
+				
 			}
 			else {
-				// else lets take a neutral approach and fire the event in the dialog 
+				// else lets take a neutral approach and fire the event in the dialog
+				if (fineTrace) {
+					tracer.fine("Received "+response.getStatusCode()+" response without a client transaction, but in a dialog, firing event in that dialog.");
+				}
 				handle = dw.getActivityHandle();
 			}
 		}
 		else {
+			if (fineTrace) {
+				tracer.fine("Received "+response.getStatusCode()+" response in an existent client transaction.");
+			}
 			ctw = (ClientTransactionWrapper) ct.getApplicationData();
 			if (ctw == null) {
 				tracer.severe("Dropping response without app data, can't proceed");
@@ -499,7 +524,6 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		if (dw == null || !dw.processIncomingResponse(responseEvent)) {
 			final ResponseEventWrapper rew = new ResponseEventWrapper(this.providerWrapper, ctw, dw, response);
 			final FireableEventType eventType = eventIdCache.getEventId(eventLookupFacility, response);
-			boolean fineTrace = tracer.isFineEnabled();
 			if (eventIDFilter.filterEvent(eventType)) {
 				if (fineTrace) {
 					tracer.fine("Event " + (eventType == null?"null":eventType.getEventType()) + " filtered");
@@ -533,6 +557,96 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		
 	}
 	
+	/**
+	 * @param response
+	 * @return
+	 */
+	private boolean isDialogConfirmation(Response response) {
+		final CSeqHeader cSeqHeader = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
+		if (!cSeqHeader.getMethod().equals(Request.INVITE) && !cSeqHeader.getMethod().equals(Request.SUBSCRIBE)) {
+			// not a dialog creating method
+			return false;
+		}
+		if (cSeqHeader.getSeqNumber() != 1) {
+			return false;
+		}
+		if (response.getStatusCode() < 300 && response.getStatusCode() > 199) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param response
+	 */
+	private void processLateDialogFork2xxResponse(Response response) {
+
+
+		final SleeSipProviderImpl provider = getProviderWrapper();
+
+		try {
+			final CSeqHeader cseq = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
+			List<RouteHeader> routeSet = org.mobicents.slee.resource.sip11.Utils.getRouteList(response,provider.getHeaderFactory());
+			SipURI requestURI = org.mobicents.slee.resource.sip11.Utils.getRequestUri(response, provider.getAddressFactory());
+			String branch = ((ViaHeader)response.getHeaders(ViaHeader.NAME).next()).getBranch();
+
+			long cseqNumber = cseq.getSeqNumber();
+
+			// logger.info("DOING FORGE FOR: \n"+response);
+			if (requestURI == null) {
+				tracer.severe("Cannot ack on request that has empty contact!!!!");
+				return;
+			}
+
+			MaxForwardsHeader mf = provider.getHeaderFactory().createMaxForwardsHeader(70);
+			List<ViaHeader> lst = new ArrayList<ViaHeader>(1);
+			final ViaHeader localViaHeader = provider.getLocalVia();
+			localViaHeader.setBranch(branch);
+			lst.add(localViaHeader);
+			Request forgedRequest = provider.getMessageFactory().createRequest(requestURI,Request.ACK,(CallIdHeader)response.getHeader(CallIdHeader.NAME),provider.getHeaderFactory().createCSeqHeader(cseqNumber, Request.ACK),
+					(FromHeader)response.getHeader(FromHeader.NAME)	,(ToHeader)response.getHeader(ToHeader.NAME),lst,mf	);
+			for (Header h : routeSet) {
+				forgedRequest.addLast(h);
+			}
+
+			//forgedRequest.addHeader(this.provider.getLocalVia(this.provider.getListeningPoints()[0].getTransport(), branch));
+			// ITS BUG....
+			//((SIPRequest) forgedRequest).setMethod(Request.ACK);
+			if (tracer.isInfoEnabled()) {
+				tracer.info("Sending request:\n"+forgedRequest);
+			}
+			provider.sendRequest(forgedRequest);
+
+			//forgedRequest = this.provider.getMessageFactory().createRequest(null);
+			lst = new ArrayList<ViaHeader>();
+			lst.add(provider.getLocalVia());
+			requestURI = org.mobicents.slee.resource.sip11.Utils.getRequestUri(response,provider.getAddressFactory());
+			forgedRequest = provider.getMessageFactory().createRequest(requestURI,Request.BYE,(CallIdHeader)response.getHeader(CallIdHeader.NAME),provider.getHeaderFactory().createCSeqHeader(cseqNumber+1, Request.BYE),
+					(FromHeader)response.getHeader(FromHeader.NAME)	,(ToHeader)response.getHeader(ToHeader.NAME),lst,mf	);
+
+			for (Header h : routeSet) {
+				forgedRequest.addLast(h);
+			}
+
+			//forgedRequest.addHeader(this.provider.getLocalVia(this.provider.getListeningPoints()[0].getTransport(), null));
+			// ITS BUG....
+			((SIPRequest) forgedRequest).setMethod(Request.BYE);
+			if (tracer.isInfoEnabled()) {
+				tracer.info("Sending request:\n"+forgedRequest);
+			}
+			provider.sendRequest(forgedRequest);
+
+			// response.get
+		} catch (Exception e) {
+			tracer.severe(e.getMessage(),e);
+		}
+
+
+		
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see javax.sip.SipListener#processTimeout(javax.sip.TimeoutEvent)
@@ -624,12 +738,13 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		if (tw.isActivity()) {
 			tw.setResourceAdaptor(this);
 			sendActivityEndEvent(tw);
-		} //FIXME: change to tw.isClientTransaction();
-		else if(tw instanceof ServerTransaction){
-			//NOTE: its safe, cause STX will terminated AFTER we do some action in SBB event handler
-			tw.clear();
 		}
-		//NOTE: CTX is handled in eventUnreferenced due to race between TX term and processing in SBB
+		else {
+			if (!tw.isClientTransaction()) {
+				// client txs which are not activity are cleared on event unreferenced callbacks
+				tw.clear();
+			}
+		}
 	}
 	
 	/*
@@ -936,7 +1051,9 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	 * @see javax.slee.resource.ResourceAdaptor#raStopping()
 	 */
 	public void raStopping() {
-		// TODO Auto-generated method stub
+		if (tracer.isFineEnabled()) {
+			tracer.fine("Object for entity named "+raContext.getEntityName()+" is stopping. "+activityManagement);
+		}
 		
 	}
 	
@@ -986,7 +1103,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			Object event, Address arg3, ReceivableService arg4, int arg5) {
 
 		if(tracer.isFineEnabled())	{
-			tracer.fine("Event Unreferenced. Handle = "+handle+", type = "+eventType+", event = "+event);
+			tracer.fine("Event Unreferenced. Handle = "+handle+", type = "+eventType.getEventType()+", event = "+event);
 		}
 
 		if(event instanceof ResponseEventWrapper) {
@@ -1023,7 +1140,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		}
 		else {
 			// end the activity
-			sendActivityEndEvent(handle.getActivity());
+			sendActivityEndEvent(activityManagement.get(handle));
 		}
 	}
 
@@ -1215,6 +1332,13 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		return raContext.getTracer(tracerName);
 	}
 	
+	/**
+	 * @return the activityManagement
+	 */
+	public SipActivityManagement getActivityManagement() {
+		return activityManagement;
+	}
+	
 	// ACTIVITY MANAGEMENT
 	
 	/*
@@ -1222,9 +1346,9 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	 * @see javax.slee.resource.ResourceAdaptor#activityEnded(javax.slee.resource.ActivityHandle)
 	 */
 	public void activityEnded(ActivityHandle activityHandle) {
-		final Wrapper activity = ((SipActivityHandle)activityHandle).getActivity();
+		final Wrapper activity = activityManagement.remove((SipActivityHandle) activityHandle);
 		if (activity != null) {
-			activity.clear();
+			activity.clear();			
 		}
 	}
 

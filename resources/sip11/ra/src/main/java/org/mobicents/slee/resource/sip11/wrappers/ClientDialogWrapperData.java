@@ -5,11 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sip.address.Address;
@@ -17,17 +13,12 @@ import javax.sip.address.SipURI;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.RouteHeader;
 
-import org.mobicents.slee.resource.sip11.DialogWithoutIdActivityHandle;
-import org.mobicents.slee.resource.sip11.SipActivityHandle;
-
 public class ClientDialogWrapperData implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	private transient ClientDialogWrapper owner;
 	
 	/**
 	 * Used to detect how route set has been created - in case of responses we
@@ -45,38 +36,23 @@ public class ClientDialogWrapperData implements Serializable {
 	// in order to allow it to send responses to proper peer.
 	// This is due to having one SIPDialog for all forks - this is standard for
 	// no auto dialog support.
-	/**
-	 * Indicates sip activity handle for initial dialog activity created for
-	 * this dialog - created as first. Child dialogs are represented by dialog
-	 * activities with the same wrappedDialog object.
-	 * wrappedDialog.getApplicationData() returns always initial dialog activity
-	 * or one that won race to get 2xx response
-	 */
-	private DialogWithoutIdActivityHandle forkInitialActivityHandle;
-
-	private DialogForkState forkState = DialogForkState.AWAIT_FIRST_TAG;
 
 	/**
 	 * Used when: {@link #forkInitialActivityHandle} !=null or Dialog is null.
 	 */
 	private transient ArrayList<RouteHeader> localRouteSet;
 
-	/**
-	 * Contains activity handles of fork children.
-	 */
-	private transient ConcurrentHashMap<String, DialogWithoutIdActivityHandle> toTag2DialogHandle;
+	private ClientDialogForkHandler forkHandler;
 	
 	private Address fromAddress, toAddress;
 	private CallIdHeader customCallId = null;
 	private String localRemoteTag = null;
 
-	private SipActivityHandle[] EMPTY_HANDLE_ARRAY = {};
-	private RouteHeader[] EMPTY_RH_ARRAY = {};
+	private static final RouteHeader[] EMPTY_RH_ARRAY = {};
 
-	public ClientDialogWrapperData(ClientDialogWrapper owner) {
-		this.owner = owner;
-		localRouteSet = new ArrayList<RouteHeader>();
-		toTag2DialogHandle = new ConcurrentHashMap<String, DialogWithoutIdActivityHandle>();
+	public ClientDialogWrapperData(ClientDialogForkHandler forkHandler) {
+		this.forkHandler = forkHandler;
+		localRouteSet = new ArrayList<RouteHeader>();		
 	}
 	
 	private void writeObject(ObjectOutputStream stream) throws IOException {
@@ -84,10 +60,7 @@ public class ClientDialogWrapperData implements Serializable {
 		// write everything not static or transient
 		stream.defaultWriteObject();
 
-		if (isInForkedActions()) {
-			final SipActivityHandle[] childDialogHandles = toTag2DialogHandle
-					.values().toArray(EMPTY_HANDLE_ARRAY);
-			stream.writeObject(childDialogHandles);
+		if (forkHandler.isForking()) {
 			final RouteHeader[] routeHeaders = localRouteSet
 					.toArray(EMPTY_RH_ARRAY);
 			stream.writeObject(routeHeaders);
@@ -100,26 +73,19 @@ public class ClientDialogWrapperData implements Serializable {
 		stream.defaultReadObject();
 
 		localRouteSet = new ArrayList<RouteHeader>();
-		toTag2DialogHandle = new ConcurrentHashMap<String, DialogWithoutIdActivityHandle>();
-
-		if (isInForkedActions()) {
-			for (SipActivityHandle sipActivityHandle : (SipActivityHandle[]) stream
-					.readObject()) {
-				DialogWithoutIdActivityHandle dwiah = (DialogWithoutIdActivityHandle) sipActivityHandle;
-				toTag2DialogHandle.put(dwiah.getRemoteTag(), dwiah);
-			}
+		
+		if (forkHandler.isForking()) {
 			for (RouteHeader routeHeader : (RouteHeader[]) stream.readObject()) {
 				localRouteSet.add(routeHeader);
 			}
 		}
 	}
 
-	public ClientDialogWrapper getOwner() {
-		return owner;
-	}
-
-	public void setOwner(ClientDialogWrapper owner) {
-		this.owner = owner;
+	/**
+	 * @return the forkData
+	 */
+	public ClientDialogForkHandler getForkHandler() {
+		return forkHandler;
 	}
 
 	public boolean isRouteSetOnRequest() {
@@ -144,23 +110,6 @@ public class ClientDialogWrapperData implements Serializable {
 
 	public void setLocalSequenceNumber(AtomicLong localSequenceNumber) {
 		this.localSequenceNumber = localSequenceNumber;
-	}
-
-	public DialogWithoutIdActivityHandle getForkInitialActivityHandle() {
-		return forkInitialActivityHandle;
-	}
-
-	public void setForkInitialActivityHandle(
-			DialogWithoutIdActivityHandle forkInitialActivityHandle) {
-		this.forkInitialActivityHandle = forkInitialActivityHandle;
-	}
-
-	public DialogForkState getForkState() {
-		return forkState;
-	}
-
-	public void setForkState(DialogForkState forkState) {
-		this.forkState = forkState;
 	}
 
 	public Address getFromAddress() {
@@ -194,26 +143,9 @@ public class ClientDialogWrapperData implements Serializable {
 	public void setLocalRemoteTag(String localRemoteTag) {
 		this.localRemoteTag = localRemoteTag;
 	}
-	
-	public boolean isInForkedActions() {
-		return this.forkInitialActivityHandle != null
-				|| this.forkState == DialogForkState.AWAIT_FINAL;
-	}
 
 	public List<RouteHeader> getRouteSet() {
 		return new ArrayList<RouteHeader>(this.localRouteSet);
-	}
-
-	public Set<String> getTagsMappedToDialogs() {
-		return toTag2DialogHandle.keySet();
-	}
-
-	public DialogWithoutIdActivityHandle getDialogMappedToTag(String tag) {
-		return toTag2DialogHandle.get(tag);
-	}
-
-	public DialogWithoutIdActivityHandle unmapDialogMappedToTag(String tag) {
-		return toTag2DialogHandle.remove(tag);
 	}
 
 	public void addToRouteSet(RouteHeader routeHeader) {
@@ -228,12 +160,5 @@ public class ClientDialogWrapperData implements Serializable {
 		localRouteSet.clear();
 	}
 
-	public void mapTagToDialog(String tag,
-			DialogWithoutIdActivityHandle handle) {
-		toTag2DialogHandle.put(tag, handle);
-	}
-
-	public boolean tagIsMapped(String tag) {
-		return toTag2DialogHandle.containsKey(tag);
-	}
+	
 }

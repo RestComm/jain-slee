@@ -84,4 +84,12 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ClusteredSipActivityManagement[ non replicated activities = "+nonReplicatedActivityManagement.handleSet()+" ]";
+	}
+	
 }

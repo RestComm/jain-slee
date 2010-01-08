@@ -8,13 +8,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sip.ClientTransaction;
-import javax.sip.Dialog;
 import javax.sip.DialogDoesNotExistException;
 import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
@@ -45,7 +43,6 @@ import javax.slee.resource.FireableEventType;
 import net.java.slee.resource.sip.DialogForkedEvent;
 
 import org.mobicents.slee.resource.sip11.DialogWithoutIdActivityHandle;
-import org.mobicents.slee.resource.sip11.LateResponseHandler;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.Utils;
@@ -59,13 +56,12 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	private static Tracer tracer;
 
-	// FIXME currently transient due to not support for early dialog failover
-	private transient ClientDialogWrapperData data;
+	protected ClientDialogWrapperData data;
 	
 	private ClientDialogWrapper(SipActivityHandle activityHandle,
-			String localTag, SipResourceAdaptor ra) {
+			String localTag, SipResourceAdaptor ra, ClientDialogForkHandler forkData) {
 		super(activityHandle, localTag, ra);
-		data = new ClientDialogWrapperData(this);
+		data = new ClientDialogWrapperData(forkData);
 		setResourceAdaptor(ra);
 	}
 
@@ -88,9 +84,9 @@ public class ClientDialogWrapper extends DialogWrapper {
 	 * @param ra
 	 */
 	public ClientDialogWrapper(Address from, String localTag, Address to,
-			CallIdHeader callIdHeader, SipResourceAdaptor ra) {
+			CallIdHeader callIdHeader, SipResourceAdaptor ra, ClientDialogForkHandler forkData) {
 		this(new DialogWithoutIdActivityHandle(callIdHeader.getCallId(),
-				localTag, null), localTag, ra);
+				localTag, null), localTag, ra, forkData);
 		data.setToAddress(to);
 		data.setFromAddress(from);
 		data.setCustomCallId(callIdHeader);
@@ -104,14 +100,9 @@ public class ClientDialogWrapper extends DialogWrapper {
 	 * @param provider
 	 * @param ra
 	 */
-	private ClientDialogWrapper(Dialog wrappedDialog,
-			DialogWithoutIdActivityHandle forkInitialActivityHandle,
-			SipResourceAdaptor ra) {
-		this(new DialogWithoutIdActivityHandle(wrappedDialog.getCallId()
-				.getCallId(), wrappedDialog.getLocalTag(), wrappedDialog
-				.getRemoteTag()), wrappedDialog.getLocalTag(), ra);
-		data.setForkInitialActivityHandle(forkInitialActivityHandle);
-		this.wrappedDialog = wrappedDialog;
+	private ClientDialogWrapper(DialogWithoutIdActivityHandle forkHandle, ClientDialogWrapper master) {
+		this(forkHandle,master.getLocalTag(), master.ra, new ClientDialogForkHandler((DialogWithoutIdActivityHandle) master.activityHandle));
+		this.wrappedDialog = master.wrappedDialog;
 	}
 
 	@Override
@@ -150,16 +141,49 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public void delete() {
-		// This ensures that dialog will be removed
-		if (wrappedDialog == null || data.getForkInitialActivityHandle() != null) {
+		
+		if (wrappedDialog == null) {
+			if (tracer.isFineEnabled()) {
+				tracer.fine("Deleting "+getActivityHandle()+" dialog activity, there is no wrapped dialog.");
+			}
+			// no real dialog
 			ra.processDialogTerminated(this);
 		} else {
-			// We are master, if we die, everything else does
-			try {
-				this.terminateFork(this.getActivityHandle());
-			} finally {
-				super.delete();
+			final ClientDialogForkHandler forkHandler = data.getForkHandler();
+			if (forkHandler.getMaster() == null) {
+				// we are master, if it is forking lets terminate all forks
+				forkHandler.terminate(ra);
+				if (forkHandler.getForkWinner() == null) {
+					// this is the confirmed dialog, it's safe to delete the wrapped dialog in super
+					if (tracer.isFineEnabled()) {
+						tracer.fine("Fully deleting "+getActivityHandle()+" dialog, there is no confirmed fork.");
+					}
+					super.delete();
+				}
+				else {
+					// a fork confirmed, just terminate the activity for this one
+					if (tracer.isFineEnabled()) {
+						tracer.fine("Deleting "+getActivityHandle()+" dialog activity, the wrapped dialog is still used by a confirmed fork.");
+					}
+					ra.processDialogTerminated(this);
+				}
 			}
+			else {
+				// a fork dialog
+				DialogWithoutIdActivityHandle forkWinner = forkHandler.getForkWinner();
+				if (forkHandler.isForking() || forkWinner == null || !forkWinner.equals(getActivityHandle())) {
+					if (tracer.isFineEnabled()) {
+						tracer.fine("Deleting "+getActivityHandle()+" dialog activity, a fork which was not confirmed.");
+					}
+					ra.processDialogTerminated(this);
+				}
+				else {
+					if (tracer.isFineEnabled()) {
+						tracer.fine("Fully deleting "+getActivityHandle()+" dialog, a fork which was confirmed.");
+					}
+					super.delete();					
+				}
+			}			
 		}
 	}
 
@@ -179,6 +203,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 		return super.getDialogId();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public Transaction getFirstTransaction() {
 		verifyDialogExistency();
@@ -187,7 +212,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public Address getLocalParty() {
-		if (wrappedDialog != null && !data.isInForkedActions()) {
+		if (wrappedDialog != null && !data.getForkHandler().isForking()) {
 			return super.getLocalParty();
 		} else {
 			return data.getFromAddress();
@@ -196,7 +221,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public Address getRemoteParty() {
-		if (wrappedDialog != null && !data.isInForkedActions()) {
+		if (wrappedDialog != null && !data.getForkHandler().isForking()) {
 			return super.getRemoteParty();
 		} else {
 			return data.getToAddress();
@@ -205,7 +230,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public Address getRemoteTarget() {
-		if (wrappedDialog != null && !data.isInForkedActions()) {
+		if (wrappedDialog != null && !data.getForkHandler().isForking()) {
 			return super.getRemoteTarget();
 		} else {
 			return data.getToAddress();
@@ -214,7 +239,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public long getLocalSeqNumber() {
-		if (data.isInForkedActions() || wrappedDialog == null) {
+		if (data.getForkHandler().isForking() || wrappedDialog == null) {
 			return data.getLocalSequenceNumber().get();
 		} else {
 			return super.getLocalSeqNumber();
@@ -241,7 +266,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public String getRemoteTag() {
-		if (wrappedDialog != null && !data.isInForkedActions()) {
+		if (wrappedDialog != null && !data.getForkHandler().isForking()) {
 			return super.getRemoteTag();
 		} else {
 			return data.getLocalRemoteTag();
@@ -267,7 +292,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public void incrementLocalSequenceNumber() {
-		if (data.isInForkedActions() || wrappedDialog == null) {
+		if (data.getForkHandler().isForking() || wrappedDialog == null) {
 			data.getLocalSequenceNumber().incrementAndGet();
 			// not needed till we have some sort of early dialog replication
 			// updateReplicatedState();
@@ -309,7 +334,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	@Override
 	public boolean addOngoingTransaction(ServerTransactionWrapper stw) {
-		if (data.isInForkedActions()) {
+		if (data.getForkHandler().isForking()) {
 			// Yup, could be reinveite? we have to update local DW cseq :)
 			final long cSeqNewValue = ((CSeq) stw.getRequest().getHeader(
 					CSeqHeader.NAME)).getSeqNumber();
@@ -388,7 +413,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 			} catch (Exception e) {
 				throw new SipException(e.getMessage(), e);
 			}
-		} else if (data.isInForkedActions()) {
+		} else if (data.getForkHandler().isForking()) {
 			try {
 				// create request using dialog
 				request = this.wrappedDialog.createRequest(methodName);
@@ -438,7 +463,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 		if (this.wrappedDialog != null) {
 			forgedRequest = super.createRequest(origRequest);
-			if (data.isInForkedActions() && !wrappedDialog.isServer()) {
+			if (data.getForkHandler().isForking() && !wrappedDialog.isServer()) {
 				// We have wrappedDialog, but we can't rely on some of its info,
 				// only CallId, from address, to address, from header are
 				// static
@@ -534,7 +559,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 			ensureCorrectDialogRemoteTag(request);
 		}
 
-		if (data.isInForkedActions()) {
+		if (data.getForkHandler().isForking()) {
 			// cause dialog spoils - changes cseq, we dont want that
 			ctw.sendRequest();
 			if (!method.equals(Request.ACK) && !method.equals(Request.CANCEL))
@@ -565,7 +590,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	private void ensureCorrectDialogRemoteTag(Request request)
 			throws SipException {
-		final String remoteTag = (data.isInForkedActions() && data.getLocalRemoteTag() != null ? data.getLocalRemoteTag()
+		final String remoteTag = (data.getForkHandler().isForking() && data.getLocalRemoteTag() != null ? data.getLocalRemoteTag()
 				: wrappedDialog.getRemoteTag());
 		if (remoteTag != null) {
 			// ensure we are using the right remote tag
@@ -615,7 +640,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 			}
 		} else {
 			ensureCorrectDialogRemoteTag(request);
-			if (data.isInForkedActions()) {
+			if (data.getForkHandler().isForking()) {
 				if (!request.getMethod().equals(Request.ACK)
 						&& !request.getMethod().equals(Request.CANCEL))
 					data.getLocalSequenceNumber().incrementAndGet();
@@ -647,306 +672,179 @@ public class ClientDialogWrapper extends DialogWrapper {
 	@Override
 	public boolean processIncomingResponse(ResponseEvent respEvent) {
 
+		final ClientDialogForkHandler forkHandler = data.getForkHandler();
+		if (!forkHandler.isForking()) {
+			// nothing to do, let the ra fire the event
+			return false;
+		}
+		
 		final Response response = respEvent.getResponse();
 
-		boolean firedByDialogWrapper = false;
+		boolean eventFired = false;
 		final int statusCode = response.getStatusCode();
 		final String toTag = ((ToHeader) response.getHeader(ToHeader.NAME))
 				.getTag();
-		final DialogForkState oldForkState = data.getForkState();
-		DialogWithoutIdActivityHandle masterActivityHandle = (DialogWithoutIdActivityHandle) this.getActivityHandle();
 
 		boolean fineTrace = tracer.isFineEnabled();
 
-		switch (oldForkState) {
-		case AWAIT_FIRST_TAG:
-
-			if (100 <= statusCode && statusCode < 200) {
-				if (toTag != null) {
-
-					data.setLocalRemoteTag(toTag);
-					data.setForkState(DialogForkState.AWAIT_FINAL);
-					data.mapTagToDialog(toTag,masterActivityHandle);
-					this.fetchData(response);
-				}
-				if (fineTrace) {
-					tracer.fine("Received 1xx message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
-				// FIXME: fire on this, original message
-				firedByDialogWrapper = false;
-
-			} else if (statusCode < 300) {
-				data.setForkState(DialogForkState.END);
-				// This one is the master, here we can have only one dialog,
-				// this one, so we dont care about simblings, we just dont have
-				// those
-				// baranowb: what should we do if no toTag?
-				if (toTag != null) {
-					// THis is for cancel OK, which might not have tag.
-					data.setLocalRemoteTag(toTag);
-					data.mapTagToDialog(toTag,masterActivityHandle);
-				}
-				this.fetchData(response);
-
-				if (fineTrace) {
-					tracer.fine("Received 2xx message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
-				// FIXME: fire on this, original message
-				firedByDialogWrapper = false;
-
-				// just in case
-				terminateFork(masterActivityHandle);
-
-			} else if (statusCode < 700) {
-
-				data.setForkState(DialogForkState.END);
-				if (fineTrace) {
-					tracer.fine("Received failure message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
-				FireableEventType eventID = ra.getEventIdCache().getEventId(
-						ra.getEventLookupFacility(), response);
-				ResponseEventWrapper REW = new ResponseEventWrapper(
-						this.provider, (ClientTransaction) respEvent
-								.getClientTransaction().getApplicationData(),
-						this, response);
-				fireEvent(fineTrace, REW, this.activityHandle, this.getEventFiringAddress(), eventID);
-				firedByDialogWrapper = true;
-				terminateFork(null);
-
-			} else {
-				if (fineTrace) {
-					tracer.fine("Received strange message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
-			}
-			break;
-		case AWAIT_FINAL:
-
-			if (100 <= statusCode && statusCode < 200) {
-
-				if (fineTrace) {
-					tracer.fine("Received 1xx message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
-				if (toTag == null) {
-					// FIXME: fire on this
-					firedByDialogWrapper = false;
-				} else if (toTag.equals(data.getLocalRemoteTag())) {
-
-					this.fetchData(response);
-					firedByDialogWrapper = false;
-					// FIXME: fire on this
-				} else if (data.tagIsMapped(toTag)) {
-
-					// other dialog wins
-					ClientDialogWrapper child = (ClientDialogWrapper) this.ra
-							.getActivity(data.getDialogMappedToTag(toTag));
-					if (child == null) {
-						data.unmapDialogMappedToTag(toTag);
-
-						return true;
-					}
-					child.fetchData(response);
-					// FIXME: fire on child, original message
-					FireableEventType eventID = ra.getEventIdCache()
-							.getEventId(ra.getEventLookupFacility(),
-									response);
+		if (statusCode < 200) {		
+			
+			if (toTag != null) {
+				if (data.getLocalRemoteTag() == null) {
 					if (fineTrace) {
-						tracer.fine("Received 1xx message: " + statusCode
-								+ ". ToTag:" + toTag + "EventId:" + (eventID == null?"null":eventID.getEventType()));
+						tracer.fine("Client dialog "+getActivityHandle()+" received "+statusCode+" response with first remote tag "+toTag);
 					}
-					ResponseEventWrapper REW = new ResponseEventWrapper(
-							this.provider, (ClientTransaction) respEvent
-									.getClientTransaction()
-									.getApplicationData(), this, response);
-					fireEvent(fineTrace, REW, child.activityHandle,child.getEventFiringAddress(), eventID);
-					firedByDialogWrapper = true;
-				} else {
-					// We create fake dialog that - as a child of master
-					ClientDialogWrapper child = getNewChildDialogActivity(
-							wrappedDialog, (DialogWithoutIdActivityHandle) this
-									.getActivityHandle());
-					child.data.setForkState(oldForkState);
-
-					child.data.setLocalRemoteTag(toTag);
-					child.fetchData(response);
-					data.mapTagToDialog(toTag, (DialogWithoutIdActivityHandle) child
-							.getActivityHandle());
-
-					// FIXME: fire on original, dialog forked
-					FireableEventType eventID = ra.getEventIdCache()
-							.getDialogForkEventId(ra
-									.getEventLookupFacility());
-
-					DialogForkedEvent REW = new DialogForkedEvent(
-							this.provider, (ClientTransaction) respEvent
-									.getClientTransaction()
-									.getApplicationData(), this, child,
-							response);
-					fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID);
-					firedByDialogWrapper = true;
-				}
-
-			} else if (statusCode < 300) {
-				data.setForkState(DialogForkState.END);
-				if (tracer.isFineEnabled()) {
-					tracer.fine("Received 2xx message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
-				// toTag must not be null, but just in case.
-				if (data.getLocalRemoteTag() != null && toTag != null
-						&& data.getLocalRemoteTag().equals(toTag)) {
-					// we win
+					data.setLocalRemoteTag(toTag);
 					this.fetchData(response);
-					// FIXME: fire on original, original message
-					firedByDialogWrapper = false;
-				} else if (toTag != null
-						&& data.tagIsMapped(toTag)) {
-
-					// other dialog wins
-
-					ClientDialogWrapper child = (ClientDialogWrapper) this.ra
-							.getActivity(data.getDialogMappedToTag(toTag));
-					child.fetchData(response);
-					masterActivityHandle = (DialogWithoutIdActivityHandle) child.getActivityHandle();
-					child.makeMaster();
-					if (child != this)
-						data.setForkInitialActivityHandle((DialogWithoutIdActivityHandle) child
-								.getActivityHandle());
+				}
+				else if (data.getLocalRemoteTag().equals(toTag)) {
+					if (fineTrace) {
+						tracer.fine("Client dialog "+getActivityHandle()+" received "+statusCode+" response with first remote tag "+toTag+" again");
+					}
+					this.fetchData(response);
+				}
+				else {
+					// fork
+					DialogWithoutIdActivityHandle forkHandle = forkHandler.getFork(toTag);
+					if (forkHandle == null) {
+						if (fineTrace) {
+							tracer.fine("Client dialog "+getActivityHandle()+" received "+statusCode+" response with new fork remote tag "+toTag);
+						}
+						ClientDialogWrapper forkDialog = getNewDialogFork(toTag,fineTrace);
+						forkDialog.fetchData(response);
+						forkHandler.addFork(ra, (DialogWithoutIdActivityHandle) forkDialog.getActivityHandle());
+						// fire dialog forked event on original activity
+						fireDialogForkEvent(respEvent, forkDialog, fineTrace);
+						eventFired = true;
+					}
 					else {
-						tracer.severe("Local: " + data.getLocalRemoteTag() + " : "
-								+ toTag + " MSG:\n" + response);
-					}
-
-					// FIXME: fire on child, original message
-					FireableEventType eventID = ra.getEventIdCache()
-							.getEventId(this.ra.getEventLookupFacility(),
-									response);
-					ResponseEventWrapper REW = new ResponseEventWrapper(
-							this.provider, (ClientTransaction) respEvent
-									.getClientTransaction()
-									.getApplicationData(), this, response);
-					fireEvent(fineTrace, REW, child.activityHandle, child.getEventFiringAddress(), eventID);
-					firedByDialogWrapper = true;
-
-				} else if (toTag != null) {
-					// we have completly new master dialog
-					// We create fake dialog as a child of master, but this one
-					// becomes master
-					ClientDialogWrapper child = getNewChildDialogActivity(
-							wrappedDialog, null);
-					child.data.setForkState(DialogForkState.END);
-
-					child.data.setLocalRemoteTag(toTag);
-					masterActivityHandle = (DialogWithoutIdActivityHandle) child.getActivityHandle();
-					data.mapTagToDialog(toTag, masterActivityHandle);
-					child.makeMaster();
-					data.setForkInitialActivityHandle((DialogWithoutIdActivityHandle) child
-							.getActivityHandle());
-					child.fetchData(response);
-					// FIXME: fire on child, original message
-					FireableEventType eventID = ra.getEventIdCache()
-							.getDialogForkEventId(this.ra
-									.getEventLookupFacility());
-					DialogForkedEvent REW = new DialogForkedEvent(
-							this.provider, (ClientTransaction) respEvent
-									.getClientTransaction()
-									.getApplicationData(), this, child,
-							response);
-					fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID);
-					firedByDialogWrapper = true;
-				} else {
-					tracer
-							.severe("Received 2xx reponse without toTag, this is error.");
-				}
-
-				// just in case
-				terminateFork(masterActivityHandle);
-			} else if (statusCode < 700) {
-
-				data.setForkState(DialogForkState.END);
-				if (fineTrace) {
-					tracer.fine("Received failure message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
-				// FIXME: fire on this, original message
-				FireableEventType eventID = ra.getEventIdCache().getEventId(ra.getEventLookupFacility(), response);
-				ResponseEventWrapper REW = new ResponseEventWrapper(
-						this.provider, (ClientTransaction) respEvent
-								.getClientTransaction().getApplicationData(),
-						this, response);
-				fireEvent(fineTrace, REW, this.activityHandle,this.getEventFiringAddress(), eventID);
-				firedByDialogWrapper = true;
-				terminateFork(null);
-
-			} else {
-				if (fineTrace) {
-					tracer.fine("Received strange message: " + statusCode
-							+ ". ToTag:" + toTag + ". Fork state old:"
-							+ oldForkState + " - new" + data.getForkState()
-							+ ". On dialog: " + this.toString());
-				}
+						if (fineTrace) {
+							tracer.fine("Client dialog "+getActivityHandle()+" received "+statusCode+" response with existent fork remote tag "+toTag);
+						}
+						ClientDialogWrapper forkDialog = (ClientDialogWrapper) this.ra.getActivity(forkHandle);
+						if (forkDialog == null) {
+							// dude, where is my dialog?
+							if (tracer.isSevereEnabled()) {
+								tracer.severe("Can't find dialog "+activityHandle+" fork with remote tag "+toTag+" in RA's activity management");
+							}
+							return true;
+						}
+						forkDialog.fetchData(response);
+						// fire event on fork activity
+						fireReceivedEvent(respEvent,forkDialog,fineTrace);
+						eventFired = true;
+					}					
+				}				
 			}
-
-			break;
-		case END:
-			// Strictly for ending other dialogs - response may come late
-			// FIXME: add terminate dialog
-
-			if (toTag != null && !toTag.equals(wrappedDialog.getRemoteTag())) {
-
-				// if 1xx+, 3xx+ we ignore it - as it indicates error response
-				// to another dialog, we dont care for.
-				if (statusCode < 200 || statusCode > 300) {
-					if (fineTrace) {
-						tracer.fine("Received late message, action IGNORE: "
-								+ statusCode + ". ToTag:" + toTag
-								+ ". Fork state old:" + oldForkState + " - new"
-								+ data.getForkState() + ". On dialog: "
-								+ this.toString());
-					}
-
-				} else {
-
-					// we are in 2xx zone, we have to ack and send bye
-					// FIXME: Add proper termiantion for SUBSCRIBE/REFER ???
-					if (Utils.getDialogCreatingMethods().contains(
-							((CSeqHeader) response.getHeader(CSeqHeader.NAME))
-									.getMethod()))
-						LateResponseHandler.doTerminateOnLate2xx(respEvent, ra);
-				}
-
-				firedByDialogWrapper = true;
-
-			}
-
-			// else we leave it to be fired by normal means ?
-			break;
-
 		}
-
+		else if (statusCode < 300) {
+			
+			if (toTag != null) {
+				if (data.getLocalRemoteTag() == null) {
+					if (fineTrace) {
+						tracer.fine("Client dialog "+getActivityHandle()+" confirmed with remote tag "+toTag);
+					}
+					data.setLocalRemoteTag(toTag);
+					this.fetchData(response);
+					forkHandler.terminate(ra);
+					
+				}
+				else if (data.getLocalRemoteTag().equals(toTag)) {
+					if (fineTrace) {
+						tracer.fine("Client dialog "+getActivityHandle()+" confirmed with remote tag "+toTag);
+					}
+					this.fetchData(response);
+					forkHandler.terminate(ra);
+				}
+				else {
+					// fork
+					DialogWithoutIdActivityHandle forkHandle = forkHandler.getFork(toTag);
+					if (forkHandle == null) {
+						if (fineTrace) {
+							tracer.fine("Client dialog "+getActivityHandle()+" confirmed with new fork remote tag "+toTag);
+						}
+						final ClientDialogWrapper forkDialog = getNewDialogFork(toTag,fineTrace);
+						forkDialog.fetchData(response);
+						// end forking
+						forkHandler.forkConfirmed(ra, this, forkDialog);
+						// fire dialog forked event on original activity
+						fireDialogForkEvent(respEvent, forkDialog, fineTrace);
+						eventFired = true;						
+					}
+					else {
+						if (fineTrace) {
+							tracer.fine("Client dialog "+getActivityHandle()+" confirmed with existent fork remote tag "+toTag);
+						}
+						final ClientDialogWrapper forkDialog = (ClientDialogWrapper) ra
+						.getActivityManagement().get(forkHandle);
+						if (forkDialog == null) {
+							// dude, where is my dialog?
+							if (tracer.isSevereEnabled()) {
+								tracer.severe("Can't find dialog "+activityHandle+" fork with remote tag "+toTag+" in RA's activity management");
+							}
+							return true;
+						}
+						forkHandler.forkConfirmed(ra, this, forkDialog);
+						forkDialog.fetchData(response);
+						// fire event on fork activity
+						fireReceivedEvent(respEvent,forkDialog,fineTrace);
+						eventFired = true;						
+					}
+				}
+			}
+			
+		}
+		else {
+			if (fineTrace) {
+				tracer.fine("Client dialog "+getActivityHandle()+" received "+statusCode+" error response, terminating fork");
+			}
+			// error while forking, fire event and terminate forking
+			fireReceivedEvent(respEvent, this, fineTrace);
+			eventFired = true;
+			this.data.getForkHandler().terminate(ra);
+		}
+		
 		// not needed till we have some sort of early dialog replication
 		// updateReplicatedState();
-		return firedByDialogWrapper;
+		return eventFired;
 	}
 
+	/**
+	 * @param respEvent
+	 * @param dw
+	 * @param fineTrace
+	 */
+	private void fireReceivedEvent(ResponseEvent respEvent,
+			ClientDialogWrapper dw, boolean fineTrace) {
+		final FireableEventType eventType = ra.getEventIdCache()
+		.getEventId(ra.getEventLookupFacility(),
+				respEvent.getResponse());
+		final ResponseEventWrapper eventObject = new ResponseEventWrapper(
+		this.provider, (ClientTransaction) respEvent
+				.getClientTransaction()
+				.getApplicationData(), this, respEvent.getResponse());
+		fireEvent(fineTrace, eventObject, dw.activityHandle,dw.getEventFiringAddress(), eventType);
+		
+	}
+
+	/**
+	 * 
+	 * @param respEvent
+	 * @param fork
+	 * @param fineTrace
+	 */
+	private void fireDialogForkEvent(ResponseEvent respEvent, ClientDialogWrapper fork, boolean fineTrace) {
+		// fire dialog forked event on original activity
+		final FireableEventType eventID = ra.getEventIdCache()
+				.getDialogForkEventId(ra
+						.getEventLookupFacility());
+		final DialogForkedEvent eventObject = new DialogForkedEvent(
+				this.provider, respEvent
+						.getClientTransaction(), this, fork,
+				respEvent.getResponse());
+		fireEvent(fineTrace, eventObject, this.activityHandle,this.getEventFiringAddress(), eventID);
+	}
+	
 	/**
 	 * @param fineTrace
 	 * @param event
@@ -958,9 +856,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 			SipActivityHandle activityHandle,
 			javax.slee.Address eventFiringAddress, FireableEventType eventType) {
 		if (ra.getEventIDFilter().filterEvent(eventType)) {
-			if(fineTrace)
-			{
-				tracer.info("Event "+(eventType==null?"null":eventType.getEventType())+" filtered.");
+			if(fineTrace) {
+				tracer.fine("Event "+(eventType==null?"null":eventType.getEventType())+" filtered.");
 			}
 			return;
 		}
@@ -976,11 +873,13 @@ public class ClientDialogWrapper extends DialogWrapper {
 	 * @param dialog
 	 * @return
 	 */
-	private ClientDialogWrapper getNewChildDialogActivity(Dialog child,
-			DialogWithoutIdActivityHandle master) {
-		final ClientDialogWrapper dw = new ClientDialogWrapper(child, master,
-				ra);
-		ra.addActivity(dw, false, tracer.isFineEnabled());
+	private ClientDialogWrapper getNewDialogFork(String forkRemoteTag, boolean fineTrace) {
+		final DialogWithoutIdActivityHandle originalHandle = (DialogWithoutIdActivityHandle) this.activityHandle;
+		final DialogWithoutIdActivityHandle forkHandle = new DialogWithoutIdActivityHandle(originalHandle.getCallId(), originalHandle.getLocalTag(), forkRemoteTag);
+		final ClientDialogWrapper dw = new ClientDialogWrapper(forkHandle, this);
+		dw.data.setLocalRemoteTag(forkRemoteTag);
+		data.getForkHandler().addFork(ra, forkHandle);
+		ra.addActivity(dw, false, fineTrace);
 		return dw;
 	}
 
@@ -1085,42 +984,31 @@ public class ClientDialogWrapper extends DialogWrapper {
 		return address;
 	}
 
-	private void terminateFork(SipActivityHandle dialogToRetain) {
-
-		ClientDialogWrapper master = null;
-		for (String tag : new HashSet<String>(data.getTagsMappedToDialogs())) {
-			
-			final DialogWithoutIdActivityHandle child = data.unmapDialogMappedToTag(tag);
-			
-			if (dialogToRetain == null || !dialogToRetain.equals(child)) {
-				// not the one to keep
-				final ClientDialogWrapper dw = (ClientDialogWrapper) this.ra.getActivity(child);
-				if (dw != null && dw.data.getForkInitialActivityHandle() == null) {
-					// this is the master and it seems it is not the one to keep
-					// anyway we need to remove it as last
-					master = dw;
-				}
-				else {
-					dw.delete();
-				}
-			}
-		}
-		if (master != null) {
-			master.delete();
-		}
-	}
-
-	private void makeMaster() {
-		data.setForkState(DialogForkState.END);
-		data.setForkInitialActivityHandle(null);
-		this.wrappedDialog.setApplicationData(this);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#clear()
 	 */
 	@Override
 	public void clear() {
+		final ClientDialogForkHandler forkHandler = data.getForkHandler();
+		if (forkHandler.getMaster() != null) {
+			if (wrappedDialog != null) {			
+				// a confirmed fork, remove the master now
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Confirmed fork dialog "+getActivityHandle()+" ended, removing its master dialog");
+				}
+				ra.getActivityManagement().remove(forkHandler.getMaster());
+			}							
+		}		
+		else {
+			if (forkHandler.getForkWinner() != null) {
+				// a fork confirmed the dialog, lets add it again to the activities map, to be able to handle late fork confirmations
+				if (tracer.isFineEnabled()) {
+					tracer.fine("Restoring dialog "+getActivityHandle()+" to the RA's activity management o handle possible late 2xx responses, a fork was confirmed.");
+				}
+				ra.getActivityManagement().put(getActivityHandle(), this);
+			}
+		}
+		
 		super.clear();
 		data = null;
 	}
@@ -1133,10 +1021,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 	private void readObject(ObjectInputStream stream) throws IOException,
 			ClassNotFoundException {
-		stream.defaultReadObject();
-		// FIXME currently data is rebuilt due to no support for early dialog failover
-		//data.setOwner(this);
-		data = new ClientDialogWrapperData(this);
+		stream.defaultReadObject();		
 		activityHandle.setActivity(this);
 	}
 }

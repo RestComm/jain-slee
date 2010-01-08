@@ -42,6 +42,7 @@ import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SleeSipProvider;
 
+import org.mobicents.slee.resource.sip11.wrappers.ClientDialogForkHandler;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.ClientDialogWrapper;
@@ -558,7 +559,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 
 		final DialogWrapper dw = new ClientDialogWrapper(from, localTag,
 				to, (callIdHeader == null ? provider.getNewCallId()
-						: callIdHeader), ra);
+						: callIdHeader), ra, new ClientDialogForkHandler());
 
 		if (!ra.addSuspendedActivity(dw, tracer.isFineEnabled())) {
 			throw new SipException("Failed to create activity.");

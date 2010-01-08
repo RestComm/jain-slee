@@ -110,6 +110,14 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 		return ackTransaction;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.TransactionWrapper#isClientTransaction()
+	 */
+	@Override
+	public boolean isClientTransaction() {
+		return false;
+	}
+	
 	/*
 	 * Helper to validate the wrapped transaction, before interacting with it.
 	 */
