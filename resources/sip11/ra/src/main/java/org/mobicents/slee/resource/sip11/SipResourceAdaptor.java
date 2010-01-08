@@ -59,7 +59,6 @@ import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
-import javax.slee.resource.UnrecognizedActivityHandleException;
 
 import net.java.slee.resource.sip.CancelRequestEvent;
 
@@ -867,51 +866,6 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 
 	// ------- END OF PROVISIONING
 
-	/**
-	 * Fires an event to the slee container
-	 * @param fineTrace
-	 * @param event
-	 * @param activity
-	 * @param eventID
-	 * @param eventFlags
-	 * @param transacted
-	 * @return
-	 */
-	public boolean fireEvent_(boolean fineTrace, Object event, SipActivityHandle activityHandle, Address eventFiringAddress, FireableEventType eventID, int eventFlags, boolean transacted) {
-
-		if (eventIDFilter.filterEvent(eventID)) {
-			if (fineTrace) {
-				tracer.fine("Event " + eventID + " filtered");
-			}
-		} else {
-			if (fineTrace) {
-				tracer.fine("Firing event " + event + " on handle " + activityHandle);
-			}
-			try {
-				if (transacted){
-					sleeEndpoint.fireEventTransacted(activityHandle, eventID, event, eventFiringAddress, null, eventFlags);
-				}
-				else {
-					sleeEndpoint.fireEvent(activityHandle, eventID, event, eventFiringAddress, null, eventFlags);
-				}				
-				return true;
-			} catch (UnrecognizedActivityHandleException e) {
-				if (inLocalMode()) {
-					tracer.severe("Error firing event "+event+" on activity "+activityHandle, e);
-				}
-				else {
-					if(fineTrace) {
-						tracer.fine("Activity not found, while firing response event, this is acceptable for early dialogs since the stack does not replicate such dialogs, and we are assuming that if the response has call id and local tag it is from an early dialog that exists in slee but not in stack",e);
-					}
-				}
-			} catch (Exception e) {
-				tracer.severe("Error firing event "+event+" on activity "+activityHandle, e);
-			}
-		}
-		return false;
-	}
-
-	
 	// --- XXX - error responses to be a good citizen
 	private void sendErrorResponse(ServerTransaction serverTransaction,
 			Request request, int code, String msg) {
