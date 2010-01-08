@@ -16,8 +16,12 @@
 		<JEE.PLATFORM>JBoss Enterprise Application Platform</JEE.PLATFORM>
 		<MANAGEMENT.PLATFORM>JBoss Operations Network</MANAGEMENT.PLATFORM>
 		<THIS.PLATFORM.INSTALL_SECTION>Section-Install_JBCP.xml</THIS.PLATFORM.INSTALL_SECTION>
-		<author.email.ivelin>iivanov@redhat.com</author.email.ivelin>
-		<author.email.eduardo>emartins@redhat.com</author.email.eduardo>
+		<THIS.ISSUE_TRACKER_URL>http://bugzilla.redhat.com/bugzilla/</THIS.ISSUE_TRACKER_URL>		
+		<author.email.ivelin>iivanov (at) redhat.com</author.email.ivelin>
+		<author.email.eduardo>emartins (at) redhat.com</author.email.eduardo>
+		<author.email.alex>amendonca (at) redhat.com</author.email.alex>
+		<author.email.amit>abhayani (at) redhat.com</author.email.amit>
+		<author.email.bartosz>bbaranow (at) redhat.com</author.email.bartosz>		
 	</properties>
 	
 	<build>

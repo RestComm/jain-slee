@@ -72,14 +72,16 @@ Halting VM]]></screen>
 			<title>Configuring JAIN SLEE Profiles</title>
 			<para>JAIN SLEE Profiles is a component used to store data, usually related with a user and/or service profile. &THIS.PLATFORM; JAIN SLEE maps JAIN SLEE Profiles to a Java Persistence API (JPA) Datasource, through Hibernate. There are two configurations for JAIN SLEE Profiles provided as JBoss Microcontainer Beans:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
-<bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+<bean name="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig"
+	class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
 	<property name="persistProfiles">true</property>
 	<property name="clusteredProfiles">false</property>
 	<property name="hibernateDatasource">java:/DefaultDS</property>
 	<property name="hibernateDialect">org.hibernate.dialect.HSQLDialect</property>
 	<depends>jboss.jca:service=DataSourceBinding,name=DefaultDS</depends>
 </bean>
-<bean name="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
+<bean name="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig"
+	class="org.mobicents.slee.container.deployment.profile.jpa.Configuration">
 	<property name="persistProfiles">true</property>
 	<property name="clusteredProfiles">true</property>
 	<property name="hibernateDatasource">java:/PostgresDS</property>
@@ -132,7 +134,8 @@ Halting VM]]></screen>
 			<title>Configuring JAIN SLEE Usage Params</title>
 			<para>JAIN SLEE Usage Params are usage statistics of several JAIN SLEE concepts, such as the SBB, Service, Resource Adaptor or Profile Table. Configuration for JAIN SLEE Usage Params is done through a JBoss Microcontainer Bean:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
-<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
+<bean name="Mobicents.JAINSLEE.UsageMbeans.Config"
+	class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
 	<property name="clusteredUsageMBeans">false</property>		
 </bean>]]>
 			</programlisting>
@@ -145,7 +148,10 @@ Halting VM]]></screen>
 			<programlisting language="XML" role="XML"><![CDATA[
 <bean name="Mobicents.JAINSLEE.MobicentsManagement"
 	class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
-	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
+	<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(
+		name="org.mobicents.slee:service=MobicentsManagement",
+		exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,
+		registerDirectly=true)</annotation>
 	<property name="entitiesRemovalDelay">1</property>
 	<property name="monitoringUncommittedAcAttachs">true</property>
 	<property name="eventRouterExecutors">64</property>

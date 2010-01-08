@@ -11,13 +11,11 @@ import javax.transaction.SystemException;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.component.ServiceComponent;
-import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
 import org.mobicents.slee.runtime.sbbentity.SbbEntity;
 import org.mobicents.slee.runtime.sbbentity.SbbEntityFactory;
-import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
 /**
  * Service implementation. This is the run-time representation of the service
@@ -121,28 +119,7 @@ public class Service {
 				logger.error("error in debugging setState(): ", e);
 			}
 		}
-		cacheData.setState(serviceState);
-		// notifying the resource adaptors about service state change if the tx commits
-		final ResourceManagement resourceManagement = sleeContainer
-				.getResourceManagement();
-		TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				ServiceID serviceID = getServiceID();
-				for (String raEntityName : resourceManagement
-						.getResourceAdaptorEntities()) {
-					if (serviceState == ServiceState.ACTIVE) {
-						resourceManagement.getResourceAdaptorEntity(raEntityName).serviceActive(serviceID);
-					}
-					else if (serviceState == ServiceState.STOPPING) {
-						resourceManagement.getResourceAdaptorEntity(raEntityName).serviceStopping(serviceID);
-					}
-					else if (serviceState == ServiceState.INACTIVE) {
-						resourceManagement.getResourceAdaptorEntity(raEntityName).serviceInactive(serviceID);
-					}					
-				}
-			}
-		};
-		sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(action);		
+		cacheData.setState(serviceState);				
 	}
 
 	/**
@@ -323,25 +300,6 @@ public class Service {
 				.append("serviceState = " + this.getState() + "\n").append("}");
 
 		return sb.toString();
-	}
-
-	public void notifyLocalInactivation() {
-		final ResourceManagement resourceManagement = sleeContainer
-				.getResourceManagement();
-
-		TransactionalAction action = new TransactionalAction() {
-			public void execute() {
-				ServiceID serviceID = getServiceID();
-				for (String raEntityName : resourceManagement
-						.getResourceAdaptorEntities()) {
-
-					resourceManagement.getResourceAdaptorEntity(raEntityName)
-							.serviceInactive(serviceID);
-
-				}
-			}
-		};
-
 	}
 
 }

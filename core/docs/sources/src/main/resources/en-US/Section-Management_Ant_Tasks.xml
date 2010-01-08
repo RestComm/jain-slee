@@ -25,7 +25,9 @@
 <property name="jnpHost" value="127.0.0.1" />
 <property name="jnpPort" value="1099" />
 
-<taskdef name="slee-management" classname="org.mobicents.ant.MobicentsManagementAntTask" classpath="${project.classpath}" />]]>
+<taskdef name="slee-management"
+	classname="org.mobicents.ant.MobicentsManagementAntTask"
+	classpath="${project.classpath}" />]]>
 	</programlisting>	
 
 	<para>It is important to understand some properties set by the code above:</para>
@@ -92,7 +94,8 @@
 			<para>The <literal>activateservice</literal> sub-task activates an already installed JAIN SLEE service, with the id specified by the value of attribute <parameter>componentid</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<activateservice componentid="ServiceID[name=GoogleTalkBotService,vendor=mobicents,version=0.1]"/>
+	<activateservice 
+		componentid="ServiceID[name=FooService,vendor=org.mobicents,version=1.0]" />
 </slee-management>]]>
 			</programlisting>	
 		</section>
@@ -102,7 +105,8 @@
 			<para>The <literal>deactivateservice</literal> sub-task deactivates an already installed JAIN SLEE service, with the id specified by the value of attribute <parameter>componentid</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<deactivateservice componentid="ServiceID[name=GoogleTalkBotService,vendor=mobicents,version=0.1]"/>
+	<deactivateservice
+		componentid="ServiceID[name=FooService,vendor=org.mobicents,version=1.0]" />
 </slee-management>]]>
 			</programlisting>	
 		</section>
@@ -112,7 +116,9 @@
 			<para>The <literal>createraentity</literal> sub-task creates the resource adaptor entity with the name specified by the value of attribute <parameter>entityname</parameter>, for an already installed JAIN SLEE resource adaptor, with the id specified by the value of attribute <parameter>componentid</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<createraentity componentid="ResourceAdaptorID[name=DiameterBaseResourceAdaptor,vendor=java.net,version=0.8.1]" entityname="DiameterBaseRA" />
+	<createraentity
+		componentid="ResourceAdaptorID[name=FooRA,vendor=org.mobicents,version=1.0]"
+		entityname="FooRA" />
 </slee-management>]]>
 			</programlisting>	
 		</section>
@@ -122,7 +128,7 @@
 			<para>The <literal>removeraentity</literal> sub-task removes the resource adaptor entity with the name specified by the value of attribute <parameter>entityname</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<removeraentity entityname="DiameterBaseRA" />
+	<removeraentity entityname="FooRA" />
 </slee-management>]]>
 			</programlisting>	
 		</section>
@@ -132,7 +138,7 @@
 			<para>The <literal>activateraentity</literal> sub-task activates the resource adaptor entity with the name specified by the value of attribute <parameter>entityname</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<activateraentity entityname="DiameterBaseRA" />
+	<activateraentity entityname="FooRA" />
 </slee-management>]]>
 			</programlisting>	
 		</section>
@@ -142,7 +148,7 @@
 			<para>The <literal>deactivateraentity</literal> sub-task deactivates the resource adaptor entity with the name specified by the value of attribute <parameter>entityname</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<deactivateraentity entityname="DiameterBaseRA" />
+	<deactivateraentity entityname="FooRA" />
 </slee-management>]]>
 			</programlisting>	
 		</section>
@@ -152,7 +158,8 @@
 			<para>The <literal>bindralinkname</literal> sub-task binds the resource adaptor link with the name specified by the value of attribute <parameter>linkname</parameter>, for an already active JAIN SLEE resource adaptor entity, with the name specified by the value of attribute <parameter>entityname</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<bindralinkname entityname="DiameterBaseRA" linkname="DiameterBaseRA" />
+	<bindralinkname entityname="FooRA"
+		linkname="FooRA" />
 </slee-management>]]>
 			</programlisting>	
 		</section>
@@ -162,7 +169,7 @@
 			<para>The <literal>unbindralinkname</literal> sub-task unbinds the resource adaptor link with the name specified by the value of attribute <parameter>linkname</parameter>. Example of usage:</para>
 			<programlisting language="XML" role="XML"><![CDATA[
 <slee-management host="${jnpHost}" jnpport="${jnpPort}">
-	<unbindralinkname linkname="DiameterBaseRA" />
+	<unbindralinkname linkname="FooRA" />
 </slee-management>]]>
 			</programlisting>	
 		</section>

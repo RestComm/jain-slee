@@ -47,6 +47,7 @@ import org.mobicents.slee.container.management.jmx.TraceMBeanImpl;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityHandle;
 import org.mobicents.slee.container.service.ServiceFactory;
+import org.mobicents.slee.resource.ResourceAdaptorEntity;
 import org.mobicents.slee.runtime.activity.ActivityContext;
 import org.mobicents.slee.runtime.activity.ActivityContextFactory;
 import org.mobicents.slee.runtime.activity.ActivityContextHandlerFactory;
@@ -182,7 +183,7 @@ public class ServiceManagement {
 	 * 
 	 * @see javax.slee.management.ServiceManagementMBean#activate(javax.slee.ServiceID)
 	 */
-	public void activate(ServiceID serviceID) throws NullPointerException,
+	public void activate(final ServiceID serviceID) throws NullPointerException,
 	UnrecognizedServiceException, InvalidStateException,
 	InvalidLinkNameBindingStateException {
 
@@ -244,14 +245,20 @@ public class ServiceManagement {
 					if (sleeContainer.getSleeState() == SleeState.RUNNING) {
 						service.startActivity();
 					}
-				}else
-				{
-					//NOTE: cluster
-					//we will get here on node_zero+1. do we need more actions here?
-					// change service state
-					service.setState(ServiceState.ACTIVE);
-					//activity; we dont start, it exists if service is installed
 				}
+				
+				// notifying the resource adaptors about service state change if the tx commits
+				final ResourceManagement resourceManagement = sleeContainer
+						.getResourceManagement();
+				TransactionalAction action = new TransactionalAction() {
+					public void execute() {
+						for (String raEntityName : resourceManagement
+								.getResourceAdaptorEntities()) {
+							resourceManagement.getResourceAdaptorEntity(raEntityName).serviceActive(serviceID);											
+						}
+					}
+				};
+				transactionManager.getTransactionContext().getAfterCommitActions().add(action);
 				
 				// lets cache some info in the event components this service refer
 				for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
@@ -262,7 +269,7 @@ public class ServiceManagement {
 				}
 								
 				// add rollback tx action to removed state added
-				TransactionalAction action = new TransactionalAction() {
+				TransactionalAction action1 = new TransactionalAction() {
 					public void execute() {
 						// remove references created
 						for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
@@ -273,7 +280,7 @@ public class ServiceManagement {
 						}					
 					}
 				};
-				transactionManager.getTransactionContext().getAfterRollbackActions().add(action);
+				transactionManager.getTransactionContext().getAfterRollbackActions().add(action1);
 				
 				rb = false;
 				logger.info("Activated " + serviceID);
@@ -359,6 +366,8 @@ public class ServiceManagement {
 					logger.debug(serviceID.toString() + " state = "
 							+ service.getState());
 
+				final boolean sleeRunning = sleeContainer.getSleeState() == SleeState.RUNNING;
+				
 				final boolean clustered = !sleeContainer.getCluster().isSingleMember(); 
 				// only really deactivate the service if we are not in a cluster
 				if (!clustered) {
@@ -371,23 +380,56 @@ public class ServiceManagement {
 					}
 
 					service.setState(ServiceState.STOPPING);
-
+					
+					// warn ra entities about state change
+					final ResourceManagement resourceManagement = sleeContainer
+							.getResourceManagement();
+					TransactionalAction action = new TransactionalAction() {
+						public void execute() {
+							for (String raEntityName : resourceManagement
+									.getResourceAdaptorEntities()) {
+								resourceManagement.getResourceAdaptorEntity(raEntityName).serviceStopping(serviceID);											
+							}
+						}
+					};
+					transactionManager.getTransactionContext().getAfterCommitActions().add(action);
+					
 					// only end activity if slee is running, otherwise
 					// slee already did it
-					if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+					if (sleeRunning) {
 						service.endActivity();
 					}
 					else {
-						service.setState(ServiceState.INACTIVE);					
+						service.setState(ServiceState.INACTIVE);
+						// warn ra entities about state change
+						TransactionalAction action1 = new TransactionalAction() {
+							public void execute() {
+								for (String raEntityName : resourceManagement
+										.getResourceAdaptorEntities()) {
+									resourceManagement.getResourceAdaptorEntity(raEntityName).serviceInactive(serviceID);											
+								}
+							}
+						};
+						transactionManager.getTransactionContext().getAfterCommitActions().add(action1);
 					}
-				}else
-				{
-					//NOTE: cluster
-					//we will get here on node_zero+1. do we need more actions here?
-					// change service state
-					service.notifyLocalInactivation();
-					//activity; we dont stop, it exists if service is installed, dies on last node
 				}
+				else {
+					// just warn ra entities
+					final ResourceManagement resourceManagement = sleeContainer
+							.getResourceManagement();
+					TransactionalAction action = new TransactionalAction() {
+						public void execute() {
+							for (String raEntityName : resourceManagement
+									.getResourceAdaptorEntities()) {
+								ResourceAdaptorEntity raEntity = resourceManagement.getResourceAdaptorEntity(raEntityName);
+								raEntity.serviceStopping(serviceID);
+								raEntity.serviceInactive(serviceID);
+							}
+						}
+					};
+					transactionManager.getTransactionContext().getAfterCommitActions().add(action);
+				}
+								
 				// remove runtime cache related wih this service
 				for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
 					if (mEventEntry.isInitialEvent()) {
@@ -396,7 +438,7 @@ public class ServiceManagement {
 					}
 				}
 				// add rollback tx action to add state removed
-				TransactionalAction action = new TransactionalAction() {
+				TransactionalAction action2 = new TransactionalAction() {
 					public void execute() {
 						// re-add references created
 						for (MEventEntry mEventEntry : serviceComponent.getRootSbbComponent().getDescriptor().getEventEntries().values()) {
@@ -407,7 +449,7 @@ public class ServiceManagement {
 						}					
 					}
 				};
-				transactionManager.getTransactionContext().getAfterRollbackActions().add(action);
+				transactionManager.getTransactionContext().getAfterRollbackActions().add(action2);
 				
 				rb = false;
 

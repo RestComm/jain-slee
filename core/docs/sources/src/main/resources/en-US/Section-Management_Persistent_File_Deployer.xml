@@ -59,7 +59,7 @@
 </ra-entity>]]>
 		</programlisting>
 				
-		<para>The deploy-config.xml example above defines a resource adaptor entity named <literal>SipRa</literal>, to be created for the resource adaptor with id <literal>ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]</literal>, and with a single config property named <literal>javax.sip.PORT</literal> of type <literal>java.lang.Integer</literal> and with value <literal>5060</literal>. Additionally, a resource adaptor link named <literal>SipRa</literal> should be bound to the resource adaptor entity.</para>
+		<para>The deploy-config.xml example above defines a resource adaptor entity named <literal>SipRa</literal>, to be created for the resource adaptor with id <literal>ResourceAdaptorID[name=JainSipResourceAdaptor, vendor=net.java.slee.sip, version=1.2]</literal>, and with a single config property named <literal>javax.sip.PORT</literal> of type <literal>java.lang.Integer</literal> and with value <literal>5060</literal>. Additionally, a resource adaptor link named <literal>SipRa</literal> should be bound to the resource adaptor entity.</para>
 				
 		<para>After the deployable install, the resource adaptor entity is created, then activated, and finally the resource adaptor link is bound. Before the deployable unit uninstall, or server shutdown, first the link is unbound, then the resource adaptor entity is deactivated, and finally the same resource adaptor entity is removed.</para>    
 					

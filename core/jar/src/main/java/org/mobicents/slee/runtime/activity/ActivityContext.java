@@ -19,6 +19,7 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
+import org.mobicents.slee.container.management.ResourceManagement;
 import org.mobicents.slee.container.management.ServiceManagement;
 import org.mobicents.slee.container.service.Service;
 import org.mobicents.slee.container.service.ServiceActivityImpl;
@@ -535,6 +536,19 @@ public class ActivityContext {
 				Service service = sleeContainer.getServiceManagement().getService(serviceActivity.getService());
 				if (service.getState().isStopping()) {
 					service.setState(ServiceState.INACTIVE);
+					// notifying the resource adaptors about service state change if the tx commits
+					final ResourceManagement resourceManagement = sleeContainer
+							.getResourceManagement();
+					final ServiceID serviceID = service.getServiceID();
+					TransactionalAction action1 = new TransactionalAction() {
+						public void execute() {
+							for (String raEntityName : resourceManagement
+									.getResourceAdaptorEntities()) {
+								resourceManagement.getResourceAdaptorEntity(raEntityName).serviceInactive(serviceID);											
+							}
+						}
+					};
+					sleeContainer.getTransactionManager().getTransactionContext().getAfterCommitActions().add(action1);
 					// schedule task to remove outstanding root sbb entities of the service
 					new RootSbbEntitiesRemovalTask(serviceActivity.getService());
 					Logger.getLogger(ServiceManagement.class).info("Deactivated "+ serviceActivity.getService());

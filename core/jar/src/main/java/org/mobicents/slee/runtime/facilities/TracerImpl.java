@@ -54,7 +54,7 @@ public class TracerImpl implements Tracer {
 		// want that if log4j config imposes a WARN, ERROR or OFF level, even if
 		// in that case we don't comply with the specs. this means tck will not
 		// pass if log4j logger says INFO is not enabled (e.g. WARN level set)
-		if (this.logger.isInfoEnabled()) {
+		if (this.logger.getEffectiveLevel() == Level.INFO) {
 			this.logger.setLevel(Level.INFO);
 		}
 	}

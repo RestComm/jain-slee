@@ -73,10 +73,10 @@
 				    </important>
 				    <para>Use Ant to build the binary.</para>
 				    <programlisting>
-				    [usr]$ cd mobicents-slee-core-&THIS.VERSION;
+				    [usr]$ cd mobicents-slee-core-&THIS.VERSION;/release
 				    [usr]$ ant
 				    </programlisting>
-				    <para>Onde the process finishes you should have a mobicents-jainslee-&THIS.VERSION;.zip file, installation is the same as for <xref linkend="binary_release"/>.</para>
+				    <para>Once the process finishes you should have a mobicents-jainslee-&THIS.VERSION;.zip file, installation is the same as for <xref linkend="binary_release"/>.</para>
   				</step>
 			</procedure>      
 		</section>	
