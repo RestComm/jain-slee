@@ -5,7 +5,7 @@
 	
 	<title>JAIN SLEE 1.1 Profiles JPA Mapping</title>
 	
-	<para>As mentioned in the containers configuration section, &THIS.PLATFORM; JAIN SLEE uses JPA to store all JAIN SLEE 1.1 Profiles, and in that section was explained how to define which JPA / Hibernate data source. In this section more details are provided about how JAIN SLEE 1.1 Profiles are mapped to a JPA datasource schema.</para>
+	<para>As mentioned in the containers configuration section, &THIS.PLATFORM; JAIN SLEE uses JPA to store all JAIN SLEE 1.1 Profiles, and in mentioned section it was explained how to define which JPA / Hibernate data source. In this section more details are provided about how JAIN SLEE 1.1 Profiles are mapped to a JPA datasource schema.</para>
 	
 	<section id="profile_jpa_tables_and_columns">
 	
