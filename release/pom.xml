@@ -26,21 +26,25 @@
 		
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-base/${tag.version}</ra.diameter-base.connectionURL>
 		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca/${tag.version}</ra.diameter-cca.connectionURL>
+		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cx-dx</ra.diameter-cx-dx.connectionURL>
 		<ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-client/${tag.version}</ra.diameter-sh-client.connectionURL>
 		<ra.diameter-sh-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-sh-server/${tag.version}</ra.diameter-sh-server.connectionURL>
-		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-ro/${tag.version}</ra.diameter-ro.connectionURL>
-		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rf/${tag.version}</ra.diameter-rf.connectionURL>
-		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cx-dx/${tag.version}</ra.diameter-cx-dx.connectionURL>
+		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-rf</ra.diameter-rf.connectionURL>
+		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-ro</ra.diameter-ro.connectionURL>
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-client/${tag.version}</ra.httpclient.connectionURL>
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/http-servlet/${tag.version}</ra.http-servlet.connectionURL>
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/mgcp/${tag.version}</ra.mgcp.connectionURL>
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/sip11/${tag.version}</ra.sip11.connectionURL>
 		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/smpp/${tag.version}</ra.smpp.connectionURL>	
+		<ra.xcap-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xcap-client</ra.xcap-client.connectionURL>
 		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp/${tag.version}</ra.xmpp.connectionURL>
+		
 		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/google-talk-bot/${tag.version}</example.google-talk-bot.connectionURL>		
 		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-services/${tag.version}</example.sipservices.connectionURL> 
 		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-wake-up/${tag.version}</example.sipwakeup.connectionURL>
-
+		<example.sip-b2bua.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-b2bua/${tag.version}</example.sip-b2bua.connectionURL>
+		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/mgcp-demo</example.mgcp-demo.connectionURL>
+		
 		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/cluster/mobicents-cluster-1.0</cluster.connectionURL>
 		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-sip-ha/mobicents-jain-sip-ha-0.1</jain-sip-ha.connectionURL>
 		
@@ -50,25 +54,29 @@
 		
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-base</ra.diameter-base.connectionURL>
 		<ra.diameter-cca.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cca</ra.diameter-cca.connectionURL>
+		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cx-dx</ra.diameter-cx-dx.connectionURL>
 		<ra.diameter-sh-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-sh-client</ra.diameter-sh-client.connectionURL>
 		<ra.diameter-sh-server.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-sh-server</ra.diameter-sh-server.connectionURL>
-		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-ro</ra.diameter-ro.connectionURL>
 		<ra.diameter-rf.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-rf</ra.diameter-rf.connectionURL>
-		<ra.diameter-cx-dx.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-cx-dx</ra.diameter-cx-dx.connectionURL>
+		<ra.diameter-ro.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-ro</ra.diameter-ro.connectionURL>		
 		<ra.httpclient.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-client</ra.httpclient.connectionURL>		
 		<ra.http-servlet.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/http-servlet</ra.http-servlet.connectionURL>
 		<ra.mgcp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/mgcp</ra.mgcp.connectionURL>
 		<ra.sip11.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/sip11</ra.sip11.connectionURL>
 		<ra.smpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/smpp</ra.smpp.connectionURL>		
+		<ra.xcap-client.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xcap-client</ra.xcap-client.connectionURL>
 		<ra.xmpp.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/xmpp</ra.xmpp.connectionURL>
 		
 		<example.google-talk-bot.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/google-talk-bot</example.google-talk-bot.connectionURL>
 		<example.sipservices.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-services</example.sipservices.connectionURL>
 		<example.sipwakeup.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</example.sipwakeup.connectionURL>
+		<example.sip-b2bua.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-b2bua</example.sip-b2bua.connectionURL>
+		<example.mgcp-demo.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/mgcp-demo</example.mgcp-demo.connectionURL>
 		
 		<cluster.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/cluster</cluster.connectionURL>
 		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>				
 		
+		<mms.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/core/mms-core-2.0.0.BETA2</mms.connectionURL>
 		
 	</properties>
 	
@@ -283,7 +291,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>ra-diameter-cca-checkout</id>
+						<id>ra-diameter-cx-dx-checkout</id>
 						<goals>
 							<goal>checkout</goal>
 						</goals>
@@ -293,10 +301,10 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/resources/diameter-cca
+								${checkout.basedir}/resources/diameter-cx-dx
 							</checkoutDirectory>
 							<connectionUrl>
-								${ra.diameter-cca.connectionURL}
+								${ra.diameter-cx-dx.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -343,7 +351,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>ra-diameter-ro-checkout</id>
+						<id>ra-diameter-cca-checkout</id>
 						<goals>
 							<goal>checkout</goal>
 						</goals>
@@ -353,10 +361,10 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/resources/diameter-ro
+								${checkout.basedir}/resources/diameter-cca
 							</checkoutDirectory>
 							<connectionUrl>
-								${ra.diameter-ro.connectionURL}
+								${ra.diameter-cca.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -383,7 +391,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>ra-diameter-cx-dx-checkout</id>
+						<id>ra-diameter-ro-checkout</id>
 						<goals>
 							<goal>checkout</goal>
 						</goals>
@@ -393,10 +401,30 @@
 							<scmVersionType>revision</scmVersionType>
 							<skipCheckoutIfExists>true</skipCheckoutIfExists>
 							<checkoutDirectory>
-								${checkout.basedir}/resources/diameter-cx-dx
+								${checkout.basedir}/resources/diameter-ro
 							</checkoutDirectory>
 							<connectionUrl>
-								${ra.diameter-cx-dx.connectionURL}
+								${ra.diameter-ro.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ra-xcap-client-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/resources/xcap-client
+							</checkoutDirectory>
+							<connectionUrl>
+								${ra.xcap-client.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -417,6 +445,26 @@
 							</checkoutDirectory>
 							<connectionUrl>
 								${example.sipservices.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					<execution>
+						<id>example-sip-b2bua-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/examples/sip-b2bua
+							</checkoutDirectory>
+							<connectionUrl>
+								${example.sip-b2bua.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
@@ -462,376 +510,42 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-	</profile>
-	<profile>
-		<id>update</id>
-		<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-scm-plugin</artifactId>
-				<inherited>false</inherited>
-				<executions>
 					<execution>
-						<id>core-update</id>
+						<id>example-mgcp-demo-checkout</id>
 						<goals>
-							<goal>update</goal>
+							<goal>checkout</goal>
 						</goals>
 						<phase>validate</phase>
 						<configuration>
-							<basedir>
-								${checkout.basedir}/core
-							</basedir>
 							<scmVersion>HEAD</scmVersion>
 							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/examples/mgcp-demo
+							</checkoutDirectory>
 							<connectionUrl>
-								${core.connectionURL}
+								${example.mgcp-demo.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
+					
 					<execution>
-						<id>cluster-update</id>
+						<id>mms-checkout</id>
 						<goals>
-							<goal>update</goal>
+							<goal>checkout</goal>
 						</goals>
 						<phase>validate</phase>
 						<configuration>
-							<basedir>
-								${checkout.basedir}/cluster
-							</basedir>
 							<scmVersion>HEAD</scmVersion>
 							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/mms
+							</checkoutDirectory>
 							<connectionUrl>
-								${cluster.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>jain-sip-ha-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/jain-sip-ha
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${jain-sip-ha.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-sip11-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/sip11
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.sip11.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-httpclient-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/http-client
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.httpclient.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-http-servlet-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/http-servlet
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.http-servlet.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-xmpp-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/xmpp
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.xmpp.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-smpp-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/smpp
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.smpp.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-mgcp-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/mgcp
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.mgcp.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-diameter-base-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/diameter-base
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.diameter-base.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-diameter-cca-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/diameter-cca
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.diameter-cca.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-diameter-sh-client-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/diameter-sh-client
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.diameter-sh-client.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-diameter-sh-server-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/diameter-sh-server
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.diameter-sh-server.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-diameter-ro-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/diameter-ro
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.diameter-ro.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-diameter-rf-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/diameter-rf
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.diameter-rf.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ra-diameter-cx-dx-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/resources/diameter-cx-dx
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${ra.diameter-cx-dx.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>example-sipservices-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/examples/sip-services
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${example.sipservices.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>example-sipwakeup-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/examples/sip-wake-up
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${example.sipwakeup.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
-					<execution>
-						<id>example-google-talk-bot-update</id>
-						<goals>
-							<goal>update</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<basedir>
-								${checkout.basedir}/examples/google-talk-bot
-							</basedir>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<connectionUrl>
-								${example.google-talk-bot.connectionURL}
+								${mms.connectionURL}
 							</connectionUrl>
 							<username>${checkout.username}</username>
 							<password>${checkout.password}</password>
