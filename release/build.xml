@@ -51,9 +51,24 @@
 
 
 	<target name="build-mmc" description="">
-		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/mmc">
-			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -P set-svn-revision" />
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin">
+			<arg line="clean install -Djboss.home=${release.dir}/tmp -Dnode=${jboss.config} -P set-svn-revision" />
 		</exec>
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin">
+			<arg line="-o install -P release,set-svn-revision -Drelease.name=target -Djboss.home=${release.dir}/tmp -Djboss.path=../../${jboss.home.relative.path} -Dnode=${jboss.config}" />
+		</exec>
+
+		<delete dir="${release.dir}/tmp"/>
+		<copy failonerror="true" toDir="${release.dir}/tools/management-console" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/release/target/tools/management-console"/>
+		</copy>
+
+		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/management-console"/>
+		
+		<antcall target="build-docs">
+			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin/docs" />
+			<param name="docs.dest.dir" value="${release.dir}/tools/management-console/docs" />
+		</antcall>
 	</target>
 	
 	<target name="build-ras" description="Resource adaptors.">
@@ -113,7 +128,7 @@
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,checkout-sources,build-core,build-ras,build-examples,build-mms,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-mms,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		
 		<tstamp>
