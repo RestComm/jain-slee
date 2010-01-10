@@ -129,8 +129,6 @@
 	</target>
 
 	<target name="release" depends="get-jboss,unzip-jboss,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-mms,build-sources-for-debug-zip,copy-extra-jbossas-files">
-		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
-		
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
