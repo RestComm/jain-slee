@@ -1,4 +1,4 @@
-SIP11 Dialog Fork Test Application
+SIP Back 2 Back User Agent Application
 ---------------------------------------------------
 This is an b2bua application for the SIP11 RA. Its 
 code should be taken as proper example.
