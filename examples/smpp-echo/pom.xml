@@ -14,14 +14,14 @@
     <version>2.0-SNAPSHOT</version>
     
     <packaging>pom</packaging>
+    
     <name>SMPP demo - echo</name>
-    <url>http://maven.apache.org</url>
+    
     <modules>
         <module>sms-sbb</module>
         <module>service-du</module>
     </modules>
-    <build>
-    </build>
+    
     <repositories>
         <repository>
             <id>jboss</id>
