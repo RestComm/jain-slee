@@ -41,6 +41,9 @@
     										<include name="*.properties" />										
     									</fileset>
     								</copy>
+    								<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/sip-wake-up/sipp">
+    									<fileset dir="${basedir}/sipp" />
+    								</copy>
     								<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/sip-wake-up/du-management.xml" />
                     <copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/sip-wake-up">
     									<filterset>
