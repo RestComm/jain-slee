@@ -30,8 +30,6 @@
 		<mobicents.servers.jainslee.version>2.0.0-SNAPSHOT</mobicents.servers.jainslee.version>
 		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
 		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
-		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
-		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 
 	<dependencyManagement>
@@ -65,7 +63,6 @@
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<groupId>org.mobicents.tools</groupId>
-				<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
@@ -75,7 +72,7 @@
 						<exclude>jtidy:jtidy</exclude>
 					</classpathExcludes>
 					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
-					<eclipseProjectName>mobicents-call-controller-2</eclipseProjectName>
+					<eclipseProjectName>mobicents-slee-example-call-controller-2</eclipseProjectName>
 				</configuration>
 			</plugin>
 		</plugins>
