@@ -80,9 +80,7 @@
 		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>				
 
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/jopr-plugin</jopr-plugin.connectionURL>
-		
-		<mms.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/media/2.x.y/core/mms-core-2.0.0.BETA2</mms.connectionURL>
-		
+				
 	</properties>
 	
 	<profiles>
@@ -556,26 +554,6 @@
 						</configuration>
 					</execution>
 					
-					<execution>
-						<id>mms-checkout</id>
-						<goals>
-							<goal>checkout</goal>
-						</goals>
-						<phase>validate</phase>
-						<configuration>
-							<scmVersion>HEAD</scmVersion>
-							<scmVersionType>revision</scmVersionType>
-							<skipCheckoutIfExists>true</skipCheckoutIfExists>
-							<checkoutDirectory>
-								${checkout.basedir}/mms
-							</checkoutDirectory>
-							<connectionUrl>
-								${mms.connectionURL}
-							</connectionUrl>
-							<username>${checkout.username}</username>
-							<password>${checkout.password}</password>
-						</configuration>
-					</execution>
 					<execution>
 						<id>jopr-plugin-checkout</id>
 						<goals>

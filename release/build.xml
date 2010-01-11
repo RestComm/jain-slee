@@ -13,7 +13,9 @@
     <property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
-
+	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/2.0.0.BETA2/mms-standalone-2.0.0.BETA2-0908151145.zip"/>
+	<property name="mms.distro.zip.path" value="media-server.zip"/>
+	
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="${ant.file.mobicents.release}/../ant-contrib-1.0b3.jar" />
@@ -128,7 +130,8 @@
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-mms,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-mms,build-sources-for-debug-zip,copy-extra-jbossas-files">
+		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
 		</tstamp>
@@ -277,6 +280,17 @@
 		<get dest="${ant.file.mobicents.release}/../${jboss.distro.zip.path}" src="http://downloads.sourceforge.net/jboss/jboss-${jboss.version}.zip"/>
 	</target>
 
+	<available file="${ant.file.mobicents.release}/../${mms.distro.zip.path}" property="got.mms" />
+	<target name="get-mms" unless="got.mms">
+		<echo>Downloading Mobicents Media Server</echo>
+		<get dest="${ant.file.mobicents.release}/../${mms.distro.zip.path}" src="${mms.download.url}"/>
+	</target>
+	
+	<target name="unzip-mms">
+		<delete dir="${release.dir}/media-server" failonerror="false" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/media-server" />
+	</target>
+	
 	<target name="checksum">
 		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}" forceOverwrite="yes"/>
 	</target>
