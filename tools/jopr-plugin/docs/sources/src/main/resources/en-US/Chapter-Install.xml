@@ -69,6 +69,84 @@
 	
 	<section id="install_alternatives">
 		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
+		<para>Installing &MANAGEMENT.PLATFORM; Server and Agent</para>
+		<orderedlist>
+			<listitem>
+				<para>Download RHQ Server from <ulink url="http://sourceforge.net/projects/rhq/">SourceForge</ulink></para>
+			</listitem>
+			<listitem>
+				<para>Unzip the distribution in a suitable place (i.e. in a directory not too deeply nested and with no spaces or non-ASCII characters in its name)</para>
+			</listitem>
+			<listitem>
+				<para><emphasis>This step is optional, if you're using Embedded H2 Database, you can skip to next</emphasis></para>
+				<para>Install a database like PostgreSQL (version 8.2.4 +, please choose C locale for initdb), create a database instance called 'rhq' in it and a user 'rhqadmin' that owns this 'rhq' database.</para>
+				<screen>create user rhqadmin password 'rhqadmin';
+
+create database rhq owner rhqadmin;</screen>
+			</listitem>
+			<listitem>
+				<para>Eventually set RHQ_SERVER_JAVA_HOME or RHQ_SERVER_JAVA_EXE_FILE_PATH env variables appropriately. This is needed if your JAVA_HOME does not point to a java installation that is valid with &MANAGEMENT.PLATFORM; (e.g. JAVA 1.4); &MANAGEMENT.PLATFORM; requires JAVA 5+.</para>
+			</listitem>
+			<listitem>
+				<para>In a terminal console, cd into the installation directory and start the Server:</para>
+				<screen>bin/rhq-server.[sh|bat] console</screen>
+			</listitem>
+			<listitem>
+				<para>After a few seconds, the messages on the console will stop. When this happens, point your browser to http://localhost:7080/ and run the installer:</para>
+				<orderedlist>
+					<listitem>
+						<para>Click on <guilabel>Click here to continue the installation</guilabel></para>
+					</listitem>
+					<listitem>
+						<para>Choose your desired and installed database from the <guilabel>Database Type</guilabel> drop down list. If you don't want to install/use an external Database, choose <guilabel>H2 (embedded)</guilabel>.</para>
+					</listitem>
+					<listitem>
+						<para>Default settings should be fine to install the server correctly. To test the DB connection, please click <guibutton>Test Connection</guibutton> button.</para>
+						<warning>If the <guibutton>Test Connection</guibutton> button was used, make sure that the <guibutton>Database Password</guibutton> field is still filled, as some browsers lose the data in there. Default password is <emphasis>rhqadmin</emphasis>.</warning>
+					</listitem>
+					<listitem>
+						<para>Review the seleceted settings, click <guibutton>Install Server!</guibutton> and wait for it to complete.</para>
+					</listitem>
+					<listitem>
+						<para>Click on <guibutton>Done! Click here to get started!</guibutton> when the progress bar stops.</para>
+					</listitem>					
+				</orderedlist>
+			</listitem>
+			<listitem>
+				<para>Log in (default user/password are: rhqadmin/rhqadmin), it is time to downloand and install the Agent:</para>
+				<orderedlist>
+					<listitem>
+						<para>Click on <menuchoice><guimenu>Administration</guimenu><guisubmenu>Download</guisubmenu></menuchoice>.</para>
+						<figure>
+							<title>Accessing Download Menu</title>
+							<mediaobject>
+								<imageobject>
+									<imagedata fileref="images/img-jopr_download_menu.png" format="PNG"/>
+								</imageobject>
+								<textobject>
+									<para>Accessing Download Menu</para>
+								</textobject>
+							</mediaobject>
+						</figure>
+					</listitem>
+					<listitem>
+						<para>Click on <guilabel>Download Agent Installer</guilabel> and save it to where the agent should be installed.</para>
+					</listitem>
+					<listitem>
+						<para>In a second terminal console, cd into the directory containing the downloaded jar and install it:</para>
+						<screen>java -jar &lt;agent-download.jar&gt; --install[=&lt;new agent dir&gt;]</screen>
+					</listitem>
+					<listitem>
+						<para>cd into the newly created <emphasis>rhq-agent</emphasis> directory and start the Agent by issuing:</para>
+						<screen>bin/rhq-agent.[sh|bat]</screen>
+					</listitem>
+					<listitem>
+						<para>Answer the questions asked by the Agent, if any. Default setting should be sufficient.</para>
+					</listitem>
+				</orderedlist>
+			</listitem>
+		</orderedlist>
+
 		<para>Follow the &MANAGEMENT.PLATFORM; <ulink url="http://jboss.org/community/docs/DOC-12828">installation instructions</ulink> to install the latest version of &MANAGEMENT.PLATFORM;.</para>
 		
 		<para> &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin, may be installed in two ways:</para>
