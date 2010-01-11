@@ -81,8 +81,12 @@
 										<include name="*.properties" />
 									</fileset>
 								</copy>
+								
 								<copy overwrite="true" file="${basedir}/web/target/mgcp-demo-audio.war" todir="${release.dir}" />
 								<copy overwrite="true" file="${basedir}/slee/services-du/target/build.xml" tofile="${release.dir}/du-management.xml" />
+								
+								<copy overwrite="true" file="${basedir}/README.txt" tofile="${release.dir}/README.txt" />
+								
 								<copy overwrite="true" file="${basedir}/release/build.xml" todir="${release.dir}">
 									<filterset>
 										<filter token="JBOSS.PATH" value="${jboss.path}" />
