@@ -3,7 +3,7 @@
 
 	<property environment="sys"/>
 	<property name="ra.dirs" value="sip11,http-client,http-servlet,xmpp,smpp,mgcp,diameter-base,diameter-sh-client,diameter-sh-server,diameter-cca,diameter-cx-dx,diameter-rf,diameter-ro,xcap-client"/>
-	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,call-controller2"/>
+	<property name="example.dirs" value="sip-services,sip-wake-up,google-talk-bot,sip-b2bua,call-controller2,mgcp-demo"/>
 	<property name="my.release.dir" value="${ant.file.mobicents.release}/../target"/>
 	<property name="release.dir" value="${my.release.dir}"/>
 	<property name="jboss.version" value="5.1.0.GA"/>
@@ -13,6 +13,7 @@
     <property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
+	
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/2.0.0.BETA2/mms-standalone-2.0.0.BETA2-0908151145.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 	
@@ -118,19 +119,21 @@
 		</copy>
 		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/examples"/>
 	</target>
-
+	
+	<!--
 	<target name="build-mms" description="">
 		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/mms">
 			<arg line="clean install -Djboss.home=${jboss.home} -Dnode=${jboss.config} -Dmaven.test.skip=true -P set-svn-revision" />
 		</exec>
 	</target>
+	-->
 	
 	<target name="copy-extra-jbossas-files">
 		<!-- <copy failonerror="true" file="${ant.file.mobicents.release}/../jbossjta-properties.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jbossjta-properties.xml" overwrite="true" /> 
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-mms,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
@@ -287,10 +290,10 @@
 	</target>
 	
 	<target name="unzip-mms">
-		<delete dir="${release.dir}/media-server" failonerror="false" />
-		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/media-server" />
+		<delete dir="${release.dir}/tools/media-server" failonerror="false" />
+		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/tools/media-server" />
 	</target>
-	
+
 	<target name="checksum">
 		<checksum file="${source.file}" algorithm="${algorithm}" fileext=".${algorithm}" forceOverwrite="yes"/>
 	</target>
