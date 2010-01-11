@@ -28,7 +28,7 @@
 						<para>the property must be configured with the list of load balancer IP address and external ports. As an example, suppose a single &THIS.PLATFORM; SIP Load Balancer is running with IP <literal>192.168.0.1</literal> and external port <literal>5060</literal>, the property would be set with value <literal>192.168.0.1:5060</literal></para>
 					</listitem>
 				</varlistentry>
-				<varlistentry>
+				<varlistentry> 
 					<term>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName</term>
 					<listitem>
 						<para>the property must be set with the class name of the HeartBeating service implementation, currently the only one available is <literal>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceImpl</literal></para>
@@ -58,25 +58,25 @@
   			
   			<section id="load_balancing_algorithms">
   				<title>Pluggable Balancer Algorithms</title>
-  				<para>The SIP load balancer exposes an interface to allow users to customize the routing decision making for special purposes. Only one algorithm is active at any time and it is specified with the <literal>algorithmClass</literal> property in the configuration file.</para><para>It is completely up to the algorithm how and whether to support distributed architecture or how to store the information needed for session affinity. The algorithms will be called for every SIP request and other significant events to make more informed decisions.</para>
+  				<para>The SIP load balancer exposes an interface to allow users to customize the routing decision algorithm. Only one algorithm is active at any time and it is specified with the <literal>algorithmClass</literal> property in the configuration file.</para><para>It is completely up to the algorithm how and whether to support distributed architecture or how to store the information needed for session affinity. The algorithms will be called for every SIP request and other significant events to make proper routing decisions.</para>
   				<variablelist>
-  					<para>The following is a list o the built-in algorithms:</para>
+  					<para>The following is a list of the built-in algorithms:</para>
         			<varlistentry>
           				<term>org.mobicents.tools.sip.balancer.CallIDAffinityBalancerAlgorithm </term>
           				<listitem>
-            				<para>This algorithm is not distributable. It selects nodes randomly to serve a give Call-ID extracted from the requests and responses. It keeps a map with  <literal>Call-ID -&gt; nodeId</literal> associations and this map is not shared with other load balancers which will cause them to make different decisions.</para>
+            				<para>This algorithm does not support distributed use case. It selects nodes randomly to serve a give Call-ID extracted from the requests and responses. It keeps a map with  <literal>Call-ID -&gt; nodeId</literal> associations and this map is not shared with other load balancers which will cause them to make different decisions.</para>
           				</listitem>
         			</varlistentry>
         			<varlistentry>
           				<term>org.mobicents.tools.sip.balancer.HeaderConsistentHashBalancerAlgorithm </term>
           				<listitem>
-            				<para>This algorithm is distributable and can be used in distributed load balancer configurations. It extracts the hash value of specific headers from SIP messages to decide which application server node will handle the request. Information about the options in this algorithms is available in the balancer configuration file comments.</para>
+            				<para>This algorithm can be used in distributed load balancer configurations. It extracts the hash value of specific headers from SIP messages to decide which application server node will handle the request. Information about the options in this algorithms is available in the balancer configuration file comments.</para>
           				</listitem>
         			</varlistentry>
         			<varlistentry>
           				<term>org.mobicents.tools.sip.balancer.PersistentConsistentHashBalancerAlgorithm </term>
           				<listitem>
-            				<para>This algorithm is distributable and is similar to the previous algorithm, but it attempts to keep session affinity even when the cluster nodes are removed or added, which would normally cause hash values to point to different nodes.</para>
+            				<para>This algorithm can be used in distributed load balancer configurations. It is similar to the previous algorithm, but it attempts to keep session affinity even when the cluster nodes are removed or added, which would normally cause hash values to point to different nodes.</para>
           				</listitem>
         			</varlistentry>
       			</variablelist>
@@ -264,7 +264,7 @@ gov.nist.javax.sip.REENTRANT_LISTENER = true
             			<varlistentry>
               				<term>extraServerNodes</term>
               				<listitem>
-                				<para>Comma-separated list of hosts that are server nodes. You can put here alternative names of the application servers here and they will be recognized. Names are important, because they might be used for direction-analysis. Requests coming from these server will go in the direction of the clients and will not be routed back to the cluster.</para>
+                				<para>Comma-separated list of hosts that are server nodes. You can put here alternative names of the application servers and they will be recognized. Names are important, because they might be used for direction-analysis. Requests coming from these server will go in the direction of the clients and will not be routed back to the cluster.</para>
               				</listitem>
             			</varlistentry>
             			<varlistentry>
