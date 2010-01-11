@@ -64,9 +64,8 @@
 		<section id="management_jon_console">
 			<title>&MANAGEMENT.PLATFORM; Console</title>
 			<para>The JMX Console is simple but the MBeans operations were made considering its invocation by management clients, not people using browsers. &MANAGEMENT.PLATFORM; was developed to become Red Hat's Middleware Administration Tool, providing an unified interface and extensible model, to be used to control, monitor and manage servers individually, and clusters.</para>
-			<important><para>Include &MANAGEMENT.PLATFORM; Console Guide.</para></important>
+			<para>&THIS.PLATFORM; JAIN SLEE binary release includes a &MANAGEMENT.PLATFORM; Console in <filename>tools/management-console</filename>, with standalone documentation.</para>			
 		</section>
-
 
 	</section>
 				
