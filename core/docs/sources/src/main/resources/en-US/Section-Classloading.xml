@@ -5,7 +5,7 @@
 	
 	<title>Class Loading</title>
 	
-	<para>Each JAIN SLEE Component has its own class loader, <literal>ComponentClassLoader</literal> in package named <literal>org.mobicents.slee.container.component.deployment.classloading</literal>, this class loader sees the component classes contained in the component jar (<literal>URLClassLoaderDomain</literal>) - by declaring it as the parent class loader - plus the classes seen by each component it refers. It does not sees classes from a component that it does not depends.</para>
+	<para>Each JAIN SLEE Component has its own class loader, <literal>ComponentClassLoader</literal> in package named <literal>org.mobicents.slee.container.component.deployment.classloading</literal>, this class loader sees the component classes contained in the component jar (<literal>URLClassLoaderDomain</literal>) - by declaring it as the parent class loader - plus the classes seen by each component it refers. It does not see classes from a component that it does not depend on.</para>
 	<para>&THIS.PLATFORM; JAIN SLEE defines a class loading domain with the APIs required in the JAIN SLEE 1.1 container (JAIN SLEE, JDBC, JMX, ...). This domain (JBoss Microcontainer ClassLoadingDomain) imports all classes shared in the &JEE.PLATFORM;, and acts like the parent domain for all <literal>URLClassLoaderDomain</literal>s, which means that a class imported by SLEE class loading domain will always be used first.</para>
 	
 	<mediaobject>
