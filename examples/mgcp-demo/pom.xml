@@ -2,9 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
     
 	<parent>
-		<artifactId>mobicents</artifactId>
+		<artifactId>mobicents-parent</artifactId>
 		<groupId>org.mobicents</groupId>
-		<version>12</version>
+		<version>2.2-SNAPSHOT</version>
 	</parent>
     
 	<artifactId>mgcp-demo-parent</artifactId>
@@ -22,18 +22,10 @@
 	<properties>
 		<mobicents.resources.sip11.version>2.0.0-SNAPSHOT</mobicents.resources.sip11.version>
 		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
-		<mobicents.tools.mavenplugin.du.version>2.0.0.BETA2</mobicents.tools.mavenplugin.du.version>
-		<mobicents.tools.mavenplugin.library.version>1.0.0.BETA1</mobicents.tools.mavenplugin.library.version>
-		<mobicents.tools.mavenplugin.eclipse.version>1.0.0.BETA2</mobicents.tools.mavenplugin.eclipse.version>
 	</properties>
 	
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>javax.slee</groupId>
-				<artifactId>jain-slee</artifactId>
-				<version>1.1</version>
-			</dependency>
 			<dependency>
 				<groupId>org.mobicents.resources</groupId>
 				<artifactId>sip11-ratype</artifactId>
@@ -118,7 +110,6 @@
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
    				<groupId>org.mobicents.tools</groupId>
-    			<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>
