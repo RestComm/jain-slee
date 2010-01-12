@@ -30,7 +30,7 @@
    ]]>
 	</send>
 
-	<recv response="100" optional="true">
+	<recv response="100">
 	</recv>
 
 
