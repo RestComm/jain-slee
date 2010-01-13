@@ -53,7 +53,24 @@
 				</textobject>
 			</mediaobject>
 		</figure>
+		
+		<note>
+			<title>Components deployed outside &MANAGEMENT.PLATFORM;</title>
+			<para>If components are installed outside &MANAGEMENT.PLATFORM;, after &MANAGEMENT.PLATFORM; Agent is started, the list of installed components will not be updated in a <emphasis>reasonable</emphasis> time.</para>
+			<para>For performance reasons, &MANAGEMENT.PLATFORM; servers childs (such as Deployable Units, Resource Adaptors, SBBs and Services in <acronym>SLEE</acronym>) are checked for changes every 24 hours.</para>
+		</note>
+		
+		<para>To force a service discovery, there are two options:</para>
+		<itemizedlist>
+			<listitem>
+				<para>In the &MANAGEMENT.PLATFORM; web app, right-click the root item (Platform) of the <acronym>JAIN SLEE</acronym> Server and select <menuchoice><guimenu>Execute Operation</guimenu><guisubmenu>Manual Autodiscovery</guisubmenu></menuchoice>. Select <guilabel>Yes</guilabel> in <guilabel>Detailed Discovery</guilabel> and run the discovery by clicking the <guibutton>SCHEDULE</guibutton> button.</para>
+			</listitem>
+			<listitem>
+				<para>In the &MANAGEMENT.PLATFORM; agent console, run a full discovery, by issuing the following command:<screen>&gt; discovery -f</screen></para>
+			</listitem>
+		</itemizedlist>
 	</section>
+
 	<section id="management_slee_install_uninstall_dus">
 		<title>Install/Uninstall <acronym>JAIN SLEE</acronym> Deployable Units</title>
 		<para>In the <guilabel>INVENTORY</guilabel> tab it's possible to Install/Uninstall <acronym>JAIN SLEE</acronym> Deployable Units.</para>
@@ -70,12 +87,14 @@
 						<imagedata fileref="images/img-jopr_slee_install_du.png" format="PNG"/>
 					</imageobject>
 					<textobject>
-						<para>Installing a Deployable Unit with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin..</para>
+						<para>Installing a Deployable Unit with &MANAGEMENT.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin.</para>
 					</textobject>
 				</mediaobject>
 			</figure>
 			
-			<para>Click <guibutton>Add...</guibutton>, select the Deployable Unit to be installed, click <guibutton>Upload</guibutton> to confirm and close this browser window.</para>
+			<para>Click the <guibutton>UPLOAD FILE...</guibutton> button, a new browser window will be shown to upload the <acronym>JAIN SLEE</acronym> Deployable Unit. Click <guibutton>Add...</guibutton>, select the Deployable Unit to be installed, click <guibutton>Upload</guibutton> to confirm and close this browser window.</para>
+			
+			<warning>You browser might ask you if you want to resend the information. Please accept it. Google Chrome browser may not support this operation!</warning>
 			
 			<para>Back on the main window for installing the <acronym>DU</acronym>, select either to do a persistent deploy (copy file to deploy folder) or not (simply call <command>install</command> on the DU).</para>
 			
@@ -149,7 +168,7 @@
 		
 		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>					
 
-		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
 	</section>
 	<section id="management_slee_op_list_acs">
 		<title>List All Activity Contexts</title>
@@ -159,7 +178,7 @@
 		
 		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>					
 
-		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
 
 		<para>The result is presented in the following form:</para>
 
@@ -183,6 +202,6 @@
 		
 		<note><para>As any operation on &MANAGEMENT.PLATFORM;, this operation can be scheduled for a later time, have a defined timeout and/or include additional notes.</para></note>					
 
-		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on it shows the result(s).</para>
+		<para>Clicking on the <guibutton>SCHEDULE</guibutton> executes (if <guilabel>Immediately</guilabel> is selected) or schedules the operation. After being executed, it's shown in <guilabel>HISTORY</guilabel>, <guilabel>Completed Operations</guilabel>. Clicking on its name shows the result(s).</para>
 	</section>
 </section>

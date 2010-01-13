@@ -69,177 +69,183 @@
 	
 	<section id="install_alternatives">
 		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
-		<para>Installing &MANAGEMENT.PLATFORM; Server and Agent</para>
-		<orderedlist>
-			<listitem>
-				<para>Download RHQ Server from <ulink url="http://sourceforge.net/projects/rhq/">SourceForge</ulink></para>
-			</listitem>
-			<listitem>
-				<para>Unzip the distribution in a suitable place (i.e. in a directory not too deeply nested and with no spaces or non-ASCII characters in its name)</para>
-			</listitem>
-			<listitem>
-				<para><emphasis>This step is optional, if you're using Embedded H2 Database, you can skip to next</emphasis></para>
-				<para>Install a database like PostgreSQL (version 8.2.4 +, please choose C locale for initdb), create a database instance called 'rhq' in it and a user 'rhqadmin' that owns this 'rhq' database.</para>
-				<screen>create user rhqadmin password 'rhqadmin';
-
-create database rhq owner rhqadmin;</screen>
-			</listitem>
-			<listitem>
-				<para>Eventually set RHQ_SERVER_JAVA_HOME or RHQ_SERVER_JAVA_EXE_FILE_PATH env variables appropriately. This is needed if your JAVA_HOME does not point to a java installation that is valid with &MANAGEMENT.PLATFORM; (e.g. JAVA 1.4); &MANAGEMENT.PLATFORM; requires JAVA 5+.</para>
-			</listitem>
-			<listitem>
-				<para>In a terminal console, cd into the installation directory and start the Server:</para>
-				<screen>bin/rhq-server.[sh|bat] console</screen>
-			</listitem>
-			<listitem>
-				<para>After a few seconds, the messages on the console will stop. When this happens, point your browser to http://localhost:7080/ and run the installer:</para>
-				<orderedlist>
-					<listitem>
-						<para>Click on <guilabel>Click here to continue the installation</guilabel></para>
-					</listitem>
-					<listitem>
-						<para>Choose your desired and installed database from the <guilabel>Database Type</guilabel> drop down list. If you don't want to install/use an external Database, choose <guilabel>H2 (embedded)</guilabel>.</para>
-					</listitem>
-					<listitem>
-						<para>Default settings should be fine to install the server correctly. To test the DB connection, please click <guibutton>Test Connection</guibutton> button.</para>
-						<warning>If the <guibutton>Test Connection</guibutton> button was used, make sure that the <guibutton>Database Password</guibutton> field is still filled, as some browsers lose the data in there. Default password is <emphasis>rhqadmin</emphasis>.</warning>
-					</listitem>
-					<listitem>
-						<para>Review the seleceted settings, click <guibutton>Install Server!</guibutton> and wait for it to complete.</para>
-					</listitem>
-					<listitem>
-						<para>Click on <guibutton>Done! Click here to get started!</guibutton> when the progress bar stops.</para>
-					</listitem>					
-				</orderedlist>
-			</listitem>
-			<listitem>
-				<para>Log in (default user/password are: rhqadmin/rhqadmin), it is time to downloand and install the Agent:</para>
-				<orderedlist>
-					<listitem>
-						<para>Click on <menuchoice><guimenu>Administration</guimenu><guisubmenu>Download</guisubmenu></menuchoice>.</para>
-						<figure>
-							<title>Accessing Download Menu</title>
-							<mediaobject>
-								<imageobject>
-									<imagedata fileref="images/img-jopr_download_menu.png" format="PNG"/>
-								</imageobject>
-								<textobject>
-									<para>Accessing Download Menu</para>
-								</textobject>
-							</mediaobject>
-						</figure>
-					</listitem>
-					<listitem>
-						<para>Click on <guilabel>Download Agent Installer</guilabel> and save it to where the agent should be installed.</para>
-					</listitem>
-					<listitem>
-						<para>In a second terminal console, cd into the directory containing the downloaded jar and install it:</para>
-						<screen>java -jar &lt;agent-download.jar&gt; --install[=&lt;new agent dir&gt;]</screen>
-					</listitem>
-					<listitem>
-						<para>cd into the newly created <emphasis>rhq-agent</emphasis> directory and start the Agent by issuing:</para>
-						<screen>bin/rhq-agent.[sh|bat]</screen>
-					</listitem>
-					<listitem>
-						<para>Answer the questions asked by the Agent, if any. Default setting should be sufficient.</para>
-					</listitem>
-				</orderedlist>
-			</listitem>
-		</orderedlist>
-
-		<para>Follow the &MANAGEMENT.PLATFORM; <ulink url="http://jboss.org/community/docs/DOC-12828">installation instructions</ulink> to install the latest version of &MANAGEMENT.PLATFORM;.</para>
-		
-		<para> &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin, may be installed in two ways:</para>
-		
-		<variablelist>
-			<varlistentry>
-				<term>Using the GUI</term>
+		<section id="install_mgmt_server_and_agent">
+			<title>Installing &MANAGEMENT.PLATFORM; Server and Agent</title>
+			<orderedlist>
 				<listitem>
-					<para>In the &MANAGEMENT.PLATFORM; GUI, in the top menu, head to <menuchoice><guimenu>Administration</guimenu><guisubmenu>System Configuration</guisubmenu><guimenuitem>Plugins</guimenuitem></menuchoice>:</para>
-					
-					<figure>
-						<title>Accessing Plugins Menu</title>
-						<mediaobject>
-							<imageobject>
-								<imagedata fileref="images/img-jopr_plugins_menu.png" format="PNG"/>
-							</imageobject>
-							<textobject>
-								<para>Accessing Plugins Menu</para>
-							</textobject>
-						</mediaobject>
-					</figure>
-					
-					<para>On the <guilabel>Agent Plugins</guilabel> tab (selected by default), on the bottom of the page, click  <guibutton>Add...</guibutton>, browse to the &MANAGEMENT.PLATFORM; plugin <acronym>JAR</acronym> file and select it. It will be listed for upload, as it can be seen in the following figure:</para>
-					
-					<figure>
-						<title>Uploading Plugin</title>
-						<mediaobject>
-							<imageobject>
-								<imagedata fileref="images/img-jopr_upload_plugin.png" format="PNG"/>
-							</imageobject>
-							<textobject>
-								<para>Uploading Plugin</para>
-							</textobject>
-						</mediaobject>
-					</figure>
-
-					<para>Finally, click the <guibutton>Upload</guibutton> button and the plugin will be deployed. Click <guibutton>Scan for Updates</guibutton> and it should be shown in the list as "Mobicents JSLEE Server 2.x".</para>
-
-					<para>If the agent is not running, start it and it will automatically download the new plugin. If it was already running, you should run the following command in it's console to download/update the plugin:</para>
-					
-					<screen>&gt; plugins update</screen>
+					<para>Download RHQ Server from <ulink url="http://sourceforge.net/projects/rhq/">SourceForge</ulink></para>
 				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Copying the JAR File</term>
 				<listitem>
-					<para>The plugin can be deployed simply by copying it to the right folder, by following these steps:</para>
+					<para>Unzip the distribution in a suitable place (i.e. in a directory not too deeply nested and with no spaces or non-ASCII characters in its name)</para>
+				</listitem>
+				<listitem>
+					<para><emphasis>This step is optional, if you're using Embedded H2 Database, you can skip to next</emphasis></para>
+					<para>Install a database like PostgreSQL (version 8.2.4 +, please choose C locale for initdb), create a database instance called 'rhq' in it and a user 'rhqadmin' that owns this 'rhq' database.</para>
+					<screen>create user rhqadmin password 'rhqadmin';
+
+	create database rhq owner rhqadmin;</screen>
+				</listitem>
+				<listitem>
+					<para>Eventually set RHQ_SERVER_JAVA_HOME or RHQ_SERVER_JAVA_EXE_FILE_PATH env variables appropriately. This is needed if your JAVA_HOME does not point to a java installation that is valid with &MANAGEMENT.PLATFORM; (e.g. JAVA 1.4); &MANAGEMENT.PLATFORM; requires JAVA 5+.</para>
+				</listitem>
+				<listitem>
+					<para>In a terminal console, cd into the installation directory and start the Server:</para>
+					<screen>bin/rhq-server.[sh|bat] console</screen>
+				</listitem>
+				<listitem>
+					<para>After a few seconds, the messages on the console will stop. When this happens, point your browser to http://localhost:7080/ and run the installer:</para>
 					<orderedlist>
 						<listitem>
-							<para>Stop the &MANAGEMENT.PLATFORM; server and agent if they are running.</para>
+							<para>Click on <guilabel>Click here to continue the installation</guilabel></para>
 						</listitem>
 						<listitem>
-							<para>Copy the mobicents-slee-jopr-as-5-plugin-<emphasis>&lt;version&gt;</emphasis>.jar to the jopr-server/jbossas/server/default/deploy/rhq.ear/rhq-downloads/rhq-plugins/ directory, and it will be automatically deployed.</para>
+							<para>Choose your desired and installed database from the <guilabel>Database Type</guilabel> drop down list. If you don't want to install/use an external Database, choose <guilabel>H2 (embedded)</guilabel>.</para>
 						</listitem>
 						<listitem>
-							<para>Start the &MANAGEMENT.PLATFORM; server.</para>
+							<para>Default settings should be fine to install the server correctly. To test the DB connection, please click <guibutton>Test Connection</guibutton> button.</para>
+							<warning>If the <guibutton>Test Connection</guibutton> button was used, make sure that the <guibutton>Database Password</guibutton> field is still filled, as some browsers lose the data in there. Default password is <emphasis>rhqadmin</emphasis>.</warning>
 						</listitem>
 						<listitem>
-							<para>Start the &MANAGEMENT.PLATFORM; agent.</para>
+							<para>Review the seleceted settings, click <guibutton>Install Server!</guibutton> and wait for it to complete.</para>
+						</listitem>
+						<listitem>
+							<para>Click on <guibutton>Done! Click here to get started!</guibutton> when the progress bar stops.</para>
+						</listitem>					
+					</orderedlist>
+				</listitem>
+				<listitem>
+					<para>Log in (default user/password are: rhqadmin/rhqadmin), it is time to downloand and install the Agent:</para>
+					<orderedlist>
+						<listitem>
+							<para>Click on <menuchoice><guimenu>Administration</guimenu><guisubmenu>Download</guisubmenu></menuchoice>.</para>
+							<figure>
+								<title>Accessing Download Menu</title>
+								<mediaobject>
+									<imageobject>
+										<imagedata fileref="images/img-jopr_download_menu.png" format="PNG"/>
+									</imageobject>
+									<textobject>
+										<para>Accessing Download Menu</para>
+									</textobject>
+								</mediaobject>
+							</figure>
+						</listitem>
+						<listitem>
+							<para>Click on <guilabel>Download Agent Installer</guilabel> and save it to where the agent should be installed.</para>
+						</listitem>
+						<listitem>
+							<para>In a second terminal console, cd into the directory containing the downloaded jar and install it:</para>
+							<screen>java -jar &lt;agent-download.jar&gt; --install[=&lt;new agent dir&gt;]</screen>
+						</listitem>
+						<listitem>
+							<para>cd into the newly created <emphasis>rhq-agent</emphasis> directory and start the Agent by issuing:</para>
+							<screen>bin/rhq-agent.[sh|bat]</screen>
+						</listitem>
+						<listitem>
+							<para>Answer the questions asked by the Agent, if any. Default setting should be sufficient.</para>
 						</listitem>
 					</orderedlist>
 				</listitem>
-			</varlistentry>
-		</variablelist>
-		
-		<para>After the plugin is installed, the server must be added to the managed resources. Choose <menuchoice><guimenu>Overview</guimenu><guisubmenu>Auto Discovery Queue</guisubmenu></menuchoice>:</para>
-		<figure>
-			<title>Accessing Auto Discovery Queue Menu</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata fileref="images/img-jopr_auto_discovery_menu.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>Accessing Auto Discovery Queue Menu</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		
-		<para>Check the option referring to JAIN SLEE Server (as in the figure below), and click <guibutton>IMPORT</guibutton> button.</para>
-		
-		<figure>
-			<title>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</title>
-			<mediaobject>
-				<imageobject>
-					<imagedata fileref="images/img-jopr_import_resources.png" format="PNG"/>
-				</imageobject>
-				<textobject>
-					<para>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</para>
-				</textobject>
-			</mediaobject>
-		</figure>
-		
-		<para>Now the server is being can be managed and monitored with &MANAGEMENT.PLATFORM;.</para>
+			</orderedlist>
+
+			<para>For more detailed and up to date information, visit the &MANAGEMENT.PLATFORM; <ulink url="http://jboss.org/community/docs/DOC-12828">installation instructions</ulink>.</para>
+		</section>
+		<section id="install_jslee_plugin">
+			<title>Installing the &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin</title>
+			<para> &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin, may be installed in two ways:</para>
+			
+			<variablelist>
+				<varlistentry>
+					<term>Using the GUI</term>
+					<listitem>
+						<para>In the &MANAGEMENT.PLATFORM; GUI, in the top menu, head to <menuchoice><guimenu>Administration</guimenu><guisubmenu>System Configuration</guisubmenu><guimenuitem>Plugins</guimenuitem></menuchoice>:</para>
+						
+						<figure>
+							<title>Accessing Plugins Menu</title>
+							<mediaobject>
+								<imageobject>
+									<imagedata fileref="images/img-jopr_plugins_menu.png" format="PNG"/>
+								</imageobject>
+								<textobject>
+									<para>Accessing Plugins Menu</para>
+								</textobject>
+							</mediaobject>
+						</figure>
+						
+						<para>On the <guilabel>Agent Plugins</guilabel> tab (selected by default), on the bottom of the page, click  <guibutton>Add...</guibutton>, browse to the &MANAGEMENT.PLATFORM; plugin <acronym>JAR</acronym> file and select it. It will be listed for upload, as it can be seen in the following figure:</para>
+						
+						<figure>
+							<title>Uploading Plugin</title>
+							<mediaobject>
+								<imageobject>
+									<imagedata fileref="images/img-jopr_upload_plugin.png" format="PNG"/>
+								</imageobject>
+								<textobject>
+									<para>Uploading Plugin</para>
+								</textobject>
+							</mediaobject>
+						</figure>
+
+						<para>Finally, click the <guibutton>Upload</guibutton> button and the plugin will be deployed. Click <guibutton>Scan for Updates</guibutton> and it should be shown in the list as "Mobicents JSLEE Server 2.x".</para>
+
+						<para>If the agent is not running, start it and it will automatically download the new plugin. If it was already running, you should run the following command in it's console to download/update the plugin:</para>
+						
+						<screen>&gt; plugins update</screen>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Copying the JAR File</term>
+					<listitem>
+						<para>The plugin can be deployed simply by copying it to the right folder, by following these steps:</para>
+						<orderedlist>
+							<listitem>
+								<para>Stop the &MANAGEMENT.PLATFORM; server and agent if they are running.</para>
+							</listitem>
+							<listitem>
+								<para>Copy the mobicents-slee-jopr-as-5-plugin-<emphasis>&lt;version&gt;</emphasis>.jar to the jopr-server/jbossas/server/default/deploy/rhq.ear/rhq-downloads/rhq-plugins/ directory, and it will be automatically deployed.</para>
+							</listitem>
+							<listitem>
+								<para>Start the &MANAGEMENT.PLATFORM; server.</para>
+							</listitem>
+							<listitem>
+								<para>Start the &MANAGEMENT.PLATFORM; agent.</para>
+							</listitem>
+						</orderedlist>
+					</listitem>
+				</varlistentry>
+			</variablelist>
+			
+			<para>After the plugin is installed, the server must be added to the managed resources. Choose <menuchoice><guimenu>Overview</guimenu><guisubmenu>Auto Discovery Queue</guisubmenu></menuchoice>:</para>
+			<figure>
+				<title>Accessing Auto Discovery Queue Menu</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/img-jopr_auto_discovery_menu.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Accessing Auto Discovery Queue Menu</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+
+			<note>Please make sure that the <acronym>JAIN SLEE</acronym> Server is running at this time, otherwise it won't be shown under Auto Discovery.</note>
+
+			<para>Check the option referring to JAIN SLEE Server (as in the figure below), and click <guibutton>IMPORT</guibutton> button.</para>
+			
+			<figure>
+				<title>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</title>
+				<mediaobject>
+					<imageobject>
+						<imagedata fileref="images/img-jopr_import_resources.png" format="PNG"/>
+					</imageobject>
+					<textobject>
+						<para>Selecting the server to be imported into &MANAGEMENT.PLATFORM;.</para>
+					</textobject>
+				</mediaobject>
+			</figure>
+			
+			<para>Now the server is being can be managed and monitored with &MANAGEMENT.PLATFORM;.</para>
+		</section>
 	</section>
 	
 	<!-- TODO -->
