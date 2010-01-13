@@ -5,9 +5,12 @@ import java.util.Set;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import javax.slee.management.DeploymentMBean;
 import javax.slee.management.ResourceManagementMBean;
 import javax.slee.resource.ConfigProperties;
+import javax.slee.resource.ResourceAdaptorDescriptor;
 import javax.slee.resource.ResourceAdaptorID;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,12 +47,14 @@ public class ResourceAdaptorComponent implements ResourceAdaptorUtils, Measureme
 	private ConfigProperties configProperties = null;
 
 	private ObjectName resourceManagement;
+	private ObjectName deploymentManagement;
 
 	public void start(ResourceContext context) throws InvalidPluginConfigurationException, Exception {
 		log.info("start");
 
 		this.resourceContext = context;
 		this.resourceManagement = new ObjectName(ResourceManagementMBean.OBJECT_NAME);
+		this.deploymentManagement = new ObjectName(DeploymentMBean.OBJECT_NAME);
 
 		this.mbeanUtils = ((JainSleeServerUtils) context.getParentResourceComponent()).getMBeanServerUtils();
 
@@ -88,18 +93,24 @@ public class ResourceAdaptorComponent implements ResourceAdaptorUtils, Measureme
 
 	public void getValues(MeasurementReport report, Set<MeasurementScheduleRequest> metrics) throws Exception {
 		log.info("ResourceAdaptorComponent.getValues");
+        MBeanServerConnection connection = this.mbeanUtils.getConnection();
 		for (MeasurementScheduleRequest request : metrics) {
 			if (request.getName().equals("entities")) {
-
-				MBeanServerConnection connection = this.mbeanUtils.getConnection();
 				ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler
 						.newProxyInstance(connection, this.resourceManagement,
 								javax.slee.management.ResourceManagementMBean.class, false);
 
 				String[] raEntities = resourceManagementMBean.getResourceAdaptorEntities(this.raId);
 				report.addData(new MeasurementDataNumeric(request, (double) raEntities.length));
-			} else if (request.getName().equals("ratype")) {
-				report.addData(new MeasurementDataTrait(request, "blaaa#1.0#blaaaa"));
+			}
+			else if (request.getName().equals("ratype")) {
+			  DeploymentMBean deploymentMBean = (DeploymentMBean) MBeanServerInvocationHandler.newProxyInstance(connection, deploymentManagement, javax.slee.management.DeploymentMBean.class, false);
+		      ResourceAdaptorTypeID[] raTypes = ((ResourceAdaptorDescriptor)deploymentMBean.getDescriptor(raId)).getResourceAdaptorTypes();
+		      String raTypesString = "";
+		      for (ResourceAdaptorTypeID raTypeId : raTypes) {
+		        raTypesString += raTypeId + "; ";
+		      }
+		      report.addData(new MeasurementDataTrait(request, raTypesString));
 			}
 		}
 	}
