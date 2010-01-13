@@ -605,6 +605,10 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		try {
 			SipProvider sipProvider = getSipFactoryProvider();
 			Dialog dialog = this.getDialog();
+			if(dialog == null)
+			{
+				return;
+			}
 			Request request = dialog.createRequest(Request.BYE);
 			ClientTransaction ct = sipProvider.getNewClientTransaction(request);
 
@@ -998,10 +1002,17 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			// bad practice
 			throw new RuntimeException("There is no IVR endpoint activity");
 		}
-
+		MgcpConnectionActivity connectionActivity = getConnectionActivity(endpointActivity
+				.getEndpointIdentifier());
+		if (connectionActivity == null) {
+			// bad practice
+			throw new RuntimeException(
+					"There is no IVR connection activity");
+		}
 		EndpointIdentifier endpointID = endpointActivity
 				.getEndpointIdentifier();
-
+		ConnectionIdentifier connectionID = new ConnectionIdentifier(
+				connectionActivity.getConnectionIdentifier());
 		NotificationRequest notificationRequest = new NotificationRequest(this,
 				endpointID, mgcpProvider.getUniqueRequestIdentifier());
 		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
@@ -1013,18 +1024,18 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 				signalRequests = new EventName[] { new EventName(
 						PackageName.Announcement, MgcpEvent.ann
-								.withParm(audioFileUrl)) };
+								.withParm(audioFileUrl),connectionID) };
 			} else {
 				signalRequests = new EventName[] { new EventName(AUPackage.AU,
-						AUMgcpEvent.aupr.withParm(audioFileUrl), null) };
+						AUMgcpEvent.aupr.withParm(audioFileUrl), connectionID) };
 			}
 
 			notificationRequest.setSignalRequests(signalRequests);
 			
 			//add notification, in case dtmf part is not included
 			RequestedEvent[] requestedEvents = {
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc), actions),
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of,connectionID), actions),
 					 };
 
 			notificationRequest.setRequestedEvents(requestedEvents);
@@ -1032,22 +1043,15 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		}
 		
 		if (detectDtmf) {
-			MgcpConnectionActivity connectionActivity = getConnectionActivity(endpointActivity
-					.getEndpointIdentifier());
-			if (connectionActivity == null) {
-				// bad practice
-				throw new RuntimeException(
-						"There is no IVR connection endpoint activity");
-			}
-			ConnectionIdentifier connectionID = new ConnectionIdentifier(
-					connectionActivity.getConnectionIdentifier());
+			
+			
 			
 
 			// This has to be present, since MGCP states that new RQNT erases
 			// previous set.
 			RequestedEvent[] requestedEvents = {
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc), actions),
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of,connectionID), actions),
 					new RequestedEvent(new EventName(PackageName.Dtmf,
 							MgcpEvent.dtmf0,connectionID), actions),
 					new RequestedEvent(new EventName(PackageName.Dtmf,
