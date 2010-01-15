@@ -16,6 +16,8 @@ import org.apache.commons.logging.LogFactory;
 import org.mobicents.slee.container.management.jmx.ActivityManagementMBeanImplMBean;
 import org.mobicents.slee.container.management.jmx.JmxActivityContextHandle;
 import org.rhq.core.domain.configuration.Configuration;
+import org.rhq.core.domain.configuration.ConfigurationUpdateStatus;
+import org.rhq.core.domain.configuration.Property;
 import org.rhq.core.domain.configuration.PropertyList;
 import org.rhq.core.domain.configuration.PropertyMap;
 import org.rhq.core.domain.configuration.PropertySimple;
@@ -144,8 +146,47 @@ public class RAEntityComponent implements ResourceAdaptorUtils, ConfigurationFac
     return config;
   }
 
-  public void updateResourceConfiguration(ConfigurationUpdateReport arg0) {
-    // No update is allowed isnt it?
+  public void updateResourceConfiguration(ConfigurationUpdateReport configurationUpdateReport) {
+    try {
+      MBeanServerConnection connection = this.mbeanUtils.getConnection();
+      ResourceManagementMBean resourceManagementMBean = (ResourceManagementMBean) MBeanServerInvocationHandler.newProxyInstance(
+          connection, this.resourceManagement, javax.slee.management.ResourceManagementMBean.class, false);
+
+      // Get the JOPR updated properties
+      PropertyList propsList = configurationUpdateReport.getConfiguration().getList("properties");
+      
+      // Get the current RA Entity properties
+      ConfigProperties cps = resourceManagementMBean.getConfigurationProperties(this.raEntityName);
+      
+      for(Property p : propsList.getList()) {
+        PropertyMap pMap = (PropertyMap)p;
+        String propName = ((PropertySimple)pMap.get("propertyName")).getStringValue();
+        String propType = ((PropertySimple)pMap.get("propertyType")).getStringValue();
+        String propValue = ((PropertySimple)pMap.get("propertyValue")).getStringValue();
+        Object value = null;
+        if (propType.equals("java.lang.String")) {
+            value = propValue;
+        }
+        else if (propType.equals("java.lang.Integer")) {
+            value = Integer.valueOf(propValue);
+        }
+        else if (propType.equals("java.lang.Long")) {
+            value = Long.valueOf(propValue);
+        }
+        ConfigProperties.Property cp = cps.getProperty(propName);
+        if(value != null && cp != null && !value.equals(cp.getValue())) {
+          log.info("Changing property '" + propName + "' from value [" + cp.getValue() + "] to [" + value  + "].");
+          cp.setValue(value);
+        }
+      }
+      resourceManagementMBean.updateConfigurationProperties(this.raEntityName, cps);
+      configurationUpdateReport.setStatus(ConfigurationUpdateStatus.SUCCESS);
+    }
+    catch (Exception e) {
+      log.error("Failed to update Resource Configuration.", e);
+      configurationUpdateReport.setErrorMessageFromThrowable(e);
+      configurationUpdateReport.setStatus(ConfigurationUpdateStatus.FAILURE);
+    }
   }
 
   public void deleteResource() throws Exception {
