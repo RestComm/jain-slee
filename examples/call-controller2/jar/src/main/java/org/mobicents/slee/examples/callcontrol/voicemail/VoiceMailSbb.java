@@ -480,11 +480,11 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		NotifyResponse response = new NotifyResponse(event.getSource(),
 				ReturnCode.Transaction_Executed_Normally);
 		response.setTransactionHandle(event.getTransactionHandle());
-		log.info("########## VOICE MAIL SBB: Sending1 Notify response["+response+"] to ["+event+"]["+event.getTransactionHandle()+"] ["+response.getTransactionHandle()+"]##########");
+		log.info("########## VOICE MAIL SBB: Sending Notify response["+response+"] to ["+event+"]["+event.getTransactionHandle()+"] ["+response.getTransactionHandle()+"]##########");
 		
 		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { response });
 
-		log.info("########## VOICE MAIL SBB: Sending2 Notify response["+response+"] ["+event.getTransactionHandle()+"] ["+response.getTransactionHandle()+"]##########");
+		
 		EventName[] observedEvents = event.getObservedEvents();
 
 		for (EventName observedEvent : observedEvents) {
@@ -515,7 +515,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 				break;
 			
 			default:
-				log.info("########## VOICE MAIL SBB: Notify on unknown event, event identifier["+observedEvent.getEventIdentifier()+"] ##########");
+				log.info("########## VOICE MAIL SBB: Notify on unknown event, event identifier["+observedEvent.getEventIdentifier()+"]identifier["+observedEvent.getEventIdentifier().intValue()+"] ##########");
 				break;
 			}
 			
@@ -671,7 +671,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		// Press 1 if you want to listen the next message
 		if (dtmf.equals("1")) {
 			String filePath = getAudioFileString();
-			String audioFileString = "file://" + filePath;
+			String audioFileString = "file:/" + filePath;
 
 			try {
 				// Just to check if file exist
