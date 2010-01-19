@@ -7,7 +7,7 @@
    <![CDATA[
 
      INVITE sip:[service]@[remote_ip]:5090 SIP/2.0
-     Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[call_number]
+     Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
      From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
      To: sut <sip:[service]@[remote_ip]:5090>
      Call-ID: [call_id]
@@ -28,6 +28,11 @@
      a=rtpmap:0 PCMU/8000
 
    ]]>
+   		<action>
+			<ereg regexp=".*" search_in="hdr" header="Via:" check_it="true"
+				assign_to="6" />
+			
+		</action>
 	</send>
 
 	<recv response="100">
@@ -38,7 +43,7 @@
    <![CDATA[
 
      CANCEL sip:[service]@[remote_ip]:5090 SIP/2.0
-     Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[call_number]
+     Via: [$6]
      From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
      To: sut <sip:[service]@[remote_ip]:5090>
      Call-ID: [call_id]
@@ -69,10 +74,11 @@
 	<recv response="487" rtd="true" >
 	</recv>
 	<send>
+	<!-- its seems to be different branch than INVITE/CANCEL-->
    <![CDATA[
 
      ACK sip:[service]@[remote_ip]:5090 SIP/2.0
-     Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[call_number]
+     Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
      From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
      To: sut <sip:[service]@[remote_ip]:5090>[peer_tag_param]
      Call-ID: [call_id]
