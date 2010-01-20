@@ -50,12 +50,17 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 	 */
 	public ClientTransactionWrapper(ClientTransaction wrappedTransaction, SipResourceAdaptor ra) {
 		super(new TransactionActivityHandle(wrappedTransaction
-				.getBranchId()));
+				.getBranchId(),wrappedTransaction.getRequest().getMethod()));
 		this.wrappedTransaction = wrappedTransaction;
 		this.wrappedTransaction.setApplicationData(this);
 		setResourceAdaptor(ra);
 	}
 
+	protected ClientTransactionWrapper(TransactionActivityHandle handle, SipResourceAdaptor ra) {
+		super(handle);
+		setResourceAdaptor(ra);
+	}
+	
 	@Override
 	public void setResourceAdaptor(SipResourceAdaptor ra) {
 		if (tracer == null) {
@@ -156,7 +161,7 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 		final String method = this.wrappedTransaction.getRequest().getMethod();
 		final DialogWrapper dw = getDialogWrapper();
 		if((method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)) && dw != null) {
-			dw.lastCancelableTransactionId = this.getBranchId();
+			dw.lastCancelableTransactionId = this.activityHandle;
 		}
 		if (tracer.isInfoEnabled()) {
 			tracer.info(toString()+" sending request:\n"+getRequest());
@@ -166,20 +171,20 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 
 	/**
 	 * 
-	 * @param branch
+	 * @param serverTransaction
 	 * @param dialogHandle
 	 */
-	public void associateServerTransaction(String branch,
+	public void associateServerTransaction(ServerTransactionWrapper serverTransaction,
 			SipActivityHandle dialogHandle) {
 
 		if (this.association != null) {
 			throw new IllegalStateException(
 					"Transaction already associated to ["
-							+ this.association.getAssociatedServerTransactionBranchId() + "] ["
+							+ this.association.getAssociatedServerTransaction() + "] ["
 							+ this.association.getDialogActivityHandle() + "]");
 
 		}
-		this.association = new ClientTransactionAssociation(dialogHandle,branch);
+		this.association = new ClientTransactionAssociation(dialogHandle,serverTransaction.getActivityHandle());
 	}
 
 	/**

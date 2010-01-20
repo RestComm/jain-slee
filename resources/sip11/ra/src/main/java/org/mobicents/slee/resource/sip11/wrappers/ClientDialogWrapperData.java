@@ -1,17 +1,13 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import gov.nist.javax.sip.header.RouteList;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
 import javax.sip.header.CallIdHeader;
-import javax.sip.header.RouteHeader;
 
 public class ClientDialogWrapperData implements Serializable {
 
@@ -19,17 +15,10 @@ public class ClientDialogWrapperData implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * Used to detect how route set has been created - in case of responses we
-	 * want to override local route set, since in case of forks, route set on
-	 * request will be propably bad :)
-	 */
-	private boolean routeSetOnRequest = false;
 
-	private SipURI requestURI;
+	private transient SipURI requestURI;
 
-	private AtomicLong localSequenceNumber = new AtomicLong(0);
+	private transient AtomicLong localSequenceNumber = new AtomicLong(0);
 	
 	// Comment: JSIP set ToTag and route list on first provisional response
 	// with ToTag and 2xx, so we have to keep track of those for each activity,
@@ -40,45 +29,16 @@ public class ClientDialogWrapperData implements Serializable {
 	/**
 	 * Used when: {@link #forkInitialActivityHandle} !=null or Dialog is null.
 	 */
-	private transient ArrayList<RouteHeader> localRouteSet;
+	private transient RouteList localRouteSet;
 
 	private ClientDialogForkHandler forkHandler;
 	
-	private Address fromAddress, toAddress;
-	private CallIdHeader customCallId = null;
-	private String localRemoteTag = null;
-
-	private static final RouteHeader[] EMPTY_RH_ARRAY = {};
+	private transient Address fromAddress, toAddress;
+	private transient CallIdHeader customCallId;
+	private transient String localRemoteTag;
 
 	public ClientDialogWrapperData(ClientDialogForkHandler forkHandler) {
 		this.forkHandler = forkHandler;
-		localRouteSet = new ArrayList<RouteHeader>();		
-	}
-	
-	private void writeObject(ObjectOutputStream stream) throws IOException {
-
-		// write everything not static or transient
-		stream.defaultWriteObject();
-
-		if (forkHandler.isForking()) {
-			final RouteHeader[] routeHeaders = localRouteSet
-					.toArray(EMPTY_RH_ARRAY);
-			stream.writeObject(routeHeaders);
-		}
-	}
-
-	private void readObject(ObjectInputStream stream) throws IOException,
-			ClassNotFoundException {
-
-		stream.defaultReadObject();
-
-		localRouteSet = new ArrayList<RouteHeader>();
-		
-		if (forkHandler.isForking()) {
-			for (RouteHeader routeHeader : (RouteHeader[]) stream.readObject()) {
-				localRouteSet.add(routeHeader);
-			}
-		}
 	}
 
 	/**
@@ -86,14 +46,6 @@ public class ClientDialogWrapperData implements Serializable {
 	 */
 	public ClientDialogForkHandler getForkHandler() {
 		return forkHandler;
-	}
-
-	public boolean isRouteSetOnRequest() {
-		return routeSetOnRequest;
-	}
-
-	public void setRouteSetOnRequest(boolean routeSetOnRequest) {
-		this.routeSetOnRequest = routeSetOnRequest;
 	}
 
 	public SipURI getRequestURI() {
@@ -144,21 +96,11 @@ public class ClientDialogWrapperData implements Serializable {
 		this.localRemoteTag = localRemoteTag;
 	}
 
-	public List<RouteHeader> getRouteSet() {
-		return new ArrayList<RouteHeader>(this.localRouteSet);
+	public RouteList getLocalRouteList() {
+		return localRouteSet;
 	}
-
-	public void addToRouteSet(RouteHeader routeHeader) {
-		localRouteSet.add(routeHeader);
-	}
-
-	public void addAlltoRouteSet(List<RouteHeader> routeList) {
-		localRouteSet.addAll(routeList);
-	}
-
-	public void clearRouteSet() {
-		localRouteSet.clear();
-	}
-
 	
+	public void setLocalRouteList(RouteList routeList) {
+		this.localRouteSet = routeList != null ? (RouteList) routeList.clone() : null;
+	}
 }

@@ -17,6 +17,8 @@ public class DialogWithIdActivityHandle extends SipActivityHandle implements Ser
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public static final Class<? extends SipActivityHandle> TYPE = DialogWithIdActivityHandle.class;
+	
 	/**
 	 * the dialog's id
 	 */
@@ -41,7 +43,7 @@ public class DialogWithIdActivityHandle extends SipActivityHandle implements Ser
 	public String getDialogId() {
 		return dialogId;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return dialogId.hashCode();

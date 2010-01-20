@@ -1,22 +1,22 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
-import gov.nist.javax.sip.address.GenericURI;
+import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.header.CSeq;
+import gov.nist.javax.sip.header.RouteList;
+import gov.nist.javax.sip.message.SIPMessage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.ListIterator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sip.ClientTransaction;
 import javax.sip.DialogDoesNotExistException;
 import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
-import javax.sip.ListeningPoint;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
@@ -25,7 +25,6 @@ import javax.sip.TransactionDoesNotExistException;
 import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
-import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
@@ -34,7 +33,6 @@ import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.facilities.Tracer;
@@ -42,7 +40,9 @@ import javax.slee.resource.FireableEventType;
 
 import net.java.slee.resource.sip.DialogForkedEvent;
 
+import org.mobicents.slee.resource.sip11.ClusteredSipActivityManagement;
 import org.mobicents.slee.resource.sip11.DialogWithoutIdActivityHandle;
+import org.mobicents.slee.resource.sip11.MessageForwardingTransportData;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.Utils;
@@ -274,15 +274,6 @@ public class ClientDialogWrapper extends DialogWrapper {
 	}
 
 	@Override
-	public Iterator<RouteHeader> getRouteSet() {
-		if (wrappedDialog != null) {
-			return super.getRouteSet();
-		} else {
-			return data.getRouteSet().iterator();
-		}
-	}
-
-	@Override
 	public DialogState getState() {
 		if (wrappedDialog == null) {
 			return null;
@@ -336,14 +327,11 @@ public class ClientDialogWrapper extends DialogWrapper {
 	public boolean addOngoingTransaction(ServerTransactionWrapper stw) {
 		if (data.getForkHandler().isForking()) {
 			// Yup, could be reinveite? we have to update local DW cseq :)
-			final long cSeqNewValue = ((CSeq) stw.getRequest().getHeader(
+			final long cSeqNewValue = ((CSeqHeader) stw.getRequest().getHeader(
 					CSeqHeader.NAME)).getSeqNumber();
 			final AtomicLong cSeq = data.getLocalSequenceNumber();
-			synchronized (cSeq) {
-				if (cSeqNewValue <= cSeq.get())
-					throw new IllegalArgumentException("Sequence number should not decrease !");
-				cSeq.set(cSeqNewValue);
-			}
+			if (cSeqNewValue > cSeq.get())
+				cSeq.set(cSeqNewValue);			
 		}
 		// super updates replicated state
 		return super.addOngoingTransaction(stw);
@@ -380,35 +368,52 @@ public class ClientDialogWrapper extends DialogWrapper {
 		verifyDialogExistency();
 		super.associateServerTransaction(ct, st);
 	}
-
+	
 	@Override
 	public Request createRequest(String methodName) throws SipException {
+		
+		if (methodName.equals(Request.ACK) || methodName.equals(Request.PRACK)) {
+            throw new SipException("Invalid method specified for createRequest:" + methodName);
+        }
+		
 		final HeaderFactory headerFactory = provider.getHeaderFactory();
 		Request request = null;
 		if (this.wrappedDialog == null) {
 			// the real dialog doesn't exist yet so we act like we will build
 			// such a dialog when sending this request
+			
 			try {
 				// create headers
+				SipUri requestURI = null;
+				if (this.getRemoteTarget() != null)
+					requestURI = (SipUri) getRemoteTarget().getURI().clone();
+				else {
+					requestURI = (SipUri) data.getToAddress().getURI().clone();
+					requestURI.clearUriParms();
+				}
 				final FromHeader fromHeader = headerFactory.createFromHeader(
-						data.getFromAddress(), super.getLocalTag());
+						data.getFromAddress(), getLocalTag());
 				final ToHeader toHeader = headerFactory.createToHeader(
 						data.getToAddress(), null);
-				final javax.sip.address.URI requestURI = (URI) data.getToAddress()
-						.getURI().clone();
-				final ArrayList<ViaHeader> viaHeadersList = new ArrayList<ViaHeader>(
-						1);
-				viaHeadersList.add(provider.getLocalVia());
+				final List<Object> viaHeadersList = new ArrayList<Object>(1);
+				final MessageForwardingTransportData messageForwardingTransportData = provider.getMessageForwardingTransportData(provider.getListeningPoint().getTransport());
+				viaHeadersList.add(messageForwardingTransportData.getViaHeader().clone());
 				final MaxForwardsHeader maxForwardsHeader = headerFactory
-						.createMaxForwardsHeader(70);
+				.createMaxForwardsHeader(70);
 				final CSeqHeader cSeqHeader = headerFactory.createCSeqHeader(
 						data.getLocalSequenceNumber().get() + 1, methodName);
 				request = provider.getMessageFactory()
-						.createRequest(requestURI, methodName, data.getCustomCallId(),
-								cSeqHeader, fromHeader, toHeader,
-								viaHeadersList, maxForwardsHeader);
-				for (RouteHeader routeHeader : data.getRouteSet()) {
-					request.addLast(routeHeader);
+				.createRequest(requestURI, methodName, data.getCustomCallId(),
+						cSeqHeader, fromHeader, toHeader,
+						viaHeadersList, maxForwardsHeader);
+				final RouteList routeList = data.getLocalRouteList();
+				if (routeList != null) {
+					final RouteHeader topRoute = routeList.get(0);
+					if (topRoute.getAddress().getURI().equals(
+							messageForwardingTransportData.getSipURI())) {
+						routeList.remove(0);
+					}
+					request.setHeader(routeList);
 				}
 			} catch (Exception e) {
 				throw new SipException(e.getMessage(), e);
@@ -417,16 +422,21 @@ public class ClientDialogWrapper extends DialogWrapper {
 			try {
 				// create request using dialog
 				request = this.wrappedDialog.createRequest(methodName);
-				request.removeHeader(RouteHeader.NAME);
-				for (RouteHeader routeHeader : data.getRouteSet()) {
-					request.addLast(routeHeader);
-				}
-				request.addFirst(provider.getLocalVia());
 				// We have wrappedDialog, but we can't rely on some of its info,
 				// only CallId, from address, to address, from header are
 				// static
 				final SipURI requestURI = (SipURI) data.getRequestURI().clone();
 				request.setRequestURI(requestURI);
+				final RouteList routeList = data.getLocalRouteList();
+				if (routeList != null) {
+					final RouteHeader topRoute = routeList.get(0);
+					final MessageForwardingTransportData messageForwardingTransportData = provider.getMessageForwardingTransportData(provider.getListeningPoint().getTransport());
+					if (topRoute.getAddress().getURI().equals(
+							messageForwardingTransportData.getSipURI())) {
+						routeList.remove(0);
+					}
+					request.setHeader(routeList);
+				}
 				final CSeqHeader cseq = (CSeqHeader) request
 						.getHeader(CSeq.NAME);
 				try {
@@ -454,80 +464,6 @@ public class ClientDialogWrapper extends DialogWrapper {
 	}
 
 	@Override
-	public Request createRequest(Request origRequest) throws SipException {
-
-		// FIXME clarify
-		generateRouteList(origRequest);
-
-		Request forgedRequest = null;
-
-		if (this.wrappedDialog != null) {
-			forgedRequest = super.createRequest(origRequest);
-			if (data.getForkHandler().isForking() && !wrappedDialog.isServer()) {
-				// We have wrappedDialog, but we can't rely on some of its info,
-				// only CallId, from address, to address, from header are
-				// static
-				forgedRequest.removeHeader(RouteHeader.NAME);
-				final SipURI requestURI = (SipURI) data.getRequestURI().clone();
-				forgedRequest.setRequestURI(requestURI);
-				final CSeqHeader cseq = (CSeqHeader) forgedRequest
-						.getHeader(CSeq.NAME);
-				final String method = forgedRequest.getMethod();
-				try {
-					if (!method.equals(Request.CANCEL)
-							&& !method.equals(Request.ACK)) {
-						cseq.setSeqNumber(data.getLocalSequenceNumber().get() + 1);
-					}
-					requestURI.setMethodParam(cseq.getMethod());
-					if (data.getLocalRemoteTag() != null) {
-						((ToHeader) forgedRequest.getHeader(ToHeader.NAME))
-								.setTag(data.getLocalRemoteTag());
-					}
-				} catch (ParseException e) {
-					throw new SipException(e.getMessage(), e);
-				} catch (InvalidArgumentException e) {
-					throw new SipException(e.getMessage(), e);
-				}
-			}
-
-		} else {
-			try {
-				final HeaderFactory headerFactory = provider.getHeaderFactory();
-				final MaxForwardsHeader maxForwardsHeader = headerFactory
-						.createMaxForwardsHeader(70);
-				final ToHeader toHeader = this.provider.getHeaderFactory()
-						.createToHeader(data.getToAddress(), null);
-				final FromHeader fromHeader = headerFactory.createFromHeader(
-						data.getFromAddress(), super.getLocalTag());
-				final ArrayList<ViaHeader> viaHeadersList = new ArrayList<ViaHeader>(
-						1);
-				viaHeadersList.add(provider.getLocalVia());
-				// It should be legal to create msg with null params....
-				forgedRequest = provider.getMessageFactory()
-						.createRequest(
-								origRequest.getRequestURI(),
-								origRequest.getMethod(),
-								data.getCustomCallId(),
-								(CSeqHeader) ((CSeqHeader) origRequest
-										.getHeader(CSeqHeader.NAME)).clone(),
-								fromHeader, toHeader, viaHeadersList,
-								maxForwardsHeader);
-			} catch (InvalidArgumentException e) {
-				throw new SipException(e.getMessage(), e);
-			} catch (ParseException e) {
-				throw new SipException(e.getMessage(), e);
-			}
-			for (RouteHeader routeHeader : data.getRouteSet()) {
-				forgedRequest.addLast(routeHeader);
-			}
-			forgeMessage(origRequest, forgedRequest, Utils
-					.getHeadersToOmmitOnRequestCopy());
-		}
-
-		return forgedRequest;
-	}
-
-	@Override
 	public ClientTransaction sendRequest(Request request) throws SipException,
 			TransactionUnavailableException {
 
@@ -547,7 +483,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 		final String method = request.getMethod();
 		if (method.equals(Request.INVITE))
-			lastCancelableTransactionId = ctw.getBranchId();
+			lastCancelableTransactionId = ctw.activityHandle;
 
 		final boolean createDialog = wrappedDialog == null;
 		if (createDialog) {
@@ -621,7 +557,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 								+ " is not dialog creating one");
 			}
 			if (request.getMethod().equals(Request.INVITE))
-				lastCancelableTransactionId = ctw.getBranchId();
+				lastCancelableTransactionId = ctw.getActivityHandle();
 			this.wrappedDialog = this.provider.getRealProvider().getNewDialog(
 					ctw.getWrappedTransaction());
 			this.wrappedDialog.setApplicationData(this);
@@ -665,7 +601,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 	private void verifyDialogExistency() {
 		if (wrappedDialog == null) {
 			throw new IllegalStateException(
-					"Dialog activity present, but no dialog creating reqeust has been sent yet!");
+					"Dialog activity present, but no dialog creating request has been sent yet!");
 		}
 	}
 
@@ -745,6 +681,9 @@ public class ClientDialogWrapper extends DialogWrapper {
 						tracer.fine("Client dialog "+getActivityHandle()+" confirmed with remote tag "+toTag);
 					}
 					data.setLocalRemoteTag(toTag);
+					if (!ra.inLocalMode()) {
+						((ClusteredSipActivityManagement)ra.getActivityManagement()).replicateRemoteTag((DialogWithoutIdActivityHandle) getActivityHandle());
+					}
 					this.fetchData(response);
 					forkHandler.terminate(ra);
 					
@@ -752,6 +691,9 @@ public class ClientDialogWrapper extends DialogWrapper {
 				else if (data.getLocalRemoteTag().equals(toTag)) {
 					if (fineTrace) {
 						tracer.fine("Client dialog "+getActivityHandle()+" confirmed with remote tag "+toTag);
+					}
+					if (!ra.inLocalMode()) {
+						((ClusteredSipActivityManagement)ra.getActivityManagement()).replicateRemoteTag((DialogWithoutIdActivityHandle) getActivityHandle());
 					}
 					this.fetchData(response);
 					forkHandler.terminate(ra);
@@ -887,14 +829,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 		// fetch routeSet, requestURI and ToTag, callId
 		// this is done only once?
 
-		if (data.getLocalRemoteTag() == null) {
-			// all of those will become solid after tag is set , but will be
-			// present without it.
-			data.setLocalRemoteTag(((ToHeader) response.getHeader(ToHeader.NAME))
+		data.setLocalRemoteTag(((ToHeader) response.getHeader(ToHeader.NAME))
 					.getTag());
-			data.setRequestURI(null);
-			data.clearRouteSet();
-		}
 		ContactHeader contact = ((ContactHeader) response
 				.getHeader(ContactHeader.NAME));
 		// issue 623
@@ -906,82 +842,10 @@ public class ClientDialogWrapper extends DialogWrapper {
 				data.setRequestURI((SipURI) contact.getAddress().getURI());
 			}
 
-		// FIXME: is this correct?
-		if (data.getRouteSet().size() == 0 || data.isRouteSetOnRequest()) {
-			data.setRouteSetOnRequest(false);
-			data.clearRouteSet();
-			try {
-				data.addAlltoRouteSet(Utils.getRouteList(response, provider
-						.getHeaderFactory()));
-			} catch (ParseException e) {
-				throw new RuntimeException(e.getMessage(), e);
-			}
-		}
-
+		data.setLocalRouteList(((SIPMessage)response).getRouteHeaders());
+		
 		data.setCustomCallId((CallIdHeader) response.getHeader(CallIdHeader.NAME));
 
-	}
-
-	@SuppressWarnings("unchecked")
-	public void generateRouteList(Request origRequest) {
-		// FIXME: is this the only case ?
-
-		if (this.wrappedDialog == null) {
-
-			ViaHeader topVia = (ViaHeader) origRequest
-					.getHeader(ViaHeader.NAME);
-			Address address = null;
-			if (topVia != null) {
-				address = getLocalAddressForTransport(topVia.getTransport());
-			} else {
-				if (tracer.isFineEnabled()) {
-					tracer
-							.fine("There is no via header, can not compute AS contact. Skipping computation of request route.");
-				}
-				return;
-			}
-			ListIterator<RouteHeader> lit = origRequest
-					.getHeaders(RouteHeader.NAME);
-			if (lit != null) {
-				GenericURI addressURI = (GenericURI) (address == null ? null
-						: address.getURI());
-				// we atleast have one header
-				// FIXME: possibly we have to do here some proxy work: RFC 3261
-				// 16.4 Route Information Preprocessing
-				// FIXME: add check to remove first if it points to us.
-				while (lit.hasNext()) {
-					RouteHeader rh = lit.next();
-					GenericURI rhURI = (GenericURI) rh.getAddress().getURI();
-					if (addressURI != null && (rhURI.equals(addressURI))) {
-					} else {
-						data.addToRouteSet(rh);
-					}
-				}
-			}
-			// not needed till we have some sort of early dialog replication
-			// updateReplicatedState();
-		}
-	}
-
-	private Address getLocalAddressForTransport(String transport) {
-		ListeningPoint lp = this.provider.getListeningPoint(transport);
-		Address address = null;
-		if (lp != null) {
-			try {
-				address = this.provider.getAddressFactory().createAddress(
-						"Mobicents SIP AS <sip:" + lp.getIPAddress() + ">");
-				((SipURI) address.getURI()).setPort(lp.getPort());
-			} catch (ParseException e) {
-				e.printStackTrace();
-				// throw new SipException("Failed to create contact header.",e);
-			}
-		} else {
-			if (tracer.isFineEnabled()) {
-				tracer.fine("There is no listening point, for transport: "
-						+ transport + ", can not compute AS contact.");
-			}
-		}
-		return address;
 	}
 
 	/* (non-Javadoc)

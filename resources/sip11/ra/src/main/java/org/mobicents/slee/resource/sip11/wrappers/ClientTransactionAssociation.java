@@ -12,20 +12,20 @@ public class ClientTransactionAssociation implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private final SipActivityHandle dialogActivityHandle;
-	private final String associatedServerTransactionBranchId;
+	private final SipActivityHandle associatedServerTransaction;
 	
 	public ClientTransactionAssociation(SipActivityHandle dialogActivityHandle,
-			String associatedServerTransactionBranchId) {
+			SipActivityHandle associatedServerTransaction) {
 		this.dialogActivityHandle = dialogActivityHandle;
-		this.associatedServerTransactionBranchId = associatedServerTransactionBranchId;
+		this.associatedServerTransaction = associatedServerTransaction;
 	}
 
 	public SipActivityHandle getDialogActivityHandle() {
 		return dialogActivityHandle;
 	}
 
-	public String getAssociatedServerTransactionBranchId() {
-		return associatedServerTransactionBranchId;
+	public SipActivityHandle getAssociatedServerTransaction() {
+		return associatedServerTransaction;
 	}
 	
 }

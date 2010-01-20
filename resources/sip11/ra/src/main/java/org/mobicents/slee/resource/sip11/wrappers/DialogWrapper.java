@@ -1,13 +1,16 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
+import gov.nist.javax.sip.header.RouteList;
+import gov.nist.javax.sip.message.SIPRequest;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.ParseException;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sip.ClientTransaction;
@@ -27,11 +30,10 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
-import javax.sip.header.Parameters;
+import javax.sip.header.RecordRouteHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
-import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.AddressPlan;
@@ -40,9 +42,11 @@ import javax.slee.facilities.Tracer;
 import net.java.slee.resource.sip.DialogActivity;
 
 import org.mobicents.slee.resource.sip11.DialogWithIdActivityHandle;
+import org.mobicents.slee.resource.sip11.MessageForwardingTransportData;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
 import org.mobicents.slee.resource.sip11.SleeSipProviderImpl;
+import org.mobicents.slee.resource.sip11.Utils;
 
 /**
  * Abstract dialog wrapper code.
@@ -70,12 +74,12 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	/**
 	 * 
 	 */
-	protected transient ConcurrentHashMap<String, ClientTransaction> ongoingClientTransactions = new ConcurrentHashMap<String, ClientTransaction>(1);
+	protected transient ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper> ongoingClientTransactions = new ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper>(1);
 	
 	/**
 	 * 
 	 */
-	protected transient ConcurrentHashMap<String, ServerTransaction> ongoingServerTransactions = new ConcurrentHashMap<String, ServerTransaction>(1);
+	protected transient ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper> ongoingServerTransactions = new ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper>(1);
 	
 	/**
 	 * the wrapped dialog
@@ -100,7 +104,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	/**
 	 * 
 	 */
-	protected String lastCancelableTransactionId;
+	protected SipActivityHandle lastCancelableTransactionId;
 
 	// Constructors 
 
@@ -176,15 +180,15 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		}		
 		if (st == null) {
 			throw new NullPointerException("null server transaction");
-		}		
-		if (!hasOngoingClientTransaction(ct.getBranchId())) {
-			throw new IllegalArgumentException("client transaction is not in ongoing transaction list.");
 		}
+		final ClientTransactionWrapper ctw = (ClientTransactionWrapper) ct;
+		final ServerTransactionWrapper stw = (ServerTransactionWrapper) st;
+		
 		final DialogWrapper stDialog = (DialogWrapper) st.getDialog();
 		if (stDialog == null) {
 			throw new IllegalArgumentException("the specified server transaction has no dialog.");
 		}					
-		((ClientTransactionWrapper) ct).associateServerTransaction(st.getBranchId(), stDialog.getActivityHandle());
+		ctw.associateServerTransaction(stw, stDialog.getActivityHandle());
 	}
 
 	/*
@@ -192,19 +196,17 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @see net.java.slee.resource.sip.DialogActivity#getAssociatedServerTransaction(javax.sip.ClientTransaction)
 	 */
 	public ServerTransaction getAssociatedServerTransaction(ClientTransaction ct) {
-		if(ct == null)
-		{
+		
+		if(ct == null) {
 			throw new NullPointerException("Passed Client Transaction is null!");
 		}
-		if (!hasOngoingClientTransaction(ct.getBranchId())) {
-			return null;
-		}
+		
 		final ClientTransactionWrapper ctw = (ClientTransactionWrapper) ct;
 		final ClientTransactionAssociation cta = ctw.getClientTransactionAssociation();
 		if (cta != null) {
 			final DialogWrapper associatedDialog = (DialogWrapper) ra.getActivity(cta.getDialogActivityHandle());
 			if (associatedDialog != null) {
-				return associatedDialog.getServerTransaction(cta.getAssociatedServerTransactionBranchId());
+				return associatedDialog.getServerTransaction(cta.getAssociatedServerTransaction());
 			}
 			else {
 				return null;
@@ -221,140 +223,74 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 */
 	public Request createRequest(String methodName) throws SipException {
 		try{
-			final Request request = this.wrappedDialog.createRequest(methodName);
-			//request.addFirst(getLocalViaHeader());
-			return request;
+			return this.wrappedDialog.createRequest(methodName);			
 		}catch (Exception e) {
 			throw new SipException(e.getMessage(),e);
 		}
 	}
 	
-	/* FIXME untested
-	 * (non-Javadoc)
-	 * @see net.java.slee.resource.sip.DialogActivity#createRequest(javax.sip.message.Request)
+	/*
+	 * 
+	 * @see
+	 * net.java.slee.resource.sip.DialogActivity#createRequest(javax.sip.message
+	 * .Request)
 	 */
 	public Request createRequest(Request origRequest) throws SipException {
-		
-		Request forgedRequest = null;
+
+		final SIPRequest request = (SIPRequest) origRequest.clone();
+
+		// note: no need to work on dialog tags, since remote tag remains the same and
+		// local tag will be ensured when sending
+
+		/*
+		 * If the B2BUA decides to relay the received request, its associated
+		 * UAC generates a new downstream SIP request with its new Via, Max-
+		 * Forwards, Call-ID, CSeq, and Contact header fields, as described in
+		 * RFC3261.
+		 */
+		final String transport = request.getTopmostViaHeader().getTransport();
+		final MessageForwardingTransportData messageForwardingTransportData = provider
+				.getMessageForwardingTransportData(transport);
+
+		final List<Object> viaHeaders = new ArrayList<Object>(1);
+		viaHeaders.add(messageForwardingTransportData.getViaHeader().clone());
+		request.setVia(viaHeaders);
 		try {
-			if (!origRequest.getMethod().equals(Request.ACK)) {
-				forgedRequest = this.wrappedDialog.createRequest(origRequest.getMethod());
-			}
-			else {
-				forgedRequest = this.wrappedDialog.createAck(this.wrappedDialog.getLocalSeqNumber());
-			}		
-			forgedRequest.addFirst(provider.getLocalVia());
-		} catch (ParseException e) {
-			throw new SipException(e.getMessage(),e);
+			request.setHeader(provider.getHeaderFactory().createMaxForwardsHeader(70));
 		} catch (InvalidArgumentException e) {
-			throw new SipException(e.getMessage(),e);
+			throw new SipException("Failed to create max forwards header",e);
 		}
-
-		forgeMessage(origRequest, forgedRequest, org.mobicents.slee.resource.sip11.Utils.getHeadersToOmmitOnRequestCopy());
+		request.setHeader((Header) getCallId().clone());
+		// note: cseq will be set by dialog when sending
+		// set contact if the original response had it
+		if (origRequest.getHeader(ContactHeader.NAME) != null) {
+			request.setHeader((Header) messageForwardingTransportData
+					.getContactHeader().clone());
+		}
 		
-		return forgedRequest;
-	}
-
-	/**
-	 * FIXME untested
-	 * @param originalMessage
-	 * @param forgedMessage
-	 * @param headerstoOmmit
-	 * @throws SipException
-	 */
-	@SuppressWarnings("unchecked")
-	protected void forgeMessage(Message originalMessage, Message forgedMessage, Set<String> headerstoOmmit)
-	throws SipException {
-		// We leave to and from with tags from this dialog, but copy all other
-		// parameters
-		// Route headers are from this dialog
-		ListIterator<String> lit = originalMessage.getHeaderNames();
-		while (lit.hasNext()) {
-
-			String headerName = lit.next();
-
-			// FIXME: Could be wrong - but, if there is value in forgedRequest,
-			// we leave original value
-			// FIXME: What about address URI parameters?
-			// FIXME: What about MaxForwards?
-			if (headerName.equals(ToHeader.NAME) || headerName.equals(FromHeader.NAME)) {
-				final Parameters origHeader = (Parameters) originalMessage.getHeader(headerName);
-				final Parameters forgedHeader = (Parameters) forgedMessage.getHeader(headerName);
-				final Set<String> toOmmit = new HashSet<String>(1);
-				toOmmit.add("tag");
-				copyParameters(headerName, origHeader, forgedHeader, toOmmit);
-			} else if (headerstoOmmit.contains(headerName)) {
-				continue;
-			} else {
-				// FIXME: For now we simply copy everything, overwrte existing
-				// headers
-
-				if (forgedMessage.getHeaders(headerName).hasNext())
-					forgedMessage.removeHeader(headerName);
-
-				ListIterator<Header> headersIterator = originalMessage.getHeaders(headerName);
-				while (headersIterator.hasNext()) {
-					final Header origHeader = headersIterator.next();
-
-					try {
-						final Header forgedHeader = (Header) this.provider.getHeaderFactory().createHeader(headerName,
-								origHeader.toString().substring(origHeader.toString().indexOf(":") + 1));
-
-						forgedMessage.addLast((javax.sip.header.Header) forgedHeader);
-					} catch (ParseException e) {
-						tracer.severe("Failed to generate header on [" + headerName + "]. To copy value [" + origHeader
-								+ "]\n", e);
-						throw new SipException("Major failure", e);
-					}
-
-				}
+		/*
+		 * Route header fields of the upstream request MAY be copied in the
+		 * downstream request, except the topmost Route header if it is under
+		 * the responsibility of the B2BUA. Additional Route header fields MAY
+		 * also be added to the downstream request.
+		 */
+		final RouteList routeList = request.getRouteHeaders();
+		if (routeList != null) {
+			final RouteHeader topRoute = routeList.get(0);
+			if (topRoute.getAddress().getURI().equals(
+					messageForwardingTransportData.getSipURI())) {
+				routeList.remove(0);
 			}
 		}
 
-		// Copy content
-		byte[] rawOriginal = originalMessage.getRawContent();
-		if (rawOriginal != null && rawOriginal.length != 0) {
-			byte[] copy = new byte[rawOriginal.length];
-			System.arraycopy(rawOriginal, 0, copy, 0, copy.length);
-			try {
-				forgedMessage.setContent(new String(copy), (ContentTypeHeader) forgedMessage
-						.getHeader(ContentTypeHeader.NAME));
-			} catch (ParseException e) {
-				tracer.severe("Failed to set content on forged message. To copy value [" + new String(copy) + "] Type ["
-						+ forgedMessage.getHeader(ContentTypeHeader.NAME) + "]\n", e);
-			}
-		}
-	}
+		/*
+		 * Record-Route header fields of the upstream request are not copied in
+		 * the new downstream request, as Record-Route is only meaningful for
+		 * the upstream dialog.
+		 */
+		request.removeHeader(RecordRouteHeader.NAME);
 
-	/**
-	 * FIXME untested
-	 * @param name
-	 * @param origHeader
-	 * @param forgedHeader
-	 * @param toOmmit
-	 */
-	@SuppressWarnings("unchecked")
-	private void copyParameters(String name, Parameters origHeader, Parameters forgedHeader, Set<String> toOmmit) {
-		// FIXME: This will fail for parameters such as lr ??
-		Iterator<String> it = origHeader.getParameterNames();
-		while (it.hasNext()) {
-			String p_name = it.next();
-			if (toOmmit.contains(p_name) || forgedHeader.getParameter(p_name) != null) {
-				if (tracer.isFineEnabled()) {
-					tracer.fine("Ommiting parameter on [" + name + "]. To copy value ["
-							+ origHeader.getParameter(p_name) + "]\nValue in forged ["
-							+ forgedHeader.getParameter(p_name) + "]");
-				}
-			} else {
-				try {
-					forgedHeader.setParameter(p_name, origHeader.getParameter(p_name));
-				} catch (ParseException e) {
-					tracer.severe("Failed to pass parameter on [" + name + "]. To copy value ["
-							+ origHeader.getParameter(p_name) + "]\nValue in forged ["
-							+ forgedHeader.getParameter(p_name) + "]", e);
-				}
-			}
-		}
+		return request;		
 	}
 	
 	/*
@@ -365,7 +301,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		ensureCorrectDialogLocalTag(request);
 		final ClientTransactionWrapper ctw = this.provider.getNewDialogActivityClientTransaction(this,request);
 		if (request.getMethod().equals(Request.INVITE))
-			lastCancelableTransactionId = ctw.getBranchId();
+			lastCancelableTransactionId = ctw.getActivityHandle();
 		if (tracer.isInfoEnabled()) {
 			tracer.info(String.valueOf(ctw)+" sending request:\n"+request);
 		}
@@ -407,43 +343,101 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * (non-Javadoc)
 	 * @see net.java.slee.resource.sip.DialogActivity#createResponse(javax.sip.ServerTransaction, javax.sip.message.Response)
 	 */
+	@SuppressWarnings("unchecked")
 	public Response createResponse(ServerTransaction origServerTransaction, Response receivedResponse) throws SipException {
 
-		if (!this.hasOngoingServerTransaction(origServerTransaction.getBranchId()))
-			throw new IllegalArgumentException("Passed server transaction is not in ongoing server transaction list for the dialog.");
-
-		Response forgedResponse;
+		Response forgedResponse = null;
+		
 		try {
-			// FIXME check this works as expected
 			forgedResponse = this.provider.getMessageFactory().createResponse(receivedResponse.getStatusCode(), origServerTransaction.getRequest());
 		} catch (ParseException e) {
 			throw new SipException("Failed to forge message", e);
 		}
 		
-		forgeMessage(receivedResponse, forgedResponse, org.mobicents.slee.resource.sip11.Utils.getHeadersToOmmitOnResponseCopy());
-		
-		//This is ok, we receveid this dialog on one LP, we need to put Contact there.
-		final Request origRequest = origServerTransaction.getRequest();
-		final ViaHeader topVia = (ViaHeader) origRequest.getHeader(ViaHeader.NAME);
-		if (topVia!=null) {
-			final Address address = provider.getAddressFactory().createAddress(provider.getLocalSipURI(topVia.getTransport()));
-			if (address !=null) {
-				final ContactHeader contactHeader = this.provider.getHeaderFactory().createContactHeader(address);
-				forgedResponse.addLast(contactHeader);
-			} 
-			else {
-				if (tracer.isFineEnabled()) {
-					tracer.fine("Failed to obtain contact address for AS, can not compute AS contact.");
-				}
-			}
-		} 
-		else {
-			if (tracer.isFineEnabled())	{
-				tracer.fine("There is no via header, can not compute AS contact.");
+		final DialogState dialogState = getState();
+		final String localTag = getLocalTag();
+		if ((dialogState == null || dialogState == DialogState.EARLY) && localTag != null && isServer()) {
+			// no tag set in the response, since the dialog creating transaction didn't had it
+			try {
+				((ToHeader)forgedResponse.getHeader(ToHeader.NAME)).setTag(localTag);
+			} catch (ParseException e) {
+				throw new SipException("Failed to set local tag", e);
 			}
 		}
-	
+		
+		// copy headers 
+		ListIterator<String> lit = receivedResponse.getHeaderNames();
+		String headerName = null;
+		ListIterator<Header> headersIterator = null;
+		while (lit.hasNext()) {
+			headerName = lit.next();
+			if (Utils.getHeadersToOmmitOnResponseCopy().contains(headerName)) {
+				continue;
+			} else {
+				forgedResponse.removeHeader(headerName);
+				headersIterator = receivedResponse.getHeaders(headerName);
+				while (headersIterator.hasNext()) {
+					forgedResponse.addLast((Header)headersIterator.next().clone());
+				}
+			}
+		}
+		
+		// Copy content
+		final byte[] rawOriginal = receivedResponse.getRawContent();
+		if (rawOriginal != null && rawOriginal.length != 0) {
+			final byte[] copy = new byte[rawOriginal.length];
+			System.arraycopy(rawOriginal, 0, copy, 0, copy.length);
+			try {
+				forgedResponse.setContent(copy, (ContentTypeHeader) forgedResponse
+						.getHeader(ContentTypeHeader.NAME));
+			} catch (ParseException e) {
+				tracer.severe("Failed to set content on forged response. To copy value [" + new String(copy) + "] Type ["
+						+ receivedResponse.getHeader(ContentTypeHeader.NAME) + "]\n", e);
+			}
+		}
+		
+		// set contact if the received response had it
+		if (receivedResponse.getHeader(ContactHeader.NAME) != null) {
+			final String transport = ((ViaHeader) forgedResponse.getHeader(ViaHeader.NAME)).getTransport();
+			final MessageForwardingTransportData messageForwardingTransportData = provider
+			.getMessageForwardingTransportData(transport);
+			forgedResponse.setHeader((Header) messageForwardingTransportData.getContactHeader().clone());
+		}
+		
 		return forgedResponse;
+		
+		/*
+		final Response response = (Response) receivedResponse.clone();
+		final SIPRequest request = (SIPRequest) origServerTransaction.getRequest();
+		
+		// set headers
+		response.setHeader(request.getHeader(FromHeader.NAME));
+		response.setHeader(request.getHeader(ToHeader.NAME));
+		response.setHeader(request.getHeader(CallIdHeader.NAME));
+		response.setHeader(request.getHeader(CSeqHeader.NAME));
+		response.setHeader(request.getViaHeaders());
+		final RecordRouteList recordRouteList = request.getRecordRouteHeaders(); 
+		if (recordRouteList != null) {
+			response.setHeader(recordRouteList);			
+		}
+		else {
+			response.removeHeader(RecordRouteHeader.NAME);
+		}
+		final Header timestamp = request.getHeader(TimeStampHeader.NAME);
+		if (timestamp != null) {
+			response.setHeader(timestamp);			
+		}
+		else {
+			response.removeHeader(TimeStampHeader.NAME);
+		}
+		
+		final String transport = request.getTopmostViaHeader().getTransport();
+		final MessageForwardingTransportData messageForwardingTransportData = provider
+				.getMessageForwardingTransportData(transport);
+		response.setHeader((Header) messageForwardingTransportData
+				.getContactHeader().clone());
+
+		return response;*/
 	}
 
 	/*
@@ -457,10 +451,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 			cancelTransaction.sendRequest();
 			return cancelTransaction;
 		} catch (NullPointerException npe) {
-			if (tracer.isFineEnabled()) {
-				tracer.fine(npe.getMessage(),npe);
-			}
-			throw new SipException("Possibly fialed to obtain client transaction or no INVITE transaction present");
+			throw new SipException("Failed to find client transaction or no INVITE transaction present",npe);
 		} catch (Exception e) {
 			throw new SipException("Failed to send CANCEL due to:", e);
 		}
@@ -656,6 +647,9 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @see javax.sip.Dialog#sendAck(javax.sip.message.Request)
 	 */
 	public void sendAck(Request arg0) throws SipException {
+		if (tracer.isInfoEnabled()) {
+			tracer.info(this+" sending ACK:\n"+arg0);
+		}
 		wrappedDialog.sendAck(arg0);
 	}
 
@@ -705,46 +699,28 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	
 	/**
 	 * 
-	 * @param id
+	 * @param transaction
 	 * @return
 	 */
-	public ClientTransaction getClientTransaction(String id) {
-		return this.ongoingClientTransactions.get(id);
+	public ClientTransaction getClientTransaction(SipActivityHandle transaction) {
+		return this.ongoingClientTransactions.get(transaction);
 	}
 
 	/**
 	 * 
-	 * @param id
+	 * @param transaction
 	 * @return
 	 */
-	public ServerTransaction getServerTransaction(String id) {
-		return this.ongoingServerTransactions.get(id);
+	public ServerTransaction getServerTransaction(SipActivityHandle transaction) {
+		return this.ongoingServerTransactions.get(transaction);
 	}
 	
-	/**
-	 * 
-	 * @param branchID
-	 * @return
-	 */
-	public boolean hasOngoingServerTransaction(String branchID) {
-		return ongoingServerTransactions.containsKey(branchID);
-	}
-
-	/**
-	 * 
-	 * @param branchID
-	 * @return
-	 */
-	public boolean hasOngoingClientTransaction(String branchID) {
-		return ongoingClientTransactions.containsKey(branchID);
-	}
-
 	/**
 	 * 
 	 * @param stw
 	 */
 	public boolean addOngoingTransaction(ServerTransactionWrapper stw) {
-		final boolean alreadyMapped = ongoingServerTransactions.put(stw.getBranchId(), stw) == null;
+		final boolean alreadyMapped = ongoingServerTransactions.put(stw.getActivityHandle(), stw) == null;
 		// not needed till we have some sort of tx replication
 		// updateReplicatedState();
 		return alreadyMapped;
@@ -764,7 +740,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @param ctw
 	 */
 	public boolean addOngoingTransaction(ClientTransactionWrapper ctw) {
-		final boolean alreadyMapped = ongoingClientTransactions.put(ctw.getBranchId(), ctw) == null;
+		final boolean alreadyMapped = ongoingClientTransactions.put(ctw.getActivityHandle(), ctw) == null;
 		// not needed till we have some sort of tx replication
 		// updateReplicatedState();
 		return alreadyMapped;
@@ -776,7 +752,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 */
 	public void removeOngoingTransaction(ClientTransactionWrapper ctw) {
 		if (ongoingClientTransactions != null) {
-			if (ongoingClientTransactions.remove(ctw.getBranchId()) != null) {
+			if (ongoingClientTransactions.remove(ctw.getActivityHandle()) != null) {
 				// not needed till we have some sort of tx replication
 				// updateReplicatedState();
 			}
@@ -789,7 +765,7 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 */
 	public void removeOngoingTransaction(ServerTransactionWrapper stw) {
 		if (ongoingServerTransactions != null) {
-			if (ongoingServerTransactions.remove(stw.getBranchId()) != null) {
+			if (ongoingServerTransactions.remove(stw.getActivityHandle()) != null) {
 				// not needed till we have some sort of tx replication
 				// updateReplicatedState();
 			}
@@ -839,8 +815,8 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 		//final String[] stIds = (String[]) stream.readObject();
 		// re-populate the ongoing server and client tx maps fetching txs from stack
 		// TODO
-		ongoingClientTransactions = new ConcurrentHashMap<String, ClientTransaction>(1);
-		ongoingServerTransactions = new ConcurrentHashMap<String, ServerTransaction>(1);		
+		ongoingClientTransactions = new ConcurrentHashMap<SipActivityHandle, ClientTransactionWrapper>(1);
+		ongoingServerTransactions = new ConcurrentHashMap<SipActivityHandle, ServerTransactionWrapper>(1);		
 		activityHandle.setActivity(this);
 	}
 	

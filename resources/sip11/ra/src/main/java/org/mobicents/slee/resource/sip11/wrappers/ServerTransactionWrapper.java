@@ -68,7 +68,7 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	 * @param ackTransaction
 	 */
 	private ServerTransactionWrapper(ServerTransaction wrappedTransaction, SipResourceAdaptor ra, boolean ackTransaction) {
-		super(new TransactionActivityHandle(wrappedTransaction.getBranchId()));
+		super(new TransactionActivityHandle(wrappedTransaction.getBranchId(),wrappedTransaction.getRequest().getMethod()));
 		this.ackTransaction = ackTransaction;
 		this.wrappedTransaction = wrappedTransaction;
 		this.wrappedTransaction.setApplicationData(this);

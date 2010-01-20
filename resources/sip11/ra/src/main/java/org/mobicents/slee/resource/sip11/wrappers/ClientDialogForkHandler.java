@@ -144,7 +144,7 @@ public class ClientDialogForkHandler implements Serializable {
 	}
 
 	public boolean isForking() {
-		return !closed.get();
+		return forks != null || !closed.get();
 	}
 
 	private void terminateFork(SipResourceAdaptor ra,

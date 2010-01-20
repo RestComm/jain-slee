@@ -112,6 +112,8 @@ public class DialogWithoutIdActivityHandle extends SipActivityHandle implements 
 	}
 
 	private static final char SEPARATOR = ':';
+
+	public static final Class<? extends SipActivityHandle> TYPE = DialogWithoutIdActivityHandle.class;
 	
 	@Override
 	public String toString() {

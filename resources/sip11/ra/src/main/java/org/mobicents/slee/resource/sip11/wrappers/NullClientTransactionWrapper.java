@@ -17,7 +17,7 @@ import org.mobicents.slee.resource.sip11.TransactionActivityHandle;
  * @author martins
  *
  */
-public class NullClientTransactionWrapper extends TransactionWrapper {
+public class NullClientTransactionWrapper extends ClientTransactionWrapper {
 
 	/**
 	 * 
@@ -27,8 +27,8 @@ public class NullClientTransactionWrapper extends TransactionWrapper {
 	/**
 	 * @param activityHandle
 	 */
-	public NullClientTransactionWrapper(SipActivityHandle activityHandle) {
-		super((TransactionActivityHandle) activityHandle);
+	public NullClientTransactionWrapper(SipActivityHandle activityHandle, SipResourceAdaptor ra) {
+		super((TransactionActivityHandle) activityHandle,ra);
 		setActivity(true);
 	}
 
@@ -51,23 +51,4 @@ public class NullClientTransactionWrapper extends TransactionWrapper {
 	 */
 	@Override
 	public Address getEventFiringAddress() { return null; }
-
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#isAckTransaction()
-	 */
-	@Override
-	public boolean isAckTransaction() { return false; }
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.sip11.wrappers.TransactionWrapper#isClientTransaction()
-	 */
-	@Override
-	public boolean isClientTransaction() { return true; }
-	
-	/* (non-Javadoc)
-	 * @see org.mobicents.slee.resource.sip11.wrappers.Wrapper#setResourceAdaptor(org.mobicents.slee.resource.sip11.SipResourceAdaptor)
-	 */
-	@Override
-	public void setResourceAdaptor(SipResourceAdaptor ra) {}
-
 }

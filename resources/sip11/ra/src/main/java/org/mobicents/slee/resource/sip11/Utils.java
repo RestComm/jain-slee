@@ -14,9 +14,12 @@ import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.ContentLengthHeader;
+import javax.sip.header.FromHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.RecordRouteHeader;
 import javax.sip.header.RouteHeader;
+import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -54,6 +57,9 @@ public class Utils {
 			set.add(ViaHeader.NAME);
 			set.add(CallIdHeader.NAME);
 			set.add(CSeqHeader.NAME);
+			set.add(FromHeader.NAME);
+			set.add(ToHeader.NAME);
+			set.add(ContentLengthHeader.NAME);
 			HEADERS_TO_OMMIT_ON_REQUEST_COPY = Collections.unmodifiableSet(set);
 		}
 		return HEADERS_TO_OMMIT_ON_REQUEST_COPY;
@@ -74,6 +80,9 @@ public class Utils {
 			set.add(CallIdHeader.NAME);
 			set.add(CSeqHeader.NAME);
 			set.add(ContactHeader.NAME);
+			set.add(FromHeader.NAME);
+			set.add(ToHeader.NAME);
+			set.add(ContentLengthHeader.NAME);
 			HEADERS_TO_OMMIT_ON_RESPONSE_COPY = Collections.unmodifiableSet(set);
 		}
 		return HEADERS_TO_OMMIT_ON_RESPONSE_COPY;
@@ -85,6 +94,7 @@ public class Utils {
 	 * @return
 	 * @throws ParseException 
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<RouteHeader> getRouteList(Response response, HeaderFactory headerFactory) throws ParseException {
 		// we have record route set, as we are client, this is reversed
 		final ArrayList<RouteHeader> routeList = new ArrayList<RouteHeader>();

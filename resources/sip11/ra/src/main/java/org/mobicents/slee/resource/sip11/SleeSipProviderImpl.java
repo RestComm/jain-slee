@@ -1,7 +1,6 @@
 package org.mobicents.slee.resource.sip11;
 
 import gov.nist.javax.sip.Utils;
-import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.message.SIPRequest;
 
 import java.net.InetAddress;
@@ -10,6 +9,7 @@ import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TooManyListenersException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
@@ -64,6 +64,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	protected SipProvider provider = null;
 	protected final Tracer tracer;
 
+	private final ConcurrentHashMap<String, MessageForwardingTransportData> messageForwardingTransportDatas;
+	
 	/**
 	 * 
 	 * @param addressFactory
@@ -82,10 +84,37 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		this.messageFactory = messageFactory;
 		this.stack = stack;
 		this.ra = ra;
-		this.provider = provider;
 		this.tracer = ra.getTracer(SleeSipProviderImpl.class.getSimpleName());
+		this.provider = provider;		
+		messageForwardingTransportDatas = new ConcurrentHashMap<String, MessageForwardingTransportData>();					
 	}
 
+	/**
+	 * 
+	 * @param transport
+	 * @return
+	 */
+	public MessageForwardingTransportData getMessageForwardingTransportData(String transport) {
+		MessageForwardingTransportData data = messageForwardingTransportDatas.get(transport);
+		if (data == null) {
+			ListeningPoint lp = getListeningPoint(transport);
+			if (lp != null) {
+				try {
+					data = new MessageForwardingTransportData(lp, addressFactory, headerFactory);					
+				}
+				catch (Exception e) {
+					tracer.severe("Failed to create message forwarding data for transport "+transport,e);
+					return null;
+				}				
+				final MessageForwardingTransportData anotherData = messageForwardingTransportDatas.putIfAbsent(transport, data);
+				if (anotherData != null) {
+					data = anotherData;
+				}
+			}	
+		}
+		return data;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -111,7 +140,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	public HeaderFactory getHeaderFactory() {
 		return this.headerFactory;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -120,29 +149,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * )
 	 */
 	public SipURI getLocalSipURI(String transport) {
-
-		final ListeningPoint lp = this.provider.getListeningPoint(transport);
-		if (lp != null) {
-			try {
-				final SipURI uri = new SipUri();
-				uri.setHost(lp.getIPAddress());
-				uri.setPort(lp.getPort());
-				uri.setTransportParam(transport);
-				return uri;
-			} catch (ParseException e) {
-				tracer.severe(
-						"Failed parsing LP info. Failed to parse listening point for transport ["
-								+ transport + "] [" + lp + "]", e);
-				return null;
-			}
-		} else {
-			if (tracer.isFineEnabled()) {
-				tracer
-						.fine("Failed parsing LP info. No listening point for transport ["
-								+ transport + "] [" + lp + "]");
-			}
-			return null;
-		}
+		final MessageForwardingTransportData messageForwardingTransportData = getMessageForwardingTransportData(transport);
+		return messageForwardingTransportData != null ? messageForwardingTransportData.getSipURI() : null;		
 	}
 
 	/*
@@ -453,58 +461,57 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	public Dialog getNewDialog(Transaction transaction) throws SipException {
 		if (transaction.getClass() == ServerTransactionWrapper.class) {
-			final ServerTransactionWrapper stw = (ServerTransactionWrapper) transaction;
-			final ServerTransaction st = stw.getWrappedServerTransaction();
-			final Dialog d = provider.getNewDialog(st);
-			String localTag = d.getLocalTag();
-			String dialogId = d.getDialogId();
-			if (localTag == null) {
-				// some hacking in jsip, we need a dialog id now and the real dialog
-				// does not have a local tag
-				localTag = Utils.getInstance().generateTag();
-				dialogId = ((SIPRequest) st.getRequest()).getDialogId(
-					true, localTag);
-			}
-			final DialogWrapper dw = new DialogWrapper(d, dialogId, localTag,ra);
-			dw.addOngoingTransaction(stw);
-			ra.addSuspendedActivity(dw, tracer.isFineEnabled());
-			return dw;
-		} else if (transaction.getClass() == ClientTransactionWrapper.class) {
-			// this is not efficient, but should not be used anyway and saves
-			// more code scenarios
-			//FIXME: make ctw.isActivity == false, since dialog becomes transaction, specs dont cover this.
-			//lets stick with ctw as response handler, dw will get state, but RA impl will fire on ctw handle.
-			final ClientTransactionWrapper ctw = (ClientTransactionWrapper) transaction;
-			final Dialog d = provider.getNewDialog(ctw.getWrappedTransaction());
-			final Request r = transaction.getRequest();
-			final FromHeader fh = (FromHeader)r.getHeader(FromHeader.NAME);
-			String localTag = d.getLocalTag();
-			if(localTag == null)
-			{
-				localTag = Utils.getInstance().generateTag();
-				try {
-					
-					fh.setTag(localTag);
-				} catch (ParseException e) {
-					throw new SipException("Failed to set local tag.", e);
-				}
-			}
+			return getNewDialog((ServerTransactionWrapper) transaction);
 			
-			final DialogWrapper dw = _getNewDialog(
-					fh.getAddress(),
-					localTag,
-					((ToHeader) r.getHeader(ToHeader.NAME)).getAddress(), null);
-			//set wrapped dialog first.
-			dw.setWrappedDialog(d);
-			d.setApplicationData(dw);
-			dw.addOngoingTransaction((ClientTransactionWrapper) transaction);
-
-			return dw;
+		} else if (transaction.getClass() == ClientTransactionWrapper.class) {
+			return getNewDialog((ClientTransactionWrapper) transaction);
+			
 		} else {
 			throw new IllegalArgumentException("unknown transaction class");
 		}
 	}
 
+	private Dialog getNewDialog(ServerTransactionWrapper stw) throws SipException {
+		final ServerTransaction st = stw.getWrappedServerTransaction();
+		final Dialog d = provider.getNewDialog(st);
+		String localTag = d.getLocalTag();
+		String dialogId = d.getDialogId();
+		if (localTag == null) {
+			// some hacking in jsip, we need a dialog id now and the real dialog
+			// does not have a local tag
+			localTag = Utils.getInstance().generateTag();
+			dialogId = ((SIPRequest) st.getRequest()).getDialogId(
+				true, localTag);
+		}
+		final DialogWrapper dw = new DialogWrapper(d, dialogId, localTag,ra);
+		dw.addOngoingTransaction(stw);
+		ra.addSuspendedActivity(dw, tracer.isFineEnabled());
+		return dw;
+	}
+	
+	private Dialog getNewDialog(ClientTransactionWrapper ctw) throws SipException {
+		final Request r = ctw.getWrappedTransaction().getRequest();
+		final FromHeader fh = (FromHeader)r.getHeader(FromHeader.NAME);
+		String localTag = fh.getTag();
+		if(localTag == null) {
+			localTag = Utils.getInstance().generateTag();
+			try {				
+				fh.setTag(localTag);
+			} catch (ParseException e) {
+				throw new SipException("Failed to set local tag.", e);
+			}
+		}		
+		final Dialog d = provider.getNewDialog(ctw.getWrappedTransaction());
+		final DialogWrapper dw = _getNewDialog(
+				fh.getAddress(),
+				localTag,
+				((ToHeader) r.getHeader(ToHeader.NAME)).getAddress(), d.getCallId());
+		dw.setWrappedDialog(d);
+		d.setApplicationData(dw);
+		dw.addOngoingTransaction(ctw);
+		return dw;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -578,13 +585,11 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	public boolean acceptCancel(CancelRequestEvent cancelEvent, boolean isProxy) {
 
 		if (cancelEvent.getMatchingTransaction() != null) {
-			// FIXME: no delay may cause unexpected behaviour?
 			try {
 
 				Response response = this.getMessageFactory().createResponse(
 						Response.OK, cancelEvent.getRequest());
-				cancelEvent.getServerTransaction().sendResponse(response);
-				Thread.sleep(50);
+				cancelEvent.getServerTransaction().sendResponse(response);				
 			} catch (Exception e) {
 				// specs doesn't provide any throws clause
 				throw new RuntimeException(e.getMessage(), e);
@@ -612,11 +617,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 							.createResponse(
 									Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
 									cancelEvent.getRequest());
-					Thread.sleep(50);
-					// provider.sendResponse(txDoesNotExistsResponse);
 					cancelEvent.getServerTransaction().sendResponse(
 							txDoesNotExistsResponse);
-					Thread.sleep(50);
 				} catch (Exception e) {
 					// specs doesn't provide any throws clause
 					throw new RuntimeException(e.getMessage(), e);

@@ -56,7 +56,6 @@ import javax.slee.resource.FireableEventType;
 import javax.slee.resource.InvalidConfigurationException;
 import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
-import javax.slee.resource.ResourceAdaptor;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
 
@@ -64,6 +63,8 @@ import net.java.slee.resource.sip.CancelRequestEvent;
 
 import org.mobicents.ha.javax.sip.ClusteredSipStack;
 import org.mobicents.ha.javax.sip.cache.SipResourceAdaptorMobicentsSipCache;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
+import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
 import org.mobicents.slee.resource.sip11.wrappers.ACKDummyTransaction;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
@@ -75,7 +76,7 @@ import org.mobicents.slee.resource.sip11.wrappers.TimeoutEventWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.TransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.Wrapper;
 
-public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
+public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdaptor<SipActivityHandle, String> {
 
 	// Config Properties Names -------------------------------------------
 
@@ -213,6 +214,9 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 
 		// get server tx wrapper		
 		final ServerTransactionWrapper cancelSTW = getServerTransactionWrapper(req,fineTrace);
+		if (cancelSTW == null) {
+			return;
+		}
 		// get canceled invite stw
 		final ServerTransaction inviteST = ((SIPServerTransaction)cancelSTW.getWrappedServerTransaction()).getCanceledInviteTransaction();
 		final ServerTransactionWrapper inviteSTW = inviteST != null ? (ServerTransactionWrapper) inviteST.getApplicationData() : null;
@@ -310,6 +314,12 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			}
 		}
 		else {
+			if (requestEvent.getDialog() != null && inLocalMode()) {
+				if (fineTrace) {
+					tracer.fine("Got in-dialog request with null server transaction, in local mode must be a retransmission, thus dropping. Request: "+requestEvent.getRequest());
+				}
+				return null;
+			}
 			if (!requestEvent.getRequest().getMethod().equals(Request.ACK)) {
 				try {
 					stw = new ServerTransactionWrapper(provider.getNewServerTransaction(requestEvent.getRequest()),this);
@@ -345,6 +355,9 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				
 		// get server tx wrapper
 		final ServerTransactionWrapper stw = getServerTransactionWrapper(req,fineTrace);
+		if (stw == null) {
+			return;
+		}
 		
 		Wrapper activity = dw;
 		if (activity == null) {
@@ -438,6 +451,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				dw.setWrappedDialog(d);
 			}
 		}
+				
 		boolean requestEventUnreferenced = false;
 		final ClientTransaction ct = responseEvent.getClientTransaction();
 		if (ct == null) {
@@ -465,12 +479,13 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				}
 				//fire the event on a recreated dummy transaction
 				final String branchId = ((ViaHeader)response.getHeaders(ViaHeader.NAME).next()).getBranch();
-				handle = new TransactionActivityHandle(branchId);
-				Wrapper activity = new NullClientTransactionWrapper(handle);
+				final String method = ((CSeqHeader)response.getHeader(CSeqHeader.NAME)).getMethod();
+				handle = new TransactionActivityHandle(branchId,method);
+				ctw = new NullClientTransactionWrapper(handle,this);
 				// create the activity
 				try {
-					sleeEndpoint.startActivity(handle,activity,ACTIVITY_FLAGS);
-					activityManagement.put(handle, activity);
+					sleeEndpoint.startActivity(handle,ctw,ACTIVITY_FLAGS);
+					activityManagement.put(handle, ctw);
 				}
 				catch (Throwable e) {
 					// silently ignore exception, it may already exist
@@ -480,21 +495,29 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				
 			}
 			else {
-				// else lets take a neutral approach and fire the event in the dialog
-				if (fineTrace) {
-					tracer.fine("Received "+response.getStatusCode()+" response without a client transaction, but in a dialog, firing event in that dialog.");
+				// in local mode this should be a retransmission and should be ignored, in cluster it can be a retransmission after a cluster node failover 
+				if (!inLocalMode()) {
+					if (fineTrace) {
+						tracer.fine("Received "+response.getStatusCode()+" in-dialog response without a client transaction, not in local mode, firing event in that dialog.");
+					}
+					handle = dw.getActivityHandle();
 				}
-				handle = dw.getActivityHandle();
+				else {
+					if (fineTrace) {
+						tracer.fine("Received "+response.getStatusCode()+" in-dialog response without a client transaction, in local mode, dropping, should be a retransmission.");
+					}
+					return;
+				}
 			}
 		}
 		else {
-			if (fineTrace) {
-				tracer.fine("Received "+response.getStatusCode()+" response in an existent client transaction.");
-			}
 			ctw = (ClientTransactionWrapper) ct.getApplicationData();
 			if (ctw == null) {
-				tracer.severe("Dropping response without app data, can't proceed");
+				tracer.severe("Dropping response without app data in client tx, can't proceed");
 				return;
+			}
+			if (fineTrace) {
+				tracer.fine("Received "+response.getStatusCode()+" response on existent client transaction "+ctw.getActivityHandle());
 			}
 			// ensure the ctw is bound to this ra object
 			ctw.setResourceAdaptor(this);
@@ -502,7 +525,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			address = ctw.getEventFiringAddress();
 			//FIXME: determine if we should check here if dw is also an activity and fire on it.
 			//specs do not cover this. See SleeSipProviderImpl.getNewDialog(Transaction);
-			if (!ctw.isActivity()) {
+			if (dw != null) {
 				handle = dw.getActivityHandle();
 				// (client tx that has a final response and is not an activity must be
 				// cleared on this callback, not on transaction terminated event)
@@ -512,9 +535,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				handle = ctw.getActivityHandle();
 			}
 		}
-		
-		final String method = ((CSeqHeader) response.getHeader(CSeqHeader.NAME)).getMethod();
-				
+						
 		int eventFlags = DEFAULT_EVENT_FLAGS;
 		if (requestEventUnreferenced) {
 			eventFlags = EventFlags.setRequestEventReferenceReleasedCallback(eventFlags);
@@ -530,7 +551,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				// event filtered
 				if (requestEventUnreferenced) {
 					// event was filtered, consider it is unreferenced now
-					processResponseEventUnreferenced(rew,handle);
+					processResponseEventUnreferenced(rew);
 				}
 			} else {
 				try {
@@ -540,17 +561,20 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 					// event not fired due to error
 					if (requestEventUnreferenced) {
 						// consider event is unreferenced now
-						processResponseEventUnreferenced(rew,handle);
+						processResponseEventUnreferenced(rew);
 					}
 				}
 			}
 		}
 		
-		if ((response.getStatusCode() == 481 || response.getStatusCode() == 408) && dw != null && (!method.equals(Request.INVITE) || !method.equals(Request.SUBSCRIBE))) {
-			try {
-				this.provider.sendRequest(dw.createRequest(Request.BYE));
-			} catch (Throwable e) {
-				tracer.severe(e.getMessage(),e);
+		if ((response.getStatusCode() == 481 || response.getStatusCode() == 408) && dw != null) {
+			final String method = ((CSeqHeader) response.getHeader(CSeqHeader.NAME)).getMethod();
+			if (!method.equals(Request.INVITE) || !method.equals(Request.SUBSCRIBE)) {
+				try {
+					this.provider.sendRequest(dw.createRequest(Request.BYE));
+				} catch (Throwable e) {
+					tracer.severe(e.getMessage(),e);
+				}
 			}
 		}
 		
@@ -722,14 +746,18 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 			t = txTerminatedEvent.getClientTransaction();			
 		}
 		
-		if (tracer.isInfoEnabled()) {
-			tracer.info("SIP Transaction "+t.getBranchId()+" terminated");
-		}
-		
 		final TransactionWrapper tw = (TransactionWrapper) t.getApplicationData();		
 		if (tw != null) {
+			if (tracer.isInfoEnabled()) {
+				tracer.info("SIP Transaction "+tw.getActivityHandle()+" terminated");
+			}
 			processTransactionTerminated(tw);
 		}
+		else {
+			if (tracer.isInfoEnabled()) {
+				tracer.info("SIP Transaction "+t.getBranchId()+':'+t.getRequest().getMethod()+" terminated");
+			}
+		}	
 	}
 
 	private void processTransactionTerminated(TransactionWrapper tw) {
@@ -923,7 +951,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 				activityManagement = new LocalSipActivityManagement();
 			}
 			else {
-				activityManagement = new ClusteredSipActivityManagement(sipStack); 
+				activityManagement = new ClusteredSipActivityManagement(sipStack,ftRaContext.getReplicateData()); 
 			}
 			
 			if (tracer.isFineEnabled()) {
@@ -1062,7 +1090,7 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 
 		if(event instanceof ResponseEventWrapper) {
 			final ResponseEventWrapper rew = (ResponseEventWrapper) event;
-			processResponseEventUnreferenced(rew,(SipActivityHandle)handle);	
+			processResponseEventUnreferenced(rew);	
 		}
 		else if(event instanceof RequestEventWrapper) {
 			final RequestEventWrapper rew = (RequestEventWrapper) event;
@@ -1085,16 +1113,16 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	/**
 	 * @param rew
 	 */
-	private void processResponseEventUnreferenced(ResponseEventWrapper rew, SipActivityHandle handle) {
+	private void processResponseEventUnreferenced(ResponseEventWrapper rew) {
 		final ClientTransactionWrapper ctw  = (ClientTransactionWrapper) rew.getClientTransaction();		
-		if (ctw != null && !ctw.isActivity()) {
+		if (!ctw.isActivity()) {
 			// a client tx that is not activity must be removed from dialog here
 			ctw.getDialogWrapper().removeOngoingTransaction(ctw);
 			ctw.clear();
 		}
 		else {
 			// end the activity
-			sendActivityEndEvent(activityManagement.get(handle));
+			sendActivityEndEvent(activityManagement.get(ctw.getActivityHandle()));
 		}
 	}
 
@@ -1104,8 +1132,8 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 	 * (non-Javadoc)
 	 * @see javax.slee.resource.ResourceAdaptor#raConfigurationUpdate(javax.slee.resource.ConfigProperties)
 	 */
-	public void raConfigurationUpdate(ConfigProperties arg0) {
-		// this ra does not support config update while entity is active		
+	public void raConfigurationUpdate(ConfigProperties properties) {
+		raConfigure(properties);		
 	}
 	
 	/*
@@ -1398,11 +1426,28 @@ public class SipResourceAdaptor implements SipListener,ResourceAdaptor {
 		return eventIDFilter;
 	}
 	
+	// CLUSTERING
+	
 	/**
 	 * Indicates if the RA is running in local mode or in a clustered environment
 	 * @return true if the RA is running in local mode, false if is running in a clustered environment
 	 */
 	public boolean inLocalMode() {
 		return sipStack.getSipCache().inLocalMode();
+	}
+	
+	public void failOver(SipActivityHandle activityHandle) {
+		// not used
+	}
+	
+	private FaultTolerantResourceAdaptorContext<SipActivityHandle, String> ftRaContext;
+	
+	public void setFaultTolerantResourceAdaptorContext(
+			FaultTolerantResourceAdaptorContext<SipActivityHandle, String> context) {
+		this.ftRaContext = context;
+	}
+	
+	public void unsetFaultTolerantResourceAdaptorContext() {
+		this.ftRaContext = null;
 	}
 }
