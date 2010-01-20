@@ -112,7 +112,14 @@ public class SLEEDeployer extends AbstractSimpleVFSRealDeployer<SLEEDeploymentMe
     VFSDeploymentUnit vfsDU = vfsDUs.get(deployableUnitURL);
 
     for (String componentJar : sdmd.duContents) {
-      URL componentURL = VFSUtils.getCompatibleURL(vfsDU.getFile(componentJar));
+      URL componentURL = null;
+      
+      try {
+        componentURL = VFSUtils.getCompatibleURL(vfsDU.getFile(componentJar));
+      }
+      catch (Exception e) {
+        throw new IllegalArgumentException("Failed to locate " + componentJar + " in DU. Does it exists?", e);
+      }
 
       ssdeployer.accepts( componentURL );
 
