@@ -87,9 +87,7 @@ public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb implem
 	public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
 		final DialogActivity dialog = (DialogActivity)aci.getActivity();
 		try {
-			final Request request = dialog.createRequest(Request.BYE);
-			request.addHeader(getContactHeader());
-			dialog.sendRequest(request);			
+			dialog.sendRequest(dialog.createRequest(Request.BYE));			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
