@@ -3,12 +3,10 @@
 
 <scenario name="Basic UAS responder">
 
-	<recv request="INVITE">
-	</recv>
+	<recv request="INVITE" rrs="true" />
 
-
-	<send>
-   <![CDATA[
+	<send>  
+ <![CDATA[
 
      SIP/2.0 180 Ringing
      [last_Via:]
@@ -16,14 +14,16 @@
      [last_To:];tag=[call_number]
      [last_Call-ID:]
      [last_CSeq:]
-     [last_Subject:]
-     Contact: <sip:[field3]@[local_ip]:[local_port];transport=[transport]>
+     [last_Record-Route:]
+     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
      Content-Length: 0
 
    ]]>
 	</send>
-	<pause milliseconds="500"/>
-	<send retrans="2500">
+	
+	<pause milliseconds="250"/>
+	
+	<send retrans="2000">
    <![CDATA[
 
      SIP/2.0 200 OK
@@ -32,8 +32,8 @@
      [last_To:];tag=[call_number]
      [last_Call-ID:]
      [last_CSeq:]
-     [last_Subject:]
-     Contact: <sip:[field3]@[local_ip]:[local_port];transport=[transport]>
+     [last_Record-Route:]
+     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
      Content-Type: application/sdp
      Content-Length: [len]
 
@@ -48,11 +48,11 @@
    ]]>
 	</send>
 
-	<recv request="ACK" optional="true" rtd="true">
-	</recv>
+	<recv request="INVITE" optional="true" />
 
-	<recv request="BYE" timeout="90000"  crlf="true">
-	</recv>
+	<recv request="ACK" />
+
+	<recv request="BYE" timeout="60000" />
 
 	<send>
    <![CDATA[
@@ -60,22 +60,15 @@
      SIP/2.0 200 OK
      [last_Via:]
      [last_From:]
-     [last_To:]
+     [last_To:];tag=[call_number]
      [last_Call-ID:]
      [last_CSeq:]
-     [last_Subject:]
-     Contact: <sip:[field3]@[local_ip]:[local_port];transport=[transport]>
+     [last_Record-Route:]
      Content-Length: 0
 
    ]]>
 	</send>
-
 	
-	<pause milliseconds="4000" />
-
-
-	<ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200" />
-
-	<CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000" />
-
-</scenario> 
+	<pause milliseconds="30000"/>
+	
+</scenario>
