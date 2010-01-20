@@ -49,16 +49,6 @@
 		</event>
 
 		<event event-direction="Receive" initial-event="False">
-			<event-name>Ack</event-name>
-			<event-type-ref>
-				<event-type-name>
-					javax.sip.Dialog.ACK
-				</event-type-name>
-				<event-type-vendor>net.java.slee</event-type-vendor>
-				<event-type-version>1.2</event-type-version>
-			</event-type-ref>
-		</event>
-		<event event-direction="Receive" initial-event="False">
 			<event-name>Bye</event-name>
 			<event-type-ref>
 				<event-type-name>
@@ -75,7 +65,6 @@
 				<event-type-vendor>net.java.slee</event-type-vendor>
 				<event-type-version>1.2</event-type-version>
 			</event-type-ref>
-			<initial-event-select variable="ActivityContext"/>
 		</event>
 
 

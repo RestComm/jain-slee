@@ -3,31 +3,29 @@
 
 <scenario name="Basic UAS responder">
 
- <recv request="INVITE" crlf="true">
- 	<action>
-    	<ereg regexp=".*" search_in="hdr" header="CSeq:" check_it="true" assign_to="1" /> 
-  </action>
- 
- </recv>
+	<recv request="INVITE" rrs="true">
+	  <action>
+    		<ereg regexp=".*" search_in="hdr" header="CSeq:" check_it="true" assign_to="1" /> 
+	  </action>
+  	</recv>
 
-
- <send>
+	<send>
    <![CDATA[
 
-     SIP/2.0 100 Trying
+     SIP/2.0 180 Ringing
      [last_Via:]
      [last_From:]
-     [last_To:]
+     [last_To:];tag=[call_number]
      [last_Call-ID:]
      [last_CSeq:]
+     [last_Record-Route:]
+     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
      Content-Length: 0
 
    ]]>
- </send>
- 
- <recv request="CANCEL" crlf="true">
- </recv>
-
+	</send>
+	 
+	<recv request="CANCEL" timeout="10000" />
 
  <send>
    <![CDATA[
@@ -38,6 +36,7 @@
      [last_To:]
      [last_Call-ID:]
      [last_CSeq:]
+     [last_Record-Route:]
      Content-Length: 0
 
    ]]>
@@ -49,21 +48,18 @@
      SIP/2.0 487 Request Terminated
      [last_Via:]
      [last_From:]
-     [last_To:]
+     [last_To:]tag=[call_number]
      [last_Call-ID:]
      CSeq :[$1]
+     [last_Record-Route:]
+     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
      Content-Length: 0
 
    ]]>
  </send>
   
- <recv request="ACK" crlf="true">
- </recv>
- <pause milliseconds="4000"/>
-
-
- <ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200"/>
-
- <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+ <recv request="ACK" timeout="10000" />
+ 
+ <pause milliseconds="30000" />
 
 </scenario> 

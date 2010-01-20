@@ -3,20 +3,18 @@
 
 <scenario name="Basic Sipstone UAC">
 	
-	<!--Route: sip:127.0.0.1:5060-->
-	<send retrans="500">
+
+	<send retrans="2000">
    <![CDATA[
 
-     INVITE sip:[field2]@[remote_ip]:5090 SIP/2.0
-     Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[call_number]
-     From: [field0] <sip:[field1]@[local_ip]:[local_port]>;tag=[call_number]
-     To: [field2] <sip:[field3]@[remote_ip]:[remote_port]>
+     INVITE sip:bob[call_number]@[remote_ip]:5090 SIP/2.0
+     Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+     From: alice[call_number] <sip:alice[call_number]@[local_ip]:[local_port]>;tag=[call_number]
+     To: bob[call_number] <sip:bob[call_number]@[remote_ip]:5090>
      Call-ID: [call_id]
      CSeq: 1 INVITE
-     Contact: <sip:[field1]@[local_ip]:[local_port];transport=[transport]>
+     Contact: <sip:[local_ip]:[local_port];transport=[transport]>
      Max-Forwards: 70
-     Subject: [field4]
-     Route: sip:[remote_ip]:[remote_port]
      Content-Type: application/sdp
      Content-Length: [len]
 
@@ -31,60 +29,48 @@
    ]]>
 	</send>
 
-	<recv response="100" optional="true">
-	</recv>
+	<recv response="100" optional="true" />
 
-	<recv response="180">
-	</recv>
+	<recv response="180" optional="true" />
 
-
-	<recv response="200" rtd="true" >
-	</recv>
+	<recv response="200" rtd="true" rrs="true" />
 	
-
 	<send>
    <![CDATA[
 
-     ACK sip:[field2]@[remote_ip]:5090 SIP/2.0
+     ACK sip:bob[call_number]@[remote_ip]:5090 SIP/2.0
      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
-     From: [field0] <sip:[field1]@[local_ip]:[local_port]>;tag=[call_number]
-     To: [field2] <sip:[field3]@[remote_ip]:[remote_port]>[peer_tag_param]
+     From: alice[call_number] <sip:alice[call_number]@[local_ip]:[local_port]>;tag=[call_number]
+     To: bob[call_number] <sip:bob[call_number]@[remote_ip]:5090>[peer_tag_param]
      Call-ID: [call_id]
      CSeq: 1 ACK
-     Contact: <sip:[field1]@[local_ip]:[local_port];transport=[transport]>
      Max-Forwards: 70
-     Route: sip:[remote_ip]:[remote_port]
-     Subject: [field4]
+     [routes]
      Content-Length: 0
 
    ]]>
 	</send>
 
-	<pause milliseconds="60000"/>
+	<pause milliseconds="55000"/>
 
-	<send retrans="500"  crlf="true">
+	<send retrans="2000">
    <![CDATA[
 
-     BYE sip:[field2]@[remote_ip]:5090 SIP/2.0
+     BYE sip:bob[call_number]@[remote_ip]:5090 SIP/2.0
      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
-     From: sipp <sip:sipp@[local_ip]:[local_port]>;tag=[call_number]
-     To: sut <sip:[service]@[remote_ip]:[remote_port]>[peer_tag_param]
+     From: alice[call_number] <sip:alice[call_number]@[local_ip]:[local_port]>;tag=[call_number]
+     To: bob[call_number] <sip:bob[call_number]@[remote_ip]:[remote_port]>[peer_tag_param]
      Call-ID: [call_id]
      CSeq: 2 BYE
-     Contact: <sip:[field1]@[local_ip]:[local_port];transport=[transport]>
      Max-Forwards: 70
-     Route: sip:[remote_ip]:[remote_port]
-     Subject: [field4]
+     [routes]
      Content-Length: 0
 
    ]]>
 	</send>
+ 
+	<recv response="200" crlf="true" />
+	
+	<pause milliseconds="30000"/>
 
-	<recv response="200">
-	</recv>
-
-	<ResponseTimeRepartition value="10, 20, 30, 40, 50, 100, 150, 200" />
-
-	<CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000" />
-
-</scenario> 
+</scenario>
