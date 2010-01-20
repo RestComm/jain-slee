@@ -41,9 +41,8 @@
         [last_To:];tag=[call_number]-orig
         [last_Call-ID:]
         [last_CSeq:]
-        Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
         Max-Forwards: 70
-        Contact: <sip:[local_ip]:5085;transport=[transport]>
+        Contact: <sip:[local_ip]:[local_port];transport=[transport]>
         Content-Length: 0
   
       ]]>
@@ -60,9 +59,8 @@
         [last_To:];tag=[call_number]-fork
         [last_Call-ID:]
         [last_CSeq:]
-        Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
         Max-Forwards: 70
-        Contact: <sip:[local_ip]:5095;transport=[transport]>
+        Contact: <sip:[local_ip]:[local_port];transport=[transport]>
         Content-Length: 0
   
       ]]>
@@ -81,8 +79,7 @@
        [last_To:];tag=[call_number]-orig
       [last_Call-ID:]
       [last_CSeq:]
-      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
-      Contact: <sip:[local_ip]:5085;transport=[transport]>
+      Contact: <sip:[local_ip]:[local_port];transport=[transport]>
       Content-Type: application/sdp
       Max-Forwards: 70
       Content-Length: [len]
@@ -112,8 +109,7 @@
       [last_To:];tag=[call_number]-fork
       [last_Call-ID:]
       CSeq: [$7]
-      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
-      Contact: <sip:[local_ip]:5095;transport=[transport]>
+      Contact: <sip:[local_ip]:[local_port];transport=[transport]>
       Content-Type: application/sdp
       Max-Forwards: 70
       Content-Length: [len]
@@ -147,10 +143,8 @@
       [last_To:]
       [last_Call-ID:]
       [last_CSeq:]
-      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
-      Contact: <sip:[local_ip]:5085;transport=[transport]>
       Max-Forwards: 70
-      Content-Length: [len]
+      Content-Length: 0
     ]]>
 	</send>
 
@@ -170,10 +164,8 @@
       [last_To:]
       [last_Call-ID:]
       [last_CSeq:]
-      Record-Route: <sip:[local_ip]:[local_port];maddr=[local_ip];transport=udp;cluster=mobi-cents;lr>
-      Contact: <sip:[local_ip]:5085;transport=[transport]>
       Max-Forwards: 70
-      Content-Length: [len]
+      Content-Length: 0
     ]]>
 	</send>
 

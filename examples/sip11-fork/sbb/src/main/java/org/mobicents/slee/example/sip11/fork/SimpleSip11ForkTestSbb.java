@@ -1,22 +1,26 @@
 package org.mobicents.slee.example.sip11.fork;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.sip.ListeningPoint;
+import javax.sip.ClientTransaction;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
-import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
-import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ToHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -54,7 +58,6 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 	
 	private static final long MSG_2_INVITE = 5000;
 	private static final long ACK_2_BYE = 20000;
-	private static final String TRANSPORT = "udp";
 	private static final TimerOptions TIMER_OPTIONS = new TimerOptions();	
 	
 	public void onMessageRequest(RequestEvent event, ActivityContextInterface aci) {
@@ -184,35 +187,58 @@ public abstract class SimpleSip11ForkTestSbb implements javax.slee.Sbb {
 		switch (getServiceState()) {
 		case INVITE_TIMER:
 			try {
-
-				Request storedRequest = getStoredRequest();
-				CallIdHeader callIdHeader = (CallIdHeader) storedRequest.getHeader(CallIdHeader.NAME);
-				FromHeader fromHeader = (FromHeader) storedRequest.getHeader(FromHeader.NAME);
-				ToHeader toHeader = (ToHeader) storedRequest.getHeader(ToHeader.NAME);
-				// cheating... may not work outside mobicents
-				DialogActivity dummyDialog = new DummyServerDialogActivity(callIdHeader,fromHeader.getAddress(),toHeader.getAddress()); 		
-				DialogActivity dialog = sipFactoryProvider.getNewDialog(dummyDialog,true);
 				
-				Request request = dialog.createRequest(Request.INVITE);
-				final String myUser = ((SipURI) toHeader.getAddress().getURI()).getUser();
-				final ListeningPoint listeningPoint = sipFactoryProvider.getListeningPoint(TRANSPORT);
-				SipURI contactURI = addressFactory.createSipURI(myUser,listeningPoint.getIPAddress());
-				contactURI.setPort(listeningPoint.getPort());
-				final Address contactAddress = addressFactory.createAddress(contactURI);
-				contactAddress.setDisplayName(((SipURI) fromHeader.getAddress().getURI()).getUser());
-				final ContactHeader contactHeader = headerFactory.createContactHeader(contactAddress);
+				// build INVITE using data from MESSAGE request
+				Request storedRequest = getStoredRequest();
+				String transport = ((ViaHeader)storedRequest.getHeader(ViaHeader.NAME)).getTransport();
+				
+				CallIdHeader storedCallIdHeader = (CallIdHeader) storedRequest.getHeader(CallIdHeader.NAME);
+				FromHeader storedFromHeader = (FromHeader) storedRequest.getHeader(FromHeader.NAME);
+				ToHeader storedToHeader = (ToHeader) storedRequest.getHeader(ToHeader.NAME);
+				
+				URI requestURI = (URI) storedFromHeader.getAddress().getURI().clone();
+				FromHeader fromHeader = headerFactory.createFromHeader(storedToHeader.getAddress(),null);
+				ToHeader toHeader = headerFactory.createToHeader(storedFromHeader.getAddress(), null);
+
+				final List<Object> viaHeadersList = new ArrayList<Object>(1);
+				ViaHeader viaHeader = sipFactoryProvider.getLocalVia(transport, null);
+				viaHeadersList.add(viaHeader);
+				
+				CSeqHeader cSeqHeader = headerFactory.createCSeqHeader(1L, Request.INVITE);
+				MaxForwardsHeader maxForwardsHeader = headerFactory
+				.createMaxForwardsHeader(70);
+				
+				Request request = sipFactoryProvider.getMessageFactory()
+				.createRequest(requestURI, Request.INVITE, storedCallIdHeader,
+						cSeqHeader, fromHeader, toHeader,
+						viaHeadersList, maxForwardsHeader);
+				
+				ContactHeader contactHeader = headerFactory.createContactHeader(addressFactory.createAddress(sipFactoryProvider.getLocalSipURI(transport)));
 				request.addHeader(contactHeader);
-				String sdpData = "v=0\r\n" + "o=4855 13760799956958020 13760799956958020" + " IN IP4  129.6.55.78\r\n" + "s=mysession session\r\n" + "p=+46 8 52018010\r\n"
-						+ "c=IN IP4  129.6.55.78\r\n" + "t=0 0\r\n" + "m=audio 6022 RTP/AVP 0 4 18\r\n" + "a=rtpmap:0 PCMU/8000\r\n" + "a=rtpmap:4 G723/8000\r\n"
-						+ "a=rtpmap:18 G729A/8000\r\n" + "a=ptime:20\r\n";
+				
+				String sdpData = "v=0\r\n" +
+				"o=4855 13760799956958020 13760799956958020 IN IP4  129.6.55.78\r\n" +
+				"s=mysession session\r\n" +
+				"p=+46 8 52018010\r\n"
+				+ "c=IN IP4  129.6.55.78\r\n" +
+				"t=0 0\r\n" +
+				"m=audio 6022 RTP/AVP 0 4 18\r\n" +
+				"a=rtpmap:0 PCMU/8000\r\n" +
+				"a=rtpmap:4 G723/8000\r\n"
+				+ "a=rtpmap:18 G729A/8000\r\n"
+				+ "a=ptime:20\r\n";
 				byte[] contents = sdpData.getBytes();
 				request.setContent(contents, headerFactory.createContentTypeHeader("application", "sdp"));
 				
+				ClientTransaction ct = sipFactoryProvider.getNewClientTransaction(request);
+				DialogActivity dialog = (DialogActivity) sipFactoryProvider.getNewDialog(ct);
+			
 				ActivityContextInterface initialDialogAci = this.sipActivityContextInterfaceFactory.getActivityContextInterface(dialog);
 				initialDialogAci.attach(sbbContext.getSbbLocalObject());
 				setOriginalDialog(initialDialogAci);
+
+				dialog.sendRequest(ct);
 				
-				dialog.sendRequest(request);
 			} catch (Exception e) {
 				logger.severe("Exception when sending invite.",e);
 			}
