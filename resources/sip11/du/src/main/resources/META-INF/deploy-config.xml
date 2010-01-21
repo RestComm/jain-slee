@@ -5,15 +5,12 @@
 		entity-name="SipRA">
 		<properties>
 			<property name="javax.sip.PORT" type="java.lang.Integer" value="5060" />
-			<!-- uncomment and set properties to bind to a load balancer 
-			<property name="org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName"
-				 type="java.lang.String"
-				 value="org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceImpl" />
-			<property name="org.mobicents.ha.javax.sip.BALANCERS" type="java.lang.String" value="127.0.0.1:5060" />
-			-->
-			<!-- when using a load balancer you may want to set a predefined outbond proxy in the stack,
-			so all messages go first to such host, such as the internal port of the mobicents sip balancer 
-			<property name="javax.sip.OUTBOUND_PROXY" type="java.lang.String" value="127.0.0.1:5065" />
+			<!-- the list of SIP balancers, in the form of "HOST:PORT",
+			separated by ";", it is only used if the heart beat service property is defined.
+			In case it is Mobicents SIP Load Balancer and it is configured with 2 ports,
+			use here the internal one
+			<property name="org.mobicents.ha.javax.sip.BALANCERS"
+				type="java.lang.String" value="127.0.0.1:5065" />
 			 -->
 		</properties>
 		<ra-link name="SipRA" />

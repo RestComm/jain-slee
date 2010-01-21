@@ -24,8 +24,8 @@
 	</modules>
 	
 	<properties>
-		<jsip.ha.version>0.4</jsip.ha.version>
-		<loadbalancer.version>1.0.BETA10</loadbalancer.version>
+		<jsip.ha.version>0.6-SNAPSHOT</jsip.ha.version>
+		<loadbalancer.version>1.0.BETA12-SNAPSHOT</loadbalancer.version>
 		<docs.profile>mobicents</docs.profile>
 		<docs.ra.name>SIP11</docs.ra.name>
 		<docs.ra.dirname>sip11</docs.ra.dirname>

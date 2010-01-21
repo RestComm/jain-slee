@@ -1,6 +1,8 @@
 package org.mobicents.slee.resource.sip11;
 
+import gov.nist.javax.sip.ListeningPointImpl;
 import gov.nist.javax.sip.Utils;
+import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.message.SIPRequest;
 
 import java.net.InetAddress;
@@ -42,6 +44,8 @@ import net.java.slee.resource.sip.CancelRequestEvent;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SleeSipProvider;
 
+import org.mobicents.ha.javax.sip.ClusteredSipStack;
+import org.mobicents.ha.javax.sip.LoadBalancerElector;
 import org.mobicents.slee.resource.sip11.wrappers.ClientDialogForkHandler;
 import org.mobicents.slee.resource.sip11.wrappers.ClientTransactionWrapper;
 import org.mobicents.slee.resource.sip11.wrappers.DialogWrapper;
@@ -59,12 +63,10 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	protected AddressFactory addressFactory = null;
 	protected HeaderFactory headerFactory = null;
 	protected MessageFactory messageFactory = null;
-	protected SipStack stack = null;
+	protected ClusteredSipStack stack = null;
 	protected SipResourceAdaptor ra = null;
 	protected SipProvider provider = null;
 	protected final Tracer tracer;
-
-	private final ConcurrentHashMap<String, MessageForwardingTransportData> messageForwardingTransportDatas;
 	
 	/**
 	 * 
@@ -77,7 +79,7 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	public SleeSipProviderImpl(AddressFactory addressFactory,
 			HeaderFactory headerFactory, MessageFactory messageFactory,
-			SipStack stack, SipResourceAdaptor ra, SipProvider provider) {
+			ClusteredSipStack stack, SipResourceAdaptor ra, SipProvider provider) {
 		super();
 		this.addressFactory = addressFactory;
 		this.headerFactory = headerFactory;
@@ -86,33 +88,6 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		this.ra = ra;
 		this.tracer = ra.getTracer(SleeSipProviderImpl.class.getSimpleName());
 		this.provider = provider;		
-		messageForwardingTransportDatas = new ConcurrentHashMap<String, MessageForwardingTransportData>();					
-	}
-
-	/**
-	 * 
-	 * @param transport
-	 * @return
-	 */
-	public MessageForwardingTransportData getMessageForwardingTransportData(String transport) {
-		MessageForwardingTransportData data = messageForwardingTransportDatas.get(transport);
-		if (data == null) {
-			ListeningPoint lp = getListeningPoint(transport);
-			if (lp != null) {
-				try {
-					data = new MessageForwardingTransportData(lp, addressFactory, headerFactory);					
-				}
-				catch (Exception e) {
-					tracer.severe("Failed to create message forwarding data for transport "+transport,e);
-					return null;
-				}				
-				final MessageForwardingTransportData anotherData = messageForwardingTransportDatas.putIfAbsent(transport, data);
-				if (anotherData != null) {
-					data = anotherData;
-				}
-			}	
-		}
-		return data;
 	}
 	
 	/**
@@ -141,6 +116,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		return this.headerFactory;
 	}
 	
+	private ConcurrentHashMap<String, SipUri> localSipURIs = new ConcurrentHashMap<String, SipUri>();
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -149,8 +126,22 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 * )
 	 */
 	public SipURI getLocalSipURI(String transport) {
-		final MessageForwardingTransportData messageForwardingTransportData = getMessageForwardingTransportData(transport);
-		return messageForwardingTransportData != null ? messageForwardingTransportData.getSipURI() : null;		
+		SipUri sipURI = localSipURIs.get(localSipURIs);
+		if (sipURI == null) {
+			ListeningPoint lp = getListeningPoint(transport);
+			if (lp != null) {
+				sipURI = new SipUri();
+				try {
+					sipURI.setHost(lp.getIPAddress());
+					sipURI.setTransportParam(transport);
+				} catch (ParseException e) {
+					tracer.severe("Failed to create local sip uri for transport "+transport,e);
+				}
+				sipURI.setPort(lp.getPort());
+				localSipURIs.put(transport, sipURI);
+			}
+		}
+		return sipURI;
 	}
 
 	/*
@@ -183,9 +174,8 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	 */
 	public ViaHeader getLocalVia() throws ParseException,
 			InvalidArgumentException {
-		final ListeningPoint lp = provider.getListeningPoints()[0];
-		return headerFactory.createViaHeader(lp.getIPAddress(), lp.getPort(),
-				lp.getTransport(), null);
+		final ListeningPointImpl lp = (ListeningPointImpl) provider.getListeningPoints()[0];
+		return lp != null ? lp.createViaHeader() : null;
 	}
 
 	/*
@@ -383,6 +373,13 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	public ClientTransaction getNewClientTransaction(Request request)
 			throws TransactionUnavailableException {
 
+		// add load balancer to route if it is configured
+		try {
+			addLoadBalancerToRoute(request);
+		} catch (SipException e) {
+			throw new TransactionUnavailableException("Failed to add load balancer to route",e);
+		}
+		
 		final ClientTransaction ct = provider.getNewClientTransaction(request);
 		final ClientTransactionWrapper ctw = new ClientTransactionWrapper(ct,
 				ra);
@@ -490,7 +487,9 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	}
 	
 	private Dialog getNewDialog(ClientTransactionWrapper ctw) throws SipException {
+		
 		final Request r = ctw.getWrappedTransaction().getRequest();
+		
 		final FromHeader fh = (FromHeader)r.getHeader(FromHeader.NAME);
 		String localTag = fh.getTag();
 		if(localTag == null) {
@@ -641,5 +640,29 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 		// TODO
 		throw new UnsupportedOperationException();
 	}
+	
+	/**
+	 * @return the stack
+	 */
+	public ClusteredSipStack getClusteredSipStack() {
+		return stack;
+	}
 
+	/**
+	 * 
+	 * @param r
+	 * @throws SipException
+	 */
+	public void addLoadBalancerToRoute(Request r) throws SipException {
+		LoadBalancerElector loadBalancerElector = stack.getLoadBalancerElector();
+		if (loadBalancerElector != null) {
+			Address lbAddress = loadBalancerElector.getLoadBalancer();
+			if (lbAddress == null) {
+				return;
+			}
+			lbAddress = (Address) loadBalancerElector.getLoadBalancer().clone();
+			((SipURI)lbAddress.getURI()).setLrParam();
+			r.addFirst(headerFactory.createRouteHeader(lbAddress));
+		}
+	}
 }

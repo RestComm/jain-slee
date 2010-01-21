@@ -16,6 +16,8 @@ public abstract class Wrapper implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	protected SipActivityHandle activityHandle;
+	protected transient SipResourceAdaptor ra;
+	
 	protected boolean ending;
 	
 	/**
@@ -30,7 +32,9 @@ public abstract class Wrapper implements Serializable {
 	 * Sets the resource adaptor object, which owns the wrapper.
 	 * @param ra
 	 */
-	public abstract void setResourceAdaptor(SipResourceAdaptor ra);
+	public void setResourceAdaptor(SipResourceAdaptor ra) {
+		this.ra = ra;
+	}
 	
 	/**
 	 * Indicates if the wrapper is an activity.
@@ -103,6 +107,7 @@ public abstract class Wrapper implements Serializable {
 	public void clear() {
 		activityHandle.setActivity(null);
 		activityHandle = null;
+		this.ra = null;
 	}
 	
 }

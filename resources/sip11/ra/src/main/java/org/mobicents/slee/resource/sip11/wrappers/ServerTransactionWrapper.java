@@ -79,6 +79,7 @@ public class ServerTransactionWrapper extends TransactionWrapper implements Serv
 	
 	@Override
 	public void setResourceAdaptor(SipResourceAdaptor ra) {
+		super.setResourceAdaptor(ra);
 		if (tracer == null) {
 			tracer = ra.getTracer(ClientTransactionWrapper.class.getSimpleName());
 		}

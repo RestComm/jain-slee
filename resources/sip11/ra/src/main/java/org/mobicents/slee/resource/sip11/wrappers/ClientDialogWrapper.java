@@ -1,9 +1,10 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
+import gov.nist.javax.sip.ListeningPointImpl;
 import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.header.CSeq;
 import gov.nist.javax.sip.header.RouteList;
-import gov.nist.javax.sip.message.SIPMessage;
+import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -25,6 +26,7 @@ import javax.sip.TransactionDoesNotExistException;
 import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
@@ -33,6 +35,7 @@ import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import javax.slee.facilities.Tracer;
@@ -42,9 +45,9 @@ import net.java.slee.resource.sip.DialogForkedEvent;
 
 import org.mobicents.slee.resource.sip11.ClusteredSipActivityManagement;
 import org.mobicents.slee.resource.sip11.DialogWithoutIdActivityHandle;
-import org.mobicents.slee.resource.sip11.MessageForwardingTransportData;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
+import org.mobicents.slee.resource.sip11.SleeSipProviderImpl;
 import org.mobicents.slee.resource.sip11.Utils;
 
 public class ClientDialogWrapper extends DialogWrapper {
@@ -57,7 +60,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 	private static Tracer tracer;
 
 	protected ClientDialogWrapperData data;
-	
+		
 	private ClientDialogWrapper(SipActivityHandle activityHandle,
 			String localTag, SipResourceAdaptor ra, ClientDialogForkHandler forkData) {
 		super(activityHandle, localTag, ra);
@@ -369,6 +372,18 @@ public class ClientDialogWrapper extends DialogWrapper {
 		super.associateServerTransaction(ct, st);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.resource.sip11.wrappers.DialogWrapper#createRequest(javax.sip.message.Request)
+	 */
+	@Override
+	public Request createRequest(Request origRequest) throws SipException {
+		Request request = super.createRequest(origRequest);
+		if (wrappedDialog != null && data.getForkHandler().isForking()) {
+			updateRequestWithForkData(request);
+		}
+		return request;
+	}
+	
 	@Override
 	public Request createRequest(String methodName) throws SipException {
 		
@@ -376,6 +391,7 @@ public class ClientDialogWrapper extends DialogWrapper {
             throw new SipException("Invalid method specified for createRequest:" + methodName);
         }
 		
+		final SleeSipProviderImpl provider = ra.getProviderWrapper();
 		final HeaderFactory headerFactory = provider.getHeaderFactory();
 		Request request = null;
 		if (this.wrappedDialog == null) {
@@ -396,8 +412,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 				final ToHeader toHeader = headerFactory.createToHeader(
 						data.getToAddress(), null);
 				final List<Object> viaHeadersList = new ArrayList<Object>(1);
-				final MessageForwardingTransportData messageForwardingTransportData = provider.getMessageForwardingTransportData(provider.getListeningPoint().getTransport());
-				viaHeadersList.add(messageForwardingTransportData.getViaHeader().clone());
+				viaHeadersList.add(provider.getLocalVia());
 				final MaxForwardsHeader maxForwardsHeader = headerFactory
 				.createMaxForwardsHeader(70);
 				final CSeqHeader cSeqHeader = headerFactory.createCSeqHeader(
@@ -406,63 +421,58 @@ public class ClientDialogWrapper extends DialogWrapper {
 				.createRequest(requestURI, methodName, data.getCustomCallId(),
 						cSeqHeader, fromHeader, toHeader,
 						viaHeadersList, maxForwardsHeader);
+				
 				final RouteList routeList = data.getLocalRouteList();
 				if (routeList != null) {
-					final RouteHeader topRoute = routeList.get(0);
-					if (topRoute.getAddress().getURI().equals(
-							messageForwardingTransportData.getSipURI())) {
-						routeList.remove(0);
-					}
 					request.setHeader(routeList);
 				}
+				
 			} catch (Exception e) {
 				throw new SipException(e.getMessage(), e);
 			}
 		} else if (data.getForkHandler().isForking()) {
-			try {
-				// create request using dialog
-				request = this.wrappedDialog.createRequest(methodName);
-				// We have wrappedDialog, but we can't rely on some of its info,
-				// only CallId, from address, to address, from header are
-				// static
-				final SipURI requestURI = (SipURI) data.getRequestURI().clone();
-				request.setRequestURI(requestURI);
-				final RouteList routeList = data.getLocalRouteList();
-				if (routeList != null) {
-					final RouteHeader topRoute = routeList.get(0);
-					final MessageForwardingTransportData messageForwardingTransportData = provider.getMessageForwardingTransportData(provider.getListeningPoint().getTransport());
-					if (topRoute.getAddress().getURI().equals(
-							messageForwardingTransportData.getSipURI())) {
-						routeList.remove(0);
-					}
-					request.setHeader(routeList);
-				}
-				final CSeqHeader cseq = (CSeqHeader) request
-						.getHeader(CSeq.NAME);
-				try {
-					if (!methodName.equals(Request.CANCEL)
-							&& !methodName.equals(Request.ACK)) {
-						cseq.setSeqNumber(data.getLocalSequenceNumber().get() + 1);
-					}
-					requestURI.setMethodParam(cseq.getMethod());
-					if (data.getLocalRemoteTag() != null) {
-						((ToHeader) request.getHeader(ToHeader.NAME))
-								.setTag(data.getLocalRemoteTag());
-					}
-				} catch (ParseException e) {
-					throw new SipException(e.getMessage(), e);
-				} catch (InvalidArgumentException e) {
-					throw new SipException(e.getMessage(), e);
-				}
-			} catch (Exception e) {
-				throw new SipException(e.getMessage(), e);
-			}
+			// create request using dialog
+			request = this.wrappedDialog.createRequest(methodName);
+			updateRequestWithForkData(request);
 		} else {
 			request = super.createRequest(methodName);
+		}
+		if (getState() == null) {
+			// adds load balancer to route if exists
+			ra.getProviderWrapper().addLoadBalancerToRoute(request);
 		}
 		return request;
 	}
 
+	private void updateRequestWithForkData(Request request) throws SipException {
+		final SipURI requestURI = (SipURI) data.getRequestURI().clone();
+		request.setRequestURI(requestURI);
+		
+		final RouteList routeList = data.getLocalRouteList();
+		if (routeList != null) {
+			request.setHeader(routeList);
+		}
+		
+		final CSeqHeader cseq = (CSeqHeader) request
+				.getHeader(CSeq.NAME);
+		try {
+			
+			if (!request.getMethod().equals(Request.CANCEL)
+					&& !request.getMethod().equals(Request.ACK)) {
+				cseq.setSeqNumber(data.getLocalSequenceNumber().get() + 1);
+			}
+			requestURI.setMethodParam(cseq.getMethod());
+			if (data.getLocalRemoteTag() != null) {
+				((ToHeader) request.getHeader(ToHeader.NAME))
+						.setTag(data.getLocalRemoteTag());
+			}
+		} catch (ParseException e) {
+			throw new SipException(e.getMessage(), e);
+		} catch (InvalidArgumentException e) {
+			throw new SipException(e.getMessage(), e);
+		}
+	}
+	
 	@Override
 	public ClientTransaction sendRequest(Request request) throws SipException,
 			TransactionUnavailableException {
@@ -478,7 +488,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 		ensureCorrectDialogLocalTag(request);
 
-		final ClientTransactionWrapper ctw = this.provider
+		final SleeSipProviderImpl provider = ra.getProviderWrapper();
+		final ClientTransactionWrapper ctw = provider
 				.getNewDialogActivityClientTransaction(this, request);
 
 		final String method = request.getMethod();
@@ -487,28 +498,29 @@ public class ClientDialogWrapper extends DialogWrapper {
 
 		final boolean createDialog = wrappedDialog == null;
 		if (createDialog) {
-			this.wrappedDialog = this.provider.getRealProvider().getNewDialog(
+			this.wrappedDialog = provider.getRealProvider().getNewDialog(
 					ctw.getWrappedTransaction());
 		} else {
 			// only when wrapped dialog exist we need to care about right remote
 			// tag
-			ensureCorrectDialogRemoteTag(request);
+			ensureCorrectDialogRemoteTag(request);			
 		}
 
+		if (tracer.isInfoEnabled()) {
+			tracer.info(String.valueOf(ctw) + " sending request:\n"
+					+ request);
+		}
+		
 		if (data.getForkHandler().isForking()) {
 			// cause dialog spoils - changes cseq, we dont want that
-			ctw.sendRequest();
+			ctw.getWrappedClientTransaction().sendRequest();
 			if (!method.equals(Request.ACK) && !method.equals(Request.CANCEL))
 				data.getLocalSequenceNumber().incrementAndGet();
 		} else {
 			if (createDialog) {
 				// dialog in null state does not allows to send request
-				ctw.sendRequest();
+				ctw.getWrappedClientTransaction().sendRequest();
 			} else {
-				if (tracer.isInfoEnabled()) {
-					tracer.info(String.valueOf(ctw) + " sending request:\n"
-							+ request);
-				}
 				this.wrappedDialog.sendRequest(ctw
 						.getWrappedClientTransaction());
 			}
@@ -542,6 +554,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 	public void sendRequest(ClientTransaction ct)
 			throws TransactionDoesNotExistException, SipException {
 
+		final SleeSipProviderImpl provider = ra.getProviderWrapper();
 		final Request request = ct.getRequest();
 		final ClientTransactionWrapper ctw = (ClientTransactionWrapper) ct;
 
@@ -558,34 +571,29 @@ public class ClientDialogWrapper extends DialogWrapper {
 			}
 			if (request.getMethod().equals(Request.INVITE))
 				lastCancelableTransactionId = ctw.getActivityHandle();
-			this.wrappedDialog = this.provider.getRealProvider().getNewDialog(
+			this.wrappedDialog = provider.getRealProvider().getNewDialog(
 					ctw.getWrappedTransaction());
 			this.wrappedDialog.setApplicationData(this);
 			this.addOngoingTransaction(ctw);
 
-			if (createDialog) {
-				// dialog in null state does not allows to send request
-				ctw.sendRequest();
-			} else {
-				if (tracer.isInfoEnabled()) {
-					tracer.info(String.valueOf(ctw) + " sending request:\n"
-							+ request);
-				}
-				this.wrappedDialog.sendRequest(ctw
-						.getWrappedClientTransaction());
+			if (tracer.isInfoEnabled()) {
+				tracer.info(String.valueOf(ctw) + " sending request:\n"
+						+ request);
 			}
+			// dialog in null state does not allows to send request
+			ctw.getWrappedClientTransaction().sendRequest();			
 		} else {
 			ensureCorrectDialogRemoteTag(request);
+			if (tracer.isInfoEnabled()) {
+				tracer.info(String.valueOf(ctw) + " sending request:\n"
+						+ request);
+			}
 			if (data.getForkHandler().isForking()) {
 				if (!request.getMethod().equals(Request.ACK)
 						&& !request.getMethod().equals(Request.CANCEL))
 					data.getLocalSequenceNumber().incrementAndGet();
-				ctw.sendRequest();
+				ctw.getWrappedClientTransaction().sendRequest();
 			} else {
-				if (tracer.isInfoEnabled()) {
-					tracer.info(String.valueOf(ctw) + " sending request:\n"
-							+ request);
-				}
 				wrappedDialog.sendRequest(ctw.getWrappedClientTransaction());
 			}
 		}
@@ -762,7 +770,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 		.getEventId(ra.getEventLookupFacility(),
 				respEvent.getResponse());
 		final ResponseEventWrapper eventObject = new ResponseEventWrapper(
-		this.provider, (ClientTransaction) respEvent
+		ra.getProviderWrapper(), (ClientTransaction) respEvent
 				.getClientTransaction()
 				.getApplicationData(), this, respEvent.getResponse());
 		fireEvent(fineTrace, eventObject, dw.activityHandle,dw.getEventFiringAddress(), eventType);
@@ -781,7 +789,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 				.getDialogForkEventId(ra
 						.getEventLookupFacility());
 		final DialogForkedEvent eventObject = new DialogForkedEvent(
-				this.provider, respEvent
+				ra.getProviderWrapper(), respEvent
 						.getClientTransaction(), this, fork,
 				respEvent.getResponse());
 		fireEvent(fineTrace, eventObject, this.activityHandle,this.getEventFiringAddress(), eventID);
@@ -842,7 +850,30 @@ public class ClientDialogWrapper extends DialogWrapper {
 				data.setRequestURI((SipURI) contact.getAddress().getURI());
 			}
 
-		data.setLocalRouteList(((SIPMessage)response).getRouteHeaders());
+		// save the route, but ensure we don't save the top route pointing to us
+		final SIPResponse sipResponse = (SIPResponse) response;
+		RouteList routeList = sipResponse.getRouteHeaders();
+		if (routeList != null) {
+			final RouteHeader topRoute = routeList.get(0);
+			final URI topRouteURI = topRoute.getAddress().getURI();
+			if (topRouteURI.isSipURI()) {
+				final SipURI topRouteSipURI = (SipURI) topRouteURI;
+				final String transport = ((ViaHeader)sipResponse.getHeader(ViaHeader.NAME)).getTransport();
+				final ListeningPointImpl lp = (ListeningPointImpl) ra.getProviderWrapper().getListeningPoint(transport);
+				if (topRouteSipURI.getHost().equals(
+						lp.getIPAddress())
+						&& topRouteSipURI.getPort() == lp.getPort()) {
+					if (routeList.size() > 1) {
+						routeList = (RouteList) routeList.clone();
+						routeList.remove(0);
+						data.setLocalRouteList(routeList);
+					}					
+				}
+				else {
+					data.setLocalRouteList((RouteList) routeList.clone());
+				}
+			}
+		}
 		
 		data.setCustomCallId((CallIdHeader) response.getHeader(CallIdHeader.NAME));
 

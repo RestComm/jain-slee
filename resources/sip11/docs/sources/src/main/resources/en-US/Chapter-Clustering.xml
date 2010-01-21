@@ -25,19 +25,19 @@
 				<varlistentry>
 					<term>org.mobicents.ha.javax.sip.BALANCERS</term>
 					<listitem>
-						<para>the property must be configured with the list of load balancer IP address and external ports. As an example, suppose a single &THIS.PLATFORM; SIP Load Balancer is running with IP <literal>192.168.0.1</literal> and external port <literal>5060</literal>, the property would be set with value <literal>192.168.0.1:5060</literal></para>
+						<para>the property must be configured with the list of load balancer IP address and internal ports. As an example, suppose a single &THIS.PLATFORM; SIP Load Balancer is running with IP <literal>192.168.0.1</literal> and internal port <literal>5065</literal>, the property would be set with value <literal>192.168.0.1:5065</literal>. To specify multiple balancers use <literal>;</literal> as separator.</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry> 
 					<term>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName</term>
 					<listitem>
-						<para>the property must be set with the class name of the HeartBeating service implementation, currently the only one available is <literal>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceImpl</literal></para>
+						<para>this property is optional, defines the class name of the HeartBeating service implementation, currently the only one available is <literal>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceImpl</literal></para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>javax.sip.OUTBOUND_PROXY</term>
+					<term>org.mobicents.ha.javax.sip.LoadBalancerElector</term>
 					<listitem>
-						<para>this property is optional, if set the stack will route all outgoing messages to the specified host and port. If there is affinity needed to be set by the load balancer, it can be useful to set this property to the load balancer's internal port, abstracting applications.</para>
+						<para>this property is optional, defines the class of the load balancer elector from JAIN SIP HA Stack. The elector is used to define which load balancer will receive outgoing requests, which are out of dialog or in dialog with null state. Currently only one elector implementation is available, <literal>org.mobicents.ha.javax.sip.RoundRobinLoadBalancerElector</literal>, which, as the class name says, uses round robin algorythm to select the balancer.</para>
 					</listitem>
 				</varlistentry>
 			</variablelist>

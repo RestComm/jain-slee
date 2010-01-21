@@ -51,7 +51,7 @@
         	<description>the name of the class responsible for the heart beats exchanged with the platform's SIP Balancer - if not specified the JAIN SIP HA stack won't use such feature</description>
             <config-property-name>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
-            <config-property-value></config-property-value>
+            <config-property-value>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceImpl</config-property-value>
         </config-property>
         
         <config-property>
@@ -62,10 +62,10 @@
         </config-property>
         
         <config-property>
-        	<description>sets the outbound proxy of the SIP Stack.  The  format for this string is "ipaddress:port/transport" i.e. 129.1.22.333:5060/UDP. This property is optional</description>
-            <config-property-name>javax.sip.OUTBOUND_PROXY</config-property-name>
+        	<description>Sets the implementation of the load balancer elector, the module which elects a load balancer to be added in outgoing requests route. This property is required if BALANCERS is set.</description>
+            <config-property-name>org.mobicents.ha.javax.sip.LoadBalancerElector</config-property-name>
             <config-property-type>java.lang.String</config-property-type>
-            <config-property-value></config-property-value>
+            <config-property-value>org.mobicents.ha.javax.sip.RoundRobinLoadBalancerElector</config-property-value>
         </config-property>
         
     </resource-adaptor>

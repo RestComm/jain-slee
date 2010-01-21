@@ -62,6 +62,7 @@ import javax.slee.resource.SleeEndpoint;
 import net.java.slee.resource.sip.CancelRequestEvent;
 
 import org.mobicents.ha.javax.sip.ClusteredSipStack;
+import org.mobicents.ha.javax.sip.LoadBalancerElector;
 import org.mobicents.ha.javax.sip.cache.SipResourceAdaptorMobicentsSipCache;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor;
 import org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext;
@@ -92,8 +93,6 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	
 	private static final String BALANCERS = "org.mobicents.ha.javax.sip.BALANCERS";
 	
-	private static final String OUTBOUND_PROXY = "javax.sip.OUTBOUND_PROXY";
-	
 	// Config Properties Values -------------------------------------------
 	
 	private int port;
@@ -102,7 +101,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	private String stackAddress;
 	private String sipBalancerHeartBeatServiceClassName;
 	private String balancers;
-	private String outbondProxy;
+	private String loadBalancerElector;
 	
 	/**
 	 * allowed transports
@@ -938,8 +937,8 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			if (balancers != null) {
 				properties.setProperty(BALANCERS, balancers);
 			}
-			if (outbondProxy != null) {
-				properties.setProperty(OUTBOUND_PROXY, outbondProxy);
+			if (loadBalancerElector != null) {
+				properties.setProperty(LoadBalancerElector.IMPLEMENTATION_CLASS_NAME_PROPERTY, loadBalancerElector);
 			}
 			// define impl of the cache  of the HA stack
 			properties.setProperty(ClusteredSipStack.CACHE_CLASS_NAME_PROPERTY,SipResourceAdaptorMobicentsSipCache.class.getName());
@@ -1153,20 +1152,20 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			this.stackAddress = System.getProperty("jboss.bind.address");				
 		}
 
-		this.sipBalancerHeartBeatServiceClassName = (String) properties.getProperty(LOAD_BALANCER_HEART_BEAT_SERVICE_CLASS).getValue();
-		if (this.sipBalancerHeartBeatServiceClassName.equals("")) {
-			this.sipBalancerHeartBeatServiceClassName = null;				
+		this.balancers = (String) properties.getProperty(BALANCERS).getValue();
+		if (this.balancers.equals("")) {
+			this.balancers = null;
 		}
 		else {
-			this.balancers = (String) properties.getProperty(BALANCERS).getValue();
-			if (this.balancers.equals("")) {
-				throw new IllegalArgumentException("invalid "+BALANCERS+" property value");
+			this.sipBalancerHeartBeatServiceClassName = (String) properties.getProperty(LOAD_BALANCER_HEART_BEAT_SERVICE_CLASS).getValue();
+			if (this.sipBalancerHeartBeatServiceClassName.equals("")) {
+				throw new IllegalArgumentException("invalid "+LOAD_BALANCER_HEART_BEAT_SERVICE_CLASS+" property value");				
 			}
 		}
-		
-		this.outbondProxy = (String) properties.getProperty(OUTBOUND_PROXY).getValue();
-		if (this.outbondProxy.equals("")) {
-			this.outbondProxy = null;				
+				
+		this.loadBalancerElector = (String) properties.getProperty(LoadBalancerElector.IMPLEMENTATION_CLASS_NAME_PROPERTY).getValue();
+		if (this.loadBalancerElector.equals("")) {
+			this.loadBalancerElector = null;				
 		}
 		
 		this.transportsProperty = (String) properties.getProperty(TRANSPORTS_BIND).getValue();
@@ -1187,7 +1186,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		this.stackAddress = null;
 		this.transports.clear();
 		this.balancers = null;
-		this.outbondProxy = null;
+		this.loadBalancerElector = null;
 		this.sipBalancerHeartBeatServiceClassName= null;
 	}
 	
@@ -1232,6 +1231,12 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			if (!sipBalancerHeartBeatServiceClassName.equals("")) {
 				// check class is available
 				Class.forName(sipBalancerHeartBeatServiceClassName);				
+			}
+			// get balancer elector class name
+			String sipBalancerElectorClassName = (String) properties.getProperty(LoadBalancerElector.IMPLEMENTATION_CLASS_NAME_PROPERTY).getValue();
+			if (!sipBalancerElectorClassName.equals("")) {
+				// check class is available
+				Class.forName(sipBalancerElectorClassName);				
 			}
 		}
 		catch (Throwable e) {
