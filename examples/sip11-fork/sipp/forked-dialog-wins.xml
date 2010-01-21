@@ -41,6 +41,8 @@
         [last_To:];tag=[call_number]-orig
         [last_Call-ID:]
         [last_CSeq:]
+        [last_Record-Route:]
+        [routes]
         Max-Forwards: 70
         Contact: <sip:[local_ip]:[local_port];transport=[transport]>
         Content-Length: 0
@@ -59,6 +61,8 @@
         [last_To:];tag=[call_number]-fork
         [last_Call-ID:]
         [last_CSeq:]
+        [last_Record-Route:]
+        [routes]
         Max-Forwards: 70
         Contact: <sip:[local_ip]:[local_port];transport=[transport]>
         Content-Length: 0
@@ -70,15 +74,17 @@
 	
 	<!-- the winner is ... -->
 	
-	<send rtd="false" crlf="true">
+	<send rtd="false">
     <![CDATA[
 
        SIP/2.0 200 OK
       [last_Via:]
       [last_From:]
-       [last_To:];tag=[call_number]-fork
+      [last_To:];tag=[call_number]-fork
       [last_Call-ID:]
       [last_CSeq:]
+      [last_Record-Route:]
+      [routes]
       Contact: <sip:[local_ip]:[local_port];transport=[transport]>
       Content-Type: application/sdp
       Max-Forwards: 70
@@ -100,7 +106,7 @@
 	<!-- WAIT 10s, since OK transaction lingers and swallows other legs -->
 	<pause milliseconds="10000" />
 
-	<send retrans="100000" crlf="true">
+	<send retrans="100000">
     <![CDATA[
 
       SIP/2.0 200 OK
@@ -109,6 +115,8 @@
       [last_To:];tag=[call_number]-orig
       [last_Call-ID:]
       CSeq: [$7]
+      [last_Record-Route:]
+      [routes]
       Contact: <sip:[local_ip]:[local_port];transport=[transport]>
       Content-Type: application/sdp
       Max-Forwards: 70
@@ -143,6 +151,8 @@
       [last_To:]
       [last_Call-ID:]
       [last_CSeq:]
+      [last_Record-Route:]
+      [routes]
       Max-Forwards: 70
       Content-Length: 0
     ]]>
@@ -164,6 +174,8 @@
       [last_To:]
       [last_Call-ID:]
       [last_CSeq:]
+      [last_Record-Route:]
+      [routes]
       Max-Forwards: 70
       Content-Length: 0
     ]]>
