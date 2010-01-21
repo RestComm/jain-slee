@@ -91,6 +91,7 @@
       [last_CSeq:]
       [last_Contact:]
       [last_Record-Route:]
+      [routes]
       Max-Forwards: 70
       Content-Length: 0
  ]]>
