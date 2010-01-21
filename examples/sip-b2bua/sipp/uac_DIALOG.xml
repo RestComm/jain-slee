@@ -33,7 +33,7 @@
 
 	<recv response="180" optional="true" />
 
-	<recv response="200" rtd="true" rrs="true" />
+	<recv response="200" rrs="true" />
 	
 	<send>
    <![CDATA[
@@ -59,7 +59,7 @@
      BYE sip:bob[call_number]@[remote_ip]:5090 SIP/2.0
      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
      From: alice[call_number] <sip:alice[call_number]@[local_ip]:[local_port]>;tag=[call_number]
-     To: bob[call_number] <sip:bob[call_number]@[remote_ip]:[remote_port]>[peer_tag_param]
+     To: bob[call_number] <sip:bob[call_number]@[remote_ip]:5090>[peer_tag_param]
      Call-ID: [call_id]
      CSeq: 2 BYE
      Max-Forwards: 70

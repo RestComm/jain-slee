@@ -19,6 +19,7 @@
      [last_Call-ID:]
      [last_CSeq:]
      [last_Record-Route:]
+     [routes]
      Contact: <sip:[local_ip]:[local_port];transport=[transport]>
      Content-Length: 0
 
@@ -37,6 +38,7 @@
      [last_Call-ID:]
      [last_CSeq:]
      [last_Record-Route:]
+     [routes]
      Content-Length: 0
 
    ]]>
@@ -52,6 +54,7 @@
      [last_Call-ID:]
      CSeq :[$1]
      [last_Record-Route:]
+     [routes]
      Contact: <sip:[local_ip]:[local_port];transport=[transport]>
      Content-Length: 0
 
