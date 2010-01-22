@@ -25,9 +25,9 @@
          <property name="stateRetrievalTimeout">60000</property>
          <!-- Number of milliseconds to wait until all responses for a
                synchronous call have been received. -->
-         <property name="syncReplTimeout">17500</property>
+         <property name="syncReplTimeout">30000</property>
          <!-- Max number of milliseconds to wait for a lock acquisition -->
-         <property name="lockAcquisitionTimeout">15000</property>
+         <property name="lockAcquisitionTimeout">30000</property>
 
          <property name="useRegionBasedMarshalling">true</property>
          <property name="inactiveOnStartup">true</property>
