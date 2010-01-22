@@ -13,8 +13,8 @@
     <property name="jboss.home" value="${release.dir}/${jboss.home.relative.path}/"/>
 	<property name="jboss.config" value="default" />
 	<property name="docs.profile" value="mobicents" />
-	
-	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/2.0.0.BETA2/mms-standalone-2.0.0.BETA2-0908151145.zip"/>
+	<property name="mms.version" value="2.0.0.BETA3" />
+	<property name="mms.download.url" value ="http://sourceforge.net/projects/mobicents/files/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
 	
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
@@ -200,14 +200,9 @@
 	<target name="zip-jboss" description="">
 		<fixcrlf srcdir="${jboss.home}/bin" includes="*.sh" eol="lf" eof="remove" />
 		<zip destfile="${ant.file.mobicents.release}/../${zip.filename}" filesonly="false">
-			<zipfileset dir="${jboss.home}/bin" filemode="755" prefix="jboss-${jboss.version}/bin">
-				<include name="*.sh" />
-			</zipfileset>
-			<zipfileset dir="${jboss.home}/bin" prefix="jboss-${jboss.version}/bin">
-				<exclude name="*.sh" />
-			</zipfileset>
+			<zipfileset dir="${release.dir}" filemode="755" includes="**/*.sh" />
 			<zipfileset dir="${release.dir}" prefix=""
-                excludes="**/bin/** **/server/*/data/** **/server/*/log/** **/server/*/tmp/** **/server/*/work/** **/server/tmp/**"/>
+                excludes="**/*.sh **/server/*/data/** **/server/*/log/** **/server/*/tmp/** **/server/*/work/** **/server/tmp/**"/>
 		</zip>
 		<antcall target="checksum">
 			<param name="source.file" value="${ant.file.mobicents.release}/../${zip.filename}" />
