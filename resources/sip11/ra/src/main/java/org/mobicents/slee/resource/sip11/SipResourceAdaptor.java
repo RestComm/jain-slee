@@ -494,19 +494,11 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				
 			}
 			else {
-				// in local mode this should be a retransmission and should be ignored, in cluster it can be a retransmission after a cluster node failover 
-				if (!inLocalMode()) {
-					if (fineTrace) {
-						tracer.fine("Received "+response.getStatusCode()+" in-dialog response without a client transaction, not in local mode, firing event in that dialog.");
-					}
-					handle = dw.getActivityHandle();
+				// in dialog retransmissions should be filtered 
+				if (fineTrace) {
+					tracer.fine("Received "+response.getStatusCode()+" in-dialog response without a client transaction, dropping, should be a retransmission.");
 				}
-				else {
-					if (fineTrace) {
-						tracer.fine("Received "+response.getStatusCode()+" in-dialog response without a client transaction, in local mode, dropping, should be a retransmission.");
-					}
-					return;
-				}
+				return;				
 			}
 		}
 		else {
@@ -950,7 +942,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				activityManagement = new LocalSipActivityManagement();
 			}
 			else {
-				activityManagement = new ClusteredSipActivityManagement(sipStack,ftRaContext.getReplicateData()); 
+				activityManagement = new ClusteredSipActivityManagement(sipStack,ftRaContext.getReplicateData(),raContext.getSleeTransactionManager()); 
 			}
 			
 			if (tracer.isFineEnabled()) {

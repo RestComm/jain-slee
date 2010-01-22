@@ -1,6 +1,9 @@
 package org.mobicents.slee.resource.sip11;
 
 import javax.sip.Dialog;
+import javax.slee.transaction.SleeTransactionManager;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.mobicents.ha.javax.sip.ClusteredSipStack;
 import org.mobicents.slee.resource.cluster.ReplicatedData;
@@ -32,13 +35,19 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 	private final ReplicatedData<SipActivityHandle, String> replicatedData;
 	
 	/**
+	 * SLEE's tx manager
+	 */
+	private final SleeTransactionManager sleeTransactionManager;
+	
+	/**
 	 * 
 	 * @param sipStack
 	 */
-	public ClusteredSipActivityManagement(ClusteredSipStack sipStack,ReplicatedData<SipActivityHandle, String> replicatedData) {
+	public ClusteredSipActivityManagement(ClusteredSipStack sipStack,ReplicatedData<SipActivityHandle, String> replicatedData, SleeTransactionManager sleeTransactionManager) {
 		this.sipStack = sipStack;
 		this.nonReplicatedActivityManagement = new LocalSipActivityManagement();
 		this.replicatedData = replicatedData;
+		this.sleeTransactionManager = sleeTransactionManager;
 	}
 
 	/*
@@ -123,7 +132,20 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 			final DialogWithoutIdActivityHandle dialogWithoutIdActivityHandle = (DialogWithoutIdActivityHandle) handle;
 			if (dialogWithoutIdActivityHandle.getRemoteTag() == null) {
 				// remove remote tag from Ra's replicated data
+				Transaction tx = null;
+				try {
+					tx = sleeTransactionManager.suspend();
+				} catch (SystemException e) {
+					// ignore
+				}
 				replicatedData.remove(handle);
+				if (tx != null) {
+					try {
+						sleeTransactionManager.resume(tx);
+					} catch (Throwable e) {
+						// ignore
+					}
+				}
 			}
 			return activity;
 		}
