@@ -371,7 +371,8 @@
 		</env-entry>
 		<env-entry>
 			<description>
-				This is the path where the recorded files will reside
+				This is the path where the recorded files will reside.
+				it should point to something like ../media-server/media/call-controll2/ (relativly to jboss container)
 				and is relative to ${jboss.server.data.dir} 
 			</description>
 			<env-entry-name>filesRoute</env-entry-name>

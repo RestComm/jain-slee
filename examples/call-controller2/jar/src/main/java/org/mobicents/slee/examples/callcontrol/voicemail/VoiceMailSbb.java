@@ -544,12 +544,12 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 			String recordFilePath = null;
 
-			if (route != null) {
-				recordFilePath = route + fileName;
-			} else {
-				recordFilePath = fileName;
-			}
-			
+//			if (route != null) {
+//				recordFilePath = route + fileName;
+//			} else {
+//				recordFilePath = fileName;
+//			}
+			recordFilePath = _DEFAULT_FILE_PREFIX_+File.separator+fileName;
 			record = true;
 			detectDtmf = false;
 			sendRQNT(recordFilePath, record, detectDtmf);
@@ -649,13 +649,20 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		String fileName = ((SipURI) fromHeader.getAddress().getURI()).getUser()
 				+ WAV_EXT;
 
-		String recordFilePath = System.getProperty("jboss.server.data.dir")
-				+ "/";
-
+		//String recordFilePath = System.getProperty("jboss.server.data.dir")
+		//		+ "/";
+		String recordFilePath = null;
 		if (route != null) {
-			recordFilePath = recordFilePath + route + fileName;
+			recordFilePath = route +File.separator+ fileName;
+			try{
+				recordFilePath  = new File(recordFilePath).getCanonicalPath().toString();
+			}catch(Exception e)
+			{
+				throw new RuntimeException(e);
+			}
 		} else {
-			recordFilePath = recordFilePath + fileName;
+			//recordFilePath = recordFilePath + fileName;
+			throw new RuntimeException("Absolute file path is not supported");
 		}
 		//recordFilePath = new File(recordFilePath).toURI().toString();
 		log.info("The File to be played = " + recordFilePath);
@@ -671,26 +678,28 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		// Press 1 if you want to listen the next message
 		if (dtmf.equals("1")) {
 			String filePath = getAudioFileString();
-			String audioFileString = "file:/" + filePath;
-
+			File f = new File(filePath);
+			boolean exists = f.exists();
+			//String audioFileString = "file:/" + filePath;
+			filePath="file:/"+filePath;
 			try {
 				// Just to check if file exist
-				File file = new File(filePath);
-				if (file.exists()) {
-					audioFileURL = new URL(audioFileString);
+				//File file = new File(filePath);
+				if (exists) {
+					audioFileURL = new URL(filePath);
 				} else {
 					audioFileURL = getClass().getResource(novoicemessage);
 				}
 			} catch (NullPointerException npe) {
 				log.error(
 						"Ignore. NullPointerException. The file does not exist "
-								+ audioFileString, npe);
+								+ filePath, npe);
 				audioFileURL = getClass().getResource(dtmf1);
 
 			} catch (MalformedURLException e1) {
 				log.error(
 						"Ignore. MalformedURLException while trying to create the audio file URL "
-								+ audioFileString, e1);
+								+ filePath, e1);
 				audioFileURL = getClass().getResource(dtmf1);
 			}
 		}
@@ -798,6 +807,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 			route = (String) myEnv.lookup("filesRoute");
 			//new File(route).getAbsoluteFile().mkdir();
+			log.info("=== Files Route: "+route+" ===");
 			mmsBindAddress = (String) myEnv.lookup("server.address");
 		} catch (NamingException e) {
 			log.error(e.getMessage(), e);
@@ -846,8 +856,9 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	public final static String IVR_ENDPOINT_NAME = "/mobicents/media/IVR/$";
 	// Pre is required since it has capability to transcode
 	public final static String PRE_ENDPOINT_NAME = "/mobicents/media/packetrelay/$";
+	public final static String _DEFAULT_FILE_PREFIX_ = "call-controll2";
 	private String route = null;
-
+	
 	protected String mmsBindAddress;
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty(
 			"jboss.bind.address", "127.0.0.1");
@@ -964,6 +975,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			if (fileExist) {
 				audioFileURL = getClass().getResource(waitingDTMF);
 			} else {
+				log.info("Mail media file does not exist: "+file);
 				audioFileURL = getClass().getResource(novoicemessage);
 			}
 
