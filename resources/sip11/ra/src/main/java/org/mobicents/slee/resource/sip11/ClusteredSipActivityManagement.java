@@ -68,18 +68,19 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 					// RA's replicated data
 					final String remoteTag = replicatedData.get(handle);
 					if (remoteTag != null) {
-						final String dialogId = new StringBuilder(
-								dialogWithoutIdActivityHandle.getCallId())
-								.append(':').append(remoteTag).append(':')
-								.append(
-										dialogWithoutIdActivityHandle
-												.getLocalTag()).toString()
+						final String dialogId = 
+							new StringBuilder(dialogWithoutIdActivityHandle.getCallId())
+								.append(':').append(dialogWithoutIdActivityHandle.getLocalTag())
+								.append(':').append(remoteTag)
+								.toString()
 								.toLowerCase();
 						Dialog d = sipStack.getDialog(dialogId);
 						if (d != null) {
-							// cool, found it in jsip ha stack, lets store in
+							// cool, found it in jsip ha stack, lets relink wrapper and store it in
 							// non replicated data
-							activity = (Wrapper) d.getApplicationData();
+							final DialogWrapper dw = (DialogWrapper) d.getApplicationData();
+							dw.setWrappedDialog(d);
+							activity = dw;
 							nonReplicatedActivityManagement.put(handle,
 									activity);
 						}
@@ -158,8 +159,8 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 		}
 	}
 	
-	public void replicateRemoteTag(DialogWithoutIdActivityHandle handle) {
-		replicatedData.put(handle, handle.getRemoteTag());
+	public void replicateRemoteTag(DialogWithoutIdActivityHandle handle, String tag) {
+		replicatedData.put(handle,tag);
 	}
 	
 	/* (non-Javadoc)

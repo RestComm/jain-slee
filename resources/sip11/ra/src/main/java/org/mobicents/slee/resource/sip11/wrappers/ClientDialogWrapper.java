@@ -690,7 +690,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 					}
 					data.setLocalRemoteTag(toTag);
 					if (!ra.inLocalMode()) {
-						((ClusteredSipActivityManagement)ra.getActivityManagement()).replicateRemoteTag((DialogWithoutIdActivityHandle) getActivityHandle());
+						((ClusteredSipActivityManagement)ra.getActivityManagement()).replicateRemoteTag((DialogWithoutIdActivityHandle) getActivityHandle(),toTag);
 					}
 					this.fetchData(response);
 					forkHandler.terminate(ra);
@@ -701,7 +701,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 						tracer.fine("Client dialog "+getActivityHandle()+" confirmed with remote tag "+toTag);
 					}
 					if (!ra.inLocalMode()) {
-						((ClusteredSipActivityManagement)ra.getActivityManagement()).replicateRemoteTag((DialogWithoutIdActivityHandle) getActivityHandle());
+						((ClusteredSipActivityManagement)ra.getActivityManagement()).replicateRemoteTag((DialogWithoutIdActivityHandle) getActivityHandle(),toTag);
 					}
 					this.fetchData(response);
 					forkHandler.terminate(ra);
@@ -741,6 +741,8 @@ public class ClientDialogWrapper extends DialogWrapper {
 						eventFired = true;						
 					}
 				}
+				// if in cluster mode we now need to redo replication since the wrapper state chnaged
+				wrappedDialog.setApplicationData(this);
 			}
 			
 		}
