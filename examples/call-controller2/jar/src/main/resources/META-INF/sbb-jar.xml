@@ -372,12 +372,12 @@
 		<env-entry>
 			<description>
 				This is the path where the recorded files will reside.
-				it should point to something like ../media-server/media/call-controll2/ (relativly to jboss container)
-				and is relative to ${jboss.server.data.dir} 
+				it is part of record/announce path. Full path is comined as follows:
+				${MOBICENTS_SLEE_EXAMPLE_CC2_RECORDINGS_HOME}/${filesRoute}.
 			</description>
 			<env-entry-name>filesRoute</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
-			<env-entry-value>${files.route}/</env-entry-value>
+			<env-entry-value>${files.route}</env-entry-value>
 		</env-entry>
 		<env-entry>
 			<env-entry-name>server.address</env-entry-name>

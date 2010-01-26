@@ -544,12 +544,12 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 			String recordFilePath = null;
 
-//			if (route != null) {
-//				recordFilePath = route + fileName;
-//			} else {
-//				recordFilePath = fileName;
-//			}
-			recordFilePath = _DEFAULT_FILE_PREFIX_+File.separator+fileName;
+			if (route != null) {
+				recordFilePath = route+File.separator+fileName;
+			} else {
+				recordFilePath = _DEFAULT_FILE_ROUTE_+File.separator+fileName;
+			}
+			
 			record = true;
 			detectDtmf = false;
 			sendRQNT(recordFilePath, record, detectDtmf);
@@ -649,20 +649,15 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		String fileName = ((SipURI) fromHeader.getAddress().getURI()).getUser()
 				+ WAV_EXT;
 
-		//String recordFilePath = System.getProperty("jboss.server.data.dir")
-		//		+ "/";
-		String recordFilePath = null;
+		String recordFilePath = System.getenv(_DEFAULT_RECORDINGS_HOME_)
+				+ File.separator;
+		
 		if (route != null) {
-			recordFilePath = route +File.separator+ fileName;
-			try{
-				recordFilePath  = new File(recordFilePath).getCanonicalPath().toString();
-			}catch(Exception e)
-			{
-				throw new RuntimeException(e);
-			}
+			recordFilePath = recordFilePath+route +File.separator+ fileName;
+			
 		} else {
 			//recordFilePath = recordFilePath + fileName;
-			throw new RuntimeException("Absolute file path is not supported");
+			recordFilePath = recordFilePath+_DEFAULT_FILE_ROUTE_ +File.separator+ fileName;
 		}
 		//recordFilePath = new File(recordFilePath).toURI().toString();
 		log.info("The File to be played = " + recordFilePath);
@@ -856,7 +851,9 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	public final static String IVR_ENDPOINT_NAME = "/mobicents/media/IVR/$";
 	// Pre is required since it has capability to transcode
 	public final static String PRE_ENDPOINT_NAME = "/mobicents/media/packetrelay/$";
-	public final static String _DEFAULT_FILE_PREFIX_ = "call-controll2";
+	public final static String _DEFAULT_FILE_ROUTE_ = "call-controll2";
+	public final static String _DEFAULT_RECORDINGS_HOME_="MOBICENTS_SLEE_EXAMPLE_CC2_RECORDINGS_HOME";
+	
 	private String route = null;
 	
 	protected String mmsBindAddress;
