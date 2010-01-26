@@ -71,9 +71,11 @@
 		<title>Install &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; JAIN SLEE Plugin</title>
 		<section id="install_mgmt_server_and_agent">
 			<title>Installing &MANAGEMENT.PLATFORM; Server and Agent</title>
+			<para>&MANAGEMENT.PLATFORM; is based on and plugin-compatible with the multi-vendor RHQ management project. For the &THIS.PLATFORM; Plugin to work correctly, version 1.4.x  of RHQ is required.</para>
+			<para>Since there's no released version of &MANAGEMENT.PLATFORM; based on RHQ 1.4.x yet, RHQ itself will be used instead.</para>
 			<orderedlist>
 				<listitem>
-					<para>Download RHQ Server from <ulink url="http://sourceforge.net/projects/rhq/">SourceForge</ulink></para>
+					<para>Download RHQ Server from <ulink url="http://sourceforge.net/projects/rhq/">SourceForge</ulink>. This is the platform server, which will be responsible for storing, processing and presenting the data received by the agent(s).</para>
 				</listitem>
 				<listitem>
 					<para>Unzip the distribution in a suitable place (i.e. in a directory not too deeply nested and with no spaces or non-ASCII characters in its name)</para>
@@ -114,7 +116,9 @@
 					</orderedlist>
 				</listitem>
 				<listitem>
-					<para>Log in (default user/password are: rhqadmin/rhqadmin), it is time to downloand and install the Agent:</para>
+					<para>Log in (default user/password are: rhqadmin/rhqadmin), it is time to download and install the Agent.</para>
+					<para>The Agent is the component where our plugin will be running at. It is responsible for communicating with the managed resource (in this situation, the <acronym>JAIN SLEE</acronym> Server) to obtain vital data (eg: availability), metrics, operations execution, etc. and report back to the Server, who will process and display that data.</para>
+					<para>To download it, follow these steps:</para>
 					<orderedlist>
 						<listitem>
 							<para>Click on <menuchoice><guimenu>Administration</guimenu><guisubmenu>Download</guisubmenu></menuchoice>.</para>
@@ -131,11 +135,12 @@
 							</figure>
 						</listitem>
 						<listitem>
-							<para>Click on <guilabel>Download Agent Installer</guilabel> and save it to where the agent should be installed.</para>
+							<para>Click on <guilabel>Download Agent Installer</guilabel> and save it to where you wish to have it installed.</para>
 						</listitem>
 						<listitem>
 							<para>In a second terminal console, cd into the directory containing the downloaded jar and install it:</para>
 							<screen>java -jar &lt;agent-download.jar&gt; --install[=&lt;new agent dir&gt;]</screen>
+							<para>The optional parameter, <parameter>new agent dir</parameter> indicates where the files will be installed, and defaults to the path where the jar is at.</para>
 						</listitem>
 						<listitem>
 							<para>cd into the newly created <emphasis>rhq-agent</emphasis> directory and start the Agent by issuing:</para>
@@ -143,6 +148,9 @@
 						</listitem>
 						<listitem>
 							<para>Answer the questions asked by the Agent, if any. Default setting should be sufficient.</para>
+						</listitem>
+						<listitem>
+							<para>There should be a console with a '&gt; ' prompt. Don't close it, leave it running, it's the agent who will perform all the work.</para>
 						</listitem>
 					</orderedlist>
 				</listitem>
@@ -152,7 +160,8 @@
 		</section>
 		<section id="install_jslee_plugin">
 			<title>Installing the &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin</title>
-			<para> &THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin, may be installed in two ways:</para>
+			<para>&THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin is the interface between &MANAGEMENT.PLATFORM; and &THIS.PLATFORM; <acronym>JAIN SLEE</acronym>. It is responsible for gathering data from <acronym>SLEE</acronym> and transform it to &MANAGEMENT.PLATFORM; format. It is an agent plugin, since it runs on the agent side.</para>
+			<para>&THIS.PLATFORM; <acronym>JAIN SLEE</acronym> Plugin, may be installed in two ways:</para>
 			
 			<variablelist>
 				<varlistentry>
@@ -230,6 +239,16 @@
 
 			<note>Please make sure that the <acronym>JAIN SLEE</acronym> Server is running at this time, otherwise it won't be shown under Auto Discovery.</note>
 
+			<warning>
+				<title>JAIN SLEE Server not showing in Auto Discovery?</title>
+				<para>If the <acronym>JAIN SLEE</acronym> Server is running but not shown in the list, issue the following commands in th Jopr Agent console:</para>
+				<screen>&gt; plugins update
+...
+
+&gt; discovery</screen>
+				<para>Back in the &MANANGEMENT.PLATFORM; web console, refresh the Auto Discovery view and it should be present!</para>
+			</warning>
+			
 			<para>Check the option referring to JAIN SLEE Server (as in the figure below), and click <guibutton>IMPORT</guibutton> button.</para>
 			
 			<figure>
