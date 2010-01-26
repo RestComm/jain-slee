@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.mobicents</groupId>
     <artifactId>mobicents-parent</artifactId>
-    <version>2.0</version>
+    <version>2.2</version>
   </parent>
 
   <groupId>org.mobicents.servers.diameter.resources</groupId>
@@ -24,20 +24,10 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.jdiameter.version>1.5.3.0-build350-SNAPSHOT</mobicents.diameter.jdiameter.version>
-    <mobicents.diameter.mux.version>1.1.1.GA-SNAPSHOT</mobicents.diameter.mux.version>
-    <mobicents.diameter.resources.base-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.base-common.version>
+    <mobicents.diameter.jdiameter.version>1.5.3.0-build350</mobicents.diameter.jdiameter.version>
+    <mobicents.diameter.mux.version>1.1.1.GA</mobicents.diameter.mux.version>
+    <mobicents.diameter.resources.base-common.version>2.0.0.CR1</mobicents.diameter.resources.base-common.version>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>javax.slee</groupId>
-        <artifactId>jain-slee</artifactId>
-        <version>1.1</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <profiles>
   	<profile>
@@ -111,7 +101,6 @@
       <plugin>
         <artifactId>maven-eclipse-plugin</artifactId>
         <groupId>org.mobicents.tools</groupId>
-        <version>${mobicents.tools.mavenplugin.eclipse.version}</version>
         <inherited>false</inherited>
         <executions />
         <configuration>
@@ -119,9 +108,6 @@
           <classpathExcludes>
             <exclude>xml-apis:xml-apis</exclude>
             <exclude>jtidy:jtidy</exclude>
-            <exclude>org.jboss.jbossas:jboss-as-system:5.0.0.CR2</exclude>
-            <exclude>org.jboss.jbossas:jboss-as-deployment:5.0.0.CR2</exclude>
-            <exclude>org.jboss.jbossas:jboss-as-system-jmx:5.0.0.CR2</exclude>
           </classpathExcludes>
           <resolveTransitiveDependencies>true</resolveTransitiveDependencies>
           <eclipseProjectName>mobicents-slee-ra-diameter-cca</eclipseProjectName>
