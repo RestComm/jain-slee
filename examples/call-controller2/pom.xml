@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.mobicents</groupId>
 		<artifactId>mobicents-parent</artifactId>
-		<version>2.2-SNAPSHOT</version>
+		<version>2.2</version>
 	</parent>
 
 	<artifactId>call-controller2-example-parent</artifactId>
@@ -26,10 +26,9 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.sip11.version>2.0.0-SNAPSHOT</mobicents.resources.sip11.version>
-		<mobicents.servers.jainslee.version>2.0.0-SNAPSHOT</mobicents.servers.jainslee.version>
-		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
-		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
+		<mobicents.resources.sip11.version>2.0.0.BETA2</mobicents.resources.sip11.version>
+		<mobicents.servers.jainslee.version>2.0.0.BETA2</mobicents.servers.jainslee.version>
+		<mobicents.resources.mgcp.version>2.0.0.CR1</mobicents.resources.mgcp.version>
 	</properties>
 
 	<dependencyManagement>
