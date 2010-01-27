@@ -24,6 +24,7 @@
 	</modules>
 	
 	<properties>
+		<mobicents.slee.version>2.0.0.CR1</mobicents.slee.version>
 		<jsip.ha.version>0.6</jsip.ha.version>
 		<loadbalancer.version>1.0.BETA12</loadbalancer.version>
 		<docs.profile>mobicents</docs.profile>
@@ -45,9 +46,14 @@
 					<version>${jsip.ha.version}</version>
 			</dependency>
 			<dependency>
-					<groupId>org.mobicents.servers.jainslee.core</groupId>
-					<version>2.0.0.CR1</version>
-					<artifactId>jar</artifactId>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<artifactId>fault-tolerant-ra-api</artifactId>
+				<version>${mobicents.slee.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<version>${mobicents.slee.version}</version>
+				<artifactId>jar</artifactId>
 			</dependency>
 			<dependency>
 				<groupId>org.mobicents.tools</groupId>
