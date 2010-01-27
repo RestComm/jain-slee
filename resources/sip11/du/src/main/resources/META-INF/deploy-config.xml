@@ -4,14 +4,14 @@
 		resource-adaptor-id="ResourceAdaptorID[name=JainSipResourceAdaptor,vendor=net.java.slee.sip,version=1.2]"
 		entity-name="SipRA">
 		<properties>
-			<property name="javax.sip.PORT" type="java.lang.Integer" value="5061" />
+			<property name="javax.sip.PORT" type="java.lang.Integer" value="5060" />
 			<!-- the list of SIP balancers, in the form of "HOST:PORT",
 			separated by ";", it is only used if the heart beat service property is defined.
 			In case it is Mobicents SIP Load Balancer and it is configured with 2 ports,
-			use here the internal one -->
+			use here the internal one 
 			<property name="org.mobicents.ha.javax.sip.BALANCERS"
-				type="java.lang.String" value="172.31.1.1:5065" />
-			 
+				type="java.lang.String" value="127.0.0.1:5065" />
+			 -->
 		</properties>
 		<ra-link name="SipRA" />
 	</ra-entity>
