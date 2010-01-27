@@ -66,16 +66,19 @@ public abstract class SimpleCallSetupTerminatedByServerWithDialogsTestSbb implem
 		final SbbLocalObject sbbLocalObject = this.sbbContext.getSbbLocalObject();
 		final ServerTransaction serverTransaction = requestEvent.getServerTransaction();
 		try {
-			// send 100
-			// serverTransaction.sendResponse(messageFactory.createResponse(100,requestEvent.getRequest()));
 			// create dialog and attach this entity to it's aci
 			final DialogActivity dialog = (DialogActivity) sipFactoryProvider.getNewDialog(serverTransaction);
 			final ActivityContextInterface dialogAci = sipActivityContextInterfaceFactory.getActivityContextInterface(dialog);
 			dialogAci.attach(sbbLocalObject);
 			// set timer of 60 secs on the dialog aci
 			timerFacility.setTimer(dialogAci, null, System.currentTimeMillis()+60000, getTimerOptions());
+			// send 180
+			Response response = messageFactory
+			.createResponse(Response.RINGING,requestEvent.getRequest());
+			response.addHeader(getContactHeader());
+			serverTransaction.sendResponse(response);
 			// send 200 ok
-			final Response response = messageFactory
+			response = messageFactory
 					.createResponse(Response.OK,requestEvent.getRequest());
 			response.addHeader(getContactHeader());
 			serverTransaction.sendResponse(response);			
