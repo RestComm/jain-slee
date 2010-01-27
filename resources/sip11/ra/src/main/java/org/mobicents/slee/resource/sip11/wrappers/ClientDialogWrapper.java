@@ -500,6 +500,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 		if (createDialog) {
 			this.wrappedDialog = provider.getRealProvider().getNewDialog(
 					ctw.getWrappedTransaction());
+			this.wrappedDialog.setApplicationData(this);
 		} else {
 			// only when wrapped dialog exist we need to care about right remote
 			// tag
@@ -513,9 +514,9 @@ public class ClientDialogWrapper extends DialogWrapper {
 		
 		if (data.getForkHandler().isForking()) {
 			// cause dialog spoils - changes cseq, we dont want that
-			ctw.getWrappedClientTransaction().sendRequest();
 			if (!method.equals(Request.ACK) && !method.equals(Request.CANCEL))
 				data.getLocalSequenceNumber().incrementAndGet();
+			ctw.getWrappedClientTransaction().sendRequest();			
 		} else {
 			if (createDialog) {
 				// dialog in null state does not allows to send request
@@ -525,14 +526,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 						.getWrappedClientTransaction());
 			}
 		}
-		if (createDialog) {
-			// assuming this will trigger replicated state update too
-			this.wrappedDialog.setApplicationData(this);
-		}
-		else {
-			// not needed till we have some sort of tx replication
-			// updateReplicatedState();
-		}
+		
 		return ctw;
 	}
 
