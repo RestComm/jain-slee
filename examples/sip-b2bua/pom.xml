@@ -11,7 +11,7 @@
 	
 	<artifactId>mobicents-slee-example-sip11-b2b</artifactId>
 	<groupId>org.mobicents.examples</groupId>
-	<version>2.0.0.CR1</version>
+	<version>2.0.0-SNAPSHOT</version>
 				
 	<modules>
 		<module>sbb</module>						
@@ -84,9 +84,9 @@
 	</profiles>	
 	
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-b2bua/2.0.0.CR1</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-b2bua/2.0.0.CR1</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-b2bua/2.0.0.CR1</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-b2bua</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-b2bua</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-b2bua</url>
 	</scm>
 	
 	<build>
