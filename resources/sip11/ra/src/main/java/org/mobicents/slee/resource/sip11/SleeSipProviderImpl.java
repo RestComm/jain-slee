@@ -1,5 +1,6 @@
 package org.mobicents.slee.resource.sip11;
 
+import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.ListeningPointImpl;
 import gov.nist.javax.sip.Utils;
 import gov.nist.javax.sip.address.SipUri;
@@ -471,6 +472,10 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 	private Dialog getNewDialog(ServerTransactionWrapper stw) throws SipException {
 		final ServerTransaction st = stw.getWrappedServerTransaction();
 		final Dialog d = provider.getNewDialog(st);
+		if(ra.isValidateDialogCSeq())
+		{
+			((DialogExt)d).disableSequenceNumberValidation();
+		}
 		String localTag = d.getLocalTag();
 		String dialogId = d.getDialogId();
 		if (localTag == null) {
@@ -501,6 +506,10 @@ public class SleeSipProviderImpl implements SleeSipProvider {
 			}
 		}		
 		final Dialog d = provider.getNewDialog(ctw.getWrappedTransaction());
+		if(ra.isValidateDialogCSeq())
+		{
+			((DialogExt)d).disableSequenceNumberValidation();
+		}
 		final DialogWrapper dw = _getNewDialog(
 				fh.getAddress(),
 				localTag,

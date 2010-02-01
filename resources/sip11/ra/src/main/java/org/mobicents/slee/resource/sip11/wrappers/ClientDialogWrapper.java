@@ -1,5 +1,6 @@
 package org.mobicents.slee.resource.sip11.wrappers;
 
+import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.ListeningPointImpl;
 import gov.nist.javax.sip.address.SipUri;
 import gov.nist.javax.sip.header.CSeq;
@@ -500,6 +501,10 @@ public class ClientDialogWrapper extends DialogWrapper {
 		if (createDialog) {
 			this.wrappedDialog = provider.getRealProvider().getNewDialog(
 					ctw.getWrappedTransaction());
+			if(ra.isValidateDialogCSeq())
+			{
+				((DialogExt)this.wrappedDialog).disableSequenceNumberValidation();
+			}
 			this.wrappedDialog.setApplicationData(this);
 		} else {
 			// only when wrapped dialog exist we need to care about right remote

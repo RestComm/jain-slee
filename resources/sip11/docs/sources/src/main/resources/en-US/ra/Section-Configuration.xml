@@ -62,6 +62,12 @@
 			   	    <entry>the name of the class responsible for the heart beats exchanged with the platform's SIP Balancer - if not specified the JAIN SIP HA stack won't use such feature</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry></entry>
+			    </row>	
+			    <row>
+			   		<entry>org.mobicents.javax.sip.LOOSE_DIALOG_VALIDATION</entry>
+			   	    <entry>controls validation of CSeq number for dialog messages. Set to true allows out of sequence messages to be accepted.</entry>
+			   	    <entry>java.lang.Boolean</entry>
+			   	    <entry></entry>
 			    </row>			    
 			</tbody>
 	 	</tgroup>

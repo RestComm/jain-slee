@@ -58,6 +58,7 @@ import javax.slee.resource.Marshaler;
 import javax.slee.resource.ReceivableService;
 import javax.slee.resource.ResourceAdaptorContext;
 import javax.slee.resource.SleeEndpoint;
+import javax.slee.resource.ConfigProperties.Property;
 
 import net.java.slee.resource.sip.CancelRequestEvent;
 
@@ -93,6 +94,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	
 	private static final String BALANCERS = "org.mobicents.ha.javax.sip.BALANCERS";
 	
+	private static final String LOOSE_DIALOG_VALIDATION = "org.mobicents.javax.sip.LOOSE_DIALOG_VALIDATION";
 	// Config Properties Values -------------------------------------------
 	
 	private int port;
@@ -102,7 +104,11 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	private String sipBalancerHeartBeatServiceClassName;
 	private String balancers;
 	private String loadBalancerElector;
-	
+	/**
+	 * default is true;
+	 */
+	private boolean looseDialogSeqValidation = true;
+
 	/**
 	 * allowed transports
 	 */
@@ -1165,6 +1171,12 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			this.transports.add(transport);
 		}
 
+		Property p = properties.getProperty(LOOSE_DIALOG_VALIDATION);
+		if(p!=null && p.getValue()!=null)
+		{
+			this.looseDialogSeqValidation = (Boolean) p.getValue();
+		}
+		
 		tracer.info("RA entity named "+raContext.getEntityName()+" bound to port " + this.port);
 		
 	}
@@ -1422,7 +1434,15 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 	public EventIDFilter getEventIDFilter() {
 		return eventIDFilter;
 	}
-	
+	/**
+	 * 
+	 * @return true if jsip dialog should validate cseq.
+	 */
+	public boolean isValidateDialogCSeq() {
+		return looseDialogSeqValidation;
+	}
+
+
 	// CLUSTERING
 	
 	/**
