@@ -401,12 +401,17 @@ public class ClientDialogWrapper extends DialogWrapper {
 			
 			try {
 				// create headers
-				SipUri requestURI = null;
+				URI requestURI = null;
 				if (this.getRemoteTarget() != null)
-					requestURI = (SipUri) getRemoteTarget().getURI().clone();
+					requestURI = (URI) getRemoteTarget().getURI().clone();
 				else {
-					requestURI = (SipUri) data.getToAddress().getURI().clone();
-					requestURI.clearUriParms();
+					requestURI = (URI) data.getToAddress().getURI().clone();
+					
+					//FIXME: check for SipUri instanceof ?
+					if(requestURI.isSipURI())
+					{
+						((SipUri)requestURI).clearUriParms();
+					}
 				}
 				final FromHeader fromHeader = headerFactory.createFromHeader(
 						data.getFromAddress(), getLocalTag());
@@ -446,7 +451,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 	}
 
 	private void updateRequestWithForkData(Request request) throws SipException {
-		final SipURI requestURI = (SipURI) data.getRequestURI().clone();
+		final URI requestURI = (URI) data.getRequestURI().clone();
 		request.setRequestURI(requestURI);
 		
 		final RouteList routeList = data.getLocalRouteList();
@@ -462,7 +467,7 @@ public class ClientDialogWrapper extends DialogWrapper {
 					&& !request.getMethod().equals(Request.ACK)) {
 				cseq.setSeqNumber(data.getLocalSequenceNumber().get() + 1);
 			}
-			requestURI.setMethodParam(cseq.getMethod());
+			request.setMethod(cseq.getMethod());
 			if (data.getLocalRemoteTag() != null) {
 				((ToHeader) request.getHeader(ToHeader.NAME))
 						.setTag(data.getLocalRemoteTag());
@@ -847,8 +852,19 @@ public class ClientDialogWrapper extends DialogWrapper {
 			if (data.getRequestURI() == null
 					|| (contact != null && !data.getRequestURI().equals(contact
 							.getAddress().getURI()))) {
-				//FIXME: it can be gov.nist.javax.sip.address.GenericURI or TelURI!!, we must check, its an error condition and report.
-				data.setRequestURI((SipURI) contact.getAddress().getURI());
+				URI contactAddressURI = contact.getAddress().getURI();
+				if(!contactAddressURI.isSipURI())
+				{
+					if(tracer.isSevereEnabled())
+					{
+						//FIXME: jsip allows non sip/sips uris in contact for dialog creating.
+						tracer.severe("Recevied non SIP/SIPS URI in contact header for dialgo creating method!");
+					}
+					//FIXME: add exception throw
+				}else
+				{
+					data.setRequestURI((SipURI) contactAddressURI);
+				}
 			}
 
 		// save the route, but ensure we don't save the top route pointing to us

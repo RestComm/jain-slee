@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
@@ -120,13 +121,23 @@ public class Utils {
 	 * @return
 	 * @throws ParseException 
 	 */
-	public static SipURI getRequestUri(Response response, AddressFactory addressFactory) throws ParseException {
+	public static URI getRequestUri(Response response, AddressFactory addressFactory) throws ParseException {
 		ContactHeader contact = ((ContactHeader) response.getHeader(ContactHeader.NAME));
 		if (contact != null) {
-			SipURI contactURI = (SipURI) contact.getAddress().getURI();
-			SipURI requestURI = addressFactory.createSipURI(contactURI.getUser(), contactURI.getHost());
-			requestURI.setPort(contactURI.getPort());
-			return requestURI;			
+			//FIXME: SipUri instanceof check ?
+			if(contact.getAddress().getURI().isSipURI())
+			{
+				SipURI contactURI = (SipURI) contact.getAddress().getURI();
+				SipURI requestURI = addressFactory.createSipURI(contactURI.getUser(), contactURI.getHost());
+				requestURI.setPort(contactURI.getPort());
+				return requestURI;			
+			}else
+			{
+				//it may be tel,fax,generic
+				//RFC3261 10.2.1
+				URI contactURI = (URI) contact.getAddress().getURI().clone();
+				return contactURI;
+			}
 		} 
 		return null;
 	}

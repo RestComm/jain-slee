@@ -30,6 +30,7 @@ import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContentTypeHeader;
@@ -609,12 +610,12 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		try {
 			final CSeqHeader cseq = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
 			List<RouteHeader> routeSet = org.mobicents.slee.resource.sip11.Utils.getRouteList(response,provider.getHeaderFactory());
-			SipURI requestURI = org.mobicents.slee.resource.sip11.Utils.getRequestUri(response, provider.getAddressFactory());
+			//RFC3261 8.1.1.1
+			URI requestURI = org.mobicents.slee.resource.sip11.Utils.getRequestUri(response, provider.getAddressFactory());
 			String branch = ((ViaHeader)response.getHeaders(ViaHeader.NAME).next()).getBranch();
 
 			long cseqNumber = cseq.getSeqNumber();
 
-			// logger.info("DOING FORGE FOR: \n"+response);
 			if (requestURI == null) {
 				tracer.severe("Cannot ack on request that has empty contact!!!!");
 				return;
@@ -632,8 +633,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 			}
 
 			//forgedRequest.addHeader(this.provider.getLocalVia(this.provider.getListeningPoints()[0].getTransport(), branch));
-			// ITS BUG....
-			//((SIPRequest) forgedRequest).setMethod(Request.ACK);
+
 			if (tracer.isInfoEnabled()) {
 				tracer.info("Sending request:\n"+forgedRequest);
 			}

@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.CallIdHeader;
 
 public class ClientDialogWrapperData implements Serializable {
@@ -16,7 +17,7 @@ public class ClientDialogWrapperData implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private transient SipURI requestURI;
+	private transient URI requestURI;
 
 	private transient AtomicLong localSequenceNumber = new AtomicLong(0);
 	
@@ -48,11 +49,11 @@ public class ClientDialogWrapperData implements Serializable {
 		return forkHandler;
 	}
 
-	public SipURI getRequestURI() {
+	public URI getRequestURI() {
 		return requestURI;
 	}
 
-	public void setRequestURI(SipURI requestURI) {
+	public void setRequestURI(URI requestURI) {
 		this.requestURI = requestURI;
 	}
 
