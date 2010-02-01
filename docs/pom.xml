@@ -16,7 +16,8 @@
 	<packaging>pom</packaging>
 	
 	<modules>
-		<module>templates/ra</module>		
+		<module>templates/ra</module>
+		<module>templates/example</module>		
 	</modules>
 
 </project>
