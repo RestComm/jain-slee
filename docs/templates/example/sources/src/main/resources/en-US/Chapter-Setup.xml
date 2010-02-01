@@ -31,7 +31,7 @@
 				    	<para>Subversion is used to manage its source code. Instructions for using Subversion, including install, can be found at <ulink url="http://svnbook.red-bean.com" /></para>
 				    </important>
 				    <para>Use SVN to checkout a specific release source, the base URL is &THIS.RELEASE_SOURCE_CODE_URL;, then add the specific release version, lets consider &THIS.VERSION;.</para>
-				    <programlisting>[usr]$ svn co &THIS.RELEASE_SOURCE_CODE_URL;/&THIS.VERSION; slee-ra-&THIS.EXAMPLE.DIRNAME;-&THIS.VERSION;</programlisting>				    
+				    <programlisting>[usr]$ svn co &THIS.RELEASE_SOURCE_CODE_URL;/&THIS.VERSION; slee-example-&THIS.EXAMPLE.DIRNAME;-&THIS.VERSION;</programlisting>				    
   				</step>
 				<step>
 				    <title>Building the source code</title>
@@ -40,7 +40,7 @@
 				    </important>
 				    <para>Use Ant to build the binary.</para>
 				    <programlisting>
-				    [usr]$ cd slee-ra-&THIS.EXAMPLE.DIRNAME;-&THIS.VERSION;
+				    [usr]$ cd slee-example-&THIS.EXAMPLE.DIRNAME;-&THIS.VERSION;
 				    [usr]$ mvn install
 				    </programlisting>
 				    <para>Once the process finishes you should have the <literal>deployable-unit</literal> jar file in the <filename>target</filename> directory, if &THIS.PLATFORM; JAIN SLEE is installed and environment variable JBOSS_HOME is pointing to its underlying &JEE.PLATFORM; directory, then the deployable unit jar will also be deployed in the container.</para>
