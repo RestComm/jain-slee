@@ -1,20 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
-                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
-<sbb-jar>
-	<sbb>
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
-		<sbb-name>Wake Up Sbb</sbb-name>
-		<sbb-vendor>NIST</sbb-vendor>
-		<sbb-version>1.0</sbb-version>
-
-		<sbb-ref>
-			<sbb-name>LocationSbb</sbb-name>
-			<sbb-vendor>org.mobicents</sbb-vendor>
-			<sbb-version>1.2</sbb-version>
-			<sbb-alias>LocationSbb</sbb-alias>
-		</sbb-ref>
-
+<section id="root_sbb_descriptor">
+			<title>Root SBB XML Descriptor</title>
+			<para>The Root SBB XML Descriptor has to be provided and match the abstract class code.</para>
+		
+			<para>First relevant part is the declaration of the <literal>sbb-classes</literal> element, where the sbb class abstract name must be specified, along with the cmp fields and child relation.:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.slee.examples.wakeup.WakeUpSbb</sbb-abstract-class-name>
@@ -36,7 +31,11 @@
 				</get-child-relation-method>
 			</sbb-abstract-class>
 		</sbb-classes>
-
+			]]>
+			</programlisting>
+			
+			<para>Then the events handled by the SBB must be specified too:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
 		<event event-direction="Receive" initial-event="True">
 			<event-name>MessageEvent</event-name>
 			<event-type-ref>
@@ -55,7 +54,11 @@
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
 		</event>
-
+			]]>
+			</programlisting>
+			
+			<para>Finally, the SIP11 Resource Adaptor must be specified also, otherwise SLEE won't put its SBB Interface in the SBB's JNDI Context:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>
@@ -80,6 +83,7 @@
 				</resource-adaptor-entity-link>
 			</resource-adaptor-entity-binding>
 		</resource-adaptor-type-binding>
-
-	</sbb>
-</sbb-jar>
+			]]>
+			</programlisting>
+			
+		</section>

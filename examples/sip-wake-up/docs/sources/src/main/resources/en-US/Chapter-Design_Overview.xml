@@ -1,0 +1,28 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+	
+	<para>The &THIS.EXAMPLE; Example is JAIN SLEE 1.1 Application which handles SIP MESSAGE requests containing a specific content format, to trigger a wake up message. The wake up message and target user are extracted from the SIP MESSAGE request, as the duration of the timer to set. Once the timer expires the application will get all SIP entities registered as the target user, from SIP Services application, and a SIP MESSAGE request is sent for each of those entities. The diagram below depicts this behavior.</para> 
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/sip-wake-up.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example Functionality</para>
+		</caption>
+	</mediaobject>
+	
+	<para>The MESSAGE format to be used is:</para>
+	<para><literal>[any text string]WAKE UP IN [timer value in seconds]s! MSG: [msg to send back to UA]![any text string].</literal></para>
+	<para>The parts out of are case sensitive tokens used by the service to parse the message. Also note that the spaces between tokens and values are required. A message that does not complaints with this format will produce error behavior in the service.</para> 
+	
+</chapter>
+

@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="running">
+
+	<title>Running the Example</title>
+	
+	<para>To easiest way to try the example application is to start the JAIN SLEE container, then use SIPP scripts, <filename>run.sh</filename> or <filename>run.bat</filename> depending on which Operating System being used, in <filename>sipp</filename> directory. The scripts will send the SIP MESSAGE request and handle the remaining SIP messages exchanged, all the traffic should be printed in the application server console. The usage of SIPP scripts requires SIPP to be in <literal>$PATH</literal> environment variable.</para> 
+	
+	<para>To use a real SIP UA client, such as X-Lite, configure it with <literal>127.0.0.1</literal> as the domain, and then send a MESSAGE with correct format to <literal>sip:wakeup@mobicents.org</literal>. Note that unless <literal>sip:wakeup@mobicents.org</literal>is added to the contact list, some SIP UA clients may ignore the wake up messages.</para>
+	
+</chapter>
+

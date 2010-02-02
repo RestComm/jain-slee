@@ -1,68 +1,31 @@
-package org.mobicents.slee.examples.wakeup;
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sip.ClientTransaction;
-import javax.sip.InvalidArgumentException;
-import javax.sip.ListeningPoint;
-import javax.sip.RequestEvent;
-import javax.sip.SipException;
-import javax.sip.address.Address;
-import javax.sip.address.AddressFactory;
-import javax.sip.address.URI;
-import javax.sip.header.CSeqHeader;
-import javax.sip.header.CallIdHeader;
-import javax.sip.header.ContentTypeHeader;
-import javax.sip.header.FromHeader;
-import javax.sip.header.HeaderFactory;
-import javax.sip.header.MaxForwardsHeader;
-import javax.sip.header.ToHeader;
-import javax.sip.header.ViaHeader;
-import javax.sip.message.MessageFactory;
-import javax.sip.message.Request;
-import javax.sip.message.Response;
-import javax.slee.ActivityContextInterface;
-import javax.slee.ChildRelation;
-import javax.slee.RolledBackContext;
-import javax.slee.SbbContext;
-import javax.slee.facilities.TimerEvent;
-import javax.slee.facilities.TimerFacility;
-import javax.slee.facilities.TimerOptions;
-import javax.slee.facilities.Tracer;
-import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
-import javax.slee.nullactivity.NullActivityFactory;
-
-import net.java.slee.resource.sip.SleeSipProvider;
-
-import org.mobicents.slee.services.sip.location.LocationSbbLocalObject;
-import org.mobicents.slee.services.sip.location.RegistrationBinding;
-
-public abstract class WakeUpSbb implements javax.slee.Sbb {
-
-	private static final String FIRST_TOKEN = "WAKE UP IN ";
-	private static final String MIDDLE_TOKEN = "s! MSG: ";
-	private static final String LAST_TOKEN = "!";
-	private static final int FIRST_TOKEN_LENGTH = FIRST_TOKEN.length();
-	private static final int MIDDLE_TOKEN_LENGTH = MIDDLE_TOKEN.length();
-
+<section id="root_sbb_abstract_class">
+			<title>The Root SBB Abstract Class</title>
+			<para> The class <literal>org.mobicents.slee.examples.wakeup.WakeupSbb</literal> includes all the service logic for the example.</para>
+		
+			<section id="root_sbb_abstract_class_setSbbContext">
+				<title>The setSbbContext(SbbContext) method</title>
+				<para>The <literal>javax.slee.SbbObject</literal>'s <literal>setSbbContext(SbbContext)</literal> is used by SBBs to store the SBB's context into a class field. The SBB should take the opportunity to also store objects, such as SLEE facilities, which are reused by all service logic entities, a.k.a. SbbEntities, and are stored in the JNDI environment.</para>
+            	
+            	<para>The class fields and <literal>setSbbContext(SbbContext)</literal> method's and related code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	// the Sbb's context
-	private SbbContext sbbContext;
-
+	private SbbContext sbbContext; 
+	
 	// the Sbb's single tracer
-	private Tracer tracer = null;
-
+	private Tracer tracer = null; 
+		
 	// cached objects in Sbb's environment, lookups are expensive
 	private SleeSipProvider sipProvider;
 	private TimerFacility timerFacility;
 	private NullActivityContextInterfaceFactory nullACIFactory;
 	private NullActivityFactory nullActivityFactory;
-
-	// SbbObject LIFECYCLE METHODS
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -90,120 +53,46 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			tracer.severe("Failed to set sbb context", e);
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbCreate()
-	 */
-	public void sbbCreate() throws javax.slee.CreateException {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbPostCreate()
-	 */
-	public void sbbPostCreate() throws javax.slee.CreateException {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbActivate()
-	 */
-	public void sbbActivate() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbPassivate()
-	 */
-	public void sbbPassivate() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbRemove()
-	 */
-	public void sbbRemove() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbLoad()
-	 */
-	public void sbbLoad() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbStore()
-	 */
-	public void sbbStore() {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbExceptionThrown(java.lang.Exception,
-	 * java.lang.Object, javax.slee.ActivityContextInterface)
-	 */
-	public void sbbExceptionThrown(Exception exception, Object event,
-			ActivityContextInterface activity) {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#sbbRolledBack(javax.slee.RolledBackContext)
-	 */
-	public void sbbRolledBack(RolledBackContext context) {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.slee.Sbb#unsetSbbContext()
-	 */
-	public void unsetSbbContext() {
-		this.sbbContext = null;
-		this.tracer = null;
-		this.timerFacility = null;
-		this.nullACIFactory = null;
-		this.nullActivityFactory = null;
-		this.sipProvider = null;
-	}
-
-	// CHILD RELATIONS
-
-	/**
-	 * Child relation to the location service
-	 * 
-	 * @return
-	 */
-	public abstract ChildRelation getLocationChildRelation();
-
-	// CMP FIELDS
-
+            	]]>
+            	</programlisting>
+        	</section>
+        
+        	<section id="root_sbb_abstract_class_cmp_fields_acccessors">
+				<title>CMP Fields Accessors</title>
+				<para>For each CMP field, which will hold the service logic instance data, the application defines two abstract methods, the getter and the setter. SLEE is responsible for the implementation of those methods.</para>
+            	
+            	<para>The CMP field's accessors code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	public abstract void setSender(Address sender);
-
 	public abstract Address getSender();
-
+	
 	public abstract void setCallId(CallIdHeader callId);
-
 	public abstract CallIdHeader getCallId();
-
+	
 	public abstract void setBody(String body);
-
 	public abstract String getBody();
-
-	// EVENT HANDLERS
-
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+			<section id="root_sbb_abstract_class_message_event_handler">
+				<title>The SIP MESSAGE event handler</title>
+				<para>The SIP MESSAGE is the starting point of each instance of the service logic, its responsibility is:</para>
+				
+				<itemizedlist>
+					<listitem>
+				        <para>Extract the relevant message information and store in CMP fields, the correct place holders for service logic instance data event handler is the entry point.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Set the timer with the duration extract from the SIP MESSAGE request on a new Null Activity, needed to keep the service logic instance alive. Recall that SLEE garbage collects all SBBEntities which are not attached to a single ActivityContext, and at this point the entity is only attached to the SIP ServerTransaction activity, that is goin to end once the application returns a final response.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Reply the successful processing of the SIP request.</para>
+	   				</listitem>
+				</itemizedlist>
+            	
+            	<para>The event handler code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	/**
 	 * Event handler for the SIP MESSAGE from the UA
 	 * 
@@ -276,7 +165,43 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			}
 		}
 	}
-
+            	]]>
+				</programlisting>
+			</section>
+		
+			<section id="root_sbb_abstract_class_child_relation_getter">
+				<title>Location Service SBB Child Relation</title>
+				<para>The SBB uses SIP Service's Location Service to retrieve the URIs of all entities registered with the target address, the child relation method is an abstract class that SLEE implements.</para>
+            	
+            	<para>The child relation's getter code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+	/**
+	 * Child relation to the location service
+	 * @return
+	 */
+	public abstract ChildRelation getLocationChildRelation();
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+        	<section id="root_sbb_abstract_class_timer_event_handler">
+				<title>The TimerEvent handler</title>
+				<para>The JAIN SLEE TimerEvent handler is invoked when the duration requested by the SIP Message has passed, it is the final "piece" of the service instance logic, and its responsibility is:</para>
+				
+				<itemizedlist>
+					<listitem>
+				        <para>Retrieve all instance data from CMP fields.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Create a Location Service child SBB and retrieve the target's registered URIs.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Send the wake up message(s).</para>
+	   				</listitem>
+				</itemizedlist>
+            	
+            	<para>The event handler code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	/**
 	 * Event handler from the timer event, which signals that a message must be
 	 * sent back to the UA
@@ -344,14 +269,7 @@ public abstract class WakeUpSbb implements javax.slee.Sbb {
 			tracer.severe("Failed to create message headers", e);
 		}
 	}
-
-	// HELPERS
-
-	private void sendResponse(RequestEvent event, int responseCode)
-			throws SipException, InvalidArgumentException, ParseException {
-		event.getServerTransaction().sendResponse(
-				sipProvider.getMessageFactory().createResponse(responseCode,
-						event.getRequest()));
-	}
-
-}
+            	]]>
+				</programlisting>
+			</section>
+		</section>	

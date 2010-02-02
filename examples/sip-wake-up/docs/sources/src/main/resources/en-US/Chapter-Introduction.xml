@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
+
+	<para>This example is a JAIN SLEE application which processes SIP messages from registered SIP UAs to act as an Wake Up system.</para>
+	
+	<para>It is a simple example but provides usage of JAIN SLEE child relations, timers, null activities, sbb activity context interfaces and JAIN SIP RA code, thus being very useful for beginners.</para>
+
+ 	<para>The sender uses a specific MESSAGE format, containing a timeout T and wake up message M values, and then, when T seconds pass, the service will send a message containing M back to the UA.</para>
+	
+</chapter>
