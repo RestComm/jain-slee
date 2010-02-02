@@ -847,25 +847,11 @@ public class ClientDialogWrapper extends DialogWrapper {
 					.getTag());
 		ContactHeader contact = ((ContactHeader) response
 				.getHeader(ContactHeader.NAME));
+
 		// issue 623
-		if (contact != null)
-			if (data.getRequestURI() == null
-					|| (contact != null && !data.getRequestURI().equals(contact
-							.getAddress().getURI()))) {
-				URI contactAddressURI = contact.getAddress().getURI();
-				if(!contactAddressURI.isSipURI())
-				{
-					if(tracer.isSevereEnabled())
-					{
-						//FIXME: jsip allows non sip/sips uris in contact for dialog creating.
-						tracer.severe("Recevied non SIP/SIPS URI in contact header for dialgo creating method!");
-					}
-					//FIXME: add exception throw
-				}else
-				{
-					data.setRequestURI((SipURI) contactAddressURI);
-				}
-			}
+		if (contact != null && data.getRequestURI() == null) {
+			data.setRequestURI(contact.getAddress().getURI());
+		}
 
 		// save the route, but ensure we don't save the top route pointing to us
 		final SIPResponse sipResponse = (SIPResponse) response;
