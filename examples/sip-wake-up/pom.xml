@@ -18,6 +18,10 @@
 		<module>du</module>			
 	</modules>
 	
+	<properties>
+		<docs.profile>mobicents</docs.profile>
+	</properties>
+	
 	<profiles>
 		<profile>
 			<id>release</id>
@@ -51,6 +55,9 @@
                       						<filter token="JBOSS.CONFIG" value="${node}" />
     									</filterset>
     								</copy>
+    								<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/sip-wake-up/docs">
+											<fileset dir="${basedir}/docs/jdocbook-${docs.profile}/target/docbook/publish" />
+									</copy>		
 									</tasks>
 								</configuration>
 							</execution>
