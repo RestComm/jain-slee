@@ -23,6 +23,13 @@
 		<module>du</module>
 	</modules>
 	
+	<properties>
+		<docs.profile>mobicents</docs.profile>
+		<docs.ra.name>MGCP</docs.ra.name>
+		<docs.ra.dirname>mgcp</docs.ra.dirname>
+		<docs.bookid>MGCP</docs.bookid>
+	</properties>
+		
 	<profiles>
 		<profile>
 			<id>release</id>
