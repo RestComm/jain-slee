@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_aci_factory">
+
+	<title>Activity Context Interface Factory</title>
+
+	<para>
+		The interface of the JAIN MGCP resource adaptor type specific
+		Activity Context Interface Factory is defined as follows:
+	</para>
+	
+	<programlisting language="java">
+	
+
+package net.java.slee.resource.mgcp;
+
+import javax.slee.ActivityContextInterface;
+import javax.slee.FactoryException;
+import javax.slee.UnrecognizedActivityException;
+
+
+public interface MgcpActivityContextInterfaceFactory {
+
+
+    public ActivityContextInterface getActivityContextInterface(MgcpEndpointActivity activity)
+        throws NullPointerException, UnrecognizedActivityException, FactoryException;
+    
+
+    public ActivityContextInterface getActivityContextInterface(MgcpConnectionActivity activity)
+        throws NullPointerException, UnrecognizedActivityException, FactoryException;
+    
+}
+	
+	</programlisting>
+
+</section>

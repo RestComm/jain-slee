@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>
+		The JAIN MGCP Resource Adaptor SBB Interface provides SBBs with
+		access to the JAIN MGCP objects required for creating and
+		sending Request/Response. It is defined as follows:
+	</para>
+	
+	<programlisting language="java">
+	package net.java.slee.resource.mgcp;
+
+import jain.protocol.ip.mgcp.message.CreateConnection;
+import jain.protocol.ip.mgcp.message.NotificationRequest;
+import jain.protocol.ip.mgcp.message.parms.CallIdentifier;
+import jain.protocol.ip.mgcp.message.parms.ConnectionIdentifier;
+import jain.protocol.ip.mgcp.message.parms.EndpointIdentifier;
+import jain.protocol.ip.mgcp.message.parms.RequestIdentifier;
+
+import java.util.List;
+
+
+public interface JainMgcpProvider extends jain.protocol.ip.mgcp.JainMgcpProvider {
+	
+	public MgcpConnectionActivity getConnectionActivity(ConnectionIdentifier connectionIdentifier, EndpointIdentifier endpointIdentifier);
+	
+	public MgcpConnectionActivity getConnectionActivity(int transactionHandle, EndpointIdentifier endpointIdentifier);
+	
+	public List MgcpConnectionActivity getConnectionActivities(EndpointIdentifier endpointIdentifier);
+	
+	public MgcpEndpointActivity getEndpointActivity(EndpointIdentifier endpointIdentifier);
+	
+	public int getUniqueTransactionHandler();
+	
+	public CallIdentifier getUniqueCallIdentifier();
+	
+	public RequestIdentifier getUniqueRequestIdentifier();
+	
+}
+	
+	</programlisting>
+
+</section>

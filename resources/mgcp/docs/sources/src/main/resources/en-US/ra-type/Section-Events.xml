@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_events">
+
+	<title>Events</title>
+
+	<para>
+		Events represent MGCP Requests or Responses received by the MGCP
+		stack (incoming requests and responses) and Timer expiry. Each
+		MGCP Requests is fired as different event types. Each MGCP
+		Response is fired as different event types. Events are fired on
+		<literal>MgcpConnectionActivity</literal>
+		or
+		<literal>MgcpEndpointActivity</literal>
+		activities. There are several event types defined. Following is
+		the table that describes event-type (name, vendor and version),
+		event-class and whether its fired on MgcpConnectionActivity or
+		MgcpEndpointActivity or both.
+	</para>
+	<table frame="all" pgwide="1">
+		<title>Events fired on the MgcpConnectionActivity</title>
+		<tgroup colsep="1" cols="7">
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<colspec colnum="5" colname="c4" />
+			<colspec colnum="6" colname="c5" />
+			<colspec colnum="7" colname="c6" />
+			<thead>
+				<row>
+					<entry>Name</entry>
+					<entry>Vendor</entry>
+					<entry>Version</entry>
+					<entry>Event Class</entry>
+					<entry>MgcpConnectionActivity</entry>
+					<entry>MgcpEndpointActivity</entry>
+					<entry>Comments</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.CREATE_CONNECTION
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.CreateConnection
+					</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>
+						Received by application acting as MGCP Server.
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.CreateConnectionRespone
+					</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.MODIFY_CONNECTION
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.ModifyConnection
+					</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>
+						Received by application acting as MGCP Server
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.MODIFY_CONNECTION_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.ModifyConnectionResponse
+					</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.DELETE_CONNECTION
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.DeleteConnection
+					</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Server
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.DeleteConnectionResponse
+					</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.AUDIT_CONNECTION
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.AuditConnection
+					</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>
+						Received by application acting as MGCP Server
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.AUDIT_CONNECTION_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.AuditConnectionResponse
+					</entry>
+					<entry>Yes</entry>
+					<entry>No</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent
+					</entry>
+				</row>
+
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.NOTIFICATION_REQUEST
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.NotificationRequest
+					</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Server.
+						Whether this event will be fired on
+						MgcpConnectionActivity or MgcpEndpointActivity
+						Activity is decided by RA depending on if
+						EventName (Request/Signal) has
+						ConnectionIdentifier included or not. If
+						Request/Signal has list of EventName's with few
+						having ConnectionIdentifier set and few without
+						ConnectionIdentifier, then this event will be
+						fired on both the Activities. However please
+						note that new Activity Object/s will not be
+						created unless initial-event="True" is specified
+						in sbb-jar.xml for this event-type.
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.NotificationRequestResponse
+					</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent. If EventName (Signal/Request) in original
+						NotificationRequest fired by this Application
+						had ConnectionIdentifier set, then this event
+						will be fired on MgcpConnectionActivity. If
+						Request/Signal has list of EventName's with few
+						having ConnectionIdentifier set and few without
+						ConnectionIdentifier, then this event will be
+						fired on both the Activities. However please
+						note that event's will be fired only on existing
+						Activty Object and no new Activity Object will
+						be created unless initial-event="True" is
+						specified in sbb-jar.xml.
+					</entry>
+				</row>
+
+				<row>
+					<entry>net.java.slee.resource.mgcp.NOTIFY</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.Notify
+					</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent. Whether this event will be fired on
+						MgcpConnectionActivity or MgcpEndpointActivity
+						Activity is decided by RA depending on if event
+						is detected on connection or endpoint
+						(ConnectionIdentifier included or not)
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.NOTIFY_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.NotifyResponse
+					</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Server.
+						Whether this event will be fired on
+						MgcpConnectionActivity or MgcpEndpointActivity
+						Activity is decided by RA depending on if
+						original Notify event is detected on connection
+						or endpoint (ConnectionIdentifier included or
+						not)
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						net.java.slee.resource.mgcp.event.TransactionTimeout
+					</entry>
+					<entry>Yes</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Server or
+						MGCP Call Agent. Basically this is fired when
+						Application sends the MGCP Request but there is
+						no response. The activity ends automatically.
+					</entry>
+				</row>
+
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.AUDIT_ENDPOINT
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.AuditEndpoint
+					</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Server.
+					</entry>
+				</row>
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.AUDIT_ENDPOINT_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.AuditEndpointResponse
+					</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent.
+					</entry>
+				</row>
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.EndpointConfiguration
+					</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Server.
+					</entry>
+				</row>
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.EndpointConfigurationResponse
+					</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent.
+					</entry>
+				</row>
+
+
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.RESTART_IN_PROGRESS
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						 jain.protocol.ip.mgcp.message.RestartInProgress
+					</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Call
+						Agent.
+					</entry>
+				</row>
+				<row>
+					<entry>
+						net.java.slee.resource.mgcp.RESTART_IN_PROGRESS_RESPONSE
+					</entry>
+					<entry>net.java</entry>
+					<entry>1.0</entry>
+					<entry>
+						jain.protocol.ip.mgcp.message.RestartInProgressResponse
+					</entry>
+					<entry>No</entry>
+					<entry>Yes</entry>
+					<entry>
+						Received by application acting as MGCP Server.
+					</entry>
+				</row>
+
+			</tbody>
+		</tgroup>
+
+	</table>
+</section>
