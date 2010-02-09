@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="logging_traces_and_alarms">
+
+	<title>Traces and Alarms</title>
+
+	<section id="tracers">
+		<title>Tracers</title>
+		<para>The example Application uses multiple JAIN SLEE 1.1 Tracer facility instances. Below is full list:</para>
+		<!-- , named <literal>WakeUpSbb</literal>. The related log4j category is <literal>javax.slee.SbbNotification[service=ServiceID[name=Wake Up Service,vendor=NIST,version=1.0],sbb=SbbID[name=Wake Up Sbb,vendor=NIST,version=1.0]]</literal>.  -->
+		<table frame="all" pgwide="1">
+		<title>&THIS.EXAMPLE; Tracer and Log Categories</title>
+		<tgroup colsep="1" cols="3">
+		   	<colspec colnum="1" colname="c0"/>
+		    <colspec colnum="2" colname="c1"/>
+		    <colspec colnum="3" colname="c2"/>
+		    
+		    <thead>
+				<row>
+		    	    <entry>Sbb</entry>
+		   	    	<entry>Tracer name</entry>
+		   	    	<entry>LOG4J category</entry>
+		   	    	
+		    	</row>
+			</thead>
+			<tbody>
+				<row>
+			   		<entry>ProxySbb</entry>
+			   	    <entry>ProxySbb</entry>
+			   	    <entry><literal>javax.slee.SbbNotification[service=ServiceID[name=JAIN SIP Proxy Service,vendor=mobicents,version=1.1],sbb=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]].ProxySbb</literal></entry>
+
+			    </row>	    
+			    <row>
+			   		<entry>RegistrarSbb</entry>
+			   	    <entry>RegistrarSbb</entry>
+			   	    <entry><literal>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=SipRegistrarSbb,vendor=org.mobicents,version=1.2]].RegisterSbb</literal></entry>
+			    </row>	    
+			    <row>
+			   		<entry>LocationSbb</entry>
+			   	    <entry>LocationSbb</entry>
+			   	    <entry><literal>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=LocationSbb,vendor=org.mobicents,version=1.2]].LocationSbb</literal></entry>
+
+			    </row>	    
+			</tbody>
+	 	</tgroup>
+	</table>	
+	</section>	
+	
+	<section id="alarms">
+		<title>Alarms</title>
+		<para>The example Application does not sets JAIN SLEE Alarms.</para>
+	</section>
+	
+</chapter>

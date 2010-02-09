@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		JAIN SLEE &THIS.EXAMPLE;
+		Example
+	</title>
+	<para>This example is a JAIN SLEE application which processes SIP
+		Messages from SIP UAs to act as a simple proxy and registrar.</para>
+	<para>
+		Example implements proxy routines defined in
+		<ulink url="http://tools.ietf.org/html/rfc3261#section-16">section 16</ulink>
+		and registrar routines defined in
+		<ulink url="http://tools.ietf.org/html/rfc3261#section-10">section 10</ulink>
+		of RFC3261.
+	</para>
+	<para>It is not a trivial example but provides usage of JAIN SLEE child
+		relations, timers, null activities, <acronym>SBB</acronym> activity context interfaces, activity context interfaces variables, <acronym>SBB</acronym> environment entries, <acronym>SBB</acronym> local interfaces
+		and JAIN SIP RA code, thus being very useful for a bit advanced users.
+		It also shows how use JEE standards in JSLEE.</para>
+	<para>Example service is capable of routing <acronym>SIP</acronym> messages based on
+		registrar entries or target domain. Registrar entries are based on
+		received <acronym>SIP</acronym> REGISTER request for example local domains.</para>
+</chapter>

@@ -1,0 +1,119 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+
+	<para>The &THIS.EXAMPLE;
+		Example is JAIN SLEE 1.1 Application which handles incoming SIP
+		messages. Depending on message target and message method, example
+		takes different action. General rule of message traversal through this
+		example look as follows:
+	</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/sip_services-flow.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				Example Flow
+			</para>
+		</caption>
+	</mediaobject>
+	<section id="design_overview_components">
+		<title>Example Components</title>
+		<para>Example consist of three SBBs. Each one performs different task:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>ProxySbb</term>
+				<listitem>
+					<para>
+						Is responsible for routing procedures. It performs operations
+						defined in
+						<ulink url="http://tools.ietf.org/html/rfc3261#section-16">section 16</ulink>
+						of RFC3261 and sends message to proper node. It is first SBB to receive any incoming message.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>RegistrarSbb</term>
+				<listitem>
+					<para>
+						Is responsible for proper REGISTER request processing. It performs
+						operations
+						defined in
+						<ulink url="http://tools.ietf.org/html/rfc3261#section-10">section 10</ulink>
+						of RFC3261. Registrar creates
+						<literal>AOR(Address Of Record)</literal>
+						and based on REGISTER content performs update to location data.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>LocationSbb</term>
+				<listitem>
+					<para>
+						Is responsible for storing and invalidating entries for
+						<literal>AOR</literal>s.
+						That is - it stores mapping between
+						<literal>AOR</literal>
+						and contact addresses, and on contact address expiration, removes
+						it.
+					</para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<para>
+			Root SBB of service is ProxySbb, which receives messages as first.
+			Relation between
+			<acronym>SBB</acronym>
+			s look as follows:
+		</para>
+
+		<mediaobject>
+			<imageobject>
+				<imagedata width="300px" align="center"
+					fileref="images/sip_services_components_relation.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>&THIS.EXAMPLE;
+					Example components relations
+				</para>
+			</caption>
+		</mediaobject>
+	</section>
+	<section id="design_overview_location_and_registrar">
+		<title>Location and Registrar Operations</title>
+		<para>REGISTER requests which are passed to RegistrarSbb trigger
+			routine which updates user contact database and associated expiration
+			date. Simple sequence diagram for success case look as follows:
+		</para>
+		<mediaobject>
+			<imageobject>
+				<imagedata width="300px" align="center"
+					fileref="images/sip_services_registrar-seq.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>&THIS.EXAMPLE;
+					Registrar and Location sequence
+				</para>
+			</caption>
+		</mediaobject>
+		<para>
+			Location
+			<acronym>SBB</acronym>
+			creates
+			<acronym>JSLEE</acronym>
+			timer for each pair
+			<acronym>AOR</acronym>-contact address. Once timer expires contact address is considered as
+			invalid. Time between creation of this mapping and expiration depends
+			on
+			<literal>Expires Header</literal>
+			content.
+		</para>
+	</section>
+</chapter>
+
