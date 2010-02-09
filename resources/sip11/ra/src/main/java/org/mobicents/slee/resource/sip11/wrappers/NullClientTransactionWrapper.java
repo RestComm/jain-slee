@@ -6,9 +6,9 @@ package org.mobicents.slee.resource.sip11.wrappers;
 import javax.sip.Transaction;
 import javax.slee.Address;
 
+import org.mobicents.slee.resource.sip11.ClientTransactionActivityHandle;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
-import org.mobicents.slee.resource.sip11.TransactionActivityHandle;
 
 /**
  * A dummy client tx wrapper for a non existent client transaction,
@@ -28,7 +28,7 @@ public class NullClientTransactionWrapper extends ClientTransactionWrapper {
 	 * @param activityHandle
 	 */
 	public NullClientTransactionWrapper(SipActivityHandle activityHandle, SipResourceAdaptor ra) {
-		super((TransactionActivityHandle) activityHandle,ra);
+		super((ClientTransactionActivityHandle) activityHandle,ra);
 		setActivity(true);
 	}
 

@@ -10,7 +10,7 @@ import javax.sip.Transaction;
  * @author martins
  * 
  */
-public class TransactionActivityHandle extends SipActivityHandle implements Serializable {
+public abstract class TransactionActivityHandle extends SipActivityHandle implements Serializable {
 
 	/**
 	 * 

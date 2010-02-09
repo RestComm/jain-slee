@@ -29,7 +29,6 @@ import javax.sip.Transaction;
 import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.AddressFactory;
-import javax.sip.address.SipURI;
 import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
@@ -486,7 +485,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				//fire the event on a recreated dummy transaction
 				final String branchId = ((ViaHeader)response.getHeaders(ViaHeader.NAME).next()).getBranch();
 				final String method = ((CSeqHeader)response.getHeader(CSeqHeader.NAME)).getMethod();
-				handle = new TransactionActivityHandle(branchId,method);
+				handle = new ClientTransactionActivityHandle(branchId,method);
 				ctw = new NullClientTransactionWrapper(handle,this);
 				// create the activity
 				try {

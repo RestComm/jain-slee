@@ -13,9 +13,9 @@ import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.facilities.Tracer;
 
+import org.mobicents.slee.resource.sip11.ClientTransactionActivityHandle;
 import org.mobicents.slee.resource.sip11.SipActivityHandle;
 import org.mobicents.slee.resource.sip11.SipResourceAdaptor;
-import org.mobicents.slee.resource.sip11.TransactionActivityHandle;
 
 /**
  * 
@@ -49,14 +49,14 @@ public class ClientTransactionWrapper extends TransactionWrapper implements
 	 * @param ra
 	 */
 	public ClientTransactionWrapper(ClientTransaction wrappedTransaction, SipResourceAdaptor ra) {
-		super(new TransactionActivityHandle(wrappedTransaction
+		super(new ClientTransactionActivityHandle(wrappedTransaction
 				.getBranchId(),wrappedTransaction.getRequest().getMethod()));
 		this.wrappedTransaction = wrappedTransaction;
 		this.wrappedTransaction.setApplicationData(this);
 		setResourceAdaptor(ra);
 	}
 
-	protected ClientTransactionWrapper(TransactionActivityHandle handle, SipResourceAdaptor ra) {
+	protected ClientTransactionWrapper(ClientTransactionActivityHandle handle, SipResourceAdaptor ra) {
 		super(handle);
 		setResourceAdaptor(ra);
 	}
