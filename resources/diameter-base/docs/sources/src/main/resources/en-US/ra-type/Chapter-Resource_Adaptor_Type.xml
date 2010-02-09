@@ -6,7 +6,7 @@
 
 	<title>Resource Adaptor Type</title>
 
-	<para>Diameter Base Resource Adaptor Type is defined by Mobicents team as part of effort to standardize RA Types.</para>
+	<para>&THIS.RA; Resource Adaptor Type is defined by Mobicents team as part of effort to standardize RA Types.</para>
 	
 	<xi:include
 		xmlns:xi="http://www.w3.org/2001/XInclude"

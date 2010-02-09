@@ -9,7 +9,7 @@
 
 	<title>Resource Adaptor Interface</title>
 
-	<para>The &THIS.PLATFORM; Diameter Resource Adaptor SBB Interface provides SBBs with access to the Diameter objects required for creating and sending messages. It is defined as follows: </para>
+	<para>The &THIS.PLATFORM; &THIS.RA; Resource Adaptor SBB Interface provides SBBs with access to the Diameter objects required for creating and sending messages. It is defined as follows: </para>
 
 	<programlisting role="JAVA" langugage="Java">
 package net.java.slee.resource.diameter.base;

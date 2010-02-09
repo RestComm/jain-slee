@@ -9,7 +9,7 @@
 
 	<title>Activity Context Interface Factory</title>
 
-	<para>The &THIS.PLATFORM; Diameter Base Activity Context Interface Factory is defined as follows:</para>
+	<para>The &THIS.PLATFORM; &THIS.RA; Activity Context Interface Factory is defined as follows:</para>
 	
 	<programlisting role="JAVA" langugage="Java">
 package net.java.slee.resource.diameter.base;
