@@ -15,7 +15,7 @@
 		</section>
 		<section id="software_prerequisites">
 			<title>Software Prerequisites</title>
-			<para>The RA requires &THIS.PLATFORM; JAIN SLEE properly set and Mobicents Diameter Multiplexer (<acronym>MUX</acronym>), which includes the stack, to be properly installed too.</para>		
+			<para>The RA requires &THIS.PLATFORM; JAIN SLEE properly set and Mobicents Diameter Multiplexer (<acronym>MUX</acronym>), which includes the stack, and &THIS.PLATFORM; Diameter Base RA to be properly installed too.</para>		
 		</section>
 	</section>	
 	
