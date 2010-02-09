@@ -1,0 +1,47 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<artifactId>mobicents-slee-ra-sip11</artifactId>
+		<groupId>org.mobicents.resources</groupId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>mobicents-diameter-cca-ra-docs</artifactId>
+	<groupId>org.mobicents.resources</groupId>
+		
+	<packaging>pom</packaging>
+
+	<properties>
+		<docs.ra.name>Diameter CCA</docs.ra.name>
+		<docs.ra.dirname>diameter-cca</docs.ra.dirname>
+		<docs.bookid>DiameterCCA</docs.bookid>
+	</properties>
+	
+	<modules>
+		<module>sources</module>		
+	</modules>
+
+	<profiles>
+		<profile>
+			<id>mobicents</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>			
+			<modules>
+				<module>sources-mobicents</module>
+				<module>jdocbook-mobicents</module>				
+			</modules>
+		</profile>
+		<profile>
+			<id>jbcp</id>
+			<modules>
+				<module>sources-jbcp</module>
+				<module>jdocbook-jbcp</module>
+			</modules>
+		</profile>
+	</profiles>
+
+</project>

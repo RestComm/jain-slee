@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>This resource adaptor provides <acronym>DIAMETER</acronym> <acronym>API</acronym> for <acronym>JSLEE</acronym> applications. <ulink url="http://tools.ietf.org/html/rfc4006">CCA</ulink>   is a <acronym>RFC</acronym> specification of <acronym>DIAMETER</acronym> extension to allow real time credit control of end user services, ie. <acronym>SIP</acronym> services, equipment access, network access, ... etc.</para>
+	<para>Events represent <acronym>DIAMETER CCA</acronym> messages received by stack, that is requests and answers with command code equal to 272. Events are fired either on client or server activity.</para>
+	<para>The activities are custom defined by <acronym>RA</acronym> Type to ease use of <acronym>RA</acronym>. Activities represent <acronym>DIAMETER</acronym> session between two peers. <acronym>SLEE</acronym> applications use activities to create,send and receive messages.</para>	
+</chapter>
