@@ -163,17 +163,24 @@ public abstract class AbstractProfileMBeanImpl extends StandardMBean implements 
 	 */
 	public static ObjectName getObjectName(
 			String profileTableName, String profileName) {
+		// FIXME use only the "quoted" version when issue is fully solved at the JMX Console side 
 		try {
 			return new ObjectName(ProfileMBean.BASE_OBJECT_NAME + ','
 					+ ProfileMBean.PROFILE_TABLE_NAME_KEY + '='
-					+ ObjectName.quote(profileTableName) + ','
+					+ profileTableName + ','
 					+ ProfileMBean.PROFILE_NAME_KEY + '='
-					+ ObjectName.quote(profileName != null ? profileName : "")
-					//+ ",uuid=" + ObjectName.quote(UUID.randomUUID().toString()));
-					// specially for tck 
-					);
+					+ (profileName != null ? profileName : ""));
 		} catch (Throwable e) {
-			throw new SLEEException(e.getMessage(),e);
+			try {
+				return new ObjectName(ProfileMBean.BASE_OBJECT_NAME + ','
+						+ ProfileMBean.PROFILE_TABLE_NAME_KEY + '='
+						+ ObjectName.quote(profileTableName) + ','
+						+ ProfileMBean.PROFILE_NAME_KEY + '='
+						+ ObjectName.quote(profileName != null ? profileName : ""));
+			}
+			catch (Throwable f) {
+				throw new SLEEException(e.getMessage(),e);
+			}
 		}
 	}
 	
