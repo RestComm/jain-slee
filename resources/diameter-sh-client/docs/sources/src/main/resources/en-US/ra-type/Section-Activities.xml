@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>&THIS.RA; Type &THIS.VERSION;	defines the following Activities:</para>
+	
+	<variablelist>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.sh.client.ShClientActivity</term>
+			<listitem>
+				<para>This type of activity represents client side of Sh session. User-Data-Request (UDR), Profile-Update-Request (PUR) and Subscribe-Notifications-Request (SNR) can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type can be created with call to the <methodname>createShClientActivity</methodname> method of <classname>net.java.slee.resource.diameter.sh.client.ShClientProvider</classname>. It ends once underlying Sh client session ends.</para>
+				<para>This activity sessions are simple Request-Answer sessions, meaning that once the Answer is sent or received it is terminated.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.sh.client.ShClientSubscriptionActivity</term>
+			<listitem>
+				<para>This type of activity represents a subscription to User Data notifications for Sh session, based on User Identity. Push-Notification-Request (PNR) messages are received in this Activity and respective Answers are sent from it. Subscribe-Notifications-Request (SNR) can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type can be created with call to the <methodname>createShClientSubscriptionActivity</methodname> method of <classname>net.java.slee.resource.diameter.sh.client.ShClientProvider</classname>. It ends once SNR with UNSUBSCRIBE as Subs-Req-Type is sent (can be made using the Activity method <methodname>sendUnsubscribeRequest</methodname>.)</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	
+	<para>
+		All activities define methods required to properly function and	expose necessary information to	<acronym>JAIN SLEE</acronym> services.
+		Sh Client Activity is defined as follows:
+	</para>
+	
+	<programlisting role="JAVA" language="Java">
+	void sendUserDataRequest(UserDataRequest message) throws IOException;
+
+	void sendSubscribeNotificationsRequest(SubscribeNotificationsRequest message) 
+		throws IOException; 
+
+	void sendProfileUpdateRequest(ProfileUpdateRequest message) throws IOException;
+	</programlisting>
+
+	<variablelist>
+		<varlistentry>
+			<term>void sendUserDataRequest(UserDataRequest message) throws IOException;</term>
+			<listitem>
+				<para>This method sends a User-Data-Request message asynchronously.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>void sendSubscribeNotificationsRequest(SubscribeNotificationsRequest message) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Subscribe-Notifications-Request message asynchronously.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>void sendProfileUpdateRequest(ProfileUpdateRequest message) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Profile-Update-Request message asynchronously.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<para>Sh Client Subscription Activity is defined as follows:</para>
+	
+	<programlisting role="JAVA" language="Java">
+	ShClientMessageFactory getClientMessageFactory();
+
+	void sendSubscribeNotificationsRequest(SubscribeNotificationsRequest request)
+		throws IOException;
+
+	void sendUnsubscribeRequest() throws IOException;
+
+	PushNotificationAnswer createPushNotificationAnswer();
+
+	void sendPushNotificationAnswer(PushNotificationAnswer answer) throws IOException;
+
+	void sendPushNotificationAnswer(long resultCode,boolean isExperimentalResultCode)
+		throws IOException;
+
+	PushNotificationAnswer createPushNotificationAnswer(long resultCode,
+		boolean isExperimaental);
+
+	UserIdentityAvp getSubscribedUserIdentity();
+	</programlisting>
+	
+	<variablelist>
+		<varlistentry>
+			<term>ShClientMessageFactory getClientMessageFactory();</term>
+			<listitem>
+				<para>This method returns a 'customized' message factory to manually create Sh Client Messages for this Activity.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>void sendSubscribeNotificationsRequest(SubscribeNotificationsRequest request) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Subscribe-Notifications-Request message.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>void sendUnsubscribeRequest() throws IOException;</term>
+			<listitem>
+				<para>This method send a Subscribe-Notifications-Request message containing the AVPs required to UNSUBSCRIBE from the user that this activity represents a subscription to.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>PushNotificationAnswer createPushNotificationAnswer();</term>
+			<listitem>
+				<para>This method creates Push-Notification-Answer for received Push-Notification-Request. It returns null if a Push-Notification-Request has not been received.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>void sendPushNotificationAnswer(PushNotificationAnswer answer) throws IOException;</term>
+			<listitem>
+				<para>This method sends a manually-constructed Push-Notification-Answer to the peer that sent the Push-Notification-Request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>void sendPushNotificationAnswer(long resultCode,boolean isExperimentalResultCode) throws IOException;</term>
+			<listitem>
+				<para>This is a convenience method to create and send a Push-Notification-Answer containing a Result-Code or Experimental-Result AVP populated with the given value.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>PushNotificationAnswer createPushNotificationAnswer(long resultCode, boolean isExperimaental);</term>
+			<listitem>
+				<para>This method creates Push-Notification-Answer for received Push-Notification-Request, with the specified Result-Code. It returns null if a Push-Notification-Request has not been received.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>UserIdentityAvp getSubscribedUserIdentity();</term>
+			<listitem>
+				<para>This method returns the User-Identity for the subscription in the HSS represented by this activity.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<note><para>It is safe to type cast all the mentioned Diameter Activities to it's super interface <classname>net.java.slee.resource.diameter.base.DiameterActivity</classname> defined in Diameter Base Activities section.</para></note>
+</section>
