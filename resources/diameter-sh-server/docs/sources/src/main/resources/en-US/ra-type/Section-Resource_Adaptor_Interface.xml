@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_ra_interface">
+
+	<title>Resource Adaptor Interface</title>
+
+	<para>The &THIS.PLATFORM; &THIS.RA; Resource Adaptor SBB Interface provides SBBs with access to the Diameter objects required for creating and sending messages. It is defined as follows: </para>
+
+	<programlisting role="JAVA" langugage="Java">
+	package net.java.slee.resource.diameter.sh.server;
+
+	import java.io.IOException;
+
+	import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
+	import net.java.slee.resource.diameter.sh.DiameterShAvpFactory;
+	import net.java.slee.resource.diameter.sh.events.PushNotificationAnswer;
+	import net.java.slee.resource.diameter.sh.events.PushNotificationRequest;
+
+	public interface ShServerProvider {
+
+		public ShServerMessageFactory getServerMessageFactory();
+
+		public DiameterShAvpFactory getServerAvpFactory();
+
+		public ShServerNotificationActivity createShServerNotificationActivity()
+			throws CreateActivityException;
+
+		public PushNotificationAnswer pushNotificationRequest(PushNotificationRequest message)
+			throws IOException;
+
+		public DiameterIdentity[] getConnectedPeers();
+
+		public int getPeerCount();
+	}
+	</programlisting>
+	
+	<para>
+		<variablelist>
+			<varlistentry>
+				<term>public ShServerMessageFactory getServerMessageFactory();</term>
+				<listitem><para>This method returns a <classname>ShServerMessageFactory</classname> implementation to be used to create <classname>DiameterMessage</classname> objects.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public DiameterShAvpFactory getServerAvpFactory();</term>
+				<listitem><para>This method returns a <classname>DiameterShAvpFactory</classname> implementation to be used to create <classname>DiameterAvp</classname> objects.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public ShServerNotificationActivity createShServerNotificationActivity() throws CreateActivityException;</term>
+				<listitem><para>This method creates a new Sh Server Activity to send and receive notification related Diameter Sh messages.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public PushNotificationAnswer pushNotificationRequest(PushNotificationRequest message) throws IOException;</term>
+				<listitem><para>This method sends a synchronous PushNotificationRequest which will block until an answer is received from the peer.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public DiameterIdentity[] getConnectedPeers();</term>
+				<listitem><para>This method returns the identities of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>public int getPeerCount();</term>
+				<listitem><para>This method returns the number of peers this Diameter resource adaptor is connected to.</para></listitem>
+			</varlistentry>
+		</variablelist>
+	</para>
+</section>

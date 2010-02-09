@@ -30,6 +30,11 @@
     <mobicents.diameter.mux.version>1.1.1.GA</mobicents.diameter.mux.version>
     <mobicents.diameter.resources.base-common.version>2.0.0.CR1</mobicents.diameter.resources.base-common.version>
     <mobicents.diameter.resources.sh-common.version>2.0.0.CR1</mobicents.diameter.resources.sh-common.version>
+	<!-- Documentation Related Properties -->
+    <docs.profile>mobicents</docs.profile>
+    <docs.ra.name>Diameter Sh-Server</docs.ra.name>
+    <docs.ra.dirname>diameter-sh-server</docs.ra.dirname>
+    <docs.bookid>DIAMETER_SH_SERVER</docs.bookid>
    </properties>
 
   <profiles>
