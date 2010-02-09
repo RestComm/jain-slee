@@ -7,4 +7,14 @@
 		<surname>Martins</surname>
 		<email>&AUTHOR_EMAIL_EDUARDO;</email>
 	</author>
+	<author>
+		<firstname>Bartosz</firstname>
+		<surname>Baranowski</surname>
+		<email>&AUTHOR_EMAIL_BARTOSZ;</email>
+	</author>
+	<author>
+		<firstname>Alexandre</firstname>
+		<surname>Mendonça</surname>
+		<email>&AUTHOR_EMAIL_ALEX;</email>
+	</author>
 </authorgroup>

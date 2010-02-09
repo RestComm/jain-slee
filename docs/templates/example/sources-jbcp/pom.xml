@@ -18,6 +18,9 @@
 		<THIS.RELEASE_SOURCE_CODE_URL>?</THIS.RELEASE_SOURCE_CODE_URL>
 		<THIS.TRUNK_SOURCE_CODE_URL>NOT AVAILABLE</THIS.TRUNK_SOURCE_CODE_URL>
 		<author.email.eduardo>emartins (at) redhat.com</author.email.eduardo>
+		<author.email.bartosz>bbaranow (at) redhat.com</author.email.bartosz>
+		<author.email.alex>amendonca (at) redhat.com</author.email.alex>
+		
 	</properties>
 	
 	<build>
