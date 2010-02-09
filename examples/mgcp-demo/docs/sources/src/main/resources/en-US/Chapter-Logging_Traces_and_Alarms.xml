@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="logging_traces_and_alarms">
+
+	<title>Traces and Alarms</title>
+
+	<section id="tracers">
+		<title>Tracers</title>
+		<para>Each SBB has its own JAIN SLEE 1.1 Tracer</para>
+	</section>	
+	
+	<section id="alarms">
+		<title>Alarms</title>
+		<para>The example Application does not sets JAIN SLEE Alarms.</para>
+	</section>
+	
+</chapter>
