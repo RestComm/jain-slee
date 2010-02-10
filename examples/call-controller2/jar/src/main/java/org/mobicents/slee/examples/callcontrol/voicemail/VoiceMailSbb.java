@@ -775,7 +775,6 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 		return sameUser;
 	}
 
-	// TODO: Perform further operations if required in these methods.
 	public void setSbbContext(SbbContext context) {
 		super.setSbbContext(context);
 
@@ -794,11 +793,9 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			sipACIF = (SipActivityContextInterfaceFactory) myEnv
 					.lookup("slee/resources/jainsip/1.2/acifactory");
 			// Getting Timer Facility interface
-			//timerFacility = (TimerFacility) myEnv
-			//		.lookup("slee/facilities/timer");
 
 			route = (String) myEnv.lookup("filesRoute");
-			//new File(route).getAbsoluteFile().mkdir();
+
 			log.info("=== Files Route: "+route+" ===");
 			mmsBindAddress = (String) myEnv.lookup("server.address");
 		} catch (NamingException e) {
@@ -807,8 +804,7 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	}
 
 	public void sbbPostCreate() throws javax.slee.CreateException {
-		// Setting DTMF
-		//this.setDtmf(NON_DIGIT);
+
 	}
 
 	public abstract org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP getCallControlProfileCMP(
@@ -865,55 +861,17 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 	 * *************** *****************************************
 	 */
 
-	// 'mediaSession' CMP field setter
-	// public abstract void setMediaSession(MsSession value);
-
-	// 'mediaSession' CMP field getter
-	// public abstract MsSession getMediaSession();
-
 	// 'inviteRequest' CMP field setter
 	public abstract void setInviteRequest(Request value);
 
 	// 'inviteRequest' CMP field getter
 	public abstract Request getInviteRequest();
 
-	// 'serverTransaction' CMP field setter
-	// public abstract void setServerTransaction(ServerTransaction value);
-
-	// 'serverTransaction' CMP field getter
-	// public abstract ServerTransaction getServerTransaction();
-
-	// 'ok' CMP field setter
-	//public abstract void setOk(boolean value);
-
-	// 'ok' CMP field getter
-	//public abstract boolean getOk();
-
 	// 'sameUser' CMP field setter
 	public abstract void setSameUser(boolean value);
 
 	// 'sameUser' CMP field getter
 	public abstract boolean getSameUser();
-
-	// 'timerID' CMP field setter
-	//public abstract void setTimerID(TimerID value);
-
-	// 'timerID' CMP field getter
-	//public abstract TimerID getTimerID();
-
-	// 'dtmf' CMP field setter
-	//public abstract void setDtmf(String value);
-
-	// 'dtmf' CMP field getter
-	//public abstract String getDtmf();
-
-	//public abstract String getUserIVREndpoint();
-
-	//public abstract void setUserIVREndpoint(String endpointName);
-
-	//public abstract String getUserPREndpoint();
-
-	//public abstract void setUserPREndpoint(String endpointName);
 
 	public abstract void setCallIdentifier(CallIdentifier cid);
 
