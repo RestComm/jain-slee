@@ -7,7 +7,7 @@
 <section id="location_sbb">
 	<title>LocationSbb</title>
 	<para>
-		<literal>LocationSbb</literal>
+		<literal>LocationSbb</literal> is responsible
 		for storing and managing expiration of address bindings.
 	</para>
 	<para>
