@@ -1,0 +1,44 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+<bookinfo
+	id="&BOOK_ID;">
+	<title>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor User Guide</title>
+	<subtitle></subtitle>
+	<productname>&THIS.PLATFORM; JAIN SLEE &THIS.RA; RA</productname>
+	<productnumber>&THIS.VERSION;</productnumber>
+	<edition>3.0</edition>
+	<pubsnumber>1</pubsnumber>
+
+	<abstract>
+		<para>&THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor (<acronym>RA</acronym>) is the JAIN SLEE 1.1 RA for the <acronym>IMS</acronym> Rf Interface, the reference point for Offline Charging in <acronym>IMS</acronym> and follows a mechanism where charging information <emphasis>does not</emphasis> affect, in real-time, the service rendered. In other words, <acronym>CTF</acronym> simply informs <acronym>OCF</acronym> how many units service intaraction consumed. It is described in <ulink url="http://www.3gpp.org/ftp/Specs/html-info/32260.htm">TS32.260</ulink> and <ulink url="http://www.3gpp.org/ftp/Specs/html-info/32299.htm">TS32.299</ulink> by <acronym>3GPP</acronym>.</para>
+		<para>This RA implements the Resource Adaptor Type defined by Mobicents development teams.</para>		
+	</abstract>
+	
+	<corpauthor>
+		<inlinemediaobject>
+			<imageobject>
+				<imagedata
+					format="SVG"
+					fileref="images/icon.svg" />
+			</imageobject>
+			<textobject>
+				<phrase>Logo</phrase>
+			</textobject>
+		</inlinemediaobject>
+	</corpauthor>
+	<copyright>
+		<year>&YEAR;</year>
+		<holder>Red Hat, Inc.</holder>
+	</copyright>
+	<!-- FIXME this include is throwing compile errors
+	<xi:include
+		href="Common_Content/Legal_Notice.xml"
+		xmlns:xi="http://www.w3.org/2001/XInclude" />
+	-->
+	<xi:include
+		href="Author_Group.xml"
+		xmlns:xi="http://www.w3.org/2001/XInclude" />
+</bookinfo>
+
+
+

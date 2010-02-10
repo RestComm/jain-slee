@@ -28,6 +28,11 @@
     <mobicents.diameter.jdiameter.version>1.5.3.0-build350</mobicents.diameter.jdiameter.version>
     <mobicents.diameter.mux.version>1.1.1.GA</mobicents.diameter.mux.version>
     <mobicents.diameter.resources.base-common.version>2.0.0.CR1</mobicents.diameter.resources.base-common.version>
+	<!-- Documentation Related Properties -->
+    <docs.profile>mobicents</docs.profile>
+    <docs.ra.name>Diameter Rf</docs.ra.name>
+    <docs.ra.dirname>diameter-rf</docs.ra.dirname>
+    <docs.bookid>DIAMETER_RF</docs.bookid>
    </properties>
 
   <profiles>

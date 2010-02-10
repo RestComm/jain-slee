@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>This resource adaptor provides a Diameter API for JAIN SLEE applications, according to Rf inteface based on Diameter protocol.</para>
+	<para>Rf is one of two IMS reference point for charging. It covers offline charging - scenarios where charging information <emphasis>does not</emphasis> affect, in real-time, the service rendered.</para>
+	<para>Offline Charging occurs between two peers: the CTF (the online client, which issues request for accounting) and CDF (the server which performs accounting).</para>
+	<para>Two cases are currently distinguished for offline charging purposes:
+		<itemizedlist>
+			<listitem>Event based charging;</listitem>
+			<listitem>Session based charging.</listitem>
+		</itemizedlist>
+	</para>
+	<para>For offline charging the Diameter Base Accounting defined in IETF <ulink url="http://tools.ietf.org/html/rfc3588">RFC 3588</ulink> is used with additional AVPs defined. Also it reuses the FSM from Diameter Base Accounting.</para>
+	<para>Events are reused from Diameter Base Resource Adaptor and represent messages received by the Diameter stack. Different events types are specified for each Diameter request or answer. Events are fired either on client or server activities.</para>
+	<para>The Activities are defined by <acronym>RA</acronym> Type (and are an extension to Base Accounting Activities) to ease use of <acronym>RA</acronym>. Activities represent Diameter session between two peers. <acronym>SLEE</acronym> applications use activities to create, send and receive messages.</para>
+
+</chapter>

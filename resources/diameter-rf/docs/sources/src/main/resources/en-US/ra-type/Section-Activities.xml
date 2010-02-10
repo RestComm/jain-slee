@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>&THIS.RA; Type &THIS.VERSION;	defines the following Activities:</para>
+	
+	<variablelist>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.rf.RfClientSession</term>
+			<listitem>
+				<para>This type of activity represents client side of Rf session. Accounting-Request (ACR) messages can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type can be created with call to the proper <methodname>createRfClientSessionActivity</methodname> method of <classname>net.java.slee.resource.diameter.rf.RfProvider</classname>. It ends once underlying Base Accounting session ends.</para>
+				<para>State machines for client Rf are based on Base Accounting client sessions which can be found at <ulink url="http://tools.ietf.org/html/rfc3588#section-8.2">Section 8.2</ulink> of Diameter Base Protocol RFC.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.rf.RfServerSession</term>
+			<listitem>
+				<para>This type of activity represents server side of Rf session. Accounting-Request (ACR) are received in this Activity and respective Answers are sent from it.</para>
+				<para>This activity type is implicitly created by the Resource Adaptor upon reception of the Accounting-Request message. It ends once underlying Base Accounting session ends.</para>
+				<para>State machines for client Rf are based on Base Accounting client sessions which can be found at <ulink url="http://tools.ietf.org/html/rfc3588#section-8.2">Section 8.2</ulink> of Diameter Base Protocol RFC.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	
+	<para>
+		All activities define methods required to properly function and	expose necessary information to	<acronym>JAIN SLEE</acronym> services.
+		Rf Server Activity is defined as follows:
+	</para>
+	
+	<programlisting role="JAVA" language="Java">
+	public AccountingAnswer createRfAccountingAnswer();
+
+	public AccountingAnswer createRfAccountingAnswer(AccountingRequest acr);
+
+	public void sendAccountingAnswer(AccountingAnswer accountingAnswer)
+		throws IOException, IllegalArgumentException;
+	</programlisting>
+
+	<variablelist>
+		<varlistentry>
+			<term>public AccountingAnswer createRfAccountingAnswer();</term>
+			<listitem>
+				<para>This method creates an Accounting-Answer with the Acct-Application-Id set to 3.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public AccountingAnswer createRfAccountingAnswer(AccountingRequest acr);</term>
+			<listitem>
+				<para>This method creates an Accounting-Answer with some AVPs populated from the provided Accounting-Request.</para>
+				<para>The ACA will contain the AVPs specified in createRfAccountingAnswer() and the following AVPs from the Accounting-Request:
+					<itemizedlist>
+						<listitem>Accounting-Record-Type</listitem>
+						<listitem>Accounting-Record-Number</listitem>
+					</itemizedlist>
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendAccountingAnswer(AccountingAnswer accountingAnswer) throws IOException, IllegalArgumentException;</term>
+			<listitem>
+				<para>This method sends an Accounting Answer.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<para>Rf Client Activity is defined as follows:</para>
+	
+	<programlisting role="JAVA" language="Java">
+		public void sendAccountingRequest(AccountingRequest accountingRequest)
+			throws IOException, IllegalArgumentException;
+	</programlisting>
+	
+	<variablelist>
+		<varlistentry>
+			<term>public void sendAccountingRequest(AccountingRequest accountingRequest) throws IOException, IllegalArgumentException;</term>
+			<listitem>
+				<para>This method sends an Accounting Request.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<note><para>It is safe to type cast all the mentioned Diameter Activities to it's super interface <classname>net.java.slee.resource.diameter.base.DiameterActivity</classname> defined in Diameter Base Activities section.</para></note>
+</section>
