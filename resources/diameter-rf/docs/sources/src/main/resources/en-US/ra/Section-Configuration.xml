@@ -29,7 +29,7 @@
 			<tbody>
 				<row>
 			   		<entry>acctApplicationIds</entry>
-			   	    <entry>List of supported Authorization Application Ids in form of {vendor}:{application-id}, separated by comma ','</entry>
+			   	    <entry>List of supported Accounting Application Ids in form of {vendor}:{application-id}, separated by comma ','</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>10415:3</entry>
 			    </row>
