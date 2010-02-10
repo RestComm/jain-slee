@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>&THIS.RA; Type &THIS.VERSION;	defines the following Activities:</para>
+	
+	<variablelist>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.ro.RoClientSession</term>
+			<listitem>
+				<para>This type of activity represents client side of Ro session. Credit-Control-Request (CCR) messages can be created and sent in this Activity, receiving the respective Answer (or timeout) later on this Activity.</para>
+				<para>This activity type can be created with call to the proper <methodname>createRoClientSessionActivity</methodname> method of <classname>net.java.slee.resource.diameter.ro.RoProvider</classname>. It ends once underlying Credit Control session ends.</para>
+				<para>State machine for client Credit Control sessions can be found at <ulink url="http://tools.ietf.org/html/rfc4006#section-7">Section 7</ulink> of Diameter Credit Control Application RFC.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>net.java.slee.resource.diameter.ro.RoServerSession</term>
+			<listitem>
+				<para>This type of activity represents server side of Ro session. Credit-Control-Request (CCR) are received in this Activity and respective Answers are sent from it.</para>
+				<para>This activity type is implicitly created by the Resource Adaptor upon reception of the Credit-Control-Request message. It ends once underlying Credit Control session ends.</para>
+				<para>State machine for client Credit Control sessions can be found at <ulink url="http://tools.ietf.org/html/rfc4006#section-7">Section 7</ulink> of Diameter Credit Control Application RFC.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	
+	<para>
+		All activities define methods required to properly function and	expose necessary information to	<acronym>JAIN SLEE</acronym> services.
+		Ro Server Activity is defined as follows:
+	</para>
+	
+	<programlisting role="JAVA" language="Java">
+	public public CreditControlAnswer createRoCreditControlAnswer();
+
+	public void sendCreditControlAnswer(CreditControlAnswer cca) throws IOException;
+	</programlisting>
+
+	<variablelist>
+		<varlistentry>
+			<term>public CreditControlAnswer createRoCreditControlAnswer();</term>
+			<listitem>
+				<para>This method creates a Ro-specific Credit-Control-Answer message pre-populated with the AVPs appropriate for this session.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendCreditControlAnswer(CreditControlAnswer cca) throws IOException;</term>
+			<listitem>
+				<para>This method sends a Credit-Control-Answer message to the peer.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<para>Ro Client Activity is defined as follows:</para>
+	
+	<programlisting role="JAVA" language="Java">
+	public void sendEventCreditControlRequest(CreditControlRequest ccr)
+		throws IOException;
+
+	public void sendInitialCreditControlRequest(CreditControlRequest ccr)
+		throws IOException;
+
+	public void sendUpdateCreditControlRequest(CreditControlRequest ccr)
+		throws IOException;
+
+	public void sendTerminationCreditControlRequest(CreditControlRequest ccr)
+		throws IOException;
+	</programlisting>
+	
+	<variablelist>
+		<varlistentry>
+			<term>public void sendEventCreditControlRequest(CreditControlRequest ccr) throws IOException;</term>
+			<listitem>
+				<para>This method sends an event Credit-Control-Request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendInitialCreditControlRequest(CreditControlRequest ccr) throws IOException;</term>
+			<listitem>
+				<para>This method sends an initial Credit-Control-Request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendUpdateCreditControlRequest(CreditControlRequest ccr) throws IOException;</term>
+			<listitem>
+				<para>This method sends an update (intermediate) Credit-Control-Request.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>public void sendTerminationCreditControlRequest(CreditControlRequest ccr) throws IOException;	</term>
+			<listitem>
+				<para>This method sends a termination Credit-Control-Request.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+	<note><para>It is safe to type cast all the mentioned Diameter Activities to it's super interface <classname>net.java.slee.resource.diameter.base.DiameterActivity</classname> defined in Diameter Base Activities section.</para></note>
+</section>

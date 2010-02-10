@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>This resource adaptor provides a Diameter API for JAIN SLEE applications, according to Ro inteface based on Diameter protocol.</para>
+	<para>Ro is one of two IMS reference point for charging. It covers online charging - scenarios where charging information can affect, in real-time, the service rendered and therefore a direct interaction of the charging mechanism with session/service control is required.</para>
+	<para>Online Charging occurs between two peers: the CTF (the online client, which issues request for accounting) and OCF (the server which performs accounting).</para>
+	<para>Three cases for control of user credit for online charging are distinguished:
+		<itemizedlist>
+			<listitem>Immediate Event Charging IEC;</listitem>
+			<listitem>Event Charging with Unit Reservation (ECUR);</listitem>
+			<listitem>Session Charging with Unit Reservation (SCUR).</listitem>
+		</itemizedlist>
+	</para>
+	<para>For online charging the Diameter Credit Control Application (DCCA) defined in IETF <ulink url="http://tools.ietf.org/html/rfc4006">RFC 4006</ulink> is used with additional AVPs defined. Also it reuses the FSM from Diameter Credit Control Application.</para>
+	<para>Events are reused from Diameter CCA Resource Adaptor and represent messages received by the Diameter stack. Different events types are specified for each Diameter request or answer. Events are fired either on client or server activities.</para>
+	<para>The Activities are defined by <acronym>RA</acronym> Type (and are an extension to CCA Activities) to ease use of <acronym>RA</acronym>. Activities represent Diameter session between two peers. <acronym>SLEE</acronym> applications use activities to create, send and receive messages.</para>
+
+</chapter>
