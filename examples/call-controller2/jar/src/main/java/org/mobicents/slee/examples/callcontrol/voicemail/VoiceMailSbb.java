@@ -108,11 +108,8 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 
 		// Server Transaction
 		ServerTransaction st = event.getServerTransaction();
-		// Setting Server Transaction
-		// this.setServerTransaction(st);
 
 		try {
-			// localAci.detach(this.getSbbLocalObject());
 
 			if (localAci.getFilteredByAncestor()) {
 				log
