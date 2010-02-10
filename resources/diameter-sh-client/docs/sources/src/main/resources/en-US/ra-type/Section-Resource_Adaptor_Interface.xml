@@ -58,7 +58,7 @@
 				<listitem><para>This method returns a <classname>ShClientMessageFactory</classname> implementation to be used to create <classname>DiameterMessage</classname> objects.</para></listitem>
 			</varlistentry>
 			<varlistentry>
-				<term>public DiameterAvpFactory getDiameterAvpFactory();</term>
+				<term>public DiameterShAvpFactory getClientAvpFactory();</term>
 				<listitem><para>This method returns a <classname>DiameterShAvpFactory</classname> implementation to be used to create <classname>DiameterAvp</classname> objects.</para></listitem>
 			</varlistentry>
 			<varlistentry>
