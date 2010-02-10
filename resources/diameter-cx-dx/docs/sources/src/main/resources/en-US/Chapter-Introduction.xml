@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>This resource adaptor provides a Diameter API for JAIN SLEE applications, according to Cx/Dx intefaces based on Diameter protocol.</para>
+	<para>The Cx interface specifies a Diameter application that allows a Diameter Multimedia server and a Diameter Multimedia client:
+		<itemizedlist>
+			<listitem>to exchange location information</listitem>
+			<listitem>to authorize a user to access the IMS</listitem>
+			<listitem>to exchange authentication information</listitem>
+			<listitem>to download and handle changes in the user data stored in the server</listitem>
+		</itemizedlist>
+	</para>
+	<para>Dx interface is used to locate the proper HSS in a multi-HSS environment.</para>
+	<para>Cx/Dx interface sessions are implicitly terminated, for which the server does not maintain state information.</para>
+	<para>Events represent Diameter Cx/Dx messages received by the Diameter stack. Different events types are specified for each Diameter request or answer. Events are fired either on client or server activities.</para>
+	<para>The Activities are defined by <acronym>RA</acronym> Type to ease use of <acronym>RA</acronym>. Activities represent Diameter session between two peers. <acronym>SLEE</acronym> applications use activities to create, send and receive messages.</para>
+
+</chapter>
