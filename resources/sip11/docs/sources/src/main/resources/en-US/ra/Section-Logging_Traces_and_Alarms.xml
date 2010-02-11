@@ -11,7 +11,7 @@
 
 	<section id="ra_tracers">
 		<title>Tracers</title>
-		<para>Each Resource Adaptor Entity uses a single JAIN SLEE 1.1 Tracer, named <literal>SipResourceAdaptor</literal>.</para>
+		<para>Each Resource Adaptor Entity uses a single JAIN SLEE 1.1 Tracer, named <literal>SipResourceAdaptor</literal>. The related Log4j Logger category, which can be used to change the Tracer level from Log4j configuration, is <literal>javax.slee.RAEntityNotification[entity=SipRA]</literal></para>
 	</section>	
 	
 	<section id="ra_alarms">
