@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_sbb_code_examples">
+
+	<title>Sbb Code Examples</title>
+
+	<para>The following code examples shows how to use the Resource Adaptor Type for common functionalities</para>
+	
+	<section id="ratype_sbb_code_examples_sync_operations">
+
+		<title>Synchronous Operations</title>
+
+		<para>The following code examples the usage of the RA's SBB Interface to send synchronous HTTP requests:</para>
+		
+		<programlisting language="Java" role="JAVA">
+			<![CDATA[
+HttpMethod httpMethod = raSbbInterface.createHttpMethod(
+			HttpMethodName.GET, syndFeed.getLink());
+try {
+	Response response = raSbbInterface.executeMethod(httpMethod);
+} catch (Throwable e) {
+	tracer.severe("Error while sending request",e);
+}			
+			]]>
+		</programlisting>
+	</section>
+
+	<section id="ratype_sbb_code_examples_async_operations">
+
+		<title>Asynchronous Operations</title>
+
+		<para>The following code examples the creation and usage of the HttpClientActivity to send an async HTTP GET requests the optimal way to use the RA, since it doesn't block the SLEE container event routing threads:</para>
+		
+		<programlisting language="Java" role="JAVA">
+			<![CDATA[
+HttpMethod httpMethod = raSbbInterface.createHttpMethod(
+			HttpMethodName.GET, syndFeed.getLink());
+try {
+	HttpClientActivity clientActivity = raSbbInterface
+			.createHttpClientActivity(true);
+	ActivityContextInterface clientAci = httpClientAci
+			.getActivityContextInterface(clientActivity);
+	clientAci.attach(sbbContext.getSbbLocalObject());
+	clientActivity.executeMethod(httpMethod);
+} catch (Throwable e) {
+	tracer.severe("Error while creating HttpClientActivity",e);
+}			
+			]]>
+		</programlisting>
+		
+	</section>
+	
+</section>

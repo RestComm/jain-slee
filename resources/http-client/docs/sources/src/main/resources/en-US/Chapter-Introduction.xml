@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>The Hyper-Text Transfer Protocol (HTTP) is perhaps the most significant protocol used on the Internet today. Web services, network-enabled appliances and the growth of network computing continue to expand the role of the HTTP protocol beyond user-driven web browsers, while increasing the number of applications that require HTTP support; for example Application developed using SLEE. The Jakarta Commons HttpClient component provides an efficient, up-to-date, and feature-rich package implementing the client side of the most recent HTTP standards and recommendations. Http Client RA provides the client side HTTP standard within the SLEE environment, using the popular Apache Commons Http Client library. An SBB can use the HTTP Client RA to make a request and get the Response Synchronously or Asynchronously. </para>
+	
+</chapter>

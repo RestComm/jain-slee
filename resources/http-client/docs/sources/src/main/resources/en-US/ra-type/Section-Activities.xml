@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>The single activity object for &THIS.RA; Resource Adaptor is the <literal>net.java.client.slee.resource.http.HttpClientActivity</literal> interface. Through the activity an SBB can send multiple HTTP requests, and receive the related responses asynchronously. Due to the nature of SLEE activities, this RA activity acts like a queue of requests, allowing the processing of their responses - the events- in a serialized way</para>
+	
+	<para>An activity starts on demand by an SBB, through the RA SBB Interface, and it ends when the response is received, or when the SBB invokes its <literal>endActivity()</literal> method.</para>
+	
+	<para>The <literal>HttpClientActivity</literal> interface is defined as follows:</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package net.java.client.slee.resource.http;
+
+import org.apache.commons.httpclient.HttpMethod;
+
+public interface HttpClientActivity {
+
+	public String getSessionId();
+
+	public void endActivity();
+
+	public boolean getEndOnReceivingResponse();
+
+	public void executeMethod(HttpMethod httpMethod);
+}
+     	]]>
+     </programlisting>
+     
+     <varlistentry>
+		<term>The <literal>getSessionId()</literal> method:</term>
+		<listitem>
+			<para>Retrieves the activity unique Id.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>getEndOnReceivingResponse()</literal> method:</term>
+		<listitem>
+			<para>Returns true if this Activity is set to end as soon as the Response is received</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>executeMethod(HttpMethod)</literal> method:</term>
+		<listitem>
+			<para>Executes an <literal>HttpMethod</literal>, i.e., sends an HTTP request, created through the RA SBB Interface.</para>
+		</listitem>
+	</varlistentry>
+		
+	<varlistentry>
+		<term>The <literal>endActivity()</literal> method:</term>
+		<listitem>
+			<para>Ends the activity and its related Activity Context.</para>
+		</listitem>
+	</varlistentry>	
+</section>
