@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>The &THIS.RA; Resource Adaptor provides interaction with XMPP resources, supporting XMPP Client and Component connections. The RA adapts the well known and open source <literal>SMACK 3.x</literal> XMPP Client API, from JIVE Software, extending it with XMPP Component connections. For further information about the <literal>SMACK</literal> API refer to its website at <ulink url="http://www.igniterealtime.org/projects/smack/"></ulink>.</para>
+	
+</chapter>

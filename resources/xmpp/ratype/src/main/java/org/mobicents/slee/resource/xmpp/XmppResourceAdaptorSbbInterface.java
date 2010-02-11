@@ -63,7 +63,7 @@ public interface XmppResourceAdaptorSbbInterface {
 	public XmppConnection connectComponent(String connectionID, String serverHost, int serverPort, String serviceName, String componentName, String componentSecret, Collection<Class<?>> packetFilters)  throws XMPPException;
 	
 	/**
-	 * Disconnects the XMPP connection with the speficied Id.
+	 * Disconnects the XMPP connection with the specified Id.
 	 * 
 	 * @param connectionID the Id of the XMPP connection to disconnect.
 	 */
