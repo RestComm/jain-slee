@@ -1,0 +1,43 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+	
+	<para>The &THIS.EXAMPLE; Example is a simple JAIN SLEE 1.1 Application, which creates an XMPP client connection to Google Talk Service when the application is activated by the SLEE Container. The application then handles XMPP <literal>PRESENCE</literal> and <literal>MESSAGE</literal> stanzas.</para> 
+		
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/google-talk-bot-hi.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example Handling of <literal>PRESENCE</literal> XMPP stanzas.</para>
+		</caption>
+	</mediaobject>
+	
+	<para>The image above depicts the handling of XMPP <literal>PRESENCE</literal> stanzas, which are used in XMPP to signal presence state changing. The application sends a message containing body <literal>Hi, I'm online too!</literal> to the users which sent a stanza with <literal>available</literal> type,  () XMPP users which &THIS.EXAMPLE; Example is a simple JAIN SLEE 1.1 Application, which creates an XMPP client connection to Google Talk Service when the application is activated by the SLEE Container. The application then handles XMPP <literal>presence</literal> and <literal>message</literal> stanzas.</para> 
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/google-talk-bot-message.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example Handling of <literal>MESSAGE</literal> XMPP stanzas.</para>
+		</caption>
+	</mediaobject>
+	
+	<para>The image above depicts the handling of XMPP <literal>MESSAGE</literal> stanzas, which are used in XMPP to exchange instant messages among users. The application sends a message with body containing the system time, if the received message body starts with <literal>time</literal>, otherwise it will send back the number of chars in the body of the message received.</para> 
+	
+	<para>The connection to Google Talk Service is closed when the &THIS.EXAMPLE; Example JAIN SLEE Service is deactivated.</para> 
+	
+</chapter>
+

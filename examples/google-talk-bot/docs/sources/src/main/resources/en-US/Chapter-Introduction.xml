@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
+
+	<para>The Google Talk Bot is a simple JAIN SLEE example using the XMPP Resource Adaptor in client mode. It demonstrates connection with the Google Talk service. The bot appears as a regular Google Talk user.</para>
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/intro-screenshot.jpg"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example Screenshot.</para>
+		</caption>
+	</mediaobject>
+		
+</chapter>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><umlet_diagram><help_text>// Uncomment the following line to change the fontsize:
+// fontsize=14
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// Welcome to UMLet!
+//
+// Double-click on UML elements to add them to the diagram, or to copy them
+// Edit elements by modifying the text in this panel
+// Hold ⌘ to select multiple elements
+// Use ⌘+mouse to select via lasso
+//
+// Use ± or ⌘+mouse wheel to zoom
+// Drag a whole relation at its central square icon
+//
+// Press ⌘+C to copy the whole diagram to the system clipboard (then just paste it to, eg, Word)
+// Edit the files in the "palettes" directory to create your own element palettes
+//
+// Select "Custom Elements &gt; New..." to create new element types
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// This text will be stored with each diagram;  use it for notes.</help_text><zoom_level>10</zoom_level><element><type>com.umlet.element.base.Relation</type><coordinates><x>70</x><y>80</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = time</panel_attributes><additional_attributes>210;40;30;40</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>270</x><y>130</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = My system time is ...</panel_attributes><additional_attributes>30;40;210;40</additional_attributes></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>480</x><y>120</y><w>20</w><h>60</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>80</x><y>110</y><w>20</w><h>20</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>40</x><y>30</y><w>100</w><h>30</h></coordinates><panel_attributes>_:XMPP Client_
+bg=green</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>60</x><y>30</y><w>50</w><h>320</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>30;30;30;300</additional_attributes></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>280</x><y>110</y><w>20</w><h>30</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>460</x><y>30</y><w>50</w><h>320</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>30;30;30;300</additional_attributes></element><element><type>com.umlet.element.base.Class</type><coordinates><x>440</x><y>30</y><w>100</w><h>30</h></coordinates><panel_attributes>_:Google Talk Bot_
+bg=red</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Class</type><coordinates><x>240</x><y>30</y><w>100</w><h>30</h></coordinates><panel_attributes>_:Google Talk Server_
+bg=green</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>260</x><y>30</y><w>50</w><h>320</h></coordinates><panel_attributes>lt=.</panel_attributes><additional_attributes>30;30;30;300</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>270</x><y>90</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = time</panel_attributes><additional_attributes>210;40;30;40</additional_attributes></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>280</x><y>160</y><w>20</w><h>30</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>80</x><y>170</y><w>20</w><h>20</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>70</x><y>140</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = My system time is ...</panel_attributes><additional_attributes>30;40;210;40</additional_attributes></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>80</x><y>220</y><w>20</w><h>20</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>70</x><y>190</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = bla bla bla</panel_attributes><additional_attributes>210;40;30;40</additional_attributes></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>280</x><y>220</y><w>20</w><h>30</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>480</x><y>230</y><w>20</w><h>60</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>270</x><y>200</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = bla bla bla</panel_attributes><additional_attributes>210;40;30;40</additional_attributes></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>280</x><y>270</y><w>20</w><h>30</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.custom.SeqObjectActive</type><coordinates><x>80</x><y>280</y><w>20</w><h>20</h></coordinates><panel_attributes>bg=yellow</panel_attributes><additional_attributes/></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>270</x><y>240</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = 11 chars in message ...</panel_attributes><additional_attributes>30;40;210;40</additional_attributes></element><element><type>com.umlet.element.base.Relation</type><coordinates><x>70</x><y>250</y><w>230</w><h>60</h></coordinates><panel_attributes>lt=&lt;
+MESSAGE: body = 11 chars in message ...</panel_attributes><additional_attributes>30;40;210;40</additional_attributes></element></umlet_diagram>

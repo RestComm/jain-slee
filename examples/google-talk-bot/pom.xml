@@ -22,12 +22,14 @@
 	
 	<properties>
 		<mobicents.resources.xmpp.version>2.0.0.BETA2</mobicents.resources.xmpp.version>
+		<docs.profile>mobicents</docs.profile>
 	</properties>
 	
 	<profiles>
 		<profile>
 			<id>maven-release</id>
 			<modules>
+				<module>docs</module>
 			</modules>
 			<build>
 				<plugins>
@@ -44,6 +46,9 @@
 		</profile>
 		<profile>
 			<id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
@@ -71,6 +76,9 @@
 												<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>
+										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/examples/google-talk-bot/docs">
+											<fileset dir="${basedir}/docs/jdocbook-${docs.profile}/target/docbook/publish" />
+									</copy>
 									</tasks>
 								</configuration>
 							</execution>

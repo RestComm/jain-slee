@@ -35,7 +35,7 @@
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
 		</event>
-		<event event-direction="Receive" initial-event="True">
+		<event event-direction="Receive" initial-event="False">
 			<event-name>Message</event-name>
 			<event-type-ref>
 				<event-type-name>
@@ -46,9 +46,8 @@
 				</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
-			<initial-event-select variable="ActivityContext" />
 		</event>
-		<event event-direction="Receive" initial-event="True">
+		<event event-direction="Receive" initial-event="False">
 			<event-name>Presence</event-name>
 			<event-type-ref>
 				<event-type-name>
@@ -59,7 +58,6 @@
 				</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
-			<initial-event-select variable="ActivityContext" />
 		</event>
 		
 		<env-entry>

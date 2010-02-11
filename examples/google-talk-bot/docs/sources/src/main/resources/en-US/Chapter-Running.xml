@@ -1,0 +1,45 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="running">
+
+	<title>Running the Example</title>
+	
+	<para>To try the example application a Google Talk account and client is needed, refer to the <ulink url="http://www.google.com/talk/">Google Talk</ulink> website for instructions.</para>
+	
+	<important>
+		<para>To exchange messages, the Google Talk account needs to add the Google Talk Bot account in its buddy list. The Google Talk Bot account is <literal>mobicents.org@gmail.com</literal>.</para>
+	</important>
+	
+	<para>Once Google Talk is fully setup and running, start &THIS.PLATFORM; JAIN SLEE and once the service is activated the <literal>Hi, I'm online too!</literal> message should popup, as depicted in the image below.</para> 
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/google-talk-bot-running-hi.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; saying Hi!</para>
+		</caption>
+	</mediaobject>
+	
+	<para>At this point messages can be exchanged, sending <literal>time</literal> will get a reply with the system time, and sending <literal>hello</literal> will get a <literal>5 chars in message ...</literal> reply, as depicted in the image below.</para>
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/google-talk-bot-running-msg.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; message exchanging.</para>
+		</caption>
+	</mediaobject>
+		
+</chapter>
+
