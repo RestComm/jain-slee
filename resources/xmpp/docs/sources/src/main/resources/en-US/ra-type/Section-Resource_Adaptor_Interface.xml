@@ -9,7 +9,7 @@
 
 	<title>Resource Adaptor Interface</title>
 
-	<para>The &THIS.RA; Resource Adaptor interface, which an SBB uses to interact with XMPP resources, is defined as follows:</para>
+	<para>The &THIS.RA; Resource Adaptor interface, of type <literal>org.mobicents.slee.resource.xmpp.XmppResourceAdaptorSbbInterface</literal> , which an SBB uses to interact with XMPP resources, is defined as follows:</para>
 	
 	<programlisting language="Java" role="JAVA">
 		<![CDATA[

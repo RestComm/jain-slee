@@ -12,7 +12,7 @@
 	<para>The Events fired by &THIS.RA; Resource Adaptor represent an incoming message, received in a specific <literal>XmppConnection</literal> activity. The table below lists the Resource Adaptor Type event types.</para>
 
 	<table frame="all" pgwide="1">
-		<title>Events fired on the MgcpConnectionActivity</title>
+		<title>Events fired on the XmppConnection Activity</title>
 		<tgroup colsep="1" cols="5" align="left">
 			<colspec colnum="1" colname="c0" />
 			<colspec colnum="2" colname="c1" />
