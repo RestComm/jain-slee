@@ -1,12 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN"
-                         "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
-<sbb-jar>
-	<sbb>
-		<sbb-name>SimpleSip11B2BTestSbb</sbb-name>
-		<sbb-vendor>org.mobicents</sbb-vendor>
-		<sbb-version>1.0</sbb-version>
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
+<section id="root_sbb_descriptor">
+			<title>Root SBB XML Descriptor</title>
+			<para>The Root SBB XML Descriptor has to be provided and match the abstract class code.</para>
+		
+			<para>First relevant part is the declaration of the <literal>sbb-classes</literal> element, where the sbb class abstract name must be specified, along with the cmp fields:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.slee.example.sip11.b2b.SimpleSip11B2BTestSbb</sbb-abstract-class-name>
@@ -18,7 +21,11 @@
 				</cmp-field>
 			</sbb-abstract-class>
 		</sbb-classes>
-
+			]]>
+			</programlisting>
+			
+			<para>Then the events handled by the SBB must be specified too:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
 		<!-- INITIALS EVENT, OUT OF DIALOG -->
 		<event event-direction="Receive" initial-event="True">
 			<event-name>InviteEvent</event-name>
@@ -64,7 +71,12 @@
 				<event-type-version>1.2</event-type-version>
 			</event-type-ref>
 		</event>
-
+			]]>
+			</programlisting>
+			<para>Note that there is a single event defined as initial, which triggers the sbb logic, remaining events all happen in activities that the service instance is already attached, abstracting the application from calculating which session it handles.</para>
+	
+			<para>Finally, the SIP11 Resource Adaptor must be specified also, otherwise SLEE won't put its SBB Interface in the SBB's JNDI Context:</para>
+			<programlisting language="XML" role="XML"><![CDATA[
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
 				<resource-adaptor-type-name>
@@ -89,5 +101,7 @@
 				</resource-adaptor-entity-link>
 			</resource-adaptor-entity-binding>
 		</resource-adaptor-type-binding>
-	</sbb>
-</sbb-jar>
+			]]>
+			</programlisting>
+			
+		</section>

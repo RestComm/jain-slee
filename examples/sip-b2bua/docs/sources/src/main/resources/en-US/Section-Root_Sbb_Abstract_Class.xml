@@ -1,38 +1,74 @@
-package org.mobicents.slee.example.sip11.b2b;
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sip.ClientTransaction;
-import javax.sip.DialogState;
-import javax.sip.InvalidArgumentException;
-import javax.sip.RequestEvent;
-import javax.sip.ResponseEvent;
-import javax.sip.ServerTransaction;
-import javax.sip.SipException;
-import javax.sip.header.CSeqHeader;
-import javax.sip.message.Request;
-import javax.sip.message.Response;
-import javax.slee.ActivityContextInterface;
-import javax.slee.RolledBackContext;
-import javax.slee.SbbContext;
-import javax.slee.SbbLocalObject;
-import javax.slee.facilities.Tracer;
+<section id="root_sbb_abstract_class">
+			<title>The Root SBB Abstract Class</title>
+			<para> The class <literal>org.mobicents.slee.example.sip11.b2b.SimpleSip11B2BTestSbb</literal> includes all the service logic for the example.</para>
+		
+			<section id="root_sbb_abstract_class_setSbbContext">
+				<title>The setSbbContext(SbbContext) method</title>
+				<para>The <literal>javax.slee.SbbObject</literal>'s <literal>setSbbContext(SbbContext)</literal> is used by SBBs to store the SBB's context into a class field. The SBB should take the opportunity to also store objects, such as SLEE facilities, which are reused by all service logic entities, a.k.a. SbbEntities, and are stored in the JNDI environment.</para>
+            	
+            	<para>The class fields and <literal>setSbbContext(SbbContext)</literal> method's and related code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+	public void setSbbContext(SbbContext context) {
+		this.sbbContext = context;
+		if (tracer == null) {
+			tracer = sbbContext.getTracer(SimpleSip11B2BTestSbb.class
+					.getSimpleName());
+		}
+		try {
+			Context ctx = (Context) new InitialContext()
+					.lookup("java:comp/env");
+			sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) ctx
+					.lookup("slee/resources/jainsip/1.2/acifactory");
+			sipProvider = (SleeSipProvider) ctx
+					.lookup("slee/resources/jainsip/1.2/provider");
+		} catch (NamingException e) {
+			tracer.severe(e.getMessage(), e);
+		}
+	}
+            	]]>
+            	</programlisting>
+        	</section>
+        
+        	<section id="root_sbb_abstract_class_cmp_fields_acccessors">
+				<title>CMP Fields Accessors</title>
+				<para>For each CMP field, which will hold the service logic instance data, the application defines two abstract methods, the getter and the setter. SLEE is responsible for the implementation of those methods.</para>
+            	
+            	<para>The application uses two CMP field, where it stores each session leg SIP Dialog, the accessors code is:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+	public abstract void setIncomingDialog(ActivityContextInterface aci);
+	public abstract ActivityContextInterface getIncomingDialog();
 
-import net.java.slee.resource.sip.CancelRequestEvent;
-import net.java.slee.resource.sip.DialogActivity;
-import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
-import net.java.slee.resource.sip.SleeSipProvider;
-
-public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
-
-	private SbbContext sbbContext;
-	private static Tracer tracer;
-
-	private SipActivityContextInterfaceFactory sipActivityContextInterfaceFactory;
-	private SleeSipProvider sipProvider;
-
-	// Initial request
+	public abstract void setOutgoingDialog(ActivityContextInterface aci);
+	public abstract ActivityContextInterface getOutgoingDialog();
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+			<section id="root_sbb_abstract_class_invite_event_handler">
+				<title>The SIP INVITE Event Handler Method</title>
+				<para>The SIP INVITE is the starting point of each instance of the service logic, its responsibility is:</para>
+				
+				<itemizedlist>
+					<listitem>
+				        <para>Create the incoming and outgoing leg SIP Dialog activities and attach the SbbEntity, to receive further SIP messages on each leg.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Store each SIP Dialog related ActivityContextInterface in a CMP field.</para>
+	   				</listitem>
+	   				<listitem>
+				        <para>Forward the INVITE SIP request to the outgoing session leg.</para>
+	   				</listitem>
+				</itemizedlist>
+            	
+            	<para>The event handler code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
+		// Initial request
 	public void onInviteEvent(RequestEvent event, ActivityContextInterface aci) {
 		// ACI is the server transaction activity
 		final ServerTransaction st = event.getServerTransaction();
@@ -62,8 +98,16 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 			replyToRequestEvent(event, Response.SERVICE_UNAVAILABLE);
 		}
 	}
-
-	// Responses
+            	]]>
+				</programlisting>
+			</section>
+		
+			<section id="root_sbb_abstract_class_1xx_response_event_handler">
+				<title>The 1xx Response Event Handler Method</title>
+				<para>Non final responses can be received from the outgoing session leg, and all besides 100 TRYING are processed and forwarded to the incoming leg.</para>
+            	
+            	<para>The event handler method's code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	public void on1xxResponse(ResponseEvent event, ActivityContextInterface aci) {
 		if (event.getResponse().getStatusCode() == Response.TRYING) {
 			// those are not forwarded to the other dialog
@@ -71,7 +115,17 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 		}
 		processResponse(event, aci);
 	}
-
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+        	<section id="root_sbb_abstract_class_2xx_response_event_handler">
+				<title>The 2xx Response Event Handler Method</title>
+				<para>Successful final responses can be received on both session legs: as a response to the INVITE sent to the outgoing leg, or as a response to a BYE sent to any of the session legs.</para>
+            	<para>If it is a response to the INVITE the application sends an ACK immediately, to minimize the response retransmissions, and then forwards the message to the incoming leg.</para>
+            	<para>In case of a BYE response, the application does not forwards it to the other leg, because the other leg's BYE was already replied.</para>
+            	<para>The event handler method's code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	public void on2xxResponse(ResponseEvent event, ActivityContextInterface aci) {
 		final CSeqHeader cseq = (CSeqHeader) event.getResponse().getHeader(
 				CSeqHeader.NAME);
@@ -93,14 +147,32 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 		}
 		processResponse(event, aci);
 	}
-
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+        	<section id="root_sbb_abstract_class_bye_request_event_handler">
+				<title>The BYE Request Event Handler Method</title>
+				<para>The BYE request is received when a party wants to end the session, in such scenario the application immediately replies with 200 OK, minimizing the request retransmissions, and then forwards the BYE to the other session leg.</para>
+            	
+            	<para>The event handler method's code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	public void onBye(RequestEvent event, ActivityContextInterface aci) {
 		// send back 200 ok for this dialog right away, to avoid retransmissions
 		replyToRequestEvent(event, Response.OK);
 		// forward to the other dialog
 		processMidDialogRequest(event, aci);
 	}
-
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+        	<section id="root_sbb_abstract_class_cancel_request_event_handler">
+				<title>The CANCEL Request Event Handler Method</title>
+				<para>The CANCEL request is received when a party wants to cancel the session, in such scenario the application first needs to check the state of the other leg, and if it is already established, a BYE request is sent instead of forwarding the CANCEL message,.</para>
+            	
+            	<para>The event handler method's code:</para>
+            	<programlisting language="Java" role="JAVA"><![CDATA[
 	public void onCancel(CancelRequestEvent event, ActivityContextInterface aci) {
 		if (tracer.isInfoEnabled()) {
 			tracer.info("Got a CANCEL request.");
@@ -121,10 +193,15 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 			tracer.severe("Failed to process cancel request", e);
 		}
 	}
-
-	// Other mid-dialog requests handled the same way as above
-	// Helpers
-
+            	]]>
+            	</programlisting>
+        	</section>
+        	
+        	<section id="root_sbb_abstract_class_helper_methods">
+				<title>Helper Methods</title>
+				<para>The application defines a few helper methods to deal with message forwarding, providing example and optimal usage of the JAIN SIP RA APIs:</para>
+				
+				<programlisting language="Java" role="JAVA"><![CDATA[
 	private void replyToRequestEvent(RequestEvent event, int status) {
 		try {
 			event.getServerTransaction().sendResponse(
@@ -216,66 +293,7 @@ public abstract class SimpleSip11B2BTestSbb implements javax.slee.Sbb {
 			throw new SipException("invalid response", e);
 		}
 	}
-
-	// other request handling methods
-	// lifecycle methods
-	// CMP field accessors for each Dialogs ACI
-	public abstract void setIncomingDialog(ActivityContextInterface aci);
-
-	public abstract ActivityContextInterface getIncomingDialog();
-
-	public abstract void setOutgoingDialog(ActivityContextInterface aci);
-
-	public abstract ActivityContextInterface getOutgoingDialog();
-
-	public void setSbbContext(SbbContext context) {
-		this.sbbContext = context;
-		if (tracer == null) {
-			tracer = sbbContext.getTracer(SimpleSip11B2BTestSbb.class
-					.getSimpleName());
-		}
-		try {
-			Context ctx = (Context) new InitialContext()
-					.lookup("java:comp/env");
-			sipActivityContextInterfaceFactory = (SipActivityContextInterfaceFactory) ctx
-					.lookup("slee/resources/jainsip/1.2/acifactory");
-			sipProvider = (SleeSipProvider) ctx
-					.lookup("slee/resources/jainsip/1.2/provider");
-		} catch (NamingException e) {
-			tracer.severe(e.getMessage(), e);
-		}
-	}
-
-	public void unsetSbbContext() {
-		this.sbbContext = null;
-	}
-
-	public void sbbCreate() throws javax.slee.CreateException {
-	}
-
-	public void sbbPostCreate() throws javax.slee.CreateException {
-	}
-
-	public void sbbActivate() {
-	}
-
-	public void sbbPassivate() {
-	}
-
-	public void sbbRemove() {
-	}
-
-	public void sbbLoad() {
-	}
-
-	public void sbbStore() {
-	}
-
-	public void sbbExceptionThrown(Exception exception, Object event,
-			ActivityContextInterface activity) {
-	}
-
-	public void sbbRolledBack(RolledBackContext context) {
-	}
-
-}
+            	]]>
+				</programlisting>
+			</section>
+		</section>	

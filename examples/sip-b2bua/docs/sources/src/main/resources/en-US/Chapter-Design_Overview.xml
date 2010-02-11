@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+	
+	<para>The &THIS.EXAMPLE; Example is JAIN SLEE 1.1 Application which handles SIP sessions between a SIP UAC and UAS, through two different "legs", one per session party. In the originating session leg the application acts as UAS and processes the request as a UAC to the destination end, handling the signaling between end points back-to-back.Each side of a B2BUA operates as a standard SIP network element as specified in RFC 3261, the official SIP specification. The diagram below depicts the application behavior for all SIP messages exchanged by the session parties.</para> 
+	
+	<mediaobject>
+		<imageobject>
+			<imagedata
+				width="300px"
+				align="center"
+				fileref="images/sip-b2bua.png"
+				format="PNG"/>
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example Functionality</para>
+		</caption>
+	</mediaobject>
+	
+</chapter>
+

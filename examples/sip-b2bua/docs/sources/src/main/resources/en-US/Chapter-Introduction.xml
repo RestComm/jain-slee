@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
+
+	<para>This example application is a SIP Back-to-Back User Agent, using the JAIN SIP Resource Adaptor specified in the JAIN SLEE 1.1 specification.</para>
+	
+	<para>A SIP B2BUA application resides between both end points of a phone call or communications session, and divides the communication session into two call legs, mediating all SIP signaling between both parties, from call establishment to termination. Each session is tracked from beginning to end, allowing the application to provide features such as session accounting and billing, or fail over session routing.</para>
+	
+</chapter>
