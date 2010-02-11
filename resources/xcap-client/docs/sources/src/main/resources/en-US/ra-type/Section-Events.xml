@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_events">
+
+	<title>Events</title>
+
+	<para>There is a single events fired by &THIS.RA; Resource Adaptor, which represents a response to a request, received in a specific <literal>AsyncActivity</literal> instance.</para>
+
+	<table frame="all" pgwide="1">
+		<title>Events fired on the AsyncActivity</title>
+		<tgroup colsep="1" cols="5" align="left">
+			<colspec colnum="1" colname="c0" />
+			<colspec colnum="2" colname="c1" />
+			<colspec colnum="3" colname="c2" />
+			<colspec colnum="4" colname="c3" />
+			<colspec colnum="5" colname="c4" />
+			<thead>
+				<row>
+					<entry>Name</entry>
+					<entry>Vendor</entry>
+					<entry>Version</entry>
+					<entry>Event Class</entry>
+					<entry>Description</entry>
+				</row>
+			</thead>
+			<tbody>
+				<row>
+					<entry>ResponseEvent</entry>
+					<entry>org.mobicents</entry>
+					<entry>2.0</entry>
+					<entry>org.mobicents.slee.resource.xcapclient.ResponseEvent</entry>					
+					<entry>A response to a XCAP request.</entry>
+				</row>
+			</tbody>
+		</tgroup>
+	</table>
+	
+</section>

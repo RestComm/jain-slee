@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>The &THIS.RA; Resource Adaptor adapts a XCAP Client API into JAIN SLEE domain. The RA provides means to send XCAP requests to a XCAP Server, such as the &THIS.PLATFORM; XDM Server. There can be two different types of usage with this component, sending requests and receiving the Response synchronously, blocking the requester thread until the Response is retrieved, and sending requests and receiving the Response asynchronously, which is preferred since it matches the JAIN SLEE application model.</para>
+	
+</chapter>

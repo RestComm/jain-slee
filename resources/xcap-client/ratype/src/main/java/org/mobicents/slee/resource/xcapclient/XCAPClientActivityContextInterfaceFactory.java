@@ -6,14 +6,14 @@ import javax.slee.UnrecognizedActivityException;
 
 /**
  * @author Eduardo Martins
- * @version 1.0
- *
+ * @version 2.0
+ * 
  */
 
 public interface XCAPClientActivityContextInterfaceFactory {
 
-    public ActivityContextInterface getActivityContextInterface(
-            AsyncActivity activity) throws NullPointerException,
-            UnrecognizedActivityException, FactoryException;
-	
+	public ActivityContextInterface getActivityContextInterface(
+			AsyncActivity activity) throws NullPointerException,
+			UnrecognizedActivityException, FactoryException;
+
 }

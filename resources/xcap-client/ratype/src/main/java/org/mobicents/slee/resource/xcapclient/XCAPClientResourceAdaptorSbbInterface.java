@@ -13,9 +13,9 @@ import org.mobicents.xcap.client.XcapClient;
  * @version 1.0
  * 
  */
-
 public interface XCAPClientResourceAdaptorSbbInterface extends XcapClient {
-	
-	public AsyncActivity createActivity() throws ActivityAlreadyExistsException, StartActivityException;
-	
+
+	public AsyncActivity createActivity()
+			throws ActivityAlreadyExistsException, StartActivityException;
+
 }

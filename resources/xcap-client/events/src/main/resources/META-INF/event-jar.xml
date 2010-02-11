@@ -15,6 +15,7 @@
 		<event-type-version>2.0</event-type-version>
 		<event-class-name>org.mobicents.slee.resource.xcapclient.ResponseEvent</event-class-name>
 	</event-definition>
+	
 </event-jar>
 
 

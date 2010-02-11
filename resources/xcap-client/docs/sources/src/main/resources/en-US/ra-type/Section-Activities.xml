@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "../User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="ratype_activities">
+
+	<title>Activities</title>
+
+	<para>The single activity object for &THIS.RA; Resource Adaptor is the <literal>org.mobicents.slee.resource.xcapclient.AsyncActivity</literal> interface. Through the activity an SBB can send multiple XCAP requests, and receive the related responses asynchronously. Due to the nature of SLEE activities, this RA activity acts like a queue of requests, allowing the processing of their responses - the events- in a serialized way</para>
+	
+	<para>An activity starts on demand by an SBB, through the RA SBB Interface, and it ends when an SBB invokes its <literal>endActivity()</literal> method.</para>
+	
+	<para>The <literal>AsyncActivity</literal> interface is defined as follows:</para>
+	
+	<programlisting language="Java" role="JAVA">
+		<![CDATA[
+package org.mobicents.slee.resource.xcapclient;
+
+import java.net.URI;
+
+import org.apache.http.Header;
+import org.apache.http.auth.Credentials;
+
+public interface AsyncActivity {
+
+	public void get(URI uri, Header[] additionalRequestHeaders,
+			Credentials credentials);
+
+	public void put(URI uri, String mimetype, String content,
+			Header[] additionalRequestHeaders, Credentials credentials);
+
+	public void put(URI uri, String mimetype, byte[] content,
+			Header[] additionalRequestHeaders, Credentials credentials);
+
+	public void putIfMatch(URI uri, String eTag, String mimetype,
+			String content, Header[] additionalRequestHeaders,
+			Credentials credentials);
+
+	public void putIfMatch(URI uri, String eTag, String mimetype,
+			byte[] content, Header[] additionalRequestHeaders,
+			Credentials credentials);
+
+	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
+			String content, Header[] additionalRequestHeaders,
+			Credentials credentials);
+
+	public void putIfNoneMatch(URI uri, String eTag, String mimetype,
+			byte[] content, Header[] additionalRequestHeaders,
+			Credentials credentials);
+
+	public void delete(URI uri, Header[] additionalRequestHeaders,
+			Credentials credentials);
+
+	public void deleteIfMatch(URI uri, String eTag,
+			Header[] additionalRequestHeaders, Credentials credentials);
+
+	public void deleteIfNoneMatch(URI uri, String eTag,
+			Header[] additionalRequestHeaders, Credentials credentials);
+
+	public void endActivity();
+
+}
+     	]]>
+     </programlisting>
+     
+     <varlistentry>
+		<term>The <literal>get(URI, Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Retrieves the XCAP resource specified by the URI parameter. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>put(URI, String, String, Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Puts the provided XML content, in <literal>String</literal> format, in the XCAP resource specified by the URI parameter. The request mimetype needs to be provided, according to the content type to be put. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>put(URI, String, byte[], Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Puts the provided XML content, in <literal>byte[]</literal> format, in the XCAP resource specified by the URI parameter. The request mimetype needs to be provided, according to the content type to be put. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>putIfMatch(URI, String, String, String, Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Conditional put of the provided XML content, in <literal>String</literal> format, in the XCAP resource specified by the URI parameter. The request only succeeds if the XCAP resource entity tag matches the provided <literal>eTag</literal> parameter. The request mimetype needs to be provided, according to the content type to be put. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>putIfMatch(URI, String, String, byte[], Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Conditional put of the provided XML content, in <literal>byte[]</literal> format, in the XCAP resource specified by the URI parameter. The request only succeeds if the XCAP resource entity tag matches the provided <literal>eTag</literal> parameter. The request mimetype needs to be provided, according to the content type to be put. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>putIfNoneMatch(URI, String, String, String, Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Conditional put of the provided XML content, in <literal>String</literal> format, in the XCAP resource specified by the URI parameter. The request only succeeds if the XCAP resource entity tag doesn't match the provided <literal>eTag</literal> parameter. The request mimetype needs to be provided, according to the content type to be put. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>putIfNoneMatch(URI, String, String, byte[], Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Conditional put of the provided XML content, in <literal>byte[]</literal> format, in the XCAP resource specified by the URI parameter. The request only succeeds if the XCAP resource entity tag doesn't match the provided <literal>eTag</literal> parameter. The request mimetype needs to be provided, according to the content type to be put. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>delete(URI, Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Deletes the XCAP resource specified by the URI parameter. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>deleteIfMatch(URI, String, Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Conditional delete of the XCAP resource specified by the URI parameter. The request only succeeds if the XCAP resource entity tag matches the provided <literal>eTag</literal> parameter. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>
+	
+	<varlistentry>
+		<term>The <literal>deleteIfNoneMatch(URI, String, Header[], Credentials)</literal> method:</term>
+		<listitem>
+			<para>Conditional delete of the XCAP resource specified by the URI parameter. The request only succeeds if the XCAP resource entity tag doesn't match the provided <literal>eTag</literal> parameter. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
+		</listitem>
+	</varlistentry>	
+	
+	<varlistentry>
+		<term>The <literal>endActivity()</literal> method:</term>
+		<listitem>
+			<para>Ends the activity and its related Activity Context.</para>
+		</listitem>
+	</varlistentry>	
+</section>

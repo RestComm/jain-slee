@@ -21,9 +21,19 @@
 		<module>du</module>
 	</modules>
 
+	<properties>
+		<docs.profile>mobicents</docs.profile>
+		<docs.ra.name>XCAP Client</docs.ra.name>
+		<docs.ra.dirname>xcap-client</docs.ra.dirname>
+		<docs.bookid>XCAPClient</docs.bookid>
+	</properties>
+	
 	<profiles>
 		<profile>
 			<id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
@@ -51,6 +61,10 @@
                         <filter token="JBOSS.CONFIG" value="${node}" />
                       </filterset>
 										</copy>
+										<!-- copy docs -->
+										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/xcap-client/docs">
+											<fileset dir="${basedir}/docs/jdocbook-${docs.profile}/target/docbook/publish" />
+										</copy>
 									</tasks>
 								</configuration>
 							</execution>
@@ -62,6 +76,7 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
+				<module>docs</module>
 			</modules>
 			<build>
 				<plugins>
