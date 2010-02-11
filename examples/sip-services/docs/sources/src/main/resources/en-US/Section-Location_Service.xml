@@ -5,9 +5,24 @@
 ]>
 
 <section id="location_service">
-			<title>Location Service</title>
-			<para>Location service is simple <acronym>POJO</acronym> based service. Its only purpose is to persist bindings.
-			</para>
-			<!-- TODO: do we need more here? -->
-			<para></para>
-		</section>	
+	<title>Location Service</title>
+	<para>
+		Location service is simple
+		<acronym>POJO</acronym>
+		based service. Its only purpose is to persist bindings.
+		It stores data for each <acronym>AOR</acronym> in following form:
+	</para>
+	<mediaobject>
+			<imageobject>
+				<imagedata width="300px" align="center"
+					fileref="images/sip_services_location_mapping.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>&THIS.EXAMPLE;
+					Example location information structure
+				</para>
+			</caption>
+		</mediaobject>
+	<!-- TODO: do we need more here? -->
+	<para></para>
+</section>	
