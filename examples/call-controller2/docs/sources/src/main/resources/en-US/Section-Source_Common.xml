@@ -1,0 +1,96 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="source_common">
+	<title>SBB SLEE Facilities access</title>
+	<para> &THIS.EXAMPLE; <acronym>SBB</acronym>s access <acronym>JSLEE</acronym> facilities in the same way. Code to perform this tasks 
+	is generic and gathered in super class for all &THIS.EXAMPLE; <acronym>SBB</acronym> classes.
+	</para>
+	<para>It does following:</para>
+	<itemizedlist>
+		<listitem>
+			<para>retrieve <acronym>JSLEE</acronym> facilities and <acronym>SIP</acronym> <acronym>RA</acronym> interfaces</para>
+			<programlisting language="Java" role="JAVA">
+ public void setSbbContext(SbbContext context) {
+		this.sbbContext = context;
+		try {
+			//"If NamingException is thrown check jmx-console -> JNDIView -> 
+			// list or sbb-jar (check entity-bindning) for proper JNDI path!!!!"
+            Context myEnv = (Context) new InitialContext().lookup("java:comp/env");
+            // Getting JAIN SIP Resource Adaptor interfaces
+			fp = (SleeSipProvider) myEnv.lookup("slee/resources/jainsip/1.2/provider");
+            // To create Address objects from a particular implementation of JAIN SIP
+            addressFactory = fp.getAddressFactory();
+	        // To create Request and Response messages from a particular implementation of JAIN SIP    	                       
+            messageFactory = fp.getMessageFactory();
+            // To allow SBB entities to interrogate the profile database to find
+            // profiles that match a selection criteria         
+            profileFacility = (ProfileFacility) myEnv.lookup("slee/facilities/profile");
+            
+        } catch (NamingException ne){
+        	log.error("COULD NOT LOCATE RESOURCE IN JNDI: Check JNDI TREE or entity-binding for proper path!!!", ne);
+        }		      
+	}
+			</programlisting>
+		</listitem>
+		<listitem>
+			<para>provide accessors to facilities with simple getters</para>
+		</listitem>
+		<listitem>
+			<para>provide profile <acronym>CMP</acronym> interface lookup</para>
+			<programlisting language="Java" role="JAVA">
+    protected CallControlProfileCMP lookup(javax.slee.Address address) {
+		String profileTableName = new String();
+    	//ProfileID profileID = null;
+    	CallControlProfileCMP profile = null;
+    	 	
+    	try {
+    		profileTableName = "CallControl";
+    		
+    		ProfileTable table = getProfileFacility().getProfileTable(profileTableName);
+    		ProfileLocalObject plo=table.findProfileByAttribute("userAddress", address);
+    		profile = (CallControlProfileCMP) plo;
+    		
+    		
+        }catch (NullPointerException  e) {
+        	log.error("Exception using the getProfileByIndexedAttribute method", e);
+        }catch (UnrecognizedProfileTableNameException e) {
+        	log.error("Exception in getting the Profile Specification in getControllerProfileCMP(profileID):" +
+        			"The ProfileID object does not identify a Profile Table created from the Profile Specification", e);
+        }catch (TransactionRolledbackLocalException e) {
+        	log.error(e.getMessage(), e);
+		}catch (FacilityException e) {
+			log.error(e.getMessage(), e);
+		}
+        
+        return profile;
+	}
+			</programlisting>
+		</listitem>
+	</itemizedlist>
+	<!-- Dev,Doco: should we add here timer explanation also? -->
+	<section id="source_common_ies">
+		<title>Initial event selector</title>
+		<para>Common code provides all <acronym>SBB</acronym>s with initial event selector call back method. This method is called
+		by <acronym>JSLEE</acronym> for each event declared as initial. It assigns unique name to service instance handling call. For descriptor declaration please refer to <acronym>SBB</acronym> event handler description.
+		</para>
+		<programlisting language="Java" role="JAVA">
+	public InitialEventSelector callIDSelect(InitialEventSelector ies) {
+		Object event = ies.getEvent();
+		String callID = null;
+		
+		if (event instanceof RequestEvent) {
+			// If request event, the convergence name to callId
+			Request request = ((RequestEvent) event).getRequest();
+			callID = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
+		}
+
+		ies.setCustomName(callID);
+        return ies;
+    }
+		</programlisting>
+	</section>
+</section>	

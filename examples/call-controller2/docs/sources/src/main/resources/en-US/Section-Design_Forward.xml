@@ -1,0 +1,29 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="design_forward">
+	<title>Call Forwarding Service</title>
+	<para>Call forwarding purpose is to simply forward call to callees
+		backup address in case main is not available.</para>
+	<para>
+		It is second service to receive incoming
+		<acronym>SIP</acronym>
+		INVITE request. Call forwarding service relies on sip-services proxy to route messages to proper destination UA.
+	</para>
+	<para>Flow diagram for call forwarding look as follows:</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/cc2_design_forwarding1.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				Forwarding Service flow
+			</para>
+		</caption>
+	</mediaobject>
+
+</section>	

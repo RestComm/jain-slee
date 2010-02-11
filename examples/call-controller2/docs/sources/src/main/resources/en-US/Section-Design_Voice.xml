@@ -1,0 +1,78 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="design_voice">
+	<title>Voice Mail Service</title>
+	<para>Voice mail purpose is to store voice message and play it back
+		when callee requests it.</para>
+	<para>
+		It is the last to receive incoming
+		<acronym>SIP</acronym>
+		INVITE request.
+	</para>
+	<para>Voice
+		mail service is most complicated service of &THIS.EXAMPLE;.
+		It carries on task of communicating with
+		<acronym>SIP</acronym>
+		<acronym>UA</acronym>
+		and media server. That includes
+		<acronym>SDP</acronym>
+		negotiation procedures and media server primitives handling.
+	</para>
+	<section id="design_voice_play">
+		<title>Box access</title>
+		<para>
+			Users accesse voice mail box by calling
+			<literal>sip:vmail@mobicents.org</literal>. 
+		</para>
+		<para>Flow diagram for voice mail look as follows:</para>
+		<mediaobject>
+			<imageobject>
+				<imagedata width="300px" align="center"
+					fileref="images/cc2_design_voice1.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>&THIS.EXAMPLE;
+					Voice Mail Service playback flow
+				</para>
+			</caption>
+		</mediaobject>
+	</section>
+	<section id="design_voice_record">
+		<title>Message recording</title>
+		<mediaobject>
+			<imageobject>
+				<imagedata width="300px" align="center"
+					fileref="images/cc2_design_voice2.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>&THIS.EXAMPLE;
+					Voice Mail Service record flow
+				</para>
+			</caption>
+		</mediaobject>
+	</section>
+	<section id="design_voice_media_path">
+		<title>Media path</title>
+		<para>Voice mail must create media session and establish media path in media server in order to perform its function.
+		</para>
+		<para>Media path is created in media server with <literal>connections</literal> and <literal>endpoints</literal> (for explanation of acronyms and capabilities please refer to <literal>Mobicents Media Server Documentation</literal>) </para>
+		<para>Path is composed as follows:</para>
+		<mediaobject>
+			<imageobject>
+				<imagedata width="300px" align="center"
+					fileref="images/cc2_design_voice3.png" format="PNG" />
+			</imageobject>
+			<caption>
+				<para>&THIS.EXAMPLE;
+					 Media Path
+				</para>
+			</caption>
+		</mediaobject>
+		
+		<para>For details of creating media session please refer to <ulink url="http://tools.ietf.org/html/rfc4566">RFC4566</ulink></para>
+	</section>
+</section>	

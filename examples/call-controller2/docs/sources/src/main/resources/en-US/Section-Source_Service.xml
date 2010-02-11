@@ -1,0 +1,75 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="source_service">
+	<title>Services descriptor source</title>
+	<para>Each components of &THIS.EXAMPLE; runs as independent service. Each service is defined as follows(in order of priority):</para>
+	<itemizedlist>
+		<listitem>
+			<para>Call blocking service</para>
+			<programlisting  language="XML" role="XML"><![CDATA[
+<service-xml>
+    <service>
+        <description/>
+        <service-name>CallBlockingService</service-name>
+        <service-vendor>org.mobicents</service-vendor>
+        <service-version>0.1</service-version>
+        <root-sbb>
+            <description/>
+            <sbb-name>CallBlockingSbb</sbb-name>
+            <sbb-vendor>org.mobicents</sbb-vendor>
+            <sbb-version>0.1</sbb-version>
+        </root-sbb>
+        <default-priority>100</default-priority>
+    </service>
+</service-xml>
+			]]>
+			</programlisting>
+		</listitem>
+		<listitem>
+			<para>Call forwarding</para>
+			<programlisting  language="XML" role="XML"><![CDATA[
+<service-xml>
+    <service>
+        <description/>
+        <service-name>CallForwardingService</service-name>
+        <service-vendor>org.mobicents</service-vendor>
+        <service-version>0.1</service-version>
+        <root-sbb>
+            <description/>
+            <sbb-name>CallForwardingSbb</sbb-name>
+            <sbb-vendor>org.mobicents</sbb-vendor>
+            <sbb-version>0.1</sbb-version>
+        </root-sbb>
+        <default-priority>0</default-priority>
+    </service>
+</service-xml>
+			]]>
+			</programlisting>
+		</listitem>
+		<listitem>
+			<para>Voice mail</para>
+			<programlisting  language="XML" role="XML"><![CDATA[
+<service-xml>
+    <service>
+        <description/>
+        <service-name>VoiceMailService</service-name>
+        <service-vendor>org.mobicents</service-vendor>
+        <service-version>0.1</service-version>
+        <root-sbb>
+            <description/>
+            <sbb-name>VoiceMailSbb</sbb-name>
+            <sbb-vendor>org.mobicents</sbb-vendor>
+            <sbb-version>0.1</sbb-version>
+        </root-sbb>
+        <default-priority>-50</default-priority>
+    </service>
+</service-xml>
+			]]>
+			</programlisting>
+		</listitem>
+	</itemizedlist>
+</section>	

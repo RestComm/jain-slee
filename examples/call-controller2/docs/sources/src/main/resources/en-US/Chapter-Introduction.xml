@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		JAIN SLEE &THIS.EXAMPLE;
+		Example
+	</title>
+	<para>This example is a JAIN SLEE application which acts as simple call
+		center. Services acts as voicemail with call forwarding and blocking
+		features.</para>
+	<para>Example ilustrate one of patterns to compose different services
+		into working logical service.</para>
+	<para>It is not trivial example as it involves more than one protocol
+		and builds logical abstraction over three different services.</para>
+	<para>
+		Example provides usage of
+		<acronym>JSLEE</acronym>
+		facilities,
+		<literal>Activity Context Interface</literal>
+		variables and aliasing,
+		<acronym>SBB</acronym>
+		activity context interfaces
+	</para>
+</chapter>

@@ -1,0 +1,39 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+
+	<para>
+		Example is created by three independent services which compose logical
+		whole.
+		<literal>CallBlocking</literal>,
+		<literal>CallForwarding</literal>
+		and
+		<literal>VoiceMail</literal>
+		process incoming
+		<literal>INVITE</literal>
+		request in sequence and make decision based on certain configurable conditions.
+		
+	</para>
+	<para>Top view of example components look as follows:</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center"
+				fileref="images/cc2_general.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				Top overview of components
+			</para>
+		</caption>
+	</mediaobject>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_Profile.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_Alias.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_Block.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_Forward.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_Voice.xml" />
+	
+</chapter>
+

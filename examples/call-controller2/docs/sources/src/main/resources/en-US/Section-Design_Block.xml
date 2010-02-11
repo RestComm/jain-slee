@@ -1,0 +1,27 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="design_blocking">
+	<title>Call Blocking Service</title>
+	<para>Call blocking service purpose is to block incoming calls based on data stored in call controll2 profile.
+	It is first service to receive incoming <acronym>SIP</acronym> INVITE request.</para>
+	<para>Flow diagram for call blocking look as follows:</para>
+    <mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center"
+			fileref="images/cc2_design_blocking1.png" format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				Blocking Service flow
+			</para>
+		</caption>
+	</mediaobject>
+			
+</section>
+
+
+	
