@@ -17,7 +17,7 @@ package net.java.slee.resource.http;
 public interface HttpSessionActivity {
 
 	/**
-	 * Method to fetch the SessionID for this request.
+	 * Retrieves the Session's ID.
 	 * 
 	 * @return Session ID
 	 */

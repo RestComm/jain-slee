@@ -13,7 +13,7 @@ package net.java.slee.resource.http;
 public interface HttpServletRequestActivity {
 
 	/**
-	 * Method to fetch the Request ID for this request.
+	 * Retrieves the Request's ID.
 	 * 
 	 * @return 
 	 */

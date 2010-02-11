@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.RA; Resource Adaptor</title>
+
+	<para>An HTTP Servlet is used to extend the capabilities of servers that host applications access via a request-response programming model. Although servlets can respond to any type of request, they are commonly used to extend the applications hosted by web servers. The aim of the  &THIS.RA; Resource Adaptor is to provide the ease of same request-response programming model in SLEE environment. &THIS.RA; Resource Adaptor is not an replacement for HTTP Servlets but is suppose to work in close proximity with Servlet to gain the smooth integration between web application hosted in Web Server and application developed using Service Building Block hosted in the SLEE container.</para>
+	
+</chapter>
