@@ -16,6 +16,9 @@
 	<property name="mms.version" value="2.0.0.BETA3" />
 	<property name="mms.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Media%20Server/${mms.version}/mms-standalone-${mms.version}.zip"/>
 	<property name="mms.distro.zip.path" value="media-server.zip"/>
+	<property name="diameter.version" value="1.1.1.GA" />
+	<property name="diameter.download.url" value ="http://downloads.sourceforge.net/project/mobicents/Mobicents%20Diameter/mobicents-diameter-${diameter.version}/mobicents-diameter-mux-jboss5-${diameter.version}.sar.zip"/>
+	<property name="diameter.distro.zip.path" value="diameter-mux.zip"/>
 	
 	<taskdef onerror="fail" resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
@@ -133,7 +136,7 @@
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
@@ -287,6 +290,17 @@
 	<target name="unzip-mms">
 		<delete dir="${release.dir}/tools/media-server" failonerror="false" />
 		<unzip src="${mms.distro.zip.path}" dest="${release.dir}/tools/media-server" />
+	</target>
+
+	<available file="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" property="got.diameter" />
+	<target name="get-diameter" unless="got.diameter">
+		<echo>Downloading Mobicents Diameter</echo>
+		<get dest="${ant.file.mobicents.release}/../${diameter.distro.zip.path}" src="${diameter.download.url}"/>
+	</target>
+	
+	<target name="unzip-diameter">
+		<delete dir="${release.dir}/tools/mobicents-diameter" failonerror="false" />
+		<unzip src="${diameter.distro.zip.path}" dest="${release.dir}/tools/mobicents-diameter" />
 	</target>
 
 	<target name="checksum">
