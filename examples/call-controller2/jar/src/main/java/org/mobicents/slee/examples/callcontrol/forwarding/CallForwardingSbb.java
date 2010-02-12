@@ -30,6 +30,7 @@ import javax.slee.SLEEException;
 import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
+import javax.slee.facilities.Tracer;
 
 import org.mobicents.slee.examples.callcontrol.common.SubscriptionProfileSbb;
 import org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP;
@@ -88,9 +89,9 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 				log.info("########## User " + toURI + " is not available, not forwarding");
 			}
 		} catch (SipSendErrorResponseException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (CreateException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		}
 
 		// IF WE GOT HERE IT MEANS THAT USER IS NOT AVAILABLE AND SBB HIGHER IN
@@ -112,10 +113,13 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 
 	public void setSbbContext(SbbContext context) {
 		super.setSbbContext(context);
+		this.log = getSbbContext().getTracer("CallForwardingSbb");
 		// To create Header objects from a particular implementation of JAIN SIP
 		headerFactory = getSipFactoryProvider().getHeaderFactory();
 	}
 
+	private Tracer log;
+	
 	protected final HeaderFactory getHeaderFactory() {
 		return headerFactory;
 	}
@@ -123,10 +127,6 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 	private HeaderFactory headerFactory;
 
 	public abstract ChildRelation getJainSipProxySbb();
-
-	public abstract org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP getCallControlProfileCMP(
-			javax.slee.profile.ProfileID profileID) throws javax.slee.profile.UnrecognizedProfileNameException,
-			javax.slee.profile.UnrecognizedProfileTableNameException;
 
 	public abstract CallForwardingSbbActivityContextInterface asSbbActivityContextInterface(ActivityContextInterface aci);
 
@@ -164,15 +164,15 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 			}
 
 		} catch (ParseException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (TransactionRequiredLocalException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (SLEEException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (SipException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (InvalidArgumentException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		}
 
 		return toAddress;
@@ -191,13 +191,13 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 			bindings = getLocationSbb().getBindings(addressOfRecord);
 
 		} catch (LocationServiceException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (TransactionRequiredLocalException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (SLEEException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (CreateException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		}
 
 		if (bindings != null & !bindings.isEmpty()) {
@@ -210,7 +210,7 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 				try {
 					header = getHeaderFactory().createContactHeader(getAddressFactory().createAddress(binding.getContactAddress()));
 				} catch (ParseException e) {
-					log.error(e.getMessage(), e);
+					log.severe(e.getMessage(), e);
 				}
 				log.info("########## CONTACT HEADER: " + header);
 
@@ -225,7 +225,7 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 			}
 
 			if (target == null) {
-				log.error("findLocalTarget: No contacts for " + addressOfRecord + " found.");
+				log.severe("findLocalTarget: No contacts for " + addressOfRecord + " found.");
 				throw new SipSendErrorResponseException("User temporarily unavailable",
 						Response.TEMPORARILY_UNAVAILABLE);
 			}
@@ -251,7 +251,7 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 					backupAddress = getAddressFactory().createAddress(address.getAddressString());
 
 				} catch (ParseException e) {
-					log.error(e.getMessage(), e);
+					log.severe(e.getMessage(), e);
 				}
 			}
 		}
@@ -259,6 +259,7 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 		return backupAddress;
 	}
 
+	/*
 	public void onAck(javax.sip.RequestEvent event, CallForwardingSbbActivityContextInterface localAci) {
 
 		onNonInviteEvent(event, localAci);
@@ -273,7 +274,7 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 
 		onNonInviteEvent(event, localAci);
 	}
-
+	
 	private void onNonInviteEvent(javax.sip.RequestEvent event, CallForwardingSbbActivityContextInterface localAci) {
 
 		localAci.detach(this.getSbbLocalObject());
@@ -287,7 +288,7 @@ public abstract class CallForwardingSbb extends SubscriptionProfileSbb implement
 					+ event.getRequest().getRequestURI());
 		}
 	}
-
+	 */
 	public abstract ChildRelation getLocationSbbChildRelation();
 
 	public abstract LocationSbbLocalObject getLocationSbbCMP();

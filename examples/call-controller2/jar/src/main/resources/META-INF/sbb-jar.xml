@@ -27,10 +27,12 @@
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbb</sbb-abstract-class-name>
+				<!-- 
 				<get-profile-cmp-method>
 					<profile-spec-alias-ref>CallControlProfile</profile-spec-alias-ref>
 					<get-profile-cmp-method-name>getCallControlProfileCMP</get-profile-cmp-method-name>
 				</get-profile-cmp-method>
+				 -->
 			</sbb-abstract-class>
 			<sbb-activity-context-interface>
 				<sbb-activity-context-interface-name>org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface</sbb-activity-context-interface-name>
@@ -124,14 +126,6 @@
 					</get-child-relation-method-name>
 					<default-priority>0</default-priority>
 				</get-child-relation-method>
-				<get-profile-cmp-method>
-					<profile-spec-alias-ref>
-						CallControlProfile
-					</profile-spec-alias-ref>
-					<get-profile-cmp-method-name>
-						getCallControlProfileCMP
-					</get-profile-cmp-method-name>
-				</get-profile-cmp-method>
 			</sbb-abstract-class>
 			<sbb-activity-context-interface>
 				<sbb-activity-context-interface-name>
@@ -153,6 +147,7 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
+		<!-- 
 		<event event-direction="Receive" initial-event="True">
 			<event-name>Cancel</event-name>
 			<event-type-ref>
@@ -186,7 +181,7 @@
 				callIDSelect
 			</initial-event-selector-method-name>
 		</event>
-		
+		 -->
 		<activity-context-attribute-alias>
 			<attribute-alias-name>
 				inviteFilteredByCallBlocking
@@ -264,14 +259,6 @@
 				<cmp-field>
 					<cmp-field-name>sameUser</cmp-field-name>
 				</cmp-field>
-				<get-profile-cmp-method>
-					<profile-spec-alias-ref>
-						CallControlProfile
-					</profile-spec-alias-ref>
-					<get-profile-cmp-method-name>
-						getCallControlProfileCMP
-					</get-profile-cmp-method-name>
-				</get-profile-cmp-method>
 			</sbb-abstract-class>
 			<sbb-activity-context-interface>
 				<sbb-activity-context-interface-name>
@@ -353,24 +340,6 @@
 		</activity-context-attribute-alias>
 		<env-entry>
 			<description>
-				Maximum time (mili seconds) the Voice Mail will wait to
-				receive a DTMF digit
-			</description>
-			<env-entry-name>waitingDTMF</env-entry-name>
-			<env-entry-type>java.lang.Long</env-entry-type>
-			<env-entry-value>5000</env-entry-value>
-		</env-entry>
-		<env-entry>
-			<description>
-				Maximum time (mili seconds) while the Voice Mail will be
-				storing voice message from the SIP Client
-			</description>
-			<env-entry-name>waitingVoiceMessage</env-entry-name>
-			<env-entry-type>java.lang.Long</env-entry-type>
-			<env-entry-value>60000</env-entry-value>
-		</env-entry>
-		<env-entry>
-			<description>
 				This is the path where the recorded files will reside.
 				it is part of record/announce path. Full path is comined as follows:
 				${MOBICENTS_SLEE_EXAMPLE_CC2_RECORDINGS_HOME}/${filesRoute}.
@@ -380,6 +349,8 @@
 			<env-entry-value>${files.route}</env-entry-value>
 		</env-entry>
 		<env-entry>
+			<description>This is the IP address of media server 
+			 to which MGCP requests are sent</description>
 			<env-entry-name>server.address</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
 			<env-entry-value>${server.address}</env-entry-value>

@@ -24,7 +24,9 @@ import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
 import javax.slee.AddressPlan;
 import javax.slee.SLEEException;
+import javax.slee.SbbContext;
 import javax.slee.TransactionRequiredLocalException;
+import javax.slee.facilities.Tracer;
 
 import org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface;
 import org.mobicents.slee.examples.callcontrol.common.SubscriptionProfileSbb;
@@ -69,15 +71,15 @@ public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements
 			}
 
 		} catch (TransactionRequiredLocalException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (SLEEException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (ParseException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (SipException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		} catch (InvalidArgumentException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		}
 	}
 
@@ -86,8 +88,9 @@ public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements
 	 * returns null if the called user (sipAddress) does not block to any user.
 	 */
 	private ArrayList getBlockedArrayList(String sipAddress) {
+		//sipAddress is AOR: sip:newbie@mobicents.org
 		ArrayList uris = null;
-		CallControlProfileCMP profile = lookup(new Address(AddressPlan.SIP,
+		CallControlProfileCMP profile = super.lookup(new Address(AddressPlan.SIP,
 				sipAddress));
 		if (profile != null) {
 			Address[] addresses = profile.getBlockedAddresses();
@@ -103,7 +106,7 @@ public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements
 						uris.add(uri);
 
 					} catch (ParseException e) {
-						log.error(e.getMessage(), e);
+						log.severe(e.getMessage(), e);
 					}
 				}
 			}
@@ -111,12 +114,26 @@ public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements
 
 		return uris;
 	}
+	
+	private Tracer log;
+	
+	
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.examples.callcontrol.common.SubscriptionProfileSbb#setSbbContext(javax.slee.SbbContext)
+	 */
+	@Override
+	public void setSbbContext(SbbContext context) {
+		// TODO Auto-generated method stub
+		super.setSbbContext(context);
+		this.log = getSbbContext().getTracer("CallBlockingSbb");
+	}
 
+	/*
 	public abstract org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP getCallControlProfileCMP(
 			javax.slee.profile.ProfileID profileID)
 			throws javax.slee.profile.UnrecognizedProfileNameException,
 			javax.slee.profile.UnrecognizedProfileTableNameException;
-
+	*/
 	public abstract org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface asSbbActivityContextInterface(
 			ActivityContextInterface aci);
 }

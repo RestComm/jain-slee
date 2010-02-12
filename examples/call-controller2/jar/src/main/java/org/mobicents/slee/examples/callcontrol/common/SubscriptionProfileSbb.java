@@ -25,13 +25,10 @@ import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRolledbackLocalException;
 import javax.slee.facilities.FacilityException;
-import javax.slee.profile.AttributeNotIndexedException;
-import javax.slee.profile.AttributeTypeMismatchException;
+import javax.slee.facilities.Tracer;
 import javax.slee.profile.ProfileFacility;
-import javax.slee.profile.ProfileID;
 import javax.slee.profile.ProfileLocalObject;
 import javax.slee.profile.ProfileTable;
-import javax.slee.profile.UnrecognizedAttributeException;
 import javax.slee.profile.UnrecognizedProfileNameException;
 import javax.slee.profile.UnrecognizedProfileTableNameException;
 
@@ -50,10 +47,12 @@ import org.mobicents.slee.examples.callcontrol.profile.ProfileCreator;
  */
 public abstract class SubscriptionProfileSbb implements Sbb {
 	
-	protected transient Logger log = Logger.getLogger(this.getClass());
+	//protected transient Logger log = Logger.getLogger(this.getClass());
+	private Tracer log;
 	
     public void setSbbContext(SbbContext context) {
 		this.sbbContext = context;
+		this.log = this.sbbContext.getTracer("SubscriptionProfileSbb");
 		try {
 			//"If NamingException is thrown check jmx-console -> JNDIView -> 
 			// list or sbb-jar (check entity-bindning) for proper JNDI path!!!!"
@@ -69,7 +68,7 @@ public abstract class SubscriptionProfileSbb implements Sbb {
             profileFacility = (ProfileFacility) myEnv.lookup("slee/facilities/profile");
             
         } catch (NamingException ne){
-        	log.error("COULD NOT LOCATE RESOURCE IN JNDI: Check JNDI TREE or entity-binding for proper path!!!", ne);
+        	log.severe("COULD NOT LOCATE RESOURCE IN JNDI: Check JNDI TREE or entity-binding for proper path!!!", ne);
         }		      
 	}
     
@@ -88,22 +87,20 @@ public abstract class SubscriptionProfileSbb implements Sbb {
     	try {
     		profileTableName = "CallControl";
     		
-    		// Looking for the ProfileID of the caller (address)
-    		//profileID = getProfileFacility().getProfileByIndexedAttribute(profileTableName, "userAddress", address);
     		ProfileTable table = getProfileFacility().getProfileTable(profileTableName);
     		ProfileLocalObject plo=table.findProfileByAttribute("userAddress", address);
     		profile = (CallControlProfileCMP) plo;
     		
     		
         }catch (NullPointerException  e) {
-        	log.error("Exception using the getProfileByIndexedAttribute method", e);
+        	log.severe("Exception using the getProfileByIndexedAttribute method", e);
         }catch (UnrecognizedProfileTableNameException e) {
-        	log.error("Exception in getting the Profile Specification in getControllerProfileCMP(profileID):" +
+        	log.severe("Exception in getting the Profile Specification in getControllerProfileCMP(profileID):" +
         			"The ProfileID object does not identify a Profile Table created from the Profile Specification", e);
         }catch (TransactionRolledbackLocalException e) {
-        	log.error(e.getMessage(), e);
+        	log.severe(e.getMessage(), e);
 		}catch (FacilityException e) {
-			log.error(e.getMessage(), e);
+			log.severe(e.getMessage(), e);
 		}
         
         return profile;
