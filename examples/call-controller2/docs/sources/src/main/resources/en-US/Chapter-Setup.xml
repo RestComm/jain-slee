@@ -22,7 +22,7 @@
 	
 	<section id="source_code">
 		<title>&THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example Source Code</title>
-		<para>TODO</para>
+		<para>This section provides instructions on how to obtain and build the &THIS.EXAMPLE; Example from source code.</para>
 		
 		<section id="release_source_building">
 			<title>Release Source Code Building</title>

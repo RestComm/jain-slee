@@ -18,10 +18,51 @@
 		<ulink url="http://tools.ietf.org/html/rfc3261#section-10">section 10</ulink>
 		of RFC3261.
 	</para>
-	<para>It is not a trivial example but provides usage of JAIN SLEE child
-		relations, timers, null activities, <acronym>SBB</acronym> activity context interfaces, activity context interfaces variables, <acronym>SBB</acronym> environment entries, <acronym>SBB</acronym> local interfaces
-		and JAIN SIP RA code, thus being very useful for a bit advanced users.
-		It also shows how use JEE standards in JSLEE.</para>
+	<para>It is not a trivial example as it  provides usage of 
+	</para>
+	<itemizedlist>
+		<listitem>
+			<para> child relations</para>
+		</listitem>
+		<listitem>
+			<para> timers</para>
+		</listitem>
+		<listitem>
+			<para> null activities</para>
+		</listitem>
+		<listitem>
+			<para>
+				<acronym>SBB</acronym>
+				activity context interfaces
+			</para>
+		</listitem>
+		<listitem>
+			<para>activity context interfaces variables</para>
+		</listitem>
+		<listitem>
+			<para>
+				<acronym>SBB</acronym>
+				environment entries
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				<acronym>SBB</acronym>
+				local interfaces
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				<acronym>SBB</acronym>
+				local interfaces
+			</para>
+		</listitem>
+		<listitem>
+			<para>JAIN SIP RA code</para>
+		</listitem>
+	</itemizedlist>
+	<para>Thus it should be considered as terget for more advanced users.</para>
+	
 	<para>Example service is capable of routing <acronym>SIP</acronym> messages based on
 		registrar entries or target domain. Registrar entries are based on
 		received <acronym>SIP</acronym> REGISTER request for example local domains.</para>
