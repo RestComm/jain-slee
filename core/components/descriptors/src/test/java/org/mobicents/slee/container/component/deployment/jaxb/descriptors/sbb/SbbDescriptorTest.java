@@ -11,6 +11,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -223,15 +224,12 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		
 		
 		
-		List<MInitialEventSelect> iSelect=eventEntry.getInitialEventSelects();
+		EnumSet<InitialEventSelectVariable> iSelect=eventEntry.getInitialEventSelects();
 		
 		assertNotNull("Event initial selects list is null",iSelect);
 		assertTrue("Event initial selects list size is not equal 1",iSelect.size()==1);
 		
-		MInitialEventSelect mISelect=iSelect.get(0);
-		assertNotNull("Event initial select is null",mISelect);
-		assertNotNull("Event initial select variable is null",mISelect.getVariable());
-		assertTrue("Event initial select variable is equal Address",mISelect.getVariable() == InitialEventSelectVariable.Address);
+		assertTrue("Event initial select variable is equal Address",iSelect.contains(InitialEventSelectVariable.Address));
 		
 	
 		Collection<MActivityContextAttributeAlias> aciAliasses=sbb.getActivityContextAttributeAliases().values();

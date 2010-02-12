@@ -174,7 +174,7 @@ public class Service {
 
 		// create root sbb entity
 		SbbEntity sbbEntity = SbbEntityFactory.createRootSbbEntity(getRootSbbID(),
-				this.getServiceID(), convergenceName);
+				serviceComponent.getServiceID(), convergenceName);
 		if (sbbEntity.isCreated()) {
 			// set default priority
 			sbbEntity.setPriority(getDefaultPriority());

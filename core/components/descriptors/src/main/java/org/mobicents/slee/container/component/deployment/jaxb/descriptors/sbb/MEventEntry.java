@@ -8,8 +8,7 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumSet;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
@@ -34,7 +33,7 @@ public class MEventEntry {
 	
 	//private ComponentKey eventReference = null;
 	private String eventName = null;
-	private List<MInitialEventSelect> initialEventSelects = null;
+	private EnumSet<InitialEventSelectVariable> initialEventSelects = EnumSet.noneOf(InitialEventSelectVariable.class);
 	private String initialEventSelectorMethod = null;
 	private String resourceOption = null;
 
@@ -65,14 +64,10 @@ public class MEventEntry {
 //				.getEventTypeVersion().getvalue());
 
 		this.eventName=llEvent.getEventName().getvalue();
-		this.initialEventSelects=new ArrayList<MInitialEventSelect>();
 		
-		if(llEvent.getInitialEventSelect()!=null)
-		{
-			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.InitialEventSelect ies:llEvent.getInitialEventSelect())
-			{
-				MInitialEventSelect mies=new MInitialEventSelect(ies);
-				this.initialEventSelects.add(mies);
+		if(llEvent.getInitialEventSelect()!=null) {
+			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.InitialEventSelect ies:llEvent.getInitialEventSelect()) {
+				this.initialEventSelects.add(InitialEventSelectVariable.valueOf(ies.getVariable()));
 			}
 		}
 		
@@ -106,14 +101,10 @@ public class MEventEntry {
 //				.getEventTypeVersion().getvalue());
 
 		eventName=event.getEventName().getvalue();
-		this.initialEventSelects=new ArrayList<MInitialEventSelect>();
 		
-		if(event.getInitialEventSelect()!=null)
-		{
-			for(InitialEventSelect ies:event.getInitialEventSelect())
-			{
-				MInitialEventSelect mies=new MInitialEventSelect(ies);
-				this.initialEventSelects.add(mies);
+		if(event.getInitialEventSelect()!=null) {
+			for(InitialEventSelect ies:event.getInitialEventSelect()) {
+				this.initialEventSelects.add(InitialEventSelectVariable.valueOf(ies.getVariable()));
 			}
 		}
 		
@@ -158,7 +149,7 @@ public class MEventEntry {
 		return eventName;
 	}
 
-	public List<MInitialEventSelect> getInitialEventSelects() {
+	public EnumSet<InitialEventSelectVariable> getInitialEventSelects() {
 		return initialEventSelects;
 	}
 

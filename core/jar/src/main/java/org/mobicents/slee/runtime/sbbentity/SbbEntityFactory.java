@@ -31,14 +31,6 @@ public class SbbEntityFactory {
 	private static final Logger logger = Logger
 			.getLogger(SbbEntityFactory.class);
 
-	/**
-	 * 
-	 * @return
-	 */
-	private static String genId() {
-		return sleeContainer.getUuidGenerator().createUUID();
-	}
-
 	private static final SleeContainer sleeContainer = SleeContainer
 			.lookupFromJndi();
 
@@ -59,7 +51,7 @@ public class SbbEntityFactory {
 			String parentSbbEntityId, String parentChildRelation,
 			String rootSbbEntityId, String convergenceName) {
 		
-		final String sbbeId = genId();
+		final String sbbeId = sleeContainer.getUuidGenerator().createUUID();
 		
 		// no lock needed, this is a non root sbb entity creation, which is done only by holding parent root sbb entity lock
 		
@@ -85,7 +77,8 @@ public class SbbEntityFactory {
 	public static SbbEntity createRootSbbEntity(SbbID sbbId, ServiceID svcId,
 			String convergenceName) {
 		
-		final String sbbeId = genId();
+		final String sbbeId = new StringBuilder().append(svcId.hashCode()).append(convergenceName).toString();
+		
 		final TransactionContext txContext = sleeContainer.getTransactionManager().getTransactionContext();
 
 		// get lock

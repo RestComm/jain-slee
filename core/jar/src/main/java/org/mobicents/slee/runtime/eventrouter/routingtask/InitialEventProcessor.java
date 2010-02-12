@@ -32,7 +32,7 @@ public class InitialEventProcessor {
 
 	private final SleeContainer sleeContainer;
 
-	private static final String NULL_STRING = "null";
+	private static final char NOT_SELECTED = '_';
 
 	/**
 	 * @param sleeContainer
@@ -57,7 +57,7 @@ public class InitialEventProcessor {
 		final SbbComponent sbbComponent = serviceComponent.getRootSbbComponent();
 		MEventEntry mEventEntry = sbbComponent.getDescriptor().getEventEntries().get(sleeEvent.getEventTypeId());
 		InitialEventSelectorImpl selector = new InitialEventSelectorImpl(
-				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextHandle(), mEventEntry.getInitialEventSelects(), mEventEntry.getInitialEventSelectorMethod(), sleeEvent
+				sleeEvent.getEventTypeId(), sleeEvent.getEvent(), sleeEvent.getActivityContextHandle(), mEventEntry.getInitialEventSelects().clone(), mEventEntry.getInitialEventSelectorMethod(), sleeEvent
 				.getAddress());
 
 		/*
@@ -111,29 +111,29 @@ public class InitialEventProcessor {
 		StringBuilder buff = new StringBuilder();
 
 		if (selector.isActivityContextSelected()) {
-			buff.append(sleeEvent.getActivityContextHandle());
+			buff.append(sleeEvent.getActivityContextHandle().hashCode());
 		} else
-			buff.append(NULL_STRING);
+			buff.append(NOT_SELECTED);
 
 		// TODO the ProfileTle select varile for now is null
 
-		buff.append(NULL_STRING);
+		buff.append(NOT_SELECTED);
 
 		if (selector.isAddressSelected()) {
 			Address address = selector.getAddress();
 
 			if (address == null)
-				buff.append(NULL_STRING);
+				buff.append(NOT_SELECTED);
 			else
 				buff.append(address.toString());
 		} else
-			buff.append(NULL_STRING);
+			buff.append(NOT_SELECTED);
 
 		// If event type is selected append it to te convergence name.
 		if (selector.isEventTypeSelected()) {
 			buff.append(selector.getEventTypeID());
 		} else
-			buff.append(NULL_STRING);
+			buff.append(NOT_SELECTED);
 
 		/*
 		 * Event. The value of this variable (if selected) is unique for each
@@ -165,7 +165,7 @@ public class InitialEventProcessor {
 			buff.append(sleeEvent.hashCode()); // TODO: use a more unique value
 			// than the hash code
 		} else
-			buff.append(NULL_STRING);
+			buff.append(NOT_SELECTED);
 		/*
 		 * The address attribute of the InitialEventSelector object provides the
 		 * default address. The value of this attribute may be null if there is
@@ -187,7 +187,7 @@ public class InitialEventProcessor {
 		if (selector.isAddressProfileSelected()) {
 			
 			if (selector.getAddress() == null) {
-				buff.append(NULL_STRING);
+				buff.append(NOT_SELECTED);
 			} else {
 				ProfileSpecificationID addressProfileId = sbbComponent.getDescriptor().getAddressProfileSpecRef();
 				ProfileSpecificationComponent profileSpecificationComponent = sleeContainer.getComponentRepositoryImpl().getComponentByID(addressProfileId);
@@ -208,7 +208,7 @@ public class InitialEventProcessor {
 			}
 
 		} else
-			buff.append(NULL_STRING);
+			buff.append(NOT_SELECTED);
 
 		String customName = selector.getCustomName();
 

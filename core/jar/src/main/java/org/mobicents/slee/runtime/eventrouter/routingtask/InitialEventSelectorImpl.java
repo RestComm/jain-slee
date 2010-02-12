@@ -10,12 +10,12 @@
 */
 package org.mobicents.slee.runtime.eventrouter.routingtask;
 
-import java.util.List;
+import java.util.EnumSet;
 
 import javax.slee.Address;
 import javax.slee.EventTypeID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MInitialEventSelect;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.InitialEventSelectVariable;
 import org.mobicents.slee.runtime.activity.ActivityContextHandle;
 
 /**
@@ -37,31 +37,20 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
     private String customName;
 
     private boolean isSelectMethod = false;
-    private boolean isActivityContextSelected= false;
-    private boolean isAddressProfileSelected= false;
-    private boolean isAddressSelected= false;
-    private boolean isEventSelected= false;
-    private boolean isEventTypeSelected= false;
+    
+    private final EnumSet<InitialEventSelectVariable> iesVariables;
     
     private boolean isInitialEvent= false;
     
     private String selectMethodName;
  
-    public InitialEventSelectorImpl(EventTypeID type, Object event, ActivityContextHandle ach,  List<MInitialEventSelect> select, String methodName, Address address) {
+    public InitialEventSelectorImpl(EventTypeID type, Object event, ActivityContextHandle ach,  EnumSet<InitialEventSelectVariable> iesVariables, String methodName, Address address) {
         eventTypeID = type;
         this.event = event;
         this.address = address;
         this.ach = ach;
         
-        for(MInitialEventSelect mInitialEventSelect : select){
-            switch(mInitialEventSelect.getVariable()){ 
-            	case ActivityContext: this.isActivityContextSelected = true;break;
-            	case Address:this.isAddressSelected=true;break;
-            	case AddressProfile:this.isAddressProfileSelected=true;break;
-            	case Event:this.isEventSelected=true;break;
-            	case EventType:this.isEventTypeSelected=true;break;
-            }
-        }
+        this.iesVariables = iesVariables;
         
         if (methodName == null){
             isSelectMethod = false;
@@ -77,10 +66,10 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
         	+ " event " + event 
         	+ " ach " + ach
         	+ " address " + address
-        	+ "\n activityContextSelected = "  + isActivityContextSelected
-        	+ "\n isAddressSelected " + isAddressSelected
-        	+ "\n isAddressProfileSelected " + isAddressProfileSelected
-        	+ "\n isEventSelected " + isEventSelected 
+        	+ "\n activityContextSelected = "  + isActivityContextSelected()
+        	+ "\n isAddressSelected " + isAddressSelected()
+        	+ "\n isAddressProfileSelected " + isAddressProfileSelected()
+        	+ "\n isEventSelected " + isEventSelected() 
         	+ "\n customName " + customName
         	+ "\n selectMethodName " + selectMethodName
         	+ "\n}";
@@ -90,25 +79,25 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
      * @return Returns the isActivityContextSelected.
      */
     public boolean isActivityContextSelected() {
-        return this.isActivityContextSelected;
+        return iesVariables.contains(InitialEventSelectVariable.ActivityContext);
     }
     /**
      * @return Returns the isAddressProfileSelected.
      */
     public boolean isAddressProfileSelected() {
-        return this.isAddressProfileSelected;
+    	return iesVariables.contains(InitialEventSelectVariable.AddressProfile);
     }
     /**
      * @return Returns the isAddressSelected.
      */
     public boolean isAddressSelected() {
-        return this.isAddressSelected;
+    	return iesVariables.contains(InitialEventSelectVariable.Address);
     }
     /**
      * @return Returns the isEventTypeSelected.
      */
     public boolean isEventTypeSelected() {
-        return this.isEventTypeSelected;
+    	return iesVariables.contains(InitialEventSelectVariable.EventType);
     }
     /**
      * @return Returns the eventType.
@@ -126,7 +115,7 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
      * @return Returns the isEventSelected.
      */
     public boolean isEventSelected() {
-        return this.isEventSelected;
+    	return iesVariables.contains(InitialEventSelectVariable.Event);
     }
     /**
      * @param isEventSelected The isEventSelected to set.
@@ -136,19 +125,34 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
      * @param isAddressProfileSelected The isAddressProfileSelected to set.
      */
     public void setAddressProfileSelected(boolean isAddressProfileSelected) {
-        this.isAddressProfileSelected = isAddressProfileSelected;
+        if (isAddressProfileSelected) {
+        	iesVariables.add(InitialEventSelectVariable.AddressProfile);
+        }
+        else {
+        	iesVariables.remove(InitialEventSelectVariable.AddressProfile);
+        }
     }
     /**
      * @param isAddressSelected The isAddressSelected to set.
      */
     public void setAddressSelected(boolean isAddressSelected) {
-        this.isAddressSelected = isAddressSelected;
+    	if (isAddressSelected) {
+        	iesVariables.add(InitialEventSelectVariable.Address);
+        }
+        else {
+        	iesVariables.remove(InitialEventSelectVariable.Address);
+        }
     }
     /**
      * @param isEventTypeSelected The isEventTypeSelected to set.
      */
     public void setEventTypeSelected(boolean isEventTypeSelected) {
-        this.isEventTypeSelected = isEventTypeSelected;
+    	if (isEventTypeSelected) {
+        	iesVariables.add(InitialEventSelectVariable.EventType);
+        }
+        else {
+        	iesVariables.remove(InitialEventSelectVariable.EventType);
+        }
     }
     /**
      * @return Returns the isSelectMethod.
@@ -219,11 +223,21 @@ public class InitialEventSelectorImpl implements javax.slee.InitialEventSelector
     }
     
     public void setActivityContextSelected(boolean isActivityContextSelected) {
-        this.isActivityContextSelected = isActivityContextSelected;
+    	if (isActivityContextSelected) {
+        	iesVariables.add(InitialEventSelectVariable.ActivityContext);
+        }
+        else {
+        	iesVariables.remove(InitialEventSelectVariable.ActivityContext);
+        }
     }
     
     public void setEventSelected(boolean isEventSelected) {
-        this.isEventSelected = isEventSelected;
+    	if (isEventSelected) {
+        	iesVariables.add(InitialEventSelectVariable.Event);
+        }
+        else {
+        	iesVariables.remove(InitialEventSelectVariable.Event);
+        }
     }
     
     public boolean isInitialEvent() {
