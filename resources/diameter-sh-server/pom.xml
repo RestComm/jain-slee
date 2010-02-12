@@ -40,6 +40,9 @@
   <profiles>
   <profile>
       <id>release</id>
+      <modules>
+        <module>docs</module>
+      </modules>
       <build>
         <plugins>
           <plugin>
@@ -67,6 +70,10 @@
                         <filter token="JBOSS.CONFIG" value="${node}" />
                       </filterset>
                     </copy>
+                    <!-- copy docs -->
+                    <copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/diameter-sh-server/docs">
+                      <fileset dir="${basedir}/docs/jdocbook-${docs.profile}/target/docbook/publish" />
+                    </copy>
                   </tasks>
                 </configuration>
               </execution>
@@ -77,7 +84,9 @@
     </profile>
     <profile>
       <id>maven-release</id>
-      <modules />
+      <modules>
+        <module>docs</module>
+      </modules>
       <build>
         <plugins>
           <plugin>
