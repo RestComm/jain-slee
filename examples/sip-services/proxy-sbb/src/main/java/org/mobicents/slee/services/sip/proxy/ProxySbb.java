@@ -47,6 +47,7 @@ import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
+import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityFactory;
 
@@ -69,8 +70,8 @@ import org.mobicents.slee.services.sip.proxy.mbean.ProxyConfigurator;
 
 public abstract class ProxySbb implements Sbb {
 
-	private static Logger logger = Logger.getLogger(ProxySbb.class);
-	
+	//private static Logger logger = Logger.getLogger(ProxySbb.class);
+	private Tracer logger;
 	/**
 	 * Proxy Configuration MBean
 	 */
@@ -108,8 +109,8 @@ public abstract class ProxySbb implements Sbb {
 			}
 		}
 		// Set the convergence name
-		if (logger.isDebugEnabled()) {
-			logger.debug( "Setting convergence name to: " + callId);
+		if (logger.isFineEnabled()) {
+			logger.fine( "Setting convergence name to: " + callId);
 		}
 		ies.setCustomName(callId);
 		
@@ -174,7 +175,7 @@ public abstract class ProxySbb implements Sbb {
 				aci.detach(this.sbbContext.getSbbLocalObject());
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("Failed to start service",e);
 		}	
 
 	}
@@ -193,7 +194,7 @@ public abstract class ProxySbb implements Sbb {
 
 		} catch (NamingException ne) {
 
-			logger.warn("Could not set SBB context:" + ne.getMessage());
+			logger.warning("Could not set SBB context",ne);
 			return;
 		}
 
@@ -201,7 +202,7 @@ public abstract class ProxySbb implements Sbb {
 		try {
 			confValue = (String) myEnv.lookup("configuration-URI-SCHEMES");
 		} catch (NamingException e) {
-			logger.error(e);
+			logger.severe("",e);
 		}
 		if (confValue == null) {
 			proxyConfigurator.addSupportedURIScheme("sip");
@@ -218,7 +219,7 @@ public abstract class ProxySbb implements Sbb {
 
 			confValue = (String) myEnv.lookup("configuration-LOCAL-DOMAINS");
 		} catch (NamingException e) {
-			logger.error(e);
+			logger.severe("",e);
 		}
 
 		if (confValue == null) {
@@ -238,7 +239,7 @@ public abstract class ProxySbb implements Sbb {
 			.lookup("configuration-MBEAN");
 			
 		} catch (NamingException e) {
-			logger.error(e);
+			logger.severe("",e);
 		}
 		
 		if(configurationName!=null)
@@ -252,8 +253,8 @@ public abstract class ProxySbb implements Sbb {
 			ActivityContextInterface aci) {
 		try {
 			if (aci.getActivity() instanceof ServiceActivity) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Service aci ending, removing mbean");
+				if (logger.isFineEnabled()) {
+					logger.fine("Service aci ending, removing mbean");
 				}
 				// lets remove our mbean
 				SleeContainer.lookupFromJndi().getMBeanServer()
@@ -263,7 +264,7 @@ public abstract class ProxySbb implements Sbb {
 												+ proxyConfigurator.getName()));
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("",e);
 		}
 	}
 
@@ -271,29 +272,33 @@ public abstract class ProxySbb implements Sbb {
 
 	public void onRegisterEvent(RequestEvent event, ActivityContextInterface ac) {
 
-		if (logger.isDebugEnabled())
-			logger.debug("Received REGISTER request, class="+ event.getClass());
+		if (logger.isFineEnabled())
+			logger
+					.fine("Received REGISTER request, class="
+							+ event.getClass());
 
-		// TODO: IF NOT LOCAL DOMAIN THEN PROXY REQUEST
-
-		// ELSE this is local domain
-		// attach child to this activity
-		try {
-			ac.attach(getRegistrarSbbChildRelation().create());
-		} catch (Exception e) {
-			// failed to attach the register, send error back
-			logger.error(e);
-			// TODO send 500 back
+		// see http://tools.ietf.org/html/rfc3261#section-10.2
+		SipURI uri = (SipURI) event.getRequest().getRequestURI();
+		if (isRegisterLocal(uri, getProxyConfigurator().getLocalDomainNames())) {
+			try {
+				ac.attach(getRegistrarSbbChildRelation().create());
+			} catch (Exception e) {
+				// failed to attach the register, send error back
+				logger.severe("",e);
+				// TODO send 500 back
+			}
+			// detach myself
+			ac.detach(sbbContext.getSbbLocalObject());
+		} else {
+			processRequest(event.getServerTransaction(), event.getRequest(), ac);
 		}
-		// detach myself
-		ac.detach(sbbContext.getSbbLocalObject());
 
 	}
 
 	public void onInviteEvent(RequestEvent event, ActivityContextInterface ac) {
 		
-		if (logger.isDebugEnabled())
-			logger.debug("Received INVITE request");
+		if (logger.isFineEnabled())
+			logger.fine("Received INVITE request");
 		
 		processRequest(event.getServerTransaction(), event.getRequest(), ac);
 	}
@@ -301,16 +306,16 @@ public abstract class ProxySbb implements Sbb {
 	public void onByeEvent(RequestEvent event, ActivityContextInterface ac) {
 
 		// getDefaultSbbUsageParameterSet().incrementNumberOfBye(1);
-		if (logger.isDebugEnabled())
-			logger.debug("Received BYE request");
+		if (logger.isFineEnabled())
+			logger.fine("Received BYE request");
 		
 		processRequest(event.getServerTransaction(), event.getRequest(), ac);
 	}
 
 	public void onCancelEvent(CancelRequestEvent event, ActivityContextInterface ac) {
 		
-		if (logger.isDebugEnabled())
-			logger.debug("Received CANCEL request");
+		if (logger.isFineEnabled())
+			logger.fine("Received CANCEL request");
 		
 		final ServerTransaction serverTransaction = event.getServerTransaction();
 		
@@ -324,7 +329,7 @@ public abstract class ProxySbb implements Sbb {
 						Response.OK, event.getRequest()));
 			}
 		} catch (Exception e) {
-			logger.warn( "Failed to reply to CANCEL", e);
+			logger.warning("Failed to reply to CANCEL", e);
 		}
 			// This will generate a new CANCEL request that originates from the
 			// proxy
@@ -336,23 +341,23 @@ public abstract class ProxySbb implements Sbb {
 
 	public void onAckEvent(RequestEvent event, ActivityContextInterface ac) {
 		
-		if (logger.isDebugEnabled())
-			logger.debug("Received ACK request");
+		if (logger.isFineEnabled())
+			logger.fine("Received ACK request");
 		
 		processRequest(event.getServerTransaction(), event.getRequest(), ac);
 	}
 
 	public void onMessageEvent(RequestEvent event, ActivityContextInterface ac) {
 		
-		if (logger.isDebugEnabled())
-			logger.debug("Received MESSAGE request");
+		if (logger.isFineEnabled())
+			logger.fine("Received MESSAGE request");
 		
 		processRequest(event.getServerTransaction(), event.getRequest(), ac);		
 	}
 
 	public void onOptionsEvent(RequestEvent event, ActivityContextInterface ac) {
-		if (logger.isDebugEnabled())
-			logger.debug("Received OPTIONS request");
+		if (logger.isFineEnabled())
+			logger.fine("Received OPTIONS request");
 		try {
 
 			Request request = event.getRequest();
@@ -374,54 +379,54 @@ public abstract class ProxySbb implements Sbb {
 				processRequest(serverTransaction, request, ac);
 			}
 		} catch (Exception e) {
-			logger.warn( "Exception during onOptionsEvent", e);
+			logger.warning( "Exception during onOptionsEvent", e);
 		}
 	}
 
 	public void onInfoRespEvent(ResponseEvent event, ActivityContextInterface ac) {
 
-		if (logger.isDebugEnabled())
-			logger.debug("Received 1xx (FINER) response");
+		if (logger.isFineEnabled())
+			logger.fine("Received 1xx (FINER) response");
 		
 		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onSuccessRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isDebugEnabled())
-			logger.debug("Received 2xx (SUCCESS) response");
+		if (logger.isFineEnabled())
+			logger.fine("Received 2xx (SUCCESS) response");
 
 		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 	
 	public void onRedirRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isDebugEnabled())
-			logger.debug("Received 3xx (REDIRECT) response");
+		if (logger.isFineEnabled())
+			logger.fine("Received 3xx (REDIRECT) response");
 
 		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onClientErrorRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isDebugEnabled())
-			logger.debug("Received 4xx (CLIENT ERROR) response");
+		if (logger.isFineEnabled())
+			logger.fine("Received 4xx (CLIENT ERROR) response");
 
 		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onServerErrorRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isDebugEnabled())
-			logger.debug("Received 5xx (SERVER ERROR) response");
+		if (logger.isFineEnabled())
+			logger.fine("Received 5xx (SERVER ERROR) response");
 
 		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
 
 	public void onGlobalFailureRespEvent(ResponseEvent event,
 			ActivityContextInterface ac) {
-		if (logger.isDebugEnabled())
-			logger.debug("Received 6xx (GLOBAL FAILURE) response");
+		if (logger.isFineEnabled())
+			logger.fine("Received 6xx (GLOBAL FAILURE) response");
 
 		processResponse(event.getClientTransaction(), event.getResponse(), ac);		
 	}
@@ -433,8 +438,8 @@ public abstract class ProxySbb implements Sbb {
 	public void onTransactionTimeoutEvent(TimeoutEvent event,
 			ActivityContextInterface ac) {
 		
-		if (logger.isDebugEnabled())
-			logger.debug("Received transaction timeout event, tid="
+		if (logger.isFineEnabled())
+			logger.fine("Received transaction timeout event, tid="
 					+ event.getClientTransaction());
 		
 		ServerTransaction serverTransaction = event.getServerTransaction();
@@ -445,7 +450,7 @@ public abstract class ProxySbb implements Sbb {
 								.getRequest()));
 				setServerTransactionTerminated(true);
 			} catch (Exception e) {
-				logger.error(e);
+				logger.severe("",e);
 			}
 		}
 	}
@@ -475,7 +480,7 @@ public abstract class ProxySbb implements Sbb {
 			try {
 				request.addHeader(headerFactory.createMaxForwardsHeader(69));
 			} catch (Exception e) {
-				logger.error(e);
+				logger.severe("",e);
 			}
 		}
 		ClientTransaction ct = provider.getNewClientTransaction(request);
@@ -484,7 +489,7 @@ public abstract class ProxySbb implements Sbb {
 				ActivityContextInterface aci = acif.getActivityContextInterface(ct);
 				aci.attach(sbbContext.getSbbLocalObject());
 			} catch (UnrecognizedActivityException e) {
-				logger.warn("unable to attach to client transaction", e);
+				logger.warning("unable to attach to client transaction", e);
 			}
 		}
 
@@ -504,9 +509,7 @@ public abstract class ProxySbb implements Sbb {
 
 	private void processRequest(ServerTransaction serverTransaction,
 			Request request, ActivityContextInterface ac) {
-		
-		//ac.detach(sbbContext.getSbbLocalObject());
-		
+
 		if (logger.isInfoEnabled())
 			logger.info("processing request: method = \n"
 					+ request.getMethod().toString());
@@ -515,8 +518,8 @@ public abstract class ProxySbb implements Sbb {
 		try {
 
 			if (getServerTransactionTerminated()) {
-				if (logger.isDebugEnabled())
-					logger.debug("[PROXY MACHINE] txTERM \n" + request);
+				if (logger.isFineEnabled())
+					logger.fine("[PROXY MACHINE] txTERM \n" + request);
 				return;
 			}
 
@@ -531,12 +534,12 @@ public abstract class ProxySbb implements Sbb {
 
 		} catch (Exception e) {
 			// Send error response so client can deal with it
-			logger.warn( "Exception during processRequest", e);
+			logger.warning( "Exception during processRequest", e);
 			try {
 				serverTransaction.sendResponse(messageFactory.createResponse(
 						Response.SERVER_INTERNAL_ERROR, request));
 			} catch (Exception ex) {
-				logger.warn( "Exception during processRequest", e);
+				logger.warning( "Exception during processRequest", e);
 			}
 		}
 
@@ -544,17 +547,12 @@ public abstract class ProxySbb implements Sbb {
 
 	private void processResponse(ClientTransaction clientTransaction,
 			Response response, ActivityContextInterface ac) {
-				
-		//ac.detach(sbbContext.getSbbLocalObject());
+
 		
 		if (logger.isInfoEnabled())
 			logger.info("processing response: status = \n"
 					+ response.getStatusCode());
-		// log.error("===> RESPONSE CODE["+response.getStatusCode()+"]
-		// METHOD["+((CSeq)response.getHeader(CSeq.NAME)).getMethod()+"]
-		// CALLID["+((CallID)response.getHeader(CallID.NAME)).getCallId()+"]
-		// TO["+((ToHeader)response.getHeader(ToHeader.NAME)).getAddress()+"]
-		// BRANCH["+clientTransaction.getBranchId()+"]");
+
 		try {
 
 			if (getServerTransactionTerminated()) {
@@ -569,12 +567,12 @@ public abstract class ProxySbb implements Sbb {
 				.processResponse(serverTransaction,
 						clientTransaction, response);
 			} else {
-				logger.warn("Weird got null tx for[" + response + "]");
+				logger.warning("Weird got null tx for[" + response + "]");
 			}
 
 		} catch (Exception e) {
 			// Send error response so client can deal with it
-			logger.warn( "Exception during processResponse", e);
+			logger.warning( "Exception during processResponse", e);
 		}
 
 	}
@@ -605,6 +603,7 @@ public abstract class ProxySbb implements Sbb {
 
 	public void setSbbContext(SbbContext context) {
 		this.sbbContext = context;
+		this.logger = context.getTracer("ProxySbb");
 		try {
 			myEnv = new InitialContext();
 		
@@ -613,22 +612,34 @@ public abstract class ProxySbb implements Sbb {
 			headerFactory = provider.getHeaderFactory();
 			addressFactory = provider.getAddressFactory();
 			acif = (SipActivityContextInterfaceFactory) myEnv.lookup("java:comp/env/slee/resources/jainsip/1.2/acifactory");
-//			this.proxyMachine = new ProxyMachine(getProxyConfigurator(), getLocationSbb(),
-//					this.addressFactory, this.headerFactory,
-//					this.messageFactory, this.provider);
+
 		} catch (Exception ne) {
-			logger.error("Could not create SBB properly: ", ne);
+			logger.severe("Could not create SBB properly: ", ne);
 		}
 	}
 
 	public void unsetSbbContext() {	this.sbbContext = null; }
 
+	private static boolean isRegisterLocal(SipURI uri,String[] domains)
+	{
+		String registerDomain = uri.getHost();
+		for(String domain:domains)
+		{
+			if(domain.toLowerCase().equals(registerDomain.toLowerCase()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 	// Inner class - this is pojo, but it needs access to some SLEE stuff, its
 	// more conveniant to do this like this, since otherwise we would have
 	// to either pass whole sbb or interface
 	
 	class ProxyMachine extends MessageUtils implements MessageHandlerInterface {
-		protected final Logger log = Logger.getLogger("ProxyMachine.class");
+
 
 		// We can use those variables from top level class, but let us have our
 		// own.
@@ -644,8 +655,6 @@ public abstract class ProxySbb implements Sbb {
 		protected SipProvider provider = null;
 
 		protected HashSet<URI> localMachineInterfaces = new HashSet<URI>();
-
-		protected ProxyConfiguration pc = null;
 
 		protected ProxyConfiguration config = null;
 
@@ -667,8 +676,8 @@ public abstract class ProxySbb implements Sbb {
 		}
 
 		public void processRequest(ServerTransaction stx, Request req) {
-			if (log.isDebugEnabled()) {
-				log.debug("processRequest");
+			if (logger.isFinerEnabled()) {
+				logger.finer("processRequest");
 			}
 			try {
 				Request tmpNewRequest = (Request) req.clone();
@@ -679,7 +688,7 @@ public abstract class ProxySbb implements Sbb {
 				// 16.4 Route Information Preprocessing
 				routePreProcess(tmpNewRequest);
 
-				// logger.debug("Server transaction " + stx);
+				// logger.fine("Server transaction " + stx);
 				// 16.5 Determining Request Targets
 				List targets = determineRequestTargets(tmpNewRequest);
 
@@ -694,8 +703,7 @@ public abstract class ProxySbb implements Sbb {
 
 						continue;
 					}
-					// logger.fine("SIP Proxy Forwarding: "
-					// + req.getMethod() + " to URI target: " + target);
+			
 					// 16.6 Request Forwarding
 					// 1. Copy request
 
@@ -746,7 +754,7 @@ public abstract class ProxySbb implements Sbb {
 				int statusCode = se.getStatusCode();
 				sendErrorResponse(stx, req, statusCode);
 			} catch (SipLoopDetectedException slde) {
-				log.warn("Loop detected, droping message.");
+				logger.warning("Loop detected, droping message.");
 				slde.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -805,15 +813,11 @@ public abstract class ProxySbb implements Sbb {
 		public ClientTransaction forwardRequest(
 				ServerTransaction serverTransaction, Request request) {
 			ClientTransaction toReturn = null;
-			if (log.isDebugEnabled())
-				log.debug("Forwarding request " + request.getMethod()
+			if (logger.isFinerEnabled())
+				logger.finer("Forwarding request " + request.getMethod()
 						+ " of server tx " + serverTransaction.getBranchId());
 
-			// ProxySbb.log.error("===> REQUEST FWD
-			// METHOD["+request.getMethod()+"]
-			// CALLID["+((CallID)request.getHeader(CallID.NAME)).getCallId()+"]
-			// BRANCH["+serverTransaction.getBranchId()+"]");
-			// log.info("PRXY forwardReqeust\n"+request);
+			
 			try {
 
 				if (request.getMethod().equals(Request.ACK)) {
@@ -864,21 +868,11 @@ public abstract class ProxySbb implements Sbb {
 		}
 
 		public void forwardResponse(ServerTransaction txn, Response response) {
-			if (log.isDebugEnabled())
-				log.debug("Forwarding response " + response.getStatusCode()
+			if (logger.isFinerEnabled())
+				logger.fine("Forwarding response " + response.getStatusCode()
 						+ " of server tx " + txn.getBranchId());
 
-			// log.info("PRXY forwardResponse\n"+response);
-			// try{
-			// ProxySbb.log.error("===> RESPONSE FWD
-			// CODE["+response.getStatusCode()+"]
-			// METHOD["+((CSeq)response.getHeader(CSeq.NAME)).getMethod()+"]
-			// CALLID["+((CallID)response.getHeader(CallID.NAME)).getCallId()+"]
-			// BRANCH["+txn==null?"GO TNULL":txn.getBranchId()+"]");
-			// }catch(Exception e)
-			// {
-			// e.printStackTrace();
-			// }
+
 			try {
 				// trace(Level.FINEST, "Forwarding response:\n" + response);
 				if (txn != null) {
@@ -888,9 +882,9 @@ public abstract class ProxySbb implements Sbb {
 					sendStatelessResponse(response);
 				}
 			} catch (Exception e) {
-				log.error("Exception during forwardResponse[\n" + response
+				logger.severe("Exception during forwardResponse[\n" + response
 						+ "\n] TXBRANCH[" + txn.getBranchId() + "] TXR[\n"
-						+ txn.getRequest() + "\n]:" + e);
+						+ txn.getRequest() + "\n]", e);
 			}
 		}
 
@@ -952,18 +946,13 @@ public abstract class ProxySbb implements Sbb {
 
 			// This only works if UAC conforms to rfc 3261
 			if (requestURI.equals(localNodeURI)) {
-				// throw new SipSendErrorResponseException("Possible local
-				// looping on node",Response.LOOP_DETECTED);
-				// throw new SipLoopDetectedException(
-				// "Possible loop detected on LOCAL["+localNodeURI+"]
-				// MSG["+requestURI+"] message:n" + request
-				// + "\n====================================");
+				
 				// this can be a loop, we will only warn as this is uncertain at
 				// this point
 				// if You know more, please patch :]
 
-				if (log.isDebugEnabled()) {
-					log.debug("Possible loop detected on LOCAL[" + localNodeURI
+				if (logger.isFinerEnabled()) {
+					logger.finer("Possible loop detected on LOCAL[" + localNodeURI
 							+ "] MSG[" + requestURI + "] message:n" + request
 							+ "\n====================================");
 				}
@@ -1060,12 +1049,11 @@ public abstract class ProxySbb implements Sbb {
 				try {
 					listOfTargets.add(af.createURI(contactAddress));
 				} catch (ParseException e) {
-					log.warn("Ignoring contact address "+contactAddress+" due to parse error",e);
+					logger.warning("Ignoring contact address "+contactAddress+" due to parse error",e);
 				}
 			}
 			if (listOfTargets.size() == 0) {
-				// logger.fine("findLocalTarget: No contacts for "
-				// + addressOfRecord + " found.");
+
 				throw new SipSendErrorResponseException(
 						"User temporarily unavailable",
 						Response.TEMPORARILY_UNAVAILABLE);
@@ -1084,8 +1072,7 @@ public abstract class ProxySbb implements Sbb {
 				// ViaHeader via = hf.createViaHeader(config.getSipHostname(),
 				// config.getSipPort(), config.getSipTransport(), null);
 
-				// if (request.getMethod().equals(Request.CANCEL)
-				// || request.getMethod().equals(Request.ACK)) {
+	
 				// For now we cant do rfc 3261 ch 17.1.1.3
 				if (request.getMethod().equals(Request.CANCEL)) {
 					via = getForwardedInviteViaHeader();
@@ -1108,9 +1095,12 @@ public abstract class ProxySbb implements Sbb {
 				}
 
 				// THIS: config.getSipTransports()[0] // has to be changed!!!
-				log.debug("[&&&] addViaHeader\n" + via + "");
+				if(logger.isFinerEnabled())
+				{
+					logger.finer("[&&&] addViaHeader\n" + via + "");
+				}
 				// via.setParameter("ID",
-				// ""+System.currentTimeMillis()+"_"+Math.random()+"_"+config.getSipHostname()+":"+config.getSipPort());
+				
 				request.addHeader(via);
 
 			} catch (Exception e) {
@@ -1303,13 +1293,7 @@ public abstract class ProxySbb implements Sbb {
 			} else if (localDomain) {
 				// determine local SIP target(s) using location service etc
 				targets = findLocalTarget(requestURI);
-				// This is done in findLocalTarget
-				// if (target == null) { // not found (or not currently
-				// registered)
-				// throw new SipSendErrorResponseException("User not
-				// registered",
-				// Response.TEMPORARILY_UNAVAILABLE);
-				// }
+				
 			} else {
 				// destination addr is outside our domain
 				target = requestURI;

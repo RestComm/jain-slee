@@ -38,6 +38,7 @@ import javax.slee.SLEEException;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.TransactionRequiredLocalException;
+import javax.slee.facilities.Tracer;
 import javax.slee.serviceactivity.ServiceActivity;
 import javax.slee.serviceactivity.ServiceActivityFactory;
 
@@ -58,7 +59,8 @@ import org.mobicents.slee.services.sip.registrar.mbean.RegistrarConfigurator;
  */
 public abstract class RegistrarSbb implements Sbb {
 
-	private static Logger logger = Logger.getLogger(RegistrarSbb.class);
+	//private static Logger logger = Logger.getLogger(RegistrarSbb.class);
+	private Tracer logger;
 	
 	/**
 	 * MBean Configurator
@@ -76,6 +78,7 @@ public abstract class RegistrarSbb implements Sbb {
 	
 	public void setSbbContext(SbbContext context) {
 		this.sbbContext = context;
+		this.logger = this.sbbContext.getTracer("RegisterSbb");
 		try {
 			sbbEnv = (Context) new InitialContext().lookup("java:comp/env");		
 			provider = (SleeSipProvider) sbbEnv.lookup("slee/resources/jainsip/1.2/provider");
@@ -84,7 +87,7 @@ public abstract class RegistrarSbb implements Sbb {
 			addressFactory = provider.getAddressFactory();
 			acif = (SipActivityContextInterfaceFactory) sbbEnv.lookup("slee/resources/jainsip/1.2/acifactory");
 		} catch (NamingException ne) {
-			logger.error("Could not set SBB context: ", ne);
+			logger.severe("Could not set SBB context: ", ne);
 		}
 	}
 
@@ -108,7 +111,7 @@ public abstract class RegistrarSbb implements Sbb {
 				aci.detach(this.sbbContext.getSbbLocalObject());
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("",e);
 		}		
 	}
 	
@@ -122,7 +125,7 @@ public abstract class RegistrarSbb implements Sbb {
 				getLocationSbb().shutdown();
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("",e);
 		}		
 	}
 	
@@ -132,8 +135,8 @@ public abstract class RegistrarSbb implements Sbb {
 	
 	public void onRegisterEvent(RequestEvent event, ActivityContextInterface ac) {
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("onRegisterEvent:\n request="+event.getRequest());
+		if (logger.isFineEnabled()) {
+			logger.fine("onRegisterEvent:\n request="+event.getRequest());
 		}
 		
 		// detach from this server transaction activity, we don't want to handle activity end event
@@ -158,8 +161,8 @@ public abstract class RegistrarSbb implements Sbb {
 			String sipAddressOfRecord = getCanonicalAddress((HeaderAddress) event.getRequest()
 					.getHeader(ToHeader.NAME));
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("onRegisterEvent: address-of-record from request= " + sipAddressOfRecord);
+			if (logger.isFineEnabled()) {
+				logger.fine("onRegisterEvent: address-of-record from request= " + sipAddressOfRecord);
 			}
 
 			// map will be empty if user not in LS...
@@ -199,8 +202,8 @@ public abstract class RegistrarSbb implements Sbb {
 					return;
 				}
 
-				if (logger.isDebugEnabled()) {
-					logger.debug("Removing bindings");
+				if (logger.isFineEnabled()) {
+					logger.fine("Removing bindings");
 				}
 				// Go through list of current bindings
 				// if callid doesn't match - remove binding
@@ -228,7 +231,7 @@ public abstract class RegistrarSbb implements Sbb {
 					}
 
 				} catch (LocationServiceException lse) {
-					logger.error(lse);
+					logger.severe("",lse);
 					sendErrorResponse(Response.SERVER_INTERNAL_ERROR,event.getServerTransaction(),event.getRequest());
 					return;
 				}
@@ -238,8 +241,8 @@ public abstract class RegistrarSbb implements Sbb {
 						
 			else {
 				// Update bindings
-				if (logger.isDebugEnabled()) {
-					logger.debug("Updating bindings");
+				if (logger.isFineEnabled()) {
+					logger.fine("Updating bindings");
 				}
 				ListIterator li = newContacts.listIterator();
 
@@ -297,8 +300,8 @@ public abstract class RegistrarSbb implements Sbb {
 						}
 
 						if (requestedExpires == 0) {
-							if (logger.isDebugEnabled()) {
-								logger.debug("Removing binding: "
+							if (logger.isFineEnabled()) {
+								logger.fine("Removing binding: "
 									+ sipAddressOfRecord + " -> "
 									+ contactAddress);
 							}
@@ -306,11 +309,11 @@ public abstract class RegistrarSbb implements Sbb {
 							locationService.removeBinding(sipAddressOfRecord,
 										binding.getContactAddress());
 						} else {
-							if (logger.isDebugEnabled()) {
-								logger.debug("Updating binding: "
+							if (logger.isFineEnabled()) {
+								logger.fine("Updating binding: "
 									+ sipAddressOfRecord + " -> "
 									+ contactAddress);
-								logger.debug("contact: " + contact.toString());
+								logger.fine("contact: " + contact.toString());
 							}
 							// Lets push it into location service, this will
 							// update version of binding
@@ -325,11 +328,11 @@ public abstract class RegistrarSbb implements Sbb {
 					} else {
 						// Create new binding
 						if (requestedExpires != 0) {
-							if (logger.isDebugEnabled()) {
-								logger.debug("Adding new binding: "
+							if (logger.isFineEnabled()) {
+								logger.fine("Adding new binding: "
 									+ sipAddressOfRecord + " -> "
 									+ contactAddress);
-								logger.debug(contact.toString());
+								logger.fine(contact.toString());
 							}
 
 							// removed comment parameter to registration binding
@@ -350,11 +353,11 @@ public abstract class RegistrarSbb implements Sbb {
 			}
 		} catch (Exception e) {
 			// Send error response so client can deal with it
-			logger.warn("Exception during request processing", e);
+			logger.warning("Exception during request processing", e);
 			try {
 				sendErrorResponse(Response.SERVER_INTERNAL_ERROR,event.getServerTransaction(),event.getRequest());
 			} catch (Exception ex) {
-				logger.error(e);
+				logger.severe("",e);
 			}
 		}
 		
@@ -390,7 +393,7 @@ public abstract class RegistrarSbb implements Sbb {
 		    	contactHeader.setQValue(binding.getQValue());
 				contactHeaders.add(contactHeader);
 			} catch (Exception e) {
-				logger.warn("Failed to create contact headers",e);
+				logger.warning("Failed to create contact headers",e);
 			}					
 		}
 		return contactHeaders;
@@ -414,8 +417,8 @@ public abstract class RegistrarSbb implements Sbb {
 				.createResponse(Response.OK, request));
 
 		if ((contactHeaders != null) && (!contactHeaders.isEmpty())) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Adding " + contactHeaders.size() + " headers");
+			if (logger.isFineEnabled()) {
+				logger.fine("Adding " + contactHeaders.size() + " headers");
 			}
 			for (int i = 0; i < contactHeaders.size(); i++) {
 				ContactHeader hdr = (ContactHeader) contactHeaders.get(i);

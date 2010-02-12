@@ -27,14 +27,14 @@ public class ProxyConfigurator implements Serializable, ProxyConfiguratorMBean, 
 	
 	//Change to concurrent ones
 	private Set localDomains=new HashSet(5);
-	private ArrayList mustPassThrough=new ArrayList();
+	//private ArrayList mustPassThrough=new ArrayList();
 	private Set supportedUriSchemes=new HashSet(2);
 	
 	
 	private String hostName=null;
-	private long minExpires,maxExpires;
+	//private long minExpires,maxExpires;
 	private int port=5060;
-	private double cTimer=180;
+	//private double cTimer=180;
 	private String[] transports;
 	public ProxyConfigurator() {
 
@@ -61,29 +61,8 @@ public class ProxyConfigurator implements Serializable, ProxyConfiguratorMBean, 
     		localDomains.add(jbossBindingAddress);
     	}
     	
-    	String val=props.getProperty("min.expires", "60");
-    	int value=Integer.parseInt(val);
-    	if(value<60)
-    		value=60;
-    	
-    	minExpires=value;
-    	
-    	val=props.getProperty("max.expires", "3660");
-    	value=Integer.parseInt(val);
-    	if(value>3600)
-    		value=3600;
-    	
-    	maxExpires=value;
-    	val=props.getProperty("c.time", "180");
-    	double v=0;
-    	v=Double.parseDouble(val);
-    	if(v<180)
-    		v=180;
-		cTimer=v;
-		
-		
-		val=props.getProperty("configuration.name", "only_human");
-		name=val;
+    	name=props.getProperty("configuration.name", "only_human");
+
     	
 	}
 
@@ -92,16 +71,6 @@ public class ProxyConfigurator implements Serializable, ProxyConfiguratorMBean, 
 		
 	}
 
-	public void addMustPassThrough(int pos, String host) {
-		if(mustPassThrough.size()>=pos)
-		{
-			mustPassThrough.add(host);
-		}else
-		{
-			mustPassThrough.add(pos,host);
-		}
-		
-	}
 
 	public void addSupportedURIScheme(String schemeToAdd) {
 		supportedUriSchemes.add(schemeToAdd);
@@ -117,16 +86,6 @@ public class ProxyConfigurator implements Serializable, ProxyConfiguratorMBean, 
 
 	public void removeLocalDomain(String localDomainToRemove) {
 		localDomains.remove(localDomainToRemove);
-		
-	}
-
-	public void removeMustPassThrough(int pos) {
-		mustPassThrough.remove(pos);
-		
-	}
-
-	public void removeMustPassThrough(String host) {
-		mustPassThrough.remove(host);
 		
 	}
 
@@ -158,11 +117,6 @@ public class ProxyConfigurator implements Serializable, ProxyConfiguratorMBean, 
 	public String[] getLocalDomainNames() {
 		String[] tmp=new String[1];
 		return (String[]) localDomains.toArray(tmp);
-	}
-
-	public String[] getPassThroughList() {
-		String[] tmp=new String[1];
-		return (String[]) this.mustPassThrough.toArray(tmp);
 	}
 
 	public String getSipHostname() {
@@ -260,10 +214,7 @@ public class ProxyConfigurator implements Serializable, ProxyConfiguratorMBean, 
 		it=this.supportedUriSchemes.iterator();
 		while(it.hasNext())
 			proxy.addSupportedURIScheme((String) it.next());
-		it=this.mustPassThrough.iterator();
-		int count=0;
-		while(it.hasNext())
-			proxy.addMustPassThrough(count++,(String) it.next());
+		
 		
 		proxy.name=this.name;
 		

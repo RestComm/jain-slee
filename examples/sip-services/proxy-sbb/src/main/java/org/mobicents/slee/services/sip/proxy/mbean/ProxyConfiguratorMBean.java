@@ -45,14 +45,14 @@ public interface ProxyConfiguratorMBean extends ProxyConfiguration {
 	 */
 	public void setSipTransports(String[] transport);
 
-	/**
-	 * Currently commented out code. Adds host through which messages must pass through after leaving this proxy
-	 * @param pos
-	 * @param host
-	 */
-    public void addMustPassThrough(int pos,String host);
-    public void removeMustPassThrough(int pos);
-    public void removeMustPassThrough(String host);
+//	/**
+//	 * Currently commented out code. Adds host through which messages must pass through after leaving this proxy
+//	 * @param pos
+//	 * @param host
+//	 */
+//    public void addMustPassThrough(int pos,String host);
+//    public void removeMustPassThrough(int pos);
+//    public void removeMustPassThrough(String host);
     
     public Object clone();
 }

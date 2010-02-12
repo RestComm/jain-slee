@@ -16,6 +16,7 @@ import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
 import javax.slee.facilities.TimerPreserveMissed;
+import javax.slee.facilities.Tracer;
 import javax.slee.nullactivity.NullActivity;
 import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 import javax.slee.nullactivity.NullActivityFactory;
@@ -24,8 +25,8 @@ import org.apache.log4j.Logger;
 
 public abstract class LocationSbb implements Sbb, LocationService {
 
-	private static final Logger logger = Logger.getLogger(LocationSbb.class);
-
+	//private static final Logger logger = Logger.getLogger(LocationSbb.class);
+	private Tracer logger;
 	private static LocationService locationService = null;
 
 	private static final TimerOptions defaultTimerOptions = createDefaultTimerOptions();
@@ -59,6 +60,7 @@ public abstract class LocationSbb implements Sbb, LocationService {
 	 */
 	public void setSbbContext(SbbContext sbbContext) {
 		this.sbbContext = sbbContext;
+		this.logger = this.sbbContext.getTracer("LocationSbb");
 		try {
 			myEnv = (Context) new InitialContext().lookup("java:comp/env");		
 			timerFacility = (TimerFacility) myEnv
@@ -73,7 +75,7 @@ public abstract class LocationSbb implements Sbb, LocationService {
 				locationService = LocationServiceFactory.getLocationService((String) myEnv.lookup("LOCATION_SERVICE_CLASS_NAME"));
 			}
 		} catch (Exception ne) {
-			logger.error("Could not set SBB context: ", ne);
+			logger.severe("Could not set SBB context: ", ne);
 		}
 	}
 
@@ -113,8 +115,8 @@ public abstract class LocationSbb implements Sbb, LocationService {
 
 		// add binding
 		RegistrationBinding registrationBinding = locationService.addBinding(sipAddress, contactAddress, comment, expires, registrationDate, qValue, callId, cSeq);
-		if (logger.isDebugEnabled()) {
-			logger.debug("addBinding: "+registrationBinding);
+		if (logger.isFineEnabled()) {
+			logger.fine("addBinding: "+registrationBinding);
 		}
 		// create null aci
 		NullActivity nullActivity = nullActivityFactory.createNullActivity();
@@ -149,8 +151,8 @@ public abstract class LocationSbb implements Sbb, LocationService {
 	 */
 	public Set<String> getRegisteredUsers() throws LocationServiceException {
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("getRegisteredUsers");
+		if (logger.isFineEnabled()) {
+			logger.fine("getRegisteredUsers");
 		}
 		
 		return locationService.getRegisteredUsers();
@@ -163,8 +165,8 @@ public abstract class LocationSbb implements Sbb, LocationService {
 	public Map<String, RegistrationBinding> getBindings(String sipAddress)
 			throws LocationServiceException {
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("getBindings: sipAddress="+sipAddress);
+		if (logger.isFineEnabled()) {
+			logger.fine("getBindings: sipAddress="+sipAddress);
 		}
 		
 		return locationService.getBindings(sipAddress);
@@ -177,8 +179,8 @@ public abstract class LocationSbb implements Sbb, LocationService {
 	public void updateBinding(RegistrationBinding registrationBinding)
 			throws LocationServiceException {
 		
-		if (logger.isDebugEnabled()) {
-			logger.debug("updateBinding: registrationBinding="+registrationBinding);
+		if (logger.isFineEnabled()) {
+			logger.fine("updateBinding: registrationBinding="+registrationBinding);
 		}
 		
 		// get named aci
@@ -202,8 +204,8 @@ public abstract class LocationSbb implements Sbb, LocationService {
 	public void removeBinding(String sipAddress, String contactAddress)
 			throws LocationServiceException {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("removeBinding: sipAddress="+sipAddress+",contactAddress="+contactAddress);
+		if (logger.isFineEnabled()) {
+			logger.fine("removeBinding: sipAddress="+sipAddress+",contactAddress="+contactAddress);
 		}
 		
 		try {
@@ -260,8 +262,8 @@ public abstract class LocationSbb implements Sbb, LocationService {
 	 */
 	public void onTimerEvent(TimerEvent timer, ActivityContextInterface aci) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("onTimerEvent()");
+		if (logger.isFineEnabled()) {
+			logger.fine("onTimerEvent()");
 		}
 		
 		aci.detach(sbbContext.getSbbLocalObject());
@@ -276,13 +278,13 @@ public abstract class LocationSbb implements Sbb, LocationService {
 		try {
 			activityContextNamingFacility.unbind(getACIName(contactAddress, sipAddress));
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("",e);
 		}
 		// remove rg from location service	
 		try {
 			locationService.removeBinding(sipAddress, contactAddress);
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("",e);
 		}
 
 		if(logger.isInfoEnabled()) {
@@ -297,7 +299,7 @@ public abstract class LocationSbb implements Sbb, LocationService {
 		try {
 			locationService.init();
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("",e);
 		}	
 	}
 	
@@ -306,7 +308,7 @@ public abstract class LocationSbb implements Sbb, LocationService {
 			// lets close the jpa location service
 			locationService.shutdown();
 		} catch (Exception e) {
-			logger.error(e);
+			logger.severe("",e);
 		}
 	}	
 	
