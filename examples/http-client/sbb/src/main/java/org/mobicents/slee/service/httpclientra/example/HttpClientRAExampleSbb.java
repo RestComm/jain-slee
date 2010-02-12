@@ -165,10 +165,10 @@ public abstract class HttpClientRAExampleSbb implements javax.slee.Sbb {
 					.lookup("java:comp/env");
 
 			httpClientAci = (HttpClientActivityContextInterfaceFactory) ctx
-					.lookup("slee/resources/http-client-ra/http-client-ra-acif");
+					.lookup("slee/resources/http-client/acifactory");
 
 			raSbbInterface = (HttpClientResourceAdaptorSbbInterface) ctx
-					.lookup("slee/resources/http-client-ra/org.mobicents/1.0.00/http-client-ra/sbb2ra");
+					.lookup("slee/resources/http-client/sbbinterface");
 
 			// Getting Timer Facility interface
 			timerFacility = (TimerFacility) ctx.lookup("slee/facilities/timer");

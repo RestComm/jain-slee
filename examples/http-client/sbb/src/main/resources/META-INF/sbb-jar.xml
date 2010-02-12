@@ -80,16 +80,26 @@
       
         <resource-adaptor-type-binding>
             <resource-adaptor-type-ref>
-                <resource-adaptor-type-name>HttpClientResourceAdaptorType</resource-adaptor-type-name>
-                <resource-adaptor-type-vendor>org.mobicents</resource-adaptor-type-vendor>
-                <resource-adaptor-type-version>1.0</resource-adaptor-type-version>
+                <resource-adaptor-type-name>
+                	HttpClientResourceAdaptorType
+                </resource-adaptor-type-name>
+                <resource-adaptor-type-vendor>
+                	org.mobicents
+                </resource-adaptor-type-vendor>
+                <resource-adaptor-type-version>
+                	1.0
+                </resource-adaptor-type-version>
             </resource-adaptor-type-ref>
             <activity-context-interface-factory-name>
-                slee/resources/http-client-ra/http-client-ra-acif
+                slee/resources/http-client/acifactory
             </activity-context-interface-factory-name>
             <resource-adaptor-entity-binding>
-                <resource-adaptor-object-name>slee/resources/http-client-ra/org.mobicents/1.0.00/http-client-ra/sbb2ra</resource-adaptor-object-name>
-                <resource-adaptor-entity-link>HttpClientResourceAdaptor</resource-adaptor-entity-link>
+                <resource-adaptor-object-name>
+                	slee/resources/http-client/sbbinterface
+                </resource-adaptor-object-name>
+                <resource-adaptor-entity-link>
+                	HttpClientResourceAdaptor
+                </resource-adaptor-entity-link>
             </resource-adaptor-entity-binding>
         </resource-adaptor-type-binding>
               
