@@ -33,6 +33,9 @@
 	<profiles>
 		<profile>
 			<id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
@@ -71,6 +74,7 @@
 		<profile>
 			<id>maven-release</id>
 			<modules>
+				<module>docs</module>
 			</modules>
 			<build>
 				<plugins>

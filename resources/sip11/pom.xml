@@ -105,10 +105,6 @@
 												<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
 										</copy>
-										<!-- copy docs -->
-										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/sip11/docs">
-											<fileset dir="${basedir}/docs/jdocbook-${docs.profile}/target/docbook/publish" />
-										</copy>
 									</tasks>
 								</configuration>
 							</execution>
