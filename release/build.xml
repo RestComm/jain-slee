@@ -95,13 +95,6 @@
 		</copy>
 
 		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/resources"/>
-		
-		<!-- manual build of sip11 ra docs, once all RA have those move to "for" -->
-		<antcall target="build-docs">
-			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/resources/sip11/docs" />
-			<param name="docs.dest.dir" value="${release.dir}/resources/sip11/docs" />
-		</antcall>
-		
 	</target>
 
 	<target name="build-examples" description="Examples.">
