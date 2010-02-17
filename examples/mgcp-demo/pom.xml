@@ -42,7 +42,9 @@
     <profiles>
 		<profile>
 			<id>maven-release</id>
-			
+			<modules>
+				<module>docs</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
@@ -58,6 +60,9 @@
 		</profile>	    
 	    <profile>
 		    <id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 		    <properties>
 			    <release.dir>${basedir}/../../release/${release.name}/examples/mgcp-demo</release.dir>
 		    </properties>

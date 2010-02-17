@@ -38,6 +38,7 @@
     		<modules>
     			<module>proxy-with-initial-invite-services-DU</module>
     			<module>proxy-without-initial-invite-services-DU</module>
+				<module>docs</module>
     		</modules>
 			<build>
 				<plugins>
@@ -55,6 +56,9 @@
 		</profile>
 		<profile>
 			<id>release</id>
+			<modules>
+				<module>docs</module>
+			</modules>
 			<build>
 				<plugins>
 					<plugin>
@@ -104,10 +108,6 @@
 												<filter token="JBOSS.PATH" value="${jboss.path}" />
                       							<filter token="JBOSS.CONFIG" value="${node}" />
 											</filterset>
-										</copy>
-										<!-- copy docs -->
-										<copy overwrite="true" todir="${basedir}/../../release/${release.name}/resources/sip-services/docs">
-											<fileset dir="${basedir}/docs/jdocbook-${docs.profile}/target/docbook/publish" />
 										</copy>
 									</tasks>
 								</configuration>
