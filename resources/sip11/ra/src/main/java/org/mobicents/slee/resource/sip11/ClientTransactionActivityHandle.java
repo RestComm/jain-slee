@@ -9,6 +9,8 @@ package org.mobicents.slee.resource.sip11;
  */
 public class ClientTransactionActivityHandle extends TransactionActivityHandle {
 
+	public static final Class<?> TYPE = ClientTransactionActivityHandle.class;
+
 	/**
 	 * @param branchId
 	 * @param method

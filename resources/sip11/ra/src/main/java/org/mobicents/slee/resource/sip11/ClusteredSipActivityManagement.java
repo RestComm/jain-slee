@@ -55,10 +55,11 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 	 * @see org.mobicents.slee.resource.sip11.SipActivityManagement#get(org.mobicents.slee.resource.sip11.SipActivityHandle)
 	 */
 	public Wrapper get(SipActivityHandle handle) {
-		if (handle.getClass() == TransactionActivityHandle.TYPE) {
+		final Class<?> handleType = handle.getClass();
+		if (handleType == ServerTransactionActivityHandle.TYPE || handleType == ClientTransactionActivityHandle.TYPE) {
 			return nonReplicatedActivityManagement.get(handle);
 		}
-		else if (handle.getClass() == DialogWithoutIdActivityHandle.TYPE) {
+		else if (handleType == DialogWithoutIdActivityHandle.TYPE) {
 			Wrapper activity = nonReplicatedActivityManagement.get(handle);
 			if (activity == null) {
 				final DialogWithoutIdActivityHandle dialogWithoutIdActivityHandle = (DialogWithoutIdActivityHandle) handle;
@@ -89,7 +90,7 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 			}
 			return activity;
 		}
-		else if (handle.getClass() == DialogWithIdActivityHandle.TYPE) { 
+		else if (handleType == DialogWithIdActivityHandle.TYPE) { 
 			Dialog d = sipStack.getDialog(((DialogWithIdActivityHandle)handle).getDialogId());
 			if (d != null) {
 				final DialogWrapper dw = (DialogWrapper) d.getApplicationData();
@@ -125,10 +126,11 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 	 * @see org.mobicents.slee.resource.sip11.SipActivityManagement#remove(org.mobicents.slee.resource.sip11.SipActivityHandle)
 	 */
 	public Wrapper remove(SipActivityHandle handle) {
-		if (handle.getClass() == TransactionActivityHandle.TYPE) {
+		final Class<?> handleType = handle.getClass();
+		if (handleType == ServerTransactionActivityHandle.TYPE || handleType == ClientTransactionActivityHandle.TYPE) {
 			return nonReplicatedActivityManagement.remove(handle);
 		}
-		else if (handle.getClass() == DialogWithoutIdActivityHandle.TYPE) {
+		else if (handleType == DialogWithoutIdActivityHandle.TYPE) {
 			Wrapper activity = nonReplicatedActivityManagement.remove(handle);
 			final DialogWithoutIdActivityHandle dialogWithoutIdActivityHandle = (DialogWithoutIdActivityHandle) handle;
 			if (dialogWithoutIdActivityHandle.getRemoteTag() == null) {
@@ -150,7 +152,7 @@ public class ClusteredSipActivityManagement implements SipActivityManagement {
 			}
 			return activity;
 		}
-		else if (handle.getClass() == DialogWithIdActivityHandle.TYPE) { 
+		else if (handleType == DialogWithIdActivityHandle.TYPE) { 
 			// not stored here, so if it is not in handle it is not recoverable
 			return handle.getActivity();
 		}

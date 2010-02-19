@@ -16,8 +16,6 @@ public abstract class TransactionActivityHandle extends SipActivityHandle implem
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	public static Class<? extends SipActivityHandle> TYPE = TransactionActivityHandle.class;
 	
 	/**
 	 * the transaction's branch
