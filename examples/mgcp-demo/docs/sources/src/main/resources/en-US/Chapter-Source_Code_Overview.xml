@@ -184,6 +184,7 @@ Once the MGCP command reaches Media Gateway, it replies back and MGCP RA will fi
         <para>
         <classname>ReturnCode</classname> specifies if Media Gateway has successfully created the connection on Endpoint or not.
         </para>
+        	<variablelist>
         	<varlistentry>
         	<term>Return codes are</term>
         	<listitem>
@@ -201,6 +202,7 @@ Once the MGCP command reaches Media Gateway, it replies back and MGCP RA will fi
 			</para>
 			</listitem>
         	</varlistentry>
+        	</variablelist>
         </callout>     
         
         <callout arearefs="example.crcxres.co3">
