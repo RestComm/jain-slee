@@ -10,7 +10,7 @@
 		<literal>RegistrarSbb</literal>
 		is responsible for handling
 		<literal>REGISTER</literal>
-		requests and send proper response.
+		requests and sending proper response.
 		<literal>RegistrarSbb</literal>
 		receives requests on
 		<literal>ActivityContextInterface</literal>
@@ -251,7 +251,7 @@
 		</section>
 	<section id="registrar_sbb_child_relation">
 	<title>Child relation</title>
-	<para><literal>RegistrarSbb</literal> define <literal>LocationSbb</literal> as child. <literal>LocationSbb</literal> child is
+	<para><literal>RegistrarSbb</literal> defines <literal>LocationSbb</literal> as child. <literal>LocationSbb</literal> child is
 	used as manager for <literal>RegistrationBinding</literal>s. Child relation is declared in sbb-jar.xml descriptor: </para>
 	<programlisting language="XML" role="XML"><![CDATA[
  <sbb-jar>

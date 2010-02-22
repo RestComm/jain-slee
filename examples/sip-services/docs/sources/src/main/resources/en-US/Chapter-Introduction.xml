@@ -61,7 +61,7 @@
 			<para>JAIN SIP RA code</para>
 		</listitem>
 	</itemizedlist>
-	<para>Thus it should be considered as terget for more advanced users.</para>
+	<para>Thus it should be considered as target for more advanced users.</para>
 	
 	<para>Example service is capable of routing <acronym>SIP</acronym> messages based on
 		registrar entries or target domain. Registrar entries are based on

@@ -156,7 +156,7 @@
 			
 		}
 		</programlisting>
-		<para>Methods defined by<literal>LocationSbbLocalObject</literal> are implemented by <literal>LocationSbb</literal> class.
+		<para>Methods defined by <literal>LocationSbbLocalObject</literal> are implemented by <literal>LocationSbb</literal> class.
 		Those methods are invoked in synchronous manner in order to perform binding operations:</para>
 		<itemizedlist>
 			<listitem>
@@ -364,7 +364,7 @@ public interface RegistrationBindingActivityContextInterface extends ActivityCon
 	</section>
 	<section id="location_sbb_timer">
 		<title>Expiration timer</title>
-		<para>Timer supervising expiration is created with binding. It attached to named <acronym>ACI</acronym>. Timeout value is based on data passed from <literal>RegistrarSbb.</literal> </para>
+		<para>Timer supervising expiration is created with binding. Its attached to named <acronym>ACI</acronym>. Timeout value is based on data passed from <literal>RegistrarSbb.</literal> </para>
 		<para>Timer event handler is invoked in case of contact address expiration, its purpose is to:</para>
 		<itemizedlist>
 			<listitem>
