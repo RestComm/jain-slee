@@ -47,8 +47,7 @@
 										<entry>local</entry>
 										<entry>
 											not replicated, based on java
-											<literal>java.util.Map </literal>
-											.
+											<literal>java.util.Map</literal>.
 										</entry>
 
 									</row>
