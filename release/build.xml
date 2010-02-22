@@ -71,6 +71,10 @@
 
 		<delete dir="${ant.file.mobicents.release}/../checkout/release/target/tools/management-console"/>
 		
+		<antcall target="build-docs">
+			<param name="docs.source.dir" value="${ant.file.mobicents.release}/../checkout/tools/jopr-plugin/docs" />
+			<param name="docs.dest.dir" value="${release.dir}/tools/management-console/docs" />
+		</antcall>
 	</target>
 	
 	<target name="build-ras" description="Resource adaptors.">
