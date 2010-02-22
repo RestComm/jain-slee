@@ -235,9 +235,6 @@
   <profiles>
     <profile>
       <id>release</id>
-      <modules>
-      	<module>docs</module>
-      </modules>
       <build>
         <plugins>
           <plugin>
@@ -267,9 +264,7 @@
     </profile>
     <profile>
       <id>maven-release</id>
-      <modules>
-      	<module>docs</module>
-      </modules>
+      <modules />
       <build>
         <plugins>
           <plugin>
