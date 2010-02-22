@@ -9,7 +9,7 @@
 
 	<title>Events</title>
 
-	<para>Credit Control declares only two additional events, to those defined in Base RA Type, namely CreditControlAnswe and CreditControlRequest. However, it also reuses Base events.</para>
+	<para>Credit Control declares only two additional events, to those defined in Base RA Type, namely CreditControlAnswer and CreditControlRequest. However, it also reuses Base events.</para>
 	<table frame="all" pgwide="1">
 		<title>Events received on Server Activity</title>
 		<tgroup colsep="1" cols="4">
