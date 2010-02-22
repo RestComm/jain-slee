@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<parent>
-		<artifactId>mobicents-diameter-cca-ra-docs</artifactId>
-		<groupId>org.mobicents.resources</groupId>
+		<groupId>org.mobicents.servers.diameter.resources</groupId>
+		<artifactId>mobicents-slee-ra-diameter-cca-docs</artifactId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>mobicents-diameter-cca-ra-docs-sources-jbcp</artifactId>
+	<artifactId>mobicents-slee-ra-diameter-cca-docs-sources-jbcp</artifactId>
 			
 	<properties>
 		<THIS.PLATFORM>JBoss Communications</THIS.PLATFORM>
@@ -21,7 +21,7 @@
 		<author.email.bartosz>bbaranow (at) redhat.com</author.email.bartosz>
 		<author.email.alex>amendonca (at) redhat.com</author.email.alex>
 	</properties>
-	
+
 	<build>
 		<resources>
 			<resource>
@@ -44,7 +44,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>mobicents-diameter-cca-ra-docs-sources</artifactId>
+									<artifactId>mobicents-slee-ra-diameter-cca-docs-sources</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
