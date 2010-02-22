@@ -241,7 +241,7 @@ public class SleeProfileTableManager {
 			// no replication, table may only exist in local resources
 			profileTable = profileTablesLocalObjects.get(profileTableName);
 			if (profileTable == null) {
-				throw new UnrecognizedProfileTableNameException();
+				throw new UnrecognizedProfileTableNameException(profileTableName);
 			}
 		}
 		else {
