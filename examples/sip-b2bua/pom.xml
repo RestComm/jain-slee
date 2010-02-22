@@ -53,7 +53,7 @@
     									<fileset dir="${basedir}/sipp" />
     								</copy>
     								<copy overwrite="true" file="${basedir}/du/target/build.xml" tofile="${basedir}/../../release/${release.name}/examples/sip-b2bua/du-management.xml" />
-                    				<copy overwrite="true" file="${basedir}/README.txt" todir="${basedir}/../../release/${release.name}/examples/sip-b2bua" />
+                    				<copy overwrite="true" file="${basedir}/README.TXT" todir="${basedir}/../../release/${release.name}/examples/sip-b2bua" />
                     				<copy overwrite="true" file="${basedir}/release/build.xml" todir="${basedir}/../../release/${release.name}/examples/sip-b2bua">
                     					<filterset>
     										<filter token="JBOSS.PATH" value="${jboss.path}" />
