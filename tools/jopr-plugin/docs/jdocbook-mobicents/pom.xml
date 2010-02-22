@@ -13,6 +13,36 @@
 		
 	<packaging>jdocbook</packaging>
 	
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<!-- copy docs -->
+										<copy overwrite="true" todir="${basedir}/../../../../release/${release.name}/tools/management-console/docs">
+											<fileset dir="${basedir}/target/docbook/publish" />
+										</copy>
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -71,7 +101,7 @@
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-							<finalName>User_Guide.pdf</finalName>
+							<finalName>Mobicents_SLEE_Tools_Jopr_Management_Console_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
