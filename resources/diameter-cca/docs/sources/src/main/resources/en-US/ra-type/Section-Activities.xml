@@ -139,9 +139,7 @@
 			<term>CreditControlRequest createCreditControlRequest();</term>
 			<listitem>
 				<para>
-					Creates credit control request for this activity. Fills some
-					avps that are
-					related to state.
+					Creates credit control request for this activity. Fills <acronym>AVP</acronym>s appropriate for this session..
 				</para>
 			</listitem>
 		</varlistentry>
