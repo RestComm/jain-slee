@@ -47,7 +47,7 @@
 			   		<entry>blockedAddresses</entry>
 			   	    <entry>javax.slee.Address[]</entry>
 			   	    <entry>sip:blocked@mobicents.org</entry>
-			   	    <entry>Set of addresses blocked for profile owner. Calls originating from one of those sjould be blocked.</entry>
+			   	    <entry>Set of addresses blocked for profile owner. Calls originating from one of those should be blocked.</entry>
 			    </row>	    
 			    <row>
 			   		<entry>backupAddress</entry>

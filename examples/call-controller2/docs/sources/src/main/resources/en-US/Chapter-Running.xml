@@ -16,7 +16,7 @@
 			<para>start media server</para>
 		</listitem>
 		<listitem>
-			<para>set environment MOBICENTS_SLEE_EXAMPLE_CC2_RECORDINGS_HOME variable to point to absolute path to media directory of running media server.
+			<para>set environment MOBICENTS_SLEE_EXAMPLE_CC2_RECORDINGS_HOME variable to point to absolute path to <filename>media</filename> directory of running media server.
 				For instance: <filename>g:/tmp/test/tools/media-server/media</filename>
 				
 			</para>

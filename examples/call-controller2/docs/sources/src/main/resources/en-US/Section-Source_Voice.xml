@@ -198,7 +198,7 @@
 		<section id="source_voice_event_handlers_sip_bye">
 			<title>BYE</title>
 			<para>This event handler is different than <literal>INVITE</literal>. It is triggered by event fired as in-Dialog event, that is
-			, its different class of events - indicated by different name, please refer to XXXTODOXXX.
+			, its different class of events - indicated by different name, please refer to <acronym>SIP</acronym> <literal>Resource Adaptor Guide</literal>.
 			<literal>BYE</literal> event handler performs following tasks:</para>
 			<itemizedlist>
 				<listitem>
