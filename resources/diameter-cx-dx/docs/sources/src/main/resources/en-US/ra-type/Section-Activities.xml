@@ -117,7 +117,7 @@
 		<varlistentry>
 			<term>public void sendServerAssignmentRequest(ServerAssignmentRequest serverAssignmentRequest) throws IOException;</term>
 			<listitem>
-				<para>This method sends an event Registration-Termination-Request. An event containing the answer will be fired on this activity.</para>
+				<para>This method sends an event Server-Assignment-Request. An event containing the answer will be fired on this activity.</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
@@ -147,19 +147,19 @@
 		<varlistentry>
 			<term>public RegistrationTerminationAnswer createRegistrationTerminationAnswer();</term>
 			<listitem>
-				<para>This method creates a RegistrationTerminationRequest message pre-populated with the AVPs appropriate for this session.</para>
+				<para>This method creates a RegistrationTerminationAnswer message pre-populated with the AVPs appropriate for this session.</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
 			<term>public void sendRegistrationTerminationAnswer(RegistrationTerminationAnswer registrationTerminationAnswer) throws IOException;</term>
 			<listitem>
-				<para>This method sends an event Registration-Termination-Request. An event containing the answer will be fired on this activity.</para>
+				<para>This method sends an event Registration-Termination-Answer. An event containing the answer will be fired on this activity.</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
 			<term>public void sendRegistrationTerminationAnswer(RegistrationTerminationAnswer registrationTerminationAnswer) throws IOException;</term>
 			<listitem>
-				<para>This method creates a Push-Profile-Answer populated with the AVPs appropriate for this session.</para>
+				<para>This method creates a Registration-Termination-Answer populated with the AVPs appropriate for this session.</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
@@ -226,7 +226,7 @@
 		<varlistentry>
 			<term>public void sendServerAssignmentAnswer(ServerAssignmentAnswer serverAssignmentAnswer) throws IOException;</term>
 			<listitem>
-				<para>This method sends an event Registration-Termination-Answer in response to a Registration-Termination-Request received on this activity.</para>
+				<para>This method sends an event Server-Assignment-Answer in response to a Server-Assignment-Request received on this activity.</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
