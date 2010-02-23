@@ -27,16 +27,16 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.cca.events.CreditControlRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.cca.events. CreditControlRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.cca.events.CreditControlRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.cca.events. CreditControlRequest</entry>
 			    </row>	    
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.ReAuthRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. ReAuthRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.ReAuthRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. ReAuthRequest</entry>
 			    </row>	   
 			</tbody>
 	 	</tgroup>
@@ -58,16 +58,16 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.cca.events.CreditControlAnswer</entry>
+			   		<entry>net.java.slee.resource .diameter.cca.events. CreditControlAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.cca.events.CreditControlAnswer</entry>
+			   	    <entry>net.java.slee.resource .diameter.cca.events. CreditControlAnswer</entry>
 			    </row>	    
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.ReAuthAnswer</entry>
+			   		<entry>net.java.slee.resource .diameter.base.events. ReAuthAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.ReAuthAnswer</entry>
+			   	    <entry>net.java.slee.resource .diameter.base.events. ReAuthAnswer</entry>
 			    </row>	   
 			</tbody>
 	 	</tgroup>
@@ -90,55 +90,57 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>net.java.slee.resource.diameter.base.events.SessionTerminationRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. SessionTerminationRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.SessionTerminationRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. SessionTerminationRequest</entry>
 			    </row>	    
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.SessionTerminationAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. SessionTerminationAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.SessionTerminationAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. SessionTerminationAnswer</entry>
 			    </row>	  
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.AbortSessionRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. AbortSessionRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.AbortSessionRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. AbortSessionRequest</entry>
 			    </row>	
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.AbortSessionAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. AbortSessionAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.AbortSessionAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. AbortSessionAnswer</entry>
 			    </row>	 
 			     <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.AccountingRequest</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. AccountingRequest</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.AccountingRequest</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. AccountingRequest</entry>
 			    </row>	
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.AccountingAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. AccountingAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.AccountingAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. AccountingAnswer</entry>
 			    </row>
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.ErrorAnswer</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. ErrorAnswer</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.ErrorAnswer</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. ErrorAnswer</entry>
 			    </row>
 			    <row>
-			   		<entry>net.java.slee.resource.diameter.base.events.ExtensionDiameterMessage</entry>
+			   		<entry>net.java.slee.resource. diameter.base.events. ExtensionDiameterMessage</entry>
 			   	    <entry>java.net</entry>
 			   	    <entry>0.8</entry>
-			   	    <entry>net.java.slee.resource.diameter.base.events.ExtensionDiameterMessage</entry>
+			   	    <entry>net.java.slee.resource. diameter.base.events. ExtensionDiameterMessage</entry>
 			    </row>	 
 			</tbody>
 	 	</tgroup>
 	</table>
-    
+    <important>
+       		<para>Spaces where introduced in <literal>Name</literal> and <literal>Class</literal>  column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
 </section>
