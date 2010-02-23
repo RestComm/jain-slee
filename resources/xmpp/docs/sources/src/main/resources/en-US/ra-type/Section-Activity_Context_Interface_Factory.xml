@@ -25,8 +25,7 @@ public interface XmppActivityContextInterfaceFactory {
             XmppConnection connection) throws NullPointerException,
             UnrecognizedActivityException, FactoryException;
 	
-}
-     	]]>
+}]]>
      </programlisting>
             	
 </section>

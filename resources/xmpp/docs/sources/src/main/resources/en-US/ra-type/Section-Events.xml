@@ -14,11 +14,11 @@
 	<table frame="all" pgwide="1">
 		<title>Events fired on the XmppConnection Activity</title>
 		<tgroup colsep="1" cols="5" align="left">
-			<colspec colnum="1" colname="c0" />
-			<colspec colnum="2" colname="c1" />
+			<colspec colnum="1" colname="c0"/>
+			<colspec colnum="2" colname="c1"/>
 			<colspec colnum="3" colname="c2" />
-			<colspec colnum="4" colname="c3" />
-			<colspec colnum="5" colname="c4" />
+			<colspec colnum="4" colname="c3"/>
+			<colspec colnum="5" colname="c4"/>
 			<thead>
 				<row>
 					<entry>Name</entry>
@@ -30,58 +30,60 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>org.jivesoftware.smack.packet.Message</entry>
-					<entry>org.jivesoftware.smack</entry>
+					<entry>org.jivesoftware. smack.packet. Message</entry>
+					<entry>org.jivesoftware. smack</entry>
 					<entry>1.0</entry>
-					<entry>org.jivesoftware.smack.packet.Message</entry>					
+					<entry>org.jivesoftware. smack.packet. Message</entry>					
 					<entry>An incoming <literal>MESSAGE</literal> XMPP stanza.</entry>
 				</row>
 				<row>
-					<entry>org.jivesoftware.smack.packet.Presence</entry>
-					<entry>org.jivesoftware.smack</entry>
+					<entry>org.jivesoftware. smack.packet. Presence</entry>
+					<entry>org.jivesoftware. smack</entry>
 					<entry>1.0</entry>
-					<entry>org.jivesoftware.smack.packet.Presence</entry>					
+					<entry>org. jivesoftware. smack.packet. Presence</entry>					
 					<entry>An incoming <literal>PRESENCE</literal> XMPP stanza.</entry>
 				</row>
 				<row>
-					<entry>org.jivesoftware.smackx.packet.DiscoverInfo</entry>
-					<entry>org.jivesoftware.smack</entry>
+					<entry>org.jivesoftware. smackx.packet. DiscoverInfo</entry>
+					<entry>org.jivesoftware. smack</entry>
 					<entry>1.0</entry>
-					<entry>org.jivesoftware.smackx.packet.DiscoverInfo</entry>					
+					<entry>org.jivesoftware. smackx.packet. DiscoverInfo</entry>					
 					<entry>An incoming <literal>IQ</literal> XMPP stanza related to a discovery of information about an XMPP Entity.</entry>
 				</row>
 				<row>
-					<entry>org.jivesoftware.smackx.packet.DiscoverItems</entry>
-					<entry>org.jivesoftware.smack</entry>
+					<entry>org.jivesoftware. smackx.packet. DiscoverItems</entry>
+					<entry>org.jivesoftware. smack</entry>
 					<entry>1.0</entry>
-					<entry>org.jivesoftware.smackx.packet.DiscoverItems</entry>					
+					<entry>org.jivesoftware. smackx.packet. DiscoverItems</entry>					
 					<entry>An incoming <literal>IQ</literal> XMPP stanza related to a discovery of the items associated with an XMPP Entity.</entry>
 				</row>
 	 			<row>
-					<entry>org.jivesoftware.smack.packet.IQ</entry>
-					<entry>org.jivesoftware.smack</entry>
+					<entry>org.jivesoftware. smack.packet. IQ</entry>
+					<entry>org.jivesoftware. smack</entry>
 					<entry>1.0</entry>
-					<entry>org.jivesoftware.smack.packet.IQ</entry>					
+					<entry>org.jivesoftware. smack.packet. IQ</entry>					
 					<entry>An incoming and generic <literal>IQ</literal> XMPP stanza.</entry>
 				</row>
 				<row>
-					<entry>org.jivesoftware.smackx.packet.IQBasedAvatar</entry>
-					<entry>org.jivesoftware.smack</entry>
+					<entry>org.jivesoftware. smackx.packet. IQBasedAvatar</entry>
+					<entry>org.jivesoftware. smack</entry>
 					<entry>1.0</entry>
-					<entry>org.jivesoftware.smackx.packet.IQBasedAvatar</entry>					
+					<entry>org.jivesoftware. smackx.packet. IQBasedAvatar</entry>					
 					<entry>An incoming <literal>IQ</literal> XMPP stanza related to the IQ-Based Avatars XMPP extension.</entry>
 				</row>
 				<row>
-					<entry>org.jivesoftware.smack.packet.Registration</entry>
-					<entry>org.jivesoftware.smack</entry>
+					<entry>org.jivesoftware. smack.packet. Registration</entry>
+					<entry>org.jivesoftware. smack</entry>
 					<entry>1.0</entry>
-					<entry>org.jivesoftware.smack.packet.Registration</entry>					
+					<entry>org.jivesoftware. smack.packet. Registration</entry>					
 					<entry>An incoming <literal>IQ</literal> XMPP stanza, represents a registration packet. An empty GET query will cause the server to return information about it's registration support. SET queries can be used to create accounts or update existing account information.</entry>
 				</row>
 			</tbody>
 		</tgroup>
 	</table>
-	
+	<important>
+		<para>Spaces where introduced in <literal>Name</literal>, <literal>Vendor</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
 	<important>
 		<para>More details for each event type may be obtained on the javadocs of each event type class.</para>
 	</important>

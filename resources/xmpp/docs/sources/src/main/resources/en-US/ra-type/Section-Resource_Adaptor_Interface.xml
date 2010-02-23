@@ -37,10 +37,10 @@ public interface XmppResourceAdaptorSbbInterface {
 			Collection packetFilters) throws XMPPException;
 	
 	public void disconnect(String connectionID);		
-}
-    	]]>
+}]]>
     </programlisting>
      
+    <variablelist> 
     <varlistentry>
 		<term>The <literal>getXmppConnection(String)</literal> method:</term>
 		<listitem>
@@ -75,5 +75,6 @@ public interface XmppResourceAdaptorSbbInterface {
 			<para>Disconnects the XMPP connection with the specified Id, terminating the activity and its related <literal>ActivityContextInterface</literal>.</para>
 		</listitem>
 	</varlistentry>
+	</variablelist>
 	
 </section>

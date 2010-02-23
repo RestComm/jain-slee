@@ -25,8 +25,7 @@
 				connection).attach(sbbContext.getSbbLocalObject());
 	} catch (XMPPException e) {
 		tracer.severe("Connection to server failed!",e);
-	}			
-			]]>
+	}]]>
 		</programlisting>
 	</section>
 
@@ -42,8 +41,7 @@
 	String targetXmppUser = getTargetXmppUser();
 	Message msg = new Message(targetXmppUser, Message.Type.CHAT);
 	msg.setBody("Hello");
-	xmppSbbInterface.sendPacket(connectionID, msg);			
-			]]>
+	xmppSbbInterface.sendPacket(connectionID, msg);]]>
 		</programlisting>
 	</section>
 	
