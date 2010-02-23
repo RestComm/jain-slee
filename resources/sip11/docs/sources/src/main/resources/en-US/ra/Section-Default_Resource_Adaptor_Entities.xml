@@ -14,7 +14,6 @@
 	<para>The <literal>SipRA</literal> entity is also bound to Resource Adaptor Link Name <literal>SipRA</literal>, to use it in an Sbb add the following XML to its descriptor:</para>
 	
 	<programlisting language="XML" role="XML"><![CDATA[
-	
 	<resource-adaptor-type-binding>
 		
 		<resource-adaptor-type-ref>
@@ -42,9 +41,7 @@
 			</resource-adaptor-entity-link>
 		</resource-adaptor-entity-binding>
 		
-	</resource-adaptor-type-binding>
-	
-	]]>
+	</resource-adaptor-type-binding>]]>
 	</programlisting>	
 	
 </section>

@@ -28,43 +28,43 @@
 			</thead>
 			<tbody>
 				<row>
-			   		<entry>javax.sip.IP_ADDRESS</entry>
+			   		<entry>javax.sip. IP_ADDRESS</entry>
 			   	    <entry>the IP address to which the SIP stack should attach - if value is not specified the RA will use the underlying Java EE container's bind address address</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry></entry>
 			    </row>
 				<row>
-			   		<entry>javax.sip.OUTBOUND_PROXY</entry>
+			   		<entry>javax.sip. OUTBOUND_PROXY</entry>
 			   	    <entry>sets the outbound proxy of the SIP Stack.  The  format for this string is "ipaddress:port/transport" i.e. 129.1.22.333:5060/UDP. This property is optional</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry></entry>
 			    </row>
 				<row>
-			   		<entry>javax.sip.PORT</entry>
+			   		<entry>javax.sip. PORT</entry>
 			   	    <entry>the port to which the SIP stack should listen</entry>
 			   	    <entry>java.lang.Integer</entry>
 			   	    <entry>5060</entry>
 			    </row>
 			    <row>
-			   		<entry>javax.sip.TRANSPORT</entry>
+			   		<entry>javax.sip. TRANSPORT</entry>
 			   	    <entry>the list of supported transports, separated with ","</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry>UDP</entry>
 			    </row>
 			    <row>
-			   		<entry>org.mobicents.ha.javax.sip.BALANCERS</entry>
+			   		<entry>org.mobicents. ha.javax.sip. BALANCERS</entry>
 			   	    <entry>the list of SIP balancers, in the form of "HOST:PORT", separated by ";", it is only used if the heart beat service property is defined</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry></entry>
 			    </row>
 			    <row>
-			   		<entry>org.mobicents.ha.javax.sip.LoadBalancerHeartBeatingServiceClassName</entry>
+			   		<entry>org.mobicents. ha.javax.sip. LoadBalancerHeartBeatingServiceClassName</entry>
 			   	    <entry>the name of the class responsible for the heart beats exchanged with the platform's SIP Balancer - if not specified the JAIN SIP HA stack won't use such feature</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry></entry>
 			    </row>	
 			    <row>
-			   		<entry>org.mobicents.javax.sip.LOOSE_DIALOG_VALIDATION</entry>
+			   		<entry>org.mobicents. javax.sip. LOOSE_DIALOG_VALIDATION</entry>
 			   	    <entry>controls validation of CSeq number for dialog messages. Set to true allows out of sequence messages to be accepted.</entry>
 			   	    <entry>java.lang.Boolean</entry>
 			   	    <entry></entry>
