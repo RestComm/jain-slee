@@ -82,7 +82,7 @@ public class AccountingSessionFactory implements IAppSessionFactory, ServerAccSe
       if (aClass == ServerAccSession.class) {
         Request request = (Request) args[0];
 
-        ServerAccSessionImpl session = new ServerAccSessionImpl(sessionFactory.getNewSession(request.getSessionId()), request, this, messageTimeout, true, new StateChangeListener[] { this });
+        ServerAccSessionImpl session = new ServerAccSessionImpl(sessionFactory.getNewSession(request.getSessionId()), sessionFactory, request, this, messageTimeout, true, new StateChangeListener[] { this });
         BaseSessionCreationListener ra = this.ras.get(applicationId) != null ? this.ras.get(applicationId) : this.ras.values().iterator().next();
         ra.sessionCreated(session);
         return session;

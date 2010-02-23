@@ -26,9 +26,7 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.jdiameter.version>1.5.3.0-build350</mobicents.diameter.jdiameter.version>
-    <mobicents.diameter.mux.version>1.1.1.GA</mobicents.diameter.mux.version>
-    <mobicents.diameter.resources.cca-common.version>2.0.0.CR1</mobicents.diameter.resources.cca-common.version>
+    <mobicents.diameter.resources.cca-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.cca-common.version>
 	<!-- Documentation Related Properties -->
     <docs.profile>mobicents</docs.profile>
     <docs.ra.name>Diameter Ro</docs.ra.name>

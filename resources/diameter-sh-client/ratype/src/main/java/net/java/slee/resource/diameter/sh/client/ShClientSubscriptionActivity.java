@@ -40,7 +40,7 @@ public interface ShClientSubscriptionActivity extends DiameterActivity {
   void sendUnsubscribeRequest() throws IOException;
 
   /**
-   * Creates PUA for receive PNR. It returns null if there is not PNR received.
+   * Creates PNA for receive PNR. It returns null if there is not PNR received.
    * @return
    */
   PushNotificationAnswer createPushNotificationAnswer();
@@ -63,9 +63,9 @@ public interface ShClientSubscriptionActivity extends DiameterActivity {
   void sendPushNotificationAnswer(long resultCode,boolean isExperimentalResultCode) throws IOException;
 
   /**
-   * Creates PUA for receive PNR. It returns null if there is not PNR received.
+   * Creates PNA for receive PNR. It returns null if there is not PNR received.
    * @param resultCode - result code to be added
-   * @param isExperimaental - true if result code is experimetnal result code 
+   * @param isExperimaental - true if result code is experimental result code 
    * @return
    */
   PushNotificationAnswer createPushNotificationAnswer(long resultCode, boolean isExperimaental);

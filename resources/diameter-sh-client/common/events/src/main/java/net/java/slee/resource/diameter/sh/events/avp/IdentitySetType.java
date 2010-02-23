@@ -39,6 +39,7 @@ import net.java.slee.resource.diameter.base.events.avp.Enumerated;
  * <li>ALL_IDENTITIES (0)</li>
  * <li>REGISTERED_IDENTITIES (1)</li>
  * <li>IMPLICIT_IDENTITIES (2)</li>
+ * <li>ALIAS_IDENTITIES (3)</li>
  * </ul>
  * 
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
@@ -61,9 +62,12 @@ public class IdentitySetType implements Serializable, Enumerated {
   /**
    * Int value equal in diameter message - it indicates IMS identities - implicit - see TS29.328 for description
    */
-
   public static final int _IMPLICIT_IDENTITIES = 2;
-  // public static final int _ALIAS_IDENTITIES = 3;
+  
+  /**
+   * Int value equal in diameter message - it indicates IMS identities - alias - see TS29.328 for description
+   */
+  public static final int _ALIAS_IDENTITIES = 3;
 
   /**
    * Singleton representation of {@link _ALL_IDENTITIES}
@@ -80,11 +84,10 @@ public class IdentitySetType implements Serializable, Enumerated {
    */
   public static final IdentitySetType IMPLICIT_IDENTITIES = new IdentitySetType(_IMPLICIT_IDENTITIES);
 
-  // /**
-  // *
-  // */
-  // public static final IdentitySetType ALIAS_IDENTITIES = new
-  // IdentitySetType(_ALIAS_IDENTITIES);
+  /**
+   * Singleton representation of {@link _ALIAS_IDENTITIES}
+   */
+  public static final IdentitySetType ALIAS_IDENTITIES = new IdentitySetType(_ALIAS_IDENTITIES); // Added for Rel-9 compliance
 
   private IdentitySetType(int value) {
     this.value = value;
@@ -98,8 +101,8 @@ public class IdentitySetType implements Serializable, Enumerated {
       return REGISTERED_IDENTITIES;
     case _IMPLICIT_IDENTITIES:
       return IMPLICIT_IDENTITIES;
-      // case _ALIAS_IDENTITIES:
-      // return ALIAS_IDENTITIES;
+    case _ALIAS_IDENTITIES: // Added for Rel-9 compliance
+      return ALIAS_IDENTITIES;
     default:
       throw new IllegalArgumentException("Invalid IdentitySet value: " + type);
     }
@@ -117,8 +120,8 @@ public class IdentitySetType implements Serializable, Enumerated {
       return "REGISTERED_IDENTITIES";
     case _IMPLICIT_IDENTITIES:
       return "IMPLICIT_IDENTITIES";
-      // case _ALIAS_IDENTITIES:
-      // return "ALIAS_IDENTITIES";
+    case _ALIAS_IDENTITIES:
+      return "ALIAS_IDENTITIES"; // Added for Rel-9 compliance
     default:
       return "<Invalid Value>";
     }
