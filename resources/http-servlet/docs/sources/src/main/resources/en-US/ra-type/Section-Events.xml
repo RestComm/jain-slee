@@ -30,49 +30,49 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>net.java. slee.resource. http.events. incoming.request .HEAD</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request. HEAD</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
 					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>HEAD</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java. slee.resource. http.events. incoming.request .GET</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request. GET</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
 					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>GET</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java. slee.resource. http.events. incoming.request .POST</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request. POST</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
 					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>POST</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java. slee.resource. http.events. incoming.request .PUT</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request. PUT</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
 					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>PUT</literal> HTTP request.</entry>
 				</row>
 	 			<row>
-					<entry>net.java. slee.resource. http.events. incoming.request .DELETE</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request. DELETE</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
 					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>DELETE</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java. slee.resource. http.events. incoming.request .OPTIONS</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request. OPTIONS</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
 					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>OPTIONS</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java. slee.resource. http.events. incoming.request .TRACE</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request. TRACE</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
 					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
