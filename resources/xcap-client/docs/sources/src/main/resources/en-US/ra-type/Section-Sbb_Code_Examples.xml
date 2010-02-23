@@ -86,8 +86,7 @@
 			}
 		} else {
 			log.severe("unable to retreive document in xcap server...");
-		}
-			]]>
+		}]]>
 		</programlisting>
 	</section>
 
@@ -149,15 +148,14 @@
 		aci.attach(sbbContext.getSbbLocalObject());
 		
 		// send request
-		activity.get(uri,null,credentials);			
-			]]>
+		activity.get(uri,null,credentials);]]>
 		</programlisting>
 		
 		<para>And the next code snippet examples the handling of the ResponseEvent, and the ending of the activity instance:</para>
 		
 		<programlisting language="Java" role="JAVA">
 			<![CDATA[
-		public void onResponseEvent(ResponseEvent event, ActivityContextInterface aci) {
+	public void onResponseEvent(ResponseEvent event, ActivityContextInterface aci) {
 				
 		// check put response
 		XcapResponse response = event.getResponse();
@@ -177,8 +175,7 @@
 			activity.endActivity();
 		}
 		
-	}			
-			]]>
+	}]]>
 		</programlisting>
 		
 	</section>

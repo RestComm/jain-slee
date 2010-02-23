@@ -25,9 +25,7 @@ public interface XCAPClientActivityContextInterfaceFactory {
 			AsyncActivity activity) throws NullPointerException,
 			UnrecognizedActivityException, FactoryException;
 
-}
-
-     	]]>
+}]]>
      </programlisting>
 	
 </section>

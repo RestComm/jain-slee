@@ -62,10 +62,10 @@ public interface AsyncActivity {
 
 	public void endActivity();
 
-}
-     	]]>
+}]]>
      </programlisting>
      
+     <variablelist>
      <varlistentry>
 		<term>The <literal>get(URI, Header[], Credentials)</literal> method:</term>
 		<listitem>
@@ -141,5 +141,7 @@ public interface AsyncActivity {
 		<listitem>
 			<para>Ends the activity and its related Activity Context.</para>
 		</listitem>
-	</varlistentry>	
+	</varlistentry>
+	</variablelist>	
+	
 </section>

@@ -25,16 +25,17 @@ public interface XCAPClientResourceAdaptorSbbInterface extends XcapClient {
 	public AsyncActivity createActivity()
 			throws ActivityAlreadyExistsException, StartActivityException;
 
-}
-    	]]>
+}]]>
     </programlisting>
-     
+    
+    <variablelist> 
     <varlistentry>
 		<term>The <literal>createActivity()</literal> method:</term>
 		<listitem>
 			<para>Creates a new <literal>AsyncActivity</literal> instance.</para>
 		</listitem>
 	</varlistentry>
+	</variablelist>
 	
 	<para>The &THIS.RA; Resource Adaptor interface extends type <literal>org.mobicents.xcap.client.XcapClient</literal>, its interface is defined as follows:</para>
 	
@@ -101,11 +102,10 @@ public interface XcapClient {
 			Header[] additionalRequestHeaders, Credentials credentials)
 			throws ClientProtocolException, IOException;
 
-}
-
-    	]]>
+}]]>
     </programlisting>
     
+    <variablelist>
     <varlistentry>
 		<term>The <literal>setAuthenticationCredentials(Credentials)</literal> method:</term>
 		<listitem>
@@ -203,5 +203,5 @@ public interface XcapClient {
 			<para>Conditional delete of the XCAP resource specified by the URI parameter. The request only succeeds if the XCAP resource entity tag doesn't match the provided <literal>eTag</literal> parameter. Additional HTTP headers, to be added in the XCAP request, and authentication credentials can be specified too.</para>
 		</listitem>
 	</varlistentry>
-	
+	</variablelist>
 </section>
