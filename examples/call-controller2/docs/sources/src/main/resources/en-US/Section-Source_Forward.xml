@@ -43,7 +43,8 @@
 		</itemizedlist>
 		<para>Event handler code look as follows:</para>
 		<programlisting role="JAVA" language="Java">
-	public void onInvite(javax.sip.RequestEvent event, CallForwardingSbbActivityContextInterface localAci) {
+	public void onInvite(javax.sip.RequestEvent event
+		, CallForwardingSbbActivityContextInterface localAci) {
 		Request request;
 
 		try {
@@ -141,7 +142,8 @@
 				log.info("########## BINDINGS: " + binding);
 				ContactHeader header = null;
 				try {
-					header = getHeaderFactory().createContactHeader(getAddressFactory().createAddress(binding.getContactAddress()));
+					header = getHeaderFactory().createContactHeader(
+						getAddressFactory().createAddress(binding.getContactAddress()));
 				} catch (ParseException e) {
 					log.error(e.getMessage(), e);
 				}
@@ -176,71 +178,69 @@
 		 It is done as follows:
 		    </para>	
 		    <programlisting role="JAVA" language="Java">
-	protected Address forwardCall(javax.sip.RequestEvent event, ActivityContextInterface ac) {
-		Address toAddress = null;
-		Request request = event.getRequest();
-
-		try {
-			// Checking if the called user has any backup address
-			ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
-			String toURI = toHeader.getAddress().getURI().toString();
-
-			Address backupAddress = getBackupAddress(toURI);
-
-			if (backupAddress != null) {
-				// Checking whether the called user has any backup address.
-				toAddress = getAddressFactory().createAddress(backupAddress.toString());
-				// Notifying the caller that the call has to be redirected
-				ServerTransaction st = (ServerTransaction) ac.getActivity();
-				ContactHeader contactHeader = getHeaderFactory().createContactHeader(toAddress);
-				Response response = getMessageFactory().createResponse(Response.MOVED_TEMPORARILY, request);
-				response.setHeader(contactHeader);
-				st.sendResponse(response);
-				log.info("########## REQUEST FORWARDED: " + contactHeader.toString());
-				// The Request-URI of the new request uses the value
-				// of the Contact header field in the response
-			}
-
-		} catch (ParseException e) {
-			log.error(e.getMessage(), e);
-		} catch (TransactionRequiredLocalException e) {
-			log.error(e.getMessage(), e);
-		} catch (SLEEException e) {
-			log.error(e.getMessage(), e);
-		} catch (SipException e) {
-			log.error(e.getMessage(), e);
-		} catch (InvalidArgumentException e) {
-			log.error(e.getMessage(), e);
+protected Address forwardCall(javax.sip.RequestEvent event, ActivityContextInterface ac) {
+	Address toAddress = null;
+	Request request = event.getRequest();
+	try {
+		// Checking if the called user has any backup address
+		ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
+		String toURI = toHeader.getAddress().getURI().toString();
+		Address backupAddress = getBackupAddress(toURI);
+		
+		if (backupAddress != null) {
+			// Checking whether the called user has any backup address.
+			toAddress = getAddressFactory().createAddress(backupAddress.toString());
+			// Notifying the caller that the call has to be redirected
+			ServerTransaction st = (ServerTransaction) ac.getActivity();
+			ContactHeader contactHeader = getHeaderFactory()
+				.createContactHeader(toAddress);
+			Response response = getMessageFactory().createResponse(
+				Response.MOVED_TEMPORARILY, request);
+			response.setHeader(contactHeader);
+			st.sendResponse(response);
+			log.info("########## REQUEST FORWARDED: " + contactHeader.toString());
+			// The Request-URI of the new request uses the value
+			// of the Contact header field in the response
 		}
-
-		return toAddress;
+	} catch (ParseException e) {
+		log.error(e.getMessage(), e);
+	} catch (TransactionRequiredLocalException e) {
+		log.error(e.getMessage(), e);
+	} catch (SLEEException e) {
+		log.error(e.getMessage(), e);
+	} catch (SipException e) {
+		log.error(e.getMessage(), e);
+	} catch (InvalidArgumentException e) {
+		log.error(e.getMessage(), e);
 	}
+	return toAddress;
+}
 		    </programlisting>
 	</section>
 	<section id="source_forward_profile">
 		<title>User profile access</title>
 		<para>Call Forwarding <acronym>SBB</acronym> accesses examples profile in order to determine if callee has defined backup address. Its done in following way:</para>
 		<programlisting role="JAVA" language="Java">
-	private Address getBackupAddress(String sipAddress) {
-		Address backupAddress = null;
-		CallControlProfileCMP profile = this.lookup(new javax.slee.Address(AddressPlan.SIP, sipAddress));
-
+private Address getBackupAddress(String sipAddress) {
+	Address backupAddress = null;
+	CallControlProfileCMP profile = this.lookup(
+		new javax.slee.Address(AddressPlan.SIP, sipAddress));
+		
 		if (profile != null) {
 			javax.slee.Address address = profile.getBackupAddress();
-
+		
 			if (address != null) {
-
 				try {
-					backupAddress = getAddressFactory().createAddress(address.getAddressString());
-
+				backupAddress = getAddressFactory()
+					.createAddress(address.getAddressString());
 				} catch (ParseException e) {
-					log.error(e.getMessage(), e);
-				}
+				log.error(e.getMessage(), e);
 			}
 		}
-
-		return backupAddress;
 	}
+
+	return backupAddress;
+}
 
 		</programlisting>
 	

@@ -90,7 +90,8 @@
 		<para>Call Blocking <acronym>SBB</acronym> accesses examples profile in order to determine if callee has defined caller as blocked.</para>
 		<para>Profile is accessed in following way:</para>
 		<programlisting role="JAVA" language="Java">
-public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements	javax.slee.Sbb
+public abstract class CallBlockingSbb extends 
+	SubscriptionProfileSbb implements	javax.slee.Sbb
 {
 
    ...
@@ -172,10 +173,14 @@ public abstract class CallBlockingSbb extends SubscriptionProfileSbb implements	
 		
 		<sbb-classes>
 			<sbb-abstract-class>
-				<sbb-abstract-class-name>org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbb</sbb-abstract-class-name>
+				<sbb-abstract-class-name>
+					org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbb
+				</sbb-abstract-class-name>
 			</sbb-abstract-class>
 			<sbb-activity-context-interface>
-				<sbb-activity-context-interface-name>org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface</sbb-activity-context-interface-name>
+				<sbb-activity-context-interface-name>
+					org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface
+				</sbb-activity-context-interface-name>
 			</sbb-activity-context-interface>
 		</sbb-classes>
 		

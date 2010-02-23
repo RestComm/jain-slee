@@ -23,16 +23,15 @@
 	</mediaobject>
 	<table frame="all" pgwide="1">
 		<title>&THIS.EXAMPLE; Profile attributes</title>
-		<tgroup colsep="1" cols="4">
+		<tgroup colsep="1" cols="3">
 		   	<colspec colnum="1" colname="c0"/>
 		    <colspec colnum="2" colname="c1"/>
 		    <colspec colnum="3" colname="c2"/>
-		    <colspec colnum="4" colname="c3"/>
 		    <thead>
 				<row>
 		    	    <entry>Name</entry>
 		   	    	<entry>Type</entry>
-		   	    	<entry>Example</entry>
+		   	    	<!-- entry>Example</entry -->
 		   	    	<entry>Description</entry>
 		    	</row>
 			</thead>
@@ -40,42 +39,43 @@
 				<row>
 			   		<entry>userAddress</entry>
 			   	    <entry>javax.slee.Address</entry>
-			   	    <entry>sip:smart_user@mobicents.org</entry>
+			   	    <!-- <entry>sip:smart_user@mobicents.org</entry>  -->
 			   	    <entry>Determines <acronym>AOR</acronym>(address of record) of profile owner.</entry>
 			    </row>	    
 			    <row>
 			   		<entry>blockedAddresses</entry>
 			   	    <entry>javax.slee.Address[]</entry>
-			   	    <entry>sip:blocked@mobicents.org</entry>
+			   	     <!-- <entry>sip:dumb@mobicents.org</entry>  -->
 			   	    <entry>Set of addresses blocked for profile owner. Calls originating from one of those should be blocked.</entry>
 			    </row>	    
 			    <row>
 			   		<entry>backupAddress</entry>
 			   	    <entry>javax.slee.Address</entry>
-			   	    <entry>sip:smart_user_home@mobicents.org</entry>
+			   	     <!-- <entry>sip:smart_user_home@mobicents.org</entry>  -->
 			   	    <entry>Backup address to which call should be forwarded</entry>
 			    </row>	    
 			    <row>
 			   		<entry>voicemailState</entry>
 			   	    <entry>boolean</entry>
-			   	    <entry></entry>
+			   	     <!-- <entry></entry>  -->
 			   	    <entry>Determines if user has enabled voice mail service, <literal>true</literal> indicates enabled voice mail.</entry>
 			    </row>	    
 			</tbody>
 	 	</tgroup>
 	</table>	
-			
-	<para>
-	Addresses stored in profiles are <acronym>AOR</acronym>s - that is logical addresses of user present in <literal>From</literal> and <literal>To</literal> headers for instance.
-	Example <acronym>AOR</acronym> : sip:newbie@mobicents.org..
-	</para>		
+	<note>	
+		<para>
+		Addresses stored in profiles are <acronym>AOR</acronym>s - that is logical addresses of user present in <literal>From</literal> and <literal>To</literal> headers for instance.
+		Example <acronym>AOR</acronym> : sip:newbie@mobicents.org..
+		</para>		
+	</note>
 	<section id="data">
 		<title>
 		Profile default data
 		</title>
 		<para>Profile table for &THIS.EXAMPLE; is "Controller"</para>
 		<table frame="all" pgwide="1">
-		<title>&THIS.EXAMPLE; Profile attributes</title>
+		<title>&THIS.EXAMPLE; Profile default values</title>
 		<tgroup colsep="1" cols="5">
 		   	<colspec colnum="1" colname="c0"/>
 		    <colspec colnum="2" colname="c1"/>
@@ -94,35 +94,35 @@
 			<tbody>
 				<row>
 			   		<entry>torosvi</entry>
-			   	    <entry>SIP:sip:torosvi@127.0.0.1 </entry>
-			   	    <entry>{SIP:sip:mobicents@127.0.0.1,SIP:sip:hugo@127.0.0.1}</entry>
+			   	    <entry><para>SIP:sip:torosvi@b127.0.0.1</para></entry>
+			   	    <entry><para>{SIP:sip:mobicents@127.0.0.1, SIP:sip:hugo@127.0.0.1}</para></entry>
 			   	    <entry>null</entry>
 			   	    <entry>true</entry>
 			    </row>	    
 			    	<row>
 			   		<entry>mobicents</entry>
-			   	    <entry>SIP:sip:mobicents@127.0.0.1</entry>
+			   	    <entry>SIP:sip:mobicents@ 127.0.0.1</entry>
 			   	    <entry>null</entry>
 			   	    <entry>null</entry>
 			   	    <entry>false</entry>
 			    </row>	    
 			    	<row>
 			   		<entry>victor</entry>
-			   	    <entry>SIP:sip:victor@127.0.0.1 </entry>
+			   	    <entry>SIP:sip:victor@ 127.0.0.1 </entry>
 			   	    <entry>null</entry>
-			   	    <entry>SIP:sip:torosvi@127.0.0.1 </entry>
+			   	    <entry>SIP:sip:torosvi@ 127.0.0.1 </entry>
 			   	    <entry>false</entry>
 			    </row>	    
 			    	<row>
 			   		<entry>vhros2</entry>
-			   	    <entry>SIP:sip:vhros2@127.0.0.1 </entry>
+			   	    <entry>SIP:sip:vhros2@ 127.0.0.1 </entry>
 			   	    <entry>null</entry>
 			   	    <entry>null</entry>
 			   	    <entry>true</entry>
 			    </row>	    
 			    	<row>
 			   		<entry>vmail</entry>
-			   	    <entry>SIP:sip:vmail@127.0.0.1</entry>
+			   	    <entry>SIP:sip:vmail@ 127.0.0.1</entry>
 			   	    <entry>null</entry>
 			   	    <entry>null</entry>
 			   	    <entry>true</entry>
@@ -130,5 +130,8 @@
 			</tbody>
 	 	</tgroup>
 	</table>	
+	<note>
+		<para>Prefix <literal>SIP:</literal> comes from <acronym>JSLEE</acronym> addressing scheme.</para>
+	</note>
 	</section>	
 </section>	

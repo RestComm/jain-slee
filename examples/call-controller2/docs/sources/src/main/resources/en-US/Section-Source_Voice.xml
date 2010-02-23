@@ -275,127 +275,133 @@
 			</itemizedlist>
 			<para>Handler is defined as follows:</para>
 			<programlisting role="JAVA" language="Java">
-	public void onCreateConnectionResponse(CreateConnectionResponse event,
-			ActivityContextInterface aci) {
-		log.info("Receive CRCX response: " + event);
+public void onCreateConnectionResponse(CreateConnectionResponse event,
+		ActivityContextInterface aci) {
+	log.info("Receive CRCX response: " + event);
 
-		ReturnCode status = event.getReturnCode();
+	ReturnCode status = event.getReturnCode();
 
-		switch (status.getValue()) {
-		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
-			log.info("Connection created properly.");
-			break;
-		default:
-			ReturnCode rc = event.getReturnCode();
-			log.error("CRCX failed. Value = " + rc.getValue() + " Comment = "
-					+ rc.getComment());
+	switch (status.getValue()) {
 
-			sendServerError("Failed to create connection, code: "
+	case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+		log.info("Connection created properly.");
+		break;
+	default:
+		ReturnCode rc = event.getReturnCode();
+		log.error("CRCX failed. Value = " + rc.getValue() + " Comment = "
+				+ rc.getComment());
+
+		sendServerError("Failed to create connection, code: "
 					+ event.getReturnCode(), Response.SERVER_INTERNAL_ERROR);
 
+		return;
+	}
+
+	boolean startMailMedia = false;
+	if (event.getSecondEndpointIdentifier() == null) {
+		// this is response for PR creation
+		// we have one connection activity, lets send another crcx
+
+		// send OK with sdp
+		DialogActivity da = getDialogActivity();
+		ServerTransaction txn = getServerTransaction();
+		if (txn == null) {
+			log.error("SIP activity lost, close RTP connection");
+			releaseState();
 			return;
 		}
-		boolean startMailMedia = false;
-		if (event.getSecondEndpointIdentifier() == null) {
-			// this is response for PR creation
-			// we have one connection activity, lets send another crcx
 
-			// send OK with sdp
-			DialogActivity da = getDialogActivity();
-			ServerTransaction txn = getServerTransaction();
-			if (txn == null) {
-				log.error("SIP activity lost, close RTP connection");
-				releaseState();
-				return;
-			}
+		Request request = txn.getRequest();
 
-			Request request = txn.getRequest();
-
-			ContentTypeHeader contentType = null;
-			try {
-				contentType = getHeaderFactory().createContentTypeHeader("application", "sdp");
-			} catch (ParseException ex) {
-			}
-
-			String localAddress = getSipFactoryProvider().getListeningPoints()[0].getIPAddress();
-			int localPort = getSipFactoryProvider().getListeningPoints()[0].getPort();
-
-			javax.sip.address.Address contactAddress = null;
-			try {
-				contactAddress = getAddressFactory().createAddress("sip:" + localAddress + ":" + localPort);
-			} catch (ParseException ex) {
-				log.error(ex.getMessage(), ex);
-			}
-			ContactHeader contact = getHeaderFactory().createContactHeader(contactAddress);
-
-			Response response = null;
-			try {
-				response = getMessageFactory().createResponse(Response.OK, request, contentType, event.getLocalConnectionDescriptor().toString().getBytes());
-			} catch (ParseException ex) {
-			}
-
-			response.setHeader(contact);
-			try {
-				txn.sendResponse(response);
-			} catch (InvalidArgumentException ex) {
-				log.error(ex.getMessage(), ex);
-			} catch (SipException ex) {
-				log.error(ex.getMessage(), ex);
-			}
-			EndpointIdentifier endpointID = new EndpointIdentifier(
-					IVR_ENDPOINT_NAME, mmsBindAddress + ":" + MGCP_PEER_PORT);
-			CreateConnection createConnection = new CreateConnection(this,
-					getCallIdentifier(), endpointID, ConnectionMode.SendRecv);
-
-			int txID = mgcpProvider.getUniqueTransactionHandler();
-			createConnection.setTransactionHandle(txID);
-
-			// now set other end
-			try {
-				createConnection.setSecondEndpointIdentifier(event
-						.getSpecificEndpointIdentifier());
-			} catch (ConflictingParameterException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			MgcpConnectionActivity connectionActivity = null;
-			try {
-				connectionActivity = mgcpProvider.getConnectionActivity(txID,
-						endpointID);
-				ActivityContextInterface epnAci = mgcpActivityContestInterfaceFactory
-						.getActivityContextInterface(connectionActivity);
-				epnAci.attach(getSbbContext().getSbbLocalObject());
-				// epnAci.attach(getParentCmp());
-			} catch (FactoryException ex) {
-				ex.printStackTrace();
-			} catch (NullPointerException ex) {
-				ex.printStackTrace();
-			} catch (UnrecognizedActivityException ex) {
-				ex.printStackTrace();
-			}
-
-			mgcpProvider
-					.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
-
-		} else {
-			// this is last
-			startMailMedia = true;
-
+		ContentTypeHeader contentType = null;
+		try {
+			contentType = getHeaderFactory().createContentTypeHeader("application", "sdp");
+		} catch (ParseException ex) {
 		}
-		EndpointIdentifier eid = event.getSpecificEndpointIdentifier();
-		log.info("Creating endpoint activity on: " + eid);
-		MgcpEndpointActivity eActivity = mgcpProvider.getEndpointActivity(eid);
-		ActivityContextInterface eAci = mgcpActivityContestInterfaceFactory
-				.getActivityContextInterface(eActivity);
-		eAci.attach(this.getSbbContext().getSbbLocalObject());
 
-		if (startMailMedia) {
-			startMailMedia();
+		String localAddress = getSipFactoryProvider().getListeningPoints()[0].getIPAddress();
+		int localPort = getSipFactoryProvider().getListeningPoints()[0].getPort();
 
+		javax.sip.address.Address contactAddress = null;
+		try {
+			contactAddress = getAddressFactory().createAddress(
+				"sip:" + localAddress + ":" + localPort);
+		} catch (ParseException ex) {
+			log.error(ex.getMessage(), ex);
 		}
+		ContactHeader contact = getHeaderFactory()
+			.createContactHeader(contactAddress);
+
+		Response response = null;
+		try {
+			response = getMessageFactory().createResponse(
+				Response.OK, request, contentType, 
+				event.getLocalConnectionDescriptor().toString().getBytes());
+		} catch (ParseException ex) {
+		}
+
+		response.setHeader(contact);
+		try {
+			txn.sendResponse(response);
+		} catch (InvalidArgumentException ex) {
+			log.error(ex.getMessage(), ex);
+		} catch (SipException ex) {
+			log.error(ex.getMessage(), ex);
+		}
+		EndpointIdentifier endpointID = new EndpointIdentifier(
+				IVR_ENDPOINT_NAME, mmsBindAddress + ":" + MGCP_PEER_PORT);
+		CreateConnection createConnection = new CreateConnection(this,
+				getCallIdentifier(), endpointID, ConnectionMode.SendRecv);
+
+		int txID = mgcpProvider.getUniqueTransactionHandler();
+		createConnection.setTransactionHandle(txID);
+
+		// now set other end
+		try {
+			createConnection.setSecondEndpointIdentifier(event
+					.getSpecificEndpointIdentifier());
+		} catch (ConflictingParameterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		MgcpConnectionActivity connectionActivity = null;
+		try {
+			connectionActivity = mgcpProvider.getConnectionActivity(txID,
+					endpointID);
+			ActivityContextInterface epnAci = mgcpActivityContestInterfaceFactory
+					.getActivityContextInterface(connectionActivity);
+			epnAci.attach(getSbbContext().getSbbLocalObject());
+			// epnAci.attach(getParentCmp());
+		} catch (FactoryException ex) {
+			ex.printStackTrace();
+		} catch (NullPointerException ex) {
+			ex.printStackTrace();
+		} catch (UnrecognizedActivityException ex) {
+			ex.printStackTrace();
+		}
+
+		mgcpProvider
+				.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
+
+	} else {
+		// this is last
+		startMailMedia = true;
 
 	}
+
+	EndpointIdentifier eid = event.getSpecificEndpointIdentifier();
+	log.info("Creating endpoint activity on: " + eid);
+	MgcpEndpointActivity eActivity = mgcpProvider.getEndpointActivity(eid);
+	ActivityContextInterface eAci = mgcpActivityContestInterfaceFactory
+			.getActivityContextInterface(eActivity);
+	eAci.attach(this.getSbbContext().getSbbLocalObject());
+
+	if (startMailMedia) {
+		startMailMedia();
+	}
+
+}
 			</programlisting>
 		</section>
 		<section id="serouce_voice_event_handlers_mgcp_notification_req_resp">
@@ -404,24 +410,25 @@
 			<para>It disconnect <acronym>UA</acronym> in case of failure.</para>
 			<para>Handler is defined as follows:</para>
 			<programlisting role="JAVA" language="Java">
-	public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
+public void onNotificationRequestResponse(
+	NotificationRequestResponse event, ActivityContextInterface aci) {
 
 
-		ReturnCode status = event.getReturnCode();
+	ReturnCode status = event.getReturnCode();
 
-		switch (status.getValue()) {
-		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
-			log.info("########## VOICE MAIL SBB: RQNT executed properly. TXID: "+event.getTransactionHandle()+" ##########");
-			break;
-		default:
-			ReturnCode rc = event.getReturnCode();
-			log.info("########## VOICE MAIL SBB: RQNT failed, terminating call. TXID: "+event.getTransactionHandle()+" ##########");
-			sendByeRequest();
-			
-			break;
-		}
-
+	switch (status.getValue()) {
+	case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+		log.info("########## VOICE MAIL SBB: RQNT executed properly. TXID: "+event.getTransactionHandle()+" ##########");
+		break;
+	default:
+		ReturnCode rc = event.getReturnCode();
+		log.info("########## VOICE MAIL SBB: RQNT failed, terminating call. TXID: "+event.getTransactionHandle()+" ##########");
+		sendByeRequest();
+		
+		break;
 	}
+
+}
 			</programlisting>
 		</section>
 			<section id="serouce_voice_event_handlers_mgcp_ntf_req">
@@ -431,54 +438,54 @@
 			</para>
 			<para>Handler is defined as follows:</para>
 			<programlisting role="JAVA" language="Java">
-	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
+public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
 
 
-		NotifyResponse response = new NotifyResponse(event.getSource(),
-				ReturnCode.Transaction_Executed_Normally);
-		response.setTransactionHandle(event.getTransactionHandle());
-		log.info("########## VOICE MAIL SBB: Sending Notify response["+response+"] to ["+event+"]["+event.getTransactionHandle()+"] ["+response.getTransactionHandle()+"]##########");
+	NotifyResponse response = new NotifyResponse(event.getSource(),
+			ReturnCode.Transaction_Executed_Normally);
+	response.setTransactionHandle(event.getTransactionHandle());
+	log.info("########## VOICE MAIL SBB: Sending Notify response["+response+"] to ["+event+"]["+event.getTransactionHandle()+"] ["+response.getTransactionHandle()+"]##########");
 		
-		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { response });
+	mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { response });
 
 		
-		EventName[] observedEvents = event.getObservedEvents();
+	EventName[] observedEvents = event.getObservedEvents();
 
-		for (EventName observedEvent : observedEvents) {
-			switch (observedEvent.getEventIdentifier().intValue()) {
-			case MgcpEvent.REPORT_ON_COMPLETION:
-				log.info("########## VOICE MAIL SBB: Signal completed, event identifier["+observedEvent.getEventIdentifier()+"] ##########");
-				
-				if(observedEvent.getEventIdentifier().toString().equals("oc"))
-				{
-					onAnnouncementComplete();
-				}
-				
-				break;
-			case MgcpEvent.REPORT_FAILURE:
-				log.info("########## VOICE MAIL SBB: Signal failed, event identifier["+observedEvent.getEventIdentifier()+"] ##########");
-				//releaseState();
-				sendByeRequest();
-				break;
+	for (EventName observedEvent : observedEvents) {
+		switch (observedEvent.getEventIdentifier().intValue()) {
+		case MgcpEvent.REPORT_ON_COMPLETION:
+			log.info("########## VOICE MAIL SBB: Signal completed, event identifier["+observedEvent.getEventIdentifier()+"] ##########");
 			
-			case MgcpEvent.DTMF_1:
-				this.checkDtmfDigit("1");
-				break;
-			case MgcpEvent.DTMF_7:
-				this.checkDtmfDigit("7");
-				break;
-			case MgcpEvent.DTMF_9:
-				this.checkDtmfDigit("9");
-				break;
-			
-			default:
-				log.info("########## VOICE MAIL SBB: Notify on unknown event, event identifier["+observedEvent.getEventIdentifier()+"]identifier["+observedEvent.getEventIdentifier().intValue()+"] ##########");
-				break;
+			if(observedEvent.getEventIdentifier().toString().equals("oc"))
+			{
+				onAnnouncementComplete();
 			}
+				
+			break;
+		case MgcpEvent.REPORT_FAILURE:
+			log.info("########## VOICE MAIL SBB: Signal failed, event identifier["+observedEvent.getEventIdentifier()+"] ##########");
+			//releaseState();
+			sendByeRequest();
+			break;
+		
+		case MgcpEvent.DTMF_1:
+			this.checkDtmfDigit("1");
+			break;
+		case MgcpEvent.DTMF_7:
+			this.checkDtmfDigit("7");
+			break;
+		case MgcpEvent.DTMF_9:
+			this.checkDtmfDigit("9");
+			break;
 			
+		default:
+			log.info("########## VOICE MAIL SBB: Notify on unknown event, event identifier["+observedEvent.getEventIdentifier()+"]identifier["+observedEvent.getEventIdentifier().intValue()+"] ##########");
+			break;
 		}
-
+			
 	}
+
+}
 			</programlisting>
 		</section>
 	</section>
@@ -537,8 +544,10 @@
 			
 			//add notification, in case dtmf part is not included
 			RequestedEvent[] requestedEvents = {
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement
+						, MgcpEvent.oc,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Announcemen
+						t, MgcpEvent.of,connectionID), actions),
 					 };
 
 			notificationRequest.setRequestedEvents(requestedEvents);
@@ -553,8 +562,10 @@
 			// This has to be present, since MGCP states that new RQNT erases
 			// previous set.
 			RequestedEvent[] requestedEvents = {
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc,connectionID), actions),
-					new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement
+						, MgcpEvent.oc,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Announcement
+						, MgcpEvent.of,connectionID), actions),
 					new RequestedEvent(new EventName(PackageName.Dtmf,
 							MgcpEvent.dtmf0,connectionID), actions),
 					new RequestedEvent(new EventName(PackageName.Dtmf,

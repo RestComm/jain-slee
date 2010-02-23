@@ -49,7 +49,9 @@
 		<sbb-classes>
 			...
 			<sbb-activity-context-interface>
-				<sbb-activity-context-interface-name>org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface</sbb-activity-context-interface-name>
+				<sbb-activity-context-interface-name>
+					org.mobicents.slee.examples.callcontrol.blocking.CallBlockingSbbActivityContextInterface
+				</sbb-activity-context-interface-name>
 			</sbb-activity-context-interface>
 		</sbb-classes>
 		 
@@ -93,13 +95,15 @@
 		</programlisting>
 	    <para>Source definition of <acronym>ACI</acronym> and variable accessors look as follows: </para>
 	    <programlisting language="Java" role="JAVA">
-public interface CallBlockingSbbActivityContextInterface extends javax.slee.ActivityContextInterface {
+public interface CallBlockingSbbActivityContextInterface 
+	extends javax.slee.ActivityContextInterface {
 	public void setFilteredByMe(boolean val);
 	public boolean getFilteredByMe();
 }
 	    </programlisting>
 	    <programlisting language="Java" role="JAVA">
-public interface CallForwardingSbbActivityContextInterface extends javax.slee.ActivityContextInterface {
+public interface CallForwardingSbbActivityContextInterface 
+	extends javax.slee.ActivityContextInterface {
 	public boolean getFilteredByAncestor();
 	public void setFilteredByMe(boolean val);
 	public boolean getFilteredByMe();
