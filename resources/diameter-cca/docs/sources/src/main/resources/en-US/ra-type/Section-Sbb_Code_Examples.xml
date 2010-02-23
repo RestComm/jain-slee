@@ -9,53 +9,55 @@
 	<para>Simple client side requesting credits, with EVENT_TYPE credit control request:</para>
 	<programlisting language="Java" role="JAVA">
 
-	private void doSendEventCCR(int currencyCode,int value) {
-		try {
-			//Create session.
-			CreditControlClientSession session = this.provider.createClientSession();
-			ActivityContextInterface localACI = this.acif.getActivityContextInterface(session);
-			localACI.attach(this.getSbbContext().getSbbLocalObject());
+private void doSendEventCCR(int currencyCode,int value) {
+	try {
+		//Create session.
+		CreditControlClientSession session = this.provider.createClientSession();
+		ActivityContextInterface localACI = this.acif.getActivityContextInterface(session);
+		localACI.attach(this.getSbbContext().getSbbLocalObject());
 
-			CreditControlRequest request = session.createCreditControlRequest();
+		CreditControlRequest request = session.createCreditControlRequest();
 	
-			List&lt;DiameterAvp&gt; avps = new ArrayList&lt;DiameterAvp&gt;();
+		List&lt;DiameterAvp&gt; avps = new ArrayList&lt;DiameterAvp&gt;();
  
-			avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, ("aaa://" + originIP + ":" + originPort).getBytes()));
-			avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_REALM, originRealm.getBytes()));
-			//or dedicated:
-			//request.setDestinationHost(destinationHost);
-			//request.setDestinationRealm(destinationRealm);
-			avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, ("aaa://" + destinationIP + ":" + destinationPort).getBytes()));
-			avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_REALM, destinationRealm.getBytes()));
-			//Event Type request has request type set to '4'
-			avps.add(avpFactory.getBaseFactory().createAvp(CreditControlAVPCodes.CC_Request_Type, 4l));
-			avps.add(avpFactory.getBaseFactory().createAvp(CreditControlAVPCodes.CC_Request_Number, 0l));
-
+		avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_HOST, 
+			("aaa://" + originIP + ":" + originPort).getBytes()));
+		avps.add(avpFactory.getBaseFactory().createAvp(Avp.ORIGIN_REALM, 
+			originRealm.getBytes()));
+		//or dedicated:
+		//request.setDestinationHost(destinationHost);
+		//request.setDestinationRealm(destinationRealm);
+		avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, 
+			("aaa://" + destinationIP + ":" + destinationPort).getBytes()));
+		avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_REALM, 
+			destinationRealm.getBytes()));
+		//Event Type request has request type set to '4'
+		avps.add(avpFactory.getBaseFactory().createAvp(
+			CreditControlAVPCodes.CC_Request_Type, 4l));
+		avps.add(avpFactory.getBaseFactory().createAvp(
+			CreditControlAVPCodes.CC_Request_Number, 0l));
 			RequestedServiceUnitAvp rsu = this.avpFactory.createRequestedServiceUnit();
-
 			CcMoneyAvp ccMoney = this.avpFactory.createCcMoney();
-			ccMoney.setCurrencyCode(currencyCode);
-			UnitValueAvp unitValue = this.avpFactory.createUnitValue();
-			unitValue.setValueDigits(value);
-			ccMoney.setUnitValue(unitValue);
-			
-			rsu.setCreditControlMoneyAvp(ccMoney);
-
+		ccMoney.setCurrencyCode(currencyCode);
+		UnitValueAvp unitValue = this.avpFactory.createUnitValue();
+		unitValue.setValueDigits(value);
+		ccMoney.setUnitValue(unitValue);
+		
+		rsu.setCreditControlMoneyAvp(ccMoney);
 			avps.add(rsu);
-
-			avps.add(avpFactory.getBaseFactory().createAvp(CreditControlAVPCodes.Requested_Action, 0));
-			//use extension avps to fill message or dedicated setters/getters
-			request.setExtensionAvps(avps.toArray(new DiameterAvp[avps.size()]));
-			// Now create and send
-			
-			if (logger.isInfoEnabled())
-				logger.info("About to send:\n" + request);
-
+			avps.add(avpFactory.getBaseFactory().createAvp(
+			CreditControlAVPCodes.Requested_Action, 0));
+		//use extension avps to fill message or dedicated setters/getters
+		request.setExtensionAvps(avps.toArray(new DiameterAvp[avps.size()]));
+		// Now create and send
+		
+		if (logger.isInfoEnabled())
+			logger.info("About to send:\n" + request);
 			session.sendCreditControlRequest(request);
-		} catch (Exception e) {
-			logger.error("Failed to create/send Credit-Control-Request.", e);
-		}
+	} catch (Exception e) {
+		logger.error("Failed to create/send Credit-Control-Request.", e);
 	}
+}
 	
 	
 	....
@@ -88,17 +90,18 @@
 	
 	<para>Server application to handle simple direct debiting:</para>
 	<programlisting language="Java" role="JAVA">
-	public void onCreditControlRequest(CreditControlRequest request, ActivityContextInterface aci) {
-		if (logger.isInfoEnabled())
-			logger.info("Received Credit-Control-Request (Application-Id[" + request.getHeader().getApplicationId() + "].");
+public void onCreditControlRequest(CreditControlRequest request, 
+	ActivityContextInterface aci) {
+	if (logger.isInfoEnabled())
+		logger.info("Received Credit-Control-Request (Application-Id[" + request.getHeader().getApplicationId() + "].");
 
-		// INITIAL_REQUEST(1), UPDATE_REQUEST(2), TERMINATION_REQUEST(3),
-		// EVENT_REQUEST(4)
-		CreditControlServerSession session = (CreditControlServerSession) aci.getActivity();
-		CreditControlAnswer answer = null;
-
-		if(request.getRequestedAction() == RequestedActionType.DIRECT_DEBITING)
-		{
+	// INITIAL_REQUEST(1), UPDATE_REQUEST(2), TERMINATION_REQUEST(3),
+	// EVENT_REQUEST(4)
+	CreditControlServerSession session = (CreditControlServerSession) aci.getActivity();
+	CreditControlAnswer answer = null;
+	if(request.getRequestedAction() == RequestedActionType.DIRECT_DEBITING)
+	{
+	
 		switch (request.getCcRequestType().getValue()) {
 		case 1:
 			try {

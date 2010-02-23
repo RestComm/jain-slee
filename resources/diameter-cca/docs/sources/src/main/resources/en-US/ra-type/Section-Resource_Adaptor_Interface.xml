@@ -23,7 +23,8 @@
 
       CreditControlClientSession createClientSession() throws CreateActivityException;
 
-      CreditControlClientSession createClientSession(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;
+      CreditControlClientSession createClientSession(DiameterIdentity destinationHost, 
+      	DiameterIdentity destinationRealm) throws CreateActivityException;
 
       CreditControlMessageFactory getCreditControlMessageFactory();
 
