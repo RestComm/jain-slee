@@ -28,223 +28,230 @@
 			<listitem>
 				<para>check if request is a query, if so send response with list of contacts</para>
 				<programlisting language="Java" role="JAVA">
-				// see if child sbb local object is already in CMP
-				LocationSbbLocalObject locationService = getLocationSbb();
+	// see if child sbb local object is already in CMP
+	LocationSbbLocalObject locationService = getLocationSbb();
 				
-				// get configuration from MBean
-				final long maxExpires=config.getSipRegistrationMaxExpires();
-				final long minExpires=config.getSipRegistrationMinExpires();
+	// get configuration from MBean
+	final long maxExpires=config.getSipRegistrationMaxExpires();
+	final long minExpires=config.getSipRegistrationMinExpires();
 				
-				// Process require header
+	// Process require header
 	
-				// Authenticate
-				// Authorize
-				// OK we're authorized now ;-)
+	// Authenticate
+	// Authorize
+	// OK we're authorized now ;-)
 	
-				// extract address-of-record
-				String sipAddressOfRecord = getCanonicalAddress((HeaderAddress) event.getRequest()
+	// extract address-of-record
+	String sipAddressOfRecord = getCanonicalAddress(
+	(HeaderAddress) event.getRequest().getHeader(ToHeader.NAME));
+	
+	if (logger.isDebugEnabled()) {
+	logger.debug("onRegisterEvent: address-of-record from request= " + sipAddressOfRecord);
+	}
+	
+	// map will be empty if user not in LS...
+	// Note we don't care if the user has a valid account in the LS, we
+	// just add them anyway.
+	String sipAddress = getCanonicalAddress((HeaderAddress) event.getRequest()
 						.getHeader(ToHeader.NAME));
+    Map&lt;String, RegistrationBinding&gt; bindings = locationService
+		.getBindings(sipAddress);
 	
-				if (logger.isDebugEnabled()) {
-					logger.debug("onRegisterEvent: address-of-record from request= " + sipAddressOfRecord);
-				}
-	
-				// map will be empty if user not in LS...
-				// Note we don't care if the user has a valid account in the LS, we
-				// just add them anyway.
-				String sipAddress = getCanonicalAddress((HeaderAddress) event.getRequest()
-						.getHeader(ToHeader.NAME));
-				Map&lt;String, RegistrationBinding&gt; bindings = locationService
-						.getBindings(sipAddress);
-	
-				// Do we have any contact header(s)?
-				if (event.getRequest().getHeader(ContactHeader.NAME) == null) {
-					// Just send OK with current bindings - this request was a
-					// query.
-					logger.info("query for bindings: sipAddress="+sipAddress);
-					sendRegistrationOKResponse(event.getServerTransaction(), event.getRequest(), bindings);
-					return;
-				}
+	// Do we have any contact header(s)?
+	if (event.getRequest().getHeader(ContactHeader.NAME) == null) {
+	// Just send OK with current bindings - this request was a
+	// query.
+	logger.info("query for bindings: sipAddress="+sipAddress);
+	sendRegistrationOKResponse(event.getServerTransaction(), event.getRequest(), bindings);
+	return;
+}
 				</programlisting>
 			</listitem>
 			<listitem>
 				<para>check if request is remove action, if so remove bindings from data base</para>
 				<programlisting language="Java" role="JAVA">
-				// Check contact, callid, cseq
+	// Check contact, callid, cseq
 				
-				ArrayList newContacts = getContactHeaderList(event.getRequest()
+	ArrayList newContacts = getContactHeaderList(event.getRequest()
 						.getHeaders(ContactHeader.NAME));
-				final String callId = ((CallIdHeader) event.getRequest()
+	final String callId = ((CallIdHeader) event.getRequest()
 				.getHeader(CallIdHeader.NAME)).getCallId();
-				final long seq = ((CSeqHeader) event.getRequest()
+	final long seq = ((CSeqHeader) event.getRequest()
 						.getHeader(CSeqHeader.NAME)).getSeqNumber();
-				ExpiresHeader expiresHeader = event.getRequest().getExpires();
+	ExpiresHeader expiresHeader = event.getRequest().getExpires();
 	
-				if (hasWildCard(newContacts)) { // This is a "Contact: *" "remove
-					// all bindings" request
-					if ((expiresHeader == null)
-							|| (expiresHeader.getExpires() != 0)
-							|| (newContacts.size() > 1)) {
-						// malformed request in RFC3261 ch10.3 step 6
-						sendErrorResponse(Response.BAD_REQUEST,event.getServerTransaction(),event.getRequest());		
-						return;
-					}
+	if (hasWildCard(newContacts)) { // This is a "Contact: *" "remove
+		// all bindings" request
+		if ((expiresHeader == null)
+				|| (expiresHeader.getExpires() != 0)
+				|| (newContacts.size() > 1)) {
+				// malformed request in RFC3261 ch10.3 step 6
+			sendErrorResponse(Response.BAD_REQUEST,
+				event.getServerTransaction(),event.getRequest());		
+			return;
+		}
 	
-					if (logger.isDebugEnabled()) {
-						logger.debug("Removing bindings");
-					}
-					// Go through list of current bindings
-					// if callid doesn't match - remove binding
-					// if callid matches and seq greater, remove binding.
-					Iterator&lt;RegistrationBinding&gt; it = bindings.values().iterator();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Removing bindings");
+		}
+		// Go through list of current bindings
+		// if callid doesn't match - remove binding
+		// if callid matches and seq greater, remove binding.
+		Iterator&lt;RegistrationBinding&gt; it = bindings.values().iterator();
 	
-					try {
-						while (it.hasNext()) {
-							RegistrationBinding binding = (RegistrationBinding) it
-									.next();
-							if (callId.equals(binding.getCallId())) {
-								if (seq &gt; binding.getCSeq()) {
-									it.remove();
-									locationService.removeBinding(sipAddressOfRecord,
+		try {
+			while (it.hasNext()) {
+				RegistrationBinding binding = (RegistrationBinding) it
+								.next();
+				if (callId.equals(binding.getCallId())) {
+					if (seq &gt; binding.getCSeq()) {
+						it.remove();
+						locationService.removeBinding(sipAddressOfRecord,
 											binding.getContactAddress());
-								} else {
-									sendErrorResponse(Response.BAD_REQUEST,event.getServerTransaction(),event.getRequest());
-									return;
-								}
-							} else {
-								it.remove();
-								locationService.removeBinding(sipAddressOfRecord, binding
-										.getContactAddress());
-							}
-						}
-	
-					} catch (LocationServiceException lse) {
-						logger.error(lse);
-						sendErrorResponse(Response.SERVER_INTERNAL_ERROR,event.getServerTransaction(),event.getRequest());
+					} else {
+						sendErrorResponse(Response.BAD_REQUEST,
+						event.getServerTransaction(),event.getRequest());
 						return;
 					}
-	
-					sendRegistrationOKResponse(event.getServerTransaction(), event.getRequest(), bindings);
+				} else {
+					it.remove();
+					locationService.removeBinding(sipAddressOfRecord, binding
+							.getContactAddress());
+					}
 				}
-							
-				else {
+	
+			} catch (LocationServiceException lse) {
+				logger.error(lse);
+				sendErrorResponse(Response.SERVER_INTERNAL_ERROR,
+					event.getServerTransaction(),event.getRequest());
+				return;
+			}
+	
+		sendRegistrationOKResponse(event.getServerTransaction(), 
+			event.getRequest(), bindings);
+	}else {
 				</programlisting>
 			</listitem>
 			<listitem>
 				<para>check condition for udpate, update bindings, add,remove and send response</para>
 				<programlisting language="Java" role="JAVA">
-				else {
-					// Update bindings
-					if (logger.isDebugEnabled()) {
-						logger.debug("Updating bindings");
-					}
-					ListIterator li = newContacts.listIterator();
+	}else {
+		// Update bindings
+		if (logger.isDebugEnabled()) {
+			logger.debug("Updating bindings");
+		}
+		ListIterator li = newContacts.listIterator();
 	
-					while (li.hasNext()) {
-						ContactHeader contact = (ContactHeader) li.next();
+		while (li.hasNext()) {
+			ContactHeader contact = (ContactHeader) li.next();
 	
-						// get expires value, either in header or default
-						// do min-expires etc
-						long requestedExpires = 0;
+			// get expires value, either in header or default
+			// do min-expires etc
+			long requestedExpires = 0;
 	
-						if (contact.getExpires() &gt;= 0) {
-							requestedExpires = contact.getExpires();
-						} else if ((expiresHeader != null)
-								&amp;&amp; (expiresHeader.getExpires() &gt;= 0)) {
-							requestedExpires = expiresHeader.getExpires();
-						} else {
-							requestedExpires = 3600; // default
-						}
+			if (contact.getExpires() &gt;= 0) {
+				requestedExpires = contact.getExpires();
+			} else if ((expiresHeader != null)
+				&amp;&amp; (expiresHeader.getExpires() &gt;= 0)) {
+				requestedExpires = expiresHeader.getExpires();
+			} else {
+				requestedExpires = 3600; // default
+			}
 	
-						// If expires too large, reset to our local max
-						if (requestedExpires > maxExpires) {
-							requestedExpires = maxExpires;
-						} else if ((requestedExpires &gt; 0)
-								&amp;&amp; (requestedExpires &lt; minExpires)) {
-							// requested expiry too short, send response with
-							// min-expires
-							// 
-							sendIntervalTooBriefResponse(event.getServerTransaction(), event.getRequest(), minExpires);
-							return;
-						}
+			// If expires too large, reset to our local max
+			if (requestedExpires > maxExpires) {
+				requestedExpires = maxExpires;
+			} else if ((requestedExpires &gt; 0)
+				&amp;&amp; (requestedExpires &lt; minExpires)) {
+				// requested expiry too short, send response with
+				// min-expires
+				// 
+				sendIntervalTooBriefResponse(event.getServerTransaction(), 
+							event.getRequest(), minExpires);
+				return;
+			}
 	
-						// Get the q-value (preference) for this binding - default
-						// to 0.0 (min)
-						float q = 0;
-						if (contact.getQValue() != -1)
-							q = contact.getQValue();
-						if ((q &gt; 1) || (q &lt; 0)) {
-							sendErrorResponse(Response.BAD_REQUEST,event.getServerTransaction(),event.getRequest());
-							return;
-						}
+			// Get the q-value (preference) for this binding - default
+			// to 0.0 (min)
+			float q = 0;
+			if (contact.getQValue() != -1)
+				q = contact.getQValue();
+				if ((q &gt; 1) || (q &lt; 0)) {
+					sendErrorResponse(Response.BAD_REQUEST,
+							event.getServerTransaction(),event.getRequest());
+					return;
+				}
 	
-						// Find existing binding
-						String contactAddress = contact.getAddress().getURI().toString();
+			// Find existing binding
+			String contactAddress = contact.getAddress().getURI().toString();
 	
-						RegistrationBinding binding = (RegistrationBinding) bindings
+			RegistrationBinding binding = (RegistrationBinding) bindings
 								.get(contactAddress);
 	
-						if (binding != null) { // Update this binding
+			if (binding != null) { // Update this binding
 							
-							if (callId.equals(binding.getCallId())) {
-								if (seq &lt;= binding.getCSeq()) {
-									sendErrorResponse(Response.BAD_REQUEST,event.getServerTransaction(),event.getRequest());
-									return;
-								}
-							}
-	
-							if (requestedExpires == 0) {
-								if (logger.isDebugEnabled()) {
-									logger.debug("Removing binding: "
-										+ sipAddressOfRecord + " -&gt; "
-										+ contactAddress);
-								}
-								bindings.remove(contactAddress);
-								locationService.removeBinding(sipAddressOfRecord,
-											binding.getContactAddress());
-							} else {
-								if (logger.isDebugEnabled()) {
-									logger.debug("Updating binding: "
-										+ sipAddressOfRecord + " -&gt; "
-										+ contactAddress);
-									logger.debug("contact: " + contact.toString());
-								}
-								// Lets push it into location service, this will
-								// update version of binding
-								binding.setCallId(callId);
-								binding.setExpires(requestedExpires);
-								binding.setRegistrationDate(System.currentTimeMillis());
-								binding.setCSeq(seq);
-								binding.setQValue(q);
-								locationService.updateBinding(binding);
-							}
-	
-						} else {
-							// Create new binding
-							if (requestedExpires != 0) {
-								if (logger.isDebugEnabled()) {
-									logger.debug("Adding new binding: "
-										+ sipAddressOfRecord + " -&gt; "
-										+ contactAddress);
-									logger.debug(contact.toString());
-								}
-	
-								// removed comment parameter to registration binding
-								// - Address and Contact headers don't have comments
-								// in 1.1
-								RegistrationBinding registrationBinding = locationService
-										.addBinding(sipAddress,
-												contactAddress, "",
-												requestedExpires, System.currentTimeMillis(), q, callId,
-												seq);
-								bindings.put(registrationBinding.getContactAddress(), registrationBinding);
-	
-							}
-						}
+				if (callId.equals(binding.getCallId())) {
+					if (seq &lt;= binding.getCSeq()) {
+						sendErrorResponse(Response.BAD_REQUEST,
+							event.getServerTransaction(),event.getRequest());
+						return;
 					}
-					// Update bindings, return 200 if successful, 500 on error
-					sendRegistrationOKResponse(event.getServerTransaction(), event.getRequest(), bindings);
 				}
+	
+				if (requestedExpires == 0) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Removing binding: "
+							+ sipAddressOfRecord + " -&gt; "
+								+ contactAddress);
+					}
+					bindings.remove(contactAddress);
+					locationService.removeBinding(sipAddressOfRecord,
+							binding.getContactAddress());
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Updating binding: "
+							+ sipAddressOfRecord + " -&gt; "
+							+ contactAddress);
+						logger.debug("contact: " + contact.toString());
+					}
+					// Lets push it into location service, this will
+					// update version of binding
+					binding.setCallId(callId);
+					binding.setExpires(requestedExpires);
+					binding.setRegistrationDate(System.currentTimeMillis());
+					binding.setCSeq(seq);
+					binding.setQValue(q);
+					locationService.updateBinding(binding);
+				}
+	
+			} else {
+				// Create new binding
+				if (requestedExpires != 0) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Adding new binding: "
+						+ sipAddressOfRecord + " -&gt; "
+						+ contactAddress);
+						logger.debug(contact.toString());
+				     }
+	
+				         // removed comment parameter to registration binding
+				         // - Address and Contact headers don't have comments
+				         // in 1.1
+				         RegistrationBinding registrationBinding = locationService
+						.addBinding(sipAddress,
+							contactAddress, "",
+							requestedExpires, System.currentTimeMillis(), q, callId,
+							seq);
+					   bindings.put(registrationBinding.getContactAddress(), 
+								registrationBinding);
+	
+					}
+			}
+					}
+			// Update bindings, return 200 if successful, 500 on error
+			sendRegistrationOKResponse(event.getServerTransaction(), 
+				event.getRequest(), bindings);
+	}
 				</programlisting>
 			</listitem>
 		</itemizedlist>
@@ -298,18 +305,19 @@
 		</itemizedlist>
 		<para>Its defined in source as follows:</para>
 		<programlisting language="Java" role="JAVA">
-		public abstract class RegistrarSbb implements Sbb {
+public abstract class RegistrarSbb implements Sbb {
 		
-			...
+	...
 		
-			// location service child relation
-			public abstract ChildRelation getLocationSbbChildRelation();
+	// location service child relation
+	public abstract ChildRelation getLocationSbbChildRelation();
 
-			public LocationSbbLocalObject getLocationSbb() throws TransactionRequiredLocalException, SLEEException, CreateException {
-				return (LocationSbbLocalObject) getLocationSbbChildRelation().create();			
-			}
-			...
-		}
+	public LocationSbbLocalObject getLocationSbb() throws TransactionRequiredLocalException
+		, SLEEException, CreateException {
+		return (LocationSbbLocalObject) getLocationSbbChildRelation().create();			
+	}
+	...
+}
 		</programlisting>
 	</section>
 	

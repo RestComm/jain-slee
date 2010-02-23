@@ -508,7 +508,8 @@ public abstract class ProxySbb implements Sbb {
 
 	public abstract ChildRelation getLocationSbbChildRelation();
 
-	public LocationSbbLocalObject getLocationSbb() throws TransactionRequiredLocalException, SLEEException, CreateException {		
+	public LocationSbbLocalObject getLocationSbb() throws TransactionRequiredLocalException
+	, SLEEException, CreateException {		
 		final ChildRelation childRelation = getLocationSbbChildRelation();
 		if (childRelation.isEmpty()) 
 		{

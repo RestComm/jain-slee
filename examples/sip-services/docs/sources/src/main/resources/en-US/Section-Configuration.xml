@@ -25,53 +25,32 @@
 						It can have one of two values:
 						
 					</para>
-					<table frame="all" pgwide="1">
-							<title>LOCATION_SERVICE_CLASS_NAME possible value</title>
-							<tgroup colsep="1" cols="3">
-								<colspec colnum="1" colname="c0" />
-								<colspec colnum="2" colname="c1" />
-								<colspec colnum="3" colname="c2" />
-
-								<thead>
-									<row>
-										<entry>Value</entry>
-										<entry>Type</entry>
-										<entry>Description</entry>
-
-									</row>
-								</thead>
-								<tbody>
-									<row>
-										<entry>org.mobicents.slee.services.sip.location.nonha.NonHALocationService
-										</entry>
-										<entry>local</entry>
-										<entry>
-											not replicated, based on java
-											<literal>java.util.Map</literal>.
-										</entry>
-
-									</row>
-									<row>
-										<entry>org.mobicents.slee.services.sip.location.jpa.JPALocationService
-										</entry>
-										<entry>HA</entry>
-										<entry>
-											replicated storage, based on
-											<literal>JPA</literal>
-											.
-										</entry>
-
-									</row>
-								</tbody>
-							</tgroup>
-						</table>
-						<para>
+					<variablelist>
+						<varlistentry>
+							<term>org.mobicents.slee.services.sip.location.nonha.NonHALocationService</term>
+							<listitem>
+								<para> this class implements local service, not replicated, based on java
+											<literal>java.util.Map</literal>.</para>
+							</listitem>
+						</varlistentry>
+						<varlistentry>
+							<term>org.mobicents.slee.services.sip.location.jpa.JPALocationService</term>
+							<listitem>
+								<para>this class implements <acronym>HA</acronym> service, replicated storage, based on
+											<acronym>JPA</acronym>.</para>
+							</listitem>
+						</varlistentry>
+					</variablelist>
+					
+				
+					
+						<para>	
 						 <literal>LocationSbb</literal> exposes <acronym>JMX</acronym> properties which can be accessed under
 						<literal>ObjectName: slee:sipservice=Location
 						</literal>. Supported properties:
 						
 
-					</para>
+						</para>
 					<table frame="all" pgwide="1">
 						<title>LocationSbb JMX properties</title>
 						<tgroup colsep="1" cols="3">
@@ -148,7 +127,8 @@
 								<row>
 									<entry>localDomain</entry>
 									<entry>java.lang.String</entry>
-									<entry>domain for which this proxy should provide services. Its comma separated list of values. By default it has value of {127.0.0.1,nist.gov,mobicents.org}</entry>
+									<entry>domain for which this proxy should provide services. Its comma separated list of values. By default it has value of {127.0.0.1,nist.gov
+									,mobicents.org}</entry>
 								</row>
 								<row>
 									<entry>transports</entry>

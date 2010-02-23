@@ -32,18 +32,18 @@
 				<row>
 			   		<entry>ProxySbb</entry>
 			   	    <entry>ProxySbb</entry>
-			   	    <entry><literal>javax.slee.SbbNotification[service=ServiceID[name=JAIN SIP Proxy Service,vendor=mobicents,version=1.1],sbb=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]].ProxySbb</literal></entry>
+			   	    <entry>javax.slee.SbbNotification[service=ServiceID[name=JAIN SIP Proxy Service,vendor=mobicents,version=1.1],sbb=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]].ProxySbb</entry>
 
 			    </row>	    
 			    <row>
 			   		<entry>RegistrarSbb</entry>
 			   	    <entry>RegistrarSbb</entry>
-			   	    <entry><literal>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=SipRegistrarSbb,vendor=org.mobicents,version=1.2]].RegisterSbb</literal></entry>
+			   	    <entry>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=SipRegistrarSbb,vendor=org.mobicents,version=1.2]].RegisterSbb</entry>
 			    </row>	    
 			    <row>
 			   		<entry>LocationSbb</entry>
 			   	    <entry>LocationSbb</entry>
-			   	    <entry><literal>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=LocationSbb,vendor=org.mobicents,version=1.2]].LocationSbb</literal></entry>
+			   	    <entry>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=LocationSbb,vendor=org.mobicents,version=1.2]].LocationSbb</entry>
 
 			    </row>	    
 			</tbody>
