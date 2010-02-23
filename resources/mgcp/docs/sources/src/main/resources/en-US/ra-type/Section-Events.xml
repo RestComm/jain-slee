@@ -22,36 +22,75 @@
 		event-class and whether its fired on MgcpConnectionActivity or
 		MgcpEndpointActivity or both.
 	</para>
+	<important>
+       <para>Spaces where introduced in <literal>Name</literal> and
+		<literal>Event Class</literal> column values, to correctly render the
+		table. Please remove them when using copy/paste.</para>
+	</important>
+	<important>
+		<para>For proper render of this table prefixes, for entries on some columns are ommited. For prefix values, for each column, please see list below: </para>
+		<variablelist>		
+			<varlistentry>
+				<term>Name</term>
+				<listitem>
+					<para>
+					net.java.slee.resource.mgcp.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Event Class</term>
+				<listitem>
+					<para>
+					jain.protocol.ip.mgcp.message.
+					</para>
+				</listitem>
+			</varlistentry>	
+		</variablelist>		
+		<para>Version for all defined events is 1.0.</para>
+		<para>Vendor for all defined events is net.java.</para>
+	</important>
 	<table frame="all" pgwide="1">
-		<title>Events fired on the MgcpConnectionActivity</title>
-		<tgroup colsep="1" cols="7">
-			<colspec colnum="1" colname="c0" />
-			<colspec colnum="2" colname="c1" />
-			<colspec colnum="3" colname="c2" />
-			<colspec colnum="4" colname="c3" />
-			<colspec colnum="5" colname="c4" />
-			<colspec colnum="6" colname="c5" />
-			<colspec colnum="7" colname="c6" />
+		<title>Events fired by &THIS.RA;</title>
+		<tgroup colsep="1" cols="5">
+			<!--
+			<colspec colnum="1" colname="c0" colwidth="3*"/>
+			<colspec colnum="2" colname="c1" colwidth="2*"/>
+			<colspec colnum="3" colname="c2" colwidth="1*"/>
+			<colspec colnum="4" colname="c3" colwidth="3*"/>
+			<colspec colnum="5" colname="c4" colwidth="1*"/>
+			<colspec colnum="6" colname="c5" colwidth="1*"/>
+			<colspec colnum="7" colname="c6" colwidth="2*"/>
+			-->
+			<colspec colnum="1" colname="c0" colwidth="3*"/>
+			<colspec colnum="2" colname="c3" colwidth="3*"/>
+			<colspec colnum="3" colname="c4" colwidth="1*"/>
+			<colspec colnum="4" colname="c5" colwidth="1*"/>
+			<colspec colnum="5" colname="c6" colwidth="3*"/>
 			<thead>
 				<row>
 					<entry>Name</entry>
+					<!--
 					<entry>Vendor</entry>
 					<entry>Version</entry>
+					-->
 					<entry>Event Class</entry>
-					<entry>MgcpConnectionActivity</entry>
-					<entry>MgcpEndpointActivity</entry>
+					<entry>Conn</entry>
+					<entry>Enp</entry>
 					<entry>Comments</entry>
 				</row>
 			</thead>
 			<tbody>
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.CREATE_CONNECTION
+						CREATE_ CONNECTION
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.CreateConnection
+						Create Connection
 					</entry>
 					<entry>Yes</entry>
 					<entry>No</entry>
@@ -62,12 +101,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE
+						CREATE_ CONNECTION_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.CreateConnectionRespone
+						Create Connection Respone
 					</entry>
 					<entry>Yes</entry>
 					<entry>No</entry>
@@ -79,12 +120,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.MODIFY_CONNECTION
+						MODIFY_ CONNECTION
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.ModifyConnection
+						Modify Connection
 					</entry>
 					<entry>Yes</entry>
 					<entry>No</entry>
@@ -95,12 +138,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.MODIFY_CONNECTION_RESPONSE
+						MODIFY_ CONNECTION_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.ModifyConnectionResponse
+						Modify Connection Response
 					</entry>
 					<entry>Yes</entry>
 					<entry>No</entry>
@@ -112,12 +157,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.DELETE_CONNECTION
+						DELETE_ CONNECTION
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.DeleteConnection
+						Delete Connection
 					</entry>
 					<entry>Yes</entry>
 					<entry>Yes</entry>
@@ -128,12 +175,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE
+						DELETE_ CONNECTION_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.DeleteConnectionResponse
+						Delete Connection Response
 					</entry>
 					<entry>Yes</entry>
 					<entry>Yes</entry>
@@ -145,12 +194,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.AUDIT_CONNECTION
+						AUDIT_ CONNECTION
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.AuditConnection
+						Audit Connection
 					</entry>
 					<entry>Yes</entry>
 					<entry>No</entry>
@@ -161,12 +212,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.AUDIT_CONNECTION_RESPONSE
+						AUDIT_ CONNECTION_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.AuditConnectionResponse
+						Audit Connection Response
 					</entry>
 					<entry>Yes</entry>
 					<entry>No</entry>
@@ -179,12 +232,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.NOTIFICATION_REQUEST
+						NOTIFICATION_ REQUEST
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.NotificationRequest
+						Notification Request
 					</entry>
 					<entry>Yes</entry>
 					<entry>Yes</entry>
@@ -207,12 +262,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE
+						NOTIFICATION_ REQUEST_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.NotificationRequestResponse
+						Notification Request Response
 					</entry>
 					<entry>Yes</entry>
 					<entry>Yes</entry>
@@ -234,11 +291,13 @@
 				</row>
 
 				<row>
-					<entry>net.java.slee.resource.mgcp.NOTIFY</entry>
+					<entry>NOTIFY</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.Notify
+						Notify
 					</entry>
 					<entry>Yes</entry>
 					<entry>Yes</entry>
@@ -254,12 +313,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.NOTIFY_RESPONSE
+						NOTIFY_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.NotifyResponse
+						Notify Response
 					</entry>
 					<entry>Yes</entry>
 					<entry>Yes</entry>
@@ -276,12 +337,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT
+						TRANSACTION_ TIMEOUT
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						net.java.slee.resource.mgcp.event.TransactionTimeout
+						event. Transaction Timeout
 					</entry>
 					<entry>Yes</entry>
 					<entry>Yes</entry>
@@ -296,12 +359,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.AUDIT_ENDPOINT
+						AUDIT_ ENDPOINT
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.AuditEndpoint
+						Audit Endpoint
 					</entry>
 					<entry>No</entry>
 					<entry>Yes</entry>
@@ -311,12 +376,14 @@
 				</row>
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.AUDIT_ENDPOINT_RESPONSE
+						AUDIT_ ENDPOINT_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.AuditEndpointResponse
+						Audit Endpoint Response
 					</entry>
 					<entry>No</entry>
 					<entry>Yes</entry>
@@ -328,12 +395,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION
+						ENDPOINT_ CONFIGURATION
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.EndpointConfiguration
+						Endpoint Configuration
 					</entry>
 					<entry>No</entry>
 					<entry>Yes</entry>
@@ -343,12 +412,14 @@
 				</row>
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION_RESPONSE
+						ENDPOINT_ CONFIGURATION_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.EndpointConfigurationResponse
+						Endpoint Configuration Response
 					</entry>
 					<entry>No</entry>
 					<entry>Yes</entry>
@@ -361,12 +432,14 @@
 
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.RESTART_IN_PROGRESS
+						RESTART_ IN_ PROGRESS
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						 jain.protocol.ip.mgcp.message.RestartInProgress
+						 Restart In Progress
 					</entry>
 					<entry>No</entry>
 					<entry>Yes</entry>
@@ -377,12 +450,14 @@
 				</row>
 				<row>
 					<entry>
-						net.java.slee.resource.mgcp.RESTART_IN_PROGRESS_RESPONSE
+						RESTART_ IN_ PROGRESS_ RESPONSE
 					</entry>
+					<!--
 					<entry>net.java</entry>
 					<entry>1.0</entry>
+					-->
 					<entry>
-						jain.protocol.ip.mgcp.message.RestartInProgressResponse
+						Restart In Progress Response
 					</entry>
 					<entry>No</entry>
 					<entry>Yes</entry>

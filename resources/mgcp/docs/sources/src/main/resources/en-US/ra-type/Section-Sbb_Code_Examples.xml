@@ -202,7 +202,6 @@ public abstract class IVRSbb implements Sbb {
 			ReturnCode rc = event.getReturnCode();
 			logger.severe("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
 
-			// TODO : Send DLCX to MMS. Send BYE to UA
 			break;
 		}
 
@@ -226,7 +225,7 @@ public abstract class IVRSbb implements Sbb {
 				break;
 			case MgcpEvent.REPORT_FAILURE:
 				logger.info("Announcemnet Failed received");
-				// TODO : Send DLCX and Send BYE to UA
+	
 				break;
 			case MgcpEvent.DTMF_0:
 				logger.info("You have pressed 0");
