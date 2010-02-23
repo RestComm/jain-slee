@@ -36,8 +36,7 @@
 		</root-sbb>
 		<default-priority>0</default-priority>
 	</service>
-</service-xml>
-		]]>
+</service-xml>]]>
 		</programlisting>		
 		
 	</section>

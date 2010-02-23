@@ -39,8 +39,7 @@
 		} catch (NamingException ne) {
 			tracer.severe("Could not set SBB context:" + ne.getMessage(), ne);
 		}
-	}
-            	]]>
+	}]]>
             	</programlisting>
         	</section>
         
@@ -71,8 +70,7 @@
 		} catch (XMPPException e) {
 			tracer.severe("Connection to server failed!",e);
 		}
-	}
-            	]]>
+	}]]>
             	</programlisting>
         	</section>
         	
@@ -97,8 +95,7 @@
 				tracer.severe(e.getMessage(), e);
 			}
 		}
-	}
-            	]]>
+	}]]>
             	</programlisting>
         	</section>
         	
@@ -124,8 +121,7 @@
 			msg.setBody("Hi. I'am online too.");
 			xmppSbbInterface.sendPacket(connectionID, msg);
 		}
-	}
-            	]]>
+	}]]>
             	</programlisting>
         	</section>
         	
@@ -165,8 +161,7 @@
 			msg.setBody(body);
 			xmppSbbInterface.sendPacket(connectionID, msg);
 		}
-	}
-            	]]>
+	}]]>
             	</programlisting>
         	</section>
         	

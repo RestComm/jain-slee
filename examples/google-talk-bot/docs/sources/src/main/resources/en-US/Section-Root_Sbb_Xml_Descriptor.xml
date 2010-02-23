@@ -16,8 +16,7 @@
 					org.mobicents.examples.googletalk.GoogleTalkBotSbb
 				</sbb-abstract-class-name>
 			</sbb-abstract-class>
-		</sbb-classes>
-			]]>
+		</sbb-classes>]]>
 			</programlisting>
 			
 			<para>Then the events handled by the SBB must be specified too:</para>
@@ -66,8 +65,7 @@
 				</event-type-vendor>
 				<event-type-version>1.0</event-type-version>
 			</event-type-ref>
-		</event>
-			]]>
+		</event>]]>
 			</programlisting>
 			<para>Note that there is a single event defined as initial, which triggers the xmpp connection creation, remaining events all happen in the XMPP connection activity, that the service instance is already attached.</para>
 	
@@ -83,8 +81,7 @@
 			<env-entry-name>password</env-entry-name>
 			<env-entry-type>java.lang.String</env-entry-type>
 			<env-entry-value>m0b1c3nts</env-entry-value>
-		</env-entry>
-			]]>
+		</env-entry>]]>
 			</programlisting>
 			
 			<para>Finally, the XMPP Resource Adaptor must be specified also, otherwise SLEE won't put its SBB Interface in the SBB's JNDI Context:</para>
@@ -112,8 +109,7 @@
 					XMPPRA
 				</resource-adaptor-entity-link>
 			</resource-adaptor-entity-binding>
-		</resource-adaptor-type-binding>
-			]]>
+		</resource-adaptor-type-binding>]]>
 			</programlisting>
 			
 		</section>
