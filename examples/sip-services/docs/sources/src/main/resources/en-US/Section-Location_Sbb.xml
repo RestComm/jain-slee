@@ -196,7 +196,8 @@ public RegistrationBinding addBinding(String sipAddress,
 	rgAci.setSipAddress(sipAddress);
 			
 	if(logger.isInfoEnabled()) {
-		logger.info("added binding: sipAddress="+sipAddress+",contactAddress="+contactAddress);
+		logger.info("added binding: sipAddress="+sipAddress+"
+			,contactAddress="+contactAddress);
 	}
 			
 	return registrationBinding;
@@ -240,7 +241,8 @@ public void removeBinding(String sipAddress, String contactAddress)
 	throws LocationServiceException {
 		
 	if (logger.isDebugEnabled()) {
-		logger.debug("removeBinding: sipAddress="+sipAddress+",contactAddress="+contactAddress);
+		logger.debug("removeBinding: sipAddress="+sipAddress+"
+			,contactAddress="+contactAddress);
 	}
 						
 	try {
@@ -263,7 +265,8 @@ public void removeBinding(String sipAddress, String contactAddress)
 	locationService.removeBinding(sipAddress, contactAddress);
 				
 	if(logger.isInfoEnabled()) {
-		logger.info("removed binding: sipAddress="+sipAddress+",contactAddress="+contactAddress);
+		logger.info("removed binding: sipAddress="+sipAddress+"
+			,contactAddress="+contactAddress);
 	}
 }
 				</programlisting>
@@ -415,7 +418,8 @@ public interface RegistrationBindingActivityContextInterface extends ActivityCon
 		}
 
 		if(logger.isInfoEnabled()) {
-			logger.info("binding expired: sipAddress="+sipAddress+",contactAddress="+contactAddress);
+			logger.info("binding expired: sipAddress="+sipAddress+"
+				,contactAddress="+contactAddress);
 		}
 		
 	}

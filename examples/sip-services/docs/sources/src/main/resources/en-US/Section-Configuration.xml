@@ -127,8 +127,7 @@
 								<row>
 									<entry>localDomain</entry>
 									<entry>java.lang.String</entry>
-									<entry>domain for which this proxy should provide services. Its comma separated list of values. By default it has value of {127.0.0.1,nist.gov
-									,mobicents.org}</entry>
+									<entry>domain for which this proxy should provide services. Its comma separated list of values. By default it has value of {127.0.0.1, nist.gov	,mobicents.org}</entry>
 								</row>
 								<row>
 									<entry>transports</entry>
