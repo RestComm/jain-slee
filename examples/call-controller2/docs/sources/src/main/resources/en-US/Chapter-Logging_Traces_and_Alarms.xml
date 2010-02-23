@@ -41,7 +41,7 @@
 						<entry>SubscriptionProfileSbb</entry>
 						<entry>SubscriptionProfileSbb</entry>
 						<entry>
-							<literal>javax.slee.SbbNotification[service=ServiceID[name=CallBlockingService,vendor=org.mobicents,version=0.1],sbb=SbbID[name=CallBlockingSbb,vendor=mobicents,version=1.1]].SubscriptionProfileSbb
+							<literal>javax.slee.SbbNotification [service=ServiceID[ name=CallBlockingService ,vendor=org.mobicents, version=0.1], sbb=SbbID[name=CallBlockingSbb, vendor=mobicents, version=1.1]]. SubscriptionProfileSbb
 							</literal>
 						</entry>
 					</row>
@@ -49,7 +49,7 @@
 						<entry>SubscriptionProfileSbb</entry>
 						<entry>SubscriptionProfileSbb</entry>
 						<entry>
-							<literal>javax.slee.SbbNotification[service=ServiceID[name=CallForwardingService,vendor=org.mobicents,version=0.1],sbb=SbbID[name=CallForwardingSbb,vendor=mobicents,version=1.1]].SubscriptionProfileSbb
+							<literal>javax.slee.SbbNotification [service=ServiceID[ name=CallForwardingService ,vendor=org.mobicents, version=0.1], sbb=SbbID[name=CallForwardingSbb, vendor=mobicents,version=1.1]]. SubscriptionProfileSbb
 							</literal>
 						</entry>
 					</row>
@@ -57,7 +57,7 @@
 						<entry>SubscriptionProfileSbb</entry>
 						<entry>SubscriptionProfileSbb</entry>
 						<entry>
-							<literal>javax.slee.SbbNotification[service=ServiceID[name=VoiceMailService,vendor=org.mobicents,version=0.1],sbb=SbbID[name=VoiceMailSbb,vendor=mobicents,version=1.1]].SubscriptionProfileSbb
+							<literal>javax.slee.SbbNotification [service=ServiceID[ name=VoiceMailService, vendor=org.mobicents, version=0.1], sbb=SbbID[name=VoiceMailSbb, vendor=mobicents,version=1.1]]. SubscriptionProfileSbb
 							</literal>
 						</entry>
 					</row>
@@ -65,7 +65,7 @@
 						<entry>CallBlockingSbb</entry>
 						<entry>CallBlockingSbb</entry>
 						<entry>
-							<literal>javax.slee.SbbNotification[service=ServiceID[name=CallBlockingService,vendor=org.mobicents,version=0.1],sbb=SbbID[name=CallBlockingSbb,vendor=org.mobicents,version=0.1]].CallBlockingSbb
+							<literal>javax.slee.SbbNotification [service=ServiceID[ name=CallBlockingService, vendor=org.mobicents, version=0.1], sbb=SbbID[name=CallBlockingSbb, vendor=org.mobicents,version=0.1]]. CallBlockingSbb
 							</literal>
 						</entry>
 					</row>
@@ -73,7 +73,7 @@
 						<entry>CallForwardingSbb</entry>
 						<entry>CallForwardingSbb</entry>
 						<entry>
-							<literal>javax.slee.SbbNotification[service=ServiceID[name=CallForwardingService,vendor=org.mobicents,version=0.1],sbb=SbbID[name=CallForwardingSbb,vendor=org.mobicents,version=0.1]].CallForwardingSbb
+							<literal>javax.slee.SbbNotification [service=ServiceID[ name=CallForwardingService, vendor=org.mobicents, version=0.1], sbb=SbbID[name=CallForwardingSbb, vendor=org.mobicents,version=0.1]]. CallForwardingSbb
 							</literal>
 						</entry>
 
@@ -82,13 +82,16 @@
 						<entry>VoiceMailSbb</entry>
 						<entry>VoiceMailSbb</entry>
 						<entry>
-							<literal>javax.slee.SbbNotification[service=ServiceID[name=VoiceMailService,vendor=org.mobicents,version=0.1],sbb=SbbID[name=VoiceMailSbb,vendor=org.mobicents,version=0.1]].VoiceMailSbb
+							<literal>javax.slee.SbbNotification [service=ServiceID[ name=VoiceMailService, vendor=org.mobicents, version=0.1], sbb=SbbID[name=VoiceMailSbb, vendor=org.mobicents,version=0.1]]. VoiceMailSbb
 							</literal>
 						</entry>
 					</row>
 				</tbody>
 			</tgroup>
 		</table>
+		<important>
+       		<para>Spaces where introduced in <literal>LOG4J category</literal>  column values, to correctly render the table. Please remove them when using copy/paste.</para>
+		</important>
 	</section>
 
 	<section id="alarms">

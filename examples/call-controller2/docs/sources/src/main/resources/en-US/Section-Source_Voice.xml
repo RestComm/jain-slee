@@ -618,6 +618,7 @@ public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
 		  </programlisting>
 	</section>
 	<section id="source_voice_profile">
+		<title>Voice Mail profile access</title>
 		<para>Voice Mail <acronym>SBB</acronym> accesses examples profile in order to determine if callee has subscription to voice mail service. 
 		</para>
 		<para>Its done in following way:</para>
