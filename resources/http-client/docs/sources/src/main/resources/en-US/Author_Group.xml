@@ -3,6 +3,11 @@
 <authorgroup
 	id="authors">
 	<author>
+		<firstname>Amit</firstname>
+		<surname>Bhayani</surname>
+		<email>&AUTHOR_EMAIL_AMIT;</email>
+	</author>
+	<author>
 		<firstname>Eduardo</firstname>
 		<surname>Martins</surname>
 		<email>&AUTHOR_EMAIL_EDUARDO;</email>

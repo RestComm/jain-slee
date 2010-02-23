@@ -30,35 +30,58 @@ public interface HttpClientActivity {
 	public boolean getEndOnReceivingResponse();
 
 	public void executeMethod(HttpMethod httpMethod);
-}
-     	]]>
+}]]>
      </programlisting>
-     
-     <varlistentry>
-		<term>The <literal>getSessionId()</literal> method:</term>
-		<listitem>
-			<para>Retrieves the activity unique Id.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>getEndOnReceivingResponse()</literal> method:</term>
-		<listitem>
-			<para>Returns true if this Activity is set to end as soon as the Response is received</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>executeMethod(HttpMethod)</literal> method:</term>
-		<listitem>
-			<para>Executes an <literal>HttpMethod</literal>, i.e., sends an HTTP request, created through the RA SBB Interface.</para>
-		</listitem>
-	</varlistentry>
-		
-	<varlistentry>
-		<term>The <literal>endActivity()</literal> method:</term>
-		<listitem>
-			<para>Ends the activity and its related Activity Context.</para>
-		</listitem>
-	</varlistentry>	
+
+	<variablelist>
+		<varlistentry>
+			<term>
+				The
+				<literal>getSessionId()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Retrieves the activity unique Id.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>getEndOnReceivingResponse()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Returns true if this Activity is set to end as soon as the
+					Response is received</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>executeMethod(HttpMethod)</literal>
+				method:
+			</term>
+			<listitem>
+				<para>
+					Executes an
+					<literal>HttpMethod</literal>
+					, i.e., sends an HTTP request, created through the RA SBB
+					Interface.
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>endActivity()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Ends the activity and its related Activity Context.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>	
 </section>

@@ -25,8 +25,7 @@ try {
 	Response response = raSbbInterface.executeMethod(httpMethod);
 } catch (Throwable e) {
 	tracer.severe("Error while sending request",e);
-}			
-			]]>
+}]]>
 		</programlisting>
 	</section>
 
@@ -49,8 +48,7 @@ try {
 	clientActivity.executeMethod(httpMethod);
 } catch (Throwable e) {
 	tracer.severe("Error while creating HttpClientActivity",e);
-}			
-			]]>
+}]]>
 		</programlisting>
 		
 	</section>

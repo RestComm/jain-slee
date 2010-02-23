@@ -25,8 +25,7 @@ public interface HttpClientActivityContextInterfaceFactory {
 			HttpClientActivity acivity) throws NullPointerException,
 			UnrecognizedActivityException, FactoryException;	
 
-}
-     	]]>
+}]]>
      </programlisting>
             	
 </section>

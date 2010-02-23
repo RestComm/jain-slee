@@ -44,64 +44,112 @@ public interface HttpClientResourceAdaptorSbbInterface {
 	public void setParams(HttpClientParams params);
 
 	public void setState(HttpState state);
-}
-    	]]>
+}]]>
     </programlisting>
-     
-    <varlistentry>
-		<term>The <literal>createHttpClientActivity()</literal> method:</term>
-		<listitem>
-			<para>Creates a new <literal>HttpClientActivity</literal> instance which has to be ended by the SBB, that is, it won't end once the HTTP Request response is received.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>createHttpClientActivity(boolean)</literal> method:</term>
-		<listitem>
-			<para>Creates a new <literal>HttpClientActivity</literal> instance. If the parameter is true then the activity will end once the HTTP Request response is received, if false then the SBB needs to end the activity through its endActivity() method.</para>
-		</listitem>
-	</varlistentry>
-	
-    <varlistentry>
-		<term>The <literal>createHttpMethod(HttpMethodName, String)</literal> method:</term>
-		<listitem>
-			<para>Creates an HttpMethod instance, which request will be sent to the specified URI.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>executeMethod(HttpMethod)</literal> method:</term>
-		<listitem>
-			<para>Sends the HttpMethod's request synchronously, blocking till a response is received.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>getParams()</literal> method:</term>
-		<listitem>
-			<para>Retrieves the HTTP protocol parameters associated with the HttpClient.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>getState()</literal> method:</term>
-		<listitem>
-			<para>Retrieves the HTTP state associated with the HttpClient.</para>
-		</listitem>
-	</varlistentry>
-	 
-    <varlistentry>
-		<term>The <literal>setParams(HttpClientParams)</literal> method:</term>
-		<listitem>
-			<para>Sets the HTTP protocol parameters for the HttpClient.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>setState(HttpState)</literal> method:</term>
-		<listitem>
-			<para>Sets the HTTP state for the HttpClient.</para>
-		</listitem>
-	</varlistentry>
+
+	<variablelist>
+		<varlistentry>
+			<term>
+				The
+				<literal>createHttpClientActivity()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>
+					Creates a new
+					<literal>HttpClientActivity</literal>
+					instance which has to be ended by the SBB, that is, it won't end
+					once the HTTP Request response is received.
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>createHttpClientActivity(boolean)</literal>
+				method:
+			</term>
+			<listitem>
+				<para>
+					Creates a new
+					<literal>HttpClientActivity</literal>
+					instance. If the parameter is true then the activity will end once
+					the HTTP Request response is received, if false then the SBB needs
+					to end the activity through its endActivity() method.
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>createHttpMethod(HttpMethodName, String)</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Creates an HttpMethod instance, which request will be sent to
+					the specified URI.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>executeMethod(HttpMethod)</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Sends the HttpMethod's request synchronously, blocking till a
+					response is received.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>getParams()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Retrieves the HTTP protocol parameters associated with the
+					HttpClient.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>getState()</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Retrieves the HTTP state associated with the HttpClient.
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>setParams(HttpClientParams)</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Sets the HTTP protocol parameters for the HttpClient.</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>setState(HttpState)</literal>
+				method:
+			</term>
+			<listitem>
+				<para>Sets the HTTP state for the HttpClient.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
 	
 </section>

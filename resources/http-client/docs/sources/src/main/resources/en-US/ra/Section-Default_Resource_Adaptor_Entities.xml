@@ -37,7 +37,6 @@
                 	HttpClientResourceAdaptor
                 </resource-adaptor-entity-link>
             </resource-adaptor-entity-binding>
-        </resource-adaptor-type-binding>
-	]]>
+        </resource-adaptor-type-binding>]]>
 	</programlisting>		
 </section>

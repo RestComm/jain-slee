@@ -30,15 +30,18 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>net.java.client.slee.resource.http.event.ResponseEvent</entry>
-					<entry>net.java.client.slee</entry>
+					<entry>net.java. client.slee. resource.http. event. ResponseEvent</entry>
+					<entry>net.java. client.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.client.slee.resource.http.event.ResponseEvent</entry>					
+					<entry>net.java. client.slee. resource.http. event. ResponseEvent</entry>					
 					<entry>A response event to an asynchronous HTTP request.</entry>
 				</row>
 			</tbody>
 		</tgroup>
 	</table>
+	<important>
+		<para>Spaces where introduced in <literal>Name</literal>, <literal>Vendor</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
 	
 	<para>The response event class provides the result of sending an HTTP request, which can be response or exception, due to error.</para>
 	
