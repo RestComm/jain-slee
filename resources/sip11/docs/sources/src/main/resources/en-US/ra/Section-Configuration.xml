@@ -58,13 +58,13 @@
 			   	    <entry></entry>
 			    </row>
 			    <row>
-			   		<entry>org.mobicents. ha.javax.sip. LoadBalancerHeartBeatingServiceClassName</entry>
+			   		<entry>org.mobicents. ha.javax.sip. LoadBalancer HeartBeating ServiceClassName</entry>
 			   	    <entry>the name of the class responsible for the heart beats exchanged with the platform's SIP Balancer - if not specified the JAIN SIP HA stack won't use such feature</entry>
 			   	    <entry>java.lang.String</entry>
 			   	    <entry></entry>
 			    </row>	
 			    <row>
-			   		<entry>org.mobicents. javax.sip. LOOSE_DIALOG_VALIDATION</entry>
+			   		<entry>org.mobicents. javax.sip. LOOSE_DIALOG _VALIDATION</entry>
 			   	    <entry>controls validation of CSeq number for dialog messages. Set to true allows out of sequence messages to be accepted.</entry>
 			   	    <entry>java.lang.Boolean</entry>
 			   	    <entry></entry>
@@ -72,7 +72,9 @@
 			</tbody>
 	 	</tgroup>
 	</table>		
-	
+	<important>
+		<para>Spaces where introduced in <literal>Property Name</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
 	<important>
 		<para>JAIN SLEE 1.1 Specification requires values set for properties without a default value, which means the configuration for those properties are mandatory, otherwise the Resource Adaptor Entity creation will fail!</para>
 	</important>
