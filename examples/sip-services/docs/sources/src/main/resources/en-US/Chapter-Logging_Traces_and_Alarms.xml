@@ -32,23 +32,26 @@
 				<row>
 			   		<entry>ProxySbb</entry>
 			   	    <entry>ProxySbb</entry>
-			   	    <entry>javax.slee.SbbNotification[service=ServiceID[name=JAIN SIP Proxy Service,vendor=mobicents,version=1.1],sbb=SbbID[name=ProxySbb,vendor=mobicents,version=1.1]].ProxySbb</entry>
+			   	    <entry>javax.slee.SbbNotification [service=ServiceID[ name=JAIN SIP Proxy Service,vendor=mobicents, version=1.1],sbb=SbbID[ name=ProxySbb, vendor=mobicents,version=1.1]] .ProxySbb</entry>
 
 			    </row>	    
 			    <row>
 			   		<entry>RegistrarSbb</entry>
 			   	    <entry>RegistrarSbb</entry>
-			   	    <entry>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=SipRegistrarSbb,vendor=org.mobicents,version=1.2]].RegisterSbb</entry>
+			   	    <entry>javax.slee.SbbNotification [service=ServiceID[ name=SIP Registrar Service,vendor=org.mobicents, version=1.2],sbb=SbbID[ name=SipRegistrarSbb, vendor=org.mobicents,version=1.2]] .RegisterSbb</entry>
 			    </row>	    
 			    <row>
 			   		<entry>LocationSbb</entry>
 			   	    <entry>LocationSbb</entry>
-			   	    <entry>javax.slee.SbbNotification[service=ServiceID[name=SIP Registrar Service,vendor=org.mobicents,version=1.2],sbb=SbbID[name=LocationSbb,vendor=org.mobicents,version=1.2]].LocationSbb</entry>
+			   	    <entry>javax.slee.SbbNotification [service=ServiceID[ name=SIP Registrar Service,vendor=org.mobicents, version=1.2],sbb=SbbID[ name=LocationSbb, vendor=org.mobicents,version=1.2]] .LocationSbb</entry>
 
 			    </row>	    
 			</tbody>
 	 	</tgroup>
-	</table>	
+	</table>
+	<important>
+       		<para>Spaces where introduced in <literal>LOG4J category</literal>  column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>	
 	</section>	
 	
 	<section id="alarms">
