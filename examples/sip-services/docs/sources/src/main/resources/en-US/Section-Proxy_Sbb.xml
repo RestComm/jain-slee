@@ -442,7 +442,6 @@
 			} catch (Exception e) {
 				// failed to attach the register, send error back
 				logger.error(e);
-				// TODO send 500 back
 			}
 			// detach myself
 			ac.detach(sbbContext.getSbbLocalObject());

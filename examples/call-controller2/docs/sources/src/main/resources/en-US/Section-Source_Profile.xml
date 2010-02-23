@@ -196,32 +196,29 @@ public abstract class CallControlProfileManagementImpl implements Profile,
 	}
 
 	public void profileActivate() {
-		// TODO Auto-generated method stub
+
 
 	}
 
 	public void profilePassivate() {
-		// TODO Auto-generated method stub
+
 
 	}
 
 	public void profilePostCreate() throws CreateException {
-		// TODO Auto-generated method stub
+
 
 	}
 
 	public void profileRemove() {
-		// TODO Auto-generated method stub
 
 	}
 
 	public void setProfileContext(ProfileContext ctx) {
 		this.profileCtx = ctx;
-
 	}
 
 	public void unsetProfileContext() {
-		// TODO Auto-generated method stub
 		this.profileCtx = null;
 	}
 

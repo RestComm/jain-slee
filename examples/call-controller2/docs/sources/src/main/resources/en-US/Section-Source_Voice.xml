@@ -144,7 +144,6 @@
 							.setRemoteConnectionDescriptor(new ConnectionDescriptor(
 									sdp));
 				} catch (ConflictingParameterException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				int txID = mgcpProvider.getUniqueTransactionHandler();
@@ -361,7 +360,6 @@ public void onCreateConnectionResponse(CreateConnectionResponse event,
 			createConnection.setSecondEndpointIdentifier(event
 					.getSpecificEndpointIdentifier());
 		} catch (ConflictingParameterException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
