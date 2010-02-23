@@ -469,10 +469,11 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
         tracer.fine("Firing event " + event + " on handle " + handle);
       }
       try {
+        /* TODO: Support transacted fire of events when in cluster
         if (transacted){
           this.raContext.getSleeEndpoint().fireEventTransacted(handle, eventID, event, address, null, EVENT_FLAGS);
         }
-        else {
+        else */{
           this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
         }       
         return true;
@@ -536,7 +537,7 @@ public class DiameterRfResourceAdaptor implements ResourceAdaptor, DiameterListe
     try {
       // Inform SLEE that Activity Started
       DiameterActivityImpl activity = (DiameterActivityImpl) ac;
-      sleeEndpoint.startActivityTransacted(activity.getActivityHandle(), activity, ACTIVITY_FLAGS);
+      sleeEndpoint.startActivity(activity.getActivityHandle(), activity, ACTIVITY_FLAGS);
 
       // Set the listener
       activity.setSessionListener(this);
