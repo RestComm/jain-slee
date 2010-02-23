@@ -26,16 +26,17 @@ public interface HttpServletRequestActivity {
 	 */
 	public Object getRequestID();
 	
-}
-     	]]>
+}]]>
      </programlisting>
      
-     <varlistentry>
-		<term>The <literal>getRequestID()</literal> method:</term>
-		<listitem>
-			<para>Retrieves the Request's ID.</para>
-		</listitem>
-	</varlistentry>
+     <variablelist>
+     	<varlistentry>
+			<term>The <literal>getRequestID()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Request's ID.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
 	
 	<para>The <literal>HttpSessionActivity</literal> represents an <literal>HttpSession</literal>. It is created on demand by an SBB, through the RA SBB Interface, and ends on timeout, managed by the underlying HTTP Servlet framework, or by an SBB, invoking the <literal>invalidate()</literal> on the related <literal>HttpSession</literal> Object. The activity object interface is defined as follows:</para>
 	
@@ -47,15 +48,16 @@ public interface HttpSessionActivity {
 
 	public String getSessionId();
 	
-}
-     	]]>
+}]]>
      </programlisting>
      
-     <varlistentry>
-		<term>The <literal>getSessionId()</literal> method:</term>
-		<listitem>
-			<para>Retrieves the Session's ID.</para>
-		</listitem>
-	</varlistentry>
+     <variablelist>
+     	<varlistentry>
+			<term>The <literal>getSessionId()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the Session's ID.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
 		
 </section>

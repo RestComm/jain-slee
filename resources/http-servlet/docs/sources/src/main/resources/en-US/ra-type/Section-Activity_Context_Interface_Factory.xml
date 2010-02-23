@@ -29,8 +29,7 @@ public interface HttpServletRaActivityContextInterfaceFactory {
 			HttpServletRequestActivity activity) throws NullPointerException,
 			UnrecognizedActivityException, FactoryException;
 
-}
-     	]]>
+}]]>
      </programlisting>
             	
 </section>

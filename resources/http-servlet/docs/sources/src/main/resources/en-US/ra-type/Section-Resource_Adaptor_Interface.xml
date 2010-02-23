@@ -27,15 +27,16 @@ public interface HttpServletRaSbbInterface {
 			ActivityAlreadyExistsException, StartActivityException,
 			SLEEException;
 			
-}
-    	]]>
+}]]>
     </programlisting>
-     
-    <varlistentry>
-		<term>The <literal>getHttpSessionActivity(HttpSession)</literal> method:</term>
-		<listitem>
-			<para>Retrieves an <literal>HttpSessionActivity</literal> for the specified <literal>HttpSession</literal>. If the activity does not exist a new one is created.</para>
-		</listitem>
-	</varlistentry>
+    
+    <variablelist> 
+    	<varlistentry>
+			<term>The <literal>getHttpSessionActivity(HttpSession)</literal> method:</term>
+			<listitem>
+				<para>Retrieves an <literal>HttpSessionActivity</literal> for the specified <literal>HttpSession</literal>. If the activity does not exist a new one is created.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
 	
 </section>

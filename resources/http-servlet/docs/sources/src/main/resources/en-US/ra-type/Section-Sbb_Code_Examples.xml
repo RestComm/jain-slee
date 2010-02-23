@@ -34,8 +34,7 @@
 			log.error(e);
 		}
 
-	}		
-			]]>
+	}]]>
 		</programlisting>
 	</section>
 
@@ -77,8 +76,7 @@
 		} catch (Exception e) {
 			log.error(e);
 		}
-	}			
-			]]>
+	}]]>
 		</programlisting>
 	</section>
 	

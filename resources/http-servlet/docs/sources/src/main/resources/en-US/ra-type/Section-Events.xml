@@ -30,57 +30,61 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.request.HEAD</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request .HEAD</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>HEAD</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.request.GET</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request .GET</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>GET</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.request.POST</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request .POST</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>POST</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.request.PUT</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request .PUT</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>PUT</literal> HTTP request.</entry>
 				</row>
 	 			<row>
-					<entry>net.java.slee.resource.http.events.incoming.request.DELETE</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request .DELETE</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>DELETE</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.request.OPTIONS</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request .OPTIONS</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>OPTIONS</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.request.TRACE</entry>
+					<entry>net.java. slee.resource. http.events. incoming.request .TRACE</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>TRACE</literal> HTTP request.</entry>
 				</row>
 			</tbody>
 		</tgroup>
 	</table>
+	
+	<important>
+		<para>Spaces where introduced in <literal>Name</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
 	
 	<table frame="all" pgwide="1">
 		<title>Events fired on the HttpSessionActivity:</title>
@@ -101,57 +105,61 @@
 			</thead>
 			<tbody>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.session.HEAD</entry>
+					<entry>net.java. slee.resource. http.events. incoming.session. HEAD</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>HEAD</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.session.GET</entry>
+					<entry>net.java. slee.resource. http.events. incoming.session. GET</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>GET</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.session.POST</entry>
+					<entry>net.java. slee.resource. http.events. incoming.session. POST</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>POST</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.session.PUT</entry>
-					<entry>net.java.slee</entry>
+					<entry>net.java. slee.resource. http.events. incoming.session. PUT</entry>
+					<entry>net.java. slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>PUT</literal> HTTP request.</entry>
 				</row>
 	 			<row>
-					<entry>net.java.slee.resource.http.events.incoming.session.DELETE</entry>
+					<entry>net.java. slee.resource. http.events. incoming.session. DELETE</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>DELETE</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.session.OPTIONS</entry>
+					<entry>net.java. slee.resource. http.events. incoming.session. OPTIONS</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>OPTIONS</literal> HTTP request.</entry>
 				</row>
 				<row>
-					<entry>net.java.slee.resource.http.events.incoming.session.TRACE</entry>
+					<entry>net.java. slee.resource. http.events. incoming.session. TRACE</entry>
 					<entry>net.java.slee</entry>
 					<entry>1.0</entry>
-					<entry>net.java.slee.resource.http.events.HttpServletRequestEvent</entry>					
+					<entry>net.java. slee.resource. http.events. HttpServletRequestEvent</entry>					
 					<entry>An incoming <literal>TRACE</literal> HTTP request.</entry>
 				</row>
 			</tbody>
 		</tgroup>
 	</table>
+	
+	<important>
+		<para>Spaces where introduced in <literal>Name</literal> and <literal>Event Class</literal> column values, to correctly render the table. Please remove them when using copy/paste.</para>
+	</important>
 	
 	<para>All event types use the same type <literal>net.java.slee.resource.http.events.HttpServletRequestEvent</literal>. It's interface is as follows:</para>
 	
@@ -170,29 +178,30 @@ public interface HttpServletRequestEvent {
 	
     public String getId();
 
-}
-     	]]>
+}]]>
      </programlisting>
      
-     <varlistentry>
-		<term>The <literal>getRequest()</literal> method:</term>
-		<listitem>
-			<para>Retrieves the HttpServletRequest which is associated with the event.</para>
-		</listitem>
-	</varlistentry>
+     <variablelist>
+     	<varlistentry>
+			<term>The <literal>getRequest()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the HttpServletRequest which is associated with the event.</para>
+			</listitem>
+		</varlistentry>
 	
-	<varlistentry>
-		<term>The <literal>getResponse()</literal> method:</term>
-		<listitem>
-			<para>Retrieves the HttpServletResponse which is associated with the request, which can be used to reply to the incomming request.</para>
-		</listitem>
-	</varlistentry>
+		<varlistentry>
+			<term>The <literal>getResponse()</literal> method:</term>
+			<listitem>
+				<para>Retrieves the HttpServletResponse which is associated with the request, which can be used to reply to the incoming request.</para>
+			</listitem>
+		</varlistentry>
 	
-	<varlistentry>
-		<term>The <literal>getId()</literal> method:</term>
-		<listitem>
-			<para>Retrieves unique event ID.</para>
-		</listitem>
-	</varlistentry>	
+		<varlistentry>
+			<term>The <literal>getId()</literal> method:</term>
+			<listitem>
+				<para>Retrieves unique event ID.</para>
+			</listitem>
+		</varlistentry>	
+	</variablelist>
 	
 </section>

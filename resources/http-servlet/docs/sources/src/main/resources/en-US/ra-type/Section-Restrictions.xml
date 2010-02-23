@@ -5,49 +5,123 @@
 <section id="ratype_restrictions">
 
 	<title>Restrictions</title>
+	<para>The &THIS.RA;
+		does imposes some restrictions on the usage of the
+		<literal>HTTP Servlet</literal>
+		API java objects:
+	</para>
+	<variablelist>
+		<varlistentry>
+			<term>
+				The
+				<literal>getAttribute(String)</literal>
+				method of the
+				<literal>HttpSession</literal>
+				object, retrieved from a request:
+			</term>
+			<listitem>
+				<para>
+					The
+					<literal>_ENTRY_POINT</literal>
+					attribute is reserved for internal usage, if such parameter value
+					is
+					used a SecurityException is thrown.
+				</para>
+			</listitem>
+		</varlistentry>
 
-	<para>The &THIS.RA; does imposes some restrictions on the usage of the <literal>HTTP Servlet</literal> API java objects:</para>
-	
-	 <varlistentry>
-		<term>The <literal>getAttribute(String)</literal> method of the <literal>HttpSession</literal> object, retrieved from a request:</term>
-		<listitem>
-			<para>The <literal>_ENTRY_POINT</literal> attribute is reserved for internal usage, if such parameter value is used a SecurityException is thrown.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>getValue(String)</literal> method of the <literal>HttpSession</literal> object, retrieved from a request:</term>
-		<listitem>
-			<para>The <literal>_ENTRY_POINT</literal> attribute is reserved for internal usage, if such parameter value is used a SecurityException is thrown.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>putValue(String,Object)</literal> method of the <literal>HttpSession</literal> object, retrieved from a request:</term>
-		<listitem>
-			<para>The <literal>_ENTRY_POINT</literal> attribute is reserved for internal usage, if such value is used on the first parameter a SecurityException is thrown.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>removeAttribute(String)</literal> method of the <literal>HttpSession</literal> object, retrieved from a request:</term>
-		<listitem>
-			<para>The <literal>_ENTRY_POINT</literal> attribute is reserved for internal usage, if such parameter value is used a SecurityException is thrown.</para>
-		</listitem>
-	</varlistentry>
+		<varlistentry>
+			<term>
+				The
+				<literal>getValue(String)</literal>
+				method of the
+				<literal>HttpSession</literal>
+				object, retrieved from a request:
+			</term>
+			<listitem>
+				<para>
+					The
+					<literal>_ENTRY_POINT</literal>
+					attribute is reserved for internal usage, if such parameter value
+					is
+					used a SecurityException is thrown.
+				</para>
+			</listitem>
+		</varlistentry>
 
-	<varlistentry>
-		<term>The <literal>removeValue(String)</literal> method of the <literal>HttpSession</literal> object, retrieved from a request:</term>
-		<listitem>
-			<para>The <literal>_ENTRY_POINT</literal> attribute is reserved for internal usage, if such parameter value is used a SecurityException is thrown.</para>
-		</listitem>
-	</varlistentry>
-	
-	<varlistentry>
-		<term>The <literal>setAttribute(String,Object)</literal> method of the <literal>HttpSession</literal> object, retrieved from a request:</term>
-		<listitem>
-			<para>The <literal>_ENTRY_POINT</literal> attribute is reserved for internal usage, if such value is used on the first parameter a SecurityException is thrown.</para>
-		</listitem>
-	</varlistentry>
-	
+		<varlistentry>
+			<term>
+				The
+				<literal>putValue(String,Object)</literal>
+				method of the
+				<literal>HttpSession</literal>
+				object, retrieved from a request:
+			</term>
+			<listitem>
+				<para>
+					The
+					<literal>_ENTRY_POINT</literal>
+					attribute is reserved for internal usage, if such value is used on
+					the first parameter a SecurityException is thrown.
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>removeAttribute(String)</literal>
+				method of the
+				<literal>HttpSession</literal>
+				object, retrieved from a request:
+			</term>
+			<listitem>
+				<para>
+					The
+					<literal>_ENTRY_POINT</literal>
+					attribute is reserved for internal usage, if such parameter value
+					is
+					used a SecurityException is thrown.
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>removeValue(String)</literal>
+				method of the
+				<literal>HttpSession</literal>
+				object, retrieved from a request:
+			</term>
+			<listitem>
+				<para>
+					The
+					<literal>_ENTRY_POINT</literal>
+					attribute is reserved for internal usage, if such parameter value
+					is
+					used a SecurityException is thrown.
+				</para>
+			</listitem>
+		</varlistentry>
+
+		<varlistentry>
+			<term>
+				The
+				<literal>setAttribute(String,Object)</literal>
+				method of the
+				<literal>HttpSession</literal>
+				object, retrieved from a request:
+			</term>
+			<listitem>
+				<para>
+					The
+					<literal>_ENTRY_POINT</literal>
+					attribute is reserved for internal usage, if such value is used on
+					the first parameter a SecurityException is thrown.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
 </section>
