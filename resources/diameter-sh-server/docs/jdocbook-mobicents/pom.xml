@@ -89,7 +89,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>					
-					<sourceDocumentName>Mobicents_SLEE_RA_DIAMETER_SH_SERVER_User_Guide.xml</sourceDocumentName>
+					<sourceDocumentName>User_Guide.xml</sourceDocumentName>
 					<sourceDirectory>${project.build.directory}/docbook/resources</sourceDirectory>
 					<imageResource>
 						<directory>${project.build.directory}/docbook/resources/en-US</directory>
@@ -101,7 +101,7 @@
 						<format>
 							<formatName>pdf</formatName>
 							<stylesheetResource>classpath:/xslt/org/jboss/pdf.xsl</stylesheetResource>
-							<finalName>User_Guide.pdf</finalName>
+							<finalName>Mobicents_SLEE_RA_DIAMETER_SH_SERVER_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
