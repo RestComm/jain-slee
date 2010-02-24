@@ -128,7 +128,8 @@
 	<programlisting role="JAVA" language="Java">
 	public ShServerMessageFactory getServerMessageFactory();
 
-	public void sendPushNotificationRequest(PushNotificationRequest message) throws IOException;
+	public void sendPushNotificationRequest(PushNotificationRequest message)
+		throws IOException;
 	</programlisting>
 	
 	<variablelist>

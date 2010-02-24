@@ -27,9 +27,11 @@
 
 		public RfClientSession createRfClientSessionActivity() throws CreateActivityException;
 
-		public RfClientSession createRfClientSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;
+		public RfClientSession createRfClientSessionActivity(DiameterIdentity destinationHost,
+			DiameterIdentity destinationRealm) throws CreateActivityException;
 
-		public AccountingAnswer sendAccountingRequest(AccountingRequest accountingRequest) throws IllegalArgumentException, IOException;
+		public AccountingAnswer sendAccountingRequest(AccountingRequest accountingRequest)
+			throws IllegalArgumentException, IOException;
 
 		DiameterIdentity[] getConnectedPeers();
 

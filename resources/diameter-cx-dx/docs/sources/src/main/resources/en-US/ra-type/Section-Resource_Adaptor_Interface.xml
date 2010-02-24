@@ -23,13 +23,19 @@
 
 		public CxDxAVPFactory getCxDxAVPFactory();
 
-		public CxDxClientSessionActivity createCxDxClientSessionActivity()throws CreateActivityException;
+		public CxDxClientSessionActivity createCxDxClientSessionActivity()
+			throws CreateActivityException;
 
-		public CxDxClientSessionActivity createCxDxClientSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;
+		public CxDxClientSessionActivity createCxDxClientSessionActivity(
+			DiameterIdentity destinationHost, DiameterIdentity destinationRealm)
+				throws CreateActivityException;
 
-		public CxDxServerSessionActivity createCxDxServerSessionActivity()throws CreateActivityException;
+		public CxDxServerSessionActivity createCxDxServerSessionActivity()
+			throws CreateActivityException;
 
-		public CxDxServerSessionActivity createCxDxServerSessionActivity(DiameterIdentity destinationHost, DiameterIdentity destinationRealm) throws CreateActivityException;
+		public CxDxServerSessionActivity createCxDxServerSessionActivity(
+			DiameterIdentity destinationHost, DiameterIdentity destinationRealm)
+				throws CreateActivityException;
 
 		public DiameterIdentity[] getConnectedPeers();
 

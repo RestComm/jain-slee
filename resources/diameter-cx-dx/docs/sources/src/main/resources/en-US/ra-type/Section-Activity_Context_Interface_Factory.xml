@@ -18,9 +18,11 @@
 
 	public interface CxDxActivityContextInterfaceFactory {
 
-		public ActivityContextInterface getActivityContextInterface(CxDxClientSessionActivity cxdxcs);
+		public ActivityContextInterface getActivityContextInterface(
+			CxDxClientSessionActivity cxdxcs);
 
-		public ActivityContextInterface getActivityContextInterface(CxDxServerSessionActivity cxdxss);
+		public ActivityContextInterface getActivityContextInterface(
+			CxDxServerSessionActivity cxdxss);
 	}
 	</programlisting>
 

@@ -67,13 +67,15 @@
 	<programlisting role="JAVA" language="Java">
 	public UserAuthorizationRequest createUserAuthorizationRequest();
 
-	public void sendUserAuthorizationRequest(UserAuthorizationRequest userAuthorizationRequest)
-		throws IOException;
+	public void sendUserAuthorizationRequest(
+		UserAuthorizationRequest userAuthorizationRequest)
+			throws IOException;
 
 	public ServerAssignmentRequest createServerAssignmentRequest();
 
-	public void sendServerAssignmentRequest(ServerAssignmentRequest serverAssignmentRequest)
-		throws IOException;
+	public void sendServerAssignmentRequest(
+		ServerAssignmentRequest serverAssignmentRequest)
+			throws IOException;
 
 	public LocationInfoRequest createLocationInfoRequest();
 
@@ -92,7 +94,8 @@
 
 	public PushProfileAnswer createPushProfileAnswer();
 
-	public void sendPushProfileAnswer(PushProfileAnswer pushProfileAnswer) throws IOException;
+	public void sendPushProfileAnswer(PushProfileAnswer pushProfileAnswer)
+		throws IOException;
 	</programlisting>
 	
 	<variablelist>
@@ -175,13 +178,15 @@
 	<programlisting role="JAVA" language="Java">
 	public UserAuthorizationAnswer createUserAuthorizationAnswer();
 
-	public void sendUserAuthorizationAnswer(UserAuthorizationAnswer userAuthorizationAnswer)
-		throws IOException;
+	public void sendUserAuthorizationAnswer(
+		UserAuthorizationAnswer userAuthorizationAnswer)
+			throws IOException;
 
 	public ServerAssignmentAnswer createServerAssignmentAnswer();
 
-	public void sendServerAssignmentAnswer(ServerAssignmentAnswer serverAssignmentAnswer)
-		throws IOException;
+	public void sendServerAssignmentAnswer(
+		ServerAssignmentAnswer serverAssignmentAnswer)
+			throws IOException;
 
 	public LocationInfoAnswer createLocationInfoAnswer();
 

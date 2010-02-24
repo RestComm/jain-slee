@@ -72,7 +72,8 @@
 	...
 	
 	/* Method for handling PNA messages. Just print the Result-Code AVP. */
-	public void onPushNotificationAnswer(PushNotificationAnswer pna, ActivityContextInterface aci) {
+	public void onPushNotificationAnswer(PushNotificationAnswer pna, 
+		ActivityContextInterface aci) {
 		if (tracer.isInfoEnabled()) {
 			tracer.info("Push-Notification-Answer received. Result-Code[" + pna.getResultCode() + "].");
 		}

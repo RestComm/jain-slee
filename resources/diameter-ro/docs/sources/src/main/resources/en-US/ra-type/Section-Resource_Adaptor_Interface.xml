@@ -28,10 +28,12 @@
 
 		public RoAvpFactory getRoAvpFactory();
 
-		public RoClientSessionActivity createRoClientSessionActivity() throws CreateActivityException;
+		public RoClientSessionActivity createRoClientSessionActivity()
+			throws CreateActivityException;
 
-		public RoClientSessionActivity createRoClientSessionActivity(DiameterIdentity destinationHost, 
-			DiameterIdentity destinationRealm) throws CreateActivityException;
+		public RoClientSessionActivity createRoClientSessionActivity(
+			DiameterIdentity destinationHost, DiameterIdentity destinationRealm)
+				throws CreateActivityException;
 
 		public CreditControlAnswer eventCreditControlRequest(CreditControlRequest ccr)
 			throws IOException;

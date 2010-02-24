@@ -29,8 +29,8 @@
 
 			avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_HOST, ("aaa://" + 
 				destinationIP + ":" + destinationPort).getBytes() ));
-			avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_REALM, destinationRealm.
-				getBytes()));
+			avps.add(avpFactory.getBaseFactory().createAvp(Avp.DESTINATION_REALM,
+				destinationRealm.getBytes()));
 			UserIdentityAvp ui=avpFactory.createUserIdentity();
 		    ui.setPublicIdentity("sip:subscriber@mobicents.org");
 		      

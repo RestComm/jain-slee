@@ -147,17 +147,22 @@
 
 	AbortSessionAnswer createAbortSessionAnswer(AbortSessionRequest abortSessionRequest);
 
-	void sendAbortSessionAnswer(AbortSessionAnswer abortSessionAnswer) throws IOException, IllegalArgumentException;
+	void sendAbortSessionAnswer(AbortSessionAnswer abortSessionAnswer)
+		throws IOException, IllegalArgumentException;
 
 	ReAuthAnswer createReAuthAnswer();
 
 	ReAuthAnswer createReAuthAnswer(ReAuthRequest reAuthRequest);
 
-	void sendReAuthAnswer(ReAuthAnswer reAuthAnswer) throws IOException, IllegalArgumentException;
+	void sendReAuthAnswer(ReAuthAnswer reAuthAnswer)
+		throws IOException, IllegalArgumentException;
 
-	SessionTerminationRequest createSessionTerminationRequest(TerminationCauseType terminationCause);
+	SessionTerminationRequest createSessionTerminationRequest(
+		TerminationCauseType terminationCause);
 
-	void sendSessionTerminationRequest(SessionTerminationRequest sessionTerminationRequest) throws IOException, IllegalArgumentException;
+	void sendSessionTerminationRequest(
+		SessionTerminationRequest sessionTerminationRequest)
+			throws IOException, IllegalArgumentException;
 	</programlisting>
 	
 	<variablelist>
@@ -231,9 +236,11 @@
 
 	SessionTerminationAnswer createSessionTerminationAnswer();
 
-	SessionTerminationAnswer createSessionTerminationAnswer(SessionTerminationRequest sessionTerminationRequest);
+	SessionTerminationAnswer createSessionTerminationAnswer(
+		SessionTerminationRequest sessionTerminationRequest);
 
-	void sendSessionTerminationAnswer(SessionTerminationAnswer request) throws IOException;
+	void sendSessionTerminationAnswer(SessionTerminationAnswer request)
+		throws IOException;
 	</programlisting>
 	
 	<variablelist>
@@ -337,7 +344,8 @@
 	<programlisting role="JAVA" language="Java">
 	AccountingRequest createAccountingRequest(AccountingRecordType accountingRecordType);
 	
-	void sendAccountRequest(AccountingRequest accountingRequest) throws IOException, IllegalArgumentException;
+	void sendAccountRequest(AccountingRequest accountingRequest)
+		throws IOException, IllegalArgumentException;
 	</programlisting>
 	
 	<variablelist>
@@ -369,7 +377,8 @@
 
 	AccountingAnswer createAccountingAnswer(AccountingRequest acr);
 
-	void sendAccountingAnswer(AccountingAnswer aca) throws IOException, IllegalArgumentException;
+	void sendAccountingAnswer(AccountingAnswer aca)
+		throws IOException, IllegalArgumentException;
 	</programlisting>
 	
 	<variablelist>

@@ -23,8 +23,9 @@
 			DiameterAvp avpAcctApplicationId = avpFactory.createAvp(
 				DiameterAvpCodes.ACCT_APPLICATION_ID, 19302);
 
-			avps.add(avpFactory.createAvp(DiameterAvpCodes.VENDOR_SPECIFIC_APPLICATION_ID, 
-				new DiameterAvp[] { avpVendorId, avpAcctApplicationId }));
+			avps.add(avpFactory.createAvp(
+				DiameterAvpCodes.VENDOR_SPECIFIC_APPLICATION_ID, 
+					new DiameterAvp[] { avpVendorId, avpAcctApplicationId }));
 
 			avps.add(avpFactory.createAvp(DiameterAvpCodes.ORIGIN_HOST, 
 				this.originIP.getBytes()));
@@ -49,8 +50,10 @@
 			avps.add(avpFactory.createAvp(193, 606, new DiameterAvp[] {unitType, unitValue}));
 
 			// Record Number and Type
-			avps.add(avpFactory.createAvp(DiameterAvpCodes.ACCOUNTING_RECORD_NUMBER, 0));
-			avps.add(avpFactory.createAvp(DiameterAvpCodes.ACCOUNTING_RECORD_TYPE, 1));
+			avps.add(avpFactory.createAvp(
+				DiameterAvpCodes.ACCOUNTING_RECORD_NUMBER, 0));
+			avps.add(avpFactory.createAvp(
+				DiameterAvpCodes.ACCOUNTING_RECORD_TYPE, 1));
 
 			// Requested action
 			avps.add(avpFactory.createAvp(193, 615, 0));
@@ -138,8 +141,8 @@
 							originRealm.getBytes()));
 						break;
 					case DiameterAvpCodes.DESTINATION_HOST:
-						avps.add(avpFactory.createAvp(DiameterAvpCodes.DESTINATION_HOST, ("aaa://" +
-							destinationIP + ":" + destinationPort).getBytes()));
+						avps.add(avpFactory.createAvp(DiameterAvpCodes.DESTINATION_HOST, 
+							("aaa://" + destinationIP + ":" + destinationPort).getBytes()));
 						hasDestinationHost = true;
 						break;
 					case DiameterAvpCodes.DESTINATION_REALM:
