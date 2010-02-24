@@ -13,7 +13,7 @@ If this final separator is missing, then the documentation will be wrong. -->
 <!ENTITY BOOK_ID "JAIN_SLEE_${docs.bookid}_RA_User_Guide">
 <!ENTITY YEAR "2009">
 <!ENTITY HOLDER "Red Hat Inc">
-<!ENTITY AUTHOR.EMAIL.EDUARDO "${author.email.amit}">
+<!ENTITY AUTHOR.EMAIL.AMIT "${author.email.amit}">
 <!ENTITY THIS.RA "${docs.ra.name}">
 <!ENTITY THIS.RA.DIRNAME "${docs.ra.dirname}"> 
 <!ENTITY THIS.ISSUE_TRACKER_URL "${THIS.ISSUE_TRACKER_URL}">

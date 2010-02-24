@@ -116,7 +116,7 @@
 							<stylesheetResource>
 								classpath:/xslt/org/jboss/pdf.xsl
 							</stylesheetResource>
-							<finalName>User_Guide.pdf</finalName>
+							<finalName>Mobicents_SLEE_RA_MGCP_User_Guide.pdf</finalName>
 						</format>
 						<format>
 							<formatName>html</formatName>
