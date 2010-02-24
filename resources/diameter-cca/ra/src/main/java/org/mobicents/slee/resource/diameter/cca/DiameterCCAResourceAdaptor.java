@@ -505,6 +505,10 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
           this.raContext.getSleeEndpoint().fireEventTransacted(handle, eventID, event, address, null, EVENT_FLAGS);
         }
         else*/ {
+        	if(getActivity(handle) instanceof CreditControlServerSessionImpl && event instanceof CreditControlRequest)
+        	{
+        		((CreditControlServerSessionImpl)getActivity(handle)).fetchCurrentState((CreditControlRequest)event);
+        	}
           this.raContext.getSleeEndpoint().fireEvent(handle, eventID, event, address, null, EVENT_FLAGS);
         }       
         return true;
