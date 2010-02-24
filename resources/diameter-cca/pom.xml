@@ -24,7 +24,7 @@
 
   <properties>
     <!-- Mobicents Diameter Components Versions -->
-    <mobicents.diameter.resources.base-common.version>2.0.0-SNAPSHOT</mobicents.diameter.resources.base-common.version>
+    <mobicents.diameter.resources.base-common.version>2.0.0.GA</mobicents.diameter.resources.base-common.version>
 	<!-- Documentation Related Properties -->
     <docs.profile>mobicents</docs.profile>
     <docs.ra.name>Diameter CCA</docs.ra.name>
@@ -89,6 +89,7 @@
               <autoVersionSubmodules>true</autoVersionSubmodules>
               <resume>false</resume>
               <tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca</tagBase>
+              <preparationGoals>clean install</preparationGoals>
             </configuration>
           </plugin>
         </plugins>
