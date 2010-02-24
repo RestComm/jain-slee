@@ -14,7 +14,7 @@
 			<variablelist>
 				<varlistentry>
 					<term>Sufficient Disk Space</term>
-					<listitem><para>Once unzipped, the JAIN SLEE binary release requires <emphasis>at least</emphasis> 150MB of free disk space.  Keep in mind that disk space requirements may change from release to release.</para></listitem>
+					<listitem><para>Once unzipped, the JAIN SLEE binary release requires <emphasis>at least</emphasis> 300MB of free disk space.  Keep in mind that disk space requirements may change from release to release.</para></listitem>
 				</varlistentry>
 				<varlistentry>
 					<term>Anything Java Itself Will Run On</term>
