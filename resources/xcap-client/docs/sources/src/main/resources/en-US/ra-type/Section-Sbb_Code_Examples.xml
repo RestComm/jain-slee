@@ -126,7 +126,8 @@
 		jAXBContext.createMarshaller().marshal(listType, baos);
 		
 		// lets put the element using the sync interface
-		XcapResponse response = ra.put(uri,ElementResource.MIMETYPE,baos.toByteArray(),null,credentials);
+		XcapResponse response = ra.put(uri,ElementResource.MIMETYPE,
+			baos.toByteArray(),null,credentials);
 		// check put response
 		if (response != null) {
 			if(response.getCode() == 201) {
