@@ -86,7 +86,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
 
   // Config Properties Values --------------------------------------------
 
-  private List<ApplicationId> acctApplicationIds;
+  private List<ApplicationId> authApplicationIds;
 
   // Validity and TxTimer values (in seconds)
   protected long defaultValidityTime = 30;
@@ -314,7 +314,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
     defaultTxTimerValue = (Long) (dttProp != null ? dttProp.getValue() : defaultTxTimerValue);
 
     if(tracer.isInfoEnabled()) {
-      tracer.info("RA supporting " + acctApplicationIds);
+      tracer.info("RA supporting " + authApplicationIds);
     }
   }
 
@@ -324,11 +324,11 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
 
       String[] appIdsStrings  = appIdsStr.split(",");
 
-      acctApplicationIds = new ArrayList<ApplicationId>();
+      authApplicationIds = new ArrayList<ApplicationId>();
       
       for(String appId : appIdsStrings) {
         String[] vendorAndAppId = appId.split(":");
-        acctApplicationIds.add(ApplicationId.createByAccAppId(Long.valueOf(vendorAndAppId[0]), Long.valueOf(vendorAndAppId[1]))); 
+        authApplicationIds.add(ApplicationId.createByAuthAppId(Long.valueOf(vendorAndAppId[0]), Long.valueOf(vendorAndAppId[1]))); 
       }
     }
   }
@@ -590,7 +590,7 @@ public class DiameterCCAResourceAdaptor implements ResourceAdaptor, DiameterList
    */
   private synchronized void initStack() throws Exception {
     // Register in the Mux as app listener.
-    this.diameterMux.registerListener(this, (ApplicationId[]) acctApplicationIds.toArray(new ApplicationId[acctApplicationIds.size()]));
+    this.diameterMux.registerListener(this, (ApplicationId[]) authApplicationIds.toArray(new ApplicationId[authApplicationIds.size()]));
 
     // Get the stack (should not mess with)
     this.stack = this.diameterMux.getStack();
