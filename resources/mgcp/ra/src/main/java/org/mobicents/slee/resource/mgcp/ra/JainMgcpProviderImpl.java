@@ -22,8 +22,8 @@ import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.mgcp.MgcpEndpointActivity;
 
-import org.mobicents.mgcp.stack.JainMgcpExtendedListener;
-import org.mobicents.mgcp.stack.JainMgcpStackProviderImpl;
+import org.mobicents.protocols.mgcp.stack.JainMgcpExtendedListener;
+import org.mobicents.protocols.mgcp.stack.JainMgcpStackProviderImpl;
 
 /**
  * 

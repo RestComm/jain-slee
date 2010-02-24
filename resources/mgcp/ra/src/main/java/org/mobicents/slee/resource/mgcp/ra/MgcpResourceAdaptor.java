@@ -62,7 +62,7 @@ import javax.slee.resource.SleeEndpoint;
 import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.mgcp.event.TransactionTimeout;
 
-import org.mobicents.mgcp.stack.JainMgcpStackImpl;
+import org.mobicents.protocols.mgcp.stack.JainMgcpStackImpl;
 
 /**
  * 
