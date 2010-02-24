@@ -27,7 +27,7 @@
 	<properties>
 		<mobicents.resources.sip11.version>2.0.0.BETA2</mobicents.resources.sip11.version>
 		<mobicents.servers.jainslee.version>2.0.0.BETA2</mobicents.servers.jainslee.version>
-		<mobicents.resources.mgcp.version>2.0.0.CR1</mobicents.resources.mgcp.version>
+		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
 	</properties>
 
 	<dependencyManagement>

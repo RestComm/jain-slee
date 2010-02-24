@@ -34,7 +34,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Date;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -68,10 +67,6 @@ import javax.slee.SbbLocalObject;
 import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.facilities.TimerEvent;
-import javax.slee.facilities.TimerFacility;
-import javax.slee.facilities.TimerID;
-import javax.slee.facilities.TimerOptions;
-import javax.slee.facilities.TimerPreserveMissed;
 import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.mgcp.JainMgcpProvider;
@@ -80,10 +75,9 @@ import net.java.slee.resource.mgcp.MgcpConnectionActivity;
 import net.java.slee.resource.mgcp.MgcpEndpointActivity;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
-import net.java.slee.resource.sip.SleeSipProvider;
 
-import org.mobicents.jain.protocol.ip.mgcp.pkg.AUMgcpEvent;
-import org.mobicents.jain.protocol.ip.mgcp.pkg.AUPackage;
+import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
+import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
 import org.mobicents.slee.examples.callcontrol.common.SubscriptionProfileSbb;
 import org.mobicents.slee.examples.callcontrol.profile.CallControlProfileCMP;
 
