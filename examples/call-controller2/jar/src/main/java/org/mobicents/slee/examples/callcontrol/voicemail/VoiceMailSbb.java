@@ -652,7 +652,14 @@ public abstract class VoiceMailSbb extends SubscriptionProfileSbb implements
 			File f = new File(filePath);
 			boolean exists = f.exists();
 			//String audioFileString = "file:/" + filePath;
-			filePath="file:/"+filePath;
+			//linux stuff?
+			if(filePath.startsWith("/"))
+			{
+				filePath="file:"+filePath;
+			}else
+			{
+				filePath="file:/"+filePath;
+			}
 			try {
 				// Just to check if file exist
 				//File file = new File(filePath);
