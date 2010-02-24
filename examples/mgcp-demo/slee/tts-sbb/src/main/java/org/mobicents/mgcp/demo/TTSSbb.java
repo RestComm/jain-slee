@@ -80,6 +80,8 @@ public abstract class TTSSbb implements Sbb {
 
 	public final static String JBOSS_BIND_ADDRESS = System.getProperty("jboss.bind.address", "127.0.0.1");
 	
+	public final static String WELCOME_ANN = "http://" + JBOSS_BIND_ADDRESS + ":8080/mgcpdemo/audio/RQNT-ULAW.wav";
+	
 	public final static String WELCOME = "Hello World. This is Mobicents Media Server Text To Speech Demo. Press any button on your touch dial phone.";
 	
 	private final static String DTMF_0 = "You have pressed Zero";
@@ -212,7 +214,7 @@ public abstract class TTSSbb implements Sbb {
 			}
 			ContactHeader contact = headerFactory.createContactHeader(contactAddress);
 
-			sendRQNT(WELCOME, true);
+			sendAnnRQNT(WELCOME_ANN, true);
 
 			Response response = null;
 			try {
@@ -239,8 +241,69 @@ public abstract class TTSSbb implements Sbb {
 			}
 		}
 	}
+	
+	private void sendAnnRQNT(String mediaPath, boolean createActivity) {
+		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
+				+ MGCP_PEER_PORT);
 
-	private void sendRQNT(String ttsText, boolean createActivity) {
+		NotificationRequest notificationRequest = new NotificationRequest(this, endpointID, mgcpProvider
+				.getUniqueRequestIdentifier());
+		
+		ConnectionIdentifier connectionIdentifier = new ConnectionIdentifier(this.getConnectionIdentifier());
+		
+		EventName[] signalRequests = { new EventName(PackageName.Announcement, MgcpEvent.ann.withParm(mediaPath), connectionIdentifier) };
+		notificationRequest.setSignalRequests(signalRequests);
+
+		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
+
+		RequestedEvent[] requestedEvents = {
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.oc, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Announcement, MgcpEvent.of, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf0, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf1, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf2, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf3, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf4, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf5, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf6, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf7, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf8, connectionIdentifier), actions),
+
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmf9, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfA, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfB, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfC, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfD, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfStar, connectionIdentifier), actions),
+				new RequestedEvent(new EventName(PackageName.Dtmf, MgcpEvent.dtmfHash, connectionIdentifier), actions) };
+
+		notificationRequest.setRequestedEvents(requestedEvents);
+		notificationRequest.setTransactionHandle(mgcpProvider.getUniqueTransactionHandler());
+
+		NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS, JBOSS_BIND_ADDRESS, MGCP_PORT);
+		notificationRequest.setNotifiedEntity(notifiedEntity);
+
+		if (createActivity) {
+			MgcpEndpointActivity endpointActivity = null;
+			try {
+				endpointActivity = mgcpProvider.getEndpointActivity(endpointID);
+				ActivityContextInterface epnAci = mgcpAcif.getActivityContextInterface(endpointActivity);
+				epnAci.attach(sbbContext.getSbbLocalObject());
+			} catch (FactoryException ex) {
+				ex.printStackTrace();
+			} catch (NullPointerException ex) {
+				ex.printStackTrace();
+			} catch (UnrecognizedActivityException ex) {
+				ex.printStackTrace();
+			}
+		} // if (createActivity)
+
+		mgcpProvider.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
+
+		logger.info(" NotificationRequest sent");
+	}	
+
+	private void sendTTSRQNT(String ttsText, boolean createActivity) {
 		EndpointIdentifier endpointID = new EndpointIdentifier(this.getEndpointName(), JBOSS_BIND_ADDRESS + ":"
 				+ MGCP_PEER_PORT);
 
@@ -342,69 +405,69 @@ public abstract class TTSSbb implements Sbb {
 				break;
 			case MgcpEvent.DTMF_0:
 				logger.info("You have pressed 0");
-				sendRQNT(DTMF_0, false);
+				sendTTSRQNT(DTMF_0, false);
 				break;
 			case MgcpEvent.DTMF_1:
 				logger.info("You have pressed 1");
-				sendRQNT(DTMF_1, false);
+				sendTTSRQNT(DTMF_1, false);
 				break;
 			case MgcpEvent.DTMF_2:
 				logger.info("You have pressed 2");
-				sendRQNT(DTMF_2, false);
+				sendTTSRQNT(DTMF_2, false);
 				break;
 			case MgcpEvent.DTMF_3:
 				logger.info("You have pressed 3");
-				sendRQNT(DTMF_3, false);
+				sendTTSRQNT(DTMF_3, false);
 				break;
 			case MgcpEvent.DTMF_4:
 				logger.info("You have pressed 4");
-				sendRQNT(DTMF_4, false);
+				sendTTSRQNT(DTMF_4, false);
 				break;
 			case MgcpEvent.DTMF_5:
 				logger.info("You have pressed 5");
-				sendRQNT(DTMF_5, false);
+				sendTTSRQNT(DTMF_5, false);
 				break;
 			case MgcpEvent.DTMF_6:
 				logger.info("You have pressed 6");
-				sendRQNT(DTMF_6, false);
+				sendTTSRQNT(DTMF_6, false);
 				break;
 			case MgcpEvent.DTMF_7:
 				logger.info("You have pressed 7");
-				sendRQNT(DTMF_7, false);
+				sendTTSRQNT(DTMF_7, false);
 				break;
 			case MgcpEvent.DTMF_8:
 				logger.info("You have pressed 8");
-				sendRQNT(DTMF_8, false);
+				sendTTSRQNT(DTMF_8, false);
 				break;
 			case MgcpEvent.DTMF_9:
 				logger.info("You have pressed 9");
-				sendRQNT(DTMF_9, false);
+				sendTTSRQNT(DTMF_9, false);
 				break;
 			case MgcpEvent.DTMF_A:
 				logger.info("You have pressed A");
-				sendRQNT(A, false);
+				sendTTSRQNT(A, false);
 				break;
 			case MgcpEvent.DTMF_B:
 				logger.info("You have pressed B");
-				sendRQNT(B, false);
+				sendTTSRQNT(B, false);
 				break;
 			case MgcpEvent.DTMF_C:
 				logger.info("You have pressed C");
-				sendRQNT(C, false);
+				sendTTSRQNT(C, false);
 				break;
 			case MgcpEvent.DTMF_D:
 				logger.info("You have pressed D");
-				sendRQNT(D, false);
+				sendTTSRQNT(D, false);
 
 				break;
 			case MgcpEvent.DTMF_STAR:
 				logger.info("You have pressed *");
-				sendRQNT(STAR, false);
+				sendTTSRQNT(STAR, false);
 
 				break;
 			case MgcpEvent.DTMF_HASH:
 				logger.info("You have pressed C");
-				sendRQNT(POUND, false);
+				sendTTSRQNT(POUND, false);
 
 				break;
 			}

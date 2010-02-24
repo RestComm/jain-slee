@@ -22,7 +22,6 @@
   <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1.0.jboss/commons-logging-1.1.0.jboss.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.4/commons-pool-1.4.jar"/>
-  <classpathentry kind="var" path="M2_REPO/concurrent/concurrent/1.3.4/concurrent-1.3.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/gnu-getopt/getopt/1.0.12-brew/getopt-1.0.12-brew.jar"/>
   <classpathentry kind="var" path="M2_REPO/jain/jain-mgcp-ri/1.0/jain-mgcp-ri-1.0.jar"/>
@@ -30,7 +29,7 @@
   <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.1.1/activation-1.1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/security/jaas/1.0.01/jaas-1.0.01.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-api/1.2/jain-sip-api-1.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-ri/1.2.X-SNAPSHOT/jain-sip-ri-1.2.X-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/javax/sip/jain-sip-ri/1.2.123/jain-sip-ri-1.2.123.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/slee/jain-slee/1.1/jain-slee-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.1/jta-1.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/javax/xml/bind/jaxb-api/2.1/jaxb-api-2.1.jar"/>
@@ -43,7 +42,7 @@
   <classpathentry kind="var" path="M2_REPO/jpl-pattern/jpl-pattern/1.0/jpl-pattern-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/jpl-util/jpl-util/1.0/jpl-util-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.1/junit-4.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.9/log4j-1.2.9.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/ant/ant-junit/1.7.0/ant-junit-1.7.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/ant/ant-launcher/1.7.0/ant-launcher-1.7.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/ant/ant/1.7.0/ant-1.7.0.jar"/>
@@ -121,14 +120,15 @@
   <classpathentry kind="var" path="M2_REPO/org/mobicents/cluster/cache/1.0/cache-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/cluster/core/1.0/core-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/cluster/timers/1.0/timers-1.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/ha/javax/sip/mobicents-jain-sip-ha-core/0.4-SNAPSHOT/mobicents-jain-sip-ha-core-0.4-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/ha/javax/sip/mobicents-jain-sip-jboss5/0.4-SNAPSHOT/mobicents-jain-sip-jboss5-0.4-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/jain/mobicents-mgcp-impl/2.0.0.RC4/mobicents-mgcp-impl-2.0.0.RC4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/ha/javax/sip/mobicents-jain-sip-ha-core/0.1/mobicents-jain-sip-ha-core-0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/ha/javax/sip/mobicents-jain-sip-jboss5/0.1/mobicents-jain-sip-jboss5-0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/protocols/mgcp/mgcp-impl/2.0.0.RC5/mgcp-impl-2.0.0.RC5.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/mgcp-events/2.0.0-SNAPSHOT/mgcp-events-2.0.0-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/mgcp-ratype/2.0.0-SNAPSHOT/mgcp-ratype-2.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-events/2.0.0-SNAPSHOT/sip11-events-2.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-jain-sip-ha/2.0.0-SNAPSHOT/sip11-jain-sip-ha-2.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ratype/2.0.0-SNAPSHOT/sip11-ratype-2.0.0-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-events/2.0.0.BETA2/sip11-events-2.0.0.BETA2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-jain-sip-ha/2.0.0.BETA2/sip11-jain-sip-ha-2.0.0.BETA2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-library/2.0.0.BETA2/sip11-library-2.0.0.BETA2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/mobicents/resources/sip11-ratype/2.0.0.BETA2/sip11-ratype-2.0.0.BETA2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/jainslee/core/components-jaxb-jar/2.0.0.BETA1/components-jaxb-jar-2.0.0.BETA1.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/jainslee/core/descriptors/2.0.0.BETA2/descriptors-2.0.0.BETA2.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/mobicents/servers/jainslee/core/fault-tolerant-ra-api/2.0.0.BETA2/fault-tolerant-ra-api-2.0.0.BETA2.jar"/>

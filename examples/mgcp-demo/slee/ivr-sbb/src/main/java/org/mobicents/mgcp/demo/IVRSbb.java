@@ -20,6 +20,7 @@ import jain.protocol.ip.mgcp.message.DeleteConnection;
 import jain.protocol.ip.mgcp.message.NotificationRequest;
 import jain.protocol.ip.mgcp.message.NotificationRequestResponse;
 import jain.protocol.ip.mgcp.message.Notify;
+import jain.protocol.ip.mgcp.message.NotifyResponse;
 import jain.protocol.ip.mgcp.message.parms.CallIdentifier;
 import jain.protocol.ip.mgcp.message.parms.ConflictingParameterException;
 import jain.protocol.ip.mgcp.message.parms.ConnectionDescriptor;
@@ -323,7 +324,7 @@ public abstract class IVRSbb implements Sbb {
 	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
 		logger.info("onNotifyRequest");
 
-		NotificationRequestResponse response = new NotificationRequestResponse(event.getSource(),
+		 NotifyResponse response = new  NotifyResponse(event.getSource(),
 				ReturnCode.Transaction_Executed_Normally);
 		response.setTransactionHandle(event.getTransactionHandle());
 

@@ -74,8 +74,8 @@ import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
 
-import org.mobicents.jain.protocol.ip.mgcp.pkg.AUMgcpEvent;
-import org.mobicents.jain.protocol.ip.mgcp.pkg.AUPackage;
+import org.mobicents.protocols.mgcp.jain.pkg.AUMgcpEvent;
+import org.mobicents.protocols.mgcp.jain.pkg.AUPackage;
 
 /**
  * 
