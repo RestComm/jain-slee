@@ -21,7 +21,7 @@
 							<ulink url="http://maven.apache.org" />
 						</para>
 					</important>
-					<para>Use Ant to build the binary.</para>
+					<para>Use Maven to build the deployable unit binary.</para>
 					<programlisting>
 						[usr]$ cd slee-ra-&THIS.RA.DIRNAME;-&THIS.VERSION;
 						[usr]$ mvn install

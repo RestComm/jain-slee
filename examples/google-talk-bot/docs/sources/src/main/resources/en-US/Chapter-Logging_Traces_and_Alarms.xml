@@ -11,7 +11,14 @@
 
 	<section id="tracers">
 		<title>Tracers</title>
-		<para>The example Application uses a single JAIN SLEE 1.1 Tracer, named <literal>GoogleTalkBotSbb</literal>. The related log4j category is <literal>javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService,vendor=mobicents,version=0.1],sbb=SbbID[name=GoogleTalkBotSbb,vendor=mobicents,version=0.1]]</literal>.</para>
+		<important>
+       		<para>Spaces where introduced in log4j category name to properly render page. Please remove them when using copy/paste.</para>
+		</important>
+		<para>The example Application uses a single JAIN SLEE 1.1 Tracer, named <literal>GoogleTalkBotSbb</literal>. 
+		The related log4j category is 
+		<literal>javax.slee.SbbNotification[service=ServiceID[name=GoogleTalkBotService</literal>
+		<literal>,vendor=mobicents,version=0.1],sbb=SbbID[name=GoogleTalkBotSbb,vendor=</literal>
+		<literal>mobicents,version=0.1]]</literal>.</para>
 	</section>	
 	
 	<section id="alarms">

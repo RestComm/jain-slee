@@ -11,7 +11,15 @@
 
 	<section id="tracers">
 		<title>Tracers</title>
-		<para>The example Application uses a single JAIN SLEE 1.1 Tracer, named <literal>SimpleSip11B2BTestSbb</literal>. The related log4j category is <literal>javax.slee.SbbNotification[service=ServiceID[name=SimpleSip11B2BTestService,vendor=org.mobicents,version=1.0],sbb=SbbID[name=SimpleSip11B2BTestSbb,vendor=org.mobicents,version=1.0]]</literal>.</para>
+		<important>
+       		<para>Spaces where introduced in log4j category name to properly render page. Please remove them when using copy/paste.</para>
+		</important>
+		<para>The example Application uses a single JAIN SLEE 1.1 Tracer, named <literal>SimpleSip11B2BTestSbb</literal>. 
+		The related log4j category is 
+		<literal>javax.slee.SbbNotification[service=ServiceID[name=</literal>
+		<literal>SimpleSip11B2BTestService,vendor=org.mobicents,version=1.0],</literal>
+		<literal>sbb=SbbID[name=SimpleSip11B2BTestSbb,vendor=org.mobicents,version=1.0]]</literal>.
+		</para>
 	</section>	
 	
 	<section id="alarms">

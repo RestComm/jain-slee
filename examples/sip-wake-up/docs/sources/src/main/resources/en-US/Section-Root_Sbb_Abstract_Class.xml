@@ -239,8 +239,8 @@
 			MaxForwardsHeader maxForwardsHeader = headerFactory
 					.createMaxForwardsHeader(70);
 			// create location service child sbb
-			final LocationSbbLocalObject locationChildSbb = (LocationSbbLocalObject) getLocationChildRelation()
-					.create();
+			final LocationSbbLocalObject locationChildSbb = (LocationSbbLocalObject) 
+				getLocationChildRelation().create();
 			// get sender bindings and send a message to each
 			MessageFactory messageFactory = sipProvider.getMessageFactory();
 			for (RegistrationBinding registration : locationChildSbb

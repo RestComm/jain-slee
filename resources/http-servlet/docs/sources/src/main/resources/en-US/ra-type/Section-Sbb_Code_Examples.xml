@@ -56,8 +56,11 @@
 			// here we will setup a session activity before sending the response back
 			if (httpServletRaSbbInterface == null) {
 				Context myEnv = (Context) new InitialContext().lookup("java:comp/env"); 
-	        	httpServletRaSbbInterface = (HttpServletRaSbbInterface) myEnv.lookup("slee/resources/mobicents/httpservlet/sbbrainterface");
-	        	httpServletRaActivityContextInterfaceFactory = (HttpServletRaActivityContextInterfaceFactory) myEnv.lookup("slee/resources/mobicents/httpservlet/acifactory");
+	        	httpServletRaSbbInterface = (HttpServletRaSbbInterface) myEnv.lookup(
+	        		"slee/resources/mobicents/httpservlet/sbbrainterface");
+	        	httpServletRaActivityContextInterfaceFactory = 
+	        		(HttpServletRaActivityContextInterfaceFactory) myEnv.lookup(
+	        			"slee/resources/mobicents/httpservlet/acifactory");
 			}
 			HttpSession httpSession = event.getRequest().getSession();
 			HttpSessionActivity httpSessionActivity = httpServletRaSbbInterface
@@ -71,8 +74,7 @@
 			w.print("onPut OK! Served by SBB = " + getSbbId());
 			w.flush();
 			response.flushBuffer();
-			log
-					.info("HttpServletRAExampleSbb: PUT Request received and OK! response sent.");
+			log.info("HttpServletRAExampleSbb: PUT Request received and OK! response sent.");
 		} catch (Exception e) {
 			log.error(e);
 		}
