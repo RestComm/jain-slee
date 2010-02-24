@@ -49,7 +49,10 @@
 		<!--
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/tools/jopr-plugin/${tag.version}</jopr-plugin.connectionURL>
 		-->
-		 
+		<!--
+		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/tags/tools/sip-balancer/sip-balancer-1.0.BETA14</sip-balancer.connectionURL>
+		-->
+		
 		<core.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/core</core.connectionURL>
 		
 		<ra.diameter-base.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/resources/diameter-base</ra.diameter-base.connectionURL>
@@ -78,7 +81,7 @@
 		<jain-sip-ha.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-sip-ha</jain-sip-ha.connectionURL>				
 		-->
 		<jopr-plugin.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/tools/jopr-plugin</jopr-plugin.connectionURL>
-				
+		<sip-balancer.connectionURL>scm:svn:http://mobicents.googlecode.com/svn/trunk/tools/sip-balancer</sip-balancer.connectionURL>		
 	</properties>
 	
 	<profiles>
@@ -572,6 +575,28 @@
 							<password>${checkout.password}</password>
 						</configuration>
 					</execution>
+					
+					<execution>
+						<id>sip-balancer-plugin-checkout</id>
+						<goals>
+							<goal>checkout</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<scmVersion>HEAD</scmVersion>
+							<scmVersionType>revision</scmVersionType>
+							<skipCheckoutIfExists>true</skipCheckoutIfExists>
+							<checkoutDirectory>
+								${checkout.basedir}/tools/sip-balancer
+							</checkoutDirectory>
+							<connectionUrl>
+								${sip-balancer.connectionURL}
+							</connectionUrl>
+							<username>${checkout.username}</username>
+							<password>${checkout.password}</password>
+						</configuration>
+					</execution>
+					
 				</executions>
 			</plugin>
 		</plugins>

@@ -77,6 +77,25 @@
 		</antcall>
 	</target>
 	
+	<target name="build-sip-balancer" description="">
+		<exec executable="${mvn.executable}" dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer">
+			<arg line="clean install -P set-svn-revision,maven-release" />
+		</exec>
+		
+		<copy failonerror="true" toDir="${release.dir}/tools/sip-balancer" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/jar/target">
+				<include name="**.jar" />
+			</fileset>
+			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/config-examples">
+				<include name="**.properties" />
+			</fileset>
+		</copy>
+		
+		<copy failonerror="true" toDir="${release.dir}/tools/sip-balancer/docs" overwrite="true">
+			<fileset dir="${ant.file.mobicents.release}/../checkout/tools/sip-balancer/docs/jdocbook-${docs.profile}/target/docbook/publish"/>
+		</copy>
+	</target>
+	
 	<target name="build-ras" description="Resource adaptors.">
 		<for delimiter="," param="dir.name" list="${ra.dirs}">
 			<sequential>
@@ -129,7 +148,7 @@
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../jboss-log4j-${jboss.config}.xml" tofile="${jboss.home}/server/${jboss.config}/conf/jboss-log4j.xml" overwrite="true" /> -->
 	</target>
 
-	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
+	<target name="release" depends="get-jboss,unzip-jboss,get-mms,unzip-mms,get-diameter,unzip-diameter,checkout-sources,build-core,build-mmc,build-sip-balancer,build-ras,build-examples,build-sources-for-debug-zip,copy-extra-jbossas-files">
 		<copy failonerror="true" file="${ant.file.mobicents.release}/../readme.txt" tofile="${release.dir}/readme.txt" overwrite="true" />
 		<tstamp>
 			<format property="time.stamp" pattern="yyyyMMdd-HHmm" />
