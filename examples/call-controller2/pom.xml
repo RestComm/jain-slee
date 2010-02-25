@@ -25,9 +25,9 @@
 	</modules>
 
 	<properties>
-		<mobicents.resources.sip11.version>2.0.0.BETA2</mobicents.resources.sip11.version>
-		<mobicents.servers.jainslee.version>2.0.0.BETA2</mobicents.servers.jainslee.version>
-		<mobicents.resources.mgcp.version>2.0.0-SNAPSHOT</mobicents.resources.mgcp.version>
+		<mobicents.resources.sip11.version>2.0.0.GA</mobicents.resources.sip11.version>
+		<mobicents.servers.jainslee.version>2.0.0.GA</mobicents.servers.jainslee.version>
+		<mobicents.resources.mgcp.version>2.0.0.GA</mobicents.resources.mgcp.version>
 	</properties>
 
 	<dependencyManagement>
@@ -89,6 +89,7 @@
 						<configuration>
 							<autoVersionSubmodules>true</autoVersionSubmodules>
 							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/call-controller2</tagBase>
+							<preparationGoals>clean install</preparationGoals>
 						</configuration>
 					</plugin>
 				</plugins>
