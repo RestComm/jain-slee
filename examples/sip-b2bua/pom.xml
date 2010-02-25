@@ -19,7 +19,7 @@
 	</modules>
 	
 	<properties>
-		<mobicents.resources.sip11.version>2.0.0-SNAPSHOT</mobicents.resources.sip11.version>
+		<mobicents.resources.sip11.version>2.0.0.GA</mobicents.resources.sip11.version>
 		<docs.profile>mobicents</docs.profile>
 	</properties>
 	
@@ -81,6 +81,7 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/sip-b2bua</tagBase>
+						<preparationGoals>clean install</preparationGoals>
 					</configuration>
 					</plugin>
 				</plugins>
