@@ -21,7 +21,7 @@
 	</modules>
 	
 	<properties>
-		<mobicents.resources.xmpp.version>2.0.0.BETA2</mobicents.resources.xmpp.version>
+		<mobicents.resources.xmpp.version>2.0.0.GA</mobicents.resources.xmpp.version>
 		<docs.profile>mobicents</docs.profile>
 	</properties>
 	
@@ -39,6 +39,7 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/google-talk-bot</tagBase>
+						<preparationGoals>clean install</preparationGoals>
 					</configuration>
 					</plugin>
 				</plugins>
