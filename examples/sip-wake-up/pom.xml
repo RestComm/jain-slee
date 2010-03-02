@@ -11,7 +11,7 @@
 	
 	<artifactId>mobicents-slee-example-sip-wake-up</artifactId>
 	<groupId>org.mobicents.examples</groupId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.0.X-SNAPSHOT</version>
 					
 	<modules>
 		<module>sbb</module>						
@@ -90,9 +90,9 @@
 	</profiles>
 	
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/sip-wake-up</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/sip-wake-up/2.0.x</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/sip-wake-up/2.0.x</developerConnection>
+		<url>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/sip-wake-up/2.0.x</url>
 	</scm>
 	
 	<build>
