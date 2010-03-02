@@ -86,9 +86,11 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-release-plugin</artifactId>
+						<version>2.0</version>
 						<configuration>
 							<autoVersionSubmodules>true</autoVersionSubmodules>
 							<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/examples/call-controller2</tagBase>
+							<branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/call-controller2</branchBase>
 							<preparationGoals>clean install</preparationGoals>
 						</configuration>
 					</plugin>
