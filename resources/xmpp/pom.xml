@@ -83,6 +83,7 @@
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/xmpp</tagBase>
+						<branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/resources/xmpp</branchBase>
 						<preparationGoals>clean install</preparationGoals>
 					</configuration>
 					</plugin>
