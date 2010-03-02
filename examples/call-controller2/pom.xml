@@ -141,9 +141,9 @@
 	</profiles>
 
   	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/call-controller2</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/call-controller2</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/examples/call-controller2</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/call-controller2/2.0.x</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/call-controller2/2.0.x</developerConnection>
+		<url>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/examples/call-controller2/2.0.x</url>
 	</scm>
 	
 </project>
