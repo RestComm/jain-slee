@@ -83,12 +83,13 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
-            <version>2.0-beta-9</version>
+            <version>2.0</version>
             <configuration>
               <remoteTagging>true</remoteTagging>
               <autoVersionSubmodules>true</autoVersionSubmodules>
               <resume>false</resume>
               <tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/resources/diameter-cca</tagBase>
+              <branchBase>https://mobicents.googlecode.com/svn/branches/servers/jain-slee/2.x.y/resources/diameter-cca</branchBase>
               <preparationGoals>clean install</preparationGoals>
             </configuration>
           </plugin>
