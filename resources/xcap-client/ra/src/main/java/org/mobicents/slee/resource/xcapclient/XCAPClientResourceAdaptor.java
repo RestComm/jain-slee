@@ -270,7 +270,6 @@ public class XCAPClientResourceAdaptor implements javax.slee.resource.ResourceAd
 		sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
 		activities = new ConcurrentHashMap<XCAPResourceAdaptorActivityHandle, AsyncActivityImpl>();
 		executorService = Executors.newCachedThreadPool();
-		sbbInterface = new XCAPClientResourceAdaptorSbbInterfaceImpl(this);
 	}
 
 	/*
