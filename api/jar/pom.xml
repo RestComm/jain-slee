@@ -31,9 +31,9 @@
 	</dependencies>
 	
 	<scm>
-		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api</connection>
-		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api</developerConnection>
-		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api</url>
+		<connection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api/jar</connection>
+		<developerConnection>scm:svn:https://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api/jar</developerConnection>
+		<url>http://mobicents.googlecode.com/svn/trunk/servers/jain-slee/api/jar</url>
 	</scm>
 
 	<profiles>
@@ -48,7 +48,7 @@
 					<artifactId>maven-release-plugin</artifactId>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
-						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/api</tagBase>
+						<tagBase>https://mobicents.googlecode.com/svn/tags/servers/jain-slee/2.x.y/api/jar</tagBase>
 					</configuration>
 					</plugin>
 				</plugins>

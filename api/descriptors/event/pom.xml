@@ -1,0 +1,127 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.mobicents.servers.jainslee.core</groupId>
+		<artifactId>components-parent</artifactId>
+		<version>2.1.0-SNAPSHOT</version>
+	</parent>
+
+	<packaging>pom</packaging>
+
+	<artifactId>components-jaxb-event</artifactId>
+
+	<name>Mobicents :: JAXB-Descriptors :: ${pom.artifactId}</name>
+	<properties>
+		<!-- 1.0 -->
+		<dtd.file.name>slee-event-jar_1_0.dtd</dtd.file.name>
+		<!--
+			<dtd.file.name>slee-deployable-unit_1_0.dtd</dtd.file.name>
+			
+			<dtd.file.name>slee-profile-spec-jar_1_0.dtd</dtd.file.name>
+			<dtd.file.name>slee-resource-adaptor-jar_1_0.dtd</dtd.file.name>
+			<dtd.file.name>slee-resource-adaptor-type-jar_1_0.dtd</dtd.file.name>
+			<dtd.file.name>slee-sbb-jar_1_0.dtd</dtd.file.name>
+			<dtd.file.name>slee-service-xml_1_0.dtd</dtd.file.name>
+		-->
+
+
+		<!-- 1.1 -->
+		
+		<!--
+			<dtd.file.name>slee-library-jar_1_1.dtd</dtd.file.name>
+			<dtd.file.name>slee-deployable-unit_1_1.dtd</dtd.file.name>
+			<dtd.file.name>slee-event-jar_1_1.dtd</dtd.file.name>
+			<dtd.file.name>slee-profile-spec-jar_1_1.dtd</dtd.file.name>
+			<dtd.file.name>slee-resource-adaptor-jar_1_1.dtd</dtd.file.name>
+			<dtd.file.name>slee-resource-adaptor-type-jar_1_1.dtd</dtd.file.name>
+			<dtd.file.name>slee-sbb-jar_1_1.dtd</dtd.file.name>
+			<dtd.file.name>slee-service-xml_1_1.dtd</dtd.file.name>
+		-->
+		<package.name>org.mobicents.slee.container.component.deployment.jaxb.slee.event</package.name>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!--
+				<plugin> <groupId>com.sun.tools.xjc.maven2</groupId>
+				<artifactId>maven-jaxb-plugin</artifactId> <executions> <execution>
+				<goals> <goal>generate</goal> </goals> </execution> </executions>
+				<configuration>
+				<generatePackage>org.mobicents.servers.slee.11.library</generatePackage>
+				<includeSchemas>
+				<includeSchema>**/slee-library-jar_1_1.dtd</includeSchema>
+				</includeSchemas> <strict>true</strict> <verbose>true</verbose>
+				</configuration> </plugin>
+			-->
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<!--
+								if you want to put DTD somewhere else
+								<schemaDirectory>src/main/jaxb</schemaDirectory>
+							-->
+							<generatePackage>${package.name}</generatePackage>
+							<extension>true</extension>
+							<schemaLanguage>DTD</schemaLanguage>
+							<schemaIncludes>
+								<schemaInclude>${dtd.file.name}</schemaInclude>
+							</schemaIncludes>
+							<bindingIncludes>
+								<bindingInclude>*.jaxb</bindingInclude>
+							</bindingIncludes>
+							<!--
+								<args> <arg>-Xinject-listener-code</arg> </args>
+							-->
+							<removeOldOutput>true</removeOldOutput>
+							<forceRegenerate>true</forceRegenerate>
+							<removeOldOutput>false</removeOldOutput>
+							<generateDirectory>${basedir}/../jar/src/main/java</generateDirectory>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.jvnet.jaxb2-commons</groupId>
+						<artifactId>property-listener-injector</artifactId>
+						<version>1.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<!-- 
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			 -->
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<version>${mobicents.tools.mavenplugin.eclipse.version}</version>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<eclipseProjectName>${pom.artifactId}</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
