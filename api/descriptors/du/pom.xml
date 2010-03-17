@@ -2,16 +2,15 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.mobicents.servers.jainslee.core</groupId>
-		<artifactId>components-parent</artifactId>
-		<version>2.1.0-SNAPSHOT</version>
+		<groupId>javax.slee</groupId>	
+		<artifactId>jain-slee-descriptors</artifactId>
+		<version>1.1-SNAPSHOT</version>
 	</parent>
 
 	<packaging>pom</packaging>
 
 	<artifactId>components-jaxb-du</artifactId>
 
-	<name>Mobicents :: JAXB-Descriptors :: ${pom.artifactId}</name>
 	<properties>
 		<!-- 1.0 -->
 		<dtd.file.name>slee-deployable-unit_1_0.dtd</dtd.file.name>
@@ -90,7 +89,7 @@
 							<forceRegenerate>true</forceRegenerate>
 							<removeOldOutput>false</removeOldOutput>
 							<extension>true</extension>  
-							<generateDirectory>${basedir}/../jar/src/main/java</generateDirectory>
+							<generateDirectory>${basedir}/../generated-sources</generateDirectory>
 						</configuration>
 					</execution>
 				</executions>
