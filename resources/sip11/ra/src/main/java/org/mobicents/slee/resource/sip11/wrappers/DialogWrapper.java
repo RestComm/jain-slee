@@ -99,6 +99,11 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 */
 	protected SipActivityHandle lastCancelableTransactionId;
 
+	/**
+	 * used to delay the dialog .delete() when there are ongoing client txs
+	 */
+	private transient boolean pendingDelete = false;
+
 	// Constructors 
 
 	/**
@@ -486,12 +491,19 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	 * @see javax.sip.Dialog#delete()
 	 */
 	public void delete() {
-		final DialogState currentState = wrappedDialog.getState();
-		boolean needToFireDTE = !isEnding() && !wrappedDialog.isServer() && (currentState == null || currentState == DialogState.TERMINATED); 
+		
+		if (pendingDelete = (ongoingClientTransactions != null && !ongoingClientTransactions.isEmpty())) {
+			// ongoing client txs, need those to end first
+			return;
+		}
+		
+		final DialogState currentState = wrappedDialog != null ? wrappedDialog.getState() : null;
+		boolean stackDoesNotFiresDialogTerminatedEvent = !isEnding()
+			&& !wrappedDialog.isServer() && (currentState == null || currentState == DialogState.TERMINATED);
 		wrappedDialog.delete();
-		if (needToFireDTE) {
+		if (stackDoesNotFiresDialogTerminatedEvent) {
 			ra.processDialogTerminated(this);
-		}		
+		}
 	}
 	
 	/*
@@ -751,6 +763,9 @@ public class DialogWrapper extends Wrapper implements DialogActivity {
 	public void removeOngoingTransaction(ClientTransactionWrapper ctw) {
 		if (ongoingClientTransactions != null) {
 			if (ongoingClientTransactions.remove(ctw.getActivityHandle()) != null) {
+				if (pendingDelete) {
+					delete();
+				}
 				// not needed till we have some sort of tx replication
 				// updateReplicatedState();
 			}
