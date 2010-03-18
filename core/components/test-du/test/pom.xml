@@ -10,8 +10,6 @@
 
 	<artifactId>components-test-du-test</artifactId>
 	
-	<name>Mobicents :: Components :: ${pom.artifactId}</name>
-
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>

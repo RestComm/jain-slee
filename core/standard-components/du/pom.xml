@@ -8,9 +8,7 @@
 	</parent>
 	
 	<artifactId>standard-components-du</artifactId>
-	
-	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
-		
+			
 	<dependencies>
 		<!-- components -->
 		<dependency>

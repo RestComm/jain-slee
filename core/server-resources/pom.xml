@@ -12,8 +12,6 @@
 
 	<artifactId>server-resources</artifactId>
 
-	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
-
 	<build>
 		<plugins>
 			<plugin>

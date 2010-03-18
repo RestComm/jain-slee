@@ -9,9 +9,7 @@
 	</parent>
 
 	<artifactId>standard-components-parent</artifactId>
-	
-	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
-				
+					
 	<modules>
 		<module>standard-events-jar</module>
 		<module>standard-events11-jar</module>

@@ -14,8 +14,6 @@
 	
 	<packaging>pom</packaging>
 
-	<name>Mobicents :: Components :: ${pom.artifactId}</name>
-
 	<modules>
 		<module>sbb</module>
 		<module>du</module>			

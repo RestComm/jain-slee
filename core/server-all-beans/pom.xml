@@ -9,8 +9,6 @@
 
 	<artifactId>server-all-beans</artifactId>
 
-	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
-
 	<dependencies>
 
 		<dependency>

@@ -8,8 +8,6 @@
 	</parent>
 
 	<artifactId>jar</artifactId>
-
-	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
 			
 	<dependencies>
 			

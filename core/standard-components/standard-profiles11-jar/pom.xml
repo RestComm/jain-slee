@@ -8,7 +8,5 @@
 	</parent>
 	
 	<artifactId>standard-profiles11-jar</artifactId>
-
-	<name>Mobicents :: JAIN SLEE Server :: Core :: ${pom.artifactId}</name>
 		
 </project>
