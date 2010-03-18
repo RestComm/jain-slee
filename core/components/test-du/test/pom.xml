@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>descriptors</artifactId>
+			<artifactId>components</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>

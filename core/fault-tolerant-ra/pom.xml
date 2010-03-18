@@ -21,7 +21,6 @@
 			<plugin>
 				<artifactId>maven-eclipse-plugin</artifactId>
    				<groupId>org.mobicents.tools</groupId>
-    			<version>1.0.0.BETA2</version>
 				<inherited>false</inherited>
 				<executions />
 				<configuration>

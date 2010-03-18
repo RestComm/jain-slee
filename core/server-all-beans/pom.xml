@@ -21,7 +21,7 @@
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>components-jaxb-jar</artifactId>
+			<artifactId>components</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 

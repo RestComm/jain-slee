@@ -1,41 +1,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+	
 	<parent>
 		<groupId>org.mobicents.servers.jainslee.core</groupId>
 		<artifactId>components-parent</artifactId>
 		<version>2.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>descriptors</artifactId>
-
-	<name>Mobicents :: Components :: ${pom.artifactId}</name>
+	<artifactId>components</artifactId>
 
 	<dependencies>
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>transaction</artifactId>
-			<scope>compile</scope>
 			<version>${pom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>components-jaxb-jar</artifactId>
-			<scope>compile</scope>
+			<artifactId>descriptors</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
 		
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.xml</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -47,20 +34,5 @@
 			<artifactId>javassist</artifactId>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<finalName>mobicents-slee-core-components-descriptors</finalName>
-		<plugins>			
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<groupId>org.mobicents.tools</groupId>
-				<inherited>false</inherited>
-				<executions />
-				<configuration>
-					<eclipseProjectName>${build.finalName}</eclipseProjectName>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>
