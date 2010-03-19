@@ -86,6 +86,17 @@
 			
 	</dependencies>
 	
+	<pluginRepositories>
+		<pluginRepository>
+        	<releases>
+            	<enabled>true</enabled>
+            </releases>
+            <name>java.freehep.org</name>
+            <id>java.freehep.org</id>
+            <url>http://java.freehep.org/maven2</url>
+        </pluginRepository>
+	</pluginRepositories>
+	
 	<build>
 		<resources>
 			<resource>
