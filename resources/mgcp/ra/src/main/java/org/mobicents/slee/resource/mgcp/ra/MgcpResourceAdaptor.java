@@ -85,8 +85,8 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	private final EventIDCache eventIdCache = new EventIDCache();
 
 	/**
-	 * This is local proxy of provider. Created and managed by RA, 
-	 * it callbacks RA on events when it processes it and are ready to fire into SLEE.
+	 * This is local proxy of provider. Created and managed by RA, it callbacks RA on events when it processes it and
+	 * are ready to fire into SLEE.
 	 */
 	private JainMgcpProviderImpl mgcpProvider;
 
@@ -97,8 +97,8 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	private static final String MGCP_BIND_PORT = "jain.mgcp.PORT";
 
 	private transient static final Address address = new Address(AddressPlan.IP, "localhost");
-	
-	public static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;//.NO_FLAGS;
+
+	public static final int ACTIVITY_FLAGS = ActivityFlags.REQUEST_ENDED_CALLBACK;// .NO_FLAGS;
 
 	/**
 	 * tells the RA if an event with a specified ID should be filtered or not
@@ -114,7 +114,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	}
 
 	public void activityEnded(ActivityHandle handle) {
-		mgcpActivityManager.removeMgcpActivity(handle);		
+		mgcpActivityManager.removeMgcpActivity(handle);
 
 		if (this.tracer.isFineEnabled()) {
 			this.tracer.fine("Activity with handle " + handle + " ended");
@@ -167,7 +167,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	}
 
 	public void queryLiveness(ActivityHandle handle) {
-		//Object activity = mgcpActivityManager.getActivity(handle);
+		// Object activity = mgcpActivityManager.getActivity(handle);
 
 	}
 
@@ -215,10 +215,9 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	public void raInactive() {
 
 		try {
-			
-			
+
 			this.mgcpProvider.delete();
-			//stack is closed automaticly after above.
+			// stack is closed automaticly after above.
 			this.stack = null;
 			this.mgcpProvider = null;
 		} catch (Throwable ex) {
@@ -292,13 +291,13 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			AuditConnection auditConnection = (AuditConnection) event;
 			processNonCreateConnectionMgcpEvent(auditConnection.getConnectionIdentifier(), event
 					.getEndpointIdentifier(), event.getTransactionHandle(),
-					"net.java.slee.resource.mgcp.AUDIT_CONNECTION", event);
+					"net.java.slee.resource.mgcp.AUDIT_CONNECTION", event, false);
 			break;
 
 		case Constants.CMD_AUDIT_ENDPOINT:
 			AuditEndpoint auditEndpoint = (AuditEndpoint) event;
 			processEndpointMgcpEvent(auditEndpoint.getEndpointIdentifier(),
-					"net.java.slee.resource.mgcp.AUDIT_ENDPOINT", event);
+					"net.java.slee.resource.mgcp.AUDIT_ENDPOINT", event, false);
 			break;
 
 		case Constants.CMD_CREATE_CONNECTION:
@@ -311,10 +310,10 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			if (deleteConnection.getConnectionIdentifier() != null) {
 				processNonCreateConnectionMgcpEvent(deleteConnection.getConnectionIdentifier(), event
 						.getEndpointIdentifier(), event.getTransactionHandle(),
-						"net.java.slee.resource.mgcp.DELETE_CONNECTION", event);
+						"net.java.slee.resource.mgcp.DELETE_CONNECTION", event, false);
 			} else {
 				processEndpointMgcpEvent(deleteConnection.getEndpointIdentifier(),
-						"net.java.slee.resource.mgcp.DELETE_CONNECTION", event);
+						"net.java.slee.resource.mgcp.DELETE_CONNECTION", event, false);
 			}
 
 			break;
@@ -322,14 +321,14 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		case Constants.CMD_ENDPOINT_CONFIGURATION:
 			EndpointConfiguration endpointConfiguration = (EndpointConfiguration) event;
 			processEndpointMgcpEvent(endpointConfiguration.getEndpointIdentifier(),
-					"net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION", event);
+					"net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION", event, false);
 			break;
 
 		case Constants.CMD_MODIFY_CONNECTION:
 			ModifyConnection modifyConnection = (ModifyConnection) event;
 			processNonCreateConnectionMgcpEvent(modifyConnection.getConnectionIdentifier(), event
 					.getEndpointIdentifier(), event.getTransactionHandle(),
-					"net.java.slee.resource.mgcp.MODIFY_CONNECTION", event);
+					"net.java.slee.resource.mgcp.MODIFY_CONNECTION", event, false);
 			break;
 
 		case Constants.CMD_NOTIFICATION_REQUEST:
@@ -371,12 +370,12 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 
 			for (String s : connectionIds) {
 				processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(s), event.getEndpointIdentifier(), event
-						.getTransactionHandle(), "net.java.slee.resource.mgcp.NOTIFICATION_REQUEST", event);
+						.getTransactionHandle(), "net.java.slee.resource.mgcp.NOTIFICATION_REQUEST", event, false);
 			}
 
 			if ((requestedEvents == null && signalEvents == null) || processOnEndpoint) {
 				processEndpointMgcpEvent(notificationRequest.getEndpointIdentifier(),
-						"net.java.slee.resource.mgcp.NOTIFICATION_REQUEST", event);
+						"net.java.slee.resource.mgcp.NOTIFICATION_REQUEST", event, false);
 			}
 			break;
 
@@ -406,11 +405,12 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 
 			for (String s : connectionIdsNtfy) {
 				processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(s), notify.getEndpointIdentifier(), notify
-						.getTransactionHandle(), "net.java.slee.resource.mgcp.NOTIFY", event);
+						.getTransactionHandle(), "net.java.slee.resource.mgcp.NOTIFY", event, false);
 			}
 
 			if (processOnEndpointNtfy) {
-				processEndpointMgcpEvent(notify.getEndpointIdentifier(), "net.java.slee.resource.mgcp.NOTIFY", event);
+				processEndpointMgcpEvent(notify.getEndpointIdentifier(), "net.java.slee.resource.mgcp.NOTIFY", event,
+						false);
 			}
 
 			break;
@@ -418,7 +418,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		case Constants.CMD_RESTART_IN_PROGRESS:
 			RestartInProgress restartInProgress = (RestartInProgress) event;
 			processEndpointMgcpEvent(restartInProgress.getEndpointIdentifier(),
-					"net.java.slee.resource.mgcp.RESTART_IN_PROGRESS", event);
+					"net.java.slee.resource.mgcp.RESTART_IN_PROGRESS", event, false);
 			break;
 
 		default:
@@ -442,11 +442,11 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			AuditConnection auditConnection = (AuditConnection) command;
 			processNonCreateConnectionMgcpEvent(auditConnection.getConnectionIdentifier(), auditConnection
 					.getEndpointIdentifier(), response.getTransactionHandle(),
-					"net.java.slee.resource.mgcp.AUDIT_CONNECTION_RESPONSE", response);
+					"net.java.slee.resource.mgcp.AUDIT_CONNECTION_RESPONSE", response, false);
 			break;
 		case Constants.RESP_AUDIT_ENDPOINT:
 			processEndpointMgcpEvent(((AuditEndpoint) command).getEndpointIdentifier(),
-					"net.java.slee.resource.mgcp.AUDIT_ENDPOINT_RESPONSE", response);
+					"net.java.slee.resource.mgcp.AUDIT_ENDPOINT_RESPONSE", response, false);
 			break;
 		case Constants.RESP_CREATE_CONNECTION:
 			ConnectionIdentifier cId = null;
@@ -464,7 +464,7 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 				endpointIdentifier = ((CreateConnection) command).getEndpointIdentifier();
 			}
 			processNonCreateConnectionMgcpEvent(cId, endpointIdentifier, response.getTransactionHandle(),
-					"net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE", response);
+					"net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE", response, false);
 			if (isFailure(response.getReturnCode())) {
 				// create connection didn't succeed, end the activity
 				endActivity(mgcpActivityManager.getMgcpConnectionActivityHandle(cId, endpointIdentifier, response
@@ -476,10 +476,10 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			if (deleteConnection.getConnectionIdentifier() != null) {
 				processNonCreateConnectionMgcpEvent(deleteConnection.getConnectionIdentifier(), deleteConnection
 						.getEndpointIdentifier(), response.getTransactionHandle(),
-						"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response);
+						"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response, false);
 			} else {
 				processEndpointMgcpEvent(deleteConnection.getEndpointIdentifier(),
-						"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response);
+						"net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response, false);
 
 				List<MgcpConnectionActivity> connActivities = this.mgcpProvider
 						.getConnectionActivities(deleteConnection.getEndpointIdentifier());
@@ -487,20 +487,21 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 				for (MgcpConnectionActivity connActivitiy : connActivities) {
 					processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(connActivitiy
 							.getConnectionIdentifier()), connActivitiy.getEndpointIdentifier(), response
-							.getTransactionHandle(), "net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE", response);
+							.getTransactionHandle(), "net.java.slee.resource.mgcp.DELETE_CONNECTION_RESPONSE",
+							response, false);
 				}
 			}
 
 			break;
 		case Constants.RESP_ENDPOINT_CONFIGURATION:
 			processEndpointMgcpEvent(((EndpointConfiguration) command).getEndpointIdentifier(),
-					"net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION_RESPONSE", response);
+					"net.java.slee.resource.mgcp.ENDPOINT_CONFIGURATION_RESPONSE", response, false);
 			break;
 		case Constants.RESP_MODIFY_CONNECTION:
 			ModifyConnection modifyConnection = (ModifyConnection) command;
 			processNonCreateConnectionMgcpEvent(modifyConnection.getConnectionIdentifier(), modifyConnection
 					.getEndpointIdentifier(), response.getTransactionHandle(),
-					"net.java.slee.resource.mgcp.MODIFY_CONNECTION_RESPONSE", response);
+					"net.java.slee.resource.mgcp.MODIFY_CONNECTION_RESPONSE", response, false);
 			break;
 		case Constants.RESP_NOTIFICATION_REQUEST:
 
@@ -543,12 +544,12 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			for (String s : connectionIds) {
 				processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(s), notificationRequest
 						.getEndpointIdentifier(), response.getTransactionHandle(),
-						"net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE", response);
+						"net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE", response, false);
 			}
 
 			if ((requestedEvents == null && signalEvents == null) || processOnEndpoint) {
 				processEndpointMgcpEvent(notificationRequest.getEndpointIdentifier(),
-						"net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE", response);
+						"net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE", response, false);
 			}
 
 			break;
@@ -580,17 +581,17 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 
 			for (String s : connectionIdsNtfy) {
 				processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(s), notify.getEndpointIdentifier(), notify
-						.getTransactionHandle(), "net.java.slee.resource.mgcp.NOTIFY_RESPONSE", response);
+						.getTransactionHandle(), "net.java.slee.resource.mgcp.NOTIFY_RESPONSE", response, false);
 			}
 
 			if (processOnEndpointNtfy) {
 				processEndpointMgcpEvent(notify.getEndpointIdentifier(), "net.java.slee.resource.mgcp.NOTIFY_RESPONSE",
-						response);
+						response, false);
 			}
 			break;
 		case Constants.RESP_RESTART_IN_PROGRESS:
 			processEndpointMgcpEvent(((RestartInProgress) command).getEndpointIdentifier(),
-					"net.java.slee.resource.mgcp.RESTART_IN_PROGRESS_RESPONSE", response);
+					"net.java.slee.resource.mgcp.RESTART_IN_PROGRESS_RESPONSE", response, false);
 			break;
 		default:
 			tracer.warning("Unexpected event type: " + response.getObjectIdentifier());
@@ -612,7 +613,8 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	 * processes a new non {@link CreateConnection} event coming from stack
 	 */
 	private void processNonCreateConnectionMgcpEvent(ConnectionIdentifier connectionIdentifier,
-			EndpointIdentifier endpointIdentifier, int transactionHandle, String eventName, Object eventObject) {
+			EndpointIdentifier endpointIdentifier, int transactionHandle, String eventName, Object eventObject,
+			boolean killActivity) {
 		// get connection activity handle, create activity if does not exists
 		MgcpConnectionActivityHandle handle = mgcpActivityManager.getMgcpConnectionActivityHandle(connectionIdentifier,
 				endpointIdentifier, transactionHandle);
@@ -620,7 +622,8 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 			// fire event
 			fireEvent(eventName, handle, eventObject);
 
-			if ((eventObject instanceof DeleteConnection) || ((eventObject instanceof DeleteConnectionResponse))) {
+			if ((eventObject instanceof DeleteConnection) || (eventObject instanceof DeleteConnectionResponse)
+					|| killActivity) {
 				try {
 					// send activity end event to the container
 					getSleeEndpoint().endActivity(handle);
@@ -669,15 +672,17 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	 * 
 	 * @param notificationRequest
 	 */
-	private void processEndpointMgcpEvent(EndpointIdentifier endpointIdentifier, String eventName, Object eventObject) {
+	private void processEndpointMgcpEvent(EndpointIdentifier endpointIdentifier, String eventName, Object eventObject,
+			boolean killActivity) {
 		// fire on endpoint activity
 		MgcpEndpointActivityHandle handle = new MgcpEndpointActivityHandle(endpointIdentifier.toString());
 		if (mgcpActivityManager.containsMgcpEndpointActivityHandle(handle)) {
 			fireEvent(eventName, handle, eventObject);
 
 			// end activity if delete connection request or response
-			if (eventObject instanceof DeleteConnection || eventObject instanceof DeleteConnectionResponse) {
-				try {					
+			if (eventObject instanceof DeleteConnection || eventObject instanceof DeleteConnectionResponse
+					|| killActivity) {
+				try {
 					// send activity end event to the container
 					getSleeEndpoint().endActivity(handle);
 				} catch (Exception e) {
@@ -764,74 +769,6 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 		return (rval > 299);
 	}
 
-	private ActivityHandle getActivityHandle(JainMgcpCommandEvent event) {
-		ActivityHandle handle = null;
-
-		switch (event.getObjectIdentifier()) {
-
-		case Constants.CMD_AUDIT_CONNECTION:
-
-			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(((AuditConnection) event)
-					.getConnectionIdentifier(), event.getEndpointIdentifier(), event.getTransactionHandle());
-			break;
-
-		case Constants.CMD_AUDIT_ENDPOINT:
-			handle = new MgcpEndpointActivityHandle(((AuditEndpoint) event).getEndpointIdentifier().toString());
-			if (!mgcpActivityManager.containsActivityHandle(handle)) {
-				handle = null;
-			}
-			break;
-
-		case Constants.CMD_CREATE_CONNECTION:
-			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(null, event.getEndpointIdentifier(), event
-					.getTransactionHandle());
-			break;
-
-		case Constants.CMD_DELETE_CONNECTION:
-			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(((DeleteConnection) event)
-					.getConnectionIdentifier(), event.getEndpointIdentifier(), event.getTransactionHandle());
-			break;
-
-		case Constants.CMD_ENDPOINT_CONFIGURATION:
-			handle = new MgcpEndpointActivityHandle(((EndpointConfiguration) event).getEndpointIdentifier().toString());
-			if (!mgcpActivityManager.containsActivityHandle(handle)) {
-				handle = null;
-			}
-			break;
-
-		case Constants.CMD_MODIFY_CONNECTION:
-			handle = mgcpActivityManager.getMgcpConnectionActivityHandle(((ModifyConnection) event)
-					.getConnectionIdentifier(), event.getEndpointIdentifier(), event.getTransactionHandle());
-			break;
-
-		case Constants.CMD_NOTIFICATION_REQUEST:
-			handle = new MgcpEndpointActivityHandle(((NotificationRequest) event).getEndpointIdentifier().toString());
-			if (!mgcpActivityManager.containsActivityHandle(handle)) {
-				handle = null;
-			}
-			break;
-
-		case Constants.CMD_NOTIFY:
-			handle = new MgcpEndpointActivityHandle(((Notify) event).getEndpointIdentifier().toString());
-			if (!mgcpActivityManager.containsActivityHandle(handle)) {
-				handle = null;
-			}
-			break;
-
-		case Constants.CMD_RESTART_IN_PROGRESS:
-			handle = new MgcpEndpointActivityHandle(((RestartInProgress) event).getEndpointIdentifier().toString());
-			if (!mgcpActivityManager.containsActivityHandle(handle)) {
-				handle = null;
-			}
-			break;
-
-		default:
-			tracer.severe("Unexpected event type: " + event.getObjectIdentifier());
-			break;
-		}
-		return handle;
-	}
-
 	/**
 	 * Processes a timeout occurred in a sent {@link JainMgcpCommandEvent} event transaction, to prevent further
 	 * failures the activity will end after the RA fires the {@link TransactionTimeout} event.
@@ -839,15 +776,168 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	 * @param event
 	 *            the command sent.
 	 */
-	public void processTxTimeout(JainMgcpCommandEvent event) {
-		ActivityHandle handle = null;
+	public void processTxRxTimeout(JainMgcpCommandEvent event) {
+		switch (event.getObjectIdentifier()) {
 
-		handle = getActivityHandle(event);
-		if (handle != null) {
-			// fire timeout event
-			fireEvent("net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", handle, new TransactionTimeout());
-			// end activity
-			endActivity(handle);
+		case Constants.CMD_AUDIT_CONNECTION:
+
+			AuditConnection auditConnection = (AuditConnection) event;
+			processNonCreateConnectionMgcpEvent(auditConnection.getConnectionIdentifier(), auditConnection
+					.getEndpointIdentifier(), event.getTransactionHandle(),
+					"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(auditConnection), true);
+			break;
+
+		case Constants.CMD_AUDIT_ENDPOINT:
+			AuditEndpoint auditEndpoint = (AuditEndpoint) event;
+			processEndpointMgcpEvent(auditEndpoint.getEndpointIdentifier(),
+					"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(auditEndpoint), true);
+			break;
+
+		case Constants.CMD_CREATE_CONNECTION:
+			EndpointIdentifier endpointIdentifier = null;
+
+			CreateConnection createConnection = (CreateConnection) event;
+			endpointIdentifier = createConnection.getEndpointIdentifier();
+
+			processNonCreateConnectionMgcpEvent(null, endpointIdentifier, createConnection.getTransactionHandle(),
+					"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(createConnection), true);
+			break;
+
+		case Constants.CMD_DELETE_CONNECTION:
+			DeleteConnection deleteConnection = (DeleteConnection) event;
+			if (deleteConnection.getConnectionIdentifier() != null) {
+				processNonCreateConnectionMgcpEvent(deleteConnection.getConnectionIdentifier(), deleteConnection
+						.getEndpointIdentifier(), deleteConnection.getTransactionHandle(),
+						"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(deleteConnection),
+						true);
+			} else {
+				processEndpointMgcpEvent(deleteConnection.getEndpointIdentifier(),
+						"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(deleteConnection),
+						true);
+
+				List<MgcpConnectionActivity> connActivities = this.mgcpProvider
+						.getConnectionActivities(deleteConnection.getEndpointIdentifier());
+
+				// Should fire TIMEOUT Event to all the ConnectionActivity for this Endpoint
+				for (MgcpConnectionActivity connActivitiy : connActivities) {
+					processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(connActivitiy
+							.getConnectionIdentifier()), deleteConnection.getEndpointIdentifier(), deleteConnection
+							.getTransactionHandle(), "net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT",
+							new TransactionTimeout(deleteConnection), true);
+				}
+			}
+			break;
+
+		case Constants.CMD_ENDPOINT_CONFIGURATION:
+			EndpointConfiguration endpointConfiguration = (EndpointConfiguration) event;
+			processEndpointMgcpEvent(endpointConfiguration.getEndpointIdentifier(),
+					"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(endpointConfiguration),
+					true);
+			break;
+
+		case Constants.CMD_MODIFY_CONNECTION:
+			ModifyConnection modifyConnection = (ModifyConnection) event;
+			processNonCreateConnectionMgcpEvent(modifyConnection.getConnectionIdentifier(), modifyConnection
+					.getEndpointIdentifier(), modifyConnection.getTransactionHandle(),
+					"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(modifyConnection), true);
+			break;
+
+		case Constants.CMD_NOTIFICATION_REQUEST:
+			NotificationRequest notificationRequest = (NotificationRequest) event;
+
+			boolean processOnEndpoint = false;
+			List<String> connectionIds = new ArrayList<String>();
+			RequestedEvent[] requestedEvents = notificationRequest.getRequestedEvents();
+
+			if (requestedEvents != null) {
+				for (RequestedEvent requestedEvent : requestedEvents) {
+					EventName detectEvent = requestedEvent.getEventName();
+					ConnectionIdentifier connectionIdentifier = detectEvent.getConnectionIdentifier();
+					if (connectionIdentifier != null) {
+						if (!connectionIds.contains(connectionIdentifier.toString())) {
+							connectionIds.add(connectionIdentifier.toString());
+						}
+					} else {
+						processOnEndpoint = true;
+					}
+				}
+			}
+
+			EventName[] signalEvents = notificationRequest.getSignalRequests();
+
+			if (signalEvents != null) {
+				for (int i = 0; i < signalEvents.length; i++) {
+					EventName signalEvent = signalEvents[i];
+					ConnectionIdentifier connectionIdentifier = signalEvent.getConnectionIdentifier();
+					if (connectionIdentifier != null) {
+						if (!connectionIds.contains(connectionIdentifier.toString())) {
+							connectionIds.add(connectionIdentifier.toString());
+						}
+					} else {
+						processOnEndpoint = true;
+					}
+				}
+			}
+
+			for (String s : connectionIds) {
+				processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(s), notificationRequest
+						.getEndpointIdentifier(), notificationRequest.getTransactionHandle(),
+						"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(notificationRequest),
+						true);
+			}
+
+			if ((requestedEvents == null && signalEvents == null) || processOnEndpoint) {
+				processEndpointMgcpEvent(notificationRequest.getEndpointIdentifier(),
+						"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(notificationRequest),
+						true);
+			}
+			break;
+
+		case Constants.CMD_NOTIFY:
+			Notify notify = (Notify) event;
+
+			boolean processOnEndpointNtfy = false;
+			List<String> connectionIdsNtfy = new ArrayList<String>();
+
+			EventName[] observedEvents = notify.getObservedEvents();
+
+			if (observedEvents != null) {
+				for (int i = 0; i < observedEvents.length; i++) {
+					EventName observedEvent = observedEvents[i];
+					ConnectionIdentifier connectionIdentifier = observedEvent.getConnectionIdentifier();
+					if (connectionIdentifier != null) {
+						if (!connectionIdsNtfy.contains(connectionIdentifier.toString())) {
+							connectionIdsNtfy.add(connectionIdentifier.toString());
+						}
+					} else {
+						processOnEndpointNtfy = true;
+					}
+				}
+			} else {
+				processOnEndpointNtfy = true;
+			}
+
+			for (String s : connectionIdsNtfy) {
+				processNonCreateConnectionMgcpEvent(new ConnectionIdentifier(s), notify.getEndpointIdentifier(), notify
+						.getTransactionHandle(), "net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT",
+						new TransactionTimeout(notify), true);
+			}
+
+			if (processOnEndpointNtfy) {
+				processEndpointMgcpEvent(notify.getEndpointIdentifier(),
+						"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(notify), true);
+			}
+			break;
+
+		case Constants.CMD_RESTART_IN_PROGRESS:
+			RestartInProgress restartInProgress = (RestartInProgress) event;
+			processEndpointMgcpEvent(restartInProgress.getEndpointIdentifier(),
+					"net.java.slee.resource.mgcp.TRANSACTION_TIMEOUT", new TransactionTimeout(restartInProgress), true);
+			break;
+
+		default:
+			tracer.severe("Unexpected event type: " + event.getObjectIdentifier());
+			break;
 		}
 	}
 
@@ -859,12 +949,11 @@ public class MgcpResourceAdaptor implements ResourceAdaptor {
 	 *            the command sent.
 	 */
 	public void processRxTimeout(JainMgcpCommandEvent event) {
-		ActivityHandle handle = null;
-
-		handle = getActivityHandle(event);
-		if (handle != null) {
-			endActivity(handle);
-		}
+		this.processTxRxTimeout(event);
+	}
+	
+	public void processTxTimeout(JainMgcpCommandEvent event) {
+		this.processTxRxTimeout(event);
 	}
 
 	private void fireEvent(String eventName, ActivityHandle handle, Object event) {

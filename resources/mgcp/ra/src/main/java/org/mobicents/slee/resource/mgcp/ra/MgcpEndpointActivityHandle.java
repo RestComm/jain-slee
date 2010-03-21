@@ -17,6 +17,10 @@ public class MgcpEndpointActivityHandle implements Serializable, ActivityHandle 
 		this.id = id;
 	}
 	
+	public String getId(){
+		return this.id;
+	}
+	
 	@Override
 	public int hashCode() {
 		return id.hashCode();
