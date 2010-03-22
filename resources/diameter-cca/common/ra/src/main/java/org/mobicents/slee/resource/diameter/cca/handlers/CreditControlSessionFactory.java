@@ -9,19 +9,13 @@ import org.jdiameter.api.InternalException;
 import org.jdiameter.api.Message;
 import org.jdiameter.api.Request;
 import org.jdiameter.api.SessionFactory;
-import org.jdiameter.api.acc.events.AccountAnswer;
-import org.jdiameter.api.acc.events.AccountRequest;
 import org.jdiameter.api.app.AppAnswerEvent;
 import org.jdiameter.api.app.AppEvent;
 import org.jdiameter.api.app.AppRequestEvent;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.app.StateChangeListener;
-import org.jdiameter.api.auth.events.AbortSessionAnswer;
-import org.jdiameter.api.auth.events.AbortSessionRequest;
 import org.jdiameter.api.auth.events.ReAuthAnswer;
 import org.jdiameter.api.auth.events.ReAuthRequest;
-import org.jdiameter.api.auth.events.SessionTermAnswer;
-import org.jdiameter.api.auth.events.SessionTermRequest;
 import org.jdiameter.api.cca.ClientCCASession;
 import org.jdiameter.api.cca.ClientCCASessionListener;
 import org.jdiameter.api.cca.ServerCCASession;
@@ -167,58 +161,6 @@ public class CreditControlSessionFactory implements IAppSessionFactory, ClientCC
     else {
       doMessage(session, request);
     }
-  }
-
-  // /////////////////////////
-  // Base Message Handlers //
-  // /////////////////////////
-
-  public void doAbortSessionRequest(ClientCCASession session, AbortSessionRequest request) throws InternalException {
-    doMessage(session, request);
-  }
-
-  public void doAbortSessionAnswer(ClientCCASession session, AbortSessionRequest request, AbortSessionAnswer answer) throws InternalException {
-    doMessage(session, answer);
-  }
-
-  public void doAccountingRequest(ClientCCASession session, AccountRequest request) throws InternalException {
-    doMessage(session, request);
-  }
-
-  public void doAccountingAnswer(ClientCCASession session, AccountRequest request, AccountAnswer answer) throws InternalException {
-    doMessage(session, answer);
-  }
-
-  public void doSessionTerminationRequest(ClientCCASession session, SessionTermRequest request) throws InternalException {
-    doMessage(session, request);
-  }
-
-  public void doSessionTerminationAnswer(ClientCCASession session, SessionTermRequest request, SessionTermAnswer answer) throws InternalException {
-    doMessage(session, answer);
-  }
-
-  public void doAbortSessionRequest(ServerCCASession session, AbortSessionRequest request) throws InternalException {
-    doMessage(session, request);
-  }
-
-  public void doAbortSessionAnswer(ServerCCASession session, AbortSessionRequest request, AbortSessionAnswer answer) throws InternalException {
-    doMessage(session, answer);
-  }
-
-  public void doAccountingRequest(ServerCCASession session, AccountRequest request) throws InternalException {
-    doMessage(session, request);
-  }
-
-  public void doAccountingAnswer(ServerCCASession session, AccountRequest request, AccountAnswer answer) throws InternalException {
-    doMessage(session, answer);
-  }
-
-  public void doSessionTerminationRequest(ServerCCASession session, SessionTermRequest request) throws InternalException {
-    doMessage(session, request);
-  }
-
-  public void doSessionTerminationAnswer(ServerCCASession session, SessionTermRequest request, SessionTermAnswer answer) throws InternalException {
-    doMessage(session, answer);
   }
 
   // ///////////////////////////
