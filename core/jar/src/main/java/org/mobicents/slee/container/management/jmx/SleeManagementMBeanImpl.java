@@ -391,8 +391,10 @@ public class SleeManagementMBeanImpl extends StandardMBean implements
 			} else {
 				// re config event router
 				sleeContainer.getEventRouter().config(
-						MobicentsManagement.eventRouterExecutors,
-						MobicentsManagement.monitoringUncommittedAcAttachs);
+						MobicentsManagement.eventRouterThreads);
+				// re config timer facility
+				sleeContainer.getTimerFacility().config(
+						MobicentsManagement.timerThreads);
 			}
 			changeSleeState(SleeState.RUNNING);
 			startResourceAdaptors();

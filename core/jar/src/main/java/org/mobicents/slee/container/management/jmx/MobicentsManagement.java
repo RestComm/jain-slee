@@ -53,32 +53,47 @@ public class MobicentsManagement extends ServiceMBeanSupport implements Mobicent
 	 }
   }
   
-  public static Boolean monitoringUncommittedAcAttachs;
+  public static Integer timerThreads;
   
-  public boolean isMonitoringUncommittedAcAttachs() {
-	  return MobicentsManagement.monitoringUncommittedAcAttachs;
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.container.management.jmx.MobicentsManagementMBean#getTimerThreads()
+   */
+  public int getTimerThreads() {
+	  return MobicentsManagement.timerThreads;
   }
 
-  public void setMonitoringUncommittedAcAttachs(
-		  boolean monitoringUncommittedAcAttachs) {
-	  if (MobicentsManagement.monitoringUncommittedAcAttachs != null) {
-		  logger.warn("Setting event router monitoring of uncommitted activity context attaches to "+monitoringUncommittedAcAttachs+". If called with server running a stop and start is need to apply changes.");
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.container.management.jmx.MobicentsManagementMBean#setTimerThreads(int)
+   */
+  public void setTimerThreads(
+		  int value) {
+	  if (MobicentsManagement.timerThreads != null) {
+		  logger.warn("Setting event router monitoring of uncommitted activity context attaches to "+value+". If called with server running a stop and start is need to apply changes.");
 	  }	  
-	  MobicentsManagement.monitoringUncommittedAcAttachs = monitoringUncommittedAcAttachs;
+	  MobicentsManagement.timerThreads = value;
   }
 
-  public static Integer eventRouterExecutors;
+  public static Integer eventRouterThreads;
   
-  public int getEventRouterExecutors() {
-	return MobicentsManagement.eventRouterExecutors;
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.container.management.jmx.MobicentsManagementMBean#getEventRouterThreads()
+   */
+  public int getEventRouterThreads() {
+	return MobicentsManagement.eventRouterThreads;
   }
   
-  public void setEventRouterExecutors(int eventRouterExecutors) {
-	  if (MobicentsManagement.eventRouterExecutors != null) {
-		  logger.warn("Setting event router executors to "+eventRouterExecutors+". If called with server running a stop and start is need to apply changes.");
+  /*
+   * (non-Javadoc)
+   * @see org.mobicents.slee.container.management.jmx.MobicentsManagementMBean#setEventRouterThreads(int)
+   */
+  public void setEventRouterThreads(int value) {
+	  if (MobicentsManagement.eventRouterThreads != null) {
+		  logger.warn("Setting event router threads to "+value+". If called with server running a stop and start is need to apply changes.");
 	  }	  
-	  MobicentsManagement.eventRouterExecutors = eventRouterExecutors;
-	  
+	  MobicentsManagement.eventRouterThreads = value;
   }
   
   public static boolean loadClassesFirstFromAS = true;

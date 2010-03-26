@@ -132,6 +132,15 @@
 		<property name="clusteredUsageMBeans">false</property>		
 	</bean>
 	
+	<bean name="Mobicents.JAINSLEE.MobicentsManagement"
+		class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
+		<property name="entitiesRemovalDelay">1</property>
+		<property name="timerThreads">8</property>
+		<property name="eventRouterThreads">8</property>
+		<property name="loadClassesFirstFromAS">true</property>
+	</bean>
+	
 	<bean name="Mobicents.JAINSLEE.Container" class="org.mobicents.slee.container.SleeContainer">
 		<constructor>
 			<parameter>
@@ -158,6 +167,7 @@
 		<demand>Mobicents.JAINSLEE.Cluster</demand>		
 		<demand>Mobicents.JAINSLEE.AlarmMBean</demand>
 		<demand>Mobicents.JAINSLEE.TraceMBean</demand>
+		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.DeploymentMBean"
@@ -229,15 +239,6 @@
 			</parameter>
 		</constructor>
 		<demand>Mobicents.JAINSLEE.Container</demand>
-	</bean>
-
-	<bean name="Mobicents.JAINSLEE.MobicentsManagement"
-		class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
-		<property name="entitiesRemovalDelay">1</property>
-		<property name="monitoringUncommittedAcAttachs">true</property>
-		<property name="eventRouterExecutors">64</property>
-		<property name="loadClassesFirstFromAS">true</property>
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.SleeManagement"

@@ -31,8 +31,6 @@ import org.mobicents.slee.runtime.transaction.SleeTransactionManager;
 import org.mobicents.slee.runtime.transaction.TransactionContext;
 import org.mobicents.slee.runtime.transaction.TransactionalAction;
 
-import com.arjuna.ats.jts.tx.tx;
-
 /**
  * 
  * Implementation of SLEE 1.1 {@link SleeEndpoint}
@@ -65,6 +63,13 @@ public class SleeEndpointImpl implements SleeEndpoint {
         this.endActivityNotTransactedExecutor = new SleeEndpointEndActivityNotTransactedExecutor(container, this);
     }
 
+    /**
+	 * @return the raEntity
+	 */
+	public ResourceAdaptorEntity getRaEntity() {
+		return raEntity;
+	}
+	
     // --- ACTIVITY START 
     
     public void startActivity(ActivityHandle handle, Object activity)

@@ -51,7 +51,10 @@ public class SleeEndpointFireEventNotTransactedExecutor extends
 			FireEventException, SLEEException,
 			UnrecognizedActivityHandleException {
 		
-		final Transaction tx = super.suspendTransaction();
+		// suspend the tx and activity if there is a tx
+		// suspend also the activity to block the event
+		// till the tx ends (may have pending changes to the activity context)
+		final Transaction tx = super.suspendTransactionAndActivity(handle);
 		try {
 			sleeEndpoint._fireEvent(handle, eventType, event, address,
 					receivableService, eventFlags);

@@ -149,7 +149,7 @@ public class SleeContainer {
 	// the class that actually posts events to the SBBs.
 	// This should be made into a facility and registered with jmx and jndi
 	// so it can be independently controlled.
-	private EventRouter router;
+	private final EventRouter router;
 	// monitor object for sync on management operations
 	private final Object managementMonitor = new Object();
 	// for external access to slee
@@ -165,8 +165,8 @@ public class SleeContainer {
 	private final SbbObjectPoolManagement sbbPoolManagement;
 	private final ProfileObjectPoolManagement profileObjectPoolManagement;
 	// non clustered scheduler
-	private ScheduledExecutorService nonClusteredScheduler; 
-	private static final int NON_CLUSTERED_SCHEDULER_THREADS = 8;
+	private final ScheduledExecutorService nonClusteredScheduler; 
+	private static final int NON_CLUSTERED_SCHEDULER_THREADS = 4;
 	
 	/**
 	 * where DUs are stored
@@ -246,13 +246,14 @@ public class SleeContainer {
 		this.nullActivityContextInterfaceFactory = new NullActivityContextInterfaceFactoryImpl(
 				this);
 		this.profileTableActivityContextInterfaceFactory = new ProfileTableActivityContextInterfaceFactoryImpl(this);
-		this.timerFacility = new TimerFacilityImpl(this);
+		this.timerFacility = new TimerFacilityImpl(this,MobicentsManagement.timerThreads);
 		this.profileFacility = new ProfileFacilityImpl(this);
 		this.serviceActivityFactory = new ServiceActivityFactoryImpl(this);
 		this.serviceActivityContextInterfaceFactory = new ServiceActivityContextInterfaceFactoryImpl(this);
 		this.sbbPoolManagement = new SbbObjectPoolManagement(this);
 		this.profileObjectPoolManagement = new ProfileObjectPoolManagement(this);
-
+		this.nonClusteredScheduler = new ScheduledThreadPoolExecutor(NON_CLUSTERED_SCHEDULER_THREADS);
+		this.router = new EventRouterImpl(this,MobicentsManagement.eventRouterThreads);
 	}
 
 	/**
@@ -274,11 +275,6 @@ public class SleeContainer {
 		ctx = Util.createSubcontext(ctx, "nullactivity");
 		Util.createSubcontext(ctx, "factory");
 		Util.createSubcontext(ctx, "nullactivitycontextinterfacefactory");
-
-		// TODO possibly make nthreads configurable?
-		this.nonClusteredScheduler = new ScheduledThreadPoolExecutor(NON_CLUSTERED_SCHEDULER_THREADS);
-
-		this.router = new EventRouterImpl(this,MobicentsManagement.eventRouterExecutors,MobicentsManagement.monitoringUncommittedAcAttachs);
 
 		JndiRegistrationManager.registerWithJndi("slee/facilities", "activitycontextnaming",
 				activityContextNamingFacility);
@@ -327,8 +323,6 @@ public class SleeContainer {
 		Context ctx = new InitialContext();
 		Util.unbind(ctx, JVM_ENV + CTX_SLEE);
 		stopRMIServer();
-		nonClusteredScheduler.shutdown();
-		nonClusteredScheduler = null;
 	}
 
 	/**

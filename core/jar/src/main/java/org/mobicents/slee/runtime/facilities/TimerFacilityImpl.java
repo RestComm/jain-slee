@@ -8,6 +8,7 @@ import javax.slee.facilities.FacilityException;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
+import javax.slee.management.SleeState;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -47,13 +48,29 @@ public class TimerFacilityImpl implements TimerFacility {
 
 	private final SleeContainer sleeContainer;
 			
-	private final FaultTolerantScheduler scheduler;
+	private FaultTolerantScheduler scheduler;
 	
-	public TimerFacilityImpl(SleeContainer sleeContainer) {
+	public TimerFacilityImpl(SleeContainer sleeContainer, int timerThreads) {
 		this.sleeContainer = sleeContainer;
-		scheduler = new FaultTolerantScheduler("timer-facility",16,sleeContainer.getCluster(),(byte)10, sleeContainer.getTransactionManager().getRealTransactionManager(),new TimerFacilityTimerTaskFactory());
+		config(timerThreads);
 	}
 
+	/**
+	 * Configures the timer facility scheduler, defining the number of threads. This method will throw
+	 * {@link IllegalStateException} if the container state is RUNNING.
+	 * 
+	 * @param timerThreads
+	 */
+	public void config(int timerThreads) {
+		if (sleeContainer.getSleeState() == SleeState.RUNNING) {
+			throw new IllegalStateException();
+		}
+		if (scheduler != null) {
+			scheduler.shutdownNow();
+		}
+		scheduler = new FaultTolerantScheduler("timer-facility",timerThreads,sleeContainer.getCluster(),(byte)10, sleeContainer.getTransactionManager().getRealTransactionManager(),new TimerFacilityTimerTaskFactory()); 
+	}
+	
 	/**
 	 * Retrieves 
 	 * @return the scheduler

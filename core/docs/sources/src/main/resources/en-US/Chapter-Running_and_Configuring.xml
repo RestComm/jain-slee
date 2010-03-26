@@ -153,8 +153,8 @@ Halting VM]]></screen>
 		exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,
 		registerDirectly=true)</annotation>
 	<property name="entitiesRemovalDelay">1</property>
-	<property name="monitoringUncommittedAcAttachs">true</property>
-	<property name="eventRouterExecutors">64</property>
+	<property name="timerThreads">8</property>
+	<property name="eventRouterThreads">8</property>
 	<property name="loadClassesFirstFromAS">true</property>
 </bean>]]>
 			</programlisting>
@@ -178,12 +178,12 @@ Halting VM]]></screen>
 				       		<entry>the number of minutes before the container force the ending of sbb entities from a service being deactivated</entry>
 					      </row>
 					      <row>
-					        <entry>monitoringUncommittedAcAttachs</entry>
-					        <entry>boolean</entry>
-					        <entry>if true then the container monitors uncommitted attachements to Activity Contexts (AC), and holds access to those ACs till the attachements are committed, or rollback</entry>
+					        <entry>timerThreads</entry>
+					        <entry>int</entry>
+					        <entry>the number of threads used by the timer facility</entry>
 					      </row>
 				    	  <row>
-				  		    <entry>eventRouterExecutors</entry>
+				  		    <entry>eventRouterThreads</entry>
 				  		    <entry>int</entry>
 				    	    <entry>the number of threads routing events in parallel</entry>
 					      </row>

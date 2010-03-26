@@ -39,24 +39,20 @@ public class EventRouterImpl implements EventRouter {
 	 * The array of {@link ExecutorService}s that are used to route events
 	 */
 	private ExecutorService[] executors;
-	
-	private boolean monitorPendingACAttachements;
-	
+		
 	/**
 	 * the object used to manage event references
 	 */
 	private final DeferredEventReferencesManagement eventReferencesManagement = new DeferredEventReferencesManagement();
 	
-	public EventRouterImpl(SleeContainer container, int executors, boolean monitorPendingAcAttachments) {
+	public EventRouterImpl(SleeContainer container, int executors) {
 		this.container = container;		
 		final long period = 60*60*1000;  
 		container.getNonClusteredScheduler().scheduleAtFixedRate(new LocalResourcesGarbageCollectionTimerTask(), period, period, TimeUnit.MILLISECONDS);
-		config(executors, monitorPendingAcAttachments);
+		config(executors);
 		logger
-				.info("Mobicents JAIN SLEE Event Router started. Event Executors: "
-						+ executors
-						+ " Monitoring Pending AC Attachments: "
-						+ monitorPendingAcAttachments);
+				.info("Mobicents JAIN SLEE Event Router started. Event Router Threads: "
+						+ executors);
 	}
 	
 	public void routeEvent(DeferredEvent de) {
@@ -96,8 +92,7 @@ public class EventRouterImpl implements EventRouter {
 		+ "\n+-- Activities: " + activities.keySet();
 	}
 
-	public void config(int eventExecutorsSize,
-			boolean monitoringUncommittedAcAttachs) {
+	public void config(int eventExecutorsSize) {
 		if (container.getSleeState() != SleeState.RUNNING) {
 			// get ridden of old executors, if any
 			if (this.executors != null) {
@@ -110,7 +105,6 @@ public class EventRouterImpl implements EventRouter {
 			for (int i = 0; i < eventExecutorsSize; i++) {
 				this.executors[i] = Executors.newSingleThreadExecutor();
 			}			
-			this.monitorPendingACAttachements = monitoringUncommittedAcAttachs;
 		}
 		else {
 			throw new IllegalStateException("can't config event router with current slee state");
@@ -120,11 +114,7 @@ public class EventRouterImpl implements EventRouter {
 	public EventRouterActivity getEventRouterActivity(ActivityContextHandle ach, boolean create) {		
 		EventRouterActivity era = activities.get(ach);
 		if (era == null && create) {
-			PendingAttachementsMonitor pendingAttachementsMonitor = null;
-			if (monitorPendingACAttachements) {
-				pendingAttachementsMonitor = new PendingAttachementsMonitor(container.getTransactionManager());
-			}
-			final EventRouterActivity newEra = new EventRouterActivity(ach,pendingAttachementsMonitor,container);
+			final EventRouterActivity newEra = new EventRouterActivity(ach,container);
 			era = activities.putIfAbsent(ach,newEra);
 			if (era == null) {
 				era = newEra;

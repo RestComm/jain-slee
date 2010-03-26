@@ -15,7 +15,6 @@ import javax.slee.facilities.TimerID;
 import javax.slee.management.ServiceState;
 import javax.slee.resource.ActivityFlags;
 import javax.slee.resource.ActivityIsEndingException;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -28,7 +27,6 @@ import org.mobicents.slee.runtime.eventrouter.CommitDeferredEventAction;
 import org.mobicents.slee.runtime.eventrouter.DeferredActivityEndEvent;
 import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.EventRouterActivity;
-import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.eventrouter.RollbackDeferredEventAction;
 import org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl;
 import org.mobicents.slee.runtime.facilities.TimerFacilityImpl;
@@ -323,16 +321,8 @@ public class ActivityContext {
 
 		boolean attached = cacheData.attachSbbEntity(sbbEntityId);
 		if (attached) {
-			PendingAttachementsMonitor pendingAttachementsMonitor = getEventRouterActivity().getPendingAttachementsMonitor();
-			if (pendingAttachementsMonitor != null) {
-				try {
-					pendingAttachementsMonitor.txAttaching();
-				} catch (SystemException e) {
-					logger.error(e.getMessage(),e);
-				}
-			}	
 			// cancel a possible check for unreferenced activity, no need to
-			// waste time in checkingif the flags requested such process 
+			// waste time in checking if the flags requested such process 
 			cacheData.setCheckingReferences(false);
 		}
 		if (logger.isDebugEnabled()) {
@@ -354,14 +344,6 @@ public class ActivityContext {
 		if (detached) {
 			if (ActivityFlags.hasRequestSleeActivityGCCallback(getActivityFlags())) {
 				scheduleCheckForUnreferencedActivity(sleeContainer.getTransactionManager().getTransactionContext());				
-			}
-			PendingAttachementsMonitor pendingAttachementsMonitor = getEventRouterActivity().getPendingAttachementsMonitor();
-			if (pendingAttachementsMonitor != null) {
-				try {
-					pendingAttachementsMonitor.txDetaching();
-				} catch (SystemException e) {
-					logger.error(e.getMessage(),e);
-				}
 			}
 			if (logger.isDebugEnabled()) {
 				logger

@@ -28,19 +28,13 @@ public class EventRouterActivity {
 	private final ActivityEventQueueManager eventQueueManager;
 	
 	/**
-	 * 
-	 */
-	private final PendingAttachementsMonitor pendingAttachementsMonitor;
-	
-	/**
 	 * the event context for the event currently being routed
 	 */
 	private EventContextImpl currentEventContext;
 	
-	public EventRouterActivity(ActivityContextHandle ach, PendingAttachementsMonitor pendingAttachementsMonitor, SleeContainer sleeContainer) {
+	public EventRouterActivity(ActivityContextHandle ach, SleeContainer sleeContainer) {
 		this.ach = ach;
 		this.eventQueueManager = new ActivityEventQueueManager(ach,sleeContainer);
-		this.pendingAttachementsMonitor = pendingAttachementsMonitor;
 	}
 	
 	public ActivityEventQueueManager getEventQueueManager() {
@@ -53,10 +47,6 @@ public class EventRouterActivity {
 	
 	protected void setExecutorService(ExecutorService executorService) {
 		this.executorService = executorService;
-	}
-		
-	public PendingAttachementsMonitor getPendingAttachementsMonitor() {
-		return pendingAttachementsMonitor;
 	}
 	
 	public ActivityContextHandle getActivityContextHandle() {

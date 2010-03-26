@@ -22,7 +22,6 @@ import org.mobicents.slee.runtime.eventrouter.DeferredEvent;
 import org.mobicents.slee.runtime.eventrouter.DeferredEventReferencesManagement;
 import org.mobicents.slee.runtime.eventrouter.EventContextImpl;
 import org.mobicents.slee.runtime.eventrouter.EventRouterThreadLocals;
-import org.mobicents.slee.runtime.eventrouter.PendingAttachementsMonitor;
 import org.mobicents.slee.runtime.eventrouter.SbbInvocationState;
 import org.mobicents.slee.runtime.facilities.TimerEventImpl;
 import org.mobicents.slee.runtime.sbb.SbbObject;
@@ -91,26 +90,24 @@ public class EventRoutingTask implements Runnable {
 		this.de = de;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void run() {
-		PendingAttachementsMonitor pendingAttachementsMonitor = de.getEventRouterActivity().getPendingAttachementsMonitor();
-		if (pendingAttachementsMonitor != null) {
-			pendingAttachementsMonitor.waitTillNoTxModifyingAttachs();
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	public void run() {	
+		if (System.getSecurityManager() != null) {
+			AccessController.doPrivileged(
+				new PrivilegedAction<Object>() {
+					public Object run()	{
+						routeQueuedEvent();
+						return null;
+					}
+				}
+			);
 		}
-		
-		if(System.getSecurityManager()!=null)
-		{
-			AccessController.doPrivileged(new PrivilegedAction(){
-
-				public Object run(){
-					routeQueuedEvent();
-					return null;
-				}});
-		}else
-		{
+		else {
 			routeQueuedEvent();
-		}
-		
+		}		
 	}
 
 	/**

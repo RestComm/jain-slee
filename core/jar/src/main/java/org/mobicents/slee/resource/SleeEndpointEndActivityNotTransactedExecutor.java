@@ -33,7 +33,10 @@ public class SleeEndpointEndActivityNotTransactedExecutor extends
 	void execute(final ActivityHandle handle)
 			throws UnrecognizedActivityHandleException {
 
-		final Transaction tx = super.suspendTransaction();
+		// suspend the tx and activity if there is a tx
+		// suspend also the activity to block the activity end event
+		// till the tx ends (may have pending changes to the activity context)
+		final Transaction tx = super.suspendTransactionAndActivity(handle);
 		try {
 			sleeEndpoint._endActivity(handle);
 		} finally {

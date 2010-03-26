@@ -42,15 +42,12 @@ public interface EventRouter {
 	public void activityEnded(ActivityContextHandle ach);
 
 	/**
-	 * Configures the event router, defining the number of event executors and
-	 * if it should monitor pending AC attachments. This method will throw
+	 * Configures the event router, defining the number of event executors. This method will throw
 	 * {@link IllegalStateException} if the container state is RUNNING.
 	 * 
 	 * @param eventRouterExecutors
-	 * @param monitoringUncommittedAcAttachs
 	 */
-	public void config(int eventRouterExecutors,
-			boolean monitoringUncommittedAcAttachs);
+	public void config(int eventRouterExecutors);
 
 	/**
 	 * Retrieves the object used to manage event references
