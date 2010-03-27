@@ -27,10 +27,9 @@ package org.mobicents.slee.resource.diameter.base.events.avp;
 
 import java.util.Arrays;
 
+import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvp;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpType;
-
-import org.jdiameter.client.impl.parser.MessageParser;
 
 /**
  *
@@ -46,7 +45,6 @@ public class DiameterAvpImpl implements DiameterAvp {
   protected int code, mnd, prt;
   protected String name = "undefined";
   protected DiameterAvpType type = null;
-  protected MessageParser parser = new MessageParser(null);
 
   protected byte[] value;
 
@@ -85,7 +83,7 @@ public class DiameterAvpImpl implements DiameterAvp {
 
   public double doubleValue() {
     try {
-      return parser.bytesToDouble(value);
+      return AvpUtilities.getParser().bytesToDouble(value);
     }
     catch (Exception e) {
       return Double.MIN_VALUE;
@@ -94,7 +92,7 @@ public class DiameterAvpImpl implements DiameterAvp {
 
   public float floatValue() {
     try {
-      return parser.bytesToFloat(value);
+      return AvpUtilities.getParser().bytesToFloat(value);
     }
     catch (Exception e) {
       return Float.MIN_VALUE;
@@ -103,7 +101,7 @@ public class DiameterAvpImpl implements DiameterAvp {
 
   public int intValue() {
     try {
-      return parser.bytesToInt(value);
+      return AvpUtilities.getParser().bytesToInt(value);
     }
     catch (Exception e) {
       return Integer.MIN_VALUE;
@@ -112,7 +110,7 @@ public class DiameterAvpImpl implements DiameterAvp {
 
   public long longValue() {
     try {
-      return  parser.bytesToLong(value);
+      return  AvpUtilities.getParser().bytesToLong(value);
     }
     catch (Exception e) {
       return Long.MIN_VALUE;
@@ -121,7 +119,7 @@ public class DiameterAvpImpl implements DiameterAvp {
 
   public String stringValue() {
     try {
-      return parser.bytesToUtf8String(value);
+      return AvpUtilities.getParser().bytesToUtf8String(value);
     }
     catch (Exception e) {
       return null;
@@ -156,7 +154,7 @@ public class DiameterAvpImpl implements DiameterAvp {
 
   public String octetStringValue() {
     try {
-      return parser.bytesToOctetString(value);
+      return AvpUtilities.getParser().bytesToOctetString(value);
     }
     catch (Exception e) {
       return null;
@@ -169,8 +167,7 @@ public class DiameterAvpImpl implements DiameterAvp {
   }
 
   @Override
-  public boolean equals(Object that)
-  {
+  public boolean equals(Object that) {
     if(!(that instanceof DiameterAvp)) {
       return false;
     }

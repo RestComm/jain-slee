@@ -62,7 +62,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
     super(code, vendorId, mnd, prt, value, DiameterAvpType.GROUPED);
 
     try {
-      avpSet = parser.decodeAvpSet(value);
+      avpSet = AvpUtilities.getParser().decodeAvpSet(value);
     }
     catch (IOException e) {
       // FIXME: Need a way to get RA tracer...
@@ -123,7 +123,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
   }
 
   public byte[] byteArrayValue() {
-    return parser.encodeAvpSet(avpSet);
+    return AvpUtilities.getParser().encodeAvpSet(avpSet);
   }
 
   public Object clone() {

@@ -69,6 +69,7 @@ import net.java.slee.resource.diameter.base.events.DisconnectPeerRequest;
 import net.java.slee.resource.diameter.base.events.ReAuthRequest;
 import net.java.slee.resource.diameter.base.events.SessionTerminationRequest;
 import net.java.slee.resource.diameter.base.events.avp.AvpNotAllowedException;
+import net.java.slee.resource.diameter.base.events.avp.AvpUtilities;
 import net.java.slee.resource.diameter.base.events.avp.DiameterAvpCodes;
 import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 
@@ -93,9 +94,11 @@ import org.jdiameter.api.acc.ServerAccSession;
 import org.jdiameter.api.app.AppSession;
 import org.jdiameter.api.auth.ClientAuthSession;
 import org.jdiameter.api.auth.ServerAuthSession;
+import org.jdiameter.client.api.IContainer;
 import org.jdiameter.client.api.ISessionFactory;
 import org.jdiameter.client.impl.app.acc.ClientAccSessionImpl;
 import org.jdiameter.client.impl.app.auth.ClientAuthSessionImpl;
+import org.jdiameter.client.impl.parser.MessageParser;
 import org.jdiameter.common.impl.validation.JAvpNotAllowedException;
 import org.jdiameter.server.impl.app.acc.ServerAccSessionImpl;
 import org.jdiameter.server.impl.app.auth.ServerAuthSessionImpl;
@@ -710,6 +713,10 @@ public class DiameterBaseResourceAdaptor implements ResourceAdaptor, DiameterLis
     this.stack = this.diameterMux.getStack();
     this.messageTimeout = stack.getMetaData().getConfiguration().getLongValue(MessageTimeOut.ordinal(), (Long) MessageTimeOut.defValue());
 
+    // Obtain parser and store it in AvpUtilities
+    MessageParser parser = ((IContainer)stack).getAssemblerFacility().getComponentInstance(MessageParser.class);
+    AvpUtilities.setParser(parser);
+    
     if(tracer.isInfoEnabled()) {
       tracer.info("Diameter Base RA :: Successfully initialized stack.");
     }
