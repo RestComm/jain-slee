@@ -40,7 +40,9 @@ import net.java.slee.resource.diameter.base.events.avp.DiameterIdentity;
 import net.java.slee.resource.diameter.base.events.avp.DiameterURI;
 import net.java.slee.resource.diameter.base.events.avp.GroupedAvp;
 
+import org.apache.log4j.Logger;
 import org.jdiameter.api.Avp;
+import org.jdiameter.api.AvpDataException;
 import org.jdiameter.api.AvpSet;
 import org.mobicents.diameter.dictionary.AvpDictionary;
 import org.mobicents.diameter.dictionary.AvpRepresentation;
@@ -55,38 +57,38 @@ import org.mobicents.diameter.dictionary.AvpRepresentation;
  */
 public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
 
+  private static transient final Logger logger = Logger.getLogger(GroupedAvpImpl.class);
+
   protected AvpSet avpSet;
 
-  public GroupedAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value)
-  {
+  public GroupedAvpImpl(int code, long vendorId, int mnd, int prt, byte[] value) {
     super(code, vendorId, mnd, prt, value, DiameterAvpType.GROUPED);
 
     try {
       avpSet = AvpUtilities.getParser().decodeAvpSet(value);
     }
-    catch (IOException e) {
-      // FIXME: Need a way to get RA tracer...
-      // log.error("Failure creating Grouped AVP.", e);
+    catch (IOException ioe) {
+      logger.error("Failure creating Grouped AVP.", ioe);
+    }
+    catch (AvpDataException ade) {
+      logger.error("Failure creating Grouped AVP.", ade);
     }
   }
 
-  public DiameterAvp[] getExtensionAvps()
-  {
+  public DiameterAvp[] getExtensionAvps() {
     DiameterAvp[] acc = new DiameterAvp[0];
 
     try {
       acc = getExtensionAvpsInternal(avpSet);
     }
     catch (Exception e) {
-      // FIXME: Need a way to get RA tracer...
-      // log.error("Failure getting Extension AVPs.", e);
+      logger.error("Failure getting Extension AVPs.", e);
     }
 
     return acc;
   }
 
-  public void setExtensionAvps(DiameterAvp[] extensions) throws AvpNotAllowedException
-  {
+  public void setExtensionAvps(DiameterAvp[] extensions) throws AvpNotAllowedException {
     if(extensions == null) {
       return;
     }
@@ -97,8 +99,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
       }
     }
     catch (Exception e) {
-      // FIXME: Need a way to get RA tracer...
-      // log.error("Failure setting Extension AVPs.", e);
+      logger.error("Failure setting Extension AVPs.", e);
     }
   }
 
@@ -132,11 +133,8 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
     return super.clone();
   }
 
-  private void addAvp(DiameterAvp avp, AvpSet set)
-  {
-    // FIXME: alexandre: Should we look at the types and add them with proper function?
-    if(avp instanceof GroupedAvp)
-    {
+  private void addAvp(DiameterAvp avp, AvpSet set) {
+    if(avp instanceof GroupedAvp) {
       AvpSet avpSet = set.addGroupedAvp(avp.getCode(), avp.getVendorId(), avp.getMandatoryRule() == 1, avp.getProtectedRule() == 1);
 
       DiameterAvp[] groupedAVPs = ((GroupedAvp)avp).getExtensionAvps();
@@ -152,8 +150,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
   private DiameterAvp[] getExtensionAvpsInternal(AvpSet set) throws Exception {
     List<DiameterAvp> acc = new ArrayList<DiameterAvp>();
 
-    for (Avp a : set) 
-    {
+    for (Avp a : set) {
       // FIXME: alexandre: This is how I can check if it's a Grouped AVP... 
       // should use dictionary (again). a.getGrouped() get's into deadlock.
       if(a.getRaw().length == 0) {
@@ -499,8 +496,7 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
     return getAvp(avpCode, 0L);
   }
 
-  protected Object getAvp(String avpName)
-  {
+  protected Object getAvp(String avpName) {
     AvpRepresentation avpRep = AvpDictionary.INSTANCE.getAvp(avpName);
 
     if(avpRep != null) {
@@ -526,50 +522,28 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
       case DiameterAvpType._IP_FILTER_RULE:
       case DiameterAvpType._OCTET_STRING:
       case DiameterAvpType._QOS_FILTER_RULE:
-      {
         return getAvpAsOctetString(avpCode, vendorId);
-      }
       case DiameterAvpType._ENUMERATED:
       case DiameterAvpType._INTEGER_32:
-      {
         return getAvpAsInteger32(avpCode, vendorId);        
-      }
       case DiameterAvpType._FLOAT_32:
-      {
         return getAvpAsFloat32(avpCode, vendorId);        
-      }
       case DiameterAvpType._FLOAT_64:
-      {
         return getAvpAsFloat64(avpCode, vendorId);        
-      }
       case DiameterAvpType._GROUPED:
-      {
         return getAvpAsGrouped(avpCode, vendorId);
-      }
       case DiameterAvpType._INTEGER_64:
-      {
         return getAvpAsInteger64(avpCode, vendorId);
-      }
       case DiameterAvpType._TIME:
-      {
         return getAvpAsTime(avpCode, vendorId);
-      }
       case DiameterAvpType._UNSIGNED_32:
-      {
         return getAvpAsUnsigned32(avpCode, vendorId);
-      }
       case DiameterAvpType._UNSIGNED_64:
-      {
         return getAvpAsUnsigned64(avpCode, vendorId);
-      }
       case DiameterAvpType._UTF8_STRING:
-      {
         return getAvpAsUTF8String(avpCode, vendorId);
-      }
       default:
-      {
         return getAvpAsRaw(avpCode, vendorId);
-      }
       }
     }
 
