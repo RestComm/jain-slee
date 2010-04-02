@@ -66,7 +66,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.servers.jainslee.core</groupId>
-			<version>${pom.version}</version>
+			<version>${mobicents.core.version}</version>
 			<artifactId>jar</artifactId>
 		</dependency>
 	</dependencies>

@@ -15,9 +15,9 @@ import org.mobicents.slee.service.events.CustomEvent;
 
 @Name("orderApprovalAction")
 public class OrderApprovalAction {
-	
+
 	private static Logger logger = Logger.getLogger(OrderApprovalAction.class);
-	
+
 	@In
 	String customerfullname;
 
@@ -29,44 +29,54 @@ public class OrderApprovalAction {
 
 	@In
 	Long orderId;
-	
+
 	@In
 	String userName;
-	
+
 	@In
 	ExternalActivityHandle adminExternalActivityHandle;
-	
+
 	public void fireOrderApprovedEvent() {
 
 		logger.info("*************** Fire ORDER_APPROVED  ***************************");
 		logger.info("First Name = " + customerfullname);
 		logger.info("Phone = " + cutomerphone);
 		logger.info("orderId = " + orderId);
-		
-//		try {
-//
-//			InitialContext ic = new InitialContext();
-//
-//			SleeConnectionFactory factory = (SleeConnectionFactory) ic
-//					.lookup("java:/MobicentsConnectionFactory");
-//
-//			SleeConnection conn1 = null;
-//			conn1 = factory.getConnection();
-//
-//			//ExternalActivityHandle handle = conn1.createActivityHandle();
-//
-//			EventTypeID requestType = conn1.getEventTypeID(
-//					"org.mobicents.slee.service.dvddemo.ORDER_APPROVED",
-//					"org.mobicents", "1.0");
-//			CustomEvent customEvent = new CustomEvent(orderId, amount,
-//					customerfullname, cutomerphone, userName);
-//
-//			conn1.fireEvent(customEvent, requestType, adminExternalActivityHandle, null);
-//			conn1.close();
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		Thread t = new Thread(new Runnable() {
+
+			public void run() {
+				try {
+
+					InitialContext ic = new InitialContext();
+
+					SleeConnectionFactory factory = (SleeConnectionFactory) ic.lookup("java:/MobicentsConnectionFactory");
+
+					SleeConnection conn1 = null;
+					conn1 = factory.getConnection();
+
+					// ExternalActivityHandle handle =
+					// conn1.createActivityHandle();
+
+					EventTypeID requestType = conn1.getEventTypeID("org.mobicents.slee.service.dvddemo.ORDER_APPROVED", "org.mobicents",
+							"1.0");
+					CustomEvent customEvent = new CustomEvent(orderId, amount, customerfullname, cutomerphone, userName);
+
+					conn1.fireEvent(customEvent, requestType, adminExternalActivityHandle, null);
+					conn1.close();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
@@ -76,31 +86,42 @@ public class OrderApprovalAction {
 		logger.info("Phone = " + cutomerphone);
 		logger.info("orderId = " + orderId);
 		logger.info("adminExternalActivityHandle = " + adminExternalActivityHandle);
+		Thread t = new Thread(new Runnable() {
 
-//		try {
-//
-//			InitialContext ic = new InitialContext();
-//
-//			SleeConnectionFactory factory = (SleeConnectionFactory) ic
-//					.lookup("java:/MobicentsConnectionFactory");
-//
-//			SleeConnection conn1 = null;
-//			conn1 = factory.getConnection();
-//
-//			//ExternalActivityHandle handle = conn1.createActivityHandle();
-//
-//			EventTypeID requestType = conn1.getEventTypeID(
-//					"org.mobicents.slee.service.dvddemo.ORDER_REJECTED",
-//					"org.mobicents", "1.0");
-//			CustomEvent customEvent = new CustomEvent(orderId, amount,
-//					customerfullname, cutomerphone, userName);
-//
-//			conn1.fireEvent(customEvent, requestType, adminExternalActivityHandle, null);
-//			conn1.close();
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-	}	
+			public void run() {
+
+				try {
+
+					InitialContext ic = new InitialContext();
+
+					SleeConnectionFactory factory = (SleeConnectionFactory) ic.lookup("java:/MobicentsConnectionFactory");
+
+					SleeConnection conn1 = null;
+					conn1 = factory.getConnection();
+
+					// ExternalActivityHandle handle =
+					// conn1.createActivityHandle();
+
+					EventTypeID requestType = conn1.getEventTypeID("org.mobicents.slee.service.dvddemo.ORDER_REJECTED", "org.mobicents",
+							"1.0");
+					CustomEvent customEvent = new CustomEvent(orderId, amount, customerfullname, cutomerphone, userName);
+
+					conn1.fireEvent(customEvent, requestType, adminExternalActivityHandle, null);
+					conn1.close();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

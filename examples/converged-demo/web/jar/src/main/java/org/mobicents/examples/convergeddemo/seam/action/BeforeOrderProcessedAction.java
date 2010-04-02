@@ -18,19 +18,19 @@ import org.mobicents.slee.service.events.CustomEvent;
 @Name("beforeOrderProcessed")
 public class BeforeOrderProcessedAction {
 	private static Logger logger = Logger.getLogger(BeforeOrderProcessedAction.class);
-	
+
 	@In
 	String customerfullname;
-	
+
 	@In
 	String cutomerphone;
-	
+
 	@In
 	BigDecimal amount;
-	
+
 	@In
 	Long orderId;
-	
+
 	@In
 	String userName;
 
@@ -43,32 +43,40 @@ public class BeforeOrderProcessedAction {
 		logger.info("Phone = " + cutomerphone);
 		logger.info("orderId = " + orderId);
 		logger.info("Amount = " + amount);
+		Thread t = new Thread(new Runnable() {
 
-//		try {
-//
-//			InitialContext ic = new InitialContext();
-//
-//			SleeConnectionFactory factory = (SleeConnectionFactory) ic
-//					.lookup("java:/MobicentsConnectionFactory");
-//
-//			SleeConnection conn1 = null;
-//			conn1 = factory.getConnection();
-//
-//			handle = conn1.createActivityHandle();
-//
-//			EventTypeID requestType = conn1
-//					.getEventTypeID(
-//							"org.mobicents.slee.service.dvddemo.BEFORE_ORDER_PROCESSED",
-//							"org.mobicents", "1.0");
-//			CustomEvent customEvent = new CustomEvent(orderId, amount,
-//					customerfullname, cutomerphone, userName);
-//
-//			conn1.fireEvent(customEvent, requestType, handle, null);
-//			conn1.close();
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+			public void run() {
+
+				try {
+
+					InitialContext ic = new InitialContext();
+
+					SleeConnectionFactory factory = (SleeConnectionFactory) ic.lookup("java:/MobicentsConnectionFactory");
+
+					SleeConnection conn1 = null;
+					conn1 = factory.getConnection();
+
+					handle = conn1.createActivityHandle();
+
+					EventTypeID requestType = conn1.getEventTypeID("org.mobicents.slee.service.dvddemo.BEFORE_ORDER_PROCESSED",
+							"org.mobicents", "1.0");
+					CustomEvent customEvent = new CustomEvent(orderId, amount, customerfullname, cutomerphone, userName);
+
+					conn1.fireEvent(customEvent, requestType, handle, null);
+					conn1.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+		});
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
