@@ -3,10 +3,10 @@ package org.mobicents.slee.container.management.jmx;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.log4j.Logger;
 import org.jboss.ha.framework.interfaces.FirstAvailable;
 import org.jboss.ha.framework.interfaces.HAPartition;
 import org.jboss.ha.framework.server.HARMIServerImpl;
-import org.jboss.logging.Logger;
 import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.util.naming.Util;
 import org.mobicents.slee.connector.server.RemoteSleeService;

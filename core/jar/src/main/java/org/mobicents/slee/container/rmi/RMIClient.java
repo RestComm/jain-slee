@@ -7,8 +7,9 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import org.apache.log4j.Logger;
 import org.jboss.invocation.MarshalledInvocation;
-import org.jboss.logging.Logger;
+
 
 /**
  * 

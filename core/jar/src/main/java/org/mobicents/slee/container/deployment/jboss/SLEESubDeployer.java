@@ -14,9 +14,10 @@ import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.slee.InvalidStateException;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jboss.deployment.DeploymentException;
 import org.jboss.deployment.SubDeployerSupport;
-import org.jboss.logging.Logger;
 import org.jboss.mx.util.MBeanServerLocator;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.DeployableUnitDescriptorImpl;
@@ -246,7 +247,10 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
     }
     catch (Exception e) {
       // Something went wrong...
-      logger.error("Deployment of " + fileName + " failed. ", e);
+    	if(logger.isEnabledFor(Level.ERROR))
+    	{
+    		logger.error("Deployment of " + fileName + " failed. ", e);
+    	}
 
       return;
     }
@@ -272,7 +276,10 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
       }
     }
     catch (Exception e) {
-      logger.error("", e);
+    	if(logger.isEnabledFor(Level.ERROR))
+    	{
+    		logger.error("", e);
+    	}
     }
   }
 
@@ -324,13 +331,19 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
       Throwable cause = e.getCause();
 
       if(cause instanceof InvalidStateException) {
-        logger.warn(cause.getLocalizedMessage() + "... WAITING ..."); 
+    	  if(logger.isEnabledFor(Level.WARN))
+      	{
+    		  logger.warn(cause.getLocalizedMessage() + "... WAITING ...");
+      	}
       }
       else if (e instanceof DeploymentException){
         throw new IllegalStateException(e.getLocalizedMessage(), e);
       }
       else {
-        logger.error(e.getMessage(), e);
+    	  if(logger.isEnabledFor(Level.ERROR))
+      	  {
+    		  logger.error(e.getMessage(), e);
+      	  }
       }
       return false;
     }
@@ -344,29 +357,30 @@ public class SLEESubDeployer extends SubDeployerSupport implements SLEESubDeploy
    * MBean operation for getting Deployer status.
    */
   public String showStatus() throws DeploymentException {
-    String output = "";
+	  StringBuilder output = new StringBuilder();
+    
 
-    output += "<p>Deployable Units List:</p>";
+    output.append("<p>Deployable Units List:</p>");
 
     for(String key : deployableUnits.keySet()) {
-      output += "&lt;" + key + "&gt; [" + deployableUnits.get(key) + "]<br>";
+    	 output.append("&lt;").append(key).append("&gt; [").append(deployableUnits.get(key)).append("]<br>");
 
       for(String duComponent : deployableUnits.get(key).getComponents()) {
-        output += "+-- " + duComponent + "<br>";
+        output.append("+-- ").append(duComponent).append("<br>");
       }
     }
 
-    output += "<p>To Accept List:</p>";
+    output.append("<p>To Accept List:</p>");
 
     for(String key : toAccept.keySet()) {
-      output += "&lt;" + key + "&gt; [" + toAccept.get(key) + "]<br>";   
+    	output.append("&lt;").append( key ).append("&gt; [").append(toAccept.get(key) ).append("]<br>");   
     }
 
-    output += "<p>Deployment Manager Status</p>";
+    output.append("<p>Deployment Manager Status</p>");
 
-    output += DeploymentManager.INSTANCE.showStatus();   
+    output.append(DeploymentManager.INSTANCE.showStatus());   
 
-    return output;
+    return output.toString();
   }
 
   /**

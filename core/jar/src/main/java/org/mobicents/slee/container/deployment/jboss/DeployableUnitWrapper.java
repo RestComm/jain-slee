@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.jboss.logging.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 
 /**
  * 
@@ -27,7 +29,10 @@ public class DeployableUnitWrapper {
       gatherInfoFromURL(url);
     }
     catch (MalformedURLException e) {
-      logger.error(e.getLocalizedMessage(), e);
+    	if(logger.isEnabledFor(Level.ERROR))
+    	{
+    		logger.error(e.getLocalizedMessage(), e);
+    	}
     }
   }
 
@@ -87,7 +92,10 @@ public class DeployableUnitWrapper {
       }
     }
     catch ( MalformedURLException e ) {
-      logger.error(e.getLocalizedMessage(), e);
+    	if(logger.isEnabledFor(Level.ERROR))
+    	{
+    		logger.error(e.getLocalizedMessage(), e);
+    	}
     }
 
     return  retURL;

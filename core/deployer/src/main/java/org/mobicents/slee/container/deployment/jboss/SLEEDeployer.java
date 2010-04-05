@@ -4,10 +4,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.vfs.spi.deployer.AbstractSimpleVFSRealDeployer;
 import org.jboss.deployers.vfs.spi.structure.VFSDeploymentUnit;
-import org.jboss.logging.Logger;
 import org.jboss.system.ServiceController;
 import org.jboss.virtual.VFSUtils;
 
@@ -145,7 +145,10 @@ public class SLEEDeployer extends AbstractSimpleVFSRealDeployer<SLEEDeploymentMe
     }
 
     if(this.waitingList.size() > 0) {
-      logger.info("><><><><><><><><>< Deployment of JAIN SLEE deployable-units complete. " + (failCount == 0 ? "No" : failCount) + " failures. ><><><><><><><><><");
+    	if(logger.isInfoEnabled())
+    	{
+    		logger.info("><><><><><><><><>< Deployment of JAIN SLEE deployable-units complete. " + (failCount == 0 ? "No" : failCount) + " failures. ><><><><><><><><><");
+    	}
     }
 
     // This should suffice for sync deployments

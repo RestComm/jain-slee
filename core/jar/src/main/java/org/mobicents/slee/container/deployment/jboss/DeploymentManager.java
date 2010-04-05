@@ -26,8 +26,9 @@ import javax.slee.management.ServiceManagementMBean;
 import javax.slee.management.ServiceState;
 import javax.slee.management.UnrecognizedLinkNameException;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jboss.deployment.DeploymentException;
-import org.jboss.logging.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.MobicentsManagement;
 
@@ -198,7 +199,10 @@ public class DeploymentManager {
       }
     }
     else {
-      logger.warn("Unable to INSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependencies to be resolved.");
+    	if(logger.isEnabledFor(Level.WARN))
+    	{
+    		logger.warn("Unable to INSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependencies to be resolved.");
+    	}
 
       // The DU can't be installed now, let's wait...
       waitingForInstallDUs.add(du);
@@ -219,7 +223,10 @@ public class DeploymentManager {
     if (!du.isInstalled()) {
       // Then it should be in the waiting list... remove and we're done.
       if (waitingForInstallDUs.remove(du)) {
-        logger.info(du.getDeploymentInfoShortName() + " wasn't deployed. Removing from waiting list.");
+    	  if(logger.isEnabledFor(Level.WARN))
+      	{
+    	  logger.info(du.getDeploymentInfoShortName() + " wasn't deployed. Removing from waiting list.");
+      	}
       }
     }
     // Check if DU components are still present 
@@ -242,8 +249,10 @@ public class DeploymentManager {
       if (!waitingForUninstallDUs.contains(du)) {
         // Add it to the waiting list.
         waitingForUninstallDUs.add(du);
-
-        logger.warn("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
+        if(logger.isEnabledFor(Level.WARN))
+    	{
+        	logger.warn("Unable to UNINSTALL " + du.getDeploymentInfoShortName() + " right now. Waiting for dependents to be removed.");
+    	}
       }
 
       // But we have to throw this so task knows that it needs to retry
@@ -405,11 +414,16 @@ public class DeploymentManager {
             // Add it to the list of actions to skip on undeploy
             actionsToAvoid.add(actionToAvoid);
           }
-
-          logger.warn(e.getCause().getMessage());
+          if(logger.isEnabledFor(Level.WARN))
+      	  {
+        	  logger.warn(e.getCause().getMessage());
+      	  }
         }
         else if (e.getCause() instanceof InvalidStateException && action.equals("deactivate")) {
-          logger.info("Delaying uninstall due to service deactivation not complete.");
+        	if(logger.isEnabledFor(Level.INFO))
+        	{
+        		logger.info("Delaying uninstall due to service deactivation not complete.");
+        	}
         }
         else if (e.getCause() instanceof InvalidStateException && action.equals("deactivateResourceAdaptorEntity")) {
           // ignore this... someone has already deactivated the link.
@@ -418,7 +432,10 @@ public class DeploymentManager {
           // ignore this... someone has already removed the link.
         }
         else if (deployActions.contains(action)) {
-          logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e);
+        	if(logger.isEnabledFor(Level.ERROR))
+        	{
+        		logger.error("Failure invoking '" + action + "(" + Arrays.toString(arguments) + ") on " + objectName, e);
+        	}
         }
         else {
           throw (e);
@@ -446,25 +463,25 @@ public class DeploymentManager {
     // Update the currently deployed components.
     updateDeployedComponents();
 
-    String output = "";
+    StringBuilder output = new StringBuilder();
 
-    output += "<p>Deployable Units Waiting For Install:</p>";
+    output.append("<p>Deployable Units Waiting For Install:</p>");
     for (DeployableUnit waitingDU : waitingForInstallDUs) {
-      output += "+-- " + waitingDU.getDeploymentInfoShortName() + "<br>";
+    	output.append("+-- ").append(waitingDU.getDeploymentInfoShortName()).append("<br>");
       for (String dependency : waitingDU.getExternalDependencies()) {
         if (!deployedComponents.contains(dependency))
-          dependency += " <strong>MISSING!</strong>";
+        	output.append(" <strong>MISSING!</strong>");
 
-        output += "  +-- depends on " + dependency + "<br>";
+        output.append("  +-- depends on ").append(dependency).append("<br>");
       }
     }
 
-    output += "<p>Deployable Units Waiting For Uninstall:</p>";
+    output.append("<p>Deployable Units Waiting For Uninstall:</p>");
     for (DeployableUnit waitingDU : waitingForUninstallDUs) {
-      output += "+-- " + waitingDU.getDeploymentInfoShortName() + "<br>";
+      output.append("+-- ").append(waitingDU.getDeploymentInfoShortName()).append("<br>");
     }
 
-    return output;
+    return output.toString();
   }
 
   /**

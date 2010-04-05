@@ -10,7 +10,9 @@ import java.util.Set;
 
 import javax.slee.ComponentID;
 
-import org.jboss.logging.Logger;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorFactory;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.EventTypeDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.LibraryDescriptorFactory;
@@ -194,7 +196,10 @@ public class DeployableComponent
         return deployableComponents;
       }
       catch (Exception e) {
-        logger.error("", e);
+    	  if(logger.isEnabledFor(Level.ERROR))
+          {
+    		  logger.error("", e);
+          }
         return null;
       }
       finally {
@@ -285,7 +290,10 @@ public class DeployableComponent
           }
         }
         catch (Exception e) {
-          logger.error("", e);
+        	  if(logger.isEnabledFor(Level.WARN))
+              {
+        		  logger.error("", e);
+              }
         }
         finally {
           // Clean up!
@@ -316,7 +324,10 @@ public class DeployableComponent
 
           // Get a list of the profile specifications in the deployable unit.
           if(psDescriptors.size() == 0) {
-            logger.warn("The " + duWrapper.getFileName() + " deployment descriptor contains no profile-spec definitions");
+        	  if(logger.isEnabledFor(Level.WARN))
+              {
+        		  logger.warn("The " + duWrapper.getFileName() + " deployment descriptor contains no profile-spec definitions");
+              }
             return null;
           }
 
@@ -359,7 +370,10 @@ public class DeployableComponent
           }
         }
         catch (Exception e) {
-          logger.error("", e);
+        	  if(logger.isEnabledFor(Level.ERROR))
+              {
+        		  logger.error("", e);
+              }
         }
         finally {
           // Clean up!
@@ -432,7 +446,10 @@ public class DeployableComponent
 
         }
         catch (Exception e) {
-          logger.error("", e);
+        	  if(logger.isEnabledFor(Level.ERROR))
+              {
+        		  logger.error("", e);
+              }
         }
         finally {
           // Clean up!
@@ -505,7 +522,10 @@ public class DeployableComponent
           }
         }
         catch (Exception e) {
-          logger.error("", e);
+        	  if(logger.isEnabledFor(Level.WARN))
+              {
+        		  logger.error("", e);
+              }
         }
         finally {
           // Clean up!
@@ -573,7 +593,10 @@ public class DeployableComponent
           }
         }
         catch (Exception e) {
-          logger.error("", e);
+        	  if(logger.isEnabledFor(Level.ERROR))
+              {
+        		  logger.error("", e);
+              }
         }
         finally {
           // Clean up!
@@ -641,7 +664,10 @@ public class DeployableComponent
           }
         }
         catch (Exception e) {
-          logger.error("", e);
+        	  if(logger.isEnabledFor(Level.WARN))
+              {
+        		  logger.error("", e);
+              }
         }
         finally {
           // Clean up!

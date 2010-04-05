@@ -7,8 +7,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.jboss.invocation.MarshalledInvocation;
-import org.jboss.logging.Logger;
+
 
 /**
  * 
@@ -21,7 +22,7 @@ public class RMIServerImpl implements RMIServer {
 
 	protected Map invokerMap = new HashMap();
 
-	protected org.jboss.logging.Logger log;
+	protected Logger log;
 
 	protected RemoteStub rmistub;
 

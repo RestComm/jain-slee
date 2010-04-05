@@ -14,8 +14,9 @@ import javax.slee.management.ResourceManagementMBean;
 import javax.slee.management.SleeManagementMBean;
 import javax.slee.resource.ConfigProperties;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.jboss.jmx.adaptor.rmi.RMIAdaptor;
-import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
@@ -75,7 +76,10 @@ public class SleeCommandInterface {
 		rmiserver = (RMIAdaptor) ctx.lookup("jmx/rmi/RMIAdaptor");
 
 		if (rmiserver == null)
-			logger.info("RMIAdaptor is null");
+			if(logger.isEnabledFor(Level.INFO))
+			{
+				logger.info("RMIAdaptor is null");
+			}
 	}
 
 	/**
@@ -220,7 +224,10 @@ public class SleeCommandInterface {
 			opArg2 = data2;
 			opArg3 = new ConfigProperties();
 			if (data3 != null) {
-				logger.warn("SLEE 1.1 config properties not supported yet");
+				if(logger.isEnabledFor(Level.WARN))
+				{
+					logger.warn("SLEE 1.1 config properties not supported yet");
+				}
 
 			}
 		} else if (command.equals(ACTIVATE_RA_ENTITY_OPERATION)) {
@@ -278,12 +285,15 @@ public class SleeCommandInterface {
 
 		// Bad Command
 		else {
-			logger
+			if(logger.isEnabledFor(Level.WARN))
+			{
+				logger
 					.warn("invokeOperation called with unknown command. Accepted commands are -startSlee, "
 							+ "-stopSlee, -getSleeState, -install, -uninstall, "
 							+ "-activateService, -deactivateService, -getServiceState, "
 							+ "-createRaEntity, -activateRaEntity, -deactivateRaEntity, -removeRaEntity, -createRaLink, "
 							+ "-removeRaLink, -createProfileTable, -removeProfileTable, -createProfile, -removeProfile");
+			}
 			throw new Exception("invokeOperation called with unknown command.");
 		}
 

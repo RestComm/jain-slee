@@ -15,7 +15,9 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.jboss.logging.Logger;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
 import org.mobicents.slee.container.management.jmx.editors.ComponentIDPropertyEditor;
 import org.w3c.dom.Document;
@@ -114,13 +116,15 @@ public class DeployableUnit {
 
       String raID = dc.getComponentKey();
 
-      logger
-      .warn("\r\n------------------------------------------------------------"
-          + "\r\nNo RA Entity and Link config for "
-          + raID
-          + " found. Using default values!"
-          + "\r\n------------------------------------------------------------");
-
+      if(logger.isEnabledFor(Level.WARN))
+      {
+    	  logger
+    	  .warn("\r\n------------------------------------------------------------"
+    			  + "\r\nNo RA Entity and Link config for "
+    			  + raID
+    			  + " found. Using default values!"
+    			  + "\r\n------------------------------------------------------------");
+      }
       String raName = cid.getName();
 
       // Add the default Create and Activate RA Entity actions to the Install Actions
@@ -197,13 +201,16 @@ public class DeployableUnit {
     if (externalDependencies.size() > 0) {
       if (showMissing) {
         // List them to the user...
-        String missingDepList = "";
+    	  if(logger.isEnabledFor(Level.INFO))
+          {
+    		  String missingDepList = "";
 
-        for (String missingDep : externalDependencies)
-          missingDepList += "\r\n +-- " + missingDep;
+    		  for (String missingDep : externalDependencies)
+    			  missingDepList += "\r\n +-- " + missingDep;
 
-        logger.info("Missing dependencies for " + this.diShortName
-            + ":" + missingDepList);
+    		  logger.info("Missing dependencies for " + this.diShortName
+    				  + ":" + missingDepList);
+          }
       }
 
       // Return dependencies not satified.
@@ -230,12 +237,18 @@ public class DeployableUnit {
     }
 
     if (duplicates.size() > 0) {
-      logger.warn("The deployable unit '" + this.diShortName + "' contains components that are already deployed. The following are already installed:");
+    	  if(logger.isEnabledFor(Level.WARN))
+          {
+    		  logger.warn("The deployable unit '" + this.diShortName + "' contains components that are already deployed. The following are already installed:");
+          }
 
-      for (String dupComponent : duplicates) {
-        logger.warn(" - " + dupComponent);
-      }
-
+    	  if(logger.isEnabledFor(Level.WARN))
+          {
+		      for (String dupComponent : duplicates) {
+		    	  
+		        logger.warn(" - " + dupComponent);
+		      	}
+          }
       return true;
     }
 
@@ -421,7 +434,10 @@ public class DeployableUnit {
           NodeList propsNodeList = raEntity.getElementsByTagName("properties");
 
           if (propsNodeList.getLength() > 1) {
-            logger.warn("Invalid ra-entity element, has more than one properties child. Reading only first.");
+        	  if(logger.isEnabledFor(Level.WARN))
+              {
+        		  logger.warn("Invalid ra-entity element, has more than one properties child. Reading only first.");
+              }
           }
 
           // The properties for this RA

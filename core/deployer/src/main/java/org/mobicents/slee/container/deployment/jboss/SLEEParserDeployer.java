@@ -1,12 +1,12 @@
 package org.mobicents.slee.container.deployment.jboss;
 
+import org.apache.log4j.Logger;
 import org.jboss.classloading.spi.metadata.ClassLoadingMetaData;
 import org.jboss.classloading.spi.metadata.ClassLoadingMetaData10;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.deployers.vfs.spi.deployer.AbstractVFSParsingDeployer;
 import org.jboss.deployers.vfs.spi.structure.VFSDeploymentUnit;
-import org.jboss.logging.Logger;
 import org.jboss.virtual.VirtualFile;
 
 /**
@@ -24,8 +24,10 @@ public class SLEEParserDeployer extends AbstractVFSParsingDeployer<SLEEDeploymen
     super(SLEEDeploymentMetaData.class);
     setSuffix(".jar");
     setStage(DeploymentStages.PRE_DESCRIBE);
-
-    logger.info("Mobicents SLEE Parser Deployer initialized.");
+    if(logger.isInfoEnabled())
+    {
+    	logger.info("Mobicents SLEE Parser Deployer initialized.");
+    }
   }
 
   protected SLEEDeploymentMetaData parse(VFSDeploymentUnit vfsDU, VirtualFile virtualFile, SLEEDeploymentMetaData sdmd) throws Exception {    

@@ -12,6 +12,7 @@
  */
 package org.mobicents.slee.connector.adaptor;
 
+import org.apache.log4j.Logger;
 import org.mobicents.slee.connector.server.RemoteSleeService;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -24,7 +25,7 @@ import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.ManagedConnection;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.security.auth.Subject;
-import org.jboss.logging.Logger;
+
 
 /**
  * 
@@ -43,26 +44,43 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
 
     /* Getters and setters for properties */
     public String getSleeJndiName() {
-        log.debug("mcf.getSleeJndiName() called");
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("mcf.getSleeJndiName() called");
+         }
         return sleeJndiName;
     }
 
     public void setSleeJndiName(String name) {
-        log.debug("mcf.setSleeJndiName() called with " + name);
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("mcf.setSleeJndiName() called with " + name);
+         }
         sleeJndiName = name;
     }
 
     public ManagedConnectionFactoryImpl() {
-        log.debug("Creating ManagedConnectionFactoryImpl instance");                        
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("Creating ManagedConnectionFactoryImpl instance");
+         }
     }
     
     private synchronized void lookupRMIStub() {
         if (rmiStub == null ) {
 	        try {
 	            InitialContext ctx = new InitialContext();
-	            log.debug("Looking up slee service with name " + sleeJndiName);
+	            if(log.isDebugEnabled())
+	            {
+	            	log.debug("Looking up slee service with name " + sleeJndiName);
+	            }
 	            rmiStub = (RemoteSleeService) ctx.lookup(sleeJndiName);
-	            log.debug("RMI Stub is: " + rmiStub);
+	            //fails on my machine.... if not printed it works...
+	            //log.debug("RMI Stub is: " + rmiStub);
+	            if(log.isDebugEnabled())
+	            {
+	            	log.debug("Success on RMI stub of RemoteSleeService lookup");
+	            }
 	        } catch (NamingException e) {
 	            log.error("Failed to lookup Slee service in JNDI ", e);
 	        }
@@ -77,7 +95,10 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
      * @see javax.resource.spi.ManagedConnectionFactory#createConnectionFactory()
      */
     public Object createConnectionFactory() throws ResourceException {
-        log.debug("createConnectionFactory() called");
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("createConnectionFactory() called");
+         }
         //We are only supporting use within the managed environment for now
         throw new ResourceException(
                 "Mobicents SLEE resource adaptor only works in managed environment!");
@@ -90,7 +111,10 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
      */
     public Object createConnectionFactory(ConnectionManager connectionMgr)
             throws ResourceException {
-        log.debug("createConnectionFactory(ConnectionManager connectionMgr) called");
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("createConnectionFactory(ConnectionManager connectionMgr) called");
+         }
         /*
          * Get EIS-specific Connection Factory instance We're not using CCI for
          * this resource adaptor
@@ -106,7 +130,10 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
      */
     public ManagedConnection createManagedConnection(Subject subject,
             ConnectionRequestInfo info) throws ResourceException {
-        log.debug("createManagedConnection() called");       
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("createManagedConnection() called");
+         }
                         
         lookupRMIStub();
         
@@ -125,7 +152,10 @@ public class ManagedConnectionFactoryImpl implements ManagedConnectionFactory,
     public ManagedConnection matchManagedConnections(Set connections,
             Subject subject, ConnectionRequestInfo info)
             throws ResourceException {
-        log.debug("matchManagedConnections() called");        
+    	 if(log.isDebugEnabled())
+         {
+    		 log.debug("matchManagedConnections() called");
+         }
         //Any of the connections will do
         if (connections.isEmpty())
             return null;
