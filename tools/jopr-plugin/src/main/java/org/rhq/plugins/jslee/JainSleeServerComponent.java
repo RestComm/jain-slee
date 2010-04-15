@@ -69,6 +69,8 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     this.resourceContext = resourceContext;
 
     this.deployFolder = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "deploy";
+    this.logFilePath = resourceContext.getPluginConfiguration().getSimple(ApplicationServerPluginConfigurationProperties.SERVER_HOME_DIR).getStringValue() + File.separator  + "conf" + File.separator + "jboss-log4j.xml";
+    this.logConfigurationsFolder = this.deployFolder + File.separator + "mobicents-slee" + File.separator + "log4j-templates";
     // Connect to the JBAS instance's Profile Service and JMX MBeanServer.
 
     Configuration pluginConfig = resourceContext.getPluginConfiguration();
@@ -127,6 +129,9 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     }
     else if ("queryActivityContextLiveness".equals(name)) {
       return doQueryActivityContextLiveness(parameters);
+    }
+    else if ("changeGlobalLogLevel".equals(name)) {
+      return doChangeLogLevel(parameters);
     }
     else {
       throw new UnsupportedOperationException("Operation [" + name + "] is not supported.");
@@ -256,8 +261,6 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
     return tmpDir;
   }
 
-
-
   private boolean runningEmbedded() {
     return false;
   }
@@ -301,6 +304,23 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
 
     result.getComplexResults().put(new PropertySimple("result", "Activity Context Liveness queried successfully."));
 
+    return result;
+  }
+
+  private OperationResult doChangeLogLevel(Configuration parameters) throws Exception {
+    OperationResult result = new OperationResult();
+
+    String configuration = parameters.getSimple("configuration").getStringValue();
+    
+    try {
+      copyFile(new File(logConfigurationsFolder + File.separator + "jboss-log4j.xml." + configuration.toLowerCase()), new File(logFilePath));
+    }
+    catch (Exception e) {
+      result.setErrorMessage("Invalid logging configuration.");
+      return result;
+    }
+    
+    result.getComplexResults().put(new PropertySimple("result", "Global Logging Level successfully changed to " + configuration + "."));
     return result;
   }
 
@@ -419,4 +439,17 @@ public class JainSleeServerComponent implements JainSleeServerUtils, Measurement
   public String getDeployFolderPath() {
     return this.deployFolder;
   }
+  
+  private String logFilePath;
+  
+  public String getLogFilePath() {
+    return logFilePath;
+  }
+
+  private String logConfigurationsFolder;
+
+  public String getLogConfigurationsFolder() {
+    return logConfigurationsFolder;
+  }
+
 }

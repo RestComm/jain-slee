@@ -39,6 +39,21 @@
       </results>
     </operation>
 
+    <operation name="changeGlobalLogLevel" displayName="Change Global Logging Level" description="Changes the Logging level globally for the JBoss AS.">
+      <parameters>
+        <c:simple-property name="configuration" default="DEFAULT">
+          <c:property-options>
+            <c:option value="DEFAULT" name="DEFAULT" />
+            <c:option value="DEBUG" name="DEBUG" />
+            <c:option value="PRODUCTION" name="PRODUCTION" />
+          </c:property-options>
+        </c:simple-property>
+      </parameters>
+      <results>
+        <c:simple-property name="result" />
+      </results>
+    </operation>
+
     <operation name="queryActivityContextLiveness" description="Queries Activity Context for liveness.">
       <results>
         <c:simple-property name="result" />
