@@ -67,6 +67,11 @@ public class AvpUtilities {
 
   private static boolean _AVP_REMOVAL_ALLOWED = true;
 
+  static {
+    // Just so we have it
+    parser = new MessageParser(null);
+  }
+  
   public static void setParser(MessageParser singletonParser) {
     parser = singletonParser;
   }

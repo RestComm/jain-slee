@@ -78,11 +78,13 @@ public class GroupedAvpImpl extends DiameterAvpImpl implements GroupedAvp {
   public DiameterAvp[] getExtensionAvps() {
     DiameterAvp[] acc = new DiameterAvp[0];
 
-    try {
-      acc = getExtensionAvpsInternal(avpSet);
-    }
-    catch (Exception e) {
-      logger.error("Failure getting Extension AVPs.", e);
+    if(avpSet != null && avpSet.size() > 0) {
+      try {
+        acc = getExtensionAvpsInternal(avpSet);
+      }
+      catch (Exception e) {
+        logger.error("Failure getting Extension AVPs.", e);
+      }
     }
 
     return acc;
