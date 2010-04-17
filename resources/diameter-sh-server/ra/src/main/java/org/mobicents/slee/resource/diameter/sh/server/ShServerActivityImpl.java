@@ -136,7 +136,7 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
    */
   public UserDataAnswer createUserDataAnswer(byte[] userData) {
     // Fetch the session stored request
-    UserDataRequest req = (UserDataRequest) getSessionMessage(ProfileUpdateRequest.commandCode);
+    UserDataRequest req = (UserDataRequest) getSessionMessage(UserDataRequest.commandCode);
 
     UserDataAnswer answer = null;
 
@@ -160,7 +160,7 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
    */
   public UserDataAnswer createUserDataAnswer(long resultCode, boolean isExperimentalResult) {
     // Fetch the session stored request
-    UserDataRequest req = (UserDataRequest) getSessionMessage(ProfileUpdateRequest.commandCode);
+    UserDataRequest req = (UserDataRequest) getSessionMessage(UserDataRequest.commandCode);
 
     UserDataAnswer answer = null;
 
@@ -184,7 +184,7 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
    */
   public UserDataAnswer createUserDataAnswer() {
     // Fetch the session stored request
-    UserDataRequest req = (UserDataRequest) getSessionMessage(ProfileUpdateRequest.commandCode);
+    UserDataRequest req = (UserDataRequest) getSessionMessage(UserDataAnswer.commandCode);
 
     UserDataAnswer answer = null;
 
@@ -208,7 +208,7 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
    */
   public SubscribeNotificationsAnswer createSubscribeNotificationsAnswer(long resultCode, boolean isExperimentalResult) {
     // Fetch the session stored request
-    SubscribeNotificationsRequest req = (SubscribeNotificationsRequest) getSessionMessage(ProfileUpdateRequest.commandCode);
+    SubscribeNotificationsRequest req = (SubscribeNotificationsRequest) getSessionMessage(SubscribeNotificationsRequest.commandCode);
 
     SubscribeNotificationsAnswer answer = null;
 
@@ -232,7 +232,7 @@ public class ShServerActivityImpl extends DiameterActivityImpl implements ShServ
    */
   public SubscribeNotificationsAnswer createSubscribeNotificationsAnswer() {
     // Fetch the session stored request
-    SubscribeNotificationsRequest req = (SubscribeNotificationsRequest) getSessionMessage(ProfileUpdateRequest.commandCode);
+    SubscribeNotificationsRequest req = (SubscribeNotificationsRequest) getSessionMessage(SubscribeNotificationsRequest.commandCode);
 
     SubscribeNotificationsAnswer answer = null;
 
