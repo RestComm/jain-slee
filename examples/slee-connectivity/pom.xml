@@ -19,9 +19,6 @@
 		<module>events-jar</module>
 		<module>jmx</module>
 		<module>slee</module>
-		<!-- On j1.5 it will OOM  -->
-		<module>docs</module>
-		
 	</modules>
 
 	<properties>
