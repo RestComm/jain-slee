@@ -1,0 +1,85 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.mobicents</groupId>
+		<artifactId>mobicents-parent</artifactId>
+		<version>2.5-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>slee-connectivity-example-parent</artifactId>
+	<groupId>org.mobicents.examples</groupId>
+	<version>2.1.0-SNAPSHOT</version>
+	<name>Mobicents Servers Examples :: SleeConnectivity :: ${pom.artifactId}</name>
+
+	<modules>
+		<module>events-jar</module>
+		<module>jmx</module>
+		<module>slee</module>
+		<!-- On j1.5 it will OOM  -->
+		<module>docs</module>
+		
+	</modules>
+
+	<properties>
+		<mobicents.servers.jainslee.version>2.0.0.GA</mobicents.servers.jainslee.version>
+		
+		<!-- Docs properties -->
+		<docs.example.name>SleeConnectivity</docs.example.name>
+		<docs.example.dirname>slee-connectivity</docs.example.dirname>
+		<docs.bookid>SleeConnectivity</docs.bookid>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>javax.slee</groupId>
+				<artifactId>jain-slee</artifactId>
+				<version>1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mobicents.servers.jainslee.core</groupId>
+				<version>${mobicents.servers.jainslee.version}</version>
+				<artifactId>jar</artifactId>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<groupId>org.mobicents.tools</groupId>
+				<inherited>false</inherited>
+				<executions />
+				<configuration>
+					<excludePoms />
+					<classpathExcludes>
+						<exclude>xml-apis:xml-apis</exclude>
+						<exclude>jtidy:jtidy</exclude>
+					</classpathExcludes>
+					<resolveTransitiveDependencies>true</resolveTransitiveDependencies>
+					<eclipseProjectName>slee-connectivity-example</eclipseProjectName>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>repository.jboss.org</id>
+			<url>http://repository.jboss.org/maven2</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>repository.jboss.org</id>
+			<url>http://repository.jboss.org/maven2</url>
+		</pluginRepository>
+	</pluginRepositories>
+</project>

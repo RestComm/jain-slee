@@ -1,0 +1,126 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+
+	<para>The &THIS.EXAMPLE;
+		Example is JAIN SLEE 1.1 Application which handles events fired by non
+		<acronym>JSLEE</acronym>
+		means.
+	</para>
+	<section id="design_overview_sbb">
+		<title>Design Overview: SLEE Service</title>
+		<para>
+			<acronym>JLSEE</acronym>
+			service is simplest of all. It performs very basic actions:
+		</para>
+		<itemizedlist>
+			<listitem>
+				<para>detach from activity</para>
+			</listitem>
+			<listitem>
+				<para>print message passed by message sender</para>
+			</listitem>
+		</itemizedlist>
+	</section>
+	<section id="design_overview_jmx">
+		<title>Design Overview: JMX Client</title>
+		<para>
+			<acronym>JMX</acronym>
+			Client fires events into
+			<acronym>JSLEE</acronym>
+			container by available means. That is
+			<acronym>JCA RA</acronym>
+			and custom
+			<acronym>API</acronym>.
+		</para>
+		<para>Events are fired with respect to different context condition,
+			that is:</para>
+		<itemizedlist>
+			<listitem>
+				<para>
+					Without	<acronym>JTA</acronym> transaction.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Within <acronym>JTA</acronym> transaction.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Within <acronym>JTA</acronym> transaction - after transaction has been commited, but before it
+					completes.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Within <acronym>JTA</acronym> transaction - after transaction has been commited and it completes.
+				</para>
+			</listitem>
+		</itemizedlist>
+		<para>
+			Note that this example is different than any other. It requires that
+			<acronym>JMX</acronym> Client and <acronym>JSLEE</acronym>
+			share event class definition. There are two possible scenarios of
+			client and server deployment:
+		</para>
+		<variablelist>
+			<varlistentry>
+				<term>colocated</term>
+				<listitem>
+					<para>
+						<acronym>JMX</acronym> Client and	<acronym>JSLEE</acronym> run in the same
+						<acronym>JVM</acronym>. In this case there MUST be one jar file deployed(to avoid class conflict), with event
+						class definition. Reason for this is that <acronym>JSLEE</acronym>
+						does not export deployed classes. For instance event classes deployed by
+						<acronym>JSLEE</acronym> are not visible to non <acronym>JSLEE</acronym> elements. 
+						 
+					</para>
+					<para>Since
+						by default &THIS.PLATFORM; <acronym>J2EE</acronym>
+						container makes classes in deployed element available to other deployed
+						elements, <acronym>JMX</acronym> Client contains jar with event class. 
+						<acronym>JSLEE</acronym> container processes ONLY <acronym>XML</acronym> event definition,
+						 class definition is imported from <acronym>J2EE</acronym> container.
+					</para>
+					<mediaobject>
+						<imageobject>
+							<imagedata
+								width="300px"
+								align="center"
+								fileref="images/design1.png"
+								format="PNG"/>
+						</imageobject>
+						<caption>
+							<para>Container class sharing</para>
+						</caption>
+					</mediaobject>
+				</listitem>
+				
+			</varlistentry>
+			<varlistentry>
+				<term>separate</term>
+				<listitem>
+					<para>In this case <acronym>JMX</acronym> Client and <acronym>JSLEE</acronym> container run in different <acronym>JVM</acronym>s. In both <acronym>JVM</acronym> jar with 
+					event class must be deployed.
+					</para>
+					<para>This deployment requires some changes in example and configuration, please refer to  <xref linkend="setup"/>. </para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		<para>Diagram below depicts how <acronym>JMX</acronym> Client fires event into <acronym>JSLEE</acronym>: </para>
+		<mediaobject>
+			<imageobject>
+				<imagedata	width="300px"	align="center"	fileref="images/design2.png"	format="PNG"/>
+			</imageobject>
+			<caption>
+				<para>Container class sharing</para>
+			</caption>
+		</mediaobject>
+	</section>
+
+</chapter>
+

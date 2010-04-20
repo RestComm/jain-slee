@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction
+		to &THIS.PLATFORM;
+		JAIN SLEE &THIS.EXAMPLE;
+		Example
+	</title>
+	<para>
+		This example is JLEE application processing custom event fired by
+		third party component(not <acronym>JSLEE</acronym> <acronym>RA</acronym>). Its only  purpose is to acquaint user with means of communication with <acronym>JSLEE</acronym> platform.
+	</para>
+	<para>This is very simple example. However it requires user to have knowledge on following subjects:
+	</para>
+	<variablelist>
+		<varlistentry>	
+			<term>
+			<acronym>JNDI</acronym> &amp; <acronym>RMI</acronym>
+			</term>
+			
+			<listitem>
+				<para>
+					Naming and remote method calls are two services used by this example.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>	
+			<term><acronym>JCA</acronym> <acronym>RA</acronym>
+			</term>
+			<listitem>
+				<para>
+					Java Connector Architecture is one of means of connecting to platform.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>	
+			<term>
+			<acronym>JSLEE</acronym> activities
+			</term>
+			<listitem>
+				<para>
+					Basic knowledge on <acronym>JSLEE</acronym> activities and <acronym>SBB</acronym> lifecycle.
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+
+</chapter>

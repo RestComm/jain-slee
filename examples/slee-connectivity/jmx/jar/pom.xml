@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>slee-connectivity-localjmx-parent</artifactId>
+		<groupId>org.mobicents.examples</groupId>
+		<version>2.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>slee-connectivity-jmx-jar</artifactId>
+
+	<name>Mobicents Servers Examples :: SleeConnectivity :: ${pom.artifactId}</name>
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.servers.jainslee.core</groupId>
+			<artifactId>jar</artifactId>
+		</dependency>
+		<dependency>
+			<artifactId>event-pojo</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<version>${pom.version}</version>
+		</dependency>
+	</dependencies>
+</project>

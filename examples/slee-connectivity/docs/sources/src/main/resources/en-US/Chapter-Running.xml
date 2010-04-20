@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="running">
+
+	<title>Running the Example</title>
+	
+	<para>To run example, start <literal>JBOSS</literal> container and access <literal>jmx-console</literal>. Open <literal>http://${jboss.bind.address}:port/jmx-console</literal> in browser.</para>
+	<note><para><literal>jboss.bind.address</literal> and <literal>port</literal> depends on how container is started, by default its equal to: <literal>http://127.0.0.1:8080/jmx-console</literal> </para> </note> 
+	<para>Lookup bean with name equal to: <literal>JMXAccessTest</literal> and invoke operations. Pass distinct argument to operation. If operation is successful, passed value should be shown in &THIS.PLATFORM; JSLEE Console.s</para>
+</chapter>
+

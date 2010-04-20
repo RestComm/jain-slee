@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE sbb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE SBB 1.1//EN" "http://java.sun.com/dtd/slee-sbb-jar_1_1.dtd">
+
+<sbb-jar>
+
+	<sbb id="Connection-sbb">
+		<sbb-name>SleeConnectivitySbb</sbb-name>
+		<sbb-vendor>org.mobicents</sbb-vendor>
+		<sbb-version>1.0</sbb-version>
+
+		<sbb-classes>
+			<sbb-abstract-class>
+				<sbb-abstract-class-name>
+					org.mobicents.slee.service.SleeConnectivitySbb
+				</sbb-abstract-class-name>
+				<!--
+					<cmp-field> <cmp-field-name></cmp-field-name> </cmp-field>
+				-->
+
+			</sbb-abstract-class>
+		</sbb-classes>
+
+		<event event-direction="Receive" initial-event="True">
+			<event-name>CustomEvent</event-name>
+			<event-type-ref>
+				<event-type-name>org.mobicents.slee.service.connectivity.Event_1</event-type-name>
+				<event-type-vendor>org.mobicents</event-type-vendor>
+				<event-type-version>1.0</event-type-version>
+			</event-type-ref>
+			<initial-event-select variable="ActivityContext" />
+		</event>
+	</sbb>
+</sbb-jar>
