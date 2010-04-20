@@ -8,18 +8,11 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>converged-demo-pojo-pu</artifactId>
+	<artifactId>converged-demo-custom-events-jar</artifactId>
 	<name>Mobicents Servers Examples :: Converged :: ${pom.artifactId}</name>
-	
-	<dependencies>
-		<dependency>
-         	<groupId>org.hibernate</groupId>
-         	<artifactId>hibernate-annotations</artifactId>
-         </dependency>
-	</dependencies>
-	
+
+
 	<build>
-		<finalName>ShoppingDemo</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -35,7 +28,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>${pom.groupId}</groupId>
-									<artifactId>converged-demo-pojo-pu</artifactId>
+									<artifactId>converged-demo-custom-events-jar</artifactId>
 									<version>${pom.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
@@ -43,10 +36,9 @@
 										${project.build.directory}
 									</outputDirectory>
 									<destFileName>
-										converged-demo-pojo-pu.jar
+										converged-demo-custom-events-jar.jar
 									</destFileName>
 								</artifactItem>
-
 							</artifactItems>
 						</configuration>
 					</execution>
@@ -56,7 +48,7 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>deploy-datasource</id>
+						<id>deploy-events</id>
 						<phase>install</phase>
 						<goals>
 							<goal>run</goal>
@@ -64,26 +56,22 @@
 						
 						<configuration>
 							<tasks>
-								<copy overwrite="true" verbose="true"
-									file="datasource/ShoppingDemo-dev-ds.xml" toDir="${jboss.home}/server/${node}/deploy" />
 								<copy overwrite="true"
-									file="${project.build.directory}/converged-demo-pojo-pu.jar"
+									file="${project.build.directory}/converged-demo-custom-events-jar.jar"
 									todir="${jboss.home}/server/${node}/deploy" />
 							</tasks>
 						</configuration>
 					</execution>
 					<execution>
-						<id>undeploy-datasource</id>
+						<id>undeploy-events</id>
 						<phase>clean</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
 						<configuration>
-							<tasks>							
+							<tasks>
 								<delete
-									file="${jboss.home}/server/${node}/deploy/converged-demo-pojo-pu.jar" />
-								<delete
-									file="${jboss.home}/server/${node}/deploy/ShoppingDemo-dev-ds.xml" />
+									file="${jboss.home}/server/${node}/deploy/converged-demo-custom-events-jar.jar" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -91,5 +79,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	
 </project>

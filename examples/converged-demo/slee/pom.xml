@@ -4,12 +4,12 @@
 
 	<parent>
 		<artifactId>converged-demo-parent</artifactId>
-		<groupId>org.mobicents.examples</groupId>
+		<groupId>org.mobicents.examples.converged</groupId>
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>converged-demo-slee-parent</artifactId>
-	<groupId>org.mobicents.examples</groupId>
+	<groupId>org.mobicents.examples.converged</groupId>
 	<version>2.0.0-SNAPSHOT</version>
 
 
@@ -18,7 +18,6 @@
 
 
 	<modules>
-		<module>events-jar</module>
 		<module>events</module>
 		<module>sbb</module>
 		<module>du</module>

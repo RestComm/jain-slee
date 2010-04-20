@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>converged-demo-parent</artifactId>
-	<groupId>org.mobicents.examples</groupId>
+	<groupId>org.mobicents.examples.converged</groupId>
 	<version>2.0.0-SNAPSHOT</version>
 
 
@@ -37,10 +37,11 @@
 	</dependencyManagement>
 
 	<modules>
-		<module>pojo</module>
+		<module>events-jar</module>
 		<module>pojo-pu</module>
-		<module>slee</module>
 		<module>web</module>
+		<module>slee</module>
+
 	</modules>
 
 	<properties>
