@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="introduction">
+
+	<title>Introduction to &THIS.PLATFORM; JAIN SLEE &THIS.EXAMPLE; Example</title>
+
+	<para>&THIS.EXAMPLE; example is a complex example. It is designed to link multiple standards and <acronym>J2EE</acronym> technologies into working system.
+	It demonstrates how to use together following:</para>
+	<variablelist>
+		<varlistentry>
+			<term><literal>JSLEE</literal> </term>
+			<listitem>
+				<para>
+				Fast event driven execution environment.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term><literal>EJB</literal></term>
+			<listitem>
+				<para>Enterprise JavaBeans is a managed, server-side component architecture for modular construction of enterprise applications.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term><literal>JBoss SEAM</literal></term>
+			<listitem>
+				<para>
+				Web application framework developed by JBoss. It combines <acronym>EJB</acronym> and <acronym>JSF</acronym>.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term><literal>JBPM</literal></term>
+			<listitem>
+				<para>
+				Workflow execution engine which executes bussines processes described in <acronym>BPEL</acronym> or <acronym>jPDL</acronym>.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term><literal>JPA</literal></term>
+			<listitem>
+				<para>
+				Java programming language framework that allows developers to manage relational data in applications using <acronym>JSE</acronym> and <acronym>JEE</acronym>.
+				</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term><literal>PSTN &amp; VOIP</literal></term>
+			<listitem>
+				<para>
+				Example is capable of making <acronym>VOIP</acronym> calls which can be converted by certain providers into regular phone calls(<acronym>PSTN</acronym>).
+				</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<para>&THIS.EXAMPLE; is an example of online shop which is capable of <acronym>VOIP</acronym> calls to inform user or administrator on accounts activity. Called users can affect
+	shop decisions(accept,deny, set shipping date). </para>
+</chapter>

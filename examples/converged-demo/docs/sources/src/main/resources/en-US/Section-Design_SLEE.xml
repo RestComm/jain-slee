@@ -1,0 +1,88 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="design_slee">
+	<title>Signaling and media streaming</title>
+	<para>&THIS.PLATFORM; JSLEE and Media server are responsible for signaling and media flow in &THIS.EXAMPLE; example.
+	&THIS.PLATFORM; Media Server is enabled with <acronym>MGCP</acronym>. It handles <acronym>RTP</acronym> media stream between involved user agent and server, this includes:
+	</para>
+	
+	<itemizedlist>
+		<listitem>
+			<para>generating audio based on text content</para>
+		</listitem>
+		<listitem>
+			<para>gather <acronym>DTMF</acronym> </para>
+		</listitem>
+	</itemizedlist>
+	<para>&THIS.PLATFORM; Media Server use case is depicted by following diagram:</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-slee1.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.PLATFORM; Media Server use case
+			</para>
+		</caption>
+	</mediaobject>
+	<para>&THIS.EXAMPLE; example signaling is performed by &THIS.PLATFORM; <acronym>SLEE</acronym> Services. <acronym>SLEE</acronym> part follows specification - that is, it defines building blocks based on their desired function.
+	There are five distinct building blocks (<acronym>SBB</acronym>s): </para>
+	<variablelist>
+		<varlistentry>
+			<term>CallControlSbb</term>
+			<listitem>
+				<para>performs signaling part - it establishes connection and media path between <acronym>UA</acronym> and &THIS.PLATFORM; Media server(by means of <acronym>SIP</acronym>) and <acronym>MGCP</acronym>). It also requests actions fro media server like play text, play media file or detect <acronym>DTMF</acronym>. </para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>AdminSbb</term>
+			<listitem>
+				<para>performs query to admin whether to accept or deny order for certain user. It relies on <literal>CallControlSbb</literal> to perform signaling.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>UserSbb</term>
+			<listitem>
+				<para>performs query to customer whether to confirm or cancel order for certain amount of cash. It relies on <literal>CallControlSbb</literal> to perform signaling.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>OrderDeliverDateSbb</term>
+			<listitem>
+				<para>performs query to customer. Customer is asked to punch delivery date for certain order. It relies on <literal>CallControlSbb</literal> to perform signaling.</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>OrderShipDateSbb</term>
+			<listitem>
+				<para>performs call to user to remind . It relies on <literal>CallControlSbb</literal> to perform signaling.</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<para>&THIS.EXAMPLE; example declares distinct services to perform certain task (contact user, admin, set delivery date, remind shiping date). Diagram below depicts relations between <acronym>SBB</acronym>s and declared services: </para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-slee2.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example, SLEE services composition
+			</para>
+		</caption>
+	</mediaobject>
+	<para>Each service is composed of <literal>root</literal> <acronym>SBB</acronym>  and call control <acronym>SBB</acronym> as roots <literal>child SBB</literal>. General control transition diagram for each service is almost identical to each other, it resembles following:</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-slee3.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; Example, SLEE services control transition
+			</para>
+		</caption>
+	</mediaobject>
+</section>	

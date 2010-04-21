@@ -1,0 +1,32 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">%BOOK_ENTITIES;]>
+
+<chapter id="design_overview">
+
+	<title>Design Overview</title>
+
+	<para>As &THIS.EXAMPLE;
+		example is quite big its split into different modules:
+		<acronym>SLEE</acronym>
+		, web interface and order persistence. General design is depicted on
+		diagram below:
+	</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-general.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				Top overview of components
+			</para>
+		</caption>
+	</mediaobject>
+
+
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_JPA.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_WEB.xml" />
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Section-Design_SLEE.xml" />
+
+</chapter>
+

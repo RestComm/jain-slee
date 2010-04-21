@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<chapter id="logging_traces_and_alarms">
+
+	<title>Traces and Alarms</title>
+
+	<section id="tracers">
+		<title>Tracers</title>
+		<para>Tracer names used by &THIS.EXAMPLE; Example.</para>
+	</section>	
+
+
+	<table frame="all" pgwide="1">
+			<title>&THIS.EXAMPLE;
+				Tracer and Log Categories
+			</title>
+			<tgroup colsep="1" cols="3">
+				<colspec colnum="1" colname="c0" colwidth="1*"/>
+				<colspec colnum="2" colname="c1" colwidth="1*"/>
+				<colspec colnum="3" colname="c2" colwidth="2*"/>
+
+				<thead>
+					<row>
+						<entry>Service</entry>
+						<entry>Sbb name</entry>
+						<entry>LOG4J category</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row>
+						<entry>Seam DVD Example User SBB Service</entry>
+						<entry>UserSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Seam DVD Example User SBB Service,
+							vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=UserSbb,vendor=org.mobicents,version=1.0]].User
+						</entry>
+					</row>
+					<row>
+						<entry>Seam DVD Example User SBB Service</entry>
+						<entry>CallControlSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Seam DVD Example User SBB Service,
+							vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+						</entry>
+					</row>
+					
+					
+					<row>
+						<entry>Mobicents Furniture Store Example Order Ship SBB Service</entry>
+						<entry>OrderShipDateSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Ship SBB Service
+							,vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=OrderShipDateSbb,vendor=org.mobicents,version=1.0]].OrderShipDate
+						</entry>
+					</row>
+					
+					
+					<row>
+						<entry>Mobicents Furniture Store Example Order Ship SBB Service</entry>
+						<entry>CallControlSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Ship SBB Service
+							,vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+						</entry>
+					</row>
+					<row>
+						<entry>Seam DVD Example Admin SBB Service</entry>
+						<entry>AdminSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Seam DVD Example Admin SBB Service,
+							vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=AdminSbb,vendor=org.mobicents,version=1.0]].Admin
+						</entry>
+
+					</row>
+					<row>
+						<entry>Seam DVD Example Admin SBB Service</entry>
+						<entry>CallControlSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Seam DVD Example Admin SBB Service,
+							vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+						</entry>
+					</row>
+					
+					<row>
+						<entry>Mobicents Furniture Store Example Order Date SBB Service</entry>
+						<entry>OrderDeliverDateSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Date SBB Service,
+							vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=OrderDeliverDateSbb,vendor=org.mobicents,version=1.0]].OrderDeliverDate
+						</entry>
+					</row>
+					<row>
+						<entry>Mobicents Furniture Store Example Order Date SBB Service</entry>
+						<entry>CallControlSbb</entry>
+						<entry>
+							javax.slee.SbbNotification
+							[service=ServiceID[name=Mobicents Furniture Store Example Order Date SBB Service,
+							vendor=org.mobicents,version=1.0],sbb=SbbID
+							[name=CallControlSbb,vendor=org.mobicents,version=1.0]].CallControl
+						</entry>
+					</row>
+				</tbody>
+			</tgroup>
+		</table>
+		<important>
+       		<para>Spaces where introduced in <literal>LOG4J category</literal>  column values, to correctly render the table. Please remove them when using copy/paste.</para>
+		</important>
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<section id="alarms">
+		<title>Alarms</title>
+		<para>&THIS.EXAMPLE; Example does not rise any alarms.</para>
+	</section>
+	
+</chapter>

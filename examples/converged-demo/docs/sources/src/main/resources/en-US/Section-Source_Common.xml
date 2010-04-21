@@ -1,0 +1,107 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="source_common">
+	<title>Common</title>
+	<para>Since &THIS.EXAMPLE; Example is composed of two separate modules, that is web application and <acronym>SLEE</acronym> services there is common part shared by both.
+	This part consist of event class. It is generic class designed to carry minimal information required to give destined service enough information to perform its task.
+	Event class in created by web(<acronym>SEAM</acronym>) application and fired into <acronym>SLEE</acronym>.
+	</para>
+	<para>Event carries following information:</para>
+	<itemizedlist>
+		<listitem>
+			<para>ammount - cash due for order.</para>
+		</listitem>
+		<listitem>
+			<para>order id (its value matches order id in database)</para>
+		</listitem>
+		<listitem>
+			<para>customer name - name of customer in profile: Amit Bhayani, Oleg K.</para>
+		</listitem>
+		<listitem>
+			<para>user name - unique user id used to log into shop</para>
+		</listitem>
+		<listitem>
+			<para>customer phone - customer <acronym>UA</acronym> address</para>
+		</listitem>
+	</itemizedlist>
+	<para>Event class is defined as follows: </para>
+	<programlisting language="Java" role="JAVA">
+public class CustomEvent implements Cloneable, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private long id;
+
+	private long orderId;
+
+	private BigDecimal ammount;
+
+	private String customerName;
+
+	private String customerPhone;
+	
+	private String  userName;
+
+	public CustomEvent(long orderId, BigDecimal ammount, String customerName,
+			String customerPhone, String  userName) {
+		id = new Random().nextLong() ^ System.currentTimeMillis();
+		this.orderId = orderId;
+		this.ammount = ammount;
+		this.customerName = customerName;
+		this.customerPhone = customerPhone;
+		this.userName = userName;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+		return (o instanceof CustomEvent) &amp;&amp; ((CustomEvent) o).id == id;
+	}
+
+	public int hashCode() {
+		return (int) id;
+	}
+
+	public BigDecimal getAmmount() {
+		return ammount;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public long getOrderId() {
+		return orderId;
+	}
+
+	public String getCustomerPhone() {
+		return customerPhone;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getUserName() {
+		return userName;
+	}	
+
+	public Object clone() {
+		CustomEvent clonedCustomEvent = new CustomEvent(this.getOrderId(), this
+				.getAmmount(), this.getCustomerName(), this.getCustomerPhone(), this.getUserName());
+		return clonedCustomEvent;
+	}
+
+
+
+}
+	</programlisting>	
+</section>	

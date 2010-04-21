@@ -1,0 +1,77 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="design_jpa">
+	<title>Persistence</title>
+	<para>
+	 &THIS.EXAMPLE; example is an online shop application, as such it requires certain data to be persistent. This is requirement since shop must keep track of its activity.	 
+	Natural choice for data storage is database.</para>
+	<para>Diagram below depicts database schema for &THIS.EXAMPLE; Example: </para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-jpa-erd.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE;
+				ERD 
+			</para>
+		</caption>
+	</mediaobject>
+	<note><para>Diagram contains two additional tables(<literal>PRODUCT_CATEGORY</literal> and <literal>PRODUCT_ACTORS</literal>), called <literal>dictionary tables</literal>, which are used to create <literal>MANY-TO-MANY</literal> relation in database.</para></note>
+	<para>Tables hold following information:</para>
+	<variablelist>
+		<varlistentry>
+			<term>CUSTOMERS</term>
+			<listitem>
+				<para>user id and password, name, credit card details, address, phone address, email</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>CATEGORIES</term>
+			<listitem>
+				<para>categories assignable to products</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>PRODUCTS</term>
+			<listitem>
+				<para>product description, image, price and title</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>ORDERS</term>
+			<listitem>
+				<para>order details, delivery date, order date, status, net cash amount, tax, tracking id</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>ORDERLINES</term>
+			<listitem>
+				<para>quantity of ordered good in particular order</para>
+			</listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>INVENTORY</term>
+			<listitem>
+				<para>quantity in stock, sold count</para>
+			</listitem>
+		</varlistentry>
+	</variablelist>
+	<para>&THIS.EXAMPLE; Example uses <acronym>JPA</acronym> <literal>Entity Beans</literal> to access data base information. <literal>JPA</literal> build abstraction level, allowing easier data manipulation.
+	Changes in beans affect persistent state of shops database. 
+	For instance <literal>JPA</literal> bean to manage order looks as following:</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-jpa-order.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para><acronym>JPA</acronym> Entity Order bean
+			</para>
+		</caption>
+	</mediaobject>
+</section>	

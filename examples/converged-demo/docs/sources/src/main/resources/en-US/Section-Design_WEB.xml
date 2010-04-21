@@ -1,0 +1,78 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="design_web">
+	<title>Web interface</title>
+	<para>&THIS.EXAMPLE; example user interface is web based. Web view is created with <literal>JBoss</literal> <acronym>SEAM</acronym> application. 
+	</para>
+	<para><acronym>SEAM</acronym> builds view content based on shop database content. It accesses information about current shop inventory (with <acronym>JPA</acronym> <literal>Entity </literal> beans)
+	and presents list of available goods. <acronym>SEAM</acronym> application allows to: 
+	</para>
+	<itemizedlist>
+		<listitem>
+			<para>manage user cart</para> 
+		</listitem>
+		<listitem>
+			<para>browse catalog of available items</para> 
+		</listitem>
+		<listitem>
+			<para>place/cancel order</para> 
+		</listitem>
+		<listitem>
+			<para>manage orders list</para> 
+		</listitem>
+	</itemizedlist>
+	<para> Once order has been placed, it is passed to <acronym>jBPM</acronym>   part of user interface. <acronym>jBPM</acronym> engine performs certain actions based on application configuration and some programmed conditions. Diagram below depicts general design of interface:</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-web1.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; user interface
+			</para>
+		</caption>
+	</mediaobject>
+	<para>Application default  behaviour for order is depicted by decision diagram below:</para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-web-jbpm1.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; decision diagram
+			</para>
+		</caption>
+	</mediaobject>
+	<!-- 
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-web-jbpm2.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; decision diagram part2
+			</para>
+		</caption>
+	</mediaobject>
+	 -->
+	<note><para><acronym>jBPM</acronym> does not play or gather DTMF, it is different process, however it is triggered by <acronym>jBPM</acronym> actions. </para> </note>
+	<para>User interface dispatches requests(events) to <acronym>SLEE</acronym> perform actions like call user <acronym>UA</acronym>. Events are fired through &THIS.PLATFORM; <acronym>JCA RA</acronym>.
+	Diagram below depicts relations between  &THIS.EXAPLE; Example, <acronym>JSLEE</acronym> and <acronym>JCA</acronym>: </para>
+	<mediaobject>
+		<imageobject>
+			<imagedata width="300px" align="center" fileref="images/design-web2.png"
+				format="PNG" />
+		</imageobject>
+		<caption>
+			<para>&THIS.EXAMPLE; modules relations
+			</para>
+		</caption>
+	</mediaobject>
+	<note>
+		<para>Note that <literal>Container</literal> may be the same for example and <acronym>JSLEE</acronym> </para>
+	</note>
+</section>	

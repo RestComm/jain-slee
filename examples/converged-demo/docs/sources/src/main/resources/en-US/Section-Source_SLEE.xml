@@ -1,0 +1,302 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+
+<section id="source_slee">
+	<title>SLEE</title>
+	
+	<section id="source_slee_events">
+		<title>Events</title>
+		<para>&THIS.EXAMPLE; defines couple custom events to communicate with <acronym>JSLEE</acronym> services. Events are defined by <acronym>XML</acronym> descriptor and event class.
+		Event descriptor ties logical event id (name, vendor, version triplet) with event class. Exaple event descriptor file(<filename>event-jar.xml</filename>) looks as follows:  </para>
+		<programlisting language="XML" role="XML"><![CDATA[
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE event-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Event 1.0//EN"
+                           "http://java.sun.com/dtd/slee-event-jar_1_0.dtd">
+<event-jar>
+    <event-definition>
+        <description>Fired from CheckoutAction. Initiates UserSBB and AdminSBB</description>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_PLACED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>
+
+    <event-definition>
+        <description>Before Order Processed Event: Fired once user places order(accepts it after ORDER_PLACED)</description>
+        <event-type-name>org.mobicents.slee.service.dvddemo.BEFORE_ORDER_PROCESSED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>     
+    
+    <event-definition>
+        <description>Fired from AfterOrderProcessedAction. Initiates OrderDeliverDateSbb</description>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_PROCESSED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>    
+    
+    <event-definition>
+        <description>Order Information Event: fired when user cancels order</description>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_CANCELLED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>
+    
+    <event-definition>
+        <description>Order Information Event: Fired when admin approves order</description>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_APPROVED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>              
+    
+    <event-definition>
+        <description>Order Information Event: Fired when admin rejects order</description>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_REJECTED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>    
+    
+    <event-definition>
+        <description>Order Information Event: fired once admin marks order for shipping</description>
+        <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_SHIPPED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>       
+</event-jar>
+
+		]]>
+		</programlisting>
+		<para>Event name, vendor and version form event identifier which is unique within <acronym>JSLEE</acronym> container. 
+		It is used in fire methods to inform container which type of event it receives. </para>
+		<para>
+		Event class is simple java class, which is defined as follows: </para>
+		<programlisting language="Java" role="JAVA">
+public class CustomEvent implements Cloneable, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private long id;
+
+	private long orderId;
+
+	private BigDecimal ammount;
+
+	private String customerName;
+
+	private String customerPhone;
+	
+	private String  userName;
+
+	public CustomEvent(long orderId, BigDecimal ammount, String customerName,
+			String customerPhone, String  userName) {
+		id = new Random().nextLong() ^ System.currentTimeMillis();
+		this.orderId = orderId;
+		this.ammount = ammount;
+		this.customerName = customerName;
+		this.customerPhone = customerPhone;
+		this.userName = userName;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+		return (o instanceof CustomEvent) &amp;&amp; ((CustomEvent) o).id == id;
+	}
+
+	public int hashCode() {
+		return (int) id;
+	}
+
+	public BigDecimal getAmmount() {
+		return ammount;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public long getOrderId() {
+		return orderId;
+	}
+
+	public String getCustomerPhone() {
+		return customerPhone;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getUserName() {
+		return userName;
+	}	
+
+	public Object clone() {
+		CustomEvent clonedCustomEvent = new CustomEvent(this.getOrderId(), this
+				.getAmmount(), this.getCustomerName(), this.getCustomerPhone(), this.getUserName());
+		return clonedCustomEvent;
+	}
+
+
+
+}
+		</programlisting>
+		<para>Event class carries information relevant to service in its fields. Depending on event type(declared in descriptor) event is delivered to different <acronym>SBB</acronym> and different actions are performed based on event instance state.</para>
+	</section>
+	<section id="source_slee_services">
+		<title>Services</title>
+		<para>As mentioned in <xref linkend="design_slee"/> &THIS.EXAMPLE; declares four services to handle different event types and associated scenarios.
+		Service is declared with service descriptor, it is plain and simple, it just defines the service ID, the ID of the root SBB and its default priority. The complete XML is(for all services):</para>
+		<programlisting language="XML" role="XML"><![CDATA[
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE service-xml PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Service 1.0//EN" "http://java.sun.com/dtd/slee-service_1_0.dtd">
+
+<service-xml>
+  <service>
+
+    <service-name>Seam DVD Example Admin SBB Service</service-name>
+    <service-vendor>org.mobicents</service-vendor>
+    <service-version>1.0</service-version>
+        
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A root-sbb element.
+          This element identifies the root SBB of the Service. A root-sbb element contains the following
+          sub-elements.
+           * A description element.
+             This is an optional informational element.
+           * An sbb-name element, an sbb-vendor element, and an sbb-version element.
+             These elements uniquely identify the root SBB." -->
+    <root-sbb>
+      <sbb-name>AdminSbb</sbb-name>
+      <sbb-vendor>org.mobicents</sbb-vendor>
+      <sbb-version>1.0</sbb-version>
+    </root-sbb>
+
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A default-priority element.
+          This element specifies the default event delivery priority for the child relation from the SLEE to
+          root SBB." -->
+    <default-priority>0</default-priority>
+
+  </service>
+  <service>
+
+    <service-name>Seam DVD Example User SBB Service</service-name>
+    <service-vendor>org.mobicents</service-vendor>
+    <service-version>1.0</service-version>
+        
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A root-sbb element.
+          This element identifies the root SBB of the Service. A root-sbb element contains the following
+          sub-elements.
+           * A description element.
+             This is an optional informational element.
+           * An sbb-name element, an sbb-vendor element, and an sbb-version element.
+             These elements uniquely identify the root SBB." -->
+    <root-sbb>
+      <sbb-name>UserSbb</sbb-name>
+      <sbb-vendor>org.mobicents</sbb-vendor>
+      <sbb-version>1.0</sbb-version>
+    </root-sbb>
+
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A default-priority element.
+          This element specifies the default event delivery priority for the child relation from the SLEE to
+          root SBB." -->
+    <default-priority>50</default-priority>
+
+  </service>
+  <service>
+
+    <service-name>Mobicents Furniture Store Example Order Date SBB Service</service-name>
+    <service-vendor>org.mobicents</service-vendor>
+    <service-version>1.0</service-version>
+        
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A root-sbb element.
+          This element identifies the root SBB of the Service. A root-sbb element contains the following
+          sub-elements.
+           * A description element.
+             This is an optional informational element.
+           * An sbb-name element, an sbb-vendor element, and an sbb-version element.
+             These elements uniquely identify the root SBB." -->
+    <root-sbb>
+      <sbb-name>OrderDeliverDateSbb</sbb-name>
+      <sbb-vendor>org.mobicents</sbb-vendor>
+      <sbb-version>1.0</sbb-version>
+    </root-sbb>
+
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A default-priority element.
+          This element specifies the default event delivery priority for the child relation from the SLEE to
+          root SBB." -->
+    <default-priority>50</default-priority>
+
+  </service>
+  <service>
+
+    <service-name>Mobicents Furniture Store Example Order Ship SBB Service</service-name>
+    <service-vendor>org.mobicents</service-vendor>
+    <service-version>1.0</service-version>
+        
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A root-sbb element.
+          This element identifies the root SBB of the Service. A root-sbb element contains the following
+          sub-elements.
+           * A description element.
+             This is an optional informational element.
+           * An sbb-name element, an sbb-vendor element, and an sbb-version element.
+             These elements uniquely identify the root SBB." -->
+    <root-sbb>
+      <sbb-name>OrderShipDateSbb</sbb-name>
+      <sbb-vendor>org.mobicents</sbb-vendor>
+      <sbb-version>1.0</sbb-version>
+    </root-sbb>
+
+    <!-- JSLEE v1.1 Specification, Early Draft Review Page 36 
+         "A default-priority element.
+          This element specifies the default event delivery priority for the child relation from the SLEE to
+          root SBB." -->
+    <default-priority>50</default-priority>
+
+  </service>
+</service-xml>
+		]]>
+		</programlisting>
+	</section>
+	<section id="source_slee_call">
+		<title>CallControl</title>
+		<para></para>
+	</section>
+	<section id="source_slee_user">
+		<title>User</title>
+		<para></para>
+	</section>
+	<section id="source_slee_admin">
+		<title>Admin</title>
+		<para></para>
+	</section>
+	<section id="source_slee_order_date">
+		<title>DeliveryOrderDate</title>
+		<para></para>
+	</section>
+	<section id="source_slee_ship_date">
+		<title>DeliveryShipDate</title>
+		<para></para>
+	</section>
+	
+</section>	
