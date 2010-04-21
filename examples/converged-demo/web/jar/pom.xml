@@ -69,6 +69,11 @@
 			<version>${mobicents.core.version}</version>
 			<artifactId>jar</artifactId>
 		</dependency>
+		<dependency>
+			<artifactId>converged-demo-pojo-pu</artifactId>
+			<groupId>org.mobicents.examples.converged</groupId>
+			<version>${pom.version}</version>
+		</dependency>
 	</dependencies>
 
 </project>

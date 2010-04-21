@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */ 
-package org.mobicents.examples.convergeddemo.seam.model;
+package org.mobicents.examples.convergeddemo.seam.pojo;
 
 import java.io.Serializable;
 import java.util.Date;

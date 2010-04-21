@@ -23,9 +23,9 @@ import javax.persistence.PersistenceContextType;
 
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
-import org.mobicents.examples.convergeddemo.seam.model.Order;
-import org.mobicents.examples.convergeddemo.seam.model.OrderLine;
-import org.mobicents.examples.convergeddemo.seam.model.Product;
+import org.mobicents.examples.convergeddemo.seam.pojo.Order;
+import org.mobicents.examples.convergeddemo.seam.pojo.OrderLine;
+import org.mobicents.examples.convergeddemo.seam.pojo.Product;
 
 @Stateful
 @Name("cart")

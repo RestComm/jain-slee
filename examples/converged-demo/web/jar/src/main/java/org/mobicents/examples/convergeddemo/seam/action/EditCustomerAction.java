@@ -27,7 +27,7 @@ import org.jboss.seam.bpm.Actor;
 import org.jboss.seam.contexts.Context;
 import org.jboss.seam.faces.FacesMessages;
 import org.jboss.seam.security.Identity;
-import org.mobicents.examples.convergeddemo.seam.model.Customer;
+import org.mobicents.examples.convergeddemo.seam.pojo.Customer;
 
 @Stateful
 @Name("editCustomer")

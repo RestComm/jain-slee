@@ -34,11 +34,11 @@ import org.jboss.seam.annotations.Out;
 import org.jboss.seam.contexts.Contexts;
 import org.jboss.seam.faces.FacesMessages;
 
-import org.mobicents.examples.convergeddemo.seam.model.Customer;
-import org.mobicents.examples.convergeddemo.seam.model.Inventory;
-import org.mobicents.examples.convergeddemo.seam.model.Order;
-import org.mobicents.examples.convergeddemo.seam.model.OrderLine;
-import org.mobicents.examples.convergeddemo.seam.model.Product;
+import org.mobicents.examples.convergeddemo.seam.pojo.Customer;
+import org.mobicents.examples.convergeddemo.seam.pojo.Inventory;
+import org.mobicents.examples.convergeddemo.seam.pojo.Order;
+import org.mobicents.examples.convergeddemo.seam.pojo.OrderLine;
+import org.mobicents.examples.convergeddemo.seam.pojo.Product;
 import org.mobicents.slee.connector.server.RemoteSleeService;
 import org.mobicents.slee.service.events.CustomEvent;
 

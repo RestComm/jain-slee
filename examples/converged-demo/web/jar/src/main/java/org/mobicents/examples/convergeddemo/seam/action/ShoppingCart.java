@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import org.mobicents.examples.convergeddemo.seam.model.OrderLine;
-import org.mobicents.examples.convergeddemo.seam.model.Product;
+import org.mobicents.examples.convergeddemo.seam.pojo.OrderLine;
+import org.mobicents.examples.convergeddemo.seam.pojo.Product;
 
 public interface ShoppingCart
 {

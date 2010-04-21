@@ -10,7 +10,7 @@ import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Out;
 import org.jboss.seam.bpm.Actor;
 import org.jboss.seam.security.Identity;
-import org.mobicents.examples.convergeddemo.seam.model.User;
+import org.mobicents.examples.convergeddemo.seam.pojo.User;
 
 @Stateless
 @Name("authenticator")

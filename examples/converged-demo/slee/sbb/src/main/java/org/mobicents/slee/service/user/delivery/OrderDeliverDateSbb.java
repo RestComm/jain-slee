@@ -34,6 +34,7 @@ import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
+import javax.slee.facilities.Tracer;
 import javax.slee.nullactivity.NullActivity;
 
 import net.java.slee.resource.mgcp.JainMgcpProvider;
@@ -72,7 +73,7 @@ import org.mobicents.slee.util.SessionAssociation;
  */
 public abstract class OrderDeliverDateSbb extends CommonSbb {
 
-	private Logger logger = Logger.getLogger(OrderDeliverDateSbb.class);
+	private Tracer logger = null;
 
 	private EntityManagerFactory emf;
 
@@ -90,6 +91,7 @@ public abstract class OrderDeliverDateSbb extends CommonSbb {
 	}
 
 	public void setSbbContext(SbbContext context) {
+		this.logger = context.getTracer("OrderDeliverDate");
 		super.setSbbContext(context);
 		try {
 
@@ -187,23 +189,23 @@ public abstract class OrderDeliverDateSbb extends CommonSbb {
 
 			// The dialog for the client transaction in which the INVITE is sent
 			Dialog dialog = ct.getDialog();
-			if (dialog != null && logger.isDebugEnabled()) {
-				logger.debug("Obtained dialog from ClientTransaction : automatic dialog support on");
+			if (dialog != null && logger.isFineEnabled()) {
+				logger.fine("Obtained dialog from ClientTransaction : automatic dialog support on");
 			}
 			if (dialog == null) {
 				// Automatic dialog support turned off
 				try {
 					dialog = getSipProvider().getNewDialog(ct);
-					if (logger.isDebugEnabled()) {
-						logger.debug("Obtained dialog for INVITE request to callee with getNewDialog");
+					if (logger.isFineEnabled()) {
+						logger.fine("Obtained dialog for INVITE request to callee with getNewDialog");
 					}
 				} catch (Exception e) {
-					logger.error("Error getting dialog", e);
+					logger.severe("Error getting dialog", e);
 				}
 			}
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Obtained dialog in onThirdPCCTriggerEvent : callId = " + dialog.getCallId().getCallId());
+			if (logger.isFineEnabled()) {
+				logger.fine("Obtained dialog in onThirdPCCTriggerEvent : callId = " + dialog.getCallId().getCallId());
 			}
 			// Get activity context from factory
 			ActivityContextInterface sipACI = ((SipActivityContextInterfaceFactory)getSipActivityContextInterfaceFactory()).getActivityContextInterface((DialogActivity)dialog);
@@ -249,18 +251,18 @@ public abstract class OrderDeliverDateSbb extends CommonSbb {
 			ct.sendRequest();
 
 		} catch (ParseException parExc) {
-			logger.error("Parse Exception while parsing the callerAddess", parExc);
+			logger.severe("Parse Exception while parsing the callerAddess", parExc);
 		} catch (InvalidArgumentException invalidArgExcep) {
-			logger.error("InvalidArgumentException while building Invite Request", invalidArgExcep);
+			logger.severe("InvalidArgumentException while building Invite Request", invalidArgExcep);
 		} catch (TransactionUnavailableException tranUnavExce) {
-			logger.error("TransactionUnavailableException when trying to getNewClientTransaction", tranUnavExce);
+			logger.severe("TransactionUnavailableException when trying to getNewClientTransaction", tranUnavExce);
 		} catch (UnrecognizedActivityException e) {
 			// TODO Auto-generated catch block
-			logger.error("UnrecognizedActivityException when trying to getActivityContextInterface", e);
+			logger.severe("UnrecognizedActivityException when trying to getActivityContextInterface", e);
 		} catch (CreateException creaExce) {
-			logger.error("CreateException while trying to create Child", creaExce);
+			logger.severe("CreateException while trying to create Child", creaExce);
 		} catch (SipException sipExec) {
-			logger.error("SipException while trying to send INVITE Request", sipExec);
+			logger.severe("SipException while trying to send INVITE Request", sipExec);
 		}
 
 	}
@@ -276,7 +278,7 @@ public abstract class OrderDeliverDateSbb extends CommonSbb {
 			break;
 		default:
 			ReturnCode rc = event.getReturnCode();
-			logger.error("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
+			logger.severe("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
 
 			if(getChildSbbLocalObject().getSendBye())
 			{
@@ -521,8 +523,8 @@ public abstract class OrderDeliverDateSbb extends CommonSbb {
 			return ies;
 		}
 		// Set the convergence name
-		if (logger.isDebugEnabled()) {
-			logger.debug("Setting convergence name to: " + orderId);
+		if (logger.isFineEnabled()) {
+			logger.severe("Setting convergence name to: " + orderId);
 		}
 		ies.setCustomName(String.valueOf(orderId));
 		return ies;

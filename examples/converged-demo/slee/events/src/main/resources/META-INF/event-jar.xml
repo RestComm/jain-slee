@@ -11,15 +11,7 @@
     </event-definition>
 
     <event-definition>
-        <description>Fired from ESB for SalesForce Demo. Initiates AdminSBB</description>
-        <event-type-name>org.mobicents.slee.service.sfdemo.ORDER_PLACED</event-type-name>
-        <event-type-vendor>org.mobicents</event-type-vendor>
-        <event-type-version>1.0</event-type-version>
-        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
-    </event-definition>
-    
-    <event-definition>
-        <description>Before Order Processed Event</description>
+        <description>Before Order Processed Event: Fired once user places order(accepts it after ORDER_PLACED)</description>
         <event-type-name>org.mobicents.slee.service.dvddemo.BEFORE_ORDER_PROCESSED</event-type-name>
         <event-type-vendor>org.mobicents</event-type-vendor>
         <event-type-version>1.0</event-type-version>
@@ -35,7 +27,7 @@
     </event-definition>    
     
     <event-definition>
-        <description>Order Information Event</description>
+        <description>Order Information Event: fired when user cancels order</description>
         <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_CANCELLED</event-type-name>
         <event-type-vendor>org.mobicents</event-type-vendor>
         <event-type-version>1.0</event-type-version>
@@ -43,7 +35,7 @@
     </event-definition>
     
     <event-definition>
-        <description>Order Information Event</description>
+        <description>Order Information Event: Fired when admin approves order</description>
         <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_APPROVED</event-type-name>
         <event-type-vendor>org.mobicents</event-type-vendor>
         <event-type-version>1.0</event-type-version>
@@ -51,7 +43,7 @@
     </event-definition>              
     
     <event-definition>
-        <description>Order Information Event</description>
+        <description>Order Information Event: Fired when admin rejects order</description>
         <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_REJECTED</event-type-name>
         <event-type-vendor>org.mobicents</event-type-vendor>
         <event-type-version>1.0</event-type-version>
@@ -59,10 +51,21 @@
     </event-definition>    
     
     <event-definition>
-        <description>Order Information Event</description>
+        <description>Order Information Event: fired once admin marks order for shipping</description>
         <event-type-name>org.mobicents.slee.service.dvddemo.ORDER_SHIPPED</event-type-name>
         <event-type-vendor>org.mobicents</event-type-vendor>
         <event-type-version>1.0</event-type-version>
         <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
-    </event-definition>                     
+    </event-definition>       
+    
+    
+    <!-- Amit whats that? -->
+    <event-definition>
+        <description>Fired from ESB for SalesForce Demo. Initiates AdminSBB</description>
+        <event-type-name>org.mobicents.slee.service.sfdemo.ORDER_PLACED</event-type-name>
+        <event-type-vendor>org.mobicents</event-type-vendor>
+        <event-type-version>1.0</event-type-version>
+        <event-class-name>org.mobicents.slee.service.events.CustomEvent</event-class-name>
+    </event-definition>
+                  
 </event-jar>

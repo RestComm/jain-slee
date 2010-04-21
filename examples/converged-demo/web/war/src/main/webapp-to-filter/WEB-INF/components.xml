@@ -42,7 +42,7 @@
         scope="stateless" 
         auto-create="true"/>
     <framework:entity-home name="orderHome" 
-        entity-class="org.mobicents.examples.convergeddemo.seam.model.Order" 
+        entity-class="org.mobicents.examples.convergeddemo.seam.pojo.Order" 
         scope="conversation" 
         auto-create="true">
         <framework:id>#{orderId}</framework:id>

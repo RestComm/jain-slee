@@ -84,6 +84,7 @@ import javax.slee.RolledBackContext;
 import javax.slee.SbbContext;
 import javax.slee.SbbLocalObject;
 import javax.slee.UnrecognizedActivityException;
+import javax.slee.facilities.Tracer;
 
 import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.mgcp.MgcpActivityContextInterfaceFactory;
@@ -104,7 +105,7 @@ import org.mobicents.slee.util.SessionAssociation;
 import org.mobicents.slee.util.StateCallback;
 
 public abstract class CallControlSbb extends CommonSbb {
-	private static Logger log = Logger.getLogger(CallControlSbb.class);
+	private Tracer log = null;
 
 	public final static String ENDPOINT_NAME = "/mobicents/media/packetrelay/$";
 
@@ -189,8 +190,8 @@ public abstract class CallControlSbb extends CommonSbb {
 			return ies;
 		}
 		// Set the convergence name
-		if (log.isDebugEnabled()) {
-			log.info("Setting convergence name to: " + callId);
+		if (log.isFineEnabled()) {
+			log.fine("Setting convergence name to: " + callId);
 		}
 		ies.setCustomName(callId);
 		return ies;
@@ -218,8 +219,8 @@ public abstract class CallControlSbb extends CommonSbb {
 
 		log.info("************Received BYEEEE**************");
 
-		if (log.isDebugEnabled()) {
-			log.info("Received BYE");
+		if (log.isFineEnabled()) {
+			log.fine("Received BYE");
 		}
 
 		try {
@@ -272,7 +273,7 @@ public abstract class CallControlSbb extends CommonSbb {
 			break;
 		default:
 			ReturnCode rc = event.getReturnCode();
-			log.error("CRCX failed. Value = " + rc.getValue() + " Comment = "
+			log.severe("CRCX failed. Value = " + rc.getValue() + " Comment = "
 					+ rc.getComment());
 
 			if (this.getSendByeCmp()) {
@@ -543,12 +544,13 @@ public abstract class CallControlSbb extends CommonSbb {
 			sendRequest(dialog, Request.BYE);
 			this.setSendByeCmp(false);
 		} catch (SipException e) {
-			log.error("Error sending BYE", e);
+			log.severe("Error sending BYE", e);
 		}
 	}
 
 	// TODO: Perform further operations if required in these methods.
 	public void setSbbContext(SbbContext context) {
+		this.log = context.getTracer("CallControl");
 		super.setSbbContext(context);
 
 		try {
@@ -708,12 +710,12 @@ public abstract class CallControlSbb extends CommonSbb {
 				Dialog eventDialog = getSipUtils().getDialog(event);
 				currentDialog = getDialog(eventDialog.getCallId().getCallId());
 				if (!eventDialog.equals(currentDialog)) {
-					log.warn("Received 200 response from forked dialog");
+					log.warning("Received 200 response from forked dialog");
 					return; // We don't currently handle this. Should send ACK
 					// and BYE
 				}
 			} catch (SipException e) {
-				log.error("SipException while trying to retreive Dialog", e);
+				log.severe("SipException while trying to retreive Dialog", e);
 			}
 
 			// Let us attach sbbLocalObject to Dialog to receive Bye latter
@@ -945,7 +947,7 @@ public abstract class CallControlSbb extends CommonSbb {
 				Dialog currentDialog = getDialog(eventDialog.getCallId()
 						.getCallId());
 				if (!eventDialog.equals(currentDialog)) {
-					log.warn("Received 200 response from forked dialog");
+					log.warning("Received 200 response from forked dialog");
 					return; // We don't currently handle this. Should send ACK
 					// and BYE
 				}
@@ -969,7 +971,7 @@ public abstract class CallControlSbb extends CommonSbb {
 			try {
 				sendRequest(dialog, Request.BYE);
 			} catch (SipException e) {
-				log.error("Error sending BYE", e);
+				log.severe("Error sending BYE", e);
 			}
 			setState(new UATerminationState(), callerCallId);
 		}
@@ -979,7 +981,7 @@ public abstract class CallControlSbb extends CommonSbb {
 			try {
 				sendRequest(dialog, Request.BYE);
 			} catch (SipException e) {
-				log.error("Error sending BYE", e);
+				log.severe("Error sending BYE", e);
 			}
 			setState(new UATerminationState(), callerCallId);
 		}
@@ -1256,7 +1258,7 @@ public abstract class CallControlSbb extends CommonSbb {
 				setState(new ExternalTerminationCallerState(), callId);
 			} catch (SipException e) {
 				log
-						.error("Exception while sending BYE in execute for callId : "
+						.severe("Exception while sending BYE in execute for callId : "
 								+ dialog.getCallId().getCallId());
 				setState(new TerminationState(), callId);
 			}
@@ -1474,7 +1476,7 @@ public abstract class CallControlSbb extends CommonSbb {
 			dialog.sendRequest(ct);
 		} catch (Exception e) { // This catches no less than 10 distinct
 			// exception types...
-			log.error("Exception in sendrequest", e);
+			log.severe("Exception in sendrequest", e);
 			throw new SipException(
 					"Exception rethrown as SipException in sendRequest", e);
 		}
@@ -1518,7 +1520,7 @@ public abstract class CallControlSbb extends CommonSbb {
 				}
 			} catch (SipException e) {
 				log
-						.error(
+						.severe(
 								"Error getting dialog in sendRequestWithAuthorizationHeader",
 								e);
 			}

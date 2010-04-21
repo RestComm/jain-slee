@@ -12,7 +12,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import org.mobicents.examples.convergeddemo.seam.model.User;
+import org.mobicents.examples.convergeddemo.seam.pojo.User;
 
 @Entity
 @DiscriminatorValue("admin")

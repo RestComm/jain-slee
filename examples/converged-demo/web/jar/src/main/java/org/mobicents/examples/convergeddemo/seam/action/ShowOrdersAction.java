@@ -26,9 +26,9 @@ import org.jboss.seam.annotations.bpm.ResumeProcess;
 import org.jboss.seam.annotations.datamodel.DataModel;
 import org.jboss.seam.annotations.datamodel.DataModelSelection;
 import org.jbpm.graph.exe.ProcessInstance;
-import org.mobicents.examples.convergeddemo.seam.model.Customer;
-import org.mobicents.examples.convergeddemo.seam.model.Order;
-import org.mobicents.examples.convergeddemo.seam.model.Order.Status;
+import org.mobicents.examples.convergeddemo.seam.pojo.Customer;
+import org.mobicents.examples.convergeddemo.seam.pojo.Order;
+import org.mobicents.examples.convergeddemo.seam.pojo.Order.Status;
 
 @Stateful
 @Name("showorders")

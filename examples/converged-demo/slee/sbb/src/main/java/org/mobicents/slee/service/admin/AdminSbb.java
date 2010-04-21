@@ -50,6 +50,7 @@ import javax.slee.facilities.TimerEvent;
 import javax.slee.facilities.TimerFacility;
 import javax.slee.facilities.TimerID;
 import javax.slee.facilities.TimerOptions;
+import javax.slee.facilities.Tracer;
 import javax.slee.nullactivity.NullActivity;
 
 import net.java.slee.resource.mgcp.JainMgcpProvider;
@@ -71,7 +72,7 @@ import org.mobicents.slee.util.SessionAssociation;
  */
 public abstract class AdminSbb extends CommonSbb {
 
-	private Logger logger = Logger.getLogger(AdminSbb.class);
+	private Tracer logger = null;
 
 	private TimerFacility timerFacility = null;
 
@@ -96,6 +97,7 @@ public abstract class AdminSbb extends CommonSbb {
 	}
 
 	public void setSbbContext(SbbContext sbbContext) {
+		logger = sbbContext.getTracer("Admin");
 		super.setSbbContext(sbbContext);
 		try {
 			Context ctx = (Context) new InitialContext().lookup("java:comp/env");
@@ -115,7 +117,7 @@ public abstract class AdminSbb extends CommonSbb {
 			emf = (EntityManagerFactory) newIc.lookup("java:/ShoppingDemoSleeEntityManagerFactory");
 
 		} catch (NamingException ne) {
-			logger.error("Could not set SBB context: " + ne.toString(), ne);
+			logger.severe("Could not set SBB context: " + ne.toString(), ne);
 		}
 	}
 
@@ -251,7 +253,7 @@ public abstract class AdminSbb extends CommonSbb {
 						logger.info("Obtained dialog for INVITE request to callee with getNewDialog");
 					}
 				} catch (Exception e) {
-					logger.error("Error getting dialog", e);
+					logger.severe("Error getting dialog", e);
 				}
 			}
 
@@ -301,17 +303,17 @@ public abstract class AdminSbb extends CommonSbb {
 			dialog.sendRequest(ct);
 
 		} catch (ParseException parExc) {
-			logger.error("Parse Exception while parsing the callerAddess", parExc);
+			logger.severe("Parse Exception while parsing the callerAddess", parExc);
 		} catch (InvalidArgumentException invalidArgExcep) {
-			logger.error("InvalidArgumentException while building Invite Request", invalidArgExcep);
+			logger.severe("InvalidArgumentException while building Invite Request", invalidArgExcep);
 		} catch (TransactionUnavailableException tranUnavExce) {
-			logger.error("TransactionUnavailableException when trying to getNewClientTransaction", tranUnavExce);
+			logger.severe("TransactionUnavailableException when trying to getNewClientTransaction", tranUnavExce);
 		} catch (UnrecognizedActivityException e) {
-			logger.error("UnrecognizedActivityException when trying to getActivityContextInterface", e);
+			logger.severe("UnrecognizedActivityException when trying to getActivityContextInterface", e);
 		} catch (CreateException creaExce) {
-			logger.error("CreateException while trying to create Child", creaExce);
+			logger.severe("CreateException while trying to create Child", creaExce);
 		} catch (SipException sipExec) {
-			logger.error("SipException while trying to send INVITE Request", sipExec);
+			logger.severe("SipException while trying to send INVITE Request", sipExec);
 		}
 	}
 	
@@ -326,7 +328,7 @@ public abstract class AdminSbb extends CommonSbb {
 			break;
 		default:
 			ReturnCode rc = event.getReturnCode();
-			logger.error("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
+			logger.severe("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
 
 			cancelTimer();
 			if(getChildSbbLocalObject().getSendBye())
@@ -473,7 +475,7 @@ public abstract class AdminSbb extends CommonSbb {
 		}
 		// Set the convergence name
 		if (logger.isInfoEnabled()) {
-			logger.debug("Setting convergence name to: " + orderId);
+			logger.info("Setting convergence name to: " + orderId);
 		}
 		ies.setCustomName(String.valueOf(orderId));
 		return ies;

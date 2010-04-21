@@ -18,6 +18,7 @@ import javax.slee.CreateException;
 import javax.slee.Sbb;
 import javax.slee.SbbContext;
 import javax.slee.SbbID;
+import javax.slee.facilities.Tracer;
 import javax.slee.nullactivity.NullActivityContextInterfaceFactory;
 import javax.slee.nullactivity.NullActivityFactory;
 
@@ -74,7 +75,7 @@ public abstract class CommonSbb implements Sbb {
 	private JainMgcpProvider mgcpProvider;
 
 
-	private Logger logger = Logger.getLogger(CommonSbb.class);
+	private Tracer logger =null;
 
 	/** Creates a new instance of BounceSbb */
 	public CommonSbb() {
@@ -94,6 +95,7 @@ public abstract class CommonSbb implements Sbb {
 	 * "POOLED" (see page 52)
 	 */
 	public void setSbbContext(SbbContext sbbContext) {
+		this.logger = sbbContext.getTracer("Common");
 		this.sbbContext = sbbContext;
 		sbbId = sbbContext.getSbb();
 
@@ -102,8 +104,8 @@ public abstract class CommonSbb implements Sbb {
 			// Create the cache used for the session association
 			cache = CacheFactory.getInstance().getCache();
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Got Cache instance!");
+			if (logger.isFineEnabled()) {
+				logger.fine("Got Cache instance!");
 			}
 
 			Context ctx = (Context) new InitialContext()
@@ -127,9 +129,9 @@ public abstract class CommonSbb implements Sbb {
 			
 
 		} catch (NamingException ne) {
-			logger.error("NamingException in CommonSbb", ne);
+			logger.severe("NamingException in CommonSbb", ne);
 		} catch (CacheException ce) {
-			logger.error("CacheException while trying to create Cahe", ce);
+			logger.severe("CacheException while trying to create Cahe", ce);
 		}
 	}
 
