@@ -1,0 +1,662 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<section id="source_slee_admin">
+		<title>Admin</title>
+		<para><literal>AdminSbb</literal> is root <acronym>SBB</acronym> of service responsible of contacting adminstrator.</para>
+		<para>Class <literal>org.mobicents.slee.service.admin.AdminSbb</literal> includes all the service logic for the example(except signaling). 
+		<literal>AdminSbb</literal> is responsbile for contacting admin in two cases: </para>
+		<itemizedlist>
+			<listitem>
+				<para>to accept placed order for user, it is triggered conditionaly - please refer to <xref linkend="design_web"/> and <xref linkend="source_web"/> for details.</para>
+			</listitem>
+			<listitem>
+				<para>to accept order once user sets shipping date.</para>
+			</listitem>
+		</itemizedlist>
+		<section id="source_slee_admin_descriptor">
+			<title>Descriptor</title>
+		<para><literal>AdminSbb</literal> is declared with <acronym>SBB</acronym> descriptor. Full declaration is embed in <acronym>XML</acronym> tag(<literal>&lt;sbb&gt;</literal>) in <filename>sbb-jar.xml</filename> file, it has following content: </para>
+		<variablelist>
+			<varlistentry>
+				<term><acronym>SBB</acronym> class and ID definition</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<<description>Seam DVD Example Admin SBB</description>
+
+<sbb-name>AdminSbb</sbb-name>
+<sbb-vendor>org.mobicents</sbb-vendor>
+<sbb-version>1.0</sbb-version>
+
+<!-- Delegate to this child SBB after the first INVITE has been sent -->
+<sbb-ref>
+	<sbb-name>CallControlSbb</sbb-name>
+	<sbb-vendor>org.mobicents</sbb-vendor>
+	<sbb-version>1.0</sbb-version>
+	<sbb-alias>CallControl</sbb-alias>
+</sbb-ref>
+		
+		
+
+
+<sbb-classes>
+	<sbb-abstract-class>
+		<sbb-abstract-class-name>
+			org.mobicents.slee.service.admin.AdminSbb
+		</sbb-abstract-class-name>
+		<cmp-field>
+			<cmp-field-name>timerID</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>customEvent</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>sendBye</cmp-field-name>
+		</cmp-field>
+    	<cmp-field>
+			<cmp-field-name>childSbbLocalObject</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>ttsString</cmp-field-name>
+		</cmp-field>
+		
+		<get-child-relation-method>
+			<sbb-alias-ref>CallControl</sbb-alias-ref>
+			<get-child-relation-method-name>
+				getCallControlSbbChild
+			</get-child-relation-method-name>
+			<default-priority>3</default-priority>
+		</get-child-relation-method>
+	</sbb-abstract-class>
+</sbb-classes>
+
+					
+					]]>
+				</programlisting>
+				<para><acronym>AdminSbb</acronym> descriptor declares  following <acronym>CMP</acronym> fields: </para>
+				<itemizedlist>
+					<listitem>
+						<para>timerId - to hold <literal>TimerID</literal> of running timer.</para>
+					</listitem>
+					<listitem>
+						<para>ttsString - text to be played to <acronym>UA</acronym>. </para>
+					</listitem>
+					<listitem>
+						<para>childSbbLocalObject -  to hold reference to child <acronym>SBB</acronym> <literal>local object</literal>(call control) </para>
+					</listitem>
+					<listitem>
+						<para>customEvent - to hold reference to example custom object received.</para>
+					</listitem>
+					<listitem>
+						<para>sendBye - to hold flag indicating if call control should send <acronym>SIP</acronym> <literal>BYE</literal> to terminate call.</para>
+					</listitem>
+				</itemizedlist>
+				<para><literal>AdminSbb</literal> descriptor declares also child reference to call control <acronym>SBB</acronym> (by declaring child relation metho) </para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>MGCP</acronym> event handlers</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<event event-direction="Receive" initial-event="False">
+	<event-name>NotificationRequestResponse</event-name>
+	<event-type-ref>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+
+<event event-direction="Receive" initial-event="False">
+	<event-name>NotifyRequest</event-name>
+	<event-type-ref>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFY
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+<event event-direction="Receive" initial-event="False">
+	<event-name>CreateConnectionResponse</event-name>
+	<event-type-ref>
+		<event-type-name>
+			net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+						]]>
+					</programlisting>
+					<para>Declared event handlers are:</para>
+					<itemizedlist>
+						<listitem>
+							<para>NotificationRequestResponse - called to indicate status of call control reqest for audio playback </para>
+						</listitem>
+						<listitem>
+							<para>NotifyRequest - called no indicate that requested event has been detected</para>
+						</listitem>
+						<listitem>
+							<para>CreateConnectionResponse - called to indicate <acronym>CRCX</acronym> request result</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Custom events</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<event event-direction="Receive" initial-event="True">
+	<event-name>OrderPlaced</event-name>
+	<event-type-ref>
+		<event-type-name>
+			org.mobicents.slee.service.sfdemo.ORDER_PLACED
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	<initial-event-select variable="ActivityContext" />
+</event>
+
+<event event-direction="Receive" initial-event="True">
+	<event-name>BeforeOrderProcessed</event-name>
+	<event-type-ref>
+		<event-type-name>
+			org.mobicents.slee.service.dvddemo.BEFORE_ORDER_PROCESSED
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	<initial-event-selector-method-name>
+		orderIdSelect
+	</initial-event-selector-method-name>
+</event>
+
+<event event-direction="Receive" initial-event="True">
+	<event-name>OrderCancelled</event-name>
+	<event-type-ref>
+		<event-type-name>
+			org.mobicents.slee.service.dvddemo.ORDER_CANCELLED
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	<initial-event-selector-method-name>
+		orderIdSelect
+	</initial-event-selector-method-name>
+</event>
+
+<event event-direction="Receive" initial-event="False">
+	<event-name>OrderRejected</event-name>
+	<event-type-ref>
+		<event-type-name>
+			org.mobicents.slee.service.dvddemo.ORDER_REJECTED
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+<event event-direction="Receive" initial-event="False">
+	<event-name>OrderApproved</event-name>
+	<event-type-ref>
+		<event-type-name>
+			org.mobicents.slee.service.dvddemo.ORDER_APPROVED
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+						]]>
+					</programlisting>
+					<para>Declared event handlers are:</para>
+					<itemizedlist>
+						<listitem>
+							<para>OrderPlaced - invoked once order has been placed by user. Note different event name than in <xref linkend="source_slee_user_descriptor"/></para>
+						</listitem>
+						<listitem>
+							<para>BeforeOrderProcessed - invoked after user punches shipping date for order.</para>
+						</listitem>
+						<listitem>
+							<para>OrderRejected - invoked in case adminstrator rejects order via web interface</para>
+						</listitem>
+						<listitem>
+							<para>OrderApproved - invoked in case adminstrator approves order via web interface</para>
+						</listitem>
+					</itemizedlist>
+					<note><para>Please refer to <xref linkend="design_web"/> and <xref linkend="source_web"/> for details on event firing conditions.</para>  </note>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>SLEE generic events</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<event event-direction="Receive" initial-event="False">
+	<event-name>TimerEvent</event-name>
+	<event-type-ref>
+		<event-type-name>
+			javax.slee.facilities.TimerEvent
+		</event-type-name>
+		<event-type-vendor>javax.slee</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+						]]>
+					</programlisting>
+					<para>Timer event handler is invoked for timer running for <literal>BeforeOrderProcessed</literal> event.  </para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>configuration enviroment entries</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<env-entry>
+	<description>
+		SIP URI of Admin. The call will be directed to this user
+		who acts as Admin (Callee)
+	</description>
+	<env-entry-name>adminSip</env-entry-name>
+	<env-entry-type>java.lang.String</env-entry-type>
+	<env-entry-value>${admin.sip}</env-entry-value>
+</env-entry>
+	<env-entry>
+	<description>
+		SIP URI of Admin. User will see this address as Caller
+		Address
+	</description>
+	<env-entry-name>callerSip</env-entry-name>
+	<env-entry-type>java.lang.String</env-entry-type>
+	<env-entry-value>${caller.sip}</env-entry-value>
+</env-entry>
+<env-entry>
+	<description>
+		Maximum time (min) before a check is made for Order
+		Approval by manager - value of timer delay
+	</description>
+	<env-entry-name>waitingTiming</env-entry-name>
+		<env-entry-type>java.lang.Long</env-entry-type>
+	<env-entry-value>
+		${order.approval.waitingtime}
+	</env-entry-value>
+</env-entry>
+					]]>
+					</programlisting>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>RA</acronym> bindings</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<resource-adaptor-type-binding>
+	<resource-adaptor-type-ref>
+		<resource-adaptor-type-name>
+			JAIN SIP
+		</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>
+			javax.sip
+		</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>
+			1.2
+		</resource-adaptor-type-version>
+	</resource-adaptor-type-ref>
+	<activity-context-interface-factory-name>
+		slee/resources/jainsip/1.2/acifactory
+	</activity-context-interface-factory-name>
+	<resource-adaptor-entity-binding>
+		<resource-adaptor-object-name>
+			slee/resources/jainsip/1.2/provider
+		</resource-adaptor-object-name>
+			<resource-adaptor-entity-link>
+			SipRA
+		</resource-adaptor-entity-link>
+	</resource-adaptor-entity-binding>
+</resource-adaptor-type-binding>
+
+<resource-adaptor-type-binding>
+	<resource-adaptor-type-ref>
+		<resource-adaptor-type-name>
+			jain-mgcp
+		</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>
+			net.java
+		</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>
+			2.0
+		</resource-adaptor-type-version>
+	</resource-adaptor-type-ref>
+	<activity-context-interface-factory-name>
+		slee/resources/jainmgcp/2.0/acifactory/demo
+	</activity-context-interface-factory-name>
+	<resource-adaptor-entity-binding>
+		<resource-adaptor-object-name>
+			slee/resources/jainmgcp/2.0/provider/demo
+		</resource-adaptor-object-name>
+		<resource-adaptor-entity-link>
+			MGCPRA
+		</resource-adaptor-entity-link>
+	</resource-adaptor-entity-binding>
+</resource-adaptor-type-binding>
+					]]>
+					</programlisting>
+					<para></para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		
+		</section>
+		<section id="source_slee_user_custom_event">
+			<title>Custom event handlers</title>
+			<para><literal>AdminSbb</literal> declares five custom event handlers:</para>
+			<itemizedlist>
+				<listitem>
+					<programlisting language="Java" role="JAVA">
+public void onOrderPlaced(CustomEvent event, ActivityContextInterface ac) {
+
+	logger.info("AdminSbb: " + this + ": received an ORDER_PLACED event. OrderId = " + event.getOrderId()
+			+ ". ammount = " + event.getAmmount() + ". Customer Name = " + event.getCustomerName());
+	<co id="example.admin1.co1"/>
+	this.setCustomEvent(event);
+	<co id="example.admin1.co2"/>
+	StringBuffer stringBuffer = new StringBuffer();
+	stringBuffer.append(event.getCustomerName());
+	stringBuffer.append(" has placed an order of $");
+	stringBuffer.append(event.getAmmount());
+	stringBuffer.append(". Press 1 to approve and 2 to reject.");
+	<co id="example.admin1.co3"/>
+	setTtsString(stringBuffer.toString());
+	<co id="example.admin1.co4"/>
+	this.setSendBye(false);
+	<co id="example.admin1.co5"/>
+	makeCall(ac);
+
+}
+					</programlisting>
+					<para>Order placed event is received condiationaly, depending on <acronym>JBPM</acronym> flow. It indicates that user has placed order, but it needs to be approved by administrator for further processing. This handler performs following actions: </para>
+					<calloutlist>
+						<callout arearefs="example.admin1.co1">
+					       	<para>Store event in <acronym>CMP</acronym> </para>
+		       			</callout>
+						<callout arearefs="example.admin1.co2">
+					       	<para>Create text to be played as audio </para>
+		       			</callout>
+		       			<callout arearefs="example.admin1.co3">
+					       	<para>Store text in <acronym>CMP</acronym> </para>
+		       			</callout>
+		       			<callout arearefs="example.admin1.co4">
+					       	<para>Set flag</para>
+		       			</callout>
+		       			<callout arearefs="example.admin1.co5">
+					       	<para>Initiate call with admins <acronym>UA</acronym>, please refer to <xref linkend="source_slee_user_custom_event"/> for better understanding of call process. Once call procedure is finished stored text is played.</para>
+		       			</callout>
+       			</calloutlist>
+				</listitem>
+				<listitem>
+					<programlisting language="Java" role="JAVA">
+public void onBeforeOrderProcessed(CustomEvent event, ActivityContextInterface ac) {
+	logger.info("AdminSbb: " + this + ": received an BEFORE_ORDER_PROCESSED event. OrderId = " + event.getOrderId()
+			+ ". ammount = " + event.getAmmount() + ". Customer Name = " + event.getCustomerName());
+	<co id="example.admin2.co1"/>
+	this.setCustomEvent(event);
+	<co id="example.admin2.co2"/>
+	StringBuffer stringBuffer = new StringBuffer();
+	stringBuffer.append(event.getCustomerName());
+	stringBuffer.append(" has placed an order of $");
+	stringBuffer.append(event.getAmmount());
+	stringBuffer.append(". Press 1 to approve and 2 to reject.");
+	setTtsString(stringBuffer.toString());<co id="example.admin2.co3"/>
+	<co id="example.admin2.co4"/>
+	setTimer(ac);
+}
+
+public void onTimerEvent(TimerEvent event, ActivityContextInterface aci) {
+	logger.info("****** AdminSbb Recieved TimerEvent ******* ");
+
+	<co id="example.admin2.co5"/>
+	makeCall(aci);
+}
+					</programlisting>
+					<para><literal>BeforeOrderProcessed</literal> event is received once user punches shipping date. Along with <literal>Timer</literal> event handler it holds logic to inform administrator. This handlers performs following actions: </para>
+					<calloutlist>
+						<callout arearefs="example.admin2.co1">
+					       	<para>Store event in <acronym>CMP</acronym> </para>
+		       			</callout>
+		       			<callout arearefs="example.admin2.co2">
+					       	<para>Create text to be played as audio</para>
+		       			</callout>
+		       			<callout arearefs="example.admin2.co3">
+					       	<para>Store text in <acronym>CMP</acronym> </para>
+		       			</callout>
+		       			<callout arearefs="example.admin2.co4">
+					       	<para>Create timer on passed <acronym>ACI</acronym> - timer delay is equal to configured delay(see descriptor)</para>
+		       			</callout>
+		       			<callout arearefs="example.admin2.co5">
+					       	<para>On timer event, initiate call</para>
+		       			</callout>
+       			</calloutlist>
+				</listitem>
+				<listitem>
+					<programlisting language="Java" role="JAVA">
+	public void onOrderCancelled(CustomEvent event, ActivityContextInterface ac) {
+		logger.info("****** AdminSbb Recieved ORDER_CANCELLED ******");
+		cancelTimer();
+	}
+
+	public void onOrderRejected(CustomEvent event, ActivityContextInterface ac) {
+
+		logger.info("****** AdminSbb Recieved ORDER_REJECTED ******* ");
+		cancelTimer();
+	}
+
+	public void onOrderApproved(CustomEvent event, ActivityContextInterface ac) {
+
+		logger.info("****** AdminSbb Recieved ORDER_APPROVED ******* ");
+		cancelTimer();
+	}
+					</programlisting>
+					<para><literal>onOrderCancelled</literal>,<literal>onOrderRejected</literal> and <literal>onOrderApproved</literal> handlers are strictly for cleaning state. Events processed by those methods are fired in case administrator performs operation on order with web interface. Please refer to <literal>AdminSbb</literal> decision diagram. </para>
+					
+				</listitem>
+			</itemizedlist>
+			
+		</section>
+		<section id="source_slee_admin_mgcp_event">
+			<title><acronym>MGCP</acronym> event handlers</title>
+			<para><literal>UserSbb</literal> declares three <acronym>MGCP</acronym> event handlers:</para>
+			<itemizedlist>
+				<listitem>
+					<programlisting language="Java" role="JAVA">
+	public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci)
+	{
+		if(event.getSecondEndpointIdentifier()!=null)
+		{
+			//we have media path estabilished.
+			getChildSbbLocalObject().sendRQNT(getTtsString(), null, true);
+			this.setTtsString(null);
+		}
+	}
+					</programlisting>
+					<para><literal>onCreateConnectionResponse</literal> is invoked once child call control establishes media path. It requests call control to play text as audio and detect <acronym>DTMF</acronym> events.</para>
+				</listitem>
+					<listitem>
+					<programlisting language="Java" role="JAVA">
+	public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
+		logger.info("onNotificationRequestResponse");
+
+		ReturnCode status = event.getReturnCode();
+
+		switch (status.getValue()) {
+		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+			logger.info("The Announcement should start.");
+			break;
+		default:
+			ReturnCode rc = event.getReturnCode();
+			logger.severe("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
+
+			cancelTimer();
+			if(getChildSbbLocalObject().getSendBye())
+			{
+				getChildSbbLocalObject().sendBye();
+			}
+			
+			break;
+		}
+
+	}
+					</programlisting>
+					<para><literal>onNotificationRequestResponse</literal> is invoked to indicate if <literal>getChildSbbLocalObject().sendRQNT(...)</literal> request has succeded or not. If call failed, this method requests call control to tear down communication.</para>
+				</listitem>
+					<listitem>
+					<programlisting language="Java" role="JAVA">
+	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
+		logger.info("onNotifyRequest");
+
+		NotificationRequestResponse response = new NotificationRequestResponse(event.getSource(),
+				ReturnCode.Transaction_Executed_Normally);
+		response.setTransactionHandle(event.getTransactionHandle());
+
+		((JainMgcpProvider)getMgcpProvider()).sendMgcpEvents(new JainMgcpEvent[] { response });
+
+		EventName[] observedEvents = event.getObservedEvents();
+
+		boolean success = false;
+		for (EventName observedEvent : observedEvents) {
+			switch (observedEvent.getEventIdentifier().intValue()) {
+			case MgcpEvent.REPORT_ON_COMPLETION:<co id="example.admin3.co1"/>
+				logger.info("Announcemnet Completed NTFY received");
+				if(this.getSendBye() &amp;&amp; getChildSbbLocalObject().getSendBye())
+				{
+					getChildSbbLocalObject().sendBye();
+				}
+				break;
+			case MgcpEvent.REPORT_FAILURE:<co id="example.admin3.co2"/>
+				logger.info("Announcemnet Failed received");
+				if(getChildSbbLocalObject().getSendBye())
+				{
+					getChildSbbLocalObject().sendBye();
+				}
+				break;
+			
+			case MgcpEvent.DTMF_1:<co id="example.admin3.co3"/>
+				logger.info("You have pressed 1");
+				//sendRQNT(DTMF_1, false);
+				success = true;
+				onDtmf1();
+				break;
+			case MgcpEvent.DTMF_2:<co id="example.admin3.co4"/>
+				logger.info("You have pressed 2");
+				//sendRQNT(DTMF_2, false);
+				success = true;
+				onDtmf2();
+				break;
+			
+			default:<co id="example.admin3.co5"/>
+				logger.info("Received undefined DTMF digit(Order approved?).");
+				onDefaultDtmf();
+				break;
+			}
+			
+		}
+		if(success)
+		{<co id="example.admin3.co6"/>
+			setSendBye(success);
+		}
+	}
+	
+	private void onDtmf1() {
+
+		EntityManager mgr = null;
+		Order order = null;
+
+		String audioFile = null;
+
+
+		audioFile = (getClass().getResource(orderApproved)).toString();
+
+
+			mgr = emf.createEntityManager();
+
+			order = (Order) mgr
+					.createQuery(
+							"select o from Order o where o.orderId = :orderId")
+					.setParameter("orderId", this.getCustomEvent().getOrderId())
+					.getSingleResult();
+
+			order.setStatus(Order.Status.PROCESSING);
+
+			mgr.flush();
+			mgr.close();
+		
+		
+		getChildSbbLocalObject().sendRQNT(null, audioFile, true);
+	}
+	private void onDtmf2()
+	{
+		EntityManager mgr = null;
+		Order order = null;
+		String audioFile = null;
+
+		
+		audioFile = (getClass().getResource(orderCancelled)).toString();
+
+			mgr = emf.createEntityManager();
+
+			order = (Order) mgr.createQuery("select o from Order o where o.orderId = :orderId").setParameter(
+					"orderId", this.getCustomEvent().getOrderId()).getSingleResult();
+
+			order.setStatus(Order.Status.CANCELLED);
+
+			mgr.flush();
+			mgr.close();
+	
+		getChildSbbLocalObject().sendRQNT(null, audioFile, true);
+	}
+	private void onDefaultDtmf()
+	{
+		String audioFile = (getClass().getResource(orderReConfirm)).toString();
+		getChildSbbLocalObject().sendRQNT(null, audioFile, false);
+	}
+					</programlisting>
+					<para><literal>onNotifyRequest</literal> is invoked to indicate that atleast one event(previously requested for detection) has been detected. Depening on event type, handler performs different actions:</para>
+					<calloutlist>
+						<callout arearefs="example.admin3.co1">
+							<para>Tear down call if notification has ended and flag (this.getSendBye) is set. This will happen once user press <acronym>DTMF</acronym>.</para>
+						</callout>
+						<callout arearefs="example.admin3.co2">
+							<para>Announcement failed, request call control to tear down communication.</para>
+						</callout>
+						<callout arearefs="example.admin3.co3">
+							<para>User punched DTMF(1), perform accept on database order with JPA, set audio file URL to play, mark operation as success(this will set sendBye flag to true).</para>
+						</callout>
+						<callout arearefs="example.admin3.co4">
+							<para>User punched DTMF(2), perform cancel on database order with JPA, set audio file URL to play, mark operation as success(this will set sendBye flag to true).</para>
+						</callout>
+						<callout arearefs="example.admin3.co5">
+							<para>On not defined DTMF, request audio file with requery request.</para>
+						</callout>
+						<callout arearefs="example.admin3.co6">
+							<para>Set flag value.</para>
+						</callout>
+						
+					</calloutlist>
+				</listitem>
+			</itemizedlist>
+			
+		</section>
+		<section>
+			<title>State transition</title>
+			<para><literal>adminSbb</literal> follows state depicted on diagram below:</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="300px" align="center" fileref="images/source-slee3.png"
+						format="PNG" />
+				</imageobject>
+				<caption>
+					<para><literal>UserSbb</literal> <acronym>FSM</acronym> </para>
+				</caption>
+			</mediaobject>
+		</section>
+	</section>

@@ -1,0 +1,717 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<section id="source_slee_call">
+		<title>CallControl</title>
+		<para><literal>CallControlSbb</literal> is complex <acronym>SBB</acronym> as signaling part of &THIS.EXAMPLE; example involves two protocols. Signaling includes: </para>
+		<itemizedlist>
+			<listitem>
+				<para>establishing network connection between desired <acronym>UA</acronym> with <acronym>SIP</acronym>  </para>
+			</listitem>
+			<listitem>
+				<para>setting up media path  in &THIS.PLATFORM; Media Server with <acronym>MGCP</acronym> </para>
+			</listitem>
+		</itemizedlist>
+		<para><acronym>SBB</acronym> class <literal>org.mobicents.slee.service.callcontrol.CallControlSbb</literal> contains all logic and required resources to perform call control. </para>
+		<section id="source_slee_call_descriptor">
+			<title>Descriptor</title>
+		<para><literal>CallControlSbb</literal> is declared with <acronym>SBB</acronym> descriptor. Full declaration is embed in <acronym>XML</acronym> tag(<literal>&lt;sbb&gt;</literal>) in <filename>sbb-jar.xml</filename> file, it has following content: </para>
+		<variablelist>
+			<varlistentry>
+				<term><acronym>SBB</acronym> class and ID definition</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<sbb-name>CallControlSbb</sbb-name>
+<sbb-vendor>org.mobicents</sbb-vendor>
+<sbb-version>1.0</sbb-version>
+
+
+<sbb-classes>
+	<sbb-abstract-class>
+		<sbb-abstract-class-name>org.mobicents.slee.service.callcontrol.CallControlSbb</sbb-abstract-class-name>
+		<cmp-field>
+			<cmp-field-name>responseEventCmp</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>parentCmp</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>customEventCmp</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>sendByeCmp</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>callIdentifierCmp</cmp-field-name>
+		</cmp-field>
+	</sbb-abstract-class>
+	<sbb-local-interface>
+		<sbb-local-interface-name>org.mobicents.slee.service.callcontrol.CallControlSbbLocalObject</sbb-local-interface-name>
+	</sbb-local-interface>
+</sbb-classes>
+					
+					]]>
+				</programlisting>
+				<para><acronym>CallControlSbb</acronym> descriptor declares local interface used to make synchronous calls to <acronym>SBB</acronym> entity. It also declares following <acronym>CMP</acronym> fields: </para>
+				<itemizedlist>
+					<listitem>
+						<para>responseEventCmp - to hold reference to <acronym>SIP</acronym> response event received during call to <acronym>UA</acronym>. </para>
+					</listitem>
+					<listitem>
+						<para>parentCmp -  to hold reference to parent <acronym>SBB</acronym> <literal>local object</literal> </para>
+					</listitem>
+					<listitem>
+						<para>customEventCmp - to hold reference to example custom object received.</para>
+					</listitem>
+					<listitem>
+						<para>sendByeCmp - to hold flag indicating if call control should send <acronym>SIP</acronym> <literal>BYE</literal> to terminate call.</para>
+					</listitem>
+					<listitem>
+						<para>callIdentifierCmp - to hold <acronym>MGCP</acronym> call identifier of ongoing call between service and <acronym>UA</acronym>.</para>
+					</listitem>
+				</itemizedlist>
+
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>SIP</acronym> event handlers</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<event event-direction="Receive" initial-event="False">
+	<event-name>ByeEvent</event-name>
+	<event-type-ref>
+		<event-type-name>javax.sip.Dialog.BYE</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+	</event-type-ref>
+</event>
+<event event-direction="Receive" initial-event="False">
+	<event-name>ClientErrorRespEvent</event-name>
+	<event-type-ref>
+		<event-type-name>javax.sip.message.Response.CLIENT_ERROR</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+	</event-type-ref>
+</event>
+<event event-direction="Receive" initial-event="False">
+	<event-name>SuccessRespEvent</event-name>
+	<event-type-ref>
+		<event-type-name>javax.sip.message.Response.SUCCESS</event-type-name>
+		<event-type-vendor>net.java.slee</event-type-vendor>
+		<event-type-version>1.2</event-type-version>
+	</event-type-ref>
+</event>
+						]]>
+					</programlisting>
+					<para>Declared event handlers are:</para>
+					<itemizedlist>
+						<listitem>
+							<para>ByeEvent - invoked to indicate call termination on remote <acronym>UA</acronym> </para>
+						</listitem>
+						<listitem>
+							<para>ClientErrorRespEvent - invoked to indicate failure of call estabilish procedure.</para>
+						</listitem>
+						<listitem>
+							<para>SuccessRespEvent - invoked to indicate succesful call.</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>MGCP</acronym> event handlers</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<event event-direction="Receive" initial-event="False">
+	<event-name>CreateConnectionResponse</event-name>
+	<event-type-ref>
+		<event-type-name>
+			net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+					]]>
+					</programlisting>
+					<para>This event handler is invoked to indicate succesful execution of <acronym>CRCX</acronym> command.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>configuration enviroment entries</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<env-entry>
+	<env-entry-name>callControlSipAddress</env-entry-name>
+	<env-entry-type>java.lang.String</env-entry-type>
+	<env-entry-value>${caller.sip}</env-entry-value>
+</env-entry>
+<env-entry>
+	<env-entry-name>password</env-entry-name>
+	<env-entry-type>java.lang.String</env-entry-type>
+	<env-entry-value>${caller.password}</env-entry-value>
+</env-entry>
+<env-entry>
+	<env-entry-name>server.address</env-entry-name>
+	<env-entry-type>java.lang.String</env-entry-type>
+	<env-entry-value>${server.address}</env-entry-value>
+</env-entry>
+					]]>
+					</programlisting>
+					<para>Entries configure following: </para>
+					<itemizedlist>
+						<listitem>
+							<para>callControlSipAddress - AMIT</para>
+						</listitem>
+						<listitem>
+							<para>password - AMIT</para>
+						</listitem>
+						<listitem>
+							<para>server.address - &THIS.PLATFORM; Media Server <acronym>MGCP</acronym> <acronym>IP</acronym> address</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>RA</acronym> bindings</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<resource-adaptor-type-binding>
+	<resource-adaptor-type-ref>
+		<resource-adaptor-type-name>
+			JAIN SIP
+		</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>
+			javax.sip
+		</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>
+			1.2
+		</resource-adaptor-type-version>
+	</resource-adaptor-type-ref>
+	<activity-context-interface-factory-name>
+		slee/resources/jainsip/1.2/acifactory
+	</activity-context-interface-factory-name>
+	<resource-adaptor-entity-binding>
+		<resource-adaptor-object-name>
+			slee/resources/jainsip/1.2/provider
+		</resource-adaptor-object-name>
+			<resource-adaptor-entity-link>
+			SipRA
+		</resource-adaptor-entity-link>
+	</resource-adaptor-entity-binding>
+</resource-adaptor-type-binding>
+
+<resource-adaptor-type-binding>
+	<resource-adaptor-type-ref>
+		<resource-adaptor-type-name>
+			jain-mgcp
+		</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>
+			net.java
+		</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>
+			2.0
+		</resource-adaptor-type-version>
+	</resource-adaptor-type-ref>
+	<activity-context-interface-factory-name>
+		slee/resources/jainmgcp/2.0/acifactory/demo
+	</activity-context-interface-factory-name>
+	<resource-adaptor-entity-binding>
+		<resource-adaptor-object-name>
+			slee/resources/jainmgcp/2.0/provider/demo
+		</resource-adaptor-object-name>
+		<resource-adaptor-entity-link>
+			MGCPRA
+		</resource-adaptor-entity-link>
+	</resource-adaptor-entity-binding>
+</resource-adaptor-type-binding>
+					]]>
+					</programlisting>
+					<para></para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		
+		</section>
+		
+		<section id="source_slee_call_local_interface">
+			<title>Local interface</title>
+			<para><literal>CallControlSbb</literal> declares <literal>SbbLocalObject</literal> interface. It used to make synchronous calls to call control. Interface looks as follows: </para>
+			<programlisting language="Java" role="JAVA">
+public interface CallControlSbbLocalObject extends SbbLocalObject {
+	
+	public void setParent(SbbLocalObject sbbLocalObject);
+	
+	public void sendBye();
+	
+	public void setCustomEvent(CustomEvent event);
+
+	public boolean getSendBye();
+
+	public void sendRQNT(String textToPlay, String audioFileUrl,boolean detectDtmf);
+
+}
+			</programlisting>
+			<para>Declared methods contracts are as follows:</para>
+			<itemizedlist>
+				<listitem>
+					<para><literal>public void setParent(SbbLocalObject sbbLocalObject);</literal> - delegates call to <acronym>CMP</acronym> field, it is called by parent to add reference for call control. </para>
+				</listitem>
+				<!-- 
+				<listitem>
+					<para><literal>public ResponseEvent getResponseEvent();</literal> - delegates call to  </para>
+				</listitem>
+				 -->
+				<listitem>
+					<para><literal>public void sendBye();</literal> - requests call control to terminate call.</para>
+				</listitem>
+				<listitem>
+					<para><literal>public boolean getSendBye();</literal> - delegates call to <acronym>CMP</acronym> field.</para>
+				</listitem>
+				<listitem>
+					<para><literal>public void sendRQNT(String textToPlay, String audioFileUrl,boolean detectDtmf);</literal> - requests media server either to play audio file or convert passed text to audio and play to <acronym>UA</acronym>. </para>
+				</listitem>
+			</itemizedlist>
+		</section>
+		<section id="source_slee_call_sip_stat">
+			<title>SIP Call state</title>
+			<para><acronym>SIP</acronym> call to <acronym>UA</acronym> is managed by series of classes representing call state. Each class represents phase of call. Each state class implements methods inherited from following interface: </para>
+			<programlisting language="Java" role="JAVA">
+public interface SimpleCallFlowState {
+	public void execute(ResponseEvent event);
+	public void execute(RequestEvent event);
+}
+			</programlisting>
+			<para>Each state class implementation performs adeqate actions to tear down call. Call state is persisted by means of <literal>org.mobicents.slee.util.SessionAssociation</literal> and <literal>org.mobicents.slee.util.CacheUtility</literal>
+			classes. <literal>SessionAssociation</literal> is stored in cache( by <literal>CacheUtility</literal> instance). It builds association between two sessions(<literal>Dialog</literal>/<literal>org.mobicents.slee.util.Session</literal>) and call state class.
+			 Please refer to source classes for full list of states.</para>
+			
+			
+			<note><para>Note that <literal>SIP</literal> call state classes are fit to perform two way call between agents, however example does not support this scenario, yet. For better understanding of call flow please refer to call state classes source and <literal>SIP</literal> call procedure.</para></note>
+		</section>
+		
+		<section id="source_slee_call_sip_events">
+			<title>SIP Event handlers</title>
+			<para><acronym>SBB</acronym> class <literal>org.mobicents.slee.service.callcontrol.CallControlSbb</literal> implements <acronym>SIP</acronym> event handlers. Each handler deffers execution to mentioned call state classes. Handlers are declared as follows:</para>
+     		<programlisting language="Java" role="JAVA">
+       public void onByeEvent(RequestEvent event, ActivityContextInterface aci) {
+
+		log.info("************Received BYEEEE**************");
+
+		if (log.isFineEnabled()) {
+			log.fine("Received BYE");
+		}
+
+		try {
+			getSipUtils().sendStatefulOk(event);
+			setSendBye(false);
+			releaseMediaConnectionAndDialog();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (SipException e) {
+			e.printStackTrace();
+		} catch (InvalidArgumentException invalidArgEx) {
+			invalidArgEx.printStackTrace();
+		}
+	}
+
+	public void onClientErrorRespEvent(ResponseEvent event,
+			ActivityContextInterface aci) {
+		if (log.isInfoEnabled()) {
+			log.info("Received client error event : "
+					+ event.getResponse().getStatusCode());
+		}
+		executeResponseState(event);
+	}
+
+	public void onSuccessRespEvent(ResponseEvent event,
+			ActivityContextInterface aci) {
+		if (log.isInfoEnabled()) {
+			log.info("Received success response event "
+					+ event.getResponse().getStatusCode());
+		}
+		executeResponseState(event);
+		if (((CSeq) event.getResponse().getHeader(CSeq.NAME)).getMethod()
+				.compareTo(Request.BYE) == 0)
+				//detach from all activities and delete connections
+			releaseMediaConnectionAndDialog();
+		if (((CSeq) event.getResponse().getHeader(CSeq.NAME)).getMethod()
+				.compareTo(Request.INVITE) == 0)
+				//call is estabilished, we can send BYE, lets mark that.
+			this.setSendByeCmp(true);
+
+	}
+	
+	private void executeRequestState(RequestEvent event) {
+		String callId = ((CallIdHeader) event.getRequest().getHeader(
+				CallIdHeader.NAME)).getCallId();
+		SessionAssociation sa = (SessionAssociation) getCacheUtility().get(
+				callId);
+		SimpleCallFlowState simpleCallFlowState = getState(sa.getState());
+		simpleCallFlowState.execute(event);
+	}
+
+	private void executeResponseState(ResponseEvent event) {
+		String callId = ((CallIdHeader) event.getResponse().getHeader(
+				CallIdHeader.NAME)).getCallId();
+		SessionAssociation sa = (SessionAssociation) getCacheUtility().get(
+				callId);
+		SimpleCallFlowState simpleCallFlowState = getState(sa.getState());
+		simpleCallFlowState.execute(event);
+	}
+		</programlisting>
+		<para>Additionaly success event handler performs actions to clean enviroment - release media server(tear down media path) and <acronym>JSLEE</acronym> resources: </para>
+		<programlisting language="Java" role="JAVA">
+	private void releaseMediaConnectionAndDialog() {
+		ActivityContextInterface[] activities = getSbbContext().getActivities();
+		SbbLocalObject sbbLocalObject = getSbbContext().getSbbLocalObject();
+
+		for (ActivityContextInterface attachedAci : activities) {
+			if (attachedAci.getActivity() instanceof Dialog) {
+				attachedAci.detach(sbbLocalObject);
+				attachedAci.detach(this.getParentCmp());
+			}
+			if (attachedAci.getActivity() instanceof MgcpConnectionActivity) {
+				attachedAci.detach(sbbLocalObject);
+				attachedAci.detach(this.getParentCmp());
+
+			}
+			if (attachedAci.getActivity() instanceof MgcpEndpointActivity) {
+				attachedAci.detach(sbbLocalObject);
+				attachedAci.detach(this.getParentCmp());
+				MgcpEndpointActivity mgcpEndpoint = (MgcpEndpointActivity) attachedAci
+						.getActivity();
+				DeleteConnection deleteConnection = new DeleteConnection(this,
+						mgcpEndpoint.getEndpointIdentifier());
+				deleteConnection.setCallIdentifier(this.getCallIdentifier());
+
+				deleteConnection.setTransactionHandle(getMgcpProvider()
+						.getUniqueTransactionHandler());
+				getMgcpProvider().sendMgcpEvents(
+						new JainMgcpEvent[] { deleteConnection });
+
+			}
+
+		}
+		this.setCallIdentifier(null);
+	}
+			</programlisting>
+		</section>
+		<section id="source_slee_call_mgcp_events">
+			<title>MGCP Event handlers</title>
+			<para><literal>CallControlSbb</literal> declares single <acronym>MGCP</acronym> event handler. It is implemented as follows: </para>
+			<programlisting language="Java" role="JAVA">
+	public void onCreateConnectionResponse(CreateConnectionResponse event,
+			ActivityContextInterface aci) {
+		log.info("Receive CRCX response: " + event);
+
+		ReturnCode status = event.getReturnCode();
+
+		switch (status.getValue()) {
+		case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:<co id="example.discard.co1"/>
+			log.info("Connection created properly.");
+			break;
+		default:<co id="example.discard.co2"/>
+			ReturnCode rc = event.getReturnCode();
+			log.severe("CRCX failed. Value = " + rc.getValue() + " Comment = "
+					+ rc.getComment());
+
+			if (this.getSendByeCmp()) {
+				this.sendBye();
+			}
+
+			return;
+		}
+		boolean attachParent = false;
+		
+		if (event.getSecondEndpointIdentifier() == null) {
+		<co id="example.discard.co3"/>
+			// this is response for PR creation
+			// we have one connection activity, lets send another crcx
+			
+			//send ACK with sdp
+			DialogActivity da=getDialogActivity();
+			try {
+				Request ackRequest=da.createAck(da.getLocalSeqNumber());
+				ContentTypeHeader cth = ((SleeSipProvider)getSipProvider()).getHeaderFactory().createContentTypeHeader("application", "sdp");
+				ackRequest.setContent(event.getLocalConnectionDescriptor().toString(), cth);
+				da.sendAck(ackRequest);
+			} catch (InvalidArgumentException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SipException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			EndpointIdentifier endpointID = new EndpointIdentifier(
+					IVR_ENDPOINT, mmsBindAddress + ":" + MGCP_PEER_PORT);
+			CreateConnection createConnection = new CreateConnection(this,
+					getCallIdentifier(), endpointID, ConnectionMode.SendRecv);
+
+			int txID = ((JainMgcpProvider) getMgcpProvider())
+					.getUniqueTransactionHandler();
+			createConnection.setTransactionHandle(txID);
+
+			// now set other end
+			try {
+				createConnection.setSecondEndpointIdentifier(event
+						.getSpecificEndpointIdentifier());
+			} catch (ConflictingParameterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			MgcpConnectionActivity connectionActivity = null;
+			try {
+				connectionActivity = ((JainMgcpProvider) getMgcpProvider())
+						.getConnectionActivity(txID, endpointID);
+				ActivityContextInterface epnAci = ((MgcpActivityContextInterfaceFactory) getMgcpActivityContestInterfaceFactory())
+						.getActivityContextInterface(connectionActivity);
+				epnAci.attach(getSbbContext().getSbbLocalObject());
+
+			} catch (FactoryException ex) {
+				ex.printStackTrace();
+			} catch (NullPointerException ex) {
+				ex.printStackTrace();
+			} catch (UnrecognizedActivityException ex) {
+				ex.printStackTrace();
+			}
+
+			((JainMgcpProvider) getMgcpProvider())
+					.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
+
+		} else {
+			// this is last
+			attachParent = true;
+		}
+		
+		<co id="example.discard.co4"/>
+		EndpointIdentifier eid = event.getSpecificEndpointIdentifier();
+		log.info("Creating endpoint activity on: " + eid);
+		MgcpEndpointActivity eActivity = ((JainMgcpProvider) getMgcpProvider())
+				.getEndpointActivity(eid);
+		ActivityContextInterface eAci = ((MgcpActivityContextInterfaceFactory) getMgcpActivityContestInterfaceFactory())
+				.getActivityContextInterface(eActivity);
+		eAci.attach(this.getSbbContext().getSbbLocalObject());
+		// eAci.attach(this.getParentCmp());
+
+		if (attachParent) {
+			<co id="example.discard.co5"/>
+			// we must attach parent only if we know media path is there, it
+			// will get this last event and trigger action to be performed 
+			// after media path is created
+			ActivityContextInterface[] acis = this.getSbbContext()
+					.getActivities();
+			for (ActivityContextInterface _aci : acis) {
+				if (_aci.getActivity() instanceof MgcpEndpointActivity
+						|| _aci.getActivity() instanceof MgcpConnectionActivity) {
+					_aci.attach(getParentCmp());
+				}
+			}
+
+		}
+
+	}
+			</programlisting>
+			<para>Handler performs following actions:</para>
+			<calloutlist>
+				<callout arearefs="example.discard.co1">
+			       	<para>Executes if operation was a success</para>
+       			</callout>
+       			<callout arearefs="example.discard.co2">
+			       	<para>If media server failed to create connection it tears down media path and call.</para>
+       			</callout>
+       			<callout arearefs="example.discard.co3">
+			       	<para>If there is no second endpoint identifier present(this means that it is first connection created for media path) it sends <acronym>SDP</acronym> data back to <acronym>UA</acronym>. Alo it sends second create connection request. Second <acronym>CRCX</acronym> creates connection between <acronym>IVR</acronym> and <acronym>PR</acronym> endpoints. Answer will be delivered to this event handler.</para>
+       			</callout>
+       			<callout arearefs="example.discard.co4">
+			       	<para>create endpoint activity and attach <literal>CallControlSbb</literal>.</para>
+       			</callout>
+       			<callout arearefs="example.discard.co5">
+			       	<para>if media path is established, attach parent to connection activities. Parent will receive <acronym>CRCX</acronym> response event and continue execution.</para>
+       			</callout>
+			</calloutlist>
+			<para><acronym>CRCX</acronym> events create media path in &THIS.PLATFORM; Media server. Diagram below depicts logical structure of path: </para>
+			<mediaobject>
+				<imageobject>
+					<imagedata width="300px" align="center" fileref="images/source-slee1.png"
+						format="PNG" />
+				</imageobject>
+				<caption>
+					<para>Media Path</para>
+				</caption>
+			</mediaobject>
+		</section>
+		<section id="source_slee_call_mgcp_rqnt">
+			<title>Audio request</title>
+			<para><literal>CallControlSbb</literal> implements method which signals &THIS.PLATFORM; Media server. It is called by acting service root. Method implementation looks as follows:</para>
+			<programlisting language="Java" role="JAVA">
+	public void sendRQNT(String textToPlay, String audioFileUrl,
+			boolean detectDtmf) {
+			<co id="example.rqnt.co1"/>
+		MgcpEndpointActivity endpointActivity = getEndpointActivity("IVR");
+		
+		if (endpointActivity == null) {
+			// bad practice
+			throw new RuntimeException("There is no IVR endpoint activity");
+		}
+		
+		EndpointIdentifier endpointID = endpointActivity
+				.getEndpointIdentifier();
+		MgcpConnectionActivity connectionActivity = 
+			getConnectionActivity(endpointActivity.getEndpointIdentifier());
+		if (connectionActivity == null) {
+			// bad practice
+			throw new RuntimeException("There is no IVR connection endpoint activity");
+		}
+		<co id="example.rqnt.co2"/>
+		ConnectionIdentifier connectionID = new ConnectionIdentifier(
+				connectionActivity.getConnectionIdentifier());
+				
+		NotificationRequest notificationRequest = new NotificationRequest(this,
+				endpointID, ((JainMgcpProvider) getMgcpProvider())
+						.getUniqueRequestIdentifier());
+		RequestedAction[] actions = new RequestedAction[] { RequestedAction.NotifyImmediately };
+		<co id="example.rqnt.co3"/>
+		PackageName auPackageName=PackageName.factory("AU");
+		if (textToPlay != null) {
+
+			// this will give something like: "AU/pa(ts("+textToPlay+"))", 
+			//AU and pa are configured in mgcp controller.
+			<co id="example.rqnt.co4"/>
+			MgcpEvent e = MgcpEvent.factory("ann");
+			EventName[] signalRequests = { 
+				new EventName(auPackageName, e.withParm("ts(" + textToPlay
+					+ ")"),connectionID) };
+			notificationRequest.setSignalRequests(signalRequests);
+			
+			<co id="example.rqnt.co5"/>
+			RequestedEvent[] requestedEvents = {
+					new RequestedEvent(new EventName(auPackageName, 
+						MgcpEvent.oc,connectionID), actions),
+					new RequestedEvent(new EventName(auPackageName, 
+						MgcpEvent.of,connectionID), actions),
+					 };
+			notificationRequest.setRequestedEvents(requestedEvents);
+		} else if (audioFileUrl != null) {
+			<co id="example.rqnt.co6"/>
+			MgcpEvent e = MgcpEvent.factory("ann");
+			EventName[] signalRequests = { new EventName(auPackageName, 
+				e.withParm(audioFileUrl),connectionID) };
+			
+			<co id="example.rqnt.co7"/>
+			notificationRequest.setSignalRequests(signalRequests);
+			RequestedEvent[] requestedEvents = {
+					new RequestedEvent(new EventName(auPackageName,
+						 MgcpEvent.oc,connectionID), actions),
+					new RequestedEvent(new EventName(auPackageName,
+						 MgcpEvent.of,connectionID), actions),
+					 };
+			notificationRequest.setRequestedEvents(requestedEvents);
+		}
+
+		if (detectDtmf) {
+			<co id="example.rqnt.co8"/>
+			
+			
+
+			// This has to be present, since MGCP states that new RQNT erases
+			// previous set.
+			RequestedEvent[] requestedEvents = {
+					new RequestedEvent(new EventName(auPackageName, 
+						MgcpEvent.oc,connectionID), actions),
+					new RequestedEvent(new EventName(auPackageName, 
+						MgcpEvent.of,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf0,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf1,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf2,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf3,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf4,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf5,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf6,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf7,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf8,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmf9,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmfA,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmfB,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmfC,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmfD,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmfStar,connectionID), actions),
+					new RequestedEvent(new EventName(PackageName.Dtmf, 
+						MgcpEvent.dtmfHash,connectionID), actions) };
+			
+			notificationRequest.setRequestedEvents(requestedEvents);
+		}
+		<co id="example.rqnt.co9"/>
+		notificationRequest
+				.setTransactionHandle(((JainMgcpProvider) getMgcpProvider())
+						.getUniqueTransactionHandler());
+		<co id="example.rqnt.co10"/>
+		NotifiedEntity notifiedEntity = new NotifiedEntity(JBOSS_BIND_ADDRESS,
+				JBOSS_BIND_ADDRESS, MGCP_PORT);
+		notificationRequest.setNotifiedEntity(notifiedEntity);
+
+		// we can send empty RQNT, that is clean all req.
+		((JainMgcpProvider) getMgcpProvider())
+				.sendMgcpEvents(new JainMgcpEvent[] { notificationRequest });
+
+		log.info(" NotificationRequest sent: \n"+notificationRequest);
+	}
+
+			</programlisting>
+			<para>Method performs following actions:</para>
+			<calloutlist>
+				<callout arearefs="example.rqnt.co1">
+			       	<para>Get <acronym>IVR</acronym> endpoint activity and connection activity</para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co2">
+			       	<para>Create proper notification request</para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co3">
+			       	<para>Create <acronym>MGCP</acronym> package name for announcement</para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co4">
+			       	<para>Create event and signal for <acronym>TTS</acronym> </para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co5">
+			       	<para>Add requested event - this makes server notify once announcement ends</para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co6">
+			       	<para>Create event and add signal for regular audio file</para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co7">
+			       	<para>Add requested event - this makes server notify once announcement ends</para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co8">
+			       	<para>Add request for <acronym>DTMF</acronym> events detection - this allows to receive notification on <acronym>DTMF</acronym> </para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co9">
+			       	<para>Create new <acronym>MGCP</acronym> transaction</para>
+       			</callout>
+       			<callout arearefs="example.rqnt.co10">
+			       	<para>Add this <acronym>MGCP</acronym> stack as destination for notification events</para>
+       			</callout>
+			</calloutlist>
+		</section>
+		
+
+	</section>

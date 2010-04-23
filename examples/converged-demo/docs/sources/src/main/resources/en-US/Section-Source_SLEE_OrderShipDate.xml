@@ -1,0 +1,457 @@
+<?xml version='1.0'?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+<!ENTITY % BOOK_ENTITIES SYSTEM "JAIN_SLEE_Example_User_Guide.ent">
+%BOOK_ENTITIES;
+]>
+<section id="source_slee_ship_date">
+		<title>DeliveryShipDate</title>
+		<para><literal>OrderShipDateSbb</literal> is root <acronym>SBB</acronym> of service handlign logic to contact user and notify him that his order will be delivered on certain date.	
+		</para>
+		<para><acronym>SBB</acronym> class <literal>org.mobicents.slee.service.user.ship.OrderShipDateSbb</literal> contains all logic and required resources to contact user. 
+		</para>
+		<section id="source_slee_ship_date_descriptor">
+			<title>Descriptor</title>
+		<para><literal>OrderShipDateSbb</literal> is declared with <acronym>SBB</acronym> descriptor. Full declaration is embed in <acronym>XML</acronym> tag(<literal>&lt;sbb&gt;</literal>) in <filename>sbb-jar.xml</filename> file, it has following content: </para>
+		<variablelist>
+			<varlistentry>
+				<term><acronym>SBB</acronym> class and ID definition</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<description>
+	OrderShipDateSbb is used to remind user when order will be delivered
+</description>
+
+<sbb-name>OrderShipDateSbb</sbb-name>
+<sbb-vendor>org.mobicents</sbb-vendor>
+<sbb-version>1.0</sbb-version>
+		
+<!-- Delegate to this child SBB after the first INVITE has been sent -->
+<sbb-ref>
+	<sbb-name>CallControlSbb</sbb-name>
+	<sbb-vendor>org.mobicents</sbb-vendor>
+	<sbb-version>1.0</sbb-version>
+	<sbb-alias>CallControl</sbb-alias>
+</sbb-ref>
+
+<sbb-classes>
+	<sbb-abstract-class>
+		<sbb-abstract-class-name>
+			org.mobicents.slee.service.user.ship.OrderShipDateSbb
+		</sbb-abstract-class-name>
+		<cmp-field>
+			<cmp-field-name>customEvent</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>childSbbLocalObject</cmp-field-name>
+		</cmp-field>
+		<cmp-field>
+			<cmp-field-name>ttsString</cmp-field-name>
+		</cmp-field>
+		
+		<get-child-relation-method>
+			<sbb-alias-ref>CallControl</sbb-alias-ref>
+			<get-child-relation-method-name>
+				getCallControlSbbChild
+			</get-child-relation-method-name>
+			<default-priority>3</default-priority>
+		</get-child-relation-method>
+	</sbb-abstract-class>
+</sbb-classes>
+					
+					]]>
+				</programlisting>
+				<para><acronym>OrderShipDateSbb</acronym> descriptor declares following <acronym>CMP</acronym> fields: </para>
+				<itemizedlist>
+					<listitem>
+						<para>ttsString - text to be played to <acronym>UA</acronym>. </para>
+					</listitem>
+					<listitem>
+						<para>childSbbLocalObject -  to hold reference to child <acronym>SBB</acronym> <literal>local object</literal>(call control) </para>
+					</listitem>
+					<listitem>
+						<para>customEvent - to hold reference to example custom object received.</para>
+					</listitem>
+				</itemizedlist>
+				<para><literal>OrderShipDateSbb</literal> descriptor declares also child reference to call control <acronym>SBB</acronym> (by declaring child relation metho) </para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>MGCP</acronym> event handlers</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<!-- MGCP events  -->
+<event event-direction="Receive" initial-event="False">
+	<event-name>NotificationRequestResponse</event-name>
+	<event-type-ref>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFICATION_REQUEST_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+		
+<event event-direction="Receive" initial-event="False">
+	<event-name>NotifyRequest</event-name>
+	<event-type-ref>
+		<event-type-name>
+			net.java.slee.resource.mgcp.NOTIFY
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+<event event-direction="Receive" initial-event="False">
+	<event-name>CreateConnectionResponse</event-name>
+	<event-type-ref>
+		<event-type-name>
+			net.java.slee.resource.mgcp.CREATE_CONNECTION_RESPONSE
+		</event-type-name>
+		<event-type-vendor>net.java</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+</event>
+						]]>
+					</programlisting>
+					<para>Declared event handlers are:</para>
+					<itemizedlist>
+						<listitem>
+							<para>NotificationRequestResponse - called to indicate status of call control reqest for audio playback </para>
+						</listitem>
+						<listitem>
+							<para>NotifyRequest - called no indicate that requested event has been detected</para>
+						</listitem>
+						<listitem>
+							<para>CreateConnectionResponse - called to indicate <acronym>CRCX</acronym> request result</para>
+						</listitem>
+					</itemizedlist>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>Custom events</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<event event-direction="Receive" initial-event="True">
+	<event-name>OrderShipped</event-name>
+	<event-type-ref>
+		<event-type-name>
+			org.mobicents.slee.service.dvddemo.ORDER_SHIPPED
+		</event-type-name>
+		<event-type-vendor>org.mobicents</event-type-vendor>
+		<event-type-version>1.0</event-type-version>
+	</event-type-ref>
+	<initial-event-select variable="ActivityContext" />
+</event>
+						]]>
+					</programlisting>
+					<para>Declared event handlers are:</para>
+					<itemizedlist>
+						<listitem>
+							<para>OrderShipped - invoked once order has been shipped to customer(ship date has been set). </para>
+						</listitem>
+					</itemizedlist>
+					<note><para>Please refer to <xref linkend="design_web"/> and <xref linkend="source_web"/> for details on event firing conditions.</para>  </note>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>configuration enviroment entries</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<env-entry>
+	<description>
+		SIP URI of Admin. User will see this address as Caller
+		Address
+	</description>
+	<env-entry-name>callerSip</env-entry-name>
+	<env-entry-type>java.lang.String</env-entry-type>
+	<env-entry-value>${caller.sip}</env-entry-value>
+</env-entry>
+					]]>
+					</programlisting>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><acronym>RA</acronym> bindings</term>
+				<listitem>
+					<programlisting language="XML" role="XML"><![CDATA[
+<resource-adaptor-type-binding>
+	<resource-adaptor-type-ref>
+		<resource-adaptor-type-name>
+			JAIN SIP
+		</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>
+			javax.sip
+		</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>
+			1.2
+		</resource-adaptor-type-version>
+	</resource-adaptor-type-ref>
+	<activity-context-interface-factory-name>
+		slee/resources/jainsip/1.2/acifactory
+	</activity-context-interface-factory-name>
+	<resource-adaptor-entity-binding>
+		<resource-adaptor-object-name>
+			slee/resources/jainsip/1.2/provider
+		</resource-adaptor-object-name>
+			<resource-adaptor-entity-link>
+			SipRA
+		</resource-adaptor-entity-link>
+	</resource-adaptor-entity-binding>
+</resource-adaptor-type-binding>
+
+<resource-adaptor-type-binding>
+	<resource-adaptor-type-ref>
+		<resource-adaptor-type-name>
+			jain-mgcp
+		</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>
+			net.java
+		</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>
+			2.0
+		</resource-adaptor-type-version>
+	</resource-adaptor-type-ref>
+	<activity-context-interface-factory-name>
+		slee/resources/jainmgcp/2.0/acifactory/demo
+	</activity-context-interface-factory-name>
+	<resource-adaptor-entity-binding>
+		<resource-adaptor-object-name>
+			slee/resources/jainmgcp/2.0/provider/demo
+		</resource-adaptor-object-name>
+		<resource-adaptor-entity-link>
+			MGCPRA
+		</resource-adaptor-entity-link>
+	</resource-adaptor-entity-binding>
+</resource-adaptor-type-binding>
+					]]>
+					</programlisting>
+					<para></para>
+				</listitem>
+			</varlistentry>
+		</variablelist>
+		</section>
+		<section id="source_slee_ship_date_custom_event">
+			<title>Custom event handlers</title>
+			<para><literal>OrderShipDateSbb</literal> declares one custom event handler:</para>
+			<itemizedlist>
+				
+				<listitem>
+					<programlisting language="Java" role="JAVA">
+public void onOrderShipped(CustomEvent event, ActivityContextInterface ac) {
+	logger.info("======== OrderShipDateSbb ORDER_SHIPPED ========");
+	ac.detach(this.getSbbContext().getSbbLocalObject());<co id="example.ship1.co1"/>
+	makeCall(event, ac);<co id="example.ship1.co2"/>
+}
+
+private void makeCall(CustomEvent event, ActivityContextInterface ac) {
+
+	EntityManager mgr = null;<co id="example.ship1.co3"/>
+	Order order = null;
+	this.setCustomEvent(event);
+
+	mgr = emf.createEntityManager();
+	order = (Order) mgr.createQuery("select o from Order o where o.orderId = :orderId").setParameter("orderId",
+	this.getCustomEvent().getOrderId()).getSingleResult();
+	Timestamp orderDate = order.getDeliveryDate();
+	mgr.close();
+		
+	<co id="example.ship1.co4"/>
+	StringBuffer stringBuffer = new StringBuffer();
+	stringBuffer.append("Welcome ");
+	stringBuffer.append(event.getCustomerName());
+	stringBuffer.append(". This is a reminedr call for your order number ");
+	stringBuffer.append(event.getOrderId());
+	stringBuffer.append(". The shippment will be at your door step on .");
+	stringBuffer.append(orderDate.getDate());
+	stringBuffer.append(" of ");
+
+	String month = null;
+	switch (orderDate.getMonth()) {
+	case 0:
+	month = "January";
+		break;
+	case 1:
+		month = "February";
+		break;
+	case 2:
+		month = "March";
+		break;
+	case 3:
+		month = "April";
+		break;
+	case 4:
+		month = "May";
+		break;
+	case 5:
+		month = "June";
+		break;
+	case 6:
+		month = "July";
+		break;
+	case 7:
+		month = "August";
+		break;
+	case 8:
+		month = "September";
+		break;
+	case 9:
+		month = "October";
+		break;
+	case 10:
+		month = "November";
+		break;
+	case 11:
+		month = "December";
+		break;
+	default:
+		break;
+	}
+	stringBuffer.append(month);
+	stringBuffer.append(" ");
+	stringBuffer.append(1900 + orderDate.getYear());
+	stringBuffer.append(" at ");
+	stringBuffer.append(orderDate.getHours());
+	stringBuffer.append(" hour and ");
+	stringBuffer.append(orderDate.getMinutes());
+	stringBuffer.append(" minute. Thank you. Bye.");
+	<co id="example.ship1.co5"/>
+	setTtsString(stringBuffer.toString());
+	try {
+	
+		// Set the caller address to the address of our call controller
+		...<co id="example.ship1.co6"/>
+	} catch (ParseException parExc) {
+		logger.severe("Parse Exception while parsing the callerAddess", parExc);
+	} catch (InvalidArgumentException invalidArgExcep) {
+		logger.severe("InvalidArgumentException while building Invite Request", invalidArgExcep);
+	} catch (TransactionUnavailableException tranUnavExce) {
+		logger.severe("TransactionUnavailableException when trying to getNewClientTransaction", tranUnavExce);
+	} catch (UnrecognizedActivityException e) {
+		// TODO Auto-generated catch block
+		logger.severe("UnrecognizedActivityException when trying to getActivityContextInterface", e);
+	} catch (CreateException creaExce) {
+		logger.severe("CreateException while trying to create Child", creaExce);
+	} catch (SipException sipExec) {
+		logger.severe("SipException while trying to send INVITE Request", sipExec);
+	}
+
+}
+					</programlisting>
+					<para>This handler performs following actions: </para>
+					<calloutlist>
+						<callout arearefs="example.ship1.co1">
+					       	<para>Detach from activity to make it eligible for reclamation</para>
+		       			</callout>
+		       			<callout arearefs="example.ship1.co2">
+					       	<para>Start call procedure</para>
+		       			</callout>
+		       			<callout arearefs="example.ship1.co3">
+					       	<para>Lookup order data from database </para>
+		       			</callout>
+		       			<callout arearefs="example.ship1.co4">
+					       	<para>Create text to be played</para>
+		       			</callout>
+		       			<callout arearefs="example.ship1.co5">
+					       	<para>Store text in <acronym>CMP</acronym> </para>
+		       			</callout>
+		       			<callout arearefs="example.ship1.co6">
+					       	<para>Initiate call procedure, refer to source and <xref linkend="source_slee_user_custom_event"/>.</para>
+		       			</callout>
+		       			
+       			</calloutlist>
+				</listitem>
+			</itemizedlist>
+		</section>
+		<section id="source_slee_user_mgcp_event">
+			<title><acronym>MGCP</acronym> event handlers</title>
+			<para><literal>OrderShipDateSbb</literal> declares three <acronym>MGCP</acronym> event handlers:</para>
+			<itemizedlist>
+				<listitem>
+					<programlisting language="Java" role="JAVA">
+public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci)
+{
+	//just in case
+	if(event.getSecondEndpointIdentifier()!=null)
+	{
+		//we have media path estabilished.
+		getChildSbbLocalObject().sendRQNT(getTtsString(), null, true);
+		this.setTtsString(null);
+	}
+}
+					</programlisting>
+					<para><literal>onCreateConnectionResponse</literal> is invoked once child call control establishes media path. It requests call control to play text as audio and detect <acronym>DTMF</acronym> events.</para>
+				</listitem>
+					<listitem>
+					<programlisting language="Java" role="JAVA">
+public void onNotificationRequestResponse(NotificationRequestResponse event, ActivityContextInterface aci) {
+	logger.info("onNotificationRequestResponse");
+
+	ReturnCode status = event.getReturnCode();
+
+	switch (status.getValue()) {
+	case ReturnCode.TRANSACTION_EXECUTED_NORMALLY:
+		logger.info("The Announcement should have been started");
+		break;
+	default:
+		ReturnCode rc = event.getReturnCode();
+		logger.severe("RQNT failed. Value = " + rc.getValue() + " Comment = " + rc.getComment());
+
+
+		if(getChildSbbLocalObject().getSendBye())
+		{
+			getChildSbbLocalObject().sendBye();
+		}
+		
+		break;
+	}
+}
+					</programlisting>
+					<para><literal>onNotificationRequestResponse</literal> is invoked to indicate if <literal>getChildSbbLocalObject().sendRQNT(...)</literal> request has succeded or not. If call failed, this method requests call control to tear down communication.</para>
+				</listitem>
+					<listitem>
+					<programlisting language="Java" role="JAVA">
+public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
+	logger.info("onNotifyRequest");
+
+	NotificationRequestResponse response = new NotificationRequestResponse(event.getSource(),
+			ReturnCode.Transaction_Executed_Normally);
+	response.setTransactionHandle(event.getTransactionHandle());
+	((JainMgcpProvider)getMgcpProvider()).sendMgcpEvents(new JainMgcpEvent[] { response });
+	EventName[] observedEvents = event.getObservedEvents();
+
+	for (EventName observedEvent : observedEvents) {
+		switch (observedEvent.getEventIdentifier().intValue()) {
+		case MgcpEvent.REPORT_ON_COMPLETION:
+			logger.info("Announcemnet Completed NTFY received");
+			if(getChildSbbLocalObject().getSendBye())
+			{
+				getChildSbbLocalObject().sendBye();
+			}
+			break;
+		case MgcpEvent.REPORT_FAILURE:
+			logger.info("Announcemnet Failed received");
+				if(getChildSbbLocalObject().getSendBye())
+			{
+				getChildSbbLocalObject().sendBye();
+			}
+			break;
+			
+			
+			
+		default:
+			logger.info("Received undefined event.");
+			break;
+		}
+			
+	}
+		
+}
+	
+					</programlisting>
+					<para><literal>onNotifyRequest</literal> is invoked to indicate that atleast one event(previously requested for detection) has been detected. Since this service ends order lifecycle in example, this handler terminates call on both - failure and succes.</para>
+				</listitem>
+			</itemizedlist>
+			
+		</section>
+		
+	</section>
