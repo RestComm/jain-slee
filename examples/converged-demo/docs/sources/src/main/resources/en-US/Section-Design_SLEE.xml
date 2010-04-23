@@ -59,7 +59,7 @@
 		<varlistentry>
 			<term>OrderShipDateSbb</term>
 			<listitem>
-				<para>performs call to user to remind . It relies on <literal>CallControlSbb</literal> to perform signaling.</para>
+				<para>performs call to user to remind shipping date. It relies on <literal>CallControlSbb</literal> to perform signaling.</para>
 			</listitem>
 		</varlistentry>
 	</variablelist>

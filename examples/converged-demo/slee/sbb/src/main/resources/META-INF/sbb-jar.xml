@@ -40,9 +40,6 @@
 					<cmp-field-name>childSbbLocalObject</cmp-field-name>
 				</cmp-field>
 				<cmp-field>
-					<cmp-field-name>sfDemo</cmp-field-name>
-				</cmp-field>
-				<cmp-field>
 					<cmp-field-name>ttsString</cmp-field-name>
 				</cmp-field>
 				
@@ -250,8 +247,8 @@
 		<sbb-name>CallControlSbb</sbb-name>
 		<sbb-vendor>org.mobicents</sbb-vendor>
 		<sbb-version>1.0</sbb-version>
-		
-		
+
+
 		<sbb-classes>
 			<sbb-abstract-class>
 				<sbb-abstract-class-name>org.mobicents.slee.service.callcontrol.CallControlSbb</sbb-abstract-class-name>
@@ -260,20 +257,20 @@
 				</cmp-field>
 				<cmp-field>
 					<cmp-field-name>parentCmp</cmp-field-name>
-				</cmp-field>	
+				</cmp-field>
 				<cmp-field>
 					<cmp-field-name>customEventCmp</cmp-field-name>
-				</cmp-field>	
+				</cmp-field>
 				<cmp-field>
 					<cmp-field-name>sendByeCmp</cmp-field-name>
-				</cmp-field>	
+				</cmp-field>
 				<cmp-field>
 					<cmp-field-name>callIdentifierCmp</cmp-field-name>
-				</cmp-field>			
+				</cmp-field>
 			</sbb-abstract-class>
 			<sbb-local-interface>
 				<sbb-local-interface-name>org.mobicents.slee.service.callcontrol.CallControlSbbLocalObject</sbb-local-interface-name>
-			</sbb-local-interface>			
+			</sbb-local-interface>
 
 		</sbb-classes>
 		<event event-direction="Receive" initial-event="False">
@@ -291,7 +288,7 @@
 				<event-type-vendor>net.java.slee</event-type-vendor>
 				<event-type-version>1.2</event-type-version>
 			</event-type-ref>
-		</event>		
+		</event>
 		<event event-direction="Receive" initial-event="False">
 			<event-name>SuccessRespEvent</event-name>
 			<event-type-ref>
@@ -299,9 +296,9 @@
 				<event-type-vendor>net.java.slee</event-type-vendor>
 				<event-type-version>1.2</event-type-version>
 			</event-type-ref>
-		</event>	
+		</event>
 		<!-- MGCP events  -->
-		
+
 		<event event-direction="Receive" initial-event="False">
 			<event-name>CreateConnectionResponse</event-name>
 			<event-type-ref>
@@ -327,44 +324,56 @@
 			<env-entry-type>java.lang.String</env-entry-type>
 			<env-entry-value>${server.address}</env-entry-value>
 		</env-entry>
-		
+
 		<resource-adaptor-type-binding>
 			<resource-adaptor-type-ref>
-				<resource-adaptor-type-name>JAIN SIP</resource-adaptor-type-name>
-				<resource-adaptor-type-vendor>javax.sip</resource-adaptor-type-vendor>
-				<resource-adaptor-type-version>1.2</resource-adaptor-type-version>
+				<resource-adaptor-type-name>
+					JAIN SIP
+				</resource-adaptor-type-name>
+				<resource-adaptor-type-vendor>
+					javax.sip
+				</resource-adaptor-type-vendor>
+				<resource-adaptor-type-version>
+					1.2
+				</resource-adaptor-type-version>
 			</resource-adaptor-type-ref>
-			<activity-context-interface-factory-name>slee/resources/jainsip/1.2/acifactory</activity-context-interface-factory-name>
+			<activity-context-interface-factory-name>
+				slee/resources/jainsip/1.2/acifactory
+			</activity-context-interface-factory-name>
 			<resource-adaptor-entity-binding>
-				<resource-adaptor-object-name>slee/resources/jainsip/1.2/provider</resource-adaptor-object-name>
-				<resource-adaptor-entity-link>SipRA</resource-adaptor-entity-link>
+				<resource-adaptor-object-name>
+					slee/resources/jainsip/1.2/provider
+				</resource-adaptor-object-name>
+				<resource-adaptor-entity-link>
+					SipRA
+				</resource-adaptor-entity-link>
 			</resource-adaptor-entity-binding>
 		</resource-adaptor-type-binding>
 
-	<resource-adaptor-type-binding>
-		<resource-adaptor-type-ref>
-			<resource-adaptor-type-name>
-				jain-mgcp
+		<resource-adaptor-type-binding>
+			<resource-adaptor-type-ref>
+				<resource-adaptor-type-name>
+					jain-mgcp
 				</resource-adaptor-type-name>
-			<resource-adaptor-type-vendor>
-				net.java
+				<resource-adaptor-type-vendor>
+					net.java
 				</resource-adaptor-type-vendor>
-			<resource-adaptor-type-version>
-				2.0
+				<resource-adaptor-type-version>
+					2.0
 				</resource-adaptor-type-version>
-		</resource-adaptor-type-ref>
-		<activity-context-interface-factory-name>
-			slee/resources/jainmgcp/2.0/acifactory/demo
+			</resource-adaptor-type-ref>
+			<activity-context-interface-factory-name>
+				slee/resources/jainmgcp/2.0/acifactory/demo
 			</activity-context-interface-factory-name>
-		<resource-adaptor-entity-binding>
-			<resource-adaptor-object-name>
-				slee/resources/jainmgcp/2.0/provider/demo
+			<resource-adaptor-entity-binding>
+				<resource-adaptor-object-name>
+					slee/resources/jainmgcp/2.0/provider/demo
 				</resource-adaptor-object-name>
-			<resource-adaptor-entity-link>
-				MGCPRA
+				<resource-adaptor-entity-link>
+					MGCPRA
 				</resource-adaptor-entity-link>
-		</resource-adaptor-entity-binding>
-	</resource-adaptor-type-binding>
+			</resource-adaptor-entity-binding>
+		</resource-adaptor-type-binding>
 	</sbb>
 	
 	<!-- ORDER DELIVERY DATE -->
@@ -569,7 +578,7 @@
 	<!-- ORDER SHIP DATE -->
 	<sbb id="OrderShipDateSbb-sbb">
 		<description>
-			OrderShipDateSbb is used to remind user
+			OrderShipDateSbb is used to remind user when order will be delivered
 		</description>
 
 		<sbb-name>OrderShipDateSbb</sbb-name>
@@ -597,9 +606,11 @@
 				<cmp-field>
 					<cmp-field-name>childSbbLocalObject</cmp-field-name>
 				</cmp-field>
+				<!-- 
 				<cmp-field>
 					<cmp-field-name>dateAndTime</cmp-field-name>
 				</cmp-field>
+				 -->
 				<cmp-field>
 					<cmp-field-name>ttsString</cmp-field-name>
 				</cmp-field>
@@ -724,8 +735,8 @@
 	
 	<!-- USER -->
 	<sbb id="UserSbb-sbb">
-		<description>
-			FirstBounceSbb SBB for training example4
+		<description>	
+			calls user, asks if order for ammount xxxx should be accepted or canceled
 		</description>
 
 		<sbb-name>UserSbb</sbb-name>

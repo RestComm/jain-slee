@@ -94,7 +94,6 @@ import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 import net.java.slee.resource.sip.SleeSipProvider;
 
-import org.apache.log4j.Logger;
 import org.mobicents.slee.service.common.CommonSbb;
 import org.mobicents.slee.service.common.SimpleCallFlowRequestState;
 import org.mobicents.slee.service.common.SimpleCallFlowResponseState;
@@ -770,18 +769,6 @@ public abstract class CallControlSbb extends CommonSbb {
 
 			((JainMgcpProvider) getMgcpProvider())
 					.sendMgcpEvents(new JainMgcpEvent[] { createConnection });
-			// MsSession session = msProvider.createSession();
-			// MsConnection msConnection = session
-			// .createNetworkConnection(ENDPOINT_NAME);
-			//
-			// try {
-			// ActivityContextInterface aci = mediaAcif
-			// .getActivityContextInterface(msConnection);
-			// aci.attach(sbbContext.getSbbLocalObject());
-			// aci.attach(getParentCmp());
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
 
 			log.info("Creating RTP connection [" + ENDPOINT_NAME + "]\n"
 					+ createConnection);

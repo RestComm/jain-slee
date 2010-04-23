@@ -135,8 +135,6 @@ public abstract class AdminSbb extends CommonSbb {
 		stringBuffer.append(". Press 1 to approve and 2 to reject.");
 
 		setTtsString(stringBuffer.toString());
-		
-		this.setSfDemo(true);
 		this.setSendBye(false);
 		makeCall(ac);
 
@@ -505,10 +503,6 @@ public abstract class AdminSbb extends CommonSbb {
 	public abstract void setTtsString(String s);
 	
 	public abstract String getTtsString();
-	
-	public abstract void setSfDemo(boolean sfDemo);
-
-	public abstract boolean getSfDemo();
 
 	public abstract void setChildSbbLocalObject(CallControlSbbLocalObject childSbbLocalObject);
 

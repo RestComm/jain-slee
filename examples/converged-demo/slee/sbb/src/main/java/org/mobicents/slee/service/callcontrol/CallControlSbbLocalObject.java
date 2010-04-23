@@ -8,7 +8,7 @@ public interface CallControlSbbLocalObject extends SbbLocalObject {
 	
 	public void setParent(SbbLocalObject sbbLocalObject);
 	
-	public ResponseEvent getResponseEvent();
+	//public ResponseEvent getResponseEvent();
 	
 	public void sendBye();
 	
@@ -16,5 +16,5 @@ public interface CallControlSbbLocalObject extends SbbLocalObject {
 
 	public void sendRQNT(String textToPlay, String audioFileUrl,boolean detectDtmf);
 
-	public abstract boolean getSendBye();
+	public  boolean getSendBye();
 }
