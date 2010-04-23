@@ -37,9 +37,7 @@ import javax.sip.message.Request;
 import javax.slee.ActivityContextInterface;
 import javax.slee.ChildRelation;
 import javax.slee.CreateException;
-import javax.slee.SLEEException;
 import javax.slee.SbbContext;
-import javax.slee.TransactionRequiredLocalException;
 import javax.slee.UnrecognizedActivityException;
 import javax.slee.facilities.Tracer;
 import javax.slee.nullactivity.NullActivity;
@@ -47,25 +45,7 @@ import javax.slee.nullactivity.NullActivity;
 import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.sip.DialogActivity;
 
-import org.apache.log4j.Logger;
 import org.mobicents.examples.convergeddemo.seam.pojo.Order;
-//XXX
-//import org.mobicents.mscontrol.MsEndpoint;
-//import org.mobicents.mscontrol.MsLink;
-//import org.mobicents.mscontrol.MsLinkEvent;
-//import org.mobicents.mscontrol.MsNotifyEvent;
-//import org.mobicents.mscontrol.MsProvider;
-//import org.mobicents.mscontrol.events.MsEventAction;
-//import org.mobicents.mscontrol.events.MsEventFactory;
-//import org.mobicents.mscontrol.events.MsRequestedEvent;
-//import org.mobicents.mscontrol.events.MsRequestedSignal;
-//import org.mobicents.mscontrol.events.ann.MsPlayRequestedSignal;
-//import org.mobicents.mscontrol.events.dtmf.MsDtmfNotifyEvent;
-//import org.mobicents.mscontrol.events.dtmf.MsDtmfRequestedEvent;
-//import org.mobicents.mscontrol.events.pkg.DTMF;
-//import org.mobicents.mscontrol.events.pkg.MsAnnouncement;
-//import org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceFactory;
-//import org.mobicents.slee.resource.tts.ratype.TTSSession;
 import org.mobicents.slee.service.callcontrol.CallControlSbbLocalObject;
 import org.mobicents.slee.service.common.CommonSbb;
 import org.mobicents.slee.service.events.CustomEvent;
@@ -73,19 +53,16 @@ import org.mobicents.slee.util.Session;
 import org.mobicents.slee.util.SessionAssociation;
 
 /**
+ * 
  * @author amit bhayani
+ * @author baranowb
  */
 public abstract class UserSbb extends CommonSbb {
 
-	public final static String ANNOUNCEMENT_ENDPOINT = "media/trunk/Announcement/$";
 
 	private Tracer logger = null;
 
 	private EntityManagerFactory emf;
-	//XXX
-//	private MsProvider msProvider;
-//
-//	private MediaRaActivityContextInterfaceFactory mediaAcif;
 
 	String audioFilePath = null;
 
@@ -110,9 +87,7 @@ public abstract class UserSbb extends CommonSbb {
 			audioFilePath = System.getProperty("jboss.server.data.dir");
 
 			callerSip = (String) myEnv.lookup("callerSip");
-			//XXX
-//			msProvider = (MsProvider) myEnv.lookup("slee/resources/media/1.0/provider");
-//			mediaAcif = (MediaRaActivityContextInterfaceFactory) myEnv.lookup("slee/resources/media/1.0/acifactory");
+
 
 			InitialContext newIc = new InitialContext();
 			emf = (EntityManagerFactory) newIc.lookup("java:/ShoppingDemoSleeEntityManagerFactory");
@@ -127,17 +102,12 @@ public abstract class UserSbb extends CommonSbb {
 	public void onOrderPlaced(CustomEvent event, ActivityContextInterface ac) {
 		logger.info("UserSbb: " + this + ": received an ORDER_PLACED event. OrderId = " + event.getOrderId()
 				+ ". ammount = " + event.getAmmount() + ". Customer Name = " + event.getCustomerName());
-		//XXX
+
 		// Detach from NullActivity
 		ac.detach(this.getSbbContext().getSbbLocalObject());
 
 		this.setCustomEvent(event);
 
-		//audioFilePath = audioFilePath + "/" + event.getUserName() + ".wav";
-
-		//this.setAudioFile(audioFilePath);
-
-		//TTSSession ttsSession = getTTSProvider().getNewTTSSession(audioFilePath, "kevin");
 
 		StringBuilder stringBuffer = new StringBuilder();
 		stringBuffer.append("Welcome ");
@@ -211,7 +181,7 @@ public abstract class UserSbb extends CommonSbb {
 
 			// Create a new caller address from caller URI specified in the
 			// event (the real caller address) since we need this in the next
-			// INVITE.
+			// INVITE. -- not used yet, create only to omit null checks which could cause bugs later!
 			callerAddress = getSipUtils().convertURIToAddress(callerSip);
 			callerSession.setSipAddress(callerAddress);
 			// Since we don't have the client transaction for the caller yet,
@@ -282,24 +252,7 @@ public abstract class UserSbb extends CommonSbb {
 		}
 
 	}
-	//XXX
-//	public void onLinkDisconnected(MsLinkEvent evt, ActivityContextInterface aci) {
-//		logger.info("-----onLinkReleased-----");
-//
-//		if (this.getSendBye()) {
-//			getChildSbbLocalObject().sendBye();
-//		}
-//	}
-//
-//	public void onAnnouncementComplete(MsNotifyEvent evt, ActivityContextInterface aci) {
-//		logger.info("Announcement complete: ");
-//		if (this.getSendBye()) {
-//			MsLink link = this.getLink();
-//			link.release();
-//		}
-//	}
-//
-	
+
 	public void onNotifyRequest(Notify event, ActivityContextInterface aci) {
 		logger.info("onNotifyRequest");
 
@@ -324,7 +277,7 @@ public abstract class UserSbb extends CommonSbb {
 				break;
 			case MgcpEvent.REPORT_FAILURE:
 				logger.info("Announcemnet Failed received");
-				// TODO : Send DLCX and Send BYE to UA
+
 				if(getChildSbbLocalObject().getSendBye())
 				{
 					getChildSbbLocalObject().sendBye();
@@ -422,122 +375,11 @@ public abstract class UserSbb extends CommonSbb {
 
 	}
 
-//	public void onDtmf(MsNotifyEvent evt, ActivityContextInterface aci) {
-//		logger.info("DTMF received");
-//		MsDtmfNotifyEvent event = (MsDtmfNotifyEvent) evt;
-//		MsLink link = (MsLink) evt.getSource();
-//		String seq = event.getSequence();
-//		handleDtmf(seq, link);
-//	}
-//
-//	public void handleDtmf(String cause, MsLink link) {
-//
-//		EntityManager mgr = null;
-//		Order order = null;
-//		boolean successful = false;
-//
-//		if ("1".equals(cause)) {
-//
-//			this.setAudioFile((getClass().getResource(orderConfirmed)).toString());
-//
-//			mgr = emf.createEntityManager();
-//
-//			order = (Order) mgr.createQuery("select o from Order o where o.orderId = :orderId").setParameter("orderId",
-//					this.getCustomEvent().getOrderId()).getSingleResult();
-//
-//			order.setStatus(Order.Status.OPEN);
-//
-//			mgr.flush();
-//			mgr.close();
-//
-//			successful = true;
-//
-//		} else if ("2".equals(cause)) {
-//			this.setAudioFile((getClass().getResource(orderCancelled)).toString());
-//
-//			mgr = emf.createEntityManager();
-//
-//			order = (Order) mgr.createQuery("select o from Order o where o.orderId = :orderId").setParameter("orderId",
-//					this.getCustomEvent().getOrderId()).getSingleResult();
-//
-//			order.setStatus(Order.Status.CANCELLED);
-//
-//			mgr.flush();
-//			mgr.close();
-//
-//			successful = true;
-//
-//			try {
-//				NullActivity nullActivity = getNullActivityFactory().createNullActivity();
-//
-//				ActivityContextInterface nullActivityContextInterface = getNullACIFactory()
-//						.getActivityContextInterface(nullActivity);
-//
-//				fireOrderCancelled((CustomEvent) this.getCustomEvent().clone(), nullActivityContextInterface, null);
-//
-//			} catch (UnrecognizedActivityException unreActExc) {
-//				unreActExc.printStackTrace();
-//			}
-//		} else {
-//			this.setAudioFile((getClass().getResource(orderReConfirm)).toString());
-//
-//		}
-//		this.setSendBye(successful);
-//
-//		MsEventFactory eventFactory = msProvider.getEventFactory();
-//
-//		MsPlayRequestedSignal play = null;
-//		play = (MsPlayRequestedSignal) eventFactory.createRequestedSignal(MsAnnouncement.PLAY);
-//		play.setURL(this.getAudioFile());
-//
-//		MsRequestedEvent onCompleted = null;
-//		MsRequestedEvent onFailed = null;
-//
-//		onCompleted = eventFactory.createRequestedEvent(MsAnnouncement.COMPLETED);
-//		onCompleted.setEventAction(MsEventAction.NOTIFY);
-//
-//		onFailed = eventFactory.createRequestedEvent(MsAnnouncement.FAILED);
-//		onFailed.setEventAction(MsEventAction.NOTIFY);
-//
-//		MsRequestedSignal[] requestedSignals = new MsRequestedSignal[] { play };
-//		MsRequestedEvent[] requestedEvents = new MsRequestedEvent[] { onCompleted, onFailed };
-//		link.getEndpoints()[1].execute(requestedSignals, requestedEvents, link);
-//
-//	}
-//
-//	public void onLinkConnected(MsLinkEvent evt, ActivityContextInterface aci) {
-//		logger.info("--------onLinkConnected------------");
-//		MsLink link = evt.getSource();
-//		MsEndpoint endpoint = link.getEndpoints()[1];
-//
-//		MsEventFactory eventFactory = msProvider.getEventFactory();
-//
-//		MsPlayRequestedSignal play = null;
-//		play = (MsPlayRequestedSignal) eventFactory.createRequestedSignal(MsAnnouncement.PLAY);
-//
-//		String announcementFile = "file:" + this.getAudioFile();
-//		play.setURL(announcementFile);
-//
-//		MsRequestedEvent onCompleted = null;
-//		MsRequestedEvent onFailed = null;
-//
-//		onCompleted = eventFactory.createRequestedEvent(MsAnnouncement.COMPLETED);
-//		onCompleted.setEventAction(MsEventAction.NOTIFY);
-//
-//		onFailed = eventFactory.createRequestedEvent(MsAnnouncement.FAILED);
-//		onFailed.setEventAction(MsEventAction.NOTIFY);
-//
-//		MsDtmfRequestedEvent dtmf = (MsDtmfRequestedEvent) eventFactory.createRequestedEvent(DTMF.TONE);
-//
-//		MsRequestedSignal[] requestedSignals = new MsRequestedSignal[] { play };
-//		MsRequestedEvent[] requestedEvents = new MsRequestedEvent[] { onCompleted, onFailed, dtmf };
-//
-//		endpoint.execute(requestedSignals, requestedEvents, link);
-//
-//	}
+
 	
 	public void onCreateConnectionResponse(CreateConnectionResponse event, ActivityContextInterface aci)
 	{
+		//cehck just in case
 		if(event.getSecondEndpointIdentifier()!=null)
 		{
 			//we have media path estabilished.
@@ -545,19 +387,7 @@ public abstract class UserSbb extends CommonSbb {
 			this.setTtsString(null);
 		}
 	}
-	
-	
-	
-//
-//	public MsLink getLink() {
-//		ActivityContextInterface[] activities = getSbbContext().getActivities();
-//		for (int i = 0; i < activities.length; i++) {
-//			if (activities[i].getActivity() instanceof MsLink) {
-//				return (MsLink) activities[i].getActivity();
-//			}
-//		}
-//		return null;
-//	}
+
 
 	// child relation
 	public abstract ChildRelation getCallControlSbbChild();
@@ -569,10 +399,6 @@ public abstract class UserSbb extends CommonSbb {
 	public abstract void setSendBye(boolean isBye);
 
 	public abstract boolean getSendBye();
-
-//	public abstract void setAudioFile(String endPoint);
-//
-//	public abstract String getAudioFile();
 
 	public abstract void setTtsString(String endPoint);
 

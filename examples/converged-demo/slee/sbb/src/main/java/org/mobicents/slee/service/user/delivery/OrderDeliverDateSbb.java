@@ -69,7 +69,7 @@ import org.mobicents.slee.util.SessionAssociation;
 /**
  * 
  * @author amit.bhayani
- * 
+ * @author baranowb
  */
 public abstract class OrderDeliverDateSbb extends CommonSbb {
 
@@ -100,9 +100,6 @@ public abstract class OrderDeliverDateSbb extends CommonSbb {
 			audioFilePath = System.getProperty("jboss.server.data.dir");
 
 			callerSip = (String) myEnv.lookup("callerSip");
-			//XXX
-			//msProvider = (MsProvider) myEnv.lookup("slee/resources/media/1.0/provider");
-			//mediaAcif = (MediaRaActivityContextInterfaceFactory) myEnv.lookup("slee/resources/media/1.0/acifactory");
 
 			timerFacility = (TimerFacility) myEnv.lookup("slee/facilities/timer");
 

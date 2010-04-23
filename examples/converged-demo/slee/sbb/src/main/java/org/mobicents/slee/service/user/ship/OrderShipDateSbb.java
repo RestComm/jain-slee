@@ -57,7 +57,11 @@ import org.mobicents.slee.service.common.CommonSbb;
 import org.mobicents.slee.service.events.CustomEvent;
 import org.mobicents.slee.util.Session;
 import org.mobicents.slee.util.SessionAssociation;
-
+/**
+ * @author amit bhayani
+ * @author baranowb
+ * 
+ */
 public abstract class OrderShipDateSbb extends CommonSbb {
 
 	private Tracer logger = null;
@@ -95,14 +99,14 @@ public abstract class OrderShipDateSbb extends CommonSbb {
 		ac.detach(this.getSbbContext().getSbbLocalObject());
 		makeCall(event, ac);
 	}
-	//XXX
+
 	private void makeCall(CustomEvent event, ActivityContextInterface ac) {
 
 		EntityManager mgr = null;
 		Order order = null;
 
 		this.setCustomEvent(event);
-		this.setDateAndTime("");
+
 
 		mgr = emf.createEntityManager();
 
@@ -340,7 +344,7 @@ public abstract class OrderShipDateSbb extends CommonSbb {
 				break;
 			case MgcpEvent.REPORT_FAILURE:
 				logger.info("Announcemnet Failed received");
-				// TODO : Send DLCX and Send BYE to UA
+
 				if(getChildSbbLocalObject().getSendBye())
 				{
 					getChildSbbLocalObject().sendBye();
@@ -365,10 +369,6 @@ public abstract class OrderShipDateSbb extends CommonSbb {
 	public abstract void setCustomEvent(CustomEvent customEvent);
 
 	public abstract CustomEvent getCustomEvent();
-
-	public abstract void setDateAndTime(String dateAndTime);
-
-	public abstract String getDateAndTime();
 
 	public abstract void setChildSbbLocalObject(CallControlSbbLocalObject childSbbLocalObject);
 
