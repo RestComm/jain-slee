@@ -5,7 +5,7 @@
 ]>
 <section id="source_slee_ship_date">
 		<title>DeliveryShipDate</title>
-		<para><literal>OrderShipDateSbb</literal> is root <acronym>SBB</acronym> of service handlign logic to contact user and notify him that his order will be delivered on certain date.	
+		<para><literal>OrderShipDateSbb</literal> is root <acronym>SBB</acronym> of service handling logic to contact user and notify him that his order will be delivered on certain date.	
 		</para>
 		<para><acronym>SBB</acronym> class <literal>org.mobicents.slee.service.user.ship.OrderShipDateSbb</literal> contains all logic and required resources to contact user. 
 		</para>
