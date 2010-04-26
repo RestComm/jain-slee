@@ -3,25 +3,24 @@ package org.mobicents.slee.container.component.validator;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.slee.EventTypeID;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
+import org.mobicents.slee.container.component.ResourceAdaptorTypeComponentImpl;
 
 public class ResourceAdaptorTypeValidator implements Validator {
 
-	private ComponentRepository repository = null;
-	private ResourceAdaptorTypeComponent component = null;
+	private ResourceAdaptorTypeComponentImpl component = null;
 	private Logger logger = Logger
 			.getLogger(ResourceAdaptorTypeValidator.class);
 
 	public void setComponentRepository(ComponentRepository repository) {
-		this.repository = repository;
-
+		
 	}
 
-	public void setComponent(ResourceAdaptorTypeComponent component) {
+	public void setComponent(ResourceAdaptorTypeComponentImpl component) {
 		this.component = component;
 	}
 
@@ -54,15 +53,15 @@ public class ResourceAdaptorTypeValidator implements Validator {
 
 		try {
 
-			Set<MEventTypeRef> declaredReferences = new HashSet<MEventTypeRef>();
-			for (MEventTypeRef ref : this.component.getDescriptor()
+			Set<EventTypeID> declaredReferences = new HashSet<EventTypeID>();
+			for (EventTypeID ref : this.component.getDescriptor()
 					.getEventTypeRefs()) {
 
 				if (declaredReferences.contains(ref)) {
 					passed = false;
 					errorBuffer = appendToBuffer(
 							"Ra Type descriptor declares event reference more than once, id: "
-									+ ref.getComponentID(), "15.3.2",
+									+ ref, "15.3.2",
 							errorBuffer);
 
 				}
@@ -108,7 +107,7 @@ public class ResourceAdaptorTypeValidator implements Validator {
 			if (this.component.isSlee11())
 			{
 				if (component.getActivityContextInterfaceFactoryInterface() != null) {
-					Class aciClass = component
+					Class<?> aciClass = component
 							.getActivityContextInterfaceFactoryInterface();
 					
 					if(aciClass.getPackage() == null)
@@ -121,7 +120,7 @@ public class ResourceAdaptorTypeValidator implements Validator {
 				}
 				
 				if (component.getResourceAdaptorSBBInterface() != null) {
-					Class aciClass = component
+					Class<?> aciClass = component
 							.getResourceAdaptorSBBInterface();
 					
 					if(aciClass.getPackage() == null)

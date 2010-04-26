@@ -13,6 +13,8 @@ import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
+import org.mobicents.slee.container.transaction.TransactionContext;
+
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
 
 /**

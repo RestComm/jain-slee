@@ -10,8 +10,8 @@ package org.mobicents.slee.container.component.validator;
 
 import java.util.List;
 
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 
@@ -29,17 +29,17 @@ public class SbbComponentValidatorSbbConstraintsAllTest extends TCUtilityClass {
 
 	public void testSbbOne11ConstraintsOk() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbLocalInterface().getSbbLocalInterfaceName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		component.setUsageParametersInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbClasses().getSbbUsageParametersInterface().getUsageParametersInterfaceName()));
+				descriptor.getSbbUsageParametersInterface().getUsageParametersInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 

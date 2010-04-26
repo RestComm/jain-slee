@@ -3,6 +3,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.profile.query.QueryDescriptor;
+
 /**
  * Start time:17:26:08 2009-01-18<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -10,7 +12,7 @@ import java.util.List;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MQuery {
+public class MQuery implements QueryDescriptor {
 
   private String name;
 

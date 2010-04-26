@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
+import org.mobicents.slee.container.component.profile.ProfileAbstractClassDescriptor;
+
 /**
  * Start time:17:09:19 2009-01-18<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -7,7 +9,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MProfileAbstractClass {
+public class MProfileAbstractClass implements ProfileAbstractClassDescriptor {
 
   private String description;
   private String profileAbstractClassName;

@@ -8,7 +8,7 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.common;
 
-import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EnvEntry;
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 
 /**
  * Start time:14:26:21 2009-01-20<br>
@@ -18,7 +18,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EnvEntry;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MEnvEntry {
+public class MEnvEntry implements EnvEntryDescriptor {
 
 	private final String description, envEntryName, envEntryValue,
 			envEntryType;
@@ -32,7 +32,7 @@ public class MEnvEntry {
 				.getEnvEntryType().getvalue().trim());
 	}
 
-	public MEnvEntry(EnvEntry envEntry) {
+	public MEnvEntry(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.EnvEntry envEntry) {
 		this(envEntry.getDescription() == null ? null : envEntry
 				.getDescription().getvalue().trim(), envEntry.getEnvEntryName()
 				.getvalue().trim(), envEntry.getEnvEntryValue() == null ? null

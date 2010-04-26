@@ -23,25 +23,30 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.slee.profile.ProfileTable;
+
 import javassist.Modifier;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.ProfileSpecificationComponentImpl;
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCMPField;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MIndexHint;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MCompare;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MHasPrefix;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MLongestPrefixMatch;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpression;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryParameter;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MRangeMatch;
 import org.mobicents.slee.container.component.profile.ProfileAttribute;
+import org.mobicents.slee.container.component.profile.ProfileAttributeImpl;
+import org.mobicents.slee.container.component.profile.cmp.IndexHintDescriptor;
+import org.mobicents.slee.container.component.profile.cmp.ProfileCMPFieldDescriptor;
+import org.mobicents.slee.container.component.profile.query.CollatorDescriptor;
+import org.mobicents.slee.container.component.profile.query.CompareDescriptor;
+import org.mobicents.slee.container.component.profile.query.HasPrefixDescriptor;
+import org.mobicents.slee.container.component.profile.query.LongestPrefixMatchDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryExpressionDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryParameterDescriptor;
+import org.mobicents.slee.container.component.profile.query.RangeMatchDescriptor;
 
 /**
  * Start time:10:45:52 2009-02-09<br>
@@ -54,7 +59,7 @@ import org.mobicents.slee.container.component.profile.ProfileAttribute;
 public class ProfileSpecificationComponentValidator implements Validator {
 
 	private ComponentRepository repository = null;
-	private ProfileSpecificationComponent component = null;
+	private ProfileSpecificationComponentImpl component = null;
 	private final static transient Logger logger = Logger
 			.getLogger(ProfileSpecificationComponentValidator.class);
 	// this does not include serializables
@@ -290,11 +295,11 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 	}
 
-	public ProfileSpecificationComponent getComponent() {
+	public ProfileSpecificationComponentImpl getComponent() {
 		return component;
 	}
 
-	public void setComponent(ProfileSpecificationComponent component) {
+	public void setComponent(ProfileSpecificationComponentImpl component) {
 		this.component = component;
 	}
 
@@ -433,7 +438,14 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					cmpFieldName = methodName.replaceFirst("set", "");
 				}
 
-				if (!(ProfileAttribute.ALLOWED_PROFILE_ATTRIBUTE_TYPES.contains(fieldType.getName()) || validateSerializableType(
+				Set<String> set = new HashSet<String>();
+				for (String s : ProfileAttribute.PRIMITIVE_ALLOWED_PROFILE_ATTRIBUTE_TYPES) {
+					set.add(s);
+				}
+				for (String s : ProfileAttribute.NON_PRIMITIVE_ALLOWED_PROFILE_ATTRIBUTE_TYPES) {
+					set.add(s);
+				}
+				if (!(set.contains(fieldType.getName()) || validateSerializableType(
 						fieldType, methodName))) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -500,10 +512,9 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			if (this.component.isSlee11()) {
 
 				// if we are here we know there are no dups
-				List<MCMPField> cmpFields = this.component.getDescriptor()
-						.getProfileClasses().getProfileCMPInterface().getCmpFields();
+				List<? extends ProfileCMPFieldDescriptor> cmpFields = this.component.getDescriptor().getProfileCMPInterface().getCmpFields();
 
-				for(MCMPField cmpField : cmpFields)
+				for(ProfileCMPFieldDescriptor cmpField : cmpFields)
 				{
 				  if(!fieldOccurances.containsKey(cmpField.getCmpFieldName()))
 				  {
@@ -533,7 +544,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
         */
 				
-				for (MCMPField f : cmpFields) {
+				for (ProfileCMPFieldDescriptor f : cmpFields) {
 					Class type = fieldToType.get(f.getCmpFieldName());
 
 					// might be null in case of above errror
@@ -549,7 +560,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 									errorBuffer);
 						}
 
-						for (MIndexHint indexHint : f.getIndexHints()) {
+						for (IndexHintDescriptor indexHint : f.getIndexHints()) {
 							
 							//See section 10.22 of JSLEE 1.1
 							if(!_TYPES_WITH_ALLOWED_INDEX_HINTS.contains(type.toString()))
@@ -1128,7 +1139,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		try {
 
-			if (this.component.getDescriptor().getProfileClasses().getProfileAbstractClass() == null) {
+			if (this.component.getDescriptor().getProfileAbstractClass() == null) {
 
 				if (this.requiredProfileAbstractClass) {
           passed = false;
@@ -1453,7 +1464,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			// those checks are......
 			// 1.0 and 1.1 if we define management interface we have to
 			// implement it, and all methods that are not CMPs
-			if (this.component.getDescriptor().getProfileClasses().getProfileManagementInterface() != null) {
+			if (this.component.getDescriptor().getProfileManagementInterface() != null) {
 				Class profileManagementInterfaceClass = this.component
 						.getProfileManagementInterfaceClass();
 				
@@ -1538,12 +1549,12 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				// uff, ProfileLocal again that stupid check cross two
 				// interfaces and one abstract class.....
 
-				if (this.component.getDescriptor().getProfileClasses().getProfileLocalInterface() != null) {
+				if (this.component.getDescriptor().getProfileLocalInterface() != null) {
 
 					// abstract class MUST NOT implement it
 					if (ClassUtils.checkInterfaces(profileAbstractClass,
 							this.component.getDescriptor()
-									.getProfileClasses().getProfileLocalInterface()
+									.getProfileLocalInterface()
 									.getProfileLocalInterfaceName()) != null
 							|| ClassUtils.checkInterfaces(profileAbstractClass,
 									"javax.slee.profile.ProfileLocalObject") != null) {
@@ -1625,7 +1636,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
 
 				// usage parameters
-				if (this.component.getDescriptor().getProfileClasses()
+				if (this.component.getDescriptor()
 						.getProfileUsageParameterInterface() != null) {
 					if (!validateProfileUsageInterface(abstractMethods,
 							abstractMethodsFromSuperClasses)) {
@@ -1665,7 +1676,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		try {
 			if (this.component.getUsageParametersInterface() == null) {
-				if (this.component.getDescriptor().getProfileClasses()
+				if (this.component.getDescriptor()
 						.getProfileUsageParameterInterface() != null) {
 					passed = false;
 
@@ -1706,7 +1717,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		// FIXME: should not this return generic?
 		if (!this.component.isSlee11()
-				|| this.component.getDescriptor().getProfileClasses().getProfileTableInterface() == null) {
+				|| this.component.getDescriptor().getProfileTableInterface() == null) {
 			// its nto mandatory
 			return passed;
 		}
@@ -1733,7 +1744,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			}
 
 			Class genericProfileTableInterface = ClassUtils.checkInterfaces(
-					profileTableInterface, "javax.slee.profile.ProfileTable");
+					profileTableInterface, ProfileTable.class.getName());
 
 			if (genericProfileTableInterface == null) {
 				passed = false;
@@ -1785,11 +1796,14 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					.entrySet().iterator();
 
 			// FIXME: all queries have to match?
-			Map<String, MQuery> nameToQueryMap = new HashMap<String, MQuery>();
-			nameToQueryMap.putAll(this.component.getDescriptor()
-					.getQueriesMap());
-
-			Class cmpInterfaceClass = this.component
+			Map<String, QueryDescriptor> nameToQueryMap = new HashMap<String, QueryDescriptor>();
+			
+			List<MQuery> qs = this.component.getDescriptor().getQueryElements();
+		    for(QueryDescriptor q:qs) {
+		    	nameToQueryMap.put(q.getName(), q);
+		    }
+		    
+			Class<?> cmpInterfaceClass = this.component
 					.getProfileCmpInterfaceClass();
 
 			while (iterator.hasNext()) {
@@ -1832,7 +1846,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					continue;
 				}
 
-				MQuery query = nameToQueryMap.remove(queryName);
+				QueryDescriptor query = nameToQueryMap.remove(queryName);
 
 				// defined parameter types are ok in case of xml, we need to
 				// check method
@@ -1866,7 +1880,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				// o  A type attribute. 
 				// This attribute defines the type of the query parameter. The type must be a Java primitive 
 				// type or its equivalent object wrapper class, or java.lang.String. 
-        for(MQueryParameter qParam : query.getQueryParameters())
+        for(QueryParameterDescriptor qParam : query.getQueryParameters())
         {
           if(!_ALLOWED_QUERY_PARAMETER_TYPES.contains(qParam.getType()))
           {
@@ -1923,7 +1937,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 				Class[] parameterTypes = m.getParameterTypes();
 
-				List<MQueryParameter> queryParameters = new ArrayList<MQueryParameter>();
+				List<QueryParameterDescriptor> queryParameters = new ArrayList<QueryParameterDescriptor>();
 				queryParameters.addAll(query.getQueryParameters());
 
 				if (parameterTypes.length != queryParameters.size()) {
@@ -2020,7 +2034,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 	}
 
 	boolean validateQueryAgainstCMPFields(String queryName,
-			Class cmpInterfaceClass, MQueryExpression expression,
+			Class cmpInterfaceClass, QueryExpressionDescriptor expression,
 			Map<String, String> parameter2Type) {
 		boolean passed = true;
 		String attributeName = null;
@@ -2032,7 +2046,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			switch (expression.getType()) {
 			// "complex types"
 			case And:
-				for (MQueryExpression mqe : expression.getAnd()) {
+				for (QueryExpressionDescriptor mqe : expression.getAnd()) {
 					if (!validateQueryAgainstCMPFields(queryName,
 							cmpInterfaceClass, mqe, parameter2Type)) {
 						passed = false;
@@ -2040,7 +2054,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
 				break;
 			case Or:
-				for (MQueryExpression mqe : expression.getOr()) {
+				for (QueryExpressionDescriptor mqe : expression.getOr()) {
 					if (!validateQueryAgainstCMPFields(queryName,
 							cmpInterfaceClass, mqe, parameter2Type)) {
 						passed = false;
@@ -2066,7 +2080,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 						+ attributeName.charAt(0), ""
 						+ Character.toUpperCase(attributeName.charAt(0)));
 				// now we have to validate CMP field and type
-				MCompare compare = expression.getCompare();
+				CompareDescriptor compare = expression.getCompare();
 				String op = compare.getOp();
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
@@ -2162,7 +2176,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
 				break;
 			case HasPrefix:
-				MHasPrefix mhp = expression.getHasPrefix();
+				HasPrefixDescriptor mhp = expression.getHasPrefix();
 				attributeName = expression.getHasPrefix().getAttributeName();
 				attributeName = attributeName.replaceFirst(""
 						+ attributeName.charAt(0), ""
@@ -2239,7 +2253,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				break;
 			case LongestPrefixMatch:
 
-				MLongestPrefixMatch mlpm = expression.getLongestPrefixMatch();
+				LongestPrefixMatchDescriptor mlpm = expression.getLongestPrefixMatch();
 				attributeName = expression.getLongestPrefixMatch()
 						.getAttributeName();
 				attributeName = attributeName.replaceFirst(""
@@ -2321,7 +2335,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				attributeName = attributeName.replaceFirst(""
 						+ attributeName.charAt(0), ""
 						+ Character.toUpperCase(attributeName.charAt(0)));
-				MRangeMatch mrm = expression.getRangeMatch();
+				RangeMatchDescriptor mrm = expression.getRangeMatch();
 				try {
 					Method m = cmpInterfaceClass.getMethod("get"
 							+ attributeName, null);
@@ -2435,9 +2449,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 
 		try {
 
-			List<MEnvEntry> envEntries = this.component.getDescriptor()
-					.getEnvEntries();
-			for (MEnvEntry e : envEntries) {
+			List<MEnvEntry> envEntries = this.component.getDescriptor().getEnvEntries();
+			for (EnvEntryDescriptor e : envEntries) {
 				if (!_ENV_ENTRIES_TYPES.contains(e.getEnvEntryType())) {
 
 					passed = false;
@@ -2481,7 +2494,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			HashSet<String> collatorAlliases = new HashSet<String>();
 			ProfileSpecificationDescriptorImpl desc = this.component
 					.getDescriptor();
-			for (MCollator mc : desc.getCollators()) {
+			for (CollatorDescriptor mc : desc.getCollators()) {
 				if (collatorAlliases.contains(mc.getCollatorAlias())) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -2494,8 +2507,8 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			}
 
 			// double deifnition of refs is allowed.
-			Map<String, MCMPField> cmpName2Field = new HashMap<String, MCMPField>();
-			for (MCMPField c : desc.getProfileClasses().getProfileCMPInterface().getCmpFields()) {
+			Map<String, ProfileCMPFieldDescriptor> cmpName2Field = new HashMap<String, ProfileCMPFieldDescriptor>();
+			for (ProfileCMPFieldDescriptor c : desc.getProfileCMPInterface().getCmpFields()) {
 
 				if (!Character.isLowerCase(c.getCmpFieldName().charAt(0))) {
 					passed = false;
@@ -2524,7 +2537,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 							errorBuffer);
 				}
 
-				for (MIndexHint indexHint : c.getIndexHints()) {
+				for (IndexHintDescriptor indexHint : c.getIndexHints()) {
 					if (indexHint.getCollatorRef() != null
 							&& !collatorAlliases.contains(indexHint
 									.getCollatorRef())) {
@@ -2541,7 +2554,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			}
 
 			Set<String> queriesNames = new HashSet<String>();
-			for (MQuery mq : desc.getQueryElements()) {
+			for (QueryDescriptor mq : desc.getQueryElements()) {
 
 				if (queriesNames.contains(mq.getName())) {
 					passed = false;
@@ -2554,7 +2567,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 					// expressions?
 					HashSet<String> decalredParameters = new HashSet<String>();
 					HashSet<String> usedParameters = new HashSet<String>();
-					for (MQueryParameter mqp : mq.getQueryParameters()) {
+					for (QueryParameterDescriptor mqp : mq.getQueryParameters()) {
 						if (decalredParameters.contains(mqp.getName())) {
 							passed = false;
 							errorBuffer = appendToBuffer(
@@ -2623,7 +2636,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 	 * @param usedQueryParameter
 	 * @return
 	 */
-	boolean validateExpression(String queryName, MQueryExpression expression,
+	boolean validateExpression(String queryName, QueryExpressionDescriptor expression,
 
 	Set<String> usedQueryParameter, Set<String> cmpFieldNames,
 			Set<String> collatorAliasses) {
@@ -2641,7 +2654,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 			switch (expression.getType()) {
 			// "complex types"
 			case And:
-				for (MQueryExpression mqe : expression.getAnd()) {
+				for (QueryExpressionDescriptor mqe : expression.getAnd()) {
 					if (!validateExpression(queryName, mqe, usedQueryParameter,
 							cmpFieldNames, collatorAliasses)) {
 						passed = false;
@@ -2649,7 +2662,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				}
 				break;
 			case Or:
-				for (MQueryExpression mqe : expression.getOr()) {
+				for (QueryExpressionDescriptor mqe : expression.getOr()) {
 					if (!validateExpression(queryName, mqe, usedQueryParameter,
 							cmpFieldNames, collatorAliasses)) {
 						passed = false;
@@ -2691,7 +2704,7 @@ public class ProfileSpecificationComponentValidator implements Validator {
 				attributeName = expression.getRangeMatch().getAttributeName();
 				collatorRef = expression.getRangeMatch().getCollatorRef();
 
-				MRangeMatch mrm = expression.getRangeMatch();
+				RangeMatchDescriptor mrm = expression.getRangeMatch();
 
 				ignoreAbsence = true;
 				if (mrm.getFromParameter() == null

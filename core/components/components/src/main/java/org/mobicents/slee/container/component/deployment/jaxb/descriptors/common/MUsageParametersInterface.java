@@ -3,6 +3,8 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.commo
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.UsageParameterDescriptor;
+import org.mobicents.slee.container.component.UsageParametersInterfaceDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.SbbUsageParametersInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.UsageParameter;
 
@@ -16,11 +18,11 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.UsagePa
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class MUsageParametersInterface {
+public class MUsageParametersInterface implements UsageParametersInterfaceDescriptor {
 
   private String description;
   private String usageParametersInterfaceName;
-  private List<MUsageParameter> usageParameter = new ArrayList<MUsageParameter>();
+  private List<UsageParameterDescriptor> usageParameter = new ArrayList<UsageParameterDescriptor>();
 
   public MUsageParametersInterface(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.ResourceAdaptorUsageParametersInterface resourceAdaptorUsageParametersInterface11)
   {
@@ -73,7 +75,7 @@ public class MUsageParametersInterface {
     return usageParametersInterfaceName;
   }
 
-  public List<MUsageParameter> getUsageParameter()
+  public List<UsageParameterDescriptor> getUsageParameter()
   {
     return usageParameter;
   }

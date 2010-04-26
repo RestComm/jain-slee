@@ -14,9 +14,10 @@
 		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
-			<artifactId>transaction</artifactId>
+			<artifactId>common</artifactId>
 			<version>${pom.version}</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>${pom.groupId}</groupId>
 			<artifactId>descriptors</artifactId>
@@ -29,10 +30,6 @@
 			<scope>provided</scope>
 		</dependency>
 		
-		<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
-		</dependency>
 	</dependencies>
 
 </project>

@@ -25,7 +25,7 @@ import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.SbbComponent;
+import org.mobicents.slee.container.component.SbbComponentImpl;
 import org.mobicents.slee.container.component.deployment.ClassPool;
 
 /**
@@ -58,7 +58,7 @@ public class SbbAbstractClassDecorator {
      */
     private Map concreteMethods = null;
 
-    private final SbbComponent component;
+    private final SbbComponentImpl component;
 
     /**
      * Optimization variable. Helps avoid writing to disk abstract classes, which are not modified.
@@ -68,7 +68,7 @@ public class SbbAbstractClassDecorator {
     /**
      * Constructor
      */
-    public SbbAbstractClassDecorator(SbbComponent component) {
+    public SbbAbstractClassDecorator(SbbComponentImpl component) {
         this.component = component;
     }
 

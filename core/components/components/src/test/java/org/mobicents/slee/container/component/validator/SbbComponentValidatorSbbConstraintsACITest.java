@@ -10,8 +10,8 @@ package org.mobicents.slee.container.component.validator;
 
 import java.util.List;
 
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 
@@ -32,13 +32,13 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 
 	public void testSbbOne11ConstraintsACIOk() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
@@ -52,13 +52,13 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 
 	public void testSbbOne11ConstraintsACIReturnBaseOk() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_RETURN_BASE_TYPE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
@@ -72,13 +72,13 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 
 	public void testSbbOne11ConstraintsACIWrongMethod() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_METHOD));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
@@ -92,13 +92,13 @@ public class SbbComponentValidatorSbbConstraintsACITest extends TCUtilityClass {
 
 	public void testSbbOne11ConstraintsACIWrongParameterType() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_WRONG_PARAMETER_TYPE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);

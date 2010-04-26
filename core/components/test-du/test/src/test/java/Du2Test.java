@@ -8,8 +8,9 @@ import javax.slee.management.DeploymentException;
 import org.jboss.classloader.spi.ClassLoaderDomain;
 import org.jboss.classloader.spi.ClassLoaderSystem;
 import org.jboss.test.kernel.junit.MicrocontainerTest;
-import org.mobicents.slee.container.component.ComponentRepositoryImpl;
-import org.mobicents.slee.container.component.deployment.DeployableUnitBuilder;
+import org.mobicents.slee.container.component.ComponentManagementImpl;
+import org.mobicents.slee.container.component.deployment.DeployableUnitBuilderImpl;
+import org.mobicents.slee.container.component.deployment.classloading.ClassLoadingConfiguration;
 
 public class Du2Test extends MicrocontainerTest {
 
@@ -17,15 +18,16 @@ public class Du2Test extends MicrocontainerTest {
 		super(name);		
 	}
 
+	@SuppressWarnings("deprecation")
 	public void test() throws MalformedURLException, DeploymentException, URISyntaxException {	
 		ClassLoaderDomain defaultDomain = ClassLoaderSystem.getInstance().getDefaultDomain();
 		getLog().debug(defaultDomain.toLongString());
-		ComponentRepositoryImpl componentRepository = new ComponentRepositoryImpl();
+		ComponentManagementImpl componentManagement = new ComponentManagementImpl(new ClassLoadingConfiguration());
 		URL url = Thread.currentThread().getContextClassLoader().getResource("Du2Test.class");
 		File root = new File(url.toURI()).getParentFile();
-		DeployableUnitBuilder builder = new DeployableUnitBuilder();
+		DeployableUnitBuilderImpl builder = componentManagement.getDeployableUnitManagement().getDeployableUnitBuilder();
 		try {
-			builder.build(root.toURL().toString()+"components-test-du-2.jar", root, componentRepository,true);
+			builder.build(root.toURL().toString()+"components-test-du-2.jar", root, componentManagement.getComponentRepository());
 		}
 		catch (DeploymentException e) {
 			getLog().debug("got expected exception",e);

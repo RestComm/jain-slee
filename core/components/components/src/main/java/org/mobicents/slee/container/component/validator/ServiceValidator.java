@@ -1,18 +1,15 @@
 package org.mobicents.slee.container.component.validator;
 
-import javax.slee.SbbID;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.ServiceComponent;
+import org.mobicents.slee.container.component.ServiceComponentImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.service.ServiceComponent;
 
 public class ServiceValidator implements Validator {
 
-	private ServiceComponent component = null;
+	private ServiceComponentImpl component = null;
 	private ComponentRepository repository = null;
 	private final static transient Logger logger = Logger.getLogger(ServiceValidator.class);
 
@@ -21,11 +18,11 @@ public class ServiceValidator implements Validator {
 
 	}
 
-	public ServiceComponent getComponent() {
+	public ServiceComponentImpl getComponent() {
 		return component;
 	}
 
-	public void setComponent(ServiceComponent component) {
+	public void setComponent(ServiceComponentImpl component) {
 		this.component = component;
 	}
 

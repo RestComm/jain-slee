@@ -12,8 +12,8 @@ import java.util.List;
 
 import javax.slee.Sbb;
 
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.usage.UsageInterfaceToFewMethods;
@@ -38,13 +38,13 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 
 	public void testSbbOne11UsageConstraintsOk() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setUsageParametersInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbClasses().getSbbUsageParametersInterface().getUsageParametersInterfaceName()));
+				descriptor.getSbbUsageParametersInterface().getUsageParametersInterfaceName()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 
@@ -57,9 +57,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 
 	public void testSbbOne11ToManyUsageMethodDefined() throws Exception {
 		
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageInterfaceToManyMethods.class);
 		component.setUsageParametersInterface(UsageInterfaceToManyMethods.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -74,9 +74,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 
 	public void testSbbOne11WrongSetterPrameter() throws Exception {
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageWrongSetterPrameterInterface.class);
 		component.setUsageParametersInterface(UsageWrongSetterPrameterInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -91,9 +91,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 
 	public void testSbbOne11ToFewUsageMethodDefined() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageInterfaceToFewMethods.class);
 		component.setUsageParametersInterface(UsageInterfaceToFewMethods.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -109,9 +109,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 	public void testSbbOne11ThrowsOnGetter() throws Exception {
 		// setter is increment or sample method
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageThrowsOnGetterInterface.class);
 		component.setUsageParametersInterface(UsageThrowsOnGetterInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -127,9 +127,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 	public void testSbbOne11ThrowsOnSetter() throws Exception {
 		// setter is increment or sample method
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageThrowsOnSetterInterface.class);
 		component.setUsageParametersInterface(UsageThrowsOnSetterInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -145,9 +145,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 	public void testSbbOne11WrongSampleReturnType() throws Exception {
 		// setter is increment or sample method
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageWrongSampleReturnTypeInterface.class);
 		component.setUsageParametersInterface(UsageWrongSampleReturnTypeInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -163,9 +163,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 	public void testSbbOne11UsageSetterWrongLevelInterface() throws Exception {
 		// setter is increment or sample method
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageSetterWrongLevelInterface.class);
 		component.setUsageParametersInterface(UsageSetterWrongLevelInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
@@ -182,9 +182,9 @@ public class SbbComponentValidatorSbbUsageConstraintsTest extends TCUtilityClass
 	public void _testSbbOne11UsageWrongAccesorLevelInterface() throws Exception {
 		// setter is increment or sample method
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_USAGE_CONSTRAINTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(SbbUsageWrongAccesorLevelInterface.class);
 		component.setUsageParametersInterface(UsageWrongAccesorLevelInterface.class);
 		SbbComponentValidator validator = new SbbComponentValidator();

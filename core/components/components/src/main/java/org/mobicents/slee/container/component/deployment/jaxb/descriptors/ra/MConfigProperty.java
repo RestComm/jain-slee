@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
 
+import org.mobicents.slee.container.component.ra.ConfigPropertyDescriptor;
+
 /**
  * 
  * MConfigProperty.java
@@ -10,7 +12,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra;
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class MConfigProperty {
+public class MConfigProperty implements ConfigPropertyDescriptor {
   
   private String description;
   private String configPropertyName;
@@ -45,4 +47,5 @@ public class MConfigProperty {
   {
     return configPropertyValue;
   }
+  
 }

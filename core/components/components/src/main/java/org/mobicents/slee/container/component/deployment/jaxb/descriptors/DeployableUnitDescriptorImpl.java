@@ -7,8 +7,9 @@ import javax.slee.management.DeploymentException;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.Jar;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.du.ServiceXml;
+import org.mobicents.slee.container.component.du.DeployableUnitDescriptor;
 
-public class DeployableUnitDescriptorImpl {
+public class DeployableUnitDescriptorImpl implements DeployableUnitDescriptor {
 
 	private final boolean isSlee11;
 	

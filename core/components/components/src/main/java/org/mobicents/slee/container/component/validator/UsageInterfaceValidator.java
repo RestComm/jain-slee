@@ -24,10 +24,10 @@ import javax.slee.ComponentID;
 import javax.slee.usage.UnrecognizedUsageParameterSetNameException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParameter;
+import org.mobicents.slee.container.component.ProfileSpecificationComponentImpl;
+import org.mobicents.slee.container.component.ResourceAdaptorComponentImpl;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.UsageParameterDescriptor;
 
 /**
  * Start time:19:32:15 2009-02-05<br>
@@ -121,7 +121,7 @@ public class UsageInterfaceValidator {
 	 *            - list of parameters, in case of 1.0 sbb this MUST be null.
 	 * @return
 	 */
-	static boolean validateUsageParameterInterface(ComponentID id, boolean isSlee11, Class usageInterface, List<MUsageParameter> parameters) {
+	static boolean validateUsageParameterInterface(ComponentID id, boolean isSlee11, Class<?> usageInterface, List<UsageParameterDescriptor> parameters) {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
@@ -149,7 +149,7 @@ public class UsageInterfaceValidator {
 			Set<String> ignore = new HashSet<String>();
 			ignore.add("java.lang.Object");
 			Map<String, Method> interfaceMethods = ClassUtils.getAllInterfacesMethods(usageInterface, ignore);
-			Map<String, MUsageParameter> localParametersMap = new HashMap<String, MUsageParameter>();
+			Map<String, UsageParameterDescriptor> localParametersMap = new HashMap<String, UsageParameterDescriptor>();
 
 			Set<String> identifiedIncrement = new HashSet<String>();
 			Set<String> identifiedGetIncrement = new HashSet<String>();
@@ -159,7 +159,7 @@ public class UsageInterfaceValidator {
 
 			// validate parameter names if we are slee11
 			if (isSlee11)
-				for (MUsageParameter usage : parameters) {
+				for (UsageParameterDescriptor usage : parameters) {
 					char c = usage.getName().charAt(0);
 					if (!Character.isLowerCase(c)) {
 						passed = false;
@@ -475,7 +475,7 @@ public class UsageInterfaceValidator {
 		return passed;
 	}
 
-	static boolean validateSbbUsageParameterInterface(SbbComponent component, Map<String, Method> sbbAbstractClassMethods, Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
+	static boolean validateSbbUsageParameterInterface(SbbComponentImpl component, Map<String, Method> sbbAbstractClassMethods, Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
 
 		String errorBuffer = new String("");
 		boolean passed = true;
@@ -512,8 +512,7 @@ public class UsageInterfaceValidator {
 			sbbAbstractMethodsFromSuperClasses.remove(ClassUtils.getMethodKey(m));
 		}
 
-		if (!validateUsageParameterInterface(component.getSbbID(), component.isSlee11(), component.getUsageParametersInterface(), component.getDescriptor().getSbbClasses()
-				.getSbbUsageParametersInterface().getUsageParameter())) {
+		if (!validateUsageParameterInterface(component.getSbbID(), component.isSlee11(), component.getUsageParametersInterface(), component.getDescriptor().getSbbUsageParametersInterface().getUsageParameter())) {
 			passed = false;
 		}
 
@@ -580,7 +579,7 @@ public class UsageInterfaceValidator {
 		return passed;
 	}
 
-	static boolean validateResourceAdaptorUsageParameterInterface(ResourceAdaptorComponent component) {
+	static boolean validateResourceAdaptorUsageParameterInterface(ResourceAdaptorComponentImpl component) {
 
 		boolean passed = true;
 		if (!validateUsageParameterInterface(component.getResourceAdaptorID(), component.isSlee11(), component.getUsageParametersInterface(), component.getDescriptor()
@@ -591,7 +590,7 @@ public class UsageInterfaceValidator {
 		return passed;
 	}
 
-	static boolean validateProfileSpecificationUsageParameterInterface(ProfileSpecificationComponent component, Map<String, Method> abstractClassMethods,
+	static boolean validateProfileSpecificationUsageParameterInterface(ProfileSpecificationComponentImpl component, Map<String, Method> abstractClassMethods,
 			Map<String, Method> abstractMethodsFromSuperClasses) {
 
 		String errorBuffer = new String("");
@@ -630,7 +629,7 @@ public class UsageInterfaceValidator {
 			abstractMethodsFromSuperClasses.remove(ClassUtils.getMethodKey(m));
 		}
 
-		if (!validateUsageParameterInterface(component.getProfileSpecificationID(), component.isSlee11(), component.getUsageParametersInterface(), component.getDescriptor().getProfileClasses()
+		if (!validateUsageParameterInterface(component.getProfileSpecificationID(), component.isSlee11(), component.getUsageParametersInterface(), component.getDescriptor()
 				.getProfileUsageParameterInterface().getUsageParameter())) {
 			passed = false;
 		}

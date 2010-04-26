@@ -1,6 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.ProfileIndex;
+import org.mobicents.slee.container.component.profile.ProfileIndexDescriptor;
 
 /**
  * Represents indexed attribute from slee 1.0 specs. Start time:23:37:29
@@ -10,7 +11,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.profile.Profi
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MProfileIndex {
+public class MProfileIndex implements ProfileIndexDescriptor {
 
 	private final String name;
 

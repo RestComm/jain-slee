@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
+import org.mobicents.slee.container.component.profile.query.QueryParameterDescriptor;
+
 /**
  * Start time:17:30:02 2009-01-18<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -7,7 +9,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MQueryParameter {
+public class MQueryParameter implements QueryParameterDescriptor {
 
   private String name;
   private String type;

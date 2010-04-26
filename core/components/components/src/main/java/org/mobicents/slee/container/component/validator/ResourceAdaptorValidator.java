@@ -1,6 +1,5 @@
 package org.mobicents.slee.container.component.validator;
 
-import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,13 +9,12 @@ import javassist.Modifier;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
+import org.mobicents.slee.container.component.ResourceAdaptorComponentImpl;
+import org.mobicents.slee.container.component.ra.ConfigPropertyDescriptor;
 
 public class ResourceAdaptorValidator implements Validator {
 
-	private ComponentRepository repository = null;
-	private ResourceAdaptorComponent component = null;
+	private ResourceAdaptorComponentImpl component = null;
 	private Logger logger = Logger.getLogger(ResourceAdaptorValidator.class);
 
 	private static final Set<String> _VALID_CONF_PROPERTIES;
@@ -44,11 +42,10 @@ public class ResourceAdaptorValidator implements Validator {
 	}
 
 	public void setComponentRepository(ComponentRepository repository) {
-		this.repository = repository;
 
 	}
 
-	public void setComponent(ResourceAdaptorComponent component) {
+	public void setComponent(ResourceAdaptorComponentImpl component) {
 		this.component = component;
 	}
 
@@ -144,7 +141,7 @@ public class ResourceAdaptorValidator implements Validator {
 			Set<String> declaredConfigProperty = new HashSet<String>();
 			// Map<String, String> nameToType = new HashMap<String, String>();
 
-			for (MConfigProperty prop : this.component.getDescriptor()
+			for (ConfigPropertyDescriptor prop : this.component.getDescriptor()
 					.getConfigProperties()) {
 
 				if (prop.getConfigPropertyName() == null
@@ -211,7 +208,7 @@ public class ResourceAdaptorValidator implements Validator {
 
 		try {
 
-			Class resourceAdaptorClass = this.component
+			Class<?> resourceAdaptorClass = this.component
 					.getResourceAdaptorClass();
 
 			if(this.component.isSlee11() && resourceAdaptorClass.getPackage()==null)
@@ -260,7 +257,7 @@ public class ResourceAdaptorValidator implements Validator {
 			}
 
 			try {
-				Constructor c = resourceAdaptorClass.getConstructor(null);
+				resourceAdaptorClass.getConstructor();
 			} catch (Exception e) {
 
 				// e.printStackTrace();

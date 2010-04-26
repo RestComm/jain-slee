@@ -15,6 +15,8 @@ import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorEntityBinding;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceAdaptorTypeBinding;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
 
 /**
  * Start time:14:43:52 2009-01-20<br>
@@ -24,15 +26,12 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.ResourceA
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MResourceAdaptorTypeBinding {
-
-	private ResourceAdaptorTypeBinding resourceAdaptorTypeBinding = null;
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorTypeBinding llResourceAdaptorTypeBinding = null;
+public class MResourceAdaptorTypeBinding implements ResourceAdaptorTypeBindingDescriptor {
 
 	private String description = null;
 	private ResourceAdaptorTypeID resourceAdaptorTypeRef = null;
 	private String activityContextInterfaceFactoryName = null;
-	private List<MResourceAdaptorEntityBinding> resourceAdaptorEntityBinding = null;
+	private List<ResourceAdaptorEntityBindingDescriptor> resourceAdaptorEntityBinding = null;
 
 	public String getDescription() {
 		return description;
@@ -46,35 +45,34 @@ public class MResourceAdaptorTypeBinding {
 		return activityContextInterfaceFactoryName;
 	}
 
-	public List<MResourceAdaptorEntityBinding> getResourceAdaptorEntityBinding() {
+	public List<ResourceAdaptorEntityBindingDescriptor> getResourceAdaptorEntityBinding() {
 		return resourceAdaptorEntityBinding;
 	}
 
 	public MResourceAdaptorTypeBinding(
 			ResourceAdaptorTypeBinding resourceAdaptorTypeBinding) {
 		super();
-		this.resourceAdaptorTypeBinding = resourceAdaptorTypeBinding;
-		this.description = this.resourceAdaptorTypeBinding.getDescription() == null ? null
-				: this.resourceAdaptorTypeBinding.getDescription().getvalue();
+		this.description = resourceAdaptorTypeBinding.getDescription() == null ? null
+				: resourceAdaptorTypeBinding.getDescription().getvalue();
 		this.resourceAdaptorTypeRef = new ResourceAdaptorTypeID(
-				this.resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
+				resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeName().getvalue(),
-				this.resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
+				resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeVendor().getvalue(),
-				this.resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
+				resourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeVersion().getvalue());
 		
 		//Optional
-		if(this.resourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName()!=null)
+		if(resourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName()!=null)
 		{
-			this.activityContextInterfaceFactoryName=this.resourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName().getvalue();
+			this.activityContextInterfaceFactoryName=resourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName().getvalue();
 		}
 		
-		this.resourceAdaptorEntityBinding=new ArrayList<MResourceAdaptorEntityBinding>();
+		this.resourceAdaptorEntityBinding=new ArrayList<ResourceAdaptorEntityBindingDescriptor>();
 		//Zero+
-		if(this.resourceAdaptorTypeBinding.getResourceAdaptorEntityBinding()!=null)
+		if(resourceAdaptorTypeBinding.getResourceAdaptorEntityBinding()!=null)
 		{
-			for(ResourceAdaptorEntityBinding raeb:this.resourceAdaptorTypeBinding.getResourceAdaptorEntityBinding())
+			for(ResourceAdaptorEntityBinding raeb:resourceAdaptorTypeBinding.getResourceAdaptorEntityBinding())
 			{
 				this.resourceAdaptorEntityBinding.add(new MResourceAdaptorEntityBinding(raeb));
 			}
@@ -84,30 +82,28 @@ public class MResourceAdaptorTypeBinding {
 
 	public MResourceAdaptorTypeBinding(
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorTypeBinding llResourceAdaptorTypeBinding) {
-		super();
-		this.llResourceAdaptorTypeBinding = llResourceAdaptorTypeBinding;
-		
-		this.description = this.llResourceAdaptorTypeBinding.getDescription() == null ? null
-				: this.llResourceAdaptorTypeBinding.getDescription().getvalue();
+		super();		
+		this.description = llResourceAdaptorTypeBinding.getDescription() == null ? null
+				: llResourceAdaptorTypeBinding.getDescription().getvalue();
 		this.resourceAdaptorTypeRef = new ResourceAdaptorTypeID(
-				this.llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
+				llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeName().getvalue(),
-				this.llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
+				llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeVendor().getvalue(),
-				this.llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
+				llResourceAdaptorTypeBinding.getResourceAdaptorTypeRef()
 						.getResourceAdaptorTypeVersion().getvalue());
 		
 		//Optional
-		if(this.llResourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName()!=null)
+		if(llResourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName()!=null)
 		{
-			this.activityContextInterfaceFactoryName=this.llResourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName().getvalue();
+			this.activityContextInterfaceFactoryName=llResourceAdaptorTypeBinding.getActivityContextInterfaceFactoryName().getvalue();
 		}
 		
-		this.resourceAdaptorEntityBinding=new ArrayList<MResourceAdaptorEntityBinding>();
+		this.resourceAdaptorEntityBinding=new ArrayList<ResourceAdaptorEntityBindingDescriptor>();
 		//Zero+
-		if(this.llResourceAdaptorTypeBinding.getResourceAdaptorEntityBinding()!=null)
+		if(llResourceAdaptorTypeBinding.getResourceAdaptorEntityBinding()!=null)
 		{
-			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorEntityBinding raeb:this.llResourceAdaptorTypeBinding.getResourceAdaptorEntityBinding())
+			for(org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.ResourceAdaptorEntityBinding raeb:llResourceAdaptorTypeBinding.getResourceAdaptorEntityBinding())
 			{
 				this.resourceAdaptorEntityBinding.add(new MResourceAdaptorEntityBinding(raeb));
 			}

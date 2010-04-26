@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
+import org.mobicents.slee.container.component.library.JarDescriptor;
 
 /**
  * 
@@ -25,7 +26,7 @@ public class MLibrary {
   private String libraryVendor;
   private String libraryVersion;
 
-  private List<MJar> jar = new ArrayList<MJar>();
+  private List<JarDescriptor> jar = new ArrayList<JarDescriptor>();
 
   public MLibrary(org.mobicents.slee.container.component.deployment.jaxb.slee11.library.Library library11)
   {
@@ -72,7 +73,7 @@ public class MLibrary {
     return libraryVersion;
   }
   
-  public List<MJar> getJar()
+  public List<JarDescriptor> getJar()
   {
     return jar;
   }

@@ -14,17 +14,28 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.slee.EventTypeID;
 import javax.slee.management.DeploymentException;
+import javax.slee.management.LibraryID;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
+import org.mobicents.slee.container.component.common.ProfileSpecRefDescriptor;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
+import org.mobicents.slee.container.component.sbb.CMPFieldDescriptor;
+import org.mobicents.slee.container.component.sbb.EjbRefDescriptor;
+import org.mobicents.slee.container.component.sbb.EventDirection;
+import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
+import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
+import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
+import org.mobicents.slee.container.component.sbb.InitialEventSelectVariable;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorEntityBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.SbbAbstractClassDescriptor;
 import org.xml.sax.SAXException;
 
 /**
@@ -62,11 +73,6 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	private static final String _PROFILE_SPEC_VERSION="profile-spec-version";
 	private static final String _PROFILE_SPEC_ALIAS="profile-spec-alias";
 	
-	
-	private static final String _EVENT_TYPE_NAME="event-type-name";
-	private static final String _EVENT_TYPE_VENDOR="event-type-vendor";
-	private static final String _EVENT_TYPE_VERSION="event-type-version";
-	
 	private static final String _EVENT_NAME="event-name";
 	private static final String _INITIAL_EVENT_SELECTOR_METHOD_NAME="initial-event-selector-method-name";
 	
@@ -103,7 +109,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	{
 		
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE10));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE10));
 		
 		
 		assertNotNull("Sbb return value is null", specs);
@@ -119,7 +125,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	public void testParseTwo10() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE10));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE10));
 		
 
 		assertNotNull("Sbb return value is null", specs);
@@ -141,7 +147,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	public void testParseOne() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_ONE_DESCRIPTOR_FILE));
 		assertNotNull("Sbb return value is null", specs);
 		assertTrue("Sbb  size is wrong!!!", specs.size()==1);
 		assertNotNull("Sbb return value cell is null", specs.get(0));
@@ -156,7 +162,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 	{
 		
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE));
 		assertNotNull("Sbb return value is null", specs);
 		assertTrue("Sbb  size is wrong!!!", specs.size()==2);
 		assertNotNull("Sbb return value cell is null", specs.get(0));
@@ -185,10 +191,10 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertNotNull("Sbb component key sbb-alias cant be null",sbb.getSbbAlias());
 		assertTrue("Sbb component key sbb-alias is not equal to "+_SBB_ALIAS,sbb.getSbbAlias().compareTo(_SBB_ALIAS)==0);
 		
-		List<MProfileSpecRef> profilesSpecs=sbb.getProfileSpecRefs();
+		List<ProfileSpecRefDescriptor> profilesSpecs=sbb.getProfileSpecRefs();
 		assertNotNull("Profile specs references list is null",profilesSpecs);
 		assertTrue("Profile specs references list size is not 1",profilesSpecs.size()==1);
-		MProfileSpecRef ref=profilesSpecs.get(0);
+		ProfileSpecRefDescriptor ref=profilesSpecs.get(0);
 		
 		assertNotNull("Profile specs reference is null",ref);
 		
@@ -199,13 +205,13 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Profile specs reference alias is not equal to "+_PROFILE_SPEC_ALIAS,ref.getProfileSpecAlias().compareTo(_PROFILE_SPEC_ALIAS)==0);
 		
 		
-		Map<EventTypeID,MEventEntry> events= sbb.getEventEntries();
+		Map<EventTypeID,EventEntryDescriptor> events= sbb.getEventEntries();
 		
 		assertNotNull("Events list is null",events);
 		
 		assertTrue("Events list size is not equal 1",events.size()==1);
 		
-		MEventEntry eventEntry=events.values().iterator().next();
+		EventEntryDescriptor eventEntry=events.values().iterator().next();
 		
 		assertNotNull("Event entry is null",eventEntry);
 		
@@ -215,7 +221,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Event entry event-name is not equal "+_EVENT_NAME,eventEntry.getEventName().compareTo(_EVENT_NAME)==0);
 		
 		assertNotNull("Event entry direction is null",eventEntry.getEventDirection());
-		assertTrue("Event entry direction is not equal Receive",eventEntry.getEventDirection()==MEventDirection.Receive);
+		assertTrue("Event entry direction is not equal Receive",eventEntry.getEventDirection()==EventDirection.Receive);
 		
 		assertNotNull("Event entry initial event selector method is null",eventEntry.getInitialEventSelectorMethod());
 		assertTrue("Event entry initial event selector method is not equal "+_INITIAL_EVENT_SELECTOR_METHOD_NAME,eventEntry.getInitialEventSelectorMethod().compareTo(_INITIAL_EVENT_SELECTOR_METHOD_NAME)==0);
@@ -232,32 +238,27 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Event initial select variable is equal Address",iSelect.contains(InitialEventSelectVariable.Address));
 		
 	
-		Collection<MActivityContextAttributeAlias> aciAliasses=sbb.getActivityContextAttributeAliases().values();
+		Set<Entry<String, String>> aciAliasses=sbb.getActivityContextAttributeAliases().entrySet();
 		
 		assertNotNull("Activity context inteface attribute aliasses list is null",aciAliasses);
 		assertTrue("Activity context inteface attribute aliasses list size is not 1",aciAliasses.size()==1);
 		
-		MActivityContextAttributeAlias aciAlias=aciAliasses.iterator().next();
+		Entry<String, String> aciAlias=aciAliasses.iterator().next();
 		assertNotNull("Activity context inteface attribute aliass is null",aciAlias);
+		assertNotNull("Activity context inteface attribute aliass name is null",aciAlias.getValue());
+
+		assertTrue("Activity context inteface attribute aliass name is nto equal to "+_ATTRIBUTE_ALIAS_NAME,aciAlias.getValue().compareTo(_ATTRIBUTE_ALIAS_NAME)==0);
 		
+		assertNotNull("Activity context inteface attribute aliass aci attribute names set is null",aciAlias.getKey());
+		assertTrue("Activity context inteface attribute aliass aci attribute name is not equal to "+_SBB_ACI_ATTRIBUTE_NAME,aciAlias.getKey().compareTo(_SBB_ACI_ATTRIBUTE_NAME)==0);
 		
-		
-		assertNotNull("Activity context inteface attribute aliass name is null",aciAlias.getAttributeAliasName());
-		assertTrue("Activity context inteface attribute aliass name is nto equal to "+_ATTRIBUTE_ALIAS_NAME,aciAlias.getAttributeAliasName().compareTo(_ATTRIBUTE_ALIAS_NAME)==0);
-		
-		
-		
-		assertNotNull("Activity context inteface attribute aliass aci attribute names set is null",aciAlias.getSbbActivityContextAttributeName());
-		assertTrue("Activity context inteface attribute aliass aci attribute names set size is not 1",aciAlias.getSbbActivityContextAttributeName().size()==1);
-		assertTrue("Activity context inteface attribute aliass aci attribute name is not equal to "+_SBB_ACI_ATTRIBUTE_NAME,aciAlias.getSbbActivityContextAttributeName().iterator().next().compareTo(_SBB_ACI_ATTRIBUTE_NAME)==0);
-		
-		List<MEnvEntry> envEntries=sbb.getEnvEntries();
+		List<EnvEntryDescriptor> envEntries=sbb.getEnvEntries();
 		
 
 		assertNotNull("Sbb env entries are null",envEntries);
 		assertTrue("Sbb env entries size is not equal to 1",envEntries.size()==1);
 		assertNotNull("Sbb env entry is null",envEntries.get(0));
-		MEnvEntry entry=envEntries.get(0);
+		EnvEntryDescriptor entry=envEntries.get(0);
 		assertNotNull("Sbb env entry is null",entry.getEnvEntryName());
 		assertNotNull("Sbb env entry name is null ", entry.getEnvEntryName());
 		assertNotNull("Sbb env entry type is null ", entry.getEnvEntryType());
@@ -267,18 +268,18 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Sbb env entry value not equal: "+_ENV_ENTRY_VALUE, entry.getEnvEntryValue().compareTo(_ENV_ENTRY_VALUE)==0);
 		
 		
-		List<MResourceAdaptorTypeBinding> raTypeBindings=sbb.getResourceAdaptorTypeBindings();
+		List<ResourceAdaptorTypeBindingDescriptor> raTypeBindings=sbb.getResourceAdaptorTypeBindings();
 		
 		
 		assertNotNull("Sbb ra typee bindings list is null",raTypeBindings);
 		assertTrue("Sbb ra typee bindings list size is not equal to 1",raTypeBindings.size()==1);
 		assertNotNull("Sbb ra typee binding is null",raTypeBindings.get(0));
 		
-		MResourceAdaptorTypeBinding raTypeBinding=raTypeBindings.get(0);
+		ResourceAdaptorTypeBindingDescriptor raTypeBinding=raTypeBindings.get(0);
 		
 		validateKey(raTypeBinding.getResourceAdaptorTypeRef(), "Resource Adaptor Type Binding reference key ", new String[]{_RATYPE_BINDING_NAME,_RATYPE_BINDING_VENDOR,_RATYPE_BINDING_VERSION});
 		
-		List<MResourceAdaptorEntityBinding> endityBindings=raTypeBinding.getResourceAdaptorEntityBinding();
+		List<ResourceAdaptorEntityBindingDescriptor> endityBindings=raTypeBinding.getResourceAdaptorEntityBinding();
 		
 		
 		assertNotNull("Sbb ra type entity bindings list is null",endityBindings);
@@ -286,19 +287,19 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertNotNull("Sbb ra type entity binding is null",endityBindings.get(0));
 		
 		
-		MResourceAdaptorEntityBinding entityBinding=endityBindings.get(0);
+		ResourceAdaptorEntityBindingDescriptor entityBinding=endityBindings.get(0);
 		assertNotNull("Sbb ra type entity binding link is null",entityBinding.getResourceAdaptorEntityLink());
 		assertTrue("Sbb ra type entity bindings link is not equal to ",entityBinding.getResourceAdaptorEntityLink().compareTo(_RATYPE_ENTITY_BINDING_LINK)==0);
 		assertNotNull("Sbb ra type entity binding object name is null",entityBinding.getResourceAdaptorObjectName());
 		assertTrue("Sbb ra type entity bindings object name is not equal to ",entityBinding.getResourceAdaptorObjectName().compareTo(_RATYPE_ENTITY_BINDING_ON)==0);
 
 		
-		List<MEjbRef> ejbRefs=sbb.getEjbRefs();
+		List<EjbRefDescriptor> ejbRefs=sbb.getEjbRefs();
 		assertNotNull("Sbb ejb refs list is null",ejbRefs);
 		assertTrue("Sbb ejb refs list size is not equal to 1",ejbRefs.size()==1);
 		assertNotNull("Sbb ejb ref is null",ejbRefs.get(0));
 		
-		MEjbRef ejbRef=ejbRefs.get(0);
+		EjbRefDescriptor ejbRef=ejbRefs.get(0);
 		
 		validateValue(ejbRef.getEjbRefName()," Ejb ref name ",_EJB_REF_NAME);
 		validateValue(ejbRef.getEjbRefType()," Ejb ref type ",_EJB_REF_TYPE);
@@ -307,14 +308,14 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		if(!sbb.isSlee11())
 			validateValue(ejbRef.getEjbLink()," Ejb ref link ",_EJB_REF_LINK);
 		
-		MSbbAbstractClass mSbbAbstractClass=sbb.getSbbAbstractClass();
+		SbbAbstractClassDescriptor mSbbAbstractClass=sbb.getSbbAbstractClass();
 		
 		assertNotNull("Sbb abstract class is null",mSbbAbstractClass);
 		
 		validateValue(mSbbAbstractClass.getSbbAbstractClassName(),"Sbb abstract class name",_SBB_ABSTRACT_CLASS_NAME);
 		
 		
-		Map<String,MGetChildRelationMethod> getChildRelationMethods=mSbbAbstractClass.getChildRelationMethods();
+		Map<String,GetChildRelationMethodDescriptor> getChildRelationMethods=mSbbAbstractClass.getChildRelationMethods();
 		
 		
 		
@@ -322,7 +323,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Sbb get child relation list size is not equal to 1",getChildRelationMethods.size()==1);
 		assertNotNull("Sbb get child relation is null",getChildRelationMethods.values().iterator().next());
 		
-		MGetChildRelationMethod getChildRelationMethod=getChildRelationMethods.values().iterator().next();
+		MGetChildRelationMethod getChildRelationMethod = (MGetChildRelationMethod) getChildRelationMethods.values().iterator().next();
 		
 		
 		validateValue(getChildRelationMethod.getChildRelationMethodName(), "Get child relation method name ", _GET_CHILD_RELATION_METHOD_NAME);
@@ -342,19 +343,19 @@ public class SbbDescriptorTest extends TCUtilityClass {
 //		validateValue(cmpField.getSbbAliasRef(), "CMP Field sbba alias ref ", _SBB_ALIAS_REF);
 //		
 		
-		Collection<MSbbCMPField> cmpFields=mSbbAbstractClass.getCmpFields();
+		Collection<CMPFieldDescriptor> cmpFields=mSbbAbstractClass.getCmpFields();
 		
 		assertNotNull("Sbb cmp fields list is null",cmpFields);
 		assertTrue("Sbb cmp fields list size is not equal to 1",cmpFields.size()==1);
 		assertNotNull("Sbb cmp field is null",cmpFields.iterator().next());
 		
-		MSbbCMPField cmpField=cmpFields.iterator().next();
+		MSbbCMPField cmpField=(MSbbCMPField) cmpFields.iterator().next();
 	
 		validateValue(cmpField.getCmpFieldName(), "CMP Field name ", _CMP_FIELD_NAME);
 		validateValue(cmpField.getSbbAliasRef(), "CMP Field sbba alias ref ", _SBB_ALIAS_REF);
 		
 		
-		Map<String,MGetProfileCMPMethod> profileCMPMethods=mSbbAbstractClass.getProfileCMPMethods();
+		Map<String,GetProfileCMPMethodDescriptor> profileCMPMethods=mSbbAbstractClass.getProfileCMPMethods();
 		
 		
 		
@@ -362,8 +363,7 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		assertTrue("Sbb profile cmp methods size is not equal to 1",profileCMPMethods.size()==1);
 		assertNotNull("Sbb profile cmp method is null",profileCMPMethods.values().iterator().next());
 		
-		MGetProfileCMPMethod profileCMPMethod=profileCMPMethods.values().iterator().next();
-		
+		MGetProfileCMPMethod profileCMPMethod = (MGetProfileCMPMethod) profileCMPMethods.values().iterator().next();
 		
 		validateValue(profileCMPMethod.getProfileSpecAliasRef(), "profile cmp method profile specs alias ref ", _PROFILE_SPEC_ALIAST_REF);
 		validateValue(profileCMPMethod.getProfileCmpMethodName(), "profile cmp method name ", _GET_PROFILE_CMP_METHOD_NAME);
@@ -373,12 +373,12 @@ public class SbbDescriptorTest extends TCUtilityClass {
 		if(sbb.isSlee11())
 		{
 			
-			List<MLibraryRef> libraryRefs=sbb.getLibraryRefs();
+			Set<LibraryID> libraryRefs=sbb.getLibraryRefs();
 			
 			
 			assertNotNull("Sbb library refs list is null",libraryRefs);
 			assertTrue("Sbb library refs size is not equal to 1",libraryRefs.size()==1);
-			validateKey(libraryRefs.iterator().next().getComponentID(), "Sbb library ref key", new String[]{_LIBRARY_REF_NAME,_LIBRARY_REF_VENDOR,_LIBRARY_REF_VERSION});
+			validateKey(libraryRefs.iterator().next(), "Sbb library ref key", new String[]{_LIBRARY_REF_NAME,_LIBRARY_REF_VENDOR,_LIBRARY_REF_VERSION});
 			
 			
 			

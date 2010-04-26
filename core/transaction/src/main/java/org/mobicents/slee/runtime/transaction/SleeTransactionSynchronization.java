@@ -23,14 +23,14 @@ public class SleeTransactionSynchronization implements Synchronization {
 	/**
 	 * 
 	 */
-	private final TransactionContext txContext;
+	private final TransactionContextImpl txContext;
 	
 	/**
 	 * 
 	 * @param tx
 	 * @param txContext
 	 */
-	public SleeTransactionSynchronization(Transaction tx,TransactionContext txContext) {
+	public SleeTransactionSynchronization(Transaction tx,TransactionContextImpl txContext) {
 		this.tx = tx;
 		this.txContext = txContext;
 	}

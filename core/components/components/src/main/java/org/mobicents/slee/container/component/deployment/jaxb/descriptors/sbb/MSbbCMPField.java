@@ -11,6 +11,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import javax.slee.SbbID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.CmpField;
+import org.mobicents.slee.container.component.sbb.CMPFieldDescriptor;
 
 /**
  * Start time:11:27:39 2009-01-20<br>
@@ -20,7 +21,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.CmpField;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MSbbCMPField {
+public class MSbbCMPField implements CMPFieldDescriptor {
 
 	/**
 	 * the description of the cmp field

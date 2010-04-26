@@ -8,8 +8,8 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 import javax.slee.ActivityContextInterface;
 import javax.slee.Address;
@@ -19,23 +19,27 @@ import javax.slee.EventTypeID;
 import javax.slee.InitialEventSelector;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
+import javax.slee.UnrecognizedComponentException;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.EventTypeComponent;
-import org.mobicents.slee.container.component.LibraryComponent;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.ServiceComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.EventTypeComponentImpl;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
+import org.mobicents.slee.container.component.event.EventTypeComponent;
+import org.mobicents.slee.container.component.library.LibraryComponent;
+import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
+import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.event.XEvent;
 
 /**
@@ -63,13 +67,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsOk() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -83,13 +87,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsLackFire() throws Exception {
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_LACK_FIRE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_LACK_FIRE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -103,13 +107,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsHasThrow() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_THROW));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_THROW));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -123,13 +127,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsWrongFireSignature() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_FIRE_SIGNATURE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_FIRE_SIGNATURE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -143,13 +147,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsWrongFireSignature2() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_FIRE_SIGNATURE2));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_FIRE_SIGNATURE2));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -163,13 +167,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsLackReceiver() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_LACK_RECEIVER));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_EVENTS_LACK_RECEIVER));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -183,13 +187,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsWrongReceiveSignature() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -203,13 +207,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsWrongReceiveSignature2() throws Exception {
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE2));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_RECEIVE_SIGNATURE2));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -223,13 +227,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 
 	public void testSbbOne11EventsConcreteFire() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CONCRETE_FIRE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_CONCRETE_FIRE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -244,13 +248,13 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testSbbOne11EventsWrongIES() throws Exception {
 		// This test is just to see if it will fail, IES is checekd lower
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_WRONG_IES));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_WRONG_IES));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setActivityContextInterface(Thread.currentThread().getContextClassLoader().loadClass(
-				descriptor.getSbbActivityContextInterface().getInterfaceName()));
+				descriptor.getSbbActivityContextInterface()));
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
@@ -266,16 +270,16 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testInitialEventSelectorConstraints() throws Exception {
 		// This test is just to see if it will fail, IES is checekd lower
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_IES_CONSTRAINTS));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_IES_CONSTRAINTS));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 
 		// quicker way to validate :)
-		MEventEntry event = descriptor.getEventEntries().values().iterator().next();
+		EventEntryDescriptor event = descriptor.getEventEntries().values().iterator().next();
 		component.setAbstractSbbClass(AbstractIES.class);
 		boolean b = validator.validateInitialEventSelector(event, ClassUtils.getConcreteMethodsFromClass(component.getAbstractSbbClass()), ClassUtils
 				.getConcreteMethodsFromSuperClasses(component.getAbstractSbbClass()));
@@ -311,21 +315,20 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 	public void testEventHandlersConstraints() throws Exception {
 		// This test is just to see if it will fail, IES is checekd lower
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_HANDLERS_CONSTRAINTS));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_HANDLERS_CONSTRAINTS));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		final SbbComponent component = new SbbComponent(descriptor);
+		final SbbComponentImpl component = new SbbComponentImpl(descriptor);
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		validator.setComponent(component);
 		validator.setComponentRepository(new XComponentRepository());
 
 		// quicker way to validate :)
-		MEventEntry event = descriptor.getEventEntries().values().iterator().next();
+		EventEntryDescriptor event = descriptor.getEventEntries().values().iterator().next();
 		String receiveMethodName = "on" + event.getEventName();
 		String fireMethodName = "fire" + event.getEventName();
 
 		component.setAbstractSbbClass(EventHandlersNotPublic.class);
-		Method[] ms = EventHandlersNotPublic.class.getDeclaredMethods();
 
 		// ech this fails ;[
 		// boolean b =
@@ -372,7 +375,7 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		}
 
 		public EventTypeComponent getComponentByID(EventTypeID id) {
-			EventTypeComponent event = new EventTypeComponent(null);
+			EventTypeComponentImpl event = new EventTypeComponentImpl(null);
 			event.setEventTypeClass(XEvent.class);
 			return event;
 		}
@@ -405,6 +408,192 @@ public class SbbComponentValidatorSbbEventsTest extends TCUtilityClass {
 		public boolean isInstalled(ComponentID componentID) {
 			// TODO Auto-generated method stub
 			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getEventComponentIDs()
+		 */
+		public Set<EventTypeID> getEventComponentIDs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getLibraryIDs()
+		 */
+		public Set<LibraryID> getLibraryIDs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getProfileSpecificationIDs()
+		 */
+		public Set<ProfileSpecificationID> getProfileSpecificationIDs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getReferringComponents(org.mobicents.slee.core.component.SleeComponent)
+		 */
+		public Set<SleeComponent> getReferringComponents(
+				SleeComponent component) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getResourceAdaptorIDs()
+		 */
+		public Set<ResourceAdaptorID> getResourceAdaptorIDs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getResourceAdaptorTypeIDs()
+		 */
+		public Set<ResourceAdaptorTypeID> getResourceAdaptorTypeIDs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getSbbIDs()
+		 */
+		public Set<SbbID> getSbbIDs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getServiceIDs()
+		 */
+		public Set<ServiceID> getServiceIDs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#getReferringComponents(javax.slee.ComponentID)
+		 */
+		public ComponentID[] getReferringComponents(ComponentID componentID)
+				throws NullPointerException, UnrecognizedComponentException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.event.EventTypeComponent)
+		 */
+		public boolean putComponent(EventTypeComponent component) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.library.LibraryComponent)
+		 */
+		public boolean putComponent(LibraryComponent component) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.profile.ProfileSpecificationComponent)
+		 */
+		public boolean putComponent(ProfileSpecificationComponent component) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.ra.ResourceAdaptorComponent)
+		 */
+		public boolean putComponent(ResourceAdaptorComponent component) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.ratype.ResourceAdaptorTypeComponent)
+		 */
+		public boolean putComponent(ResourceAdaptorTypeComponent component) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.sbb.SbbComponent)
+		 */
+		public boolean putComponent(SbbComponent component) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.service.ServiceComponent)
+		 */
+		public boolean putComponent(ServiceComponent component) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.EventTypeID)
+		 */
+		public void removeComponent(EventTypeID componentID) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.management.LibraryID)
+		 */
+		public void removeComponent(LibraryID componentID) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.profile.ProfileSpecificationID)
+		 */
+		public void removeComponent(ProfileSpecificationID componentID) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.resource.ResourceAdaptorID)
+		 */
+		public void removeComponent(ResourceAdaptorID componentID) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.resource.ResourceAdaptorTypeID)
+		 */
+		public void removeComponent(ResourceAdaptorTypeID componentID) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.SbbID)
+		 */
+		public void removeComponent(SbbID componentID) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.ServiceID)
+		 */
+		public void removeComponent(ServiceID componentID) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 

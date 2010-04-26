@@ -10,9 +10,14 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
 import java.util.EnumSet;
 
+import javax.slee.EventTypeID;
+
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Event;
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEventSelect;
+import org.mobicents.slee.container.component.sbb.EventDirection;
+import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
+import org.mobicents.slee.container.component.sbb.InitialEventSelectVariable;
 
 /**
  * Start time:12:50:56 2009-01-20<br>
@@ -22,14 +27,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEv
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MEventEntry {
+public class MEventEntry implements EventEntryDescriptor {
 
 	private boolean initialEvent = false;
-	private MEventDirection eventDirection = null;
+	private EventDirection eventDirection = null;
 	private boolean maskOnAttach = false;
 	private boolean lastInTransaction = true;
 	private String description = null;
-	private MEventTypeRef eventReference=null;
+	private EventTypeID eventReference=null;
 	
 	//private ComponentKey eventReference = null;
 	private String eventName = null;
@@ -41,7 +46,7 @@ public class MEventEntry {
 			org.mobicents.slee.container.component.deployment.jaxb.slee11.sbb.Event llEvent) {
 		super();
 		
-		this.eventDirection = MEventDirection.fromString(llEvent
+		this.eventDirection = EventDirection.fromString(llEvent
 				.getEventDirection());
 		this.initialEvent = Boolean.parseBoolean(llEvent.getInitialEvent());
 		this.maskOnAttach = Boolean.parseBoolean(llEvent.getMaskOnAttach());
@@ -57,7 +62,7 @@ public class MEventEntry {
 				: llEvent.getDescription().getvalue();
 		
 		
-		this.eventReference=new MEventTypeRef(llEvent.getEventTypeRef());
+		this.eventReference=new MEventTypeRef(llEvent.getEventTypeRef()).getComponentID();
 //		this.eventReference = new ComponentKey(llEvent.getEventTypeRef()
 //				.getEventTypeName().getvalue(), llEvent.getEventTypeRef()
 //				.getEventTypeVendor().getvalue(), llEvent.getEventTypeRef()
@@ -86,7 +91,7 @@ public class MEventEntry {
 	public MEventEntry(Event event) {
 		super();
 
-		this.eventDirection = MEventDirection.fromString(event
+		this.eventDirection = EventDirection.fromString(event
 				.getEventDirection());
 		this.initialEvent = Boolean.parseBoolean(event.getInitialEvent());
 		this.maskOnAttach = Boolean.parseBoolean(event.getMaskOnAttach());
@@ -94,7 +99,7 @@ public class MEventEntry {
 		// 1.1 last in transaction
 		this.description = event.getDescription() == null ? null
 				: event.getDescription().getvalue();
-		eventReference=new MEventTypeRef(event.getEventTypeRef());
+		eventReference=new MEventTypeRef(event.getEventTypeRef()).getComponentID();
 //		eventReference = new ComponentKey(event.getEventTypeRef()
 //				.getEventTypeName().getvalue(), event.getEventTypeRef()
 //				.getEventTypeVendor().getvalue(), event.getEventTypeRef()
@@ -125,7 +130,7 @@ public class MEventEntry {
 		return initialEvent;
 	}
 
-	public MEventDirection getEventDirection() {
+	public EventDirection getEventDirection() {
 		return eventDirection;
 	}
 
@@ -141,7 +146,7 @@ public class MEventEntry {
 		return description;
 	}
 
-	public MEventTypeRef getEventReference() {
+	public EventTypeID getEventReference() {
 		return eventReference;
 	}
 
@@ -166,7 +171,7 @@ public class MEventEntry {
 	 * @return true if the event direction is Receive or FireAndReceive
 	 */
 	public boolean isReceived() {
-		return eventDirection == MEventDirection.Receive || eventDirection == MEventDirection.FireAndReceive;
+		return eventDirection == EventDirection.Receive || eventDirection == EventDirection.FireAndReceive;
 	}
 
 	/**
@@ -174,6 +179,6 @@ public class MEventEntry {
 	 * @return true if the event direction is Fire or FireAndReceive
 	 */
 	public boolean isFired() {
-		return eventDirection == MEventDirection.Fire || eventDirection == MEventDirection.FireAndReceive;
+		return eventDirection == EventDirection.Fire || eventDirection == EventDirection.FireAndReceive;
 	}
 }

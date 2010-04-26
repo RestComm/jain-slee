@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.common;
 
+import org.mobicents.slee.container.component.UsageParameterDescriptor;
+
 /**
  * 
  * MUsageParameter.java
@@ -11,10 +13,10 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.commo
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class MUsageParameter {
+public class MUsageParameter implements UsageParameterDescriptor {
 
   private String name;
-  private Boolean notificationsEnabled = new Boolean(false);
+  private boolean notificationsEnabled = false;
 
   public MUsageParameter(org.mobicents.slee.container.component.deployment.jaxb.slee11.ra.UsageParameter usageParameter11)
   {
@@ -38,7 +40,7 @@ public class MUsageParameter {
     return name;
   }
 
-  public Boolean getNotificationsEnabled() {
+  public boolean getNotificationsEnabled() {
     return notificationsEnabled;
   }
 

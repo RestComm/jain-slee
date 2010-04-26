@@ -3,11 +3,16 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
+import org.mobicents.slee.container.component.common.ProfileSpecRefDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEjbRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
+import org.mobicents.slee.container.component.sbb.EjbRefDescriptor;
+import org.mobicents.slee.container.component.sbb.ResourceAdaptorTypeBindingDescriptor;
+import org.mobicents.slee.container.component.sbb.SbbRefDescriptor;
 
 /**
  * 
@@ -31,8 +36,8 @@ public class MSbb {
   private String sbbAlias;
 
   private List<MLibraryRef> libraryRef = new ArrayList<MLibraryRef>();
-  private List<MSbbRef> sbbRef = new ArrayList<MSbbRef>();
-  private List<MProfileSpecRef> profileSpecRef = new ArrayList<MProfileSpecRef>();
+  private List<SbbRefDescriptor> sbbRef = new ArrayList<SbbRefDescriptor>();
+  private List<ProfileSpecRefDescriptor> profileSpecRef = new ArrayList<ProfileSpecRefDescriptor>();
   private MSbbClasses sbbClasses;
 
   private String addressProfileSpecAliasRef;
@@ -40,11 +45,11 @@ public class MSbb {
   private List<MEventEntry> event = new ArrayList<MEventEntry>();
 
   private List<MActivityContextAttributeAlias> activityContextAttributeAlias = new ArrayList<MActivityContextAttributeAlias>();
-  private List<MEnvEntry> envEntry = new ArrayList<MEnvEntry>();
+  private List<EnvEntryDescriptor> envEntry = new ArrayList<EnvEntryDescriptor>();
 
-  private List<MResourceAdaptorTypeBinding> resourceAdaptorTypeBinding = new ArrayList<MResourceAdaptorTypeBinding>();
+  private List<ResourceAdaptorTypeBindingDescriptor> resourceAdaptorTypeBinding = new ArrayList<ResourceAdaptorTypeBindingDescriptor>();
 
-  private List<MEjbRef> ejbRef = new ArrayList<MEjbRef>();
+  private List<EjbRefDescriptor> ejbRef = new ArrayList<EjbRefDescriptor>();
 
   public MSbb(org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.Sbb sbb10)
   {
@@ -181,12 +186,12 @@ public class MSbb {
     return libraryRef;
   }
 
-  public List<MSbbRef> getSbbRef()
+  public List<SbbRefDescriptor> getSbbRef()
   {
     return sbbRef;
   }
 
-  public List<MProfileSpecRef> getProfileSpecRef()
+  public List<ProfileSpecRefDescriptor> getProfileSpecRef()
   {
     return profileSpecRef;
   }
@@ -211,17 +216,17 @@ public class MSbb {
     return activityContextAttributeAlias;
   }
 
-  public List<MEnvEntry> getEnvEntry()
+  public List<EnvEntryDescriptor> getEnvEntry()
   {
     return envEntry;
   }
 
-  public List<MResourceAdaptorTypeBinding> getResourceAdaptorTypeBinding()
+  public List<ResourceAdaptorTypeBindingDescriptor> getResourceAdaptorTypeBinding()
   {
     return resourceAdaptorTypeBinding;
   }
 
-  public List<MEjbRef> getEjbRef()
+  public List<EjbRefDescriptor> getEjbRef()
   {
     return ejbRef;
   }

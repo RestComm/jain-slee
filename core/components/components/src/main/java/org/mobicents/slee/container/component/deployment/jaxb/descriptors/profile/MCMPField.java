@@ -1,6 +1,9 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import org.mobicents.slee.container.component.profile.cmp.ProfileCMPFieldDescriptor;
 
 /**
  * Start time:16:33:45 2009-01-18<br>
@@ -9,7 +12,7 @@ import java.util.ArrayList;
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MCMPField {
+public class MCMPField implements ProfileCMPFieldDescriptor {
 
   private String description;
   private String cmpFieldName;
@@ -17,7 +20,7 @@ public class MCMPField {
   private boolean unique = false;
   private String uniqueCollatorRef;
 
-  private ArrayList<MIndexHint> indexHints = null;
+  private List<MIndexHint> indexHints = null;
 
   public MCMPField(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.CmpField cmpField11)
   {
@@ -57,7 +60,7 @@ public class MCMPField {
     return cmpFieldName;
   }
 
-  public boolean getUnique() {
+  public boolean isUnique() {
     return unique;
   }
 
@@ -65,7 +68,7 @@ public class MCMPField {
     return uniqueCollatorRef;
   }
 
-  public ArrayList<MIndexHint> getIndexHints() {
+  public List<MIndexHint> getIndexHints() {
     return indexHints;
   }
 

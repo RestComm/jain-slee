@@ -1,22 +1,24 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.management.DeploymentException;
 import javax.slee.resource.ResourceAdaptorID;
+import javax.slee.resource.ResourceAdaptorTypeID;
 
+import org.mobicents.slee.container.component.common.ProfileSpecRefDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MResourceAdaptorTypeRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MConfigProperty;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorClass;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MResourceAdaptorClasses;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorDescriptor;
 
 /**
  * 
@@ -29,14 +31,14 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ra.MRe
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class ResourceAdaptorDescriptorImpl {
+public class ResourceAdaptorDescriptorImpl extends
+		AbstractComponentWithLibraryRefsDescriptor implements
+		ResourceAdaptorDescriptor {
 
 	private ResourceAdaptorID resourceAdaptorID;
-	private String description;
 
-	private List<MLibraryRef> libraryRefs;
 	private List<MProfileSpecRef> profileSpecRefs;
-	private List<MResourceAdaptorTypeRef> resourceAdaptorTypeRefs;
+	private List<ResourceAdaptorTypeID> resourceAdaptorTypeRefs;
 
 	private List<MConfigProperty> configProperties;
 	private boolean ignoreRaTypeEventTypeCheck;
@@ -45,111 +47,155 @@ public class ResourceAdaptorDescriptorImpl {
 	private String resourceAdaptorClassName;
 
 	private boolean supportsActiveReconfiguration;
-	
-  private MSecurityPermissions securityPermissions;
 
-  private boolean isSlee11;
+	private String securityPermissions;
 
-  private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
-  
-	public ResourceAdaptorDescriptorImpl( MResourceAdaptor resourceAdaptor, MSecurityPermissions securityPermissions, boolean isSlee11 ) throws DeploymentException
-  {
-    this.description = resourceAdaptor.getDescription();
-    this.resourceAdaptorID = new ResourceAdaptorID(resourceAdaptor.getResourceAdaptorName(), resourceAdaptor.getResourceAdaptorVendor(), resourceAdaptor.getResourceAdaptorVersion());
+	public ResourceAdaptorDescriptorImpl(MResourceAdaptor resourceAdaptor,
+			MSecurityPermissions securityPermissions, boolean isSlee11)
+			throws DeploymentException {
 
-    this.libraryRefs = resourceAdaptor.getLibraryRef();
-    this.resourceAdaptorTypeRefs = resourceAdaptor.getResourceAdaptorTypeRefs();
+		super(isSlee11);
 
-    this.profileSpecRefs = resourceAdaptor.getProfileSpecRef();
+		this.resourceAdaptorID = new ResourceAdaptorID(resourceAdaptor
+				.getResourceAdaptorName(), resourceAdaptor
+				.getResourceAdaptorVendor(), resourceAdaptor
+				.getResourceAdaptorVersion());
 
-    this.configProperties = resourceAdaptor.getConfigProperty();
-    this.ignoreRaTypeEventTypeCheck = resourceAdaptor.getIgnoreRaTypeEventTypeCheck();
+		super.setLibraryRefs(resourceAdaptor.getLibraryRef());
 
-    MResourceAdaptorClasses raClasses = resourceAdaptor.getResourceAdaptorClasses();
-    MResourceAdaptorClass raClass = raClasses.getResourceAdaptorClass();
+		this.resourceAdaptorTypeRefs = new ArrayList<ResourceAdaptorTypeID>(); 
+		for (MResourceAdaptorTypeRef ref : resourceAdaptor.getResourceAdaptorTypeRefs())
+			this.resourceAdaptorTypeRefs.add(ref.getComponentID());
+		
+	    this.profileSpecRefs = resourceAdaptor.getProfileSpecRef();
 
-    this.resourceAdaptorUsageParametersInterface = raClasses.getResourceAdaptorUsageParametersInterface();
-    this.resourceAdaptorClassName = raClass.getResourceAdaptorClassName();
+	    this.configProperties = resourceAdaptor.getConfigProperty();
+	    
+		this.ignoreRaTypeEventTypeCheck = resourceAdaptor
+				.getIgnoreRaTypeEventTypeCheck();
 
-    this.supportsActiveReconfiguration = raClass.getSupportsActiveReconfiguration();
+		MResourceAdaptorClasses raClasses = resourceAdaptor
+				.getResourceAdaptorClasses();
+		MResourceAdaptorClass raClass = raClasses.getResourceAdaptorClass();
 
-    this.securityPermissions = securityPermissions;
-    
-    this.isSlee11 = isSlee11;
-    
-    buildDependenciesSet();
-  }
-	
+		this.resourceAdaptorUsageParametersInterface = raClasses
+				.getResourceAdaptorUsageParametersInterface();
+		this.resourceAdaptorClassName = raClass.getResourceAdaptorClassName();
 
-  private void buildDependenciesSet()
-  {
-    for(MResourceAdaptorTypeRef resourceAdaptorTypeRef : resourceAdaptorTypeRefs)
-    {
-      this.dependenciesSet.add( resourceAdaptorTypeRef.getComponentID() );
-    }
+		this.supportsActiveReconfiguration = raClass
+				.getSupportsActiveReconfiguration();
 
-    for(MProfileSpecRef profileSpecRef : profileSpecRefs)
-    {
-      this.dependenciesSet.add( profileSpecRef.getComponentID() );
-    }
-
-    for(MLibraryRef libraryRef : libraryRefs)
-    {
-      this.dependenciesSet.add( libraryRef.getComponentID() );
-    }
-  }
-
-	public String getDescription() {
-		return description;
+		this.securityPermissions = securityPermissions == null ? null
+				: securityPermissions.getSecurityPermissionSpec();
+		
+		buildDependenciesSet();
 	}
 
-	public List<MLibraryRef> getLibraryRefs() {
-		return libraryRefs;
-	}
-
-	public List<MResourceAdaptorTypeRef> getResourceAdaptorTypeRefs() {
+	private void buildDependenciesSet() {
+	    this.dependenciesSet.addAll(resourceAdaptorTypeRefs);
+	    for(ProfileSpecRefDescriptor profileSpecRef : profileSpecRefs) {
+	      this.dependenciesSet.add( profileSpecRef.getComponentID() );
+	    }
+	  }
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getResourceAdaptorTypeRefs()
+	 */
+	public List<ResourceAdaptorTypeID> getResourceAdaptorTypeRefs() {
 		return resourceAdaptorTypeRefs;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getProfileSpecRefs()
+	 */
 	public List<MProfileSpecRef> getProfileSpecRefs() {
 		return profileSpecRefs;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getConfigProperties()
+	 */
 	public List<MConfigProperty> getConfigProperties() {
 		return configProperties;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getIgnoreRaTypeEventTypeCheck()
+	 */
 	public boolean getIgnoreRaTypeEventTypeCheck() {
 		return ignoreRaTypeEventTypeCheck;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getResourceAdaptorUsageParametersInterface()
+	 */
 	public MUsageParametersInterface getResourceAdaptorUsageParametersInterface() {
 		return resourceAdaptorUsageParametersInterface;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getResourceAdaptorClassName()
+	 */
 	public String getResourceAdaptorClassName() {
 		return resourceAdaptorClassName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getSupportsActiveReconfiguration()
+	 */
 	public boolean getSupportsActiveReconfiguration() {
 		return supportsActiveReconfiguration;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getResourceAdaptorID()
+	 */
 	public ResourceAdaptorID getResourceAdaptorID() {
 		return resourceAdaptorID;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.container.component.deployment.jaxb.descriptors.
+	 * AbstractComponentDescriptor#getDependenciesSet()
+	 */
 	public Set<ComponentID> getDependenciesSet() {
 		return this.dependenciesSet;
 	}
 
-  public MSecurityPermissions getSecurityPermissions()
-  {
-    return securityPermissions;
-  }
-  
-  public boolean isSlee11()
-  {
-    return isSlee11;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @seeorg.mobicents.slee.core.component.ra.ResourceAdaptorDescriptor#
+	 * getSecurityPermissions()
+	 */
+	public String getSecurityPermissions() {
+		return securityPermissions;
+	}
+
 }

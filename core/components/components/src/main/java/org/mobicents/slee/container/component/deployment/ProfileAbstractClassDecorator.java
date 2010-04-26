@@ -13,9 +13,9 @@ import javax.slee.SLEEException;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.ProfileSpecificationComponentImpl;
 import org.mobicents.slee.container.component.deployment.ClassPool;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;
+import org.mobicents.slee.container.component.profile.ProfileAbstractClassDescriptor;
 
 /**
  * Class decorating the profile abstract class. 
@@ -31,12 +31,12 @@ public class ProfileAbstractClassDecorator {
      */
     private CtClass ctClass = null;    
 
-    private final ProfileSpecificationComponent component;
+    private final ProfileSpecificationComponentImpl component;
 
     /**
      * Constructor
      */
-    public ProfileAbstractClassDecorator(ProfileSpecificationComponent component) {
+    public ProfileAbstractClassDecorator(ProfileSpecificationComponentImpl component) {
         this.component = component;
     }
 
@@ -48,7 +48,7 @@ public class ProfileAbstractClassDecorator {
     public boolean decorateAbstractClass() throws DeploymentException {
        
     	ClassPool pool = component.getClassPool();
-    	MProfileAbstractClass abstractClass = component.getDescriptor().getProfileAbstractClass();
+    	ProfileAbstractClassDescriptor abstractClass = component.getDescriptor().getProfileAbstractClass();
     	if (abstractClass == null) {
     		return false;
     	}

@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
+import org.mobicents.slee.container.component.profile.query.CompareDescriptor;
+
 /**
  * Start time:11:33:37 2009-01-29<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -7,9 +9,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MCompare {
-
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Compare compare11;
+public class MCompare implements CompareDescriptor {
 	
 	private String attributeName;
 	private String op;
@@ -19,7 +19,6 @@ public class MCompare {
 
 	public MCompare(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Compare compare11)
 	{
-	  this.compare11 = compare11;
 	  
 		this.attributeName = compare11.getAttributeName();
 		this.op = compare11.getOp();

@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references;
 
+import org.mobicents.slee.container.component.sbb.EjbRefDescriptor;
+
 /**
  * Start time:15:15:53 2009-01-20<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -7,7 +9,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.commo
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MEjbRef {
+public class MEjbRef implements EjbRefDescriptor {
 
   private String description;
 

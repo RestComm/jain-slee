@@ -10,8 +10,8 @@ package org.mobicents.slee.container.component.validator;
 
 import java.util.List;
 
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 
@@ -32,9 +32,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends TCUti
 
 	public void testSbbOne11Constraints2ChildRelation() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 
@@ -50,9 +50,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends TCUti
 
 	public void testSbbOne11ConstraintsNoChildRelation() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_NO_CHILD_RELATION));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_NO_CHILD_RELATION));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 
@@ -68,9 +68,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends TCUti
 
 	public void testSbbOne11Constraints2ChildRelationWrongPrefix() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_WRONG_PREFIX));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_WRONG_PREFIX));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 
@@ -86,9 +86,9 @@ public class SbbComponentValidatorSbbConstraintsChildRelationsTest extends TCUti
 
 	public void testSbbOne11Constraints2ChildRelationThrowsException() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_THROW_EXCEPTION));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_CONSTRAINTS_2_CHILD_RELATION_THROW_EXCEPTION));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 

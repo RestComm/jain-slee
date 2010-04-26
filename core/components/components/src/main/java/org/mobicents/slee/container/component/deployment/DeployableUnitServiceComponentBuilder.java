@@ -10,8 +10,9 @@ import java.util.jar.JarFile;
 import javax.slee.management.DeploymentException;
 
 import org.apache.log4j.Logger;
-import org.mobicents.slee.container.component.ServiceComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorFactory;
+import org.mobicents.slee.container.component.ComponentManagementImpl;
+import org.mobicents.slee.container.component.ServiceComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
 
 /**
@@ -23,6 +24,15 @@ public class DeployableUnitServiceComponentBuilder {
 
 	private static final Logger logger = Logger.getLogger(DeployableUnitServiceComponentBuilder.class);
 	
+	private final ComponentManagementImpl componentManagement;
+	
+	/**
+	 * 
+	 */
+	public DeployableUnitServiceComponentBuilder(ComponentManagementImpl componentManagement) {
+		this.componentManagement = componentManagement;
+	}
+	
 	/**
 	 * Builds a service component contained in the specified du jar file, with the specified and adds it to the specified deployable unit.
 	 * 
@@ -32,17 +42,17 @@ public class DeployableUnitServiceComponentBuilder {
 	 * @param documentBuilder
 	 * @throws DeploymentException
 	 */
-	public List<ServiceComponent> buildComponents(String serviceDescriptorFileName, JarFile deployableUnitJar) throws DeploymentException {
+	public List<ServiceComponentImpl> buildComponents(String serviceDescriptorFileName, JarFile deployableUnitJar) throws DeploymentException {
     	
 		// make component jar entry
 		JarEntry componentDescriptor = deployableUnitJar.getJarEntry(serviceDescriptorFileName);
 		InputStream componentDescriptorInputStream = null;
-		List<ServiceComponent> result = new ArrayList<ServiceComponent>();
+		List<ServiceComponentImpl> result = new ArrayList<ServiceComponentImpl>();
     	try {
     		componentDescriptorInputStream = deployableUnitJar.getInputStream(componentDescriptor);
-    		ServiceDescriptorFactory descriptorFactory = new ServiceDescriptorFactory();
+    		ServiceDescriptorFactoryImpl descriptorFactory = componentManagement.getComponentDescriptorFactory().getServiceDescriptorFactory();
     		for (ServiceDescriptorImpl descriptor : descriptorFactory.parse(componentDescriptorInputStream)) {
-    			result.add(new ServiceComponent(descriptor));
+    			result.add(new ServiceComponentImpl(descriptor));
     		}
     	} catch (IOException e) {
     		throw new DeploymentException("failed to parse service descriptor from "+componentDescriptor.getName(),e);

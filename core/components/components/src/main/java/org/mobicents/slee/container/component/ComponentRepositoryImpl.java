@@ -15,6 +15,16 @@ import javax.slee.profile.ProfileSpecificationID;
 import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
+import org.mobicents.slee.container.component.ComponentRepository;
+import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.event.EventTypeComponent;
+import org.mobicents.slee.container.component.library.LibraryComponent;
+import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.component.service.ServiceComponent;
+
 /**
  * Implementation of the repository to manage all SLEE components.
  * 

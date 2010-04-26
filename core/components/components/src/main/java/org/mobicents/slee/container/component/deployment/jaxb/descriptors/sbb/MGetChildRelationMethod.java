@@ -12,6 +12,8 @@ import java.io.Serializable;
 
 import javax.slee.SbbID;
 
+import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
+
 
 /**
  * Start time:11:43:35 2009-01-20<br>
@@ -21,7 +23,7 @@ import javax.slee.SbbID;
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MGetChildRelationMethod implements Serializable{
+public class MGetChildRelationMethod implements GetChildRelationMethodDescriptor,Serializable{
 
 	/**
 	 * 

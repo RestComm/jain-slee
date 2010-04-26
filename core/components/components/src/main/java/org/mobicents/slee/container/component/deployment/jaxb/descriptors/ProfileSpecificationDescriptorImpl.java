@@ -1,30 +1,23 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.slee.ComponentID;
 import javax.slee.profile.ProfileSpecificationID;
 
+import org.mobicents.slee.container.component.UsageParametersInterfaceDescriptor;
+import org.mobicents.slee.container.component.common.ProfileSpecRefDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MSecurityPermissions;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MUsageParametersInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MCollator;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileAbstractClass;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileCMPInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileClasses;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileIndex;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileLocalInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileManagementInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileSpec;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.MProfileTableInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
-
+import org.mobicents.slee.container.component.profile.ProfileAbstractClassDescriptor;
+import org.mobicents.slee.container.component.profile.ProfileLocalInterfaceDescriptor;
+import org.mobicents.slee.container.component.profile.ProfileSpecificationDescriptor;
+import org.mobicents.slee.container.component.profile.cmp.ProfileCMPInterfaceDescriptor;
 
 /**
  * Start time:13:41:11 2009-01-18<br>
@@ -33,191 +26,260 @@ import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profil
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class ProfileSpecificationDescriptorImpl {
+public class ProfileSpecificationDescriptorImpl extends
+		AbstractComponentWithLibraryRefsDescriptor implements
+		ProfileSpecificationDescriptor {
 
-  private ProfileSpecificationID profileSpecificationID;
-  private String description;
+	private final ProfileSpecificationID profileSpecificationID;
 
-  private MProfileClasses profileClasses;
+	private List<MProfileIndex> indexedAttributes;
 
-  private Set<MProfileIndex> indexedAttributes;
-  // FIXME: add hints here?
+	// FIXME: add hints here?
 
-  // 1.1 Stuff
-  private Set<MLibraryRef> libraryRefs;
-  //FIXME: what the hell - again its a set, now we CANT validate if it doubles or declares the same alias ;....
-  private Set<MProfileSpecRef> profileSpecRefs;
-  private List<MCollator> collators;
+	private List<MProfileSpecRef> profileSpecRefs;
+	private List<MCollator> collators;
 
-  private List<MEnvEntry> envEntries;
-  private List<MQuery> queryElements;
-  private boolean singleProfile = false;
-  private boolean readOnly = true;
-  private boolean eventsEnabled = true;
-  private boolean isolateSecurityPermission = false;
-  
-  private MSecurityPermissions securityPremissions;
+	private List<MEnvEntry> envEntries;
+	private List<MQuery> queryElements;
 
-  private boolean isSlee11;
+	private boolean singleProfile = false;
+	private boolean readOnly = true;
+	private boolean eventsEnabled = true;
 
-  private Set<ComponentID> dependenciesSet;
+	private String securityPremissions;
 
-  public ProfileSpecificationDescriptorImpl( MProfileSpec profileSpec, MSecurityPermissions securityPermissions, boolean isSlee11 )
-  {
-    this.description = profileSpec.getDescription();
-    this.profileSpecificationID =  new ProfileSpecificationID(profileSpec.getProfileSpecName(), profileSpec.getProfileSpecVendor(), profileSpec.getProfileSpecVersion());
-    this.securityPremissions=securityPermissions;
-    this.profileClasses = profileSpec.getProfileClasses();
+	private final UsageParametersInterfaceDescriptor usageParametersInterface;
+	private final ProfileCMPInterfaceDescriptor profileCMPInterface;
+	private final String profileManagementInterface;
+	private final String profileTableInterface;
+	private final ProfileAbstractClassDescriptor profileAbstractClassDescriptor;
+	private final ProfileLocalInterfaceDescriptor profileLocalInterfaceDescriptor;
+	private final boolean isolateSecurityPermissions;
+	
+	public ProfileSpecificationDescriptorImpl(MProfileSpec profileSpec,
+			MSecurityPermissions mSecurityPermissions, boolean isSlee11) {
 
-    indexedAttributes=new HashSet<MProfileIndex>();
-    // Just for 1.0
-    for(MProfileIndex indexedAttribute : profileSpec.getProfileIndex())
-    {
-      this.indexedAttributes.add( indexedAttribute );
-    }
+		super(isSlee11);
 
-    // Now it's only 1.1
-    this.libraryRefs = new HashSet<MLibraryRef>(profileSpec.getLibraryRef());
-    this.profileSpecRefs = new HashSet<MProfileSpecRef>(profileSpec.getProfileSpecRef());
-    this.collators = profileSpec.getCollator();
+		this.profileSpecificationID = new ProfileSpecificationID(profileSpec
+				.getProfileSpecName(), profileSpec.getProfileSpecVendor(),
+				profileSpec.getProfileSpecVersion());
 
-    this.envEntries = profileSpec.getEnvEntry();
+		this.securityPremissions = mSecurityPermissions == null ? null
+				: mSecurityPermissions.getSecurityPermissionSpec();
 
-    this.queryElements = profileSpec.getQuery();
+		final MProfileClasses profileClasses = profileSpec.getProfileClasses();
+		
+		// Just for 1.0
+		indexedAttributes = profileSpec.getProfileIndex();
 
-    this.isSlee11 = isSlee11;
+		// Now it's only 1.1
+		super.setLibraryRefs(profileSpec.getLibraryRef());
 
-    this.readOnly = profileSpec.getProfileReadOnly().booleanValue();
-    this.eventsEnabled = profileSpec.getProfileEventsEnabled().booleanValue();
-     
-    buildDependenciesSet();
-    
-    this.isolateSecurityPermission = this.getProfileLocalInterface() == null?false:(this.getProfileLocalInterface().isIsolateSecurityPermissions());
-  }
+		this.profileSpecRefs = profileSpec.getProfileSpecRef();
+		for (ProfileSpecRefDescriptor profileSpecRefDescriptor : profileSpec.getProfileSpecRef()) {
+			super.dependenciesSet.add(profileSpecRefDescriptor.getComponentID());
+		}
 
-  private void buildDependenciesSet()
-  {
-    this.dependenciesSet = new HashSet<ComponentID>();
+		this.collators = profileSpec.getCollator();
+		this.envEntries = profileSpec.getEnvEntry();
+		this.queryElements = profileSpec.getQuery();
+		this.readOnly = profileSpec.getProfileReadOnly().booleanValue();
+		this.eventsEnabled = profileSpec.getProfileEventsEnabled()
+				.booleanValue();
+		
+		this.profileCMPInterface = profileClasses.getProfileCMPInterface();
+		this.usageParametersInterface = profileClasses.getProfileUsageParameterInterface();
+		this.profileManagementInterface = profileClasses.getProfileManagementInterface() == null ? null : profileClasses.getProfileManagementInterface().getProfileManagementInterfaceName();
+		this.profileTableInterface = profileClasses.getProfileTableInterface() == null ? null : profileClasses.getProfileTableInterface().getProfileTableInterfaceName();
+		this.profileAbstractClassDescriptor = profileClasses.getProfileAbstractClass();
+		this.profileLocalInterfaceDescriptor = profileClasses.getProfileLocalInterface();
+	    this.isolateSecurityPermissions = this.getProfileLocalInterface() == null?false:(this.getProfileLocalInterface().isIsolateSecurityPermissions());
 
-    for(MLibraryRef libraryRef : libraryRefs)
-    {
-      this.dependenciesSet.add( libraryRef.getComponentID() );
-    }
-    
-    for(MProfileSpecRef profileSpecRef : profileSpecRefs)
-    {
-      this.dependenciesSet.add( profileSpecRef.getComponentID() );
-    }
-  }
-
-  public Set<MLibraryRef> getLibraryRefs() {
-    return libraryRefs;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public ProfileSpecificationID getProfileSpecificationID() {
-    return profileSpecificationID;
-  }
-
-  public MProfileClasses getProfileClasses()
-  {
-    return profileClasses;
-  }
-
-  public Set<MProfileIndex> getIndexedAttributes() {
-    return indexedAttributes;
-  }
-
-  public Set<MProfileSpecRef> getProfileSpecRefs() {
-    return profileSpecRefs;
-  }
-
-  public List<MCollator> getCollators() {
-    return collators;
-  }
-
-  public List<MEnvEntry> getEnvEntries() {
-    return envEntries;
-  }
-
-  public List<MQuery> getQueryElements() {
-    return queryElements;
-  }
-
-  public boolean isSingleProfile() {
-    return this.singleProfile;
-  }
-
-  public boolean getReadOnly() {
-    return readOnly;
-  }
-  
-  public boolean isIsolateSecurityPermission() {
-		return isolateSecurityPermission;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor#isIsolateSecurityPermissions()
+	 */
+	public boolean isIsolateSecurityPermissions() {
+		return isolateSecurityPermissions;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getCollators()
+	 */
+	public List<MCollator> getCollators() {
+		return collators;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getEnvEntries()
+	 */
+	public List<MEnvEntry> getEnvEntries() {
+		return envEntries;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getEventsEnabled()
+	 */
 	public boolean getEventsEnabled() {
 		return eventsEnabled;
 	}
 
-  public MSecurityPermissions getSecurityPermissions() {
-    return securityPremissions;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getIndexedAttributes()
+	 */
+	public List<MProfileIndex> getIndexedAttributes() {
+		return indexedAttributes;
+	}
 
-  public Set<ComponentID> getDependenciesSet() {
-    return this.dependenciesSet;
-  }
-  
-  public boolean isSlee11()
-  {
-    return isSlee11;
-  }
-  
-  // FIXME: Do we need this at this point?
-  public Map<String, MQuery> getQueriesMap()
-  {
-    List<MQuery> qs = this.getQueryElements();
-    Map<String,MQuery> result = new HashMap<String, MQuery>();
-    for(MQuery q:qs)
-    {
-      result.put(q.getName(), q);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileAbstractClass()
+	 */
+	public ProfileAbstractClassDescriptor getProfileAbstractClass() {
+		return profileAbstractClassDescriptor;
+	}
 
-    return result;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileCMPInterface()
+	 */
+	public ProfileCMPInterfaceDescriptor getProfileCMPInterface() {
+		return profileCMPInterface;
+	}
 
-  // Convenience methods
-  public MProfileTableInterface getProfileTableInterface()
-  {
-    return this.profileClasses.getProfileTableInterface();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileLocalInterface()
+	 */
+	public ProfileLocalInterfaceDescriptor getProfileLocalInterface() {
+		return profileLocalInterfaceDescriptor;
+	}
 
-  public MUsageParametersInterface getProfileUsageParameterInterface()
-  {
-    return this.profileClasses.getProfileUsageParameterInterface();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileManagementInterface()
+	 */
+	public String getProfileManagementInterface() {
+		return profileManagementInterface;
+	}
 
-  public MProfileAbstractClass getProfileAbstractClass()
-  {
-    return this.profileClasses.getProfileAbstractClass();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileSpecificationID()
+	 */
+	public ProfileSpecificationID getProfileSpecificationID() {
+		return profileSpecificationID;
+	}
 
-  public MProfileManagementInterface getProfileManagementInterface()
-  {
-    return this.profileClasses.getProfileManagementInterface();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileSpecRefs()
+	 */
+	public List<MProfileSpecRef> getProfileSpecRefs() {
+		return profileSpecRefs;
+	}
 
-  public MProfileCMPInterface getProfileCMPInterface()
-  {
-    return this.profileClasses.getProfileCMPInterface();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileTableInterface()
+	 */
+	public String getProfileTableInterface() {
+		return profileTableInterface;
+	}
 
-  public MProfileLocalInterface getProfileLocalInterface()
-  {
-    return this.profileClasses.getProfileLocalInterface();
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getProfileUsageParameterInterface()
+	 */
+	public UsageParametersInterfaceDescriptor getProfileUsageParameterInterface() {
+		return usageParametersInterface;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getQueryElements()
+	 */
+	public List<MQuery> getQueryElements() {
+		return queryElements;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getReadOnly()
+	 */
+	public boolean getReadOnly() {
+		return readOnly;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #getSecurityPermissions()
+	 */
+	public String getSecurityPermissions() {
+		return securityPremissions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.profile.ProfileSpecificationDescriptor
+	 * #isSingleProfile()
+	 */
+	public boolean isSingleProfile() {
+		return this.singleProfile;
+	}
 
 }

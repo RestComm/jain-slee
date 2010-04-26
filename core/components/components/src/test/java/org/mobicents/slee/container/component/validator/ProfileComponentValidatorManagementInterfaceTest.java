@@ -8,23 +8,12 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
+import org.mobicents.slee.container.component.ProfileSpecificationComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceCollatorOnNonString;
-import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceLackBoolean;
-import org.mobicents.slee.container.component.validator.profile.ProfileBaseCMPInterfaceToManyCMPs;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceForbbidenMethods;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceGetterThrows;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceSetterThrows;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceTypeMissMatch;
-import org.mobicents.slee.container.component.validator.profile.ProfileCMPInterfaceWrongFieldType;
-import org.mobicents.slee.container.component.validator.profile.ProfileSuperCMPInterface;
 import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceOkDeclareValidCMPMethod;
 import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceOkDeclareValidCMPMethodWithThrows;
 import org.mobicents.slee.container.component.validator.profile.managementinterface.ManagementInterfaceOkExtendCMPInterface;
@@ -53,20 +42,19 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsOk() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileManagementInterface()
-								.getProfileManagementInterfaceName()));
+						descriptor.getProfileManagementInterface()));
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();		
 		validator.setComponent(component);
 
@@ -80,14 +68,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsOkExtendCMPInterface() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceOkExtendCMPInterface.class);
@@ -104,14 +92,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsOkDeclareValidCMPMethod() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceOkDeclareValidCMPMethod.class);
@@ -127,14 +115,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsDeclareValidCMPMethodWithThrows() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceOkDeclareValidCMPMethodWithThrows.class);
@@ -150,14 +138,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsWrongPrefix() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongPrefix.class);
@@ -172,14 +160,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsWrongParameterType() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongType.class);
@@ -196,14 +184,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsWrongMethodProfileMBean() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_ProfileMBean.class);
@@ -219,14 +207,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsWrongMethodProfileManagement() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_ProfileManagement.class);
@@ -242,14 +230,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsWrongMethodProfile() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_Profile.class);
@@ -265,14 +253,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsWrongMethodDynamicMBean() throws Exception {
 	
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_DynamicMBean.class);
@@ -288,14 +276,14 @@ TCUtilityClass {
 	public void testProfilemanagmentInterfaceConstraintsWrongMethodMBeanRegistration() throws Exception {
 
 		
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_OK_MANAGENEBT_INTERFACE_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component=new ProfileSpecificationComponent(descriptor);
+		ProfileSpecificationComponentImpl component=new ProfileSpecificationComponentImpl(descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		component.setProfileManagementInterfaceClass(ManagementInterfaceWrongMethod_MBeanRegistration.class);

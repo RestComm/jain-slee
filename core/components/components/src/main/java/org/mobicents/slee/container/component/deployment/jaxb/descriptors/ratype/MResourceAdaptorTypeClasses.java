@@ -17,7 +17,7 @@ public class MResourceAdaptorTypeClasses
 {
   
   private String description;
-  private List<MActivityType> activityType;
+  private List<String> activityType;
   private MActivityContextInterfaceFactoryInterface activityContextInterfaceFactoryInterface;
   private MResourceAdaptorInterface resourceAdaptorInterface;
 
@@ -25,11 +25,11 @@ public class MResourceAdaptorTypeClasses
   {
     
     this.description = resourceAdaptorTypeClasses10.getDescription() == null ? null : resourceAdaptorTypeClasses10.getDescription().getvalue();
-    this.activityType = new ArrayList<MActivityType>();
+    this.activityType = new ArrayList<String>();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee.ratype.ActivityType aT : resourceAdaptorTypeClasses10.getActivityType())
     {
-      this.activityType.add( new MActivityType(aT) );
+      this.activityType.add( new MActivityType(aT).getActivityTypeName() );
     }
     
     this.resourceAdaptorInterface = resourceAdaptorTypeClasses10.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses10.getResourceAdaptorInterface());
@@ -40,11 +40,11 @@ public class MResourceAdaptorTypeClasses
   {
     
     this.description = resourceAdaptorTypeClasses11.getDescription() == null ? null : resourceAdaptorTypeClasses11.getDescription().getvalue();
-    this.activityType = new ArrayList<MActivityType>();
+    this.activityType = new ArrayList<String>();
     
     for(org.mobicents.slee.container.component.deployment.jaxb.slee11.ratype.ActivityType aT : resourceAdaptorTypeClasses11.getActivityType())
     {
-      this.activityType.add( new MActivityType(aT) );
+      this.activityType.add( new MActivityType(aT).getActivityTypeName() );
     }
     
     this.resourceAdaptorInterface = resourceAdaptorTypeClasses11.getResourceAdaptorInterface() == null ? null : new MResourceAdaptorInterface(resourceAdaptorTypeClasses11.getResourceAdaptorInterface());
@@ -56,7 +56,7 @@ public class MResourceAdaptorTypeClasses
     return description;
   }
   
-  public List<MActivityType> getActivityType()
+  public List<String> getActivityType()
   {
     return activityType;
   }

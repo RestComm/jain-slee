@@ -1,5 +1,7 @@
 package org.mobicents.slee.runtime.transaction;
 
+import org.mobicents.slee.container.transaction.TransactionContext;
+
 /**
  * 
  * 

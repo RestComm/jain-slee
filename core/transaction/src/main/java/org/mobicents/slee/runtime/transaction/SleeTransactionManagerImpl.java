@@ -19,6 +19,9 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 import org.apache.log4j.Logger;
+import org.mobicents.slee.container.AbstractSleeContainerModule;
+import org.mobicents.slee.container.transaction.SleeTransactionManager;
+import org.mobicents.slee.container.transaction.TransactionContext;
 
 import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
 
@@ -33,7 +36,7 @@ import com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple;
  * @author Eduardo Martins version 2
  * 
  */
-public class SleeTransactionManagerImpl implements SleeTransactionManager {
+public class SleeTransactionManagerImpl extends AbstractSleeContainerModule implements SleeTransactionManager {
 
 	private static final Logger logger = Logger
 			.getLogger(SleeTransactionManagerImpl.class);
@@ -256,7 +259,7 @@ public class SleeTransactionManagerImpl implements SleeTransactionManager {
 	}
 
 	private TransactionContext bindToTransaction(Transaction tx) throws IllegalStateException, SystemException {
-		final TransactionContext txContext = new TransactionContext();
+		final TransactionContextImpl txContext = new TransactionContextImpl();
 		// register for call-backs
 		try {
 			tx.registerSynchronization(new SleeTransactionSynchronization(tx,txContext));

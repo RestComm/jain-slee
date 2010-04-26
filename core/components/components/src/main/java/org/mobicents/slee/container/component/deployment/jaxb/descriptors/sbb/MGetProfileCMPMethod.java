@@ -11,6 +11,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 import javax.slee.profile.ProfileSpecificationID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetProfileCmpMethod;
+import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
 
 /**
  * Start time:11:32:55 2009-01-20<br>
@@ -20,7 +21,7 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.GetProfil
  *         </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MGetProfileCMPMethod {
+public class MGetProfileCMPMethod implements GetProfileCMPMethodDescriptor {
 
 	private String description=null;
 	private String profileSpecAliasRef=null;

@@ -11,11 +11,13 @@ package org.mobicents.slee.container.component.validator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.slee.ComponentID;
 import javax.slee.EventTypeID;
 import javax.slee.SbbID;
 import javax.slee.ServiceID;
+import javax.slee.UnrecognizedComponentException;
 import javax.slee.management.DeploymentException;
 import javax.slee.management.LibraryID;
 import javax.slee.profile.ProfileSpecificationID;
@@ -23,21 +25,23 @@ import javax.slee.resource.ResourceAdaptorID;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.EventTypeComponent;
-import org.mobicents.slee.container.component.LibraryComponent;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorComponent;
-import org.mobicents.slee.container.component.ResourceAdaptorTypeComponent;
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.ServiceComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.ProfileSpecificationComponentImpl;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.SleeComponent;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
+import org.mobicents.slee.container.component.event.EventTypeComponent;
+import org.mobicents.slee.container.component.library.LibraryComponent;
+import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.ra.ResourceAdaptorComponent;
+import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeComponent;
+import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.component.service.ServiceComponent;
 import org.mobicents.slee.container.component.validator.ClassUtils;
 import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.profilecmp.ProfileCmpInterface;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.profilecmp.SbbConstraintsProfileCMPWrongParameterSbb;
-import org.mobicents.slee.container.component.validator.sbb.abstracts.profilecmp.SbbConstraintsProfileCMPWrongPrefixSbb;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.profilecmp.SbbConstraintsProfileCMPWrongThrowsSbb;
 import org.mobicents.slee.container.component.validator.sbb.abstracts.profilecmp.SbbConstraintsProfileCMPWrongVisibilitySbb;
 
@@ -56,11 +60,11 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	
 	public void testSbbOne11ConstraintsOk() throws Exception {
 		
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
 		
 		
-		SbbComponent component = new FakeComponent(descriptor);
+		SbbComponentImpl component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
 						descriptor.getSbbAbstractClass()
@@ -81,10 +85,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	public void testSbbOne11ConstraintsWrongThrows() throws Exception {
 
 		
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
 
-		SbbComponent component = new FakeComponent(descriptor);
+		SbbComponentImpl component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongThrowsSbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
 
@@ -100,10 +104,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	}
 	public void testSbbOne11ConstraintsWrongParameter() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
 
-		SbbComponent component = new FakeComponent(descriptor);
+		SbbComponentImpl component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongParameterSbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
 
@@ -119,11 +123,11 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	}
 	public void testSbbOne11ConstraintsWrongVisibility() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_OK));
 		final SbbDescriptorImpl descriptor = specs.get(0);
 
 	
-		SbbComponent component = new FakeComponent(descriptor);
+		SbbComponentImpl component = new FakeComponent(descriptor);
 		component.setAbstractSbbClass(SbbConstraintsProfileCMPWrongVisibilitySbb.class);
 		SbbComponentValidator validator = new SbbComponentValidator();
 
@@ -140,10 +144,10 @@ public class SbbComponentValidatorProfileCMPTest extends TCUtilityClass {
 	
 	public void testSbbOne11ConstraintsWrongPrefix() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_WRONG_PREFIX));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_PROFILE_CMP_WRONG_PREFIX));
 		final SbbDescriptorImpl descriptor = specs.get(0);
 
-		SbbComponent component = new FakeComponent(descriptor);
+		SbbComponentImpl component = new FakeComponent(descriptor);
 
 		SbbComponentValidator validator = new SbbComponentValidator();
 		component.setAbstractSbbClass(Thread.currentThread()
@@ -181,7 +185,7 @@ class FakeRepository implements ComponentRepository {
 	public ProfileSpecificationComponent getComponentByID(
 			ProfileSpecificationID id) {
 
-		ProfileSpecificationComponent cmp = new ProfileSpecificationComponent(null);
+		ProfileSpecificationComponentImpl cmp = new ProfileSpecificationComponentImpl(null);
 		try {
 			cmp.setProfileCmpInterfaceClass(ProfileCmpInterface.class);
 		} catch (DeploymentException e) {
@@ -217,9 +221,195 @@ class FakeRepository implements ComponentRepository {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getEventComponentIDs()
+	 */
+	public Set<EventTypeID> getEventComponentIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getLibraryIDs()
+	 */
+	public Set<LibraryID> getLibraryIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getProfileSpecificationIDs()
+	 */
+	public Set<ProfileSpecificationID> getProfileSpecificationIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getReferringComponents(org.mobicents.slee.core.component.SleeComponent)
+	 */
+	public Set<SleeComponent> getReferringComponents(
+			SleeComponent component) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getResourceAdaptorIDs()
+	 */
+	public Set<ResourceAdaptorID> getResourceAdaptorIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getResourceAdaptorTypeIDs()
+	 */
+	public Set<ResourceAdaptorTypeID> getResourceAdaptorTypeIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getSbbIDs()
+	 */
+	public Set<SbbID> getSbbIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getServiceIDs()
+	 */
+	public Set<ServiceID> getServiceIDs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#getReferringComponents(javax.slee.ComponentID)
+	 */
+	public ComponentID[] getReferringComponents(ComponentID componentID)
+			throws NullPointerException, UnrecognizedComponentException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.event.EventTypeComponent)
+	 */
+	public boolean putComponent(EventTypeComponent component) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.library.LibraryComponent)
+	 */
+	public boolean putComponent(LibraryComponent component) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.profile.ProfileSpecificationComponent)
+	 */
+	public boolean putComponent(ProfileSpecificationComponent component) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.ra.ResourceAdaptorComponent)
+	 */
+	public boolean putComponent(ResourceAdaptorComponent component) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.ratype.ResourceAdaptorTypeComponent)
+	 */
+	public boolean putComponent(ResourceAdaptorTypeComponent component) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.sbb.SbbComponent)
+	 */
+	public boolean putComponent(SbbComponent component) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#putComponent(org.mobicents.slee.core.component.service.ServiceComponent)
+	 */
+	public boolean putComponent(ServiceComponent component) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.EventTypeID)
+	 */
+	public void removeComponent(EventTypeID componentID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.management.LibraryID)
+	 */
+	public void removeComponent(LibraryID componentID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.profile.ProfileSpecificationID)
+	 */
+	public void removeComponent(ProfileSpecificationID componentID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.resource.ResourceAdaptorID)
+	 */
+	public void removeComponent(ResourceAdaptorID componentID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.resource.ResourceAdaptorTypeID)
+	 */
+	public void removeComponent(ResourceAdaptorTypeID componentID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.SbbID)
+	 */
+	public void removeComponent(SbbID componentID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.mobicents.slee.core.component.ComponentRepository#removeComponent(javax.slee.ServiceID)
+	 */
+	public void removeComponent(ServiceID componentID) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 
-class FakeComponent extends SbbComponent
+class FakeComponent extends SbbComponentImpl
 {
 
 	public FakeComponent(SbbDescriptorImpl descriptor) {

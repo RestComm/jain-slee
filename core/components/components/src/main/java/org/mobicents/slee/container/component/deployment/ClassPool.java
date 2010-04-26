@@ -18,7 +18,7 @@ import javassist.NotFoundException;
  * @author martins
  * 
  */
-public class ClassPool {
+public class ClassPool implements org.mobicents.slee.container.component.ClassPool {
 
 	private static final Logger logger = Logger.getLogger(ClassPool.class);
 

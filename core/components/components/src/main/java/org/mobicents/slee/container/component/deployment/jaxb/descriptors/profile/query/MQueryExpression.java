@@ -10,6 +10,8 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Lon
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Not;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Or;
 import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.RangeMatch;
+import org.mobicents.slee.container.component.profile.query.QueryExpressionDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryExpressionType;
 
 /**
  * This class is agregation of query expresion elements defined in: slee.1.1
@@ -22,10 +24,10 @@ import org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.Ran
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MQueryExpression {
+public class MQueryExpression implements QueryExpressionDescriptor {
 
-	private MQueryExpressionType type;
-	private MQueryExpressionType parentType;
+	private QueryExpressionType type;
+	private QueryExpressionType parentType;
 
 	//for not, or, and
 	private ArrayList<MQueryExpression> childExpressions = new ArrayList<MQueryExpression>();
@@ -46,25 +48,25 @@ public class MQueryExpression {
 		if(operator instanceof Compare)
 		{
 			this.parentType = null;
-			this.type = MQueryExpressionType.Compare;
+			this.type = QueryExpressionType.Compare;
 			this.compare = new MCompare((Compare) operator);
 		}
 		else if(operator instanceof HasPrefix)
 		{
 			this.parentType = null;
-			this.type = MQueryExpressionType.HasPrefix;
+			this.type = QueryExpressionType.HasPrefix;
 			this.hasPrefix = new MHasPrefix( (HasPrefix) operator);
 		}
 		else if(operator instanceof LongestPrefixMatch)
 		{
 			this.parentType = null;
-			this.type = MQueryExpressionType.LongestPrefixMatch;
+			this.type = QueryExpressionType.LongestPrefixMatch;
 			this.longestPrefixMatch = new MLongestPrefixMatch( (LongestPrefixMatch) operator);
 		}
 		else if(operator instanceof RangeMatch)
 		{
 			this.parentType = null;
-			this.type = MQueryExpressionType.RangeMatch;
+			this.type = QueryExpressionType.RangeMatch;
 			this.rangeMatch = new MRangeMatch( (RangeMatch) operator);
 		}
 		else if(operator instanceof Or)
@@ -72,7 +74,7 @@ public class MQueryExpression {
 			//here we will have atleast two elements
 			Or or = (Or)operator;
 			this.parentType = null;
-			this.type = MQueryExpressionType.Or;
+			this.type = QueryExpressionType.Or;
 
 			for(Object childRaw : or.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
 			{
@@ -87,7 +89,7 @@ public class MQueryExpression {
 			//here we will have atleast two elements
 			And and = (And)operator;
 			this.parentType = null;
-			this.type = MQueryExpressionType.And;
+			this.type = QueryExpressionType.And;
 
 			for(Object childRaw  :  and.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
 			{
@@ -101,7 +103,7 @@ public class MQueryExpression {
 			//Not should have one, we will get one, this is xml validation part
 			Not not = (Not)operator;
 			this.parentType = null;
-			this.type = MQueryExpressionType.Not;
+			this.type = QueryExpressionType.Not;
 
 			for(Object childRaw : not.getCompareOrRangeMatchOrLongestPrefixMatchOrHasPrefixOrAndOrOrOrNot())
 			{
@@ -115,12 +117,12 @@ public class MQueryExpression {
 		
 	}
 	
-	public MQueryExpressionType getType()
+	public QueryExpressionType getType()
 	{
 		return type;
 	}
 	
-	public MQueryExpressionType getParentType()
+	public QueryExpressionType getParentType()
 	{
 		return parentType;
 	}
@@ -149,7 +151,7 @@ public class MQueryExpression {
 	{
 	  for(MQueryExpression expr : this.childExpressions)
 	  {
-	    if(expr.getType() == MQueryExpressionType.Not);
+	    if(expr.getType() == QueryExpressionType.Not);
 	      return expr;
 	  }
 	  

@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
+import org.mobicents.slee.container.component.profile.query.LongestPrefixMatchDescriptor;
+
 /**
  * Start time:11:42:20 2009-01-29<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -7,9 +9,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MLongestPrefixMatch {
-
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.LongestPrefixMatch longestPrefixMatch11;
+public class MLongestPrefixMatch implements LongestPrefixMatchDescriptor {
 
 	private String attributeName;
 	private String value;
@@ -17,9 +17,7 @@ public class MLongestPrefixMatch {
 	private String parameter;
 
   public MLongestPrefixMatch(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.LongestPrefixMatch longestPrefixMatch11)
-  {
-    this.longestPrefixMatch11 = longestPrefixMatch11;
-    
+  {    
     this.attributeName = longestPrefixMatch11.getAttributeName();
     this.value = longestPrefixMatch11.getValue();
     this.parameter = longestPrefixMatch11.getParameter();

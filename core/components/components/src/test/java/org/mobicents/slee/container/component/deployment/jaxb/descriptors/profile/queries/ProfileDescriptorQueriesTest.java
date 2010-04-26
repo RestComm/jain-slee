@@ -8,23 +8,20 @@
  */
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.queries;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MCompare;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MHasPrefix;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MLongestPrefixMatch;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQuery;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpression;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryExpressionType;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryOptions;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MQueryParameter;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query.MRangeMatch;
+import org.mobicents.slee.container.component.profile.query.CompareDescriptor;
+import org.mobicents.slee.container.component.profile.query.HasPrefixDescriptor;
+import org.mobicents.slee.container.component.profile.query.LongestPrefixMatchDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryExpressionDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryExpressionType;
+import org.mobicents.slee.container.component.profile.query.QueryOptionsDescriptor;
+import org.mobicents.slee.container.component.profile.query.QueryParameterDescriptor;
+import org.mobicents.slee.container.component.profile.query.RangeMatchDescriptor;
 
 /**
  * Start time:13:14:54 2009-01-29<br>
@@ -58,14 +55,14 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 	private static final String _RANGE_MATCH_FROM_VALUE = "from-value";
 	private static final String _RANGE_MATCH_FROM_PARAMETER = "from-parameter";
 
-	private static final MQueryExpressionType[] insideType = new MQueryExpressionType[] {
-			MQueryExpressionType.Compare, MQueryExpressionType.Compare,
-			MQueryExpressionType.HasPrefix,
-			MQueryExpressionType.LongestPrefixMatch };
+	private static final QueryExpressionType[] insideType = new QueryExpressionType[] {
+			QueryExpressionType.Compare, QueryExpressionType.Compare,
+			QueryExpressionType.HasPrefix,
+			QueryExpressionType.LongestPrefixMatch };
 
 	public void testQueryCompare() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 				.parse(super.getFileStream(_FILE_QUERY_COMPARE));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
@@ -74,11 +71,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		assertTrue("Query elements list size is not 1", descriptor
 				.getQueryElements().size() == 1);
 
-		MQuery query = descriptor.getQueryElements().get(0);
+		QueryDescriptor query = descriptor.getQueryElements().get(0);
 
-		performBasicValidation(query, MQueryExpressionType.Compare);
+		performBasicValidation(query, QueryExpressionType.Compare);
 
-		MCompare compare = query.getQueryExpression().getCompare();
+		CompareDescriptor compare = query.getQueryExpression().getCompare();
 
 		performCheckOnCompare(compare);
 
@@ -86,7 +83,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 
 	public void testQueryLongest() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 				.parse(super.getFileStream(
 						_FILE_QUERY_LONGEST_PREFIX_MATCH));
 
@@ -96,11 +93,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		assertTrue("Query elements list size is not 1", descriptor
 				.getQueryElements().size() == 1);
 
-		MQuery query = descriptor.getQueryElements().get(0);
+		QueryDescriptor query = descriptor.getQueryElements().get(0);
 
-		performBasicValidation(query, MQueryExpressionType.LongestPrefixMatch);
+		performBasicValidation(query, QueryExpressionType.LongestPrefixMatch);
 
-		MLongestPrefixMatch longest = query.getQueryExpression()
+		LongestPrefixMatchDescriptor longest = query.getQueryExpression()
 				.getLongestPrefixMatch();
 		performCheckOnLongestPrefixMatch(longest);
 
@@ -108,7 +105,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 
 	public void testHasPrefix() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 				.parse(super.getFileStream(_FILE_QUERY_HAS_PREFIX));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
@@ -117,11 +114,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		assertTrue("Query elements list size is not 1", descriptor
 				.getQueryElements().size() == 1);
 
-		MQuery query = descriptor.getQueryElements().get(0);
+		QueryDescriptor query = descriptor.getQueryElements().get(0);
 
-		performBasicValidation(query, MQueryExpressionType.HasPrefix);
+		performBasicValidation(query, QueryExpressionType.HasPrefix);
 
-		MHasPrefix hasPrefix = query.getQueryExpression().getHasPrefix();
+		HasPrefixDescriptor hasPrefix = query.getQueryExpression().getHasPrefix();
 
 		performCheckOnHasprefix(hasPrefix);
 
@@ -129,7 +126,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 
 	public void testRangeMatch() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 				.parse(super.getFileStream(_FILE_QUERY_RANGE_MATCH_));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
@@ -138,11 +135,11 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		assertTrue("Query elements list size is not 1", descriptor
 				.getQueryElements().size() == 1);
 
-		MQuery query = descriptor.getQueryElements().get(0);
+		QueryDescriptor query = descriptor.getQueryElements().get(0);
 
-		performBasicValidation(query, MQueryExpressionType.RangeMatch);
+		performBasicValidation(query, QueryExpressionType.RangeMatch);
 
-		MRangeMatch range = query.getQueryExpression().getRangeMatch();
+		RangeMatchDescriptor range = query.getQueryExpression().getRangeMatch();
 
 		performCheckOnRangeMatch(range);
 
@@ -150,7 +147,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 
 	public void testAnd() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 				.parse(super.getFileStream(_FILE_QUERY_AND_));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
@@ -159,9 +156,9 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		assertTrue("Query elements list size is not 1", descriptor
 				.getQueryElements().size() == 1);
 
-		MQuery query = descriptor.getQueryElements().get(0);
+		QueryDescriptor query = descriptor.getQueryElements().get(0);
 
-		performBasicValidation(query, MQueryExpressionType.And);
+		performBasicValidation(query, QueryExpressionType.And);
 
 		testComplicated(query.getQueryExpression(), insideType);
 
@@ -169,7 +166,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 
 	public void testOr() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 				.parse(super.getFileStream(_FILE_QUERY_OR_));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
@@ -178,9 +175,9 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		assertTrue("Query elements list size is not 1", descriptor
 				.getQueryElements().size() == 1);
 
-		MQuery query = descriptor.getQueryElements().get(0);
+		QueryDescriptor query = descriptor.getQueryElements().get(0);
 
-		performBasicValidation(query, MQueryExpressionType.Or);
+		performBasicValidation(query, QueryExpressionType.Or);
 
 		testComplicated(query.getQueryExpression(), insideType);
 
@@ -188,7 +185,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 
 	public void testNot() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 				.parse(super.getFileStream(_FILE_QUERY_NOT_));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
@@ -197,21 +194,21 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		assertTrue("Query elements list size is not 1", descriptor
 				.getQueryElements().size() == 1);
 
-		MQuery query = descriptor.getQueryElements().get(0);
+		QueryDescriptor query = descriptor.getQueryElements().get(0);
 
-		performBasicValidation(query, MQueryExpressionType.Not);
+		performBasicValidation(query, QueryExpressionType.Not);
 
 		testComplicated(query.getQueryExpression(), insideType);
 
 	}
 
-	private void testComplicated(MQueryExpression expression,
-			MQueryExpressionType[] memberTypes) {
+	private void testComplicated(QueryExpressionDescriptor expression,
+			QueryExpressionType[] memberTypes) {
 
 		// FIXME: make this check on nested and/or
 		switch (expression.getType()) {
 		case Or:
-			MQueryExpression child = null;
+			QueryExpressionDescriptor child = null;
 			for (int index = 0; index < expression.getAnd().size(); index++) {
 				child = expression.getAnd().get(index);
 				assertTrue("Child type is not proper, it is[" + child.getType()
@@ -330,7 +327,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		}
 	}
 
-	private void performCheckOnCompare(MCompare compare) {
+	private void performCheckOnCompare(CompareDescriptor compare) {
 		validateValue(compare.getAttributeName() + "",
 				"Compare  attribute name", _COMPARE_ATTRIBUTE_NAME);
 		validateValue(compare.getOp() + "", "Compare op", _COMPARE_OP);
@@ -341,7 +338,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 				_COLLATOR_REF);
 	}
 
-	private void performCheckOnLongestPrefixMatch(MLongestPrefixMatch longest) {
+	private void performCheckOnLongestPrefixMatch(LongestPrefixMatchDescriptor longest) {
 		validateValue(longest.getAttributeName() + "",
 				"Longest Prefix Match  attribute name", _COMPARE_ATTRIBUTE_NAME);
 		validateValue(longest.getParameter() + "",
@@ -352,7 +349,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 				"Longest Prefix Match colaltor-ref", _COLLATOR_REF);
 	}
 
-	private void performCheckOnHasprefix(MHasPrefix hasPrefix) {
+	private void performCheckOnHasprefix(HasPrefixDescriptor hasPrefix) {
 		validateValue(hasPrefix.getAttributeName() + "",
 				"Has Prefix Match  attribute name", _COMPARE_ATTRIBUTE_NAME);
 		validateValue(hasPrefix.getParameter() + "",
@@ -363,7 +360,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 				"Has Prefix Match colaltor-ref", _COLLATOR_REF);
 	}
 
-	private void performCheckOnRangeMatch(MRangeMatch range) {
+	private void performCheckOnRangeMatch(RangeMatchDescriptor range) {
 		validateValue(range.getAttributeName() + "",
 				"Range Match  attribute name", _COMPARE_ATTRIBUTE_NAME);
 		validateValue(range.getCollatorRef() + "", "Range Match colaltor-ref",
@@ -379,14 +376,14 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 				_RANGE_MATCH_TO_PARAMETER);
 	}
 
-	private void performBasicValidation(MQuery query,
-			MQueryExpressionType presumedTypeExpresionType) {
+	private void performBasicValidation(QueryDescriptor query,
+			QueryExpressionType presumedTypeExpresionType) {
 		assertNotNull("Query element is null", query);
-		List<MQueryParameter> parameters = query.getQueryParameters();
+		List<? extends QueryParameterDescriptor> parameters = query.getQueryParameters();
 		assertNotNull("Query parameters list is null", parameters);
 		assertTrue("Query parameters list size is not 1",
 				parameters.size() == 1);
-		MQueryParameter parameter = parameters.get(0);
+		QueryParameterDescriptor parameter = parameters.get(0);
 		validateValue(query.getName(), "Query name", _QUERY_NAME);
 		assertNotNull("Query parameter is null", parameter);
 
@@ -395,7 +392,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		validateValue(parameter.getType(), "Query parameter type",
 				_QUERY_PARAMETER_TYPE);
 
-		MQueryOptions options = query.getQueryOptions();
+		QueryOptionsDescriptor options = query.getQueryOptions();
 		assertNotNull("Query options is null", options);
 
 		validateValue(options.getMaxMatches() + "",
@@ -403,7 +400,7 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 		validateValue(options.isReadOnly() + "", "Query options read only",
 				"" + true);
 
-		MQueryExpression expression = query.getQueryExpression();
+		QueryExpressionDescriptor expression = query.getQueryExpression();
 		assertTrue("Root expression type[" + expression.getType() + "] is not "
 				+ presumedTypeExpresionType,
 				presumedTypeExpresionType == expression.getType());
@@ -417,16 +414,16 @@ public class ProfileDescriptorQueriesTest extends TCUtilityClass {
 			assertNotNull("Expression wrapper is null", expressionWrapper);
 			assertTrue(
 					"Expression wrapper is not instance of"
-							+ MQueryExpression.class,
-					((List) expressionWrapper).get(0) instanceof MQueryExpression);
+							+ QueryExpressionDescriptor.class,
+					((List<? extends QueryExpressionDescriptor>) expressionWrapper).get(0) instanceof QueryExpressionDescriptor);
 			break;
 		case And:
 			expressionWrapper = expression.getAnd();
 			assertNotNull("Expression wrapper is null", expressionWrapper);
 			assertTrue(
 					"Expression wrapper is not instance of"
-							+ MQueryExpression.class,
-					((List) expressionWrapper).get(0) instanceof MQueryExpression);
+							+ QueryExpressionDescriptor.class,
+					((List<? extends QueryExpressionDescriptor>) expressionWrapper).get(0) instanceof QueryExpressionDescriptor);
 			break;
 		case Not:
 			expressionWrapper = expression.getNot();

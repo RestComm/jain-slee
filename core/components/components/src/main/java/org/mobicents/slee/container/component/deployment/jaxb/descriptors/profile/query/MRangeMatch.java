@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile.query;
 
+import org.mobicents.slee.container.component.profile.query.RangeMatchDescriptor;
+
 /**
  * Start time:11:59:13 2009-01-29<br>
  * Project: mobicents-jainslee-server-core<br>
@@ -7,9 +9,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MRangeMatch {
-
-	private org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.RangeMatch rangeMatch11;
+public class MRangeMatch implements RangeMatchDescriptor {
 
 	private String attributeName;
 
@@ -22,9 +22,7 @@ public class MRangeMatch {
 	private String collatorRef;
 
 	public MRangeMatch(org.mobicents.slee.container.component.deployment.jaxb.slee11.profile.RangeMatch rangeMatch11)
-	{
-		this.rangeMatch11 = rangeMatch11;
-		
+	{		
 		this.attributeName = rangeMatch11.getAttributeName();
 		
 		this.fromValue = rangeMatch11.getFromValue();

@@ -1,5 +1,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profile;
 
+import org.mobicents.slee.container.component.profile.query.CollatorDescriptor;
+
 /**
  * Represents collator.
  * Start time:16:17:09 2009-01-18<br>
@@ -8,7 +10,7 @@ package org.mobicents.slee.container.component.deployment.jaxb.descriptors.profi
  * @author <a href="mailto:baranowb@gmail.com">Bartosz Baranowski </a>
  * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  */
-public class MCollator {
+public class MCollator implements CollatorDescriptor {
 
   private String description;
 

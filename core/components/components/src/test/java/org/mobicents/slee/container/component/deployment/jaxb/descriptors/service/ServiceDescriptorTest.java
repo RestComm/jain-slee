@@ -14,7 +14,7 @@ import java.util.List;
 
 import javax.slee.management.DeploymentException;
 
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorFactory;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ServiceDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.xml.sax.SAXException;
@@ -52,7 +52,7 @@ public class ServiceDescriptorTest extends TCUtilityClass {
 	public void testParseTwo10() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		List<ServiceDescriptorImpl> specs=new ServiceDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE10));
+		List<ServiceDescriptorImpl> specs=new ServiceDescriptorFactoryImpl().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE10));
 
 		assertNotNull("Service return value is null", specs);
 		assertTrue("Service  size is wrong!!!", specs.size()==2);
@@ -72,7 +72,7 @@ public class ServiceDescriptorTest extends TCUtilityClass {
 	public void testParseTwo() throws DeploymentException, SAXException, IOException, URISyntaxException
 	{
 		
-		List<ServiceDescriptorImpl> specs=new ServiceDescriptorFactory().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE));
+		List<ServiceDescriptorImpl> specs=new ServiceDescriptorFactoryImpl().parse(super.getFileStream(_TWO_DESCRIPTOR_FILE));
 		assertNotNull("Service return value is null", specs);
 		assertTrue("Service  size is wrong!!!", specs.size()==2);
 		assertNotNull("Service return value cell is null", specs.get(0));
@@ -93,12 +93,12 @@ public class ServiceDescriptorTest extends TCUtilityClass {
 
 		validateKey(service.getRootSbbID(), "Root Sbb key", new String[]{_SBB_NAME+index,_SBB_VENDOR+index,_SBB_VERSION+index});
 		validateKey(service.getServiceID(), "Service key", new String[]{_SERVICE_NAME+index,_SERVICE_VENDOR+index,_SERVICE_VERSION+index});
-		validateValue(service.getMService().getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
+		validateValue(service.getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
 	
 		
-		validateValue(service.getMService().getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
+		validateValue(service.getAddressProfileTable(), "Address profile table", _ADDRESS_PROFILE_TABLE+index);
 		if(!service.isSlee11())
-			validateValue(service.getMService().getResourceInfoProfileTable(), "Resource info profile table", _RESOURCE_INFO_PROFILE_TABLE+index);
+			validateValue(service.getResourceInfoProfileTable(), "Resource info profile table", _RESOURCE_INFO_PROFILE_TABLE+index);
 	}
 	
 	

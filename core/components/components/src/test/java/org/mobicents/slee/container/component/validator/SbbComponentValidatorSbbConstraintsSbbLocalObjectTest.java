@@ -10,15 +10,10 @@ package org.mobicents.slee.container.component.validator;
 
 import java.util.List;
 
-import javassist.CtClass;
-import javassist.NotFoundException;
-
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactory;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
-import org.mobicents.slee.container.component.validator.ClassUtils;
-import org.mobicents.slee.container.component.validator.SbbComponentValidator;
 
 /**
  * Start time:17:07:31 2009-01-31<br>
@@ -37,9 +32,9 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends TCUti
 
 	public void testSbbOne11ConstraintsSbbLocalInterfaceOk() throws Exception {
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_SBB_LOCAL_INTERFACE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_OK_CONSTRAINTS_SBB_LOCAL_INTERFACE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
@@ -57,9 +52,9 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends TCUti
 
 	public void testSbbOne11ConstraintsSbbLocalInterfaceWrongReturnType() throws Exception {
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_WRONG_RETURN_TYPE_SBB_LOCAL_INTERFACE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_WRONG_RETURN_TYPE_SBB_LOCAL_INTERFACE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
@@ -77,9 +72,9 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends TCUti
 
 	public void testSbbOne11ConstraintsSbbLocalInterfaceWrongThrows() throws Exception {
 	
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_WRONG_THROWS_SBB_LOCAL_INTERFACE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_WRONG_THROWS_SBB_LOCAL_INTERFACE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(
@@ -97,9 +92,9 @@ public class SbbComponentValidatorSbbConstraintsSbbLocalObjectTest extends TCUti
 
 	public void testSbbOne11ConstraintsSbbLocalInterfaceMissingMethod() throws Exception {
 
-		List<SbbDescriptorImpl> specs = new SbbDescriptorFactory().parse(super.getFileStream(_SBB_JAR_ONE_11_MISSING_METHOD_SBB_LOCAL_INTERFACE));
+		List<SbbDescriptorImpl> specs = new SbbDescriptorFactoryImpl().parse(super.getFileStream(_SBB_JAR_ONE_11_MISSING_METHOD_SBB_LOCAL_INTERFACE));
 		final SbbDescriptorImpl descriptor = specs.get(0);
-		SbbComponent component = new SbbComponent(descriptor);
+		SbbComponentImpl component = new SbbComponentImpl(descriptor);
 		component.setAbstractSbbClass(Thread.currentThread().getContextClassLoader().loadClass(
 				descriptor.getSbbAbstractClass().getSbbAbstractClassName()));
 		component.setSbbLocalInterfaceClass(Thread.currentThread().getContextClassLoader().loadClass(

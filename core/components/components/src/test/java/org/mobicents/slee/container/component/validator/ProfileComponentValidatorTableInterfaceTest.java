@@ -8,13 +8,10 @@
  */
 package org.mobicents.slee.container.component.validator;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.URL;
 import java.util.List;
 
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactory;
+import org.mobicents.slee.container.component.ProfileSpecificationComponentImpl;
+import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorFactoryImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ProfileSpecificationDescriptorImpl;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.TCUtilityClass;
 import org.mobicents.slee.container.component.validator.profile.tableinterface.ProfileTableInterfaceLackQuery;
@@ -42,24 +39,24 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	
 	public void testProfileTableInterfaceConstraintsOk() throws Exception {
 	
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
 
 		
 		
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
 
 		component.setProfileTableInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileTableInterface().getProfileTableInterfaceName()));
+						descriptor.getProfileTableInterface()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
@@ -72,14 +69,14 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	
 	public void testProfileTableInterfaceConstraintsWrongParameterType() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
@@ -97,15 +94,15 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	
 	public void testProfileTableInterfaceConstraintsNotEnoughParameters() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
@@ -125,15 +122,15 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 
 	public void testProfileTableInterfaceConstraintsLackQuery() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
@@ -154,15 +151,15 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	
 	public void testProfileTableInterfaceConstraintsNotMatchedQuery() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_OK_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
@@ -180,22 +177,22 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	
 	public void testProfileTableInterfaceConstraintsWrongOP() throws Exception {
 	
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_WRONG_OP_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
 
 		component.setProfileTableInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileTableInterface().getProfileTableInterfaceName()));
+						descriptor.getProfileTableInterface()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
@@ -208,22 +205,22 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	
 	public void testProfileTableInterfaceConstraintsCollatorOnNonString() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_TABLE_COLLATOR_ON_NONSTRING_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
 
 		component.setProfileTableInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileTableInterface().getProfileTableInterfaceName()));
+						descriptor.getProfileTableInterface()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
@@ -239,22 +236,22 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	
 	public void testProfileTableInterfaceConstraintsExceptionalType() throws Exception {
 
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_PROFILE_ADDRESS_CONSTRAINTS));
 
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
 
 		component.setProfileTableInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileTableInterface().getProfileTableInterfaceName()));
+						descriptor.getProfileTableInterface()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);
@@ -272,22 +269,22 @@ public class ProfileComponentValidatorTableInterfaceTest extends TCUtilityClass 
 	public void testProfileTableInterfaceConstraintsLackOfParamAndValue() throws Exception {
 
 	
-		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactory()
+		List<ProfileSpecificationDescriptorImpl> specs = new ProfileSpecificationDescriptorFactoryImpl()
 		.parse(super.getFileStream(_PROFILE_SPEC_JAR_ONE_LACK_OF_PARAMANDVALUE_CONSTRAINTS));
 	
 		ProfileSpecificationDescriptorImpl descriptor = specs.get(0);
-		ProfileSpecificationComponent component = new ProfileSpecificationComponent(
+		ProfileSpecificationComponentImpl component = new ProfileSpecificationComponentImpl(
 				descriptor);
 		component.setProfileCmpInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileCMPInterface()
+						descriptor.getProfileCMPInterface()
 								.getProfileCmpInterfaceName()));
 
 		
 
 		component.setProfileTableInterfaceClass(Thread.currentThread()
 				.getContextClassLoader().loadClass(
-						descriptor.getProfileClasses().getProfileTableInterface().getProfileTableInterfaceName()));
+						descriptor.getProfileTableInterface()));
 
 		ProfileSpecificationComponentValidator validator = new ProfileSpecificationComponentValidator();
 		validator.setComponent(component);

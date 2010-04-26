@@ -31,18 +31,21 @@ import javax.slee.profile.UnrecognizedProfileTableNameException;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.component.ComponentRepository;
-import org.mobicents.slee.container.component.EventTypeComponent;
-import org.mobicents.slee.container.component.ProfileSpecificationComponent;
-import org.mobicents.slee.container.component.SbbComponent;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.SbbDescriptorImpl;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.MEnvEntry;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MProfileSpecRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MSbbRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MEventEntry;
+import org.mobicents.slee.container.component.SbbComponentImpl;
+import org.mobicents.slee.container.component.common.EnvEntryDescriptor;
+import org.mobicents.slee.container.component.common.ProfileSpecRefDescriptor;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetChildRelationMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MGetProfileCMPMethod;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb.MSbbCMPField;
+import org.mobicents.slee.container.component.event.EventTypeComponent;
+import org.mobicents.slee.container.component.profile.ProfileSpecificationComponent;
+import org.mobicents.slee.container.component.sbb.CMPFieldDescriptor;
+import org.mobicents.slee.container.component.sbb.EventEntryDescriptor;
+import org.mobicents.slee.container.component.sbb.GetChildRelationMethodDescriptor;
+import org.mobicents.slee.container.component.sbb.GetProfileCMPMethodDescriptor;
+import org.mobicents.slee.container.component.sbb.SbbComponent;
+import org.mobicents.slee.container.component.sbb.SbbDescriptor;
+import org.mobicents.slee.container.component.sbb.SbbRefDescriptor;
 
 /**
  * Start time:17:06:21 2009-01-30<br>
@@ -62,7 +65,7 @@ public class SbbComponentValidator implements Validator {
 
 	public static final String _SBB_GET_CHILD_RELATION_SIGNATURE_PART = "[]";
 
-	private SbbComponent component = null;
+	private SbbComponentImpl component = null;
 	private ComponentRepository repository = null;
 	private final static transient Logger logger = Logger.getLogger(SbbComponentValidator.class);
 	private final static Set<String> _PRIMITIVES;
@@ -179,11 +182,11 @@ public class SbbComponentValidator implements Validator {
 
 	}
 
-	public SbbComponent getComponent() {
+	public SbbComponentImpl getComponent() {
 		return component;
 	}
 
-	public void setComponent(SbbComponent component) {
+	public void setComponent(SbbComponentImpl component) {
 		this.component = component;
 	}
 
@@ -382,7 +385,7 @@ public class SbbComponentValidator implements Validator {
 	boolean validateSbbActivityContextInterface(Map<String, Method> sbbAbstractClassAbstraMethod,
 			Map<String, Method> sbbAbstractClassAbstraMethodFromSuperClasses) {
 
-		if (this.component.getDescriptor().getSbbClasses().getSbbActivityContextInterface() == null) {
+		if (this.component.getDescriptor().getSbbActivityContextInterface() == null) {
 			// FIXME: add check for asSbbActivityContextInteface method ? This
 			// will be catched at the end of check anyway
 			if (logger.isDebugEnabled()) {
@@ -704,7 +707,7 @@ public class SbbComponentValidator implements Validator {
 
 		// FIXME: its cant be out of scope, since its byte....
 		// we look for method key
-		for (MGetChildRelationMethod mMetod : this.component.getDescriptor().getSbbClasses().getSbbAbstractClass().getChildRelationMethods().values()) {
+		for (GetChildRelationMethodDescriptor mMetod : this.component.getDescriptor().getSbbAbstractClass().getChildRelationMethods().values()) {
 			if (mMetod.getDefaultPriority() > 127 || mMetod.getDefaultPriority() < -128) {
 				passed = false;
 
@@ -785,7 +788,7 @@ public class SbbComponentValidator implements Validator {
 		String errorBuffer = new String("");
 
 		try {
-			if (this.component.getDescriptor().getSbbClasses().getSbbLocalInterface() == null)
+			if (this.component.getDescriptor().getSbbLocalInterface() == null)
 				return passed;
 
 			Class sbbLocalInterfaceClass = this.component.getSbbLocalInterfaceClass();
@@ -906,8 +909,9 @@ public class SbbComponentValidator implements Validator {
 		boolean passed = true;
 		String errorBuffer = new String("");
 
-		for (MSbbCMPField entry : this.component.getDescriptor().getSbbClasses().getSbbAbstractClass().getCmpFields()) {
+		for (CMPFieldDescriptor cmpFieldDescriptor : this.component.getDescriptor().getSbbAbstractClass().getCmpFields()) {
 
+			MSbbCMPField entry = (MSbbCMPField) cmpFieldDescriptor;
 			String fieldName = entry.getCmpFieldName();
 
 			Character c = fieldName.charAt(0);
@@ -1030,9 +1034,9 @@ public class SbbComponentValidator implements Validator {
 						referencedComponent = this.component;
 					}
 					else {
-						for (MSbbRef mSbbRef : this.component.getDescriptor().getSbbRefs()) {
+						for (SbbRefDescriptor mSbbRef : this.component.getDescriptor().getSbbRefs()) {
 							if (mSbbRef.getSbbAlias().equals(entry.getSbbAliasRef())) {
-								referencedSbb =  new SbbID(mSbbRef.getSbbName(), mSbbRef.getSbbVendor(), mSbbRef.getSbbVersion());
+								referencedSbb =  mSbbRef.getComponentID();
 								break;
 							}
 						}
@@ -1185,9 +1189,9 @@ public class SbbComponentValidator implements Validator {
 		// Abstract methods are for fire methods, we have to check them and
 		// remove if present :)
 
-		Map<EventTypeID,MEventEntry> events = this.component.getDescriptor().getEventEntries();
+		Map<EventTypeID,EventEntryDescriptor> events = this.component.getDescriptor().getEventEntries();
 
-		for (MEventEntry event : events.values()) {
+		for (EventEntryDescriptor event : events.values()) {
 
 			switch (event.getEventDirection()) {
 
@@ -1219,14 +1223,14 @@ public class SbbComponentValidator implements Validator {
 		return passed;
 	}
 
-	boolean validateReceiveEvent(MEventEntry event, Map<String, Method> concreteMethods, Map<String, Method> concreteMethodsFromSuperClasses) {
+	boolean validateReceiveEvent(EventEntryDescriptor event, Map<String, Method> concreteMethods, Map<String, Method> concreteMethodsFromSuperClasses) {
 		boolean passed = true;
 		String errorBuffer = new String("");
 
 		try {
 			// we can have only one receive method
 
-			EventTypeComponent eventTypeComponent = this.repository.getComponentByID(event.getEventReference().getComponentID());
+			EventTypeComponent eventTypeComponent = this.repository.getComponentByID(event.getEventReference());
 
 			if (eventTypeComponent == null) {
 				passed = false;
@@ -1352,7 +1356,7 @@ public class SbbComponentValidator implements Validator {
 		return passed;
 	}
 
-	boolean validateInitialEventSelector(MEventEntry event, Map<String, Method> concreteMethods, Map<String, Method> concreteMethodsFromSuperClasses) {
+	boolean validateInitialEventSelector(EventEntryDescriptor event, Map<String, Method> concreteMethods, Map<String, Method> concreteMethodsFromSuperClasses) {
 		boolean passed = true;
 		String errorBuffer = new String("");
 		try {
@@ -1480,7 +1484,7 @@ public class SbbComponentValidator implements Validator {
 		return passed;
 	}
 
-	boolean validateFireEvent(MEventEntry event, Map<String, Method> sbbAbstractClassMethods, Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
+	boolean validateFireEvent(EventEntryDescriptor event, Map<String, Method> sbbAbstractClassMethods, Map<String, Method> sbbAbstractMethodsFromSuperClasses) {
 
 		boolean passed = true;
 		String errorBuffer = new String("");
@@ -1488,7 +1492,7 @@ public class SbbComponentValidator implements Validator {
 		try {
 			// we can have only one receive method
 
-			EventTypeComponent eventTypeComponent = this.repository.getComponentByID(event.getEventReference().getComponentID());
+			EventTypeComponent eventTypeComponent = this.repository.getComponentByID(event.getEventReference());
 
 			if (eventTypeComponent == null) {
 				passed = false;
@@ -1639,14 +1643,16 @@ public class SbbComponentValidator implements Validator {
 		String errorBuffer = new String("");
 
 		try {
-			Map<String,MGetProfileCMPMethod> profileCmpMethods = this.component.getDescriptor().getSbbClasses().getSbbAbstractClass()
+			Map<String,GetProfileCMPMethodDescriptor> profileCmpMethods = this.component.getDescriptor().getSbbAbstractClass()
 					.getProfileCMPMethods();
 			if (profileCmpMethods.size() == 0) {
 				return passed;
 			}
 
 			// eh, else we have to do all checks
-			for (MGetProfileCMPMethod method : profileCmpMethods.values()) {
+			for (GetProfileCMPMethodDescriptor getProfileCMPMethodDescriptor : profileCmpMethods.values()) {
+
+				MGetProfileCMPMethod method = (MGetProfileCMPMethod) getProfileCMPMethodDescriptor;
 
 				if (method.getProfileCmpMethodName().startsWith("ejb") || method.getProfileCmpMethodName().startsWith("sbb")) {
 					passed = false;
@@ -1694,7 +1700,7 @@ public class SbbComponentValidator implements Validator {
 				// this is referential integrity
 				Map<String, ProfileSpecificationID> map = new HashMap<String, ProfileSpecificationID>();
 
-				for (MProfileSpecRef rf : this.component.getDescriptor().getProfileSpecRefs()) {
+				for (ProfileSpecRefDescriptor rf : this.component.getDescriptor().getProfileSpecRefs()) {
 					map.put(rf.getProfileSpecAlias(), rf.getComponentID());
 				}
 
@@ -1770,8 +1776,8 @@ public class SbbComponentValidator implements Validator {
 
 		try {
 
-			List<MEnvEntry> envEntries = this.component.getDescriptor().getEnvEntries();
-			for (MEnvEntry e : envEntries) {
+			List<EnvEntryDescriptor> envEntries = this.component.getDescriptor().getEnvEntries();
+			for (EnvEntryDescriptor e : envEntries) {
 				if (!_ENV_ENTRIES_TYPES.contains(e.getEnvEntryType())) {
 
 					passed = false;
@@ -1798,12 +1804,12 @@ public class SbbComponentValidator implements Validator {
 
 		try {
 
-			Map<String, MProfileSpecRef> declaredProfileReferences = new HashMap<String, MProfileSpecRef>();
-			Map<String, MSbbRef> declaredSbbreferences = new HashMap<String, MSbbRef>();
+			Map<String, ProfileSpecRefDescriptor> declaredProfileReferences = new HashMap<String, ProfileSpecRefDescriptor>();
+			Map<String, SbbRefDescriptor> declaredSbbreferences = new HashMap<String, SbbRefDescriptor>();
 
-			SbbDescriptorImpl descriptor = this.component.getDescriptor();
+			SbbDescriptor descriptor = this.component.getDescriptor();
 
-			for (MProfileSpecRef ref : descriptor.getProfileSpecRefs()) {
+			for (ProfileSpecRefDescriptor ref : descriptor.getProfileSpecRefs()) {
 				// if(ref.getProfileSpecAlias()==null ||
 				// ref.getProfileSpecAlias().compareTo("")==0)
 				if (ref.getProfileSpecAlias() != null && ref.getProfileSpecAlias().compareTo("") == 0) {
@@ -1822,7 +1828,7 @@ public class SbbComponentValidator implements Validator {
 				}
 			}
 
-			for (MSbbRef ref : descriptor.getSbbRefs()) {
+			for (SbbRefDescriptor ref : descriptor.getSbbRefs()) {
 
 				if (ref.getSbbAlias() == null || ref.getSbbAlias().compareTo("") == 0) {
 					passed = false;
@@ -1841,7 +1847,8 @@ public class SbbComponentValidator implements Validator {
 
 			Set<String> childRelationMethods = new HashSet<String>();
 
-			for (MGetChildRelationMethod childMethod : descriptor.getSbbClasses().getSbbAbstractClass().getChildRelationMethods().values()) {
+			for (GetChildRelationMethodDescriptor childMethodInterface : descriptor.getGetChildRelationMethodsMap().values()) {
+				MGetChildRelationMethod childMethod = (MGetChildRelationMethod) childMethodInterface;
 				if (childMethod.getChildRelationMethodName() == null || childMethod.getChildRelationMethodName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer(
@@ -1866,7 +1873,8 @@ public class SbbComponentValidator implements Validator {
 			}
 
 			Map<String, MSbbCMPField> declaredCmps = new HashMap<String, MSbbCMPField>();
-			for (MSbbCMPField cmp : descriptor.getSbbClasses().getSbbAbstractClass().getCmpFields()) {
+			for (CMPFieldDescriptor cmpFieldDescriptor : descriptor.getSbbAbstractClass().getCmpFields()) {
+				MSbbCMPField cmp = (MSbbCMPField) cmpFieldDescriptor;
 				if (cmp.getCmpFieldName() == null || cmp.getCmpFieldName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer("Sbb descriptor cmp field with empty name.", "3.1.8", errorBuffer);
@@ -1884,8 +1892,8 @@ public class SbbComponentValidator implements Validator {
 			}
 
 			// This is required, events can be decalred once
-			Map<String, MEventTypeRef> eventNameToReference = new HashMap<String, MEventTypeRef>();
-			for (MEventEntry event : descriptor.getEventEntries().values()) {
+			Map<String, EventTypeID> eventNameToReference = new HashMap<String, EventTypeID>();
+			for (EventEntryDescriptor event : descriptor.getEventEntries().values()) {
 				if (event.getEventName() == null || event.getEventName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer("Sbb descriptor declares event with empty event name, ", "3.1.8", errorBuffer);
@@ -1905,25 +1913,25 @@ public class SbbComponentValidator implements Validator {
 
 			// FIXME: ra part?
 
-			if (descriptor.getSbbClasses().getSbbActivityContextInterface() != null) {
-				if (descriptor.getSbbClasses().getSbbActivityContextInterface().getInterfaceName() == null
-						|| descriptor.getSbbClasses().getSbbActivityContextInterface().getInterfaceName().compareTo("") == 0) {
+			if (descriptor.getSbbActivityContextInterface() != null) {
+				if (descriptor.getSbbActivityContextInterface() == null
+						|| descriptor.getSbbActivityContextInterface().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer("Sbb descriptor declares sbb aci which is empty.", "3.1.8", errorBuffer);
 				}
 			}
 
-			if (descriptor.getSbbClasses().getSbbLocalInterface() != null) {
-				if (descriptor.getSbbClasses().getSbbLocalInterface().getSbbLocalInterfaceName() == null
-						|| descriptor.getSbbClasses().getSbbLocalInterface().getSbbLocalInterfaceName().compareTo("") == 0) {
+			if (descriptor.getSbbLocalInterface() != null) {
+				if (descriptor.getSbbLocalInterface().getSbbLocalInterfaceName() == null
+						|| descriptor.getSbbLocalInterface().getSbbLocalInterfaceName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer("Sbb descriptor declares sbb local interface which is empty.", "3.1.8", errorBuffer);
 				}
 			}
 
-			if (descriptor.getSbbClasses().getSbbUsageParametersInterface() != null) {
-				if (descriptor.getSbbClasses().getSbbUsageParametersInterface().getUsageParametersInterfaceName() == null
-						|| descriptor.getSbbClasses().getSbbUsageParametersInterface().getUsageParametersInterfaceName().compareTo("") == 0) {
+			if (descriptor.getSbbUsageParametersInterface() != null) {
+				if (descriptor.getSbbUsageParametersInterface().getUsageParametersInterfaceName() == null
+						|| descriptor.getSbbUsageParametersInterface().getUsageParametersInterfaceName().compareTo("") == 0) {
 					passed = false;
 					errorBuffer = appendToBuffer("Sbb descriptor declares sbb usage interface which is empty.", "3.1.8", errorBuffer);
 				}
@@ -1956,7 +1964,7 @@ public class SbbComponentValidator implements Validator {
 				// Specification. This must be enforced by a 1.1
 				// JAIN SLEE.
 
-				for (MProfileSpecRef profileReference : this.component.getDescriptor().getProfileSpecRefs()) {
+				for (ProfileSpecRefDescriptor profileReference : this.component.getDescriptor().getProfileSpecRefs()) {
 					ProfileSpecificationComponent specComponent = this.repository.getComponentByID(profileReference.getComponentID());
 					if (specComponent == null) {
 						// should not happen

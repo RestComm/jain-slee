@@ -1,137 +1,141 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import javax.slee.ComponentID;
+import javax.slee.EventTypeID;
 import javax.slee.management.DeploymentException;
 import javax.slee.resource.ResourceAdaptorTypeID;
 
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MEventTypeRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.common.references.MLibraryRef;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityContextInterfaceFactoryInterface;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MActivityType;
-import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorInterface;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorType;
 import org.mobicents.slee.container.component.deployment.jaxb.descriptors.ratype.MResourceAdaptorTypeClasses;
+import org.mobicents.slee.container.component.ratype.ResourceAdaptorTypeDescriptor;
 
 /**
  * 
  * ResourceAdaptorTypeDescriptorImpl.java
- *
- * <br>Project:  mobicents
- * <br>5:24:59 PM Jan 23, 2009 
+ * 
  * <br>
- * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a> 
+ * Project: mobicents <br>
+ * 5:24:59 PM Jan 23, 2009 <br>
+ * 
+ * @author <a href="mailto:brainslog@gmail.com"> Alexandre Mendonca </a>
  * @author <a href="mailto:baranowb@gmail.com"> Bartosz Baranowski </a>
  */
-public class ResourceAdaptorTypeDescriptorImpl {
+public class ResourceAdaptorTypeDescriptorImpl extends
+		AbstractComponentWithLibraryRefsDescriptor implements
+		ResourceAdaptorTypeDescriptor {
 
-  private ResourceAdaptorTypeID resourceAdaptorTypeID;
+	private ResourceAdaptorTypeID resourceAdaptorTypeID;
 
-  private String description;
+	private List<EventTypeID> eventTypeRefs;
+	private List<String> activityTypes;
 
-  private List<MEventTypeRef> eventTypeRefs;
-  private List<MActivityType> activityTypes;
-  private List<MLibraryRef> libraryRefs;
+	private String activityContextInterfaceFactoryInterface;
+	private String resourceAdaptorInterface;
 
-  private MActivityContextInterfaceFactoryInterface activityContextInterfaceFactoryInterface;
-  private MResourceAdaptorInterface resourceAdaptorInterface;
+	/**
+	 * Constructor for JAIN SLEE RA Type
+	 * 
+	 * @param resourceAdaptorType
+	 * @param isSlee11
+	 */
+	public ResourceAdaptorTypeDescriptorImpl(
+			MResourceAdaptorType resourceAdaptorType, boolean isSlee11)
+			throws DeploymentException {
 
-  private boolean isSlee11;
+		super(isSlee11);
 
-  private Set<ComponentID> dependenciesSet = new HashSet<ComponentID>();
+		try {
+			this.resourceAdaptorTypeID = new ResourceAdaptorTypeID(
+					resourceAdaptorType.getResourceAdaptorTypeName(),
+					resourceAdaptorType.getResourceAdaptorTypeVendor(),
+					resourceAdaptorType.getResourceAdaptorTypeVersion());
 
-  /**
-   * Constructor for JAIN SLEE RA Type
-   * 
-   * @param resourceAdaptorType
-   * @param isSlee11
-   */
-  public ResourceAdaptorTypeDescriptorImpl( MResourceAdaptorType resourceAdaptorType, boolean isSlee11 ) throws DeploymentException
-  {
-    try
-    {
-      this.description = resourceAdaptorType.getDescription();
+			super.setLibraryRefs(resourceAdaptorType.getLibraryRef());
 
-      this.resourceAdaptorTypeID = new ResourceAdaptorTypeID(resourceAdaptorType.getResourceAdaptorTypeName(), 
-          resourceAdaptorType.getResourceAdaptorTypeVendor(), resourceAdaptorType.getResourceAdaptorTypeVersion());
+			this.eventTypeRefs = new ArrayList<EventTypeID>();
+			for (MEventTypeRef eventTypeRef : resourceAdaptorType.getEventTypeRef()) {
+				this.eventTypeRefs.add(eventTypeRef.getComponentID());
+			}
+			super.dependenciesSet.addAll(eventTypeRefs);
 
-      MResourceAdaptorTypeClasses resourceAdaptorTypeClasses = resourceAdaptorType.getResourceAdaptorTypeClasses(); 
+			final MResourceAdaptorTypeClasses resourceAdaptorTypeClasses = resourceAdaptorType
+					.getResourceAdaptorTypeClasses();
 
-      this.eventTypeRefs = resourceAdaptorType.getEventTypeRef();
-      this.activityTypes = resourceAdaptorTypeClasses.getActivityType();
-      this.libraryRefs = resourceAdaptorType.getLibraryRef();
+			this.activityTypes = resourceAdaptorTypeClasses.getActivityType();
 
-      this.activityContextInterfaceFactoryInterface = resourceAdaptorTypeClasses.getActivityContextInterfaceFactoryInterface();
-      this.resourceAdaptorInterface = resourceAdaptorTypeClasses.getResourceAdaptorInterface();
+			this.activityContextInterfaceFactoryInterface = resourceAdaptorTypeClasses
+					.getActivityContextInterfaceFactoryInterface() != null ? resourceAdaptorTypeClasses
+					.getActivityContextInterfaceFactoryInterface()
+					.getActivityContextInterfaceFactoryInterfaceName()
+					: null;
+			this.resourceAdaptorInterface = resourceAdaptorTypeClasses
+					.getResourceAdaptorInterface() != null ? resourceAdaptorTypeClasses
+					.getResourceAdaptorInterface()
+					.getResourceAdaptorInterfaceName()
+					: null;
 
-      buildDependenciesSet();
-    }
-    catch (Exception e) {
-      throw new DeploymentException("Failed to build Resource Adaptot Type descriptor", e);
-    }
-  }
+		} catch (Exception e) {
+			throw new DeploymentException(
+					"Failed to build Resource Adaptot Type descriptor", e);
+		}
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.ratype.ResourceAdaptorTypeDescriptor
+	 * #getEventTypeRefs()
+	 */
+	public List<EventTypeID> getEventTypeRefs() {
+		return eventTypeRefs;
+	}
 
-  private void buildDependenciesSet()
-  {
-    for(MEventTypeRef eventTypeRef : eventTypeRefs)
-    {
-      this.dependenciesSet.add( eventTypeRef.getComponentID() );
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.ratype.ResourceAdaptorTypeDescriptor
+	 * #getActivityTypes()
+	 */
+	public List<String> getActivityTypes() {
+		return activityTypes;
+	}
 
-    for(MLibraryRef libraryRef : libraryRefs)
-    {
-      this.dependenciesSet.add( libraryRef.getComponentID() );
-    }
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.ratype.ResourceAdaptorTypeDescriptor
+	 * #getActivityContextInterfaceFactoryInterface()
+	 */
+	public String getActivityContextInterfaceFactoryInterface() {
+		return activityContextInterfaceFactoryInterface;
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.ratype.ResourceAdaptorTypeDescriptor
+	 * #getResourceAdaptorInterface()
+	 */
+	public String getResourceAdaptorInterface() {
+		return resourceAdaptorInterface;
+	}
 
-  public String getDescription()
-  {
-    return description;
-  }
-
-  public List<MEventTypeRef> getEventTypeRefs()
-  {
-    return eventTypeRefs;
-  }
-
-  public List<MActivityType> getActivityTypes()
-  {
-    return activityTypes;
-  }
-
-  public List<MLibraryRef> getLibraryRefs()
-  {
-    return libraryRefs;
-  }
-
-  public MActivityContextInterfaceFactoryInterface getActivityContextInterfaceFactoryInterface()
-  {
-    return activityContextInterfaceFactoryInterface;
-  }
-
-  public MResourceAdaptorInterface getResourceAdaptorInterface()
-  {
-    return resourceAdaptorInterface;
-  }
-
-  public ResourceAdaptorTypeID getResourceAdaptorTypeID()
-  {
-    return resourceAdaptorTypeID;
-  }
-
-  public Set<ComponentID> getDependenciesSet()
-  {
-    return this.dependenciesSet;
-  }
-
-  public boolean isSlee11()
-  {
-    return this.isSlee11;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.mobicents.slee.core.component.ratype.ResourceAdaptorTypeDescriptor
+	 * #getResourceAdaptorTypeID()
+	 */
+	public ResourceAdaptorTypeID getResourceAdaptorTypeID() {
+		return resourceAdaptorTypeID;
+	}
 
 }

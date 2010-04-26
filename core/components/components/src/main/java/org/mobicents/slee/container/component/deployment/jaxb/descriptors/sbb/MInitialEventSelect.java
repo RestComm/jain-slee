@@ -9,6 +9,7 @@
 package org.mobicents.slee.container.component.deployment.jaxb.descriptors.sbb;
 
 import org.mobicents.slee.container.component.deployment.jaxb.slee.sbb.InitialEventSelect;
+import org.mobicents.slee.container.component.sbb.InitialEventSelectVariable;
 
 /**
  * Start time:13:10:35 2009-01-20<br>
