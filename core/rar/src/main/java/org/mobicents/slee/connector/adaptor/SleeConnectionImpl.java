@@ -18,9 +18,10 @@ import org.apache.log4j.Logger;
  * @author Tim
  */
 public class SleeConnectionImpl implements SleeConnection {
-    private ManagedConnectionImpl managedConnection;
-    private static Logger log = Logger.getLogger(SleeConnectionImpl.class);
+
+	private static Logger log = Logger.getLogger(SleeConnectionImpl.class);
     
+    private ManagedConnectionImpl managedConnection;
 
     SleeConnectionImpl(ManagedConnectionImpl managedConnection) {
         this.managedConnection = managedConnection;
