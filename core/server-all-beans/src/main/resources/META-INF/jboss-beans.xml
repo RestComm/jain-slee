@@ -128,21 +128,164 @@
 		<property name="hibernateDialect">org.hibernate.dialect.PostgreSQLDialect</property>
 	</bean>
 	
-	<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfiguration">
-		<property name="clusteredUsageMBeans">false</property>		
-	</bean>
-	
 	<bean name="Mobicents.JAINSLEE.MobicentsManagement"
 		class="org.mobicents.slee.container.management.jmx.MobicentsManagement">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=MobicentsManagement",exposedInterface=org.mobicents.slee.container.management.jmx.MobicentsManagementMBean.class,registerDirectly=true)</annotation>
 		<property name="entitiesRemovalDelay">1</property>
-		<property name="timerThreads">8</property>
-		<property name="eventRouterThreads">8</property>
-		<property name="loadClassesFirstFromAS">true</property>
 	</bean>
 	
+	<bean name="Mobicents.JAINSLEE.ClassLoadingConfiguration"
+		class="org.mobicents.slee.container.component.deployment.classloading.ClassLoadingConfiguration">
+		<property name="loadClassesFirstFromAS">true</property>				
+	</bean>	
+		
+	<bean name="Mobicents.JAINSLEE.ComponentsManagement"
+		class="org.mobicents.slee.container.component.ComponentManagementImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.ClassLoadingConfiguration" />
+			</parameter>
+		</constructor>	
+	</bean>	
+	
+	<bean name="Mobicents.JAINSLEE.SbbManagement"
+		class="org.mobicents.slee.container.management.SbbManagementImpl" />
+		
+	<bean name="Mobicents.JAINSLEE.ServiceManagement"
+		class="org.mobicents.slee.container.management.ServiceManagementImpl" />
+	
+	<bean name="Mobicents.JAINSLEE.ResourceManagement"
+		class="org.mobicents.slee.container.management.ResourceManagementImpl">
+		<constructor factoryMethod="getInstance"/>		
+	</bean>
+		
+	<bean name="Mobicents.JAINSLEE.ProfileManagement"
+		class="org.mobicents.slee.container.management.ProfileManagementImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" />
+				<!-- <inject bean="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" /> -->
+			</parameter>
+		</constructor>	
+	</bean>	
+	
+	<bean name="Mobicents.JAINSLEE.EventRouterConfiguration"
+		class="org.mobicents.slee.container.management.jmx.EventRouterConfiguration">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee.config:name=EventRouter",exposedInterface=org.mobicents.slee.container.management.jmx.EventRouterConfigurationMBean.class,registerDirectly=true)</annotation>
+		<property name="eventRouterThreads">8</property>
+		<property name="collectStats">true</property>
+		<property name="executorMapperClassName">org.mobicents.slee.runtime.eventrouter.mapping.ActivityHashingEventRouterExecutorMapper</property>
+	</bean>
+		
+	<bean name="Mobicents.JAINSLEE.EventRouter"
+		class="org.mobicents.slee.runtime.eventrouter.EventRouterImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.EventRouterConfiguration" />
+			</parameter>
+		</constructor>	
+	</bean>			
+		
+	<bean name="Mobicents.JAINSLEE.TimerFacilityConfiguration"
+		class="org.mobicents.slee.container.management.jmx.TimerFacilityConfiguration">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee.config:name=TimerFacility",exposedInterface=org.mobicents.slee.container.management.jmx.TimerFacilityConfigurationMBean.class,registerDirectly=true)</annotation>
+		<property name="timerThreads">8</property>
+	</bean>
+	
+	<bean name="Mobicents.JAINSLEE.TimerFacility"
+		class="org.mobicents.slee.runtime.facilities.TimerFacilityImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.TimerFacilityConfiguration" />
+			</parameter>
+		</constructor>	
+	</bean>	
+	
+	<bean name="Mobicents.JAINSLEE.ActivityContextFactory"
+		class="org.mobicents.slee.runtime.activity.ActivityContextFactoryImpl" />		
+	
+	<bean name="Mobicents.JAINSLEE.NullActivityContextInterfaceFactory"
+		class="org.mobicents.slee.runtime.facilities.nullactivity.NullActivityContextInterfaceFactoryImpl" />
+		
+	<bean name="Mobicents.JAINSLEE.NullActivityFactory"
+		class="org.mobicents.slee.runtime.facilities.nullactivity.NullActivityFactoryImpl" />
+		
+	<bean name="Mobicents.JAINSLEE.ActivityContextNamingFacility"
+		class="org.mobicents.slee.runtime.facilities.ActivityContextNamingFacilityImpl" />
+		
+	<bean name="Mobicents.JAINSLEE.RmiServerInterface"
+		class="org.mobicents.slee.container.management.jmx.RmiServerInterfaceImpl" />
+	
+	<bean name="Mobicents.JAINSLEE.UsageMbeans.Config" class="org.mobicents.slee.runtime.usage.UsageMBeansConfigurationImpl">
+		<property name="clusteredUsageMBeans">false</property>		
+	</bean>
+	
+	<bean name="Mobicents.JAINSLEE.UsageParametersManagement"
+		class="org.mobicents.slee.container.management.UsageParametersManagementImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.UsageMbeans.Config" />
+			</parameter>
+		</constructor>	
+	</bean>			
+	
+	<bean name="Mobicents.JAINSLEE.SbbEntityFactory"
+		class="org.mobicents.slee.runtime.sbbentity.SbbEntityFactoryImpl" />	
+	
+	<bean name="Mobicents.JAINSLEE.EventContextFactoryDataSource"
+		class="org.mobicents.slee.container.event.DefaultEventContextFactoryDataSource" />
+		
+	<bean name="Mobicents.JAINSLEE.EventContextFactory"
+		class="org.mobicents.slee.container.event.EventContextFactoryImpl">
+		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.EventContextFactoryDataSource" />
+			</parameter>
+		</constructor>
+	</bean>	
+						
 	<bean name="Mobicents.JAINSLEE.Container" class="org.mobicents.slee.container.SleeContainer">
 		<constructor>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.ComponentsManagement" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.SbbManagement" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.ServiceManagement" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.ResourceManagement" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.ProfileManagement" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.EventContextFactory" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.EventRouter" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.TimerFacility" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.ActivityContextFactory" />
+			</parameter>
+				<parameter>
+				<inject bean="Mobicents.JAINSLEE.ActivityContextNamingFacility" />
+			</parameter>
+				<parameter>
+				<inject bean="Mobicents.JAINSLEE.NullActivityContextInterfaceFactory" />
+			</parameter>
+				<parameter>
+				<inject bean="Mobicents.JAINSLEE.NullActivityFactory" />
+			</parameter>
+			<parameter>
+				<inject bean="Mobicents.JAINSLEE.RmiServerInterface" />
+			</parameter>
+			
 			<parameter>
 				<inject bean="Mobicents.JAINSLEE.TransactionManagerMBean" />
 			</parameter>
@@ -156,11 +299,10 @@
 				<inject bean="Mobicents.JAINSLEE.TraceMBean" />
 			</parameter>
 			<parameter>
-				<inject bean="Mobicents.JAINSLEE.Profiles.JPA.HSQLDBConfig" />
-				<!-- <inject bean="Mobicents.JAINSLEE.Profiles.JPA.PostgreSQLConfig" /> -->
+				<inject bean="Mobicents.JAINSLEE.UsageParametersManagement" />
 			</parameter>
 			<parameter>
-				<inject bean="Mobicents.JAINSLEE.UsageMbeans.Config" />
+				<inject bean="Mobicents.JAINSLEE.SbbEntityFactory" />
 			</parameter>
 		</constructor>
 		<demand>Mobicents.JAINSLEE.TransactionManagerMBean</demand>
@@ -181,11 +323,7 @@
 		<demand>Mobicents.JAINSLEE.Container</demand>
 	</bean>
 
-	<bean name="Mobicents.JAINSLEE.RmiServerInterfaceMBean"
-		class="org.mobicents.slee.container.management.jmx.RmiServerInterfaceMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:service=RmiServerInterfaceMBean",exposedInterface=org.mobicents.slee.container.management.jmx.RmiServerInterfaceMBeanImplMBean.class,registerDirectly=true)</annotation>
-	</bean>
-
+	
 	<bean name="Mobicents.JAINSLEE.ServiceManagementMBean"
 		class="org.mobicents.slee.container.management.jmx.ServiceManagementMBeanImpl">
 		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="javax.slee.management:name=ServiceManagement",exposedInterface=org.mobicents.slee.container.management.jmx.ServiceManagementMBeanImplMBean.class,registerDirectly=true)</annotation>
@@ -270,7 +408,7 @@
 				method="getObjectName" />
 		</property>
 		<property name="rmiServerInterfaceMBean">
-			<value-factory bean="Mobicents.JAINSLEE.RmiServerInterfaceMBean"
+			<value-factory bean="Mobicents.JAINSLEE.RmiServerInterface"
 				method="getObjectName" />
 		</property>
 		<property name="activityManagementMBean">
@@ -284,7 +422,7 @@
 		<demand>Mobicents.JAINSLEE.ResourceManagementMBean</demand>
 		<demand>Mobicents.JAINSLEE.SbbEntitiesMBean</demand>
 		<demand>Mobicents.JAINSLEE.ActivityManagementMBean</demand>
-		<demand>Mobicents.JAINSLEE.RmiServerInterfaceMBean</demand>
+		<demand>Mobicents.JAINSLEE.RmiServerInterface</demand>
 		<demand>Mobicents.JAINSLEE.MobicentsManagement</demand>
 	</bean>
 
@@ -301,8 +439,8 @@
 	</bean>
 
 	<bean name="Mobicents.JAINSLEE.PolicyManagementMBean"
-		class="org.mobicents.slee.container.management.jmx.PolicyMBeanImpl">
-		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=PolicyManagementMBean",exposedInterface=org.mobicents.slee.container.management.jmx.PolicyMBeanImplMBean.class,registerDirectly=true)</annotation>
+		class="org.mobicents.slee.container.component.management.jmx.PolicyMBeanImpl">
+		<annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="org.mobicents.slee:name=PolicyManagementMBean",exposedInterface=org.mobicents.slee.container.component.management.jmx.PolicyMBeanImplMBean.class,registerDirectly=true)</annotation>
 		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
 		<property name="useMPolicy">true</property>
 	</bean>
