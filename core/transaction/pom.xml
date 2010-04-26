@@ -11,29 +11,11 @@
 	<artifactId>transaction</artifactId>
 
 	<dependencies>
-		<dependency>
-			<groupId>javax.slee</groupId>
-			<artifactId>jain-slee</artifactId>
-		</dependency>
 
 		<dependency>
-			<groupId>org.jboss.jbossas</groupId>
-			<artifactId>jboss-as-server</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>xerces</groupId>
-					<artifactId>xerces</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>xml-apis</groupId>
-					<artifactId>xml-apis</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>jboss.jbossts</groupId>
-			<artifactId>jbossjts</artifactId>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>common</artifactId>
+			<version>${pom.version}</version>
 		</dependency>
 
 		<!-- tests -->
