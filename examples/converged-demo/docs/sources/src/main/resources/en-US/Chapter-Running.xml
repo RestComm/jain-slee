@@ -39,6 +39,10 @@
 				<para>Install dependencies and example.</para>
 			</step>
 			<step>
+				<title>UA Configuration</title>
+				<para>Start <acronym>SIP</acronym> <acronym>UA</acronym>s. Ensure admins <acronym>UA</acronym> is bound to previously configured <acronym>SIP</acronym> <acronym>URL</acronym>.</para>
+			</step>
+			<step>
 				<title>Start</title>
 				<para>
 					Start container, for instance with such command:
@@ -66,13 +70,21 @@
 					</caption>
 				</mediaobject>
 			</step>
+			<step>
+				<title>Create account</title>
+				<para>Create account - fill all required data, ensure that <literal>Phone</literal> points to <acronym>SIP</acronym> <acronym>UA</acronym>(for instance <literal>sip:shop_lifter@127.0.0.1:5060</literal> ).</para>
+			</step>
+			<step>
+				<title>Start shopping</title>
+				<para>Make orders and checkout, wait for calls.</para>
+			</step>
 		</procedure>
 	</section>
-	<section id="running_user">
+	<section id="running_admin">
 		<title>&THIS.EXAMPLE;
 			Administrator
 		</title>
-		<para></para>
+		<para>AMIT</para>
 	</section>
 </chapter>
 
