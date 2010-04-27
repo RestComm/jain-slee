@@ -15,7 +15,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import org.jboss.seam.annotations.Name;
-import org.mobicents.examples.convergeddemo.seam.pojo.Order;
+import org.mobicents.examples.convergeddemo.seam.model.Order;
 
 @Stateless
 @Name("stats")

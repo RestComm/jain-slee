@@ -17,9 +17,9 @@ import org.jboss.seam.annotations.Destroy;
 import org.jboss.seam.annotations.Name;
 import org.jboss.seam.annotations.Scope;
 import org.jboss.seam.annotations.Startup;
-import org.mobicents.examples.convergeddemo.seam.pojo.Actor;
-import org.mobicents.examples.convergeddemo.seam.pojo.Category;
-import org.mobicents.examples.convergeddemo.seam.pojo.Product;
+import org.mobicents.examples.convergeddemo.seam.model.Actor;
+import org.mobicents.examples.convergeddemo.seam.model.Category;
+import org.mobicents.examples.convergeddemo.seam.model.Product;
 
 /**
  * Re index the needed entities

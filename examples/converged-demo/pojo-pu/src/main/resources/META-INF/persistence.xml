@@ -14,7 +14,17 @@
 		<class>org.acme.Person</class>
 		<class>org.acme.Address</class>
 		 -->
+		 <!-- 
+		<class>org.mobicents.examples.convergeddemo.seam.pojo.Actor</class>
+		<class>org.mobicents.examples.convergeddemo.seam.pojo.Category</class>
+		<class>org.mobicents.examples.convergeddemo.seam.pojo.Inventory</class>
+		 -->
 		<class>org.mobicents.examples.convergeddemo.seam.pojo.Order</class>
+		<!-- 
+		<class>org.mobicents.examples.convergeddemo.seam.pojo.OrderLine</class>
+		<class>org.mobicents.examples.convergeddemo.seam.pojo.Product</class>
+		<class>org.mobicents.examples.convergeddemo.seam.pojo.User</class>
+		 -->
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" />
 			<!--  property name="hibernate.hbm2ddl.auto" value="create-drop" /-->

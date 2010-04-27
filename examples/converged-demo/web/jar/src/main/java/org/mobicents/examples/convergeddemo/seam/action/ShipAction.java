@@ -17,7 +17,7 @@ import org.jboss.seam.annotations.bpm.BeginTask;
 import org.jboss.seam.annotations.bpm.EndTask;
 import org.jboss.seam.annotations.In;
 import org.jboss.seam.annotations.Name;
-import org.mobicents.examples.convergeddemo.seam.pojo.Order;
+import org.mobicents.examples.convergeddemo.seam.model.Order;
 
 @Stateful
 @Name("ship")

@@ -41,25 +41,8 @@ import net.java.slee.resource.mgcp.JainMgcpProvider;
 import net.java.slee.resource.sip.DialogActivity;
 import net.java.slee.resource.sip.SipActivityContextInterfaceFactory;
 
-import org.apache.log4j.Logger;
 import org.mobicents.examples.convergeddemo.seam.pojo.Order;
-//XXX
-//import org.mobicents.mscontrol.MsEndpoint;
-//import org.mobicents.mscontrol.MsLink;
-//import org.mobicents.mscontrol.MsLinkEvent;
-//import org.mobicents.mscontrol.MsNotifyEvent;
-//import org.mobicents.mscontrol.MsProvider;
-//import org.mobicents.mscontrol.events.MsEventAction;
-//import org.mobicents.mscontrol.events.MsEventFactory;
-//import org.mobicents.mscontrol.events.MsRequestedEvent;
-//import org.mobicents.mscontrol.events.MsRequestedSignal;
-//import org.mobicents.mscontrol.events.ann.MsPlayRequestedSignal;
-//import org.mobicents.mscontrol.events.dtmf.MsDtmfNotifyEvent;
-//import org.mobicents.mscontrol.events.dtmf.MsDtmfRequestedEvent;
-//import org.mobicents.mscontrol.events.pkg.DTMF;
-//import org.mobicents.mscontrol.events.pkg.MsAnnouncement;
-//import org.mobicents.slee.resource.media.ratype.MediaRaActivityContextInterfaceFactory;
-//import org.mobicents.slee.resource.tts.ratype.TTSSession;
+
 import org.mobicents.slee.service.callcontrol.CallControlSbbLocalObject;
 import org.mobicents.slee.service.common.CommonSbb;
 import org.mobicents.slee.service.events.CustomEvent;

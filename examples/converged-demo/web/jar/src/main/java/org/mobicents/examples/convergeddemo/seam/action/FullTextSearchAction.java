@@ -25,7 +25,8 @@ import org.jboss.seam.annotations.Out;
 import org.jboss.seam.annotations.datamodel.DataModel;
 import org.jboss.seam.annotations.datamodel.DataModelSelection;
 import org.jboss.seam.annotations.web.RequestParameter;
-import org.mobicents.examples.convergeddemo.seam.pojo.Product;
+import org.mobicents.examples.convergeddemo.seam.model.Product;
+
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.FullTextEntityManager;
 

@@ -10,7 +10,7 @@ import java.util.List;
 
 import javax.ejb.*;
 
-import org.mobicents.examples.convergeddemo.seam.pojo.Product;
+import org.mobicents.examples.convergeddemo.seam.model.Product;
 
 @ApplicationException(rollback=true)
 public class InsufficientQuantityException
