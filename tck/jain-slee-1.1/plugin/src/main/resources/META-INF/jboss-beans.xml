@@ -20,7 +20,7 @@
 		<property name="TCKPluginMBeanObjectName">:name=SleeTCKPlugin</property>
 		<property name="RMIRegistryPort">4099</property>
 		<property name="sleeProviderImpl">org.mobicents.slee.container.management.jmx.SleeProviderImpl</property>
-		<demand>Mobicents.JAINSLEE.SleeManagement</demand>
+		<!-- <demand>Mobicents.JAINSLEE.SleeManagement</demand>-->
 		<!-- TODO see what are the beans to demand
 		<depends>jboss:service=invoker,type=jrmp</depends>
 		<depends>jboss:service=Naming</depends>
