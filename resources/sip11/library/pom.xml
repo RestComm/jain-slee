@@ -47,7 +47,6 @@
 			<plugin>
 				<groupId>org.mobicents.tools</groupId>
 				<artifactId>maven-library-plugin</artifactId>
-				<version>${mobicents.tools.mavenplugin.library.version}</version>
 				<extensions>true</extensions>
 				<configuration>
 					<library-name>jain-sip</library-name>

@@ -1,6 +1,5 @@
 package org.mobicents.ha.javax.sip.cache;
 
-import org.mobicents.cache.MobicentsCache;
 import org.mobicents.slee.container.SleeContainer;
 
 /**
@@ -16,7 +15,7 @@ public class SipResourceAdaptorMobicentsSipCache extends MobicentsSipCache {
 	 */
 	public SipResourceAdaptorMobicentsSipCache() {
 		super();
-		cache = SleeContainer.lookupFromJndi().getCluster().getMobicentsCache();
+		cluster = SleeContainer.lookupFromJndi().getCluster();
 	}
 	
 	@Override

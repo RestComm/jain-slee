@@ -947,7 +947,7 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 				activityManagement = new LocalSipActivityManagement();
 			}
 			else {
-				activityManagement = new ClusteredSipActivityManagement(sipStack,ftRaContext.getReplicateData(),raContext.getSleeTransactionManager()); 
+				activityManagement = new ClusteredSipActivityManagement(sipStack,ftRaContext.getReplicateData(true),raContext.getSleeTransactionManager()); 
 			}
 			
 			if (tracer.isFineEnabled()) {
@@ -1452,6 +1452,20 @@ public class SipResourceAdaptor implements SipListener,FaultTolerantResourceAdap
 		return sipStack.getSipCache().inLocalMode();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#dataRemoved(java.io.Serializable)
+	 */
+	public void dataRemoved(SipActivityHandle handle) {
+		// if we get this callback ensure the handle is removed from activity management, or a leak could occurr
+		// if the handle was used locally but removed remotely
+		activityManagement.remove(handle);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptor#failOver(java.io.Serializable)
+	 */
 	public void failOver(SipActivityHandle activityHandle) {
 		// not used
 	}
