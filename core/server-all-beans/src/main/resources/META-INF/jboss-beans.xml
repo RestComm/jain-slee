@@ -59,7 +59,7 @@
 
    	<!-- cluster member failover elector -->
    	
-	<bean name="Mobicents.JAINSLEE.Cluster.DefaultElector" class="org.mobicents.cluster.election.SimpleSingletonElector" />
+	<bean name="Mobicents.JAINSLEE.Cluster.DefaultElector" class="org.mobicents.cluster.election.DefaultClusterElector" />
 	
 	<!-- cluster control -->
 	
@@ -405,10 +405,6 @@
 		</property>
 		<property name="sbbEntitiesMBean">
 			<value-factory bean="Mobicents.JAINSLEE.SbbEntitiesMBean"
-				method="getObjectName" />
-		</property>
-		<property name="rmiServerInterfaceMBean">
-			<value-factory bean="Mobicents.JAINSLEE.RmiServerInterface"
 				method="getObjectName" />
 		</property>
 		<property name="activityManagementMBean">
