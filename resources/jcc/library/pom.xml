@@ -1,0 +1,152 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<packaging>jainslee-library</packaging>
+
+	<parent>
+		<artifactId>mobicents-slee-ra-jcc</artifactId>
+		<groupId>org.mobicents.resources.jcc</groupId>
+		<version>2.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>jcc-library</artifactId>
+
+	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
+
+	<profiles>
+		<profile>
+			<id>win32</id>
+
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<!-- For some reason this does not work properly.. -->
+				<!--
+					<property> <name>platform</name> <value>win32</value> </property>
+				-->
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>javax.csapi.cc</groupId>
+					<artifactId>jcc</artifactId>
+				</dependency>
+				<!--
+					<dependency> <artifactId>jcc-native-win</artifactId>
+					<groupId>org.mobicents.resources.jcc</groupId>
+					<version>${pom.version}</version> </dependency>
+				-->
+				<!-- INAP -->
+				<dependency>
+					<artifactId>jcc-camel</artifactId>
+					<groupId>org.mobicents.resources.jcc</groupId>
+					<version>${pom.version}</version>
+				</dependency>
+
+				<!-- PROTOCOLS -->
+				<dependency>
+					<artifactId>sccp-api</artifactId>
+					<groupId>org.mobicents.protocols.ss7.sccp</groupId>
+					<version>${version.protocols}</version>
+				</dependency>
+				<dependency>
+					<artifactId>sccp-impl</artifactId>
+					<groupId>org.mobicents.protocols.ss7.sccp</groupId>
+					<version>${version.protocols}</version>
+				</dependency>
+				<dependency>
+					<artifactId>tcap-api</artifactId>
+					<groupId>org.mobicents.protocols.ss7.tcap</groupId>
+					<version>${version.protocols}</version>
+				</dependency>
+				<dependency>
+					<artifactId>tcap-impl</artifactId>
+					<groupId>org.mobicents.protocols.ss7.tcap</groupId>
+					<version>${version.protocols}</version>
+				</dependency>
+				<dependency>
+					<artifactId>sctp</artifactId>
+					<groupId>org.mobicents.protocols.ss7</groupId>
+					<version>${version.protocols}</version>
+				</dependency>
+				<dependency>
+					<artifactId>asn</artifactId>
+					<groupId>org.mobicents.protocols.asn</groupId>
+					<version>${version.protocols}</version>
+				</dependency>
+			</dependencies>
+
+		</profile>
+		<profile>
+			<id>linux</id>
+			<activation>
+				<property>
+					<name>platform</name>
+					<value>linux</value>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>javax.csapi.cc</groupId>
+					<artifactId>jcc</artifactId>
+				</dependency>
+				<dependency>
+					<artifactId>jcc-native-linux</artifactId>
+					<groupId>org.mobicents.resources.jcc</groupId>
+					<version>${pom.version}</version>
+				</dependency>
+				<dependency>
+					<artifactId>jcc-camel</artifactId>
+					<groupId>org.mobicents.resources.jcc</groupId>
+					<version>${pom.version}</version>
+				</dependency>
+			</dependencies>
+
+		</profile>
+		<profile>
+			<id>solaris</id>
+			<activation>
+				<property>
+					<name>platform</name>
+					<value>solaris</value>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>javax.csapi.cc</groupId>
+					<artifactId>jcc</artifactId>
+				</dependency>
+				<dependency>
+					<artifactId>jcc-native-solaris</artifactId>
+					<groupId>org.mobicents.resources.jcc</groupId>
+					<version>${pom.version}</version>
+				</dependency>
+				<dependency>
+					<artifactId>jcc-camel</artifactId>
+					<groupId>org.mobicents.resources.jcc</groupId>
+					<version>${pom.version}</version>
+				</dependency>
+			</dependencies>
+
+		</profile>
+	</profiles>
+
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.mobicents.tools</groupId>
+				<artifactId>maven-library-plugin</artifactId>
+				<version>${mobicents.tools.mavenplugin.library.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<library-name>jcc-provider-library</library-name>
+					<library-vendor>org.mobicents.resources.jcc</library-vendor>
+					<library-version>${pom.version}</library-version>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

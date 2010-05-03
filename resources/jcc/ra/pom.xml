@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>mobicents-slee-ra-jcc</artifactId>
+		<groupId>org.mobicents.resources.jcc</groupId>
+		<version>2.1.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>jcc-ra</artifactId>
+	<name>Mobicents :: Resources :: ${pom.artifactId}</name>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>jcc-ratype</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${pom.groupId}</groupId>
+			<artifactId>jcc-events</artifactId>
+			<version>${pom.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.slee</groupId>
+			<artifactId>jain-slee</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>concurrent</groupId>
+			<artifactId>concurrent</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.csapi.cc</groupId>
+			<artifactId>jcc</artifactId>
+			<version>1.1</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+</project>

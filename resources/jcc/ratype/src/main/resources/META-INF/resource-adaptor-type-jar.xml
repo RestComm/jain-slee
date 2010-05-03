@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE resource-adaptor-type-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor Type 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-type-jar_1_1.dtd">
+
+<resource-adaptor-type-jar>
+	<description />
+
+	<resource-adaptor-type>
+		<description>JCC 1.1 resource adaptor type</description>
+		<resource-adaptor-type-name>JCC-1.1-RA</resource-adaptor-type-name>
+		<resource-adaptor-type-vendor>javax.csapi.cc.jcc</resource-adaptor-type-vendor>
+		<resource-adaptor-type-version>1.1</resource-adaptor-type-version>
+
+		<library-ref>
+			<library-name>jcc-provider-library</library-name>
+			<library-vendor>org.mobicents.resources.jcc</library-vendor>
+			<library-version>${pom.version}</library-version>
+		</library-ref>
+
+		<resource-adaptor-type-classes>
+			<activity-type>
+				<activity-type-name>javax.csapi.cc.jcc.JccConnection</activity-type-name>
+			</activity-type>
+			<activity-type>
+				<activity-type-name>javax.csapi.cc.jcc.JccCall</activity-type-name>
+			</activity-type>
+
+			<activity-context-interface-factory-interface>
+				<activity-context-interface-factory-interface-name>
+					org.mobicents.slee.resource.jcc.ratype.JccActivityContextInterfaceFactory
+                </activity-context-interface-factory-interface-name>
+			</activity-context-interface-factory-interface>
+
+			<resource-adaptor-interface>
+				<resource-adaptor-interface-name>
+					javax.csapi.cc.jcc.JccProvider
+                </resource-adaptor-interface-name>
+			</resource-adaptor-interface>
+		</resource-adaptor-type-classes>
+
+
+		<!-- jcc connection events -->
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_CREATED</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_AUTHORIZE_CALL_ATTEMPT</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_ADDRESS_COLLECT</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_ADDRESS_ANALYZE</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_CALL_DELIVERY</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_ALERTING</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_CONNECTED</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_DISCONNECTED</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_FAILED</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccConnectionEvent.CONNECTION_MID_CALL</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+
+		<!-- jcc call events -->
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccCallEvent.CALL_CREATED</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccCallEvent.CALL_ACTIVE</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccCallEvent.CALL_INVALID</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccCallEvent.CALL_EVENT_TRANSMISSION_ENDED</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccCallEvent.CALL_SUPERVISE_START</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+		<event-type-ref>
+			<event-type-name>javax.csapi.cc.jcc.JccCallEvent.CALL_SUPERVISE_END</event-type-name>
+			<event-type-vendor>javax.csapi.cc.jcc</event-type-vendor>
+			<event-type-version>1.1</event-type-version>
+		</event-type-ref>
+	</resource-adaptor-type>
+</resource-adaptor-type-jar>
+
