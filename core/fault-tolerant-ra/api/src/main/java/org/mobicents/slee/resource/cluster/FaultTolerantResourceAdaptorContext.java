@@ -44,16 +44,18 @@ public interface FaultTolerantResourceAdaptorContext<K extends Serializable, V e
 	 * Retrieves the {@link ReplicatedData} for the
 	 * {@link FaultTolerantResourceAdaptor}
 	 * 
+	 * @param activateDataRemovedCallback
 	 * @return
 	 */
-	public ReplicatedData<K, V> getReplicateData();
+	public ReplicatedData<K, V> getReplicateData(boolean activateDataRemovedCallback);
 
 	/**
 	 * Retrieves the {@link ReplicatedDataWithFailover} for the
 	 * {@link FaultTolerantResourceAdaptor}
 	 * 
+	 * @param activateDataRemovedCallback
 	 * @return
 	 */
-	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover();
+	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover(boolean activateDataRemovedCallback);
 
 }

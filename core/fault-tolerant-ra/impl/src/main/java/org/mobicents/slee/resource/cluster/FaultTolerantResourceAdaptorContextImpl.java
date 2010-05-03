@@ -41,24 +41,26 @@ public class FaultTolerantResourceAdaptorContextImpl<K extends Serializable, V e
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicatedDataWithFailover()
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicatedDataWithFailover(boolean)
 	 */
-	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover() {
+	public ReplicatedDataWithFailover<K, V> getReplicatedDataWithFailover(
+			boolean activateDataRemovedCallback) {
 		if (replicatedDataWithFailover == null) {
 			replicatedDataWithFailover = new ReplicatedDataWithFailoverImpl<K, V>(
-					REPLICATED_DATA_WITH_FAILOVER_NAME, raEntity, cluster, ra);
+					REPLICATED_DATA_WITH_FAILOVER_NAME, raEntity, cluster, ra, activateDataRemovedCallback);
 		}
 		return replicatedDataWithFailover;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicateData()
+	 * @see org.mobicents.slee.resource.cluster.FaultTolerantResourceAdaptorContext#getReplicateData(boolean)
 	 */
-	public ReplicatedData<K, V> getReplicateData() {
+	public ReplicatedData<K, V> getReplicateData(
+			boolean activateDataRemovedCallback) {
 		if (replicatedData == null) {
 			replicatedData = new ReplicatedDataImpl<K, V>(REPLICATED_DATA_NAME,
-					raEntity, cluster);
+					raEntity, cluster, ra, activateDataRemovedCallback);
 		}
 		return replicatedData;
 	}

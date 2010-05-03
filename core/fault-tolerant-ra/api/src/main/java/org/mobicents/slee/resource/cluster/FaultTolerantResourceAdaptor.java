@@ -26,6 +26,14 @@ public interface FaultTolerantResourceAdaptor<K extends Serializable, V extends 
 	public void failOver(K key);
 
 	/**
+	 * Optional callback from SLEE when the replicated data key was removed from the
+	 * cluster, this may be helpful when the local RA maintains local state.
+	 * 
+	 * @param key
+	 */
+	public void dataRemoved(K key);
+	
+	/**
 	 * Invoked by SLEE to provide the fault tolerant context.
 	 * 
 	 * @param context

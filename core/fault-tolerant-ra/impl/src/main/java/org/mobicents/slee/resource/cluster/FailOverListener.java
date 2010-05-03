@@ -8,13 +8,14 @@ import java.io.Serializable;
 import org.jboss.cache.Fqn;
 import org.jgroups.Address;
 import org.mobicents.cluster.cache.ClusteredCacheData;
+import org.mobicents.cluster.election.ClientLocalListenerElector;
 
 /**
  * @author martins
  * 
  */
-public class ClientLocalListener<K extends Serializable, V extends Serializable>
-		implements org.mobicents.cluster.ClientLocalListener {
+public class FailOverListener<K extends Serializable, V extends Serializable>
+		implements org.mobicents.cluster.FailOverListener {
 
 	private final FaultTolerantResourceAdaptor<K, V> ra;
 	private final ReplicatedDataCacheData<K, V> baseCacheData;
@@ -23,7 +24,7 @@ public class ClientLocalListener<K extends Serializable, V extends Serializable>
 	 * @param ra
 	 * @param baseFqn
 	 */
-	public ClientLocalListener(FaultTolerantResourceAdaptor<K, V> ra,
+	public FailOverListener(FaultTolerantResourceAdaptor<K, V> ra,
 			ReplicatedDataCacheData<K, V> baseCacheData) {
 		this.ra = ra;
 		this.baseCacheData = baseCacheData;
@@ -50,6 +51,14 @@ public class ClientLocalListener<K extends Serializable, V extends Serializable>
 		return baseCacheData.getNodeFqn();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.mobicents.cluster.FailOverListener#getElector()
+	 */
+	public ClientLocalListenerElector getElector() {
+		return null;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -81,5 +90,4 @@ public class ClientLocalListener<K extends Serializable, V extends Serializable>
 	public void wonOwnership(ClusteredCacheData clusteredCacheData) {
 		ra.failOver((K) clusteredCacheData.getNodeFqn().getLastElement());
 	}
-
 }

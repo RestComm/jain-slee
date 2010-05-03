@@ -27,17 +27,30 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 * 
 	 */
 	private final ReplicatedDataCacheData<K, V> cacheData;
-
+	
+	/**
+	 * 
+	 */
+	private final DataRemovalListener<K, V> dataRemovalListener;
+	
 	/**
 	 * @param cacheData
 	 * @param raEntity
 	 */
 	public ReplicatedDataImpl(String name, String raEntity,
-			MobicentsCluster cluster) {
+			MobicentsCluster cluster, FaultTolerantResourceAdaptor<K, V> ra,
+			boolean activateDataRemovedCallback) {
 		cacheData = new ReplicatedDataCacheData<K, V>(name, raEntity,
 				cluster);
 		cacheData.create();
 		this.cluster = cluster;
+		if (activateDataRemovedCallback) {
+			this.dataRemovalListener = new DataRemovalListener<K, V>(ra, getCacheData());
+			cluster.addDataRemovalListener(dataRemovalListener);
+		}
+		else {
+			dataRemovalListener = null;
+		}
 	}
 
 	/**
@@ -60,6 +73,9 @@ public class ReplicatedDataImpl<K extends Serializable, V extends Serializable>
 	 * Removes all replicated data
 	 */
 	public void remove() {
+		if (dataRemovalListener != null) {
+			cluster.removeDataRemovalListener(dataRemovalListener);
+		}
 		cacheData.remove();
 	}
 

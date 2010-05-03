@@ -18,7 +18,7 @@ public class ReplicatedDataWithFailoverImpl<K extends Serializable, V extends Se
 	/**
 	 * 
 	 */
-	private final ClientLocalListener<K, V> clientLocalListener;
+	private final FailOverListener<K, V> clientLocalListener;
 
 	/**
 	 * @param name
@@ -26,10 +26,10 @@ public class ReplicatedDataWithFailoverImpl<K extends Serializable, V extends Se
 	 * @param cluster
 	 */
 	public ReplicatedDataWithFailoverImpl(String name, String raEntity,
-			MobicentsCluster cluster, FaultTolerantResourceAdaptor<K, V> ra) {
-		super(name, raEntity, cluster);
-		clientLocalListener = new ClientLocalListener<K, V>(ra, getCacheData());
-		cluster.addLocalListener(clientLocalListener);
+			MobicentsCluster cluster, FaultTolerantResourceAdaptor<K, V> ra,boolean activateDataRemovedCallback) {
+		super(name, raEntity, cluster, ra, activateDataRemovedCallback);
+		clientLocalListener = new FailOverListener<K, V>(ra, getCacheData());
+		cluster.addFailOverListener(clientLocalListener);
 	}
 
 	/*
@@ -38,7 +38,7 @@ public class ReplicatedDataWithFailoverImpl<K extends Serializable, V extends Se
 	 */
 	@Override
 	public void remove() {
-		getCluster().removeLocalListener(clientLocalListener);
+		getCluster().removeFailOverListener(clientLocalListener);
 		super.remove();
 	}
 }
