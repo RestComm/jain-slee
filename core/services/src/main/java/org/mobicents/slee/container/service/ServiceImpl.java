@@ -6,7 +6,6 @@ import javax.slee.SbbID;
 import javax.slee.ServiceID;
 import javax.slee.management.ServiceState;
 import javax.slee.resource.ActivityFlags;
-import javax.transaction.SystemException;
 
 import org.apache.log4j.Logger;
 import org.mobicents.slee.container.SleeContainer;
@@ -38,6 +37,8 @@ public class ServiceImpl implements Service {
 	
 	private final ServiceCacheData cacheData;
 	
+	private final boolean doDebugLogs = logger.isDebugEnabled();
+	
 	/**
 	 * The Public constructor. This is used to create a runtime representation
 	 * of the service.
@@ -51,11 +52,6 @@ public class ServiceImpl implements Service {
 		
 		if (serviceComponent == null)
 			throw new NullPointerException("null descriptor or container");
-		
-		if (logger.isDebugEnabled()) {
-			logger.debug("Service.Service(): creating service "
-					+ serviceComponent);
-		}
 
 		this.serviceComponent = serviceComponent;
 		this.cacheData = new ServiceCacheData(serviceComponent.getServiceID(),sleeContainer.getCluster().getMobicentsCache());
@@ -99,22 +95,8 @@ public class ServiceImpl implements Service {
 	 * @param serviceState
 	 */
 	public void setState(final ServiceState serviceState) {
-		if (logger.isDebugEnabled()) {
-			try {
-				ServiceState oldServiceState = cacheData.getState();
-				logger
-						.debug("ServiceComponent.setState(): State service ID =  "
-								+ getServiceID()
-								+ " current State = "
-								+ oldServiceState
-								+ " new State = "
-								+ serviceState
-								+ " TX ID: "
-								+ sleeContainer.getTransactionManager()
-										.getTransaction());				
-			} catch (SystemException e) {
-				logger.error("error in debugging setState(): ", e);
-			}
+		if (doDebugLogs) {
+			logger.debug("Changing "+getServiceID()+" state to "+serviceState);
 		}
 		cacheData.setState(serviceState);				
 	}
@@ -161,7 +143,7 @@ public class ServiceImpl implements Service {
 	 */
 	public SbbEntity addChild(String convergenceName) {
 
-		if (logger.isDebugEnabled()) {
+		if (doDebugLogs) {
 			logger.debug(getServiceID().toString() + " adding convergence name "+convergenceName);
 		}
 
@@ -187,7 +169,7 @@ public class ServiceImpl implements Service {
 	}
 
 	public void removeConvergenceName(String convergenceName) {
-		if (logger.isDebugEnabled()) {
+		if (doDebugLogs) {
 			logger.debug(getServiceID().toString() + " removing convergence name "+convergenceName);
 		}
 		cacheData.removeChild(convergenceName);
@@ -214,10 +196,9 @@ public class ServiceImpl implements Service {
 		ActivityContextHandle ach = new ServiceActivityContextHandle(new ServiceActivityHandleImpl(serviceComponent.getServiceID()));
 		ActivityContext ac = sleeContainer.getActivityContextFactory().createActivityContext(ach,ActivityFlags.NO_FLAGS);
 		
-		if (logger.isDebugEnabled()) {
+		if (doDebugLogs) {
 			logger
-					.debug("starting service activity for "
-							+ serviceComponent);
+					.debug("Starting "+getServiceID()+" activity.");
 		}
 		
 		// fire slee 1.0 and 1.1 service started events
@@ -254,8 +235,9 @@ public class ServiceImpl implements Service {
 	public void endActivity() {
 
 		ActivityContextHandle ach = new ServiceActivityContextHandle(new ServiceActivityHandleImpl(serviceComponent.getServiceID()));
-		if (logger.isDebugEnabled()) {
-			logger.debug("ending service activity "+ach);
+		if (doDebugLogs) {
+			logger
+					.debug("Ending "+getServiceID()+" activity.");
 		}
 		ActivityContext ac = sleeContainer.getActivityContextFactory().getActivityContext(ach);
 		if (ac != null) {
