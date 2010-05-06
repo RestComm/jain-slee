@@ -184,8 +184,8 @@ public class EventContextImpl extends LazyStoredEventContext implements EventCon
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EventContext[ data = ").append(
-				data).append(" ]").toString();
+		return new StringBuilder("EventContext[").append(
+				data).append(']').toString();
 	}
 	
 	/* (non-Javadoc)
