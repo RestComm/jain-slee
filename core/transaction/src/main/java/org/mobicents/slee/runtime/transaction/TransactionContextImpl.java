@@ -73,14 +73,7 @@ public class TransactionContextImpl implements TransactionContext {
 	/**
 	 * indicates if the tx context should do traces or not
 	 */
-	private boolean trace;
-	
-	/**
-	 * 
-	 */
-	public TransactionContextImpl() {
-		trace = logger.isTraceEnabled();
-	}
+	private final static boolean trace = logger.isTraceEnabled();
 	
 	/**
 	 * Retrieves the list of actions which should be executed after commit succeeds 

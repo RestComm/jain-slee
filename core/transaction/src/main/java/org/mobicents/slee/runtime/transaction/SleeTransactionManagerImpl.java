@@ -51,13 +51,14 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	 */
 	private ExecutorService executorService;
 	
+	private static final boolean doTraceLogs = logger.isTraceEnabled();
+	
 	/**
 	 * 
 	 * @param transactionManager
 	 */
 	public SleeTransactionManagerImpl(TransactionManager transactionManager) {		
 		this.transactionManager = transactionManager;
-		logger.info("SLEE Transaction Manager created.");
 	}
 
 	/**
@@ -91,6 +92,7 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	 * @see org.mobicents.slee.runtime.transaction.SleeTransactionManager#mandateTransaction()
 	 */
 	public void mandateTransaction() throws TransactionRequiredLocalException {
+		
 		try {
 			final Transaction tx = getTransaction();
 			if (tx == null)
@@ -160,6 +162,11 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	 */
 	public void asyncCommit(CommitListener commitListener) throws IllegalStateException,
 			SecurityException {
+		
+		if (doTraceLogs) {
+			logger.trace("asyncCommit( commitListener = "+commitListener+" )");
+		}
+		
 		try {
 			final SleeTransaction sleeTransaction = getSleeTransaction();
 			if (sleeTransaction == null) {
@@ -181,6 +188,11 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	 */
 	public void asyncRollback(RollbackListener rollbackListener)
 			throws IllegalStateException, SecurityException {
+		
+		if (doTraceLogs) {
+			logger.trace("asyncRollback( rollbackListener = "+rollbackListener+" )");
+		}
+		
 		try {
 			final SleeTransaction sleeTransaction = getSleeTransaction();
 			if (sleeTransaction == null) {
@@ -297,8 +309,8 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	public void commit() throws RollbackException, HeuristicMixedException,
 			HeuristicRollbackException, SecurityException,
 			IllegalStateException, SystemException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Starting commit of tx "+transactionManager.getTransaction());
+		if (doTraceLogs) {
+			logger.trace("Starting commit of tx "+transactionManager.getTransaction());
 		}	
 		transactionManager.commit();		
 	}
@@ -319,8 +331,8 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 			IllegalStateException, SystemException {
 		if (transaction.getClass() == SleeTransactionImpl.class) {
 			final SleeTransactionImpl sleeTransactionImpl = (SleeTransactionImpl) transaction;
-			if (logger.isDebugEnabled()) {
-				logger.debug("Resuming tx "+sleeTransactionImpl.getWrappedTransaction());
+			if (doTraceLogs) {
+				logger.trace("Resuming tx "+sleeTransactionImpl.getWrappedTransaction());
 			}
 			// resume wrapped tx
 			transactionManager.resume(sleeTransactionImpl.getWrappedTransaction());
@@ -338,8 +350,8 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	 */
 	public void rollback() throws IllegalStateException, SecurityException,
 			SystemException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Starting rollback of tx "+transactionManager.getTransaction());
+		if (doTraceLogs) {
+			logger.trace("Starting rollback of tx "+transactionManager.getTransaction());
 		}				
 		transactionManager.rollback();			
 	}
@@ -369,8 +381,8 @@ public class SleeTransactionManagerImpl extends AbstractSleeContainerModule impl
 	 * @see javax.transaction.TransactionManager#suspend()
 	 */
 	public Transaction suspend() throws SystemException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Suspending tx "+transactionManager.getTransaction());
+		if (doTraceLogs) {
+			logger.trace("Suspending tx "+transactionManager.getTransaction());
 		}
 		final Transaction tx = getAsSleeTransaction(transactionManager.suspend(),false);
 		if (tx != null) {
